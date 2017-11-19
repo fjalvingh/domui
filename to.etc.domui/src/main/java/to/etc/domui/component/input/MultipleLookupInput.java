@@ -79,7 +79,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		}
 
 		@Override
-		void handleSetValue(@Nullable T value) throws Exception {
+		protected void handleSetValue(@Nullable T value) throws Exception {
 			if(!isPopupShown()) {
 				/*
 				 * if set from lookup input - business as usual...

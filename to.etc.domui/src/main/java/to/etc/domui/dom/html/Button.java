@@ -58,6 +58,11 @@ public class Button extends NodeContainer implements IActionControl, IForTarget 
 		v.visitButton(this);
 	}
 
+	@Nonnull @Override public Button css(@Nonnull String... classNames) {
+		super.css(classNames);
+		return this;
+	}
+
 	/**
 	 * Do not call click handler when the button is disabled. This prevents a malicious user from clicking a disabled
 	 * button and still having an effect.

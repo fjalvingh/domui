@@ -8,6 +8,7 @@ import to.etc.domuidemo.pages.test.binding.conversion.BindingConversionTestForm;
 import to.etc.domuidemo.pages.test.binding.order1.BindingTypeForm1;
 import to.etc.domuidemo.pages.test.binding.order1.DoNotBindControlDottedTestPage;
 import to.etc.domuidemo.pages.test.binding.order1.TestBindingOrder1;
+import to.etc.domuidemo.pages.overview.allcomponents.AllComponents1Page;
 import to.etc.domuidemo.pages.test.componenterrors.Form4LayoutTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.HtmlEditorTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupForm1TestPage;
@@ -41,6 +42,7 @@ public class JUnitTestMenuPage extends MenuPage {
 		addLink(DoNotBindControlDottedTestPage.class, "Binding a generic control's value as a dotted path (value.id) should throw an exception");
 
 		addCaption("forms and components");
+		addLink(AllComponents1Page.class, "All components look overview page");
 		addLink(Form4LayoutTestPage.class, "Form4 vertical form builder layout");
 		addLink(Text2LayoutTestPage.class, "Text2 layout");
 		addLink(LookupForm1TestPage.class, "LookupForm tests: clearInput with LookupInput mandatory control");

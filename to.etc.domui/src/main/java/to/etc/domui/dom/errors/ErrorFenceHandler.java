@@ -24,12 +24,15 @@
  */
 package to.etc.domui.dom.errors;
 
-import java.util.*;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * When controls or business logic encounters errors that need to be
@@ -105,6 +108,13 @@ public class ErrorFenceHandler implements IErrorFence {
 		if(m_errorListeners.size() == 0) {
 			//-- No default listeners: this means errors will not be visible. Ask the application to add an error handling component.
 			DomApplication.get().addDefaultErrorComponent(getContainer()); // Ask the application to add,
+
+			//-- jal 20171115 If that component set a new fence then delegate to there.
+			IErrorFence fence = DomUtil.getMessageFence(getContainer());
+			if(fence != this) {
+				fence.addMessage(uim);
+				return;
+			}
 		}
 		for(IErrorMessageListener eml : m_errorListeners) {
 			try {

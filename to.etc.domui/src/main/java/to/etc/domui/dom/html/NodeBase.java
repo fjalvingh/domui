@@ -2197,4 +2197,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			}
 		}
 	}
+
+	/**
+	 * Add the specified css class(es).
+	 */
+	@Nonnull
+	public NodeBase css(@Nonnull String ...classNames) {
+		for(String cn : classNames) {
+			addCssClass(cn);
+		}
+		return this;
+	}
 }

@@ -109,8 +109,8 @@ public class Text2LayoutTestPage extends UrlPage {
 		fb.label("integer").property(this, "t22").control();
 
 		Text2<String> t23 = fb.label("string").property(this, "t23").control(Text2.class);
-		t23.addButton(FaIcon.faFile, a -> {});
-		t23.addButton(Theme.BTN_EDIT, a -> {});
+		t23.addButton(FaIcon.faFile, a -> {}).css("is-primary");
+		t23.addButton(Theme.BTN_EDIT, a -> {}).css("is-link");
 
 		fb.label("bigdecimal empty").property(this, "t30").control();
 		fb.label("bigdecimal 123.45").property(this, "t31").control();

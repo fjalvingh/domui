@@ -24,11 +24,11 @@
  */
 package to.etc.domui.component2.lookupinput;
 
-import to.etc.domui.component.input.TextStr;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IReturnPressed;
 import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.server.IRequestContext;
 
@@ -45,7 +45,7 @@ import javax.annotation.Nullable;
  */
 public class SearchInput2 extends Div implements IForTarget {
 	@Nonnull
-	final private TextStr m_keySearch = new TextStr();
+	final private Input m_keySearch = new Input();
 
 	@Nullable
 	private IValueChanged<SearchInput2> m_onLookupTyping;
@@ -62,14 +62,13 @@ public class SearchInput2 extends Div implements IForTarget {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-srip");
-
+		addCssClass("ui-srip");
 		if(m_keySearch.getCssClass() == null) {
 			m_keySearch.setCssClass("ui-srip-keyword");
 		}
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
-		m_keySearch.setMarker();
+		//m_keySearch.setMarker();
 
 		add(m_keySearch);
 
@@ -87,7 +86,7 @@ public class SearchInput2 extends Div implements IForTarget {
 
 	@Nullable
 	public String getValue() {
-		return m_keySearch.getValue();
+		return m_keySearch.getRawValue();
 	}
 
 	@Override

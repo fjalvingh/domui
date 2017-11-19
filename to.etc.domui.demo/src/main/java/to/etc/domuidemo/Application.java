@@ -18,6 +18,7 @@ import to.etc.domuidemo.components.*;
 import to.etc.domuidemo.pages.*;
 import to.etc.domuidemo.sourceviewer.*;
 import to.etc.formbuilder.pages.*;
+import to.etc.webapp.query.QContextManager;
 
 import javax.annotation.*;
 import javax.servlet.*;
@@ -53,7 +54,7 @@ public class Application extends DomApplication {
 		//}
 
 		//-- Append the default style sheet.
-		addHeaderContributor(HeaderContributor.loadStylesheet("css/style.css"), 1000); // Add default stylesheet for the app
+		addHeaderContributor(HeaderContributor.loadStylesheet("css/demostyle.scss"), 1000);	// Add default stylesheet for the app
 		addHeaderContributor(HeaderContributor.loadStylesheet("css/font-awesome.min.css"), 10);
 		addHeaderContributor(new FaviconContributor("img/favicon.ico"), 10);
 
@@ -115,7 +116,7 @@ public class Application extends DomApplication {
 	}
 
 	@Override public void addDefaultErrorComponent(NodeContainer page) {
-		ErrorPanel panel = new ErrorPanel();
+		NodeContainer panel = new ErrorMessageDiv(page, true);
 		for(int i = 0; i < page.getChildCount(); i++) {
 			NodeBase child = page.getChild(i);
 			if(child instanceof PageHeader) {
@@ -168,7 +169,14 @@ public class Application extends DomApplication {
 	 * @throws Exception
 	 */
 	private void initDatabase() throws Exception {
-		TestDB.initialize();
+		File appFile = getAppFile(".").getAbsoluteFile();
+		String context = appFile.getParentFile().getName();
+		File dbPath = new File("/tmp/" + context + "DB");
+
+		DbUtil.initialize(TestDB.getDataSource(dbPath.toString()));
+
+		//-- Tell the generic layer how to create default DataContext's.
+		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source
 	}
 
 	static public void main(String[] args) {

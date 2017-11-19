@@ -2,7 +2,11 @@
 
 //-- Everything uses border-box model
 html {
+	font-family: $font-family;
+	font-size: $font-size;
 	box-sizing: border-box;
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
 }
 *, *:after, *:before {
 	box-sizing: inherit;
@@ -30,23 +34,19 @@ button {
 	vertical-align: bottom;
 }
 
-@mixin ui-beveled-border {
-	border: 1px solid $bevel_down;
-	border-top-color: $bevel_up;
-}
-
-input, textarea, select {
-	@include ui-beveled-border;
-	margin: 0 2px 2px 0;
-	padding: 0 2px 0 2px;
-	font-size: $font-size;
-	font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
-
-	-moz-border-radius: 2px;
-	border-radius: 2px;
-	-webkit-border-radius: 2px;
-/*	line-height: 17px; 20170911 removed because it makes it impossible to align baselines. jal 20150121 Experimental: Ie 10 (what else) does not render descenders of letters in input box. */
-}
+// jal removed: should only be styled INSIDE controls by classes. Most moved to _text.scss.
+//input, textarea, select {
+//	@extend .ui-beveled-border;
+//	margin: 0 2px 2px 0;
+//	padding: 0 2px 0 2px;
+//	font-size: $font-size;
+//	font-family: $font-family;				// 20170913 Needed because this is unset in the browser??
+//
+//	-moz-border-radius: 2px;
+//	border-radius: 2px;
+//	-webkit-border-radius: 2px;
+///*	line-height: 17px; 20170911 removed because it makes it impossible to align baselines. jal 20150121 Experimental: Ie 10 (what else) does not render descenders of letters in input box. */
+//}
 
 textarea {
 	line-height: normal;
@@ -63,31 +63,31 @@ input[type=checkbox] {
 	padding-top: 2px;
 }
 
-input[type=file] {
-	padding: 0px !important;
-	cursor: pointer;
-}
-
-input[type=file]::-ms-value {
-	@include ui-beveled-border;
-	padding: 0;
-}
-
-input[type=file]::-ms-browse {
-	border: 0;
-}
-
-input[type=file]::-webkit-file-upload-button {
-	cursor: pointer;
-}
+//input[type=file] {
+//	padding: 0px !important;
+//	cursor: pointer;
+//}
+//
+//input[type=file]::-ms-value {
+//	@include ui-beveled-border;
+//	padding: 0;
+//}
+//
+//input[type=file]::-ms-browse {
+//	border: 0;
+//}
+//
+//input[type=file]::-webkit-file-upload-button {
+//	cursor: pointer;
+//}
 
 //input[type="text"], input[type="password"] { 20170911 Messes up baseline alignment between form label and form input
 //	height: 16px;
 //}
 
-input:hover, textarea:hover, select:hover {
-	border-color: $bevel_hover_up $bevel_hover_down $bevel_hover_down $bevel_hover_up;
-}
+//input:hover, textarea:hover, select:hover {
+//	border-color: $bevel_hover_up $bevel_hover_down $bevel_hover_down $bevel_hover_up;
+//}
 
 select {
 	background-color: #FFFFFF;

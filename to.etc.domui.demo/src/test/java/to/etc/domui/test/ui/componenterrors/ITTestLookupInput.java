@@ -1,6 +1,7 @@
 package to.etc.domui.test.ui.componenterrors;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -72,6 +73,7 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testInitialLayout() throws Exception {
 		wd().openScreen(LookupInputTestPage.class);

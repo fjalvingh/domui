@@ -1,0 +1,109 @@
+.d-sbc {
+	background-color: #24292e;
+	color: rgba(255,255,255,0.75);
+	padding: 4px 8px 4px 8px;
+	height: 58px;
+}
+
+.d-sbc-crumb {
+	position: absolute;
+	top: 16px;
+	left: 200px;
+	height: 20px;
+	right: 0px;
+
+	font-size: 16px;
+}
+
+.d-sbc-logo {
+	position: absolute;
+	top: 4px;
+	left: 10px;
+	height: 40px;
+	width: 190px;
+}
+.d-sbc-l {
+	text-decoration: none;
+	color: #E16600;
+}
+
+.d-expl {
+	font-family: 'Lato', Arial, Helvetica, sans-serif;
+	font-size: 14px;
+	padding-bottom: 8px;
+}
+
+.d-git-commits {
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	bottom: 0px;
+	height: 14px;
+	font-size: 9px;
+	font-family: "Arial", "Helvetica", Sans-Serif;
+	text-align: right;
+}
+
+.d-git-lbl, .d-git-val {
+	font-size: 9px;
+}
+
+.home-page .ui-cptn {
+	margin-top: 10px;
+}
+.dm-content-links {
+	margin: 0px 20px;
+}
+
+.dm-expl-panel {
+	width: 500px;
+	margin: 20px;
+}
+
+.dm-src-icon {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background: url(../img/java-icon.png) no-repeat;
+}
+
+.dm-expl {
+	/*background: #aaaaaa;*/
+}
+
+.dm-centerpnl {
+	width: 980px;
+	height: auto;
+	padding: 20px;
+	margin: 0 auto;
+}
+
+/*** Wiki page data ***/
+.ui-wiki {
+	position: absolute;
+	width: 550px;
+	top: 0px;
+	bottom: 0px;
+	right: 0px;
+	border-left: 2px dotted gray;
+}
+
+.ui-demo-content {
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	left: 0px;
+	right: 550px;
+	padding: 5px;
+}
+
+
+/*** Tree2 demo page ***/
+.dm-tree2-icon {
+	color: #d18100;
+	height: 100%;
+	float: left;
+	padding-right: 5px;
+	font-size: larger;
+	/*width: 35px;*/
+}

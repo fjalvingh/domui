@@ -234,8 +234,10 @@ public class HtmlEditor extends TextArea {
 	private void handleError() {
 		UIMessage message = getMessage();
 		if(null == message) {
+			//removeCssClass("ui-input-err");
 			appendJavascript("$('#" + getActualID() + "-wysiwyg-iframe').removeClass('ui-input-err');");
 		} else {
+			//addCssClass("ui-input-err");
 			appendJavascript("$('#" + getActualID() + "-wysiwyg-iframe').addClass('ui-input-err');");
 		}
 	}

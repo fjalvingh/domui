@@ -1,10 +1,19 @@
 //@import url('https://fonts.googleapis.com/css?family=Fira+Mono|Josefin+Sans:400,400i,600,600i&subset=latin-ext');
 
-@IMPORT url("calendar-theme.css");
+@import "calendar-theme.css";
 
+//-- Variable and mixing common imports
 @import 'color';
 @import 'variables';
+@import "functions";
+@import "derived-variables";
 @import 'parameters';
+
+@import "bulmaish/_core_defs";
+@import "bulmaish/animations";
+@import "bulmaish/button_common";
+@import "bulmaish/icon";
+@import "bulmaish/_has_addons";
 
 @import 'reset';
 @import 'core';
@@ -23,12 +32,14 @@
 @import "numeric";
 
 /** Basic components **/
+@import "text";
 @import "text2";
 @import "linkButton";
 @import "alink";
 @import "imagebutton";
 @import "defaultbutton";
 @import "hoverbutton";
+@import "input/fileupload2";
 @import "smallimgbutton";
 @import "smallhoverbutton";
 @import "percentageprogress";

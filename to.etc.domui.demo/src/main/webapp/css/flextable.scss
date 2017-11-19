@@ -1,0 +1,17 @@
+.flex-table {
+	display: flex;
+	justify-content: flex-start;
+	flex-wrap: wrap;
+}
+
+.flex-table-header {
+	width: 100%;
+	flex-grow: 2;
+	min-width: 200px;
+}
+.flex-table-column {
+	flex: 1;
+	min-width: 200px;
+	padding: 5px 10px;
+	flex-basis: auto;				// Determine size based on content
+}

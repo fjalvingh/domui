@@ -1,7 +1,7 @@
 /*** LookupInput ***/
 @import "variables";
 
-$lui-min-width: 160px;
+$lui-min-width: 14em;
 
 .ui-lui {
 	/* background: #ffffff; */
@@ -125,6 +125,7 @@ div.ui-lui-selected-ro td {
 /** Keyword part: the input when there is no selection **/
 input.ui-lui-keyword, input.ui-srip-keyword {
 	//display: block;
+	@include ui-input-base;
 	min-width: $lui-min-width;
 	border-radius: 0;					// Make this square, as the icons have difficulty being rounded.
 }

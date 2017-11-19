@@ -139,7 +139,7 @@ public class DefaultLoginHandler implements ILoginHandler {
 			}
 			if(ll != null) {
 				if(ll.getFailCount() >= m_maxFailLogins) {
-					Thread.sleep(4000);
+					//Thread.sleep(4000);				// Don't: this can allow a DDOS attack.
 					return LoginResult.IGNORED;
 				}
 			}

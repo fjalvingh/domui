@@ -3,7 +3,7 @@ package to.etc.domui.util.importers;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.component.misc.FaIcon;
-import to.etc.domui.component.upload.FileUpload;
+import to.etc.domui.component.upload.FileUpload2;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.util.asyncdialog.AsyncDialog;
 import to.etc.domui.util.upload.UploadItem;
@@ -14,7 +14,7 @@ import to.etc.function.ConsumerEx;
  * Created on 27-10-17.
  */
 public class AbstractImportPage extends UrlPage {
-	private FileUpload m_upload;
+	private FileUpload2 m_upload;
 
 	private ButtonBar m_buttonBar;
 
@@ -43,7 +43,7 @@ public class AbstractImportPage extends UrlPage {
 	}
 
 	public boolean isUploadDisabled() {
-		return m_upload == null || m_upload.getFiles().size() == 0;
+		return m_upload == null || m_upload.getValue() == null;
 	}
 
 	protected ButtonBar getButtonBar() {
@@ -55,8 +55,8 @@ public class AbstractImportPage extends UrlPage {
 		return buttonBar;
 	}
 
-	protected FileUpload createUpload() {
-		FileUpload fu = m_upload = new FileUpload("xls", "xlsx");
+	protected FileUpload2 createUpload() {
+		FileUpload2 fu = m_upload = new FileUpload2("xls", "xlsx");
 		return fu;
 	}
 }

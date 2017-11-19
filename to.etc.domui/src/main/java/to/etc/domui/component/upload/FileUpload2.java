@@ -24,24 +24,39 @@
  */
 package to.etc.domui.component.upload;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.upload.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.MessageFlare;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.FileInput;
+import to.etc.domui.dom.html.Form;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.parts.ComponentPartRenderer;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.domui.util.upload.FileUploadException;
+import to.etc.domui.util.upload.UploadItem;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Represents a file upload thingy which handles ajaxy uploads. The basic model
- * is as follows:
+ * Represents a file upload thingy which handles ajaxy uploads. This version only allows single file uploads.
+ *
+ * The basic model is as follows:
  * <ul>
  *	<li>FileUpload components use a hidden iframe to handle the actual uploading in the background.</li>
  *	<li>The background upload gets started as soon as a selection is made.</li>
@@ -56,15 +71,14 @@ import java.util.stream.Collectors;
  * the file to the server using an AJAX/IFrame upload. This upload will be received by the Upload part
  * which will attach the file to the control doing the upload.
  * When the upload is complete the input type="file" thing gets replaced by a "file reference" containing
- * the input filename and a delete button. If the input thingy allows for multiple files to be uploaded
- * another input type="file" gets added above that.
+ * the input filename and a delete button.
  * </p>
  * <h3>Important info regarding IE use of iframe: http://p2p.wrox.com/topic.asp?whichpage=1&TOPIC_ID=62981&#153594</h3>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Oct 13, 2008
+ * Created on Nov 14, 2017
  */
-public class FileUpload extends Div implements IUploadAcceptingComponent, IControl<UploadItem> /* implements IHasChangeListener */ {
+public class FileUpload2 extends Div implements IUploadAcceptingComponent, IControl<UploadItem> /* implements IHasChangeListener */ {
 	@Nonnull
 	private List<String> m_allowedExtensions;
 
@@ -72,9 +86,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 
 	private boolean m_mandatory;
 
-	private int m_maxFiles = 1;
-
-	List<UploadItem> m_files = new ArrayList<UploadItem>();
+	private UploadItem m_value;
 
 	private FileInput m_input;
 
@@ -84,27 +96,138 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 
 	private boolean m_readOnly;
 
-	public FileUpload() {
+	@Nullable
+	private String m_buttonText = Msgs.BUNDLE.getString(Msgs.UI_UPLOAD_TEXT);
+
+	@Nullable
+	private String m_clearButtonText;
+
+	@Nullable
+	private String m_buttonIcon;
+
+	@Nullable
+	private String m_clearButtonIcon = FaIcon.faWindowClose;
+
+	public FileUpload2() {
 		m_allowedExtensions = new ArrayList<>();
 	}
 
 	/**
 	 * Create an upload item that accepts a max #of files and a set of extensions.
 	 */
-	public FileUpload(int maxfiles, @Nonnull List<String> allowedExtensions) {
-		m_maxFiles = maxfiles;
+	public FileUpload2(@Nonnull List<String> allowedExtensions) {
 		m_allowedExtensions = allowedExtensions;
 	}
 
-	public FileUpload(String...allowedExt) {
-		m_maxFiles = 1;
+	public FileUpload2(String...allowedExt) {
 		m_allowedExtensions = Arrays.asList(allowedExt);
 	}
 
+	/**
+	 * Renders the presentation: either uploaded or selectable depending on whether a value is present.
+	 */
 	@Override
 	public void createContent() throws Exception {
-		renderSelectedFiles();
+		addCssClass("ui-fup2 ctl-has-addons");
+		UploadItem value = m_value;
+		if(null == value)
+			renderEmpty();
+		else
+			renderSelected(value);
 	}
+
+	private void renderSelected(@Nonnull UploadItem value) {
+		Div valueD = new Div("ui-fup2-value ui-input");
+		add(valueD);
+
+		//-- render the selected file as a name
+		valueD.add(value.getRemoteFileName());
+		String clearButtonIcon = m_clearButtonIcon;
+		if(clearButtonIcon != null) {
+			add(new DefaultButton("", clearButtonIcon, b -> clear()));
+		} else {
+			add(new DefaultButton(m_clearButtonText, b -> clear()));
+		}
+	}
+
+	private void renderEmpty() {
+		if(true) {
+			Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
+			add(valueD);
+
+			Div buttonDiv = new Div("ui-fup2-button ui-button ui-control ui-input");
+			add(buttonDiv);
+
+			Form f = new Form();
+			buttonDiv.add(f);
+			f.setCssClass("ui-szless");
+			f.setEnctype("multipart/form-data");
+			f.setMethod("POST");
+			StringBuilder sb = new StringBuilder();
+			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
+			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
+			f.setAction(sb.toString());
+
+			//Div btn = new Div("ui-fup2-button ui-button ui-control");
+			Div btn = new Div("ui-fup2-button");
+			f.add(btn);
+			String buttonText = m_buttonText;
+			if(null != buttonText) {
+				btn.add(buttonText);
+			}
+
+			FileInput input = m_input = new FileInput();
+			f.add(input);
+			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
+			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
+			input.setDisabled(isDisabled() || isReadOnly());
+			if(m_allowedExtensions.size() > 0) {
+				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
+				input.setSpecialAttribute("fuallowed", values);
+				input.setSpecialAttribute("accept", values);
+			}
+			int maxSize = getMaxSize();
+			if(maxSize <= 0)
+				maxSize = 100 * 1024 * 1024;
+			input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
+		} else {
+			Form f = new Form();
+			add(f);
+			f.setCssClass("ui-szless");
+			f.setEnctype("multipart/form-data");
+			f.setMethod("POST");
+			StringBuilder sb = new StringBuilder();
+			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
+			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
+			f.setAction(sb.toString());
+
+			Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
+			f.add(valueD);
+			Div btn = new Div("ui-fup2-button ui-button ui-control ui-input");
+			f.add(btn);
+			String buttonText = m_buttonText;
+			if(null != buttonText) {
+				btn.add(buttonText);
+			}
+
+			FileInput input = m_input = new FileInput();
+			f.add(input);
+			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
+			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
+			input.setDisabled(isDisabled() || isReadOnly());
+			if(m_allowedExtensions.size() > 0) {
+				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
+				input.setSpecialAttribute("fuallowed", values);
+				input.setSpecialAttribute("accept", values);
+			}
+			int maxSize = getMaxSize();
+			if(maxSize <= 0)
+				maxSize = 100 * 1024 * 1024;
+			input.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
+		}
+	}
+
+
 
 	@Nullable @Override protected String getFocusID() {
 		FileInput input = m_input;
@@ -115,63 +238,6 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 		return m_input;
 	}
 
-	private void renderSelectedFiles() {
-		Table t = new Table();
-		t.addCssClass("ui-fu-selected");
-		add(t);
-		TBody b = new TBody();
-		t.add(b);
-
-		if(!isFull()) {
-			b.addRow();
-			TD td = b.addCell();
-			td.setColspan(2);
-
-			Form f = new Form();
-			td.add(f);
-			f.setCssClass("ui-szless");
-			f.setEnctype("multipart/form-data");
-			f.setMethod("POST");
-			StringBuilder sb = new StringBuilder();
-			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
-			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
-			f.setAction(sb.toString());
-
-			FileInput fi = new FileInput();
-			f.add(fi);
-			// Prevent IE 11 to submit form on keypress on file input
-			fi.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
-			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
-			fi.setDisabled(isDisabled() || isReadOnly());
-			if(m_allowedExtensions.size() > 0) {
-				String values = m_allowedExtensions.stream().map(s -> s.startsWith(".") || s.contains("/") ? s : "." + s).collect(Collectors.joining(","));
-				fi.setSpecialAttribute("fuallowed", values);
-				fi.setSpecialAttribute("accept", values);
-			}
-			//			fi.setSpecialAttribute("fumaxsz", Integer.toString(m_maxSize));
-			int maxSize = getMaxSize();
-			if(maxSize <= 0)
-				maxSize = 100*1024*1024;
-			fi.setSpecialAttribute("fumaxsize", Integer.toString(maxSize));
-			m_input = fi;
-		}
-		for(final UploadItem ufi : m_files) {
-			b.addRow();
-			TD td = b.addCell();
-			td.setText(ufi.getRemoteFileName() + " (" + ufi.getContentType() + ")");
-			td = b.addCell();
-			if(!isDisabled() && ! isReadOnly()) {
-				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), "THEME/btnDelete.png", new IClicked<DefaultButton>() {
-					@Override
-					public void clicked(@Nonnull DefaultButton bx) throws Exception {
-						removeUploadItem(ufi);
-						if(m_onValueChanged != null)
-							((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(FileUpload.this);
-					}
-				}));
-			}
-		}
-	}
 
 	/**
 	 * Internal: get the input type="file" thingy.
@@ -181,87 +247,51 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 		return m_input;
 	}
 
-	/**
-	 * Return the current value: the list of files that have been uploaded and
-	 * their related data. The {@link UploadItem} contains a reference to the
-	 * actual file {@link UploadItem#getFile()}; this file remains present only
-	 * while the page is still alive. If the page is destroyed all of it's uploaded
-	 * files will be deleted. So if you need to retain the file somehow after upload
-	 * it's contents needs to be <b>copied</b> to either another file that you control
-	 * or to a BLOB in a database.
-	 * @return
-	 */
-	@Nonnull
-	public List<UploadItem> getFiles() {
-		return m_files;
+	@Nullable
+	public UploadItem getBindValue() {
+		validate();
+		return m_value;
+	}
+
+	public void setBindValue(@Nullable UploadItem value) {
+		setValue(value);
 	}
 
 	@Override
 	@Nullable
 	public UploadItem getValue() {
-		if(m_maxFiles != 1)
-			throw new IllegalStateException("Can only be called for max files = 1");
-		if(m_files.size() == 0) {
-			if(isMandatory()) {
-				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-				throw new ValidationException(Msgs.BUNDLE, Msgs.MANDATORY);
-			}
-			clearMessage();
-			return null;
+		try {
+			validate();
+			setMessage(null);
+			return m_value;
+		} catch(ValidationException vx) {
+			setMessage(UIMessage.error(vx));
+			throw vx;
 		}
-		clearMessage();
-		return m_files.get(0);
 	}
 
-	@Override public void setValue(@Nullable UploadItem v) {
-		if(null == v) {
-			clear();
+	private void validate() {
+		if(m_value == null && isMandatory()) {
+			throw new ValidationException(Msgs.BUNDLE, Msgs.MANDATORY);
+		}
+	}
+
+	@Override public void setValue(@Nullable UploadItem value) {
+		if(MetaManager.areObjectsEqual(m_value, value)) {
 			return;
 		}
-		if(m_files.size() > 1 || m_files.get(0) != v) {
-			clear();
-			m_files.add(v);
-			forceRebuild();
-		}
+		m_value = value;
+		forceRebuild();
 	}
 
 	@Override
 	@Nullable
 	public UploadItem getValueSafe() {
-		if(m_maxFiles != 1)
-			throw new IllegalStateException("Can only be called for max files = 1");
-		if(m_files.size() == 0)
-			return null;
-		return m_files.get(0);
-	}
-
-	/**
-	 * Return T if the max. #of files has been reached.
-	 * @return
-	 */
-	public boolean isFull() {
-		return m_files.size() >= m_maxFiles;
-	}
-
-	/**
-	 * Removes specified upload item.
-	 * @param ufi
-	 */
-	public void removeUploadItem(UploadItem ufi) {
-		// FIXME We allow the case where the UploadItem is not in the list.... Is that correct or should an exception be thrown?
-		if(m_files.remove(ufi))
-			forceRebuild();
-	}
-
-	public void removeAllUploads() {
-		if(m_files.size() == 0)
-			return;
-		m_files.clear();
-		forceRebuild();
+		return m_value;
 	}
 
 	public void clear() {
-		removeAllUploads();
+		setValue(null);
 	}
 
 	/**
@@ -281,16 +311,8 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 			return;
 
 		m_allowedExtensions = new ArrayList<>(allowedExtensions);
-		changed();
+		forceRebuild();
 	}
-
-	//	public int getMaxSize() {
-	//		return m_maxSize;
-	//	}
-	//
-	//	public void setMaxSize(int maxSize) {
-	//		m_maxSize = maxSize;
-	//	}
 
 	/**
 	 * T if at least 1 file needs to be uploaded.
@@ -307,14 +329,6 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	@Override
 	public void setMandatory(boolean required) {
 		m_mandatory = required;
-	}
-
-	public int getMaxFiles() {
-		return m_maxFiles;
-	}
-
-	public void setMaxFiles(int maxFiles) {
-		m_maxFiles = maxFiles;
 	}
 
 	@Override
@@ -357,8 +371,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 			UploadItem[] uiar = param.getFileParameter(getInput().getActualID());
 			if(uiar != null) {
 				for(UploadItem ui : uiar) {
-					getFiles().add(ui);
-					conversation.registerTempFile(ui.getFile());
+					m_value = ui;
 				}
 			}
 		} catch(FileUploadException fxu) {
@@ -367,10 +380,10 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 		}
 		forceRebuild();
 		// We need this page reference since in onValueChanged() force rebuild might happen again
-		// and then we'll lose the page reference neede for renderOptimalDelta().
+		// and then we'll lose the page reference needed for renderOptimalDelta().
 		Page p = getPage();
 		if(m_onValueChanged != null)
-			((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(this);
+			((IValueChanged<FileUpload2>) m_onValueChanged).onValueChanged(this);
 		return true;
 	}
 

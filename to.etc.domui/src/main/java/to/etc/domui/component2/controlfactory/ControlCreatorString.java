@@ -53,7 +53,7 @@ public class ControlCreatorString implements IControlCreator {
 				return -1;
 		}
 
-		return 1;
+		return 2;
 	}
 
 	@Override

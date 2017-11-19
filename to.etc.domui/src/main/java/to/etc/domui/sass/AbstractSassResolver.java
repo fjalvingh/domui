@@ -11,9 +11,7 @@ import to.etc.util.WrappedException;
 
 import javax.annotation.Nonnull;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -67,7 +65,7 @@ abstract public class AbstractSassResolver<O> {
 
 			//-- Make sure we have a suffix
 			String identifier = original;
-			if(!identifier.endsWith(".scss") && ! identifier.endsWith(".sass")) {
+			if(!identifier.endsWith(".scss") && ! identifier.endsWith(".sass") && ! identifier.endsWith(".css")) {
 				boolean isSass = parentFile.toLowerCase().endsWith(".sass");
 				identifier += isSass ? ".sass" : ".scss";
 			}
@@ -75,32 +73,91 @@ abstract public class AbstractSassResolver<O> {
 			if(identifier.equals("_parameters.scss") || identifier.equals("parameters.scss") || identifier.equals("_parameters.sass") || identifier.equals("parameters.sass")) {
 				return calculateParameterFile();
 			}
-			List<String> sourceUris = Collections.emptyList(); // parentStylesheet.getSourceUris();
 			DomApplication app = DomApplication.get();
 
-			if(identifier.indexOf('/') != -1) {            // If it has slashes try the name as-is first
+			//-- Split identifier in path and last name
+			String idPath;
+			String idName;
+
+			int pos = identifier.lastIndexOf('/');
+			if(pos < 0) {
+				idPath = "";
+				idName = identifier;
+			} else {
+				idPath = identifier.substring(0, pos + 1);
+				idName = identifier.substring(pos + 1);
+			}
+
+			if(identifier.startsWith("/")) {
+				//-- Root based path -> no relative replacements.
 				//-- Try literal name
-				O res = tryRef(app, identifier);
+				O res = tryRef(app, idPath + idName);
 				if(null != res)
 					return res;
 
 				//-- Try for a "partial"
-				String newName = "_" + identifier;
+				String newName = idPath + "_" + idPath;
 				res = tryRef(app, newName);
 				if(null != res) {
 					return res;
 				}
+				return null;
 			}
 
+			//-- If we have a path: prepare the absolute path
+			String absPath = fileBase;
+
+			if(idPath.length() > 0) {
+				String[] segs = idPath.split("/");
+				for(int i = 0; i < segs.length; i++) {
+					String seg = segs[i];
+					if(seg.equals("..")) {
+						//-- remove one segment from basePath, if still possible.
+						if(absPath.length() == 0)		// Cannot go higher
+							return null;
+
+						int slp = absPath.lastIndexOf('/');
+						if(slp == -1) {
+							absPath = "";
+						} else {
+							absPath = absPath.substring(0, slp);		// Strip off last segment
+						}
+					} else if(seg.equals(".")) {
+						// Ignore
+					} else {
+						if(absPath.length() > 0) {
+							absPath += "/" + seg;
+						} else {
+							absPath = seg;
+						}
+					}
+				}
+			}
+			//
+			//
+			//if(idPath.length() > 0) {            // If a path- try from root
+			//	//-- Try literal name
+			//	O res = tryRef(app, idPath + idName);
+			//	if(null != res)
+			//		return res;
+			//
+			//	//-- Try for a "partial"
+			//	String newName = idPath + "_" + idPath;
+			//	res = tryRef(app, newName);
+			//	if(null != res) {
+			//		return res;
+			//	}
+			//}
+
 			//-- Try to prefix the relative path from its parent
-			String newName = fileBase + "/_" + identifier;                    // Get new path relative to parent
+			String newName = absPath + "/" + "_" + idName;		// Get new path relative to parent
 			O ref = tryRef(app, newName);
 			if(null != ref) {
 				return ref;
 			}
 
 			//-- Try for a non partial
-			newName = fileBase + "/" + identifier;
+			newName = absPath + "/" + idName;
 			ref = tryRef(app, newName);
 			if(null != ref) {
 				return ref;
@@ -115,6 +172,11 @@ abstract public class AbstractSassResolver<O> {
 	}
 
 	private O tryRef(DomApplication app, String name) {
+		Line<O> line = m_map.get(name);
+		if(null != line) {
+			return line.getRef();
+		}
+
 		try {
 			IResourceRef ref = app.getResource(name, m_dependencyList);
 			if(!ref.exists()) {

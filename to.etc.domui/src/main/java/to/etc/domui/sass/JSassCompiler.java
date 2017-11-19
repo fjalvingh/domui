@@ -34,7 +34,7 @@ public class JSassCompiler implements ISassCompiler {
 
 		JSassResolver jsr = new JSassResolver(params, basePath, rdl);
 
-		Import file = jsr.resolve(rurl, rurl);
+		Import file = jsr.resolve(rurl, "");
 		if(null == file)
 			throw new ThingyNotFoundException("The sass/scss file " + rurl + " could not be found");
 
@@ -47,6 +47,7 @@ public class JSassCompiler implements ISassCompiler {
 		opt.setIndent("\t");
 		opt.setLinefeed("\n");
 		opt.setSourceMapEmbed(true);
+		opt.setSourceComments(false);
 
 		boolean isSass = rurl.toLowerCase().endsWith(".sass");
 		opt.setIsIndentedSyntaxSrc(isSass);

@@ -24,8 +24,6 @@
  */
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.binding.OldBindingHandler;
-import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.layout.FloatingWindow;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.lookup.LookupForm;
@@ -33,39 +31,27 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
-import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
 import to.etc.domui.component.tbl.BasicRowRenderer;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.component.tbl.IClickableRowRenderer;
-import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.component.tbl.IRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
-import to.etc.domui.component2.lookupinput.SearchInput2;
 import to.etc.domui.dom.errors.IErrorMessageListener;
 import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
-import to.etc.domui.dom.html.TableVAlign;
-import to.etc.domui.themes.Theme;
-import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.LookupInputPropertyRenderer;
 import to.etc.domui.util.Msgs;
 import to.etc.util.RuntimeConversions;
-import to.etc.util.StringTool;
-import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.IIdentifyable;
 import to.etc.webapp.query.QCriteria;
@@ -77,12 +63,16 @@ import to.etc.webapp.query.QRestrictor;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication {
+abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT, OT> implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication {
 
 	public static final String MAGIC_ID_MARKER = "?id?";
+
+	protected void setKeySearch(@Nullable KeyWordSearchInput<OT> keySearch) {
+		m_keySearch = keySearch;
+	}
 
 	/**
 	 * Interface provides assess to used lookup form initialization method.
@@ -98,38 +88,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		void initialize(@Nonnull LookupForm<T> lf) throws Exception;
 	}
 
-	/**
-	 * The query class/type. For Java classes this usually also defines the metamodel to use; for generic meta this should
-	 * be the value record class type.
-	 */
-	@Nonnull
-	final private Class<QT> m_queryClass;
-
-	@Nonnull
-	final private Class<OT> m_outputClass;
-
-	/**
-	 * The metamodel to use to handle the query data in this class. For Javabean data classes this is automatically
-	 * obtained using MetaManager; for meta-based data models this
-	 * gets passed as a constructor argument.
-	 */
-	@Nonnull
-	final private ClassMetaModel m_queryMetaModel;
-
-	/**
-	 * The metamodel for output (display) objects.
-	 */
-	@Nonnull
-	final private ClassMetaModel m_outputMetaModel;
-
 	@Nullable
 	private LookupForm<QT> m_lookupForm;
-
-	@Nullable
-	private HoverButton m_selButton;
-
-	@Nullable
-	private HoverButton m_clearButton;
 
 	@Nullable
 	private FloatingWindow m_floater;
@@ -138,30 +98,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	private DataTable<OT> m_result;
 
 	@Nullable
-	private OT m_value;
-
-	private Table m_table;
-
-	private boolean m_mandatory;
-
-	private boolean m_readOnly;
-
-	private boolean m_disabled;
-
-	@Nullable
-	private IQueryManipulator<QT> m_queryManipulator;
-
-	@Nullable
-	private IQueryHandler<QT> m_queryHandler;
-
-	@Nullable
 	private String m_formTitle;
-
-	/**
-	 * The content renderer to use to render the current value.
-	 */
-	@Nullable
-	private IRenderInto<OT> m_valueRenderer;
 
 	@Nullable
 	private IErrorMessageListener m_customErrorMessageListener;
@@ -173,12 +110,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	private KeyWordSearchInput<OT> m_keySearch;
 
 	@Nullable
-	private String m_keySearchHint;
-
-	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
-	private boolean m_modifiedByUser;
-
-	@Nullable
 	private IKeyWordSearchQueryFactory<QT> m_keyWordSearchHandler;
 
 	/** When T (default) you can press search on an empty popup form. 20120511 jal Default set to true. */
@@ -186,13 +117,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	private boolean m_searchImmediately;
 
-	@Nullable
-	private String m_keyWordSearchCssClass;
-
 	private int m_keyWordSearchPopupWidth;
-
-	@Nullable
-	private String m_selectionCssClass;
 
 	/**
 	 * SPECIAL QUIRK MODE, USUALLY YOU DO NOT NEED IT.
@@ -202,29 +127,9 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 */
 	private boolean m_absolutePopupLayoutQuirkMode;
 
-	/**
-	 * By default set to true.
-	 * Set to false in cases when keyword search functionality should be disabled regardless if metadata for this feature is defined or not.
-	 */
-	private boolean m_allowKeyWordSearch = true;
-
-	/** Contains manually added quicksearch properties. Is null if none are added. */
-	@Nullable
-	private List<SearchPropertyMetaModel> m_keywordLookupPropertyList;
-
 	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
 	@Nullable
 	private List<SearchPropertyMetaModel> m_searchPropertyList;
-
-	private enum RebuildCause {
-		CLEAR, SELECT
-	};
-
-	/**
-	 * When we trigger forceRebuild, we can specify reason for this, and use this later to resolve focus after content is re-rendered.
-	 */
-	@Nullable
-	private RebuildCause m_rebuildCause;
 
 	/**
 	 * Default T. When set, table result would be stretched to use entire available height on FloatingWindow.
@@ -254,12 +159,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	@Nullable
 	private KeyWordPopupRowRenderer<OT> m_dropdownRowRenderer;
 
-
-	@Nullable
-	private QCriteria<QT> m_rootCriteria;
-
-	private boolean m_doFocus;
-
 	/**
 	 * This must create the table model for the output type from the query on the input type.
 	 * @param query
@@ -277,7 +176,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * @param resultColumns
 	 */
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nonnull String... resultColumns) {
-		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+		this(null, queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 		setResultColumns(resultColumns);
 	}
 
@@ -286,197 +185,15 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * @param queryClass
 	 */
 	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
-		this(queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
+		this(null, queryClass, resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 	}
 
 	public LookupInputBase(@Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
-		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
-		m_rootCriteria = rootCriteria;
+		this(rootCriteria, DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, (ClassMetaModel) null, (ClassMetaModel) null);
 	}
 
-	public LookupInputBase(@Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
-		m_queryClass = queryClass;
-		m_outputClass = resultClass;
-		m_queryMetaModel = queryMetaModel != null ? queryMetaModel : MetaManager.findClassMeta(queryClass);
-		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
-		HoverButton b = m_selButton = new HoverButton(Theme.BTN_HOVERPOPUPLOOKUP);
-		b.addCssClass("ui-lui-sel-btn");
-		b.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(@Nonnull NodeBase b) throws Exception {
-				toggleFloaterByClick();
-			}
-		});
-
-		b = m_clearButton = new HoverButton(Theme.BTN_HOVERCLEARLOOKUP, new IClicked<HoverButton>() {
-			@Override
-			@SuppressWarnings("synthetic-access")
-			public void clicked(@Nonnull HoverButton b) throws Exception {
-				handleSetValue(null);
-			}
-		});
-		b.addCssClass("ui-lui-clear-btn");
-		setCssClass("ui-lui");
-	}
-
-	@Nonnull
-	private HoverButton getSelButton() {
-		if(null != m_selButton)
-			return m_selButton;
-		throw new IllegalStateException("Selection button is not there.");
-	}
-
-	@Nonnull
-	public HoverButton getClearButton() {
-		if(null != m_clearButton)
-			return m_clearButton;
-		throw new IllegalStateException("Clear button is not there.");
-	}
-
-	@Override
-	public void createContent() throws Exception {
-		m_keySearch = null;
-		Table table = m_table = new Table("ui-lui-tbl");
-		add(table);
-
-		table.setCellSpacing("0");
-		table.setCellPadding("0");
-		m_keySearch = null;
-
-		removeCssClass("ui-ro");
-		OT value = m_value;
-		if(value == null) {
-			if(isAllowKeyWordSearch() && isKeyWordSearchDefined()){
-				//Key word search rendering should be generic, no need for customization possibilities.
-				if(isReadOnly() || isDisabled()) {
-					renderEmptySelection();
-					addCssClass("ui-ro");
-				} else {
-					renderKeyWordSearch();
-				}
-			} else {
-				//-- Render "no selection"
-				renderEmptySelection();
-			}
-		} else {
-			//-- Nonnull render: render a value in the table's 1st cell
-			m_keySearch = null;
-			TD td = table.getBody().addRowAndCell("ui-lui-v");
-
-			IRenderInto<OT> r = getValueRenderer();
-			if(r == null)
-				r = new SimpleLookupInputRenderer<>(getOutputMetaModel());
-			r.render(td, value);
-			handleSelectionCss();
-		}
-
-		appendLookupButtons();
-
-		HoverButton clearButton = getClearButton();
-
-		if(m_rebuildCause == RebuildCause.CLEAR) {
-			//User clicked clear button, so we can try to set focus to input search if possible.
-			if(m_keySearch != null) {
-				m_keySearch.setFocus();
-			}
-		} else if(m_rebuildCause == RebuildCause.SELECT) {
-			//User did reselected value, so we can try to set focus to clear button if possible.
-			if(clearButton != null && !clearButton.isDisabled()) {
-				if(getPage().getFocusComponent() == null)
-					clearButton.setFocus();
-			}
-		}
-		m_rebuildCause = null;
-
-		if(m_doFocus) {
-			m_doFocus = false;
-			if(m_keySearch != null)
-				m_keySearch.setFocus();
-			else if(m_clearButton != null)
-				m_clearButton.setFocus();
-		}
-		//if(m_absolutePopupLayoutQuirkMode) {
-		//	getSelButton().setMarginLeft("103px");
-		//}
-
-	}
-
-	private void appendLookupButtons() {
-		if(isReadOnly() || isDisabled())
-			return;
-
-		//-- Lookup button is always there
-		TR tr = m_table.getBody().getRow(0);
-		TD cell = tr.addCell("ui-lui-btntd");
-		Div d = new Div("ui-lui-btn-c");
-		cell.add(d);
-		d.add(getSelButton());
-
-		cell = tr.addCell("ui-lui-btntd");
-		d = new Div("ui-lui-btn-c");
-		cell.add(d);
-		d.add(getClearButton());
-		getClearButton().setDisabled(m_value == null);
-
-		getSelButton().setTestID(calcTestID() + "-lookup");
-		getClearButton().setTestID(calcTestID() + "-clear");
-
-// jal 20121025 temp disabled
-//			//FIXME: vmijic, not suitable for larger button images, see is this can be resolved by introducing span container for buttons.
-//			if(clearButton.getDisplay() == DisplayType.NONE) {
-//				clearButton.getParent().setMinWidth("24px");
-//			} else {
-//				clearButton.getParent().setMinWidth("58px");
-//			}
-	}
-
-	private void handleSelectionCss() {
-		String selectionCssClass = getSelectionCssClass();
-		if (!StringTool.isBlank(selectionCssClass)) {
-			//zilla 7548 -> if selected value txt is too large, we should be enabled to limit it, in some situations. So we use css for that.
-			//When text is cutoff by that css, we have to show entire text in hover.
-			//We use internal ui-lui-vcell style here, since it can not be provided from INodeContentRenderer itself :(
-			//Since this is internal component code too, relaying on this internal details of renderer are not too bad
-			getParent().appendShowOverflowTextAsTitleJs("." + selectionCssClass + " td.ui-lui-vcell");
-		}
-	}
-
-	/**
-	 * Render the presentation for empty/unselected input.
-	 */
-	private void renderEmptySelection() {
-		m_keySearch = null;
-		Table table = m_table;
-		table.removeAllChildren();
-		TD td = table.getBody().addRowAndCell();
-		//td.setValign(TableVAlign.TOP);
-		td.setCssClass("ui-lui-empty");
-		td.add(new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY)));
-	}
-
-	/**
-	 * Depending on what is present return the ID of a component that can
-	 * receive focus.
-	 * @return
-	 */
-	@Nullable
-	@Override
-	protected String getFocusID() {
-		NodeBase forTarget = getForTarget();
-		return forTarget == null ? null : forTarget.getActualID();
-	}
-
-	@Nullable @Override public NodeBase getForTarget() {
-		KeyWordSearchInput<OT> keySearch = m_keySearch;
-		if(null != keySearch && keySearch.isAttached())
-			return keySearch.getForTarget();
-		HoverButton selButton = m_selButton;
-		if(null != selButton && selButton.isAttached())
-			return selButton;
-		HoverButton clearButton = m_clearButton;
-		if(null != clearButton && clearButton.isAttached())
-			return clearButton;
-		return null;
+	public LookupInputBase(@Nullable QCriteria<QT> rootCriteria, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
+		super(rootCriteria, queryClass, resultClass, queryMetaModel, outputMetaModel);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -485,12 +202,13 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	/**
 	 * @return true either when query control is manually implemented by keyWordSearchHandler, or if keyword search meta data is defined.
 	 */
-	private boolean isKeyWordSearchDefined() {
+	@Override
+	protected boolean isKeyWordSearchDefined() {
 		if(getKeyWordSearchHandler() != null) {
 			return true;
 		}
 
-		if(m_keywordLookupPropertyList != null)
+		if(getKeywordLookupPropertyList() != null)
 			return true;
 		List<SearchPropertyMetaModel> spml = getQueryMetaModel().getKeyWordSearchProperties();
 		return spml.size() > 0;
@@ -499,9 +217,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	/**
 	 * Render the "current value" display as an input box or display box with clear and select buttons.
 	 */
-	private void renderKeyWordSearch() {
-		m_table.removeAllChildren();
-		TD td = m_table.getBody().addRowAndCell();
+	@Override
+	protected void renderKeyWordSearch() {
+		Table table = Objects.requireNonNull(m_table);
+		table.removeAllChildren();
+		TD td = table.getBody().addRowAndCell();
 		//td.setValign(TableVAlign.TOP);
 		td.setCssClass("ui-lui-lookupf");
 //		td.setWidth("100%"); jal 20121025 Width should not be set but style should be used?
@@ -509,7 +229,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	private void addKeySearchField(NodeContainer parent) {
-		KeyWordSearchInput<OT> ks = m_keySearch = new KeyWordSearchInput<OT>(m_keyWordSearchCssClass);
+		KeyWordSearchInput<OT> ks = new KeyWordSearchInput<>(getKeyWordSearchCssClass());
+		setKeySearch(ks);
 		ks.setPopupWidth(getKeyWordSearchPopupWidth());
 		ks.setAbsolutePopupLayoutQuirkMode(m_absolutePopupLayoutQuirkMode);
 		KeyWordPopupRowRenderer<OT> rr = getDropdownRowRenderer();
@@ -568,17 +289,22 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 		});
 		parent.add(ks);
-		if(m_keyWordSearchCssClass != null) {
-			addCssClass(m_keyWordSearchCssClass);
+		String kscss = getKeyWordSearchCssClass();
+		if(kscss != null) {
+			addCssClass(kscss);
 		}
-		ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (m_keySearchHint != null) ? m_keySearchHint : getDefaultKeySearchHint()));
+		String hint = getKeySearchHint();
+		ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (hint != null) ? hint : getDefaultKeySearchHint()));
 	}
 
-	@Nonnull
-	private KeyWordSearchInput<OT> getKeySearch() {
-		if(null != m_keySearch)
-			return m_keySearch;
-		throw new IllegalStateException("keySearch is null");
+	@Override
+	@Nullable
+	protected KeyWordSearchInput<OT> getKeySearch() {
+		return m_keySearch;
+	}
+
+	@Override protected void clearKeySearch() {
+		m_keySearch = null;
 	}
 
 	/**
@@ -592,39 +318,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			m_dropdownRowRenderer = new KeyWordPopupRowRenderer<OT>(getOutputMetaModel());
 		}
 		return DomUtil.nullChecked(m_dropdownRowRenderer);
-	}
-
-	private String getDefaultKeySearchHint() {
-		List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList != null ? m_keywordLookupPropertyList : getQueryMetaModel().getKeyWordSearchProperties();
-		if(spml.size() <= 0)
-			return null;
-
-		StringBuilder sb = new StringBuilder(128);
-		for(int i = 0; i < spml.size(); i++) {
-			if(sb.length() > 0)
-				sb.append(", ");
-			SearchPropertyMetaModel spm = spml.get(i);
-			if(null == spm)
-				throw new IllegalStateException("null entry in keyword search list");
-
-			if(spm.getLookupLabel() != null) {
-				sb.append(spm.getLookupLabel());
-			} else {
-				//FIXME: vmijic 20110906 Scheduled for delete. We add extra tests and logging in code just to be sure if such cases can happen in production.
-				//This should be removed soon after we are sure that problem is solved.
-				String propertyName = spm.getPropertyName();
-				if(propertyName == null)
-					throw new IllegalStateException("Search property name is null");
-				PropertyMetaModel< ? > pmm = getQueryMetaModel().findProperty(propertyName);
-				if(pmm == null)
-					throw new IllegalStateException(propertyName + ": undefined property in " + getQueryMetaModel());
-				if(pmm.getDefaultLabel() != null)
-					sb.append(pmm.getDefaultLabel());
-				else
-					sb.append(pmm.getName());
-			}
-		}
-		return sb.toString();
 	}
 
 	/**
@@ -651,7 +344,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(searchQuery == null) {
 			return null;
 		}
-		searchQuery = manipulateCriteria(searchQuery);
+		searchQuery = adjustQuery(searchQuery);
 		if(searchQuery == null) {
 			//in case of cancelled search by query manipulator return
 			return null;
@@ -683,18 +376,15 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	/**
 	 * Create query for filling up lookup by IIdentifyable id.</br>
 	 * Used for speeding up tests
-	 * @param searchString
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
 	private QCriteria<QT> createTestQuery(@Nonnull Long magicId) throws Exception {
-		if(IIdentifyable.class.isAssignableFrom(m_queryClass)) {
+		if(IIdentifyable.class.isAssignableFrom(getQueryClass())) {
 			QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
 			searchQuery.eq("id", magicId);
 			return searchQuery;
 		}
-		throw new RuntimeException("This instance cannot be used for filling in lookup using magic string: " + m_queryClass);
+		throw new RuntimeException("This instance cannot be used for filling in lookup using magic string: " + getQueryClass());
 	}
 
 	@Nullable
@@ -724,7 +414,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 			}
 
 			//-- Has default meta?
-			List<SearchPropertyMetaModel> spml = m_keywordLookupPropertyList == null ? getQueryMetaModel().getKeyWordSearchProperties() : getKeywordLookupPropertyList();
+			List<SearchPropertyMetaModel> kwl = getKeywordLookupPropertyList();
+			List<SearchPropertyMetaModel> spml = kwl == null ? getQueryMetaModel().getKeyWordSearchProperties() : kwl;
 			searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
 
 			QRestrictor<QT> r = searchQuery.or();
@@ -775,28 +466,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		return searchQuery;
 	}
 
-	@Nullable
-	private QCriteria<QT> manipulateCriteria(@Nonnull QCriteria<QT> enteredCriteria) {
-		IQueryManipulator<QT> qm = getQueryManipulator();
-		QCriteria<QT> result = enteredCriteria;
-		if(qm != null) {
-			result = qm.adjustQuery(enteredCriteria);
-			if(result == null) {
-				//in case of cancelled search by query manipulator return
-				return null;
-			}
-		}
-
-		//-- Join any root criteria, if applicable
-		QCriteria<QT> root = m_rootCriteria;
-		if(null != root) {
-			//-- We merge the "root" criteria inside the "child" criteria. We do that by a complete "and", as follows:
-			//-- result = (root criteria) AND (entered criteria), and we ignore any "other" part of the root criterion.
-			result.mergeCriteria(root);
-		}
-		return result;
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Full search popup window code..						*/
 	/*--------------------------------------------------------------*/
@@ -804,9 +473,11 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * Toggle the full search popup window.
 	 * @throws Exception
 	 */
-	private void toggleFloaterByClick() throws Exception {
-		if(m_keySearch != null) {
-			toggleFloater(searchKeyWord(m_keySearch.getKeySearchValue()));
+	@Override
+	protected void openPopupWithClick() throws Exception {
+		KeyWordSearchInput<OT> keySearch = getKeySearch();
+		if(keySearch != null) {
+			toggleFloater(searchKeyWord(keySearch.getKeySearchValue()));
 		} else {
 			toggleFloater(null);
 		}
@@ -847,7 +518,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 		LookupForm<QT> lf = getLookupForm();
 		if(lf == null) {
-			QCriteria<QT> rootCriteria = m_rootCriteria;
+			QCriteria<QT> rootCriteria = getRootCriteria();
 			if(null != rootCriteria)
 				lf = new LookupForm<QT>(rootCriteria);
 			else
@@ -919,7 +590,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		if(c == null)						// Some error has occured?
 			return;							// Don't do anything (errors will have been registered)
 
-		c = manipulateCriteria(c);
+		c = adjustQuery(c);
 		if(c == null) {
 			//in case of cancelled search by query manipulator return
 			return;
@@ -996,234 +667,13 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		return actualFormRowRenderer;
 	}
 
-	/**
-	 * Set a hint text for this control, for some reason only on the select button??
-	 * @param text
-	 */
-	public void setHint(@Nonnull String text) {
-		if(m_selButton != null)
-			m_selButton.setTitle(text);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public boolean isMandatory() {
-		return m_mandatory;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setMandatory(boolean mandatory) {
-		m_mandatory = mandatory;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isReadOnly() {
-		return m_readOnly;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setReadOnly(boolean readOnly) {
-		if(m_readOnly == readOnly)
-			return;
-		m_readOnly = readOnly;
-		updateRoStyle();
-		forceRebuild();
-	}
-
-	private void updateRoStyle() {
-		if((m_disabled || m_readOnly) && m_value != null)
-			addCssClass("ui-lui-selected-ro");
-		else
-			removeCssClass("ui-lui-selected-ro");
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isDisabled() {
-		return m_disabled;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setDisabled(boolean disabled) {
-		if(m_disabled == disabled)
-			return;
-		m_disabled = disabled;
-		updateRoStyle();
-		forceRebuild();
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IControl implementation.							*/
-	/*--------------------------------------------------------------*/
-	@Nullable
-	private IValueChanged< ? > m_onValueChanged;
-
-	@Nullable
-	public OT getBindValue() {
-		if(m_value == null && isMandatory()) {
-			throw new ValidationException(Msgs.MANDATORY);
-		}
-		return m_value;
-	}
-
-	public void setBindValue(@Nullable OT value) {
-		setValue(value);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Nullable
-	@Override
-	public OT getValue() {
-		if(m_value == null && isMandatory()) {
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-			throw new ValidationException(Msgs.MANDATORY);
-		}
-		return m_value;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Nullable
-	public OT getValueSafe() {
-		return DomUtil.getValueSafe(this);
-	}
-
-	/**
-	 * The value without any consequences
-	 * @return
-	 */
-	public OT getWorkValue() {
-		OT valueSafe = getValueSafe();
-		clearMessage();
-		return valueSafe;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean hasError() {
-		getValueSafe();
-		return super.hasError();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setValue(@Nullable OT v) {
-		KeyWordSearchInput<OT> ks = m_keySearch;
-		if(DomUtil.isEqual(m_value, v) && (ks == null || ks.getKeySearchValue() == null))
-			return;
-		OT old = m_value;
-		m_value = v;
-		if(v != null) {
-			getClearButton().setDisabled(false);
-			clearMessage();
-			addCssClass("ui-lui-selected");
-			String selectionCss = getSelectionCssClass();
-			if (!StringTool.isBlank(selectionCss)){
-				addCssClass(DomUtil.nullChecked(selectionCss));
-			}
-		} else {
-			getClearButton().setDisabled(true);
-			removeCssClass("ui-lui-selected");
-		}
-		updateRoStyle();
-		forceRebuild();
-	}
-
-	/**
-	 * In case that new value is different than one previously selected, set modified flag, selected value and trigger onValueChange event if defined.
-	 * @param value
-	 * @throws Exception
-	 */
-	void handleSetValue(@Nullable OT value) throws Exception {
-		if(!MetaManager.areObjectsEqual(value, m_value, null)) {
-			DomUtil.setModifiedFlag(this);
-			setValue(value);
-
-			try {
-				OldBindingHandler.controlToModel(this);
-			} catch(Exception x) {
-				throw WrappedException.wrap(x);
-			}
-
-			//-- Handle onValueChanged
-			IValueChanged< ? > onValueChanged = getOnValueChanged();
-			if(onValueChanged != null) {
-				((IValueChanged<NodeBase>) onValueChanged).onValueChanged(this);
-			}
-		}
-		m_rebuildCause = value == null ? RebuildCause.CLEAR : RebuildCause.SELECT;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	@Nullable
-	public IValueChanged< ? > getOnValueChanged() {
-		if(m_floater != null) {
-			//Fix for FF: prevent onchange event to be propagate on control when return key is pressed and popup is opened.
-			//This does not happen on IE. Be sure that it is executed after popup is already closed.
+	protected String getKeySearchValue() {
+		KeyWordSearchInput<OT> ks = getKeySearch();
+		if(null == ks)
 			return null;
-		}
-		return m_onValueChanged;
+		return ks.getKeySearchValue();
 	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setOnValueChanged(@Nullable IValueChanged< ? > onValueChanged) {
-		m_onValueChanged = onValueChanged;
-	}
-
-	/**
-	 * When set the specified manipulator will be called before a query is sent to the database. The query
-	 * can be altered to add extra restrictions for instance.
-	 * @return
-	 */
-	@Nullable
-	public IQueryManipulator<QT> getQueryManipulator() {
-		return m_queryManipulator;
-	}
-
-	/**
-	 * The query handler to use, if a special one is needed. The default query handler will use the
-	 * normal conversation-associated DataContext to issue the query.
-	 * @return
-	 */
-	@Nullable
-	public IQueryHandler<QT> getQueryHandler() {
-		return m_queryHandler;
-	}
-
-	public void setQueryHandler(@Nullable IQueryHandler<QT> queryHandler) {
-		m_queryHandler = queryHandler;
-	}
-
 	/**
 	 * When set this defines the title of the lookup window.
 	 * @return
@@ -1255,16 +705,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	}
 
 	/**
-	 * When set the specified manipulator will be called before a query is sent to the database. The query
-	 * can be altered to add extra restrictions for instance.
-	 *
-	 * @param queryManipulator
-	 */
-	public void setQueryManipulator(@Nullable IQueryManipulator<QT> queryManipulator) {
-		m_queryManipulator = queryManipulator;
-	}
-
-	/**
 	 * Can be set by a specific lookup form to use when the full query popup is shown. If unset the code will create
 	 * a LookupForm using metadata.
 	 * @return
@@ -1287,27 +727,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_customErrorMessageListener = customErrorMessageListener;
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IHasModifiedIndication impl							*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Returns the modified-by-user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
-	 */
-	@Override
-	public boolean isModified() {
-		return m_modifiedByUser;
-	}
-
-	/**
-	 * Set or clear the modified by user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
-	 */
-	@Override
-	public void setModified(boolean as) {
-		m_modifiedByUser = as;
-	}
-
 	@Nullable
 	public IActionAllowed getIsLookupAllowed() {
 		return m_isLookupAllowed;
@@ -1326,99 +745,15 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_keyWordSearchHandler = keyWordSearchManipulator;
 	}
 
-	@Nullable
-	public String getKeyWordSearchCssClass() {
-		return m_keyWordSearchCssClass;
-	}
-
-	/**
-	 * Set custom css that would be applied only in case that component is rendering keyWordSearch.
-	 * Used for example in row inline rendering, where width and min-width should be additionally customized.
-	 * @param cssClass
-	 */
-	public void setKeyWordSearchCssClass(@Nullable String cssClass) {
-		m_keyWordSearchCssClass = cssClass;
-	}
-
-	@Nullable
-	public String getSelectionCssClass() {
-		return m_selectionCssClass;
-	}
-
-	/**
-	 * Set custom css that would be applied only in case that component is rendering selected value.
-	 * Used for example where max-width should be additionally customized.
-	 * @param cssClass
-	 */
-	public void setSelectionCssClass(@Nullable String cssClass) {
-		m_selectionCssClass = cssClass;
-	}
-
-	/**
-	 * Getter for property {@link LookupInput#m_allowKeyWordSearch}.
-	 * @return
-	 */
-	public boolean isAllowKeyWordSearch() {
-		return m_allowKeyWordSearch;
-	}
-
-	/**
-	 * Setter for property {@link LookupInput#m_allowKeyWordSearch}.
-	 * @return
-	 */
-	public void setAllowKeyWordSearch(boolean allowKeyWordSearch) {
-		m_allowKeyWordSearch = allowKeyWordSearch;
-	}
-
-	/**
-	 * Getter for keyword search hint. See {@link LookupInput#setKeySearchHint}.
-	 * @param hint
-	 */
-	@Nullable
-	public String getKeySearchHint() {
-		return m_keySearchHint;
-	}
-
 	/**
 	 * Set hint to keyword search input. Usually says how search condition is resolved.
-	 * @param hint
 	 */
+	@Override
 	public void setKeySearchHint(@Nullable String keySearchHint) {
-		m_keySearchHint = keySearchHint;
-		if(m_keySearch != null)
-			m_keySearch.setHint(keySearchHint); // Remove the hint on null.
-	}
-
-	/**
-	 * Define a property to use for quick search. When used this overrides any metadata-defined
-	 * properties.
-	 * @param name
-	 * @param minlen
-	 */
-	public void addKeywordProperty(@Nonnull String name, int minlen) {
-		if(m_keywordLookupPropertyList == null)
-			m_keywordLookupPropertyList = new ArrayList<SearchPropertyMetaModel>();
-		SearchPropertyMetaModelImpl si = new SearchPropertyMetaModelImpl(getQueryMetaModel());
-		if(minlen > 0)
-			si.setMinLength(minlen);
-		si.setPropertyName(name);
-		si.setIgnoreCase(true);
-		DomUtil.nullChecked(m_keywordLookupPropertyList).add(si);
-	}
-
-	/**
-	 * Not normally used; use {@link #addKeywordProperty(String, int)} instead.
-	 * @param keywordLookupPropertyList
-	 */
-	public void setKeywordSearchProperties(@Nonnull List<SearchPropertyMetaModel> keywordLookupPropertyList) {
-		m_keywordLookupPropertyList = keywordLookupPropertyList;
-	}
-
-	@Nonnull
-	public List<SearchPropertyMetaModel> getKeywordLookupPropertyList() {
-		if(null != m_keywordLookupPropertyList)
-			return m_keywordLookupPropertyList;
-		throw new NullPointerException("No keyword properties set.");
+		super.setKeySearchHint(keySearchHint);
+		KeyWordSearchInput<OT> keySearch = getKeySearch();
+		if(keySearch != null)
+			keySearch.setHint(keySearchHint); // Remove the hint on null.
 	}
 
 	/**
@@ -1431,16 +766,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	public void setSearchProperties(List<SearchPropertyMetaModel> searchPropertyList) {
 		m_searchPropertyList = searchPropertyList;
-	}
-
-	/**
-	 * Define a property to use for quick search. When used this overrides any metadata-defined
-	 * properties.
-	 *
-	 * @param name
-	 */
-	public void addKeywordProperty(@Nonnull String name) {
-		addKeywordProperty(name, -1);
 	}
 
 	public int getKeyWordSearchPopupWidth() {
@@ -1464,7 +789,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 
 	/**
 	 * Set to F to disable stretching of result table height.
-	 * @param useStretchedLayout
 	 */
 	public void setUseStretchedLayout(boolean value) {
 		if(value == m_useStretchedLayout) {
@@ -1492,30 +816,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		m_lookupFormInitialization = lookupFormInitialization;
 	}
 
-	@Nonnull
-	public Class<OT> getOutputClass() {
-		return m_outputClass;
-	}
-
-	@Nonnull @Override public Class<OT> getActualType() {
-		return m_outputClass;
-	}
-
-	@Nonnull
-	public Class<QT> getQueryClass() {
-		return m_queryClass;
-	}
-
-	@Nonnull
-	public ClassMetaModel getOutputMetaModel() {
-		return m_outputMetaModel;
-	}
-
-	@Nonnull
-	public ClassMetaModel getQueryMetaModel() {
-		return m_queryMetaModel;
-	}
-
 	/**
 	 * Define the columns to show in "display current value" mode. This actually creates a
 	 * content renderer (a {@link LookupInputPropertyRenderer}) to render the fields.
@@ -1524,19 +824,6 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 */
 	public void setValueColumns(String... columns) {
 		setValueRenderer(new LookupInputPropertyRenderer<OT>(getOutputClass(), columns));
-	}
-
-	/**
-	 * The content renderer to use to render the current value.
-	 * @return
-	 */
-	@Nullable
-	public IRenderInto<OT> getValueRenderer() {
-		return m_valueRenderer;
-	}
-
-	public void setValueRenderer(@Nullable IRenderInto<OT> contentRenderer) {
-		m_valueRenderer = contentRenderer;
 	}
 
 	/**
@@ -1613,20 +900,8 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 		}
 	}
 
+	@Override
 	protected boolean isPopupShown() {
 		return m_floater != null;
-	}
-
-	@Override
-	public boolean isFocusable() {
-		return false;
-	}
-
-	@Override
-	public void setFocus() {
-		if(null != m_keySearch)
-			m_keySearch.setFocus();
-		else if(!isBuilt())
-			m_doFocus = true;
 	}
 }

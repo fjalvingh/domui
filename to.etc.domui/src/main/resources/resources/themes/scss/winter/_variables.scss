@@ -1,7 +1,8 @@
 $body-image: "";
 $bg_color: #ffffff;
 
-$font-family: 'Arial', 'Helvetica', sans-serif;
+$font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+//$font-family: 'Arial', 'Helvetica', sans-serif;
 //$font-family: 'Lato', 'Arial', 'Helvetica', sans-serif;
 $font-size: 14px;
 $fixed_font_family: 'Courier New, Courier, monospace';
@@ -109,3 +110,56 @@ $data_pager_icon_size_y: 19px;
 /*** Form baseline alignment ***/
 $form-line-height:	1.5em;
 $input-line-height: $form-line-height;
+
+/***----------------- Bulma like -------------------------***/
+
+/*** Colors ***/
+$orange:       hsl(14,  100%, 53%) !default;
+$yellow:       hsl(48,  100%, 67%) !default;
+$green:        hsl(141, 71%,  48%) !default;
+//$turquoise:    hsl(171, 100%, 41%) !default;
+$turquoise:    #f69231				 !default;
+$cyan:         hsl(204, 86%,  53%) !default;
+$blue:         hsl(217, 71%,  53%) !default;
+$purple:       hsl(271, 100%, 71%) !default;
+$red:          hsl(348, 100%, 61%) !default;
+
+$black:        hsl(0, 0%, 4%) !default;
+$black-bis:    hsl(0, 0%, 7%) !default;
+$black-ter:    hsl(0, 0%, 14%) !default;
+
+$grey-darker:  hsl(0, 0%, 21%) !default;
+$grey-dark:    hsl(0, 0%, 29%) !default;
+$grey:         hsl(0, 0%, 48%) !default;
+$grey-light:   hsl(0, 0%, 71%) !default;
+$grey-lighter: hsl(0, 0%, 86%) !default;
+
+$white-ter:    hsl(0, 0%, 96%) !default;
+$white-bis:    hsl(0, 0%, 98%) !default;
+$white:        hsl(0, 0%, 100%) !default;
+
+$size-1: 3rem !default;
+$size-2: 2.5rem !default;
+$size-3: 2rem !default;
+$size-4: 1.5rem !default;
+$size-5: 1.25rem !default;
+$size-6: 1rem !default;
+$size-7: 0.75rem !default;
+
+$weight-light: 300 !default;
+$weight-normal: 400 !default;
+$weight-medium: 500 !default;
+$weight-semibold: 600 !default;
+$weight-bold: 700 !default;
+
+//-- Misc
+$easing: ease-out !default;
+$radius-small: 2px !default;
+$radius: 3px !default;
+$radius-large: 5px !default;
+$speed: 86ms !default;
+
+$control-padding-vertical: calc(0.375em - 1px) !default;
+$control-padding-horizontal: calc(0.625em - 1px) !default;
+
+$input-border-color: #dbdbdb;

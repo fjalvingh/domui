@@ -183,8 +183,9 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	}
 
 	private void renderEditable() throws Exception {
-		setCssClass("ui-cbb2 ui-cbb2-rw");
+		setCssClass("ui-cbb2 xxui-cbb2-rw ui-control");
 		add(m_select);
+		m_select.addCssClass("ui-input");
 
 		//-- Append stuff to the combo
 		List<T> list = getData();
