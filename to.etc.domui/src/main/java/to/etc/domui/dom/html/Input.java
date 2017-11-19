@@ -24,12 +24,17 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import to.etc.domui.component.input.Text;
+import to.etc.domui.dom.errors.INodeErrorDelegate;
+import to.etc.domui.parts.MarkerImagePart;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * The "input" tag as a base class. This one only handles classic, non-image inputs.
@@ -59,6 +64,13 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 
 	@Nullable
 	private String m_placeHolder;
+
+	/**
+	 * @see Text#getEmptyMarker()
+	 */
+	private String m_emptyMarker;
+
+
 
 	public Input() {
 		super("input");
@@ -277,4 +289,87 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	@Nullable @Override public NodeBase getForTarget() {
 		return this;
 	}
+
+	private void setEmptyMarker(String emptyMarker) {
+		if(DomUtil.isBlank(emptyMarker)) {
+			setSpecialAttribute("marker", null);
+		} else {
+			setSpecialAttribute("marker", emptyMarker);
+		}
+		m_emptyMarker = emptyMarker;
+	}
+
+	/**
+	 * Returns assigned empty marker.
+	 *
+	 * @see Text#setEmptyMarker(String)
+	 */
+	public String getEmptyMarker() {
+		return m_emptyMarker;
+	}
+
+	/**
+	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
+	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used
+	 * only for manually-constructed images.
+	 * @param emptyMarker
+	 */
+	public void setMarkerImage(String emptyMarker) {
+		if(DomUtil.isBlank(emptyMarker)) {
+			setSpecialAttribute("marker", null);
+		} else {
+			setSpecialAttribute("marker", emptyMarker);
+		}
+		m_emptyMarker = emptyMarker;
+	}
+
+	/**
+	 * Returns assigned empty marker.
+	 *
+	 * @see Text#setMarkerImage(String)
+	 */
+	public String getMarkerImage() {
+		return m_emptyMarker;
+	}
+
+
+	/**
+	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
+	 * @return
+	 */
+	public void setMarker() {
+		setMarkerImage(MarkerImagePart.getBackgroundIconOnly());
+	}
+
+	/**
+	 * Method can be used to show custom marker icon as image in background of input. Image is hidden when input have focus or has any content.
+	 *
+	 * @param iconUrl
+	 * @return
+	 */
+	public void setMarker(String iconUrl) {
+		setMarkerImage(MarkerImagePart.getBackgroundIconOnly(iconUrl));
+	}
+
+	/**
+	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier and custom label as image in background of input. Image is hidden when input have focus or has any content.
+	 *
+	 * @param caption
+	 * @return
+	 */
+	public void setMarkerText(String caption) {
+		setMarkerImage(MarkerImagePart.getBackgroundImage(caption));
+	}
+
+	/**
+	 * Method can be used to show custom marker icon and custom label as image in background of input. Image is hidden when input have focus or has any content.
+	 *
+	 * @param iconUrl
+	 * @param caption
+	 * @return
+	 */
+	public void setMarker(String iconUrl, String caption) {
+		setMarkerImage(MarkerImagePart.getBackgroundImage(iconUrl, caption));
+	}
+
 }

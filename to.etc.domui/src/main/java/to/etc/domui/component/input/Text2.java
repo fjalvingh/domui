@@ -547,24 +547,12 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	}
 
 	/**
-	 * Returns assigned empty marker.
-	 */
-	@Nullable
-	public String getEmptyMarker() {
-		return m_emptyMarker;
-	}
-
-	/**
 	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
 	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used
 	 * only for manually-constructed images.
 	 */
 	public void setMarkerImage(@Nullable String emptyMarker) {
-		if(DomUtil.isBlank(emptyMarker)) {
-			setSpecialAttribute("marker", null);
-		} else {
-			setSpecialAttribute("marker", emptyMarker);
-		}
+		m_input.setMarkerImage(emptyMarker);
 		m_emptyMarker = emptyMarker;
 	}
 
