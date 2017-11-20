@@ -745,6 +745,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		b.setIcon("THEME/btnFind.png");
 		b.setTestID("searchButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
+		b.css("is-primary");
 		b.setClicked(new IClicked<NodeBase>() {
 			@Override
 			public void clicked(final @Nonnull NodeBase bx) throws Exception {
@@ -1541,7 +1542,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	public void addButtonItem(NodeBase b, int order, ButtonMode both) {
 		if(m_buttonItemList == Collections.EMPTY_LIST)
-			m_buttonItemList = new ArrayList<ButtonRowItem>(10);
+			m_buttonItemList = new ArrayList<>(10);
 		m_buttonItemList.add(new ButtonRowItem(order, both, b));
 	}
 

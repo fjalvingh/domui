@@ -16,6 +16,9 @@ public class AllComponents1Page extends UrlPage {
 		container.add(new HTag(1, "Miscellany").css("ui-header flex-table-header"));
 		container.add(new FileUploadFragment());
 
+		container.add(new HTag(1, "LookupForm component").css("ui-header flex-table-header"));
+		container.add(new LookupForm1Fragment());
+
 		container.add(new HTag(1, "Text components inside a form").css("ui-header flex-table-header"));
 		container.add(new Text2F4Fragment().css("flex-table-column"));
 		container.add(new Text1F4Fragment().css("flex-table-column"));
@@ -38,5 +41,6 @@ public class AllComponents1Page extends UrlPage {
 		container.add(new HTag(1, "Text components outside a form").css("ui-header flex-table-header"));
 		container.add(new Text2RawFragment().css("flex-table-column"));
 		container.add(new TextRawFragment().css("flex-table-column"));
+
 	}
 }

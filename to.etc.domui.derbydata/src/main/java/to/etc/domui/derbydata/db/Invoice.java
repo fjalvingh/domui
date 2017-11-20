@@ -1,5 +1,8 @@
 package to.etc.domui.derbydata.db;
 
+import to.etc.domui.component.meta.MetaSearch;
+import to.etc.domui.component.meta.SearchPropertyType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -53,6 +56,7 @@ public class Invoice extends DbRecordBase<Long> {
 		m_id = id;
 	}
 
+	@MetaSearch(order = 1, searchType = SearchPropertyType.SEARCH_FIELD)
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "CustomerId")
 	public Customer getCustomer() {
@@ -63,6 +67,7 @@ public class Invoice extends DbRecordBase<Long> {
 		m_customer = customer;
 	}
 
+	@MetaSearch(order = 10, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(name = "InvoiceDate", nullable = false)
 	@Temporal(TemporalType.DATE)
 	public Date getInvoiceDate() {
@@ -73,6 +78,7 @@ public class Invoice extends DbRecordBase<Long> {
 		m_invoiceDate = invoiceDate;
 	}
 
+	@MetaSearch(order = 30, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(name = "BillingAddress", length = 70, nullable = true)
 	public String getBillingAddress() {
 		return m_billingAddress;
@@ -82,6 +88,7 @@ public class Invoice extends DbRecordBase<Long> {
 		m_billingAddress = billingAddress;
 	}
 
+	@MetaSearch(order = 20, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(name = "BillingCity", length = 40, nullable = true)
 	public String getBillingCity() {
 		return m_billingCity;
