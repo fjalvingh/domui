@@ -221,6 +221,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	public void setDisplayDimensions(@Nonnull Dimension displayDimensions) {
 		m_displayDimensions = displayDimensions;
+		forceRebuild();
 	}
 
 	@Nonnull public Dimension getMaxDimensions() {
