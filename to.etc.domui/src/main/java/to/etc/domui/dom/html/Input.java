@@ -290,24 +290,6 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 		return this;
 	}
 
-	private void setEmptyMarker(String emptyMarker) {
-		if(DomUtil.isBlank(emptyMarker)) {
-			setSpecialAttribute("marker", null);
-		} else {
-			setSpecialAttribute("marker", emptyMarker);
-		}
-		m_emptyMarker = emptyMarker;
-	}
-
-	/**
-	 * Returns assigned empty marker.
-	 *
-	 * @see Text#setEmptyMarker(String)
-	 */
-	public String getEmptyMarker() {
-		return m_emptyMarker;
-	}
-
 	/**
 	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
 	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used

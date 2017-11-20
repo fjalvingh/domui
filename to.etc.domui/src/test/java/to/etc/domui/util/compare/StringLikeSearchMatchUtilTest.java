@@ -8,7 +8,7 @@ import org.junit.*;
 public class StringLikeSearchMatchUtilTest {
 
 	@Test
-	public void test_whenExpectedMatch_matchIsFound() throws Exception {
+	public void testWhenExpectedMatchMatchIsFound() throws Exception {
 		StringLikeSearchMatchUtil util = new StringLikeSearchMatchUtil();
 		Assert.assertTrue("Successful match", util.compareLike("Abcd", "Abcd"));
 		Assert.assertTrue("Successful match", util.compareLike("Abcd", "A%d"));
@@ -18,7 +18,7 @@ public class StringLikeSearchMatchUtilTest {
 	}
 
 	@Test
-	public void test_whenNotExpectedMatch_matchIsNotFound() throws Exception {
+	public void testWhenNotExpectedMatchMatchIsNotFound() throws Exception {
 		StringLikeSearchMatchUtil util = new StringLikeSearchMatchUtil();
 		Assert.assertFalse("Unsuccessful match", util.compareLike("bcd", "A%d"));
 		Assert.assertFalse("Unsuccessful match", util.compareLike("abcd", "bcd%"));

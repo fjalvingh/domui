@@ -17,7 +17,9 @@ import java.io.IOException;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-8-17.
  */
-public class ImageHelper {
+final public class ImageHelper {
+	private void ImageHelper() {}
+
 	public static void checkBaseLine(String baseName, WebDriverConnector wd, By first, By second, By whole) throws Exception {
 		WebElement one = wd.getElement(first);
 		WebElement two = wd.getElement(second);

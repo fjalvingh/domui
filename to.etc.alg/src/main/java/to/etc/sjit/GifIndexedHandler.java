@@ -34,15 +34,8 @@ import java.awt.image.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class GifIndexedHandler extends GifHandlerBase {
-	/// The color model for this image
-	private IndexColorModel	m_icm;
-
-	/// The output data buffer,
-	private DataBufferByte	m_dbb;
-
 	/// The databuffer's data buffer!
 	private byte[]			m_data;
-
 
 	public GifIndexedHandler(AnimGifDecoder de, GifImaMeta im, int type) {
 		super(de, im, type);
@@ -55,14 +48,15 @@ public class GifIndexedHandler extends GifHandlerBase {
 	@Override
 	protected BufferedImage prepare() throws java.io.IOException {
 		//-- Prepare the color model,
+		IndexColorModel icm;
 		if(m_im.m_transparant)
-			m_icm = new IndexColorModel(m_im.m_bits_colortable, m_im.m_sz_colortable, m_im.m_reds, m_im.m_grns, m_im.m_blus, m_im.m_transparant_ix);
+			icm = new IndexColorModel(m_im.m_bits_colortable, m_im.m_sz_colortable, m_im.m_reds, m_im.m_grns, m_im.m_blus, m_im.m_transparant_ix);
 		else
-			m_icm = new IndexColorModel(m_im.m_bits_colortable, m_im.m_sz_colortable, m_im.m_reds, m_im.m_grns, m_im.m_blus);
+			icm = new IndexColorModel(m_im.m_bits_colortable, m_im.m_sz_colortable, m_im.m_reds, m_im.m_grns, m_im.m_blus);
 
 
 		//-- Create the BufferedImage,
-		m_bi = new BufferedImage(m_im.m_w, m_im.m_h, m_type, m_icm);
+		m_bi = new BufferedImage(m_im.m_w, m_im.m_h, m_type, icm);
 
 		//-- Get all writer data & check,
 		Raster ras = m_bi.getRaster();
@@ -76,9 +70,9 @@ public class GifIndexedHandler extends GifHandlerBase {
 			return null;
 		if(dbt.getNumBanks() != 1)
 			return null;
-		m_dbb = (DataBufferByte) dbt;
+		DataBufferByte dbb = (DataBufferByte) dbt;
 
-		m_data = m_dbb.getData();
+		m_data = dbb.getData();
 
 		return m_bi;
 	}

@@ -204,16 +204,8 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 
 		//-- If the value is NULL we MUST have an unselected option: add it if needed and select that one.
 		int ix = findListIndexForValue(v);
-		if(null == v || ix < 0) { // Also create "unselected" if the value is not part of the domain.
-			if(getEmptyOption() == null) {
-				//-- No empty option yet!! Create one;
-				SelectOption o = new SelectOption();
-				if(getEmptyText() != null)
-					o.setText(getEmptyText());
-				add(0, o); // Insert as the very 1st item
-				setEmptyOption(o); // Save this to mark it in-use.
-			}
-			setSelectedIndex(0);
+		if(null == v || ix < 0) { 								// Also create "unselected" if the value is not part of the domain.
+			setToEmptyOption();
 			return;
 		}
 
@@ -221,6 +213,18 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 		if(getEmptyOption() != null)
 			ix++;
 		setSelectedIndex(ix);
+	}
+
+	private void setToEmptyOption() {
+		if(getEmptyOption() == null) {
+			//-- No empty option yet!! Create one;
+			SelectOption o = new SelectOption();
+			if(getEmptyText() != null)
+				o.setText(getEmptyText());
+			add(0, o);								// Insert as the very 1st item
+			setEmptyOption(o);								// Save this to mark it in-use.
+		}
+		setSelectedIndex(0);
 	}
 
 	/**

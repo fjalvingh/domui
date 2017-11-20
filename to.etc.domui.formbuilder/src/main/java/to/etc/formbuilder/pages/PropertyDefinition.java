@@ -1,12 +1,16 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.dom.css.CssBase;
+import to.etc.domui.dom.html.IControl;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A mutable property definition. This is component-agnostic. Instances are cached and can be checked for referential equality.
@@ -14,7 +18,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 23, 2013
  */
-public class PropertyDefinition {
+final public class PropertyDefinition {
 	@Nonnull
 	final private Class< ? > m_actualType;
 

@@ -251,9 +251,9 @@ public class OracleDB extends BaseDB {
 		} catch(InvocationTargetException itx) {
 			if(itx.getCause() instanceof SQLException)
 				throw (SQLException) itx.getCause();
-			throw new RuntimeException(itx.getCause().toString(), itx.getCause());
+			throw new SQLException(itx.getCause().toString(), itx.getCause());
 		} catch(Exception x) {
-			throw new RuntimeException("Exception calling " + name + " on " + src + ": " + x, x);
+			throw new SQLException("Exception calling " + name + " on " + src + ": " + x, x);
 		}
 	}
 
