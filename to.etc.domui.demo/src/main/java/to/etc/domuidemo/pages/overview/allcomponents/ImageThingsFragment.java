@@ -18,11 +18,19 @@ import java.io.InputStream;
 public class ImageThingsFragment extends Div {
 	private IUIImage m_f10;
 
+	static private String[] DEMOS = {
+		"demo-gonzo.png"
+		, "demo-kermit.png"
+		, "demo-animal.png"
+		, "demo-eikel.png"
+	};
 
 	@Override public void createContent() throws Exception {
 		add(new HTag(2, "Image components").css("ui-header"));
 
-		try(InputStream is = getClass().getResourceAsStream("demo-animal.png")) {
+		String who = DEMOS[(int) (Math.random() * DEMOS.length)];
+
+		try(InputStream is = getClass().getResourceAsStream(who)) {
 			m_f10 = LoadedImage.create(is, new Dimension(64, 64), null);
 		}
 

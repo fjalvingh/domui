@@ -2,7 +2,9 @@ package to.etc.domui.component.image;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.HoverButton;
+import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.upload.IUploadAcceptingComponent;
 import to.etc.domui.component.upload.UploadPart;
@@ -10,7 +12,6 @@ import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
@@ -84,16 +85,20 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-isct");
+		setCssClass("ui-isct ctl-has-addons");
 
 		//-- Show as the thumbnail followed by [clear] [load another].
-		Img img = new Img();
-		add(img);
-		img.setImgWidth(Integer.toString(m_displayDimensions.getWidth()));
-		img.setImgHeight(Integer.toString(m_displayDimensions.getHeight()));
-		img.setAlign(ImgAlign.LEFT);
+		Div container = new Div("ui-isct-cont ui-control");
+		add(container);
+		container.setWidth(m_displayDimensions.getWidth() + "px");
+		container.setHeight(m_displayDimensions.getHeight() + "px");
 
 		if(m_value == null) {
+			Img img = new Img();
+			container.add(img);
+			img.setImgWidth(Integer.toString(m_displayDimensions.getWidth()));
+			img.setImgHeight(Integer.toString(m_displayDimensions.getHeight()));
+			img.setAlign(ImgAlign.LEFT);
 			String emptyIcon = getEmptyIcon();
 			if(null == emptyIcon) {
 				img.setSrc(Theme.ISCT_EMPTY);
@@ -102,38 +107,53 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			}
 		} else {
 			String url = getComponentDataURL("THUMB", new PageParameters("datx", System.currentTimeMillis() + ""));
+			Img img = new Img();
+			container.add(img);
+			img.setAlign(ImgAlign.LEFT);
 			img.setSrc(url);
 		}
 
 		if(!isDisabled() && ! isReadOnly()) {
-			add(" ");
-			HoverButton sib = m_sib = new HoverButton(Theme.ISCT_ERASE, new IClicked<HoverButton>() {
-				@Override
-				public void clicked(HoverButton clickednode) throws Exception {
-					setValue(null);
-					forceRebuild();
-					setImageChanged();
-				}
+			DefaultButton btn = new DefaultButton("", FaIcon.faWindowClose, a -> {
+				setValue(null);
+				forceRebuild();
+				setImageChanged();
 			});
-			add(sib);
-			sib.setTitle(Msgs.BUNDLE.getString(Msgs.ISCT_EMPTY_TITLE));
+			add(btn);
+			btn.setTitle(Msgs.BUNDLE.getString(Msgs.ISCT_EMPTY_TITLE));
+			btn.setDisabled(m_value == null);
+
+			//add(" ");
+			//HoverButton sib = m_sib = new HoverButton(Theme.ISCT_ERASE, new IClicked<HoverButton>() {
+			//	@Override
+			//	public void clicked(HoverButton clickednode) throws Exception {
+			//		setValue(null);
+			//		forceRebuild();
+			//		setImageChanged();
+			//	}
+			//});
+			//add(sib);
+			//sib.setTitle(Msgs.BUNDLE.getString(Msgs.ISCT_EMPTY_TITLE));
 
 			add(" ");
 			Form f = new Form();
-			add(f);
+			container.add(f);
 			f.setCssClass("ui-szless ui-isct-form");
 			f.setEnctype("multipart/form-data");
 			f.setMethod("POST");
 			StringBuilder sb = new StringBuilder();
 			ComponentPartRenderer.appendComponentURL(sb, UploadPart.class, this, UIContext.getRequestContext());
-			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
+			sb.append("?uniq=" + System.currentTimeMillis());	// Uniq the URL to prevent IE's caching.
 			f.setAction(sb.toString());
 
 			FileInput fi = new FileInput();
 			m_input = fi;
 			f.add(fi);
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
-			fi.setSpecialAttribute("fuallowed", "jpg,jpeg,png");
+			String types = ".jpg,.jpeg,.png,.gif";
+			fi.setSpecialAttribute("fuallowed", types);
+			fi.setSpecialAttribute("accept", types);
+			fi.setSpecialAttribute("fumaxsize", Integer.toString(1024*1024*10));
 		}
 	}
 
