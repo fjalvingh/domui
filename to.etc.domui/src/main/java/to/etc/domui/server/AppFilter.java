@@ -105,7 +105,7 @@ public class AppFilter implements Filter {
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
-			if(LOG.isDebugEnabled()) {
+			if(LOG.isDebugEnabled() || true) {
 				System.out.println("--- Request entering the server");
 
 				Enumeration<String> enu = rq.getHeaderNames();
