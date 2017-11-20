@@ -1,5 +1,7 @@
 package to.etc.util;
 
+import java.util.Objects;
+
 public class Pair<A, B> {
 	final private A	m_1;
 
@@ -16,5 +18,20 @@ public class Pair<A, B> {
 
 	public B get2() {
 		return m_2;
+	}
+
+	@Override public boolean equals(Object o) {
+		if(this == o)
+			return true;
+		if(o == null || getClass() != o.getClass())
+			return false;
+		Pair<?, ?> pair = (Pair<?, ?>) o;
+		return Objects.equals(m_1, pair.m_1) &&
+			Objects.equals(m_2, pair.m_2);
+	}
+
+	@Override public int hashCode() {
+
+		return Objects.hash(m_1, m_2);
 	}
 }
