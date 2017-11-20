@@ -14,7 +14,7 @@ jdk:
 language: java
 
 install: true
-script: mvn -q clean install -Dmaven.test.skip=false
+script: mvn -q clean install -Dmaven.test.skip=false -Dmaven.javadoc.skip=true
 
 cache:
   directories:
