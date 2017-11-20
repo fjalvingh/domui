@@ -24,12 +24,24 @@
  */
 package to.etc.dbutil;
 
-import java.io.*;
-import java.sql.*;
+import to.etc.dbpool.DbPoolUtil;
 
-import javax.annotation.*;
-
-import to.etc.dbpool.*;
+import javax.annotation.Nonnull;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.StringReader;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * A generic database access class to hide differences between databases.
@@ -467,7 +479,7 @@ public class GenericDB {
 	 */
 	static public void runScriptResource(Connection dbc, Class< ? > clz, String name, StringBuilder errors) throws Exception {
 		String script = getScriptResource(dbc, clz, name);
-		String[] ar = script.split("//");
+		String[] ar = script.split("(//)|(--\n)");
 		for(String s : ar) {
 			runSQL(dbc, s, errors);
 		}
