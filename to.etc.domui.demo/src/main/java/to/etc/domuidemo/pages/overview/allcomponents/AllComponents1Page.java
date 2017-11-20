@@ -15,6 +15,7 @@ public class AllComponents1Page extends UrlPage {
 
 		container.add(new HTag(1, "Miscellany").css("ui-header flex-table-header"));
 		container.add(new FileUploadFragment());
+		container.add(new ImageThingsFragment());
 
 		container.add(new HTag(1, "LookupForm component").css("ui-header flex-table-header"));
 		container.add(new LookupForm1Fragment());
