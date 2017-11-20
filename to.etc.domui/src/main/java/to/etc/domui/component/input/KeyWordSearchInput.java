@@ -58,9 +58,6 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 	@Nullable
 	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
 
-	@Nonnull
-	final private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
-
 	private Div m_pnlSearchPopup;
 
 	private int m_popupWidth;
@@ -127,7 +124,6 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 
 	/**
 	 * Set number of results label. Use -1 for hiding label.
-	 * @param results
 	 */
 	public void setResultsCount(int results) {
 		if(results != m_resultsCount) {

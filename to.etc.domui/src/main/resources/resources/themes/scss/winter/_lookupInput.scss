@@ -156,6 +156,7 @@ img.ui-lui-waiting {
 
 	input {
 		min-width: $lui-min-width;
+		background-position: 8px 8px;
 	}
 
 	@include ui-loading-base;

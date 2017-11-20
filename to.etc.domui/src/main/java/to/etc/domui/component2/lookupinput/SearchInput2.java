@@ -65,7 +65,7 @@ public class SearchInput2 extends Div implements IForTarget {
 		css("ui-lui-srip", "ui-control");
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
-		//m_keySearch.setMarker();
+		m_keySearch.setMarker();
 
 		add(m_keySearch);
 		m_keySearch.addCssClass("ui-input");
