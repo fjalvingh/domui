@@ -213,3 +213,75 @@ tr.ui-keyword-popop-rowsel:hover {
 tr.ui-keyword-popup-row {
 	cursor: pointer;
 }
+
+
+.ui-srip {
+	position: relative;
+	display: inline-block;
+}
+
+.ui-srip-keyword-popup {
+	position: absolute;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+}
+
+.ui-srip-keyword {
+	@include ui-input-base;
+	background-position: 0px 4px;
+}
+
+tr.uixx-keyword-popop-rowsel {
+	cursor: pointer;
+	background-color: $highlight2_bg !important;
+}
+
+tr.uixx-keyword-popop-rowsel:hover {
+	background-color: $highlight2_bg !important;
+}
+
+tr.uixx-keyword-popup-row {
+	cursor: pointer;
+}
+
+/*- message block, floating over the rest of the form -*/
+.ui-srip-message {
+	position: absolute;
+	top: 20px;
+	left: 0px;
+	width: auto;
+	height: auto;
+	border: 1px solid transparent;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	-webkit-border-radius: 4px;
+	padding: 5px;
+	z-index: 10;
+}
+
+.ui-srip-waiting {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 32px;
+	height: 32px;
+	background-color: white;
+}
+
+.ui-srip-waiting div {
+	width: 16px;
+	height: 16px;
+	background: url(lui-keyword-wait.gif) no-repeat;
+}
+
+.ui-lui2-dlg .ui-f-in {
+	padding-top: 2px;
+}
+
+.ui-lui2-dlg .ui-f-in input {
+	margin: 0 !important;
+}
