@@ -24,15 +24,22 @@
  */
 package to.etc.domui.component.layout;
 
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.dom.css.VisibilityType;
+import to.etc.domui.dom.errors.IErrorMessageListener;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.errors.PropagatingErrorFenceHandler;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
-import static to.etc.domui.dom.css.VisibilityType.*;
+import static to.etc.domui.dom.css.VisibilityType.HIDDEN;
+import static to.etc.domui.dom.css.VisibilityType.VISIBLE;
 
 /**
  * This is the default in-component error handling panel, for components that
@@ -104,6 +111,7 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 		}
 		m_msgList.add(m);
 		createErrorUI(m);
+		addAdditionalStyling();
 	}
 
 	protected void createErrorUI(UIMessage m) {
@@ -115,7 +123,6 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 	}
 
 	protected NodeContainer createErrorLine(UIMessage m) {
-		addAdditionalStyling(m);
 		Div d = new Div();
 		add(d);
 		d.setCssClass("ui-emd-msg ui-emd-" + m.getType().name().toLowerCase());
@@ -131,9 +138,15 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 	/**
 	 * Adds css selector for additional styling to div container.
 	 */
-	private void addAdditionalStyling(@Nonnull UIMessage m) {
+	private void addAdditionalStyling() {
+		MsgType type = MsgType.INFO;
+		for(UIMessage msg : m_msgList) {
+			if(msg.getType().getOrder() > type.getOrder())
+				type = msg.getType();
+		}
+
 		if(getChildCount() >= 0 && getVisibility() == VISIBLE)
-			addCssClass("ui-emd-brd-" + m.getType().name().toLowerCase());
+			addCssClass("ui-emd-brd-" + type.name().toLowerCase());
 	}
 
 	@Override
@@ -154,6 +167,8 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 
 		if(getChildCount() == 0) {
 			setVisibility(HIDDEN);
+		} else {
+			addAdditionalStyling();
 		}
 	}
 }
