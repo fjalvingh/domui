@@ -1,7 +1,7 @@
 create sequence sys_smm_SEQ start with 1 increment by 1;
-//
+--
 create sequence sys_smr_SEQ start with 1 increment by 1;
-//
+--
 create table sys_mail_messages (
 	smm_id			number(19, 0) not null constraint smm_pk primary key,
 	smm_date		date not null,
@@ -10,7 +10,7 @@ create table sys_mail_messages (
 	smm_from_name		varchar2(64 char) not null,
 	smm_data		blob
 );
-//
+--
 create table sys_mail_recipients (
 	smr_id			number(19, 0) not null constraint smr_pk primary key,
 	smr_address		varchar2(128 char) not null,

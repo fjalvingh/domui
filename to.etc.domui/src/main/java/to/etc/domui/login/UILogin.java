@@ -19,7 +19,7 @@ import java.util.List;
  * Created on 10-11-17.
  */
 @DefaultNonNull
-public class UILogin {
+final public class UILogin {
 	static private volatile ILoginHandler	m_loginHandler = new DefaultLoginHandler();
 
 	/**

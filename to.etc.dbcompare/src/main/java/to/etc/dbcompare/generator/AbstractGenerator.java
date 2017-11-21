@@ -192,13 +192,13 @@ abstract public class AbstractGenerator {
 		//-- What changes can I support?
 		if(0 != (flag & (csPRECISION | csSCALE))) {
 			//-- Same type BUT size has changed. Is nullability changed too?
-			String nu = null;
+			//String nu = null;
 			if(0 != (flag & csNULLABLE)) {
 				if(!newc.isNullable()) {
 					System.out.println("TODO: Need not-null modification for " + dt.getName() + "." + oldc.getName());
-					nu = " not null";
-				} else {
-					nu = " null";
+					//nu = " not null";
+				//} else {
+				//	nu = " null";
 				}
 			}
 			flag &= ~csNULLABLE;

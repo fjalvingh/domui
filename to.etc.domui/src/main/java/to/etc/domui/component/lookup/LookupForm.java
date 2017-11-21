@@ -745,12 +745,10 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		b.setIcon("THEME/btnFind.png");
 		b.setTestID("searchButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
-		b.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(final @Nonnull NodeBase bx) throws Exception {
-				if(m_clicker != null)
-					m_clicker.clicked(LookupForm.this);
-			}
+		b.css("is-primary");
+		b.setClicked(bx -> {
+			if(m_clicker != null)
+				m_clicker.clicked(LookupForm.this);
 		});
 		addButtonItem(b, 100, ButtonMode.NORMAL);
 
@@ -758,23 +756,15 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		b.setIcon("THEME/btnClear.png");
 		b.setTestID("clearButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR_TITLE));
-		b.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(final @Nonnull NodeBase xb) throws Exception {
-				clearInput();
-				if(getOnClear() != null)
-					((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
-			}
+		b.setClicked(xb -> {
+			clearInput();
+			if(getOnClear() != null)
+				((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
 		});
 		addButtonItem(b, 200, ButtonMode.NORMAL);
 
 		//-- Collapse button thingy
-		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@Nonnull DefaultButton bx) throws Exception {
-				collapse();
-			}
-		});
+		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", bx -> collapse());
 		m_collapseButton.setTestID("hideButton");
 		m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
 		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
@@ -782,25 +772,17 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	public void addFilterButton() {
 		if(m_filterButton == null) { // Only add the button if it doesn't exist already
-			m_filterButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SAVE_SEARCH), Theme.BTN_SAVE, new IClicked<DefaultButton>() {
-				@Override
-				public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
-					saveSearchQuery();
-				}
-			});
+			m_filterButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SAVE_SEARCH), Theme.BTN_SAVE, clickednode -> saveSearchQuery());
 			addButtonItem(m_filterButton, 400, ButtonMode.NORMAL);
 		}
 	}
 
 	private void saveSearchQuery() throws Exception {
 		SaveSearchFilterDialog dialog = new SaveSearchFilterDialog(DomUtil.nullChecked(m_lookupFilterHandler), getPage().getBody().getClass().getName(), getFilterValues());
-		dialog.onFilterSaved(new INotify<SavedFilter>() {
-			@Override
-			public void onNotify(@Nonnull SavedFilter sender) throws Exception {
-				m_savedFilters.add(sender);
-				if(m_lookupFormSavedFilterFragment != null) {
-					m_lookupFormSavedFilterFragment.forceRebuild();
-				}
+		dialog.onFilterSaved(sender -> {
+			m_savedFilters.add(sender);
+			if(m_lookupFormSavedFilterFragment != null) {
+				m_lookupFormSavedFilterFragment.forceRebuild();
 			}
 		});
 		dialog.modal();
@@ -833,12 +815,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
 		m_collapseButton.setIcon("THEME/btnShowLookup.png");
-		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@Nonnull DefaultButton bx) throws Exception {
-				restore();
-			}
-		});
+		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> restore());
 		createButtonRow(m_collapsedPanel, true);
 		//trigger after collapse event is set
 		if(getOnAfterCollapse() != null) {
@@ -855,12 +832,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
 		m_collapseButton.setIcon("THEME/btnHideLookup.png");
-		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@Nonnull DefaultButton bx) throws Exception {
-				collapse();
-			}
-		});
+		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> collapse());
 
 		m_content.setDisplay(DisplayType.BLOCK);
 		m_collapsed = false;
@@ -1541,7 +1513,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	public void addButtonItem(NodeBase b, int order, ButtonMode both) {
 		if(m_buttonItemList == Collections.EMPTY_LIST)
-			m_buttonItemList = new ArrayList<ButtonRowItem>(10);
+			m_buttonItemList = new ArrayList<>(10);
 		m_buttonItemList.add(new ButtonRowItem(order, both, b));
 	}
 

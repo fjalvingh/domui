@@ -25,6 +25,10 @@
 		}
 	}
 
+	&.ui-input-err select {
+		background-color: $errors_input_background;
+	}
+
 	select {
 		@include ui-input-base;
 		@include ui-control-base;

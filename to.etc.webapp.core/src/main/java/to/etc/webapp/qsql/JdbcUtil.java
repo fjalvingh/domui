@@ -66,7 +66,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 21, 2009
  */
-public class JdbcUtil {
+final public class JdbcUtil {
 	static public final Logger LOG = LoggerFactory.getLogger(JdbcUtil.class);
 
 	private JdbcUtil() {}

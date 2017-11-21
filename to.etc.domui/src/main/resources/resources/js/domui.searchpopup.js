@@ -1,3 +1,7 @@
+var WebUI;
+if(! WebUI)
+	WebUI = {};
+
 WebUI.K_RETURN = 13;
 WebUI.K_UP = 38;
 WebUI.K_DOWN = 40;
@@ -215,7 +219,6 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * Function is called with delay of 500ms from ajax.beforeSend method for lookupTyping event.
 	 */
 	displayWaiting: function() {
-		console.log("waiting");
 		$('#' + this._id).addClass("is-loading");
 
 		// var waitdiv = this._waitDiv;
@@ -232,7 +235,6 @@ $.extend(WebUI.SearchPopup.prototype, {
 	 * Function is called from ajax.completed method for lookupTyping event.
 	 */
 	hideWaiting: function() {
-		console.log("waiting done");
 		$('#' + this._id).removeClass("is-loading");
 		// var waitdiv = this._waitDiv;
 		// if(!waitdiv)

@@ -1,8 +1,12 @@
 package to.etc.util;
 
-import java.util.*;
-
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 final public class Diff<T> {
 	static public boolean	DEBUG	= false;
@@ -106,6 +110,9 @@ final public class Diff<T> {
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			switch(getType()){
+				default:
+					throw new IllegalStateException(getType() + "?");
+
 				case ADD:
 					sb.append("+");
 					break;
@@ -113,6 +120,7 @@ final public class Diff<T> {
 				case DELETE:
 					sb.append("-");
 					break;
+
 				case SAME:
 					sb.append(" ");
 					break;
@@ -128,22 +136,7 @@ final public class Diff<T> {
 
 	static public <I> List<Diff<I>> diffList(@Nonnull List<I> oldl, @Nonnull List<I> newl, @Nullable Comparator<I> comparator, boolean skipsame) {
 		if(null == comparator) {
-			comparator = new Comparator<I>() {
-				@Override
-				public int compare(I o, I n) {
-					if(o == n)
-						return 0;
-					if(o == null)
-						return 1;
-					if(n == null)
-						return -1;
-					if(o instanceof Comparable) {
-						Comparable<I> c = (Comparable<I>) o;
-						return c.compareTo(n);
-					}
-					return o.toString().compareTo(n.toString());
-				}
-			};
+			comparator = new DiffComparator<>();
 		}
 
 		//-- First slice off common start and end;
@@ -209,8 +202,8 @@ final public class Diff<T> {
 			Item<I> e = new Item<I>(Type.SAME, oldl.get(xxx));
 			res.add(e);
 			e.setIndex(xxx);
-			if(DEBUG2)
-				tmp.add("  " + oldl.get(xxx) + " @" + xxx + " (e)");
+			//if(DEBUG2)
+			//	tmp.add("  " + oldl.get(xxx) + " @" + xxx + " (e)");
 		}
 
 		int i = m - 1;
@@ -218,8 +211,8 @@ final public class Diff<T> {
 		while(j > 0 || i > 0) {
 			if(i > 0 && j > 0 && 0 == comparator.compare(oldl.get(obeg + i - 1), newl.get(nbeg + j - 1))) {
 				int sindex = (obeg + i - 1);
-				if(DEBUG2)
-					tmp.add("  " + oldl.get(sindex) + " @" + sindex);
+				//if(DEBUG2)
+				//	tmp.add("  " + oldl.get(sindex) + " @" + sindex);
 				res.add(new Item<I>(Type.SAME, oldl.get(sindex)));
 				i--;
 				j--;
@@ -230,16 +223,16 @@ final public class Diff<T> {
 				int nindex = nbeg + j - 1;
 				I nitem = newl.get(nindex);
 
-				if(DEBUG2)
-					tmp.add("+ " + nitem + " @" + nindex);
+				//if(DEBUG2)
+				//	tmp.add("+ " + nitem + " @" + nindex);
 				res.add(new Item<I>(Type.ADD, nitem));
 				j--;
 			} else if(i > 0 && (j == 0 || car[i][j - 1] < car[i - 1][j])) {
 				//-- Deletion
 				int oindex = obeg + i - 1;
 				I oitem = oldl.get(oindex);
-				if(DEBUG2)
-					tmp.add("- " + oitem + " @" + (oindex));
+				//if(DEBUG2)
+				//	tmp.add("- " + oitem + " @" + (oindex));
 				res.add(new Item<I>(Type.DELETE, oitem));
 				i--;
 			}
@@ -247,8 +240,8 @@ final public class Diff<T> {
 
 		//-- Add all unhandled @ start,
 		for(i = obeg; --i >= 0;) {
-			if(DEBUG2)
-				tmp.add("  " + oldl.get(i) + " @" + i + " (s)");
+			//if(DEBUG2)
+			//	tmp.add("  " + oldl.get(i) + " @" + i + " (s)");
 			res.add(new Item<I>(Type.SAME, oldl.get(i)));
 		}
 		Collections.reverse(tmp);
@@ -275,6 +268,8 @@ final public class Diff<T> {
 			}
 
 			switch(item.getType()){
+				default:
+					throw new IllegalStateException(item.getType() + "?");
 				case ADD:
 					nindex++;
 					break;
@@ -290,23 +285,23 @@ final public class Diff<T> {
 
 		if(currchange != Type.SAME || !skipsame)
 			addDiffItem(oldl, newl, oindex, dres, nindex, lastoindex, lastnindex, currchange);
-		if(DEBUG) {
-			for(Item<I> s : res) {
-				System.out.println(" " + s);
-			}
-		}
-
-		if(DEBUG) {
-			System.out.println("Diff: delta:");
-			for(Diff<I> d : dres) {
-				System.out.print(d);
-			}
-		}
-		if(DEBUG2) {
-			System.out.println("Debug list:");
-			for(String s : tmp)
-				System.out.println(" " + s);
-		}
+		//if(DEBUG) {
+		//	for(Item<I> s : res) {
+		//		System.out.println(" " + s);
+		//	}
+		//}
+		//
+		//if(DEBUG) {
+		//	System.out.println("Diff: delta:");
+		//	for(Diff<I> d : dres) {
+		//		System.out.print(d);
+		//	}
+		//}
+		//if(DEBUG2) {
+		//	System.out.println("Debug list:");
+		//	for(String s : tmp)
+		//		System.out.println(" " + s);
+		//}
 
 		return dres;
 	}
@@ -315,6 +310,8 @@ final public class Diff<T> {
 	private static <I> void addDiffItem(List<I> oldl, List<I> newl, int oindex, List<Diff<I>> dres, int nindex, int lastoindex, int lastnindex, Type type) {
 		if(lastoindex != oindex || lastnindex != nindex) {
 			switch(type){
+				default:
+					throw new IllegalStateException(type + "?");
 				case ADD:
 					dres.add(new Diff<I>(lastoindex, oindex, newl.subList(lastnindex, nindex), Type.ADD));
 					break;
@@ -332,12 +329,7 @@ final public class Diff<T> {
 	public static void main(String[] args) throws Exception {
 		List<String> a = Arrays.asList("A", "B", "B", "A", "D", "E", "A", "D");
 		List<String> b = Arrays.asList("B", "A", "A", "D", "E", "A", "D");
-		Comparator<String> cs = new Comparator<String>() {
-			@Override
-			public int compare(String o1, String o2) {
-				return o1.compareTo(o2);
-			}
-		};
+		Comparator<String> cs = String::compareTo;
 
 		// abbadead: diff is -a @0 -b @1 +A @2
 		// 01234567
@@ -348,5 +340,22 @@ final public class Diff<T> {
 		diffList(a, b, cs);
 
 
+	}
+
+	private static class DiffComparator<I> implements Comparator<I> {
+		@Override
+		public int compare(I o, I n) {
+			if(o == n)
+				return 0;
+			if(o == null)
+				return 1;
+			if(n == null)
+				return -1;
+			if(o instanceof Comparable) {
+				Comparable<I> c = (Comparable<I>) o;
+				return c.compareTo(n);
+			}
+			return o.toString().compareTo(n.toString());
+		}
 	}
 }

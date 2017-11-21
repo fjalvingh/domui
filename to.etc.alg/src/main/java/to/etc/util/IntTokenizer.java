@@ -54,7 +54,7 @@ public class IntTokenizer extends StringTokenizer {
 		try {
 			return Integer.parseInt(s);
 		} catch(Exception ex) {
-			throw new Exception(s + ": expecting an integer value.");
+			throw new IllegalArgumentException(s + ": expecting an integer value.");
 		}
 	}
 
@@ -69,7 +69,7 @@ public class IntTokenizer extends StringTokenizer {
 		try {
 			return Long.parseLong(s);
 		} catch(Exception ex) {
-			throw new Exception(s + ": expecting an integer value.");
+			throw new IllegalArgumentException(s + ": expecting an integer value.");
 		}
 	}
 

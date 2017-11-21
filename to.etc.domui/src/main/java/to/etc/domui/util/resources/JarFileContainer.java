@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -30,7 +31,7 @@ import java.util.zip.ZipInputStream;
 
 	private long m_tsModified;
 
-	private final Map<String, JarredFileRef> m_fileMap = new HashMap<>();
+	private final Map<String, JarredFileRef> m_fileMap = new ConcurrentHashMap<>();
 
 	private final Map<String, byte[][]> m_cachedMap = new HashMap<>();
 
@@ -93,7 +94,7 @@ import java.util.zip.ZipInputStream;
 		return m_fileMap.get(name);
 	}
 
-	public void reloadIfChanged() {
+	public synchronized void reloadIfChanged() {
 		if(!m_file.exists()) {
 			if(m_tsModified == -1)
 				return;
@@ -104,12 +105,45 @@ import java.util.zip.ZipInputStream;
 		reload();
 	}
 
+	/**
+	 * Loads the resource from the jar. In addition to the specified resource this also
+	 * load all other resources in the same directory because it's likely they are
+	 * needed soon too.
+	 */
 	@Nonnull
 	byte[][] loadResource(@Nonnull String name) throws IOException {
-		try(InputStream is = FileTool.getZipContent(m_file, name)) {
-			if(null == is)
-				throw new IOException("File '" + name + "' not found in jar " + m_file);
-			return FileTool.loadByteBuffers(is);                    // Load as a set of byte buffers.
+		int pos = name.lastIndexOf('/');
+		if(pos == -1) {
+			//-- Root resource - just load that.
+			try(InputStream is = FileTool.getZipContent(m_file, name)) {
+				if(null == is)
+					throw new IOException("File '" + name + "' not found in jar " + m_file);
+				return FileTool.loadByteBuffers(is);                    // Load as a set of byte buffers.
+			}
 		}
+
+		byte[][] data = null;
+		String path = name.substring(0, pos + 1);
+		try(ZipInputStream zis = new ZipInputStream(new FileInputStream(m_file))) {
+			for(; ; ) {
+				ZipEntry ze = zis.getNextEntry();
+				if(ze == null)
+					break;
+				String fn = ze.getName();
+				if((fn.startsWith(path) && ! fn.endsWith(".class")) || fn.equals(name)) {
+					//-- Load this thingy.
+					byte[][] buffers = FileTool.loadByteBuffers(zis);
+					if(fn.equals(name)) {
+						data = buffers;
+					} else {
+						JarredFileRef ref = m_fileMap.get(fn);
+						ref.setResourceData(buffers);
+					}
+				}
+			}
+		}
+		if(null == data)
+			throw new IOException("File '" + name + "' not found in jar " + m_file);
+		return data;
 	}
 }

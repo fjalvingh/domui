@@ -373,7 +373,7 @@ namespace WebUI {
 	export function lookupTypingDone(id : string) {
 		// Collect all input, then create input.
 		let fields = {};
-		this.getInputFields(fields);
+		WebUI.getInputFields(fields);
 		fields["webuia"] = "lookupTypingDone";
 		fields["webuic"] = id;
 		fields["$pt"] = (window as any).DomUIpageTag;

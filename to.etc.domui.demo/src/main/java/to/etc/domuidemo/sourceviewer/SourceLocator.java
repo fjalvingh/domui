@@ -1,13 +1,16 @@
 package to.etc.domuidemo.sourceviewer;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.server.DomApplication;
 
-import to.etc.domui.server.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SourceLocator {
-	private int m_nextKey;
-
 	static private final SourceLocator m_instance = new SourceLocator();
 
 	static private final SourceFile NOT_FOUND = new SourceFile(null, null, null);

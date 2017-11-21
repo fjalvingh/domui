@@ -2898,7 +2898,7 @@ var WebUI;
     WebUI.lookupTyping = lookupTyping;
     function lookupTypingDone(id) {
         var fields = {};
-        this.getInputFields(fields);
+        WebUI.getInputFields(fields);
         fields["webuia"] = "lookupTypingDone";
         fields["webuic"] = id;
         fields["$pt"] = window.DomUIpageTag;

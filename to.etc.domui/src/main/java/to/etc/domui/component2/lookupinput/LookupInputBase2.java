@@ -303,7 +303,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 		int size = model.getRows();
 		if(size == 0) {
-			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_NO_MATCH);
+			openMessagePanel("ui-lui-result-none", Msgs.UI_KEYWORD_SEARCH_NO_MATCH);
 		} else if (size == 1){ //in case of single match select value
 			handleSetValue(model.getItems(0, 1).get(0));
 		} else if(size > 10) {
@@ -312,7 +312,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 				if(((ITruncateableDataModel) model).isTruncated())
 					count = "> " + count;
 			}
-			openMessagePanel(Msgs.UI_KEYWORD_SEARCH_COUNT, count);
+			openMessagePanel("ui-lui-result-count", Msgs.UI_KEYWORD_SEARCH_COUNT, count);
 		} else {
 			openResultsPopup(model);
 		}
@@ -343,7 +343,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		});
 	}
 
-	private void openMessagePanel(@Nonnull String code, String... parameters) {
+	private void openMessagePanel(@Nonnull String cssClass, @Nonnull String code, String... parameters) {
 		String message = Msgs.BUNDLE.formatMessage(code, parameters);
 		Div pnl = m_pnlMessage;
 		if(pnl == null) {
@@ -351,7 +351,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 			Objects.requireNonNull(getKeySearch()).add(pnl);
 			//add(pnl);
 		}
-		pnl.setCssClass("ui-srip-message");
+		pnl.setCssClass("ui-srip-message " + cssClass);
 		pnl.setText(message);
 	}
 
