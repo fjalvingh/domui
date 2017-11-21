@@ -24,14 +24,15 @@
  */
 package to.etc.domui.component.layout;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.dom.css.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+
+import javax.annotation.*;
+import java.util.*;
+
+import static to.etc.domui.dom.css.VisibilityType.*;
 
 /**
  * This is the default in-component error handling panel, for components that
@@ -65,12 +66,12 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 		}
 		DomUtil.getMessageFence(parent).addErrorListener(this);
 		setCssClass("ui-emd");
-		setVisibility(VisibilityType.HIDDEN);
+		setVisibility(HIDDEN);
 	}
 
 	public ErrorMessageDiv() {
 		setCssClass("ui-emd");
-		setVisibility(VisibilityType.HIDDEN);
+		setVisibility(HIDDEN);
 	}
 
 	public void setAsErrorFence(NodeContainer parent) {
@@ -114,6 +115,7 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 	}
 
 	protected NodeContainer createErrorLine(UIMessage m) {
+		addAdditionalStyling(m);
 		Div d = new Div();
 		add(d);
 		d.setCssClass("ui-emd-msg ui-emd-" + m.getType().name().toLowerCase());
@@ -124,6 +126,14 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 			errorNode.addCssClass("ui-input-err");
 		}
 		return d;
+	}
+
+	/**
+	 * Adds css selector for additional styling to div container.
+	 */
+	private void addAdditionalStyling(@Nonnull UIMessage m) {
+		if(getChildCount() >= 0 && getVisibility() == VISIBLE)
+			addCssClass("ui-emd-brd-" + m.getType().name().toLowerCase());
 	}
 
 	@Override
@@ -143,7 +153,7 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 		}
 
 		if(getChildCount() == 0) {
-			setVisibility(VisibilityType.HIDDEN);
+			setVisibility(HIDDEN);
 		}
 	}
 }
