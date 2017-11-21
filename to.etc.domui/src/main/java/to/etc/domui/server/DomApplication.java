@@ -1020,6 +1020,11 @@ public abstract class DomApplication {
 		 * FIXME Same as above, this is for loading the CKEditor.
 		 */
 		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
+		addFontAwesomeContributor();
+	}
+
+	protected void addFontAwesomeContributor() {
+		addHeaderContributor(HeaderContributor.loadStylesheet("$fonts/font-awesome.min.css"), 10);
 	}
 
 	/**
