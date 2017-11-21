@@ -1,6 +1,5 @@
 package to.etc.domui.logic.errors;
 
-import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.binding.ComponentPropertyBinding;
 import to.etc.domui.component.binding.IBinding;
 import to.etc.domui.component.binding.OldBindingHandler;
@@ -209,7 +208,7 @@ public class ProblemReporter {
 		}
 	}
 
-	@NotNull private List<UIMessage> collectBindingErrorsFromComponent(ProblemSet newErrorSet, @Nonnull NodeBase n, List<ProblemInstance> all) {
+	@Nonnull private List<UIMessage> collectBindingErrorsFromComponent(ProblemSet newErrorSet, @Nonnull NodeBase n, List<ProblemInstance> all) {
 		List<IBinding> bindingList = n.getBindingList();
 		if(null == bindingList)
 			return Collections.emptyList();

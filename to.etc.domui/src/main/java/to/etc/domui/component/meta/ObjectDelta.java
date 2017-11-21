@@ -1,6 +1,5 @@
 package to.etc.domui.component.meta;
 
-import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.meta.ObjectDelta.Delta;
 
 import javax.annotation.Nonnull;
@@ -101,7 +100,7 @@ final public class ObjectDelta implements Iterable<Delta<?>> {
 		return new ObjectDelta(deltaMap);
 	}
 
-	@NotNull @Override public Iterator<Delta<?>> iterator() {
+	@Nonnull @Override public Iterator<Delta<?>> iterator() {
 		return m_deltaMap.values().iterator();
 	}
 
