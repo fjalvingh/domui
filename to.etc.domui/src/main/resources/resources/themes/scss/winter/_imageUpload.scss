@@ -10,6 +10,7 @@
 		display: inline-block;
 		position: relative;
 		border: 1px solid $input-border-color;
+		border-radius: 0.25em;
 	}
 
 	input[type="file"] {

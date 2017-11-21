@@ -90,8 +90,8 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		//-- Show as the thumbnail followed by [clear] [load another].
 		Div container = new Div("ui-isct-cont ui-control");
 		add(container);
-		container.setWidth(m_displayDimensions.getWidth() + "px");
-		container.setHeight(m_displayDimensions.getHeight() + "px");
+		container.setWidth((m_displayDimensions.getWidth() + 2) + "px");
+		container.setHeight((m_displayDimensions.getHeight() + 2) + "px");
 
 		if(m_value == null) {
 			Img img = new Img();
