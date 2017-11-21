@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.layout.FloatingWindow;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.lookup.LookupForm;
@@ -38,6 +39,7 @@ import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.IRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component2.lookupinput.DefaultLookupInputDialog;
 import to.etc.domui.dom.errors.IErrorMessageListener;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IClicked;
@@ -46,6 +48,7 @@ import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IExecute;
 import to.etc.domui.util.LookupInputPropertyRenderer;
 import to.etc.domui.util.Msgs;
 import to.etc.util.RuntimeConversions;
@@ -65,10 +68,6 @@ import java.util.List;
 abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT, OT> implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication {
 
 	public static final String MAGIC_ID_MARKER = "?id?";
-
-	protected void setKeySearch(@Nullable KeyWordSearchInput<OT> keySearch) {
-		m_keySearch = keySearch;
-	}
 
 	@Nullable
 	private LookupForm<QT> m_lookupForm;
@@ -97,6 +96,14 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	/** When T (default) you can press search on an empty popup form. 20120511 jal Default set to true. */
 	private boolean m_allowEmptyQuery = true;
 
+	/**
+	 * When T, it sets default lookup popup with by default collapsed search fields.
+	 */
+	private boolean m_popupInitiallyCollapsed;
+
+	/**
+	 * When T, it sets default lookup popup to search immediately.
+	 */
 	private boolean m_searchImmediately;
 
 	private int m_keyWordSearchPopupWidth;
@@ -112,6 +119,18 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
 	@Nullable
 	private List<SearchPropertyMetaModel> m_searchPropertyList;
+
+	/**
+	 * Provides alternative lookup popup factory.
+	 */
+	@Nullable
+	private IPopupOpener m_popupOpener;
+
+	/**
+	 * When we trigger forceRebuild, we can specify reason for this, and use this later to resolve focus after content is re-rendered.
+	 */
+	@Nullable
+	private RebuildCause m_rebuildCause;
 
 	/**
 	 * Default T. When set, table result would be stretched to use entire available height on FloatingWindow.
@@ -153,6 +172,18 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		 * @param lf
 		 */
 		void initialize(@Nonnull LookupForm<T> lf) throws Exception;
+	}
+
+
+	/**
+	 * Factory for the lookup dialog, to be shown when the lookup button is pressed.
+	 *
+	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+	 * Created on Sep 1, 2017
+	 */
+	public interface IPopupOpener {
+		@Nullable
+		<A, B, L extends LookupInputBase<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
 	}
 
 	/**
@@ -483,6 +514,17 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			return;
 		}
 
+		IPopupOpener popupOpener = getPopupOpener();
+		if (null != popupOpener){
+			Dialog floater = popupOpener.createDialog(this, keySearchModel, () -> {});
+			if (null != floater) {
+				floater.modal();
+				add(floater);
+				decoratePopup(floater);
+			}
+			return;
+		}
+
 		final FloatingWindow f = m_floater = FloatingWindow.create(this, getFormTitle() == null ? getDefaultTitle() : getFormTitle());
 		f.setWidth("740px");
 		f.setHeight("90%");
@@ -505,9 +547,13 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 				lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
+			setLookupForm(lf);
 		}
 
-		lf.setCollapsed(keySearchModel != null && keySearchModel.getRows() > 0);
+		boolean collapsed = isPopupInitiallyCollapsed();
+
+		lf.setCollapsed(collapsed || keySearchModel != null && keySearchModel.getRows() > 0);
+
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 
 		if(getLookupFormInitialization() != null) {
@@ -542,6 +588,20 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		} else if(isSearchImmediately()) {
 			search(lf);
 		}
+	}
+
+	private void decoratePopup(@Nonnull Dialog floater) {
+		if (isPopupInitiallyCollapsed() && floater instanceof DefaultLookupInputDialog) {
+			((DefaultLookupInputDialog<?, ?>) floater).setInitiallyCollapsed(true);
+		}
+
+		if (isSearchImmediately() && floater instanceof DefaultLookupInputDialog) {
+			((DefaultLookupInputDialog<?, ?>) floater).setSearchImmediately(true);
+		}
+	}
+
+	protected void setKeySearch(@Nullable KeyWordSearchInput<OT> keySearch) {
+		m_keySearch = keySearch;
 	}
 
 	/**
@@ -883,5 +943,25 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	@Override
 	protected boolean isPopupShown() {
 		return m_floater != null;
+	}
+
+	@Nullable
+	public IPopupOpener getPopupOpener() {
+		return m_popupOpener;
+	}
+
+	public void setPopupOpener(@Nullable IPopupOpener popupOpener) {
+		if (isBuilt()){
+			throw new ProgrammerErrorException("can't set popup opener on built component!");
+		}
+		m_popupOpener = popupOpener;
+	}
+
+	public boolean isPopupInitiallyCollapsed() {
+		return m_popupInitiallyCollapsed;
+	}
+
+	public void setPopupInitiallyCollapsed(boolean popupInitiallyCollapsed) {
+		m_popupInitiallyCollapsed = popupInitiallyCollapsed;
 	}
 }

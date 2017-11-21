@@ -24,11 +24,6 @@
  */
 package to.etc.domui.component.lookup;
 
-import java.util.*;
-import java.util.Map.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.event.*;
@@ -38,8 +33,10 @@ import to.etc.domui.component.lookup.ILookupControlInstance.*;
 import to.etc.domui.component.lookup.filter.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.dom.Animations;
+import to.etc.domui.component2.lookupinput.*;
+import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.themes.*;
@@ -47,6 +44,10 @@ import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
+import java.util.Map.*;
 
 /**
  * Creates a search box to enter search criteria. This only presents the search part of the
@@ -121,11 +122,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	@Nullable
 	private LookupFormSavedFilterFragment m_lookupFormSavedFilterFragment;
 
-	public @Nullable
-	DefaultButton getClearButton() {
-		return m_clearButton;
-	}
-
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -165,6 +161,14 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/** When adding properties yourself: do not clear metadata beforehand. */
 	private boolean m_keepMetaData;
+
+	@Nullable
+	private UIMessage m_newBtnDisableReason;
+
+	@Nullable
+	public DefaultButton getClearButton() {
+		return m_clearButton;
+	}
 
 	private Map<String, ILookupControlInstance<?>> getFilterItems() {
 		Map<String, ILookupControlInstance<?>> filterValues = new HashMap<>();
@@ -299,7 +303,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		private int m_order;
 
-		private String testId;
+		private String m_testId;
+
+		private boolean m_popupSearchImmediately;
+
+		private boolean m_popupInitiallyCollapsed;
 
 		private InputBehaviorType m_inputsBehavior = InputBehaviorType.DEFAULT;
 
@@ -397,6 +405,24 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		@Override
+		public boolean isPopupSearchImmediately() {
+			return m_popupSearchImmediately;
+		}
+
+		public void setPopupSearchImmediately(boolean v) {
+			m_popupSearchImmediately = v;
+		}
+
+		@Override
+		public boolean isPopupInitiallyCollapsed() {
+			return m_popupInitiallyCollapsed;
+		}
+
+		public void setPopupInitiallyCollapsed(boolean v) {
+			m_popupInitiallyCollapsed = v;
+		}
+
+		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Item:");
@@ -412,11 +438,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		public String getTestId() {
-			return testId;
+			return m_testId;
 		}
 
 		public void setTestId(String testId) {
-			this.testId = testId;
+			m_testId = testId;
 		}
 
 		public void setDisabled(boolean disabled) {
@@ -903,6 +929,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			it.setPropertyPath(sp.getPropertyPath());
 			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
 			it.setLookupHint(sp.getLookupHint()); // If a lookup hint is defined use it.
+			it.setPopupSearchImmediately(sp.isPopupSearchImmediately());
+			it.setPopupInitiallyCollapsed(sp.isPopupInitiallyCollapsed());
 			addAndFinish(it);
 			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
 				m_itemList.add(new ItemBreak());
@@ -1080,6 +1108,22 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(spmm);
 		final ILookupControlInstance<?> lookupInstance = lcf.createControl(spmm, null);
+
+		if (spmm.isPopupSearchImmediately()) {
+			if(lookupInstance instanceof LookupInputBase<?, ?>) {
+				((LookupInputBase<?, ?>) lookupInstance).setSearchImmediately(true);
+			}else if(lookupInstance instanceof LookupInputBase2<?, ?>) {
+				((LookupInputBase2<?, ?>) lookupInstance).setPopupSearchImmediately(true);
+			}
+		}
+
+		if (spmm.isPopupInitiallyCollapsed()) {
+			if(lookupInstance instanceof LookupInputBase<?, ?>) {
+				((LookupInputBase<?, ?>) lookupInstance).setPopupInitiallyCollapsed(true);
+			}else if(lookupInstance instanceof LookupInputBase2<?, ?>) {
+				((LookupInputBase2<?, ?>) lookupInstance).setPopupInitiallyCollapsed(true);
+			}
+		}
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
 			@Override
@@ -1310,9 +1354,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Create the optimal control using metadata for a property. This can only be called for an item
 	 * containing a property with metadata.
 	 *
-	 * @param container
-	 * @param name
-	 * @param pmm
+	 * @param it
 	 * @return
 	 */
 	private ILookupControlInstance<?> createControlFor(Item it) {
@@ -1409,7 +1451,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			m_onNew = onNew;
 			if(m_onNew != null && m_newBtn == null) {
 				m_newBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-				m_newBtn.setIcon("THEME/btnNew.png");
+				m_newBtn.setIcon(Theme.BTN_NEW);
 				m_newBtn.setTestID("newButton");
 				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
 				m_newBtn.setClicked(new IClicked<NodeBase>() {
@@ -1420,6 +1462,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 						}
 					}
 				});
+				m_newBtn.setDisabled(m_newBtnDisableReason);
 				addButtonItem(m_newBtn, 500, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
 				for(ButtonRowItem bri : m_buttonItemList) {
@@ -1594,7 +1637,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	/**
-	 * Use to collapse/restore LookupForm search pannel.
+	 * Use to collapse/restore LookupForm search panel.
 	 *
 	 * @param collapsed
 	 * @throws Exception
@@ -1696,5 +1739,12 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	@Nonnull
 	public ButtonFactory getButtonFactory() {
 		return m_buttonFactory;
+	}
+
+	public void setNewBtnDisableReason(@Nullable UIMessage rsn){
+		m_newBtnDisableReason = rsn;
+		if (null != m_newBtn){
+			m_newBtn.setDisabled(rsn);
+		}
 	}
 }

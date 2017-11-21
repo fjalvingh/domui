@@ -29,6 +29,12 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	private boolean m_searchImmediately;
 
 	/**
+	 * Default false for backward compatibility . Controls if the serach panel is initially collapsed or not
+	 */
+	private boolean m_initiallyCollapsed;
+
+
+	/**
 	 * Default T. When set, table result would be stretched to use entire available height on FloatingWindow.
 	 */
 	private boolean m_useStretchedLayout = true;
@@ -95,6 +101,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		m_queryMetaModel = queryMetaModel;
 		m_outputMetaModel = outputMetaModel;
 		m_modelFactory = modelFactory;
+		m_initiallyCollapsed = false;
 	}
 
 	@Override
@@ -122,7 +129,8 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 		ITableModel<OT> initialModel = m_initialModel;
 
-		//lf.setCollapsed(initialModel != null && initialModel.getRows() > 0);		jal this is very confusing, to have the thing collapse while it opens.
+		lf.setCollapsed(m_initiallyCollapsed || (initialModel != null && initialModel.getRows() > 0)); //this collapse search fields by configuration or if we enter the lookup popup with some already pre set results, for example given by search as you type.
+
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 
 		add(lf);
@@ -156,6 +164,10 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		}
 
 
+	}
+
+	public void setInitiallyCollapsed(boolean initiallyCollapsed) {
+		m_initiallyCollapsed = initiallyCollapsed;
 	}
 
 	private void search(@Nonnull LookupForm<QT> lf) throws Exception {
