@@ -536,4 +536,22 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 	public void setBindValue(@Nullable List<T> value) {
 		setValue(value);
 	}
+
+	@Nullable
+	public LookupInputBase.IPopupOpener getPopupOpener() {
+		return m_lookupInput.getPopupOpener();
+	}
+
+	public void setPopupOpener(@Nullable IPopupOpener popupOpener) {
+		m_lookupInput.setPopupOpener(popupOpener);
+	}
+
+	@Nullable
+	public IActionAllowed getIsLookupAllowed() {
+		return m_lookupInput.getIsLookupAllowed();
+	}
+
+	public void setIsLookupAllowed(@Nullable IActionAllowed isLookupAllowed) {
+		m_lookupInput.setIsLookupAllowed(isLookupAllowed);
+	}
 }
