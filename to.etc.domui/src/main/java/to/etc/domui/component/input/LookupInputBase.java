@@ -125,12 +125,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	private IPopupOpener m_popupOpener;
 
 	/**
-	 * When we trigger forceRebuild, we can specify reason for this, and use this later to resolve focus after content is re-rendered.
-	 */
-	@Nullable
-	private RebuildCause m_rebuildCause;
-
-	/**
 	 * Default T. When set, table result would be stretched to use entire available height on FloatingWindow.
 	 */
 	private boolean m_useStretchedLayout = true;
