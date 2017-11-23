@@ -99,7 +99,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	private boolean m_popupSearchImmediately;
 
 	/**
-	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
+	 * Factory for the lookup dialog, to be shown when the lookup button
 	 * is pressed.
 	 *
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -446,6 +446,20 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	public void setStringQueryFactory(@Nonnull IStringQueryFactory<QT> keyWordSearchManipulator) {
 		m_stringQueryFactory = keyWordSearchManipulator;
+	}
+
+	@Nullable
+	public String getKeyWordSearchCssClass() {
+		return m_keyWordSearchCssClass;
+	}
+
+	/**
+	 * Set custom css that would be applied only in case that component is rendering keyWordSearch.
+	 * Used for example in row inline rendering, where width and min-width should be additionaly customized.
+	 * @param cssClass
+	 */
+	public void setKeyWordSearchCssClass(@Nullable String cssClass) {
+		m_keyWordSearchCssClass = cssClass;
 	}
 
 	/**
