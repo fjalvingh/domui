@@ -100,9 +100,11 @@ public class ErrorFenceHandler implements IErrorFence {
 
 	@Override
 	public void addMessage(@Nonnull UIMessage uim) {
-		if(m_messageList == Collections.EMPTY_LIST)
-			m_messageList = new ArrayList<UIMessage>(15);
-		m_messageList.add(uim);
+		if (!m_messageList.contains(uim)) { ////prevent double adding of same uim
+			if(m_messageList == Collections.EMPTY_LIST)
+				m_messageList = new ArrayList<UIMessage>(15);
+			m_messageList.add(uim);
+		}
 
 		// ; now call all pending listeners. If this page has NO listeners we use the application default.
 		if(m_errorListeners.size() == 0) {
