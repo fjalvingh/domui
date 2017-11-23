@@ -648,16 +648,25 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		m_allowKeyWordSearch = allowKeyWordSearch;
 	}
 
+
+	/**
+	 * REMOVED: There is no need to use this: add any css class on the control itself and use CSS to address the
+	 * inner control.
+	 */
+	@Deprecated
 	@Nullable
 	public String getKeyWordSearchCssClass() {
 		return m_keyWordSearchCssClass;
 	}
 
 	/**
+	 * REMOVED: There is no need to use this: add any css class on the control itself and use CSS to address the
+	 * inner control.
 	 * Set custom css that would be applied only in case that component is rendering keyWordSearch.
 	 * Used for example in row inline rendering, where width and min-width should be additionaly customized.
 	 * @param cssClass
 	 */
+	@Deprecated
 	public void setKeyWordSearchCssClass(@Nullable String cssClass) {
 		m_keyWordSearchCssClass = cssClass;
 	}
@@ -730,7 +739,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	 */
 	public void addKeywordProperty(@Nonnull String name, int minlen) {
 		if(m_keywordLookupPropertyList == null)
-			m_keywordLookupPropertyList = new ArrayList<SearchPropertyMetaModel>();
+			m_keywordLookupPropertyList = new ArrayList<>();
 		SearchPropertyMetaModelImpl si = new SearchPropertyMetaModelImpl(getQueryMetaModel());
 		if(minlen > 0)
 			si.setMinLength(minlen);
@@ -742,8 +751,6 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	/**
 	 * Define a property to use for quick search. When used this overrides any metadata-defined
 	 * properties.
-	 *
-	 * @param name
 	 */
 	public void addKeywordProperty(@Nonnull String name) {
 		addKeywordProperty(name, -1);
@@ -751,7 +758,6 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 
 	/**
 	 * Not normally used; use {@link #addKeywordProperty(String, int)} instead.
-	 * @param keywordLookupPropertyList
 	 */
 	public void setKeywordSearchProperties(@Nonnull List<SearchPropertyMetaModel> keywordLookupPropertyList) {
 		m_keywordLookupPropertyList = keywordLookupPropertyList;

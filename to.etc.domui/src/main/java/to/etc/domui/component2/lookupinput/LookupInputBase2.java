@@ -38,13 +38,11 @@ import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component.tbl.ITruncateableDataModel;
 import to.etc.domui.component.tbl.PageQueryHandler;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IReturnPressed;
 import to.etc.domui.dom.html.IValueChanged;
-import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.IRenderInto;
@@ -66,18 +64,6 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		m_keySearch = keySearch;
 	}
 
-	/**
-	 * EXPERIMENTAL Factory for the lookup dialog, to be shown when the lookup button
-	 * is pressed.
-	 *
-	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
-	 * Created on Jul 8, 2014
-	 */
-	public interface IPopupOpener {
-		@Nonnull
-		<A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
-	}
-
 	private ITableModelFactory<QT, OT> m_modelFactory;
 
 	@Nullable
@@ -89,9 +75,6 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	@Nullable
 	private IStringQueryFactory<QT> m_stringQueryFactory;
 
-	@Nullable
-	private String m_keyWordSearchCssClass;
-
 	private int m_keyWordSearchPopupWidth;
 
 	@Nullable
@@ -99,6 +82,28 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	@Nullable
 	private IPopupOpener m_popupOpener;
+
+	/**
+	 * When T, it sets default lookup popup with by default collapsed search fields.
+	 */
+	private boolean m_popupInitiallyCollapsed;
+
+	/**
+	 * When T, it sets default lookup popup to search immediately.
+	 */
+	private boolean m_popupSearchImmediately;
+
+	/**
+	 * Factory for the lookup dialog, to be shown when the lookup button
+	 * is pressed.
+	 *
+	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+	 * Created on Jul 8, 2014
+	 */
+	public interface IPopupOpener {
+		@Nonnull
+		<A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
+	}
 
 	/**
 	 * Lookup a POJO Java bean persistent class.
@@ -158,9 +163,9 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 		ks.setReturnPressed((IReturnPressed<SearchInput2>) this::handleSelection);
 
-		if(m_keyWordSearchCssClass != null) {
-			addCssClass(m_keyWordSearchCssClass);
-		}
+		//if(m_keyWordSearchCssClass != null) {				// jal: 20171123 Already set on control, do not set on outer!
+		//	addCssClass(m_keyWordSearchCssClass);
+		//}
 		String hint = getKeySearchHint();
 		ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (hint != null) ? hint : getDefaultKeySearchHint()));
 	}
@@ -265,9 +270,22 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		floater.modal();
 		add(floater);
 
-		INotify<Dialog> onPopupOpen = m_onPopupOpen;
+		INotify<Dialog> onPopupOpen = getOnPopupOpen();
+
+		decoratePopup(floater);
+
 		if(null != onPopupOpen)
 			onPopupOpen.onNotify(floater);
+	}
+
+	private void decoratePopup(@Nonnull Dialog floater) {
+		if (isPopupInitiallyCollapsed() && floater instanceof DefaultLookupInputDialog) {
+			((DefaultLookupInputDialog<?, ?>) floater).setInitiallyCollapsed(true);
+		}
+
+		if (isPopupSearchImmediately() && floater instanceof DefaultLookupInputDialog) {
+			((DefaultLookupInputDialog<?, ?>) floater).setSearchImmediately(true);
+		}
 	}
 
 	@Nullable
@@ -325,21 +343,15 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		SelectOnePanel<OT> pnl = m_selectPanel = new SelectOnePanel<OT>(list, renderer);
 		DomUtil.nullChecked(getKeySearch()).add(pnl);
 
-		pnl.setOnValueChanged(new IValueChanged<SelectOnePanel<OT>>() {
-			@Override
-			public void onValueChanged(SelectOnePanel<OT> component) throws Exception {
-				clearResult();
-				OT selection = component.getValue();
-				if(null != selection)
-					handleSetValue(selection);
-			}
+		pnl.setOnValueChanged((IValueChanged<SelectOnePanel<OT>>) component -> {
+			clearResult();
+			OT selection = component.getValue();
+			if(null != selection)
+				handleSetValue(selection);
 		});
 
-		pnl.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
-				//we just need to deliver selected value here, that is why we have empty click handler
-			}
+		pnl.setClicked(clickednode -> {
+			//we just need to deliver selected value here, that is why we have empty click handler
 		});
 	}
 
@@ -492,4 +504,21 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		}
 		m_popupOpener = popupOpener;
 	}
+
+	public boolean isPopupInitiallyCollapsed() {
+		return m_popupInitiallyCollapsed;
+	}
+
+	public void setPopupInitiallyCollapsed(boolean popupInitiallyCollapsed) {
+		m_popupInitiallyCollapsed = popupInitiallyCollapsed;
+	}
+
+	public boolean isPopupSearchImmediately() {
+		return m_popupSearchImmediately;
+	}
+
+	public void setPopupSearchImmediately(boolean popupSearchImmediatelly) {
+		m_popupSearchImmediately = popupSearchImmediatelly;
+	}
+
 }

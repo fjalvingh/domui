@@ -62,4 +62,14 @@ public @interface MetaSearch {
 	 * compound specs only.
 	 */
 	SearchPropertyType searchType() default SearchPropertyType.SEARCH_FIELD;
+
+	/**
+	 * When T, and when search field is resolved as lookup type of control, lookup popup is shown with performed initial search automatically.
+	 */
+	boolean popupSearchImmediately() default false;
+
+	/**
+	 * When T, and when search field is resolved as lookup type of control, lookup popup is shown with initially collapsed search options on it's LookupForm.
+	 */
+	boolean popupInitiallyCollapsed() default false;
 }
