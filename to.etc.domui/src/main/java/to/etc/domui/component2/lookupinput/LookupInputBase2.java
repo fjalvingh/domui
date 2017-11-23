@@ -38,13 +38,11 @@ import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component.tbl.ITruncateableDataModel;
 import to.etc.domui.component.tbl.PageQueryHandler;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IReturnPressed;
 import to.etc.domui.dom.html.IValueChanged;
-import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.IRenderInto;
@@ -76,9 +74,6 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	@Nullable
 	private IStringQueryFactory<QT> m_stringQueryFactory;
-
-	@Nullable
-	private String m_keyWordSearchCssClass;
 
 	private int m_keyWordSearchPopupWidth;
 
@@ -168,9 +163,9 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 		ks.setReturnPressed((IReturnPressed<SearchInput2>) this::handleSelection);
 
-		if(m_keyWordSearchCssClass != null) {
-			addCssClass(m_keyWordSearchCssClass);
-		}
+		//if(m_keyWordSearchCssClass != null) {				// jal: 20171123 Already set on control, do not set on outer!
+		//	addCssClass(m_keyWordSearchCssClass);
+		//}
 		String hint = getKeySearchHint();
 		ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (hint != null) ? hint : getDefaultKeySearchHint()));
 	}
@@ -348,21 +343,15 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		SelectOnePanel<OT> pnl = m_selectPanel = new SelectOnePanel<OT>(list, renderer);
 		DomUtil.nullChecked(getKeySearch()).add(pnl);
 
-		pnl.setOnValueChanged(new IValueChanged<SelectOnePanel<OT>>() {
-			@Override
-			public void onValueChanged(SelectOnePanel<OT> component) throws Exception {
-				clearResult();
-				OT selection = component.getValue();
-				if(null != selection)
-					handleSetValue(selection);
-			}
+		pnl.setOnValueChanged((IValueChanged<SelectOnePanel<OT>>) component -> {
+			clearResult();
+			OT selection = component.getValue();
+			if(null != selection)
+				handleSetValue(selection);
 		});
 
-		pnl.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
-				//we just need to deliver selected value here, that is why we have empty click handler
-			}
+		pnl.setClicked(clickednode -> {
+			//we just need to deliver selected value here, that is why we have empty click handler
 		});
 	}
 
@@ -446,20 +435,6 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	public void setStringQueryFactory(@Nonnull IStringQueryFactory<QT> keyWordSearchManipulator) {
 		m_stringQueryFactory = keyWordSearchManipulator;
-	}
-
-	@Nullable
-	public String getKeyWordSearchCssClass() {
-		return m_keyWordSearchCssClass;
-	}
-
-	/**
-	 * Set custom css that would be applied only in case that component is rendering keyWordSearch.
-	 * Used for example in row inline rendering, where width and min-width should be additionaly customized.
-	 * @param cssClass
-	 */
-	public void setKeyWordSearchCssClass(@Nullable String cssClass) {
-		m_keyWordSearchCssClass = cssClass;
 	}
 
 	/**

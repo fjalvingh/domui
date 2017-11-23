@@ -26,7 +26,6 @@ package to.etc.domui.component.input;
 
 import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.layout.FloatingWindow;
-import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.lookup.LookupForm;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -66,7 +65,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT, OT> implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication {
-
 	public static final String MAGIC_ID_MARKER = "?id?";
 
 	@Nullable
@@ -552,36 +550,22 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 		boolean collapsed = isPopupInitiallyCollapsed();
 
-		lf.setCollapsed(collapsed || keySearchModel != null && keySearchModel.getRows() > 0);
-
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
+		lf.setCollapsed(collapsed || keySearchModel != null && keySearchModel.getRows() > 0);
 
 		if(getLookupFormInitialization() != null) {
 			getLookupFormInitialization().initialize(lf);
 		}
 		f.add(lf);
-		f.setOnClose(new IWindowClosed() {
-			@Override
-			public void closed(@Nonnull String closeReason) throws Exception {
-				f.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
-				m_floater = null;
-				m_result = null;
-			}
+		f.setOnClose(closeReason -> {
+			f.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+			m_floater = null;
+			m_result = null;
 		});
 
-		lf.setClicked(new IClicked<LookupForm<QT>>() {
-			@Override
-			public void clicked(@Nonnull LookupForm<QT> b) throws Exception {
-				search(b);
-			}
-		});
+		lf.setClicked((IClicked<LookupForm<QT>>) b -> search(b));
 
-		lf.setOnCancel(new IClicked<LookupForm<QT>>() {
-			@Override
-			public void clicked(@Nonnull LookupForm<QT> b) throws Exception {
-				f.closePressed();
-			}
-		});
+		lf.setOnCancel(b -> f.closePressed());
 
 		if(keySearchModel != null && keySearchModel.getRows() > 0) {
 			setResultModel(keySearchModel);
