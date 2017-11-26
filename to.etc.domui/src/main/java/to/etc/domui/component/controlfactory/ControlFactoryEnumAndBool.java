@@ -48,7 +48,7 @@ public class ControlFactoryEnumAndBool implements PropertyControlFactory {
 		if(controlClass != null && !controlClass.isAssignableFrom(ComboFixed.class)) // This one only creates ComboFixed thingies
 			return -1;
 		Class< ? > iclz = pmm.getActualType();
-		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
+		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 10 : 0;
 	}
 
 	/**

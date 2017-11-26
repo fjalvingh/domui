@@ -32,6 +32,7 @@ import java.sql.*;
 import java.util.*;
 
 import javax.annotation.*;
+import javax.el.MethodNotFoundException;
 
 final public class ClassUtil {
 	private ClassUtil() {
@@ -649,11 +650,77 @@ final public class ClassUtil {
 				if(superMethod != null) {
 					return findAnnotationIncludingSuperClasses(superMethod, annotationType);
 				}
-			} catch(NoSuchMethodException e) {
-				// no method
-			} catch(SecurityException e) {
+			} catch(NoSuchMethodException | SecurityException e) {
 				// no method
 			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get all annotations of a given type on a method or its base methods.
+	 */
+	@Nonnull
+	static public <T extends Annotation> List<T> getMethodAnnotations(Method m, Class<T> annotationType) {
+		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());			// Full class hierarchy including interfaces
+
+		List<T> result = new ArrayList<>();
+		for(Class<?> clz : hierarchy) {
+			Method macc = findMethodInClass(m, clz);
+
+			if(macc != null)
+				addAnnotationIf(result, annotationType, macc);
+		}
+		return result;
+	}
+
+	@Nullable private static Method findMethodInClass(Method m, Class<?> clz) {
+		Method macc;
+		if(clz == m.getDeclaringClass()) {
+			macc = m;
+		} else {
+			try {
+				macc = clz.getDeclaredMethod(m.getName(), m.getParameterTypes());
+			} catch(NoSuchMethodException | SecurityException x) {
+				macc = null;
+			}
+		}
+		return macc;
+	}
+
+	@Nullable
+	static public <T extends Annotation> T getMethodAnnotation(Method m, Class<T> annotationType) {
+		T annotation = m.getAnnotation(annotationType);
+		if(null != annotation)
+			return annotation;
+
+		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());			// Full class hierarchy including interfaces
+		for(Class<?> clz : hierarchy) {
+			Method macc = findMethodInClass(m, clz);
+
+			if(macc != null) {
+				annotation = macc.getAnnotation(annotationType);
+				if(null != annotation)
+					return annotation;
+			}
+		}
+		return null;
+	}
+
+	static private <T extends Annotation> void addAnnotationIf(List<T> list, Class<T> annotationType, Method m) {
+		T annotation = m.getAnnotation(annotationType);
+		if(null != annotation)
+			list.add(annotation);
+		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());			// Full class hierarchy including interfaces
+	}
+
+	static public <T extends Annotation> T getClassAnnotation(Class<?> clzIn, Class<T> annotationType) {
+		List<Class<?>> hierarchy = getClassHierarchy(clzIn);			// Full class hierarchy including interfaces
+		for(Class<?> clz : hierarchy) {
+			T annotation = clz.getAnnotation(annotationType);
+			if(null != annotation)
+				return annotation;
+
 		}
 		return null;
 	}
