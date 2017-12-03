@@ -22,32 +22,68 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.lookup;
+package to.etc.domui.component.lookupform2;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.*;
-import to.etc.domui.component.lookup.filter.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.component2.lookupinput.*;
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.annotations.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.controlfactory.ControlBuilder;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.input.IQueryFactory;
+import to.etc.domui.component.input.LookupInputBase;
+import to.etc.domui.component.layout.ButtonFactory;
+import to.etc.domui.component.layout.CaptionedPanel;
+import to.etc.domui.component.layout.IButtonContainer;
+import to.etc.domui.component.lookup.AbstractLookupControlImpl;
+import to.etc.domui.component.lookup.ILookupControlFactory;
+import to.etc.domui.component.lookup.ILookupControlInstance;
+import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
+import to.etc.domui.component.lookup.ILookupFilterHandler;
+import to.etc.domui.component.lookup.LookupFormSavedFilterFragment;
+import to.etc.domui.component.lookup.SaveSearchFilterDialog;
+import to.etc.domui.component.lookup.SavedFilter;
+import to.etc.domui.component.lookup.filter.LookupFilterTranslator;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component2.lookupinput.LookupInputBase2;
+import to.etc.domui.dom.Animations;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.VerticalAlignType;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IReturnPressed;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TableVAlign;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.annotations.GProperty;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QRestrictor;
 
-import javax.annotation.*;
-import java.util.*;
-import java.util.Map.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Creates a search box to enter search criteria. This only presents the search part of the
@@ -78,7 +114,7 @@ import java.util.Map.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 14, 2008
  */
-public class LookupForm<T> extends Div implements IButtonContainer {
+public class LookupForm2<T> extends Div implements IButtonContainer {
 	@Nullable
 	private QCriteria<T> m_rootCriteria;
 
@@ -92,15 +128,15 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	private String m_title;
 
-	private IClicked<LookupForm<T>> m_clicker;
+	private IClicked<LookupForm2<T>> m_clicker;
 
-	private IClicked<LookupForm<T>> m_onNew;
+	private IClicked<LookupForm2<T>> m_onNew;
 
 	private DefaultButton m_newBtn;
 
-	private IClicked< ? extends LookupForm<T>> m_onClear;
+	private IClicked< ? extends LookupForm2<T>> m_onClear;
 
-	private IClicked<LookupForm<T>> m_onCancel;
+	private IClicked<LookupForm2<T>> m_onCancel;
 
 	private DefaultButton m_cancelBtn;
 
@@ -384,7 +420,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		/**
 		 * Unused; only present to satisfy the interface.
-		 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#getOrder()
+		 * @see SearchPropertyMetaModel#getOrder()
 		 */
 		@Override
 		public int getOrder() {
@@ -532,7 +568,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/** The list of buttons to show on the button row. */
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
-	public LookupForm(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
+	public LookupForm2(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
 		this(lookupClass, null, propertyList);
 	}
 
@@ -540,7 +576,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Create a LookupForm to find instances of the specified class.
 	 * @param lookupClass
 	 */
-	public LookupForm(@Nonnull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
+	public LookupForm2(@Nonnull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
 		m_rootCriteria = null;
 		m_lookupClass = lookupClass;
 		m_metaModel = cmm != null ? cmm : MetaManager.findClassMeta(lookupClass);
@@ -550,7 +586,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		defineDefaultButtons();
 	}
 
-	public LookupForm(@Nonnull QCriteria<T> rootCriteria, String... propertyList) {
+	public LookupForm2(@Nonnull QCriteria<T> rootCriteria, String... propertyList) {
 		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), null, propertyList);
 		m_rootCriteria = rootCriteria;
 	}
@@ -577,7 +613,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Actually show the thingy.
-	 * @see to.etc.domui.dom.html.NodeBase#createContent()
+	 * @see NodeBase#createContent()
 	 */
 	@Override
 	public void createContent() throws Exception {
@@ -697,7 +733,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			@Override
 			public void returnPressed(final @Nonnull Div node) throws Exception {
 				if(m_clicker != null)
-					m_clicker.clicked(LookupForm.this);
+					m_clicker.clicked(LookupForm2.this);
 			}
 		});
 	}
@@ -712,7 +748,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				clearInput();
 				fillSearchFields(sender);
 				if(m_clicker != null) {
-					m_clicker.clicked(LookupForm.this);
+					m_clicker.clicked(LookupForm2.this);
 				}
 			}
 		});
@@ -774,7 +810,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		b.css("is-primary");
 		b.setClicked(bx -> {
 			if(m_clicker != null)
-				m_clicker.clicked(LookupForm.this);
+				m_clicker.clicked(LookupForm2.this);
 		});
 		addButtonItem(b, 100, ButtonMode.NORMAL);
 
@@ -785,7 +821,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		b.setClicked(xb -> {
 			clearInput();
 			if(getOnClear() != null)
-				((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
+				((IClicked<LookupForm2<T>>) getOnClear()).clicked(LookupForm2.this); // FIXME Another generics snafu, fix.
 		});
 		addButtonItem(b, 200, ButtonMode.NORMAL);
 
@@ -1414,7 +1450,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Sets the onNew handler. When set this will render a "new" button in the form's button bar.
 	 * @return
 	 */
-	public IClicked<LookupForm<T>> getOnNew() {
+	public IClicked<LookupForm2<T>> getOnNew() {
 		return m_onNew;
 	}
 
@@ -1422,7 +1458,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Returns the onNew handler. When set this will render a "new" button in the form's button bar.
 	 * @param onNew
 	 */
-	public void setOnNew(final IClicked<LookupForm<T>> onNew) {
+	public void setOnNew(final IClicked<LookupForm2<T>> onNew) {
 		if(m_onNew != onNew) {
 			m_onNew = onNew;
 			if(m_onNew != null && m_newBtn == null) {
@@ -1434,7 +1470,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 					@Override
 					public void clicked(final @Nonnull NodeBase xb) throws Exception {
 						if(getOnNew() != null) {
-							getOnNew().clicked(LookupForm.this);
+							getOnNew().clicked(LookupForm2.this);
 						}
 					}
 				});
@@ -1471,18 +1507,18 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Set the handler to call when the "Search" button is clicked.
-	 * @see to.etc.domui.dom.html.NodeBase#setClicked(to.etc.domui.dom.html.IClicked)
+	 * @see NodeBase#setClicked(IClicked)
 	 */
 	@Override
 	public void setClicked(final @Nullable IClicked< ? > clicked) {
-		m_clicker = (IClicked<LookupForm<T>>) clicked;
+		m_clicker = (IClicked<LookupForm2<T>>) clicked;
 	}
 
-	public IClicked<LookupForm<T>> getSearchClicked() {
+	public IClicked<LookupForm2<T>> getSearchClicked() {
 		return m_clicker;
 	}
 
-	public IClicked< ? extends LookupForm<T>> getOnClear() {
+	public IClicked< ? extends LookupForm2<T>> getOnClear() {
 		return m_onClear;
 	}
 
@@ -1490,7 +1526,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Listener to call when the "clear" button is pressed.
 	 * @param onClear
 	 */
-	public void setOnClear(IClicked< ? extends LookupForm<T>> onClear) {
+	public void setOnClear(IClicked< ? extends LookupForm2<T>> onClear) {
 		m_onClear = onClear;
 	}
 
@@ -1498,7 +1534,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * When set, this causes a "cancel" button to be added to the form. When that button is pressed this handler gets called.
 	 * @param onCancel
 	 */
-	public void setOnCancel(IClicked<LookupForm<T>> onCancel) {
+	public void setOnCancel(IClicked<LookupForm2<T>> onCancel) {
 		if(m_onCancel != onCancel) {
 			m_onCancel = onCancel;
 			if(m_onCancel != null && m_cancelBtn == null) {
@@ -1511,7 +1547,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 					public void clicked(final @Nonnull NodeBase xb) throws Exception {
 
 						if(getOnCancel() != null) {
-							getOnCancel().clicked(LookupForm.this);
+							getOnCancel().clicked(LookupForm2.this);
 						}
 					}
 				});
@@ -1529,7 +1565,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 	}
 
-	public IClicked<LookupForm<T>> getOnCancel() {
+	public IClicked<LookupForm2<T>> getOnCancel() {
 		return m_onCancel;
 	}
 
@@ -1594,7 +1630,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	/**
-	 * Method {@link LookupForm#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value!
+	 * Method {@link LookupForm2#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value!
 	 * This is T when the user has actually entered something in one of the search components. Any restriction
 	 * that has been added by code that is not depending on user input is ignored.
 	 * @return
@@ -1691,7 +1727,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	@Nonnull
-	public LookupForm<T> setKeepMetaData(boolean keepMetaData) {
+	public LookupForm2<T> setKeepMetaData(boolean keepMetaData) {
 		m_keepMetaData = keepMetaData;
 		return this;
 	}
@@ -1702,7 +1738,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 *
-	 * @see to.etc.domui.component.layout.IButtonContainer#addButton(to.etc.domui.dom.html.NodeBase, int)
+	 * @see IButtonContainer#addButton(NodeBase, int)
 	 */
 	@Override
 	public void addButton(@Nonnull NodeBase thing, int order) {
