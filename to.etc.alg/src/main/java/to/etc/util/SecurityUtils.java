@@ -24,15 +24,26 @@
  */
 package to.etc.util;
 
-import javax.annotation.*;
-import java.security.*;
-import java.security.spec.*;
+import javax.annotation.Nonnull;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.KeyFactory;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 6, 2004
  */
 public class SecurityUtils {
+	static private final SecureRandom RANDOM = new SecureRandom();
+
 	static public String encodeToHex(PrivateKey privk) {
 		byte[] enc = privk.getEncoded();
 		return StringTool.toHex(enc);
@@ -191,4 +202,43 @@ public class SecurityUtils {
 			throw WrappedException.wrap(x);
 		}
 	}
+
+	static public byte[] createSalt(int bytes) {
+		byte[] salt = new byte[bytes];
+		RANDOM.nextBytes(salt);
+		return salt;
+	}
+
+	/**
+	 * Generate a secure password hash by randomly generating a salt, then
+	 * hashing the password using PBKDF2.
+	 */
+	static public String encryptPassword(String password) throws Exception {
+		byte[] salt = createSalt(16);
+
+		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 20*8);
+		SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+		byte[] hash = skf.generateSecret(spec).getEncoded();
+		String result = StringTool.toHex(hash);
+
+		return StringTool.toHex(salt) + ";" + result;
+	}
+
+	static public boolean checkPassword(@Nonnull String encodedPassword, @Nonnull String password) {
+		String[] split = encodedPassword.split(";");
+		if(split.length != 2)
+			return false;
+		try {
+			byte[] salt = StringTool.fromHex(split[0]);
+			PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 20*8);
+			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+			byte[] hash = skf.generateSecret(spec).getEncoded();
+			String result = StringTool.toHex(hash);
+			return result.equals(split[1]);
+		} catch(Exception x) {
+			return false;
+		}
+	}
+
+
 }
