@@ -770,7 +770,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		try {
 			TBody dataBody = m_dataBody;
 			int sz = dataBody == null ? -1 : dataBody.getChildCount();
-			m_ml.add(rest + ": six=" + m_six + ", eix=" + m_eix + ", visibleSz=" + m_visibleItemList.size() + ", bodySz=" + sz + ", modelSz=" + getModel().getRows());
+			m_ml.add(rest + ": six=" + m_six + ", eix=" + m_eix + ", visibleSz=" + m_visibleItemList.size() + ", bodySz=" + sz);
 		} catch(Exception x) {
 			m_ml.add("Exception adding to log stack: " + x);
 		}
