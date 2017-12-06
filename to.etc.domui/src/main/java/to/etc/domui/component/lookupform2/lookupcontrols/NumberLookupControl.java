@@ -42,8 +42,15 @@ import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
- * Base utility class when lookups of custom numeric conditions should be implemented.
- * Provides buitin expression parser and range checks, only custom conditions have to be implemented in descendant classes.
+ * Number lookup control. This is a Text2 input box which allows the following:
+ * <ul>
+ *	<li>Entering just a number: look for the exact value of the number</li>
+ *	<li>Entering operator number, like "&gt; 200", looks for that. Operators supported are: =, !=, &lt;&gt; &gt; &gt;=, &lt; &lt;=, !, </></li>
+ *	<li>Two operators, two numbers to handle between, like "&gt; 12 &lt; 100 </li>
+ *	<li>Just entering '*' means look for a nonnull value</li>
+ *	<li>Entering just a ! means: look for a null only</li>
+ *	<li>You can also search for numbers with like which will try to issue a like query with the number converted to a string using '%' as the like value.</li>
+ * </ul>
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Feb 11, 2010
@@ -323,4 +330,9 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		m_input.setOnValueChanged(onValueChanged);
 	}
+
+	public void setSize(int size) {
+		m_input.setSize(size);
+	}
+
 }

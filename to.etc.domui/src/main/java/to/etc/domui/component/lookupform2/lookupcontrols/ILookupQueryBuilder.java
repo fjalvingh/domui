@@ -2,6 +2,7 @@ package to.etc.domui.component.lookupform2.lookupcontrols;
 
 import to.etc.webapp.query.QCriteria;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -9,5 +10,6 @@ import javax.annotation.Nullable;
  * Created on 3-12-17.
  */
 public interface ILookupQueryBuilder<D> {
-	<T> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, @Nullable D lookupValue);
+	@Nonnull
+	<T> LookupQueryBuilderResult appendCriteria(@Nonnull QCriteria<T> criteria, @Nullable D lookupValue);
 }

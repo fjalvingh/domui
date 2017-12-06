@@ -31,7 +31,7 @@ import to.etc.domui.util.DomUtil;
 
 import javax.annotation.Nonnull;
 
-final class LookupFactory2Date implements ILookupFactory<DatePeriod> {
+final class DateLookupFactory2 implements ILookupFactory<DatePeriod> {
 	@Override public FactoryPair<DatePeriod> createControl(@Nonnull SearchPropertyMetaModel spm) {
 		//get temporal type from metadata and set withTime later to date inout components
 		PropertyMetaModel<?> pmm = (spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
