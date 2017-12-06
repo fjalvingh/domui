@@ -24,44 +24,55 @@
  */
 package to.etc.domui.component.lookupform2.lookupcontrols;
 
-import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.input.ComboFixed;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.webapp.nls.NlsContext;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
-@SuppressWarnings("unchecked")
-final class StringLookupFactory2<T> implements ILookupFactory<T> {
+/**
+ * Represents factory for enum values or boolean values lookup. For lookup condition uses combo box automaticaly populated with localized values of enum constants or boolean values.
+ *
+ * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
+ * Created on 1 Aug 2009
+ */
+final class EnumAndBoolLookupFactory<T> implements ILookupFactory<T> {
 	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaUtils.getLastProperty(spm);
-		Text2<T> txt = createControl(pmm);
 
-		int size = MetaManager.calculateTextSize(pmm);
-		if(size > 0)
-			txt.setSize(size);
-
-		if(pmm.getLength() > 0)
-			txt.setMaxLength(pmm.getLength());
-		String hint = MetaUtils.findHintText(spm);
-		if(hint != null)
-			txt.setTitle(hint);
-
-		return new FactoryPair<T>(new ObjectLookupQueryBuilder<>(spm.getPropertyName()), txt);
-	}
-
-	private Text2<T> createControl(PropertyMetaModel<T> pmm) {
-		Class<T> iclz = pmm.getActualType();
-
-		//-- Boolean/boolean types? These need a tri-state checkbox
-		if(iclz == Boolean.class || iclz == Boolean.TYPE) {
-			throw new IllegalStateException("I need a tri-state checkbox component to handle boolean lookup thingies.");
+		// Create a domainvalued combobox by default.
+		Object[] vals = pmm.getDomainValues();
+		if(null == vals)
+			throw new IllegalStateException(pmm + ": no domainValues");
+		ClassMetaModel ecmm = null;
+		List<ValueLabelPair<T>> vl = new ArrayList<>();
+		for(Object o : vals) {
+			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o);	// Label known to property?
+			if(label == null) {
+				if(ecmm == null)
+					ecmm = MetaManager.findClassMeta(pmm.getActualType()); 		// Try to get the property's type.
+				label = ecmm.getDomainLabel(NlsContext.getLocale(), o);
+				if(label == null)
+					label = o == null ? "" : o.toString();
+			}
+			vl.add(new ValueLabelPair<>((T) o, label));
 		}
 
-		Text2<T> ctl = new Text2<>(iclz);
-		if(pmm.getConverter() != null)
-			ctl.setConverter(pmm.getConverter());
-		return ctl;
+		final ComboFixed<T> c = new ComboFixed<>(vl);
+		String s = pmm.getDefaultHint();
+		if(s != null) {
+			c.setTitle(s);
+		}
+		String hint = MetaUtils.findHintText(spm);
+		if(hint != null)
+			c.setTitle(hint);
+		return new FactoryPair<>(new ObjectLookupQueryBuilder<T>(spm.getPropertyName()), c);
 	}
 }

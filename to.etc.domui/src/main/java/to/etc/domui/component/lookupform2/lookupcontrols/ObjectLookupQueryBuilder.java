@@ -10,10 +10,10 @@ import javax.annotation.Nullable;
  * Created on 6-12-17.
  */
 @DefaultNonNull
-final public class StringLookupQueryBuilder<D> implements ILookupQueryBuilder<D> {
+final public class ObjectLookupQueryBuilder<D> implements ILookupQueryBuilder<D> {
 	private final String m_propertyName;
 
-	public StringLookupQueryBuilder(String propertyName) {
+	public ObjectLookupQueryBuilder(String propertyName) {
 		m_propertyName = propertyName;
 	}
 
@@ -33,7 +33,7 @@ final public class StringLookupQueryBuilder<D> implements ILookupQueryBuilder<D>
 		//-- Put the value into the criteria..
 		if(value instanceof String) {
 			String str = (String) value;
-			str = str.trim().replace("*", "%") + "%";
+			str = str.trim().replace("*", "%") + "%";			// FIXME Do not search with wildcard by default 8-(
 			criteria.ilike(m_propertyName, str);
 		} else {
 			criteria.eq(m_propertyName, value);				// property == value
