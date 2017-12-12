@@ -25,13 +25,13 @@ public class CsvImportRow implements IImportRow {
 	@Override public IImportColumn get(int index) {
 		if(index < 0 || index >= m_columns.size())
 			throw new IllegalStateException("Column index invalid: must be between 0 and " + m_columns.size());
-		while(index > m_colWrappers.size()) {
+		while(index >= m_colWrappers.size()) {
 			m_colWrappers.add(new Col(m_colWrappers.size()));
 		}
 		return m_colWrappers.get(index);
 	}
 
-	private class Col implements IImportColumn {
+	private class Col extends AbstractImportColumn implements IImportColumn {
 		private final int m_index;
 
 		public Col(int index) {

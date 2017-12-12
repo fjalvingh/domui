@@ -112,10 +112,9 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		m_columns.clear();
 		if(m_eof)
 			return false;
+		while(la() == '\n')									// Skip empty lines
+			accept();
 		for(;;) {
-			while(la() == '\n')									// Skip empty lines
-				accept();
-
 			readField();
 			int c = la();
 			if(c == -1)
@@ -168,6 +167,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 					//-- End of record, end of field -> add content to list.
 					if(m_sb.length() == 0)
 						m_columns.add(null);								// ,, means null
+					else
+						m_columns.add(m_sb.toString());
 					return;
 				}
 				m_sb.append((char) c);
@@ -272,7 +273,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	}
 
 	@Override public void setHasHeaderRow(boolean hasHeaderRow) {
-
+		m_hasHeaderRow = hasHeaderRow;
 	}
 
 	@Override public long getProgressIndicator() {
@@ -282,6 +283,10 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	public List<CsvError> getErrorList() {
 		m_askedForErrors = true;
 		return m_errorList;
+	}
+
+	public int getLineNumber() {
+		return m_lineNumber;
 	}
 
 	@NotNull @Override public Iterator<IImportRow> iterator() {

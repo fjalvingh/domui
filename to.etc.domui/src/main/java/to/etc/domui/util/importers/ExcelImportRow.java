@@ -61,7 +61,7 @@ public class ExcelImportRow implements IImportRow {
 		return get(index);
 	}
 
-	static private class ExcelColumn implements IImportColumn {
+	static private class ExcelColumn extends AbstractImportColumn implements IImportColumn {
 		private final Cell m_cell;
 
 		private final String m_name;
@@ -87,7 +87,7 @@ public class ExcelImportRow implements IImportRow {
 		}
 	}
 
-	static private class EmptyColumn implements IImportColumn {
+	static private class EmptyColumn extends AbstractImportColumn implements IImportColumn {
 		private final String m_name;
 
 		public EmptyColumn(String name) {
