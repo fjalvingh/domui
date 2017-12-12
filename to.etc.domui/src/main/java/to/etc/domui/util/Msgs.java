@@ -410,5 +410,7 @@ public interface Msgs {
 
 	static final public String E_BINDING_DEFINITION = "e.binding.definition";
 
-	String EXPORT_BUTTON = "ui.btn.export";
+	static public final String EXPORT_BUTTON = "ui.btn.export";
+
+
 }
