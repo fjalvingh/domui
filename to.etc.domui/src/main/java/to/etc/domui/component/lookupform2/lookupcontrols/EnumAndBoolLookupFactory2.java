@@ -43,7 +43,7 @@ import java.util.List;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 1 Aug 2009
  */
-final class EnumAndBoolLookupFactory<T> implements ILookupFactory<T> {
+final class EnumAndBoolLookupFactory2<T> implements ILookupFactory<T> {
 	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaUtils.getLastProperty(spm);
 

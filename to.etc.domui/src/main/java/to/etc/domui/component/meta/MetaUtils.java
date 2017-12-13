@@ -24,9 +24,9 @@
  */
 package to.etc.domui.component.meta;
 
-import java.util.*;
+import to.etc.webapp.ProgrammerErrorException;
 
-import to.etc.webapp.*;
+import java.util.List;
 
 
 /**
@@ -114,11 +114,11 @@ public class MetaUtils {
 		return m;
 	}
 
-	static public PropertyMetaModel< ? > getLastProperty(SearchPropertyMetaModel spm) {
+	static public <T> PropertyMetaModel<T> getLastProperty(SearchPropertyMetaModel spm) {
 		PropertyMetaModel< ? > m = findLastProperty(spm);
 		if(m == null)
 			throw new IllegalStateException("The search property " + spm.getPropertyName() + " is not found");
-		return m;
+		return (PropertyMetaModel<T>) m;
 	}
 
 	static public String findHintText(SearchPropertyMetaModel spm) {
