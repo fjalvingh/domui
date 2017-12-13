@@ -24,14 +24,19 @@
  */
 package to.etc.domui.component.lookup;
 
-import java.util.*;
+import to.etc.domui.component.input.ComboFixed;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents factory for enum values or boolean values lookup. For lookup condition uses combo box automaticaly populated with localized values of enum constants or boolean values.
@@ -43,8 +48,7 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
-		Class< ? > iclz = pmm.getActualType();
-		return iclz == Boolean.class || iclz == Boolean.TYPE || Enum.class.isAssignableFrom(iclz) ? 2 : 0;
+		return pmm.getActualType() == Boolean.class || pmm.getActualType() == Boolean.TYPE || Enum.class.isAssignableFrom(pmm.getActualType()) ? 2 : 0;
 	}
 
 	@Override
