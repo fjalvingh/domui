@@ -90,4 +90,13 @@ public class LookupControlRegistry2 {
 		}
 		return best;
 	}
+
+	@Nullable
+	public FactoryPair<?> findControlPair(SearchPropertyMetaModel spm) {
+		ILookupFactory<?> factory = findFactory(spm);
+		if(null == factory)
+			return null;
+		FactoryPair<?> controlPair = factory.createControl(spm);
+		return controlPair;
+	}
 }

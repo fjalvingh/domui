@@ -25,7 +25,6 @@
 package to.etc.domui.component.lookupform2;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.controlfactory.ControlBuilder;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.input.IQueryFactory;
 import to.etc.domui.component.input.LookupInputBase;
@@ -41,6 +40,11 @@ import to.etc.domui.component.lookup.LookupFormSavedFilterFragment;
 import to.etc.domui.component.lookup.SaveSearchFilterDialog;
 import to.etc.domui.component.lookup.SavedFilter;
 import to.etc.domui.component.lookup.filter.LookupFilterTranslator;
+import to.etc.domui.component.lookupform2.lookupcontrols.FactoryPair;
+import to.etc.domui.component.lookupform2.lookupcontrols.ILookupFactory;
+import to.etc.domui.component.lookupform2.lookupcontrols.ILookupQueryBuilder;
+import to.etc.domui.component.lookupform2.lookupcontrols.LookupControlRegistry2;
+import to.etc.domui.component.lookupform2.lookupcontrols.LookupQueryBuilderResult;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
@@ -84,35 +88,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
- * Creates a search box to enter search criteria. This only presents the search part of the
- * form, constructed by metadata where needed, and the "search", "clear fields" and optional
- * "new" buttons. The actual searching must be done by the user of this component.
- * <p>The component will return a QCriteria query representing the search query constructed
- * by the user. This QCriteria object can, after retrieval, be used to add extra search
- * restrictions easily.</p>
- * <p>When used as-is, this form will use the class' metadata to discover any defined search
- * properties, and then populate the form with lookup controls which allow searches on those
- * properties. This is for "default" lookup screens. For more complex screens or lookup parts
- * that have controls interact with each other you can manually define the contents of the
- * lookup form. By adding lookup items manually you <i>disable</i> the automatic discovery of
- * search options. This is proper because no form should <b>ever</b> depend on the content,
- * structure or order of metadata-defined lookup items!!! So if you want to manipulate the
- * lookup form's contents you have to define its layout by hand.</p>
- * <p>Defining a form by hand is easy. To just add a property to search for to the form call
- * addProperty(String propname). This will create the default lookup input thing and label
- * for the property, as defined by metadata and factories. If you need more control you can
- * also call one of the addManualXXXX methods which allow full control over the controls
- * and search criteria used by the form.</p>
- * <p>Each search item added will usually return a LookupForm.Item. This is a handle to the
- * created lookup control and associated data and can be used to manipulate the control or
- * its presentation at runtime.</p>
- * <p>The constructor for this control accepts an ellipsis list of property names to quickly
- * create a lookup using user-specified properties.</p>
  *
- * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jul 14, 2008
+ * @author jal at 2017-12-13.
  */
 public class LookupForm2<T> extends Div implements IButtonContainer {
 	@Nullable
@@ -126,7 +106,15 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	@Nonnull
 	private ClassMetaModel m_metaModel;
 
-	private String m_title;
+	/** The primary list of defined lookup items. */
+	@Nonnull
+	private final List<LookupLine<?>> m_itemList = new ArrayList<>(20);
+
+	/** The list of buttons to show on the button row. */
+	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
+
+	@Nullable
+	private IFormBuilder m_formBuilder;
 
 	private IClicked<LookupForm2<T>> m_clicker;
 
@@ -158,17 +146,11 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	@Nullable
 	private LookupFormSavedFilterFragment m_lookupFormSavedFilterFragment;
 
-	private Table m_table;
-
-	private TBody m_tbody;
-
 	private Div m_content;
 
 	private NodeContainer m_collapsedPanel;
 
-	private NodeContainer m_buttonRow;
-
-	private ControlBuilder m_builder;
+	private Div m_buttonRow;
 
 	private ButtonFactory m_buttonFactory = new ButtonFactory(this);
 
@@ -189,7 +171,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	private IClicked<NodeBase> m_onAfterRestore;
 
 	/**
-	 * After collpase action on LookupForm.
+	 * After collapse action on LookupForm.
 	 */
 	private IClicked<NodeBase> m_onAfterCollapse;
 
@@ -200,327 +182,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 
 	@Nullable
 	private UIMessage m_newBtnDisableReason;
-
-	@Nullable
-	public DefaultButton getClearButton() {
-		return m_clearButton;
-	}
-
-	private Map<String, ILookupControlInstance<?>> getFilterItems() {
-		Map<String, ILookupControlInstance<?>> filterValues = new HashMap<>();
-		for(Item item : m_itemList) {
-			String propertyName = item.getPropertyName() != null ? item.getPropertyName() : item.getLabelText();
-			filterValues.put(propertyName, item.getInstance());
-		}
-		return filterValues;
-	}
-
-	public Map<String, ?> getFilterValues() {
-		Map<String, ILookupControlInstance<?>> filterItems = getFilterItems();
-		Map<String, Object> filterValues = new HashMap<>();
-		for(Entry<String, ILookupControlInstance<?>> entry : filterItems.entrySet()) {
-			if(entry.getValue().getValue() != null) {
-				filterValues.put(entry.getKey(), entry.getValue().getValue());
-			}
-		}
-		return filterValues;
-	}
-
-	private void setSavedFilters(List<SavedFilter> savedFilters) {
-		m_savedFilters = savedFilters;
-	}
-
-	public boolean isSearchFilterEnabled() {
-		return m_searchFilterEnabled;
-	}
-
-	public void setSearchFilterEnabled(boolean searchFilterEnabled) {
-		m_searchFilterEnabled = searchFilterEnabled;
-	}
-
-	/**
-	 * This is the definition for an Item to look up. A list of these
-	 * will generate the actual lookup items on the screen, in the order
-	 * specified by the item definition list.
-	 *
-	 * FIXME Should this actually be public??
-	 *
-	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
-	 * Created on Jul 31, 2009
-	 */
-	public static class Item implements SearchPropertyMetaModel {
-		@Nullable
-		private final NodeBase m_left;
-
-		@Nullable
-		private final NodeBase m_right;
-
-		private final boolean m_isEntireRow;
-
-		private final boolean m_isControl;
-
-		private String m_propertyName;
-
-		private List<PropertyMetaModel< ? >> m_propertyPath;
-
-		private ILookupControlInstance<?> m_instance;
-
-		private boolean m_ignoreCase = true;
-
-		private int m_minLength;
-
-		private String m_labelText;
-
-		private String m_lookupHint;
-
-		private String m_errorLocation;
-
-		private int m_order;
-
-		private String m_testId;
-
-		private boolean m_popupSearchImmediately;
-
-		private boolean m_popupInitiallyCollapsed;
-
-		private InputBehaviorType m_inputsBehavior = InputBehaviorType.DEFAULT;
-
-		public Item() {
-			m_left = null;
-			m_right = null;
-			m_isEntireRow = false;
-			m_isControl = true;
-		}
-
-		public Item(@Nullable NodeBase left, @Nullable NodeBase right) {
-			m_left = left;
-			m_right = right;
-			m_isEntireRow = false;
-			m_isControl = false;
-		}
-
-		public Item(@Nullable NodeBase cell) {
-			m_left = cell;
-			m_right = null;
-			m_isEntireRow = true;
-			m_isControl = false;
-		}
-
-		@Nullable
-		public NodeBase getLeft() {
-			return m_left;
-		}
-
-		@Nullable
-		public NodeBase getRight() {
-			return m_right;
-		}
-
-		public boolean isEntireRow() {
-			return m_isEntireRow;
-		}
-
-		public boolean isControl() {
-			return m_isControl;
-		}
-
-		/**
-		 * FIXME jal 20110221 I want to discuss this because I do not understand its treestate nature.
-		 *
-		 * Determines behavior of inputs inside one lookup field definition. Used internally to persists state of inputs that is changed in runtime.
-		 *
-		 * @author <a href="mailto:imilovanovic@execom.eu">Igor Milovanović</a>
-		 * Created on Feb 21, 2011
-		 */
-		enum InputBehaviorType {
-			/**
-			 * Unchanged behavior.
-			 */
-			DEFAULT,
-			/**
-			 * Force all input controls for certain lookup field to become enabled for user input.
-			 */
-			FORCE_ENABLED,
-			/**
-			 * Force all input controls for certain lookup field to become disabled for user input.
-			 */
-			FORCE_DISABLED
-		}
-
-		@Override
-		public String getPropertyName() {
-			return m_propertyName;
-		}
-
-		public void setPropertyName(String propertyName) {
-			m_propertyName = propertyName;
-		}
-
-		@Override
-		public List<PropertyMetaModel< ? >> getPropertyPath() {
-			return m_propertyPath;
-		}
-
-		public void setPropertyPath(List<PropertyMetaModel< ? >> propertyPath) {
-			m_propertyPath = propertyPath;
-		}
-
-		public PropertyMetaModel< ? > getLastProperty() {
-			if(m_propertyPath == null || m_propertyPath.size() == 0)
-				return null;
-			return m_propertyPath.get(m_propertyPath.size() - 1);
-		}
-
-		@Override
-		public boolean isIgnoreCase() {
-			return m_ignoreCase;
-		}
-
-		public void setIgnoreCase(boolean ignoreCase) {
-			m_ignoreCase = ignoreCase;
-		}
-
-		@Override
-		public int getMinLength() {
-			return m_minLength;
-		}
-
-		public void setMinLength(int minLength) {
-			m_minLength = minLength;
-		}
-
-		public String getLabelText() {
-			return m_labelText;
-		}
-
-		public void setLabelText(String labelText) {
-			m_labelText = labelText;
-		}
-
-		@Override
-		public String getLookupLabel() {
-			return m_labelText;
-		}
-
-		public String getErrorLocation() {
-			return m_errorLocation;
-		}
-
-		public void setErrorLocation(String errorLocation) {
-			m_errorLocation = errorLocation;
-		}
-
-		ILookupControlInstance<?> getInstance() {
-			return m_instance;
-		}
-
-		void setInstance(ILookupControlInstance<?> instance) {
-			m_instance = instance;
-		}
-
-		/**
-		 * Unused; only present to satisfy the interface.
-		 * @see SearchPropertyMetaModel#getOrder()
-		 */
-		@Override
-		public int getOrder() {
-			return m_order;
-		}
-
-		void setOrder(int order) {
-			m_order = order;
-		}
-
-		@Override
-		public String getLookupHint() {
-			return m_lookupHint;
-		}
-
-		public void setLookupHint(String lookupHint) {
-			m_lookupHint = lookupHint;
-		}
-
-		@Override
-		public boolean isPopupSearchImmediately() {
-			return m_popupSearchImmediately;
-		}
-
-		public void setPopupSearchImmediately(boolean v) {
-			m_popupSearchImmediately = v;
-		}
-
-		@Override
-		public boolean isPopupInitiallyCollapsed() {
-			return m_popupInitiallyCollapsed;
-		}
-
-		public void setPopupInitiallyCollapsed(boolean v) {
-			m_popupInitiallyCollapsed = v;
-		}
-
-		@Override
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append("Item:");
-			if(m_propertyName != null) {
-				sb.append(" property: ");
-				sb.append(m_propertyName);
-			}
-			if(m_labelText != null) {
-				sb.append(" label: ");
-				sb.append(m_labelText);
-			}
-			return sb.toString();
-		}
-
-		public String getTestId() {
-			return m_testId;
-		}
-
-		public void setTestId(String testId) {
-			m_testId = testId;
-		}
-
-		public void setDisabled(boolean disabled) {
-			m_inputsBehavior = disabled ? InputBehaviorType.FORCE_DISABLED : InputBehaviorType.FORCE_ENABLED;
-			m_instance.setDisabled(disabled);
-		}
-
-		public boolean isForcedDisabled() {
-			return m_inputsBehavior == InputBehaviorType.FORCE_DISABLED;
-		}
-
-		public boolean isForcedEnabled() {
-			return m_inputsBehavior == InputBehaviorType.FORCE_ENABLED;
-		}
-
-		public void clear() {
-			m_instance.clearInput();
-		}
-	}
-
-	/**
-	 * Sets rendering of search fields into two columns. It is in use only in case when search fields are loaded from metadata and loaded items count is bigger then one specified in m_twoColumnsModeMinimalItems.
-	 */
-	private boolean m_twoColumnsMode;
-
-	/**
-	 * Minimal number of items that would cause two column rendering. Always set with m_twoColumnsMode.
-	 */
-	private int m_minSizeForTwoColumnsMode;
-
-	/**
-	 * Item that is used internally by LookupForm to mark table break when creating search field components.
-	 *
-	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
-	 * Created on 13 Oct 2009
-	 */
-	static private class ItemBreak extends Item {
-		public ItemBreak() {}
-	}
-
-	/** The primary list of defined lookup items. */
-	private final List<Item> m_itemList = new ArrayList<Item>(20);
 
 	public enum ButtonMode {
 		/** Show this button only when the lookup form is expanded */
@@ -565,8 +226,25 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		}
 	}
 
-	/** The list of buttons to show on the button row. */
-	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
+	//private Map<String, ILookupControlInstance<?>> getFilterItems() {
+	//	Map<String, ILookupControlInstance<?>> filterValues = new HashMap<>();
+	//	for(LookupLine item : m_itemList) {
+	//		String propertyName = item.getPropertyName() != null ? item.getPropertyName() : item.getLabelText();
+	//		filterValues.put(propertyName, item.getInstance());
+	//	}
+	//	return filterValues;
+	//}
+
+	//public Map<String, ?> getFilterValues() {
+	//	Map<String, ILookupControlInstance<?>> filterItems = getFilterItems();
+	//	Map<String, Object> filterValues = new HashMap<>();
+	//	for(Entry<String, ILookupControlInstance<?>> entry : filterItems.entrySet()) {
+	//		if(entry.getValue().getValue() != null) {
+	//			filterValues.put(entry.getKey(), entry.getValue().getValue());
+	//		}
+	//	}
+	//	return filterValues;
+	//}
 
 	public LookupForm2(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
 		this(lookupClass, null, propertyList);
@@ -580,7 +258,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		m_rootCriteria = null;
 		m_lookupClass = lookupClass;
 		m_metaModel = cmm != null ? cmm : MetaManager.findClassMeta(lookupClass);
-		m_builder = DomApplication.get().getControlBuilder();
 		for(String prop : propertyList)
 			addProperty(prop);
 		defineDefaultButtons();
@@ -592,28 +269,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	}
 
 	/**
-	 * Return the metamodel that this class uses to get its data from.
-	 * @return
-	 */
-	@Nonnull
-	public ClassMetaModel getMetaModel() {
-		return m_metaModel;
-	}
-
-	/**
-	 * Returns the class whose instances we're looking up (a persistent class somehow).
-	 * @return
-	 */
-	@Nonnull
-	public Class<T> getLookupClass() {
-		if(null == m_lookupClass)
-			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
-		return m_lookupClass;
-	}
-
-	/**
 	 * Actually show the thingy.
-	 * @see NodeBase#createContent()
 	 */
 	@Override
 	public void createContent() throws Exception {
@@ -622,95 +278,31 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			loadSearchQueries();
 		}
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in it;s own div.
-		Div sroot = new Div();
+		Div sroot = m_content = new Div();
+		add(sroot);
 		sroot.setCssClass("ui-lf-mainContent");
-		if(getPageTitle() != null) {
-			CaptionedPanel cp = new CaptionedPanel(getPageTitle(), sroot);
-			add(cp);
-			m_content = cp;
-		} else {
-			add(sroot);
-			m_content = sroot;
-		}
 
 		//-- Ok, we need the items we're going to show now.
 		if(m_itemList.size() == 0 || isKeepMetaData())			// If we don't have an item set yet....
 			setDefaultItems(); 									// ..define it from metadata, and abort if there is nothing there
 
-		NodeContainer searchContainer = sroot;
-		if(containsItemBreaks(m_itemList)) {
-			Table searchRootTable = new Table();
-			searchRootTable.setCssClass("ui-lf-multi");
-			sroot.add(searchRootTable);
-			TBody searchRootTableBody = new TBody();
-			searchRootTable.add(searchRootTableBody);
-			TR searchRootRow = new TR();
-			searchRootTableBody.add(searchRootRow);
-			TD searchRootCell = new TD();
-			searchRootCell.setValign(TableVAlign.TOP);
-			searchRootCell.setVerticalAlign(VerticalAlignType.TOP);
-			searchRootRow.add(searchRootCell);
-			searchContainer = searchRootCell;
-		}
-
-		if(isSearchFilterEnabled()) {
-			if(containsItemBreaks(m_itemList)) {
-				m_tbody.add("This is not implemented yet!");
-			}
-			Table searchRootTable = new Table();
-			searchRootTable.setCssClass("ui-lf-multi");
-			sroot.add(searchRootTable);
-			TBody searchRootTableBody = new TBody();
-			searchRootTable.add(searchRootTableBody);
-			TR searchRootRow = new TR();
-			searchRootTableBody.add(searchRootRow);
-			TD searchRootCell = new TD();
-			searchRootCell.setValign(TableVAlign.TOP);
-			searchRootRow.add(searchRootCell);
-			searchContainer = searchRootCell;
-		}
-
-		//-- Walk all search fields
-		Table tbl = m_table = new Table();
-		tbl.setCssClass("ui-lf-st");
-		searchContainer.add(tbl);
-		m_tbody = new TBody();
-		m_tbody.setTestID("tableBodyLookupForm");
-		m_table.add(m_tbody);
-
-
 		//-- Start populating the lookup form with lookup items.
-		for(Item it : m_itemList) {
-			if(it instanceof ItemBreak) {
-				TD anotherSearchRootCell = new TD();
-				anotherSearchRootCell.setValign(TableVAlign.TOP);
-				searchContainer.appendAfterMe(anotherSearchRootCell);
-				searchContainer = anotherSearchRootCell;
-				m_table = new Table();
-				m_table.setCssClass("ui-lf-st");
-				searchContainer.add(m_table);
-				m_tbody = new TBody();
-				m_tbody.setTestID("tableBodyLookupForm");
-				m_table.add(m_tbody);
-			} else {
-				internalAddLookupItem(it);
-			}
+		for(LookupLine it : m_itemList) {
+			internalAddLookupItem(it);
 		}
 
-		//-- The saved filters are shown next
-		if(isSearchFilterEnabled()) {
-			if(containsItemBreaks(m_itemList)) {
-				throw new IllegalStateException("Not implemented yet. It is not possible to show the saved searched filter in combination with a split lookupform");
-			}
-			addFilterFragment(searchContainer);
-		}
+		////-- The saved filters are shown next
+		//if(isSearchFilterEnabled()) {
+		//	if(containsItemBreaks(m_itemList)) {
+		//		throw new IllegalStateException("Not implemented yet. It is not possible to show the saved searched filter in combination with a split lookupform");
+		//	}
+		//	addFilterFragment(searchContainer);
+		//}
 
 		//-- The button bar.
-		Div d = new Div();
-		d.setTestID("buttonBar");
+		Div d = m_buttonRow = new Div();
+		add(d);
 		d.setCssClass("ui-lf-ebb");
-		sroot.add(d);
-		m_buttonRow = d;
 
 		//20091127 vmijic - since LookupForm can be reused each new rebuild should execute restore if previous state of form was collapsed.
 		//20100118 vmijic - since LookupForm can be by default rendered as collapsed check for m_collapsed is added.
@@ -736,6 +328,20 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 					m_clicker.clicked(LookupForm2.this);
 			}
 		});
+	}
+
+	/**
+	 * This adds all properties that are defined as "search" properties in either this control or the metadata
+	 * to the item list. The list is cleared before that!
+	 */
+	public void setDefaultItems() {
+		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
+		if(list == null || list.size() == 0) {
+			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
+			if(list == null || list.size() == 0)
+				throw new IllegalStateException(getMetaModel() + " has no search properties defined in its meta data.");
+		}
+		setSearchProperties(list);
 	}
 
 	private void addFilterFragment(NodeContainer searchContainer) {
@@ -790,16 +396,16 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	}
 
 	private void fillSearchFields(SavedFilter filter) throws Exception {
-		final Map<String, ILookupControlInstance<?>> formLookupFilterItems = getFilterItems();
-		final Map<String, ?> savedFilterValues = LookupFilterTranslator.deserialize(getSharedContext(), filter.getFilterValue());
-		for(Entry<String, ?> entry : savedFilterValues.entrySet()) {
-			final String property = entry.getKey();
-			final ILookupControlInstance<Object> controlInstance = (ILookupControlInstance<Object>) formLookupFilterItems.get(property);
-			if(controlInstance == null) {
-				continue; // to avoid possible NPE
-			}
-			controlInstance.setValue(entry.getValue());
-		}
+		//final Map<String, ILookupControlInstance<?>> formLookupFilterItems = getFilterItems();
+		//final Map<String, ?> savedFilterValues = LookupFilterTranslator.deserialize(getSharedContext(), filter.getFilterValue());
+		//for(Entry<String, ?> entry : savedFilterValues.entrySet()) {
+		//	final String property = entry.getKey();
+		//	final ILookupControlInstance<Object> controlInstance = (ILookupControlInstance<Object>) formLookupFilterItems.get(property);
+		//	if(controlInstance == null) {
+		//		continue; // to avoid possible NPE
+		//	}
+		//	controlInstance.setValue(entry.getValue());
+		//}
 	}
 
 	protected void defineDefaultButtons() {
@@ -851,8 +457,8 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		add(dialog);
 	}
 
-	private boolean containsItemBreaks(List<Item> itemList) {
-		for(Item item : itemList) {
+	private boolean containsItemBreaks(List<LookupLine> itemList) {
+		for(LookupLine item : itemList) {
 			if(item instanceof ItemBreak) {
 				return true;
 			}
@@ -914,257 +520,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * This adds all properties that are defined as "search" properties in either this control or the metadata
-	 * to the item list. The list is cleared before that!
-	 */
-	public void setDefaultItems() {
-		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
-		if(list == null || list.size() == 0) {
-			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
-			if(list == null || list.size() == 0)
-				throw new IllegalStateException(getMetaModel() + " has no search properties defined in its meta data.");
-		}
-		setSearchProperties(list);
-	}
-
-	/**
-	 * Set the search properties to use from a list of metadata properties.
-	 * @param list
-	 */
-	public void setSearchProperties(List<SearchPropertyMetaModel> list) {
-		int totalCount = list.size();
-		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
-			Item it = new Item();
-			it.setIgnoreCase(sp.isIgnoreCase());
-			it.setMinLength(sp.getMinLength());
-			it.setPropertyName(sp.getPropertyName());
-			it.setPropertyPath(sp.getPropertyPath());
-			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
-			it.setLookupHint(sp.getLookupHint()); // If a lookup hint is defined use it.
-			it.setPopupSearchImmediately(sp.isPopupSearchImmediately());
-			it.setPopupInitiallyCollapsed(sp.isPopupInitiallyCollapsed());
-			addAndFinish(it);
-			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
-				m_itemList.add(new ItemBreak());
-			}
-			updateUI(it);
-
-		}
-	}
-
-	/**
-	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 * @param minlen
-	 * @param ignorecase
-	 */
-	public Item addProperty(String path, int minlen, boolean ignorecase) {
-		return addProperty(path, null, minlen, Boolean.valueOf(ignorecase));
-	}
-
-	/**
-	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 * @param minlen
-	 */
-	public Item addProperty(String path, int minlen) {
-		return addProperty(path, null, minlen, null);
-	}
-
-	/**
-	 * Add a property to look up to the list with user-specified label. The controls et al will be added using the factories.
-	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 * @param label	The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
-	 */
-	public Item addProperty(String path, String label) {
-		return addProperty(path, label, 0, null);
-	}
-
-	/**
-	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 */
-	public Item addProperty(String path) {
-		return addProperty(path, null, 0, null);
-	}
-
-	/**
-	 * Add a property manually.
-	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 * @param minlen
-	 * @param ignorecase
-	 */
-	private Item addProperty(String path, String label, int minlen, Boolean ignorecase) {
-		for(Item it : m_itemList) { // FIXME Useful?
-			if(it.getPropertyName() != null && path.equals(it.getPropertyName())) // Already present there?
-				throw new ProgrammerErrorException("The property " + path + " is already part of the search field list.");
-		}
-
-		//-- Define the item.
-		Item it = new Item();
-		it.setPropertyName(path);
-		it.setLabelText(label);
-		it.setIgnoreCase(ignorecase == null || ignorecase.booleanValue());
-		it.setMinLength(minlen);
-		addAndFinish(it);
-		updateUI(it);
-		return it;
-	}
-
-	public void addItemBreak() {
-		ItemBreak itemBreak = new ItemBreak();
-		m_itemList.add(itemBreak);
-	}
-
-	/**
-	 * Add a manually-created lookup control instance to the item list.
-	 * @return
-	 */
-	public Item addManual(ILookupControlInstance<?> lci) {
-		Item it = new Item();
-		it.setInstance(lci);
-		addAndFinish(it);
-		updateUI(it);
-		return it;
-	}
-
-	/**
-	 * Add a manually created control and link it to some property. The controls's configuration must be fully
-	 * done by the caller; this will ask control factories to provide an ILookupControlInstance for the property
-	 * and control passed in. The label for the lookup will come from property metadata.
-	 *
-	 * @param <X>
-	 * @param property
-	 * @param control
-	 * @return
-	 */
-	public <VT, X extends NodeBase & IControl<VT>> Item addManual(String property, X control) {
-		Item it = new Item();
-		it.setPropertyName(property);
-		addAndFinish(it);
-
-		//-- Add the generic thingy
-		ILookupControlFactory lcf = m_builder.getLookupQueryFactory(it, control);
-		ILookupControlInstance<?> qt = lcf.createControl(it, control);
-		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
-			throw new IllegalStateException("Lookup factory " + lcf + " did not link thenlookup thingy for property " + it.getPropertyName());
-		it.setInstance(qt);
-		updateUI(it);
-		return it;
-	}
-
-	/**
-	 * Add a manually-created lookup control instance with user-specified label to the item list.
-	 * @return
-	 */
-	public Item addManualTextLabel(String labelText, ILookupControlInstance<?> lci) {
-		Item it = new Item();
-		it.setInstance(lci);
-		it.setLabelText(labelText);
-		addAndFinish(it);
-		updateUI(it);
-		return it;
-	}
-
-	/**
-	 * Adds a manually-defined control, and use the specified property as the source for its default label.
-	 * @param property
-	 * @param lci
-	 * @return
-	 */
-	public Item addManualPropertyLabel(String property, ILookupControlInstance<?> lci) {
-		PropertyMetaModel< ? > pmm = getMetaModel().findProperty(property);
-		if(null == pmm)
-			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
-		return addManualTextLabel(pmm.getDefaultLabel(), lci);
-	}
-
-	/**
-	 * Add lookup control instance for search properties on child list (oneToMany relation)
-	 * members. This adds a query by using the "exists" subquery for the child record. See
-	 * <a href="http://www.domui.org/wiki/bin/view/Tutorial/QCriteriaRulez">QCriteria rules</a> for
-	 * details.
-	 *
-	 * @param propPath
-	 * 		Must be <b>parentprop.childprop</b> dotted form. Label is used from parent property meta.
-	 */
-	public Item addChildProperty(String propPath) {
-		return addChildPropertyLabel(null, propPath);
-	}
-
-
-	/**
-	 * Add lookup control instance for search properties on child list (oneToMany relation)
-	 * members. This adds a query by using the "exists" subquery for the child record. See
-	 * <a href="http://www.domui.org/wiki/bin/view/Tutorial/QCriteriaRulez">QCriteria rules</a> for
-	 * details.
-	 * @param label
-	 * 		Label that is displayed. If null, default label from parent property meta is used.
-	 * @param propPath
-	 * 		Must be <b>parentprop.childprop</b> dotted form.
-	 */
-	public Item addChildPropertyLabel(String label, String propPath) {
-
-		final List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(m_metaModel, propPath);
-
-		if(pl.size() != 2) {
-			throw new ProgrammerErrorException("Property path does not contain parent.child path: " + propPath);
-		}
-
-		final PropertyMetaModel< ? > parentPmm = pl.get(0);
-		final PropertyMetaModel< ? > childPmm = pl.get(1);
-
-		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel);
-		spmm.setPropertyName(childPmm.getName());
-		spmm.setPropertyPath(pl);
-
-		ILookupControlFactory lcf = m_builder.getLookupControlFactory(spmm);
-		final ILookupControlInstance<?> lookupInstance = lcf.createControl(spmm, null);
-
-		if (spmm.isPopupSearchImmediately()) {
-			if(lookupInstance instanceof LookupInputBase<?, ?>) {
-				((LookupInputBase<?, ?>) lookupInstance).setSearchImmediately(true);
-			}else if(lookupInstance instanceof LookupInputBase2<?, ?>) {
-				((LookupInputBase2<?, ?>) lookupInstance).setPopupSearchImmediately(true);
-			}
-		}
-
-		if (spmm.isPopupInitiallyCollapsed()) {
-			if(lookupInstance instanceof LookupInputBase<?, ?>) {
-				((LookupInputBase<?, ?>) lookupInstance).setPopupInitiallyCollapsed(true);
-			}else if(lookupInstance instanceof LookupInputBase2<?, ?>) {
-				((LookupInputBase2<?, ?>) lookupInstance).setPopupInitiallyCollapsed(true);
-			}
-		}
-
-		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
-			@Override
-			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
-
-				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
-				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
-
-				if(subRes == AppendCriteriaResult.INVALID) {
-					return subRes;
-				} else if(r.hasRestrictions()) {
-					QRestrictor< ? > exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
-					exists.setRestrictions(r.getRestrictions());
-					return AppendCriteriaResult.VALID;
-				} else {
-					return AppendCriteriaResult.EMPTY;
-				}
-			}
-
-			@Override
-			public void clearInput() {
-				lookupInstance.clearInput();
-			}
-		};
-
-		return this.addManualTextLabel(label == null ? parentPmm.getDefaultLabel() : label, thingy);
-	}
-
-	/**
 	 * Clear out the entire definition for this lookup form. After this it needs to be recreated completely.
 	 */
 	public void reset() {
@@ -1181,7 +536,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	 * the item. This means that the default label and the hint are calculated if missing, and that
 	 * the lookup property is resolved if needed etc.
 	 */
-	private void addAndFinish(Item it) {
+	private void addAndFinish(LookupLine it) {
 		m_itemList.add(it);
 
 		//-- 1. If a property name is present but the path is unknown calculate the path
@@ -1214,27 +569,26 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 
 	}
 
-	private void addNonControlItem(@Nonnull Item it) {
-		////-- Create left and/or right cells,
-		TR tr = new TR();
-		m_tbody.add(tr);
-		TD td = tr.addCell();
-		NodeBase itLeft = it.getLeft();
-		if(itLeft != null) {
-			td.add(itLeft);
-			if(it.isEntireRow()) {
-				td.setColspan(2);
-			}
-		}
-		NodeBase itRight = it.getRight();
-		if(itRight != null) {
-			TD tdRight = tr.addCell();
-			tdRight.add(itRight);
-		}
-	}
-
-
-	private void updateUI(@Nonnull Item it) {
+	//private void addNonControlItem(@Nonnull LookupLine it) {
+	//	////-- Create left and/or right cells,
+	//	TR tr = new TR();
+	//	m_tbody.add(tr);
+	//	TD td = tr.addCell();
+	//	NodeBase itLeft = it.getLeft();
+	//	if(itLeft != null) {
+	//		td.add(itLeft);
+	//		if(it.isEntireRow()) {
+	//			td.setColspan(2);
+	//		}
+	//	}
+	//	NodeBase itRight = it.getRight();
+	//	if(itRight != null) {
+	//		TD tdRight = tr.addCell();
+	//		tdRight.add(itRight);
+	//	}
+	//}
+	//
+	private void updateUI(@Nonnull LookupLine it) {
 		//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
 		if(m_tbody != null)
 			internalAddLookupItem(it);
@@ -1242,9 +596,8 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Create the lookup item, depending on its kind.
-	 * @param it
 	 */
-	private void internalAddLookupItem(Item it) {
+	private void internalAddLookupItem(LookupLine it) {
 		if(!it.isControl()) {
 			addNonControlItem(it);
 			return;
@@ -1295,7 +648,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	 *
 	 * @param it	The fully completed item definition to add.
 	 */
-	private void addItemToTable(Item it) {
+	private void addItemToTable(LookupLine it) {
 		ILookupControlInstance<?> qt = it.getInstance();
 
 		//-- Create control && label cells,
@@ -1329,28 +682,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		}
 	}
 
-	/**
-	 * With this method you can place a NodeBase in the left (label) column and one in the right (control) column.
-	 * If you use the left column only, you can tell whether this column should be spread across both columns.
-	 * (A colspan=2 will be added in that case)
-	 *
-	 */
-	public void addItem(@Nullable NodeBase left, @Nullable NodeBase right) {
-		Item item = new Item(left, right);
-		m_itemList.add(item);
-	}
-
-	/**
-	 * With this method you can place a NodeBase in the table where it will fill the entire row.
-	 * A colspan=2 will be added
-	 *
-	 */
-	public void addItem(@Nullable NodeBase cell) {
-		Item item = new Item(cell);
-		m_itemList.add(item);
-	}
-
-	private void assignCalcTestID(@Nonnull Item item, @Nonnull NodeBase b) {
+	private void assignCalcTestID(@Nonnull LookupLine item, @Nonnull NodeBase b) {
 		if(b.getTestID() != null)
 			return;
 		String lbl = item.getPropertyName();
@@ -1359,25 +691,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		if(null == lbl)
 			lbl = DomUtil.getClassNameOnly(b.getClass());
 		b.setCalculcatedId(lbl);
-	}
-
-
-	/**
-	 * Create the optimal control using metadata for a property. This can only be called for an item
-	 * containing a property with metadata.
-	 *
-	 * @param it
-	 * @return
-	 */
-	private ILookupControlInstance<?> createControlFor(Item it) {
-		PropertyMetaModel< ? > pmm = it.getLastProperty();
-		if(pmm == null)
-			throw new IllegalStateException("property cannot be null when creating using factory.");
-		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
-		ILookupControlInstance<?> qt = lcf.createControl(it, null);
-		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
-			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getPropertyName());
-		return qt;
 	}
 
 	/**
@@ -1403,8 +716,9 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	public QCriteria<T> getEnteredCriteria() throws Exception {
 		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root;
-		if(getQueryFactory() != null) {
-			root = getQueryFactory().createQuery();
+		IQueryFactory<T> queryFactory = getQueryFactory();
+		if(queryFactory != null) {
+			root = queryFactory.createQuery();
 		} else {
 			root = (QCriteria<T>) getMetaModel().createCriteria();
 			QCriteria<T> rootCriteria = m_rootCriteria;
@@ -1412,15 +726,12 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 				root.mergeCriteria(rootCriteria);
 		}
 		boolean success = true;
-		for(Item it : m_itemList) {
-			ILookupControlInstance<?> li = it.getInstance();
-			if(li != null) { // FIXME Is it reasonable to allow null here?? Should we not abort?
-				AppendCriteriaResult res = li.appendCriteria(root);
-				if(res == AppendCriteriaResult.INVALID) {
-					success = false;
-				} else if(res == AppendCriteriaResult.VALID) {
-					m_hasUserDefinedCriteria = true;
-				}
+		for(LookupLine<?> it : m_itemList) {
+			LookupQueryBuilderResult res = appendCriteria(root, it);
+			if(res == LookupQueryBuilderResult.INVALID) {
+				success = false;
+			} else if(res == LookupQueryBuilderResult.VALID) {
+				m_hasUserDefinedCriteria = true;
 			}
 		}
 		if(!success) { 										// Some input failed to validate their input criteria?
@@ -1428,6 +739,15 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			return null; 									// Then exit null -> should only display errors.
 		}
 		return root;
+	}
+
+	private <D> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, LookupLine<D> it) {
+		IControl<D> control = it.getControl();
+		ILookupQueryBuilder<D> builder = it.getQueryBuilder();
+		if(null != control && null != builder) {
+			return builder.appendCriteria(criteria, control.getValue());
+		}
+		return LookupQueryBuilderResult.EMPTY;
 	}
 
 
@@ -1440,9 +760,11 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	 * this call, the form should return an empty QCriteria without any restrictions.
 	 */
 	public void clearInput() {
-		for(Item it : m_itemList) {
-			if(it.getInstance() != null)
-				it.getInstance().clearInput();
+		for(LookupLine it : m_itemList) {
+			IControl control = it.getControl();
+			if(null != control) {
+				control.setValue(it.getDefaultValue());
+			}
 		}
 	}
 
@@ -1487,22 +809,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			}
 			forceRebuild();
 		}
-	}
-
-	/**
-	 * Returns the search block's part title, if present. Returns null if the title is not set.
-	 */
-	public String getPageTitle() {
-		return m_title;
-	}
-
-	/**
-	 * Sets a part title for this search block. When unset the search block does not have a title, when set
-	 * the search block will be shown inside a CaptionedPanel.
-	 * @param title
-	 */
-	public void setPageTitle(final String title) {
-		m_title = title;
 	}
 
 	/**
@@ -1618,15 +924,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 				c.add(bi.getThingy());
 			}
 		}
-	}
-
-	/**
-	 * Sets rendering of search fields into two columns. It is in use only in case when search fields are loaded from metadata and search fields count reach minSizeForTwoColumnsMode value.
-	 * @param minSizeForTwoColumnsMode
-	 */
-	public void setTwoColumnsMode(int minSizeForTwoColumnsMode) {
-		m_twoColumnsMode = true;
-		m_minSizeForTwoColumnsMode = minSizeForTwoColumnsMode;
 	}
 
 	/**
@@ -1759,4 +1056,44 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			m_newBtn.setDisabled(rsn);
 		}
 	}
+
+	private void setSavedFilters(List<SavedFilter> savedFilters) {
+		m_savedFilters = savedFilters;
+	}
+
+	public boolean isSearchFilterEnabled() {
+		return m_searchFilterEnabled;
+	}
+
+	public void setSearchFilterEnabled(boolean searchFilterEnabled) {
+		m_searchFilterEnabled = searchFilterEnabled;
+	}
+
+	@Nullable
+	public DefaultButton getClearButton() {
+		return m_clearButton;
+	}
+
+	@Nonnull public IFormBuilder getFormBuilder() {
+		return Objects.requireNonNull(m_formBuilder);
+	}
+
+	/**
+	 * Return the metamodel that this class uses to get its data from.
+	 */
+	@Nonnull
+	public ClassMetaModel getMetaModel() {
+		return m_metaModel;
+	}
+
+	/**
+	 * Returns the class whose instances we're looking up (a persistent class somehow).
+	 */
+	@Nonnull
+	public Class<T> getLookupClass() {
+		if(null == m_lookupClass)
+			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
+		return m_lookupClass;
+	}
+
 }
