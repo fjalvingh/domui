@@ -458,6 +458,7 @@ import java.util.function.Predicate;
 				converter = ConverterRegistry.findBestConverter(pmm);
 			}
 			DisplaySpan<X> ds = new DisplaySpan<>(pmm.getActualType(), null);
+			cell.add(ds);
 			ds.bind().to(instance, pmm);                    // Bind value to model
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
@@ -470,11 +471,10 @@ import java.util.function.Predicate;
 						contentRenderer.renderOpt(node, object); //, instance);
 					}
 				});
-			}
-			cell.add(ds);
-
-			if(converter != null) {
-				ds.setConverter(converter);
+			} else {
+				if(converter != null) {
+					ds.setConverter(converter);
+				}
 			}
 			applyCellAttributes(cell, cd);
 		} else if(contentRenderer != null) {
