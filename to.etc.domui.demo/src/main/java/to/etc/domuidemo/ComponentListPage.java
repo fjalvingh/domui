@@ -43,6 +43,7 @@ import to.etc.domuidemo.pages.overview.misc.DemoDisplayValue;
 import to.etc.domuidemo.pages.overview.misc.DemoMsgBox;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
 import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
+import to.etc.domuidemo.pages.special.ace.AcePage;
 import to.etc.formbuilder.pages.FormDesigner;
 
 /**
@@ -113,6 +114,7 @@ public class ComponentListPage extends MenuPage {
 		addLink(FormDesigner.class, "Form designer - work in progress");
 
 		addCaption("Special components");
+		addLink(AcePage.class, "The ACE code editor");
 		addLink(DemoWeekAgenda.class, "The WeekAgenda");
 		addLink(DemoAsyncContainer.class, "The AsyncContainer");
 		addLink(DemoPollingDiv.class, "The PollingDiv component");
