@@ -45,6 +45,7 @@ import to.etc.domui.component.lookupform2.lookupcontrols.ILookupFactory;
 import to.etc.domui.component.lookupform2.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.lookupform2.lookupcontrols.LookupControlRegistry2;
 import to.etc.domui.component.lookupform2.lookupcontrols.LookupQueryBuilderResult;
+import to.etc.domui.component.lookupform2.lookupcontrols.ObjectLookupQueryBuilder;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
@@ -1058,5 +1059,162 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
 		return m_lookupClass;
 	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Property/item builder.										*/
+	/*----------------------------------------------------------------------*/
+
+	@Nullable
+	private LookupBuilder<T> m_currentBuilder;
+
+	/**
+	 * Start a builder adding a new line to the form. The line should be finished properly
+	 * or an error occurs.
+	 */
+	public LookupBuilder<T> add() {
+		if(m_currentBuilder != null)
+			throw new IllegalStateException(this + ": The builder " + m_currentBuilder + " has not yet been finished");
+		LookupBuilder item = new LookupBuilder(this);
+		m_currentBuilder = item;
+		return item;
+	}
+
+	@Nonnull
+	<D> LookupLine<D> finishBuilder(LookupBuilder<T> builder) {
+		if(m_currentBuilder != builder)
+			throw new IllegalStateException(this + ": the item builder " + builder + " is not the 'current' item - call order problem");
+		LookupLine<D> line = createLine(builder);
+		m_itemList.add(line);
+		forceRebuild();
+		return line;
+	}
+
+	private <D> LookupLine<D> createLine(LookupBuilder<T> builder) {
+		IControl<D> control = (IControl<D>) builder.getControl();
+		ILookupQueryBuilder<?> qb = builder.getQueryBuilder();
+		PropertyMetaModel<?> property = builder.getProperty();
+		if(null == control) {
+			//-- No control, no query builder: use the property to get one
+			if(null == property)
+				throw new ProgrammerErrorException(builder + ": needs to specify a property");
+
+			SearchPropertyMetaModelImpl spm = mergePropertyModels(builder, property);
+			FactoryPair<D> pair = (FactoryPair<D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
+			control = pair.getControl();
+			qb = pair.getQueryBuilder();
+		} else if(null == qb) {
+			//-- Use the equals query builder by default. For this we REQUIRE a property.
+			if(null == property)
+				throw new ProgrammerErrorException(builder + ": when specifying a control you need to either define a property or a query builder, otherwise I do not know how to search");
+			qb = new ObjectLookupQueryBuilder<>(property.getName());
+		}
+
+
+
+
+
+	}
+
+	private SearchPropertyMetaModelImpl mergePropertyModels(LookupBuilder<T> builder, PropertyMetaModel<?> property) {
+		SearchPropertyMetaModelImpl m = new SearchPropertyMetaModelImpl(getMetaModel(), MetaManager.parsePropertyPath(getMetaModel(), property.getName()));
+		if(builder.isIgnoreCase())
+			m.setIgnoreCase(true);
+		if(builder.isInitiallyCollapsed())
+			m.setPopupInitiallyCollapsed(true);
+		if(builder.isSearchImmediately())
+			m.setPopupSearchImmediately(true);
+		if(builder.getMinLength() > 0)
+			m.setMinLength(builder.getMinLength());
+		return m;
+	}
+
+
+	public void xxxxxbuild() {
+		//-- 1. If a property name is present but the path is unknown calculate the path
+		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
+			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
+			if(pl.size() == 0)
+				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
+			it.setPropertyPath(pl);
+		}
+
+		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
+		PropertyMetaModel< ? > pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
+		if(it.getLabelText() == null) {
+			if(pmm == null)
+				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
+			else
+				it.setLabelText(pmm.getDefaultLabel());
+		}
+
+		//-- 3. Calculate a default hint
+		if(it.getLookupHint() == null) {
+			if(pmm != null)
+				it.setLookupHint(pmm.getDefaultHint());
+		}
+
+		//-- 4. Set an errorLocation
+		if(it.getErrorLocation() == null) {
+			it.setErrorLocation(it.getLabelText());
+		}
+	}
+
+	/**
+	 * Add lookup control instance for search properties on child list (oneToMany relation)
+	 * members. This adds a query by using the "exists" subquery for the child record. See
+	 * <a href="http://www.domui.org/wiki/bin/view/Tutorial/QCriteriaRulez">QCriteria rules</a> for
+	 * details.
+	 * @param label
+	 * 		Label that is displayed. If null, default label from parent property meta is used.
+	 * @param propPath
+	 * 		Must be <b>parentprop.childprop</b> dotted form.
+	 */
+	public LookupLine addChildPropertyLabel(String label, String propPath) {
+
+		final List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(m_metaModel, propPath);
+
+		if(pl.size() != 2) {
+			throw new ProgrammerErrorException("Property path does not contain parent.child path: " + propPath);
+		}
+
+		final PropertyMetaModel< ? > parentPmm = pl.get(0);
+		final PropertyMetaModel< ? > childPmm = pl.get(1);
+
+		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel);
+		spmm.setPropertyName(childPmm.getName());
+		spmm.setPropertyPath(pl);
+
+		FactoryPair<?> controlPair = LookupControlRegistry2.INSTANCE.findControlPair(spmm);
+
+
+
+
+		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
+			@Override
+			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
+
+				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
+				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
+
+				if(subRes == AppendCriteriaResult.INVALID) {
+					return subRes;
+				} else if(r.hasRestrictions()) {
+					QRestrictor< ? > exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
+					exists.setRestrictions(r.getRestrictions());
+					return AppendCriteriaResult.VALID;
+				} else {
+					return AppendCriteriaResult.EMPTY;
+				}
+			}
+
+			@Override
+			public void clearInput() {
+				lookupInstance.clearInput();
+			}
+		};
+
+		return addManualTextLabel(label == null ? parentPmm.getDefaultLabel() : label, thingy);
+	}
+
 
 }

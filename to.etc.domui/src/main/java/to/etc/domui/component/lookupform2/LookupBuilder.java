@@ -1,309 +1,165 @@
 package to.etc.domui.component.lookupform2;
 
-import to.etc.domui.component.lookup.AbstractLookupControlImpl;
-import to.etc.domui.component.lookup.ILookupControlFactory;
-import to.etc.domui.component.lookup.ILookupControlInstance;
-import to.etc.domui.component.lookupform2.lookupcontrols.FactoryPair;
-import to.etc.domui.component.lookupform2.lookupcontrols.LookupControlRegistry2;
-import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.lookupform2.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.meta.SearchPropertyMetaModel;
-import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.NodeBase;
-import to.etc.webapp.ProgrammerErrorException;
-import to.etc.webapp.query.QCriteria;
-import to.etc.webapp.query.QRestrictor;
+import to.etc.domui.dom.html.Label;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 14-12-17.
  */
-public class LookupBuilder {
-	/**
-	 * Set the search properties to use from a list of metadata properties.
-	 * @param list
-	 */
-	public void setSearchProperties(List<SearchPropertyMetaModel> list) {
-		int totalCount = list.size();
-		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
-			LookupLine it = new LookupLine();
-			it.ignoreCase(sp.isIgnoreCase());
-			it.minLength(sp.getMinLength());
-			//it.setPropertyName(sp.getPropertyName());
-			//it.setPropertyPath(sp.getPropertyPath());
-			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
-			it.hint(sp.getLookupHint()); // If a lookup hint is defined use it.
-			it.searchImmediately(sp.isPopupSearchImmediately());
-			it.initiallyCollapsed(sp.isPopupInitiallyCollapsed());
-			addAndFinish(it);
-			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
-				m_itemList.add(new ItemBreak());
-			}
-			updateUI(it);
+final public class LookupBuilder<T> {
+	@Nonnull
+	final private LookupForm2<T> m_form;
 
-		}
+	@Nullable
+	private IControl<?> m_control;
+
+	@Nullable
+	private ILookupQueryBuilder<?> m_queryBuilder;
+
+	@Nullable
+	private PropertyMetaModel<?> m_property;
+
+	private boolean m_ignoreCase = true;
+
+	@Nullable
+	private String m_lookupHint;
+
+	private int m_minLength;
+
+	@Nullable
+	private Label m_labelNode;
+
+	@Nullable
+	private String m_labelText;
+
+	@Nullable
+	private String m_testId;
+
+	@Nullable
+	private Object m_defaultValue;
+
+	private boolean m_popupSearchImmediately;
+
+	private boolean m_popupInitiallyCollapsed;
+
+	LookupBuilder(LookupForm2<T> form) {
+		m_form = form;
 	}
 
-	public void build() {
-		//-- 1. If a property name is present but the path is unknown calculate the path
-		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
-			if(pl.size() == 0)
-				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
-			it.setPropertyPath(pl);
-		}
-
-		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
-		PropertyMetaModel< ? > pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
-		if(it.getLabelText() == null) {
-			if(pmm == null)
-				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
-			else
-				it.setLabelText(pmm.getDefaultLabel());
-		}
-
-		//-- 3. Calculate a default hint
-		if(it.getLookupHint() == null) {
-			if(pmm != null)
-				it.setLookupHint(pmm.getDefaultHint());
-		}
-
-		//-- 4. Set an errorLocation
-		if(it.getErrorLocation() == null) {
-			it.setErrorLocation(it.getLabelText());
-		}
+	public <D> LookupBuilder<T> defaultValue(D value) {
+		m_defaultValue = value;
+		return this;
 	}
 
-	/**
-	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 * @param minlen
-	 * @param ignorecase
-	 */
-	public LookupLine addProperty(String path, int minlen, boolean ignorecase) {
-		return addProperty(path, null, minlen, Boolean.valueOf(ignorecase));
+	@Nullable public PropertyMetaModel<?> getProperty() {
+		return m_property;
 	}
 
-	/**
-	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 * @param minlen
-	 */
-	public LookupLine addProperty(String path, int minlen) {
-		return addProperty(path, null, minlen, null);
+	@Nullable public ILookupQueryBuilder<?> getQueryBuilder() {
+		return m_queryBuilder;
 	}
 
-	/**
-	 * Add a property to look up to the list with user-specified label. The controls et al will be added using the factories.
-	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 * @param label	The label text to use. Use the empty string to prevent a label from being generated. This still adds an empty cell for the label though.
-	 */
-	public LookupLine addProperty(String path, String label) {
-		return addProperty(path, label, 0, null);
+	@Nullable public Object getDefaultValue() {
+		return m_defaultValue;
 	}
 
-	/**
-	 * Add a property to look up to the list. The controls et al will be added using the factories.
-	 * @param path	The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 */
-	public LookupLine addProperty(String path) {
-		return addProperty(path, null, 0, null);
+	@Nullable public Label getLabelNode() {
+		return m_labelNode;
 	}
 
-	/**
-	 * Add a property manually.
-	 * @param path		The property name (or path to some PARENT property) to search on, relative to the lookup class.
-	 * @param minlen
-	 * @param ignorecase
-	 */
-	private LookupLine addProperty(String path, String label, int minlen, Boolean ignorecase) {
-		for(LookupLine it : m_itemList) { // FIXME Useful?
-			if(it.getPropertyName() != null && path.equals(it.getPropertyName())) // Already present there?
-				throw new ProgrammerErrorException("The property " + path + " is already part of the search field list.");
-		}
-
-		//-- Define the item.
-		LookupLine it = new LookupLine();
-		it.setPropertyName(path);
-		it.setLabelText(label);
-		it.setIgnoreCase(ignorecase == null || ignorecase.booleanValue());
-		it.setMinLength(minlen);
-		addAndFinish(it);
-		updateUI(it);
-		return it;
+	@Nullable public String getLabelText() {
+		return m_labelText;
 	}
 
-	public void addItemBreak() {
-		ItemBreak itemBreak = new ItemBreak();
-		m_itemList.add(itemBreak);
+	@Nullable public IControl<?> getControl() {
+		return m_control;
 	}
 
-	/**
-	 * Add a manually-created lookup control instance to the item list.
-	 * @return
-	 */
-	public LookupLine addManual(ILookupControlInstance<?> lci) {
-		LookupLine it = new LookupLine();
-		it.setInstance(lci);
-		addAndFinish(it);
-		updateUI(it);
-		return it;
+	public LookupBuilder<T> property(String property) {
+		m_property = m_form.getMetaModel().getProperty(property);
+		return this;
+	}
+
+	public LookupBuilder<T> minLength(int len) {
+		m_minLength = len;
+		return this;
+	}
+
+	public int getMinLength() {
+		return m_minLength;
+	}
+
+	public LookupBuilder<T> hint(String lookupHint) {
+		m_lookupHint = lookupHint;
+		return this;
+	}
+
+	public String getLookupHint() {
+		return m_lookupHint;
+	}
+
+	public LookupBuilder<T> ignoreCase(boolean yes) {
+		m_ignoreCase = yes;
+		return this;
+	}
+
+	public boolean isIgnoreCase() {
+		return m_ignoreCase;
+	}
+
+	public LookupBuilder<T> searchImmediately(boolean yes) {
+		m_popupSearchImmediately = true;
+		return this;
+	}
+
+	public boolean isInitiallyCollapsed() {
+		return m_popupInitiallyCollapsed;
+	}
+
+	public boolean isSearchImmediately() {
+		return m_popupSearchImmediately;
+	}
+
+	public LookupBuilder<T> initiallyCollapsed(boolean yes) {
+		m_popupInitiallyCollapsed = yes;
+		return this;
+	}
+
+	public LookupBuilder<T> label(String label) {
+		m_labelText = label;
+		return this;
+	}
+	public LookupBuilder<T> label(Label label) {
+		m_labelNode = label;
+		return this;
 	}
 
 	/**
-	 * Add a manually created control and link it to some property. The controls's configuration must be fully
-	 * done by the caller; this will ask control factories to provide an ILookupControlInstance for the property
-	 * and control passed in. The label for the lookup will come from property metadata.
-	 *
-	 * @param <X>
-	 * @param property
-	 * @param control
-	 * @return
+	 * Finish the builder and return the result. This version allows adding a control, but assumes that
+	 * the query can be build by a simple equals on the property value.
 	 */
-	public <VT, X extends NodeBase & IControl<VT>> LookupLine addManual(String property, X control) {
-		LookupLine it = new LookupLine();
-		it.setPropertyName(property);
-		addAndFinish(it);
-
-		//-- Add the generic thingy
-		ILookupControlFactory lcf = m_builder.getLookupQueryFactory(it, control);
-		ILookupControlInstance<?> qt = lcf.createControl(it, control);
-		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
-			throw new IllegalStateException("Lookup factory " + lcf + " did not link thenlookup thingy for property " + it.getPropertyName());
-		it.setInstance(qt);
-		updateUI(it);
-		return it;
+	public <D> LookupLine<D> control(IControl<D> control) {
+		m_control = control;
+		return m_form.finishBuilder(this);
 	}
 
 	/**
-	 * Add a manually-created lookup control instance with user-specified label to the item list.
-	 * @return
+	 * Finish the builder and return the result. This version allows any query to be constructed from the
+	 * control's value.
 	 */
-	public LookupLine addManualTextLabel(String labelText, ILookupControlInstance<?> lci) {
-		LookupLine it = new LookupLine();
-		it.setInstance(lci);
-		it.setLabelText(labelText);
-		addAndFinish(it);
-		updateUI(it);
-		return it;
+	public <D> LookupLine<D> control(ILookupQueryBuilder<D> builder, IControl<D> control) {
+		m_control = control;
+		m_queryBuilder = builder;
+		return m_form.finishBuilder(this);
 	}
 
-	/**
-	 * Adds a manually-defined control, and use the specified property as the source for its default label.
-	 * @param property
-	 * @param lci
-	 * @return
-	 */
-	public LookupLine addManualPropertyLabel(String property, ILookupControlInstance<?> lci) {
-		PropertyMetaModel< ? > pmm = getMetaModel().findProperty(property);
-		if(null == pmm)
-			throw new ProgrammerErrorException(property + ": undefined property for class=" + getLookupClass());
-		return addManualTextLabel(pmm.getDefaultLabel(), lci);
+	public LookupLine<?> control() {
+		return m_form.finishBuilder(this);
 	}
-
-	/**
-	 * Add lookup control instance for search properties on child list (oneToMany relation)
-	 * members. This adds a query by using the "exists" subquery for the child record. See
-	 * <a href="http://www.domui.org/wiki/bin/view/Tutorial/QCriteriaRulez">QCriteria rules</a> for
-	 * details.
-	 *
-	 * @param propPath
-	 * 		Must be <b>parentprop.childprop</b> dotted form. Label is used from parent property meta.
-	 */
-	public LookupLine addChildProperty(String propPath) {
-		return addChildPropertyLabel(null, propPath);
-	}
-
-
-	/**
-	 * Add lookup control instance for search properties on child list (oneToMany relation)
-	 * members. This adds a query by using the "exists" subquery for the child record. See
-	 * <a href="http://www.domui.org/wiki/bin/view/Tutorial/QCriteriaRulez">QCriteria rules</a> for
-	 * details.
-	 * @param label
-	 * 		Label that is displayed. If null, default label from parent property meta is used.
-	 * @param propPath
-	 * 		Must be <b>parentprop.childprop</b> dotted form.
-	 */
-	public LookupLine addChildPropertyLabel(String label, String propPath) {
-
-		final List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(m_metaModel, propPath);
-
-		if(pl.size() != 2) {
-			throw new ProgrammerErrorException("Property path does not contain parent.child path: " + propPath);
-		}
-
-		final PropertyMetaModel< ? > parentPmm = pl.get(0);
-		final PropertyMetaModel< ? > childPmm = pl.get(1);
-
-		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel);
-		spmm.setPropertyName(childPmm.getName());
-		spmm.setPropertyPath(pl);
-
-		FactoryPair<?> controlPair = LookupControlRegistry2.INSTANCE.findControlPair(spmm);
-
-
-
-
-		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
-			@Override
-			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
-
-				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
-				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
-
-				if(subRes == AppendCriteriaResult.INVALID) {
-					return subRes;
-				} else if(r.hasRestrictions()) {
-					QRestrictor< ? > exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
-					exists.setRestrictions(r.getRestrictions());
-					return AppendCriteriaResult.VALID;
-				} else {
-					return AppendCriteriaResult.EMPTY;
-				}
-			}
-
-			@Override
-			public void clearInput() {
-				lookupInstance.clearInput();
-			}
-		};
-
-		return addManualTextLabel(label == null ? parentPmm.getDefaultLabel() : label, thingy);
-	}
-
-
-	/**
-	 * Create the optimal control using metadata for a property. This can only be called for an item
-	 * containing a property with metadata.
-	 *
-	 * @param it
-	 * @return
-	 */
-	private ILookupControlInstance<?> createControlFor(LookupLine it) {
-		PropertyMetaModel< ? > pmm = it.getLastProperty();
-		if(pmm == null)
-			throw new IllegalStateException("property cannot be null when creating using factory.");
-		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
-		ILookupControlInstance<?> qt = lcf.createControl(it, null);
-		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
-			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getPropertyName());
-		return qt;
-	}
-
-	/**
-	 * With this method you can place a NodeBase in the table where it will fill the entire row.
-	 * A colspan=2 will be added
-	 */
-	public void addItem(@Nullable NodeBase cell) {
-		LookupLine item = new LookupLine(cell);
-		m_itemList.add(item);
-	}
-
 }
