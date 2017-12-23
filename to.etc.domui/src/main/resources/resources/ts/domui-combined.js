@@ -3319,8 +3319,11 @@ var WebUI;
             var ix2 = url.indexOf("&", ix1);
             if (ix2 > ix1) {
                 url = url.substring(0, ix1) + url.substring(ix2 + 1);
-                window.location.href = url;
             }
+            else {
+                url = url.substring(0, ix1);
+            }
+            window.location.href = url;
         }
     }
     WebUI.refreshPage = refreshPage;
