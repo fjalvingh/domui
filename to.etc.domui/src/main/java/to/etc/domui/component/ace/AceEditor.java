@@ -15,6 +15,11 @@ import java.util.Objects;
 /**
  * DomUI wrapper for the <a href="https://ace.c9.io/">ACE code editor</a>.
  *
+ * Todo:
+ * <pre>
+ *     https://github.com/ajaxorg/ace/wiki/How-to-enable-Autocomplete-in-the-Ace-editor
+ * </pre>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 23-12-17.
  */
