@@ -11,4 +11,8 @@ public interface IImportColumn {
 	@Nullable String getStringValue();
 
 	@Nullable Date asDate();
+
+	@Nullable Long asLong();
+
+	@Nullable Integer asInteger();
 }

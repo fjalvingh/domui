@@ -106,7 +106,12 @@ final public class ColumnDef<I, T> {
 		numeric(pmm.getNumericPresentation());
 		if(pmm.getNowrap() == YesNoType.YES)
 			nowrap();
-		converter(ConverterRegistry.findBestConverter(pmm));
+
+		/*
+		 * jal 20171220 This must not be here: when setting it here we might get both a converter AND a renderer. When calculating
+		 * a rendering the code should determine whether it NEEDS a default converter and only use it then.
+		 */
+		//converter(ConverterRegistry.findBestConverter(pmm));
 		width(MetaManager.calculateTextSize(pmm));
 	}
 
