@@ -3,10 +3,10 @@ package to.etc.domui.component.lookupform2;
 import to.etc.domui.component.lookup.AbstractLookupControlImpl;
 import to.etc.domui.component.lookup.ILookupControlFactory;
 import to.etc.domui.component.lookup.ILookupControlInstance;
-import to.etc.domui.component.lookupform2.LookupForm2.ItemBreak;
 import to.etc.domui.component.lookupform2.lookupcontrols.FactoryPair;
 import to.etc.domui.component.lookupform2.lookupcontrols.LookupControlRegistry2;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
@@ -25,7 +25,6 @@ import java.util.List;
  * Created on 14-12-17.
  */
 public class LookupBuilder {
-
 	/**
 	 * Set the search properties to use from a list of metadata properties.
 	 * @param list
@@ -34,20 +33,50 @@ public class LookupBuilder {
 		int totalCount = list.size();
 		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
 			LookupLine it = new LookupLine();
-			it.setIgnoreCase(sp.isIgnoreCase());
-			it.setMinLength(sp.getMinLength());
-			it.setPropertyName(sp.getPropertyName());
-			it.setPropertyPath(sp.getPropertyPath());
+			it.ignoreCase(sp.isIgnoreCase());
+			it.minLength(sp.getMinLength());
+			//it.setPropertyName(sp.getPropertyName());
+			//it.setPropertyPath(sp.getPropertyPath());
 			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
-			it.setLookupHint(sp.getLookupHint()); // If a lookup hint is defined use it.
-			it.setPopupSearchImmediately(sp.isPopupSearchImmediately());
-			it.setPopupInitiallyCollapsed(sp.isPopupInitiallyCollapsed());
+			it.hint(sp.getLookupHint()); // If a lookup hint is defined use it.
+			it.searchImmediately(sp.isPopupSearchImmediately());
+			it.initiallyCollapsed(sp.isPopupInitiallyCollapsed());
 			addAndFinish(it);
 			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
 				m_itemList.add(new ItemBreak());
 			}
 			updateUI(it);
 
+		}
+	}
+
+	public void build() {
+		//-- 1. If a property name is present but the path is unknown calculate the path
+		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
+			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
+			if(pl.size() == 0)
+				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
+			it.setPropertyPath(pl);
+		}
+
+		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
+		PropertyMetaModel< ? > pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
+		if(it.getLabelText() == null) {
+			if(pmm == null)
+				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
+			else
+				it.setLabelText(pmm.getDefaultLabel());
+		}
+
+		//-- 3. Calculate a default hint
+		if(it.getLookupHint() == null) {
+			if(pmm != null)
+				it.setLookupHint(pmm.getDefaultHint());
+		}
+
+		//-- 4. Set an errorLocation
+		if(it.getErrorLocation() == null) {
+			it.setErrorLocation(it.getLabelText());
 		}
 	}
 

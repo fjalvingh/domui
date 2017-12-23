@@ -457,15 +457,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		add(dialog);
 	}
 
-	private boolean containsItemBreaks(List<LookupLine> itemList) {
-		for(LookupLine item : itemList) {
-			if(item instanceof ItemBreak) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	/**
 	 * This hides the search panel and adds a small div containing only the (optional) new and restore buttons.
 	 * @throws Exception
@@ -537,36 +528,8 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	 * the lookup property is resolved if needed etc.
 	 */
 	private void addAndFinish(LookupLine it) {
+		forceRebuild();
 		m_itemList.add(it);
-
-		//-- 1. If a property name is present but the path is unknown calculate the path
-		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
-			if(pl.size() == 0)
-				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
-			it.setPropertyPath(pl);
-		}
-
-		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
-		PropertyMetaModel< ? > pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
-		if(it.getLabelText() == null) {
-			if(pmm == null)
-				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
-			else
-				it.setLabelText(pmm.getDefaultLabel());
-		}
-
-		//-- 3. Calculate a default hint
-		if(it.getLookupHint() == null) {
-			if(pmm != null)
-				it.setLookupHint(pmm.getDefaultHint());
-		}
-
-		//-- 4. Set an errorLocation
-		if(it.getErrorLocation() == null) {
-			it.setErrorLocation(it.getLabelText());
-		}
-
 	}
 
 	//private void addNonControlItem(@Nonnull LookupLine it) {
@@ -588,11 +551,11 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	//	}
 	//}
 	//
-	private void updateUI(@Nonnull LookupLine it) {
-		//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
-		if(m_tbody != null)
-			internalAddLookupItem(it);
-	}
+	//private void updateUI(@Nonnull LookupLine it) {
+	//	//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
+	//	if(m_tbody != null)
+	//		internalAddLookupItem(it);
+	//}
 
 	/**
 	 * Create the lookup item, depending on its kind.

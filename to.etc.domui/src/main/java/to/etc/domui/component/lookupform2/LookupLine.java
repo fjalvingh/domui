@@ -24,11 +24,17 @@ public class LookupLine<D> {
 
 	private String m_errorLocation;
 
-	private int m_order;
-
 	private String m_testId;
 
 	private D m_defaultValue;
+
+	private boolean m_ignoreCase = true;
+
+	private int m_minLength;
+
+	private boolean m_popupSearchImmediately;
+
+	private boolean m_popupInitiallyCollapsed;
 
 	public String getLabelText() {
 		return m_labelText;
@@ -56,5 +62,50 @@ public class LookupLine<D> {
 
 	public ILookupQueryBuilder<D> getQueryBuilder() {
 		return m_queryBuilder;
+	}
+
+	public LookupLine<D> minLength(int len) {
+		m_minLength = len;
+		return this;
+	}
+
+	public int getMinLength() {
+		return m_minLength;
+	}
+
+	public LookupLine<D> hint(String lookupHint) {
+		m_lookupHint = lookupHint;
+		return this;
+	}
+
+	public String getLookupHint() {
+		return m_lookupHint;
+	}
+
+	public LookupLine<D> ignoreCase(boolean yes) {
+		m_ignoreCase = yes;
+		return this;
+	}
+
+	public boolean isIgnoreCase() {
+		return m_ignoreCase;
+	}
+
+	public LookupLine<D> searchImmediately(boolean yes) {
+		m_popupSearchImmediately = true;
+		return this;
+	}
+
+	public boolean isInitiallyCollapsed() {
+		return m_popupInitiallyCollapsed;
+	}
+
+	public boolean isSearchImmediately() {
+		return m_popupSearchImmediately;
+	}
+
+	public LookupLine<D> initiallyCollapsed(boolean yes) {
+		m_popupInitiallyCollapsed = yes;
+		return this;
 	}
 }
