@@ -8,6 +8,7 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.StringTool;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
@@ -46,6 +47,10 @@ public class AceEditor extends Div implements IControl<String> {
 		sb.append("{\n");
 		sb.append("let ed = ace.edit('").append(getActualID()).append("');\n");
 		sb.append("window['").append(getActualID()).append("'] = ed;\n");
+		sb.append("WebUI.registerInputControl('").append(getActualID()).append("', {getInputField: function() {");
+		sb.append(" return ed.getValue();\n");
+		sb.append("}});\n");
+
 		//updateTheme();
 		//sb.append("ed.getSession().setMode('ace/mode/javascript');\n");
 		//String value = getValue();
@@ -276,5 +281,13 @@ public class AceEditor extends Div implements IControl<String> {
 	 */
 	@Nullable @Override public NodeBase getForTarget() {
 		return null;
+	}
+
+	@Override public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+		if(values.length != 1)
+			throw new IllegalStateException("? Expecting but one value?");
+		String value = values[0];
+		m_value = value;
+		return true;
 	}
 }

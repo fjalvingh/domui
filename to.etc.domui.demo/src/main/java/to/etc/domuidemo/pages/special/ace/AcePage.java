@@ -2,6 +2,7 @@ package to.etc.domuidemo.pages.special.ace;
 
 import to.etc.domui.component.ace.AceEditor;
 import to.etc.domui.component.layout.ButtonBar;
+import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.FileTool;
 
@@ -31,5 +32,7 @@ public class AcePage extends UrlPage {
 		bb.addButton("Clear", a -> editor.setValue(null));
 
 		bb.addButton("Toggle RO", a -> editor.setReadOnly(! editor.isReadOnly()));
+
+		bb.addButton("Show Val", a -> MsgBox.info(this, editor.getValue()));
 	}
 }
