@@ -2,6 +2,9 @@ package to.etc.domui.component.ace;
 
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.StringTool;
 
@@ -14,7 +17,7 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 23-12-17.
  */
-public class AceEditor extends Div {
+public class AceEditor extends Div implements IControl<String> {
 	static private String m_version = "1.2.9";
 
 	@Nullable
@@ -35,6 +38,8 @@ public class AceEditor extends Div {
 	private boolean m_readOnly;
 
 	private boolean m_internalRo;
+
+	private boolean m_mandatory;
 
 	@Override public void createContent() throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -67,10 +72,12 @@ public class AceEditor extends Div {
 		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
 	}
 
+	@Override
 	@Nullable public String getValue() {
 		return m_value;
 	}
 
+	@Override
 	public void setValue(@Nullable String value) {
 		if(Objects.equals(value, m_value))
 			return;
@@ -217,10 +224,12 @@ public class AceEditor extends Div {
 		m_gotoLine = gotoLine;
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
 
+	@Override
 	public void setDisabled(boolean disabled) {
 		m_disabled = disabled;
 		updateInternalRo(m_disabled || m_readOnly);
@@ -235,12 +244,37 @@ public class AceEditor extends Div {
 			updateReadOnly();
 	}
 
+	@Override
 	public boolean isReadOnly() {
 		return m_readOnly;
 	}
 
+	@Override
 	public void setReadOnly(boolean readOnly) {
 		m_readOnly = readOnly;
 		updateInternalRo(m_disabled || m_readOnly);
+	}
+
+	@Override public boolean isMandatory() {
+		return m_mandatory;
+	}
+
+	@Override public void setMandatory(boolean mandatory) {
+		m_mandatory = mandatory;
+	}
+
+	@Override public IValueChanged<?> getOnValueChanged() {
+		return null;
+	}
+
+	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+		throw new IllegalStateException("Not supported: use mini events");
+	}
+
+	/**
+	 * The editor does not support being used as a label for= target.
+	 */
+	@Nullable @Override public NodeBase getForTarget() {
+		return null;
 	}
 }
