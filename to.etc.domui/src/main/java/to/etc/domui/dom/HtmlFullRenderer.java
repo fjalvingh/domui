@@ -133,6 +133,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			n.build();												// FIXME Should be removed once we prove change is stable
 
 		n.onBeforeFullRender(); // Do pre-node stuff,
+		n.renderJavascriptState(m_createJS);
 		n.visit(getTagRenderer());
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
@@ -193,6 +194,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			n.build();												// FIXME Should be removed once we prove change is stable
 
 		n.onBeforeFullRender(); // Do pre-node stuff,
+		n.renderJavascriptState(m_createJS);
 
 		boolean indena = o().isIndentEnabled();				// jal 20090903 Save indenting request....
 		n.visit(getTagRenderer());							// Ask base renderer to render tag

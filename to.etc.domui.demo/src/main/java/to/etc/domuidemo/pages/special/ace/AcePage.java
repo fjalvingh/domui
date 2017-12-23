@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.special.ace;
 
 import to.etc.domui.component.ace.AceEditor;
+import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.FileTool;
 
@@ -16,10 +17,19 @@ public class AcePage extends UrlPage {
 
 		AceEditor editor = new AceEditor();
 		add(editor);
-		editor.setWidth("500px");
+		editor.setWidth("auto");
 		editor.setHeight("500px");
 		editor.setValue(text);
 
+		ButtonBar bb = new ButtonBar();
+		add(bb);
+		bb.addButton("SetText", a -> {
+			String t2 = FileTool.readResourceAsString(getClass(), "demo2js.js", "utf-8");
+			editor.setValue(t2);
+		});
 
+		bb.addButton("Clear", a -> editor.setValue(null));
+
+		bb.addButton("Toggle RO", a -> editor.setReadOnly(! editor.isReadOnly()));
 	}
 }
