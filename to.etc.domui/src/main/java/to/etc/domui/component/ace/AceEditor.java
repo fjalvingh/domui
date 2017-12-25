@@ -77,6 +77,7 @@ public class AceEditor extends Div implements IControl<String> {
 		updateMode();
 		updateValue();
 		updateTabSize();
+		updateReadOnly();
 
 		super.renderJavascriptState(sb);
 	}

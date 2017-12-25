@@ -167,7 +167,7 @@ final public class FaIcon extends Span {
 		"fa-window-minimize", "fa-window-restore", "fa-windows", "fa-wordpress", "fa-wpbeginner", "fa-wpexplorer",
 		"fa-wpforms", "fa-wrench", "fa-xing", "fa-xing-square", "fa-y-combinator", "fa-yahoo", "fa-yelp", "fa-yoast",
 		"fa-youtube", "fa-youtube-play", "fa-youtube-square"
-		, "fa-chain"
+		, "fa-chain", "fa-flash"
 	};
 
 	public static final void main(String[] args) {
@@ -196,6 +196,7 @@ final public class FaIcon extends Span {
 
 	public static final String fa500px = "fa-500px";
 	public static final String faChain = "fa-chain";
+	public static final String faFlash = "fa-flash";
 	public static final String faAddressBook = "fa-address-book";
 	public static final String faAddressBookO = "fa-address-book-o";
 	public static final String faAddressCard = "fa-address-card";
