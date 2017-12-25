@@ -48,9 +48,12 @@ public class AceEditor extends Div implements IControl<String> {
 	private boolean m_mandatory;
 
 	@Override public void createContent() throws Exception {
+		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
 		sb.append("let ed = ace.edit('").append(getActualID()).append("');\n");
+		sb.append("var Range = require('ace/range').Range;\n");
 		sb.append("window['").append(getActualID()).append("'] = ed;\n");
 		sb.append("WebUI.registerInputControl('").append(getActualID()).append("', {getInputField: function() {");
 		sb.append(" return ed.getValue();\n");
@@ -215,6 +218,29 @@ public class AceEditor extends Div implements IControl<String> {
 			m_gotoLine = line;
 		else {
 			callMethod("gotoLine", Integer.toString(line));
+		}
+	}
+
+	public void gotoLine(int line, int col) {
+		if(! isBuilt())
+			m_gotoLine = line;
+		else {
+			callMethod("gotoLine", Integer.toString(line), Integer.toString(col));
+		}
+	}
+
+	public void selectWord(int line, int col) {
+		if(isBuilt()) {
+			callMethod("selection.getWordRange", Integer.toString(line), Integer.toString(col));
+		}
+	}
+
+	public void select(int line, int col, int line2, int col2) {
+		if(isBuilt()) {
+			line--;
+			line2--;
+			appendJavascript("var Range = require('ace/range').Range;\n");
+			callMethod("selection.setRange", "new Range(" + line + "," + col + ", " + line2 + "," + col2 + ")", "true");
 		}
 	}
 
