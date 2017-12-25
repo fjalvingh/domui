@@ -65,23 +65,27 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	@Nullable
 	private String m_placeHolder;
 
-	/**
-	 * @see Text#getEmptyMarker()
-	 */
 	private String m_emptyMarker;
 
-
+	private String m_type = "text";
 
 	public Input() {
 		super("input");
 	}
 
 	/**
-	 * Returns the input type= string which defaults to 'text' but which can be changed to 'password' by the HiddenText&lt;T&gt; control.
-	 * @return
+	 * Returns the input type= string which defaults to 'text'.
 	 */
 	public String getInputType() {
-		return "text";
+		return m_type;
+	}
+
+	public void setInputType(String type) {
+		if(Objects.equals(type, m_type)) {
+			return;
+		}
+		m_type = type;
+		changed();
 	}
 
 	@Override
