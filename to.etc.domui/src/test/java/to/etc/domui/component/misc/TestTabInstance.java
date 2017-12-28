@@ -22,7 +22,7 @@ public class TestTabInstance {
 
 		// Verify
 		TabInstance tabInstance = tabPanelBase.getCurrentTabInstance();
-		Assert.assertNull(tabInstance.getImg());
+		Assert.assertNull(tabInstance.getImage());
 	}
 
 	@Test
@@ -36,6 +36,6 @@ public class TestTabInstance {
 
 		// Verify
 		TabInstance tabInstance = tabPanelBase.getCurrentTabInstance();
-		Assert.assertNotNull(tabInstance.getImg());
+		Assert.assertNotNull(tabInstance.getImage());
 	}
 }
