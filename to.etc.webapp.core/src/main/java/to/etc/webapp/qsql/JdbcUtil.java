@@ -124,6 +124,18 @@ final public class JdbcUtil {
 		}
 	}
 
+	/**
+	 * Sets a date..
+	 */
+	static public void setDate(@Nonnull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
+		if(value == null)
+			ps.setNull(index, Types.DATE);
+		else {
+			ps.setDate(index, new java.sql.Date(value.getTime()));
+		}
+	}
+
+
 	static public void setString(@Nonnull PreparedStatement ps, int index, String value) throws SQLException {
 		if(value == null || value.trim().length() == 0)
 			ps.setNull(index, Types.VARCHAR);
