@@ -63,7 +63,8 @@ final public class TabBuilder {
 	}
 
 	public TabBuilder image(@Nonnull String image) {
-		m_image = image;
+		if(null != image && ! image.trim().isEmpty())
+			m_image = image;
 		return this;
 	}
 

@@ -15,7 +15,6 @@ public class TestTabInstance {
 	public void setImage_emptyString_expectNoImage() throws Exception {
 		// Setup
 		TabPanelBase tabPanelBase = new TabPanel(false);
-		tabPanelBase.tab();
 
 		// Execute
 		tabPanelBase.add(new Div("Some content"), "Content title", "");
@@ -29,7 +28,6 @@ public class TestTabInstance {
 	public void setImage_noEmptyString_expectImage() throws Exception {
 		// Setup
 		TabPanelBase tabPanelBase = new TabPanel(false);
-		tabPanelBase.tab();
 
 		// Execute
 		tabPanelBase.add(new Div("Some content"), "Content title", "iconString");
