@@ -100,8 +100,8 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		//-- The root node is always expanded, of course
 		T root = getModel().getRoot();
 
+		Ul ul = m_rootDisplayNode = new Ul("ui-tree2-rootlist");
 		if(isShowRoot()) {
-			Ul ul = m_rootDisplayNode = new Ul("ui-tree2-rootlist");
 			Tree2Node<T> n = getTree2Node(root);		// Pre-create the node
 			n.setExpanded(true);							// and set it to expanded
 			renderItem(ul, root, true);
@@ -109,7 +109,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 			//-- Render the root thingy && create the 1st visibleNode
 			Tree2Node<T> n = getTree2Node(root);
 			n.setExpanded(true);
-			m_rootDisplayNode = renderList(n);
+			renderList(ul, n);
 		}
 
 		if(m_expandRoot) {
@@ -133,23 +133,22 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		return n;
 	}
 
-	private Ul renderList(Tree2Node<T> parent) throws Exception {
+	private void renderList(Ul into, Tree2Node<T> parent) throws Exception {
+		into.removeAllChildren();
 		T parentValue = parent.getValue();
-		Ul ul = new Ul("ui-tree2-list");
-		parent.setChildRoot(ul);
+		//Ul ul = new Ul("ui-tree2-list");
+		parent.setChildRoot(into);
 
-		int len = getModel().getChildCount(parentValue); // #of items in this thingy.
+		int len = getModel().getChildCount(parentValue);// #of items in this thingy.
 		if(len == 0) {
-			return ul;								// If the root node has no children this happens.
-			//throw new IllegalStateException("Implement 'expanding node having 0 children': parentValue=" + parentValue);
+			return;										// If the root node has no children this happens.
 		}
 
 		//-- Render each child && assign their Tree2Node thingy.
 		for(int i = 0; i < len; i++) {
 			final T item = getModel().getChild(parentValue, i); // Get ith child
-			renderItem(ul, item, i == (len - 1));
+			renderItem(into, item, i == (len - 1));
 		}
-		return ul;
 	}
 
 	private Tree2Node<T> renderItem(Ul parentNode, T item, boolean last) throws Exception {
@@ -172,7 +171,8 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 				 * a separate cell.
 				 */
 				li.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
-				Ul childUl = renderList(li);
+				Ul childUl = new Ul("ui-tree2-rootlist");
+				renderList(childUl, li);
 				li.add(childUl);
 				li.setChildRoot(childUl);
 				li.setFoldingClicked((IClicked<NodeContainer>) bxx -> collapseNode(item, true));
@@ -237,7 +237,8 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 					vn.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
 					//img.addCssClass("ui-tree2-act");
 					vn.setFoldingClicked((IClicked<NodeContainer>) bxx -> collapseNode(pathValue, true));
-					Ul childUl = renderList(vn);
+					Ul childUl = new Ul("ui-tree2-rootlist");
+					renderList(childUl, vn);
 					vn.setChildRoot(childUl);
 					vn.add(childUl);
 
@@ -364,6 +365,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	private void renderContent(@Nonnull final NodeContainer cell, @Nullable final T value) throws Exception {
+		cell.removeAllChildren();
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(value);
 		m_actualContentRenderer.renderOpt(cell, value);
@@ -550,17 +552,30 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	@Override
-	public void onNodeAdded(@Nullable T parent, int index, T node) {
-		throw new IllegalStateException("Not implemented");
+	public void onNodeAdded(@Nullable T parent, int index, T node) throws Exception {
+		Tree2Node<T> parentVn = locateRowIfExpanded(parent);
+		if(null == parentVn)
+			return;
+
+		//parentVn.forceRebuild();
+		Ul ul = parentVn.getChildRoot();
+		renderList(ul, parentVn);
 	}
 
 	@Override
-	public void onNodeUpdated(T node) {
-		throw new IllegalStateException("Not implemented");
+	public void onNodeUpdated(T node) throws Exception {
+		Tree2Node<T> vn = locateRowIfExpanded(node);
+		if(null == vn)
+			return;
+		renderContent(vn.getContent(), node);
 	}
 
 	@Override
-	public void onNodeRemoved(@Nullable T oldParent, int oldIndex, T deletedNode) {
-		throw new IllegalStateException("Not implemented");
+	public void onNodeRemoved(@Nullable T oldParent, int oldIndex, T deletedNode) throws Exception {
+		Tree2Node<T> parentVn = locateRowIfExpanded(oldParent);
+		if(null == parentVn)
+			return;
+		Ul ul = parentVn.getChildRoot();
+		renderList(ul, parentVn);
 	}
 }

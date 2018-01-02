@@ -32,4 +32,11 @@ abstract public class TreeNode {
 	@Nullable public TreeNode getParent() {
 		return m_parent;
 	}
+
+	public <T extends TreeNode> int removeChild(T node) throws Exception {
+		int index = getChildren().indexOf(node);
+		if(index >= 0)
+			getChildren().remove(index);
+		return index;
+	}
 }
