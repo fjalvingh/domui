@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2-1-18.
  */
-public class ExceptionDialog {
+final public class ExceptionDialog {
 	private ExceptionDialog() {
 	}
 

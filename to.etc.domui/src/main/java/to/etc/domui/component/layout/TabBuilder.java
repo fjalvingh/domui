@@ -3,6 +3,7 @@ package to.etc.domui.component.layout;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TextNode;
+import to.etc.util.StringTool;
 
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
@@ -63,7 +64,7 @@ final public class TabBuilder {
 	}
 
 	public TabBuilder image(@Nonnull String image) {
-		if(null != image && ! image.trim().isEmpty())
+		if(! StringTool.isBlank(image))
 			m_image = image;
 		return this;
 	}

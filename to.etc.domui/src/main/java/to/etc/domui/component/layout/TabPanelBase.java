@@ -208,6 +208,20 @@ public class TabPanelBase extends Div {
 		ti.setAdded(false);
 		m_tablist.remove(index);
 
+		rebuildIfNeeded(ti);
+
+		//-- We do not call onHide by design.
+		callOnClose(ti);
+	}
+
+	private void callOnClose(TabInstance ti) throws Exception {
+		INotify<ITabHandle> getOnClose = ti.getOnClose();
+		if(getOnClose != null) {
+			getOnClose.onNotify(ti);
+		}
+	}
+
+	private void rebuildIfNeeded(TabInstance ti) {
 		if(isBuilt()) {
 			Li tab = ti.getTab();
 			if(tab != null)
@@ -221,13 +235,6 @@ public class TabPanelBase extends Div {
 			if(nb != null) {
 				nb.remove();
 			}
-		}
-
-		//-- We do not call onHide by design.
-
-		INotify<ITabHandle> getOnClose = ti.getOnClose();
-		if(getOnClose != null) {
-			getOnClose.onNotify(ti);
 		}
 	}
 
