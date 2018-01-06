@@ -260,8 +260,9 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		m_rootCriteria = null;
 		m_lookupClass = lookupClass;
 		m_metaModel = cmm != null ? cmm : MetaManager.findClassMeta(lookupClass);
-		for(String prop : propertyList)
-			addProperty(prop);
+		for(String prop : propertyList) {
+			internalAddByPropertyName(prop);
+		}
 		defineDefaultButtons();
 	}
 
@@ -289,7 +290,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			internalAddMetadata();
 
 		//-- Start populating the lookup form with lookup items.
-		for(LookupLine it : m_itemList) {
+		for(LookupLine<?> it : m_itemList) {
 			internalAddLookupItem(it);
 		}
 
@@ -506,144 +507,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		m_itemList.clear();
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Internal.											*/
-	/*--------------------------------------------------------------*/
-
-	/**
-	 * This adds the item to the item list, and tries to resolve all of the stuff needed to display
-	 * the item. This means that the default label and the hint are calculated if missing, and that
-	 * the lookup property is resolved if needed etc.
-	 */
-	private void addAndFinish(LookupLine it) {
-		forceRebuild();
-		m_itemList.add(it);
-	}
-
-	//private void addNonControlItem(@Nonnull LookupLine it) {
-	//	////-- Create left and/or right cells,
-	//	TR tr = new TR();
-	//	m_tbody.add(tr);
-	//	TD td = tr.addCell();
-	//	NodeBase itLeft = it.getLeft();
-	//	if(itLeft != null) {
-	//		td.add(itLeft);
-	//		if(it.isEntireRow()) {
-	//			td.setColspan(2);
-	//		}
-	//	}
-	//	NodeBase itRight = it.getRight();
-	//	if(itRight != null) {
-	//		TD tdRight = tr.addCell();
-	//		tdRight.add(itRight);
-	//	}
-	//}
-	//
-	//private void updateUI(@Nonnull LookupLine it) {
-	//	//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
-	//	if(m_tbody != null)
-	//		internalAddLookupItem(it);
-	//}
-
-	/**
-	 * Create the lookup item, depending on its kind.
-	 */
-	private void internalAddLookupItem(LookupLine it) {
-		if(!it.isControl()) {
-			addNonControlItem(it);
-			return;
-		}
-		if(it.getInstance() == null) {
-			//-- Create everything using a control creation factory,
-			ILookupControlInstance<?> lci = createControlFor(it);
-			if(lci == null)
-				return;
-			it.setInstance(lci);
-		}
-		if(it.getInstance() == null)
-			throw new IllegalStateException("No idea how to create a lookup control for " + it);
-
-		//-- Assign error locations to all input controls
-		if(!DomUtil.isBlank(it.getErrorLocation()) ) {
-			for(NodeBase ic : it.getInstance().getInputControls())
-				ic.setErrorLocation(it.getErrorLocation());
-		}
-
-		if(it.isForcedDisabled()) {
-			it.getInstance().setDisabled(true);
-		} else if(it.isForcedEnabled()) {
-			it.getInstance().setDisabled(false);
-		}
-
-		//-- Assign test id. If single control is created, testId as it is will be applied,
-		//   if multiple component control is created, testId with suffix number will be applied.
-		if(!DomUtil.isBlank(it.getTestId())) {
-			if(it.getInstance().getInputControls().length == 1) {
-				it.getInstance().getInputControls()[0].setTestID(it.getTestId());
-			} else if(it.getInstance().getInputControls().length > 1) {
-				int controlCounter = 1;
-				for(NodeBase ic : it.getInstance().getInputControls()) {
-					ic.setTestID(it.getTestId() + "_" + controlCounter);
-					controlCounter++;
-				}
-			}
-		}
-
-		addItemToTable(it); // Create visuals.
-	}
-
-	/**
-	 * Add the visual representation of the item: add a row with a cell containing a label
-	 * and another cell containing the lookup controls. This tries all the myriad ways of
-	 * getting the label for the control.
-	 *
-	 * @param it	The fully completed item definition to add.
-	 */
-	private void addItemToTable(LookupLine it) {
-		ILookupControlInstance<?> qt = it.getInstance();
-
-		//-- Create control && label cells,
-		TR tr = new TR();
-		m_tbody.add(tr);
-		TD lcell = new TD(); // Label cell
-		tr.add(lcell);
-		lcell.setCssClass("ui-f4-lbl ui-f4-lbl-v");
-
-		TD ccell = new TD(); // Control cell
-		tr.add(ccell);
-		ccell.setCssClass("ui-f-in ui-f4-ctl ui-f4-ctl-v");
-
-		//-- Now add the controls and shtuff..
-		NodeBase labelcontrol = qt.getLabelControl();
-		for(NodeBase b : qt.getInputControls()) { // Add all nodes && try to find label control if unknown.
-			ccell.add(b);
-			assignCalcTestID(it, b);
-			if(labelcontrol == null && b instanceof IControl< ? >)
-				labelcontrol = b;
-		}
-		if(labelcontrol == null)
-			labelcontrol = qt.getInputControls()[0];
-
-		//-- Finally: add the label
-		if(it.getLabelText() != null && it.getLabelText().length() > 0) {
-			Label l = new Label(labelcontrol, it.getLabelText());
-			//			if(l.getForNode() == null)
-			//				l.setForNode(labelcontrol);
-			lcell.add(l);
-		}
-	}
-
-	private void assignCalcTestID(@Nonnull LookupLine item, @Nonnull NodeBase b) {
-		if(b.getTestID() != null)
-			return;
-		String lbl = item.getPropertyName();
-		if(null == lbl)
-			lbl = item.getLabelText();
-		if(null == lbl)
-			lbl = DomUtil.getClassNameOnly(b.getClass());
-		b.setCalculcatedId(lbl);
-	}
-
 	/**
 	 * This checks all of the search fields for data. For every field that contains search
 	 * data we check if the data is suitable for searching (not too short for instance); if
@@ -660,8 +523,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	 * to the form. Each thingy refers to the input components used to register the search on a
 	 * property, and knows how to convert that thingy to a criteria fragment.
 	 * </p>
-	 *
-	 * @return
 	 */
 	@Nullable
 	public QCriteria<T> getEnteredCriteria() throws Exception {
@@ -705,17 +566,13 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Silly and small methods.							*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Tells all input items to clear their content, clearing all user choices from the form. After
 	 * this call, the form should return an empty QCriteria without any restrictions.
 	 */
 	public void clearInput() {
-		for(LookupLine it : m_itemList) {
-			IControl control = it.getControl();
-			if(null != control) {
-				control.setValue(it.getDefaultValue());
-			}
+		for(LookupLine<?> it : m_itemList) {
+			it.clear();
 		}
 	}
 
@@ -1054,7 +911,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	public LookupBuilder<T> add() {
 		if(m_currentBuilder != null)
 			throw new IllegalStateException(this + ": The builder " + m_currentBuilder + " has not yet been finished");
-		LookupBuilder item = new LookupBuilder(this);
+		LookupBuilder<T> item = new LookupBuilder<>(this);
 		m_currentBuilder = item;
 		return item;
 	}
@@ -1095,8 +952,9 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 
 		//-- Try to get a label
 		NodeBase labelNode = builder.getLabelNode();
+		String labelText = null;
 		if(null == labelNode) {
-			String labelText = builder.getLabelText();
+			labelText = builder.getLabelText();
 			if(null == labelText) {
 				if(property != null) {
 					labelText = property.getDefaultLabel();
@@ -1113,6 +971,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		//}
 
 		LookupLine<D> ll = new LookupLine<>(control, qb, builder.getDefaultValue(), labelNode);
+		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;
 	}
@@ -1175,6 +1034,15 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		}
 	}
 
+	/**
+	 * Called when property names are provided in the constructor.
+	 */
+	private void internalAddByPropertyName(String prop) {
+		SearchPropertyMetaModelImpl spm = new SearchPropertyMetaModelImpl(m_metaModel);
+		spm.setPropertyName(prop);
+		addMetadataProperty(spm);
+	}
+
 	private <D> LookupLine<D> addMetadataProperty(SearchPropertyMetaModel spm) {
 		PropertyMetaModel<?> property = m_metaModel.getProperty(spm.getPropertyName());
 		FactoryPair<D> pair = (FactoryPair<D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
@@ -1193,6 +1061,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		//}
 
 		LookupLine<D> ll = new LookupLine<>(control, qb, null, labelNode);
+		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;
 	}
@@ -1200,6 +1069,16 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	private <D> void addLookupLine(LookupLine<D> line) {
 		m_itemList.add(line);
 		forceRebuild();
+	}
+
+	private <D> void assignCalcTestID(@Nonnull LookupLine<D> item, PropertyMetaModel<?> pmm, @Nullable String labelText) {
+		String testID = item.getControl().getTestID();
+		if(null != testID)
+			return;
+		String lbl = pmm.getName();
+		if(null == lbl)
+			lbl = labelText;
+		item.getControl().setTestID(lbl);
 	}
 
 }

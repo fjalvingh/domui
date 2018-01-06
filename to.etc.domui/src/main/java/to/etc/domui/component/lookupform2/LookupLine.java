@@ -45,4 +45,8 @@ public class LookupLine<D> {
 	public NodeBase getLabel() {
 		return m_label;
 	}
+
+	public void clear() {
+		getControl().setValue(getDefaultValue());
+	}
 }
