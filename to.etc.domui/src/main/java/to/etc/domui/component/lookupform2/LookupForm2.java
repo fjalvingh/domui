@@ -28,49 +28,32 @@ import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.input.IQueryFactory;
-import to.etc.domui.component.input.LookupInputBase;
 import to.etc.domui.component.layout.ButtonFactory;
-import to.etc.domui.component.layout.CaptionedPanel;
 import to.etc.domui.component.layout.IButtonContainer;
-import to.etc.domui.component.lookup.AbstractLookupControlImpl;
-import to.etc.domui.component.lookup.ILookupControlFactory;
-import to.etc.domui.component.lookup.ILookupControlInstance;
 import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
 import to.etc.domui.component.lookup.ILookupFilterHandler;
 import to.etc.domui.component.lookup.LookupFormSavedFilterFragment;
-import to.etc.domui.component.lookup.SaveSearchFilterDialog;
 import to.etc.domui.component.lookup.SavedFilter;
-import to.etc.domui.component.lookup.filter.LookupFilterTranslator;
 import to.etc.domui.component.lookupform2.lookupcontrols.FactoryPair;
-import to.etc.domui.component.lookupform2.lookupcontrols.ILookupFactory;
 import to.etc.domui.component.lookupform2.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.lookupform2.lookupcontrols.LookupControlRegistry2;
 import to.etc.domui.component.lookupform2.lookupcontrols.LookupQueryBuilderResult;
 import to.etc.domui.component.lookupform2.lookupcontrols.ObjectLookupQueryBuilder;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
-import to.etc.domui.component2.lookupinput.LookupInputBase2;
 import to.etc.domui.dom.Animations;
 import to.etc.domui.dom.css.DisplayType;
-import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.IReturnPressed;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.TR;
-import to.etc.domui.dom.html.Table;
-import to.etc.domui.dom.html.TableVAlign;
-import to.etc.domui.server.DomApplication;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
@@ -79,17 +62,13 @@ import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
-import to.etc.webapp.query.QRestrictor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 
 /**
@@ -290,9 +269,12 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			internalAddMetadata();
 
 		//-- Start populating the lookup form with lookup items.
+		IFormBuilder formBuilder = getFormBuilder();
+		formBuilder.setTarget(this);
 		for(LookupLine<?> it : m_itemList) {
-			internalAddLookupItem(it);
+			formBuilder.append(it);
 		}
+		formBuilder.finish();
 
 		////-- The saved filters are shown next
 		//if(isSearchFilterEnabled()) {
@@ -324,12 +306,9 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		}
 
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
-		setReturnPressed(new IReturnPressed<Div>() {
-			@Override
-			public void returnPressed(final @Nonnull Div node) throws Exception {
-				if(m_clicker != null)
-					m_clicker.clicked(LookupForm2.this);
-			}
+		setReturnPressed(node -> {
+			if(m_clicker != null)
+				m_clicker.clicked(LookupForm2.this);
 		});
 	}
 
