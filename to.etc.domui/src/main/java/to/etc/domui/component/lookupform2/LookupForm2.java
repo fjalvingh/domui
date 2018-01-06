@@ -158,9 +158,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 
 	private IQueryFactory<T> m_queryFactory;
 
-	/** When adding properties yourself: do not clear metadata beforehand. */
-	private boolean m_keepMetaData;
-
 	@Nullable
 	private UIMessage m_newBtnDisableReason;
 
@@ -949,7 +946,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		//	FIXME cannot set hint here because setHint is not part of IControl
 		//}
 
-		LookupLine<D> ll = new LookupLine<>(control, qb, builder.getDefaultValue(), labelNode);
+		LookupLine<D> ll = new LookupLine<>(control, qb, property, builder.getDefaultValue(), labelNode, false);
 		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;
@@ -1009,7 +1006,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 
 	private void appendMetadataProperties(List<SearchPropertyMetaModel> list) {
 		for(SearchPropertyMetaModel spm : list) {
-			addMetadataProperty(spm);
+			addMetadataProperty(spm, true);
 		}
 	}
 
@@ -1019,10 +1016,10 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	private void internalAddByPropertyName(String prop) {
 		SearchPropertyMetaModelImpl spm = new SearchPropertyMetaModelImpl(m_metaModel);
 		spm.setPropertyName(prop);
-		addMetadataProperty(spm);
+		addMetadataProperty(spm, false);
 	}
 
-	private <D> LookupLine<D> addMetadataProperty(SearchPropertyMetaModel spm) {
+	private <D> LookupLine<D> addMetadataProperty(SearchPropertyMetaModel spm, boolean fromMetadata) {
 		PropertyMetaModel<?> property = m_metaModel.getProperty(spm.getPropertyName());
 		FactoryPair<D> pair = (FactoryPair<D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
 		if(null == pair)
@@ -1039,13 +1036,33 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		//	FIXME cannot set hint here because setHint is not part of IControl
 		//}
 
-		LookupLine<D> ll = new LookupLine<>(control, qb, null, labelNode);
+		LookupLine<D> ll = new LookupLine<>(control, qb, property, null, labelNode, fromMetadata);
 		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;
 	}
 
 	private <D> void addLookupLine(LookupLine<D> line) {
+		PropertyMetaModel<?> property = line.getProperty();
+		if(null != property) {
+			//-- Do we already have this one?
+			for(int i = m_itemList.size(); --i >= 0;) {
+				LookupLine<?> old = m_itemList.get(i);
+				if(old.getProperty() == property) {
+					//-- Existing property: if this one comes from metadata do not add it
+					if(line.isFromMetadata())
+						return;
+
+					//-- If the old item is from metadata: replace it
+					if(old.isFromMetadata()) {
+						m_itemList.set(i, line);
+						return;
+					}
+
+					//-- None of the above -> just add a copy.
+				}
+			}
+		}
 		m_itemList.add(line);
 		forceRebuild();
 	}
