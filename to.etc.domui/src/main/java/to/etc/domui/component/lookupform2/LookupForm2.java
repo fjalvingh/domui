@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.lookupform2;
 
+import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.input.IQueryFactory;
@@ -284,8 +285,8 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		sroot.setCssClass("ui-lf-mainContent");
 
 		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0 || isKeepMetaData())			// If we don't have an item set yet....
-			setDefaultItems(); 									// ..define it from metadata, and abort if there is nothing there
+		if(m_itemList.size() == 0)							// If we don't have an item set yet....
+			internalAddMetadata();
 
 		//-- Start populating the lookup form with lookup items.
 		for(LookupLine it : m_itemList) {
@@ -329,20 +330,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 					m_clicker.clicked(LookupForm2.this);
 			}
 		});
-	}
-
-	/**
-	 * This adds all properties that are defined as "search" properties in either this control or the metadata
-	 * to the item list. The list is cleared before that!
-	 */
-	public void setDefaultItems() {
-		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
-		if(list == null || list.size() == 0) {
-			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
-			if(list == null || list.size() == 0)
-				throw new IllegalStateException(getMetaModel() + " has no search properties defined in its meta data.");
-		}
-		setSearchProperties(list);
 	}
 
 	private void addFilterFragment(NodeContainer searchContainer) {
@@ -447,15 +434,15 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	}
 
 	private void saveSearchQuery() throws Exception {
-		SaveSearchFilterDialog dialog = new SaveSearchFilterDialog(DomUtil.nullChecked(m_lookupFilterHandler), getPage().getBody().getClass().getName(), getFilterValues());
-		dialog.onFilterSaved(sender -> {
-			m_savedFilters.add(sender);
-			if(m_lookupFormSavedFilterFragment != null) {
-				m_lookupFormSavedFilterFragment.forceRebuild();
-			}
-		});
-		dialog.modal();
-		add(dialog);
+		//SaveSearchFilterDialog dialog = new SaveSearchFilterDialog(DomUtil.nullChecked(m_lookupFilterHandler), getPage().getBody().getClass().getName(), getFilterValues());
+		//dialog.onFilterSaved(sender -> {
+		//	m_savedFilters.add(sender);
+		//	if(m_lookupFormSavedFilterFragment != null) {
+		//		m_lookupFormSavedFilterFragment.forceRebuild();
+		//	}
+		//});
+		//dialog.modal();
+		//add(dialog);
 	}
 
 	/**
@@ -983,16 +970,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		m_queryFactory = queryFactory;
 	}
 
-	public boolean isKeepMetaData() {
-		return m_keepMetaData;
-	}
-
-	@Nonnull
-	public LookupForm2<T> setKeepMetaData(boolean keepMetaData) {
-		m_keepMetaData = keepMetaData;
-		return this;
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Button container handling.							*/
 	/*--------------------------------------------------------------*/
@@ -1068,8 +1045,11 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	private LookupBuilder<T> m_currentBuilder;
 
 	/**
-	 * Start a builder adding a new line to the form. The line should be finished properly
+	 * Start a builder adding a new lookup item to the form. The builder should be finished properly
 	 * or an error occurs.
+	 * <h2>Warning:</h2>
+	 * <p>When adding lookup items manually, all metadata-added properties disappear. If you want to have the
+	 * metadata-provided lookup items too then call addDefault() before or after the call(s) to this method.</p>
 	 */
 	public LookupBuilder<T> add() {
 		if(m_currentBuilder != null)
@@ -1091,15 +1071,19 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 
 	private <D> LookupLine<D> createLine(LookupBuilder<T> builder) {
 		IControl<D> control = (IControl<D>) builder.getControl();
-		ILookupQueryBuilder<?> qb = builder.getQueryBuilder();
+		ILookupQueryBuilder<D> qb = builder.getQueryBuilder();
 		PropertyMetaModel<?> property = builder.getProperty();
 		if(null == control) {
 			//-- No control, no query builder: use the property to get one
 			if(null == property)
 				throw new ProgrammerErrorException(builder + ": needs to specify a property");
+			if(qb != null)
+				throw new ProgrammerErrorException(builder + ": cannot set a query builder without also specifying a control.");
 
 			SearchPropertyMetaModelImpl spm = mergePropertyModels(builder, property);
 			FactoryPair<D> pair = (FactoryPair<D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
+			if(null == pair)
+				throw new ProgrammerErrorException(builder + ": no lookup control factory found for property " + spm);
 			control = pair.getControl();
 			qb = pair.getQueryBuilder();
 		} else if(null == qb) {
@@ -1109,10 +1093,28 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			qb = new ObjectLookupQueryBuilder<>(property.getName());
 		}
 
+		//-- Try to get a label
+		NodeBase labelNode = builder.getLabelNode();
+		if(null == labelNode) {
+			String labelText = builder.getLabelText();
+			if(null == labelText) {
+				if(property != null) {
+					labelText = property.getDefaultLabel();
+				}
+			}
+			if(null != labelText) {
+				labelNode = new Label((NodeBase) control, labelText);
+			}
+		}
 
+		//String hint = builder.getLookupHint();
+		//if(null != hint) {
+		//	FIXME cannot set hint here because setHint is not part of IControl
+		//}
 
-
-
+		LookupLine<D> ll = new LookupLine<>(control, qb, builder.getDefaultValue(), labelNode);
+		addLookupLine(ll);
+		return ll;
 	}
 
 	private SearchPropertyMetaModelImpl mergePropertyModels(LookupBuilder<T> builder, PropertyMetaModel<?> property) {
@@ -1128,93 +1130,76 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		return m;
 	}
 
+	/**
+	 * Use {@link #addDefault()} instead.
+	 * This adds all properties that are defined as "search" properties in either this control or the metadata
+	 * to the item list. The list is cleared before that!
+	 */
+	@Deprecated
+	public void setDefaultItems() {
+		addDefault();
+	}
 
-	public void xxxxxbuild() {
-		//-- 1. If a property name is present but the path is unknown calculate the path
-		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
-			if(pl.size() == 0)
-				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
-			it.setPropertyPath(pl);
+	@NotNull private List<SearchPropertyMetaModel> getMetadataSearchPropertyList() {
+		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
+		if(list == null || list.size() == 0) {
+			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
+			if(list == null || list.size() == 0)
+				return Collections.emptyList();
 		}
+		return list;
+	}
 
-		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
-		PropertyMetaModel< ? > pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
-		if(it.getLabelText() == null) {
-			if(pmm == null)
-				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
-			else
-				it.setLabelText(pmm.getDefaultLabel());
-		}
-
-		//-- 3. Calculate a default hint
-		if(it.getLookupHint() == null) {
-			if(pmm != null)
-				it.setLookupHint(pmm.getDefaultHint());
-		}
-
-		//-- 4. Set an errorLocation
-		if(it.getErrorLocation() == null) {
-			it.setErrorLocation(it.getLabelText());
-		}
+	private void internalAddMetadata() {
+		List<SearchPropertyMetaModel> list = getMetadataSearchPropertyList();
+		if(list.size() == 0)
+			throw new IllegalStateException(getMetaModel() + " has no search properties defined in its meta data.");
+		appendMetadataProperties(list);
 	}
 
 	/**
-	 * Add lookup control instance for search properties on child list (oneToMany relation)
-	 * members. This adds a query by using the "exists" subquery for the child record. See
-	 * <a href="http://www.domui.org/wiki/bin/view/Tutorial/QCriteriaRulez">QCriteria rules</a> for
-	 * details.
-	 * @param label
-	 * 		Label that is displayed. If null, default label from parent property meta is used.
-	 * @param propPath
-	 * 		Must be <b>parentprop.childprop</b> dotted form.
+	 * Add all default lookup items by scanning the metadata for the class. This is
+	 * only needed if you want to add items to existing metadata. Please take note:
+	 * when adding metadata, metadata will only add controls for properties that
+	 * do not yet exist as lookup items.
 	 */
-	public LookupLine addChildPropertyLabel(String label, String propPath) {
-
-		final List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(m_metaModel, propPath);
-
-		if(pl.size() != 2) {
-			throw new ProgrammerErrorException("Property path does not contain parent.child path: " + propPath);
-		}
-
-		final PropertyMetaModel< ? > parentPmm = pl.get(0);
-		final PropertyMetaModel< ? > childPmm = pl.get(1);
-
-		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel);
-		spmm.setPropertyName(childPmm.getName());
-		spmm.setPropertyPath(pl);
-
-		FactoryPair<?> controlPair = LookupControlRegistry2.INSTANCE.findControlPair(spmm);
-
-
-
-
-		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
-			@Override
-			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
-
-				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
-				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
-
-				if(subRes == AppendCriteriaResult.INVALID) {
-					return subRes;
-				} else if(r.hasRestrictions()) {
-					QRestrictor< ? > exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
-					exists.setRestrictions(r.getRestrictions());
-					return AppendCriteriaResult.VALID;
-				} else {
-					return AppendCriteriaResult.EMPTY;
-				}
-			}
-
-			@Override
-			public void clearInput() {
-				lookupInstance.clearInput();
-			}
-		};
-
-		return addManualTextLabel(label == null ? parentPmm.getDefaultLabel() : label, thingy);
+	public void addDefault() {
+		List<SearchPropertyMetaModel> list = getMetadataSearchPropertyList();
+		if(list.size() > 0)
+			appendMetadataProperties(list);
 	}
 
+	private void appendMetadataProperties(List<SearchPropertyMetaModel> list) {
+		for(SearchPropertyMetaModel spm : list) {
+			addMetadataProperty(spm);
+		}
+	}
+
+	private <D> LookupLine<D> addMetadataProperty(SearchPropertyMetaModel spm) {
+		PropertyMetaModel<?> property = m_metaModel.getProperty(spm.getPropertyName());
+		FactoryPair<D> pair = (FactoryPair<D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
+		if(null == pair)
+			throw new ProgrammerErrorException("No lookup control factory found for property " + spm);
+		IControl<D> control = pair.getControl();
+		ILookupQueryBuilder<D> qb = pair.getQueryBuilder();
+
+		//-- Try to get a label
+		String labelText = property.getDefaultLabel();
+		Label labelNode = new Label((NodeBase) control, labelText);
+
+		//String hint = builder.getLookupHint();
+		//if(null != hint) {
+		//	FIXME cannot set hint here because setHint is not part of IControl
+		//}
+
+		LookupLine<D> ll = new LookupLine<>(control, qb, null, labelNode);
+		addLookupLine(ll);
+		return ll;
+	}
+
+	private <D> void addLookupLine(LookupLine<D> line) {
+		m_itemList.add(line);
+		forceRebuild();
+	}
 
 }

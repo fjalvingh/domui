@@ -23,6 +23,13 @@ public class LookupLine<D> {
 
 	final private D m_defaultValue;
 
+	public LookupLine(IControl<D> control, ILookupQueryBuilder<D> qb, D defaultValue, NodeBase labelNode) {
+		m_control = control;
+		m_defaultValue = defaultValue;
+		m_queryBuilder = qb;
+		m_label = labelNode;
+	}
+
 	public IControl<D> getControl() {
 		return m_control;
 	}
@@ -35,4 +42,7 @@ public class LookupLine<D> {
 		return m_queryBuilder;
 	}
 
+	public NodeBase getLabel() {
+		return m_label;
+	}
 }

@@ -4,6 +4,7 @@ import to.etc.domui.component.lookupform2.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -33,7 +34,7 @@ final public class LookupBuilder<T> {
 	private int m_minLength;
 
 	@Nullable
-	private Label m_labelNode;
+	private NodeBase m_labelNode;
 
 	@Nullable
 	private String m_labelText;
@@ -61,15 +62,15 @@ final public class LookupBuilder<T> {
 		return m_property;
 	}
 
-	@Nullable public ILookupQueryBuilder<?> getQueryBuilder() {
-		return m_queryBuilder;
+	@Nullable public <D> ILookupQueryBuilder<D> getQueryBuilder() {
+		return (ILookupQueryBuilder<D>) m_queryBuilder;
 	}
 
-	@Nullable public Object getDefaultValue() {
-		return m_defaultValue;
+	@Nullable public <D> D getDefaultValue() {
+		return (D) m_defaultValue;
 	}
 
-	@Nullable public Label getLabelNode() {
+	@Nullable public NodeBase getLabelNode() {
 		return m_labelNode;
 	}
 
