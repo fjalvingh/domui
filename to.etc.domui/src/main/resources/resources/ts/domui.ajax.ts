@@ -310,6 +310,13 @@ namespace WebUI {
 
 			txt = "De server is niet bereikbaar 1, status=" + status + ", " + request.statusText;
 		}
+		if(status === "parsererror") {
+			alert("ERROR: DomUI server returned invalid XML");
+			let hr = window.location.href;					// Force reload
+			window.location.href = hr;
+			return;
+		}
+
 		document.write(txt);
 		document.close();
 		window.setTimeout('document.body.style.cursor="default"', 1000);

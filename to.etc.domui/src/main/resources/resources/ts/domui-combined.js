@@ -239,6 +239,12 @@ var WebUI;
                 return;
             txt = "De server is niet bereikbaar 1, status=" + status + ", " + request.statusText;
         }
+        if (status === "parsererror") {
+            alert("ERROR: DomUI server returned invalid XML");
+            var hr = window.location.href;
+            window.location.href = hr;
+            return;
+        }
         document.write(txt);
         document.close();
         window.setTimeout('document.body.style.cursor="default"', 1000);
