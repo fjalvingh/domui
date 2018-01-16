@@ -62,7 +62,7 @@ public class TabPanel extends TabPanelBase {
 	 */
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-tab-c");
+		addCssClass("ui-tab-c");
 
 		//-- Adjust selected tab index
 		if(getCurrentTab() >= getTabCount() || getCurrentTab() < 0)
