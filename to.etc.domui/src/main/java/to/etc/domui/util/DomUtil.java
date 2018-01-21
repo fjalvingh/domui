@@ -2353,4 +2353,18 @@ final public class DomUtil {
 		}
 		return 0;
 	}
+
+	/**
+	 * Set a Javascript action on the button which copies the text specified
+	 * to the button when clicked. WARNING: copying text to the clipboard
+	 * only works when directly invoked from a user action, which is
+	 * why this is added as a Javascript onclick action.
+	 */
+	public static final void clipboardCopy(NodeBase button, String text) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("WebUI.copyTextToClipboard(");
+		StringTool.strToJavascriptString(sb, text, true);
+		sb.append("); return false;");
+		button.setOnClickJS(sb.toString());
+	}
 }

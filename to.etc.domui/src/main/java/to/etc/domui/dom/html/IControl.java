@@ -70,7 +70,13 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * {@link #getValue()} instead of this call.
 	 * @return
 	 */
-	T getValueSafe();
+	default T getValueSafe() {
+		try {
+			return getValue();
+		} catch(Exception x) {
+			return null;
+		}
+	}
 
 	/**
 	 * Returns T if this control is currently in error state, meaning it's input is in some way

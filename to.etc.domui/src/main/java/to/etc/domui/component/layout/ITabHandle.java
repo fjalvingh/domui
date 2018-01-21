@@ -1,19 +1,27 @@
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
 
-import to.etc.domui.component.event.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
- * For making an already existing tab the current one.
+ * Handle to a tab panel, with methods to change it.
  *
  * @author <a href="mailto:marc.mol@itris.nl">Marc Mol</a>
  * @since Dec 5, 2014
  */
 public interface ITabHandle {
-	
-	/**
-	 * Sets what function is called when this tab is closed
-	 */
-	void setOnClose(@Nullable INotify<ITabHandle> notify);
+	/** Close this tab. This tab is unusable after. */
+	void close() throws Exception;
+
+	/** Set this tab as selected */
+	void select() throws Exception;
+
+	void updateLabel(@Nonnull String label, @Nullable String image);
+
+	void updateLabel(@Nonnull NodeBase label, @Nullable String image);
+
+	void updateContent(@Nonnull NodeContainer content);
 }

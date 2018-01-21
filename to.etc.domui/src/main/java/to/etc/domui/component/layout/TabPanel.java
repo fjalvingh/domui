@@ -31,7 +31,7 @@ import to.etc.domui.util.*;
  * A panel containing multiple tabs. Each tab consists of two components: the
  * tab label component and the tab page body.
  * Render tabs in multiple lines if component width is not enough to show all tabs.
- * To have tabs rendered into single line with available scrollers use {@link ScollableTabPanel}.
+ * To have tabs rendered into single line with available scrollers use {@link ScrollableTabPanel}.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
@@ -62,7 +62,7 @@ public class TabPanel extends TabPanelBase {
 	 */
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-tab-c");
+		addCssClass("ui-tab-c");
 
 		//-- Adjust selected tab index
 		if(getCurrentTab() >= getTabCount() || getCurrentTab() < 0)
@@ -80,9 +80,5 @@ public class TabPanel extends TabPanelBase {
 		hdr.add(bgFill);
 		renderTabPanels(m_tabul, this);
 		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
-	}
-
-	public void setLabel(NodeBase tabContent, String tabLabel, String tabIcon) {
-		replaceLabel(m_tabul, tabContent, tabLabel, tabIcon);
 	}
 }

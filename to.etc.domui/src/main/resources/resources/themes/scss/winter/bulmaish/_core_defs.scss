@@ -97,6 +97,11 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	@include ui-control-base;
 	@include ui-focus-border;
 
+	&:hover,
+	&.is-hovered {
+		border-color: $input-hover-border-color;
+	}
+
 	padding: $control-padding-vertical $control-padding-horizontal;
 
 	line-height: $input-line-height;

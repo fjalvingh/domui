@@ -946,6 +946,10 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return txt;
 	}
 
+	@Override public void setSpecialAttribute(@Nonnull String name, @Nullable String value) {
+		m_input.setSpecialAttribute(name, value);
+	}
+
 	public void setPlaceHolder(String text) {
 		m_input.setPlaceHolder(text);
 	}
