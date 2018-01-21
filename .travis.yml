@@ -37,7 +37,7 @@ before_install:
 
 after_script:
   - echo "Creating maven report"
-  - mvn site site:deploy
+  - mvn site site:deploy -Dmaven.javadoc.skip=true
   - scripts/deploy-test-reports.sh
 
 after_failure:
