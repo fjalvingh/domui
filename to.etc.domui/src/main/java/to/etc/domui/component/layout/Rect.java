@@ -132,8 +132,6 @@ public final class Rect {
 			return false;
 
 		//-- Can Y overlap?
-		if(a.m_bottom < b.m_top || a.m_top >= b.m_bottom)
-			return false;
-		return true;
+		return a.m_bottom >= b.m_top && a.m_top < b.m_bottom;
 	}
 }

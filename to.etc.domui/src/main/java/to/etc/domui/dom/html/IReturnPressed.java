@@ -27,5 +27,5 @@ package to.etc.domui.dom.html;
 import javax.annotation.*;
 
 public interface IReturnPressed<T extends NodeBase> {
-	public void returnPressed(@Nonnull T node) throws Exception;
+	void returnPressed(@Nonnull T node) throws Exception;
 }

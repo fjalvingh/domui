@@ -31,6 +31,5 @@ import javax.annotation.*;
 import to.etc.webapp.query.*;
 
 public interface IQueryHandler<T> {
-	@Nonnull
-	public List<T> query(@Nonnull QCriteria<T> q) throws Exception;
+	@Nonnull List<T> query(@Nonnull QCriteria<T> q) throws Exception;
 }

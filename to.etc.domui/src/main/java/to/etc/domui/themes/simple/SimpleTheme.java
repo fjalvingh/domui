@@ -70,6 +70,10 @@ public final class SimpleTheme implements ITheme {
 		m_searchpath = searchpath;
 	}
 
+	@Nonnull @Override public String getThemeName() {
+		return m_themeName;
+	}
+
 	@Nonnull @Override public String getStyleSheetName() {
 		return ThemeResourceFactory.PREFIX + m_themeName + "/" + "/style.theme.css";
 	}

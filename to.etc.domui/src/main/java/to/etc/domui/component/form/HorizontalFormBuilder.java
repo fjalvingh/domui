@@ -49,7 +49,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 
 	private TR m_editRow;
 
-	static private enum TableMode {
+	private enum TableMode {
 		perRow, perForm
 	}
 

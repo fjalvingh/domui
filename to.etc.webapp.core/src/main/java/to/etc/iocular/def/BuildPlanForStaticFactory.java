@@ -28,7 +28,7 @@ import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;
 
-import to.etc.iocular.container.*;
+import to.etc.iocular.ioccontainer.*;
 import to.etc.util.*;
 
 public class BuildPlanForStaticFactory extends AbstractBuildPlan {
@@ -61,7 +61,7 @@ public class BuildPlanForStaticFactory extends AbstractBuildPlan {
 
 	/**
 	 * Execute the plan to *get* the object from
-	 * @see to.etc.iocular.container.BuildPlan#getObject()
+	 * @see to.etc.iocular.ioccontainer.BuildPlan#getObject()
 	 */
 	@Override
 	public Object getObject(final BasicContainer bc) throws Exception {
@@ -100,7 +100,7 @@ public class BuildPlanForStaticFactory extends AbstractBuildPlan {
 	/**
 	 * Called as a single-time per container init only if this factory has static initializers.
 	 *
-	 * @see to.etc.iocular.container.BuildPlan#staticStart(to.etc.iocular.container.BasicContainer)
+	 * @see to.etc.iocular.ioccontainer.BuildPlan#staticStart(to.etc.iocular.ioccontainer.BasicContainer)
 	 */
 	@Override
 	public void staticStart(final BasicContainer c) throws Exception {

@@ -27,6 +27,7 @@ package to.etc.domui.component.misc;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.Text;
+import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.layout.Window;
 import to.etc.domui.component.meta.MetaManager;
@@ -50,7 +51,7 @@ import to.etc.domui.themes.Theme;
 import to.etc.domui.trouble.UIMsgException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.bugs.Bug;
 
@@ -111,14 +112,14 @@ public class MsgBox extends Window {
 	/**
 	 * Custom dialog message text renderer.
 	 */
-	private INodeContentRenderer<String> m_dataRenderer;
+	private IRenderInto<String> m_dataRenderer;
 
 	private NodeContainer m_content;
 
 	protected MsgBox() {
 		super(true, false, WIDTH, -1, "");
 		setErrorFence(null); // Do not accept handling errors!!
-		m_theButtons.addCssClass("ui-bb-middle");
+		m_theButtons.addCssClass("ui-mbx-btns");
 		setOnClose(new IWindowClosed() {
 			@Override
 			public void closed(@Nonnull String closeReason) throws Exception {
@@ -267,7 +268,7 @@ public class MsgBox extends Window {
 	 * @param onAnswer
 	 * @param msgRenderer
 	 */
-	public static void message(NodeBase dad, String iconSrc, String title, IAnswer onAnswer, INodeContentRenderer<String> msgRenderer) {
+	public static void message(NodeBase dad, String iconSrc, String title, IAnswer onAnswer, IRenderInto<String> msgRenderer) {
 		MsgBox box = create(dad);
 		box.setType(Type.INFO);
 		box.m_theImage.setSrc(iconSrc);
@@ -321,7 +322,7 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
-	public static void dialog(NodeBase dad, String title, IAnswer onAnswer, INodeContentRenderer<String> contentRenderer) {
+	public static void dialog(NodeBase dad, String title, IAnswer onAnswer, IRenderInto<String> contentRenderer) {
 		MsgBox box = create(dad);
 		box.setType(Type.DIALOG);
 		box.setWindowTitle(title);
@@ -361,7 +362,7 @@ public class MsgBox extends Window {
 	 * @param onAnswer
 	 * @param msgRenderer Provides custom rendering of specified string message.
 	 */
-	public static void yesNo(NodeBase dad, String string, IAnswer onAnswer, INodeContentRenderer<String> msgRenderer) {
+	public static void yesNo(NodeBase dad, String string, IAnswer onAnswer, IRenderInto<String> msgRenderer) {
 		MsgBox box = create(dad);
 		box.setType(Type.DIALOG);
 		box.setMessage(string);
@@ -442,6 +443,18 @@ public class MsgBox extends Window {
 	}
 
 	public static <T> void inputString(NodeBase dad, String message, Text<T> input, IInput<T> onanswer) {
+		MsgBox box = create(dad);
+		box.setType(Type.INPUT);
+		box.setMessage(message);
+		box.addButton(MsgBoxButton.CONTINUE);
+		box.addButton(MsgBoxButton.CANCEL);
+		box.setCloseButton(MsgBoxButton.CANCEL);
+		box.setOninput(onanswer);
+		box.setInputControl(input);
+		box.construct();
+	}
+
+	public static <T> void inputString(NodeBase dad, String message, Text2<T> input, IInput<T> onanswer) {
 		MsgBox box = create(dad);
 		box.setType(Type.INPUT);
 		box.setMessage(message);
@@ -643,7 +656,7 @@ public class MsgBox extends Window {
 		NodeContainer content = m_content;
 		if(getDataRenderer() != null) {
 			try {
-				getDataRenderer().renderNodeContent(this, td, m_theText, null);
+				getDataRenderer().renderOpt(td, m_theText);
 			} catch(Exception ex) {
 				Bug.bug(ex);
 			}
@@ -673,7 +686,7 @@ public class MsgBox extends Window {
 
 	private void setFocusOnButton() {
 		if(m_theButtons.getChildCount() > 0 && m_theButtons.getChild(0) instanceof Button) {
-			((Button) m_theButtons.getChild(0)).setFocus();
+			m_theButtons.getChild(0).setFocus();
 		}
 	}
 
@@ -794,11 +807,11 @@ public class MsgBox extends Window {
 		m_inputControl = inputControl;
 	}
 
-	protected INodeContentRenderer<String> getDataRenderer() {
+	protected IRenderInto<String> getDataRenderer() {
 		return m_dataRenderer;
 	}
 
-	protected void setDataRenderer(INodeContentRenderer<String> dataRenderer) {
+	protected void setDataRenderer(IRenderInto<String> dataRenderer) {
 		m_dataRenderer = dataRenderer;
 	}
 

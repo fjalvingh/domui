@@ -2,6 +2,8 @@ package to.etc.domui.component.misc;
 
 import to.etc.domui.dom.html.Span;
 
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -11,22 +13,26 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4-8-17.
  */
+@DefaultNonNull
 final public class FaIcon extends Span {
+	@Nullable
 	private String m_iconName;
 
-	public FaIcon(String name) {
+	public FaIcon(@Nullable String name) {
 		m_iconName = name;
 	}
 
-	public FaIcon cssClass(String s) {
-		addCssClass(s);
+	@Override
+	public FaIcon css(String... classNames) {
+		super.css(classNames);
 		return this;
 	}
 
 	@Override public void createContent() throws Exception {
 		//removeFaClasses();
 		addCssClass("fa");
-		addCssClass(m_iconName);
+		if(null != m_iconName)
+			addCssClass(m_iconName);
 	}
 
 	private void removeFaClasses() {
@@ -45,8 +51,11 @@ final public class FaIcon extends Span {
 	public void setIconName(String iconName) {
 		if(Objects.equals(iconName, m_iconName))
 			return;
-		removeCssClass(m_iconName);
-		addCssClass(iconName);
+		String oldName = m_iconName;
+		if(null != oldName)
+			removeCssClass(oldName);
+		if(null != iconName)
+			addCssClass(iconName);
 		m_iconName = iconName;
 	}
 
@@ -158,6 +167,7 @@ final public class FaIcon extends Span {
 		"fa-window-minimize", "fa-window-restore", "fa-windows", "fa-wordpress", "fa-wpbeginner", "fa-wpexplorer",
 		"fa-wpforms", "fa-wrench", "fa-xing", "fa-xing-square", "fa-y-combinator", "fa-yahoo", "fa-yelp", "fa-yoast",
 		"fa-youtube", "fa-youtube-play", "fa-youtube-square"
+		, "fa-chain", "fa-flash"
 	};
 
 	public static final void main(String[] args) {
@@ -185,6 +195,8 @@ final public class FaIcon extends Span {
 	}
 
 	public static final String fa500px = "fa-500px";
+	public static final String faChain = "fa-chain";
+	public static final String faFlash = "fa-flash";
 	public static final String faAddressBook = "fa-address-book";
 	public static final String faAddressBookO = "fa-address-book-o";
 	public static final String faAddressCard = "fa-address-card";

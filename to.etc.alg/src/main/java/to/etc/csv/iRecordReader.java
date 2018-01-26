@@ -31,27 +31,27 @@ import java.io.*;
  * @author jal
  */
 public interface iRecordReader {
-	public abstract void open(Reader r, String name) throws Exception;
+	void open(Reader r, String name) throws Exception;
 
-	public abstract void close() throws Exception;
+	void close() throws Exception;
 
-	public abstract int getCurrentRecNr();
+	int getCurrentRecNr();
 
 	/**
 	 * Read the next (or first) record from the input and prepare it for
 	 * processing.
 	 * @return
 	 */
-	public abstract boolean nextRecord() throws IOException;
+	boolean nextRecord() throws IOException;
 
 	/**
 	 * Locates the specified field in the current record.
 	 * @param name
 	 * @return
 	 */
-	public abstract iInputField find(String name);
+	iInputField find(String name);
 
-	public abstract iInputField getField(int ix);
+	iInputField getField(int ix);
 
-	public abstract int size();
+	int size();
 }

@@ -24,14 +24,18 @@
  */
 package to.etc.domui.component.buttons;
 
-import java.util.*;
+import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.IActionControl;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.parts.GrayscalerPart;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.menu.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * A button which looks like a link.
@@ -187,6 +191,7 @@ public class LinkButton extends ATag implements IActionControl {
 		actionRefresh();
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}

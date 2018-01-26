@@ -1,4 +1,4 @@
-WebUI._T = new Object();
+WebUI._T = {};
 
 //-- Domui system
 WebUI._T.sysSessionExpired = 'Your session has expired. The screen will be reloaded with fresh data.';

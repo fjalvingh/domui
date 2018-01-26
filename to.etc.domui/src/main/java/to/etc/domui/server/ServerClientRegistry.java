@@ -112,7 +112,7 @@ public class ServerClientRegistry {
 		public void valueUnbound(final HttpSessionBindingEvent arg0) {
 			unregisterUser(this);
 		}
-	};
+	}
 
 	@Nonnull
 	final private Map<String, List<Client>> m_userMap = new HashMap<String, List<Client>>();

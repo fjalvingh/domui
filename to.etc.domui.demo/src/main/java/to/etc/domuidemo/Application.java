@@ -2,6 +2,10 @@ package to.etc.domuidemo;
 
 import to.etc.domui.caches.images.*;
 import to.etc.domui.component.layout.*;
+import to.etc.domui.component.tbl.RowRenderer;
+import to.etc.domui.component.tbl.RowRenderer.ColumnWidth;
+import to.etc.domui.component.tbl.RowRenderer.IColumnListener;
+import to.etc.domui.component.tbl.TableModelTableBase;
 import to.etc.domui.derbydata.init.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.header.*;
@@ -14,10 +18,12 @@ import to.etc.domuidemo.components.*;
 import to.etc.domuidemo.pages.*;
 import to.etc.domuidemo.sourceviewer.*;
 import to.etc.formbuilder.pages.*;
+import to.etc.webapp.query.QContextManager;
 
 import javax.annotation.*;
 import javax.servlet.*;
 import java.io.*;
+import java.util.List;
 
 public class Application extends DomApplication {
 	private boolean m_hibinit;
@@ -33,22 +39,22 @@ public class Application extends DomApplication {
 	protected void initialize(final ConfigParameters pp) throws Exception {
 		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
 
-		setThemeFactory(SassThemeFactory.INSTANCE);
+		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
 		//
 		//
 		//String newtheme = DeveloperOptions.getString("domuidemo.simpletheme");
 		//if(null != newtheme) {
 		//	//-- Set the SIMPLE theme provider with the specified theme set.
-		//	setThemeFactory(SimpleThemeFactory.INSTANCE);
-		//	setCurrentTheme(newtheme);
+		//	setDefaultThemeFactory(SimpleThemeFactory.INSTANCE);
+		//	setDefaultTheme(newtheme);
 		//} else {
-		//	setThemeFactory(FragmentedThemeFactory.getInstance());
+		//	setDefaultThemeFactory(FragmentedThemeFactory.getInstance());
 		//	String stylename = DeveloperOptions.getString("domuidemo.theme", "domui/domui/orange");        // Default to DomUI's native fragmented theme
-		//	setCurrentTheme(stylename);
+		//	setDefaultTheme(stylename);
 		//}
 
 		//-- Append the default style sheet.
-		addHeaderContributor(HeaderContributor.loadStylesheet("css/style.css"), 1000); // Add default stylesheet for the app
+		addHeaderContributor(HeaderContributor.loadStylesheet("css/demostyle.scss"), 1000);	// Add default stylesheet for the app
 		addHeaderContributor(HeaderContributor.loadStylesheet("css/font-awesome.min.css"), 10);
 		addHeaderContributor(new FaviconContributor("img/favicon.ico"), 10);
 
@@ -89,10 +95,28 @@ public class Application extends DomApplication {
 			public void newPageCreated(@Nonnull UrlPage body) throws Exception {
 			}
 		});
+
+		/*
+		 * Add a generic listener for column width changed events.
+		 */
+		setAttribute(RowRenderer.COLUMN_LISTENER, new IColumnListener<Object>() {
+			@Override public void columnsChanged(TableModelTableBase<Object> tbl, List<ColumnWidth<Object, ?>> newWidths) throws Exception {
+				saveColumnWidths(tbl, newWidths);
+			}
+		});
+
+
+	}
+
+	private void saveColumnWidths(TableModelTableBase<Object> tbl, List<ColumnWidth<Object, ?>> newWidths) {
+		System.out.println("Columns changed for page " + tbl.getPage().getBody().getClass().getCanonicalName() + ", table " + tbl.getActualID() + ":");
+		for(ColumnWidth<Object, ?> nw : newWidths) {
+			System.out.println(" - column " + nw.getIndex() + " (" + nw.getColumn() + ") width " + nw.getWidth());
+		}
 	}
 
 	@Override public void addDefaultErrorComponent(NodeContainer page) {
-		ErrorPanel panel = new ErrorPanel();
+		NodeContainer panel = new ErrorMessageDiv(page, true);
 		for(int i = 0; i < page.getChildCount(); i++) {
 			NodeBase child = page.getChild(i);
 			if(child instanceof PageHeader) {
@@ -145,7 +169,14 @@ public class Application extends DomApplication {
 	 * @throws Exception
 	 */
 	private void initDatabase() throws Exception {
-		TestDB.initialize();
+		File appFile = getAppFile(".").getAbsoluteFile();
+		String context = appFile.getParentFile().getName();
+		File dbPath = new File("/tmp/" + context + "DB");
+
+		DbUtil.initialize(TestDB.getDataSource(dbPath.toString()));
+
+		//-- Tell the generic layer how to create default DataContext's.
+		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source
 	}
 
 	static public void main(String[] args) {

@@ -54,7 +54,7 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 		super(in);
 	}
 
-	public ComboLookup2(Class< ? extends IComboDataSet<T>> set, INodeContentRenderer<T> r) {
+	public ComboLookup2(Class< ? extends IComboDataSet<T>> set, IRenderInto<T> r) {
 		super(set, r);
 	}
 
@@ -70,7 +70,7 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 	 * Create a combo which fills it's list with the result of the query passed.
 	 * @param query
 	 */
-	public ComboLookup2(QCriteria<T> query, INodeContentRenderer<T> cr) {
+	public ComboLookup2(QCriteria<T> query, IRenderInto<T> cr) {
 		this(query);
 		setContentRenderer(cr);
 	}
@@ -82,7 +82,7 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 	 */
 	public ComboLookup2(QCriteria<T> query, String... properties) {
 		this(query);
-		setContentRenderer(new PropertyNodeContentRenderer<T>(properties));
+		setContentRenderer(new PropertyNodeContentRenderer<>(properties));
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 	 */
 	public ComboLookup2(List<T> in, String... properties) {
 		super(in);
-		setContentRenderer(new PropertyNodeContentRenderer<T>(properties));
+		setContentRenderer(new PropertyNodeContentRenderer<>(properties));
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 	 * @see to.etc.domui.component.input.ComboComponentBase#listToValue(java.lang.Object)
 	 */
 	@Override
-	protected T listToValue(T in) throws Exception {
+	protected T listToValue(T in) {
 		return in;
 	}
 
@@ -114,7 +114,7 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 	 * @return
 	 */
 	static public <T> ComboLookup2<T> createLookup(PropertyMetaModel<T> pmm) throws Exception {
-		INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null);
+		IRenderInto<T> r = (IRenderInto<T>) MetaManager.createDefaultComboRenderer(pmm, null);
 
 		//-- Decide on the combobox' data source to use depending on metadata.
 		ComboLookup2<T> co = null;

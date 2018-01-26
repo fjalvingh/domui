@@ -24,12 +24,16 @@
  */
 package to.etc.iocular.def;
 
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
+import to.etc.iocular.ioccontainer.FailedAlternative;
+import to.etc.iocular.ioccontainer.MethodInvoker;
+import to.etc.iocular.util.ClassUtil;
 
-import to.etc.iocular.container.*;
-import to.etc.iocular.util.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 /**
  * Some kind of method or constructor call builder.
@@ -44,7 +48,7 @@ public class MethodCallBuilder {
 
 	private final String m_methodName;
 
-	static private enum ParamMode {
+	private enum ParamMode {
 		UNKNOWN, NUMBERED, UNNUMBERED
 	}
 
@@ -327,19 +331,7 @@ public class MethodCallBuilder {
 		Class< ? >[] par = m.getParameterTypes();
 		if(m_paramMode == ParamMode.NUMBERED && par.length != m_actuals.size()) // Numbered parameters must all match
 			return false;
-		if(m_actuals.size() > par.length) // Has more defined arguments than the method currently under evaluation?
-			return false;
-		//		for(int i = 0; i < par.length; i++) {
-		//			if(i < m_actuals.size()) {
-		//				MethodParameterSpec	msp = m_actuals.get(i);
-		//				if(msp != null) {
-		//					if(! par[i].isAssignableFrom(fp))
-		//						return false;
-		//				}
-		//			}
-		//		}
-		//
-		return true;
+		return m_actuals.size() <= par.length;
 	}
 
 	public void setThisIsSelf() {

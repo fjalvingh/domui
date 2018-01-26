@@ -21,11 +21,9 @@ public class DemoTableBinding2 extends WikiExplanationPage {
 		rr.column("firstName").label("First Name").ascending().editable();
 		rr.column("lastName").label("Last Name").ascending().sortdefault().editable();
 
-		final INodeContentRenderer<Employee> contentRenderer = new INodeContentRenderer<Employee>() {
+		final IRenderInto<Employee> contentRenderer = new IRenderInto<Employee>() {
 			@Override
-			public void renderNodeContent(NodeBase component, NodeContainer node, Employee object, Object parameters) throws Exception {
-				if(null == object)
-					return;
+			public void render(NodeContainer node, Employee object) throws Exception {
 				node.add(object.getFirstName() + " " + object.getLastName());
 			}
 		};

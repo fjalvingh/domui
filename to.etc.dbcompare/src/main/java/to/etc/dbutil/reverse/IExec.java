@@ -5,5 +5,5 @@ import java.sql.*;
 import javax.annotation.*;
 
 public interface IExec {
-	public void exec(@Nonnull Connection dbc) throws Exception;
+	void exec(@Nonnull Connection dbc) throws Exception;
 }

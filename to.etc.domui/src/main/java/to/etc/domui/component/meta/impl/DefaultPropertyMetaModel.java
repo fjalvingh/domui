@@ -39,6 +39,9 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	@Nonnull
 	private final DefaultClassMetaModel m_classModel;
 
+	@Nullable
+	private ClassMetaModel m_valueModel;
+
 	private final PropertyInfo m_descriptor;
 
 	private int m_length = -1;
@@ -65,7 +68,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 */
 	private Class< ? extends ILabelStringRenderer< ? >> m_comboLabelRenderer;
 
-	private Class< ? extends INodeContentRenderer< ? >> m_comboNodeRenderer;
+	private Class< ? extends IRenderInto<T>> m_comboNodeRenderer;
 
 	@Nonnull
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
@@ -78,7 +81,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * Default renderer which renders a lookup field's "field" contents; this is a table which must be filled with
 	 * data pertaining to the looked-up item as a single element on the "edit" screen.
 	 */
-	private Class< ? extends INodeContentRenderer< ? >> m_lookupFieldRenderer;
+	private Class< ? extends IRenderInto<T>> m_lookupFieldRenderer;
 
 	/**
 	 * The default properties to show in a lookup field's instance display.
@@ -104,14 +107,20 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	@Nonnull
 	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
 
-	public DefaultPropertyMetaModel(@Nonnull final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
+	public DefaultPropertyMetaModel(@Nonnull final DefaultClassMetaModel classModel, final PropertyInfo descriptor, ClassMetaModel valueModel) {
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
+		m_valueModel = valueModel;
 		m_classModel = classModel;
 		m_descriptor = descriptor;
 		if(descriptor.getSetter() == null) {
 			setReadOnly(YesNoType.YES);
 		}
+	}
+
+
+	public DefaultPropertyMetaModel(@Nonnull final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
+		this(classModel, descriptor, null);
 	}
 
 	@Nonnull
@@ -128,7 +137,8 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	@Override
 	public ClassMetaModel getValueModel() {
-		return MetaManager.findClassMeta(getActualType());
+		return m_valueModel;
+		//return MetaManager.findClassMeta(getActualType());
 	}
 
 	@Override
@@ -319,11 +329,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	@Nullable
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
+	public Class< ? extends IRenderInto<T>> getComboNodeRenderer() {
 		return m_comboNodeRenderer;
 	}
 
-	public void setComboNodeRenderer(@Nullable final Class< ? extends INodeContentRenderer< ? >> comboNodeRenderer) {
+	public void setComboNodeRenderer(@Nullable final Class< ? extends IRenderInto<T>> comboNodeRenderer) {
 		m_comboNodeRenderer = comboNodeRenderer;
 	}
 
@@ -336,11 +346,11 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+	public Class< ? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
 	}
 
-	public void setLookupSelectedRenderer(final Class< ? extends INodeContentRenderer< ? >> lookupFieldRenderer) {
+	public void setLookupSelectedRenderer(final Class< ? extends IRenderInto<T>> lookupFieldRenderer) {
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 
@@ -448,5 +458,10 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			return res;
 		}
 		return Collections.emptyList();
+	}
+
+	@Nonnull
+	public PropertyInfo getDescriptor() {
+		return m_descriptor;
 	}
 }

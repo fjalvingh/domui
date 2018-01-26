@@ -42,16 +42,14 @@ public interface IImageRetriever {
 	 * by this call may not change over the lifetime of this factory.
 	 * @return
 	 */
-	@Nonnull
-	public String getRetrieverKey();
+	@Nonnull String getRetrieverKey();
 
 	/**
 	 * Returns the check interval, in millis. This is the age that an image may have in the cache before it's
 	 * rechecked for changes again. Returning 0 means the image gets checked for validity always.
 	 * @return
 	 */
-	public long getCheckInterval();
+	long getCheckInterval();
 
-	@Nullable
-	public IImageReference loadImage(@Nonnull String key) throws Exception;
+	@Nullable IImageReference loadImage(@Nonnull String key) throws Exception;
 }

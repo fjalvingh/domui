@@ -24,6 +24,9 @@
  */
 package to.etc.domui.dom.html;
 
+import javax.annotation.DefaultNonNull;
+
+@DefaultNonNull
 public class HTag extends NodeContainer {
 	public HTag(int level) {
 		super("H" + level);
@@ -39,5 +42,14 @@ public class HTag extends NodeContainer {
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitH(this);
+	}
+
+	/**
+	 * Add the specified css class(es).
+	 */
+	@Override
+	public HTag css(String ...classNames) {
+		super.css(classNames);
+		return this;
 	}
 }

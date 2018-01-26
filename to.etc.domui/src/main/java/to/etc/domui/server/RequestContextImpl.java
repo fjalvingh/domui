@@ -24,15 +24,26 @@
  */
 package to.etc.domui.server;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.CidPair;
+import to.etc.domui.state.WindowSession;
+import to.etc.domui.themes.DefaultThemeVariant;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.upload.UploadItem;
+import to.etc.util.FileTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.upload.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RequestContextImpl implements IRequestContext, IAttributeContainer {
 	@Nonnull
@@ -59,6 +70,25 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	@Nonnull
 	final private String m_extension;
+
+	private boolean m_amLockingSession;
+
+	private String m_outputContentType;
+
+	private String m_outputEncoding;
+
+	private Exception m_outputAllocated;
+
+	/** Cached copy of theme for this user, lazy */
+	@Nullable
+	private ITheme m_currentTheme;
+
+	/** The theme name for this user, lazily initialized. */
+	@Nullable
+	private String m_themeName;
+
+	@Nonnull
+	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
 	
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
@@ -95,14 +125,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	final public @Nonnull DomApplication getApplication() {
 		return m_application;
 	}
-
-	private boolean m_amLockingSession;
-
-	private String m_outputContentType;
-
-	private String m_outputEncoding;
-
-	private Exception m_outputAllocated;
 
 	/**
 	 * Get the session for this context.
@@ -222,6 +244,50 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_browserVersion;
 	}
 
+	/**
+	 * This should be replaced by getThemeName below as that uniquely identifies the theme.
+	 * @return
+	 */
+	@Nonnull @Override final public ITheme getCurrentTheme() {
+		ITheme currentTheme = m_currentTheme;
+		if(null == currentTheme) {
+			try {
+				currentTheme = m_currentTheme = m_application.getTheme(getThemeName(), null);
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
+		}
+		return currentTheme;
+	}
+
+	static private final String THEMENAME = "ctx$themename";
+
+	@Nonnull @Override public String getThemeName() {
+		String themeName = m_themeName;
+		if(null == themeName) {
+			 themeName = (String) getSession().getAttribute(THEMENAME);
+			 if(null == themeName) {
+				 themeName = m_application.calculateUserTheme(this);
+			 }
+			 m_themeName = themeName;
+		}
+		return themeName;
+	}
+
+	@Override
+	public void setThemeName(String userThemeName) {
+		m_themeName = userThemeName;
+		getSession().setAttribute(THEMENAME, userThemeName);
+	}
+
+	@Override @Nonnull public IThemeVariant getThemeVariant() {
+		return m_themeVariant;
+	}
+
+	@Override public void setThemeVariant(@Nonnull IThemeVariant themeVariant) {
+		m_themeVariant = themeVariant;
+	}
+
 	public void flush() throws Exception {
 		if(m_sw != null) {
 			if(getApplication().logOutput()) {
@@ -266,14 +332,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return sb.toString();
 	}
 
-	//@Override
-	//public String getThemedPath(String in) {
-	//	String p = getApplication().getThemedResourceRURL(in);
-	//	if(p == null)
-	//		throw new NullPointerException("?");
-	//	return getRelativePath(p);
-	//}
-	//
 	/**
 	 * This returns a fully buffered output writer. Calling it twice is explicitly
 	 * allowed, but clears the data written before as it's assumed that another route

@@ -11,11 +11,11 @@ import to.etc.domui.databinding.list.*;
  * Created on Nov 1, 2013
  */
 public interface IListChangeVisitor<T> {
-	public void visitAssign(@Nonnull ListChangeAssign<T> assign) throws Exception;
+	void visitAssign(@Nonnull ListChangeAssign<T> assign) throws Exception;
 
-	public void visitAdd(@Nonnull ListChangeAdd<T> add) throws Exception;
+	void visitAdd(@Nonnull ListChangeAdd<T> add) throws Exception;
 
-	public void visitDelete(@Nonnull ListChangeDelete<T> add) throws Exception;
+	void visitDelete(@Nonnull ListChangeDelete<T> add) throws Exception;
 
-	public void visitModify(@Nonnull ListChangeModify<T> add) throws Exception;
+	void visitModify(@Nonnull ListChangeModify<T> add) throws Exception;
 }

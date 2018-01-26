@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 6, 2009
  */
-public interface IControl<T> extends IActionControl, IHasChangeListener, INodeErrorDelegate {
+public interface IControl<T> extends IActionControl, IHasChangeListener, INodeErrorDelegate, IForTarget {
 	/**
 	 * Set a new value into this control. Setting a value to null means the control holds no value. This
 	 * value is converted to a presentable form using any (implicitly) defined converters; it will not
@@ -70,7 +70,13 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * {@link #getValue()} instead of this call.
 	 * @return
 	 */
-	T getValueSafe();
+	default T getValueSafe() {
+		try {
+			return getValue();
+		} catch(Exception x) {
+			return null;
+		}
+	}
 
 	/**
 	 * Returns T if this control is currently in error state, meaning it's input is in some way
@@ -101,6 +107,7 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * For those controls the readonly state mirrors the disabled state.
 	 * @return
 	 */
+	@Override
 	boolean isDisabled();
 
 	/**

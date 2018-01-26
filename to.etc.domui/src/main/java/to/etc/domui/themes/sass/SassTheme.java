@@ -44,6 +44,10 @@ final public class SassTheme implements ITheme {
 		m_searchPath = searchpath;
 	}
 
+	@Nonnull @Override public String getThemeName() {
+		return m_themeName;
+	}
+
 	@Nonnull @Override public IScriptScope getPropertyScope() {
 		throw new IllegalStateException("Cannot do this as I'm not javascript based.");
 	}
@@ -55,7 +59,7 @@ final public class SassTheme implements ITheme {
 	@Nonnull @Override public String getStyleSheetName() throws Exception {
 		BrowserVersion version = UIContext.getRequestContext().getBrowserVersion();	// FIXME Fugly!!
 		String css = ThemeResourceFactory.PREFIX + m_themeName + "/style.scss";
-		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(version, css, "");
+		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(getThemeName(), version, css, "");
 		PartData data = DomApplication.get().getPartService().getData(pi);
 		String hash = StringTool.toHex(data.getHash());
 

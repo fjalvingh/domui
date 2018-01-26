@@ -6,6 +6,7 @@ import to.etc.domui.dom.css.*;
 import to.etc.domui.util.*;
 
 import javax.annotation.*;
+import java.util.function.Predicate;
 
 final public class ColumnDef<I, T> {
 	@Nonnull
@@ -31,8 +32,9 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private String m_sortProperty;
 
+	/** Some special width, like "1%" */
 	@Nullable
-	private String m_width; // = "1%";					// jal 20150408 Default to 1% width for now
+	private String m_width;
 
 	@Nullable
 	private String m_propertyName;
@@ -43,8 +45,8 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private String m_headerCssClass;
 
-	@Deprecated
-	private int m_displayLength;
+	/** Set from metadata, specifies the width in characters. */
+	private int m_characterWidth;
 
 	private boolean m_nowrap = true;
 
@@ -59,13 +61,13 @@ final public class ColumnDef<I, T> {
 	private TextAlign m_align;
 
 	@Nullable
-	private INodeContentRenderer<T> m_contentRenderer;
+	private IRenderInto<T> m_contentRenderer;
 
 	@Nullable
 	private IConverter<T> m_converter;
 
 	@Nullable
-	private ICellClicked< ? > m_cellClicked;
+	private ICellClicked<I> m_cellClicked;
 
 	@Nullable
 	private String m_renderHint;
@@ -75,7 +77,10 @@ final public class ColumnDef<I, T> {
 
 	private IRowControlFactory<I> m_controlFactory;
 
-	<X> ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull Class<T> valueClass) {
+	@Nullable
+	private Predicate<I> m_showCellClickedWhen;
+
+	ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull Class<T> valueClass) {
 		m_actualClass = valueClass;
 		m_columnType = valueClass;
 		m_defList = cdl;
@@ -101,7 +106,13 @@ final public class ColumnDef<I, T> {
 		numeric(pmm.getNumericPresentation());
 		if(pmm.getNowrap() == YesNoType.YES)
 			nowrap();
-		converter(ConverterRegistry.findBestConverter(pmm));
+
+		/*
+		 * jal 20171220 This must not be here: when setting it here we might get both a converter AND a renderer. When calculating
+		 * a rendering the code should determine whether it NEEDS a default converter and only use it then.
+		 */
+		//converter(ConverterRegistry.findBestConverter(pmm));
+		width(MetaManager.calculateTextSize(pmm));
 	}
 
 	@Nonnull
@@ -157,6 +168,7 @@ final public class ColumnDef<I, T> {
 		return m_editable;
 	}
 
+	@Nullable
 	public <R> T getColumnValue(@Nonnull R instance) throws Exception {
 		PropertyMetaModel<T> pmm = m_propertyMetaModel;
 		if(pmm == null)
@@ -180,6 +192,23 @@ final public class ColumnDef<I, T> {
 		return m_width;
 	}
 
+	/**
+	 * The requested width in characters, often set from metadata. Only used when it is > 0, and
+	 * overridden by {@link #width(String)}.
+	 */
+	public int getCharacterWidth() {
+		return m_characterWidth;
+	}
+
+	/**
+	 * The requested width in characters, often set from metadata. Only used when it is > 0, and
+	 * overridden by {@link #width(String)}.
+	 */
+	public ColumnDef<I, T> width(int characters) {
+		m_characterWidth = characters;
+		return this;
+	}
+
 	@Nullable
 	public String getPropertyName() {
 		return m_propertyName;
@@ -190,14 +219,13 @@ final public class ColumnDef<I, T> {
 	}
 
 	@Nullable
-	public INodeContentRenderer<T> getContentRenderer() {
+	public IRenderInto<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
 	/**
 	 * When set this defines the css class to set on each value cell for this column. Setting this
 	 * does NOT set a css class for the header!!
-	 * @return
 	 */
 	@Nullable
 	public String getCssClass() {
@@ -213,22 +241,17 @@ final public class ColumnDef<I, T> {
 		return m_headerCssClass;
 	}
 
-	/**
-	 * Seems nonsense, use width instead.
-	 * @return
-	 */
-	@Deprecated
-	public int getDisplayLength() {
-		return m_displayLength;
-	}
-
 	public boolean isNowrap() {
 		return m_nowrap;
 	}
 
 	@Nullable
-	public ICellClicked< ? > getCellClicked() {
+	public ICellClicked<I> getCellClicked() {
 		return m_cellClicked;
+	}
+
+	@Nullable public Predicate<I> getShowCellClickedWhen() {
+		return m_showCellClickedWhen;
 	}
 
 	@Nonnull
@@ -298,10 +321,23 @@ final public class ColumnDef<I, T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked< ? > ck) {
+	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked<I> ck) {
 		m_cellClicked = ck;
 		return this;
 	}
+
+	/**
+	 * Set the cell click handler.
+	 * @param ck
+	 * @return
+	 */
+	@Nonnull
+	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked<I> ck, @Nonnull Predicate<I> showWhen) {
+		m_cellClicked = ck;
+		m_showCellClickedWhen = showWhen;
+		return this;
+	}
+
 
 	/**
 	 * Set the node content renderer.
@@ -309,7 +345,7 @@ final public class ColumnDef<I, T> {
 	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<I, T> renderer(@Nullable INodeContentRenderer<T> cr) {
+	public ColumnDef<I, T> renderer(@Nullable IRenderInto<T> cr) {
 		m_contentRenderer = cr;
 		return this;
 	}

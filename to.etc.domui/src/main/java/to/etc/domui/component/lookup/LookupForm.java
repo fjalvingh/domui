@@ -24,11 +24,6 @@
  */
 package to.etc.domui.component.lookup;
 
-import java.util.*;
-import java.util.Map.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.buttons.*;
 import to.etc.domui.component.controlfactory.*;
 import to.etc.domui.component.event.*;
@@ -38,8 +33,10 @@ import to.etc.domui.component.lookup.ILookupControlInstance.*;
 import to.etc.domui.component.lookup.filter.*;
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.dom.Animations;
+import to.etc.domui.component2.lookupinput.*;
+import to.etc.domui.dom.*;
 import to.etc.domui.dom.css.*;
+import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 import to.etc.domui.themes.*;
@@ -47,6 +44,10 @@ import to.etc.domui.util.*;
 import to.etc.webapp.*;
 import to.etc.webapp.annotations.*;
 import to.etc.webapp.query.*;
+
+import javax.annotation.*;
+import java.util.*;
+import java.util.Map.*;
 
 /**
  * Creates a search box to enter search criteria. This only presents the search part of the
@@ -121,11 +122,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	@Nullable
 	private LookupFormSavedFilterFragment m_lookupFormSavedFilterFragment;
 
-	public @Nullable
-	DefaultButton getClearButton() {
-		return m_clearButton;
-	}
-
 	private Table m_table;
 
 	private TBody m_tbody;
@@ -162,6 +158,17 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private IClicked<NodeBase> m_onAfterCollapse;
 
 	private IQueryFactory<T> m_queryFactory;
+
+	/** When adding properties yourself: do not clear metadata beforehand. */
+	private boolean m_keepMetaData;
+
+	@Nullable
+	private UIMessage m_newBtnDisableReason;
+
+	@Nullable
+	public DefaultButton getClearButton() {
+		return m_clearButton;
+	}
 
 	private Map<String, ILookupControlInstance<?>> getFilterItems() {
 		Map<String, ILookupControlInstance<?>> filterValues = new HashMap<>();
@@ -215,6 +222,32 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		private final boolean m_isEntireRow;
 
 		private final boolean m_isControl;
+
+		private String m_propertyName;
+
+		private List<PropertyMetaModel< ? >> m_propertyPath;
+
+		private ILookupControlInstance<?> m_instance;
+
+		private boolean m_ignoreCase = true;
+
+		private int m_minLength;
+
+		private String m_labelText;
+
+		private String m_lookupHint;
+
+		private String m_errorLocation;
+
+		private int m_order;
+
+		private String m_testId;
+
+		private boolean m_popupSearchImmediately;
+
+		private boolean m_popupInitiallyCollapsed;
+
+		private InputBehaviorType m_inputsBehavior = InputBehaviorType.DEFAULT;
 
 		public Item() {
 			m_left = null;
@@ -275,30 +308,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			/**
 			 * Force all input controls for certain lookup field to become disabled for user input.
 			 */
-			FORCE_DISABLED;
+			FORCE_DISABLED
 		}
-
-		private String m_propertyName;
-
-		private List<PropertyMetaModel< ? >> m_propertyPath;
-
-		private ILookupControlInstance<?> m_instance;
-
-		private boolean m_ignoreCase = true;
-
-		private int m_minLength;
-
-		private String m_labelText;
-
-		private String m_lookupHint;
-
-		private String m_errorLocation;
-
-		private int m_order;
-
-		private String testId;
-
-		private InputBehaviorType m_inputsBehavior = InputBehaviorType.DEFAULT;
 
 		@Override
 		public String getPropertyName() {
@@ -394,6 +405,24 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		@Override
+		public boolean isPopupSearchImmediately() {
+			return m_popupSearchImmediately;
+		}
+
+		public void setPopupSearchImmediately(boolean v) {
+			m_popupSearchImmediately = v;
+		}
+
+		@Override
+		public boolean isPopupInitiallyCollapsed() {
+			return m_popupInitiallyCollapsed;
+		}
+
+		public void setPopupInitiallyCollapsed(boolean v) {
+			m_popupInitiallyCollapsed = v;
+		}
+
+		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Item:");
@@ -409,11 +438,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		public String getTestId() {
-			return testId;
+			return m_testId;
 		}
 
 		public void setTestId(String testId) {
-			this.testId = testId;
+			m_testId = testId;
 		}
 
 		public void setDisabled(boolean disabled) {
@@ -457,7 +486,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/** The primary list of defined lookup items. */
 	private final List<Item> m_itemList = new ArrayList<Item>(20);
 
-	static public enum ButtonMode {
+	public enum ButtonMode {
 		/** Show this button only when the lookup form is expanded */
 		NORMAL,
 
@@ -504,7 +533,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
 	public LookupForm(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
-		this(lookupClass, (ClassMetaModel) null, propertyList);
+		this(lookupClass, null, propertyList);
 	}
 
 	/**
@@ -522,7 +551,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	public LookupForm(@Nonnull QCriteria<T> rootCriteria, String... propertyList) {
-		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), (ClassMetaModel) null, propertyList);
+		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), null, propertyList);
 		m_rootCriteria = rootCriteria;
 	}
 
@@ -569,8 +598,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0) // If we don't have an item set yet....
-			setDefaultItems(); // ..define it from metadata, and abort if there is nothing there
+		if(m_itemList.size() == 0 || isKeepMetaData())			// If we don't have an item set yet....
+			setDefaultItems(); 									// ..define it from metadata, and abort if there is nothing there
 
 		NodeContainer searchContainer = sroot;
 		if(containsItemBreaks(m_itemList)) {
@@ -606,9 +635,9 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		//-- Walk all search fields
-		m_table = new Table();
-		m_table.setCssClass("ui-lf-st");
-		searchContainer.add(m_table);
+		Table tbl = m_table = new Table();
+		tbl.setCssClass("ui-lf-st");
+		searchContainer.add(tbl);
 		m_tbody = new TBody();
 		m_tbody.setTestID("tableBodyLookupForm");
 		m_table.add(m_tbody);
@@ -742,12 +771,10 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		b.setIcon("THEME/btnFind.png");
 		b.setTestID("searchButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
-		b.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(final @Nonnull NodeBase bx) throws Exception {
-				if(m_clicker != null)
-					m_clicker.clicked(LookupForm.this);
-			}
+		b.css("is-primary");
+		b.setClicked(bx -> {
+			if(m_clicker != null)
+				m_clicker.clicked(LookupForm.this);
 		});
 		addButtonItem(b, 100, ButtonMode.NORMAL);
 
@@ -755,23 +782,15 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		b.setIcon("THEME/btnClear.png");
 		b.setTestID("clearButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR_TITLE));
-		b.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(final @Nonnull NodeBase xb) throws Exception {
-				clearInput();
-				if(getOnClear() != null)
-					((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
-			}
+		b.setClicked(xb -> {
+			clearInput();
+			if(getOnClear() != null)
+				((IClicked<LookupForm<T>>) getOnClear()).clicked(LookupForm.this); // FIXME Another generics snafu, fix.
 		});
 		addButtonItem(b, 200, ButtonMode.NORMAL);
 
 		//-- Collapse button thingy
-		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@Nonnull DefaultButton bx) throws Exception {
-				collapse();
-			}
-		});
+		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", bx -> collapse());
 		m_collapseButton.setTestID("hideButton");
 		m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
 		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
@@ -779,25 +798,17 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	public void addFilterButton() {
 		if(m_filterButton == null) { // Only add the button if it doesn't exist already
-			m_filterButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SAVE_SEARCH), Theme.BTN_SAVE, new IClicked<DefaultButton>() {
-				@Override
-				public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
-					saveSearchQuery();
-				}
-			});
+			m_filterButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SAVE_SEARCH), Theme.BTN_SAVE, clickednode -> saveSearchQuery());
 			addButtonItem(m_filterButton, 400, ButtonMode.NORMAL);
 		}
 	}
 
 	private void saveSearchQuery() throws Exception {
 		SaveSearchFilterDialog dialog = new SaveSearchFilterDialog(DomUtil.nullChecked(m_lookupFilterHandler), getPage().getBody().getClass().getName(), getFilterValues());
-		dialog.onFilterSaved(new INotify<SavedFilter>() {
-			@Override
-			public void onNotify(@Nonnull SavedFilter sender) throws Exception {
-				m_savedFilters.add(sender);
-				if(m_lookupFormSavedFilterFragment != null) {
-					m_lookupFormSavedFilterFragment.forceRebuild();
-				}
+		dialog.onFilterSaved(sender -> {
+			m_savedFilters.add(sender);
+			if(m_lookupFormSavedFilterFragment != null) {
+				m_lookupFormSavedFilterFragment.forceRebuild();
 			}
 		});
 		dialog.modal();
@@ -821,7 +832,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		if((m_content.getDisplay() == DisplayType.NONE))
 			return;
 
-		Animations.slideUp(m_content);
+		if(m_content.isBuilt()) {
+			Animations.slideUp(m_content);
+		} else {
+			m_content.setDisplay(DisplayType.NONE);
+		}
 		m_collapsedPanel = new Div();
 		m_collapsedPanel.setCssClass("ui-lf-coll");
 		add(m_collapsedPanel);
@@ -830,12 +845,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
 		m_collapseButton.setIcon("THEME/btnShowLookup.png");
-		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@Nonnull DefaultButton bx) throws Exception {
-				restore();
-			}
-		});
+		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> restore());
 		createButtonRow(m_collapsedPanel, true);
 		//trigger after collapse event is set
 		if(getOnAfterCollapse() != null) {
@@ -852,12 +862,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
 		m_collapseButton.setIcon("THEME/btnHideLookup.png");
-		m_collapseButton.setClicked(new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@Nonnull DefaultButton bx) throws Exception {
-				collapse();
-			}
-		});
+		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> collapse());
 
 		m_content.setDisplay(DisplayType.BLOCK);
 		m_collapsed = false;
@@ -877,7 +882,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * to the item list. The list is cleared before that!
 	 */
 	public void setDefaultItems() {
-		m_itemList.clear();
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
 		if(list == null || list.size() == 0) {
 			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
@@ -901,6 +905,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			it.setPropertyPath(sp.getPropertyPath());
 			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
 			it.setLookupHint(sp.getLookupHint()); // If a lookup hint is defined use it.
+			it.setPopupSearchImmediately(sp.isPopupSearchImmediately());
+			it.setPopupInitiallyCollapsed(sp.isPopupInitiallyCollapsed());
 			addAndFinish(it);
 			if(m_twoColumnsMode && (totalCount >= m_minSizeForTwoColumnsMode) && m_itemList.size() == (totalCount + 1) / 2) {
 				m_itemList.add(new ItemBreak());
@@ -962,7 +968,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		Item it = new Item();
 		it.setPropertyName(path);
 		it.setLabelText(label);
-		it.setIgnoreCase(ignorecase == null ? true : ignorecase.booleanValue());
+		it.setIgnoreCase(ignorecase == null || ignorecase.booleanValue());
 		it.setMinLength(minlen);
 		addAndFinish(it);
 		updateUI(it);
@@ -1078,6 +1084,22 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(spmm);
 		final ILookupControlInstance<?> lookupInstance = lcf.createControl(spmm, null);
+
+		if (spmm.isPopupSearchImmediately()) {
+			if(lookupInstance instanceof LookupInputBase<?, ?>) {
+				((LookupInputBase<?, ?>) lookupInstance).setSearchImmediately(true);
+			}else if(lookupInstance instanceof LookupInputBase2<?, ?>) {
+				((LookupInputBase2<?, ?>) lookupInstance).setPopupSearchImmediately(true);
+			}
+		}
+
+		if (spmm.isPopupInitiallyCollapsed()) {
+			if(lookupInstance instanceof LookupInputBase<?, ?>) {
+				((LookupInputBase<?, ?>) lookupInstance).setPopupInitiallyCollapsed(true);
+			}else if(lookupInstance instanceof LookupInputBase2<?, ?>) {
+				((LookupInputBase2<?, ?>) lookupInstance).setPopupInitiallyCollapsed(true);
+			}
+		}
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
 			@Override
@@ -1249,7 +1271,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		TD ccell = new TD(); // Control cell
 		tr.add(ccell);
-		ccell.setCssClass("ui-f-in");
+		ccell.setCssClass("ui-f-in ui-f4-ctl ui-f4-ctl-v");
 
 		//-- Now add the controls and shtuff..
 		NodeBase labelcontrol = qt.getLabelControl();
@@ -1308,9 +1330,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Create the optimal control using metadata for a property. This can only be called for an item
 	 * containing a property with metadata.
 	 *
-	 * @param container
-	 * @param name
-	 * @param pmm
+	 * @param it
 	 * @return
 	 */
 	private ILookupControlInstance<?> createControlFor(Item it) {
@@ -1367,9 +1387,9 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				}
 			}
 		}
-		if(!success) { // Some input failed to validate their input criteria?
+		if(!success) { 										// Some input failed to validate their input criteria?
 			m_hasUserDefinedCriteria = false;
-			return null; // Then exit null -> should only display errors.
+			return null; 									// Then exit null -> should only display errors.
 		}
 		return root;
 	}
@@ -1407,7 +1427,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			m_onNew = onNew;
 			if(m_onNew != null && m_newBtn == null) {
 				m_newBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-				m_newBtn.setIcon("THEME/btnNew.png");
+				m_newBtn.setIcon(Theme.BTN_NEW);
 				m_newBtn.setTestID("newButton");
 				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
 				m_newBtn.setClicked(new IClicked<NodeBase>() {
@@ -1418,6 +1438,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 						}
 					}
 				});
+				m_newBtn.setDisabled(m_newBtnDisableReason);
 				addButtonItem(m_newBtn, 500, ButtonMode.BOTH);
 			} else if(m_onNew == null && m_newBtn != null) {
 				for(ButtonRowItem bri : m_buttonItemList) {
@@ -1539,7 +1560,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	public void addButtonItem(NodeBase b, int order, ButtonMode both) {
 		if(m_buttonItemList == Collections.EMPTY_LIST)
-			m_buttonItemList = new ArrayList<ButtonRowItem>(10);
+			m_buttonItemList = new ArrayList<>(10);
 		m_buttonItemList.add(new ButtonRowItem(order, both, b));
 	}
 
@@ -1592,7 +1613,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 	/**
-	 * Use to collapse/restore LookupForm search pannel.
+	 * Use to collapse/restore LookupForm search panel.
 	 *
 	 * @param collapsed
 	 * @throws Exception
@@ -1665,6 +1686,16 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		m_queryFactory = queryFactory;
 	}
 
+	public boolean isKeepMetaData() {
+		return m_keepMetaData;
+	}
+
+	@Nonnull
+	public LookupForm<T> setKeepMetaData(boolean keepMetaData) {
+		m_keepMetaData = keepMetaData;
+		return this;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Button container handling.							*/
 	/*--------------------------------------------------------------*/
@@ -1684,5 +1715,12 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	@Nonnull
 	public ButtonFactory getButtonFactory() {
 		return m_buttonFactory;
+	}
+
+	public void setNewBtnDisableReason(@Nullable UIMessage rsn){
+		m_newBtnDisableReason = rsn;
+		if (null != m_newBtn){
+			m_newBtn.setDisabled(rsn);
+		}
 	}
 }

@@ -51,10 +51,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 /**
@@ -62,9 +65,12 @@ import java.util.regex.Pattern;
  */
 @DefaultNonNull
 final public class WebDriverConnector {
+
 	private static final Logger LOG = LoggerFactory.getLogger(WebDriverConnector.class);
 
 	public static final String PAGENAME_PARAMETER = "pagename";
+
+	public static final String BROWSERSTACK = "browserstack://";
 
 	static private List<WebDriverConnector> m_webDriverConnectorList = new ArrayList<WebDriverConnector>();
 
@@ -184,9 +190,16 @@ final public class WebDriverConnector {
 		 * we assume local.
 		 */
 		String ws = Objects.requireNonNull(p.getProperty("webdriver.hub", "chrome"));
-		String[] frag = ws.split("@");
-		String browserName = frag[0];
-		String remote = frag.length > 1 ? frag[1] : "local";
+		int pos = ws.indexOf('@');
+		String browserName;
+		String remote;
+		if(pos > 0) {
+			browserName = ws.substring(0, pos);
+			remote = ws.substring(pos + 1);
+		} else {
+			remote = "local";
+			browserName = ws;
+		}
 
 		BrowserModel browserModel = BrowserModel.get(browserName);
 		WebDriverType webDriverType = getDriverType(remote);
@@ -209,6 +222,9 @@ final public class WebDriverConnector {
 			return WebDriverType.HTMLUNIT;                    // Used as a target because it can emulate multiple browser types
 		if("local".equals(hubUrl.trim()))
 			return WebDriverType.LOCAL;
+		if(hubUrl.startsWith(BROWSERSTACK)) {
+			return WebDriverType.BROWSERSTACK;
+		}
 		return WebDriverType.REMOTE;
 	}
 
@@ -1755,6 +1771,20 @@ final public class WebDriverConnector {
 	}
 
 	@Nonnull
+	public WebElement getElement(String testId, String extraCss) {
+		WebElement element = findElement(testId, extraCss);
+		if(null == element)
+			throw new ElementNotFoundException("testID " + testId + " and " + extraCss);
+		return element;
+	}
+
+
+	@Nullable
+	public WebElement findElement(String testId, String extraCss) {
+		return findElement(byId(testId, extraCss));
+	}
+
+	@Nonnull
 	public WebElement getElement(By by) {
 		WebElement element = findElement(by);
 		if(null == element)
@@ -2294,5 +2324,37 @@ final public class WebDriverConnector {
 				fail("Alert message '" + amsg + "' does not contain the string '" + msg + "'");
 			}
 		}
+	}
+
+	@Nonnull
+	public Map<String, String> getComputedStyles(@Nonnull WebElement element, Predicate<String> filter) {
+		JavascriptExecutor executor = (JavascriptExecutor) driver();
+		String script = "var s = '';" +
+			"var o = getComputedStyle(arguments[0]);" +
+			"for(var i = 0; i < o.length; i++){" +
+			"s += '~~~~' + o[i] + '``' + o.getPropertyValue(o[i]);}" +
+			"return s;";
+		String result = (String) executor.executeScript(script, element);
+
+		Map<String, String> res = new TreeMap<>();
+		String[] pairs = result.split("~~~~");
+		for(String pair : pairs) {
+			if(pair.length() != 0) {
+				String[] split = pair.split("``");
+				if(split.length > 2 || split.length == 0) {
+					System.err.println("Failed to split '" + pair + "'");
+				} else if(filter.test(split[0])) {
+					res.put(split[0], split.length == 1 ? "" : split[1]);
+				}
+			}
+		}
+		//System.out.println(res);
+		return res;
+
+	}
+	@Nonnull
+	public Map<String, String> getComputedStyles(@Nonnull WebElement element) {
+		return getComputedStyles(element, a -> true);
+
 	}
 }

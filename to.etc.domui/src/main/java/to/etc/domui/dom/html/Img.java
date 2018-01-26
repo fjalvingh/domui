@@ -219,6 +219,7 @@ public class Img extends NodeBase implements IActionControl {
 		}
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}

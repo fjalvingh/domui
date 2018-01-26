@@ -28,6 +28,7 @@ import org.junit.*;
 import to.etc.domui.dom.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.test.*;
 import to.etc.domui.testsupport.*;
 
@@ -104,6 +105,7 @@ public class TestDelta {
 
 		pg.internalFullBuild();
 		IRequestContext ctx = new TestRequestContext();
+		UIContext.internalSet(ctx);
 		hr.render(ctx, pg);
 		pg.internalClearDeltaFully();
 		return sw.getBuffer().toString();

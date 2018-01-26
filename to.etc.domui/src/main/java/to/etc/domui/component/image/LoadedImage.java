@@ -1,15 +1,23 @@
 package to.etc.domui.component.image;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.images.converters.ImageConverterHelper;
+import to.etc.domui.util.images.converters.ImageSpec;
+import to.etc.domui.util.images.machines.ImageInfo;
+import to.etc.domui.util.images.machines.ImageMagicImageHandler;
+import to.etc.domui.util.images.machines.OriginalImagePage;
+import to.etc.sjit.ImaTool;
+import to.etc.util.FileTool;
+import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.*;
-
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.images.converters.*;
-import to.etc.domui.util.images.machines.*;
-import to.etc.sjit.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.WillClose;
+import java.io.File;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * An image that was updated/loaded by the user and has not yet been stored in wherever.
@@ -36,6 +44,16 @@ final public class LoadedImage implements IUIImage {
 
 	@Nullable
 	private final List<Object> m_resourceList;
+
+	@Nonnull
+	static public LoadedImage	create(@WillClose @Nonnull InputStream is, @Nullable Dimension maxSize, @Nullable List<Object> resourceList) throws Exception {
+		try {
+			File tmp = FileTool.copyStreamToTmpFile(is);
+			return create(tmp, maxSize, resourceList);
+		} finally {
+			is.close();
+		}
+	}
 
 	@Nonnull
 	static public LoadedImage	create(@Nonnull File original, @Nullable Dimension maxSize, @Nullable List<Object> resourceList) throws Exception {

@@ -24,17 +24,31 @@
  */
 package to.etc.webapp.qsql;
 
-import java.math.*;
-import java.sql.*;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.util.DateUtil;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.webapp.query.IIdentifyable;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.RowId;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.Date;
-
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import java.util.List;
 
 /**
  * Utility class for JDBC code.
@@ -52,7 +66,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 21, 2009
  */
-public class JdbcUtil {
+final public class JdbcUtil {
 	static public final Logger LOG = LoggerFactory.getLogger(JdbcUtil.class);
 
 	private JdbcUtil() {}
@@ -109,6 +123,18 @@ public class JdbcUtil {
 			ps.setDate(index, new java.sql.Date(value.getTime()));
 		}
 	}
+
+	/**
+	 * Sets a date..
+	 */
+	static public void setDate(@Nonnull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
+		if(value == null)
+			ps.setNull(index, Types.DATE);
+		else {
+			ps.setDate(index, new java.sql.Date(value.getTime()));
+		}
+	}
+
 
 	static public void setString(@Nonnull PreparedStatement ps, int index, String value) throws SQLException {
 		if(value == null || value.trim().length() == 0)
@@ -679,7 +705,7 @@ public class JdbcUtil {
 		if(val == null)
 			return "null";
 		else if(val instanceof String) {
-			return "[String] '" + (String) val + "'";
+			return "[String] '" + val + "'";
 		} else if(val instanceof Long) {
 			return "[Long] " + ((Long) val).longValue();
 		} else if(val instanceof Integer) {
@@ -733,6 +759,12 @@ public class JdbcUtil {
 	public static java.util.Date readDate(@Nonnull ResultSet rs, @Nonnull String colName) throws SQLException {
 		return DateUtil.sqlToUtilDate(rs.getDate(colName));
 	}
+
+	@Nullable
+	public static java.util.Date readDate(@Nonnull ResultSet rs, int index) throws SQLException {
+		return DateUtil.sqlToUtilDate(rs.getDate(index));
+	}
+
 
 	@Nullable
 	public static java.util.Date readTimestamp(@Nonnull ResultSet rs, int colIndex) throws SQLException {

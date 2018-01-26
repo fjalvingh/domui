@@ -24,9 +24,10 @@
  */
 package to.etc.domui.parts;
 
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.state.UIContext;
+import to.etc.util.StringTool;
 
 public class ButtonPartKey {
 	private String m_propfile;
@@ -49,11 +50,11 @@ public class ButtonPartKey {
 		return k;
 	}
 
-	public void append(IThemeVariant ts, StringBuilder sb) {
+	public void append(StringBuilder sb) {
 		sb.append(PropBtnPart.class.getName());
 		sb.append(".part?src=");
 		String propfile = m_propfile;
-		sb.append(DomApplication.get().internalGetThemeManager().getThemedResourceRURL(ts, propfile));
+		sb.append(DomApplication.get().internalGetThemeManager().getThemedResourceRURL(UIContext.getRequestContext(), propfile));
 		if(m_text != null) {
 			sb.append("&txt=");
 			//			String text = DomUtil.replaceTilded(this, m_text);
@@ -62,7 +63,7 @@ public class ButtonPartKey {
 		String icon = m_icon;
 		if(icon != null) {
 			sb.append("&icon=");
-			StringTool.encodeURLEncoded(sb, DomApplication.get().internalGetThemeManager().getThemedResourceRURL(ts, icon));
+			StringTool.encodeURLEncoded(sb, DomApplication.get().internalGetThemeManager().getThemedResourceRURL(UIContext.getRequestContext(), icon));
 		}
 	}
 
@@ -108,11 +109,9 @@ public class ButtonPartKey {
 		} else if(!getPropFile().equals(other.getPropFile()))
 			return false;
 		if(getText() == null) {
-			if(other.getText() != null)
-				return false;
-		} else if(!getText().equals(other.getText()))
-			return false;
-		return true;
+			return other.getText() == null;
+		} else
+			return getText().equals(other.getText());
 	}
 
 	public void setPropFile(String propfile) {
@@ -139,19 +138,19 @@ public class ButtonPartKey {
 		return m_text;
 	}
 
-	void setColor(String color) {
+	public void setColor(String color) {
 		m_color = color;
 	}
 
-	String getColor() {
+	public String getColor() {
 		return m_color;
 	}
 
-	void setImg(String img) {
+	public void setImg(String img) {
 		m_img = img;
 	}
 
-	String getImg() {
+	public String getImg() {
 		return m_img;
 	}
 }

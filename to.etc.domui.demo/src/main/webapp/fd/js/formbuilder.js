@@ -4,11 +4,11 @@ FormBuilder = function(id, paintid, compid) {
 	this._id = id;
 	this._paintid = paintid;
 	this._compid = compid;
-	this._componentTypeMap = new Object();
-	this._pendingUpdateList = new Array();
-	this._componentMap = new Object();
-	this._componentNodeMap = new Object();
-	this._selectionList = new Array();
+	this._componentTypeMap = {};
+	this._pendingUpdateList = [];
+	this._componentMap = {};
+	this._componentNodeMap = {};
+	this._selectionList = [];
 	this.register();
 };
 
@@ -21,18 +21,18 @@ $.extend(FormBuilder.prototype, {
 				var comp = fb._draggedType;
 				if(comp) {
 					$.dbg("type drop=", comp);
-					var loc = ui.offset;
-					var toploc = fb._paintid.offset().top;
+					var loc1 = ui.offset;
+					var toploc1 = fb._paintid.offset().top;
 	
-					fb.sendEvent("DropComponent", {typeId: comp._typeName, x:loc.left, y:loc.top-toploc});
+					fb.sendEvent("DropComponent", {typeId: comp._typeName, x:loc1.left, y:loc1.top-toploc1});
 				}
 				comp = fb._draggedComponent;
 				if(comp) {
 					$.dbg("comp drop=", comp);
-					var loc = ui.offset;
-					var toploc = fb._paintid.offset().top;
+					var loc2 = ui.offset;
+					var toploc2 = fb._paintid.offset().top;
 	
-					fb.sendEvent("MoveComponent", {id: comp._id, x:loc.left, y:loc.top-toploc});
+					fb.sendEvent("MoveComponent", {id: comp._id, x:loc2.left, y:loc2.top-toploc2});
 				}
 
 //	            $(ui.draggable).clone().appendTo(this);
@@ -43,7 +43,7 @@ $.extend(FormBuilder.prototype, {
 	sendEvent: function(action, json) {
 		var pupd = this._pendingUpdateList;
 		if(pupd.length > 0) {
-			this._pendingUpdateList = new Array();
+			this._pendingUpdateList = [];
 		}
 		WebUI.sendJsonAction(this._id, action, json);
 	},
@@ -82,7 +82,7 @@ $.extend(FormBuilder.prototype, {
 
 	dragHelper: function(id) {
 		var node = $("#"+id);
-		if(0 == node.length)
+		if(0 === node.length)
 			throw "Node "+id+" is not found";
 		console.debug("Node is", node);
 
@@ -152,12 +152,12 @@ $.extend(FormBuilder.prototype, {
 			var item = this._selectionList[i];
 			item.setSelected(false);
 		}
-		this._selectionList = new Array();
+		this._selectionList = [];
 	},
 
 	selectionIndex: function(item) {
 		for(var i = this._selectionList.length; --i >= 0;) {
-			if(item == this._selectionList[i])
+			if(item === this._selectionList[i])
 				return i;
 		}
 		return -1;
@@ -174,7 +174,7 @@ $.extend(FormBuilder.prototype, {
 		}
 
 		//-- Send a SELECTION event with all selected item IDs
-		var curs = new Array();
+		var curs = [];
 		for(var i = this._selectionList.length; --i >= 0;) {
 			curs.push(this._selectionList[i]._id);
 		}

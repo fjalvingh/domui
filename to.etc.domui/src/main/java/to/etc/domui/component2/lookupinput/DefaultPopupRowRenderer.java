@@ -1,15 +1,18 @@
 package to.etc.domui.component2.lookupinput;
 
-import javax.annotation.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.tbl.ColumnDefList;
+import to.etc.domui.component.tbl.SimpleColumnDef;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.IValueTransformer;
+import to.etc.webapp.nls.NlsContext;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
 
-public class DefaultPopupRowRenderer<T> implements INodeContentRenderer<T> {
+public class DefaultPopupRowRenderer<T> implements IRenderInto<T> {
 	@Nonnull
 	final private ColumnDefList<T> m_columnList;
 
@@ -19,9 +22,7 @@ public class DefaultPopupRowRenderer<T> implements INodeContentRenderer<T> {
 	}
 
 	@Override
-	public void renderNodeContent(NodeBase component, NodeContainer node, T instance, Object parameters) throws Exception {
-		if(null == instance)
-			return;
+	public void render(NodeContainer node, T instance) throws Exception {
 		int column = 0;
 		for(final SimpleColumnDef< ? > cd : m_columnList) {
 			renderColumn(node, column++, instance, cd);
@@ -39,12 +40,12 @@ public class DefaultPopupRowRenderer<T> implements INodeContentRenderer<T> {
 
 
 		//-- Is a node renderer used?
-		INodeContentRenderer< ? > contentRenderer = cd.getContentRenderer();
+		IRenderInto< ? > contentRenderer = cd.getContentRenderer();
 		if(null != contentRenderer) {
 			if(column > 0) {
 				node.add(" ");
 			}
-			((INodeContentRenderer<Object>) contentRenderer).renderNodeContent(node, node, colval, instance);
+			((IRenderInto<Object>) contentRenderer).renderOpt(node, colval);
 		} else {
 			String s;
 			if(colval == null)
@@ -52,7 +53,7 @@ public class DefaultPopupRowRenderer<T> implements INodeContentRenderer<T> {
 			else {
 				IObjectToStringConverter<X> presentationConverter = cd.getPresentationConverter();
 				if(presentationConverter != null)
-					s = ((IConverter<X>) presentationConverter).convertObjectToString(NlsContext.getLocale(), colval);
+					s = presentationConverter.convertObjectToString(NlsContext.getLocale(), colval);
 				else
 					s = String.valueOf(colval);
 			}

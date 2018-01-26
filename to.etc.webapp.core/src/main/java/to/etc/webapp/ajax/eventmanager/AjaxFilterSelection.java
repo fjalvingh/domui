@@ -26,7 +26,7 @@ package to.etc.webapp.ajax.eventmanager;
 
 public interface AjaxFilterSelection {
 
-	public void setFilterName();
+	void setFilterName();
 
-	public String getFilterName();
+	String getFilterName();
 }

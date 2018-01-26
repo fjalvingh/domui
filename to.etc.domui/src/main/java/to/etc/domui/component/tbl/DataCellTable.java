@@ -55,11 +55,11 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	private boolean m_renderEmptyRows;
 
 	/** The specified ComboRenderer used. */
-	private INodeContentRenderer<T> m_contentRenderer;
+	private IRenderInto<T> m_contentRenderer;
 
-	private INodeContentRenderer<T> m_actualContentRenderer;
+	private IRenderInto<T> m_actualContentRenderer;
 
-	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
+	private Class< ? extends IRenderInto<T>> m_contentRendererClass;
 
 	@Nonnull
 	final private Map<T, Div> m_visibleMap = new HashMap<T, Div>();
@@ -112,20 +112,20 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	}
 
 	@Nullable
-	public INodeContentRenderer<T> getContentRenderer() {
+	public IRenderInto<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(@Nullable INodeContentRenderer<T> contentRenderer) {
+	public void setContentRenderer(@Nullable IRenderInto<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 
 	@Nullable
-	public Class< ? extends INodeContentRenderer<T>> getContentRendererClass() {
+	public Class< ? extends IRenderInto<T>> getContentRendererClass() {
 		return m_contentRendererClass;
 	}
 
-	public void setContentRendererClass(@Nullable Class< ? extends INodeContentRenderer<T>> contentRendererClass) {
+	public void setContentRendererClass(@Nullable Class< ? extends IRenderInto<T>> contentRendererClass) {
 		m_contentRendererClass = contentRendererClass;
 	}
 
@@ -142,7 +142,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	}
 
 	@Nonnull
-	private INodeContentRenderer<T> calculateContentRenderer(@Nullable Object val) {
+	private IRenderInto<T> calculateContentRenderer(@Nullable Object val) {
 		if(m_actualContentRenderer != null)
 			return m_actualContentRenderer;
 		if(m_contentRenderer != null)
@@ -242,8 +242,8 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 			});
 		}
 
-		INodeContentRenderer<T> r = calculateContentRenderer(value);
-		r.renderNodeContent(this, td, value, Boolean.valueOf(selected));
+		IRenderInto<T> r = calculateContentRenderer(value);
+		r.render(td, value); //, Boolean.valueOf(selected));
 
 		if(selected)
 			td.setCssClass("ui-dct-selected");
@@ -311,8 +311,6 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
 	 * it's selection presentation.
-	 *
-	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionCleared(java.lang.Object, boolean)
 	 */
 	@Override
 	public void selectionAllChanged() throws Exception {

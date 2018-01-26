@@ -34,7 +34,6 @@ import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConvertable;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.converter.IValueValidator;
-import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.MoneyUtil;
 import to.etc.domui.converter.NumericUtil;
 import to.etc.domui.converter.ValidatorRegistry;
@@ -43,7 +42,6 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.Input;
-import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
@@ -61,12 +59,15 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 /**
+ * Use {@code Text2<T>} instead.
+ *
  * A single-line input box. This extends the "input" tag with validation ability
  * and methods to handle conversions and labels.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
+@Deprecated
 public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T>, ITypedControl<T> {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	@Nonnull
@@ -78,7 +79,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	private IConverter<T> m_converter;
 
 	/** Defined value validators on this field. */
-	private List<IValueValidator< ? >> m_validators = Collections.EMPTY_LIST;
+	private List<IValueValidator< ? >> m_validators = Collections.emptyList();
 
 	private T m_value;
 
@@ -103,11 +104,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	private boolean m_untrimmed;
 
-	/**
-	 * @see Text#getEmptyMarker()
-	 */
-	private String m_emptyMarker;
-
 	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
 	}
@@ -126,6 +122,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	public Text(@Nonnull Class<T> inputClass) {
 		m_inputClass = inputClass;
+		addCssClass("ui-otxt");
 
 		NumberMode nm = NumberMode.NONE;
 		if(BigDecimal.class.isAssignableFrom(inputClass) || DomUtil.isRealType(inputClass))
@@ -143,9 +140,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public boolean acceptRequestParameter(@Nonnull String[] values) {
 		String oldValue = getRawValue();									// Retain previous value,
 		super.acceptRequestParameter(values);								// Set the new one;
-		String oldTrimmed = oldValue == null ? "" : oldValue.trim();
-		String newTrimmed = getRawValue() == null ? "" : getRawValue().trim();
-		if(oldTrimmed.equals(newTrimmed)) {
+		oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.trim();
+		String newValue = getRawValue() == null ? "" : m_untrimmed ? getRawValue() : getRawValue().trim();
+		if(oldValue.equals(newValue)) {
 			return false;
 		}
 		m_validated = false;
@@ -305,10 +302,11 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	@Override
 	public void setConverter(IConverter<T> converter) {
 		m_converter = converter;
-		if(m_numberMode != NumberMode.NONE && converter != null) {
-			m_numberMode = NumberMode.NONE;
-			setOnKeyPressJS(null);
-		}
+		//-- 20171005 jal Very, very wrong. If you want to clear defaults do it manually.
+		//if(m_numberMode != NumberMode.NONE && converter != null) {
+		//	m_numberMode = NumberMode.NONE;
+		//	setOnKeyPressJS(null);
+		//}
 	}
 
 	/**
@@ -454,88 +452,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		m_untrimmed = untrimmed;
 	}
 
-	private void setEmptyMarker(String emptyMarker) {
-		if(DomUtil.isBlank(emptyMarker)) {
-			setSpecialAttribute("marker", null);
-		} else {
-			setSpecialAttribute("marker", emptyMarker);
-		}
-		m_emptyMarker = emptyMarker;
-	}
-
-	/**
-	 * Returns assigned empty marker.
-	 *
-	 * @see Text#setEmptyMarker(String)
-	 */
-	public String getEmptyMarker() {
-		return m_emptyMarker;
-	}
-
-	/**
-	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
-	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used
-	 * only for manually-constructed images.
-	 * @param emptyMarker
-	 */
-	public void setMarkerImage(String emptyMarker) {
-		if(DomUtil.isBlank(emptyMarker)) {
-			setSpecialAttribute("marker", null);
-		} else {
-			setSpecialAttribute("marker", emptyMarker);
-		}
-		m_emptyMarker = emptyMarker;
-	}
-
-	/**
-	 * Returns assigned empty marker.
-	 *
-	 * @see Text#setMarkerImage(String)
-	 */
-	public String getMarkerImage() {
-		return m_emptyMarker;
-	}
-
-
-	/**
-	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
-	 * @return
-	 */
-	public void setMarker() {
-		setMarkerImage(MarkerImagePart.getBackgroundIconOnly());
-	}
-
-	/**
-	 * Method can be used to show custom marker icon as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param iconUrl
-	 * @return
-	 */
-	public void setMarker(String iconUrl) {
-		setMarkerImage(MarkerImagePart.getBackgroundIconOnly(iconUrl));
-	}
-
-	/**
-	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier and custom label as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param caption
-	 * @return
-	 */
-	public void setMarkerText(String caption) {
-		setMarkerImage(MarkerImagePart.getBackgroundImage(caption));
-	}
-
-	/**
-	 * Method can be used to show custom marker icon and custom label as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param iconUrl
-	 * @param caption
-	 * @return
-	 */
-	public void setMarker(String iconUrl, String caption) {
-		setMarkerImage(MarkerImagePart.getBackgroundImage(iconUrl, caption));
-	}
-
 	/**
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.
 	 * @return
@@ -632,31 +548,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @param pmm
 	 */
 	public static final void assignPrecisionValidator(@Nonnull Text< ? > control, @Nonnull PropertyMetaModel< ? > pmm) {
-		Text.assignPrecisionValidator(control, pmm.getPrecision(), pmm.getScale());
-	}
-
-	/**
-	 * This adds a validator for the maximal and minimal value for a numeric input, depending on the precision
-	 * and scale.
-	 * @param control
-	 * @param precision
-	 * @param scale
-	 */
-	public static final void assignPrecisionValidator(@Nonnull Text< ? > control, int precision, int scale) {
-		if(precision > 0) {
-			int d = precision;
-			if(scale > 0)
-				d -= scale;
-			if(d < 0)
-				return;
-
-			BigDecimal bd = BigDecimal.valueOf(10);
-			bd = bd.pow(d); 										// 10^n, this is the EXCLUSIVE max/min value.
-
-			BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(scale));	// BigDecimal.pow() does not support -ve exponents, sigh.
-			bd = bd.subtract(fraction);
-			control.addValidator(new MaxMinValidator(bd.negate(), bd));
-		}
+		IValueValidator<?> validator = MetaManager.calculatePrecisionValidator(pmm);
+		if(null != validator)
+			control.addValidator(validator);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -706,28 +600,15 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		 * Length calculation using the metadata. This uses the "length" field as LAST, because it is often 255 because the
 		 * JPA's column annotation defaults length to 255 to make sure it's usability is bloody reduced. Idiots.
 		 */
-		if(pmm.getDisplayLength() > 0)
-			txt.setSize(pmm.getDisplayLength());
-		else if(pmm.getPrecision() > 0) {
-			// FIXME This should be localized somehow...
-			//-- Calculate a size using scale and precision.
-			int size = pmm.getPrecision();
-			int d = size;
-			if(pmm.getScale() > 0) {
-				size++; // Inc size to allow for decimal point or comma
-				d -= pmm.getScale(); // Reduce integer part,
-				if(d >= 4) { // Can we get > 999? Then we can have thousand-separators
-					int nd = (d - 1) / 3; // How many thousand separators could there be?
-					size += nd; // Increment input size with that
-				}
-			}
+		int size = MetaManager.calculateTextSize(pmm);
+		if(size > 0)
 			txt.setSize(size);
 
-		} else if(pmm.getLength() > 0) {
-			txt.setSize(pmm.getLength() < 40 ? pmm.getLength() : 40);
-		}
 		//-- 20100318 Since we have precision and scale, add a range check to this control.
 		//-- 20110721 jal Move it globally: it does not work when an explicit display size is set.
+		IValueValidator<?> validator = MetaManager.calculatePrecisionValidator(pmm);
+		if(null != validator)
+			txt.addValidator(validator);
 		Text.assignPrecisionValidator(txt, pmm);
 
 		if(pmm.getLength() > 0)
@@ -934,12 +815,5 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public void createContent() throws Exception {
 		super.createContent();
 		renderMode();
-	};
-
-
-	public static void main(String[] args) {
-		BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(0));
-
-		System.out.println("pow " + fraction);
 	}
 }

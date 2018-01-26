@@ -16,11 +16,9 @@ public interface IUIImage {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public IUIImageInstance getImage(@Nullable Dimension size, boolean thumbNail) throws Exception;
+	@Nonnull IUIImageInstance getImage(@Nullable Dimension size, boolean thumbNail) throws Exception;
 
-	@Nullable
-	public Long getId();
+	@Nullable Long getId();
 
-	public void setId(Long id);
+	void setId(Long id);
 }

@@ -5,5 +5,5 @@ package to.etc.domui.jsmodel;
 * Created on 12/25/14.
 */
 interface IRenderType<T> {
-	public void render(Appendable a, T value) throws Exception;
+	void render(Appendable a, T value) throws Exception;
 }

@@ -37,12 +37,13 @@ import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IComboDataSet;
 import to.etc.domui.util.IListMaker;
-import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueTransformer;
 import to.etc.domui.util.Msgs;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
@@ -62,11 +63,11 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 	private List<T> m_data;
 
 	/** The specified ComboRenderer used. */
-	private INodeContentRenderer<T> m_contentRenderer;
+	private IRenderInto<T> m_contentRenderer;
 
-	private INodeContentRenderer<T> m_actualContentRenderer;
+	private IRenderInto<T> m_actualContentRenderer;
 
-	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
+	private Class< ? extends IRenderInto<T>> m_contentRendererClass;
 
 	private PropertyMetaModel< ? > m_propertyMetaModel;
 
@@ -101,7 +102,7 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 		m_data = in;
 	}
 
-	public ComboComponentBase(Class< ? extends IComboDataSet<T>> set, INodeContentRenderer<T> r) {
+	public ComboComponentBase(Class< ? extends IComboDataSet<T>> set, IRenderInto<T> r) {
 		m_dataSetClass = set;
 		m_contentRenderer = r;
 	}
@@ -203,16 +204,8 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 
 		//-- If the value is NULL we MUST have an unselected option: add it if needed and select that one.
 		int ix = findListIndexForValue(v);
-		if(null == v || ix < 0) { // Also create "unselected" if the value is not part of the domain.
-			if(getEmptyOption() == null) {
-				//-- No empty option yet!! Create one;
-				SelectOption o = new SelectOption();
-				if(getEmptyText() != null)
-					o.setText(getEmptyText());
-				add(0, o); // Insert as the very 1st item
-				setEmptyOption(o); // Save this to mark it in-use.
-			}
-			setSelectedIndex(0);
+		if(null == v || ix < 0) { 								// Also create "unselected" if the value is not part of the domain.
+			setToEmptyOption();
 			return;
 		}
 
@@ -220,6 +213,18 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 		if(getEmptyOption() != null)
 			ix++;
 		setSelectedIndex(ix);
+	}
+
+	private void setToEmptyOption() {
+		if(getEmptyOption() == null) {
+			//-- No empty option yet!! Create one;
+			SelectOption o = new SelectOption();
+			if(getEmptyText() != null)
+				o.setText(getEmptyText());
+			add(0, o);								// Insert as the very 1st item
+			setEmptyOption(o);								// Save this to mark it in-use.
+		}
+		setSelectedIndex(0);
 	}
 
 	/**
@@ -304,7 +309,7 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 		return m_valueTransformer.getValue(in);
 	}
 
-	private INodeContentRenderer<T> calculateContentRenderer(Object val) {
+	private IRenderInto<T> calculateContentRenderer(Object val) {
 		if(m_contentRenderer != null)
 			return m_contentRenderer;
 		if(m_contentRendererClass != null)
@@ -313,13 +318,13 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
-		return (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
+		return (IRenderInto<T>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 	}
 
-	protected void renderOptionLabel(SelectOption o, T object) throws Exception {
+	protected void renderOptionLabel(@Nonnull SelectOption o, @Nonnull T object) throws Exception {
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(object);
-		m_actualContentRenderer.renderNodeContent(this, o, object, this);
+		m_actualContentRenderer.render(o, object);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -394,19 +399,19 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getters, setters and other boring crud.				*/
 	/*--------------------------------------------------------------*/
-	public INodeContentRenderer<T> getContentRenderer() {
+	public IRenderInto<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(INodeContentRenderer<T> contentRenderer) {
+	public void setContentRenderer(IRenderInto<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 
-	public Class< ? extends INodeContentRenderer<T>> getContentRendererClass() {
+	public Class< ? extends IRenderInto<T>> getContentRendererClass() {
 		return m_contentRendererClass;
 	}
 
-	public void setContentRendererClass(Class< ? extends INodeContentRenderer<T>> contentRendererClass) {
+	public void setContentRendererClass(Class< ? extends IRenderInto<T>> contentRendererClass) {
 		m_contentRendererClass = contentRendererClass;
 	}
 

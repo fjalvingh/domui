@@ -37,6 +37,10 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 		//		appendCreateJS("$('#" + getActualID() + "').ColorPicker({flat: false, color:'" + m_hidden.getRawValue() + "', onChange: function(hsb,hex,rgb) { $('#" + m_hidden.getActualID() + "').val(hex); } });");
 	}
 
+	@Nullable @Override public NodeBase getForTarget() {
+		return null;
+	}
+
 	@Override
 	public void onAddedToPage(Page p) {
 		p.addHeaderContributor(HeaderContributor.loadJavascript("$js/colorpicker.js"), 100);

@@ -41,7 +41,7 @@ public class OldSecondDurationConverter implements IConverter<Long> {
 			return "";
 		//		if(!(in instanceof Number))
 		//			throw new IllegalStateException("Type must extend Number for this converter");
-		long dlt = ((Number) in).longValue();
+		long dlt = in.longValue();
 		//		boolean	sp = false;
 		StringBuilder sb = new StringBuilder(20);
 		if(dlt > DAYS) {

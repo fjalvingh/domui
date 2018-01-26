@@ -68,7 +68,7 @@ class ReplayExecutor extends Thread {
 
 			executeLoop();
 		} catch(InterruptedException x) {
-			; // Ignore.
+			// Ignore.
 		} catch(Exception x) {
 			System.out.println(m_index + ": terminated due to " + x);
 			x.printStackTrace();

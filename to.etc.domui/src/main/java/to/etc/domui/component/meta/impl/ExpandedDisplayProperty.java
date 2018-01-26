@@ -24,17 +24,35 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.lang.reflect.*;
-import java.util.*;
+import to.etc.domui.component.controlfactory.PropertyControlFactory;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyMetaValidator;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.TemporalPresentationType;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.IValueAccessor;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This describes a normalized expanded display property. This is the base version
@@ -50,7 +68,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	private IValueAccessor< ? > m_rootAccessor;
 
-	private PropertyMetaModel< ? > m_propertyMeta;
+	private PropertyMetaModel<T> m_propertyMeta;
 
 	private Class<T> m_actualType;
 
@@ -74,12 +92,8 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	/**
 	* Constructor for LIST types.
-	* @param actual
-	* @param displayMeta
-	* @param propertyMeta
-	* @param accessor
 	*/
-	protected ExpandedDisplayProperty(Class<T> actual, PropertyMetaModel< ? > propertyMeta, IValueAccessor< ? > accessor) {
+	protected ExpandedDisplayProperty(Class<T> actual, PropertyMetaModel<T> propertyMeta, IValueAccessor< ? > accessor) {
 		m_actualType = actual;
 		m_propertyMeta = propertyMeta;
 		m_rootAccessor = accessor;
@@ -145,8 +159,6 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	/**
 	 * Get the display expansion for a single property. If the property refers to a compound
 	 * this will return an {@link ExpandedDisplayPropertyList}.
-	 * @param clz
-	 * @param property
 	 * @return
 	 */
 	static public ExpandedDisplayProperty< ? > expandProperty(ClassMetaModel cmm, String property) {
@@ -192,6 +204,22 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		return res;
 	}
 
+	public static <X> List<ExpandedDisplayProperty< ? >> expandPropertiesWithDefaults(@Nonnull Class<X> baseClass, @Nullable String[] columns) {
+		ClassMetaModel cmm = MetaManager.findClassMeta(baseClass);
+		if(columns != null && columns.length != 0) {
+			//-- Specified: use those
+			return ExpandedDisplayProperty.expandProperties(cmm, columns);
+		}
+
+		//-- Use defaults
+		List<DisplayPropertyMetaModel> defaultCols = cmm.getTableDisplayProperties();
+		if(defaultCols.size() > 0) {
+			return expandDisplayProperties(defaultCols, cmm, null);
+		}
+		throw new IllegalStateException("The list-of-columns to show is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
+	}
+
+
 	/**
 	 * Expands a compound property. If the originating property has a list-of-display-properties
 	 * we expand these. The formal expansion strategy is:
@@ -216,7 +244,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 		//-- We have a display list! Run the display list expander, using the property accessor as the base accessor.
 		List<ExpandedDisplayProperty< ? >> list = expandDisplayProperties(dpl, cmm, pmm);
-		return new ExpandedDisplayPropertyList(pmm, pmm, list);
+		return new ExpandedDisplayPropertyList<>(pmm, pmm, list);
 	}
 
 	/**
@@ -226,7 +254,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	 * @param rootAccessor
 	 * @return
 	 */
-	static public List<ExpandedDisplayProperty< ? >> expandDisplayProperties(List<DisplayPropertyMetaModel> dpl, ClassMetaModel cmm, IValueAccessor< ? > rootAccessor) {
+	static public <X> List<ExpandedDisplayProperty< ? >> expandDisplayProperties(List<DisplayPropertyMetaModel> dpl, ClassMetaModel cmm, IValueAccessor< ? > rootAccessor) {
 		if(rootAccessor == null)
 			rootAccessor = new IdentityAccessor<Object>();
 		List<ExpandedDisplayProperty< ? >> res = new ArrayList<ExpandedDisplayProperty< ? >>(dpl.size());
@@ -248,8 +276,8 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 			}
 
 			//-- Handle this (normal) property. Is this a DOTTED one?
-			PropertyMetaModel< ? > pmm = dpm.getProperty();
-			Class< ? > clz = pmm.getActualType();
+			PropertyMetaModel<X> pmm = (PropertyMetaModel<X>) dpm.getProperty();
+			Class<X> clz = pmm.getActualType();
 			List<DisplayPropertyMetaModel> subdpl = pmm.getLookupTableProperties(); // Has defined sub-properties?
 			ClassMetaModel pcmm = findCompoundClassModel(clz);
 			if(subdpl.size() == 0 && pcmm != null) {
@@ -264,7 +292,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 				 * The property here is a COMPOUND property. Explicitly create a subthing for it,
 				 */
 				List<ExpandedDisplayProperty< ? >> xlist = expandDisplayProperties(subdpl, pcmm, sacc);
-				res.add(new ExpandedDisplayPropertyList(pmm, pmm, xlist));
+				res.add(new ExpandedDisplayPropertyList<>(pmm, pmm, xlist));
 				continue;
 			}
 
@@ -279,6 +307,8 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		}
 		return res;
 	}
+
+
 
 	static private ClassMetaModel findCompoundClassModel(Class< ? > clz) {
 		if(DomUtil.isBasicType(clz)) // Simple classes have no model
@@ -416,7 +446,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	static public void flatten(List<ExpandedDisplayProperty<?>> res, ExpandedDisplayProperty<?> xd) {
 		if(xd instanceof ExpandedDisplayPropertyList)
-			flatten(res, ((ExpandedDisplayPropertyList) xd).getChildren());
+			flatten(res, ((ExpandedDisplayPropertyList<?>) xd).getChildren());
 		else
 			res.add(xd);
 	}
@@ -449,7 +479,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getComboNodeRenderer() {
+	public Class< ? extends IRenderInto<T>> getComboNodeRenderer() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getComboNodeRenderer();
 	}
 
@@ -503,7 +533,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public Class< ? extends INodeContentRenderer< ? >> getLookupSelectedRenderer() {
+	public Class< ? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return m_propertyMeta == null ? null : m_propertyMeta.getLookupSelectedRenderer();
 	}
 
@@ -555,17 +585,17 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	@Override
 	public boolean isPrimaryKey() {
-		return m_propertyMeta == null ? false : m_propertyMeta.isPrimaryKey();
+		return m_propertyMeta != null && m_propertyMeta.isPrimaryKey();
 	}
 
 	@Override
 	public boolean isRequired() {
-		return m_propertyMeta == null ? false : m_propertyMeta.isRequired();
+		return m_propertyMeta != null && m_propertyMeta.isRequired();
 	}
 
 	@Override
 	public boolean isTransient() {
-		return m_propertyMeta == null ? true : m_propertyMeta.isTransient();
+		return m_propertyMeta == null || m_propertyMeta.isTransient();
 	}
 
 	@Nonnull

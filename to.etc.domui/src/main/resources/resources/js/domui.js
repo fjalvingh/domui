@@ -28,7 +28,9 @@ $(window).bind('beforeunload', function() {
 				$.browser.msie = true;
 		}
 
-
+		if (/Edge/.test(navigator.userAgent)) {
+			$.browser.ieedge = true;
+		}
 	} catch(x) {}
 
 //	alert('bmaj='+$.browser.majorVersion+", mv="+$.browser.minorVersion);
@@ -76,8 +78,6 @@ $(window).bind('beforeunload', function() {
 		window.console.debug.apply(window.console, arguments);
 		// window.console.debug("Args: "+[].join.call(arguments,''));
 	}
-	;
-
 	function processDoc(xml) {
 		var status = true, ex;
 		status = go(xml);
@@ -134,8 +134,6 @@ $(window).bind('beforeunload', function() {
 		}
 		return doc;
 	}
-	;
-
 	function go(xml) {
 		if(xml === "") {
 			window.location.href = window.location.href;
@@ -166,7 +164,7 @@ $(window).bind('beforeunload', function() {
 			log("Redirecting- ");
 			var to = xml.documentElement.getAttribute('url');
 
-			if (!$.browser.msie) {
+			if (!$.browser.msie && ! $.browser.ieedge) {
 				//-- jal 20130129 For large documents, redirecting "inside" an existing document causes huge problems, the
 				// jquery loops in the "source" document while the new one is loading. This part "clears" the existing document
 				// causing an ugly white screen while loading - but the loading now always works..
@@ -377,8 +375,6 @@ $(window).bind('beforeunload', function() {
 					this.taconiteTag = null;
 				});
 			}
-			;
-
 			function removeValueFromArray(names, n) {
 				var index = names.indexOf(n);
 				if(index > -1) {
@@ -392,8 +388,6 @@ $(window).bind('beforeunload', function() {
 						a.push(els[i]);
 				return a;
 			}
-			;
-
 			function createNode(node) {
 				var type = node.nodeType;
 				if (type == 1)
@@ -404,20 +398,14 @@ $(window).bind('beforeunload', function() {
 					return handleCDATA(node.nodeValue);
 				return null;
 			}
-			;
-
 			function handleCDATA(s) {
 				var el = document.createElement(cdataWrap);
 				el.innerHTML = s;
 				return el;
 			}
-			;
-
 			function fixTextNode(s) {
 				return document.createTextNode(s);
 			}
-			;
-
 			function createElement(node) {
 				var e, tag = node.tagName.toLowerCase();
 				// some elements in IE need to be created with attrs inline
@@ -469,8 +457,6 @@ $(window).bind('beforeunload', function() {
 				}
 				return e;
 			}
-			;
-
 			function copyAttrs(dest, src, inline) {
 				for ( var i = 0, attr = ''; i < src.attributes.length; i++) {
 					var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
@@ -503,7 +489,7 @@ $(window).bind('beforeunload', function() {
 							alert('domjs_ eval failed: '+ex+", js="+s);
 							throw ex;
 						}
-						continue;
+
 					} else if (v != "" && dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9 )) && n.substring(0, 2) == 'on') {
 						try {
 							if(v.indexOf("javascript:") == 0)
@@ -533,12 +519,8 @@ $(window).bind('beforeunload', function() {
 				}
 				return attr;
 			}
-			;
 		}
-		;
 	}
-	;
-
 	/**
 	 * Read or set a cookie.
 	 */
@@ -687,7 +669,7 @@ $(window).bind('beforeunload', function() {
 /** WebUI helper namespace */
 var WebUI;
 if(WebUI === undefined)
-    WebUI = new Object();
+    WebUI = {};
 
 $.extend(WebUI, {
 	/**
@@ -728,8 +710,8 @@ $.extend(WebUI, {
 	    var args = [];
 	    for (var i=2, len = arguments.length; i < len; ++i) {
 	        args.push(arguments[i]);
-	    };
-	    return function() {
+		}
+		return function() {
 		    fn.apply(scope, args);
 	    };
 	},
@@ -742,8 +724,8 @@ $.extend(WebUI, {
 	    var args = [];
 	    for (var i=2, len = arguments.length; i < len; ++i) {
 	        args.push(arguments[i]);
-	    };
-	    return function() {
+		}
+		return function() {
 	    	var nargs = [];
 	    	for(var i = 0, len = args.length; i < len; i++) // Append all args added to pickle
 	    		nargs.push(args[i]);
@@ -869,7 +851,7 @@ $.extend(WebUI, {
 		$(document.body).trigger("beforeclick", $("#"+id), evt);
 
 		// Collect all input, then create input.
-		var fields = new Object();
+		var fields = {};
 		this.getInputFields(fields);
 		fields.webuia = "clicked";
 		fields.webuic = id;
@@ -911,7 +893,7 @@ $.extend(WebUI, {
 
 	prepareAjaxCall: function(id, action, fields) {
 		if (!fields)
-			fields = new Object();
+			fields = {};
 		// Collect all input, then create input.
 		this.getInputFields(fields);
 		fields.webuia = action;
@@ -938,7 +920,7 @@ $.extend(WebUI, {
 
 	jsoncall: function(id, fields) {
 		if (!fields)
-			fields = new Object();
+			fields = {};
 		fields.webuia = "$pagejson";
 		fields.webuic = id;
 		fields["$pt"] = DomUIpageTag;
@@ -972,7 +954,7 @@ $.extend(WebUI, {
 	 * @returns void
 	 */
 	sendJsonAction: function(id, action, json) {
-		var fields = new Object();
+		var fields = {};
 		fields.json = JSON.stringify(json);
 		WebUI.scall(id, action, fields);
 	},
@@ -988,7 +970,7 @@ $.extend(WebUI, {
 	 */
 	callJsonFunction: function(id, action, fields) {
 		if (!fields)
-			fields = new Object();
+			fields = {};
 		fields.webuia = "#"+action;
 		fields.webuic = id;
 		fields["$pt"] = DomUIpageTag;
@@ -1022,7 +1004,7 @@ $.extend(WebUI, {
 	 * @returns void
 	 */
 	sendJsonAction: function(id, action, json) {
-		var fields = new Object();
+		var fields = {};
 		fields.json = JSON.stringify(json);
 		WebUI.scall(id, action, fields);
 	},
@@ -1038,7 +1020,7 @@ $.extend(WebUI, {
 	 */
 	callJsonFunction: function(id, action, fields) {
 		if (!fields)
-			fields = new Object();
+			fields = {};
 		fields.webuia = "#"+action;
 		fields.webuic = id;
 		fields["$pt"] = DomUIpageTag;
@@ -1067,7 +1049,7 @@ $.extend(WebUI, {
 
 	jsoncall: function(id, fields) {
 		if (!fields)
-			fields = new Object();
+			fields = {};
 		fields.webuia = "$pagejson";
 		fields.webuic = id;
 		fields["$pt"] = DomUIpageTag;
@@ -1115,7 +1097,7 @@ $.extend(WebUI, {
 		}
 
 		// Collect all input, then create input.
-		var fields = new Object();
+		var fields = {};
 		this.getInputFields(fields);
 		fields.webuia = "vchange";
 		fields.webuic = id;
@@ -1271,7 +1253,7 @@ $.extend(WebUI, {
 		if (selectedIndexInput){
 			if (selectedIndexInput.value && selectedIndexInput.value != ""){
 				return parseInt(selectedIndexInput.value);
-			};
+			}
 		}
 		return -1;
 	},
@@ -1427,7 +1409,7 @@ $.extend(WebUI, {
 		//check for exsistence, since it is delayed action component can be removed when action is executed.
 		if (lookupField){
 			// Collect all input, then create input.
-			var fields = new Object();
+			var fields = {};
 			this.getInputFields(fields);
 			fields.webuia = "lookupTyping";
 			fields.webuic = id;
@@ -1473,7 +1455,7 @@ $.extend(WebUI, {
 	},
 	lookupTypingDone : function(id) {
 		// Collect all input, then create input.
-		var fields = new Object();
+		var fields = {};
 		this.getInputFields(fields);
 		fields.webuia = "lookupTypingDone";
 		fields.webuic = id;
@@ -2051,7 +2033,7 @@ $.extend(WebUI, {
 		/*
 		 * Issue a pollasy request using ajax, then handle the result.
 		 */
-		var fields = new Object();
+		var fields = {};
 		fields.webuia = "pollasy";
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
@@ -2074,7 +2056,7 @@ $.extend(WebUI, {
 	 */
 	pingServer: function(timeout) {
 		var url = DomUIappURL + "to.etc.domui.parts.PollInfo.part";
-		var fields= new Object();
+		var fields= {};
 		fields["$pt"] = DomUIpageTag;
 		fields["$cid"] = DomUICID;
 		$.ajax( {
@@ -2356,6 +2338,27 @@ $.extend(WebUI, {
 		return false;
 	},
 
+	postURL : function post(path, name,  params, target) {
+		var form = document.createElement("form");
+		form.setAttribute("method","post");
+		form.setAttribute("action", path);
+		if (null != target){
+			form.setAttribute("target", target);
+		}
+
+		for (var key in params) {
+			if (params.hasOwnProperty(key)) {
+				var hiddenField = document.createElement("input");
+				hiddenField.setAttribute("type", "hidden");
+				hiddenField.setAttribute("name", key);
+				hiddenField.setAttribute("value", params[key]);
+				form.appendChild(hiddenField);
+			}
+		}
+		document.body.appendChild(form);
+		form.submit();
+	},
+
 	unloaded : function() {
 		WebUI._ignoreErrors = true;
 		WebUI.sendobituary();
@@ -2632,13 +2635,13 @@ $.extend(WebUI, {
 		// -- Reconstruct the droplist. Find all objects that possess the
 		// ui-drpbl class.
 		var dl = $(".ui-drpbl").get();
-		WebUI._dropList = new Array();
+		WebUI._dropList = [];
 		for ( var i = dl.length; --i >= 0;) {
 			var drop = dl[i];
 			var types = drop.getAttribute('uitypes');
 			if (!types)
 				continue;
-			var def = new Object();
+			var def = {};
 			def._dropTarget = drop; // Store the objects' DOM node,
 			def._position = WebUI.getAbsolutePosition(drop);
 			def._width = drop.clientWidth;
@@ -2857,7 +2860,7 @@ $.extend(WebUI, {
 						$(elem).css({'overflow-y' : 'auto'});
 					}
 				}
-				return;
+
 			}
 		}
 	},
@@ -2942,7 +2945,7 @@ $.extend(WebUI, {
 			return;
 		}
 		// Send back size information to server
-		var fields = new Object();
+		var fields = {};
 		fields.webuia = "notifyClientPositionAndSize";
 		fields[element.id + "_rect"] = $(element).position().left + "," + $(element).position().top + "," + $(element).width() + "," + $(element).height();
 		fields["window_size"] = window.innerWidth + "," + window.innerHeight;
@@ -3913,11 +3916,11 @@ WebUI._customUpdatesContributorsTimerID = null;
  */
 WebUI.registerCustomUpdatesContributor = function(contributorFunction) {
 	WebUI._customUpdatesContributors.add(contributorFunction);
-}
+};
 
 WebUI.unregisterCustomUpdatesContributor = function(contributorFunction) {
 	WebUI._customUpdatesContributors.remove(contributorFunction);
-}
+};
 
 WebUI.doCustomUpdates = function() {
 	$('.floatThead-wrapper').each(
@@ -4308,9 +4311,9 @@ function FCKeditor_OnComplete(editorInstance){
 						FCKeditor_fixLayout(fckIFrame, fckId);
 					});
 				$(fckIFrame.contentWindow.window).trigger('resize');
-			};
-		};
-	};
+			}
+		}
+	}
 }
 
 WebUI.deactivateHiddenAccessKeys = function(windowId) {
@@ -4337,7 +4340,7 @@ WebUI.initScrollableTableOld = function(id) {
 	var sbody = $('#'+id+" .fht-tbody");
 	sbody.scroll(function() {
 		var bh = $(sbody).height();
-		var st = $(sbody).scrollTop()
+		var st = $(sbody).scrollTop();
 		var tbl = $('#'+id+" .fht-table tbody");
 		var th = tbl.height();
 		var left = tbl.height() - bh - st;
@@ -4408,7 +4411,7 @@ WebUI.initScrollableTable = function(id, tblid) {
 	});
 	container.scroll(function() {
 		var bh = $(container).height();
-		var st = $(container).scrollTop()
+		var st = $(container).scrollTop();
 		var tbl = $('#'+id+" tbody");
 		var th = tbl.height();
 		var left = tbl.height() - bh - st;
@@ -4442,7 +4445,7 @@ WebUI.notifyPage = function(command) {
 	var pageBody = document.getElementById(bodyId);
 	//check for exsistence, since it is delayed action component can be removed when action is executed.
 	if (pageBody){
-		var fields = new Object();
+		var fields = {};
 		fields.webuia = "notifyPage";
 		fields[bodyId + "_command"] = command;
 		WebUI.scall(bodyId, "notifyPage", fields);
@@ -4496,7 +4499,7 @@ $.extend(WebUI.closeOnClick.prototype, {
 	}
 });
 
-DbPerformance = new Object();
+DbPerformance = {};
 DbPerformance.post = function(id,sessionid) {
 	$(document).ready(function() {
 		setTimeout(function() {

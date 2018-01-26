@@ -32,7 +32,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	private SearchInput<T> m_input;
 
 	@Nullable
-	private INodeContentRenderer<T> m_contentRenderer;
+	private IRenderInto<T> m_contentRenderer;
 
 	public interface ISearch<T> {
 		@Nullable
@@ -108,6 +108,13 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 				}
 			});
 		}
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		SearchInput<T> input = m_input;
+		if(null != input)
+			return input.getForTarget();
+		return null;
 	}
 
 	private void updateTooltip() throws Exception {
@@ -241,16 +248,16 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	}
 
 
-	private Span createLabel(final T lbl) throws Exception {
+	private Span createLabel(@Nonnull final T lbl) throws Exception {
 		final Span d = new Span();
 		m_divMap.put(lbl, d);
 		d.setCssClass("ui-lsel-item");
 
-		INodeContentRenderer<T> contentRenderer = m_contentRenderer;
+		IRenderInto<T> contentRenderer = m_contentRenderer;
 		if(contentRenderer == null)
 			d.add(lbl.toString());
 		else
-			contentRenderer.renderNodeContent(this, d, lbl, null);
+			contentRenderer.render(d, lbl);
 
 		if(!m_disabled) {
 			Div btn = new Div();
@@ -287,11 +294,11 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	/*--------------------------------------------------------------*/
 
 	@Nullable
-	public INodeContentRenderer<T> getContentRenderer() {
+	public IRenderInto<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(@Nullable INodeContentRenderer<T> contentRenderer) {
+	public void setContentRenderer(@Nullable IRenderInto<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 

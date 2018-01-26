@@ -76,4 +76,8 @@ public class Album extends DbRecordBase<Long> {
 	public void setTrackList(@Nonnull List<Track> trackList) {
 		m_trackList = trackList;
 	}
+
+	@Override public String toString() {
+		return getTitle();
+	}
 }

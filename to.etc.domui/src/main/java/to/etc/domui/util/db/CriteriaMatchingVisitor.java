@@ -1,16 +1,37 @@
 package to.etc.domui.util.db;
 
-import java.math.*;
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.meta.impl.PathPropertyMetaModel;
+import to.etc.domui.util.compare.StringLikeSearchMatchUtil;
+import to.etc.util.RuntimeConversions;
+import to.etc.webapp.qsql.QQuerySyntaxException;
+import to.etc.webapp.query.QBetweenNode;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QExistsSubquery;
+import to.etc.webapp.query.QLiteral;
+import to.etc.webapp.query.QMultiNode;
+import to.etc.webapp.query.QMultiSelection;
+import to.etc.webapp.query.QNodeVisitorBase;
+import to.etc.webapp.query.QOperation;
+import to.etc.webapp.query.QOperatorNode;
+import to.etc.webapp.query.QOrder;
+import to.etc.webapp.query.QPropertyComparison;
+import to.etc.webapp.query.QPropertyIn;
+import to.etc.webapp.query.QPropertySelection;
+import to.etc.webapp.query.QSelection;
+import to.etc.webapp.query.QSelectionColumn;
+import to.etc.webapp.query.QSelectionItem;
+import to.etc.webapp.query.QSelectionSubquery;
+import to.etc.webapp.query.QUnaryNode;
+import to.etc.webapp.query.QUnaryProperty;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.util.compare.*;
-import to.etc.util.*;
-import to.etc.webapp.qsql.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.List;
 
 
 /**
@@ -118,6 +139,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 				break;
 			case GE:
 				m_lastResult = res >= 0;
+				break;
 			case LT:
 				m_lastResult = res < 0;
 				break;

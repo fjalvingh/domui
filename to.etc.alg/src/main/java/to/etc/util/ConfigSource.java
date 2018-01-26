@@ -30,9 +30,9 @@ package to.etc.util;
  */
 @Deprecated
 public interface ConfigSource {
-	public String getOption(String key) throws Exception;
+	String getOption(String key) throws Exception;
 
-	public Object getSourceObject();
+	Object getSourceObject();
 
-	public ConfigSource getSubSource(String key) throws Exception;
+	ConfigSource getSubSource(String key) throws Exception;
 }

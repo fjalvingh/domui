@@ -97,7 +97,7 @@ public class MappedEnumType implements UserType, ParameterizedType {
 
 	@Override
 	public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
-		String value = (String) Hibernate.STRING.nullSafeGet(rs, names[0]);
+		String value = Hibernate.STRING.nullSafeGet(rs, names[0]);
 		if(value == null)
 			return null;
 

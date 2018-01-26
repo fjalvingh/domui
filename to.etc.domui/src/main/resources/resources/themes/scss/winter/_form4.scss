@@ -9,7 +9,7 @@
 
 .ui-f4 {
 }
-table.ui-f4 td {
+table.ui-f4 td.ui-lui-v {
 	vertical-align: top;
 }
 
@@ -17,23 +17,25 @@ table.ui-f4 td {
 	white-space: nowrap;
 	color: #666666;
 }
-.ui-f4-lbl-v {
+td.ui-f4-lbl-v {
 	text-align: left;
 	min-width: 150px;
 	width: 150px;
+	vertical-align: top;
 }
 .ui-f4-lbl-v label {
 	display: block;						// Chrome aligns the label on the td baseline without this, causing 1px diff
-	vertical-align: bottom;
 	line-height: $form-line-height;		// Important: this defines where the baseline is! Mirror the same setting on input.
 	padding-top: 1px;					// Inputs have 1px border; mirror that here so that the tops align
 }
 
-.ui-f4-ctl-v {
-	input, textarea {
-		line-height: $form-line-height;
-	}
-}
+//.ui-f4-ctl-v {
+//	input, textarea {
+//		line-height: $form-line-height;
+//		padding: 0;
+//		margin: 0;
+//	}
+//}
 
 .ui-f4-ctl-v .ui-lui-val-txt {
 	padding-top: 1px;					// Non-input values need top padding
@@ -47,11 +49,17 @@ table.ui-f4 td {
 .ui-f4-h {
 	margin-bottom: 10px;
 }
+
+.ui-f4-ctl {
+	textarea {
+		font-family: $font-family;
+		font-size: $font-size;
+		display: block;					/* jal 20151011 chrome textarea is two pixels at bottom too large. */
+	}
+}
+
 .ui-f4-ctl-v {
 	padding-bottom: 8px;
-}
-.ui-f4-ctl-v  textarea {
-	display: block;					/* jal 20151011 chrome textarea is two pixels at bottom too large. */
 }
 
 //.ui-f4 .ui-f4-ta {				jal 20170911 No longer needed
@@ -85,4 +93,8 @@ label.ui-f4-mandatory {
 /*	display: inline-block; */
 	padding-left: 12px;
 	background: url(mandatoryField.png) no-repeat left;
+}
+
+.ui-f4-line {
+	line-height: $form-line-height;
 }

@@ -24,13 +24,13 @@
  */
 package to.etc.domui.component2.controlfactory;
 
-import java.math.*;
+import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * This is a fallback factory; it accepts anything and shows a String edit component OR a
@@ -45,28 +45,25 @@ import to.etc.domui.dom.html.*;
 public class ControlCreatorString implements IControlCreator {
 	/**
 	 * Accept any type using a string.
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
 		if(controlClass != null) {
-			if(!controlClass.isAssignableFrom(Text.class))
+			if(!controlClass.isAssignableFrom(Text2.class))
 				return -1;
 		}
 
-		return 1;
+		return 2;
 	}
 
 	@Override
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
-		Class<T> iclz = pmm.getActualType();
-
-		Text<T> txt;
-
-		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class || pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) Text.createNumericInput((PropertyMetaModel<Double>) pmm, true);
+		Class<T> type = pmm.getActualType();
+		Text2<T> txt;
+		if(Number.class.isAssignableFrom(DomUtil.getBoxedForPrimitive(type))) {
+			txt = (Text2<T>) Text2.createNumericInput((PropertyMetaModel<Double>) pmm, true);
 		} else {
-			txt = Text.createText(iclz, pmm, true);
+			txt = Text2.createText(type, pmm, true);
 		}
 		return (C) txt;
 	}

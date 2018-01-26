@@ -69,6 +69,6 @@ final public class DbConnectionInfo {
 				}
 			}
 		}
-		throw new IllegalStateException("Invalid database connect string: must be 'user:password@host:port/SID', not " + db);
+		throw new RuntimeException("Invalid database connect string: must be 'user:password@host:port/database', not " + db);
 	}
 }

@@ -688,7 +688,7 @@ public class FileTool {
 		return copyStreamToFile(is, file);
 	}
 
-	private static File copyStreamToFile(final InputStream is, File file) throws FileNotFoundException, IOException {
+	private static File copyStreamToFile(final InputStream is, File file) throws IOException {
 		OutputStream os = null;
 		try {
 			os = new FileOutputStream(file);

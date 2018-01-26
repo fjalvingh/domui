@@ -43,7 +43,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 
 		//get temporal type from metadata and set withTime later to date inout components
-		PropertyMetaModel< ? > pmm = (spm != null && spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
+		PropertyMetaModel< ? > pmm = (spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
 
 		/*
 		 * jal 20120712 By default, do not search with time on date fields, unless the "usetime" hint is present.
@@ -55,11 +55,11 @@ final class LookupFactoryDate implements ILookupControlFactory {
 				withTime = true;
 		}
 
-		final DateInput dateFrom = new DateInput();
+		final DateInput2 dateFrom = new DateInput2();
 		dateFrom.setWithTime(withTime);
 		Span sp = new Span(" " + Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
 		sp.setCssClass("ui-lfd-datetill");
-		final DateInput dateTo = new DateInput();
+		final DateInput2 dateTo = new DateInput2();
 		dateTo.setWithTime(withTime);
 
 		String hint = MetaUtils.findHintText(spm);
@@ -70,8 +70,6 @@ final class LookupFactoryDate implements ILookupControlFactory {
 		return new BaseAbstractLookupControlImpl<DateFromTo>(dateFrom, sp, dateTo) {
 			@Override
 			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
-				if(spm == null)
-					throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 				Date from, till;
 				try {
 					from = dateFrom.getValue();

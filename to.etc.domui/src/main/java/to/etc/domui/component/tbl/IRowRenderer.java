@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import to.etc.domui.server.RequestContextImpl;
+
 import javax.annotation.*;
 
 
@@ -52,4 +54,6 @@ public interface IRowRenderer<T> {
 	 */
 	@Nullable
 	ICellClicked<T> getRowClicked();
+
+	default void updateWidths(@Nonnull TableModelTableBase<T> tbl, @Nonnull RequestContextImpl context) throws Exception {}
 }

@@ -24,16 +24,24 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TableVAlign;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * The ListShuttle component contains a SOURCE list and a TARGET list, and allows the user to
@@ -47,12 +55,6 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	private TBody m_body;
 
 	private boolean m_orderable;
-
-	private TD m_sourceCell;
-
-	private TD m_targetCell;
-
-	private TD m_orderCell;
 
 	private TBody m_sourceBody;
 
@@ -68,24 +70,21 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 	//	private ITableModelListener<Object>		m_targetChangeListener;
 
-	private Class< ? extends INodeContentRenderer< ? >> m_sourceRendererClass;
+	private Class< ? extends IRenderInto< ? >> m_sourceRendererClass;
 
-	private Class< ? extends INodeContentRenderer< ? >> m_targetRendererClass;
+	private Class< ? extends IRenderInto< ? >> m_targetRendererClass;
 
-	private INodeContentRenderer<Object> m_sourceRenderer;
+	private IRenderInto<Object> m_sourceRenderer;
 
-	private INodeContentRenderer<Object> m_targetRenderer;
+	private IRenderInto<Object> m_targetRenderer;
 
 	static private final int INNERHEIGHT = 400;
 
-	static private IClicked<TD> C_CLICK = new IClicked<TD>() {
-		@Override
-		public void clicked(final @Nonnull TD b) throws Exception {
-			if(b.hasCssClass("selected"))
-				b.removeCssClass("selected");
-			else
-				b.addCssClass("selected");
-		}
+	static private IClicked<TD> C_CLICK = b -> {
+		if(b.hasCssClass("selected"))
+			b.removeCssClass("selected");
+		else
+			b.addCssClass("selected");
 	};
 
 	@Override
@@ -96,23 +95,23 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		m_body = new TBody();
 		t.add(m_body);
 		m_body.addRow(); // Zhe one row
-		m_sourceCell = m_body.addCell();
+		TD sourceCell = m_body.addCell();
 		TD midcell = m_body.addCell(); // Cell for the buttons in zhe middle
-		m_targetCell = m_body.addCell();
+		TD targetCell = m_body.addCell();
 
-		m_sourceCell.setCssClass("ui-sh-sc");
-		m_targetCell.setCssClass("ui-sh-tc");
+		sourceCell.setCssClass("ui-sh-sc");
+		targetCell.setCssClass("ui-sh-tc");
 
-		m_sourceCell.add(m_sourceDiv = new Div());
-		m_targetCell.add(m_targetDiv = new Div());
+		sourceCell.add(m_sourceDiv = new Div());
+		targetCell.add(m_targetDiv = new Div());
 		m_sourceDiv.setCssClass("ui-sh-scd");
 		m_targetDiv.setCssClass("ui-sh-tcd");
 		m_sourceDiv.setHeight(INNERHEIGHT + "px");
 		m_targetDiv.setHeight(INNERHEIGHT + "px");
 		m_sourceDiv.setOverflow(Overflow.AUTO);
 		m_targetDiv.setOverflow(Overflow.AUTO);
-		m_sourceCell.setValign(TableVAlign.TOP);
-		m_targetCell.setValign(TableVAlign.TOP);
+		sourceCell.setValign(TableVAlign.TOP);
+		targetCell.setValign(TableVAlign.TOP);
 
 		createMiddle(midcell);
 
@@ -126,36 +125,25 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * Create the last panel containing the UP and DOWN order buttons.
 	 */
 	private void createOrderPane() {
-		m_orderCell = m_body.addCell(); // Order buttons cell
+		TD orderCell = m_body.addCell(); // Order buttons cell
 
-		m_orderCell.setCssClass("ui-sh-oc");
+		orderCell.setCssClass("ui-sh-oc");
 		Table t = new Table();
 		if(needOrderButtons()) {
-			m_orderCell.add(t);
+			orderCell.add(t);
 		}
 		TBody b = new TBody();
 		t.add(b);
 
-		DefaultButton ib = new DefaultButton("", "THEME/sh-up.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(final @Nonnull DefaultButton xb) throws Exception {
-				moveUp();
-			}
-		});
+		DefaultButton ib = new DefaultButton("", "THEME/sh-up.png", xb -> moveUp());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", "THEME/sh-down.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(final @Nonnull DefaultButton xb) throws Exception {
-				moveDown();
-			}
-		});
+		ib = new DefaultButton("", "THEME/sh-down.png", xb -> moveDown());
 		b.addRowAndCell().add(ib);
 	}
 
 	/**
 	 * Create the middle pane containing the move buttons.
-	 * @param mid
 	 */
 	private void createMiddle(final TD mid) {
 		mid.setCssClass("ui-sh-bc");
@@ -164,38 +152,16 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TBody b = new TBody();
 		t.add(b);
 
-		DefaultButton ib = new DefaultButton("", "THEME/sh-2ar-right.png", new IClicked<DefaultButton>() {
-
-			@Override
-			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
-				moveRight();
-			}
-		});
+		DefaultButton ib = new DefaultButton("", "THEME/sh-2ar-right.png", clickednode -> moveRight());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", "THEME/sh-1ar-right.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(final @Nonnull DefaultButton xb) throws Exception {
-				moveRight();
-			}
-		});
+		ib = new DefaultButton("", "THEME/sh-1ar-right.png", xb -> moveRight());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", "THEME/sh-1ar-left.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(final @Nonnull DefaultButton xb) throws Exception {
-				moveLeft();
-			}
-		});
+		ib = new DefaultButton("", "THEME/sh-1ar-left.png", xb -> moveLeft());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", "THEME/sh-2ar-left.png", new IClicked<DefaultButton>() {
-
-			@Override
-			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
-				moveLeft();
-			}
-		});
+		ib = new DefaultButton("", "THEME/sh-2ar-left.png", clickednode -> moveLeft());
 		b.addRowAndCell().add(ib);
 
 	}
@@ -218,13 +184,13 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 		List<Object> list = m_sourceModel.getItems(0, count);
 
-		INodeContentRenderer<Object> r = null;
+		IRenderInto<Object> r = null;
 		for(int i = 0; i < count; i++) {
 			TD td = m_sourceBody.addRowAndCell();
 			Object value = list.get(i);
 			if(r == null)
 				r = calculateSourceRenderer(value);
-			r.renderNodeContent(this, td, value, null);
+			r.render(td, value);
 
 			td.setClicked(C_CLICK);
 		}
@@ -247,13 +213,13 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 			return;
 
 		List<Object> list = m_targetModel.getItems(0, count);
-		INodeContentRenderer<Object> r = null;
+		IRenderInto<Object> r = null;
 		for(int i = 0; i < count; i++) {
 			TD td = m_targetBody.addRowAndCell();
 			Object value = list.get(i);
 			if(r == null)
 				r = calculateTargetRenderer(value);
-			r.renderNodeContent(this, td, value, null);
+			r.render(td, value);
 			td.setClicked(C_CLICK);
 		}
 	}
@@ -262,36 +228,35 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		return isOrderable() && getModel() instanceof IMovableShuttleModel< ? , ? >;
 	}
 
-	private INodeContentRenderer<Object> calculateSourceRenderer(final Object val) {
+	private IRenderInto<Object> calculateSourceRenderer(final Object val) {
 		if(m_sourceRenderer != null)
 			return m_sourceRenderer;
 		if(m_sourceRendererClass != null)
-			return (INodeContentRenderer<Object>) DomApplication.get().createInstance(m_sourceRendererClass);
+			return (IRenderInto<Object>) DomApplication.get().createInstance(m_sourceRendererClass);
 
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
-		return (INodeContentRenderer<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
+		return (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
 	}
 
-	private INodeContentRenderer<Object> calculateTargetRenderer(final Object val) {
+	private IRenderInto<Object> calculateTargetRenderer(final Object val) {
 		if(m_targetRenderer != null)
 			return m_targetRenderer;
 		if(m_targetRendererClass != null)
-			return (INodeContentRenderer<Object>) DomApplication.get().createInstance(m_targetRendererClass);
+			return (IRenderInto<Object>) DomApplication.get().createInstance(m_targetRendererClass);
 
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
-		return (INodeContentRenderer<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
+		return (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(null /* m_propertyMetaModel */, cmm);
 	}
 
 	/**
 	 * Move all selected thingies to the right. This scans all TD's having a class of SELECTED, then moves
 	 * the items found to the TARGET model.
-	 * @throws Exception
 	 */
-	void moveRight() throws Exception {
+	private void moveRight() throws Exception {
 		for(int ix = m_sourceBody.getChildCount(); --ix >= 0;) {
 			NodeBase tb = m_sourceBody.getChild(ix);
 			if(!(tb instanceof TR))
@@ -307,9 +272,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	/**
 	 * Move all selected thingies to the right. This scans all TD's having a class of SELECTED, then moves
 	 * the items found to the TARGET model.
-	 * @throws Exception
 	 */
-	void moveLeft() throws Exception {
+	private void moveLeft() throws Exception {
 		for(int ix = m_targetBody.getChildCount(); --ix >= 0;) {
 			NodeBase tb = m_targetBody.getChild(ix);
 			if(!(tb instanceof TR))
@@ -324,9 +288,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 	/**
 	 * Move all selected items in the TARGET table UP.
-	 * @throws Exception
 	 */
-	void moveUp() throws Exception {
+	private void moveUp() throws Exception {
 		for(int ix = 0; ix < m_targetBody.getChildCount(); ix++) {
 			NodeBase tb = m_targetBody.getChild(ix);
 			if(!(tb instanceof TR))
@@ -345,9 +308,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 
 	/**
 	 * Moves all selected items in the TARGET downwards.
-	 * @throws Exception
 	 */
-	void moveDown() throws Exception {
+	private void moveDown() throws Exception {
 		for(int ix = m_targetBody.getChildCount(); --ix >= 0;) {
 			NodeBase tb = m_targetBody.getChild(ix);
 			if(!(tb instanceof TR))
@@ -379,7 +341,6 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Get the model for this thingy.
-	 * @return
 	 */
 	public IShuttleModel< ? , ? > getModel() {
 		return m_model;
@@ -388,8 +349,6 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	/**
 	 * Set the model to use for the shuttle. If the model changes or one of the component models has
 	 * changed this will cause a redraw.
-	 *
-	 * @param model
 	 */
 	public void setModel(final IShuttleModel< ? , ? > model) {
 		if(m_model == model)
@@ -445,8 +404,8 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TD td = new TD();
 		tr.add(td);
 		td.setClicked(C_CLICK);
-		INodeContentRenderer<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
-		r.renderNodeContent(this, td, value, null);
+		IRenderInto<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
+		r.render(td, value);
 		b.add(index, tr);
 	}
 
@@ -466,51 +425,50 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TR tr = (TR) b.getChild(index);
 		TD td = (TD) tr.getChild(0);
 		td.removeAllChildren(); // Clear it's contents,
-		INodeContentRenderer<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
-		r.renderNodeContent(this, td, value, null);
+		IRenderInto<Object> r = issrc ? calculateSourceRenderer(value) : calculateTargetRenderer(value);
+		r.render(td, value);
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple Setters and getters.							*/
 	/*--------------------------------------------------------------*/
 
-	public INodeContentRenderer<Object> getSourceRenderer() {
+	public IRenderInto<Object> getSourceRenderer() {
 		return m_sourceRenderer;
 	}
 
-	public void setSourceRenderer(final INodeContentRenderer<Object> sourceRenderer) {
+	public void setSourceRenderer(final IRenderInto<Object> sourceRenderer) {
 		m_sourceRenderer = sourceRenderer;
 	}
 
-	public INodeContentRenderer<Object> getTargetRenderer() {
+	public IRenderInto<Object> getTargetRenderer() {
 		return m_targetRenderer;
 	}
 
-	public void setTargetRenderer(final INodeContentRenderer<Object> targetRenderer) {
+	public void setTargetRenderer(final IRenderInto<Object> targetRenderer) {
 		m_targetRenderer = targetRenderer;
 	}
 
 	/**
 	 * Is this set to be orderable?
-	 * @return
 	 */
 	public boolean isOrderable() {
 		return m_orderable;
 	}
 
-	public Class< ? extends INodeContentRenderer< ? >> getSourceRendererClass() {
+	public Class< ? extends IRenderInto< ? >> getSourceRendererClass() {
 		return m_sourceRendererClass;
 	}
 
-	public void setSourceRendererClass(final Class< ? extends INodeContentRenderer< ? >> sourceRendererClass) {
+	public void setSourceRendererClass(final Class< ? extends IRenderInto< ? >> sourceRendererClass) {
 		m_sourceRendererClass = sourceRendererClass;
 	}
 
-	public Class< ? extends INodeContentRenderer< ? >> getTargetRendererClass() {
+	public Class< ? extends IRenderInto< ? >> getTargetRendererClass() {
 		return m_targetRendererClass;
 	}
 
-	public void setTargetRendererClass(final Class< ? extends INodeContentRenderer< ? >> targetRendererClass) {
+	public void setTargetRendererClass(final Class< ? extends IRenderInto< ? >> targetRendererClass) {
 		m_targetRendererClass = targetRendererClass;
 	}
 

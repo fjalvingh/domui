@@ -1033,7 +1033,7 @@ lm.utils.copy( lm.LayoutManager.prototype, {
 			area = allContentItems[ i ]._$getArea();
 
 			if( area === null ) {
-				continue;
+
 			} else if( area instanceof Array ) {
 				this._itemAreas = this._itemAreas.concat( area );
 			} else {

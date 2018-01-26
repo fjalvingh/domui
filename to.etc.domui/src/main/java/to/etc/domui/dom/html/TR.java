@@ -24,9 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
+import to.etc.domui.util.IDragHandler;
+import to.etc.domui.util.IDraggable;
 
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class TR extends NodeContainer implements IDraggable {
 	private Object m_rowData;
@@ -35,6 +37,11 @@ public class TR extends NodeContainer implements IDraggable {
 
 	public TR() {
 		super("tr");
+	}
+
+	public TR(String rowCss) {
+		super("tr");
+		setCssClass(rowCss);
 	}
 
 	@Override

@@ -24,13 +24,17 @@
  */
 package to.etc.domui.component.controlfactory;
 
-import javax.annotation.*;
+import to.etc.domui.component.input.ComboLookup;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.misc.DisplayValue;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.IRenderInto;
+import to.etc.util.WrappedException;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Accepts any property defined as an UP relation (parent) and score higher if a component type
@@ -43,8 +47,6 @@ import to.etc.util.*;
 public class ControlFactoryRelationCombo implements PropertyControlFactory {
 	/**
 	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.
-	 *
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
@@ -66,7 +68,7 @@ public class ControlFactoryRelationCombo implements PropertyControlFactory {
 			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
 			dv.defineFrom(pmm);
 			if(dv.getConverter() == null && dv.getRenderer() == null) {
-				INodeContentRenderer<T> r = (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
+				IRenderInto<T> r = (IRenderInto<T>) MetaManager.createDefaultComboRenderer(pmm, null); // FIXME Needed?
 				dv.setRenderer(r);
 			}
 			return new ControlFactoryResult(dv);

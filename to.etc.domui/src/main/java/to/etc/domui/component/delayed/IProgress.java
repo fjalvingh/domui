@@ -35,23 +35,23 @@ public interface IProgress {
 	 * Define the total amount of work we expect to do.
 	 * @param work
 	 */
-	public void setTotalWork(int work);
+	void setTotalWork(int work);
 
 	/**
 	 * Define how much of the work has completed, currently.
 	 * @param work
 	 */
-	public void setCompleted(int work);
+	void setCompleted(int work);
 
 	/**
 	 * Indicate a cancel request.
 	 */
-	public void cancel();
+	void cancel();
 
-	public boolean isCancelled();
+	boolean isCancelled();
 	
 	/**
 	 * Defines current progress status message.
 	 */
-	public void setStatusMessage(String msg);
+	void setStatusMessage(String msg);
 }

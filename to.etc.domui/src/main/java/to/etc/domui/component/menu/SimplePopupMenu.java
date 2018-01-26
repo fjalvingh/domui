@@ -1,13 +1,18 @@
 package to.etc.domui.component.menu;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.menu.PopupMenu.Item;
 import to.etc.domui.component.menu.PopupMenu.Submenu;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.server.RequestContextImpl;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * EXPERIMENTAL, INCOMPLETE A popup menu.
@@ -20,6 +25,7 @@ public class SimplePopupMenu extends Div {
 
 	private String m_menuTitle;
 
+	@Nonnull
 	private NodeBase m_relativeTo;
 
 	private Object m_targetObject;
@@ -54,11 +60,12 @@ public class SimplePopupMenu extends Div {
 
 	private List<MenuLevel> m_stack = new ArrayList<>();
 
-	public SimplePopupMenu() {
-		m_actionList = new ArrayList<Item>();
+	public SimplePopupMenu(@Nonnull NodeBase relativeTo) {
+		m_actionList = new ArrayList<>();
+		m_relativeTo = relativeTo;
 	}
 
-	SimplePopupMenu(NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
+	SimplePopupMenu(@Nonnull NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
 		m_actionList = Collections.unmodifiableList(actionList);
 		m_targetObject = target;
 		m_relativeTo = b;
@@ -73,10 +80,13 @@ public class SimplePopupMenu extends Div {
 		add(root);
 		root.setCssClass("ui-pmnu-sm");
 
-		Div ttl = new Div();
-		root.add(ttl);
-		ttl.setCssClass("ui-pmnu-ttl");
-		ttl.add(m_menuTitle == null ? "Menu" : m_menuTitle);
+		String menuTitle = m_menuTitle;
+		if(null != menuTitle) {
+			Div ttl = new Div();
+			root.add(ttl);
+			ttl.setCssClass("ui-pmnu-ttl");
+			ttl.add(menuTitle);
+		}
 
 		Div items = new Div();
 		root.add(items);

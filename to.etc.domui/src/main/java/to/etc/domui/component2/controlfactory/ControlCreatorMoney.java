@@ -24,13 +24,14 @@
  */
 package to.etc.domui.component2.controlfactory;
 
-import java.math.*;
+import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
 
 /**
  * Factory which creates a Text input specialized for entering monetary amounts. This
@@ -43,11 +44,10 @@ import to.etc.domui.dom.html.*;
 public class ControlCreatorMoney implements IControlCreator {
 	/**
 	 * Accept any type using a string.
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel)
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
-		if(controlClass != null && !controlClass.isAssignableFrom(Text.class)) 		// This will create a Text class,
+		if(controlClass != null && !controlClass.isAssignableFrom(Text2.class)) 		// This will create a Text class,
 			return -1;
 		Class<?> clz = pmm.getActualType();
 		if(clz != Double.class && clz != double.class && clz != BigDecimal.class)	// Must be proper type
@@ -59,15 +59,14 @@ public class ControlCreatorMoney implements IControlCreator {
 
 	/**
 	 * Create a Text control with the basic monetary converter, or the proper converter for the specified type.
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
-		Text<T> txt;
+		Text2<T> txt;
 		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
-			txt = (Text<T>) Text.createDoubleMoneyInput((PropertyMetaModel<Double>) pmm, true);
+			txt = (Text2<T>) Text2.createDoubleMoneyInput((PropertyMetaModel<Double>) pmm, true);
 		} else if(pmm.getActualType() == BigDecimal.class) {
-			txt = (Text<T>) Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) pmm, true);
+			txt = (Text2<T>) Text2.createBDMoneyInput((PropertyMetaModel<BigDecimal>) pmm, true);
 		} else
 				throw new IllegalStateException("Cannot handle type=" + pmm.getActualType() + " in monetary control factory");
 		return (C) txt;

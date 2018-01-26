@@ -33,12 +33,13 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.util.INodeContentRenderer;
+import to.etc.domui.util.IRenderInto;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -61,11 +62,11 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	private Map<Object, VisibleNode<T>> m_openMap = new HashMap<Object, VisibleNode<T>>();
 
 	/** The specified ComboRenderer used. */
-	private INodeContentRenderer< ? > m_contentRenderer;
+	private IRenderInto< ? > m_contentRenderer;
 
-	private INodeContentRenderer<T> m_actualContentRenderer;
+	private IRenderInto<T> m_actualContentRenderer;
 
-	private Class< ? extends INodeContentRenderer<T>> m_contentRendererClass;
+	private Class< ? extends IRenderInto<T>> m_contentRendererClass;
 
 	private PropertyMetaModel< ? > m_propertyMetaModel;
 
@@ -439,7 +440,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		path.add(item);
 	}
 
-	private INodeContentRenderer< ? > calculateContentRenderer(Object val) {
+	private IRenderInto< ? > calculateContentRenderer(Object val) {
 		if(m_contentRenderer != null)
 			return m_contentRenderer;
 		if(m_contentRendererClass != null)
@@ -448,13 +449,19 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
-		return MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
+
+		IRenderInto<Object> rr = (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
+		return new IRenderInto<Object>() {
+			@Override public void render(@Nonnull NodeContainer node, @Nullable Object object) throws Exception {
+				rr.renderOpt(node, object);
+			}
+		};
 	}
 
-	private void renderContent(final TD cell, final T value) throws Exception {
+	private void renderContent(@Nonnull TD cell, @Nullable T value) throws Exception {
 		if(m_actualContentRenderer == null)
-			m_actualContentRenderer = (INodeContentRenderer<T>) calculateContentRenderer(value);
-		m_actualContentRenderer.renderNodeContent(this, cell, value, this);
+			m_actualContentRenderer = (IRenderInto<T>) calculateContentRenderer(value);
+		m_actualContentRenderer.renderOpt(cell, value);
 
 		if(isSelectable(value)) {
 			cell.addCssClass("ui-tr-sel");
@@ -464,14 +471,17 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 			cell.setClicked2(new IClicked2<TD>() {
 				@Override
 				public void clicked(@Nonnull TD node, @Nonnull ClickInfo clinfo) throws Exception {
-					cellClicked(cell, value, clinfo);
+					// FIXME This means null root nodes cannot be clicked
+					if(null != value) {
+						cellClicked(cell, value, clinfo);
+					}
 				}
 			});
 		}
 		updateSelectable(cell, value);
 	}
 
-	private void updateSelectable(@Nonnull TD cell, @Nonnull T value) throws Exception {
+	private void updateSelectable(@Nonnull TD cell, @Nullable T value) throws Exception {
 		INodePredicate<T> predicate = m_nodeSelectablePredicate;
 		if(null != predicate) {
 			boolean isSelectable = predicate.predicate(value);
@@ -487,7 +497,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 	protected void cellClicked(@Nonnull final TD cell, @Nonnull final T value, @Nonnull ClickInfo clinfo) throws Exception {
 		if(getCellClicked() != null)
-			((ICellClicked<Object>) getCellClicked()).cellClicked(value);
+			getCellClicked().cellClicked(value);
 	}
 
 	/**
@@ -503,7 +513,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 
-	protected boolean isSelectable(@Nonnull T node) throws Exception {
+	protected boolean isSelectable(@Nullable T node) throws Exception {
 		if(getCellClicked() == null)
 			return false;
 		if(m_nodeSelectablePredicate == null)
@@ -544,7 +554,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		return null;
 	}
 
-	protected boolean isSelected(@Nonnull T node) {
+	protected boolean isSelected(@Nullable T node) {
 		return false;
 	}
 
@@ -601,19 +611,19 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		m_showRoot = showRoot;
 	}
 
-	public INodeContentRenderer< ? > getContentRenderer() {
+	public IRenderInto< ? > getContentRenderer() {
 		return m_contentRenderer;
 	}
 
-	public void setContentRenderer(INodeContentRenderer< ? > contentRenderer) {
+	public void setContentRenderer(IRenderInto< ? > contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 
-	public Class< ? extends INodeContentRenderer< ? >> getContentRendererClass() {
+	public Class< ? extends IRenderInto< ? >> getContentRendererClass() {
 		return m_contentRendererClass;
 	}
 
-	public void setContentRendererClass(Class< ? extends INodeContentRenderer<T>> contentRendererClass) {
+	public void setContentRendererClass(Class< ? extends IRenderInto<T>> contentRendererClass) {
 		m_contentRendererClass = contentRendererClass;
 	}
 

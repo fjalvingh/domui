@@ -24,18 +24,18 @@
  */
 package to.etc.domui.util;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.NodeContainer;
 
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
 
-public class UndefinedLabelStringRenderer implements ILabelStringRenderer<Object>, INodeContentRenderer<Object> {
+public class UndefinedLabelStringRenderer implements ILabelStringRenderer<Object>, IRenderInto<Object> {
 	@Override
 	public String getLabelFor(Object object) {
 		return object == null ? "" : object.toString();
 	}
 
 	@Override
-	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameter) {
+	public void render(@Nonnull NodeContainer node, @Nonnull Object object) {
 		throw new IllegalStateException();
 	}
 }

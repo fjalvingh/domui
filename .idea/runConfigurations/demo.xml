@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="demo" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 8.0.23" ALTERNATIVE_JRE_ENABLED="false">
-    <option name="COMMON_VM_ARGUMENTS" value="-Ddomui.testui=true" />
+    <option name="START_JAVASCRIPT_DEBUGGER" value="true" />
     <option name="SHOW_DIALOG_ON_UPDATE" value="false" />
     <deployment>
       <artifact name="to.etc.domui.demo:war exploded">
@@ -10,7 +10,7 @@
       </artifact>
     </deployment>
     <server-settings>
-      <option name="BASE_DIRECTORY_NAME" value="Unnamed_domui" />
+      <option name="BASE_DIRECTORY_NAME" value="Unnamed_domui_2" />
       <option name="HTTP_PORT" value="8088" />
     </server-settings>
     <predefined_log_file id="Tomcat" enabled="true" />
@@ -20,11 +20,11 @@
     <predefined_log_file id="Tomcat Localhost Access" enabled="false" />
     <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <RunnerSettings RunnerId="Debug">
-      <option name="DEBUG_PORT" value="40815" />
+      <option name="DEBUG_PORT" value="41127" />
     </RunnerSettings>
     <RunnerSettings RunnerId="Debug with VisualVM">
-      <option name="DEBUG_PORT" value="42124" />
-      <option name="visualVMId" value="536306832934332" />
+      <option name="DEBUG_PORT" value="39957" />
+      <option name="visualVMId" value="130551257668342" />
     </RunnerSettings>
     <ConfigurationWrapper VM_VAR="JAVA_OPTS" RunnerId="Cover">
       <option name="USE_ENV_VARIABLES" value="true" />

@@ -20,8 +20,7 @@ public interface IEventMarshaller {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable
-	public <T extends AppEventBase> T unmarshalEvent(@Nonnull String varchar) throws Exception;
+	@Nullable <T extends AppEventBase> T unmarshalEvent(@Nonnull String varchar) throws Exception;
 
 	/**
 	 * Convert formated string from provided event
@@ -29,7 +28,6 @@ public interface IEventMarshaller {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public String marshalEvent(@Nonnull AppEventBase event) throws Exception;
+	@Nonnull String marshalEvent(@Nonnull AppEventBase event) throws Exception;
 
 }

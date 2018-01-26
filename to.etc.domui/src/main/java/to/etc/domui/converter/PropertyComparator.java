@@ -1,11 +1,12 @@
 package to.etc.domui.converter;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import java.util.Comparator;
 
 /**
  * This comparator compares the <i>values</i> of two properties inside some
@@ -40,5 +41,16 @@ final public class PropertyComparator<T> implements Comparator<T> {
 		} catch(Exception x) {
 			throw WrappedException.wrap(x); // Checked exception are utter idiocy
 		}
+	}
+
+	static public <T> PropertyComparator<T> create(@Nonnull ClassMetaModel cmm, @Nonnull String propertyName, @Nonnull SortableType direction) {
+		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) cmm.getProperty(propertyName);
+
+		//-- Get the actual data type, and get a comparator for that data type;
+		Comparator<T> comp = (Comparator<T>) ConverterRegistry.findComparatorForType(pmm.getActualType());
+		if(null == comp) {
+			comp = (Comparator<T>) ConverterRegistry.DEFAULT_COMPARATOR;
+		}
+		return new PropertyComparator<>(pmm, comp, direction == SortableType.SORTABLE_DESC);
 	}
 }

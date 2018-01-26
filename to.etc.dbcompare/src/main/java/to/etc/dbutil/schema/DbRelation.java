@@ -1,9 +1,10 @@
 package to.etc.dbutil.schema;
 
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * A relation between tables (constraint).
@@ -55,15 +56,8 @@ public class DbRelation implements Serializable {
 		m_pairList.add(new FieldPair(pkc, fkc));
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((m_child == null) ? 0 : m_child.hashCode());
-		result = prime * result + ((m_name == null) ? 0 : m_name.hashCode());
-		result = prime * result + ((m_pairList == null) ? 0 : m_pairList.hashCode());
-		result = prime * result + ((m_parent == null) ? 0 : m_parent.hashCode());
-		return result;
+	@Override public int hashCode() {
+		return Objects.hash(m_parent, m_child, m_pairList, m_name);
 	}
 
 	@Override

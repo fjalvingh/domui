@@ -1,11 +1,27 @@
 package to.etc.dbcompare.generator;
 
-import static to.etc.dbcompare.AbstractSchemaComparator.*;
-
-import java.util.*;
-
-import to.etc.dbutil.schema.*;
+import to.etc.dbutil.schema.ColumnType;
+import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbIndex;
+import to.etc.dbutil.schema.DbPrimaryKey;
+import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbTable;
+import to.etc.dbutil.schema.DbView;
+import to.etc.dbutil.schema.FieldPair;
+import to.etc.dbutil.schema.IndexColumn;
 import to.etc.dbutil.schema.Package;
+import to.etc.dbutil.schema.Trigger;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static to.etc.dbcompare.AbstractSchemaComparator.csCOMMENT;
+import static to.etc.dbcompare.AbstractSchemaComparator.csNULLABLE;
+import static to.etc.dbcompare.AbstractSchemaComparator.csPLATFORMTYPE;
+import static to.etc.dbcompare.AbstractSchemaComparator.csPRECISION;
+import static to.etc.dbcompare.AbstractSchemaComparator.csSCALE;
+import static to.etc.dbcompare.AbstractSchemaComparator.csSQLTYPE;
 
 /**
  * Abstract thingy which is able to generate the appropriate SQL for schema creation.
@@ -176,13 +192,13 @@ abstract public class AbstractGenerator {
 		//-- What changes can I support?
 		if(0 != (flag & (csPRECISION | csSCALE))) {
 			//-- Same type BUT size has changed. Is nullability changed too?
-			String nu = null;
+			//String nu = null;
 			if(0 != (flag & csNULLABLE)) {
 				if(!newc.isNullable()) {
 					System.out.println("TODO: Need not-null modification for " + dt.getName() + "." + oldc.getName());
-					nu = " not null";
-				} else {
-					nu = " null";
+					//nu = " not null";
+				//} else {
+				//	nu = " null";
 				}
 			}
 			flag &= ~csNULLABLE;
@@ -242,11 +258,12 @@ abstract public class AbstractGenerator {
 
 		//-- Create the PK field 1st *if* the table has a single PK.
 		boolean needcomma = false;
+		List<DbColumn> columnList = st.getColumnList();
 		DbPrimaryKey pk = st.getPrimaryKey();
-		DbColumn ignorec = null;
 		if(pk != null && pk.getColumnList().size() == 1) {
 			//-- Dump PK column,
-			ignorec = pk.getColumnList().get(0);
+			DbColumn ignorec = pk.getColumnList().get(0);
+			columnList.remove(ignorec);
 			sb.append("\t");
 			renderCreateColumn(sb, ignorec);
 			sb.append(" primary key\n");
@@ -254,18 +271,26 @@ abstract public class AbstractGenerator {
 		}
 
 		//-- Render all other columns,
-		for(DbColumn c : st.getColumnList()) {
-			if(c == ignorec)
-				continue;
-			if(needcomma)
-				sb.append(',');
-			sb.append("\t");
-			renderCreateColumn(sb, c);
-			sb.append("\n");
-			needcomma = true;
-		}
+		needcomma = renderAllColumns(sb, needcomma, columnList);
 
 		//-- If a compound PK is present add that,
+		renderCompoundPK(sb, needcomma, pk);
+
+		sb.append(");\n");
+		l.add(sb.toString());
+
+		//-- Table comments,
+		renderTableComment(l, st);
+		rendferColumnComments(l, st);
+	}
+
+	private void rendferColumnComments(List<String> l, DbTable st) {
+		for(DbColumn sc : st.getColumnList()) {
+			renderColumnComment(l, sc);
+		}
+	}
+
+	private void renderCompoundPK(StringBuilder sb, boolean needcomma, DbPrimaryKey pk) {
 		if(pk != null && pk.getColumnList().size() > 1) {
 			if(needcomma)
 				sb.append(',');
@@ -287,15 +312,18 @@ abstract public class AbstractGenerator {
 			sb.append(")");
 			needcomma = true;
 		}
+	}
 
-		sb.append(");\n");
-		l.add(sb.toString());
-
-		//-- Table comments,
-		renderTableComment(l, st);
-		for(DbColumn sc : st.getColumnList()) {
-			renderColumnComment(l, sc);
+	private boolean renderAllColumns(StringBuilder sb, boolean needcomma, List<DbColumn> columnList) throws Exception {
+		for(DbColumn c : columnList) {
+			if(needcomma)
+				sb.append(',');
+			sb.append("\t");
+			renderCreateColumn(sb, c);
+			sb.append("\n");
+			needcomma = true;
 		}
+		return needcomma;
 	}
 
 	private void renderCreateColumn(StringBuilder sb, DbColumn c) throws Exception {

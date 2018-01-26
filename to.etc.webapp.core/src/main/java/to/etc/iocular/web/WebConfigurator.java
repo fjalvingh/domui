@@ -34,5 +34,5 @@ import javax.servlet.*;
  * Created on Mar 25, 2007
  */
 public interface WebConfigurator {
-	public WebConfiguration createConfiguration(ServletContext ctx) throws Exception;
+	WebConfiguration createConfiguration(ServletContext ctx) throws Exception;
 }

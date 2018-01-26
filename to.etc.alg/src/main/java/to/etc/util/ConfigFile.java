@@ -53,9 +53,6 @@ public class ConfigFile implements ConfigSource {
 	/** The full path where the file was found. */
 	private File		m_path;
 
-	/** Current time. */
-	private long		m_cts;
-
 	/** Used as a "backup" file for parameters if not found in the current file */
 	private ConfigFile	m_default_cf;
 
@@ -107,7 +104,7 @@ public class ConfigFile implements ConfigSource {
 	 */
 	public synchronized void setFile(File f) throws Exception {
 		if(!f.exists() || !f.isFile() || !f.canRead())
-			throw new Exception(f + ": not accessible.");
+			throw new IOException(f + ": not accessible.");
 		m_path = f;
 		m_read_ts = 0; // Force reread next access.
 	}
@@ -169,15 +166,16 @@ public class ConfigFile implements ConfigSource {
 	 *	Called from all helpers, this reads and -if necessary- rereads the table.
 	 */
 	private void init() throws Exception {
-		m_cts = 0;
+		/* Current time. */
+		long cts = 0;
 
 		synchronized(this) {
 			if(m_read_ts != 0) // Data was read?
 			{
 				if(m_reread_s == 0)
 					return; // Yes, and no reread requested
-				m_cts = System.currentTimeMillis();
-				if(m_cts < m_reread_s + m_read_ts)
+				cts = System.currentTimeMillis();
+				if(cts < m_reread_s + m_read_ts)
 					return;
 			}
 		}

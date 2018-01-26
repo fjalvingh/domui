@@ -27,6 +27,7 @@ package to.etc.domui.component.htmleditor;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.XmlTextNode;
 import to.etc.domui.util.HtmlUtil;
 
@@ -73,6 +74,10 @@ public class DisplayHtml extends Div implements IDisplayControl<String> {
 		}
 
 		add(m_xtn);
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return null;
 	}
 
 	@Override

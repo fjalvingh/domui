@@ -68,8 +68,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 
 	private boolean m_sortDescending;
 
-	public static interface IRowRendered<T> {
-		public void rowRendered(@Nonnull TR row, @Nonnull T instance);
+	public interface IRowRendered<T> {
+		void rowRendered(@Nonnull TR row, @Nonnull T instance);
 	}
 
 	public AbstractRowRenderer(@Nonnull Class<T> data) {
@@ -238,7 +238,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param index
 	 * @param renderer
 	 */
-	public <T> void setNodeRenderer(final int index, @Nullable final INodeContentRenderer<T> renderer) {
+	public <T> void setNodeRenderer(final int index, @Nullable final IRenderInto<T> renderer) {
 		check();
 		((SimpleColumnDef<T>) getColumn(index)).setContentRenderer(renderer);
 	}
@@ -248,7 +248,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param index
 	 * @return
 	 */
-	public INodeContentRenderer<?> getNodeRenderer(final int index) {
+	public IRenderInto<?> getNodeRenderer(final int index) {
 		return getColumn(index).getContentRenderer();
 	}
 
@@ -288,8 +288,8 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 	 * @param cellClicked
 	 */
 	@Override
-	public <V> void setCellClicked(final int col, @Nullable final ICellClicked<V> cellClicked) {
-		((SimpleColumnDef<V>) getColumn(col)).setCellClicked(cellClicked);
+	public void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
+		((SimpleColumnDef<T>) getColumn(col)).setCellClicked(cellClicked);
 	}
 
 
@@ -493,12 +493,13 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 		//-- Is a node renderer used?
 		TD cell;
 		String cssClass = cd.getCssClass();
-		INodeContentRenderer<X> contentRenderer = cd.getContentRenderer();
+		IRenderInto<X> contentRenderer = cd.getContentRenderer();
 		if(null != contentRenderer) {
 			cell = cc.add((NodeBase) null); 					// Add the new row
 			if(cssClass != null)
 				cell.addCssClass(cssClass);
-			contentRenderer.renderNodeContent(tbl, cell, colval, instance); // %&*(%&^%*&%&( generics require casting here
+			contentRenderer.renderOpt(cell, colval);
+			//contentRenderer.renderOpt(tbl, cell, colval, instance);
 		} else {
 			String s;
 			if(colval == null)

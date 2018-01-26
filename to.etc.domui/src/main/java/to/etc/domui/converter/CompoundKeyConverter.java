@@ -251,9 +251,8 @@ public class CompoundKeyConverter {
 	static boolean isRenderable(Class< ? > t) {
 		if(t.isPrimitive())
 			return true;
-		if(t == Integer.class || t == Long.class || t == Short.class || t == String.class || t == Byte.class || t == BigDecimal.class || t == BigInteger.class || t == Double.class || t == Float.class
-			|| t == Date.class)
-			return true;
-		return false;
+		return t == Integer.class || t == Long.class || t == Short.class || t == String.class || t == Byte.class || t == BigDecimal.class || t == BigInteger.class || t == Double.class
+			|| t == Float.class
+			|| t == Date.class;
 	}
 }

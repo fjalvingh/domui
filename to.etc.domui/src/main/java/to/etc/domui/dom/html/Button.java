@@ -37,7 +37,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 19, 2008
  */
-public class Button extends NodeContainer implements IActionControl {
+public class Button extends NodeContainer implements IActionControl, IForTarget {
 	private boolean m_disabled;
 
 	private ButtonType m_type = ButtonType.BUTTON;
@@ -58,6 +58,11 @@ public class Button extends NodeContainer implements IActionControl {
 		v.visitButton(this);
 	}
 
+	@Nonnull @Override public Button css(@Nonnull String... classNames) {
+		super.css(classNames);
+		return this;
+	}
+
 	/**
 	 * Do not call click handler when the button is disabled. This prevents a malicious user from clicking a disabled
 	 * button and still having an effect.
@@ -72,6 +77,7 @@ public class Button extends NodeContainer implements IActionControl {
 		super.internalOnClicked(cli);
 	}
 
+	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
@@ -143,5 +149,9 @@ public class Button extends NodeContainer implements IActionControl {
 
 	public void setAccessKey(char accessKey) {
 		m_accessKey = accessKey;
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return this;
 	}
 }

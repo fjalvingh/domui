@@ -43,7 +43,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 11, 2008
  */
-public class Select extends InputNodeContainer implements INativeChangeListener, IHasModifiedIndication, IHtmlInput {
+public class Select extends InputNodeContainer implements INativeChangeListener, IHasModifiedIndication, IHtmlInput, IForTarget {
 	private boolean m_multiple;
 
 	private boolean m_disabled;
@@ -313,5 +313,9 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 		//-- Return is pressed- call it's handler.
 		if(m_returnPressed != null)
 			m_returnPressed.returnPressed(this);
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return this;
 	}
 }

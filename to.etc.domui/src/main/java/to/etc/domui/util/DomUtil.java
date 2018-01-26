@@ -24,30 +24,80 @@
  */
 package to.etc.domui.util;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.math.*;
-import java.sql.*;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.annotations.UIMenu;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.misc.WindowParameters;
+import to.etc.domui.dom.errors.IErrorFence;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IHasModifiedIndication;
+import to.etc.domui.dom.html.IUserInputModifiedFence;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.THead;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.server.WrappedHttpServetResponse;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.state.UIGoto;
+import to.etc.domui.state.WindowSession;
+import to.etc.domui.trouble.Trouble;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.util.ByteArrayUtil;
+import to.etc.util.ExceptionClassifier;
+import to.etc.util.FileTool;
+import to.etc.util.HtmlScanner;
+import to.etc.util.LineIterator;
+import to.etc.util.StringTool;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.query.IIdentifyable;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
-
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.annotations.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 final public class DomUtil {
 	static public final Logger USERLOG = LoggerFactory.getLogger("to.etc.domui.userAction");
@@ -73,7 +123,8 @@ final public class DomUtil {
 		m_guidSeed = (int) val;
 	}
 
-	private DomUtil() {}
+	private DomUtil() {
+	}
 
 	/**
 	 * Map value types of primitive type to their boxed (wrapped) types.
@@ -81,7 +132,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nonnull
-	static public Class<?> normalizePrimitivesToBoxedTypes(@Nonnull Class<?> clz) {
+	static public Class<?> getBoxedForPrimitive(@Nonnull Class<?> clz) {
 		Class<?> newClass = BOXINGDISASTER.get(clz);
 		return newClass != null ? newClass : clz;
 	}
@@ -101,6 +152,23 @@ final public class DomUtil {
 	static public <T> T nullChecked(@Nullable T in) {
 		if(null == in)
 			throw new IllegalStateException("Unexpected thingy is null: " + in);
+		return in;
+	}
+
+	/**
+	 * Does explicit non null check for parameter passed in as nullable but expected to be non null.
+	 * In case of null, it throws IllegalStateException with provided exceptionMsg.
+	 *
+	 * @param in
+	 * @param exceptionMsg
+	 * @return
+	 * @deprecated Use Objects.requireNonNull.
+	 */
+	@Deprecated
+	@Nonnull
+	static public <T> T nullChecked(@Nullable T in, @Nonnull String exceptionMsg) {
+		if(null == in)
+			throw new IllegalStateException(exceptionMsg);
 		return in;
 	}
 
@@ -137,7 +205,8 @@ final public class DomUtil {
 	 * @throws IOException
 	 */
 	@Deprecated
-	static public final void ie8Capable(HttpServletResponse req) throws IOException {}
+	static public final void ie8Capable(HttpServletResponse req) throws IOException {
+	}
 
 	static public final boolean isEqualOLD(final Object a, final Object b) {
 		if(a == b)
@@ -182,14 +251,15 @@ final public class DomUtil {
 		if(ar.length < 2)
 			throw new IllegalStateException("Silly.");
 		Object a = ar[0];
-		for(int i = ar.length; --i >= 1;) {
+		for(int i = ar.length; --i >= 1; ) {
 			if(!isEqual(a, ar[i]))
 				return false;
 		}
 		return true;
 	}
 
-	static public <T> T getValueSafe(IControl<T> node) {
+	@Nullable
+	static public <T> T getValueSafe(@Nonnull IControl<T> node) {
 		try {
 			return node.getValue();
 		} catch(ValidationException x) {
@@ -203,7 +273,7 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public boolean classResourceExists(final Class< ? > clz, final String name) {
+	static public boolean classResourceExists(final Class<?> clz, final String name) {
 		InputStream is = clz.getResourceAsStream(name);
 		if(is == null)
 			return false;
@@ -215,7 +285,7 @@ final public class DomUtil {
 		return true;
 	}
 
-	static public final Class< ? > findClass(@Nonnull final ClassLoader cl, @Nonnull final String name) {
+	static public final Class<?> findClass(@Nonnull final ClassLoader cl, @Nonnull final String name) {
 		try {
 			return cl.loadClass(name);
 		} catch(Exception x) {
@@ -228,35 +298,35 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public boolean isIntegerType(Class< ? > clz) {
+	static public boolean isIntegerType(Class<?> clz) {
 		return clz == int.class || clz == Integer.class || clz == long.class || clz == Long.class || clz == Short.class || clz == short.class;
 	}
 
-	static public boolean isDoubleOrWrapper(Class< ? > clz) {
+	static public boolean isDoubleOrWrapper(Class<?> clz) {
 		return clz == Double.class || clz == double.class;
 	}
 
-	static public boolean isFloatOrWrapper(Class< ? > clz) {
+	static public boolean isFloatOrWrapper(Class<?> clz) {
 		return clz == Float.class || clz == float.class;
 	}
 
-	static public boolean isIntegerOrWrapper(Class< ? > clz) {
+	static public boolean isIntegerOrWrapper(Class<?> clz) {
 		return clz == Integer.class || clz == int.class;
 	}
 
-	static public boolean isShortOrWrapper(Class< ? > clz) {
+	static public boolean isShortOrWrapper(Class<?> clz) {
 		return clz == Short.class || clz == short.class;
 	}
 
-	static public boolean isByteOrWrapper(Class< ? > clz) {
+	static public boolean isByteOrWrapper(Class<?> clz) {
 		return clz == Byte.class || clz == byte.class;
 	}
 
-	static public boolean isLongOrWrapper(Class< ? > clz) {
+	static public boolean isLongOrWrapper(Class<?> clz) {
 		return clz == Long.class || clz == long.class;
 	}
 
-	static public boolean isBooleanOrWrapper(Class< ? > clz) {
+	static public boolean isBooleanOrWrapper(Class<?> clz) {
 		return clz == Boolean.class || clz == boolean.class;
 	}
 
@@ -265,8 +335,17 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public boolean isRealType(Class< ? > clz) {
+	static public boolean isRealType(Class<?> clz) {
 		return clz == float.class || clz == Float.class || clz == Double.class || clz == double.class;
+	}
+
+	/**
+	 * Returns T if the type is some numeric type that can have a fraction.
+	 * @param clz
+	 * @return
+	 */
+	static public boolean isScaledType(Class<?> clz) {
+		return isRealType(clz) || clz == BigDecimal.class;
 	}
 
 	/**
@@ -274,7 +353,7 @@ final public class DomUtil {
 	 * @param t
 	 * @return
 	 */
-	static public boolean isBasicType(Class< ? > t) {
+	static public boolean isBasicType(Class<?> t) {
 		if(t.isPrimitive())
 			return true;
 		return isIntegerOrWrapper(t) || isLongOrWrapper(t) || isShortOrWrapper(t) || isByteOrWrapper(t) || isDoubleOrWrapper(t) || isFloatOrWrapper(t) || isBooleanOrWrapper(t) || t == String.class
@@ -293,7 +372,7 @@ final public class DomUtil {
 	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
-		Class< ? > clz = inst.getClass();
+		Class<?> clz = inst.getClass();
 		Method m;
 		try {
 			m = clz.getMethod(name);
@@ -372,6 +451,31 @@ final public class DomUtil {
 		return null;
 	}
 
+
+	/**
+	 * Returns T if the topclass or one of its base classes (above the base class) has overridden
+	 * the specified method.
+	 * @param topClass
+	 * @param baseClass
+	 * @param method
+	 * @param parameters
+	 * @return
+	 */
+	static public boolean hasOverridden(Class<?> topClass, Class<?> baseClass, String method, Class<?>... parameters) {
+		Class<?> currentClass = topClass;
+
+		while(currentClass != null && currentClass != Object.class && currentClass != baseClass) {
+			try {
+				currentClass.getDeclaredMethod(method, parameters);        // Throws exception if not here.
+				return true;
+			} catch(NoSuchMethodException nmx) {
+				//-- Not here, so continue walking upwards.
+			}
+			currentClass = currentClass.getSuperclass();
+		}
+		return false;
+	}
+
 	static public String createRandomColor() {
 		int value = (int) (0xffffff * Math.random());
 		return "#" + StringTool.intToStr(value, 16, 6);
@@ -391,13 +495,13 @@ final public class DomUtil {
 			}
 		}
 
-		for(;;) {
+		for(; ; ) {
 			if(start == null) {
 				//-- Collect the path we followed for the error message
 				StringBuilder sb = new StringBuilder();
 				sb.append("Cannot locate error fence. Did you call an error routine on an unattached Node?\nThe path followed upwards was: ");
 				start = in;
-				for(;;) {
+				for(; ; ) {
 					if(start != in)
 						sb.append(" -> ");
 					sb.append(start.toString());
@@ -517,7 +621,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationURL() {
-		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getApplicationURL();
+		return UIContext.getRequestContext().getRequestResponse().getApplicationURL();
 	}
 
 	/**
@@ -528,7 +632,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	static public String getApplicationContext() {
-		return ((RequestContextImpl) UIContext.getRequestContext()).getRequestResponse().getWebappContext();
+		return UIContext.getRequestContext().getRequestResponse().getWebappContext();
 	}
 
 	/**
@@ -548,7 +652,7 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
-	static public String createPageURL(Class< ? extends UrlPage> clz, IPageParameters pp) {
+	static public String createPageURL(Class<? extends UrlPage> clz, IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(UIContext.getRequestContext().getRelativePath(clz.getName()));
 		sb.append('.');
@@ -566,7 +670,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nonnull
-	static public String createPageRURL(@Nonnull Class< ? extends UrlPage> clz, @Nullable IPageParameters pp) {
+	static public String createPageRURL(@Nonnull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(clz.getName());
 		sb.append('.');
@@ -585,7 +689,7 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
-	static public String createPageURL(@Nonnull String webAppUrl, @Nonnull Class< ? extends UrlPage> clz, @Nullable IPageParameters pp) {
+	static public String createPageURL(@Nonnull String webAppUrl, @Nonnull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(webAppUrl);
 		sb.append(clz.getName());
@@ -599,7 +703,7 @@ final public class DomUtil {
 	/**
 	 * Generate an URL to some page with parameters.
 	 *
-	 * @param rurl	The absolute or relative URL to whatever resource.
+	 * @param rurl    The absolute or relative URL to whatever resource.
 	 * @param pageParameters
 	 * @return
 	 */
@@ -608,8 +712,7 @@ final public class DomUtil {
 		if(DomUtil.isRelativeURL(rurl)) {
 			RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 			sb.append(ctx.getRelativePath(rurl));
-		}
-		else
+		} else
 			sb.append(rurl);
 		if(pageParameters != null) {
 			addUrlParameters(sb, pageParameters, true);
@@ -846,7 +949,6 @@ final public class DomUtil {
 							rowspan = 1;
 
 
-
 					}
 					rowindex += minrowspan;
 				}
@@ -874,7 +976,7 @@ final public class DomUtil {
 		HtmlScanner hs = new HtmlScanner();
 		int lpos = 0;
 		hs.setDocument(in);
-		for(;;) {
+		for(; ; ) {
 			String tag = hs.nextTag(); // Find the next tag.
 			if(tag == null)
 				break;
@@ -945,7 +1047,7 @@ final public class DomUtil {
 
 	static public void dumpRequest(HttpServletRequest req) {
 		System.out.println("---- request parameter dump ----");
-		for(Enumeration<String> en = req.getParameterNames(); en.hasMoreElements();) {
+		for(Enumeration<String> en = req.getParameterNames(); en.hasMoreElements(); ) {
 			String name = en.nextElement();
 			String val = req.getParameter(name);
 			System.out.println(name + ": " + val);
@@ -953,7 +1055,7 @@ final public class DomUtil {
 		System.out.println("---- end request parameter dump ----");
 	}
 
-	static public String getJavaResourceRURL(final Class< ? > resourceBase, final String name) {
+	static public String getJavaResourceRURL(final Class<?> resourceBase, final String name) {
 		if(name.startsWith("/")) {
 			//-- Absolute resource name.
 			return Constants.RESOURCE_PREFIX + name.substring(1);
@@ -986,7 +1088,7 @@ final public class DomUtil {
 	 * @param cn
 	 * @return
 	 */
-	public static boolean hasResource(final Class< ? extends UrlPage> clz, final String cn) {
+	public static boolean hasResource(final Class<? extends UrlPage> clz, final String cn) {
 		InputStream is = null;
 		try {
 			is = clz.getResourceAsStream(cn);
@@ -995,11 +1097,12 @@ final public class DomUtil {
 			try {
 				if(is != null)
 					is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
-	static public String getClassNameOnly(final Class< ? > clz) {
+	static public String getClassNameOnly(final Class<?> clz) {
 		String cn = clz.getName();
 		return cn.substring(cn.lastIndexOf('.') + 1);
 	}
@@ -1010,7 +1113,7 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public BundleRef findBundle(final UIMenu ma, final Class< ? > clz) {
+	static public BundleRef findBundle(final UIMenu ma, final Class<?> clz) {
 		if(ma != null && ma.bundleBase() != Object.class) { // Bundle base class specified?
 			String s = ma.bundleName();
 			if(s.length() == 0) // Do we have a name?
@@ -1037,13 +1140,13 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public BundleRef getClassBundle(final Class< ? > clz) {
+	static public BundleRef getClassBundle(final Class<?> clz) {
 		String s = clz.getName();
 		s = s.substring(s.lastIndexOf('.') + 1); // Get to base class name (no path)
 		return BundleRef.create(clz, s); // Get ref to this bundle;
 	}
 
-	static public BundleRef getPackageBundle(final Class< ? > base) {
+	static public BundleRef getPackageBundle(final Class<?> base) {
 		return BundleRef.create(base, "messages"); // Default package bundle is messages[nls].properties
 	}
 
@@ -1053,7 +1156,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nonnull
-	static public String calcPageTitle(final Class< ? > clz) {
+	static public String calcPageTitle(final Class<?> clz) {
 		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
 		Locale loc = NlsContext.getLocale();
 		BundleRef br = findBundle(ma, clz);
@@ -1121,7 +1224,7 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	static public String calcPageLabel(final Class< ? > clz) {
+	static public String calcPageLabel(final Class<?> clz) {
 		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
 		Locale loc = NlsContext.getLocale();
 		BundleRef br = findBundle(ma, clz);
@@ -1178,6 +1281,7 @@ final public class DomUtil {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Resource Bundle utilities.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Locates the default page bundle for a page. The lookup of the bundle
 	 * is as follows (first match returns):
@@ -1266,7 +1370,7 @@ final public class DomUtil {
 		int ix = 0;
 		int len = text.length();
 		NodeContainer top = d;
-		for(;;) {
+		for(; ; ) {
 			//-- Text scan: scan content and add to the buffer until a possible tag start character is found.
 			while(ix < len) {
 				char c = text.charAt(ix);
@@ -1352,13 +1456,37 @@ final public class DomUtil {
 			top.add(sb.toString());
 	}
 
+	static public void renderLines(@Nonnull NodeContainer nc, @Nullable String text) {
+		renderLines(nc, text, null);
+	}
+
 	/**
+	 * Render a text with crlf line endings into a node.
+	 * @param nc
+	 * @param text
+	 */
+	static public void renderLines(@Nonnull NodeContainer nc, @Nullable String text, @Nullable Function<String, String> lineFixer) {
+		if(text == null)
+			return;
+		text = text.trim();
+		if(text == null || text.length() == 0)					// Extra nullity test is because ecj is nuts
+			return;
+		for(String line : new LineIterator(text)) {
+			Div d = new Div("ui-nl-line");
+			nc.add(d);
+			if(lineFixer != null)
+				line = lineFixer.apply(line);
+			d.add(line);
+		}
+	}
+
+ 	/**
 	 * This scans the input, and only copies "safe" html, which is HTML with only
 	 * simple constructs. It checks to make sure the resulting document is xml-safe (well-formed),
 	 * if the input is not well-formed it will add or remove tags until the result is valid.
 	 *
-	 * @param sb
-	 * @param html
+	 * @param outsb
+	 * @param text
 	 */
 	static public void htmlRemoveUnsafe(StringBuilder outsb, String text) {
 		if(text == null || text.length() == 0)
@@ -1498,6 +1626,50 @@ final public class DomUtil {
 	}
 
 	/*--------------------------------------------------------------*/
+	/*	CODING:	Handle cookies.										*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Find a cookie if it exists, return null otherwise.
+	 * @param name
+	 * @return
+	 */
+	@Nullable
+	static public Cookie findCookie(@Nonnull String name) {
+		IRequestContext rci = UIContext.getRequestContext();
+		Cookie[] car = rci.getRequestResponse().getCookies();
+		if(car == null || car.length == 0)
+			return null;
+
+		for(Cookie c : car) {
+			if(c.getName().equals(name)) {
+				return c;
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	static public String findCookieValue(@Nonnull String name) {
+		Cookie c = findCookie(name);
+		return c == null ? null : c.getValue();
+	}
+
+	/**
+	 * Set a new or overwrite an existing cookie.
+	 *
+	 * @param name
+	 * @param value
+	 * @param maxage	Max age, in seconds.
+	 */
+	static public void setCookie(@Nonnull String name, String value, int maxage) {
+		IRequestContext rci = UIContext.getRequestContext();
+		Cookie k = new Cookie(name, value);
+		k.setMaxAge(maxage);
+		k.setPath("/" + rci.getRequestResponse().getWebappContext());
+		rci.getRequestResponse().addCookie(k);
+	}
+
+	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree walking helpers.								*/
 	/*--------------------------------------------------------------*/
 	/**
@@ -1506,9 +1678,9 @@ final public class DomUtil {
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Nov 3, 2009
 	 */
-	static public interface IPerNode {
+	public interface IPerNode {
 		/** When this object instance is returned by the before(NodeBase) method we SKIP the downwards traversal. */
-		static public final Object SKIP = new Object();
+		Object SKIP = new Object();
 
 		/**
 		 * Called when the node is first encountered in the tree. It can return null causing the rest of the tree
@@ -1584,7 +1756,7 @@ final public class DomUtil {
 
 	/**
 	 * This clears the 'modified' flag for all nodes in the subtree that implement {@link IHasModifiedIndication}.
-	 * @param root		The subtree to traverse
+	 * @param root        The subtree to traverse
 	 */
 	static public void clearModifiedFlag(NodeBase root) {
 		try {
@@ -1678,9 +1850,7 @@ final public class DomUtil {
 	static public boolean isRelativeURL(String in) {
 		if(in == null)
 			return false;
-		if(in.startsWith("http:") || in.startsWith("https:") || in.startsWith("/"))
-			return false;
-		return true;
+		return !in.startsWith("http:") && !in.startsWith("https:") && !in.startsWith("/");
 	}
 
 	/**
@@ -1709,7 +1879,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nonnull
-	static public String createOpenWindowJS(@Nonnull Class< ? > targetClass, @Nullable IPageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
+	static public String createOpenWindowJS(@Nonnull Class<?> targetClass, @Nullable IPageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
 		//-- We need a NEW window session. Create it,
 		RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 		WindowSession cm = ctx.getSession().createWindowSession();
@@ -1728,12 +1898,84 @@ final public class DomUtil {
 	}
 
 	@Nonnull
-	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters) {
-		//-- Send a special JAVASCRIPT open command, containing the stuff.
+	/**
+	 * create a postUrlJS command where all pageparameters are put in a json collection.
+	 */
+	static public String createPostURLJS(@Nonnull String url, @Nonnull IPageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("DomUI.openWindow('");
+		sb.append("DomUI.postURL('");
 		sb.append(url);
 		sb.append("','");
+		sb.append("window").append(DomUtil.generateGUID());
+		sb.append("', {");
+		int i = 0;
+		for(String parameterName : pageParameters.getParameterNames()) {
+			if(i++ > 0) {
+				sb.append(',');
+			}
+			sb.append(parameterName).append(":");
+			//om narigheid te voorkomen
+			StringTool.strToJavascriptString(sb, pageParameters.getString(parameterName), true);
+		}
+		sb.append("});");
+		return sb.toString();
+	}
+
+	/**
+	 * Create a postUrlJS command where all pageparameters are put in a json collection.
+	 * Special treatment is done for parameter that defines array of values.
+	 *
+	 * @param url
+	 * @param pageParameters
+	 * @param arrayParamName  Name of parameter that is used for string array value, it is always single one.
+	 * @param useSingleQuotes When T we use single quotes to escape, otherwise we use double quotes.
+	 * @param useBlankTarget  When T, we do POST on _blank target, otherwise it navigates the same screen.
+	 * @return
+	 */
+	@Nonnull
+	static public String createPostWithArrayURLJS(@Nonnull String url, @Nonnull IPageParameters pageParameters, @Nonnull String arrayParamName, boolean useSingleQuotes, boolean useBlankTarget) {
+		char quotes = useSingleQuotes ? '\'' : '"';
+		StringBuilder sb = new StringBuilder();
+		sb.append("DomUI.postURL(").append(quotes);
+		sb.append(url);
+		sb.append(quotes).append(",").append(quotes);
+		sb.append("window").append(DomUtil.generateGUID());
+		sb.append(quotes).append(", {");
+		int i = 0;
+		for(String parameterName : pageParameters.getParameterNames()) {
+			if(!parameterName.equals(arrayParamName)) {
+				if(i++ > 0) {
+					sb.append(',');
+				}
+				sb.append(parameterName).append(":");
+				StringTool.strToJavascriptString(sb, pageParameters.getString(parameterName), !useSingleQuotes);
+			}
+		}
+		sb.append(',');
+		StringBuilder values = new StringBuilder();
+		for(String value : pageParameters.getStringArray(arrayParamName)) {
+			if(values.length() > 0) {
+				values.append(",");
+			}
+			StringTool.strToJavascriptString(values, value, !useSingleQuotes);
+		}
+		sb.append(arrayParamName).append(":").append("[").append(values).append("]");
+		sb.append("} ");
+		if(useBlankTarget) {
+			sb.append(", ").append(quotes).append("_blank").append(quotes);
+		}
+		sb.append(");");
+		return sb.toString();
+	}
+
+	@Nonnull
+	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters, boolean useSingleQuotes) {
+		char quotes = useSingleQuotes ? '\'' : '"';
+		//-- Send a special JAVASCRIPT open command, containing the stuff.
+		StringBuilder sb = new StringBuilder();
+		sb.append("DomUI.openWindow(").append(quotes);
+		sb.append(url);
+		sb.append(quotes).append(",").append(quotes);
 		String name = null;
 		if(newWindowParameters != null)
 			name = newWindowParameters.getName();
@@ -1741,7 +1983,8 @@ final public class DomUtil {
 			name = "window" + DomUtil.generateGUID();
 		}
 		sb.append(name);
-		sb.append("','");
+		sb.append(quotes).append(",").append(quotes);
+
 		if(newWindowParameters == null) {
 			// separator must be comma otherwise it wont work in IE (call 27348)
 			sb.append("resizable=yes,scrollbars=yes,toolbar=no,location=no,directories=no,status=yes,menubar=yes,copyhistory=no");
@@ -1772,8 +2015,13 @@ final public class DomUtil {
 				sb.append(newWindowParameters.getHeight());
 			}
 		}
-		sb.append("');");
+		sb.append(quotes).append(");");
 		return sb.toString();
+	}
+
+	@Nonnull
+	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters) {
+		return createOpenWindowJS(url, newWindowParameters, true);
 	}
 
 	public static boolean isWhitespace(char c) {
@@ -1805,7 +2053,8 @@ final public class DomUtil {
 			} finally {
 				try {
 					is.close();
-				} catch(Exception x) {}
+				} catch(Exception x) {
+				}
 			}
 		}
 		return m_lorem;
@@ -1838,13 +2087,13 @@ final public class DomUtil {
 	 * @return -1 if <I>member</I> object Long Id is not found in specified <I>list</I>, otherwise returns found index.
 	 */
 	public static <V, T extends IIdentifyable<V>> int indexOfLongIdentifyable(@Nonnull List<T> list, @Nonnull T lookingFor) {
-		if(list == null)					// jal 20120424 Bad, should be removed.
+		if(list == null)                    // jal 20120424 Bad, should be removed.
 			return -1;
 
 		V id = lookingFor.getId();
 		if(null == id)
 			throw new IllegalStateException(lookingFor + ": id is null");
-		for(int i = list.size(); --i >= 0;) {
+		for(int i = list.size(); --i >= 0; ) {
 			V mid = list.get(i).getId();
 			if(null != mid && mid.equals(id))
 				return i;
@@ -1996,7 +2245,7 @@ final public class DomUtil {
 		WindowSession ws = node.getPage().getConversation().getWindowSession();
 		List<UIMessage> msgl = null;
 		Object stored = ws.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
-		if(stored != null && stored instanceof List< ? >) {
+		if(stored != null && stored instanceof List<?>) {
 			msgl = (List<UIMessage>) stored;
 		} else {
 			msgl = new ArrayList<UIMessage>(1);
@@ -2048,5 +2297,74 @@ final public class DomUtil {
 			sb.append(text.substring(0, todo));
 		}
 		return false;
+	}
+
+	/**
+	 * Compares two nullable objects. If one is null and other is not, returns 1 or -1.
+	 * If both are null returns 0, if both are non null, and compare function is set, it returns result of compare, otherwise it returns 0.
+	 *
+	 * @param o1
+	 * @param o2
+	 * @return
+	 */
+	public static <T> int compareNullable(@Nullable T o1, @Nullable T o2, @Nullable BiFunction<T, T, Integer> compare) {
+		if(o1 == null) {
+			return o2 == null ? 0 : 1;
+		} else if(o2 == null) {
+			return -1;
+		}
+		if(null == compare) {
+			return 0;
+		}
+		return compare.apply(o1, o2).intValue();
+	}
+
+	/**
+	 * Compares chain of specified first level functions (usually properties) of two nullable objects, while also properties are nullable ;)
+	 * Limitation of this method is that all functions are of same result, usually getters of same field type.
+	 * In case that compare fallback needs to be done on other type property, simply use fallback as separate call to this method with different arguments.
+	 * If one specified objects 01 or 02 is null and other is not, returns 1 or -1.
+	 * If both are null returns 0, if both are non null, function applies to both to get level 1 function results in chain, and then compareNullable is applied on both results until we find any of different values.
+	 * At the end it returns null if whole chain of functions returns same results.
+	 * In order to revers compare logic (desc to asc), just reverse o1 and o2 arguments ;)
+	 *
+	 * @param o1
+	 * @param o2
+	 * @param functions
+	 * @param compare
+	 * @param <T>
+	 * @param <P>
+	 * @return
+	 */
+	@SafeVarargs
+	public static <T, P> int compareNullableOnFunctions(@Nullable T o1, @Nullable T o2, @Nonnull BiFunction<P, P, Integer> compare, @Nonnull Function<T, P>... functions) {
+		if(o1 == null) {
+			return o2 == null ? 0 : 1;
+		} else if(o2 == null) {
+			return -1;
+		}
+		for(Function<T, P> function : functions) {
+			P prop1 = function.apply(o1);
+			P prop2 = function.apply(o2);
+			int result = compareNullable(prop1, prop2, compare);
+			if(result != 0) {
+				return result;
+			}
+		}
+		return 0;
+	}
+
+	/**
+	 * Set a Javascript action on the button which copies the text specified
+	 * to the button when clicked. WARNING: copying text to the clipboard
+	 * only works when directly invoked from a user action, which is
+	 * why this is added as a Javascript onclick action.
+	 */
+	public static final void clipboardCopy(NodeBase button, String text) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("WebUI.copyTextToClipboard(");
+		StringTool.strToJavascriptString(sb, text, true);
+		sb.append("); return false;");
+		button.setOnClickJS(sb.toString());
 	}
 }

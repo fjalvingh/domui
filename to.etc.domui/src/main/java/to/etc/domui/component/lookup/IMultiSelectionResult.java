@@ -33,5 +33,5 @@ import java.util.*;
  * Created on 27 Oct 2009
  */
 public interface IMultiSelectionResult<T> {
-	public void onReturnResult(List<T> result) throws Exception;
+	void onReturnResult(List<T> result) throws Exception;
 }

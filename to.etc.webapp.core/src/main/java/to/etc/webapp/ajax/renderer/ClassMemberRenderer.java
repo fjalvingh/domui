@@ -24,9 +24,10 @@
  */
 package to.etc.webapp.ajax.renderer;
 
-import java.lang.reflect.*;
+import to.etc.util.StringTool;
 
-import to.etc.util.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class ClassMemberRenderer {
 	static public final String INVALID = "(invalid)";
@@ -53,11 +54,13 @@ public class ClassMemberRenderer {
 	public Object getMemberValue(final Object val) throws RenderMethodException {
 		try {
 			return m_method.invoke(val, (Object[]) null); // Call the getter
-		} catch(Exception x) {
-			if(x instanceof InvocationTargetException) {
-				if(x.getCause() instanceof Exception)
-					x = (Exception) x.getCause();
+		} catch(InvocationTargetException x) {
+			Exception nx = x;
+			if(x.getCause() instanceof Exception) {
+				nx = (Exception) x.getCause();
 			}
+			throw new RenderMethodException(m_method, "Class member getter call '" + m_method.toString() + "' failed with " + StringTool.getExceptionMessage(nx), nx);
+		} catch(Exception x) {
 			throw new RenderMethodException(m_method, "Class member getter call '" + m_method.toString() + "' failed with " + StringTool.getExceptionMessage(x), x);
 		}
 	}

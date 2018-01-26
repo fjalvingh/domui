@@ -22,7 +22,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 	@Nonnull
 	final private List<T> m_itemList;
 
-	final private INodeContentRenderer<T> m_renderer;
+	final private IRenderInto<T> m_renderer;
 
 	/** This is the currently selected value in the javascript component. It just shows which row is highlighted. A selection is only made on onClick */
 	private int m_currentSelection;
@@ -32,7 +32,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 
 	private IValueChanged< ? > m_valueChanged;
 
-	public SelectOnePanel(@Nonnull List<T> itemList, @Nonnull INodeContentRenderer<T> renderer) {
+	public SelectOnePanel(@Nonnull List<T> itemList, @Nonnull IRenderInto<T> renderer) {
 		m_itemList = itemList;
 		m_renderer = renderer;
 	}
@@ -58,7 +58,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 		TR row = body.addRow();
 		row.setCssClass("ui-ssop-row");
 		TD cell = row.addCell();
-		m_renderer.renderNodeContent(row, cell, item, null);
+		m_renderer.render(cell, item);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package to.etc.dbreplay;
 
-import java.io.*;
+import java.io.IOException;
 
 class EofException extends IOException {
 	public EofException() {

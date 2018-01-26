@@ -1,11 +1,13 @@
 package to.etc.domui.component2.controlfactory;
 
-import java.util.*;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Registers all l2 control creators.
@@ -27,6 +29,7 @@ public class ControlCreatorRegistry {
 		register(new ControlCreatorString());
 		register(new ControlCreatorTextArea());
 		register(new ControlCreatorBoolean());
+		register(new ControlCreatorOldString());
 	}
 
 	/*--------------------------------------------------------------*/

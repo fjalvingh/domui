@@ -1,20 +1,29 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<V>> {
 	private List<T> m_data;
 
 	/** The specified ComboRenderer used. */
-	private INodeContentRenderer<T> m_contentRenderer;
+	private IRenderInto<T> m_contentRenderer;
 
-	private INodeContentRenderer<T> m_actualContentRenderer;
+	private IRenderInto<T> m_actualContentRenderer;
 
 	private Map<V, Checkbox> m_checkMap = new HashMap<>();
 
@@ -66,6 +75,16 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		}
 	}
 
+	@Nullable @Override public NodeBase getForTarget() {
+		List<Checkbox> children = getChildren(Checkbox.class);
+		return children.size() > 0 ? children.get(0) : null;
+	}
+
+	@Nullable @Override protected String getFocusID() {
+		NodeBase id = getForTarget();
+		return id == null ? null : id.getActualID();
+	}
+
 	private void renderCheckbox(@Nonnull T lv) throws Exception {
 		V listval = listToValue(lv);
 
@@ -77,10 +96,10 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		cb.setReadOnly(disa);
 
 		add(cb);
-		INodeContentRenderer<T> cr = m_actualContentRenderer;
+		IRenderInto<T> cr = m_actualContentRenderer;
 		if(cr == null)
 			cr = m_actualContentRenderer = calculateContentRenderer(lv);
-		cr.renderNodeContent(this, this, lv, cb);
+		cr.render(this, lv);
 		m_checkMap.put(listval, cb);
 
 		final IValueChanged<CheckboxSetInputBase<V, T>> ovc = (IValueChanged<CheckboxSetInputBase<V, T>>) getOnValueChanged();
@@ -94,20 +113,20 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		}
 	}
 
-	private INodeContentRenderer<T> calculateContentRenderer(T val) {
+	private IRenderInto<T> calculateContentRenderer(T val) {
 		if(m_contentRenderer != null)
 			return m_contentRenderer;
 		if(val == null)
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
-		return (INodeContentRenderer<T>) MetaManager.createDefaultComboRenderer(null, cmm);
+		return (IRenderInto<T>) MetaManager.createDefaultComboRenderer(null, cmm);
 	}
 
-	protected void renderOptionLabel(SelectOption o, T object) throws Exception {
-		if(m_actualContentRenderer == null)
-			m_actualContentRenderer = calculateContentRenderer(object);
-		m_actualContentRenderer.renderNodeContent(this, o, object, this);
-	}
+	//protected void renderOptionLabel(@Nonnull SelectOption o, @Nonnull T object) throws Exception {
+	//	if(m_actualContentRenderer == null)
+	//		m_actualContentRenderer = calculateContentRenderer(object);
+	//	m_actualContentRenderer.render(o, object);
+	//}
 
 	@Override
 	public Set<V> getValue() {

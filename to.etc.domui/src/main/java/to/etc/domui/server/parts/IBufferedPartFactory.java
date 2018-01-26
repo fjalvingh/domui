@@ -38,7 +38,7 @@ public interface IBufferedPartFactory<K> extends IPartFactory {
 	 * @throws Exception
 	 */
 	@Nonnull
-	K decodeKey(@Nonnull IExtendedParameterInfo param) throws Exception;
+	K decodeKey(@Nonnull DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception;
 
 	/**
 	 * This must generate the output for the resource. That output will be put into the cache and re-rendered

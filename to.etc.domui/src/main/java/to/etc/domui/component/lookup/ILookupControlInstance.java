@@ -24,10 +24,11 @@
  */
 package to.etc.domui.component.lookup;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.webapp.query.QCriteria;
 
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Encapsulates a single created lookup "part" in the lookup form, and
@@ -53,7 +54,7 @@ public interface ILookupControlInstance<T> {
 	 * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
 	 * Created on 6 Jan 2011
 	 */
-	public enum AppendCriteriaResult {
+	enum AppendCriteriaResult {
 		/** Entered search critaria is not valid. */
 		INVALID, //
 		/** No search critaria is entered. This however can result in implicit filter added into criteria. */
@@ -61,41 +62,37 @@ public interface ILookupControlInstance<T> {
 		/** Search critaria is entered by user, represents explicit filters.
 		 * This information is important when we want to force user to define at least one explicit criteria in order to permit search on large data sets. */
 		VALID
-	};
+	}
+
 	/**
 	 * Return all of the nodes (input and otherwise) that together form the complete visual representation
 	 * of this lookup line. This may NOT return null OR an empty list.
-	 * @return
 	 */
-	public NodeBase[] getInputControls();
+	NodeBase[] getInputControls();
 
 	/**
 	 * Returns the control where the label should be attached to. Can return null, in that case the first
 	 * IInput control or the first node in the list will be used.
-	 * @return
 	 */
-	public NodeBase getLabelControl();
+	NodeBase getLabelControl();
 
 	/**
 	 * Sets the input(s) to disabled state.
 	 * @param disabled
 	 */
-	public void setDisabled(boolean disabled);
+	void setDisabled(boolean disabled);
 
 	/**
 	 * When called this should clear all data input into the control instances, causing them to
 	 * be empty (not adding to the restrictions set).
 	 */
-	public void clearInput();
+	void clearInput();
 
 	/**
 	 * Evaluate the contents of the input for this lookup line; if the user has
 	 * added data there then add the values to the query.
-	 * @param crit
-	 * @return see {@link AppendCriteriaResult}
-	 * @throws Exception
 	 */
-	public AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception;
+	AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception;
 
 	/**
 	 * Return the value entered into this control.

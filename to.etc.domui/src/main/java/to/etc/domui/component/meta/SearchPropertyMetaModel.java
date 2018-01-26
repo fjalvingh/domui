@@ -27,6 +27,8 @@ package to.etc.domui.component.meta;
 import java.util.*;
 
 public interface SearchPropertyMetaModel {
+	Comparator<SearchPropertyMetaModel> BY_ORDER = (a, b) -> a.getOrder() - b.getOrder();
+
 	/**
 	 * When T (default) the search is done in a case-independent way provided we are looking
 	 * for some string value.
@@ -64,11 +66,13 @@ public interface SearchPropertyMetaModel {
 	 * @return
 	 */
 	String getLookupHint();
+	/**
+	 * When T, and when search field is resolved as LookupInput/LookupInput2 type of control, lookup popup is shown with performed initial search automatically.
+	 */
+	boolean isPopupSearchImmediately();
 
-	static public final Comparator<SearchPropertyMetaModel> BY_ORDER = new Comparator<SearchPropertyMetaModel>() {
-		@Override
-		public int compare(SearchPropertyMetaModel a, SearchPropertyMetaModel b) {
-			return a.getOrder() - b.getOrder();
-		}
-	};
+	/**
+	 * When T, and when search field is resolved as LookupInput/LookupInput2 type of control, lookup popup is shown with initially collapsed search options on it's LookupForm.
+	 */
+	boolean isPopupInitiallyCollapsed();
 }

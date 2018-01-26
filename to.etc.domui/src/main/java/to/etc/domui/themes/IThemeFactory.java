@@ -35,18 +35,25 @@ import javax.annotation.*;
  * Created on Jan 11, 2011
  */
 public interface IThemeFactory {
+	@Nonnull String getFactoryName();
+
 	/**
 	 * Create the theme data for the theme passed. The result is cached by the application, so
 	 * the factory should not do caching itself.
-	 *
-	 * @param da
-	 * @param themeName
-	 * @return
-	 * @throws Exception
 	 */
 	@Nonnull
 	ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception;
 
+	/**
+	 * Returns this factory's default theme name, INCLUDING the factory name!
+	 */
 	@Nonnull
 	String getDefaultThemeName();
+
+	/**
+	 * Do whatever's necessary to add the variant indicator to the theme name.
+	 */
+	default String appendThemeVariant(String themeName, IThemeVariant variant) {
+		return themeName + "-" + variant.getVariantName();
+	}
 }

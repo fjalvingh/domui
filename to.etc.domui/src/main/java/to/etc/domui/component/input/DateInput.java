@@ -24,17 +24,24 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
+import to.etc.domui.component.buttons.HoverButton;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyMetaValidator;
+import to.etc.domui.component.meta.TemporalPresentationType;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.DateConverter;
+import to.etc.domui.converter.DateTimeConverter;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.DateUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import java.util.Date;
 
 /**
  * Date input component: this is an INPUT component with a button attached; pressing
@@ -219,6 +226,8 @@ public class DateInput extends Text<Date> {
 		if(setDefaultErrorLocation) {
 			di.setErrorLocation(pmm.getDefaultLabel());
 		}
+		for(PropertyMetaValidator mpv : pmm.getValidators())
+			di.addValidator(mpv);
 		return di;
 	}
 }

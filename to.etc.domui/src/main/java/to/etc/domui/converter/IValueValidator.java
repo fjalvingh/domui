@@ -35,5 +35,5 @@ package to.etc.domui.converter;
  * Created on Dec 24, 2008
  */
 public interface IValueValidator<T> {
-	public void validate(T input) throws Exception;
+	void validate(T input) throws Exception;
 }

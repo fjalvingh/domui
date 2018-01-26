@@ -105,10 +105,10 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 	}
 
 	public int nextToken() throws IOException, SourceErrorException {
-		return (m_lastToken = _nextToken());
+		return (m_lastToken = nextTokenPrimitive());
 	}
 
-	private int _nextToken() throws IOException, SourceErrorException {
+	private int nextTokenPrimitive() throws IOException, SourceErrorException {
 		for(;;) // Till a non-filtered token is found
 		{
 			if(!m_return_ws && !m_return_nl)

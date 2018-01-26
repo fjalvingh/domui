@@ -16,8 +16,7 @@ import to.etc.domui.server.*;
  */
 public class WebActionRegistry {
 	public interface IFactory {
-		@Nullable
-		public IWebActionHandler createHandler(@Nonnull Class< ? extends NodeBase> node, @Nonnull String actionCode);
+		@Nullable IWebActionHandler createHandler(@Nonnull Class<? extends NodeBase> node, @Nonnull String actionCode);
 	}
 
 	@Nonnull

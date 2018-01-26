@@ -1,15 +1,16 @@
 package to.etc.test.webapp.query.qfield;
 
-import java.util.*;
-
 import junit.framework.Assert;
-
-import org.junit.*;
+import org.junit.Ignore;
 import org.junit.Test;
+import to.etc.domui.component.form.TabularFormBuilder;
+import to.etc.domui.dom.html.IControl;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QField;
+import to.etc.webapp.query.QRestrictor;
 
-import to.etc.domui.component.form.*;
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import java.util.List;
 
 /**
  * Not really meant to run. It checks compilation errros that should occur.
@@ -21,18 +22,11 @@ import to.etc.webapp.query.*;
  */
 @Ignore
 public class QFieldCompileTest {
-
 	@Test
 	public void testPaths() throws Exception {
-
-
 		QDataContext dc = null;
-
-
 		QTestRelationRoot r = QTestRelation.get();
 		QCriteria<TestRelation> q = r.getCriteria();
-
-
 
 		if(q != null) {//compiler
 			q.eq(r.properName(), "bla");
@@ -71,10 +65,9 @@ public class QFieldCompileTest {
 				return null;
 			}
 		};
-		IControl<String> pc = builder.addProp(b.bankname());
-		IControl<TestBankAccount> rc = builder.addProp(r.preferredAccount());
-		IControl<TestRelation> bc = builder.addProp(r.preferredAccount().relation());
-
+		builder.addProp(b.bankname());
+		builder.addProp(r.preferredAccount());
+		builder.addProp(r.preferredAccount().relation());
 	}
 
 	public static void main(String[] args) throws Exception {

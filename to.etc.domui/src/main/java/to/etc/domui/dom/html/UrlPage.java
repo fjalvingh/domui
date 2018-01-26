@@ -32,6 +32,7 @@ import to.etc.domui.logic.LogicContextImpl;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.Constants;
@@ -45,7 +46,7 @@ import javax.annotation.Nullable;
 
 
 /**
- * The base for all pages that can be accessed thru URL's. This is mostly a
+ * The base for all pages that can be accessed through URL's. This is mostly a
  * dummy class which ensures that all pages/fragments properly extend from DIV,
  * ensuring that the Page logic can replace the "div" tag with a "body" tag for
  * root fragments.
@@ -65,7 +66,6 @@ public class UrlPage extends Div {
 	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
 
 	public UrlPage() {
-		setCssClass("ui-content ui-kludge");
 	}
 
 	/**
@@ -74,15 +74,16 @@ public class UrlPage extends Div {
 	 * @param themeVariant
 	 */
 	public final void setThemeVariant(@Nonnull IThemeVariant themeVariant) {
-		m_themeVariant = themeVariant;
+		UIContext.getRequestContext().setThemeVariant(themeVariant);
 	}
 
-	public final IThemeVariant getThemeVariant() {
-		return m_themeVariant;
-	}
+	//public final IThemeVariant getThemeVariant() {
+	//	return UIContext.getRequestContext().getThemeVariant();
+	//}
 
 	/**
-	 * WILL BE REMOVED IN 5.2 - do not use.
+	 * No longer in use for domui 2.0.
+	 *
 	 * Remove the styles that cause the margin kludge to be applied to all pages.
 	 */
 	@Deprecated

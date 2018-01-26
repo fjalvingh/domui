@@ -33,7 +33,7 @@ import javax.servlet.http.*;
  * Created on Oct 25, 2006
  */
 public interface CometContext {
-	public void begin(HttpServlet slet, HttpServletRequest req, Continuation cont) throws Exception;
+	void begin(HttpServlet slet, HttpServletRequest req, Continuation cont) throws Exception;
 
-	public void respond(HttpServletResponse resp, boolean timeout) throws Exception;
+	void respond(HttpServletResponse resp, boolean timeout) throws Exception;
 }

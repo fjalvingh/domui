@@ -24,24 +24,55 @@
  */
 package to.etc.domui.component.meta;
 
-import java.lang.reflect.*;
-import java.util.*;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.component.meta.impl.MetaModelException;
+import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component.meta.init.IClassMetaModelFactory;
+import to.etc.domui.component.meta.init.MetaInitializer;
+import to.etc.domui.converter.CompoundComparator;
+import to.etc.domui.converter.IValueValidator;
+import to.etc.domui.converter.MaxMinValidator;
+import to.etc.domui.converter.PropertyComparator;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.login.IUser;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.util.DisplayPropertyNodeContentRenderer;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
+import to.etc.domui.util.db.CriteriaMatchingVisitor;
+import to.etc.util.DeveloperOptions;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.qsql.JdbcUtil;
+import to.etc.webapp.query.IIdentifyable;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QOrder;
+import to.etc.webapp.query.QSortOrderDirection;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.login.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.db.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.qsql.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Array;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Accessor class to the generalized metadata thingies.
@@ -56,40 +87,25 @@ final public class MetaManager {
 	@Nonnull
 	private static final String pFIELDHANDLER = "fieldHandler";
 
-	static private List<IClassMetaModelFactory> m_modelList = new ArrayList<IClassMetaModelFactory>();
+	private MetaManager() {
+	}
 
-	/**
-	 * Map indexed by Class<?> or IMetaClass returning the classmodel for that instance.
-	 */
-	static private Map<Object, ClassMetaModel> m_classMap = new HashMap<Object, ClassMetaModel>();
-
-	/** While a metamodel is being initialized this keeps track of recursive init's */
-	final static private Stack<Object> m_initStack = new Stack<Object>();
-
-	final static private List<Runnable> m_initList = new ArrayList<Runnable>();
-
-	private MetaManager() {}
-
-	static synchronized public void registerModel(@Nonnull IClassMetaModelFactory model) {
-		List<IClassMetaModelFactory> mm = new ArrayList<IClassMetaModelFactory>(m_modelList);
-		mm.add(model);
-		m_modelList = mm;
+	static public void registerModel(@Nonnull IClassMetaModelFactory model) {
+		MetaInitializer.registerModel(model);
 	}
 
 	@Nonnull
 	static private synchronized List<IClassMetaModelFactory> getList() {
-		if(m_modelList.size() == 0)
-			registerModel(new DefaultJavaClassMetaModelFactory());
-		return m_modelList;
+		return MetaInitializer.getList();
 	}
 
 	@Nonnull
-	static public ClassMetaModel findClassMeta(@Nonnull Class< ? > clz) {
+	static public ClassMetaModel findClassMeta(@Nonnull Class<?> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("Class<?> parameter cannot be null");
 		if(clz.getName().contains("$$"))
 			clz = clz.getSuperclass(); // Enhanced class (Hibernate). Get base class instead
-		return findAndInitialize(clz);
+		return MetaInitializer.findAndInitialize(clz);
 	}
 
 	/**
@@ -104,86 +120,7 @@ final public class MetaManager {
 			return (ClassMetaModel) mc;
 		if(mc == null)
 			throw new IllegalArgumentException("IMetaClass parameter cannot be null");
-		return findAndInitialize(mc);
-	}
-
-	/**
-	 * Clears the cache. In use by reloading class mechanism, hence only ever called while developing never in production. Dont use otherwise.
-	 */
-	public synchronized static void internalClear() {
-		m_classMap.clear();
-	}
-
-	@Nonnull
-	private static ClassMetaModel findAndInitialize(@Nonnull Object mc) {
-		//-- We need some factory to create it.
-		synchronized(MetaManager.class) {
-			ClassMetaModel cmm = m_classMap.get(mc);
-			if(cmm != null)
-				return cmm;
-
-			//-- Phase 1: create the metamodel and it's direct properties.
-			checkInitStack(mc, "primary initialization");
-			IClassMetaModelFactory best = findModelFactory(mc);
-			m_initStack.add(mc);
-			cmm = best.createModel(m_initList, mc);
-			m_classMap.put(mc, cmm);
-			m_initStack.remove(mc);
-
-			//-- Phase 2: create the secondary model.
-			if(m_initStack.size() == 0 && m_initList.size() > 0) {
-				List<Runnable> dl = new ArrayList<Runnable>(m_initList);
-				m_initList.clear();
-				for(Runnable r : dl) {
-					r.run();
-				}
-			}
-			return cmm;
-		}
-	}
-
-	private static void checkInitStack(Object mc, String msg) {
-		if(m_initStack.contains(mc)) {
-			m_initStack.add(mc);
-			StringBuilder sb = new StringBuilder();
-			for(Object o : m_initStack) {
-				if(sb.length() > 0)
-					sb.append(" -> ");
-				sb.append(o.toString());
-			}
-			m_initStack.clear();
-
-			throw new IllegalStateException("Circular reference in " + msg + ": " + sb.toString());
-		}
-	}
-
-	/**
-	 * We need to find a factory that knows how to deliver this metadata.
-	 */
-	@Nonnull
-	private synchronized static IClassMetaModelFactory findModelFactory(Object theThingy) {
-		int bestscore = 0;
-		int hitct = 0;
-		IClassMetaModelFactory best = null;
-		for(IClassMetaModelFactory mmf : getList()) {
-			int score = mmf.accepts(theThingy);
-			if(score > 0) {
-				if(score == bestscore)
-					hitct++;
-				else if(score > bestscore) {
-					bestscore = score;
-					best = mmf;
-					hitct = 1;
-				}
-			}
-		}
-
-		//-- We MUST have some factory now, or we're in trouble.
-		if(best == null)
-			throw new IllegalStateException("No IClassModelFactory accepts the type '" + theThingy + "', which is a " + theThingy.getClass());
-		if(hitct > 1)
-			throw new IllegalStateException("Two IClassModelFactory's accept the type '" + theThingy + "' (which is a " + theThingy.getClass() + ") at score=" + bestscore);
-		return best;
+		return MetaInitializer.findAndInitialize(mc);
 	}
 
 	/**
@@ -193,7 +130,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nullable
-	static public PropertyMetaModel< ? > findPropertyMeta(@Nonnull Class< ? > clz, @Nonnull String name) {
+	static public PropertyMetaModel<?> findPropertyMeta(@Nonnull Class<?> clz, @Nonnull String name) {
 		ClassMetaModel cm = findClassMeta(clz);
 		return cm.findProperty(name);
 	}
@@ -205,22 +142,22 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nullable
-	static public PropertyMetaModel< ? > findPropertyMeta(IMetaClass mc, String name) {
+	static public PropertyMetaModel<?> findPropertyMeta(IMetaClass mc, String name) {
 		ClassMetaModel cm = findClassMeta(mc);
 		return cm.findProperty(name);
 	}
 
 	@Nonnull
-	static public PropertyMetaModel< ? > getPropertyMeta(Class< ? > clz, String name) {
-		PropertyMetaModel< ? > pmm = findPropertyMeta(clz, name);
+	static public PropertyMetaModel<?> getPropertyMeta(Class<?> clz, String name) {
+		PropertyMetaModel<?> pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
 		return pmm;
 	}
 
 	@Nonnull
-	static public PropertyMetaModel< ? > getPropertyMeta(IMetaClass clz, String name) {
-		PropertyMetaModel< ? > pmm = findPropertyMeta(clz, name);
+	static public PropertyMetaModel<?> getPropertyMeta(IMetaClass clz, String name) {
+		PropertyMetaModel<?> pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz + "." + name + "' is not known.");
 		return pmm;
@@ -268,11 +205,11 @@ final public class MetaManager {
 		return false;
 	}
 
-	static private INodeContentRenderer< ? > createComboLabelRenderer(Class< ? extends ILabelStringRenderer< ? >> lsr) {
+	static private IRenderInto<?> createComboLabelRenderer(Class<? extends ILabelStringRenderer<?>> lsr) {
 		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
-		return new INodeContentRenderer<Object>() {
+		return new IRenderInto<Object>() {
 			@Override
-			public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
+			public void render(@Nonnull NodeContainer node, @Nonnull Object object) {
 				String text = lr.getLabelFor(object);
 				if(text != null)
 					node.add(text);
@@ -284,9 +221,9 @@ final public class MetaManager {
 		return list != null && list.size() > 0;
 	}
 
-	static private INodeContentRenderer< ? > TOSTRING_RENDERER = new INodeContentRenderer<Object>() {
+	static private IRenderInto<?> TOSTRING_RENDERER = new IRenderInto<Object>() {
 		@Override
-		public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable Object object, @Nullable Object parameters) {
+		public void render(@Nonnull NodeContainer node, @Nullable Object object) {
 			if(object != null)
 				node.add(object.toString());
 		}
@@ -295,7 +232,7 @@ final public class MetaManager {
 
 	/**
 	 * This creates a default combo option value renderer using whatever metadata is available.
-	 * @param pmm	If not-null this takes precedence. This then <b>must</b> be the property that
+	 * @param pmm    If not-null this takes precedence. This then <b>must</b> be the property that
 	 * 				is to be filled from the list-of-values in the combo. The property is used
 	 * 				to override the presentation only. Formally speaking, pmm.getActualType() must
 	 * 				be equal to the combo's list item type, and the renderer expects items of that
@@ -305,7 +242,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nonnull
-	static public INodeContentRenderer< ? > createDefaultComboRenderer(@Nullable PropertyMetaModel< ? > pmm, @Nullable ClassMetaModel cmm) {
+	static public IRenderInto<?> createDefaultComboRenderer(@Nullable PropertyMetaModel<?> pmm, @Nullable ClassMetaModel cmm) {
 		//-- Property-level metadata is the 1st choice
 		if(pmm != null) {
 			cmm = MetaManager.findClassMeta(pmm.getActualType()); // Always use property's class model.
@@ -328,7 +265,7 @@ final public class MetaManager {
 				/*
 				 * The property has DisplayProperties.
 				 */
-				List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
+				List<ExpandedDisplayProperty<?>> xpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, cmm, null);
 				return new DisplayPropertyNodeContentRenderer(cmm, xpl);
 			}
 			return TOSTRING_RENDERER; // Just tostring it..
@@ -347,7 +284,7 @@ final public class MetaManager {
 				/*
 				 * The value class has display properties; expand them. Since this is the value class we need no root accessor (== identity/same accessor).
 				 */
-				List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
+				List<ExpandedDisplayProperty<?>> xpl = ExpandedDisplayProperty.expandDisplayProperties(cmm.getComboDisplayProperties(), cmm, null);
 				return new DisplayPropertyNodeContentRenderer(cmm, xpl);
 			}
 		}
@@ -373,9 +310,9 @@ final public class MetaManager {
 			return true;
 
 		//-- Classes must be the same type but we allow for proxying
-		Class< ? > acl = a.getClass();
+		Class<?> acl = a.getClass();
 		@Nonnull
-		Class< ? > bcl = b.getClass();
+		Class<?> bcl = b.getClass();
 		if(!acl.isAssignableFrom(bcl) && !bcl.isAssignableFrom(acl))
 			return false;
 
@@ -395,8 +332,8 @@ final public class MetaManager {
 					acmm = cmm;
 					bcmm = cmm;
 				}
-				PropertyMetaModel< ? > apkmm = acmm.getPrimaryKey();
-				PropertyMetaModel< ? > bpkmm = bcmm.getPrimaryKey();
+				PropertyMetaModel<?> apkmm = acmm.getPrimaryKey();
+				PropertyMetaModel<?> bpkmm = bcmm.getPrimaryKey();
 				if(apkmm == null || bpkmm == null)
 					return false;
 				Object pka = apkmm.getValue(a);
@@ -414,7 +351,7 @@ final public class MetaManager {
 			if(Array.getLength(a) != Array.getLength(b)) {
 				return false;
 			}
-			for(int i = Array.getLength(a); --i >= 0;) {
+			for(int i = Array.getLength(a); --i >= 0; ) {
 				if(!areObjectsEqual(Array.get(a, i), Array.get(b, i), findClassMeta(acl.getComponentType()))) {
 					return false;
 				}
@@ -434,7 +371,7 @@ final public class MetaManager {
 	 * @param val
 	 * @return
 	 */
-	static public <T extends Enum< ? >> String findEnumLabel(T val) {
+	static public <T extends Enum<?>> String findEnumLabel(T val) {
 		if(val == null)
 			return null;
 		ClassMetaModel cmm = findClassMeta(val.getClass());
@@ -448,7 +385,7 @@ final public class MetaManager {
 	 * @param clz
 	 * @return
 	 */
-	static public <T extends Enum< ? >> List<ValueLabelPair<T>> createEnumList(Class<T> clz) {
+	static public <T extends Enum<?>> List<ValueLabelPair<T>> createEnumList(Class<T> clz) {
 		List<ValueLabelPair<T>> res = new ArrayList<ValueLabelPair<T>>();
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		Object[] values = cmm.getDomainValues();
@@ -463,37 +400,6 @@ final public class MetaManager {
 		return res;
 	}
 
-	static public PropertyMetaModel< ? > internalCalculateDottedPath(ClassMetaModel cmm, String name) {
-		int pos = name.indexOf('.'); 							// Dotted name?
-		if(pos == -1)
-			return cmm.findSimpleProperty(name); 				// Use normal resolution directly on the class.
-
-		//-- We must create a synthetic property.
-		int ix = 0;
-		int len = name.length();
-		ClassMetaModel ccmm = cmm; 								// Current class meta-model for property reached
-		List<PropertyMetaModel< ? >> acl = new ArrayList<PropertyMetaModel< ? >>(10);
-		for(;;) {
-			String sub = name.substring(ix, pos); 				// Get path component,
-			ix = pos + 1;
-
-			PropertyMetaModel< ? > pmm = ccmm.findSimpleProperty(sub); // Find base property,
-			if(pmm == null)
-				throw new IllegalStateException("Invalid property path '" + name + "' on " + cmm + ": property '" + sub + "' on classMetaModel=" + ccmm + " does not exist");
-			acl.add(pmm); // Next access path,
-			ccmm = MetaManager.findClassMeta(pmm.getActualType());
-
-			if(ix >= len)
-				break;
-			pos = name.indexOf('.', ix);
-			if(pos == -1)
-				pos = len;
-		}
-
-		//-- Resolved to target. Return a complex proxy.
-		return new PathPropertyMetaModel<Object>(name, acl.toArray(new PropertyMetaModel[acl.size()]));
-	}
-
 	/**
 	 * Parse the property path and return the list of properties in the path. This explicitly allows
 	 * traversing child relations provided generic type information is present to denote the child's type.
@@ -501,10 +407,10 @@ final public class MetaManager {
 	 * @param compoundName
 	 * @return
 	 */
-	static public List<PropertyMetaModel< ? >> parsePropertyPath(@Nonnull ClassMetaModel m, String compoundName) {
+	static public List<PropertyMetaModel<?>> parsePropertyPath(@Nonnull ClassMetaModel m, String compoundName) {
 		int ix = 0;
 		int len = compoundName.length();
-		List<PropertyMetaModel< ? >> res = new ArrayList<PropertyMetaModel< ? >>();
+		List<PropertyMetaModel<?>> res = new ArrayList<PropertyMetaModel<?>>();
 		ClassMetaModel cmm = m;
 		while(ix < len) {
 			int pos = compoundName.indexOf('.', ix);
@@ -519,7 +425,7 @@ final public class MetaManager {
 
 			if(null == cmm)
 				throw new IllegalStateException("Metamodel got null while parsing " + compoundName);
-			PropertyMetaModel< ? > pmm = cmm.findSimpleProperty(name);
+			PropertyMetaModel<?> pmm = cmm.findSimpleProperty(name);
 			if(pmm == null)
 				throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_COMPOUND_PROPERTY_NOT_FOUND, compoundName, name, cmm.toString());
 
@@ -530,7 +436,7 @@ final public class MetaManager {
 				//-- This must be some kind of collectable subtype or we're in sh*t.
 				Type vtype = pmm.getGenericActualType();
 				if(vtype != null) {
-					Class< ? > vclass = findCollectionType(vtype); // Try to get value class type.
+					Class<?> vclass = findCollectionType(vtype); // Try to get value class type.
 					if(vclass != null)
 						nextmm = findClassMeta(vclass);
 				}
@@ -556,7 +462,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nullable
-	static public Class< ? > findCollectionType(Type genericType) {
+	static public Class<?> findCollectionType(Type genericType) {
 		if(genericType instanceof Class<?>) {
 			Class<?> cl = (Class<?>) genericType;
 			if(cl.isArray()) {
@@ -568,12 +474,12 @@ final public class MetaManager {
 			Type raw = pt.getRawType();
 
 			//-- This must be a collection type of class.
-			if(raw instanceof Class< ? >) {
-				Class< ? > cl = (Class< ? >) raw;
+			if(raw instanceof Class<?>) {
+				Class<?> cl = (Class<?>) raw;
 				if(Collection.class.isAssignableFrom(cl)) {
 					Type[] tar = pt.getActualTypeArguments();
 					if(tar != null && tar.length == 1) { // Collection<T> required
-						return (Class< ? >) tar[0];
+						return (Class<?>) tar[0];
 					}
 				}
 			}
@@ -592,7 +498,7 @@ final public class MetaManager {
 	 */
 	static public <T> boolean hasDuplicates(List<T> items, T instance, String propertyname) throws Exception {
 		ClassMetaModel cmm = findClassMeta(instance.getClass());
-		PropertyMetaModel< ? > pmm = getPropertyMeta(instance.getClass(), propertyname);
+		PropertyMetaModel<?> pmm = getPropertyMeta(instance.getClass(), propertyname);
 		Object vi = pmm.getValue(instance);
 		ClassMetaModel vcmm = vi == null ? null : findClassMeta(vi.getClass());
 		for(T v : items) {
@@ -609,6 +515,7 @@ final public class MetaManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Generic data model utility functions.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 * @param t
@@ -618,12 +525,13 @@ final public class MetaManager {
 		if(t == null)
 			return "null";
 		ClassMetaModel cmm = MetaManager.findClassMeta(t.getClass());
-		PropertyMetaModel< ? > pkmm = cmm.getPrimaryKey();
+		PropertyMetaModel<?> pkmm = cmm.getPrimaryKey();
 		if(cmm.isPersistentClass() && pkmm != null) {
 			try {
 				Object k = pkmm.getValue(t);
 				return t.getClass().getName() + "#" + k + " @" + System.identityHashCode(t);
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 		return t.toString() + " @" + System.identityHashCode(t);
 	}
@@ -645,45 +553,18 @@ final public class MetaManager {
 			throw new IllegalArgumentException("Instance cannot be null");
 		if(cmm == null)
 			cmm = findClassMeta(instance.getClass());
-		if(! cmm.isPersistentClass())
+		if(!cmm.isPersistentClass())
 			throw new IllegalArgumentException("The instance " + identify(instance) + " is not a persistent class");
-		PropertyMetaModel< ? > pmm = cmm.getPrimaryKey();
+		PropertyMetaModel<?> pmm = cmm.getPrimaryKey();
 		if(pmm == null)
 			throw new IllegalArgumentException("The instance " + identify(instance) + " has an undefined primary key (cannot be obtained by metadata)");
 		return pmm.getValue(instance);
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Expanding properties.								*/
-	/*--------------------------------------------------------------*/
-
-//	static {
-//		SIMPLE = new HashSet<Class< ? >>();
-//		SIMPLE.add(Integer.class);
-//		SIMPLE.add(Integer.TYPE);
-//		SIMPLE.add(Long.class);
-//		SIMPLE.add(Long.TYPE);
-//		SIMPLE.add(Character.class);
-//		SIMPLE.add(Character.TYPE);
-//		SIMPLE.add(Short.class);
-//		SIMPLE.add(Short.TYPE);
-//		SIMPLE.add(Byte.class);
-//		SIMPLE.add(Byte.TYPE);
-//		SIMPLE.add(Double.class);
-//		SIMPLE.add(Double.TYPE);
-//		SIMPLE.add(Float.class);
-//		SIMPLE.add(Float.TYPE);
-//		SIMPLE.add(Boolean.class);
-//		SIMPLE.add(Boolean.TYPE);
-//		SIMPLE.add(BigDecimal.class);
-//		SIMPLE.add(String.class);
-//		SIMPLE.add(BigInteger.class);
-//	}
-
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	Generate metadata for search and display for testing*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Try to calculate some search properties off a data class for debug/test pps, if enabled
 	 * @param cm
@@ -699,7 +580,7 @@ final public class MetaManager {
 		//-- Make a selection of reasonable properties to search on. Skip any compounds.
 		int order = 0;
 		List<SearchPropertyMetaModel> res = new ArrayList<SearchPropertyMetaModel>();
-		for(PropertyMetaModel< ? > pmm : cm.getProperties()) {
+		for(PropertyMetaModel<?> pmm : cm.getProperties()) {
 			if(DomUtil.isBasicType(pmm.getActualType())) {
 				//-- Very basic. Only support small sizes;
 				if(pmm.getLength() > 50)
@@ -716,7 +597,7 @@ final public class MetaManager {
 			sp.setIgnoreCase(true);
 			sp.setOrder(order++);
 			sp.setPropertyName(pmm.getName());
-			List<PropertyMetaModel< ? >> pl = new ArrayList<PropertyMetaModel< ? >>(1);
+			List<PropertyMetaModel<?>> pl = new ArrayList<PropertyMetaModel<?>>(1);
 			pl.add(pmm);
 			sp.setPropertyPath(pl);
 			res.add(sp);
@@ -736,7 +617,7 @@ final public class MetaManager {
 
 		List<DisplayPropertyMetaModel> res = new ArrayList<DisplayPropertyMetaModel>();
 		int totlen = 0;
-		for(PropertyMetaModel< ? > pmm : cm.getProperties()) {
+		for(PropertyMetaModel<?> pmm : cm.getProperties()) {
 			if(totlen > 512 || res.size() > 20)
 				break;
 
@@ -771,7 +652,7 @@ final public class MetaManager {
 	/**
 	 * Get a NLSed label for the specified enum label.
 	 */
-	static public String getEnumLabel(Enum< ? > label) {
+	static public String getEnumLabel(Enum<?> label) {
 		if(label == null)
 			return null;
 		ClassMetaModel cmm = MetaManager.findClassMeta(label.getClass());
@@ -791,7 +672,7 @@ final public class MetaManager {
 	 * @param value
 	 * @return
 	 */
-	static public String getEnumLabel(Class< ? > clz, String property, Object value) {
+	static public String getEnumLabel(Class<?> clz, String property, Object value) {
 		if(value == null)
 			return null;
 		return getEnumLabel(MetaManager.findPropertyMeta(clz, property), value);
@@ -805,7 +686,7 @@ final public class MetaManager {
 	 * @param value
 	 * @return
 	 */
-	static public String getEnumLabel(PropertyMetaModel< ? > pmm, Object value) {
+	static public String getEnumLabel(PropertyMetaModel<?> pmm, Object value) {
 		if(value == null)
 			return null;
 		Locale loc = NlsContext.getLocale();
@@ -841,16 +722,16 @@ final public class MetaManager {
 		for(Object xc : except)
 			exceptSet.add(xc);
 
-		List<PropertyMetaModel< ? >> tolist = MetaManager.findClassMeta(to.getClass()).getProperties();
-		Map<String, PropertyMetaModel< ? >> tomap = new HashMap<String, PropertyMetaModel< ? >>();
-		for(PropertyMetaModel< ? > pmm : tolist)
+		List<PropertyMetaModel<?>> tolist = MetaManager.findClassMeta(to.getClass()).getProperties();
+		Map<String, PropertyMetaModel<?>> tomap = new HashMap<String, PropertyMetaModel<?>>();
+		for(PropertyMetaModel<?> pmm : tolist)
 			tomap.put(pmm.getName(), pmm);
 
-		List<PropertyMetaModel< ? >> frlist = MetaManager.findClassMeta(from.getClass()).getProperties();
-		for(PropertyMetaModel< ? > frpmm : frlist) {
+		List<PropertyMetaModel<?>> frlist = MetaManager.findClassMeta(from.getClass()).getProperties();
+		for(PropertyMetaModel<?> frpmm : frlist) {
 			if(isExcepted(exceptSet, frpmm))
 				continue;
-			PropertyMetaModel< ? > topmm = tomap.get(frpmm.getName());
+			PropertyMetaModel<?> topmm = tomap.get(frpmm.getName());
 			if(null == topmm)
 				continue;
 
@@ -864,12 +745,12 @@ final public class MetaManager {
 
 	}
 
-	private static boolean isExcepted(@Nonnull Set<Object> exceptSet, @Nonnull PropertyMetaModel< ? > frpmm) {
+	private static boolean isExcepted(@Nonnull Set<Object> exceptSet, @Nonnull PropertyMetaModel<?> frpmm) {
 		if(exceptSet.contains(frpmm.getName()))
 			return true;
 		for(Object t : exceptSet) {
 			if(t == Class.class) {
-				Class< ? > rc = (Class< ? >) t;
+				Class<?> rc = (Class<?>) t;
 
 				if(rc.isAssignableFrom(frpmm.getActualType()))
 					return true;
@@ -885,7 +766,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nonnull
-	static public List<DisplayPropertyMetaModel> getComboProperties(@Nonnull PropertyMetaModel< ? > pmm) {
+	static public List<DisplayPropertyMetaModel> getComboProperties(@Nonnull PropertyMetaModel<?> pmm) {
 		List<DisplayPropertyMetaModel> res = pmm.getComboDisplayProperties();
 		if(res.size() != 0)
 			return res;
@@ -912,7 +793,7 @@ final public class MetaManager {
 	 * @param crit
 	 * @param properties
 	 */
-	static public void applyPropertySort(@Nonnull QCriteria< ? > q, @Nonnull List<DisplayPropertyMetaModel> properties) {
+	static public void applyPropertySort(@Nonnull QCriteria<?> q, @Nonnull List<DisplayPropertyMetaModel> properties) {
 		List<DisplayPropertyMetaModel> sl = new ArrayList<DisplayPropertyMetaModel>();
 		boolean hasindex = false;
 		for(DisplayPropertyMetaModel p : properties) {
@@ -979,11 +860,11 @@ final public class MetaManager {
 	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, boolean copyPK, boolean copyTCN, boolean copyTransient, String... ignoredColumns) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(source.getClass());
 		List<String> ignoreList = new ArrayList<String>(ignoredColumns.length);
-		for (String ignore : ignoredColumns) {
+		for(String ignore : ignoredColumns) {
 			ignoreList.add(ignore);
 		}
-		for (PropertyMetaModel< ? > pmm : cmm.getProperties()) {
-			PropertyMetaModel< Object > opmm = (PropertyMetaModel< Object >) pmm;
+		for(PropertyMetaModel<?> pmm : cmm.getProperties()) {
+			PropertyMetaModel<Object> opmm = (PropertyMetaModel<Object>) pmm;
 			if((!opmm.isPrimaryKey() || copyPK) && //
 				(!opmm.isTransient() || copyTransient) && //
 				(!"tcn".equalsIgnoreCase(opmm.getName()) || copyTCN) && //
@@ -1007,7 +888,7 @@ final public class MetaManager {
 	 */
 	@Nullable
 	static synchronized public ClassMetaModel findClassByTable(@Nonnull String tableName) {
-		for(ClassMetaModel cmm : m_classMap.values()) {
+		for(ClassMetaModel cmm : MetaInitializer.getAllMetaClasses()) {
 			if(tableName.equalsIgnoreCase(cmm.getTableName()))
 				return cmm;
 		}
@@ -1044,7 +925,7 @@ final public class MetaManager {
 		//-- Right... Use JDBC to determine child relations et al, to prevent blowing up the Session cache.
 		String childTbl = JdbcUtil.hasChildRecords(dc.getConnection(), schemaName, tableName, pk.toString());
 		if(null == childTbl)
-			return null;											// No dependencies found.
+			return null;                                            // No dependencies found.
 
 		//-- Try to translate the table name to a class, if possible
 		ClassMetaModel chmm = findClassByTable(childTbl);
@@ -1061,34 +942,123 @@ final public class MetaManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	QCriteria queries on lists and instances.			*/
 	/*--------------------------------------------------------------*/
-	/*
-	 * FIXME This code should probably move to QCriteria itself, or at least close to to.etc.webapp.core. But because the
-	 * implementation is so nice if we use Metadata it's created here 8-/
-	 */
-
 	/**
 	 * Return a new list which contains only the items in the input list that are obeying
 	 * the specified criteria.
-	 * @param in
-	 * @param query
-	 * @return
+	 * FIXME This code should probably move to QCriteria itself, or at least close to to.etc.webapp.core. But because the
+	 * implementation is so nice when we use Metadata it's created here 8-/
+	 *
 	 */
 	@Nonnull
-	static public <X, T extends Collection<X>> List<X> filter(@Nonnull T in, @Nonnull QCriteria<X> query) throws Exception {
+	static public <X, T extends Collection<X>> List<X> query(@Nonnull T in, @Nonnull QCriteria<X> query) throws Exception {
 		CriteriaMatchingVisitor<X> v = null;
-		List<X> res = new ArrayList<X>();
+		ClassMetaModel cmm = null;
+		List<X> res = new ArrayList<>();
 		for(X item : in) {
 			if(item == null)								// Null items in the list do not match by definition.
 				continue;
 			if(v == null) {
-				ClassMetaModel cmm = findClassMeta(item.getClass());
-				v = new CriteriaMatchingVisitor<X>(item, cmm);
+				cmm = findClassMeta(item.getClass());
+				v = new CriteriaMatchingVisitor<>(item, cmm);
 			} else
 				v.setInstance(item);
 			query.visit(v);
 			if(v.isMatching())
 				res.add(item);
 		}
+
+		//-- Sort
+		List<QOrder> order = query.getOrder();
+		if(order.size() > 0 && cmm != null) {
+			sortBy(cmm, res, order);
+		}
 		return res;
+	}
+
+	/**
+	 * Please use {#link {@link #query(Collection, QCriteria)}} instead.
+	 *
+	 * Return a new list which contains only the items in the input list that are obeying
+	 * the specified criteria.
+	 * FIXME This code should probably move to QCriteria itself, or at least close to to.etc.webapp.core. But because the
+	 * implementation is so nice when we use Metadata it's created here 8-/
+	 *
+	 */
+	@Deprecated
+	@Nonnull
+	static public <X, T extends Collection<X>> List<X> filter(@Nonnull T in, @Nonnull QCriteria<X> query) throws Exception {
+		return filter(in, query);
+	}
+
+	/**
+	 * Handles the sort clause of a QCriteria on a list.
+	 */
+	private static <X> void sortBy(@Nonnull ClassMetaModel cmm, @Nonnull List<X> list, @Nonnull List<QOrder> order) {
+		List<Comparator<X>> all = order.stream()
+			.map(item -> (Comparator<X>) PropertyComparator.create(cmm, item.getProperty(), item.getDirection() == QSortOrderDirection.DESC ? SortableType.SORTABLE_DESC : SortableType.SORTABLE_ASC))
+			.collect(Collectors.toList());
+		CompoundComparator<X> comparator = new CompoundComparator<X>(all, false);
+		list.sort(comparator);
+	}
+
+	/**
+	 * Calculate the size of some text entity from metadata.
+	 * @param pmm
+	 * @return
+	 */
+	static public int calculateTextSize(PropertyMetaModel<?> pmm) {
+		if(pmm.getDisplayLength() > 0)
+			return pmm.getDisplayLength();
+		if(pmm.getPrecision() > 0) {
+			//-- Calculate a size using scale and precision.
+			int size = pmm.getPrecision();
+			int d = size;
+			if(pmm.getScale() > 0) {
+				size++;									// Inc size to allow for decimal point or comma
+				d -= pmm.getScale();					// Reduce integer part,
+				if(d >= 4) {							// Can we get > 999? Then we can have thousand-separators
+					int nd = (d - 1) / 3;				// How many thousand separators could there be?
+					size += nd; 						// Increment input size with that
+				}
+			}
+			return size;
+		}
+
+		if(pmm.getLength() > 0) {
+			return pmm.getLength() < 40 ? pmm.getLength() : 40;
+		}
+		return -1;
+	}
+
+	/**
+	 * This adds a validator for the maximal and minimal value for an input, gotten from the property metamodel.
+	 */
+	@Nullable
+	public static IValueValidator<?> calculatePrecisionValidator(@Nonnull PropertyMetaModel< ? > pmm) {
+		return calculatePrecisionValidator(pmm.getPrecision(), pmm.getScale());
+	}
+
+	/**
+	 * This adds a validator for the maximal and minimal value for a numeric input, depending on the precision
+	 * and scale.
+	 */
+	@Nullable
+	public static IValueValidator<?> calculatePrecisionValidator(int precision, int scale) {
+		if(precision <= 0) {
+			return null;
+		}
+
+		int d = precision;
+		if(scale > 0)
+			d -= scale;
+		if(d < 0)
+			return null;
+
+		BigDecimal bd = BigDecimal.valueOf(10);
+		bd = bd.pow(d); 										// 10^n, this is the EXCLUSIVE max/min value.
+
+		BigDecimal fraction = BigDecimal.ONE.divide(BigDecimal.TEN.pow(scale));	// BigDecimal.pow() does not support -ve exponents, sigh.
+		bd = bd.subtract(fraction);
+		return new MaxMinValidator(bd.negate(), bd);
 	}
 }

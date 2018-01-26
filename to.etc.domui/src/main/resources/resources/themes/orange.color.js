@@ -58,7 +58,7 @@ errorsAndWarningsDomui = {
 //--------------------------------
 //-- Primary background selections
 //--------------------------------
-backgroundMap = new Object();		// REQUIRED NAME - used in VisualThemeEditPage
+backgroundMap = {};		// REQUIRED NAME - used in VisualThemeEditPage
 backgroundMap["Orange"] = {
 	name: 'Lichtgrijze achtergrond met verloop',
 	image: 'bg-body-gray-dithered.png',
@@ -79,7 +79,7 @@ bg_body_color = currentBackground.bgcolor;
 //------------------------
 //-- Button set selections
 //------------------------
-buttonMap = new Object();			// REQUIRED NAME - used in VisualThemeEditPage
+buttonMap = {};			// REQUIRED NAME - used in VisualThemeEditPage
 buttonMap["Orange"] = {
 	name: 'Blauwe knoppen',
 	img: "btn-blue-all.png"
@@ -154,7 +154,7 @@ highlight_bg = "#ffbb43";
 highlight2_bg = "#ffcc72";
 
 //-- Data table header: make it color "with" the button color set.
-dataColorMap = new Object();
+dataColorMap = {};
 dataColorMap["blue"] = "#98bbf3";
 dataColorMap["fg-blue"] = "#ffffff";
 
@@ -170,7 +170,7 @@ dataColorMap["fg-grey"] = "#ffffff";
 button_img= "defaultButton.png";
 
 
-resourceNameMap = new Object();
+resourceNameMap = {};
 bg_info_panel = resourceNameMap["bg-info-panel-" + bset];
 
 bg_hdr_ntbl = dataColorMap["bg-hdr-ntbl-" + bset];

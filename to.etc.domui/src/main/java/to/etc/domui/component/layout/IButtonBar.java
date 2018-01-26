@@ -76,14 +76,11 @@ public interface IButtonBar {
 	@Nonnull
 	<T> DefaultButton addAction(T instance, IUIAction<T> action, int order) throws Exception;
 
-	@Nonnull
-	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click);
+	@Nonnull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click);
 
-	@Nonnull
-	public DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click);
+	@Nonnull DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click);
 
-	@Nonnull
-	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click, int order);
+	@Nonnull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click, int order);
 
-	public DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click, int order);
+	DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click, int order);
 }

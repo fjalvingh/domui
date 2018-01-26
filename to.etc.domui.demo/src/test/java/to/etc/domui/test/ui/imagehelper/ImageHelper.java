@@ -6,6 +6,7 @@ import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
+import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -16,7 +17,9 @@ import java.io.IOException;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-8-17.
  */
-public class ImageHelper {
+final public class ImageHelper {
+	private void ImageHelper() {}
+
 	public static void checkBaseLine(String baseName, WebDriverConnector wd, By first, By second, By whole) throws Exception {
 		WebElement one = wd.getElement(first);
 		WebElement two = wd.getElement(second);
@@ -61,6 +64,83 @@ public class ImageHelper {
 		Assert.fail("The baseline for the first element is " + distance(blOneAbs, blTwoAbs) + " the second - see " + output);
 	}
 
+	public static void checkBaseLine(WebDriverConnector wd, ScreenInspector si, String testID, String componentInputCSS) throws Exception {
+		WebElement comp = wd.getElement(wd.byId(testID, componentInputCSS));
+		WebElement all = getParentTR(comp, "ui-f4-row");
+		if(null == all) {
+			Assert.assertNotNull("The form's parent row cannot be located for testid " + testID);
+			return;
+		}
+
+		WebElement label = all.findElement(By.tagName("label"));
+
+		BufferedImage ssOne = si.elementScreenshot(comp);
+		int blOne = findBaseLine(ssOne);
+		saveBi(ssOne, blOne, "test-one.png");
+
+		int blOneAbs = comp.getLocation().y + blOne;
+
+		BufferedImage ssTwo = si.elementScreenshot(label);
+		int blTwo = findBaseLine(ssTwo);
+		int blTwoAbs = label.getLocation().y + blTwo;
+
+		saveBi(ssTwo, blTwo, "test-two.png");
+
+		if(blOneAbs == blTwoAbs)
+			return;
+
+		//-- Create an image showing the problem
+		BufferedImage biAll = si.elementScreenshot(all);
+		int relOne = all.getLocation().y - comp.getLocation().y + blOne;
+		int relTwo = all.getLocation().y - label.getLocation().y + blTwo;
+
+		Graphics2D graphics = (Graphics2D) biAll.getGraphics();
+		graphics.setStroke(new BasicStroke(1));
+		graphics.setColor(Color.RED);
+		graphics.drawLine(0, relOne, biAll.getWidth()-1, relOne);
+
+		graphics.setColor(Color.GREEN);
+		graphics.drawLine(0, relTwo, biAll.getWidth()-1, relTwo);
+		graphics.dispose();
+
+		File output = new File("/tmp/xxx-baseline.png");
+		ImageIO.write(biAll, "png", output);
+
+		Assert.fail("The baseline for the first element is " + distance(blOneAbs, blTwoAbs) + " the second - see " + output);
+	}
+
+
+	/**
+	 * Find the TR on the vertical form that contains the element specified by testid.
+	 */
+	public static WebElement getParentTR(@Nonnull WebElement comp, @Nonnull String needClass) {
+		WebElement current = comp;
+		for(;;) {
+			if(current == null) {
+				return null;
+			}
+			current = current.findElement(By.xpath(".."));			// Get parent
+			if(null == current) {
+				return null;
+			}
+			if(current.getTagName().equalsIgnoreCase("tr")) {
+				String clz = current.getAttribute("class");
+				if(null != clz) {
+					for(String s : clz.split("\\s+")) {
+						if(s.equals(needClass)) {
+							return current;
+						}
+					}
+
+				}
+			}
+		}
+	}
+
+
+
+
+
 	private static void saveBi(BufferedImage biAll, int relOne, String s) throws IOException {
 		Graphics2D graphics = (Graphics2D) biAll.getGraphics();
 		graphics.setStroke(new BasicStroke(1));
@@ -69,7 +149,7 @@ public class ImageHelper {
 		ImageIO.write(biAll, "png", new File("/tmp/" + s));
 	}
 
-	private static String distance(int one, int two) {
+	public static String distance(int one, int two) {
 		if(one > two) {
 			return (one - two) + "px below";
 		} else {

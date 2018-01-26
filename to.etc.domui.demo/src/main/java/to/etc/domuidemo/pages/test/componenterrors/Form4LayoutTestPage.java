@@ -1,6 +1,8 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.headers.GenericHeader;
+import to.etc.domui.component.headers.GenericHeader.Type;
 import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
@@ -11,6 +13,7 @@ import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.webapp.query.QCriteria;
 
 import java.util.Date;
 
@@ -23,17 +26,29 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	private Album m_album;
 
+	private Album m_album3;
+
+	private Album m_album4;
+
 	private Artist m_artist2;
 
 	private Album m_album2;
 
+	private Album m_album22;
+
+	private Album m_album23;
+
 	private String m_text = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaargh";
 
-	private String m_memo = "bbbbbbbbbbbbbbbbbbbbbbbbrgh\nabbabbabba";
+	private String m_memo = "bbbbbbbbbbbbbbbbbbbbbbbbrgh";
 
 	private Date m_date = new Date();
 
 	@Override public void createContent() throws Exception {
+		QCriteria<Album> q = QCriteria.create(Album.class).eq("title", "Angel Dust");
+		m_album4 = m_album3 = m_album22 = m_album23 = getSharedContext().queryOne(q);
+
+		add(new GenericHeader(Type.BLUE, "LookupInput variants"));
 		FormBuilder fb = new FormBuilder(this);
 
 		//-- LookupInput
@@ -48,8 +63,22 @@ public class Form4LayoutTestPage extends UrlPage {
 		li2.setMandatory(true);
 		fb.property(this, "album").control(li2);
 
+		LookupInput<Album> li7 = new LookupInput<>(Album.class);
+		li7.setTestID("seven");
+		li7.setMandatory(true);
+		fb.property(this, "album3").control(li7);
+
+		LookupInput<Album> li8 = new LookupInput<>(Album.class);
+		li8.setValueColumns("title", "artist.name");
+		li8.setTestID("eight");
+		li8.setMandatory(true);
+		fb.property(this, "album4").control(li8);
+
 		//-- LookupInput2
-		LookupInput2<Artist> li3 = new LookupInput2<>(Artist.class);
+		add(new GenericHeader(Type.BLUE, "LookupInput2 variants"));
+		fb = new FormBuilder(this);
+
+		LookupInput2<Artist> li3 = new LookupInput2<>(Artist.class);			// Should not have input
 		li3.setTestID("three");
 		li3.setMandatory(true);
 		fb.property(this, "artist2").control(li3);
@@ -59,8 +88,22 @@ public class Form4LayoutTestPage extends UrlPage {
 		li4.setMandatory(true);
 		fb.property(this, "album2").control(li4);
 
+		LookupInput2<Album> li22 = new LookupInput2<>(Album.class);
+		li22.setTestID("l22");
+		li22.setMandatory(true);
+		fb.property(this, "album22").control(li22);
+
+		LookupInput2<Album> li23 = new LookupInput2<>(Album.class);
+		li23.setValueColumns("title", "artist.name");
+		li23.setTestID("l23");
+		li23.setMandatory(true);
+		fb.property(this, "album23").control(li23);
+
+		add(new GenericHeader(Type.BLUE, "Text inputs"));
+		fb = new FormBuilder(this);
+
 		//-- Text<String>
-		IControl<?> text = fb.property(this, "text").control();
+		IControl<?> text = fb.property(this, "text").label("text zzzzzzzz").control();
 		text.setTestID("five");
 
 		IControl<?> date = fb.property(this, "date").control();
@@ -139,5 +182,41 @@ public class Form4LayoutTestPage extends UrlPage {
 
 	public void setMemo(String memo) {
 		m_memo = memo;
+	}
+
+	@MetaProperty(required = YesNoType.YES)
+	public Album getAlbum3() {
+		return m_album3;
+	}
+
+	public void setAlbum3(Album album3) {
+		m_album3 = album3;
+	}
+
+	@MetaProperty(required = YesNoType.YES)
+	public Album getAlbum4() {
+		return m_album4;
+	}
+
+	public void setAlbum4(Album album4) {
+		m_album4 = album4;
+	}
+
+	@MetaProperty(required = YesNoType.YES)
+	public Album getAlbum22() {
+		return m_album22;
+	}
+
+	public void setAlbum22(Album album22) {
+		m_album22 = album22;
+	}
+
+	@MetaProperty(required = YesNoType.YES)
+	public Album getAlbum23() {
+		return m_album23;
+	}
+
+	public void setAlbum23(Album album23) {
+		m_album23 = album23;
 	}
 }

@@ -246,14 +246,14 @@ public class OracleDB extends BaseDB {
 	 */
 	static private Object callObjectMethod(Object src, String name) throws SQLException {
 		try {
-			Method m = src.getClass().getMethod(name, new Class[0]);
-			return m.invoke(src, new Object[0]);
+			Method m = src.getClass().getMethod(name);
+			return m.invoke(src);
 		} catch(InvocationTargetException itx) {
 			if(itx.getCause() instanceof SQLException)
 				throw (SQLException) itx.getCause();
-			throw new RuntimeException(itx.getCause().toString(), itx.getCause());
+			throw new SQLException(itx.getCause().toString(), itx.getCause());
 		} catch(Exception x) {
-			throw new RuntimeException("Exception calling " + name + " on " + src + ": " + x, x);
+			throw new SQLException("Exception calling " + name + " on " + src + ": " + x, x);
 		}
 	}
 

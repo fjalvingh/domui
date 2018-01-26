@@ -24,10 +24,11 @@
  */
 package to.etc.domui.component.agenda;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.component.agenda.WeekAgendaComponent.IItemRenderer;
+import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
 
 /**
  * WARNING: This class needs a separate <i>instance</i> for every thing it renders for! It has
@@ -36,16 +37,10 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 26, 2008
  */
-public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements INodeContentRenderer<T> {
+public class DefaultScheduleItemRenderer<T extends ScheduleItem> implements IItemRenderer<T> {
 	private StringBuilder m_sb = new StringBuilder();
 
-	@Override
-	public synchronized void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer root, @Nullable T si, @Nullable Object parameters) throws Exception {
-		if(null == si)
-			return;
-
-		WeekAgendaComponent<T> age = (WeekAgendaComponent<T>) component;
-
+	@Override public void render(WeekAgendaComponent<T> age, NodeContainer root, T si) throws Exception {
 		if(si.getImageURL() != null) {
 			Img i = new Img();
 			i.setBorder(0);

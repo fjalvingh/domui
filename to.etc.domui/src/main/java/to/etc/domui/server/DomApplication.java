@@ -24,44 +24,113 @@
  */
 package to.etc.domui.server;
 
-import org.slf4j.*;
-import to.etc.domui.ajax.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.ajax.AjaxRequestHandler;
 import to.etc.domui.component.binding.DefaultBindingHandler;
 import to.etc.domui.component.binding.IBindingHandler;
 import to.etc.domui.component.binding.IBindingHandlerFactory;
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.delayed.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.layout.title.*;
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component2.controlfactory.*;
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.dom.webaction.*;
-import to.etc.domui.injector.*;
+import to.etc.domui.component.controlfactory.ControlBuilder;
+import to.etc.domui.component.controlfactory.ControlFactoryMoney;
+import to.etc.domui.component.controlfactory.PropertyControlFactory;
+import to.etc.domui.component.delayed.IAsyncListener;
+import to.etc.domui.component.layout.ErrorPanel;
+import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.component.layout.title.BasePageTitleBar;
+import to.etc.domui.component.lookup.ILookupControlFactory;
+import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
+import to.etc.domui.dom.HtmlFullRenderer;
+import to.etc.domui.dom.HtmlTagRenderer;
+import to.etc.domui.dom.IBrowserOutput;
+import to.etc.domui.dom.IHtmlRenderFactory;
+import to.etc.domui.dom.MsCrapwareRenderFactory;
+import to.etc.domui.dom.StandardHtmlFullRenderer;
+import to.etc.domui.dom.StandardHtmlTagRenderer;
+import to.etc.domui.dom.errors.IExceptionListener;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.header.HeaderContributorEntry;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.webaction.JsonWebActionFactory;
+import to.etc.domui.dom.webaction.SimpleWebActionFactory;
+import to.etc.domui.dom.webaction.WebActionRegistry;
+import to.etc.domui.injector.DefaultPageInjector;
 import to.etc.domui.injector.IPageInjector;
-import to.etc.domui.login.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.sass.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.themes.simple.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.login.AccessDeniedPage;
+import to.etc.domui.login.ILoginAuthenticator;
+import to.etc.domui.login.ILoginDialogFactory;
+import to.etc.domui.parts.SvgPartFactory;
+import to.etc.domui.sass.SassPartFactory;
+import to.etc.domui.server.parts.IPartFactory;
+import to.etc.domui.server.parts.IUrlMatcher;
+import to.etc.domui.server.parts.InternalResourcePart;
+import to.etc.domui.server.parts.PartRequestHandler;
+import to.etc.domui.server.parts.PartService;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.DelayedActivitiesManager;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIGoto;
+import to.etc.domui.state.WindowSession;
+import to.etc.domui.themes.DefaultThemeVariant;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeFactory;
+import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.themes.ThemeCssUtils;
+import to.etc.domui.themes.ThemeManager;
+import to.etc.domui.themes.ThemePartFactory;
+import to.etc.domui.themes.ThemeResourceFactory;
+import to.etc.domui.themes.fragmented.FragmentedThemeFactory;
+import to.etc.domui.themes.sass.SassThemeFactory;
+import to.etc.domui.themes.simple.SimpleThemeFactory;
+import to.etc.domui.trouble.DataAccessViolationException;
+import to.etc.domui.trouble.DataAccessViolationPage;
+import to.etc.domui.trouble.ExpiredDataPage;
+import to.etc.domui.trouble.NotLoggedInException;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.ICachedListMaker;
+import to.etc.domui.util.IListMaker;
+import to.etc.domui.util.INewPageInstantiated;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.resources.ClassRefResourceFactory;
+import to.etc.domui.util.resources.ClasspathInventory;
+import to.etc.domui.util.resources.IModifyableResource;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceFactory;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ProductionClassResourceRef;
+import to.etc.domui.util.resources.ReloadingClassResourceRef;
+import to.etc.domui.util.resources.ResourceDependencyList;
+import to.etc.domui.util.resources.ResourceInfoCache;
+import to.etc.domui.util.resources.SimpleResourceFactory;
+import to.etc.domui.util.resources.VersionedJsResourceFactory;
+import to.etc.domui.util.resources.WebappResourceRef;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.WrappedException;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.query.QNotFoundException;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -70,7 +139,16 @@ import java.util.*;
  */
 public abstract class DomApplication {
 	static public final Logger LOG = LoggerFactory.getLogger(DomApplication.class);
+
 	static public final Logger LOGRES = LoggerFactory.getLogger("to.etc.domui.resources");
+
+	static private final String[][] JQUERYSETS = {												//
+		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},								//
+		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},		//
+
+	};
+
+	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
 
 	@Nonnull
 	private final PartService m_partService = new PartService(this);
@@ -86,6 +164,29 @@ public abstract class DomApplication {
 
 	@Nullable
 	private String m_urlExtension;
+
+	/**
+	 * When set this overrides the URLs generated by the framework as detected from the request headers, as people are apparently too dumb to create
+	 * transparent proxies. When set it must contain a full URL including scheme, as that URL is also used to get the host name for cookies and the
+	 * like.
+	 */
+	@Nullable
+	private String m_applicationURL;
+
+	/**
+	 * Calculated from the applicationURL if that one is set manually, this gets used when
+	 * cookies are to be sent.
+	 */
+	@Nullable
+	private String m_hostName;
+
+	/**
+	 * Set from the applicationURL when defined. -1 means: do not specify a port number.
+	 */
+	private int m_applicationPortNumber = -1;
+
+	@Nullable
+	private String m_applicationContext;
 
 	@Nonnull
 	private ControlBuilder m_controlBuilder = new ControlBuilder(this);
@@ -152,6 +253,16 @@ public abstract class DomApplication {
 	@Nonnull
 	private ResourceInfoCache	m_resourceInfoCache = new ResourceInfoCache(this);
 
+	/** The theme manager where theme calls are delegated to. */
+	final private ThemeManager m_themeManager = new ThemeManager(this);
+
+	/** Global properties for all themes */
+	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
+
+	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
+	@Nonnull
+	private volatile String m_defaultTheme = "";
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
@@ -178,12 +289,45 @@ public abstract class DomApplication {
 	@Nonnull
 	private List<FilterRef> m_requestHandlerList = Collections.emptyList();
 
+	@Nonnull
+	private Map<String, Object> m_attributeMap = new ConcurrentHashMap<>();
+
 	/**
 	 * When > 0, TextArea components will automatically have their maxByteLength property
 	 * set to this value when they are created by a property factory. This should be set
 	 * to 4000 when a system uses Oracle <= 11.
 	 */
 	static private volatile int m_platformVarcharByteLimit;
+
+	private static final Comparator<FilterRef> C_HANDLER_DESCPRIO = new Comparator<FilterRef>() {
+		@Override
+		public int compare(FilterRef a, FilterRef b) {
+			return b.getPriority() - a.getPriority();
+		}
+	};
+
+	@Nonnull
+	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
+
+	@Nonnull
+	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
+
+	/** The ORDERED list of [exception.class, handler] pairs. Exception SUPERCLASSES are ordered AFTER their subclasses. */
+	private List<ExceptionEntry> m_exceptionListeners = new ArrayList<ExceptionEntry>();
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Initialization and session management.				*/
+	/*--------------------------------------------------------------*/
+	@Nonnull
+	private String m_jQueryVersion;
+
+	@Nonnull
+	private List<String> m_jQueryScripts;
+
+	@Nonnull
+	private String m_jQueryPath;
+
+	private String m_problemFromAddress;
 
 	/**
 	 * A single request filter and it's priority in the filter list.
@@ -211,39 +355,6 @@ public abstract class DomApplication {
 			return m_handler;
 		}
 	}
-
-	private static final Comparator<FilterRef> C_HANDLER_DESCPRIO = new Comparator<FilterRef>() {
-		@Override
-		public int compare(FilterRef a, FilterRef b) {
-			return b.getPriority() - a.getPriority();
-		}
-	};
-
-	@Nonnull
-	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
-
-	@Nonnull
-	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Initialization and session management.				*/
-	/*--------------------------------------------------------------*/
-	static private String[][] JQUERYSETS = {												//
-		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},								//
-		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},		//
-
-	};
-
-	@Nonnull
-	private String m_jQueryVersion;
-
-	@Nonnull
-	private List<String> m_jQueryScripts;
-
-	@Nonnull
-	private String m_jQueryPath;
-
-	private String m_problemFromAddress;
 
 	/**
 	 * The only constructor.
@@ -296,8 +407,8 @@ public abstract class DomApplication {
 				return true;
 			}
 		});
-		setCurrentTheme("blue/domui/blue");
-		setThemeFactory(SimpleThemeFactory.INSTANCE);
+		setDefaultThemeName("blue/domui/blue");
+		setDefaultThemeFactory(SimpleThemeFactory.INSTANCE);
 
 		registerResourceFactory(new ClassRefResourceFactory());
 		registerResourceFactory(new VersionedJsResourceFactory());
@@ -312,6 +423,7 @@ public abstract class DomApplication {
 
 	protected void registerControlFactories() {
 		registerControlFactory(PropertyControlFactory.STRING_CF);
+		registerControlFactory(PropertyControlFactory.OLD_STRING_CF);
 		registerControlFactory(PropertyControlFactory.TEXTAREA_CF);
 		registerControlFactory(PropertyControlFactory.BOOLEAN_AND_ENUM_CF);
 		registerControlFactory(PropertyControlFactory.DATE_CF);
@@ -369,6 +481,35 @@ public abstract class DomApplication {
 		throw new IllegalStateException("Application is not initialized");
 	}
 
+	/**
+	 * If an explicit app URL is set this returns the port number of that URL. If the URL is not
+	 * set OR does not contain a port number this returns -1.
+	 */
+	public int getApplicationPortNumber() {
+		return m_applicationPortNumber;
+	}
+
+	/**
+	 * If an explicit app URL is set this returns the context part of that URL, without any slashes.
+	 */
+	@Nullable public String getApplicationContext() {
+		return m_applicationContext;
+	}
+
+	/**
+	 * If an explicit app URL is set this returns the hostname from that URL, to use for cookies and so.
+	 */
+	@Nullable public String getHostName() {
+		return m_hostName;
+	}
+
+	/**
+	 * If the application URL has been set manually this returns that URL.
+	 * @return
+	 */
+	@Nullable public String getApplicationURL() {
+		return m_applicationURL;
+	}
 
 	/**
 	 * Internal: return the sorted-by-descending-priority list of request handlers.
@@ -522,6 +663,59 @@ public abstract class DomApplication {
 		}
 	}
 
+	/**
+	 * Overrides the application URL with a fixed version. Usually the URL gets dynamically calculated
+	 * from the input URL as this allows zero config and allows a single application to be present
+	 * under multiple URLs. But some hosting companies find transparent proxies hard, apparently, and
+	 * fsck up the request headers in a very bad way. We cannot even use the headers usually present
+	 * in a proxied request (x-forwarded-host) because of course the scheme and port number are missing-
+	 * so those are pretty useless.
+	 *
+	 * @param url		The url including scheme, like "https://demo.domui.org".
+	 */
+	protected void setApplicationURL(String url) {
+		String s = url.toLowerCase();
+
+		if(s.startsWith("http://")) {
+			s = s.substring(0, 7);				// Strip http://
+		} else if(s.startsWith("https://")) {
+			s = s.substring(8);					// Same
+		} else {
+			throw new IllegalArgumentException("Expecting an URL that starts with http:// or https://");
+		}
+
+		//-- Get a host name and a port number, if applicable
+		String hostPart;
+		String rest;
+		int ix = s.indexOf('/');				// End of host name
+		if(ix == -1) {
+			hostPart = s;
+			rest = "";
+		} else {
+			hostPart = s.substring(0, ix);		// Only hostname and port number.
+			rest = s.substring(ix + 1);			// Should be appcontext, if present
+		}
+		ix = hostPart.indexOf(':');
+		int portNumber;
+		if(ix == -1) {
+			portNumber = -1;					// No portnumber present
+		} else {
+			portNumber = Integer.parseInt(hostPart.substring(ix + 1));
+			hostPart = s.substring(0, ix);
+		}
+
+		ix = rest.indexOf('/');					// / in context part?
+		if(ix != -1) {
+			rest = rest.substring(0, ix);		// Get only 1st path fragment
+		}
+
+		if(! url.endsWith("/"))
+			url += "/";
+		m_applicationURL = url;
+		m_hostName = hostPart;
+		m_applicationContext = rest;
+	}
+
 	static public synchronized final int internalNextPageTag() {
 		int id = ++m_nextPageTag;
 		if(id <= 0) {
@@ -660,7 +854,7 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * When {@link #isAutoRefreshPage()} is enabled (T), this defines the poll interval that a client uses
+	 * This defines the poll interval that a client uses
 	 * to check for server-side changes. It defaults to 2.5 seconds (in domui.js), and can be set to a faster update value
 	 * to have the update check faster for development. If the interval is not set this contains 0, else it contains the
 	 * refresh time in milliseconds.
@@ -802,8 +996,9 @@ public abstract class DomApplication {
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.core.js"), -990);
 		//		addHeaderContributor(HeaderContributor.loadJavascript("$js/ui.draggable.js"), -980);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.blockUI.js"), -970);
-		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.js"), -900);
+		addHeaderContributor(HeaderContributor.loadJavascript("$ts/domui-combined.js"), -900);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/domui.searchpopup.js"), -895);
+		addHeaderContributor(HeaderContributor.loadJavascript("$js/colResizable-1.6.js"), -895);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/weekagenda.js"), -790);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.wysiwyg.js"), -780);
 		addHeaderContributor(HeaderContributor.loadJavascript("$js/wysiwyg.rmFormat.js"), -779);
@@ -825,6 +1020,11 @@ public abstract class DomApplication {
 		 * FIXME Same as above, this is for loading the CKEditor.
 		 */
 		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
+		addFontAwesomeContributor();
+	}
+
+	protected void addFontAwesomeContributor() {
+		addHeaderContributor(HeaderContributor.loadStylesheet("$fonts/font-awesome.min.css"), 10);
 	}
 
 	/**
@@ -1297,9 +1497,6 @@ public abstract class DomApplication {
 		}
 	}
 
-	/** The ORDERED list of [exception.class, handler] pairs. Exception SUPERCLASSES are ordered AFTER their subclasses. */
-	private List<ExceptionEntry> m_exceptionListeners = new ArrayList<ExceptionEntry>();
-
 	/**
 	 * Return the current, immutable, threadsafe copy of the list-of-listeners.
 	 * @return
@@ -1549,15 +1746,10 @@ public abstract class DomApplication {
 	public static void setPlatformVarcharByteLimit(int platformVarcharByteLimit) {
 		m_platformVarcharByteLimit = platformVarcharByteLimit;
 	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
-	/** The theme manager where theme calls are delegated to. */
-	final private ThemeManager m_themeManager = new ThemeManager(this);
-
-	/** Global properties for all themes */
-	final private Map<String, String> m_themeApplicationProperties = new HashMap<>();
-
 	/**
 	 * This method can be overridden to add extra stuff to the theme map, after
 	 * it has been loaded from properties or whatnot.
@@ -1571,30 +1763,28 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Sets the current theme string. This will become part of all themed resource URLs
+	 * Sets the application-default theme string. This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources. The string is used
 	 * as a "parameter" for the theme factory which will use it to decide on the "real"
 	 * theme to use.
-	 * @param currentTheme	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
+	 *
+	 * @param themeName	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
-	final public void setCurrentTheme(@Nonnull String currentTheme) {
-		m_themeManager.setCurrentTheme(currentTheme);
+	final public void setDefaultThemeName(@Nonnull String themeName) {
+		m_defaultTheme = themeName;
 	}
 
 	/**
-	 * Gets the current theme string.  This will become part of all themed resource URLs
+	 * Gets the application-default theme string. This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources.
-	 * @return
 	 */
 	@Nonnull
-	final public String getCurrentTheme() {
-		return m_themeManager.getCurrentTheme();
+	final public String getDefaultThemeName() {
+		return m_defaultTheme;
 	}
 
 	/**
 	 * Set a property for all themes.
-	 * @param name
-	 * @param value
 	 */
 	final public void setThemeProperty(@Nonnull String name, @Nullable String value) {
 		m_themeApplicationProperties.put(name, value);
@@ -1611,60 +1801,43 @@ public abstract class DomApplication {
 	}
 
 	/**
-	 * Set the factory for handling the theme.
-	 * @param themer
+	 * Set the application-default theme factory, and make the factory set its default theme.
 	 */
-	final public void setThemeFactory(@Nonnull IThemeFactory themer) {
-		m_themeManager.setThemeFactory(themer);
-		m_themeManager.setCurrentTheme(themer.getDefaultThemeName());
+	final public void setDefaultThemeFactory(@Nonnull IThemeFactory themer) {
+		m_defaultTheme = themer.getDefaultThemeName();
+	}
+
+	/**
+	 * Get an ITheme instance for the default theme manager and theme.
+	 */
+	@Nonnull
+	public ITheme getDefaultThemeInstance() {
+		return m_themeManager.getTheme(getDefaultThemeName(), DefaultThemeVariant.INSTANCE, null);
 	}
 
 	/**
 	 * Get the theme store representing the specified theme name. This is the name as obtained
 	 * from the resource name which is the part between $THEME/ and the actual filename.
-	 *
-	 * @param rdl
-	 * @return
-	 * @throws Exception
+	 */
+	final public ITheme getTheme(@Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) throws Exception {
+		return m_themeManager.getTheme(themeName, variant, rdl);
+	}
+
+	/**
+	 * FIXME Get rid of rdl parameter
+	 * Get the theme store representing the specified theme name. This is the name as obtained
+	 * from the resource name which is the part between $THEME/ and the actual filename.
 	 */
 	final public ITheme getTheme(@Nonnull String themeName, @Nullable IResourceDependencyList rdl) throws Exception {
 		return m_themeManager.getTheme(themeName, rdl);
 	}
 
 	/**
-	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
-	 *
-	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
-	 * current theme's variable map. This map is either a "style.properties" file
-	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
-	 *
-	 * The result is returned as a string.
-	 *
-	 *
-	 * @param rdl
-	 * @param rurl
-	 * @return
-	 * @throws Exception
+	 * Called from the user session to detect the user's theme; override to assign per-user theme.
 	 */
-	final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl) throws Exception {
-		return m_themeManager.getThemeReplacedString(rdl, rurl);
-	}
-
-	/**
-	 * EXPENSIVE CALL - ONLY USE TO CREATE CACHED RESOURCES
-	 *
-	 * This loads a theme resource as an utf-8 encoded template, then does expansion using the
-	 * current theme's variable map. This map is either a "style.properties" file
-	 * inside the theme's folder, or can be configured dynamically using a IThemeMapFactory.
-	 *
-	 * The result is returned as a string.
-	 *
-	 * @param rdl
-	 * @param key
-	 * @return
-	 */
-	final public String getThemeReplacedString(IResourceDependencyList rdl, String rurl, BrowserVersion bv) throws Exception {
-		return m_themeManager.getThemeReplacedString(rdl, rurl, bv);
+	@Nonnull
+	public String calculateUserTheme(IRequestContext ctx) {
+		return getDefaultThemeName();
 	}
 
 	/**
@@ -1795,6 +1968,18 @@ public abstract class DomApplication {
 		m_uiTestMode = true;
 	}
 
+	public void setAttribute(String key, Object what) {
+		if(null == what)
+			m_attributeMap.remove(key);
+		else
+			m_attributeMap.put(key, what);
+	}
+
+	@Nullable
+	public Object getAttribute(String key) {
+		return m_attributeMap.get(key);
+	}
+
 	/**
 	 * Override this to add specific page {@link HeaderContributor}s to a page when
 	 * we're in UI testing mode (Selenium testing mode).
@@ -1817,4 +2002,32 @@ public abstract class DomApplication {
 		return (Class<T>) AccessDeniedPage.class;
 	}
 
+	/**
+	 * Returns the default page title (as shown in the browser title bar). Override to define your own
+	 * title mechanism.
+	 */
+	public String getDefaultPageTitle(UrlPage body) {
+		return "DomUI Application - " + body.getClass().getSimpleName();
+	}
+
+	public static void register(IThemeFactory factory) {
+		THEME_FACTORIES.put(factory.getFactoryName(), factory);
+	}
+
+	@Nonnull public static IThemeFactory getFactoryFromThemeName(String name) {
+		int pos = name.indexOf('-');
+		if(pos == -1)
+			throw new RuntimeException("Missing - in theme name '" + name + "'");
+		String fn = name.substring(0, pos);
+		IThemeFactory factory = THEME_FACTORIES.get(fn);
+		if(null == factory)
+			throw new RuntimeException("Undefined theme factory '" + fn +"'");
+		return factory;
+	}
+
+	static {
+		register(SassThemeFactory.INSTANCE);
+		register(SimpleThemeFactory.INSTANCE);
+		register(FragmentedThemeFactory.getInstance());
+	}
 }

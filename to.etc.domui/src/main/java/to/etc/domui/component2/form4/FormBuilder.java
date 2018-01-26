@@ -60,6 +60,9 @@ final public class FormBuilder {
 
 	private boolean m_append;
 
+	@Nullable
+	private String m_testid;
+
 	/** ReadOnly as set directly in the Builder */
 	private Boolean m_readOnly;
 
@@ -131,7 +134,7 @@ final public class FormBuilder {
 
 	static private <I, V> BindReference<I, V> createRef(@Nonnull I instance, @Nonnull String property, @Nonnull Class<V> type) {
 		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(instance.getClass(), property);
-		if(DomUtil.normalizePrimitivesToBoxedTypes(pmm.getActualType()) != DomUtil.normalizePrimitivesToBoxedTypes(type)) {
+		if(DomUtil.getBoxedForPrimitive(pmm.getActualType()) != DomUtil.getBoxedForPrimitive(type)) {
 			throw new ProgrammerErrorException(pmm + " must be of type " + type.getName());
 		}
 		return new BindReference<>(instance, (PropertyMetaModel<V>) pmm);
@@ -222,7 +225,7 @@ final public class FormBuilder {
 	 * after this are no longer bound to the previously set property.
 	 */
 	@Nonnull
-	public FormBuilder readOnlyAll() {
+	public FormBuilder readOnlyAllClear() {
 		m_readOnlyGlobal = null;
 		return this;
 	}
@@ -239,6 +242,11 @@ final public class FormBuilder {
 	@Nonnull
 	public FormBuilder disabled(boolean ro) {
 		m_disabled = Boolean.valueOf(ro);
+		return this;
+	}
+	@Nonnull
+	public FormBuilder testId(String id) {
+		m_testid = id;
 		return this;
 	}
 
@@ -263,7 +271,7 @@ final public class FormBuilder {
 	 * after this are no longer bound to the previously set property.
 	 */
 	@Nonnull
-	public FormBuilder disabledAll() {
+	public FormBuilder disabledAllClear() {
 		m_disabledGlobal = null;
 		return this;
 	}
@@ -290,7 +298,7 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public FormBuilder disabledBecause() {
+	public FormBuilder disabledBecauseClear() {
 		m_disabledMessageGlobal = null;
 		return this;
 	}
@@ -410,6 +418,7 @@ final public class FormBuilder {
 		m_labelCss = null;
 		m_errorLocation = null;
 		m_bindingConverter = null;
+		m_testid = null;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -436,9 +445,17 @@ final public class FormBuilder {
 		else
 			addVertical(control);
 
+		String testid = m_testid;
+		PropertyMetaModel<?> pmm = m_propertyMetaModel;
+		if(null != testid)
+			control.setTestID(testid);
+		else if(control.getTestID() == null) {
+			if(pmm != null)
+				control.setTestID(pmm.getName());
+		}
+
 		if(control instanceof IControl) {
 			IControl< ? > ctl = (IControl< ? >) control;
-			PropertyMetaModel< ? > pmm = m_propertyMetaModel;
 			if(null != pmm) {
 				Object instance = m_instance;
 				if(null != instance) {
@@ -549,16 +566,16 @@ final public class FormBuilder {
 			if(null != controlCss)
 				cell.addCssClass(controlCss);
 		} else {
-			TD labelcell = b.addRowAndCell();
-			labelcell.setCssClass("ui-f4-lbl ui-f4-lbl-v");
+			TR row = b.addRow("ui-f4-row ui-f4-row-v");
+
+			TD labelcell = b.addCell("ui-f4-lbl ui-f4-lbl-v");
 			if(null != lbl)
 				labelcell.add(lbl);
 			String labelCss = m_labelCss;
 			if(labelCss != null)
 				labelcell.addCssClass(labelCss);
 
-			TD controlcell = b.addCell();
-			controlcell.setCssClass("ui-f4-ctl ui-f4-ctl-v");
+			TD controlcell = b.addCell("ui-f4-ctl ui-f4-ctl-v");
 			controlcell.add(control);
 
 			final String controlCss = m_controlCss;
@@ -566,7 +583,7 @@ final public class FormBuilder {
 				controlcell.addCssClass(controlCss);
 		}
 		if(null != lbl)
-			lbl.setForNode(control);
+			lbl.setForTarget(control);
 	}
 
 	@Nonnull
@@ -574,7 +591,7 @@ final public class FormBuilder {
 		TR row = m_controlRow;
 		if(null == row) {
 			labelRow();
-			row = m_controlRow = body().addRow();
+			row = m_controlRow = body().addRow("ui-f4-row ui-f4-row-h ui-f4-crow");
 		}
 		return row;
 	}
@@ -583,7 +600,7 @@ final public class FormBuilder {
 	private TR labelRow() {
 		TR row = m_labelRow;
 		if(null == row) {
-			row = m_labelRow = body().addRow();
+			row = m_labelRow = body().addRow("ui-f4-row ui-f4-row-h ui-f4-lrow");
 		}
 		return row;
 	}
@@ -625,7 +642,7 @@ final public class FormBuilder {
 				controlcell.addCssClass(controlCss);
 		}
 		if(null != lbl)
-			lbl.setForNode(control);
+			lbl.setForTarget(control);
 	}
 
 	public void appendAfterControl(@Nonnull NodeBase what) {

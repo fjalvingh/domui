@@ -50,7 +50,7 @@ public class PropBtnPart implements IBufferedPartFactory<ButtonPartKey> {
 	 * Decode the parameters for this button thingy.
 	 */
 	@Override
-	public @Nonnull ButtonPartKey decodeKey(@Nonnull IExtendedParameterInfo info) throws Exception {
+	public @Nonnull ButtonPartKey decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo info) throws Exception {
 		return ButtonPartKey.decode(info);
 	}
 

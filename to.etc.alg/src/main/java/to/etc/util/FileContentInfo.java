@@ -24,9 +24,10 @@
  */
 package to.etc.util;
 
-import java.io.*;
-
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  * Helper class to determine a file's type (text, binary) and encoding (for text files). A file
@@ -36,7 +37,7 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 21, 2010
  */
-public class FileContentInfo {
+final public class FileContentInfo {
 	private File m_source;
 
 	private String m_name;

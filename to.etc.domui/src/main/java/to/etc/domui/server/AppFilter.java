@@ -24,17 +24,32 @@
  */
 package to.etc.domui.server;
 
-import org.slf4j.*;
-import to.etc.domui.util.*;
-import to.etc.log.*;
-import to.etc.net.*;
-import to.etc.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
+import to.etc.domui.util.DomUtil;
+import to.etc.log.EtcLoggerFactory;
+import to.etc.util.ClassUtil;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.UnavailableException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.Enumeration;
 
 /**
  * Base filter which accepts requests to the dom windows. This accepts all URLs that end with a special
@@ -90,6 +105,23 @@ public class AppFilter implements Filter {
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
+			if(LOG.isDebugEnabled()) {
+				System.out.println("--- Request entering the server");
+
+				Enumeration<String> enu = rq.getHeaderNames();
+				while(enu.hasMoreElements()) {
+					String name = enu.nextElement();
+					Enumeration<String> henu = rq.getHeaders(name);
+					while(henu.hasMoreElements()) {
+						String val = henu.nextElement();
+						System.out.println("header: " + name + ": " + val);
+					}
+				}
+				System.out.println("uri " + rq.getRequestURI());
+				System.out.println("url " + rq.getRequestURL());
+				System.out.println("localName " + rq.getLocalName());
+			}
+
 			HttpServletResponse response = (HttpServletResponse) res;
 			IRequestResponseWrapper ww = m_ioWrapper;
 			if(null != ww) {
@@ -114,10 +146,6 @@ public class AppFilter implements Filter {
 				rs = rs == null ? "" : "?" + rs;
 				System.out.println(minitime() + " rq=" + rq.getRequestURI() + rs);
 			}
-			//			NlsContext.setLocale(rq.getLocale()); jal 20101228 Moved to AbstractContextMaker.
-			//			NlsContext.setLocale(new Locale("nl", "NL"));
-			initContext(req);
-
 			m_contextMaker.handleRequest(rq, response, chain);
 		} catch(RuntimeException | ServletException x) {
 			DomUtil.dumpExceptionIfSevere(x);
@@ -136,16 +164,20 @@ public class AppFilter implements Filter {
 		}
 	}
 
-	static synchronized private void initContext(ServletRequest req) {
-		if(m_appContext != null || !(req instanceof HttpServletRequest))
-			return;
-
-		m_appContext = NetTools.getApplicationContext((HttpServletRequest) req);
-	}
-
-	static synchronized public String internalGetWebappContext() {
-		return m_appContext;
-	}
+	//static synchronized private void initContext(ServletRequest req) {
+	//	if(m_appContext != null || !(req instanceof HttpServletRequest))
+	//		return;
+	//
+	//	m_appContext = NetTools.getApplicationContext((HttpServletRequest) req);
+	//}
+	//
+	///**
+	// * Do not use: does not work when hosting parties do not proxy correctly.
+	// */
+	//@Deprecated
+	//static synchronized public String internalGetWebappContext() {
+	//	return m_appContext;
+	//}
 
 	@Nullable
 	static private String readDefaultConfiguration(@Nullable String logConfigLocation) {

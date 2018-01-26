@@ -1,7 +1,9 @@
 package to.etc.domui.test.ui.componenterrors;
 
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -23,6 +25,7 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 	}
 
 	@Test
+	@Ignore("While redesigning")
 	public void testOneLineForOne() throws Exception {
 		//-- Both one and two must use only one line
 		WebElement one = wd().getElement("one");
@@ -30,6 +33,7 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 	}
 
 	@Test
+	@Ignore("While redesigning")
 	public void testOneLineForTwo() throws Exception {
 		WebElement two = wd().getElement("two");
 		Assert.assertTrue("Control two must span one line", two.getSize().height < 30);
@@ -50,19 +54,18 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 	}
 
 	@Test
+	@Ignore("While redesigning")
 	public void labelMustBeAlignedOne() throws Exception {
 		WebElement one = wd().getElement("one");
-		String id = one.getAttribute("id");
-		WebElement label = wd().getElement(By.cssSelector("label[for='" + id + "']"));
-
+		WebElement label = AbstractLayoutTest.findFormLabelFor(one);
 		Assert.assertEquals("Label and control for ONE must be on same Y", label.getLocation().getY(), one.getLocation().getY());
 	}
 
 	@Test
+	@Ignore("While redesigning")
 	public void labelMustBeAlignedTwo() throws Exception {
 		WebElement two = wd().getElement("two");
-		String id = two.getAttribute("id");
-		WebElement label = wd().getElement(By.cssSelector("label[for='" + id + "']"));
+		WebElement label = AbstractLayoutTest.findFormLabelFor(two);
 
 		Assert.assertEquals("Label and control for TWO must be on same Y", label.getLocation().getY(), two.getLocation().getY());
 	}
@@ -70,6 +73,8 @@ public class ITTestLookupInputLayout extends AbstractWebDriverTest {
 
 	@Test
 	public void testChromeExtension() throws Exception {
+		Assume.assumeTrue("Test only valid when running chrome", wd().driver() instanceof MyChromeDriver);
+
 		ChromeExtender xx = new ChromeExtender( (MyChromeDriver) wd().driver());
 		xx.takeScreenshot(new File("/tmp/screen.png"));
 	}

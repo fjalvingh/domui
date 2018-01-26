@@ -84,7 +84,7 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	@Test
 	public void testBindingConverter2() throws Exception {
 		wd().openScreen(BindingConversionTestForm.class);
-		wd().cmd().type("123").on("integer");
+		wd().cmd().type("123").on("value");
 		wd().cmd().click().on("button_click");
 		String result = wd().getHtmlText("result");
 		wd().assertEquals(result, "123");
@@ -97,9 +97,9 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	@Test
 	public void testBindingConverter3() throws Exception {
 		wd().openScreen(BindingConversionTestForm.class);
-		wd().cmd().type("123abc").on("integer");
+		wd().cmd().type("123abc").on("value");
 		wd().cmd().click().on("button_click");
-		String result = wd().getHtmlText(By.className("ui-msg-error"));
+		String result = wd().getHtmlText(By.className("ui-emd-error"));
 		wd().assertTrue("There must be an error message", result.contains("123abc"));
 		System.out.println(">> " + result);
 	}
@@ -112,7 +112,7 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	public void testBindingConverter4() throws Exception {
 		wd().openScreen(BindingConversionTestForm.class);
 		wd().cmd().click().on("button_setvalue");
-		String result = wd().getValue("integer");
+		String result = wd().getValue("value");
 		wd().assertEquals(result, "987");
 	}
 
@@ -125,13 +125,13 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 		wd().openScreen(BindingConversionTestForm.class);
 
 		//-- First enter 123
-		wd().cmd().type("123").on("integer");
+		wd().cmd().type("123").on("value");
 		wd().cmd().click().on("button_click");
 		String result = wd().getHtmlText("result");
 		wd().assertEquals(result, "123");
 		wd().cmd().click().on("button_setnull");
 
-		result = wd().getValue("integer");
+		result = wd().getValue("value");
 		wd().assertEquals(result, "");
 	}
 

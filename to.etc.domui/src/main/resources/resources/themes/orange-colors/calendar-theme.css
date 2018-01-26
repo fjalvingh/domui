@@ -3,6 +3,7 @@
 div.calendar { position: relative; }
 
 .calendar, .calendar table {
+    width: 220px;
   border: 1px solid #655;
   font-size: 11px;
   color: #000;
@@ -20,7 +21,7 @@ div.calendar { position: relative; }
 }
 
 .calendar .nav {
-  background: #edc url(menuarrow.gif) no-repeat 100% 100%;
+  background: #edc url(menuarrow2.gif) no-repeat 100% 100%;
 }
 
 .calendar thead .title { /* This holds the current "month, year" */

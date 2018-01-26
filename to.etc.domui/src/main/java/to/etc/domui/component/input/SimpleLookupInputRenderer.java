@@ -24,144 +24,167 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
 import to.etc.domui.component.meta.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
-import to.etc.util.*;
+import to.etc.webapp.*;
+
+import javax.annotation.*;
+import java.util.*;
 
 /**
- * This renderer represents default renderer that is used for {@link LookupInput} control.
- * It can be additionaly customized (before and after custom content) by setting provided {@link ICustomContentFactory} fields.
- * See {@link SimpleLookupInputRenderer#setBeforeContent} and {@link SimpleLookupInputRenderer#setAfterContent}.
+ * This renderer represents default renderer that is used for {@link LookupInput}. It can also be
+ * configured to show specific properties.
+ *
+ * It can be customized (before and after custom content),
+ * see {@link SimpleLookupInputRenderer#setBeforeRenderer(IRenderInto)} and {@link SimpleLookupInputRenderer#setAfterRenderer(IRenderInto)}.
  * Custom added content would be enveloped into separate row(s).
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Feb 10, 2010
  */
-public class SimpleLookupInputRenderer<T> implements INodeContentRenderer<T> {
+/* final */ public class SimpleLookupInputRenderer<T> implements IRenderInto<T> {
+	/** The type that it should render. */
+	@Nullable
+	final private Class<T> m_actualClass;
 
-	public SimpleLookupInputRenderer() {}
+	@Nullable
+	final private String[] m_propertyNames;
 
-	private INodeContentRenderer<T> m_beforeRenderer;
+	@Nullable
+	final private List<ExpandedDisplayProperty< ? >> m_xpl;
 
-	private INodeContentRenderer<T> m_afterRenderer;
+	private IRenderInto<T> m_beforeRenderer;
+
+	private IRenderInto<T> m_afterRenderer;
+
+	public SimpleLookupInputRenderer() {
+		m_actualClass = null;
+		m_propertyNames = null;
+		m_xpl = null;
+	}
+
+	public SimpleLookupInputRenderer(ClassMetaModel cmm, String... propertyNames) {
+		m_actualClass = (Class<T>) cmm.getActualClass();
+		m_propertyNames = propertyNames;
+		m_xpl = initRenderingModel(cmm, propertyNames);
+	}
+
+	public SimpleLookupInputRenderer(@Nonnull Class<T> clz, @Nonnull String... colset) {
+		m_actualClass = clz;
+		m_propertyNames = colset;
+		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
+		m_xpl = initRenderingModel(cmm, colset);
+	}
+
+	private List<ExpandedDisplayProperty<?>> initRenderingModel(ClassMetaModel cmm, @Nonnull String[] colset) {
+		List<ExpandedDisplayProperty< ? >> xpl;
+		if(colset.length == 0) {
+			//-- Do we have a "selected properties" meta renderer?
+			List<DisplayPropertyMetaModel> l = cmm.getLookupSelectedProperties();
+			if(l.size() == 0)
+				l = cmm.getTableDisplayProperties();
+			if(l.size() == 0)
+				l = cmm.getComboDisplayProperties();
+			if(l.size() == 0)
+				throw new ProgrammerErrorException("The class " + cmm + " has no presentation metadata (@MetaObject or @MetaCombo)");
+
+			//-- Expand the thingy: render a single line separated with BRs
+			xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
+		} else {
+			//-- Use the specified properties and create a list for presentation.
+			xpl = new ArrayList<>();
+			for(String propname : colset) {
+				xpl.add(ExpandedDisplayProperty.expandProperty(cmm, propname));
+			}
+		}
+		return ExpandedDisplayProperty.flatten(xpl);
+	}
 
 	@Override
-	public void renderNodeContent(@Nonnull NodeBase component, @Nonnull NodeContainer node, @Nullable T object, @Nullable Object parameters) throws Exception {
-		String txt;
-		TBody tbl = ((LookupInput< ? >) node).getBody();
-		if(getBeforeRenderer() != null) {
-			TD cell = new TD();
-			getBeforeRenderer().renderNodeContent(component, cell, object, parameters);
+	public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
+		TBody tb = node.addTableForLayout("ui-lui-vtab");
+		IRenderInto<T> beforeRenderer = getBeforeRenderer();
+		if(beforeRenderer != null) {
+			TD cell = tb.addRowAndCell("ui-lui-vcell");
+			beforeRenderer.render(cell, object);
 			if(cell.getChildCount() != 0)
-				tbl.addRow().add(cell);
+				tb.addRow().add(cell);
 		}
 
-		if(object != null) {
+		List<ExpandedDisplayProperty<?>> xpl = m_xpl;
+		if(xpl != null) {
+			renderModelValue(object, tb, xpl);
+		} else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
-			if(cmm != null) {
-				//-- Has default meta?
-				List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
-				if(l.size() == 0)
-					l = cmm.getComboDisplayProperties();
-				if(l.size() > 0) {
-					//-- Expand the thingy: render a single line separated with BRs
-					List<ExpandedDisplayProperty< ? >> xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
-					xpl = ExpandedDisplayProperty.flatten(xpl);
-						//						node.add(tbl);
-					tbl.setCssClass("ui-lui-v");
-					int c = 0;
-					int mw = 0;
-					for(ExpandedDisplayProperty< ? > xp : xpl) {
-						String val = xp.getPresentationString(object);
-						if(val == null || val.length() == 0)
-							continue;
-						TR tr = new TR();
-						tbl.add(tr);
-						TD td = new TD(); // Value thingy.
-						tr.add(td);
-						td.setCssClass("ui-lui-vcell");
-						td.setValign(TableVAlign.TOP);
-						td.add(val);
-						int len = val.length();
-						if(len > mw)
-							mw = len;
-							td = new TD();
-						tr.add(td);
-						td.setValign(TableVAlign.TOP);
-						td.setCssClass("ui-lui-btncell");
-						td.setWidth("1%");
-						if(c++ == 0 && parameters != null) {
-							td.add((NodeBase) parameters); // Add the button,
-						}
-					}
-					mw += 4;
-					if(mw > 40)
-						mw = 40;
-					tbl.setWidth(mw + "em");
-					return;
+			List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
+			if(l.size() == 0)
+				l = cmm.getComboDisplayProperties();
+			if(l.size() > 0) {
+				xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
+				xpl = ExpandedDisplayProperty.flatten(xpl);
+				renderModelValue(object, tb, xpl);
+			} else {
+				//-- Render as a text
+				String txt = object.toString();
+				TD td = tb.addRowAndCell("ui-lui-val-txt");
+				td.add(new Span("ui-lui-val", txt));
+			}
+		}
+
+		IRenderInto<T> afterRenderer = getAfterRenderer();
+		if(afterRenderer != null) {
+			TD cell = tb.addRowAndCell("ui-lui-vcell");
+			afterRenderer.render(cell, object);
+		}
+	}
+
+	private void renderModelValue(@Nonnull T object, TBody tb, List<ExpandedDisplayProperty< ? >> xpl) throws Exception {
+		int c = 0;
+		int mw = 0;
+		for(ExpandedDisplayProperty< ? > xp : xpl) {
+			String val = xp.getPresentationString(object);
+			if(val != null && val.length() != 0) {
+				TD td = tb.addRowAndCell("ui-lui-vcell");
+				td.add(val);
+				int len = val.length();
+				if(len > mw) {
+					mw = len;
 				}
 			}
-			txt = object.toString();
-		} else
-			txt = Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY);
-		TR r = new TR();
-		tbl.add(r);
-		TD td = new TD();
-		r.add(td);
-		td.setValign(TableVAlign.TOP);					// FIXUI Should not be here but in CSS
-		td.setCssClass("ui-lui-v");
-		td.add(new Span("ui-lui-val-txt", txt));
-			//-- parameters is either the button, or null if this is a readonly version.
-		if(parameters != null) {
-			td = new TD();
-			r.add(td);
-			td.setValign(TableVAlign.TOP);
-			td.setWidth("1%");
-			td.add((NodeBase) parameters); // Add the button,
 		}
-
-		if(getAfterRenderer() != null) {
-			TD cell = new TD();
-			getAfterRenderer().renderNodeContent(component, cell, object, parameters);
-			if(cell.getChildCount() != 0)
-				tbl.addRow().add(cell);
-		}
-
+		mw += 4;
+		if(mw > 40)
+			mw = 40;
+		tb.setWidth(mw + "em");
 	}
 
 	/**
 	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
 	 */
-	public INodeContentRenderer<T> getBeforeRenderer() {
+	public IRenderInto<T> getBeforeRenderer() {
 		return m_beforeRenderer;
 	}
 
 	/**
 	 * Enables inserting of custom content that would be enveloped into additionaly added row that is inserted before rows that are part of builtin content.
-	 * @param afterContent
 	 */
-	public void setBeforeRenderer(INodeContentRenderer<T> beforeContent) {
+	public void setBeforeRenderer(IRenderInto<T> beforeContent) {
 		m_beforeRenderer = beforeContent;
 	}
 
 	/**
 	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
 	 */
-	public INodeContentRenderer<T> getAfterRenderer() {
+	public IRenderInto<T> getAfterRenderer() {
 		return m_afterRenderer;
 	}
 
 	/**
 	 * Enables appending of custom content that would be enveloped into additionaly added row <i>after</i> the actual data.
-	 * @param afterContent
 	 */
-	public void setAfterRenderer(INodeContentRenderer<T> afterContent) {
+	public void setAfterRenderer(IRenderInto<T> afterContent) {
 		m_afterRenderer = afterContent;
 	}
 }

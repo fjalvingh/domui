@@ -27,8 +27,7 @@ package to.etc.domui.dom.html;
 import javax.annotation.*;
 
 public interface IValueChanged<T> {
-	@Nonnull
-	static public final IValueChanged<NodeBase> DUMMY = new IValueChanged<NodeBase>() {
+	@Nonnull IValueChanged<NodeBase> DUMMY = new IValueChanged<NodeBase>() {
 		@Override
 		public void onValueChanged(@Nonnull NodeBase component) throws Exception {}
 	};

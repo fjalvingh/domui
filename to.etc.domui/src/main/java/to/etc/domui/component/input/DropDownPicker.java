@@ -20,7 +20,7 @@ import java.util.*;
 public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	public static final int DEFAULT_COMBO_SIZE = 8;
 
-	public enum HAlign {LEFT, MIDDLE, RIGHT};
+	public enum HAlign {LEFT, MIDDLE, RIGHT}
 
 	@Nullable
 	private IValueChanged<DropDownPicker<T>> m_onValueChanged;
@@ -136,6 +136,10 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 
 		appendAfterMe(m_picker);
 		positionPicker();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_picker.getForTarget();
 	}
 
 	void handlePickerValueChanged() throws Exception {

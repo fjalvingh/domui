@@ -34,7 +34,7 @@ import java.util.*;
  * @author <a href="mailto:jo.seaton@itris.nl">Jo Seaton</a>
  * Created on Aug 20, 2008
  */
-public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
+public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, IForTarget {
 	private RadioGroup<T> m_radioGroup;
 
 	private boolean m_checked;
@@ -254,4 +254,8 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication {
 		m_modifiedByUser = as;
 	}
 
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return this;
+	}
 }

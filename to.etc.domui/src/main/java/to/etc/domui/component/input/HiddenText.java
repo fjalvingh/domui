@@ -25,19 +25,17 @@
 package to.etc.domui.component.input;
 
 /**
+ * Use Text2.password() instead.
  * The input type="password" component.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2009
  */
-public class HiddenText<T> extends Text<T> {
+@Deprecated
+public class HiddenText<T> extends Text2<T> {
 	public HiddenText(Class<T> inputClass) {
 		super(inputClass);
-		setCssClass("ui-hit");
-	}
-
-	@Override
-	public String getInputType() {
-		return "password";
+		addCssClass("ui-hit");
+		password();
 	}
 }

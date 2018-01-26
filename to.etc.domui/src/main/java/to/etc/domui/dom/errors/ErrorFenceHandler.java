@@ -24,12 +24,15 @@
  */
 package to.etc.domui.dom.errors;
 
-import java.util.*;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * When controls or business logic encounters errors that need to be
@@ -97,14 +100,23 @@ public class ErrorFenceHandler implements IErrorFence {
 
 	@Override
 	public void addMessage(@Nonnull UIMessage uim) {
-		if(m_messageList == Collections.EMPTY_LIST)
-			m_messageList = new ArrayList<UIMessage>(15);
-		m_messageList.add(uim);
+		if (!m_messageList.contains(uim)) { ////prevent double adding of same uim
+			if(m_messageList == Collections.EMPTY_LIST)
+				m_messageList = new ArrayList<UIMessage>(15);
+			m_messageList.add(uim);
+		}
 
 		// ; now call all pending listeners. If this page has NO listeners we use the application default.
 		if(m_errorListeners.size() == 0) {
 			//-- No default listeners: this means errors will not be visible. Ask the application to add an error handling component.
 			DomApplication.get().addDefaultErrorComponent(getContainer()); // Ask the application to add,
+
+			//-- jal 20171115 If that component set a new fence then delegate to there.
+			IErrorFence fence = DomUtil.getMessageFence(getContainer());
+			if(fence != this) {
+				fence.addMessage(uim);
+				return;
+			}
 		}
 		for(IErrorMessageListener eml : m_errorListeners) {
 			try {

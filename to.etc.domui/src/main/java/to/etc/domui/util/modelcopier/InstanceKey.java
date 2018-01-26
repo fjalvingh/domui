@@ -61,9 +61,7 @@ public class InstanceKey<T> {
 				return false;
 		} else if(!m_entity.equals(other.m_entity))
 			return false;
-		if(!Arrays.equals(m_keyValues, other.m_keyValues))
-			return false;
-		return true;
+		return Arrays.equals(m_keyValues, other.m_keyValues);
 	}
 
 	@Nonnull

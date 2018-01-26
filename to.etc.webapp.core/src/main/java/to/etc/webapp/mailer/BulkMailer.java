@@ -31,11 +31,11 @@ public class BulkMailer {
 
 	private long m_ts_nextcleanup = 0;
 
-	static private enum DstType {
+	private enum DstType {
 		TO, CC, BCC
-	};
+	}
 
-	static private enum RState {
+	private enum RState {
 		SEND, DONE, RTRY, FATL
 	}
 
@@ -239,7 +239,7 @@ public class BulkMailer {
 	}
 
 
-	static private enum FailLoc {
+	private enum FailLoc {
 		OKAY, DATABASE, DBLOCK,
 
 	}

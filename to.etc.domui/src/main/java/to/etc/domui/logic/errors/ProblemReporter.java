@@ -166,22 +166,9 @@ public class ProblemReporter {
 	 * @param n
 	 */
 	private void handleClaimError(Set<UIMessage> existingErrorSet, ProblemSet newErrorSet, @Nonnull NodeBase n) {
-		List<IBinding> bindingList = n.getBindingList();
-		if(null == bindingList)
-			return;
-
 		//-- Get the errors on all bindings to this component.
 		List<ProblemInstance> all = new ArrayList<>();
-		List<UIMessage> bindingMessageList = new ArrayList<>();
-		for(IBinding binding : bindingList) {
-			if(binding instanceof ComponentPropertyBinding) {
-				ComponentPropertyBinding sib = (ComponentPropertyBinding) binding;
-				getErrorsOnBoundProperty(newErrorSet, all, n, sib);
-				UIMessage be = binding.getBindError();
-				if(null != be)
-					bindingMessageList.add(be);
-			}
-		}
+		List<UIMessage> bindingMessageList = collectBindingErrorsFromComponent(newErrorSet, n, all);
 		if(all.size() == 0) {
 			if(bindingMessageList.size() == 0) {
 				if(DEBUG)
@@ -194,10 +181,14 @@ public class ProblemReporter {
 		}
 
 		//-- Sort the errors on severity to get the thing to report @ the component 1st
-		Collections.sort(all, C_BYSEVERITY);
+		all.sort(C_BYSEVERITY);
 
 		//-- Append these messages to all binding messages, making binding messages the "preferred" one to show @ the control
-		IErrorFence fence = DomUtil.getMessageFence(n);
+		moveMessageToComponent(existingErrorSet, n, all);
+	}
+
+	private void moveMessageToComponent(Set<UIMessage> existingErrorSet, @Nonnull NodeBase n, List<ProblemInstance> all) {
+		//IErrorFence fence = DomUtil.getMessageFence(n);
 		for(ProblemInstance pi: all) {
 			if(!inExistingSet(existingErrorSet, n, pi)) {
 				//-- Needs to be added.
@@ -207,7 +198,7 @@ public class ProblemReporter {
 				if(DEBUG)
 					System.out.println("    er: "+desc(n)+" component set to "+ui);
 				//}
-				fence.addMessage(ui);
+				//fence.addMessage(ui);			// jal 20171024 causes duplicate message because component also registers with fence
 				if(DEBUG)
 					System.out.println("    er: " + desc(n) + " added " + ui+" to fence");
 			} else {
@@ -215,6 +206,24 @@ public class ProblemReporter {
 					System.out.println("    er: "+desc(n)+" existing error "+pi+" already shown");
 			}
 		}
+	}
+
+	@Nonnull private List<UIMessage> collectBindingErrorsFromComponent(ProblemSet newErrorSet, @Nonnull NodeBase n, List<ProblemInstance> all) {
+		List<IBinding> bindingList = n.getBindingList();
+		if(null == bindingList)
+			return Collections.emptyList();
+
+		List<UIMessage> bindingMessageList = new ArrayList<>();
+		for(IBinding binding : bindingList) {
+			if(binding instanceof ComponentPropertyBinding) {
+				ComponentPropertyBinding sib = (ComponentPropertyBinding) binding;
+				getErrorsOnBoundProperty(newErrorSet, all, n, sib);
+				UIMessage be = binding.getBindError();
+				if(null != be)
+					bindingMessageList.add(be);
+			}
+		}
+		return bindingMessageList;
 	}
 
 	static private String desc(NodeBase n) {

@@ -24,13 +24,6 @@
 	outline: none;
 	vertical-align: top;
 	transition: all 0.4s ease-in-out;
-
-	//height: $button_height;
-	//position: relative;
-	//border: 0;
-	//padding: 0 10px 0 0;
-	//margin: 0 4px 0 0;
-	//background: transparent url($button_img) no-repeat right -50px;
 }
 
 .ui-sdbtn:hover, .ui-sdbtn:focus {
@@ -88,7 +81,7 @@
 	vertical-align: top;
 	cursor: pointer;
 	overflow: visible; /* remove extra padding in IE */
-	background: transparent url($button_img) no-repeat -7px -4px;
+	//background: transparent url($button_img) no-repeat -7px -4px;
 	outline: none;
 	-moz-border-radius: 2px;
 	border-radius: 2px;

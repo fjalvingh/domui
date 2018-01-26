@@ -483,7 +483,7 @@ public class MultipartStream {
 	 * @exception MalformedStreamException if the stream ends unexpectedly.
 	 * @exception IOException              if an i/o error occurs.
 	 */
-	public int readBodyData(OutputStream output) throws MalformedStreamException, IOException {
+	public int readBodyData(OutputStream output) throws IOException {
 		return readBodyData(output, Integer.MAX_VALUE);
 	}
 
@@ -497,7 +497,7 @@ public class MultipartStream {
 	 * @throws MalformedStreamException
 	 * @throws IOException
 	 */
-	public int readBodyData(OutputStream output, int maxSize) throws MalformedStreamException, IOException {
+	public int readBodyData(OutputStream output, int maxSize) throws IOException {
 		boolean done = false;
 		int pad;
 		int pos;
@@ -572,7 +572,7 @@ public class MultipartStream {
 	 * @exception MalformedStreamException if the stream ends unexpectedly.
 	 * @exception IOException              if an i/o error occurs.
 	 */
-	public int discardBodyData() throws MalformedStreamException, IOException {
+	public int discardBodyData() throws IOException {
 		boolean done = false;
 		int pad;
 		int pos;

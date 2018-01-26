@@ -36,7 +36,7 @@ import javax.annotation.*;
  * Created on Jun 12, 2008
  */
 public interface IErrorMessageListener {
-	public void errorMessageAdded(@Nonnull UIMessage m);
+	void errorMessageAdded(@Nonnull UIMessage m);
 
-	public void errorMessageRemoved(@Nonnull UIMessage m);
+	void errorMessageRemoved(@Nonnull UIMessage m);
 }

@@ -1,11 +1,12 @@
 package to.etc.domui.component2.lookupinput;
 
-import javax.annotation.*;
+import to.etc.domui.component.tbl.IQueryHandler;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.webapp.query.QCriteria;
 
-import to.etc.domui.component.tbl.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
 
 public interface ITableModelFactory<QT, DT> {
 	@Nonnull
-	public ITableModel<DT> createTableModel(@Nonnull IQueryHandler<QT> handler, @Nonnull QCriteria<QT> query) throws Exception;
+	ITableModel<DT> createTableModel(@Nonnull IQueryHandler<QT> handler, @Nonnull QCriteria<QT> query) throws Exception;
 }

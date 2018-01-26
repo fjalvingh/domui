@@ -35,11 +35,7 @@ import to.etc.domui.server.*;
  */
 public class MsCrapwareRenderFactory implements IHtmlRenderFactory {
 	private boolean isWrittenByMsMorons(BrowserVersion v) {
-		if(!v.isIE())
-			return false;
-		//		if(v.getMajorVersion() >= 8)
-		//			return false; // Treat IE8 as a standard browser until we know more...
-		return true; // This is IE5, 6, 7.
+		return v.isIE();
 	}
 
 	@Override

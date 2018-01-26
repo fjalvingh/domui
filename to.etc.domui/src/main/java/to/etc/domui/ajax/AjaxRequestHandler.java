@@ -24,14 +24,17 @@
  */
 package to.etc.domui.ajax;
 
-import java.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IFilterRequestHandler;
+import to.etc.domui.server.IRequestInterceptor;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.iocular.Container;
+import to.etc.iocular.def.ContainerDefinition;
+import to.etc.iocular.ioccontainer.BasicContainer;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.iocular.*;
-import to.etc.iocular.container.*;
-import to.etc.iocular.def.*;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This handles .ajax requests.

@@ -33,8 +33,7 @@ import javax.annotation.*;
  * Created on Apr 16, 2005
  */
 public interface ILogSink {
-	@Nonnull
-	static public final ILogSink STDOUTSINK = new ILogSink() {
+	@Nonnull ILogSink STDOUTSINK = new ILogSink() {
 		@Override
 		public void log(@Nonnull String msg) {
 			System.out.println(msg);

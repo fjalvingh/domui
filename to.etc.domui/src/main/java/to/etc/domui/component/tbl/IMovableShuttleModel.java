@@ -31,5 +31,5 @@ package to.etc.domui.component.tbl;
  * Created on Nov 6, 2008
  */
 public interface IMovableShuttleModel<S, T> extends IShuttleModel<S, T> {
-	public void moveTargetItem(int from, int to) throws Exception;
+	void moveTargetItem(int from, int to) throws Exception;
 }
