@@ -425,6 +425,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	private static DesiredCapabilities getChromeHeadlessCapabilities(Locale lang) {
 		ChromeOptions options = getCommonChromeOptions(lang);
 		options.addArguments("--headless");
+		options.addArguments("--no-sandbox");
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
