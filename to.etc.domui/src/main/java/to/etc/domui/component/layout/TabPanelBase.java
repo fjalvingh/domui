@@ -106,7 +106,8 @@ public class TabPanelBase extends Div {
 				ti.setAdded(true);
 				contentcontainer.add(content);
 				if(isselected) {
-					content.setDisplay(DisplayType.BLOCK);
+					content.setDisplay(null);
+					//content.setDisplay(DisplayType.BLOCK);
 					INotify<ITabHandle> onDisplay = ti.getOnDisplay();
 					if(onDisplay != null)
 						onDisplay.onNotify(ti);
@@ -385,7 +386,8 @@ public class TabPanelBase extends Div {
 				Objects.requireNonNull(m_contentContainer).add(newc);
 				newti.setAdded(true);
 			}
-			newc.setDisplay(DisplayType.BLOCK);
+			//newc.setDisplay(DisplayType.BLOCK);
+			newc.setDisplay(null);
 
 			Li oldtab = oldti.getTab();
 			if(null != oldtab)
@@ -464,6 +466,7 @@ public class TabPanelBase extends Div {
 
 		//-- We need to replace the currently visible content.
 		old.replaceWith(tabInstance.getContent());
-		tabInstance.getContent().setDisplay(DisplayType.BLOCK);
+		//tabInstance.getContent().setDisplay(DisplayType.BLOCK);
+		tabInstance.getContent().setDisplay(null);
 	}
 }
