@@ -61,7 +61,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 				return -1;
 		}
 
-		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		return DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class ? 4 : -1;
 	}
 
@@ -72,7 +72,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(@Nonnull SearchPropertyMetaModel spm, X control) {
-		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		Text2<String> numText = (Text2<String>) control;
 		if(numText == null) {
 			numText = new Text2<String>(String.class);
@@ -101,7 +101,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 
 		//-- FIXME Generic bounds violation due to it's gross definition, ignored.
 		//-- FIXME jal 20110415 Vladimir- transient here is wrong because transient usually means querying is impossible at all.
-		return new LookupNumberControl<>((Class<Number>) pmm.getActualType(), numText, spm.getPropertyName(), Double.valueOf(-minmax.doubleValue()), minmax, monetary, !pmm.isTransient(), pmm.getScale());
+		return new LookupNumberControl<>((Class<Number>) pmm.getActualType(), numText, pmm.getName(), Double.valueOf(-minmax.doubleValue()), minmax, monetary, !pmm.isTransient(), pmm.getScale());
 	}
 
 	static private double calcMaxValue(PropertyMetaModel< ? > pmm) {

@@ -97,34 +97,34 @@ public class MetaUtils {
 	 * @param pl
 	 * @return
 	 */
-	static public PropertyMetaModel< ? > findLastProperty(List<PropertyMetaModel< ? >> pl) {
-		if(pl == null || pl.size() == 0)
-			return null;
-		return pl.get(pl.size() - 1);
-	}
-
-	static public PropertyMetaModel< ? > findLastProperty(SearchPropertyMetaModel spm) {
-		return findLastProperty(spm.getPropertyPath());
-	}
-
-	static public PropertyMetaModel< ? > getLastProperty(List<PropertyMetaModel< ? >> pl) {
-		PropertyMetaModel< ? > m = findLastProperty(pl);
-		if(m == null)
-			throw new IllegalStateException("No property in property list");
-		return m;
-	}
-
-	static public <T> PropertyMetaModel<T> getLastProperty(SearchPropertyMetaModel spm) {
-		PropertyMetaModel< ? > m = findLastProperty(spm);
-		if(m == null)
-			throw new IllegalStateException("The search property " + spm.getPropertyName() + " is not found");
-		return (PropertyMetaModel<T>) m;
-	}
+	//static public PropertyMetaModel< ? > findLastProperty(List<PropertyMetaModel< ? >> pl) {
+	//	if(pl == null || pl.size() == 0)
+	//		return null;
+	//	return pl.get(pl.size() - 1);
+	//}
+	//
+	//static public PropertyMetaModel< ? > findLastProperty(SearchPropertyMetaModel spm) {
+	//	return findLastProperty(spm.getPropertyPath());
+	//}
+	//
+	//static public PropertyMetaModel< ? > getLastProperty(List<PropertyMetaModel< ? >> pl) {
+	//	PropertyMetaModel< ? > m = findLastProperty(pl);
+	//	if(m == null)
+	//		throw new IllegalStateException("No property in property list");
+	//	return m;
+	//}
+	//
+	//static public <T> PropertyMetaModel<T> getLastProperty(SearchPropertyMetaModel spm) {
+	//	PropertyMetaModel< ? > m = findLastProperty(spm);
+	//	if(m == null)
+	//		throw new IllegalStateException("The search property " + spm.getPropertyName() + " is not found");
+	//	return (PropertyMetaModel<T>) m;
+	//}
 
 	static public String findHintText(SearchPropertyMetaModel spm) {
 		String hint = spm.getLookupHint();
 		if(hint == null) {
-			PropertyMetaModel< ? > pmm = findLastProperty(spm);
+			PropertyMetaModel< ? > pmm = spm.getProperty();
 			if(pmm != null)
 				hint = pmm.getDefaultHint();
 		}

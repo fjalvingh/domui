@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
 final class DateLookupFactory2 implements ILookupFactory<DatePeriod> {
 	@Override public FactoryPair<DatePeriod> createControl(@Nonnull SearchPropertyMetaModel spm) {
 		//get temporal type from metadata and set withTime later to date inout components
-		PropertyMetaModel<?> pmm = (spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
+		PropertyMetaModel<?> pmm = spm.getProperty();
 
 		/*
 		 * jal 20120712 By default, do not search with time on date fields, unless the "usetime" hint is present.
@@ -47,6 +47,6 @@ final class DateLookupFactory2 implements ILookupFactory<DatePeriod> {
 		}
 		DateLookupControl control = new DateLookupControl();
 		control.setWithTime(withTime);
-		return new FactoryPair<>(new DateLookupQueryBuilder(spm.getPropertyName()), control);
+		return new FactoryPair<>(new DateLookupQueryBuilder(pmm.getName()), control);
 	}
 }

@@ -567,8 +567,6 @@ final public class MetaManager {
 
 	/**
 	 * Try to calculate some search properties off a data class for debug/test pps, if enabled
-	 * @param cm
-	 * @return
 	 */
 	@Nonnull
 	public static List<SearchPropertyMetaModel> calculateSearchProperties(ClassMetaModel cm) {
@@ -593,13 +591,9 @@ final public class MetaManager {
 				continue;
 
 			//-- Accepted
-			SearchPropertyMetaModelImpl sp = new SearchPropertyMetaModelImpl(cm);
+			SearchPropertyMetaModelImpl sp = new SearchPropertyMetaModelImpl(cm, pmm);
 			sp.setIgnoreCase(true);
 			sp.setOrder(order++);
-			sp.setPropertyName(pmm.getName());
-			List<PropertyMetaModel<?>> pl = new ArrayList<PropertyMetaModel<?>>(1);
-			pl.add(pmm);
-			sp.setPropertyPath(pl);
 			res.add(sp);
 		}
 		return res;
@@ -790,8 +784,6 @@ final public class MetaManager {
 	/**
 	 * Walk the list of properties, and defines the list that should be added as sort properties
 	 * to the QCriteria.
-	 * @param crit
-	 * @param properties
 	 */
 	static public void applyPropertySort(@Nonnull QCriteria<?> q, @Nonnull List<DisplayPropertyMetaModel> properties) {
 		List<DisplayPropertyMetaModel> sl = new ArrayList<DisplayPropertyMetaModel>();

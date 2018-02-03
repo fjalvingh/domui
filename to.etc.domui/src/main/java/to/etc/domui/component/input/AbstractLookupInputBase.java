@@ -293,19 +293,9 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		} else {
 			//FIXME: vmijic 20110906 Scheduled for delete. We add extra tests and logging in code just to be sure if such cases can happen in production.
 			//This should be removed soon after we are sure that problem is solved.
-			PropertyMetaModel<?> pmm = getPropertyMetaFromSearchMeta(spm);
+			PropertyMetaModel<?> pmm = spm.getProperty();
 			sb.append(pmm.getDefaultLabel());
 		}
-	}
-
-	@Nonnull private PropertyMetaModel<?> getPropertyMetaFromSearchMeta(SearchPropertyMetaModel spm) {
-		String propertyName = spm.getPropertyName();
-		if(propertyName == null)
-			throw new IllegalStateException("Search property name is null");
-		PropertyMetaModel< ? > pmm = getQueryMetaModel().findProperty(propertyName);
-		if(pmm == null)
-			throw new IllegalStateException(propertyName + ": undefined property in " + getQueryMetaModel());
-		return pmm;
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -740,10 +730,10 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	public void addKeywordProperty(@Nonnull String name, int minlen) {
 		if(m_keywordLookupPropertyList == null)
 			m_keywordLookupPropertyList = new ArrayList<>();
-		SearchPropertyMetaModelImpl si = new SearchPropertyMetaModelImpl(getQueryMetaModel());
+		PropertyMetaModel<?> pmm = getQueryMetaModel().getProperty(name);
+		SearchPropertyMetaModelImpl si = new SearchPropertyMetaModelImpl(getQueryMetaModel(), pmm);
 		if(minlen > 0)
 			si.setMinLength(minlen);
-		si.setPropertyName(name);
 		si.setIgnoreCase(true);
 		DomUtil.nullChecked(m_keywordLookupPropertyList).add(si);
 	}

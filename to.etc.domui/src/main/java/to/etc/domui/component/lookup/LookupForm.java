@@ -173,7 +173,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private Map<String, ILookupControlInstance<?>> getFilterItems() {
 		Map<String, ILookupControlInstance<?>> filterValues = new HashMap<>();
 		for(Item item : m_itemList) {
-			String propertyName = item.getPropertyName() != null ? item.getPropertyName() : item.getLabelText();
+			String propertyName = item.getProperty() != null ? item.getProperty().getName() : item.getLabelText();
 			filterValues.put(propertyName, item.getInstance());
 		}
 		return filterValues;
@@ -223,9 +223,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		private final boolean m_isControl;
 
-		private String m_propertyName;
+		//private String m_propertyName;
+		//
+		//private List<PropertyMetaModel< ? >> m_propertyPath;
 
-		private List<PropertyMetaModel< ? >> m_propertyPath;
+		private PropertyMetaModel<?> m_property;
 
 		private ILookupControlInstance<?> m_instance;
 
@@ -270,6 +272,14 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			m_isControl = false;
 		}
 
+		@Override public PropertyMetaModel<?> getProperty() {
+			return m_property;
+		}
+
+		public void setProperty(PropertyMetaModel<?> property) {
+			m_property = property;
+		}
+
 		@Nullable
 		public NodeBase getLeft() {
 			return m_left;
@@ -309,30 +319,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			 * Force all input controls for certain lookup field to become disabled for user input.
 			 */
 			FORCE_DISABLED
-		}
-
-		@Override
-		public String getPropertyName() {
-			return m_propertyName;
-		}
-
-		public void setPropertyName(String propertyName) {
-			m_propertyName = propertyName;
-		}
-
-		@Override
-		public List<PropertyMetaModel< ? >> getPropertyPath() {
-			return m_propertyPath;
-		}
-
-		public void setPropertyPath(List<PropertyMetaModel< ? >> propertyPath) {
-			m_propertyPath = propertyPath;
-		}
-
-		public PropertyMetaModel< ? > getLastProperty() {
-			if(m_propertyPath == null || m_propertyPath.size() == 0)
-				return null;
-			return m_propertyPath.get(m_propertyPath.size() - 1);
 		}
 
 		@Override
@@ -426,9 +412,9 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append("Item:");
-			if(m_propertyName != null) {
+			if(m_property != null) {
 				sb.append(" property: ");
-				sb.append(m_propertyName);
+				sb.append(m_property);
 			}
 			if(m_labelText != null) {
 				sb.append(" label: ");
@@ -901,8 +887,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			Item it = new Item();
 			it.setIgnoreCase(sp.isIgnoreCase());
 			it.setMinLength(sp.getMinLength());
-			it.setPropertyName(sp.getPropertyName());
-			it.setPropertyPath(sp.getPropertyPath());
+			it.setProperty(sp.getProperty());
 			it.setLabelText(sp.getLookupLabel()); // If a lookup label is defined use it.
 			it.setLookupHint(sp.getLookupHint()); // If a lookup hint is defined use it.
 			it.setPopupSearchImmediately(sp.isPopupSearchImmediately());
@@ -960,13 +945,13 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	private Item addProperty(String path, String label, int minlen, Boolean ignorecase) {
 		for(Item it : m_itemList) { // FIXME Useful?
-			if(it.getPropertyName() != null && path.equals(it.getPropertyName())) // Already present there?
+			if(it.getProperty() != null && path.equals(it.getProperty().getName())) // Already present there?
 				throw new ProgrammerErrorException("The property " + path + " is already part of the search field list.");
 		}
 
 		//-- Define the item.
 		Item it = new Item();
-		it.setPropertyName(path);
+		it.setProperty(m_metaModel.getProperty(path));
 		it.setLabelText(label);
 		it.setIgnoreCase(ignorecase == null || ignorecase.booleanValue());
 		it.setMinLength(minlen);
@@ -1004,14 +989,14 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	public <VT, X extends NodeBase & IControl<VT>> Item addManual(String property, X control) {
 		Item it = new Item();
-		it.setPropertyName(property);
+		it.setProperty(m_metaModel.getProperty(property));
 		addAndFinish(it);
 
 		//-- Add the generic thingy
 		ILookupControlFactory lcf = m_builder.getLookupQueryFactory(it, control);
 		ILookupControlInstance<?> qt = lcf.createControl(it, control);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
-			throw new IllegalStateException("Lookup factory " + lcf + " did not link thenlookup thingy for property " + it.getPropertyName());
+			throw new IllegalStateException("Lookup factory " + lcf + " did not link the lookup thingy for property " + it.getProperty());
 		it.setInstance(qt);
 		updateUI(it);
 		return it;
@@ -1078,9 +1063,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		final PropertyMetaModel< ? > parentPmm = pl.get(0);
 		final PropertyMetaModel< ? > childPmm = pl.get(1);
 
-		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel);
-		spmm.setPropertyName(childPmm.getName());
-		spmm.setPropertyPath(pl);
+		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel, childPmm);
 
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(spmm);
 		final ILookupControlInstance<?> lookupInstance = lcf.createControl(spmm, null);
@@ -1148,19 +1131,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private void addAndFinish(Item it) {
 		m_itemList.add(it);
 
-		//-- 1. If a property name is present but the path is unknown calculate the path
-		if(it.getPropertyPath() == null && it.getPropertyName() != null && it.getPropertyName().length() > 0) {
-			List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getMetaModel(), it.getPropertyName());
-			if(pl.size() == 0)
-				throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + it.getPropertyName() + " on class=" + getLookupClass());
-			it.setPropertyPath(pl);
-		}
-
 		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
-		PropertyMetaModel< ? > pmm = MetaUtils.findLastProperty(it); // Try to get metamodel
+		PropertyMetaModel< ? > pmm = it.getProperty(); 			// Try to get metamodel
 		if(it.getLabelText() == null) {
 			if(pmm == null)
-				it.setLabelText(it.getPropertyName()); // Last resort: default to property name if available
+				it.setLabelText("??");							// Nothing known
 			else
 				it.setLabelText(pmm.getDefaultLabel());
 		}
@@ -1317,7 +1292,8 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private void assignCalcTestID(@Nonnull Item item, @Nonnull NodeBase b) {
 		if(b.getTestID() != null)
 			return;
-		String lbl = item.getPropertyName();
+		PropertyMetaModel<?> property = item.getProperty();
+		String lbl = property == null ? null : property.getName();
 		if(null == lbl)
 			lbl = item.getLabelText();
 		if(null == lbl)
@@ -1334,13 +1310,13 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @return
 	 */
 	private ILookupControlInstance<?> createControlFor(Item it) {
-		PropertyMetaModel< ? > pmm = it.getLastProperty();
+		PropertyMetaModel< ? > pmm = it.getProperty();
 		if(pmm == null)
 			throw new IllegalStateException("property cannot be null when creating using factory.");
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
 		ILookupControlInstance<?> qt = lcf.createControl(it, null);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
-			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + it.getPropertyName());
+			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + pmm);
 		return qt;
 	}
 

@@ -43,7 +43,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 
 		//get temporal type from metadata and set withTime later to date inout components
-		PropertyMetaModel< ? > pmm = (spm.getPropertyPath() != null && spm.getPropertyPath().size() > 0) ? spm.getPropertyPath().get(spm.getPropertyPath().size() - 1) : null;
+		PropertyMetaModel< ? > pmm = spm.getProperty();
 
 		/*
 		 * jal 20120712 By default, do not search with time on date fields, unless the "usetime" hint is present.
@@ -104,12 +104,12 @@ final class LookupFactoryDate implements ILookupControlFactory {
 					}
 
 					//-- Between query
-					crit.ge(spm.getPropertyName(), from);
-					crit.lt(spm.getPropertyName(), till);
+					crit.ge(pmm.getName(), from);
+					crit.lt(pmm.getName(), till);
 				} else if(from != null) {
-					crit.ge(spm.getPropertyName(), from);
+					crit.ge(pmm.getName(), from);
 				} else if(till != null) {
-					crit.lt(spm.getPropertyName(), till);
+					crit.lt(pmm.getName(), till);
 				} else
 					throw new IllegalStateException("Logic error");
 				return AppendCriteriaResult.VALID;
@@ -144,7 +144,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 
 	@Override
 	public <T, X extends IControl<T>> int accepts(@Nonnull SearchPropertyMetaModel spm, X control) {
-		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		PropertyMetaModel< ? > pmm = spm.getProperty();
 		if(Date.class.isAssignableFrom(pmm.getActualType()) && control == null)
 			return 2;
 		return 0;

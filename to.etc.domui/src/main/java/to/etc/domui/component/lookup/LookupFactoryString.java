@@ -50,7 +50,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 
 	@Override
 	public <T, X extends IControl<T>> ILookupControlInstance<T> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
 		Class<T> iclz = pmm.getActualType();
 
 		//-- Boolean/boolean types? These need a tri-state checkbox
@@ -92,9 +92,9 @@ final class LookupFactoryString implements ILookupControlFactory {
 				if(value instanceof String) {
 					String str = (String) value;
 					str = str.trim().replace("*", "%") + "%";
-					crit.ilike(spm.getPropertyName(), str);
+					crit.ilike(pmm.getName(), str);
 				} else {
-					crit.eq(spm.getPropertyName(), value); // property == value
+					crit.eq(pmm.getName(), value); // property == value
 				}
 				return AppendCriteriaResult.VALID;
 			}

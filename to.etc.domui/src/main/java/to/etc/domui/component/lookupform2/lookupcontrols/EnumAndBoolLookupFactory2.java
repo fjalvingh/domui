@@ -45,7 +45,7 @@ import java.util.List;
  */
 final class EnumAndBoolLookupFactory2<T> implements ILookupFactory<T> {
 	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
-		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaUtils.getLastProperty(spm);
+		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
 
 		// Create a domainvalued combobox by default.
 		Object[] vals = pmm.getDomainValues();
@@ -73,6 +73,6 @@ final class EnumAndBoolLookupFactory2<T> implements ILookupFactory<T> {
 		String hint = MetaUtils.findHintText(spm);
 		if(hint != null)
 			c.setTitle(hint);
-		return new FactoryPair<>(new ObjectLookupQueryBuilder<T>(spm.getPropertyName()), c);
+		return new FactoryPair<>(new ObjectLookupQueryBuilder<T>(pmm.getName()), c);
 	}
 }

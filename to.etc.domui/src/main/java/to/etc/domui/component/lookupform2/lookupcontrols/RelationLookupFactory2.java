@@ -37,13 +37,13 @@ import javax.annotation.Nonnull;
  */
 final class RelationLookupFactory2<T> implements ILookupFactory<T> {
 	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
-		PropertyMetaModel<?> pmm = MetaUtils.getLastProperty(spm);
+		PropertyMetaModel<?> pmm = spm.getProperty();
 		LookupInput2<T> control = new LookupInput2<T>((Class<T>) pmm.getActualType()); // Create a lookup thing for this one
 		String hint = MetaUtils.findHintText(spm);
 		if(null != hint)
 			control.setHint(hint);
 		control.setPopupSearchImmediately(spm.isPopupSearchImmediately());
 		control.setPopupInitiallyCollapsed(spm.isPopupInitiallyCollapsed());
-		return new FactoryPair<>(new ObjectLookupQueryBuilder<>(spm.getPropertyName()), control);
+		return new FactoryPair<>(new ObjectLookupQueryBuilder<>(pmm.getName()), control);
 	}
 }

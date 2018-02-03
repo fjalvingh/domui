@@ -24,18 +24,21 @@
  */
 package to.etc.domui.component.lookup;
 
-import javax.annotation.*;
+import to.etc.domui.component.input.ComboLookup;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.util.Constants;
+import to.etc.util.WrappedException;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
 
 final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = spm.getProperty();
 
 		if(pmm.getRelationType() != PropertyRelationType.UP)
 			return -1;
@@ -49,7 +52,7 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		IControl< ? > input = control;
 		if(input == null) {
-			final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+			final PropertyMetaModel< ? > pmm = spm.getProperty();
 			try {
 				ComboLookup< ? > co = ComboLookup.createLookup(pmm);
 				co.setMandatory(false);
@@ -88,6 +91,6 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 			//				co.setTitle(hint);
 			//			input = co;
 		}
-		return new EqLookupControlImpl<>(spm.getPropertyName(), input);
+		return new EqLookupControlImpl<>(spm.getProperty().getName(), input);
 	}
 }

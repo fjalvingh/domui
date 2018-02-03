@@ -34,7 +34,7 @@ import javax.annotation.Nonnull;
 
 final class RelationComboLookupFactory2<T> implements ILookupFactory<T> {
 	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
-		PropertyMetaModel<T> pmm = MetaUtils.getLastProperty(spm);
+		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
 		try {
 			ComboLookup<T> co = ComboLookup.createLookup(pmm);
 			co.setMandatory(false);								// Mandatoryness of field has no meaning for search
@@ -45,7 +45,7 @@ final class RelationComboLookupFactory2<T> implements ILookupFactory<T> {
 			if(hint != null)
 				co.setTitle(hint);
 
-			return new FactoryPair<>(new ObjectLookupQueryBuilder<>(spm.getPropertyName()), co);
+			return new FactoryPair<>(new ObjectLookupQueryBuilder<>(pmm.getName()), co);
 		} catch(Exception x) {
 			throw WrappedException.wrap(x); // Checked exceptions are idiocy.
 		}

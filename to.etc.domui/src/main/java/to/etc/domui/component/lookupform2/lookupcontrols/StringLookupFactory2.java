@@ -35,7 +35,7 @@ import javax.annotation.Nonnull;
 @SuppressWarnings("unchecked")
 final class StringLookupFactory2<T> implements ILookupFactory<T> {
 	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
-		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaUtils.getLastProperty(spm);
+		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
 		Text2<T> txt = createControl(pmm);
 
 		int size = MetaManager.calculateTextSize(pmm);
@@ -48,7 +48,7 @@ final class StringLookupFactory2<T> implements ILookupFactory<T> {
 		if(hint != null)
 			txt.setTitle(hint);
 
-		return new FactoryPair<T>(new ObjectLookupQueryBuilder<>(spm.getPropertyName()), txt);
+		return new FactoryPair<T>(new ObjectLookupQueryBuilder<>(pmm.getName()), txt);
 	}
 
 	private Text2<T> createControl(PropertyMetaModel<T> pmm) {

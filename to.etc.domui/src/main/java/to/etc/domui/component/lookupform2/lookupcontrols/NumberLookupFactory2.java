@@ -48,7 +48,7 @@ import javax.annotation.Nonnull;
  */
 final class NumberLookupFactory2 implements ILookupFactory<NumberLookupValue> {
 	@Nonnull @Override public FactoryPair<NumberLookupValue> createControl(@Nonnull SearchPropertyMetaModel spm) {
-		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		Double minmax = Double.valueOf(calcMaxValue(pmm));
 		boolean monetary = NumericPresentation.isMonetary(pmm.getNumericPresentation());
 
@@ -73,7 +73,7 @@ final class NumberLookupFactory2 implements ILookupFactory<NumberLookupValue> {
 		if(monetary) {
 			numText.setTextAlign(TextAlign.RIGHT);
 		}
-		return new FactoryPair<>(new NumberLookupQueryBuilder(spm.getPropertyName()), numText);
+		return new FactoryPair<>(new NumberLookupQueryBuilder(spm.getProperty().getName()), numText);
 	}
 
 	static private double calcMaxValue(PropertyMetaModel< ? > pmm) {

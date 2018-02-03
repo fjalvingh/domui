@@ -62,7 +62,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		if(control != null)
 			throw new IllegalStateException();
 
-		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		final List<ValueLabelPair<NumericRelationType>> values = new ArrayList<>();
 		for(NumericRelationType relationEnum : NumericRelationType.values()) {
 			values.add(new ValueLabelPair<>(relationEnum, MetaManager.findClassMeta(NumericRelationType.class).getDomainLabel(NlsContext.getLocale(), relationEnum)));
@@ -113,28 +113,28 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 					default:
 						throw new IllegalStateException(relation + ": unhandled case");
 					case EQ:
-						crit.eq(spm.getPropertyName(), vala);
+						crit.eq(spm.getProperty().getName(), vala);
 						break;
 					case LT:
-						crit.lt(spm.getPropertyName(), vala);
+						crit.lt(spm.getProperty().getName(), vala);
 						break;
 					case LE:
-						crit.le(spm.getPropertyName(), vala);
+						crit.le(spm.getProperty().getName(), vala);
 						break;
 					case GT:
-						crit.gt(spm.getPropertyName(), vala);
+						crit.gt(spm.getProperty().getName(), vala);
 						break;
 					case GE:
-						crit.ge(spm.getPropertyName(), vala);
+						crit.ge(spm.getProperty().getName(), vala);
 						break;
 					case NOT_EQ:
-						crit.ne(spm.getPropertyName(), vala);
+						crit.ne(spm.getProperty().getName(), vala);
 						break;
 					case BETWEEN:
 						Object numb = numB.getValue();
 						if(null == numb)
 							return AppendCriteriaResult.INVALID;
-						crit.between(spm.getPropertyName(), vala, numb);
+						crit.between(spm.getProperty().getName(), vala, numb);
 						break;
 				}
 				return AppendCriteriaResult.VALID;
@@ -171,7 +171,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			return -1;
-		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		PropertyMetaModel< ? > pmm = spm.getProperty();
 		if(DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
 			String cth = pmm.getComponentTypeHint();
 			if(cth != null && cth.toLowerCase().contains("numberlookupcombo"))

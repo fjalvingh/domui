@@ -1,6 +1,5 @@
 package to.etc.domui.component.lookupform2.lookupcontrols;
 
-import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
@@ -76,7 +75,7 @@ public class LookupControlRegistry2 {
 
 	@Nullable
 	public ILookupFactory<?> findFactory(SearchPropertyMetaModel spm) {
-		PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		PropertyMetaModel< ? > pmm = spm.getProperty();
 		ILookupFactory<?> best = null;
 		int bestScore = -1;
 		for(RegEntry re : getList()) {

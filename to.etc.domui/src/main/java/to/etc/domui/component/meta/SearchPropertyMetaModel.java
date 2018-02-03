@@ -24,7 +24,8 @@
  */
 package to.etc.domui.component.meta;
 
-import java.util.*;
+import javax.annotation.Nonnull;
+import java.util.Comparator;
 
 public interface SearchPropertyMetaModel {
 	Comparator<SearchPropertyMetaModel> BY_ORDER = (a, b) -> a.getOrder() - b.getOrder();
@@ -48,9 +49,12 @@ public interface SearchPropertyMetaModel {
 	 */
 	int getMinLength();
 
-	String getPropertyName();
+	@Nonnull
+	PropertyMetaModel<?> getProperty();
 
-	List<PropertyMetaModel< ? >> getPropertyPath();
+	//String getPropertyName();
+	//
+	//List<PropertyMetaModel< ? >> getPropertyPath();
 
 	/**
 	 * Returns the text to use as the control label, if defined in the metadata.
@@ -62,6 +66,7 @@ public interface SearchPropertyMetaModel {
 	 */
 
 	String getLookupHint();
+
 	/**
 	 * When T, and when search field is resolved as LookupInput/LookupInput2 type of control, lookup popup is shown with performed initial search automatically.
 	 */

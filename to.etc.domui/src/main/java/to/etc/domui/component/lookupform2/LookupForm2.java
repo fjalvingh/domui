@@ -980,7 +980,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	}
 
 	private SearchPropertyMetaModelImpl mergePropertyModels(LookupBuilder<T> builder, PropertyMetaModel<?> property) {
-		SearchPropertyMetaModelImpl m = new SearchPropertyMetaModelImpl(getMetaModel(), MetaManager.parsePropertyPath(getMetaModel(), property.getName()));
+		SearchPropertyMetaModelImpl m = new SearchPropertyMetaModelImpl(getMetaModel(), property);
 		if(builder.isIgnoreCase())
 			m.setIgnoreCase(true);
 		if(builder.isInitiallyCollapsed())
@@ -1041,13 +1041,13 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	 * Called when property names are provided in the constructor.
 	 */
 	private void internalAddByPropertyName(String prop) {
-		SearchPropertyMetaModelImpl spm = new SearchPropertyMetaModelImpl(m_metaModel);
-		spm.setPropertyName(prop);
+		PropertyMetaModel<?> pmm = m_metaModel.getProperty(prop);
+		SearchPropertyMetaModelImpl spm = new SearchPropertyMetaModelImpl(m_metaModel, pmm);
 		addMetadataProperty(spm, false);
 	}
 
 	private <D> LookupLine<D> addMetadataProperty(SearchPropertyMetaModel spm, boolean fromMetadata) {
-		PropertyMetaModel<?> property = m_metaModel.getProperty(spm.getPropertyName());
+		PropertyMetaModel<?> property = spm.getProperty();
 		FactoryPair<D> pair = (FactoryPair<D>) LookupControlRegistry2.INSTANCE.findControlPair(spm);
 		if(null == pair)
 			throw new ProgrammerErrorException("No lookup control factory found for property " + spm);

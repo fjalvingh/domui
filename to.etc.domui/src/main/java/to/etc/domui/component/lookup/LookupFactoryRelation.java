@@ -33,7 +33,7 @@ import javax.annotation.*;
 final class LookupFactoryRelation implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		if(pmm.getRelationType() ==  PropertyRelationType.UP) {		// Accept only relations.
 			return 4;
 		}
@@ -42,7 +42,7 @@ final class LookupFactoryRelation implements ILookupControlFactory {
 
 	@Override
 	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		IControl< ? > input = control;
 		if(input == null) {
 			final LookupInput<Object> l = new LookupInput<Object>((Class<Object>) pmm.getActualType()); // Create a lookup thing for this one
@@ -57,6 +57,6 @@ final class LookupFactoryRelation implements ILookupControlFactory {
 				l.setPopupInitiallyCollapsed(true);
 			}
 		}
-		return new EqLookupControlImpl<>(spm.getPropertyName(), input);
+		return new EqLookupControlImpl<>(pmm.getName(), input);
 	}
 }

@@ -47,15 +47,15 @@ import java.util.List;
 final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
-		final PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
+		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		return pmm.getActualType() == Boolean.class || pmm.getActualType() == Boolean.TYPE || Enum.class.isAssignableFrom(pmm.getActualType()) ? 2 : 0;
 	}
 
 	@Override
 	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		IControl< ? > ctlnode = control;
+		PropertyMetaModel< ? > pmm = spm.getProperty();
 		if(ctlnode == null) {
-			PropertyMetaModel< ? > pmm = MetaUtils.getLastProperty(spm);
 
 			// Create a domainvalued combobox by default.
 			Object[] vals = pmm.getDomainValues();
@@ -86,6 +86,6 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 			ctlnode = c;
 		}
 
-		return new EqLookupControlImpl<>(spm.getPropertyName(), ctlnode);
+		return new EqLookupControlImpl<>(pmm.getName(), ctlnode);
 	}
 }
