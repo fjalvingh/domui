@@ -31,6 +31,8 @@ package to.etc.domui.component.delayed;
  * Created on Oct 7, 2008
  */
 public interface IProgress {
+	void increment(int work);
+
 	/**
 	 * Define the total amount of work we expect to do.
 	 * @param work

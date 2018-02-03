@@ -27,6 +27,10 @@ package to.etc.domui.state;
 import to.etc.domui.component.delayed.*;
 import to.etc.domui.util.*;
 
+/**
+ * REPLACE ASAP WITH GENERIC PROGRESS IMPL - this one sucks.
+ */
+@Deprecated
 public class DelayedProgressMonitor implements IProgress {
 	private DelayedActivitiesManager m_manager;
 
@@ -69,6 +73,11 @@ public class DelayedProgressMonitor implements IProgress {
 			m_currentWork = work;
 			m_manager.completionStateChanged(m_activity, getPercentComplete(), m_statusMessage);
 		}
+	}
+
+	@Override
+	public void increment(int work) {
+		setCompleted(m_currentWork + work);
 	}
 
 	@Override
