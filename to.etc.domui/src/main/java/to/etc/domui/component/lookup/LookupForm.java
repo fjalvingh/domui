@@ -173,7 +173,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private Map<String, ILookupControlInstance<?>> getFilterItems() {
 		Map<String, ILookupControlInstance<?>> filterValues = new HashMap<>();
 		for(Item item : m_itemList) {
-			String propertyName = item.getProperty() != null ? item.getProperty().getName() : item.getLabelText();
+			String propertyName = item.hasProperty() ? item.getProperty().getName() : item.getLabelText();
 			filterValues.put(propertyName, item.getInstance());
 		}
 		return filterValues;
@@ -273,7 +273,10 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		}
 
 		@Override public PropertyMetaModel<?> getProperty() {
-			return m_property;
+			return Objects.requireNonNull(m_property);
+		}
+		public boolean hasProperty() {
+			return m_property != null;
 		}
 
 		public void setProperty(PropertyMetaModel<?> property) {
@@ -945,7 +948,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 */
 	private Item addProperty(String path, String label, int minlen, Boolean ignorecase) {
 		for(Item it : m_itemList) { // FIXME Useful?
-			if(it.getProperty() != null && path.equals(it.getProperty().getName())) // Already present there?
+			if(it.hasProperty() && path.equals(it.getProperty().getName())) // Already present there?
 				throw new ProgrammerErrorException("The property " + path + " is already part of the search field list.");
 		}
 
@@ -1132,18 +1135,18 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		m_itemList.add(it);
 
 		//-- 2. Calculate/determine a label text if empty from metadata, else ignore
-		PropertyMetaModel< ? > pmm = it.getProperty(); 			// Try to get metamodel
 		if(it.getLabelText() == null) {
-			if(pmm == null)
+			if(it.hasProperty()) {
+				it.setLabelText(it.getProperty().getDefaultLabel());
+			} else {
 				it.setLabelText("??");							// Nothing known
-			else
-				it.setLabelText(pmm.getDefaultLabel());
+			}
 		}
 
 		//-- 3. Calculate a default hint
 		if(it.getLookupHint() == null) {
-			if(pmm != null)
-				it.setLookupHint(pmm.getDefaultHint());
+			if(it.hasProperty())
+				it.setLookupHint(it.getProperty().getDefaultHint());
 		}
 
 		//-- 4. Set an errorLocation
@@ -1292,8 +1295,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private void assignCalcTestID(@Nonnull Item item, @Nonnull NodeBase b) {
 		if(b.getTestID() != null)
 			return;
-		PropertyMetaModel<?> property = item.getProperty();
-		String lbl = property == null ? null : property.getName();
+		String lbl = item.hasProperty() ? item.getProperty().getName() : null;
 		if(null == lbl)
 			lbl = item.getLabelText();
 		if(null == lbl)
@@ -1310,9 +1312,10 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @return
 	 */
 	private ILookupControlInstance<?> createControlFor(Item it) {
-		PropertyMetaModel< ? > pmm = it.getProperty();
-		if(pmm == null)
+		if(! it.hasProperty()) {
 			throw new IllegalStateException("property cannot be null when creating using factory.");
+		}
+		PropertyMetaModel< ? > pmm = it.getProperty();
 		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
 		ILookupControlInstance<?> qt = lcf.createControl(it, null);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
