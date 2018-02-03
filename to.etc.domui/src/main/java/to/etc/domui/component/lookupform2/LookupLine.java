@@ -3,7 +3,7 @@ package to.etc.domui.component.lookupform2;
 import to.etc.domui.component.lookupform2.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
 
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nullable;
@@ -25,7 +25,7 @@ public class LookupLine<D> {
 	final private IControl<D> m_control;
 
 	@Nullable
-	final private NodeBase m_label;
+	final private NodeContainer m_label;
 
 	@Nullable
 	final private D m_defaultValue;
@@ -36,7 +36,7 @@ public class LookupLine<D> {
 
 	private final boolean m_fromMetadata;
 
-	public LookupLine(IControl<D> control, ILookupQueryBuilder<D> qb, @Nullable PropertyMetaModel<?> pmm, @Nullable D defaultValue, @Nullable NodeBase labelNode, boolean fromMetadata) {
+	public LookupLine(IControl<D> control, ILookupQueryBuilder<D> qb, @Nullable PropertyMetaModel<?> pmm, @Nullable D defaultValue, @Nullable NodeContainer labelNode, boolean fromMetadata) {
 		m_control = control;
 		m_defaultValue = defaultValue;
 		m_queryBuilder = qb;
@@ -63,7 +63,7 @@ public class LookupLine<D> {
 	}
 
 	@Nullable
-	public NodeBase getLabel() {
+	public NodeContainer getLabel() {
 		return m_label;
 	}
 

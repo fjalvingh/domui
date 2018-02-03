@@ -54,6 +54,7 @@ import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TD;
+import to.etc.domui.server.ConfigParameters;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
@@ -69,13 +70,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  *
  * @author jal at 2017-12-13.
  */
 public class LookupForm2<T> extends Div implements IButtonContainer {
+	/** This factory defines the default form builder to use. */
+	@Nullable
+	private volatile static Supplier<ISearchFormBuilder> m_defaultFormBuilderFactory;
+
 	@Nullable
 	private QCriteria<T> m_rootCriteria;
 
@@ -95,7 +100,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
 	@Nullable
-	private IFormBuilder m_formBuilder;
+	private ISearchFormBuilder m_formBuilder;
 
 	private IClicked<LookupForm2<T>> m_clicker;
 
@@ -230,7 +235,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Create a LookupForm to find instances of the specified class.
-	 * @param lookupClass
 	 */
 	public LookupForm2(@Nonnull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
 		m_rootCriteria = null;
@@ -256,7 +260,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			addFilterButton();
 			loadSearchQueries();
 		}
-		//-- If a page title is present render the search block in a CaptionedPanel, else present in it;s own div.
+		//-- If a page title is present render the search block in a CaptionedPanel, else present in its own div.
 		Div sroot = m_content = new Div();
 		add(sroot);
 		sroot.setCssClass("ui-lf-mainContent");
@@ -266,7 +270,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 			internalAddMetadata();
 
 		//-- Start populating the lookup form with lookup items.
-		IFormBuilder formBuilder = getFormBuilder();
+		ISearchFormBuilder formBuilder = getFormBuilder();
 		formBuilder.setTarget(this);
 		for(LookupLine<?> it : m_itemList) {
 			formBuilder.append(it);
@@ -848,9 +852,31 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		return m_clearButton;
 	}
 
-	@Nonnull public IFormBuilder getFormBuilder() {
-		return Objects.requireNonNull(m_formBuilder);
+	@Nonnull public ISearchFormBuilder getFormBuilder() {
+		ISearchFormBuilder builder = m_formBuilder;
+		if(null == builder) {
+			Supplier<ISearchFormBuilder> factory = m_defaultFormBuilderFactory;
+			if(null != factory) {
+				m_formBuilder = builder = factory.get();
+			} else {
+				m_formBuilder = builder = new DefaultSearchFormBuilder();
+			}
+		}
+		return builder;
 	}
+
+	public void setFormBuilder(@Nullable ISearchFormBuilder formBuilder) {
+		m_formBuilder = formBuilder;
+	}
+
+	/**
+	 * Set the default form factory to use when forms are generated. This is a global parameter
+	 * and should only be set from {@link to.etc.domui.server.DomApplication#initialize(ConfigParameters)}!!
+	 */
+	static public void setDefaultSearchFormBuilder(Supplier<ISearchFormBuilder> factory) {
+		m_defaultFormBuilderFactory = factory;
+	}
+
 
 	/**
 	 * Return the metamodel that this class uses to get its data from.
@@ -927,7 +953,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		}
 
 		//-- Try to get a label
-		NodeBase labelNode = builder.getLabelNode();
+		NodeContainer labelNode = builder.getLabelNode();
 		String labelText = null;
 		if(null == labelNode) {
 			labelText = builder.getLabelText();
