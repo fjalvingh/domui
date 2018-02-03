@@ -5,11 +5,13 @@ import to.etc.domui.component.lookupform2.LookupForm2;
 import to.etc.domui.derbydata.db.Invoice;
 
 /**
+ * The simplest LookupForm one can get using metadata.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 21-1-18.
  */
-public class Lookup2OnePage extends AbstractSearchPage<Invoice> {
-	public Lookup2OnePage() {
+public class Lookup2Manual extends AbstractSearchPage<Invoice> {
+	public Lookup2Manual() {
 		super(Invoice.class);
 	}
 
@@ -20,5 +22,9 @@ public class Lookup2OnePage extends AbstractSearchPage<Invoice> {
 		LookupForm2<Invoice> lf = new LookupForm2<>(Invoice.class);
 		cp.add(lf);
 		lf.setClicked(a -> search(lf));
+
+		lf.add().property("customer").control();			// Start with lookup by customer
+		lf.add().property("total").control();				// Allow searching for a total
+		lf.add().property("invoiceDate").control();			// And the date.
 	}
 }

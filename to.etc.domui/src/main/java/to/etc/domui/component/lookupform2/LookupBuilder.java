@@ -163,4 +163,18 @@ final public class LookupBuilder<T> {
 	public LookupLine<?> control() {
 		return m_form.finishBuilder(this);
 	}
+
+	@Override public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		IControl<?> control = m_control;
+		if(control != null)
+			sb.append(" control=").append(control);
+		PropertyMetaModel<?> property = m_property;
+		if(null != property)
+			sb.append(" property=").append(property);
+		if(sb.length() == 0)
+			return super.toString();
+		return sb.toString();
+	}
 }

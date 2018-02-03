@@ -925,6 +925,7 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		LookupLine<D> line = createLine(builder);
 		m_itemList.add(line);
 		forceRebuild();
+		m_currentBuilder = null;
 		return line;
 	}
 

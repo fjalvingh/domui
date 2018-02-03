@@ -1,5 +1,7 @@
 package to.etc.domui.derbydata.db;
 
+import to.etc.domui.component.meta.MetaDisplayProperty;
+import to.etc.domui.component.meta.MetaObject;
 import to.etc.domui.component.meta.MetaSearch;
 import to.etc.domui.component.meta.SearchPropertyType;
 
@@ -21,7 +23,14 @@ import java.util.List;
 @Entity
 @Table(name = "Invoice")
 @SequenceGenerator(name = "sq", sequenceName = "invoice_sq")
-//@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
+@MetaObject(defaultColumns = {								// 20180203 Must have metadata for SearchPanel/LookupForm tests.
+	@MetaDisplayProperty(name = "customer.lastName")
+	, @MetaDisplayProperty(name = "customer.firstName")
+	, @MetaDisplayProperty(name = "invoiceDate")
+	, @MetaDisplayProperty(name = "billingAddress")
+	, @MetaDisplayProperty(name = "billingCity")
+	, @MetaDisplayProperty(name = "total")
+})
 public class Invoice extends DbRecordBase<Long> {
 	private Long m_id;
 

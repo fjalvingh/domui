@@ -5,6 +5,8 @@ import to.etc.webapp.query.QCriteria;
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nullable;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 6-12-17.
@@ -14,7 +16,7 @@ final public class ObjectLookupQueryBuilder<D> implements ILookupQueryBuilder<D>
 	private final String m_propertyName;
 
 	public ObjectLookupQueryBuilder(String propertyName) {
-		m_propertyName = propertyName;
+		m_propertyName = requireNonNull(propertyName);
 	}
 
 	@Override public <T> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, @Nullable D value) {
