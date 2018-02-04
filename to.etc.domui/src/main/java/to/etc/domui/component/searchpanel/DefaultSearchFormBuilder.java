@@ -1,6 +1,7 @@
 package to.etc.domui.component.searchpanel;
 
 import to.etc.domui.component2.form4.FormBuilder;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeContainer;
 
@@ -17,8 +18,16 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 	@Nullable
 	private FormBuilder m_builder;
 
+	private Div m_currentTarget;
+
+	private Div m_target;
+
 	@Override public void setTarget(NodeContainer target) throws Exception {
-		m_builder = new FormBuilder(target);
+		Div root = m_target = new Div("ui-dfsb-panel");
+		target.add(root);
+		Div d = m_currentTarget = new Div("ui-dfsb-part");
+		root.add(d);
+		m_builder = new FormBuilder(d);
 	}
 
 	@Override public void append(SearchControlLine<?> it) throws Exception {
@@ -27,6 +36,13 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 			fb().label(label);
 		IControl<?> control = it.getControl();
 		fb().control(control);
+	}
+
+	public void addBreak() {
+		NodeContainer target = requireNonNull(m_target);
+		Div d = m_currentTarget = new Div("ui-dfsb-part");
+		target.add(d);
+		m_builder = new FormBuilder(d);
 	}
 
 	@Override public void finish() throws Exception {

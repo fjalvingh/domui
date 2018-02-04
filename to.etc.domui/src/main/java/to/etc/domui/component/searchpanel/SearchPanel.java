@@ -50,6 +50,7 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IExecute;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
@@ -89,7 +90,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/** The primary list of defined lookup items. */
 	@Nonnull
-	private final List<SearchControlLine<?>> m_itemList = new ArrayList<>(20);
+	private final List<Object> m_itemList = new ArrayList<>(20);
 
 	/** The list of buttons to show on the button row. */
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
@@ -267,9 +268,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//-- Start populating the lookup form with lookup items.
 		ISearchFormBuilder formBuilder = getFormBuilder();
 		formBuilder.setTarget(this);
-		for(SearchControlLine<?> it : m_itemList) {
-			it.clear();
-			formBuilder.append(it);
+		for(Object o : m_itemList) {
+			if(o instanceof SearchControlLine) {
+				SearchControlLine<?> it = (SearchControlLine<?>) o;
+				it.clear();
+				formBuilder.append(it);
+			} else if(o instanceof  IExecute) {
+				((IExecute) o).execute();
+			}
 		}
 		formBuilder.finish();
 
@@ -514,12 +520,15 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				root.mergeCriteria(rootCriteria);
 		}
 		boolean success = true;
-		for(SearchControlLine<?> it : m_itemList) {
-			LookupQueryBuilderResult res = appendCriteria(root, it);
-			if(res == LookupQueryBuilderResult.INVALID) {
-				success = false;
-			} else if(res == LookupQueryBuilderResult.VALID) {
-				m_hasUserDefinedCriteria = true;
+		for(Object obj : m_itemList) {
+			if(obj instanceof SearchControlLine) {
+				SearchControlLine<?> it = (SearchControlLine<?>) obj;
+				LookupQueryBuilderResult res = appendCriteria(root, it);
+				if(res == LookupQueryBuilderResult.INVALID) {
+					success = false;
+				} else if(res == LookupQueryBuilderResult.VALID) {
+					m_hasUserDefinedCriteria = true;
+				}
 			}
 		}
 		if(!success) {                                        // Some input failed to validate their input criteria?
@@ -548,8 +557,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * this call, the form should return an empty QCriteria without any restrictions.
 	 */
 	public void clearInput() {
-		for(SearchControlLine<?> it : m_itemList) {
-			it.clear();
+		for(Object o : m_itemList) {
+			if(o instanceof SearchControlLine) {
+				((SearchControlLine<?>) o).clear();
+			}
 		}
 	}
 
@@ -868,7 +879,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Set the default form factory to use when forms are generated. This is a global parameter
-	 * and should only be set from {@link to.etc.domui.server.DomApplication#initialize(ConfigParameters)}!!
+	 * and should only be set from {@link to.etc.domui.server.DomApplication#initialize(ConfigParameters)}
 	 */
 	static public void setDefaultSearchFormBuilder(Supplier<ISearchFormBuilder> factory) {
 		m_defaultFormBuilderFactory = factory;
@@ -922,7 +933,21 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return line;
 	}
 
+	public void addAction(SearchItemBuilder<T> builder, IExecute action) {
+		if(m_currentBuilder != builder)
+			throw new IllegalStateException(this + ": the item builder " + builder + " is not the 'current' item - call order problem");
+		m_currentBuilder = null;
+		forceRebuild();
+		m_itemList.add(action);
+	}
+
+	@Nonnull
 	private <D> SearchControlLine<D> createLine(SearchItemBuilder<T> builder) {
+		IExecute action = builder.getAction();
+		if(action != null) {
+			throw new IllegalStateException("Combining action with control is not allowed");
+		}
+
 		IControl<D> control = (IControl<D>) builder.getControl();
 		ILookupQueryBuilder<D> qb = builder.getQueryBuilder();
 		PropertyMetaModel<?> property = builder.getProperty();
@@ -1081,19 +1106,22 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		if(null != property) {
 			//-- Do we already have this one?
 			for(int i = m_itemList.size(); --i >= 0; ) {
-				SearchControlLine<?> old = m_itemList.get(i);
-				if(old.getProperty() == property) {
-					//-- Existing property: if this one comes from metadata do not add it
-					if(line.isFromMetadata())
-						return;
+				Object obj = m_itemList.get(i);
+				if(obj instanceof SearchControlLine) {
+					SearchControlLine<?> old = (SearchControlLine<?>) obj;
+					if(old.getProperty() == property) {
+						//-- Existing property: if this one comes from metadata do not add it
+						if(line.isFromMetadata())
+							return;
 
-					//-- If the old item is from metadata: replace it
-					if(old.isFromMetadata()) {
-						m_itemList.set(i, line);
-						return;
+						//-- If the old item is from metadata: replace it
+						if(old.isFromMetadata()) {
+							m_itemList.set(i, line);
+							return;
+						}
+
+						//-- None of the above -> just add a copy.
 					}
-
-					//-- None of the above -> just add a copy.
 				}
 			}
 		}

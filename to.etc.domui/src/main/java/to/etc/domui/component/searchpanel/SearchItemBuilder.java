@@ -5,6 +5,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.IExecute;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -48,6 +49,9 @@ final public class SearchItemBuilder<T> {
 	private boolean m_popupSearchImmediately;
 
 	private boolean m_popupInitiallyCollapsed;
+
+	@Nullable
+	private IExecute m_action;
 
 	SearchItemBuilder(SearchPanel<T> form) {
 		m_form = form;
@@ -184,5 +188,14 @@ final public class SearchItemBuilder<T> {
 		if(sb.length() == 0)
 			return super.toString();
 		return sb.toString();
+	}
+
+	public void action(IExecute action) {
+		m_action = action;
+		m_form.addAction(this, action);
+	}
+
+	@Nullable public IExecute getAction() {
+		return m_action;
 	}
 }
