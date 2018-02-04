@@ -20,18 +20,10 @@ final public class ObjectLookupQueryBuilder<D> implements ILookupQueryBuilder<D>
 	}
 
 	@Override public <T> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, @Nullable D value) {
-		//Object value = null;
-		//try {
-		//	value = txt.getValue();
-		//} catch(Exception x) {
-		//	return LookupQueryBuilderResult.INVALID;		// Has validation error -> exit.
-		//}
 		if(value == null || (value instanceof String && ((String) value).trim().length() == 0))
 			return LookupQueryBuilderResult.EMPTY;			// Is okay but has no data
 
 		// FIXME Handle minimal-size restrictions on input (search field metadata)
-
-
 		//-- Put the value into the criteria..
 		if(value instanceof String) {
 			String str = (String) value;
