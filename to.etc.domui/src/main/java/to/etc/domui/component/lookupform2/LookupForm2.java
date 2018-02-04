@@ -923,7 +923,6 @@ public class LookupForm2<T> extends Div implements IButtonContainer {
 		if(m_currentBuilder != builder)
 			throw new IllegalStateException(this + ": the item builder " + builder + " is not the 'current' item - call order problem");
 		LookupLine<D> line = createLine(builder);
-		m_itemList.add(line);
 		forceRebuild();
 		m_currentBuilder = null;
 		return line;
