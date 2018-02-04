@@ -1093,13 +1093,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		forceRebuild();
 	}
 
-	private <D> void assignCalcTestID(@Nonnull SearchControlLine<D> item, PropertyMetaModel<?> pmm, @Nullable String labelText) {
+	private <D> void assignCalcTestID(@Nonnull SearchControlLine<D> item, @Nullable PropertyMetaModel<?> pmm, @Nullable String labelText) {
 		String testID = item.getControl().getTestID();
 		if(null != testID)
 			return;
-		String lbl = pmm.getName();
-		if(null == lbl)
-			lbl = labelText;
+		String lbl = labelText;
+		if(pmm != null) {
+			lbl = pmm.getName();
+		}
 		item.getControl().setTestID(lbl);
 	}
 

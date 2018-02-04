@@ -6,7 +6,6 @@ import to.etc.domui.component.input.SearchInput.IQuery;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.FaIcon;
-import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IValueChanged;
@@ -25,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * FIXME Functional duplicate of LabelSelector.
@@ -42,7 +42,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	private final Map<T, Div> m_displayMap = new HashMap<>();
 
 	@Nullable
-	private IConverter<T> m_converter;
+	private Function<T, String> m_converter;
 
 	@Nullable
 	private IRenderInto<T> m_renderer;
@@ -205,9 +205,9 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	}
 
 	private String getLabelText(T instance) {
-		IConverter<T> converter = m_converter;
+		Function<T, String> converter = m_converter;
 		if(null != converter) {
-			return converter.convertObjectToString(NlsContext.getLocale(), instance);
+			return converter.apply(instance);
 		}
 		//-- Ask the metamodel
 		ClassMetaModel cmm = MetaManager.findClassMeta(m_actualClass);
@@ -236,13 +236,12 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		return this;
 	}
 
-	@Nullable public IConverter<T> getConverter() {
+	@Nullable public Function<T, String> getConverter() {
 		return m_converter;
 	}
 
-	public EnumSetInput<T> setConverter(@Nullable IConverter<T> converter) {
+	public void setConverter(@Nullable Function<T, String> converter) {
 		m_converter = converter;
-		return this;
 	}
 
 	@Nullable public IRenderInto<T> getRenderer() {

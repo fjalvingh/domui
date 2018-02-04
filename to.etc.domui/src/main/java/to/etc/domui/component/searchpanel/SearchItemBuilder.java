@@ -162,7 +162,7 @@ final public class SearchItemBuilder<T> {
 	 * Finish the builder and return the result. This version allows any query to be constructed from the
 	 * control's value.
 	 */
-	public <D> SearchControlLine<D> control(ILookupQueryBuilder<D> builder, IControl<D> control) {
+	public <D> SearchControlLine<D> control(IControl<D> control, ILookupQueryBuilder<D> builder) {
 		m_control = control;
 		m_queryBuilder = builder;
 		return m_form.finishBuilder(this);

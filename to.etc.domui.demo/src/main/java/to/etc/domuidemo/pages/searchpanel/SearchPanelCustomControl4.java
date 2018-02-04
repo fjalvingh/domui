@@ -40,7 +40,7 @@ public class SearchPanelCustomControl4 extends AbstractSearchPage<Track> {
 		def.add(genreList.get(0));
 		def.add(genreList.get(1));
 
-		lf.add().property("genre").defaultValue(def).control(new EnumSetQueryBuilder<>("genre"), genreC);
+		lf.add().property("genre").defaultValue(def).control(genreC, new EnumSetQueryBuilder<>("genre"));
 
 		lf.add().property("name").control();
 		lf.add().property("album").control();				// Allow searching for a total
