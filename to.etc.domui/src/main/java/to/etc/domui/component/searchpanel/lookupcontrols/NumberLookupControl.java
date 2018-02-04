@@ -112,7 +112,96 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 	}
 
 	@Override public void setValue(@Nullable NumberLookupValue value) {
+		if(Objects.equals(m_value, value))
+			return;
 		m_value = value;
+		renderValue(value);
+
+	}
+
+	private void renderValue(NumberLookupValue value) {
+		if(null == value) {
+			m_input.setValue(null);
+			return;
+		}
+		StringBuilder sb = new StringBuilder();
+		QOperation from = value.getFromOperation();
+		if(from != null) {
+			switch(from) {
+				default:
+					throw new IllegalStateException("Unsupported operation: " + from);
+				case LE:
+					sb.append("<=");
+					break;
+				case LT:
+					sb.append("<");
+					break;
+				case GT:
+					sb.append(">");
+					break;
+				case GE:
+					sb.append(">=");
+					break;
+				case ISNOTNULL:
+					m_input.setValue("*");
+					return;
+				case ISNULL:
+					m_input.setValue("!");
+					return;
+			}
+		}
+
+		Number number = value.getFrom();
+		sb.append(renderNumber(number));
+
+		QOperation to = value.getToOperation();
+		if(null != to) {
+			sb.append(" ");
+			switch(from) {
+				default:
+					throw new IllegalStateException("Unsupported operation: " + from);
+				case LE:
+					sb.append("<=");
+					break;
+				case LT:
+					sb.append("<");
+					break;
+				case GT:
+					sb.append(">");
+					break;
+				case GE:
+					sb.append(">=");
+					break;
+			}
+			number = value.getFrom();
+			sb.append(renderNumber(number));
+		}
+		m_input.setValue(sb.toString());
+	}
+
+	private String renderNumber(Number number) {
+		if(null == number)
+			return "";
+
+		return number.toString();
+	}
+
+	private String encodeOperation(QOperation op) {
+		switch(op) {
+			default:
+				throw new IllegalStateException("Unsupported operation: " + op);
+
+			case EQ:
+				return "";
+			case GE:
+				return ">=";
+			case GT:
+				return ">";
+			case LE:
+				return "<=";
+			case LT:
+				return "<";
+		}
 	}
 
 	@Nullable

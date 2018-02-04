@@ -31,6 +31,8 @@ public class AbstractSearchPage<T> extends UrlPage {
 	}
 
 	protected void search(QCriteria<T> criteria) {
+		if(null == criteria)
+			return;
 		SimpleSearchModel<T> model = new SimpleSearchModel<T>(this, criteria);
 
 		DataTable<T> table = m_table;

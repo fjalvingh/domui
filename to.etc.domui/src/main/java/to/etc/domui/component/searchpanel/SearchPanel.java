@@ -277,6 +277,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		ISearchFormBuilder formBuilder = getFormBuilder();
 		formBuilder.setTarget(this);
 		for(SearchControlLine<?> it : m_itemList) {
+			it.clear();
 			formBuilder.append(it);
 		}
 		formBuilder.finish();

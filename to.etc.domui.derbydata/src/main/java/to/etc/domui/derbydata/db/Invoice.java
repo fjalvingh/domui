@@ -2,8 +2,7 @@ package to.etc.domui.derbydata.db;
 
 import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaObject;
-import to.etc.domui.component.meta.MetaSearch;
-import to.etc.domui.component.meta.SearchPropertyType;
+import to.etc.domui.component.meta.MetaSearchItem;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -24,13 +23,19 @@ import java.util.List;
 @Table(name = "Invoice")
 @SequenceGenerator(name = "sq", sequenceName = "invoice_sq")
 @MetaObject(defaultColumns = {								// 20180203 Must have metadata for SearchPanel/LookupForm tests.
-	@MetaDisplayProperty(name = "customer.lastName")
-	, @MetaDisplayProperty(name = "customer.firstName")
+	@MetaDisplayProperty(name = "customer.lastName", displayLength = 20)
+	, @MetaDisplayProperty(name = "customer.firstName", displayLength = 10)
 	, @MetaDisplayProperty(name = "invoiceDate")
-	, @MetaDisplayProperty(name = "billingAddress")
-	, @MetaDisplayProperty(name = "billingCity")
-	, @MetaDisplayProperty(name = "total")
-})
+	, @MetaDisplayProperty(name = "billingAddress", displayLength = 20)
+	, @MetaDisplayProperty(name = "billingCity", displayLength = 10)
+	, @MetaDisplayProperty(name = "total", displayLength = 10)
+}
+, searchProperties = {
+	@MetaSearchItem(name = "invoiceDate")
+	, @MetaSearchItem(name = "billingCity")
+	, @MetaSearchItem(name = "customer")
+}
+)
 public class Invoice extends DbRecordBase<Long> {
 	private Long m_id;
 
@@ -65,7 +70,6 @@ public class Invoice extends DbRecordBase<Long> {
 		m_id = id;
 	}
 
-	@MetaSearch(order = 1, searchType = SearchPropertyType.SEARCH_FIELD)
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "CustomerId")
 	public Customer getCustomer() {
@@ -76,7 +80,6 @@ public class Invoice extends DbRecordBase<Long> {
 		m_customer = customer;
 	}
 
-	@MetaSearch(order = 10, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(name = "InvoiceDate", nullable = false)
 	@Temporal(TemporalType.DATE)
 	public Date getInvoiceDate() {
@@ -87,7 +90,6 @@ public class Invoice extends DbRecordBase<Long> {
 		m_invoiceDate = invoiceDate;
 	}
 
-	@MetaSearch(order = 30, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(name = "BillingAddress", length = 70, nullable = true)
 	public String getBillingAddress() {
 		return m_billingAddress;
@@ -97,7 +99,6 @@ public class Invoice extends DbRecordBase<Long> {
 		m_billingAddress = billingAddress;
 	}
 
-	@MetaSearch(order = 20, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(name = "BillingCity", length = 40, nullable = true)
 	public String getBillingCity() {
 		return m_billingCity;
@@ -152,3 +153,5 @@ public class Invoice extends DbRecordBase<Long> {
 		m_invoiceLines = invoiceLines;
 	}
 }
+
+
