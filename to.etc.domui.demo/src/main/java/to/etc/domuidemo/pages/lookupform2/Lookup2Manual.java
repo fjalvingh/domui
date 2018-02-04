@@ -5,7 +5,7 @@ import to.etc.domui.component.lookupform2.LookupForm2;
 import to.etc.domui.derbydata.db.Invoice;
 
 /**
- * The simplest LookupForm one can get using metadata.
+ * A lookup form using properties to define what fields to lookup on.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 21-1-18.

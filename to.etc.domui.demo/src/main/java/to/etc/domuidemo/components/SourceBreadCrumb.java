@@ -1,8 +1,10 @@
 package to.etc.domuidemo.components;
 
+import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.misc.ALink;
 import to.etc.domui.component.misc.WindowParameters;
 import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.FloatType;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Img;
@@ -75,6 +77,16 @@ final public class SourceBreadCrumb extends Div {
 			addPageLink(ct, p.getPage().getBody().getClass(), p.getPage().getPageParameters(), ttl, last);
 			ct++;
 		}
+
+		Div right = new Div();
+		add(right);
+		right.setFloat(FloatType.RIGHT);
+
+		SmallImgButton refresh = new SmallImgButton("img/reload.png");
+		right.add(refresh);
+		refresh.setOnClickJS("WebUI.refreshPage();");
+		refresh.setTitle("Reload the page fully");
+
 	}
 
 	private static boolean hasSuper(@Nonnull Object instance, String what) {
