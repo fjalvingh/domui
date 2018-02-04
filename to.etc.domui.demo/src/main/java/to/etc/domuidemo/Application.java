@@ -55,7 +55,6 @@ public class Application extends DomApplication {
 
 		//-- Append the default style sheet.
 		addHeaderContributor(HeaderContributor.loadStylesheet("css/demostyle.scss"), 1000);	// Add default stylesheet for the app
-		addHeaderContributor(HeaderContributor.loadStylesheet("css/font-awesome.min.css"), 10);
 		addHeaderContributor(new FaviconContributor("img/favicon.ico"), 10);
 
 		//-- If we have a Google Analytics code- add the script blurb to every page.

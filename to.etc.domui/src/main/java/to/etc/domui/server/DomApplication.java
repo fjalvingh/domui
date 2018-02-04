@@ -1024,7 +1024,7 @@ public abstract class DomApplication {
 	}
 
 	protected void addFontAwesomeContributor() {
-		addHeaderContributor(HeaderContributor.loadStylesheet("$fonts/font-awesome.min.css"), 10);
+		addHeaderContributor(HeaderContributor.loadStylesheet("$fontawesome-470/fonts/font-awesome.min.css"), 10);
 	}
 
 	/**
