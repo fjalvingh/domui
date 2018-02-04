@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.lookupform2;
+package to.etc.domuidemo.pages.searchpanel;
 
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.searchpanel.SearchPanel;
@@ -10,8 +10,8 @@ import to.etc.domui.derbydata.db.Invoice;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 21-1-18.
  */
-public class Lookup2Metadata1 extends AbstractSearchPage<Invoice> {
-	public Lookup2Metadata1() {
+public class SearchPanelMetadata1 extends AbstractSearchPage<Invoice> {
+	public SearchPanelMetadata1() {
 		super(Invoice.class);
 	}
 

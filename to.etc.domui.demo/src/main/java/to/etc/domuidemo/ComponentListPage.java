@@ -6,7 +6,7 @@ import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.basic.DemoTextArea;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
 import to.etc.domuidemo.pages.graphs.GraphPage;
-import to.etc.domuidemo.pages.lookupform2.Lookup2FormMenuPage;
+import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
 import to.etc.domuidemo.pages.overview.buttons.DemoDefaultButton;
 import to.etc.domuidemo.pages.overview.buttons.DemoLinkButton;
@@ -109,7 +109,7 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoTableInDrag.class, "Drag and drop - ordered row drop mode");
 
 		addCaption("LookupForm and form builder");
-		addLink(Lookup2FormMenuPage.class, "SearchPanel: searching for things in the database");
+		addLink(SearchPanelMenuPage.class, "SearchPanel: searching for things in the database");
 
 		addLink(DemoLookupForm.class, "Using a lookupform to generalize search pages");
 		addLink(DemoLookupForm2.class, "LookupForm with LookupInput for a many-to-one relation, and search-as-you-type");

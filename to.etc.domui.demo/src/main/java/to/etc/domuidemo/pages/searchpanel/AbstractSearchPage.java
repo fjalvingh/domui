@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.lookupform2;
+package to.etc.domuidemo.pages.searchpanel;
 
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.DataPager;
