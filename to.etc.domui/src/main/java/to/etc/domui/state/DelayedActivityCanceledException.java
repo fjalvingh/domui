@@ -24,8 +24,9 @@
  */
 package to.etc.domui.state;
 
-public class DelayedActivityCanceledException extends RuntimeException {
+import to.etc.util.CancelledException;
+
+public class DelayedActivityCanceledException extends CancelledException {
 	public DelayedActivityCanceledException() {
-		super("Activity was canceled");
 	}
 }

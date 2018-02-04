@@ -24,9 +24,10 @@
  */
 package to.etc.domui.component.delayed;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.Div;
+import to.etc.util.Progress;
 
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
 
 /**
  * The worker code for a delayed activity, i.e. a thingy registered using an
@@ -36,5 +37,5 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 7, 2008
  */
 public interface IActivity {
-	Div run(@Nonnull IProgress p) throws Exception;
+	Div run(@Nonnull Progress p) throws Exception;
 }

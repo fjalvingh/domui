@@ -1,8 +1,10 @@
 package to.etc.domui.component.delayed;
 
-import javax.annotation.*;
+import to.etc.util.Progress;
+import to.etc.webapp.query.QContextManager;
 
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * This defines a handler for asynchronous execution within a DomUI page. See {@link AsyncContainer} for a component that uses it.
@@ -28,7 +30,7 @@ public interface IAsyncRunnable {
 	 * @param p
 	 * @throws Exception
 	 */
-	void run(@Nonnull IProgress p) throws Exception;
+	void run(@Nonnull Progress p) throws Exception;
 
 	/**
 	 * This method gets called with your originating DomUI page "active" when the activity has completed. At the time
@@ -37,7 +39,7 @@ public interface IAsyncRunnable {
 	 * terminated (was shelved/unshelved) before the task finished.
 	 *
 	 * @param cancelled			When TRUE, the task was cancelled by the user.
-	 * @param errorException	When non-null the {@link #run(IProgress)} method terminated with an exception, and this is
+	 * @param errorException	When non-null the {@link #run(Progress)} method terminated with an exception, and this is
 	 * 							that exception. <b>You are supposed to do something with it</b> since no other indication
 	 * 							of that error is reported to the user!! So throw this exception on, or display it on your page.
 	 * @throws Exception

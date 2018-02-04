@@ -1,7 +1,6 @@
 package to.etc.domui.util.exporters;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.delayed.IProgress;
 import to.etc.domui.component.menu.PopupMenu;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.NodeBase;
@@ -11,6 +10,7 @@ import to.etc.domui.parts.TempFilePart.Disposition;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.asyncdialog.AsyncDialog;
 import to.etc.function.ConsumerEx;
+import to.etc.util.Progress;
 import to.etc.webapp.query.QCriteria;
 
 import javax.annotation.Nonnull;
@@ -66,7 +66,7 @@ public class ExporterButtons {
 			m_columns = columns;
 		}
 
-		@Override protected void export(IExportWriter<T> writer, @Nonnull IProgress progress) throws Exception {
+		@Override protected void export(IExportWriter<T> writer, @Nonnull Progress progress) throws Exception {
 			QCriteriaExporter<T> qxp = new QCriteriaExporter<>(writer, dc(), m_criteria, m_columns);
 			qxp.export(progress);
 		}

@@ -1,9 +1,9 @@
 package to.etc.domui.util.asyncdialog;
 
-import to.etc.domui.component.delayed.IProgress;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
 import to.etc.util.FileTool;
+import to.etc.util.Progress;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 
@@ -23,10 +23,10 @@ abstract public class AbstractAsyncDialogTask implements IAsyncTask {
 
 	private volatile boolean m_done;
 
-	abstract protected void run(@Nonnull IProgress p) throws Exception;
+	abstract protected void run(@Nonnull Progress p) throws Exception;
 
 	@Override
-	public final void execute(@Nonnull IProgress progress) throws Exception {
+	public final void execute(@Nonnull Progress progress) throws Exception {
 		try {
 			run(progress);
 		} finally {

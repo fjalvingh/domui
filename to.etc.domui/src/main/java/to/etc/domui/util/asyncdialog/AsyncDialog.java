@@ -2,12 +2,12 @@ package to.etc.domui.util.asyncdialog;
 
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IAsyncRunnable;
-import to.etc.domui.component.delayed.IProgress;
 import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.trouble.UIException;
 import to.etc.function.ConsumerEx;
+import to.etc.util.Progress;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -32,7 +32,7 @@ final public class AsyncDialog {
 		dlg.setAutoClose(false);
 
 		AsyncContainer	pd = new AsyncContainer(new IAsyncRunnable() {
-			@Override public void run(@Nonnull IProgress p) throws Exception {
+			@Override public void run(@Nonnull Progress p) throws Exception {
 				task.execute(p);
 			}
 

@@ -24,12 +24,15 @@
  */
 package to.etc.domui.state;
 
-import java.util.*;
+import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.delayed.IAsyncListener;
+import to.etc.domui.component.delayed.IAsyncRunnable;
+import to.etc.domui.server.DomApplication;
+import to.etc.util.Progress;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.delayed.*;
-import to.etc.domui.server.*;
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DelayedActivityInfo {
 	final private DelayedActivitiesManager m_manager;
@@ -38,7 +41,7 @@ public class DelayedActivityInfo {
 
 	final private IAsyncRunnable m_activity;
 
-	private DelayedProgressMonitor m_monitor;
+	private Progress m_monitor;
 
 	private Exception m_exception;
 
@@ -60,13 +63,13 @@ public class DelayedActivityInfo {
 	}
 
 	@Nonnull
-	public DelayedProgressMonitor getMonitor() {
+	public Progress getMonitor() {
 		if(m_monitor == null)
 			throw new IllegalStateException("? Unexpected access to monitor after task completed?");
 		return m_monitor;
 	}
 
-	void setMonitor(DelayedProgressMonitor monitor) {
+	void setMonitor(Progress monitor) {
 		m_monitor = monitor;
 	}
 
