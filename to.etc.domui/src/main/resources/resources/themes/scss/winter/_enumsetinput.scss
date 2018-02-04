@@ -1,11 +1,16 @@
 /** EnumSetInput **/
+.ui-esic {
+	@include ui-input-base;
+	padding-left: 1px;
+}
+
 .ui-esic-label {
 	display: inline-block;
 	@include border-radius(3px);
 	border: 1px solid $esic-label-border;
 	background-color: $esic-label-color;
 	color: $esic-text-color;
-	margin: 2px 1px;
+	margin: 3px 1px 1px 1px;
 	padding: 2px;
 }
 button.ui-esic-del {

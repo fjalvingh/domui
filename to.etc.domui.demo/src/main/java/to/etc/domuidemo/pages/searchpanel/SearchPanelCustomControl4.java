@@ -30,9 +30,6 @@ public class SearchPanelCustomControl4 extends AbstractSearchPage<Track> {
 		cp.add(lf);
 		lf.setClicked(a -> search(lf.getCriteria()));
 
-		lf.add().property("name").control();
-		lf.add().property("album").control();				// Allow searching for a total
-
 		//-- For Genre we will use a new control
 		EnumSetInput<Genre> genreC = new EnumSetInput<>(Genre.class);
 		List<Genre> genreList = getSharedContext().query(QCriteria.create(Genre.class));
@@ -43,6 +40,9 @@ public class SearchPanelCustomControl4 extends AbstractSearchPage<Track> {
 		def.add(genreList.get(1));
 
 		lf.add().property("genre").defaultValue(def).control(genreC);
+
+		lf.add().property("name").control();
+		lf.add().property("album").control();				// Allow searching for a total
 
 
 

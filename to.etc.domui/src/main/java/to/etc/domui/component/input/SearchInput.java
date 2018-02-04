@@ -55,6 +55,8 @@ import java.util.Set;
 public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	static private final int MAX_RESULTS = 7;
 
+	static private final Set<Class< ? >> SIMPLECLASSES = new HashSet<Class< ? >>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
+
 	@Nonnull
 	final private ClassMetaModel m_dataModel;
 
@@ -62,6 +64,19 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	final private Class<T>		m_dataClass;
 
 	final private Object[] m_columns;
+
+	@Nullable
+	private IQuery<T> m_handler;
+
+	private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
+
+	private Div m_pnlSearchPopup;
+
+	private NodeContainer	m_resultMessageContainer;
+
+	private int m_lastResultCount = -1;
+
+	private Input		m_input = new Input();
 
 	/**
 	 * Inner interface to define the query to execute to lookup data, and the handlers for
@@ -84,7 +99,8 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		 * @return
 		 * @throws Exception
 		 */
-		List<T>	queryFromString(String input, int max) throws Exception;
+		@Nonnull
+		List<T>	queryFromString(@Nonnull String input, int max) throws Exception;
 
 		/**
 		 * When a literal value in the result combo is selected this will be called
@@ -94,7 +110,7 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		 * @param instance
 		 * @throws Exception
 		 */
-		void		onSelect(T instance) throws Exception;
+		void		onSelect(@Nonnull T instance) throws Exception;
 
 		/**
 		 * When a value is entered and ENTER is pressed in the input box this gets
@@ -104,21 +120,8 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		 * @param value
 		 * @throws Exception
 		 */
-		void		onEnter(String value) throws Exception;
+		void		onEnter(@Nonnull String value) throws Exception;
 	}
-
-	@Nullable
-	private IQuery<T> m_handler;
-
-	private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
-
-	private Div m_pnlSearchPopup;
-
-	private NodeContainer	m_resultMessageContainer;
-
-	private int m_lastResultCount = -1;
-
-	private Input		m_input = new Input();
 
 	/**
 	 * Create a control for the specified type, and show the specified properties in the popup list. This
@@ -217,9 +220,6 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	 *	<li>List with too many items: if the list contains more that max items the control will show the "too many results" presentation.</li>
 	 *	<li>List with &lt;= max items: all of the items will be shown in a selection popup; the user can select one with mouse or keyboard.</li>
 	 * </ul>
-	 *
-	 * @param isl
-	 * @throws Exception
 	 */
 	private void showResults(@Nullable List<T> isl) throws Exception {
 		if(null == isl) {
@@ -283,8 +283,6 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		tbl.setOverflow(Overflow.HIDDEN);
 		tbl.setPosition(PositionType.RELATIVE);
 	}
-
-	static private final Set<Class< ? >> SIMPLECLASSES = new HashSet<Class< ? >>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
 
 	private void handleSelectValueFromPopup(T val) throws Exception {
 		System.out.println("GOT: "+val);

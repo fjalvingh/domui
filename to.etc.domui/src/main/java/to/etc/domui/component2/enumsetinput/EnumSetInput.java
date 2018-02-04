@@ -1,6 +1,8 @@
 package to.etc.domui.component2.enumsetinput;
 
 import to.etc.domui.component.input.AbstractDivControl;
+import to.etc.domui.component.input.SearchInput;
+import to.etc.domui.component.input.SearchInput.IQuery;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.FaIcon;
@@ -17,7 +19,9 @@ import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,11 +46,34 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	@Nullable
 	private IRenderInto<T> m_renderer;
 
+	@Nullable
+	private SearchInput<ItemWrapper<T>> m_input;
+
 	public EnumSetInput(Class<T> actualClass) {
 		m_actualClass = actualClass;
 	}
 
+	public class ItemWrapper<E> {
+		final private E m_item;
+
+		final private String m_text;
+
+		public ItemWrapper(E item, String text) {
+			m_item = item;
+			m_text = text;
+		}
+
+		public final String getText() {
+			return m_text;
+		}
+
+		public E getItem() {
+			return m_item;
+		}
+	}
+
 	@Override public void createContent() throws Exception {
+		addCssClass("ui-esic");
 		m_displayMap.clear();
 		Set<T> set = getValue();
 		if(null != set) {
@@ -59,6 +86,48 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 				add(label);
 			}
 		}
+		if(isDisabled() || isReadOnly()) {
+			m_input = null;
+		} else {
+			Class<ItemWrapper<T>> clz = (Class<ItemWrapper<T>>) (Object) ItemWrapper.class;
+			SearchInput<ItemWrapper<T>> input = m_input = new SearchInput<ItemWrapper<T>>(clz, "text");
+			add(input);
+			input.setCssClass("ui-esic-input");
+			input.setHandler(new IQuery<ItemWrapper<T>>() {
+				@Override public List<ItemWrapper<T>> queryFromString(String input, int max) throws Exception {
+					return searchItemsBy(input, max);
+				}
+
+				@Override public void onSelect(ItemWrapper<T> instance) throws Exception {
+					addItem(instance.getItem());
+				}
+
+				@Override public void onEnter(String value) throws Exception {
+
+				}
+			});
+		}
+	}
+
+	/**
+	 * Try to find the value(s) matching.
+	 */
+	private List<ItemWrapper<T>> searchItemsBy(String input, int max) {
+		List<T> data = getData();
+		if(null == data)
+			return Collections.emptyList();
+		input = input.toLowerCase();
+		List<ItemWrapper<T>> res = new ArrayList<>();
+		for(T item : data) {
+			String text = getLabelText(item);
+			if(text.toLowerCase().contains(input)) {
+				res.add(new ItemWrapper<>(item, text));
+				if(res.size() >= max) {
+					break;
+				}
+			}
+		}
+		return res;
 	}
 
 	private Div renderLabel(T value) throws Exception {
@@ -95,6 +164,31 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			node.remove();
 		}
 	}
+
+
+	private void addItem(T item) throws Exception {
+		Set<T> set = getValue();
+		if(null == set) {
+			set = new HashSet<>();
+		} else {
+			set = new HashSet<>(set);
+		}
+		if(set.add(item)) {
+			internalSetValue(set);
+		}
+
+		if(m_displayMap.containsKey(item))
+			return;
+
+		Div label = renderLabel(item);
+		SearchInput<ItemWrapper<T>> input = m_input;
+		if(null == input) {
+			add(label);
+		} else {
+			input.appendBeforeMe(label);
+		}
+	}
+
 
 	private void valueHasChanged() throws Exception {
 		IValueChanged<EnumSetInput<T>> listener = (IValueChanged<EnumSetInput<T>>) getOnValueChanged();
