@@ -54,6 +54,8 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	@Nullable
 	private SearchInput<ItemWrapper<T>> m_input;
 
+	private boolean m_addSingleMatch = true;
+
 	public EnumSetInput(Class<T> actualClass) {
 		m_actualClass = actualClass;
 	}
@@ -97,6 +99,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			Class<ItemWrapper<T>> clz = (Class<ItemWrapper<T>>) (Object) ItemWrapper.class;
 			SearchInput<ItemWrapper<T>> input = m_input = new SearchInput<ItemWrapper<T>>(clz, "text");
 			add(input);
+			input.setAddSingleMatch(isAddSingleMatch());
 			input.setCssClass("ui-esic-input");
 			input.setHandler(new IQuery<ItemWrapper<T>>() {
 				@Override public List<ItemWrapper<T>> queryFromString(String input, int max) throws Exception {
@@ -267,6 +270,18 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 
 	public EnumSetInput<T> setMatcher(BiFunction<T, String, Boolean> matcher) {
 		m_predicate = matcher;
+		return this;
+	}
+
+	public boolean isAddSingleMatch() {
+		return m_addSingleMatch;
+	}
+
+	public EnumSetInput<T>  setAddSingleMatch(boolean addSingleMatch) {
+		m_addSingleMatch = addSingleMatch;
+		SearchInput<ItemWrapper<T>> input = m_input;
+		if(null != input)
+			input.setAddSingleMatch(addSingleMatch);
 		return this;
 	}
 }

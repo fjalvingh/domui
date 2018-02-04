@@ -3,7 +3,6 @@ package to.etc.domui.component.input;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.tbl.DataTable;
-import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.component.tbl.SimpleListModel;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.Overflow;
@@ -34,10 +33,10 @@ import java.util.Set;
  * the lookup is done is fully transparant: the method {@link IQuery#queryFromString(String, int)} in a
  * handler interface {@link IQuery} is called, and it should return the results to show in the popup box.
  * The method gets passed the partially typed input string plus a maximal #of results to return.
- *
+ * <p>
  * <p>The control handles a specific type T, which stands for the type of object being searched for by
  * this control.</p>
- *
+ * <p>
  * <p>If the string entered by this control is just finished and enter is pressed then this control fires
  * an {@link IQuery#onEnter(String)} event with the entered string as parameter. This can then be used to
  * either locate the specific instance or a new instance can be added for this string. This means that
@@ -45,7 +44,7 @@ import java.util.Set;
  * shown.</p>
  * <p>If the user selects one of the results as returned by the {@link IQuery#queryFromString(String, int)}
  * method then the control will fire the {@link IQuery#onSelect(T)} event with the selected instance.</p>
- *
+ * <p>
  * <p>In both of these cases the input area of the control will be cleared, and any popup will be removed.
  * The control will be ready for another lookup/input action.</p>
  *
@@ -55,13 +54,11 @@ import java.util.Set;
 public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	static private final int MAX_RESULTS = 7;
 
-	static private final Set<Class< ? >> SIMPLECLASSES = new HashSet<Class< ? >>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
+	static private final Set<Class<?>> SIMPLECLASSES = new HashSet<Class<?>>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
 
-	@Nonnull
-	final private ClassMetaModel m_dataModel;
+	@Nonnull final private ClassMetaModel m_dataModel;
 
-	@Nonnull
-	final private Class<T>		m_dataClass;
+	@Nonnull final private Class<T> m_dataClass;
 
 	final private Object[] m_columns;
 
@@ -72,11 +69,13 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 
 	private Div m_pnlSearchPopup;
 
-	private NodeContainer	m_resultMessageContainer;
+	private NodeContainer m_resultMessageContainer;
 
 	private int m_lastResultCount = -1;
 
-	private Input		m_input = new Input();
+	private boolean m_addSingleMatch;
+
+	private Input m_input = new Input();
 
 	/**
 	 * Inner interface to define the query to execute to lookup data, and the handlers for
@@ -93,14 +92,15 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		 * should be at most (max+1) elements big; in that case the code will show "too
 		 * many results". If the list is empty it will show "no results", in all other cases
 		 * it will display the result's rows to select from.
-		 *
+		 * <p>
 		 * as an indicator.
+		 *
 		 * @param input
 		 * @return
 		 * @throws Exception
 		 */
 		@Nonnull
-		List<T>	queryFromString(@Nonnull String input, int max) throws Exception;
+		List<T> queryFromString(@Nonnull String input, int max) throws Exception;
 
 		/**
 		 * When a literal value in the result combo is selected this will be called
@@ -110,17 +110,18 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		 * @param instance
 		 * @throws Exception
 		 */
-		void		onSelect(@Nonnull T instance) throws Exception;
+		void onSelect(@Nonnull T instance) throws Exception;
 
 		/**
 		 * When a value is entered and ENTER is pressed in the input box this gets
 		 * called with the literal string entered. It can be used to either create
 		 * or select some value. When called it should return true if the input box
 		 * is to be cleared.
+		 *
 		 * @param value
 		 * @throws Exception
 		 */
-		void		onEnter(@Nonnull String value) throws Exception;
+		void onEnter(@Nonnull String value) throws Exception;
 	}
 
 	/**
@@ -137,9 +138,10 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 
 	/**
 	 * Create a control for the specified type, using the handler to query and handle events.
-	 * @param handler	The IQUery instance which handles queries and accepts events.
-	 * @param clz		The data class to display/handle
-	 * @param columns	The property names to show in the popup window.
+	 *
+	 * @param handler The IQUery instance which handles queries and accepts events.
+	 * @param clz     The data class to display/handle
+	 * @param columns The property names to show in the popup window.
 	 */
 	public SearchInput(IQuery<T> handler, @Nonnull Class<T> clz, Object... columns) {
 		m_handler = handler;
@@ -180,10 +182,11 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 
 	/**
 	 * Called on keyboard entry to handle querying or return presses.
+	 *
 	 * @param done
 	 * @throws Exception
 	 */
-	private void	handleLookupTyping(boolean done) throws Exception {
+	private void handleLookupTyping(boolean done) throws Exception {
 		//-- If input is empty just clear all presentation but do not call any handler.
 		String curdata = m_input.getRawValue();
 		if(curdata.length() == 0) {
@@ -204,9 +207,13 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		}
 
 		//-- We need to do a query.. Ask the handler for a result
-		List<T>	res = null;
+		List<T> res = null;
 		if(handler != null) {
 			res = handler.queryFromString(curdata, MAX_RESULTS);
+			if(res.size() == 1 && m_addSingleMatch) {
+				handleSelectValueFromPopup(res.get(0));
+				res = null;
+			}
 		}
 		showResults(res);
 	}
@@ -214,11 +221,11 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	/**
 	 * Show the results of a lookup query. The parameter can have the following values:
 	 * <ul>
-	 *	<li>null: this clears all search presentation; it means that a query is not necessary/possible. It does <b>not</b> mean
-	 *		that there are no results!</li>
-	 *	<li>empty list: indicates that a query returned no results. This will cause the control to display the "no query results" presentation.</li>
-	 *	<li>List with too many items: if the list contains more that max items the control will show the "too many results" presentation.</li>
-	 *	<li>List with &lt;= max items: all of the items will be shown in a selection popup; the user can select one with mouse or keyboard.</li>
+	 * <li>null: this clears all search presentation; it means that a query is not necessary/possible. It does <b>not</b> mean
+	 * that there are no results!</li>
+	 * <li>empty list: indicates that a query returned no results. This will cause the control to display the "no query results" presentation.</li>
+	 * <li>List with too many items: if the list contains more that max items the control will show the "too many results" presentation.</li>
+	 * <li>List with &lt;= max items: all of the items will be shown in a selection popup; the user can select one with mouse or keyboard.</li>
 	 * </ul>
 	 */
 	private void showResults(@Nullable List<T> isl) throws Exception {
@@ -230,7 +237,7 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		}
 
 		int rc = isl.size();
-		System.out.println("search: count="+rc);
+		System.out.println("search: count=" + rc);
 		if(rc == 0) {
 			if(m_lastResultCount == 0)
 				return;
@@ -257,26 +264,16 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 			m_pnlSearchPopup.setZIndex(10);
 		}
 
-		SimpleListModel<T>	mdl = new SimpleListModel<T>(isl);
+		SimpleListModel<T> mdl = new SimpleListModel<T>(isl);
 		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataModel);
 
 		if(SIMPLECLASSES.contains(m_dataClass)) {
-			rr.addColumns("", new IRenderInto<Object>() {
-				@Override
-				public void render(@Nonnull NodeContainer node, @Nullable Object object) throws Exception {
-					node.add(String.valueOf(object));
-				}
-			});
+			rr.addColumns("", (IRenderInto<Object>) (node, object) -> node.add(String.valueOf(object)));
 
 		} else if(m_columns != null && m_columns.length > 0) {
 			rr.addColumns(m_columns);
 		}
-		rr.setRowClicked(new ICellClicked<T>() {
-			@Override
-			public void cellClicked(@Nonnull T val) throws Exception {
-				handleSelectValueFromPopup(val);
-			}
-		});
+		rr.setRowClicked(val -> handleSelectValueFromPopup(val));
 		DataTable<T> tbl = new DataTable<T>(mdl, rr);
 		m_pnlSearchPopup.add(tbl);
 		tbl.setWidth("100%");
@@ -285,7 +282,7 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	}
 
 	private void handleSelectValueFromPopup(T val) throws Exception {
-		System.out.println("GOT: "+val);
+		System.out.println("GOT: " + val);
 		if(null != m_handler) {
 			m_handler.onSelect(val);
 		}
@@ -304,6 +301,7 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	/**
 	 * Set a result count indicator field, using the specified text and the specified css class. If
 	 * the field is already present it is updated, else it is created.
+	 *
 	 * @param css
 	 * @param text
 	 */
@@ -317,13 +315,14 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		clearResultPopup();
 	}
 
-	private void	clearResultMessage() {
+	private void clearResultMessage() {
 		if(m_resultMessageContainer != null && m_resultMessageContainer.isAttached())
 			m_resultMessageContainer.remove();
 	}
 
 	/**
 	 * Get the current query/event handler for this control.
+	 *
 	 * @return
 	 */
 	public IQuery<T> getHandler() {
@@ -376,5 +375,13 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 
 	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 
+	}
+
+	public boolean isAddSingleMatch() {
+		return m_addSingleMatch;
+	}
+
+	public void setAddSingleMatch(boolean addSingleMatch) {
+		m_addSingleMatch = addSingleMatch;
 	}
 }
