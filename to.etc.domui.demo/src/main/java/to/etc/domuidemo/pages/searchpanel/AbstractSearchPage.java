@@ -22,7 +22,7 @@ public class AbstractSearchPage<T> extends UrlPage {
 	}
 
 	protected void search(SearchPanel<T> lf) throws Exception {
-		QCriteria<T> criteria = lf.getEnteredCriteria();
+		QCriteria<T> criteria = lf.getCriteria();
 		if(criteria == null) {					// Nothing entered or error
 			return;
 		}

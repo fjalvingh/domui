@@ -509,7 +509,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * </p>
 	 */
 	@Nullable
-	public QCriteria<T> getEnteredCriteria() throws Exception {
+	public QCriteria<T> getCriteria() throws Exception {
 		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root;
 		IQueryFactory<T> queryFactory = getQueryFactory();
@@ -719,7 +719,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	}
 
 	/**
-	 * Method {@link SearchPanel#getEnteredCriteria} MUST BE EXECUTED BEFORE checking for this property value!
+	 * Method {@link SearchPanel#getCriteria} MUST BE EXECUTED BEFORE checking for this property value!
 	 * This is T when the user has actually entered something in one of the search components. Any restriction
 	 * that has been added by code that is not depending on user input is ignored.
 	 * @return

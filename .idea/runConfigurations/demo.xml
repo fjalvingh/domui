@@ -1,6 +1,5 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="demo" type="#com.intellij.j2ee.web.tomcat.TomcatRunConfigurationFactory" factoryName="Local" APPLICATION_SERVER_NAME="Tomcat 8.0.23" ALTERNATIVE_JRE_ENABLED="false">
-    <option name="START_JAVASCRIPT_DEBUGGER" value="true" />
     <option name="SHOW_DIALOG_ON_UPDATE" value="false" />
     <deployment>
       <artifact name="to.etc.domui.demo:war exploded">
@@ -18,7 +17,6 @@
     <predefined_log_file id="Tomcat Manager" enabled="false" />
     <predefined_log_file id="Tomcat Host Manager" enabled="false" />
     <predefined_log_file id="Tomcat Localhost Access" enabled="false" />
-    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
     <RunnerSettings RunnerId="Debug">
       <option name="DEBUG_PORT" value="41127" />
     </RunnerSettings>

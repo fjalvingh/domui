@@ -21,7 +21,7 @@ public class SearchPanelManual1 extends AbstractSearchPage<Invoice> {
 
 		SearchPanel<Invoice> lf = new SearchPanel<>(Invoice.class);
 		cp.add(lf);
-		lf.setClicked(a -> search(lf));
+		lf.setClicked(a -> search(lf.getCriteria()));
 
 		lf.add().property("customer").control();			// Start with lookup by customer
 		lf.add().property("total").control();				// Allow searching for a total
