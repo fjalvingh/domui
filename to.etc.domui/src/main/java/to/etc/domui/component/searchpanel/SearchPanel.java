@@ -1071,7 +1071,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * @param list
 	 */
 	public void setSearchProperties(List<SearchPropertyMetaModel> list) {
-		int totalCount = list.size();
 		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
 			addMetadataProperty(sp, false);
 		}
