@@ -22,9 +22,9 @@ import java.math.BigDecimal;
  * Created on Apr 20, 2010
  */
 @MetaObject(defaultColumns = {
-	@MetaDisplayProperty(name="name", displayLength = 80)
+	@MetaDisplayProperty(name="name", displayLength = 30)
 	, @MetaDisplayProperty(name = "milliseconds", converterClass = MsDurationConverter.class)
-	, @MetaDisplayProperty(name = "album.title", displayLength = 40)
+	, @MetaDisplayProperty(name = "album.title", displayLength = 20)
 	, @MetaDisplayProperty(name = "album.artist.name", displayLength = 40)
 }, searchProperties = {
 	@MetaSearchItem(name = "name")

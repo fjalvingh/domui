@@ -13,6 +13,10 @@ public class SearchPanelMenuPage extends MenuPage {
 
 	@Override public void createContent() throws Exception {
 		addLink(SearchPanelManual1.class, "Manual configuration");
+		addLink(SearchPanelManual2.class, "Manual configuration: set defaults for the search values");
+		addLink(SearchPanelManual3.class, "Manual configuration: use your own control");
 		addLink(SearchPanelMetadata1.class, "Using metadata");
+		addLink(SearchPanelMetadata2.class, "Combining metadata with manual configuration");
+		addLink(SearchPanelCustomControl4.class, "Create and use a custom control");
 	}
 }
