@@ -39,7 +39,7 @@ public class AbstractSearchPage<T> extends UrlPage {
 			table = m_table = new DataTable<>(model, rr);
 			add(table);
 			add(new DataPager(table));
-			table.setPageSize(20);
+			table.setPageSize(10);
 		} else {
 			table.setModel(model);
 		}
