@@ -1,6 +1,6 @@
 package to.etc.domuidemo.pages.lookupform2;
 
-import to.etc.domui.component.lookupform2.LookupForm2;
+import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
@@ -21,7 +21,7 @@ public class AbstractSearchPage<T> extends UrlPage {
 		m_clazz = clazz;
 	}
 
-	protected void search(LookupForm2<T> lf) throws Exception {
+	protected void search(SearchPanel<T> lf) throws Exception {
 		QCriteria<T> criteria = lf.getEnteredCriteria();
 		if(criteria == null) {					// Nothing entered or error
 			return;

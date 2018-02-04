@@ -1,6 +1,6 @@
-package to.etc.domui.component.lookupform2;
+package to.etc.domui.component.searchpanel;
 
-import to.etc.domui.component.lookupform2.lookupcontrols.ILookupQueryBuilder;
+import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
@@ -13,9 +13,9 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 14-12-17.
  */
-final public class LookupBuilder<T> {
+final public class SearchItemBuilder<T> {
 	@Nonnull
-	final private LookupForm2<T> m_form;
+	final private SearchPanel<T> m_form;
 
 	@Nullable
 	private IControl<?> m_control;
@@ -49,11 +49,11 @@ final public class LookupBuilder<T> {
 
 	private boolean m_popupInitiallyCollapsed;
 
-	LookupBuilder(LookupForm2<T> form) {
+	SearchItemBuilder(SearchPanel<T> form) {
 		m_form = form;
 	}
 
-	public <D> LookupBuilder<T> defaultValue(D value) {
+	public <D> SearchItemBuilder<T> defaultValue(D value) {
 		m_defaultValue = value;
 		return this;
 	}
@@ -82,12 +82,12 @@ final public class LookupBuilder<T> {
 		return m_control;
 	}
 
-	public LookupBuilder<T> property(String property) {
+	public SearchItemBuilder<T> property(String property) {
 		m_property = m_form.getMetaModel().getProperty(property);
 		return this;
 	}
 
-	public LookupBuilder<T> minLength(int len) {
+	public SearchItemBuilder<T> minLength(int len) {
 		m_minLength = len;
 		return this;
 	}
@@ -96,7 +96,7 @@ final public class LookupBuilder<T> {
 		return m_minLength;
 	}
 
-	public LookupBuilder<T> hint(String lookupHint) {
+	public SearchItemBuilder<T> hint(String lookupHint) {
 		m_lookupHint = lookupHint;
 		return this;
 	}
@@ -105,7 +105,7 @@ final public class LookupBuilder<T> {
 		return m_lookupHint;
 	}
 
-	public LookupBuilder<T> ignoreCase(boolean yes) {
+	public SearchItemBuilder<T> ignoreCase(boolean yes) {
 		m_ignoreCase = yes;
 		return this;
 	}
@@ -114,7 +114,7 @@ final public class LookupBuilder<T> {
 		return m_ignoreCase;
 	}
 
-	public LookupBuilder<T> searchImmediately(boolean yes) {
+	public SearchItemBuilder<T> searchImmediately(boolean yes) {
 		m_popupSearchImmediately = true;
 		return this;
 	}
@@ -127,16 +127,16 @@ final public class LookupBuilder<T> {
 		return m_popupSearchImmediately;
 	}
 
-	public LookupBuilder<T> initiallyCollapsed(boolean yes) {
+	public SearchItemBuilder<T> initiallyCollapsed(boolean yes) {
 		m_popupInitiallyCollapsed = yes;
 		return this;
 	}
 
-	public LookupBuilder<T> label(String label) {
+	public SearchItemBuilder<T> label(String label) {
 		m_labelText = label;
 		return this;
 	}
-	public LookupBuilder<T> label(Label label) {
+	public SearchItemBuilder<T> label(Label label) {
 		m_labelNode = label;
 		return this;
 	}
@@ -145,7 +145,7 @@ final public class LookupBuilder<T> {
 	 * Finish the builder and return the result. This version allows adding a control, but assumes that
 	 * the query can be build by a simple equals on the property value.
 	 */
-	public <D> LookupLine<D> control(IControl<D> control) {
+	public <D> SearchControlLine<D> control(IControl<D> control) {
 		m_control = control;
 		return m_form.finishBuilder(this);
 	}
@@ -154,13 +154,13 @@ final public class LookupBuilder<T> {
 	 * Finish the builder and return the result. This version allows any query to be constructed from the
 	 * control's value.
 	 */
-	public <D> LookupLine<D> control(ILookupQueryBuilder<D> builder, IControl<D> control) {
+	public <D> SearchControlLine<D> control(ILookupQueryBuilder<D> builder, IControl<D> control) {
 		m_control = control;
 		m_queryBuilder = builder;
 		return m_form.finishBuilder(this);
 	}
 
-	public LookupLine<?> control() {
+	public SearchControlLine<?> control() {
 		return m_form.finishBuilder(this);
 	}
 

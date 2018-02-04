@@ -1,4 +1,4 @@
-package to.etc.domui.component.lookupform2.lookupcontrols;
+package to.etc.domui.component.searchpanel.lookupcontrols;
 
 import java.util.Date;
 import java.util.Objects;

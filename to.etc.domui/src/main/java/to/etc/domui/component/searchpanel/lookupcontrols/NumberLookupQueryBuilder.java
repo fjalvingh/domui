@@ -1,4 +1,4 @@
-package to.etc.domui.component.lookupform2.lookupcontrols;
+package to.etc.domui.component.searchpanel.lookupcontrols;
 
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QLiteral;

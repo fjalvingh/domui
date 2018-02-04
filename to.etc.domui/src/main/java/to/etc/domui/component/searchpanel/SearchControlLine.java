@@ -1,6 +1,6 @@
-package to.etc.domui.component.lookupform2;
+package to.etc.domui.component.searchpanel;
 
-import to.etc.domui.component.lookupform2.lookupcontrols.ILookupQueryBuilder;
+import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeContainer;
@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
  * Created on Jul 31, 2009
  */
 @DefaultNonNull
-public class LookupLine<D> {
+public class SearchControlLine<D> {
 	final private ILookupQueryBuilder<D> m_queryBuilder;
 
 	final private IControl<D> m_control;
@@ -36,7 +36,7 @@ public class LookupLine<D> {
 
 	private final boolean m_fromMetadata;
 
-	public LookupLine(IControl<D> control, ILookupQueryBuilder<D> qb, @Nullable PropertyMetaModel<?> pmm, @Nullable D defaultValue, @Nullable NodeContainer labelNode, boolean fromMetadata) {
+	public SearchControlLine(IControl<D> control, ILookupQueryBuilder<D> qb, @Nullable PropertyMetaModel<?> pmm, @Nullable D defaultValue, @Nullable NodeContainer labelNode, boolean fromMetadata) {
 		m_control = control;
 		m_defaultValue = defaultValue;
 		m_queryBuilder = qb;

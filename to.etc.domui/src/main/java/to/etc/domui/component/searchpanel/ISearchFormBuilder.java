@@ -1,4 +1,4 @@
-package to.etc.domui.component.lookupform2;
+package to.etc.domui.component.searchpanel;
 
 import to.etc.domui.dom.html.NodeContainer;
 
@@ -10,7 +10,7 @@ public interface ISearchFormBuilder {
 	/** Defines the target node for the form to be built. */
 	void setTarget(NodeContainer target) throws Exception;
 
-	void append(LookupLine<?> it) throws Exception;
+	void append(SearchControlLine<?> it) throws Exception;
 
 	void finish() throws Exception;
 }

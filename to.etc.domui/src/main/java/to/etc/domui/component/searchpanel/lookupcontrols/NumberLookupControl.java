@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.lookupform2.lookupcontrols;
+package to.etc.domui.component.searchpanel.lookupcontrols;
 
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.converter.MiniScanner;

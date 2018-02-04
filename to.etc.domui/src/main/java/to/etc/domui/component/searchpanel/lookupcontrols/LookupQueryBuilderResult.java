@@ -1,4 +1,4 @@
-package to.etc.domui.component.lookupform2.lookupcontrols;
+package to.etc.domui.component.searchpanel.lookupcontrols;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

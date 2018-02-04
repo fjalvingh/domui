@@ -1,4 +1,4 @@
-package to.etc.domui.component.lookupform2;
+package to.etc.domui.component.searchpanel;
 
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.IControl;
@@ -21,7 +21,7 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 		m_builder = new FormBuilder(target);
 	}
 
-	@Override public void append(LookupLine<?> it) throws Exception {
+	@Override public void append(SearchControlLine<?> it) throws Exception {
 		NodeContainer label = it.getLabel();
 		if(null != label)
 			fb().label(label);

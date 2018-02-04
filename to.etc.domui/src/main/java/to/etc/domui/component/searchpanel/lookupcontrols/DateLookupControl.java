@@ -1,4 +1,4 @@
-package to.etc.domui.component.lookupform2.lookupcontrols;
+package to.etc.domui.component.searchpanel.lookupcontrols;
 
 import to.etc.domui.component.input.DateInput2;
 import to.etc.domui.dom.html.Div;

@@ -22,28 +22,31 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component.lookupform2.lookupcontrols;
+package to.etc.domui.component.searchpanel.lookupcontrols;
 
-import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
-import to.etc.domui.component2.lookupinput.LookupInput2;
+import to.etc.domui.component.meta.TemporalPresentationType;
+import to.etc.domui.util.DomUtil;
 
 import javax.annotation.Nonnull;
 
-/**
- * Creates a {@link to.etc.domui.component2.lookupinput.LookupInput2} which allows lookup of the
- * related data record.
- */
-final class RelationLookupFactory2<T> implements ILookupFactory<T> {
-	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
+final class DateLookupFactory2 implements ILookupFactory<DatePeriod> {
+	@Override public FactoryPair<DatePeriod> createControl(@Nonnull SearchPropertyMetaModel spm) {
+		//get temporal type from metadata and set withTime later to date inout components
 		PropertyMetaModel<?> pmm = spm.getProperty();
-		LookupInput2<T> control = new LookupInput2<T>((Class<T>) pmm.getActualType()); // Create a lookup thing for this one
-		String hint = MetaUtils.findHintText(spm);
-		if(null != hint)
-			control.setHint(hint);
-		control.setPopupSearchImmediately(spm.isPopupSearchImmediately());
-		control.setPopupInitiallyCollapsed(spm.isPopupInitiallyCollapsed());
-		return new FactoryPair<>(new ObjectLookupQueryBuilder<>(pmm.getName()), control);
+
+		/*
+		 * jal 20120712 By default, do not search with time on date fields, unless the "usetime" hint is present.
+		 */
+		boolean withTime = false;
+		if(pmm != null && pmm.getTemporal() == TemporalPresentationType.DATETIME) {
+			String value = DomUtil.getHintValue(pmm.getComponentTypeHint(), "time");
+			if(null != value)
+				withTime = true;
+		}
+		DateLookupControl control = new DateLookupControl();
+		control.setWithTime(withTime);
+		return new FactoryPair<>(new DateLookupQueryBuilder(pmm.getName()), control);
 	}
 }

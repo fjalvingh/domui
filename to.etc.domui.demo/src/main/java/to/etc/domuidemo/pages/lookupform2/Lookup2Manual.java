@@ -1,7 +1,7 @@
 package to.etc.domuidemo.pages.lookupform2;
 
 import to.etc.domui.component.layout.ContentPanel;
-import to.etc.domui.component.lookupform2.LookupForm2;
+import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.derbydata.db.Invoice;
 
 /**
@@ -19,7 +19,7 @@ public class Lookup2Manual extends AbstractSearchPage<Invoice> {
 		ContentPanel cp = new ContentPanel();
 		add(cp);
 
-		LookupForm2<Invoice> lf = new LookupForm2<>(Invoice.class);
+		SearchPanel<Invoice> lf = new SearchPanel<>(Invoice.class);
 		cp.add(lf);
 		lf.setClicked(a -> search(lf));
 
