@@ -209,6 +209,8 @@ public class Dialog extends Window {
 	 */
 	protected void buttonSave() throws Exception {
 		clearGlobalMessage();
+		if(bindErrors())
+			return;
 		if(!onSaveBind())
 			return;
 		if(!onValidate())
