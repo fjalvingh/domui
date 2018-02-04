@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.lookup;
 
-public enum NumericRelationType {
+@Deprecated
+enum NumericRelationType {
 	EQ, LT, LE, GT, GE, NOT_EQ, BETWEEN
 }

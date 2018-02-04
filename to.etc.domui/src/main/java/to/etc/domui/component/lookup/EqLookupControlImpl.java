@@ -24,10 +24,11 @@
  */
 package to.etc.domui.component.lookup;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.webapp.query.QCriteria;
 
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
 
 /**
  * ILookupControlInstance which uses a generic input control to create an equals criterion
@@ -36,6 +37,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 19, 2009
  */
+@Deprecated
 final public class EqLookupControlImpl<T> extends BaseAbstractLookupControlImpl<T> {
 	final private IControl<T> m_control;
 

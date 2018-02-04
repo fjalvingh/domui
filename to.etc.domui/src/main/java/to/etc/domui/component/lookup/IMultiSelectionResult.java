@@ -32,6 +32,7 @@ import java.util.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Oct 2009
  */
+@Deprecated
 public interface IMultiSelectionResult<T> {
 	void onReturnResult(List<T> result) throws Exception;
 }

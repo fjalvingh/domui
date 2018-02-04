@@ -24,12 +24,14 @@
  */
 package to.etc.domui.component.lookup;
 
-import java.util.*;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.NodeBase;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Default Registry of Lookup control factories.
@@ -37,6 +39,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 23, 2008
  */
+@Deprecated
 final public class LookupControlRegistry {
 	@Nonnull
 	private List<ILookupControlFactory> m_factoryList = new ArrayList<ILookupControlFactory>();

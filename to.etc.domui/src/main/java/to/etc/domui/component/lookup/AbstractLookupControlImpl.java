@@ -34,6 +34,7 @@ import to.etc.domui.dom.html.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 31, 2009
  */
+@Deprecated
 abstract public class AbstractLookupControlImpl extends BaseAbstractLookupControlImpl<Object> implements ILookupControlInstance<Object> {
 
 	public AbstractLookupControlImpl(NodeBase... nodes) {

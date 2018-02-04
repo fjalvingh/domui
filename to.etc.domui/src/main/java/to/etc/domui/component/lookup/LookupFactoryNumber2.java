@@ -50,6 +50,7 @@ import java.math.BigDecimal;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 28, 2009
  */
+@Deprecated
 final class LookupFactoryNumber2 implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(@Nonnull SearchPropertyMetaModel spm, X control) {

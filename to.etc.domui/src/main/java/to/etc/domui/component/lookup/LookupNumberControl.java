@@ -50,6 +50,7 @@ import java.util.Set;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on Feb 11, 2010
  */
+@Deprecated
 public class LookupNumberControl<T extends Number> extends BaseAbstractLookupControlImpl<String> {
 	static public final Set<QOperation> UNARY_OPS;
 

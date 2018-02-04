@@ -11,6 +11,7 @@ import javax.annotation.Nonnull;
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since 2/10/16.
  */
+@Deprecated
 public abstract class BaseAbstractLookupControlImpl<T> implements ILookupControlInstance<T> {
 
 	private NodeBase[] m_nodes;

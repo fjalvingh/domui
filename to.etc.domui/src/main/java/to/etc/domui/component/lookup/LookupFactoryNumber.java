@@ -56,6 +56,7 @@ import java.util.List;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 13 Aug 2009
  */
+@Deprecated
 final class LookupFactoryNumber implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {

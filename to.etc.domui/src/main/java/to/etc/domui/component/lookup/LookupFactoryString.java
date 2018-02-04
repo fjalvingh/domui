@@ -34,6 +34,7 @@ import to.etc.webapp.query.QCriteria;
 
 import javax.annotation.Nonnull;
 
+@Deprecated
 @SuppressWarnings("unchecked")
 final class LookupFactoryString implements ILookupControlFactory {
 	@Override

@@ -40,6 +40,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 31, 2009
  */
+@Deprecated
 public interface ILookupControlInstance<T> {
 
 	/**

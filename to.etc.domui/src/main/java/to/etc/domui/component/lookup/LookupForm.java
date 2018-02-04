@@ -50,6 +50,8 @@ import java.util.*;
 import java.util.Map.*;
 
 /**
+ * DEPRECATED Please use {@link to.etc.domui.component.searchpanel.SearchPanel} instead.
+ *
  * Creates a search box to enter search criteria. This only presents the search part of the
  * form, constructed by metadata where needed, and the "search", "clear fields" and optional
  * "new" buttons. The actual searching must be done by the user of this component.
@@ -78,6 +80,7 @@ import java.util.Map.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 14, 2008
  */
+@Deprecated
 public class LookupForm<T> extends Div implements IButtonContainer {
 	@Nullable
 	private QCriteria<T> m_rootCriteria;

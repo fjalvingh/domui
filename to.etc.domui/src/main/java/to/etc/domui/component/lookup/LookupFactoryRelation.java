@@ -30,6 +30,7 @@ import to.etc.domui.dom.html.*;
 
 import javax.annotation.*;
 
+@Deprecated
 final class LookupFactoryRelation implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {

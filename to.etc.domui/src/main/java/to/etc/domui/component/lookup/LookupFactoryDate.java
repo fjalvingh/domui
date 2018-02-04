@@ -35,6 +35,7 @@ import to.etc.webapp.query.*;
 import javax.annotation.*;
 import java.util.*;
 
+@Deprecated
 final class LookupFactoryDate implements ILookupControlFactory {
 
 	@Override

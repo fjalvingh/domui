@@ -35,6 +35,7 @@ import to.etc.util.WrappedException;
 
 import javax.annotation.Nonnull;
 
+@Deprecated
 final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
