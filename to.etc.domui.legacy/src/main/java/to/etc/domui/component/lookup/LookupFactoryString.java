@@ -35,14 +35,13 @@ import to.etc.webapp.query.QCriteria;
 import javax.annotation.Nonnull;
 
 @Deprecated
-@SuppressWarnings("unchecked")
-final class LookupFactoryString implements ILookupControlFactory {
+@SuppressWarnings("unchecked") final class LookupFactoryString implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null) {
-			if(!(control instanceof Text2< ? >))
+			if(!(control instanceof Text2<?>))
 				return -1;
-			Text2< ? > t = (Text2< ? >) control;
+			Text2<?> t = (Text2<?>) control;
 			if(t.getActualType() != String.class)
 				return -1;
 		}
@@ -76,7 +75,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 		//-- Converter thingy is known. Now add a
 		return new BaseAbstractLookupControlImpl<T>(txt) {
 			@Override
-			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
+			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception {
 				Object value = null;
 				try {
 					value = txt.getValue();

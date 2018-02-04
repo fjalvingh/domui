@@ -37,7 +37,6 @@ import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.component.layout.title.BasePageTitleBar;
-import to.etc.domui.component.lookup.ILookupControlFactory;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.HtmlTagRenderer;
@@ -142,9 +141,9 @@ public abstract class DomApplication {
 
 	static public final Logger LOGRES = LoggerFactory.getLogger("to.etc.domui.resources");
 
-	static private final String[][] JQUERYSETS = {												//
-		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},								//
-		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},		//
+	static private final String[][] JQUERYSETS = {                                                //
+		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},                                //
+		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 
 	};
 
@@ -251,7 +250,7 @@ public abstract class DomApplication {
 	private IPageInjector m_injector = new DefaultPageInjector();
 
 	@Nonnull
-	private ResourceInfoCache	m_resourceInfoCache = new ResourceInfoCache(this);
+	private ResourceInfoCache m_resourceInfoCache = new ResourceInfoCache(this);
 
 	/** The theme manager where theme calls are delegated to. */
 	final private ThemeManager m_themeManager = new ThemeManager(this);
@@ -269,13 +268,13 @@ public abstract class DomApplication {
 	 * @return
 	 */
 	@Nullable
-	abstract public Class< ? extends UrlPage> getRootPage();
+	abstract public Class<? extends UrlPage> getRootPage();
 
 	/**
 	 * Used to handle soft binding: moving data from controls -> model and vice versa.
 	 */
 	@Nonnull
-	private IBindingHandlerFactory	m_bindingHandlerFactory = DefaultBindingHandler.FACTORY;
+	private IBindingHandlerFactory m_bindingHandlerFactory = DefaultBindingHandler.FACTORY;
 
 	/**
 	 * Render factories for different browser versions.
@@ -307,7 +306,7 @@ public abstract class DomApplication {
 	};
 
 	@Nonnull
-	private List<IAsyncListener< ? >> m_asyncListenerList = Collections.emptyList();
+	private List<IAsyncListener<?>> m_asyncListenerList = Collections.emptyList();
 
 	@Nonnull
 	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
@@ -338,8 +337,7 @@ public abstract class DomApplication {
 	static final private class FilterRef {
 		final private int m_score;
 
-		@Nonnull
-		final private IFilterRequestHandler m_handler;
+		@Nonnull final private IFilterRequestHandler m_handler;
 
 		public FilterRef(@Nonnull IFilterRequestHandler handler, int score) {
 			m_handler = handler;
@@ -382,7 +380,7 @@ public abstract class DomApplication {
 		registerPartFactories();
 		initHeaderContributors();
 		initializeWebActions();
-		addRenderFactory(new MsCrapwareRenderFactory()); 						// Add html renderers for IE <= 8
+		addRenderFactory(new MsCrapwareRenderFactory());                        // Add html renderers for IE <= 8
 		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
 			@Override
 			public boolean handleException(final @Nonnull IRequestContext ctx, final @Nonnull Page page, final @Nullable NodeBase source, final @Nonnull Throwable x) throws Exception {
@@ -416,8 +414,8 @@ public abstract class DomApplication {
 		registerResourceFactory(new ThemeResourceFactory());
 
 		//-- Register default request handlers.
-		addRequestHandler(new ApplicationRequestHandler(this), 100);			// .ui and related
-		addRequestHandler(new AjaxRequestHandler(this), 20);					// .xaja ajax calls.
+		addRequestHandler(new ApplicationRequestHandler(this), 100);            // .ui and related
+		addRequestHandler(new AjaxRequestHandler(this), 20);                    // .xaja ajax calls.
 		addRequestHandler(m_partHandler, 80);
 	}
 
@@ -433,9 +431,9 @@ public abstract class DomApplication {
 	}
 
 	protected void registerPartFactories() {
-		registerUrlPart(new SassPartFactory(), SassPartFactory.MATCHER); 			// Support .scss SASS stylesheets
-		registerUrlPart(new ThemePartFactory(), ThemePartFactory.MATCHER);			// convert *.theme.* as a JSTemplate.
-		registerUrlPart(new SvgPartFactory(), SvgPartFactory.MATCHER); 				// Converts .svg.png to png.
+		registerUrlPart(new SassPartFactory(), SassPartFactory.MATCHER);            // Support .scss SASS stylesheets
+		registerUrlPart(new ThemePartFactory(), ThemePartFactory.MATCHER);            // convert *.theme.* as a JSTemplate.
+		registerUrlPart(new SvgPartFactory(), SvgPartFactory.MATCHER);                // Converts .svg.png to png.
 		registerUrlPart(new InternalResourcePart(), InternalResourcePart.MATCHER);
 	}
 
@@ -527,7 +525,7 @@ public abstract class DomApplication {
 	public synchronized void addRequestHandler(@Nonnull IFilterRequestHandler fh, int priority) {
 		m_requestHandlerList = new ArrayList<>(m_requestHandlerList);
 		m_requestHandlerList.add(new FilterRef(fh, priority));
-		Collections.sort(m_requestHandlerList, C_HANDLER_DESCPRIO);			// Leave the list ordered by descending priority.
+		Collections.sort(m_requestHandlerList, C_HANDLER_DESCPRIO);            // Leave the list ordered by descending priority.
 	}
 
 	/**
@@ -597,7 +595,8 @@ public abstract class DomApplication {
 	/**
 	 * Override to destroy resources when the application terminates.
 	 */
-	protected void destroy() {}
+	protected void destroy() {
+	}
 
 	/**
 	 * Override to initialize the application, called as soon as the webabb starts by the
@@ -606,7 +605,8 @@ public abstract class DomApplication {
 	 * @param pp
 	 * @throws Exception
 	 */
-	protected void initialize(@Nonnull final ConfigParameters pp) throws Exception {}
+	protected void initialize(@Nonnull final ConfigParameters pp) throws Exception {
+	}
 
 
 	final synchronized public void internalInitialize(@Nonnull final ConfigParameters pp, boolean development) throws Exception {
@@ -657,7 +657,7 @@ public abstract class DomApplication {
 		if(development) {
 			if(DeveloperOptions.getBool("domui.autorefresh", !DeveloperOptions.getBool("domui.log", false))) {
 				//-- Auto-refresh pages is on.... Get the poll interval for it,
-				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);		// Initialize "auto refresh" interval to 2 seconds
+				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);        // Initialize "auto refresh" interval to 2 seconds
 			}
 			setAutoRefreshPollInterval(refreshinterval);
 		}
@@ -671,15 +671,15 @@ public abstract class DomApplication {
 	 * in a proxied request (x-forwarded-host) because of course the scheme and port number are missing-
 	 * so those are pretty useless.
 	 *
-	 * @param url		The url including scheme, like "https://demo.domui.org".
+	 * @param url        The url including scheme, like "https://demo.domui.org".
 	 */
 	protected void setApplicationURL(String url) {
 		String s = url.toLowerCase();
 
 		if(s.startsWith("http://")) {
-			s = s.substring(0, 7);				// Strip http://
+			s = s.substring(0, 7);                // Strip http://
 		} else if(s.startsWith("https://")) {
-			s = s.substring(8);					// Same
+			s = s.substring(8);                    // Same
 		} else {
 			throw new IllegalArgumentException("Expecting an URL that starts with http:// or https://");
 		}
@@ -687,29 +687,29 @@ public abstract class DomApplication {
 		//-- Get a host name and a port number, if applicable
 		String hostPart;
 		String rest;
-		int ix = s.indexOf('/');				// End of host name
+		int ix = s.indexOf('/');                // End of host name
 		if(ix == -1) {
 			hostPart = s;
 			rest = "";
 		} else {
-			hostPart = s.substring(0, ix);		// Only hostname and port number.
-			rest = s.substring(ix + 1);			// Should be appcontext, if present
+			hostPart = s.substring(0, ix);        // Only hostname and port number.
+			rest = s.substring(ix + 1);            // Should be appcontext, if present
 		}
 		ix = hostPart.indexOf(':');
 		int portNumber;
 		if(ix == -1) {
-			portNumber = -1;					// No portnumber present
+			portNumber = -1;                    // No portnumber present
 		} else {
 			portNumber = Integer.parseInt(hostPart.substring(ix + 1));
 			hostPart = s.substring(0, ix);
 		}
 
-		ix = rest.indexOf('/');					// / in context part?
+		ix = rest.indexOf('/');                    // / in context part?
 		if(ix != -1) {
-			rest = rest.substring(0, ix);		// Get only 1st path fragment
+			rest = rest.substring(0, ix);        // Get only 1st path fragment
 		}
 
-		if(! url.endsWith("/"))
+		if(!url.endsWith("/"))
 			url += "/";
 		m_applicationURL = url;
 		m_hostName = hostPart;
@@ -724,8 +724,7 @@ public abstract class DomApplication {
 		return id;
 	}
 
-	@Nonnull
-	final Class< ? > loadApplicationClass(@Nonnull final String name) throws ClassNotFoundException {
+	@Nonnull final Class<?> loadApplicationClass(@Nonnull final String name) throws ClassNotFoundException {
 		/*
 		 * jal 20081030 Code below is very wrong. When the application is not reloaded due to a
 		 * change the classloader passed at init time does not change. But a new classloader will
@@ -737,9 +736,9 @@ public abstract class DomApplication {
 	}
 
 	@Nonnull
-	public Class< ? extends UrlPage> loadPageClass(@Nonnull final String name) {
+	public Class<? extends UrlPage> loadPageClass(@Nonnull final String name) {
 		//-- This should be a classname now
-		Class< ? > clz = null;
+		Class<?> clz = null;
 		try {
 			clz = loadApplicationClass(name);
 		} catch(ClassNotFoundException x) {
@@ -752,7 +751,7 @@ public abstract class DomApplication {
 		if(!UrlPage.class.isAssignableFrom(clz))
 			throw new IllegalStateException("Class " + clz + " is not a valid page class (does not extend " + UrlPage.class.getName() + ")");
 
-		return (Class< ? extends UrlPage>) clz;
+		return (Class<? extends UrlPage>) clz;
 	}
 
 	@Nonnull
@@ -786,13 +785,14 @@ public abstract class DomApplication {
 	 * Register all default web actions for {@link NodeBase#componentHandleWebAction(RequestContextImpl, String)} requests.
 	 */
 	protected void initializeWebActions() {
-		getWebActionRegistry().register(new SimpleWebActionFactory());			// ORDERED
+		getWebActionRegistry().register(new SimpleWebActionFactory());            // ORDERED
 		getWebActionRegistry().register(new JsonWebActionFactory());
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	HTML per-browser rendering code.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Creates the appropriate full renderer for the specified browser version.
 	 * @param bv
@@ -836,6 +836,7 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Webapp configuration								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns T when running in development mode; this is defined as a mode where web.xml contains
 	 * reloadable classes.
@@ -979,7 +980,7 @@ public abstract class DomApplication {
 	}
 
 	@Nonnull
-	public IBindingHandler	getBindingHandler(@Nonnull NodeBase node) {
+	public IBindingHandler getBindingHandler(@Nonnull NodeBase node) {
 		return getBindingHandlerFactory().getBindingHandler(node);
 	}
 
@@ -1089,8 +1090,7 @@ public abstract class DomApplication {
 	/**
 	 * Return the component that knows everything you ever wanted to know about controls - but were afraid to ask...
 	 */
-	@Nonnull
-	final public ControlBuilder getControlBuilder() {
+	@Nonnull final public ControlBuilder getControlBuilder() {
 		return m_controlBuilder;
 	}
 
@@ -1105,19 +1105,19 @@ public abstract class DomApplication {
 
 	/**
 	 * Add a new control factory to the registry.
-	 * @param cf		The new factory
+	 * @param cf        The new factory
 	 */
 	final public void registerControlFactory(final PropertyControlFactory cf) {
 		getControlBuilder().registerControlFactory(cf);
 	}
 
-	/**
-	 * Register a new LookupControl factory.
-	 * @param f
-	 */
-	public void register(final ILookupControlFactory f) {
-		getControlBuilder().register(f);
-	}
+	///**
+	// * Register a new LookupControl factory.
+	// * @param f
+	// */
+	//public void register(final ILookupControlFactory f) {
+	//	getControlBuilder().register(f);
+	//}
 
 	//	/**
 	//	 * Get the immutable list of current control factories.
@@ -1131,6 +1131,7 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Generic data factories.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * FIXME Needs a proper, injected implementation instead of a quicky.
 	 */
@@ -1147,6 +1148,7 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	WebApp resource management.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return a file from the webapp's root directory. Example: passing WEB-INF/web.xml
 	 * would return the file for the web.xml.
@@ -1253,7 +1255,7 @@ public abstract class DomApplication {
 	 * with DomApplication can provide other means to locate resources.
 	 *
 	 * @param name
-	 * @param rdl	The dependency list. Pass {@link ResourceDependencyList#NULL} if you do not need the
+	 * @param rdl    The dependency list. Pass {@link ResourceDependencyList#NULL} if you do not need the
 	 * 				dependencies.
 	 * @return
 	 * @throws Exception
@@ -1327,9 +1329,9 @@ public abstract class DomApplication {
 	 *
 	 * @see BundleRef#loadBundleList(Locale)
 	 *
-	 * @param basename		The base name: the part before the locale info
-	 * @param suffix		The suffix: the part after the locale info. This usually includes a ., like .js
-	 * @param loc			The locale to get the resource for.
+	 * @param basename        The base name: the part before the locale info
+	 * @param suffix        The suffix: the part after the locale info. This usually includes a ., like .js
+	 * @param loc            The locale to get the resource for.
 	 * @return
 	 * @throws Exception
 	 */
@@ -1396,7 +1398,7 @@ public abstract class DomApplication {
 	/*	CODING:	Code table cache.									*/
 	/*--------------------------------------------------------------*/
 
-	private final Map<String, ListRef< ? >> m_listCacheMap = new HashMap<String, ListRef< ? >>();
+	private final Map<String, ListRef<?>> m_listCacheMap = new HashMap<String, ListRef<?>>();
 
 	static private final class ListRef<T> {
 		private List<T> m_list;
@@ -1423,7 +1425,7 @@ public abstract class DomApplication {
 	 */
 	@Nonnull
 	public <T> List<T> getCachedList(final IListMaker<T> maker) throws Exception {
-		if(!(maker instanceof ICachedListMaker< ? >)) {
+		if(!(maker instanceof ICachedListMaker<?>)) {
 			//-- Just make on the fly.
 			return maker.createList(this);
 		}
@@ -1451,7 +1453,7 @@ public abstract class DomApplication {
 		// FIXME URGENT Clear all other server's caches too by sending an event.
 	}
 
-	public void clearListCache(final ICachedListMaker< ? > maker) {
+	public void clearListCache(final ICachedListMaker<?> maker) {
 		synchronized(m_listCacheMap) {
 			m_listCacheMap.remove(maker.getCacheKey());
 		}
@@ -1479,16 +1481,16 @@ public abstract class DomApplication {
 	 * An entry in the exception table.
 	 */
 	static public class ExceptionEntry {
-		private final Class< ? extends Exception> m_exceptionClass;
+		private final Class<? extends Exception> m_exceptionClass;
 
 		private final IExceptionListener m_listener;
 
-		public ExceptionEntry(final Class< ? extends Exception> exceptionClass, final IExceptionListener listener) {
+		public ExceptionEntry(final Class<? extends Exception> exceptionClass, final IExceptionListener listener) {
 			m_exceptionClass = exceptionClass;
 			m_listener = listener;
 		}
 
-		public Class< ? extends Exception> getExceptionClass() {
+		public Class<? extends Exception> getExceptionClass() {
 			return m_exceptionClass;
 		}
 
@@ -1513,7 +1515,7 @@ public abstract class DomApplication {
 	 *
 	 * @param l
 	 */
-	public synchronized void addExceptionListener(final Class< ? extends Exception> xclass, final IExceptionListener l) {
+	public synchronized void addExceptionListener(final Class<? extends Exception> xclass, final IExceptionListener l) {
 		m_exceptionListeners = new ArrayList<ExceptionEntry>(m_exceptionListeners);
 
 		//-- Do a sortish insert.
@@ -1536,10 +1538,10 @@ public abstract class DomApplication {
 	 * This locates the handler for the specfied exception type, if it has been registered. It
 	 * currently uses a loop to locate the appropriate handler.
 	 * @param x
-	 * @return	null if the handler was not registered.
+	 * @return null if the handler was not registered.
 	 */
 	public IExceptionListener findExceptionListenerFor(final Exception x) {
-		Class< ? extends Exception> xclass = x.getClass();
+		Class<? extends Exception> xclass = x.getClass();
 		for(ExceptionEntry ee : getExceptionListeners()) {
 			if(ee.getExceptionClass().isAssignableFrom(xclass))
 				return ee.getListener();
@@ -1593,17 +1595,17 @@ public abstract class DomApplication {
 	 * @param l
 	 */
 	public synchronized <T> void addAsyncListener(@Nonnull IAsyncListener<T> l) {
-		m_asyncListenerList = new ArrayList<IAsyncListener< ? >>(m_asyncListenerList);
+		m_asyncListenerList = new ArrayList<IAsyncListener<?>>(m_asyncListenerList);
 		m_asyncListenerList.add(l);
 	}
 
 	public synchronized <T> void removeAsyncListener(@Nonnull IAsyncListener<T> l) {
-		m_asyncListenerList = new ArrayList<IAsyncListener< ? >>(m_asyncListenerList);
+		m_asyncListenerList = new ArrayList<IAsyncListener<?>>(m_asyncListenerList);
 		m_asyncListenerList.remove(l);
 	}
 
 	@Nonnull
-	public synchronized List<IAsyncListener< ? >> getAsyncListenerList() {
+	public synchronized List<IAsyncListener<?>> getAsyncListenerList() {
 		return m_asyncListenerList;
 	}
 
@@ -1670,7 +1672,7 @@ public abstract class DomApplication {
 	 * @param bundle
 	 * @param constantsclass
 	 */
-	public void registerRights(final BundleRef bundle, final Class< ? > constantsclass) {
+	public void registerRights(final BundleRef bundle, final Class<?> constantsclass) {
 		//-- Find all class fields.
 		Field[] far = constantsclass.getDeclaredFields();
 		synchronized(m_rightsBundleMap) {
@@ -1750,6 +1752,7 @@ public abstract class DomApplication {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Programmable theme code.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This method can be overridden to add extra stuff to the theme map, after
 	 * it has been loaded from properties or whatnot.
@@ -1768,7 +1771,7 @@ public abstract class DomApplication {
 	 * as a "parameter" for the theme factory which will use it to decide on the "real"
 	 * theme to use.
 	 *
-	 * @param themeName	The theme name, valid for the current theme engine. Cannot be null nor the empty string.
+	 * @param themeName    The theme name, valid for the current theme engine. Cannot be null nor the empty string.
 	 */
 	final public void setDefaultThemeName(@Nonnull String themeName) {
 		m_defaultTheme = themeName;
@@ -1778,8 +1781,7 @@ public abstract class DomApplication {
 	 * Gets the application-default theme string. This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources.
 	 */
-	@Nonnull
-	final public String getDefaultThemeName() {
+	@Nonnull final public String getDefaultThemeName() {
 		return m_defaultTheme;
 	}
 
@@ -1790,13 +1792,12 @@ public abstract class DomApplication {
 		m_themeApplicationProperties.put(name, value);
 	}
 
-	@Nullable
-	final public String getThemeProperty(@Nonnull String name) {
+	@Nullable final public String getThemeProperty(@Nonnull String name) {
 		return m_themeApplicationProperties.get(name);
 	}
 
 	@Nonnull
-	public ThemeManager	internalGetThemeManager() {
+	public ThemeManager internalGetThemeManager() {
 		return m_themeManager;
 	}
 
@@ -1862,7 +1863,8 @@ public abstract class DomApplication {
 	 * @param keepAliveInterval
 	 */
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		if(!DeveloperOptions.getBool("domui.log", false) && (DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false)))				// If "autorefresh" has been disabled do not use keepalive either.
+		if(!DeveloperOptions.getBool("domui.log", false) && (DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions
+			.getBool("domui.keepalive", false)))                // If "autorefresh" has been disabled do not use keepalive either.
 			m_keepAliveInterval = keepAliveInterval;
 	}
 
@@ -2021,7 +2023,7 @@ public abstract class DomApplication {
 		String fn = name.substring(0, pos);
 		IThemeFactory factory = THEME_FACTORIES.get(fn);
 		if(null == factory)
-			throw new RuntimeException("Undefined theme factory '" + fn +"'");
+			throw new RuntimeException("Undefined theme factory '" + fn + "'");
 		return factory;
 	}
 

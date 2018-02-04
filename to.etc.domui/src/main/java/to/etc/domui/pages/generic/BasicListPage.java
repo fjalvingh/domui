@@ -24,14 +24,25 @@
  */
 package to.etc.domui.pages.generic;
 
-import javax.annotation.*;
+import to.etc.domui.component.searchpanel.SearchPanel;
+import to.etc.domui.component.tbl.AbstractRowRenderer;
+import to.etc.domui.component.tbl.BasicRowRenderer;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.IClickableRowRenderer;
+import to.etc.domui.component.tbl.IQueryHandler;
+import to.etc.domui.component.tbl.IRowRenderer;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.SimpleSearchModel;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContextFactory;
 
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
 
 /**
  * Generic page handling some cruddy stuff. FIXME Example only; VP specific one should exist.
@@ -40,7 +51,7 @@ import to.etc.webapp.query.*;
  * Created on 29 Jul 2009
  */
 abstract public class BasicListPage<T> extends BasicPage<T> {
-	private LookupForm<T> m_lookupForm;
+	private SearchPanel<T> m_lookupForm;
 
 	private DataTable<T> m_result;
 
@@ -79,37 +90,37 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * Override this to customize the lookup form. No need to call super. method.
 	 * @param lf
 	 */
-	protected void customizeLookupForm(@Nonnull LookupForm<T> lf) throws Exception {}
+	protected void customizeSearchPanel(@Nonnull SearchPanel<T> lf) throws Exception {}
 
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
 
 		//-- Lookup thingy.
-		m_lookupForm = new LookupForm<T>(getBaseClass());
+		m_lookupForm = new SearchPanel<T>(getBaseClass());
 		add(m_lookupForm);
-		m_lookupForm.setClicked(new IClicked<LookupForm<T>>() {
+		m_lookupForm.setClicked(new IClicked<SearchPanel<T>>() {
 			@Override
-			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
+			public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
 				search(b);
 			}
 		});
 		if(hasEditRight()) {
-			m_lookupForm.setOnNew(new IClicked<LookupForm<T>>() {
+			m_lookupForm.setOnNew(new IClicked<SearchPanel<T>>() {
 				@Override
-				public void clicked(@Nonnull LookupForm<T> b) throws Exception {
+				public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
 					onNew();
 				}
 			});
 		}
-		m_lookupForm.setOnClear(new IClicked<LookupForm<T>>() {
+		m_lookupForm.setOnClear(new IClicked<SearchPanel<T>>() {
 			@Override
-			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
-				onLookupFormClear(b);
+			public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
+				onSearchPanelClear(b);
 			}
 		});
 
-		customizeLookupForm(m_lookupForm);
+		customizeSearchPanel(m_lookupForm);
 
 		if(m_result != null) {
 			add(m_result);
@@ -121,10 +132,10 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		}
 	}
 
-	void search(LookupForm<T> lf) throws Exception {
-		QCriteria<T> c = lf.getEnteredCriteria();
-		if(c == null) // Some error has occured?
-			return; // Don't do anything (errors will have been registered)
+	void search(SearchPanel<T> lf) throws Exception {
+		QCriteria<T> c = lf.getCriteria();
+		if(c == null)									// Some error has occured?
+			return;										// Don't do anything (errors will have been registered)
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptySearch()) {
 			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
@@ -190,11 +201,11 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	/**
 	 * Override to do extra things when the lookupform's "clear" button is pressed. Can be used to
 	 * set items to defaults after their input has been cleared. When this is called all inputs in
-	 * the form have <i>already</i> been set to null (empty) - so do <b>not</b> call {@link LookupForm#clearInput()}.
+	 * the form have <i>already</i> been set to null (empty) - so do <b>not</b> call {@link SearchPanel#clearInput()}.
 	 * @param lf
 	 * @throws Exception
 	 */
-	protected void onLookupFormClear(LookupForm<T> lf) throws Exception {
+	protected void onSearchPanelClear(SearchPanel<T> lf) throws Exception {
 	//lf.clearInput(); jal 20091002 DO NOT ADD BACK!!!! Pressing the clear button ALREADY CALLS this.
 	}
 
@@ -269,11 +280,11 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		return true;
 	}
 
-	protected LookupForm<T> getLookupForm() {
+	protected SearchPanel<T> getSearchPanel() {
 		return m_lookupForm;
 	}
 
-	protected void setLookupForm(LookupForm<T> lookupForm) {
+	protected void setSearchPanel(SearchPanel<T> lookupForm) {
 		m_lookupForm = lookupForm;
 	}
 

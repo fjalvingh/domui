@@ -41,6 +41,8 @@ import java.util.List;
  */
 @Deprecated
 final public class LookupControlRegistry {
+	static public final LookupControlRegistry INSTANCE = new LookupControlRegistry();
+
 	@Nonnull
 	private List<ILookupControlFactory> m_factoryList = new ArrayList<ILookupControlFactory>();
 

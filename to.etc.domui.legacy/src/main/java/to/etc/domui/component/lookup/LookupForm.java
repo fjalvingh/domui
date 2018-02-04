@@ -24,30 +24,59 @@
  */
 package to.etc.domui.component.lookup;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.ILookupControlInstance.*;
-import to.etc.domui.component.lookup.filter.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.component2.lookupinput.*;
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.annotations.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.controlfactory.ControlBuilder;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.input.IQueryFactory;
+import to.etc.domui.component.input.LookupInputBase;
+import to.etc.domui.component.layout.ButtonFactory;
+import to.etc.domui.component.layout.CaptionedPanel;
+import to.etc.domui.component.layout.IButtonContainer;
+import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
+import to.etc.domui.component.lookup.filter.LookupFilterTranslator;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component2.lookupinput.LookupInputBase2;
+import to.etc.domui.dom.Animations;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.VerticalAlignType;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IReturnPressed;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TableVAlign;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.annotations.GProperty;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QRestrictor;
 
-import javax.annotation.*;
-import java.util.*;
-import java.util.Map.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
  * DEPRECATED Please use {@link to.etc.domui.component.searchpanel.SearchPanel} instead.
@@ -999,7 +1028,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		addAndFinish(it);
 
 		//-- Add the generic thingy
-		ILookupControlFactory lcf = m_builder.getLookupQueryFactory(it, control);
+		ILookupControlFactory lcf = LookupControlRegistry.INSTANCE.getLookupQueryFactory(it, control);
 		ILookupControlInstance<?> qt = lcf.createControl(it, control);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not link the lookup thingy for property " + it.getProperty());
@@ -1071,7 +1100,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		SearchPropertyMetaModelImpl spmm = new SearchPropertyMetaModelImpl(m_metaModel, childPmm);
 
-		ILookupControlFactory lcf = m_builder.getLookupControlFactory(spmm);
+		ILookupControlFactory lcf = LookupControlRegistry.INSTANCE.getControlFactory(spmm);
 		final ILookupControlInstance<?> lookupInstance = lcf.createControl(spmm, null);
 
 		if (spmm.isPopupSearchImmediately()) {
@@ -1319,7 +1348,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 			throw new IllegalStateException("property cannot be null when creating using factory.");
 		}
 		PropertyMetaModel< ? > pmm = it.getProperty();
-		ILookupControlFactory lcf = m_builder.getLookupControlFactory(it);
+		ILookupControlFactory lcf = LookupControlRegistry.INSTANCE.getControlFactory(it);
 		ILookupControlInstance<?> qt = lcf.createControl(it, null);
 		if(qt == null || qt.getInputControls() == null || qt.getInputControls().length == 0)
 			throw new IllegalStateException("Lookup factory " + lcf + " did not create a lookup thingy for property " + pmm);

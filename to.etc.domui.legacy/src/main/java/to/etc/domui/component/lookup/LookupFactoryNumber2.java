@@ -50,19 +50,18 @@ import java.math.BigDecimal;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 28, 2009
  */
-@Deprecated
-final class LookupFactoryNumber2 implements ILookupControlFactory {
+@Deprecated final class LookupFactoryNumber2 implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(@Nonnull SearchPropertyMetaModel spm, X control) {
 		if(control != null) {
-			if(!(control instanceof Text2< ? >))
+			if(!(control instanceof Text2<?>))
 				return -1;
-			Text2< ? > t = (Text2< ? >) control;
+			Text2<?> t = (Text2<?>) control;
 			if(t.getActualType() != String.class)
 				return -1;
 		}
 
-		final PropertyMetaModel< ? > pmm = spm.getProperty();
+		final PropertyMetaModel<?> pmm = spm.getProperty();
 		return DomUtil.isIntegerType(pmm.getActualType()) || DomUtil.isRealType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class ? 4 : -1;
 	}
 
@@ -73,7 +72,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(@Nonnull SearchPropertyMetaModel spm, X control) {
-		final PropertyMetaModel< ? > pmm = spm.getProperty();
+		final PropertyMetaModel<?> pmm = spm.getProperty();
 		Text2<String> numText = (Text2<String>) control;
 		if(numText == null) {
 			numText = new Text2<String>(String.class);
@@ -105,7 +104,7 @@ final class LookupFactoryNumber2 implements ILookupControlFactory {
 		return new LookupNumberControl<>((Class<Number>) pmm.getActualType(), numText, pmm.getName(), Double.valueOf(-minmax.doubleValue()), minmax, monetary, !pmm.isTransient(), pmm.getScale());
 	}
 
-	static private double calcMaxValue(PropertyMetaModel< ? > pmm) {
+	static private double calcMaxValue(PropertyMetaModel<?> pmm) {
 		int prec = pmm.getPrecision();
 		if(prec > 0) {
 			int scale = pmm.getScale();

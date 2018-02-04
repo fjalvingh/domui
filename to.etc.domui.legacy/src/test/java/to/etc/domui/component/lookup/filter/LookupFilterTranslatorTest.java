@@ -1,19 +1,23 @@
 package to.etc.domui.component.lookup.filter;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
-import java.util.Map.*;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.util.DateUtil;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.testsupport.TestDataContextStub;
+import to.etc.xml.XmlWriter;
 
-import javax.annotation.*;
-
-import org.junit.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
-import to.etc.webapp.testsupport.*;
-import to.etc.xml.*;
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>

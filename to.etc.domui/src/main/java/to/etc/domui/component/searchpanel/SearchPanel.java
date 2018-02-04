@@ -29,8 +29,6 @@ import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.IQueryFactory;
 import to.etc.domui.component.layout.ButtonFactory;
 import to.etc.domui.component.layout.IButtonContainer;
-import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
-import to.etc.domui.component.lookup.ILookupFilterHandler;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -1066,6 +1064,17 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;
+	}
+
+	/**
+	 * Set the search properties to use from a list of metadata properties.
+	 * @param list
+	 */
+	public void setSearchProperties(List<SearchPropertyMetaModel> list) {
+		int totalCount = list.size();
+		for(SearchPropertyMetaModel sp : list) { // The list is already in ascending order, so just add items;
+			addMetadataProperty(sp, false);
+		}
 	}
 
 	private <D> void addLookupLine(SearchControlLine<D> line) {

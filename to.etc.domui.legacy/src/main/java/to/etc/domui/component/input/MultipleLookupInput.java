@@ -1,20 +1,44 @@
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.input.LookupInputBase.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.buttons.HoverButton;
+import to.etc.domui.component.input.LookupInputBase.ILookupFormModifier;
+import to.etc.domui.component.input.LookupInputBase.IPopupOpener;
+import to.etc.domui.component.layout.Window;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.component.searchpanel.SearchPanel;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.DefaultSelectAllHandler;
+import to.etc.domui.component.tbl.ISelectionListener;
+import to.etc.domui.component.tbl.InstanceSelectionModel;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 /**
  * Component that is based on LookupInput, that allows multiple selection of items by adding found items into selection box.
@@ -71,7 +95,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 
 		@Nonnull
 		private Window getLookupWindow() throws IllegalStateException {
-			LookupForm<T> lookupForm = getLookupForm();
+			SearchPanel<T> lookupForm = getSearchPanel();
 			if(lookupForm != null) {
 				return lookupForm.getParent(Window.class);
 			}
@@ -163,10 +187,10 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 
 	public MultipleLookupInput(@Nonnull Class<T> clazz, String... renderColumns) {
 		m_lookupInput = new MultiLookupInput(clazz, renderColumns);
-		m_lookupInput.setLookupFormInitialization(new ILookupFormModifier<T>() {
+		m_lookupInput.setSearchPanelInitialization(new ILookupFormModifier<T>() {
 			private boolean initialized = false;
 			@Override
-			public void initialize(@Nonnull LookupForm<T> lf) throws Exception {
+			public void initialize(@Nonnull SearchPanel<T> lf) throws Exception {
 				if(!initialized) {
 					DefaultButton confirm = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
 					confirm.setIcon("THEME/btnConfirm.png");
