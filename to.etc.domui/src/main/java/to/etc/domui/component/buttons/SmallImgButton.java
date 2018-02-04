@@ -53,7 +53,7 @@ public class SmallImgButton extends Button {
 	 * Create the empty button.
 	 */
 	public SmallImgButton() {
-		setCssClass("ui-button xxui-sib");
+		setCssClass("ui-button is-text");
 	}
 
 	/**
