@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -43,6 +44,9 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 
 	@Nullable
 	private Function<T, String> m_converter;
+
+	@Nullable
+	private BiFunction<T, String, Boolean> m_predicate;
 
 	@Nullable
 	private IRenderInto<T> m_renderer;
@@ -119,10 +123,18 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			return Collections.emptyList();
 		input = input.toLowerCase();
 		List<ItemWrapper<T>> res = new ArrayList<>();
+		BiFunction<T, String, Boolean> predicate = m_predicate;
 		for(T item : data) {
-			String text = getLabelText(item);
-			if(text.toLowerCase().contains(input)) {
-				res.add(new ItemWrapper<>(item, text));
+			if(null == predicate) {
+				String text = getLabelText(item);
+				if(text.toLowerCase().contains(input)) {
+					res.add(new ItemWrapper<>(item, text));
+					if(res.size() >= max) {
+						break;
+					}
+				}
+			} else if(predicate.apply(item, input)) {
+				res.add(new ItemWrapper<>(item, getLabelText(item)));
 				if(res.size() >= max) {
 					break;
 				}
@@ -250,6 +262,11 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 
 	public EnumSetInput<T> setRenderer(@Nullable IRenderInto<T> renderer) {
 		m_renderer = renderer;
+		return this;
+	}
+
+	public EnumSetInput<T> setMatcher(BiFunction<T, String, Boolean> matcher) {
+		m_predicate = matcher;
 		return this;
 	}
 }
