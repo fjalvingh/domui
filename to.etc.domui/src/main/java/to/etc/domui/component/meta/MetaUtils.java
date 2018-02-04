@@ -26,9 +26,6 @@ package to.etc.domui.component.meta;
 
 import to.etc.webapp.ProgrammerErrorException;
 
-import java.util.List;
-
-
 /**
  * Utility class used as utility method library for working with meta data.
  * @author vmijic

@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages.searchpanel;
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component2.enumsetinput.EnumSetInput;
+import to.etc.domui.component2.enumsetinput.EnumSetQueryBuilder;
 import to.etc.domui.derbydata.db.Genre;
 import to.etc.domui.derbydata.db.Track;
 import to.etc.webapp.query.QCriteria;

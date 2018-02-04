@@ -26,24 +26,21 @@ package to.etc.domui.component.searchpanel;
 
 import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.input.IQueryFactory;
 import to.etc.domui.component.layout.ButtonFactory;
 import to.etc.domui.component.layout.IButtonContainer;
 import to.etc.domui.component.lookup.ILookupControlInstance.AppendCriteriaResult;
 import to.etc.domui.component.lookup.ILookupFilterHandler;
-import to.etc.domui.component.lookup.LookupFormSavedFilterFragment;
-import to.etc.domui.component.lookup.SavedFilter;
-import to.etc.domui.component.searchpanel.lookupcontrols.FactoryPair;
-import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
-import to.etc.domui.component.searchpanel.lookupcontrols.LookupControlRegistry2;
-import to.etc.domui.component.searchpanel.lookupcontrols.LookupQueryBuilderResult;
-import to.etc.domui.component.searchpanel.lookupcontrols.ObjectLookupQueryBuilder;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component.searchpanel.lookupcontrols.FactoryPair;
+import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
+import to.etc.domui.component.searchpanel.lookupcontrols.LookupControlRegistry2;
+import to.etc.domui.component.searchpanel.lookupcontrols.LookupQueryBuilderResult;
+import to.etc.domui.component.searchpanel.lookupcontrols.ObjectLookupQueryBuilder;
 import to.etc.domui.dom.Animations;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.errors.UIMessage;
@@ -53,16 +50,12 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.TD;
-import to.etc.domui.server.ConfigParameters;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
-import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QCriteria;
-import to.etc.webapp.query.QDataContext;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -112,7 +105,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	private DefaultButton m_newBtn;
 
-	private IClicked< ? extends SearchPanel<T>> m_onClear;
+	private IClicked<? extends SearchPanel<T>> m_onClear;
 
 	private IClicked<SearchPanel<T>> m_onCancel;
 
@@ -125,16 +118,16 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	@Nullable
 	private DefaultButton m_filterButton;
 
-	@Nonnull
-	private List<SavedFilter> m_savedFilters = Collections.EMPTY_LIST;
+	//@Nonnull
+	//private List<SavedFilter> m_savedFilters = Collections.EMPTY_LIST;
 
-	private boolean m_searchFilterEnabled;
+	//private boolean m_searchFilterEnabled;
 
-	@Nullable
-	private static ILookupFilterHandler m_lookupFilterHandler;
-
-	@Nullable
-	private LookupFormSavedFilterFragment m_lookupFormSavedFilterFragment;
+	//@Nullable
+	//private static ILookupFilterHandler m_lookupFilterHandler;
+	//
+	//@Nullable
+	//private LookupFormSavedFilterFragment m_lookupFormSavedFilterFragment;
 
 	private Div m_content;
 
@@ -260,17 +253,17 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	@Override
 	public void createContent() throws Exception {
-		if(isSearchFilterEnabled()) {
-			addFilterButton();
-			loadSearchQueries();
-		}
+		//if(isSearchFilterEnabled()) {
+		//	addFilterButton();
+		//	loadSearchQueries();
+		//}
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in its own div.
 		Div sroot = m_content = new Div();
 		add(sroot);
 		sroot.setCssClass("ui-lf-mainContent");
 
 		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0)							// If we don't have an item set yet....
+		if(m_itemList.size() == 0)                            // If we don't have an item set yet....
 			internalAddMetadata();
 
 		//-- Start populating the lookup form with lookup items.
@@ -318,69 +311,69 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		});
 	}
 
-	private void addFilterFragment(NodeContainer searchContainer) {
-		TD anotherSearchRootCell = new TD();
-		searchContainer.appendAfterMe(anotherSearchRootCell);
-		LookupFormSavedFilterFragment div = m_lookupFormSavedFilterFragment = new LookupFormSavedFilterFragment(m_savedFilters);
-		div.onFilterClicked(new INotify<SavedFilter>() {
-			@Override
-			public void onNotify(@Nonnull SavedFilter sender) throws Exception {
-				clearInput();
-				fillSearchFields(sender);
-				if(m_clicker != null) {
-					m_clicker.clicked(SearchPanel.this);
-				}
-			}
-		});
-		div.onFilterDeleted(new INotify<SavedFilter>() {
-			@Override
-			public void onNotify(@Nonnull SavedFilter sender) throws Exception {
-				deleteSavedFilter(sender);
-			}
-		});
+	//private void addFilterFragment(NodeContainer searchContainer) {
+	//	TD anotherSearchRootCell = new TD();
+	//	searchContainer.appendAfterMe(anotherSearchRootCell);
+	//	LookupFormSavedFilterFragment div = m_lookupFormSavedFilterFragment = new LookupFormSavedFilterFragment(m_savedFilters);
+	//	div.onFilterClicked(new INotify<SavedFilter>() {
+	//		@Override
+	//		public void onNotify(@Nonnull SavedFilter sender) throws Exception {
+	//			clearInput();
+	//			fillSearchFields(sender);
+	//			if(m_clicker != null) {
+	//				m_clicker.clicked(SearchPanel.this);
+	//			}
+	//		}
+	//	});
+	//	div.onFilterDeleted(new INotify<SavedFilter>() {
+	//		@Override
+	//		public void onNotify(@Nonnull SavedFilter sender) throws Exception {
+	//			deleteSavedFilter(sender);
+	//		}
+	//	});
+	//
+	//	anotherSearchRootCell.add(div);
+	//}
 
-		anotherSearchRootCell.add(div);
-	}
+	//private void loadSearchQueries() throws Exception {
+	//	ILookupFilterHandler lookupFilterHandler = getLookupFilterHandler();
+	//	final List<SavedFilter> savedFilters = lookupFilterHandler.load(getSharedContext(), getPage().getBody().getClass().getName());
+	//	setSavedFilters(savedFilters);
+	//}
 
-	private void loadSearchQueries() throws Exception {
-		ILookupFilterHandler lookupFilterHandler = getLookupFilterHandler();
-		final List<SavedFilter> savedFilters = lookupFilterHandler.load(getSharedContext(), getPage().getBody().getClass().getName());
-		setSavedFilters(savedFilters);
-	}
-
-	private void deleteSavedFilter(SavedFilter filter) throws Exception {
-		ILookupFilterHandler lookupFilterHandler = getLookupFilterHandler();
-		try(QDataContext unmanagedContext = QContextManager.createUnmanagedContext()) { // We create a separate context because we don't want to commit other transactions
-			lookupFilterHandler.delete(unmanagedContext, filter.getRecordId());
-			unmanagedContext.commit();
-		}
-	}
-
-	public synchronized static void setLookupFilterHandler(final @Nullable ILookupFilterHandler filterSaver) {
-		m_lookupFilterHandler = filterSaver;
-	}
-
-	@Nonnull
-	private synchronized static ILookupFilterHandler getLookupFilterHandler() {
-		ILookupFilterHandler lookupFilterHandler = m_lookupFilterHandler;
-		if(lookupFilterHandler == null) {
-			throw new IllegalStateException("There is no code to handle the saved filter.");
-		}
-		return lookupFilterHandler;
-	}
-
-	private void fillSearchFields(SavedFilter filter) throws Exception {
-		//final Map<String, ILookupControlInstance<?>> formLookupFilterItems = getFilterItems();
-		//final Map<String, ?> savedFilterValues = LookupFilterTranslator.deserialize(getSharedContext(), filter.getFilterValue());
-		//for(Entry<String, ?> entry : savedFilterValues.entrySet()) {
-		//	final String property = entry.getKey();
-		//	final ILookupControlInstance<Object> controlInstance = (ILookupControlInstance<Object>) formLookupFilterItems.get(property);
-		//	if(controlInstance == null) {
-		//		continue; // to avoid possible NPE
-		//	}
-		//	controlInstance.setValue(entry.getValue());
-		//}
-	}
+	//private void deleteSavedFilter(SavedFilter filter) throws Exception {
+	//	ILookupFilterHandler lookupFilterHandler = getLookupFilterHandler();
+	//	try(QDataContext unmanagedContext = QContextManager.createUnmanagedContext()) { // We create a separate context because we don't want to commit other transactions
+	//		lookupFilterHandler.delete(unmanagedContext, filter.getRecordId());
+	//		unmanagedContext.commit();
+	//	}
+	//}
+	//
+	//public synchronized static void setLookupFilterHandler(final @Nullable ILookupFilterHandler filterSaver) {
+	//	m_lookupFilterHandler = filterSaver;
+	//}
+	//
+	//@Nonnull
+	//private synchronized static ILookupFilterHandler getLookupFilterHandler() {
+	//	ILookupFilterHandler lookupFilterHandler = m_lookupFilterHandler;
+	//	if(lookupFilterHandler == null) {
+	//		throw new IllegalStateException("There is no code to handle the saved filter.");
+	//	}
+	//	return lookupFilterHandler;
+	//}
+	//
+	//private void fillSearchFields(SavedFilter filter) throws Exception {
+	//	//final Map<String, ILookupControlInstance<?>> formLookupFilterItems = getFilterItems();
+	//	//final Map<String, ?> savedFilterValues = LookupFilterTranslator.deserialize(getSharedContext(), filter.getFilterValue());
+	//	//for(Entry<String, ?> entry : savedFilterValues.entrySet()) {
+	//	//	final String property = entry.getKey();
+	//	//	final ILookupControlInstance<Object> controlInstance = (ILookupControlInstance<Object>) formLookupFilterItems.get(property);
+	//	//	if(controlInstance == null) {
+	//	//		continue; // to avoid possible NPE
+	//	//	}
+	//	//	controlInstance.setValue(entry.getValue());
+	//	//}
+	//}
 
 	protected void defineDefaultButtons() {
 		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
@@ -531,9 +524,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_hasUserDefinedCriteria = true;
 			}
 		}
-		if(!success) { 										// Some input failed to validate their input criteria?
+		if(!success) {                                        // Some input failed to validate their input criteria?
 			m_hasUserDefinedCriteria = false;
-			return null; 									// Then exit null -> should only display errors.
+			return null;                                    // Then exit null -> should only display errors.
 		}
 		return root;
 	}
@@ -551,6 +544,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Silly and small methods.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Tells all input items to clear their content, clearing all user choices from the form. After
 	 * this call, the form should return an empty QCriteria without any restrictions.
@@ -609,7 +603,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * @see NodeBase#setClicked(IClicked)
 	 */
 	@Override
-	public void setClicked(final @Nullable IClicked< ? > clicked) {
+	public void setClicked(final @Nullable IClicked<?> clicked) {
 		m_clicker = (IClicked<SearchPanel<T>>) clicked;
 	}
 
@@ -617,7 +611,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return m_clicker;
 	}
 
-	public IClicked< ? extends SearchPanel<T>> getOnClear() {
+	public IClicked<? extends SearchPanel<T>> getOnClear() {
 		return m_onClear;
 	}
 
@@ -625,7 +619,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * Listener to call when the "clear" button is pressed.
 	 * @param onClear
 	 */
-	public void setOnClear(IClicked< ? extends SearchPanel<T>> onClear) {
+	public void setOnClear(IClicked<? extends SearchPanel<T>> onClear) {
 		m_onClear = onClear;
 	}
 
@@ -833,24 +827,24 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return m_buttonFactory;
 	}
 
-	public void setNewBtnDisableReason(@Nullable UIMessage rsn){
+	public void setNewBtnDisableReason(@Nullable UIMessage rsn) {
 		m_newBtnDisableReason = rsn;
-		if (null != m_newBtn){
+		if(null != m_newBtn) {
 			m_newBtn.setDisabled(rsn);
 		}
 	}
 
-	private void setSavedFilters(List<SavedFilter> savedFilters) {
-		m_savedFilters = savedFilters;
-	}
-
-	public boolean isSearchFilterEnabled() {
-		return m_searchFilterEnabled;
-	}
-
-	public void setSearchFilterEnabled(boolean searchFilterEnabled) {
-		m_searchFilterEnabled = searchFilterEnabled;
-	}
+	//private void setSavedFilters(List<SavedFilter> savedFilters) {
+	//	m_savedFilters = savedFilters;
+	//}
+	//
+	//public boolean isSearchFilterEnabled() {
+	//	return m_searchFilterEnabled;
+	//}
+	//
+	//public void setSearchFilterEnabled(boolean searchFilterEnabled) {
+	//	m_searchFilterEnabled = searchFilterEnabled;
+	//}
 
 	@Nullable
 	public DefaultButton getClearButton() {
@@ -896,8 +890,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	@Nonnull
 	public Class<T> getLookupClass() {
-		if(null == m_lookupClass)
-			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
 		return m_lookupClass;
 	}
 
@@ -923,8 +915,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return item;
 	}
 
-	@Nonnull
-	<D> SearchControlLine<D> finishBuilder(SearchItemBuilder<T> builder) {
+	@Nonnull <D> SearchControlLine<D> finishBuilder(SearchItemBuilder<T> builder) {
 		if(m_currentBuilder != builder)
 			throw new IllegalStateException(this + ": the item builder " + builder + " is not the 'current' item - call order problem");
 		SearchControlLine<D> line = createLine(builder);
@@ -956,6 +947,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				throw new ProgrammerErrorException(builder + ": when specifying a control you need to either define a property or a query builder, otherwise I do not know how to search");
 			qb = new ObjectLookupQueryBuilder<>(property.getName());
 		}
+
+		String testId = builder.getTestId();
+		if(null != testId)
+			control.setTestID(testId);
 
 		//-- Try to get a label
 		NodeContainer labelNode = builder.getLabelNode();
@@ -1077,7 +1072,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		PropertyMetaModel<?> property = line.getProperty();
 		if(null != property) {
 			//-- Do we already have this one?
-			for(int i = m_itemList.size(); --i >= 0;) {
+			for(int i = m_itemList.size(); --i >= 0; ) {
 				SearchControlLine<?> old = m_itemList.get(i);
 				if(old.getProperty() == property) {
 					//-- Existing property: if this one comes from metadata do not add it

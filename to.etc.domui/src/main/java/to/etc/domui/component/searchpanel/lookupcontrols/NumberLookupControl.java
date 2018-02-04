@@ -186,24 +186,6 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		return number.toString();
 	}
 
-	private String encodeOperation(QOperation op) {
-		switch(op) {
-			default:
-				throw new IllegalStateException("Unsupported operation: " + op);
-
-			case EQ:
-				return "";
-			case GE:
-				return ">=";
-			case GT:
-				return ">";
-			case LE:
-				return "<=";
-			case LT:
-				return "<";
-		}
-	}
-
 	@Nullable
 	private NumberLookupValue decodeStringValue(String in) {
 		in = in.trim();

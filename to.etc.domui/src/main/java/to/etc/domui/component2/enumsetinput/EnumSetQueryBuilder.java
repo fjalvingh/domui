@@ -1,4 +1,4 @@
-package to.etc.domuidemo.pages.searchpanel;
+package to.etc.domui.component2.enumsetinput;
 
 import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.searchpanel.lookupcontrols.LookupQueryBuilderResult;

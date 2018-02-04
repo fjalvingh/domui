@@ -140,6 +140,14 @@ final public class SearchItemBuilder<T> {
 		m_labelNode = label;
 		return this;
 	}
+	public SearchItemBuilder<T> testID(String id) {
+		m_testId = id;
+		return this;
+	}
+
+	@Nullable public String getTestId() {
+		return m_testId;
+	}
 
 	/**
 	 * Finish the builder and return the result. This version allows adding a control, but assumes that

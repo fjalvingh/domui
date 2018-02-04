@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * FIXME Functional duplicate of LabelSelector.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4-2-18.
