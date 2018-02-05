@@ -18,14 +18,12 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 	@Nullable
 	private FormBuilder m_builder;
 
-	private Div m_currentTarget;
-
 	private Div m_target;
 
 	@Override public void setTarget(NodeContainer target) throws Exception {
 		Div root = m_target = new Div("ui-dfsb-panel");
 		target.add(root);
-		Div d = m_currentTarget = new Div("ui-dfsb-part");
+		Div d = new Div("ui-dfsb-part");
 		root.add(d);
 		m_builder = new FormBuilder(d);
 	}
@@ -40,7 +38,7 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 
 	public void addBreak() {
 		NodeContainer target = requireNonNull(m_target);
-		Div d = m_currentTarget = new Div("ui-dfsb-part");
+		Div d = new Div("ui-dfsb-part");
 		target.add(d);
 		m_builder = new FormBuilder(d);
 	}
