@@ -163,3 +163,10 @@ $control-padding-vertical: calc(0.375em - 1px) !default;
 $control-padding-horizontal: calc(0.625em - 1px) !default;
 
 $input-border-color: #dbdbdb;
+
+
+
+//-- enumsetinput label colors
+$esic-label-color: #d4f94e;
+$esic-label-border: darken($esic-label-color, 20%);
+$esic-text-color: findColorInvert($esic-label-color);

@@ -50,7 +50,7 @@ final public class FormBuilder {
 
 	private String m_errorLocation;
 
-	private Label m_nextLabelControl;
+	private NodeContainer m_nextLabelControl;
 
 	private PropertyMetaModel< ? > m_propertyMetaModel;
 
@@ -158,7 +158,7 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public FormBuilder label(@Nonnull Label label) {
+	public FormBuilder label(@Nonnull NodeContainer label) {
 		if(null != m_nextLabel)
 			throw new IllegalStateException("You already set a String label instance");
 		m_nextLabelControl = label;
@@ -552,7 +552,7 @@ final public class FormBuilder {
 
 	private void addVertical(NodeBase control) {
 		TBody b = body();
-		Label lbl = determineLabel();
+		NodeContainer lbl = determineLabel();
 		if(m_append) {
 			TD cell = b.cell();
 			if(lbl != null) {
@@ -582,8 +582,8 @@ final public class FormBuilder {
 			if(null != controlCss)
 				controlcell.addCssClass(controlCss);
 		}
-		if(null != lbl)
-			lbl.setForTarget(control);
+		if(lbl instanceof Label)
+			((Label) lbl).setForTarget(control);
 	}
 
 	@Nonnull
@@ -607,7 +607,7 @@ final public class FormBuilder {
 
 	private void addHorizontal(NodeBase control) {
 		TBody b = body();
-		Label lbl = determineLabel();
+		NodeContainer lbl = determineLabel();
 		if(m_append) {
 
 			TR row = controlRow();
@@ -641,8 +641,9 @@ final public class FormBuilder {
 			if(null != controlCss)
 				controlcell.addCssClass(controlCss);
 		}
-		if(null != lbl)
-			lbl.setForTarget(control);
+		if(lbl instanceof Label) {
+			((Label) lbl).setForTarget(control);
+		}
 	}
 
 	public void appendAfterControl(@Nonnull NodeBase what) {
@@ -657,13 +658,9 @@ final public class FormBuilder {
 		return m_lastAddedControl.getParent(TD.class);
 	}
 
-	/**
-	 *
-	 * @return
-	 */
 	@Nullable
-	private Label determineLabel() {
-		Label res = null;
+	private NodeContainer determineLabel() {
+		NodeContainer res = null;
 		String txt = m_nextLabel;
 		if(null != txt) {
 			//m_nextLabel = null;
@@ -696,7 +693,7 @@ final public class FormBuilder {
 				return txt;
 			return null;
 		} else {
-			Label res = m_nextLabelControl;
+			NodeContainer res = m_nextLabelControl;
 			if(res != null) {
 				return res.getTextContents();
 			} else {

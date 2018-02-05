@@ -31,6 +31,11 @@ deploy:
     script: scripts/demo-deploy $DEPLOY_KEY
     on:
       branch: testing
+  - provider: script
+    skip_cleanup: true
+    script: scripts/demo-deploy $DEPLOY_KEY
+    on:
+      branch: demo
 
 before_install:
 - scripts/beforeInstall

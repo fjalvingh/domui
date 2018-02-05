@@ -1,7 +1,7 @@
 package to.etc.domui.util.exporters;
 
-import to.etc.domui.component.delayed.IProgress;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.util.Progress;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 
@@ -43,7 +43,7 @@ public class QCriteriaExporter<T> {
 		this(writer, dc, query, columns == null ? null : columns.toArray(new String[columns.size()]));
 	}
 
-	public ExportResult export(IProgress p) throws Exception {
+	public ExportResult export(Progress p) throws Exception {
 		if(m_columnList.size() == 0)
 			return ExportResult.EMPTY;
 

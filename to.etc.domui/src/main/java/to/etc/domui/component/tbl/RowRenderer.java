@@ -1,7 +1,6 @@
 package to.etc.domui.component.tbl;
 
 import kotlin.reflect.KProperty1;
-import to.etc.domui.component.controlfactory.ControlBuilder;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.NumericPresentation;
@@ -9,6 +8,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SortableType;
 import to.etc.domui.component.misc.DisplaySpan;
 import to.etc.domui.component.ntbl.IRowButtonFactory;
+import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.html.Div;
@@ -510,8 +510,10 @@ import java.util.function.Predicate;
 			//FIXME We need to bind the control to the INSTANCE if that was passed 8-/
 
 		} else {
-			ControlBuilder cb = DomApplication.get().getControlBuilder();
-			control = cb.createControlFor(pmm, true, null).getFormControl();
+			ControlCreatorRegistry reg = DomApplication.get().getControlCreatorRegistry();
+			control = reg.createControl(pmm, null);
+			//ControlBuilder cb = DomApplication.get().getControlBuilder();
+			//control = cb.createControlFor(pmm, true, null).getFormControl();
 		}
 		control.bind().to(instance, pmm);
 		cell.add(control);

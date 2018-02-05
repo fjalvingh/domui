@@ -24,15 +24,19 @@
  */
 package to.etc.domui.component.delayed;
 
-import javax.annotation.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.state.DelayedActivityInfo;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.Msgs;
+import to.etc.util.Progress;
+import to.etc.util.StringTool;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 public class AsyncContainer extends Div {
 	@Nonnull
@@ -62,7 +66,7 @@ public class AsyncContainer extends Div {
 			private Div m_result;
 
 			@Override
-			public void run(@Nonnull IProgress p) throws Exception {
+			public void run(@Nonnull Progress p) throws Exception {
 				setResult(activity.run(p));
 			}
 

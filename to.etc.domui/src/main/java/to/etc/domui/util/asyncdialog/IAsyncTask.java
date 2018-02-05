@@ -1,6 +1,6 @@
 package to.etc.domui.util.asyncdialog;
 
-import to.etc.domui.component.delayed.IProgress;
+import to.etc.util.Progress;
 
 import javax.annotation.Nonnull;
 
@@ -9,6 +9,6 @@ import javax.annotation.Nonnull;
  * Created on 31-10-17.
  */
 public interface IAsyncTask {
-	void execute(@Nonnull IProgress progress) throws Exception;
+	void execute(@Nonnull Progress progress) throws Exception;
 
 }

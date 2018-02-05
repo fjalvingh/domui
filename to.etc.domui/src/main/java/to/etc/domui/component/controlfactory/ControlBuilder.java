@@ -24,19 +24,28 @@
  */
 package to.etc.domui.component.controlfactory;
 
-import java.util.*;
+import to.etc.domui.component.input.ComboFixed;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.layout.ErrorMessageDiv;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.dom.errors.IErrorMessageListener;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IControlErrorFragmentFactory;
+import to.etc.domui.server.IControlLabelFactory;
+import to.etc.domui.util.DefaultControlLabelFactory;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IReadOnlyModel;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This singleton, reachable from DomApplication, maintains all metadata control builder lists and contains code to create controls from factories et al.
@@ -50,9 +59,6 @@ public class ControlBuilder {
 	private List<PropertyControlFactory> m_controlFactoryList = new ArrayList<PropertyControlFactory>();
 
 	@Nonnull
-	private final LookupControlRegistry m_lookupControlRegistry = new LookupControlRegistry();
-
-	@Nonnull
 	private IControlLabelFactory m_controlLabelFactory = new DefaultControlLabelFactory();
 
 	@Nonnull
@@ -64,12 +70,13 @@ public class ControlBuilder {
 	};
 
 	public ControlBuilder(@Nonnull DomApplication app) {
-	//		m_app = app;
+		//		m_app = app;
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Control factories for editing..						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 * @param cf
@@ -86,11 +93,11 @@ public class ControlBuilder {
 
 	/**
 	 * Find the best control factory to use to create a control for the given property and mode.
-	 * @param pmm		The property to find a control for
-	 * @param editable	When false this is a displayonly control request.
-	 * @return			null if no factory is found.
+	 * @param pmm        The property to find a control for
+	 * @param editable    When false this is a displayonly control request.
+	 * @return null if no factory is found.
 	 */
-	public PropertyControlFactory findControlFactory(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public PropertyControlFactory findControlFactory(@Nonnull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
 		if(pmm.getControlFactory() != null)
 			return pmm.getControlFactory();
 
@@ -140,13 +147,9 @@ public class ControlBuilder {
 	/**
 	 * Find the best control factory to use to create a control for the given property and mode, throws
 	 * an Exception if the factory cannot be found.
-	 *
-	 * @param pmm
-	 * @param editable
-	 * @return	The factory to use
 	 */
 	@Nonnull
-	public PropertyControlFactory getControlFactory(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public PropertyControlFactory getControlFactory(@Nonnull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
 		PropertyControlFactory cf = findControlFactory(pmm, editable, controlClass);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for " + pmm);
@@ -156,6 +159,7 @@ public class ControlBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Label generation factory.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 * @return
@@ -187,61 +191,27 @@ public class ControlBuilder {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Lookup Form control factories.						*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Add another LookupControlFactory to the registry.
-	 * @param f
-	 */
-	public void register(@Nonnull final ILookupControlFactory f) {
-		m_lookupControlRegistry.register(f);
-	}
-
-	@Nullable
-	public ILookupControlFactory findLookupControlFactory(@Nonnull final SearchPropertyMetaModel pmm) {
-		return m_lookupControlRegistry.findFactory(pmm);
-	}
-
-	@Nonnull
-	public ILookupControlFactory getLookupControlFactory(@Nonnull final SearchPropertyMetaModel pmm) {
-		return m_lookupControlRegistry.getControlFactory(pmm);
-	}
-
-	@Nonnull
-	public <T, X extends NodeBase & IControl<T>> ILookupControlFactory getLookupQueryFactory(@Nonnull final SearchPropertyMetaModel pmm, @Nonnull X control) {
-		return m_lookupControlRegistry.getLookupQueryFactory(pmm, control);
-	}
-
-	/*--------------------------------------------------------------*/
 	/*	CODING:	Utilities to help you to create controls..			*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
 	@Deprecated
 	@Nonnull
-	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel< ? > model, @Nonnull final PropertyMetaModel< ? > pmm, final boolean editable) {
+	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel<?> model, @Nonnull final PropertyMetaModel<?> pmm, final boolean editable) {
 		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
 		return cf.createControl(pmm, editable, null);
 	}
 
 	@Nonnull
-	public ControlFactoryResult createControlFor(@Nonnull final PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public ControlFactoryResult createControlFor(@Nonnull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
 		PropertyControlFactory cf = getControlFactory(pmm, editable, controlClass);
 		return cf.createControl(pmm, editable, controlClass);
 	}
 
-	/**
-	 *
-	 * @param <T>
-	 * @param controlClass
-	 * @param dataClass
-	 * @param propertyName
-	 * @param editableWhen
-	 * @return
-	 */
-	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull Class< ? > dataClass, @Nonnull String propertyName, boolean editable) {
-		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
+	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull Class<?> dataClass, @Nonnull String propertyName, boolean editable) {
+		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
 		return createControl(controlClass, pmm, editable);
 	}
 
@@ -253,24 +223,15 @@ public class ControlBuilder {
 		}
 	};
 
-	/**
-	 *
-	 * @param <T>
-	 * @param controlClass
-	 * @param dataClass
-	 * @param pmm
-	 * @param editable
-	 * @return
-	 */
-	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
+	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull PropertyMetaModel<?> pmm, boolean editable) {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
 		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
-		ControlFactoryResult r = cf.createControl(pmm, editable, controlClass);	// FIXME Bad, bad bug: I should be able to create a control without binding!!
+		ControlFactoryResult r = cf.createControl(pmm, editable, controlClass);    // FIXME Bad, bad bug: I should be able to create a control without binding!!
 
 		//-- This must have generated a single control of the specified type, so check...
 		if(r.getNodeList().length != 1)
-			throw new IllegalStateException("The control factory "+cf+" created != 1 components for a find-control-for-class query");
+			throw new IllegalStateException("The control factory " + cf + " created != 1 components for a find-control-for-class query");
 		NodeBase c = r.getNodeList()[0];
 		if(!controlClass.isAssignableFrom(controlClass))
 			throw new IllegalStateException("The control factory " + cf + " created a " + c + " which is NOT assignment-compatible with the requested class " + controlClass);
@@ -281,14 +242,12 @@ public class ControlBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Creating all kinds of combo boxes.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This creates a ComboFixed for some fixed-size domain class specified by type. This will allow any
 	 * domain-valued type (as specified by metadata returning something for getDomainValues()). The domain
 	 * value translations are done by class metadata <b>only</b> because the originating property is not
 	 * known. This may cause values to be misrepresented.
-	 *
-	 * @param <T>
-	 * @return
 	 */
 	public <T> ComboFixed<T> createComboFor(Class<T> type) {
 		if(type == null)
@@ -313,12 +272,9 @@ public class ControlBuilder {
 	 * This creates a ComboFixed for some fixed-size domain property specified by the metamodel. This will allow any
 	 * domain-valued type (as specified by metadata returning something for getDomainValues()). This version will
 	 * properly use per-property value labels if defined.
-	 *
-	 * @param pmm
-	 * @return
 	 */
 	@Nonnull
-	public ComboFixed< ? > createComboFor(PropertyMetaModel< ? > pmm, boolean editable) {
+	public ComboFixed<?> createComboFor(PropertyMetaModel<?> pmm, boolean editable) {
 		if(pmm == null)
 			throw new IllegalArgumentException("propertyMeta cannot be null");
 		Object[] vals = pmm.getDomainValues();
@@ -339,7 +295,7 @@ public class ControlBuilder {
 			vl.add(new ValueLabelPair<Object>(o, label));
 		}
 
-		ComboFixed< ? > c = new ComboFixed<Object>(vl);
+		ComboFixed<?> c = new ComboFixed<Object>(vl);
 		if(pmm.isRequired())
 			c.setMandatory(true);
 		if(!editable || pmm.getReadOnly() == YesNoType.YES)
@@ -355,12 +311,11 @@ public class ControlBuilder {
 	 * domain-valued type (as specified by metadata returning something for getDomainValues()). This version will
 	 * properly use per-property value labels if defined.
 	 *
-	 * @param dataClass		The class whose property is to be looked up
-	 * @param property		The property path
-	 * @return
+	 * @param dataClass        The class whose property is to be looked up
+	 * @param property        The property path
 	 */
-	public ComboFixed< ? > createComboFor(Class< ? > dataClass, String property, boolean editable) {
-		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(dataClass, property);
+	public ComboFixed<?> createComboFor(Class<?> dataClass, String property, boolean editable) {
+		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(dataClass, property);
 		return createComboFor(pmm, editable);
 	}
 

@@ -28,6 +28,8 @@ import org.slf4j.*;
 import to.etc.domui.component.delayed.*;
 import to.etc.domui.dom.html.*;
 import to.etc.domui.util.*;
+import to.etc.util.IProgressListener;
+import to.etc.util.Progress;
 
 import javax.annotation.*;
 import java.util.*;
@@ -339,7 +341,12 @@ public class DelayedActivitiesManager implements Runnable {
 	 * @param dai
 	 */
 	private void execute(DelayedActivityInfo dai) {
-		DelayedProgressMonitor mon = new DelayedProgressMonitor(this, dai);
+		Progress mon = new Progress("");
+		mon.addListener(new IProgressListener() {
+			@Override public void progressed(@Nonnull Progress level) throws Exception {
+				completionStateChanged(dai, level.getPercentage(), level.getActionPath(4));
+			}
+		});
 		dai.setMonitor(mon);
 
 		Exception errorx = null;

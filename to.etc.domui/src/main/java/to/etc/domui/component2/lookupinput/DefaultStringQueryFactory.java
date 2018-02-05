@@ -1,15 +1,21 @@
 package to.etc.domui.component2.lookupinput;
 
-import java.math.*;
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.RuntimeConversions;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QLiteral;
+import to.etc.webapp.query.QOperation;
+import to.etc.webapp.query.QPropertyComparison;
+import to.etc.webapp.query.QRestrictor;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * This is the default query generator which calculates QCriteria for a quick search
@@ -68,36 +74,29 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 				if(spm.getMinLength() <= searchString.length()) {
 
 					//-- Abort on invalid metadata; never continue with invalid data.
-					if(spm.getPropertyName() == null)
+					PropertyMetaModel<?> pmm = spm.getProperty();
+					if(pmm == null)
 						throw new ProgrammerErrorException("The quick lookup properties for " + getQueryMetaModel() + " are invalid: the property name is null");
 
-					List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getQueryMetaModel(), spm.getPropertyName()); // This will return an empty list on empty string input
-					if(pl.size() == 0)
-						throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getQueryMetaModel());
-
-					//It is required that lookup by id is also available, for now only Long type and BigDecimal interpreted as Long (fix for 1228) are supported
-					//FIXME: see if it is possible to generalize things for all integer based types... (DomUtil.isIntegerType(pmm.getActualType()))
-					PropertyMetaModel<?> lastProperty = pl.get(pl.size() - 1);
-
-					if(lastProperty.getActualType() == Long.class || lastProperty.getActualType() == BigDecimal.class) {
-						if(searchString.contains("%") && !lastProperty.isTransient()) {
-							r.add(new QPropertyComparison(QOperation.LIKE, spm.getPropertyName(), new QLiteral(searchString)));
+					if(pmm.getActualType() == Long.class || pmm.getActualType() == BigDecimal.class) {
+						if(searchString.contains("%") && !pmm.isTransient()) {
+							r.add(new QPropertyComparison(QOperation.LIKE, pmm.getName(), new QLiteral(searchString)));
 						} else {
 							try {
-								Object value = RuntimeConversions.convertTo(searchString, lastProperty.getActualType());
+								Object value = RuntimeConversions.convertTo(searchString, pmm.getActualType());
 								if(null != value) {
-									r.eq(spm.getPropertyName(), value);
+									r.eq(pmm.getName(), value);
 									ncond++;
 								}
 							} catch(Exception ex) {
 								//just ignore this since it means that it is not correct Long condition.
 							}
 						}
-					} else if(lastProperty.getActualType().isAssignableFrom(String.class)) {
+					} else if(pmm.getActualType().isAssignableFrom(String.class)) {
 						if(spm.isIgnoreCase()) {
-							r.ilike(spm.getPropertyName(), searchString + "%");
+							r.ilike(pmm.getName(), searchString + "%");
 						} else {
-							r.like(spm.getPropertyName(), searchString + "%");
+							r.like(pmm.getName(), searchString + "%");
 						}
 						ncond++;
 					}

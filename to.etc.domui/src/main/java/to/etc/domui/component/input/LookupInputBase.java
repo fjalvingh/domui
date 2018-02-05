@@ -26,11 +26,10 @@ package to.etc.domui.component.input;
 
 import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.layout.FloatingWindow;
-import to.etc.domui.component.lookup.LookupForm;
 import to.etc.domui.component.meta.ClassMetaModel;
-import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.BasicRowRenderer;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
@@ -68,7 +67,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	public static final String MAGIC_ID_MARKER = "?id?";
 
 	@Nullable
-	private LookupForm<QT> m_lookupForm;
+	private SearchPanel<QT> m_lookupForm;
 
 	@Nullable
 	private FloatingWindow m_floater;
@@ -130,7 +129,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	private boolean m_useStretchedLayout = true;
 
 	/**
-	 * If set, enables custom init code on LookupForm that is in use for this component, triggers before LookupForm is shown
+	 * If set, enables custom init code on SearchPanel that is in use for this component, triggers before SearchPanel is shown
 	 */
 	@Nullable
 	private ILookupFormModifier<QT> m_lookupFormInitialization;
@@ -160,10 +159,10 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 */
 	public interface ILookupFormModifier<T> {
 		/**
-		 * Sends LookupForm for initialization.
+		 * Sends SearchPanel for initialization.
 		 * @param lf
 		 */
-		void initialize(@Nonnull LookupForm<T> lf) throws Exception;
+		void initialize(@Nonnull SearchPanel<T> lf) throws Exception;
 	}
 
 
@@ -174,8 +173,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * Created on Sep 1, 2017
 	 */
 	public interface IPopupOpener {
-		@Nullable
-		<A, B, L extends LookupInputBase<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
+		@Nullable <A, B, L extends LookupInputBase<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
 	}
 
 	/**
@@ -211,13 +209,15 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		this(rootCriteria, DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, null, null);
 	}
 
-	public LookupInputBase(@Nullable QCriteria<QT> rootCriteria, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
+	public LookupInputBase(@Nullable QCriteria<QT> rootCriteria, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel,
+		@Nullable ClassMetaModel outputMetaModel) {
 		super(rootCriteria, queryClass, resultClass, queryMetaModel, outputMetaModel);
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Quick Search code (KeySearch)						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * @return true either when query control is manually implemented by keyWordSearchHandler, or if keyword search meta data is defined.
 	 */
@@ -428,23 +428,19 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 					if(spm.getMinLength() <= searchString.length()) {
 
 						//-- Abort on invalid metadata; never continue with invalid data.
-						if(spm.getPropertyName() == null)
+						PropertyMetaModel<?> pmm = spm.getProperty();
+						if(pmm == null)
 							throw new ProgrammerErrorException("The quick lookup properties for " + getQueryMetaModel() + " are invalid: the property name is null");
 
-						List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(getQueryMetaModel(), spm.getPropertyName()); // This will return an empty list on empty string input
-						if(pl.size() == 0)
-							throw new ProgrammerErrorException("Unknown/unresolvable lookup property " + spm.getPropertyName() + " on " + getQueryMetaModel());
-
 						//It is required that lookup by id is also available, for now only integer based types and BigDecimal interpreted as Long (fix for 1228) are supported
-						PropertyMetaModel< ? > pmm = pl.get(pl.size() - 1);
 						if(DomUtil.isIntegerType(pmm.getActualType()) || pmm.getActualType() == BigDecimal.class) {
 							if(searchString.contains("%") && !pmm.isTransient()) {
-								r.add(new QPropertyComparison(QOperation.LIKE, spm.getPropertyName(), new QLiteral(searchString)));
+								r.add(new QPropertyComparison(QOperation.LIKE, pmm.getName(), new QLiteral(searchString)));
 							} else {
 								try {
 									Object value = RuntimeConversions.convertTo(searchString, pmm.getActualType());
 									if(null != value) {
-										r.eq(spm.getPropertyName(), value);
+										r.eq(pmm.getName(), value);
 										ncond++;
 									}
 								} catch(Exception ex) {
@@ -453,9 +449,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 							}
 						} else if(pmm.getActualType().isAssignableFrom(String.class)) {
 							if(spm.isIgnoreCase()) {
-								r.ilike(spm.getPropertyName(), searchString + "%");
+								r.ilike(pmm.getName(), searchString + "%");
 							} else {
-								r.like(spm.getPropertyName(), searchString + "%");
+								r.like(pmm.getName(), searchString + "%");
 							}
 							ncond++;
 						}
@@ -472,6 +468,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Full search popup window code..						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Toggle the full search popup window.
 	 * @throws Exception
@@ -507,9 +504,10 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		}
 
 		IPopupOpener popupOpener = getPopupOpener();
-		if (null != popupOpener){
-			Dialog floater = popupOpener.createDialog(this, keySearchModel, () -> {});
-			if (null != floater) {
+		if(null != popupOpener) {
+			Dialog floater = popupOpener.createDialog(this, keySearchModel, () -> {
+			});
+			if(null != floater) {
 				floater.modal();
 				add(floater);
 				decoratePopup(floater);
@@ -530,16 +528,16 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			f.add((NodeBase) cerl);
 			DomUtil.getMessageFence(f).addErrorListener(cerl);
 		}
-		LookupForm<QT> lf = getLookupForm();
+		SearchPanel<QT> lf = getSearchPanel();
 		if(lf == null) {
 			QCriteria<QT> rootCriteria = getRootCriteria();
 			if(null != rootCriteria)
-				lf = new LookupForm<QT>(rootCriteria);
+				lf = new SearchPanel<>(rootCriteria);
 			else
-				lf = new LookupForm<QT>(getQueryClass(), getQueryMetaModel());
+				lf = new SearchPanel<>(getQueryClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
-			setLookupForm(lf);
+			setSearchPanel(lf);
 		}
 
 		boolean collapsed = isPopupInitiallyCollapsed();
@@ -547,8 +545,8 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
 		lf.setCollapsed(collapsed || keySearchModel != null && keySearchModel.getRows() > 0);
 
-		if(getLookupFormInitialization() != null) {
-			getLookupFormInitialization().initialize(lf);
+		if(getSearchPanelInitialization() != null) {
+			getSearchPanelInitialization().initialize(lf);
 		}
 		f.add(lf);
 		f.setOnClose(closeReason -> {
@@ -557,7 +555,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			m_result = null;
 		});
 
-		lf.setClicked((IClicked<LookupForm<QT>>) b -> search(b));
+		lf.setClicked((IClicked<SearchPanel<QT>>) b -> search(b));
 
 		lf.setOnCancel(b -> f.closePressed());
 
@@ -569,11 +567,11 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	}
 
 	private void decoratePopup(@Nonnull Dialog floater) {
-		if (isPopupInitiallyCollapsed() && floater instanceof DefaultLookupInputDialog) {
+		if(isPopupInitiallyCollapsed() && floater instanceof DefaultLookupInputDialog) {
 			((DefaultLookupInputDialog<?, ?>) floater).setInitiallyCollapsed(true);
 		}
 
-		if (isSearchImmediately() && floater instanceof DefaultLookupInputDialog) {
+		if(isSearchImmediately() && floater instanceof DefaultLookupInputDialog) {
 			((DefaultLookupInputDialog<?, ?>) floater).setSearchImmediately(true);
 		}
 	}
@@ -584,8 +582,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * Contruct a default title for this LookupInput
-	 *
-	 * @return
 	 */
 	@Nonnull
 	private String getDefaultTitle() {
@@ -603,10 +599,10 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		throw new IllegalStateException("Floating search window is not currently present");
 	}
 
-	private void search(LookupForm<QT> lf) throws Exception {
-		QCriteria<QT> c = lf.getEnteredCriteria();
-		if(c == null)						// Some error has occured?
-			return;							// Don't do anything (errors will have been registered)
+	private void search(SearchPanel<QT> lf) throws Exception {
+		QCriteria<QT> c = lf.getCriteria();
+		if(c == null)                        // Some error has occured?
+			return;                            // Don't do anything (errors will have been registered)
 
 		c = adjustQuery(c);
 		if(c == null) {
@@ -624,7 +620,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	}
 
 	private void setTableQuery(@Nonnull QCriteria<QT> qc) throws Exception {
-		ITableModel<OT> model = createTableModel(qc);					// Ask derived to convert the query into my output model
+		ITableModel<OT> model = createTableModel(qc);                    // Ask derived to convert the query into my output model
 		setResultModel(model);
 	}
 
@@ -692,6 +688,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			return null;
 		return ks.getKeySearchValue();
 	}
+
 	/**
 	 * When set this defines the title of the lookup window.
 	 * @return
@@ -724,16 +721,16 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 	/**
 	 * Can be set by a specific lookup form to use when the full query popup is shown. If unset the code will create
-	 * a LookupForm using metadata.
+	 * a SearchPanel using metadata.
 	 * @return
 	 */
 	@Nullable
-	public LookupForm<QT> getLookupForm() {
+	public SearchPanel<QT> getSearchPanel() {
 		return m_lookupForm;
 	}
 
-	public void setLookupForm(@Nullable LookupForm<QT> externalLookupForm) {
-		m_lookupForm = externalLookupForm;
+	public void setSearchPanel(@Nullable SearchPanel<QT> externalSearchPanel) {
+		m_lookupForm = externalSearchPanel;
 	}
 
 	@Nullable
@@ -822,7 +819,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * @See  {@link LookupInput#m_lookupFormInitialization}.
 	 * @return
 	 */
-	public ILookupFormModifier<QT> getLookupFormInitialization() {
+	public ILookupFormModifier<QT> getSearchPanelInitialization() {
 		return m_lookupFormInitialization;
 	}
 
@@ -830,7 +827,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * @See  {@link LookupInput#m_lookupFormInitialization}.
 	 * @return
 	 */
-	public void setLookupFormInitialization(ILookupFormModifier<QT> lookupFormInitialization) {
+	public void setSearchPanelInitialization(ILookupFormModifier<QT> lookupFormInitialization) {
 		m_lookupFormInitialization = lookupFormInitialization;
 	}
 
@@ -929,7 +926,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	}
 
 	public void setPopupOpener(@Nullable IPopupOpener popupOpener) {
-		if (isBuilt()){
+		if(isBuilt()) {
 			throw new ProgrammerErrorException("can't set popup opener on built component!");
 		}
 		m_popupOpener = popupOpener;

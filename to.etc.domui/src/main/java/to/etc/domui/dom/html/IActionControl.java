@@ -48,4 +48,9 @@ public interface IActionControl {
 	 * @param testID
 	 */
 	void setTestID(String testID);
+
+	/**
+	 * Returns the currently assigned test ID.
+	 */
+	String getTestID();
 }

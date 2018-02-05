@@ -1,7 +1,7 @@
 package to.etc.domui.util.importers;
 
-import to.etc.domui.component.delayed.IProgress;
 import to.etc.domui.util.asyncdialog.AbstractAsyncDialogTask;
+import to.etc.util.Progress;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -19,7 +19,7 @@ abstract public class AbstractImportTask extends AbstractAsyncDialogTask {
 	public AbstractImportTask() {
 	}
 
-	@Override public void run(IProgress progress) throws Exception {
+	@Override public void run(Progress progress) throws Exception {
 		try(IRowReader reader = openReader(Objects.requireNonNull(m_inputFile))) {
 			initialize(reader);
 			execute(reader, progress);
@@ -38,7 +38,7 @@ abstract public class AbstractImportTask extends AbstractAsyncDialogTask {
 	/**
 	 * By default this just reads dataset 0.
 	 */
-	private void execute(IRowReader reader, IProgress progress) throws Exception {
+	private void execute(IRowReader reader, Progress progress) throws Exception {
 		reader.setHasHeaderRow(true);
 		reader.setSetIndex(0);
 		IImportRow headerRow = reader.getHeaderRow();

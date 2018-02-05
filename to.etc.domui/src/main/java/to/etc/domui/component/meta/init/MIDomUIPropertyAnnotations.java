@@ -1,7 +1,6 @@
 package to.etc.domui.component.meta.init;
 
 import to.etc.domui.component.meta.MetaCombo;
-import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaObject;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.MetaSearch;
@@ -107,12 +106,12 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 
 			for(MetaSearchItem msi : an.searchProperties()) {
 				index++;
-				List<PropertyMetaModel< ? >> ppl = MetaManager.parsePropertyPath(cmm, msi.name());
-				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, ppl);
+
+				PropertyMetaModel<?> prop = cmm.getProperty(msi.name());
+				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, prop);
 				mm.setIgnoreCase(msi.ignoreCase());
 				mm.setOrder(msi.order() == -1 ? index : msi.order());
 				mm.setMinLength(msi.minLength());
-				mm.setPropertyName(msi.name().length() == 0 ? null : msi.name());
 				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
 				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
 				if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {
@@ -128,13 +127,10 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 	}
 
 	private <T> void handleMetaSearch(DefaultClassMetaModel cmm, DefaultPropertyMetaModel<T> pmm, MetaSearch an) {
-		List<PropertyMetaModel< ? >> ppl = new ArrayList<>(1);
-		ppl.add(pmm);
-		SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, ppl);
+		SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, pmm);
 		mm.setIgnoreCase(an.ignoreCase());
 		mm.setOrder(an.order());
 		mm.setMinLength(an.minLength());
-		mm.setPropertyName(pmm.getName());
 		if(an.searchType() == SearchPropertyType.SEARCH_FIELD || an.searchType() == SearchPropertyType.BOTH) {
 			m_searchList.add(mm);
 		}

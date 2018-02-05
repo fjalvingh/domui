@@ -8,6 +8,8 @@ import javax.annotation.*;
 import java.util.*;
 
 /**
+ * FIXME Functional duplicate of EnumSetInput
+ *
  * Input component to select small things from a dataset. Each selected thing is shown as a
  * small "label" in a horizontal list of them, and each thing can be removed by a button on
  * it.
