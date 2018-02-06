@@ -445,7 +445,7 @@ import java.util.function.Predicate;
 		IRenderInto<X> contentRenderer = cd.getContentRenderer();
 		IConverter<X> cellConverter = cd.getConverter();
 		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
-		if(cd.isEditable()) {
+		if(cd.isEditable() || cd.getControlFactory() != null) {
 			if(null != contentRenderer)
 				throw new IllegalStateException("A column cannot be editable if you assign your own renderer to it: handle the editing inside the renderer yourself.");
 			if(null != cellConverter)
