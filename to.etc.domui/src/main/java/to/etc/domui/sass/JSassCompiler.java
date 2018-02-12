@@ -56,7 +56,7 @@ public class JSassCompiler implements ISassCompiler {
 		Compiler co = new Compiler();
 		Output res = co.compile(fc);
 		String css = res.getCss();
-		output.write(css);
+		output.write(css == null ? "" : css);
 		out.delete();
 		jsr.close();
 	}
