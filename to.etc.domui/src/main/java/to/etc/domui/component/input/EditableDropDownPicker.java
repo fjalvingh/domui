@@ -1,15 +1,17 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.event.*;
 import to.etc.domui.component.input.DropDownPicker.HAlign;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.NlsContext;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Encapsulates AutocompleteText and drop down picker into single component. Input behaves as autocomplete field that does search on select inside select within drop down picker.
@@ -87,13 +89,10 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		picker.setDisabled(isDisabled());
 		picker.setHalign(m_halign);
 		picker.setAlignmentBase(this);
-		picker.setOnBeforeShow(new INotifyEvent<DropDownPicker<T>, ComboLookup<T>>() {
-			@Override
-			public void onNotify(@Nonnull DropDownPicker<T> sender, @Nullable ComboLookup<T> combo) throws Exception {
-				String text = getValueSafe();
-				clearMessage();
-				adjustSelection(combo, text);
-			}
+		picker.setOnBeforeShow((sender, combo) -> {
+			String text = getValueSafe();
+			clearMessage();
+			adjustSelection(combo, text);
 		});
 
 		picker.setOnValueChanged(new IValueChanged<DropDownPicker<T>>() {
