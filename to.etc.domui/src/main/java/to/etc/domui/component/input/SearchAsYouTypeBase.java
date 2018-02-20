@@ -10,7 +10,6 @@ import to.etc.domui.dom.css.PositionType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IForTarget;
-import to.etc.domui.dom.html.ILookupTypingListener;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Input;
@@ -29,6 +28,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
+ * Base class for search-as-you-type input controls. This is not itself a control but forms the
+ * basis for things that are.
+ *
  * This class is an &lt;input&gt; control which can do on-the-fly lookup of data that is being typed. How
  * the lookup is done is fully transparant: the method {@link IQuery#queryFromString(String, int)} in a
  * handler interface {@link IQuery} is called, and it should return the results to show in the popup box.
@@ -51,7 +53,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 9, 2011
  */
-public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
+public class SearchAsYouTypeBase<T> extends Div implements IForTarget, IControl<T> {
 	static private final int MAX_RESULTS = 7;
 
 	static private final Set<Class<?>> SIMPLECLASSES = new HashSet<Class<?>>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
@@ -60,7 +62,8 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 
 	@Nonnull final private Class<T> m_dataClass;
 
-	final private Object[] m_columns;
+	@Nullable
+	private List<String> m_columns;
 
 	@Nullable
 	private IQuery<T> m_handler;
@@ -132,7 +135,7 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	 * @param clz
 	 * @param columns
 	 */
-	public SearchInput(@Nonnull Class<T> clz, Object... columns) {
+	public SearchAsYouTypeBase(@Nonnull Class<T> clz, String... columns) {
 		this(null, clz, columns);
 	}
 
@@ -143,10 +146,10 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	 * @param clz     The data class to display/handle
 	 * @param columns The property names to show in the popup window.
 	 */
-	public SearchInput(IQuery<T> handler, @Nonnull Class<T> clz, Object... columns) {
+	public SearchAsYouTypeBase(IQuery<T> handler, @Nonnull Class<T> clz, String... columns) {
 		m_handler = handler;
 		m_dataClass = clz;
-		m_columns = columns;
+		m_columns = Arrays.asList(columns);
 		m_dataModel = MetaManager.findClassMeta(clz);
 	}
 
@@ -164,12 +167,7 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		m_input.setSize(14);
 		add(m_input);
 
-		m_input.setOnLookupTyping(new ILookupTypingListener<NodeBase>() {
-			@Override
-			public void onLookupTyping(@Nonnull NodeBase component, boolean done) throws Exception {
-				handleLookupTyping(done);
-			}
-		});
+		m_input.setOnLookupTyping((component, done) -> handleLookupTyping(done));
 	}
 
 	@Nullable @Override public NodeBase getForTarget() {
@@ -182,9 +180,6 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 
 	/**
 	 * Called on keyboard entry to handle querying or return presses.
-	 *
-	 * @param done
-	 * @throws Exception
 	 */
 	private void handleLookupTyping(boolean done) throws Exception {
 		//-- If input is empty just clear all presentation but do not call any handler.
@@ -270,11 +265,16 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 		if(SIMPLECLASSES.contains(m_dataClass)) {
 			rr.addColumns("", (IRenderInto<Object>) (node, object) -> node.add(String.valueOf(object)));
 
-		} else if(m_columns != null && m_columns.length > 0) {
-			rr.addColumns(m_columns);
+		} else {
+			List<String> columns = m_columns;
+			if(columns != null && columns.size() > 0) {
+				for(String column : columns) {
+					rr.addColumn(column);
+				}
+			}
 		}
 		rr.setRowClicked(val -> handleSelectValueFromPopup(val));
-		DataTable<T> tbl = new DataTable<T>(mdl, rr);
+		DataTable<T> tbl = new DataTable<>(mdl, rr);
 		m_pnlSearchPopup.add(tbl);
 		tbl.setWidth("100%");
 		tbl.setOverflow(Overflow.HIDDEN);
@@ -301,9 +301,6 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 	/**
 	 * Set a result count indicator field, using the specified text and the specified css class. If
 	 * the field is already present it is updated, else it is created.
-	 *
-	 * @param css
-	 * @param text
 	 */
 	private void setResultMessage(String css, String text) {
 		if(m_resultMessageContainer == null)
@@ -320,10 +317,9 @@ public class SearchInput<T> extends Div implements IForTarget, IControl<T> {
 			m_resultMessageContainer.remove();
 	}
 
+
 	/**
 	 * Get the current query/event handler for this control.
-	 *
-	 * @return
 	 */
 	public IQuery<T> getHandler() {
 		return m_handler;

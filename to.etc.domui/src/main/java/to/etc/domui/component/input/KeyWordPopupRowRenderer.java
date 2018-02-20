@@ -55,8 +55,6 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
-	 * @param dataClass
-	 * @param cols
 	 */
 	KeyWordPopupRowRenderer(@Nonnull final ClassMetaModel cmm) {
 		m_columnList = new ColumnDefList<T>((Class<T>) cmm.getActualClass(), cmm);
@@ -201,6 +199,10 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	public void add(SimpleColumnDef< ? > cd) {
 		check();
 		m_columnList.add(cd);
+	}
+
+	public void addColumn(String name) {
+		m_columnList.addColumns(name);
 	}
 
 	public <R> void addColumns(Object... cols) {

@@ -31,7 +31,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	final private Map<T, Span> m_divMap = new HashMap<T, Span>();
 
 	@Nullable
-	private SearchInput<T> m_input;
+	private SearchAsYouTypeBase<T> m_input;
 
 	@Nullable
 	private IRenderInto<T> m_contentRenderer;
@@ -90,10 +90,10 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 		}
 
 		if(! m_disabled) {
-			SearchInput<T> input = m_input = new SearchInput<T>(m_actualClass);
+			SearchAsYouTypeBase<T> input = m_input = new SearchAsYouTypeBase<T>(m_actualClass);
 			add(input);
 			updateTooltip();
-			input.setHandler(new SearchInput.IQuery<T>() {
+			input.setHandler(new SearchAsYouTypeBase.IQuery<T>() {
 				@Override
 				public List<T> queryFromString(String input, int max) throws Exception {
 					return queryLabelsOnType(input, max);
@@ -113,7 +113,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	}
 
 	@Nullable @Override public NodeBase getForTarget() {
-		SearchInput<T> input = m_input;
+		SearchAsYouTypeBase<T> input = m_input;
 		if(null != input)
 			return input.getForTarget();
 		return null;
@@ -390,4 +390,6 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	@Nonnull @Override public Class<T> getActualType() {
 		return m_actualClass;
 	}
+
+
 }

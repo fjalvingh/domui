@@ -6,6 +6,7 @@ import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.basic.DemoTextArea;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
 import to.etc.domuidemo.pages.graphs.GraphPage;
+import to.etc.domuidemo.pages.overview.input.DemoLabelSelectorPage;
 import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
 import to.etc.domuidemo.pages.overview.buttons.DemoDefaultButton;
@@ -85,6 +86,7 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoTextArea.class, "The TextArea component");
 		addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
 		addLink(DemoCKEditor.class, "The big HTML editor - CKEditor component");
+		addLink(DemoLabelSelectorPage.class, "Search as you type components");
 
 		addCaption("Display-only components");
 		addLink(DemoDisplayValue.class, "The DisplayValue component");

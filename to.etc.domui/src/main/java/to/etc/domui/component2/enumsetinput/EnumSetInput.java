@@ -1,8 +1,8 @@
 package to.etc.domui.component2.enumsetinput;
 
 import to.etc.domui.component.input.AbstractDivControl;
-import to.etc.domui.component.input.SearchInput;
-import to.etc.domui.component.input.SearchInput.IQuery;
+import to.etc.domui.component.input.SearchAsYouTypeBase;
+import to.etc.domui.component.input.SearchAsYouTypeBase.IQuery;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.FaIcon;
@@ -52,7 +52,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	private IRenderInto<T> m_renderer;
 
 	@Nullable
-	private SearchInput<ItemWrapper<T>> m_input;
+	private SearchAsYouTypeBase<ItemWrapper<T>> m_input;
 
 	private boolean m_addSingleMatch = true;
 
@@ -97,7 +97,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			m_input = null;
 		} else {
 			Class<ItemWrapper<T>> clz = (Class<ItemWrapper<T>>) (Object) ItemWrapper.class;
-			SearchInput<ItemWrapper<T>> input = m_input = new SearchInput<ItemWrapper<T>>(clz, "text");
+			SearchAsYouTypeBase<ItemWrapper<T>> input = m_input = new SearchAsYouTypeBase<ItemWrapper<T>>(clz, "text");
 			add(input);
 			input.setAddSingleMatch(isAddSingleMatch());
 			input.setCssClass("ui-esic-input");
@@ -197,7 +197,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			return;
 
 		Div label = renderLabel(item);
-		SearchInput<ItemWrapper<T>> input = m_input;
+		SearchAsYouTypeBase<ItemWrapper<T>> input = m_input;
 		if(null == input) {
 			add(label);
 		} else {
@@ -279,7 +279,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 
 	public EnumSetInput<T>  setAddSingleMatch(boolean addSingleMatch) {
 		m_addSingleMatch = addSingleMatch;
-		SearchInput<ItemWrapper<T>> input = m_input;
+		SearchAsYouTypeBase<ItemWrapper<T>> input = m_input;
 		if(null != input)
 			input.setAddSingleMatch(addSingleMatch);
 		return this;
