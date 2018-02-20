@@ -6,8 +6,6 @@ import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.basic.DemoTextArea;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
 import to.etc.domuidemo.pages.graphs.GraphPage;
-import to.etc.domuidemo.pages.overview.input.DemoLabelSelectorPage;
-import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
 import to.etc.domuidemo.pages.overview.buttons.DemoDefaultButton;
 import to.etc.domuidemo.pages.overview.buttons.DemoLinkButton;
@@ -26,6 +24,8 @@ import to.etc.domuidemo.pages.overview.input.DemoComboFixed;
 import to.etc.domuidemo.pages.overview.input.DemoDateInput;
 import to.etc.domuidemo.pages.overview.input.DemoFileUpload;
 import to.etc.domuidemo.pages.overview.input.DemoRadioButton;
+import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType1;
+import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouTypeBase1;
 import to.etc.domuidemo.pages.overview.input.DemoText;
 import to.etc.domuidemo.pages.overview.input.DemoTextStr;
 import to.etc.domuidemo.pages.overview.layout.DemoAppTitle;
@@ -45,6 +45,7 @@ import to.etc.domuidemo.pages.overview.misc.DemoDisplayValue;
 import to.etc.domuidemo.pages.overview.misc.DemoMsgBox;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
 import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
+import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
 import to.etc.domuidemo.pages.special.ace.AcePage;
 import to.etc.formbuilder.pages.FormDesigner;
 
@@ -86,7 +87,10 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoTextArea.class, "The TextArea component");
 		addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
 		addLink(DemoCKEditor.class, "The big HTML editor - CKEditor component");
-		addLink(DemoLabelSelectorPage.class, "Search as you type components");
+
+		addCaption("Search as you type");
+		addLink(DemoSearchAsYouTypeBase1.class, "Base class to handle search as you type");
+		addLink(DemoSearchAsYouType1.class, "Component to search-as-you-type in a list of possible values");
 
 		addCaption("Display-only components");
 		addLink(DemoDisplayValue.class, "The DisplayValue component");

@@ -40,7 +40,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Jan 2010
  */
-final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
+final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRowRenderer<T> {
 	@Nullable
 	private ICellClicked<T> m_rowClicked;
 
@@ -80,10 +80,14 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 
 	/**
 	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
-	 * @param rowClicked
 	 */
-	void setRowClicked(@Nonnull final ICellClicked<T> rowClicked) {
+	@Override
+	public void setRowClicked(@Nonnull ICellClicked<T> rowClicked) {
 		m_rowClicked = rowClicked;
+	}
+
+	@Override public void setCellClicked(int col, @Nullable ICellClicked<T> cellClicked) {
+		throw new IllegalStateException("Not supported");
 	}
 
 	/**

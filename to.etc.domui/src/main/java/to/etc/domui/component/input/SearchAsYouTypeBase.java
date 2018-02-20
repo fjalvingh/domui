@@ -3,14 +3,13 @@ package to.etc.domui.component.input;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.SimpleListModel;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.css.PositionType;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IForTarget;
-import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
@@ -53,14 +52,14 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 9, 2011
  */
-public class SearchAsYouTypeBase<T> extends Div implements IForTarget, IControl<T> {
+public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	static private final int MAX_RESULTS = 7;
 
 	static private final Set<Class<?>> SIMPLECLASSES = new HashSet<Class<?>>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
 
 	@Nonnull final private ClassMetaModel m_dataModel;
 
-	@Nonnull final private Class<T> m_dataClass;
+	@Nonnull final private Class<T> m_actualType;
 
 	@Nullable
 	private List<String> m_columns;
@@ -77,6 +76,9 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget, IControl<
 	private int m_lastResultCount = -1;
 
 	private boolean m_addSingleMatch;
+
+	@Nullable
+	private IClickableRowRenderer<T> m_rowRenderer;
 
 	private Input m_input = new Input();
 
@@ -148,7 +150,7 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget, IControl<
 	 */
 	public SearchAsYouTypeBase(IQuery<T> handler, @Nonnull Class<T> clz, String... columns) {
 		m_handler = handler;
-		m_dataClass = clz;
+		m_actualType = clz;
 		m_columns = Arrays.asList(columns);
 		m_dataModel = MetaManager.findClassMeta(clz);
 	}
@@ -260,11 +262,23 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget, IControl<
 		}
 
 		SimpleListModel<T> mdl = new SimpleListModel<T>(isl);
+		IClickableRowRenderer<T> rr = calculateRenderer();
+		rr.setRowClicked(val -> handleSelectValueFromPopup(val));
+		DataTable<T> tbl = new DataTable<>(mdl, rr);
+		m_pnlSearchPopup.add(tbl);
+		tbl.setWidth("100%");
+		tbl.setOverflow(Overflow.HIDDEN);
+		tbl.setPosition(PositionType.RELATIVE);
+	}
+
+	private IClickableRowRenderer<T> calculateRenderer() {
+		IClickableRowRenderer<T> rowr = m_rowRenderer;
+		if(null != rowr)
+			return rowr;
 		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataModel);
 
-		if(SIMPLECLASSES.contains(m_dataClass)) {
+		if(isSimpleType()) {
 			rr.addColumns("", (IRenderInto<Object>) (node, object) -> node.add(String.valueOf(object)));
-
 		} else {
 			List<String> columns = m_columns;
 			if(columns != null && columns.size() > 0) {
@@ -273,12 +287,14 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget, IControl<
 				}
 			}
 		}
-		rr.setRowClicked(val -> handleSelectValueFromPopup(val));
-		DataTable<T> tbl = new DataTable<>(mdl, rr);
-		m_pnlSearchPopup.add(tbl);
-		tbl.setWidth("100%");
-		tbl.setOverflow(Overflow.HIDDEN);
-		tbl.setPosition(PositionType.RELATIVE);
+		return rr;
+	}
+
+	/**
+	 * T if the actual type is a simple type like String or numeric.
+	 */
+	protected boolean isSimpleType() {
+		return SIMPLECLASSES.contains(m_actualType);
 	}
 
 	private void handleSelectValueFromPopup(T val) throws Exception {
@@ -317,7 +333,6 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget, IControl<
 			m_resultMessageContainer.remove();
 	}
 
-
 	/**
 	 * Get the current query/event handler for this control.
 	 */
@@ -329,55 +344,43 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget, IControl<
 		m_handler = handler;
 	}
 
-	@Override public void setValue(@Nullable T v) {
-
-	}
-
-	@Nullable @Override public T getValue() {
-		return null;
-	}
-
-	@Override public T getValueSafe() {
-		return null;
-	}
-
-	@Override public boolean isReadOnly() {
-		return false;
-	}
-
-	@Override public void setReadOnly(boolean ro) {
-
-	}
-
-	@Override public boolean isDisabled() {
-		return false;
-	}
-
-	@Override public boolean isMandatory() {
-		return false;
-	}
-
-	@Override public void setMandatory(boolean ro) {
-
-	}
-
-	@Override public void setDisabled(boolean d) {
-
-	}
-
-	@Override public IValueChanged<?> getOnValueChanged() {
-		return null;
-	}
-
-	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
-
-	}
-
 	public boolean isAddSingleMatch() {
 		return m_addSingleMatch;
 	}
 
 	public void setAddSingleMatch(boolean addSingleMatch) {
 		m_addSingleMatch = addSingleMatch;
+	}
+
+	@Nonnull public Class<T> getActualType() {
+		return m_actualType;
+	}
+
+	@Nonnull public ClassMetaModel getDataModel() {
+		return m_dataModel;
+	}
+
+	public boolean isReadOnly() {
+		return m_input.isReadOnly();
+	}
+
+	public void setReadOnly(boolean ro) {
+		m_input.setReadOnly(ro);
+	}
+
+	public boolean isDisabled() {
+		return m_input.isDisabled();
+	}
+
+	public void setDisabled(boolean d) {
+		m_input.setDisabled(d);
+	}
+
+	@Nullable public IClickableRowRenderer<T> getRowRenderer() {
+		return m_rowRenderer;
+	}
+
+	public void setRowRenderer(@Nullable IClickableRowRenderer<T> rowRenderer) {
+		m_rowRenderer = rowRenderer;
 	}
 }
