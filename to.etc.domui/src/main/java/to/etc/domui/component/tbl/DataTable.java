@@ -353,6 +353,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 */
 	@SuppressWarnings("deprecation")
 	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
+		tr.addCssClass("ui-dt-row");
 		//-- Is a rowclick handler needed?
 		ISelectionModel<T> sm = getSelectionModel();
 		if(m_rowRenderer.getRowClicked() != null || null != sm) {
