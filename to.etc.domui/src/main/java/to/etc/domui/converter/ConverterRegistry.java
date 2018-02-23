@@ -65,6 +65,7 @@ public class ConverterRegistry {
 		register(new DomainListConverterFactory()); // Accepts anything having domain value list
 		register(new DateConverterFactory());
 		register(new MoneyConverterFactory());
+		register(new NumberConverterFactory());
 		register(new DoubleFactory()); // Low-level Double converters (numeric only)
 		register(new EnumFactory()); // last-resort: Accepts generic enums without propertyMeta;
 		register(new BooleanConverterFactory()); // last-resort: Accepts generic boolean without metadata (yes, no texts only)
