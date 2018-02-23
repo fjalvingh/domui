@@ -1332,7 +1332,10 @@ class ClassWrapper {
 
 	private void loadPropertyFile(File basePath, String baseName, String ext) throws Exception {
 		String extra = ext.length() == 0 ? "" : "_" + ext;
-		baseName = baseName.substring(0, baseName.lastIndexOf('.'));		// Strip extension
+
+		int dot = baseName.lastIndexOf('.');
+		if(dot != -1)
+			baseName = baseName.substring(0, dot);		// Strip extension
 		File propertyFile = new File(basePath, baseName + extra + ".properties");
 		if(! propertyFile.exists() || ! propertyFile.isFile())
 			return;

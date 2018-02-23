@@ -392,6 +392,10 @@ public class ColumnWrapper {
 			case Types.BIT:
 				assignBooleanType(null);
 				return true;
+
+			case Types.TIME:
+				setPropertyType(new ClassOrInterfaceType("java.sql.Time"));
+				return true;
 		}
 	}
 
@@ -1381,6 +1385,8 @@ public class ColumnWrapper {
 
 	public boolean isNumeric() {
 		Type propertyType = getPropertyType();
+		if(null == propertyType)
+			throw new IllegalStateException(this + ": property type unknown");
 		String s = propertyType.asString();
 		s = s.substring(0, s.lastIndexOf('.') + 1);
 		return s.equals("int")
