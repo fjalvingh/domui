@@ -133,6 +133,14 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		return n;
 	}
 
+	@Nullable
+	public NodeContainer getNodeContent(T base) {
+		Tree2Node<T> n = m_openMap.get(base);
+		if(null == n)
+			return null;
+		return n.getContent();
+	}
+
 	private void renderList(Ul into, Tree2Node<T> parent) throws Exception {
 		into.removeAllChildren();
 		T parentValue = parent.getValue();
@@ -183,6 +191,8 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		}
 		return li;
 	}
+
+
 
 	public void expandNode(T item) throws Exception {
 		expandNode(item, false);
