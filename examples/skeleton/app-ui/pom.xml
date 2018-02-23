@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>app-root</artifactId>
+		<groupId>my.domui.app</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>my.domui.app</groupId>
+	<artifactId>app-ui</artifactId>
+	<version>1.0-SNAPSHOT</version>
+
+	<name>app | UI</name>
+	<description>DomUI user interface parts</description>
+
+	<dependencies>
+		<!-- DOMUI -->
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.domui</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.domui.hibutil</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.syntaxer</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>my.domui.app</groupId>
+			<artifactId>app-core</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<!-- Database drivers -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+		</dependency>
+
+		<!--<dependency>-->
+			<!--<groupId>com.microsoft.sqlserver</groupId>-->
+			<!--<artifactId>mssql-jdbc</artifactId>-->
+		<!--</dependency>-->
+
+		<!--<dependency>-->
+			<!--<groupId>oracle</groupId>-->
+			<!--<artifactId>ojdbc</artifactId>-->
+		<!--</dependency>-->
+
+		<!-- WEB SERVICES DEPENDENCIES -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http-hc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.jaxrs</groupId>
+			<artifactId>jackson-jaxrs-json-provider</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.datatype</groupId>
+			<artifactId>jackson-datatype-hibernate5</artifactId>
+		</dependency>
+
+		<!-- Adds the ability to generate wadl -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-service-description</artifactId>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<!-- Add a file to each war representing the commit data so that the app can show the commit it came from.. -->
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>2.2.1</version>
+				<executions>
+					<execution>
+						<id>get-the-git-infos</id>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+					</execution>
+				</executions>
+
+				<configuration>
+					<dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<generateGitPropertiesFilename>${project.build.outputDirectory}/appversion.git.properties</generateGitPropertiesFilename>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

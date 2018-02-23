@@ -51,6 +51,7 @@ public class JUnitTestMenuPage extends MenuPage {
 		addCaption("Component test pages");
 		addLink(HtmlEditorTestPage.class, "Test htmleditor");
 		addLink(LookupInput2TestPage.class, "Test LookupInput2");
+		addLink(RowRendererFactoryTest.class, "A factory that is not editable, should be editable by default");
 
 		addCaption("Deprecated components' test");
 		addLink(LookupInputTestPage.class, "Test LookupInput (deprecated)");
