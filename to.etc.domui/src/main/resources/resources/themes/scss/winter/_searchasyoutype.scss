@@ -2,6 +2,9 @@
 	position: relative;
 	display: inline-block;
 
+	input {
+		@include ui-input-base;
+	}
 }
 
 .ui-sayt-error {
@@ -28,7 +31,30 @@
 	}
 }
 
-.ui-sayt-no-res {
+.ui-sayt-popup {
 	position: absolute;
-	top: 20px;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+	margin-bottom: 10px;
 }
+
+@mixin ui-sayt-popup-base {
+   position: absolute;
+   top: 20px;
+   left: 0px;
+   width: auto;
+   border-radius: 4px;
+   padding: 5px;
+   z-index: 10;
+}
+
+.ui-sayt-no-res {
+	@include ui-sayt-popup-base;
+	background-color: $lui-warning-color;
+	border: 1px solid $lui-warning-color-border;
+}
+

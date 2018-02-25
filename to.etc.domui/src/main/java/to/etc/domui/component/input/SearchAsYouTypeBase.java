@@ -103,10 +103,6 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		 * it will display the result's rows to select from.
 		 * <p>
 		 * as an indicator.
-		 *
-		 * @param input
-		 * @return
-		 * @throws Exception
 		 */
 		@Nonnull
 		List<T> queryFromString(@Nonnull String input, int max) throws Exception;
@@ -115,9 +111,6 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		 * When a literal value in the result combo is selected this will be called
 		 * with that literal value. At that point the input box for this control will
 		 * already have been cleared.
-		 *
-		 * @param instance
-		 * @throws Exception
 		 */
 		void onSelect(@Nonnull T instance) throws Exception;
 
@@ -126,9 +119,6 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		 * called with the literal string entered. It can be used to either create
 		 * or select some value. When called it should return true if the input box
 		 * is to be cleared.
-		 *
-		 * @param value
-		 * @throws Exception
 		 */
 		void onEnter(@Nonnull String value) throws Exception;
 	}
