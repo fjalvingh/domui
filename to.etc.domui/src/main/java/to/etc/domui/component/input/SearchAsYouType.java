@@ -7,6 +7,7 @@ import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IObjectToStringConverter;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Input;
 import to.etc.domui.util.IRenderInto;
 import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
@@ -17,6 +18,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -43,6 +45,9 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	@Nullable
 	private IValueChanged<?> m_onValueChanged;
 
+	@Nullable
+	private IObjectToStringConverter<T> m_actualConverter;
+
 	enum MatchMode {
 		/** The string entered must be part of the value */
 		CONTAINS,
@@ -68,12 +73,27 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	@Nonnull private MatchMode m_mode = MatchMode.CONTAINS_CI;
 
 	public SearchAsYouType(@Nonnull Class<T> clz) {
-		super(clz);
+		super("ui-sayt", clz);
 	}
 
 	@Override public void createContent() throws Exception {
 		calculateHandler();
 		super.createContent();
+
+		updateValue();
+	}
+
+	private void updateValue() {
+		T value = m_value;
+		Input input = getInput();
+		if(null == value) {
+			input.setRawValue(null);
+			setState(State.EMPTY);
+		} else {
+			setState(State.SELECTED);
+			IObjectToStringConverter<T> converter = Objects.requireNonNull(m_actualConverter);
+			input.setRawValue(converter.convertObjectToString(NlsContext.getLocale(), value));
+		}
 	}
 
 	private void calculateHandler() {
@@ -109,6 +129,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		if(cv == null)
 			throw new ProgrammerErrorException("You must specify either a property or a converter to handle search on a complex data class");
 		setHandler(new ComplexHandler(cv));
+		m_actualConverter = cv;
 
 		//-- By default render a string using the converter.
 		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<>(getDataModel());
@@ -129,6 +150,46 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		if(null != listener) {
 			((IValueChanged<SearchAsYouType<T>>)listener).onValueChanged(this);
 		}
+	}
+
+	private void enterPressed(String value) throws Exception {
+		List<T> res = getHandler().queryFromString(value, 10);
+		if(res.size() == 1) {
+			selected(res.get(0));
+			return;
+		}
+		setState(State.ERROR);
+	}
+
+	enum State {
+		EMPTY,
+		SELECTED,
+		ERROR
+	}
+
+	private void setState(State state) {
+		switch(state) {
+			default:
+				throw new IllegalStateException();
+			case EMPTY:
+				removeCssClass(cssBase("error"));
+				removeCssClass(cssBase("selected"));
+				break;
+
+			case ERROR:
+				addCssClass(cssBase("error"));
+				removeCssClass(cssBase("selected"));
+				break;
+
+			case SELECTED:
+				removeCssClass(cssBase("error"));
+				addCssClass(cssBase("selected"));
+				break;
+		}
+	}
+
+	@Override protected void internalOnTyping() {
+		setState(State.EMPTY);
 	}
 
 	private boolean match(String value, String input) {
@@ -252,7 +313,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	/**
 	 * The type is some kind of class from which we use a single property or a converter to search on.
 	 */
-	private class ComplexHandler implements IQuery<T> {
+	private final class ComplexHandler implements IQuery<T> {
 		private final IObjectToStringConverter<T> m_fieldConverter;
 
 		public ComplexHandler(IObjectToStringConverter<T> converter) {
@@ -268,37 +329,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		}
 
 		@Override public void onEnter(@Nonnull String value) throws Exception {
+			enterPressed(value);
 		}
 	}
-
-	private class CompareHandler implements IQuery<T> {
-		final private ICompare<T> m_valueComparator;
-
-		public CompareHandler(ICompare<T> comparator) {
-			m_valueComparator = comparator;
-		}
-
-		@Nonnull @Override public List<T> queryFromString(@Nonnull String input, int max) throws Exception {
-			List<T> data = getData();
-			if(null == data)
-				return Collections.emptyList();
-			List<T> result = new ArrayList<>();
-			for(T datum : data) {
-				if(m_valueComparator.matches(datum, input)) {
-					result.add(datum);
-					if(result.size() >= max)
-						break;
-				}
-			}
-			return result;
-		}
-
-		@Override public void onSelect(@Nonnull T instance) throws Exception {
-			selected(instance);
-		}
-
-		@Override public void onEnter(@Nonnull String value) throws Exception {
-		}
-	}
-
 }

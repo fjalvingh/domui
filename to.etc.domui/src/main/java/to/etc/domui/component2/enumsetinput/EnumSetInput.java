@@ -97,7 +97,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			m_input = null;
 		} else {
 			Class<ItemWrapper<T>> clz = (Class<ItemWrapper<T>>) (Object) ItemWrapper.class;
-			SearchAsYouTypeBase<ItemWrapper<T>> input = m_input = new SearchAsYouTypeBase<ItemWrapper<T>>(clz, "text");
+			SearchAsYouTypeBase<ItemWrapper<T>> input = m_input = new SearchAsYouTypeBase<ItemWrapper<T>>("ui-esic", clz, "text");
 			add(input);
 			input.setAddSingleMatch(isAddSingleMatch());
 			input.setCssClass("ui-esic-input");

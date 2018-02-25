@@ -1,0 +1,34 @@
+.ui-sayt {
+	position: relative;
+	display: inline-block;
+
+}
+
+.ui-sayt-error {
+	&::after {
+		content: "\f057";				// times-circle (x)
+		font-family: "FontAwesome";
+		color: $errors_foreground;
+		position: absolute !important;
+		right: 0.625em;
+		top: 0.625em;
+		z-index: 2; // added to make loading work with focus
+	}
+}
+
+.ui-sayt-selected {
+	&::after {
+		content: "\f058";				// check-circle (v)
+		color: $succesful-color;
+		font-family: "FontAwesome";
+		position: absolute !important;
+		right: 0.625em;
+		top: 0.625em;
+		z-index: 2;						// added to make loading work with focus
+	}
+}
+
+.ui-sayt-no-res {
+	position: absolute;
+	top: 20px;
+}

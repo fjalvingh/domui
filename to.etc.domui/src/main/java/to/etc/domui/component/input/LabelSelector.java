@@ -90,7 +90,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 		}
 
 		if(! m_disabled) {
-			SearchAsYouTypeBase<T> input = m_input = new SearchAsYouTypeBase<T>(m_actualClass);
+			SearchAsYouTypeBase<T> input = m_input = new SearchAsYouTypeBase<T>("ui-lsel", m_actualClass);
 			add(input);
 			updateTooltip();
 			input.setHandler(new SearchAsYouTypeBase.IQuery<T>() {

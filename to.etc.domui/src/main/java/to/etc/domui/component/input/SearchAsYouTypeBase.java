@@ -61,6 +61,10 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 
 	@Nonnull final private Class<T> m_actualType;
 
+	/** The base string to use for all CSS classes. */
+	@Nonnull
+	private final String m_cssBase;
+
 	@Nullable
 	private List<String> m_columns;
 
@@ -137,8 +141,8 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	 * @param clz
 	 * @param columns
 	 */
-	public SearchAsYouTypeBase(@Nonnull Class<T> clz, String... columns) {
-		this(null, clz, columns);
+	public SearchAsYouTypeBase(String cssBase, @Nonnull Class<T> clz, String... columns) {
+		this(cssBase, null, clz, columns);
 	}
 
 	/**
@@ -148,7 +152,8 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	 * @param clz     The data class to display/handle
 	 * @param columns The property names to show in the popup window.
 	 */
-	public SearchAsYouTypeBase(IQuery<T> handler, @Nonnull Class<T> clz, String... columns) {
+	public SearchAsYouTypeBase(String cssBase, IQuery<T> handler, @Nonnull Class<T> clz, String... columns) {
+		m_cssBase = cssBase;
 		m_handler = handler;
 		m_actualType = clz;
 		m_columns = Arrays.asList(columns);
@@ -157,14 +162,14 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-qsi");
+		addCssClass(getCssBase());
 
 		//		setPosition(PositionType.RELATIVE);
 		//		setDisplay(DisplayType.INLINE_BLOCK);
-		m_imgWaiting.setCssClass("ui-lui-waiting");
+		m_imgWaiting.setCssClass(cssBase("waiting"));
 		m_imgWaiting.setDisplay(DisplayType.NONE);
 		add(m_imgWaiting);
-		m_input.setCssClass("ui-lui-keyword");
+		m_input.addCssClass(cssBase("keyword"));
 		m_input.setMaxLength(40);
 		m_input.setSize(14);
 		add(m_input);
@@ -184,6 +189,8 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	 * Called on keyboard entry to handle querying or return presses.
 	 */
 	private void handleLookupTyping(boolean done) throws Exception {
+		internalOnTyping();
+
 		//-- If input is empty just clear all presentation but do not call any handler.
 		String curdata = m_input.getRawValue();
 		if(curdata.length() == 0) {
@@ -199,7 +206,7 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 			}
 			clearResultPopup();
 			clearResultMessage();
-			m_input.setRawValue("");
+			//m_input.setRawValue("");
 			return;
 		}
 
@@ -213,6 +220,10 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 			}
 		}
 		showResults(res);
+	}
+
+	protected void internalOnTyping() {
+
 	}
 
 	/**
@@ -238,13 +249,13 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		if(rc == 0) {
 			if(m_lastResultCount == 0)
 				return;
-			setResultMessage("ui-lui-keyword-no-res", Msgs.BUNDLE.getString(Msgs.UI_KEYWORD_SEARCH_NO_MATCH));
+			setResultMessage("no-res", Msgs.BUNDLE.getString(Msgs.UI_KEYWORD_SEARCH_NO_MATCH));
 			return;
 		}
 		if(rc > MAX_RESULTS) {
 			if(m_lastResultCount > MAX_RESULTS)
 				return;
-			setResultMessage("ui-lui-keyword-large", Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, "" + MAX_RESULTS));
+			setResultMessage("keyword-large", Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, "" + MAX_RESULTS));
 			return;
 		}
 		clearResultMessage();
@@ -256,7 +267,7 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 			m_pnlSearchPopup.removeAllChildren();
 		if(!m_pnlSearchPopup.isAttached()) {
 			add(m_pnlSearchPopup);
-			m_pnlSearchPopup.setCssClass("ui-lui-keyword-popup");
+			m_pnlSearchPopup.setCssClass(cssBase("popup"));
 			m_pnlSearchPopup.setPosition(PositionType.ABSOLUTE);
 			m_pnlSearchPopup.setZIndex(10);
 		}
@@ -290,6 +301,20 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		return rr;
 	}
 
+	protected Input getInput() {
+		return m_input;
+	}
+
+	protected String getCssBase() {
+		return m_cssBase;
+	}
+
+	protected String cssBase(String s) {
+		if(s.length() == 0)
+			return m_cssBase;
+		return m_cssBase + "-" + s;
+	}
+
 	/**
 	 * T if the actual type is a simple type like String or numeric.
 	 */
@@ -305,7 +330,7 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 
 		clearResultMessage();
 		clearResultPopup();
-		m_input.setRawValue("");
+		//m_input.setRawValue("");
 		m_input.setFocus();
 	}
 
@@ -321,7 +346,7 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	private void setResultMessage(String css, String text) {
 		if(m_resultMessageContainer == null)
 			m_resultMessageContainer = new Span();
-		m_resultMessageContainer.setCssClass(css);
+		m_resultMessageContainer.setCssClass(cssBase(css));
 		m_resultMessageContainer.setText(text);
 		if(!m_resultMessageContainer.isAttached())
 			add(m_resultMessageContainer);

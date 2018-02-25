@@ -43,7 +43,7 @@ public class DemoSearchAsYouTypeBase1 extends UrlPage {
 			}
 		};
 
-		SearchAsYouTypeBase<Genre> searchInput = new SearchAsYouTypeBase<>(iq, Genre.class, "name");
+		SearchAsYouTypeBase<Genre> searchInput = new SearchAsYouTypeBase<>("ui-demo-said", iq, Genre.class, "name");
 		add(searchInput);
 
 		Div d = new Div();
