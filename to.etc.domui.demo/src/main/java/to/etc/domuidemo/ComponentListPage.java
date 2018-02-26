@@ -25,6 +25,7 @@ import to.etc.domuidemo.pages.overview.input.DemoDateInput;
 import to.etc.domuidemo.pages.overview.input.DemoFileUpload;
 import to.etc.domuidemo.pages.overview.input.DemoRadioButton;
 import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType1;
+import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType2;
 import to.etc.domuidemo.pages.overview.input.DemoText;
 import to.etc.domuidemo.pages.overview.input.DemoTextStr;
 import to.etc.domuidemo.pages.overview.layout.DemoAppTitle;
@@ -89,6 +90,7 @@ public class ComponentListPage extends MenuPage {
 
 		addCaption("Search as you type");
 		addLink(DemoSearchAsYouType1.class, "Component to search-as-you-type in a list of possible values");
+		addLink(DemoSearchAsYouType2.class, "Component to search-as-you-type in a list of possible values");
 
 		addCaption("Display-only components");
 		addLink(DemoDisplayValue.class, "The DisplayValue component");
