@@ -18,6 +18,7 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 
+import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.Arrays;
@@ -30,30 +31,11 @@ import java.util.Set;
  * Base class for search-as-you-type input controls. This is not itself a control but forms the
  * basis for things that are.
  *
- * This class is an &lt;input&gt; control which can do on-the-fly lookup of data that is being typed. How
- * the lookup is done is fully transparant: the method {@link IQuery#queryFromString(String, int)} in a
- * handler interface {@link IQuery} is called, and it should return the results to show in the popup box.
- * The method gets passed the partially typed input string plus a maximal #of results to return.
- * <p>
- * <p>The control handles a specific type T, which stands for the type of object being searched for by
- * this control.</p>
- * <p>
- * <p>If the string entered by this control is just finished and enter is pressed then this control fires
- * an {@link IQuery#onEnter(String)} event with the entered string as parameter. This can then be used to
- * either locate the specific instance or a new instance can be added for this string. This means that
- * entering a string and pressing return will <b>not</b> automatically select a result from the list, if
- * shown.</p>
- * <p>If the user selects one of the results as returned by the {@link IQuery#queryFromString(String, int)}
- * method then the control will fire the {@link IQuery#onSelect(T)} event with the selected instance.</p>
- * <p>
- * <p>In both of these cases the input area of the control will be cleared, and any popup will be removed.
- * The control will be ready for another lookup/input action.</p>
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Aug 9, 2011
+ * Created on Feb 24, 2018
  */
-public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
-	static private final int MAX_RESULTS = 7;
+abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
+	static protected final int MAX_RESULTS = 7;
 
 	static private final Set<Class<?>> SIMPLECLASSES = new HashSet<Class<?>>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
 
@@ -67,9 +49,6 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 
 	@Nullable
 	private List<String> m_columns;
-
-	@Nullable
-	private IQuery<T> m_handler;
 
 	private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
 
@@ -87,75 +66,61 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	private Input m_input = new Input();
 
 	/**
-	 * Inner interface to define the query to execute to lookup data, and the handlers for
-	 * completion events. Users of this control must define a handler and pass it to the
-	 * control to make it work.
-	 *
-	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
-	 * Created on Aug 9, 2011
+	 * Called with input, required to either accept the data or return a list of choices.
 	 */
-	public interface IQuery<T> {
-		/**
-		 * This gets called when it is time to lookup something. The string entered in
-		 * the text field is passed. This method must return the result as a list; the list
-		 * should be at most (max+1) elements big; in that case the code will show "too
-		 * many results". If the list is empty it will show "no results", in all other cases
-		 * it will display the result's rows to select from.
-		 * <p>
-		 * as an indicator.
-		 */
-		@Nonnull
-		List<T> queryFromString(@Nonnull String input, int max) throws Exception;
+	@Nullable
+	protected abstract List<T> onLookupTyping(@Nonnull String curdata, boolean done) throws Exception;
 
-		/**
-		 * When a literal value in the result combo is selected this will be called
-		 * with that literal value. At that point the input box for this control will
-		 * already have been cleared.
-		 */
-		void onSelect(@Nonnull T instance) throws Exception;
+	/**
+	 * Called when a value is selected from the dropdown.
+	 */
+	protected abstract void onRowSelected(@Nonnull T value) throws Exception;
 
-		/**
-		 * When a value is entered and ENTER is pressed in the input box this gets
-		 * called with the literal string entered. It can be used to either create
-		 * or select some value. When called it should return true if the input box
-		 * is to be cleared.
-		 */
-		void onEnter(@Nonnull String value) throws Exception;
+	@DefaultNonNull
+	public final static class Result<T> {
+		private final List<T> m_list;
+
+		@Nullable
+		private final T m_match;
+
+		public Result(List<T> list, @Nullable T match) {
+			m_list = list;
+			m_match = match;
+		}
+
+		public List<T> getList() {
+			return m_list;
+		}
+
+		@Nullable
+		public T getMatch() {
+			return m_match;
+		}
 	}
 
 	/**
-	 * Create a control for the specified type, and show the specified properties in the popup list. This
-	 * constructor creates an <b>incomplete</b> control: you must call {@link #setHandler(IQuery)} to completely
-	 * define the control or use the SearchInput(IQuery, Class, String...) constructor.
+	 * Create a control for the specified type.
 	 *
-	 * @param clz
-	 * @param columns
-	 */
-	public SearchAsYouTypeBase(String cssBase, @Nonnull Class<T> clz, String... columns) {
-		this(cssBase, null, clz, columns);
-	}
-
-	/**
-	 * Create a control for the specified type, using the handler to query and handle events.
-	 *
-	 * @param handler The IQUery instance which handles queries and accepts events.
 	 * @param clz     The data class to display/handle
 	 * @param columns The property names to show in the popup window.
 	 */
-	public SearchAsYouTypeBase(String cssBase, IQuery<T> handler, @Nonnull Class<T> clz, String... columns) {
+	public SearchAsYouTypeBase(String cssBase, @Nonnull Class<T> clz, String... columns) {
 		m_cssBase = cssBase;
-		m_handler = handler;
 		m_actualType = clz;
 		m_columns = Arrays.asList(columns);
 		m_dataModel = MetaManager.findClassMeta(clz);
+	}
+
+	/**
+	 * Called when the input is/becomes empty during typing.
+	 */
+	protected void onEmptyInput(boolean done) throws Exception {
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		addCssClass(getCssBase());
 
-		//		setPosition(PositionType.RELATIVE);
-		//		setDisplay(DisplayType.INLINE_BLOCK);
 		m_imgWaiting.setCssClass(cssBase("waiting"));
 		m_imgWaiting.setDisplay(DisplayType.NONE);
 		add(m_imgWaiting);
@@ -165,55 +130,24 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		add(m_input);
 
 		m_input.setOnLookupTyping((component, done) -> handleLookupTyping(done));
-	}
-
-	@Nullable @Override public NodeBase getForTarget() {
-		return m_input;
-	}
-
-	@Nullable @Override protected String getFocusID() {
-		return m_input.getActualID();
+		appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_input.getActualID() + "');");
 	}
 
 	/**
 	 * Called on keyboard entry to handle querying or return presses.
 	 */
 	private void handleLookupTyping(boolean done) throws Exception {
-		internalOnTyping();
-
 		//-- If input is empty just clear all presentation but do not call any handler.
 		String curdata = m_input.getRawValue();
-		if(curdata.length() == 0) {
+		if(curdata == null || curdata.length() == 0) {
+			onEmptyInput(done);
 			showResults(null);
 			return;
 		}
 
-		//-- If just enter is pressed-> call handler and be done.
-		IQuery<T> handler = m_handler;
-		if(done) {
-			if(handler != null) {
-				handler.onEnter(curdata);
-			}
-			clearResultPopup();
-			clearResultMessage();
-			//m_input.setRawValue("");
-			return;
-		}
-
-		//-- We need to do a query.. Ask the handler for a result
-		List<T> res = null;
-		if(handler != null) {
-			res = handler.queryFromString(curdata, MAX_RESULTS);
-			if(res.size() == 1 && m_addSingleMatch) {
-				handleSelectValueFromPopup(res.get(0));
-				res = null;
-			}
-		}
-		showResults(res);
-	}
-
-	protected void internalOnTyping() {
-
+		//-- Ask the base class for a result
+		List<T> list = onLookupTyping(curdata, done);
+		showResults(list);
 	}
 
 	/**
@@ -235,7 +169,6 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		}
 
 		int rc = isl.size();
-		System.out.println("search: count=" + rc);
 		if(rc == 0) {
 			if(m_lastResultCount == 0)
 				return;
@@ -264,7 +197,10 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 
 		SimpleListModel<T> mdl = new SimpleListModel<T>(isl);
 		IClickableRowRenderer<T> rr = calculateRenderer();
-		rr.setRowClicked(val -> handleSelectValueFromPopup(val));
+		rr.setRowClicked(val -> {
+			showResults(null);
+			onRowSelected(val);
+		});
 		DataTable<T> tbl = new DataTable<>(mdl, rr);
 		m_pnlSearchPopup.add(tbl);
 		tbl.setWidth("100%");
@@ -312,17 +248,17 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		return SIMPLECLASSES.contains(m_actualType);
 	}
 
-	private void handleSelectValueFromPopup(T val) throws Exception {
-		System.out.println("GOT: " + val);
-		if(null != m_handler) {
-			m_handler.onSelect(val);
-		}
-
-		clearResultMessage();
-		clearResultPopup();
-		//m_input.setRawValue("");
-		m_input.setFocus();
-	}
+	//private void handleSelectValueFromPopup(T val) throws Exception {
+	//	System.out.println("GOT: " + val);
+	//	if(null != m_handler) {
+	//		m_handler.onSelect(val);
+	//	}
+	//
+	//	clearResultMessage();
+	//	clearResultPopup();
+	//	//m_input.setRawValue("");
+	//	m_input.setFocus();
+	//}
 
 	private void clearResultPopup() {
 		if(null != m_pnlSearchPopup && m_pnlSearchPopup.isAttached())
@@ -346,17 +282,6 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	private void clearResultMessage() {
 		if(m_resultMessageContainer != null && m_resultMessageContainer.isAttached())
 			m_resultMessageContainer.remove();
-	}
-
-	/**
-	 * Get the current query/event handler for this control.
-	 */
-	public IQuery<T> getHandler() {
-		return m_handler;
-	}
-
-	public void setHandler(IQuery<T> handler) {
-		m_handler = handler;
 	}
 
 	public boolean isAddSingleMatch() {
@@ -398,4 +323,13 @@ public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	public void setRowRenderer(@Nullable IClickableRowRenderer<T> rowRenderer) {
 		m_rowRenderer = rowRenderer;
 	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_input;
+	}
+
+	@Nullable @Override protected String getFocusID() {
+		return m_input.getActualID();
+	}
+
 }

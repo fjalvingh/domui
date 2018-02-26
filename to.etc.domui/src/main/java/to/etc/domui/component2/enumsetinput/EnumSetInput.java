@@ -2,7 +2,7 @@ package to.etc.domui.component2.enumsetinput;
 
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.component.input.SearchAsYouTypeBase;
-import to.etc.domui.component.input.SearchAsYouTypeBase.IQuery;
+import to.etc.domui.component.input.SearchAsYouTypeBase.Result;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.FaIcon;
@@ -97,41 +97,57 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			m_input = null;
 		} else {
 			Class<ItemWrapper<T>> clz = (Class<ItemWrapper<T>>) (Object) ItemWrapper.class;
-			SearchAsYouTypeBase<ItemWrapper<T>> input = m_input = new SearchAsYouTypeBase<ItemWrapper<T>>("ui-esic", clz, "text");
+			SearchAsYouTypeBase<ItemWrapper<T>> input = m_input = new SearchAsYouTypeBase<ItemWrapper<T>>("ui-esic", clz, "text") {
+				@Nullable @Override protected List<ItemWrapper<T>> onLookupTyping(String curdata, boolean done) throws Exception {
+					return null;
+				}
+
+				@Override protected void onEmptyInput(boolean done) throws Exception {
+					super.onEmptyInput(done);
+				}
+
+				@Override protected void onRowSelected(ItemWrapper<T> value) throws Exception {
+
+				}
+			};
 			add(input);
 			input.setAddSingleMatch(isAddSingleMatch());
 			input.setCssClass("ui-esic-input");
-			input.setHandler(new IQuery<ItemWrapper<T>>() {
-				@Override public List<ItemWrapper<T>> queryFromString(String input, int max) throws Exception {
-					return searchItemsBy(input, max);
-				}
-
-				@Override public void onSelect(ItemWrapper<T> instance) throws Exception {
-					addItem(instance.getItem());
-				}
-
-				@Override public void onEnter(String value) throws Exception {
-
-				}
-			});
+			//input.setHandler(new ITypingListener<ItemWrapper<T>>() {
+			//	@Override public Result<ItemWrapper<T>> queryFromString(String input, int max) throws Exception {
+			//		return searchItemsBy(input, max);
+			//	}
+			//
+			//	@Override public void onSelect(ItemWrapper<T> instance) throws Exception {
+			//		addItem(instance.getItem());
+			//	}
+			//
+			//	@Override public void onEnter(String value) throws Exception {
+			//
+			//	}
+			//});
 		}
 	}
 
 	/**
 	 * Try to find the value(s) matching.
 	 */
-	private List<ItemWrapper<T>> searchItemsBy(String input, int max) {
+	private Result<ItemWrapper<T>> searchItemsBy(String input, int max) {
 		List<T> data = getData();
 		if(null == data)
-			return Collections.emptyList();
+			return new Result<>(Collections.emptyList(), null);
 		input = input.toLowerCase();
 		List<ItemWrapper<T>> res = new ArrayList<>();
 		BiFunction<T, String, Boolean> predicate = m_predicate;
+		ItemWrapper<T> exact = null;
 		for(T item : data) {
 			if(null == predicate) {
 				String text = getLabelText(item);
 				if(text.toLowerCase().contains(input)) {
-					res.add(new ItemWrapper<>(item, text));
+					ItemWrapper<T> itemWrapper = new ItemWrapper<>(item, text);
+					res.add(itemWrapper);
+					if(text.equalsIgnoreCase(input))
+						exact = itemWrapper;
 					if(res.size() >= max) {
 						break;
 					}
@@ -143,7 +159,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 				}
 			}
 		}
-		return res;
+		return new Result<>(res, exact);
 	}
 
 	private Div renderLabel(T value) throws Exception {

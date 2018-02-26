@@ -1,6 +1,5 @@
 package to.etc.domui.component.input;
 
-import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.ConverterRegistry;
@@ -60,6 +59,16 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		STARTS_CI
 	}
 
+	private enum State {
+		EMPTY,
+		SELECTED,
+		ERROR
+	}
+
+	private enum MatchResult {
+		UNMATCHED, EXACT, PARTIAL
+	}
+
 	/**
 	 * Implement this to handle the matching of the input string to
 	 * the data type yourself. While you can implement anything you
@@ -79,7 +88,6 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	@Override public void createContent() throws Exception {
 		calculateHandler();
 		super.createContent();
-
 		updateValue();
 	}
 
@@ -128,7 +136,6 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 
 		if(cv == null)
 			throw new ProgrammerErrorException("You must specify either a property or a converter to handle search on a complex data class");
-		setHandler(new ComplexHandler(cv));
 		m_actualConverter = cv;
 
 		//-- By default render a string using the converter.
@@ -144,27 +151,27 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	private void selected(T instance) throws Exception {
 		if(MetaManager.areObjectsEqual(instance, m_value))
 			return;
+		changeSelectionValue(instance);
+		updateValue();
+		//forceRebuild();
+	}
+
+	@Override protected void onRowSelected(T value) throws Exception {
+		selected(value);
+	}
+
+	/**
+	 * Changes the selected value but does not reset the component's input.
+	 */
+	private void changeSelectionValue(T instance) throws Exception {
+		setState(instance == null ? State.EMPTY : State.SELECTED);
+		if(MetaManager.areObjectsEqual(instance, m_value))
+			return;
 		m_value = instance;
-		forceRebuild();
 		IValueChanged<?> listener = getOnValueChanged();
 		if(null != listener) {
 			((IValueChanged<SearchAsYouType<T>>)listener).onValueChanged(this);
 		}
-	}
-
-	private void enterPressed(String value) throws Exception {
-		List<T> res = getHandler().queryFromString(value, 10);
-		if(res.size() == 1) {
-			selected(res.get(0));
-			return;
-		}
-		setState(State.ERROR);
-	}
-
-	enum State {
-		EMPTY,
-		SELECTED,
-		ERROR
 	}
 
 	private void setState(State state) {
@@ -188,41 +195,81 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		}
 	}
 
-	@Override protected void internalOnTyping() {
-		setState(State.EMPTY);
+	//@Override protected void internalOnTyping() throws Exception {
+	//	setState(State.EMPTY);
+	//	selected(null);
+	//}
+
+	@Override protected void onEmptyInput(boolean done) throws Exception {
+		changeSelectionValue(null);
 	}
 
-	private boolean match(String value, String input) {
+	private MatchResult match(String value, String input) {
 		switch(m_mode) {
 			default:
 				throw new IllegalStateException(m_mode + ": not implemented");
-			case CONTAINS:
-				return value.contains(input);
 
 			case CONTAINS_CI:
-				return value.toLowerCase().contains(input.toLowerCase());
+				value = value.toLowerCase();
+				input = input.toLowerCase();
+				/*$PASSES_INTO$*/
 
-			case STARTS:
-				return value.startsWith(input);
+			case CONTAINS:
+				if(value.equals(input.trim()))
+					return MatchResult.EXACT;
+				return value.contains(input) ? MatchResult.PARTIAL : MatchResult.UNMATCHED;
 
 			case STARTS_CI:
-				return value.toLowerCase().startsWith(input.toLowerCase());
+				value = value.toLowerCase();
+				input = input.toLowerCase();
+				/*$PASSES_INTO$*/
+
+			case STARTS:
+				if(value.equals(input.trim()))
+					return MatchResult.EXACT;
+				return value.startsWith(input) ? MatchResult.PARTIAL : MatchResult.UNMATCHED;
 		}
 	}
 
-	@NotNull private List<T> findMatchesUsingConverter(@Nonnull String input, int max, IObjectToStringConverter<T> cv) {
+	/**
+	 * Check if the typed value is a (unique) match. If so use it, else return a
+	 */
+	@Nullable @Override protected List<T> onLookupTyping(String input, boolean done) throws Exception {
 		List<T> data = getData();
 		if(null == data)
-			return Collections.emptyList();
+			return Collections.emptyList();					// No results
+
+		IObjectToStringConverter<T> cv = Objects.requireNonNull(m_actualConverter);
 		List<T> result = new ArrayList<>();
+		T exact = null;
 		for(T datum : data) {
 			String string = cv.convertObjectToString(NlsContext.getLocale(), datum);
-			if(match(string, input)) {
+			MatchResult mr = match(string, input);
+			if(mr != MatchResult.UNMATCHED) {
 				result.add(datum);
-				if(result.size() >= max)
+				if(mr == MatchResult.EXACT)
+					exact = datum;
+				if(result.size() >= MAX_RESULTS)
 					break;
 			}
 		}
+
+		//-- So, what gives....
+		if(null != exact) {
+			//-- Exact match: set as valid value for now
+			if(done) {
+				//-- Exact match AND enter was pressed -> select the value and be done
+				selected(exact);
+				return null;
+			}
+
+			//-- Set as current value and make valid, but still show the dropdown.
+			changeSelectionValue(exact);
+			return result;
+		}
+
+		changeSelectionValue(null);				// Make sure no value is selected
+		setState(State.ERROR);
 		return result;
 	}
 
@@ -308,28 +355,5 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		m_searchProperty = searchProperty;
 		forceRebuild();
 		return this;
-	}
-
-	/**
-	 * The type is some kind of class from which we use a single property or a converter to search on.
-	 */
-	private final class ComplexHandler implements IQuery<T> {
-		private final IObjectToStringConverter<T> m_fieldConverter;
-
-		public ComplexHandler(IObjectToStringConverter<T> converter) {
-			m_fieldConverter = converter;
-		}
-
-		@Nonnull @Override public List<T> queryFromString(@Nonnull String input, int max) throws Exception {
-			return findMatchesUsingConverter(input, max, m_fieldConverter);
-		}
-
-		@Override public void onSelect(@Nonnull T instance) throws Exception {
-			selected(instance);
-		}
-
-		@Override public void onEnter(@Nonnull String value) throws Exception {
-			enterPressed(value);
-		}
 	}
 }
