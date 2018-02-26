@@ -24,8 +24,10 @@
  */
 package to.etc.domui.server;
 
+import to.etc.domui.dom.html.Page;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
+import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.DefaultThemeVariant;
@@ -145,7 +147,11 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		if(! nameSet.contains(name))
 			throw new IllegalStateException("The parameter name '" + name + "' is not registered as a persistent parameter. Add it in DomApplication.initialize() using addPersistentParameter");
 		m_persistedParameterMap.put(name, value);
-		UIContext.getCurrentConversation().savePersistedParameter(name, value);
+		Page page = UIContext.internalGetPage();
+		if(null != page) {
+			ConversationContext conversation = page.getConversation();
+			conversation.savePersistedParameter(name, value);
+		}
 	}
 
 	/**
