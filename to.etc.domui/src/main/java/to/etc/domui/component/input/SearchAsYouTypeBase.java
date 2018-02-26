@@ -2,19 +2,18 @@ package to.etc.domui.component.input;
 
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.IClickableRowRenderer;
-import to.etc.domui.component.tbl.SimpleListModel;
+import to.etc.domui.component2.lookupinput.SelectOnePanel;
 import to.etc.domui.dom.css.DisplayType;
-import to.etc.domui.dom.css.Overflow;
-import to.etc.domui.dom.css.PositionType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IForTarget;
+import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
+import to.etc.domui.server.IRequestContext;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 
@@ -64,6 +63,9 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	private IClickableRowRenderer<T> m_rowRenderer;
 
 	private Input m_input = new Input();
+
+	@Nullable
+	private SelectOnePanel<T> m_selectPanel;
 
 	/**
 	 * Called with input, required to either accept the data or return a list of choices.
@@ -129,9 +131,30 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		m_input.setSize(14);
 		add(m_input);
 
-		m_input.setOnLookupTyping((component, done) -> handleLookupTyping(done));
+		//m_input.setOnLookupTyping((component, done) -> handleLookupTyping(done));
 		appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_input.getActualID() + "');");
 	}
+
+	/**
+	 * Sent regularly whenever the search box is typed in. Causes a ValueChanged event which can then do
+	 * whatever lookup is needed.
+	 * @param ctx
+	 * @throws Exception
+	 */
+	public void webActionlookupTyping(IRequestContext ctx) throws Exception {
+		handleLookupTyping(false);
+	}
+
+	/**
+	 * Send when return is pressed in the search box. Should finalize the selected value, if
+	 * one is present.
+	 * @param ctx
+	 * @throws Exception
+	 */
+	public void webActionlookupTypingDone(IRequestContext ctx) throws Exception {
+		handleLookupTyping(true);
+	}
+
 
 	/**
 	 * Called on keyboard entry to handle querying or return presses.
@@ -183,29 +206,44 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		}
 		clearResultMessage();
 
-		//-- Create the result list popup.
-		if(m_pnlSearchPopup == null)
-			m_pnlSearchPopup = new Div();
-		else
-			m_pnlSearchPopup.removeAllChildren();
-		if(!m_pnlSearchPopup.isAttached()) {
-			add(m_pnlSearchPopup);
-			m_pnlSearchPopup.setCssClass(cssBase("popup"));
-			m_pnlSearchPopup.setPosition(PositionType.ABSOLUTE);
-			m_pnlSearchPopup.setZIndex(10);
+		openDropdown(isl);
+	}
+
+	private void openDropdown(@Nonnull List<T> list) throws Exception {
+		IClickableRowRenderer<T> rr = calculateRenderer();
+		SelectOnePanel<T> selectPanel = m_selectPanel;
+		if(selectPanel != null)
+			selectPanel.remove();
+		SelectOnePanel<T> pnl = m_selectPanel = new SelectOnePanel<T>(list, calcRenderInto());
+		add(pnl);
+
+		pnl.setOnValueChanged((IValueChanged<SelectOnePanel<T>>) component -> {
+			clearResultMessage();
+			clearResultPopup();
+			T selection = component.getValue();
+			if(null != selection)
+				onRowSelected(selection);
+		});
+
+		pnl.setClicked(clickednode -> {
+			//we just need to deliver selected value here, that is why we have empty click handler
+		});
+	}
+
+	private IRenderInto<T> calcRenderInto() {
+		if(isSimpleType()) {
+			return new IRenderInto<T>() {
+				@Override public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
+					node.add(String.valueOf(object));
+				}
+			};
 		}
 
-		SimpleListModel<T> mdl = new SimpleListModel<T>(isl);
-		IClickableRowRenderer<T> rr = calculateRenderer();
-		rr.setRowClicked(val -> {
-			showResults(null);
-			onRowSelected(val);
-		});
-		DataTable<T> tbl = new DataTable<>(mdl, rr);
-		m_pnlSearchPopup.add(tbl);
-		tbl.setWidth("100%");
-		tbl.setOverflow(Overflow.HIDDEN);
-		tbl.setPosition(PositionType.RELATIVE);
+		return new IRenderInto<T>() {
+			@Override public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
+				node.add(object.toString());
+			}
+		};
 	}
 
 	private IClickableRowRenderer<T> calculateRenderer() {
@@ -263,6 +301,9 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	private void clearResultPopup() {
 		if(null != m_pnlSearchPopup && m_pnlSearchPopup.isAttached())
 			m_pnlSearchPopup.remove();
+		SelectOnePanel<T> selectPanel = m_selectPanel;
+		if(null != selectPanel && selectPanel.isAttached())
+			selectPanel.remove();
 	}
 
 	/**

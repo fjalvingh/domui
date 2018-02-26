@@ -89,9 +89,7 @@ public class SearchInput2 extends Div implements IForTarget {
 
 	@Override
 	public void setFocus() {
-		if(m_keySearch != null) {
-			m_keySearch.setFocus();
-		}
+		m_keySearch.setFocus();
 	}
 
 	@Nullable @Override public NodeBase getForTarget() {
