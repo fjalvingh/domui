@@ -1,5 +1,7 @@
 package to.etc.domui.sass;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.trouble.ThingyNotFoundException;
@@ -19,6 +21,8 @@ import java.util.Map;
  * Created on 29-10-17.
  */
 abstract public class AbstractSassResolver<O> {
+	static private final Logger LOG = LoggerFactory.getLogger(AbstractSassResolver.class);
+
 	private final ParameterInfoImpl m_params;
 
 	private final IResourceDependencyList m_dependencyList;
@@ -133,21 +137,6 @@ abstract public class AbstractSassResolver<O> {
 					}
 				}
 			}
-			//
-			//
-			//if(idPath.length() > 0) {            // If a path- try from root
-			//	//-- Try literal name
-			//	O res = tryRef(app, idPath + idName);
-			//	if(null != res)
-			//		return res;
-			//
-			//	//-- Try for a "partial"
-			//	String newName = idPath + "_" + idPath;
-			//	res = tryRef(app, newName);
-			//	if(null != res) {
-			//		return res;
-			//	}
-			//}
 
 			//-- Try to prefix the relative path from its parent
 			String newName = absPath + "/" + "_" + idName;		// Get new path relative to parent
@@ -162,11 +151,11 @@ abstract public class AbstractSassResolver<O> {
 			if(null != ref) {
 				return ref;
 			}
-			System.out.println(original + " - FAILED");
+			System.out.println("SCSS resolve for " + original + " - FAILED");
 			return null;                                // Not found
 		} finally {
 			ts = System.nanoTime() - ts;
-			System.out.println("$$ scss resolve path '" + original + " in " + StringTool.strNanoTime(ts)); // + "', parenturis=" + sourceUris);
+			LOG.info("scss resolve path '" + original + " in " + StringTool.strNanoTime(ts)); // + "', parenturis=" + sourceUris);
 			m_resolveTime += ts;
 		}
 	}
@@ -215,7 +204,7 @@ abstract public class AbstractSassResolver<O> {
 	}
 
 	public void close() {
-		System.out.println("$$ scss total resolve time " + StringTool.strNanoTime(m_resolveTime));
+		LOG.info("scss total resolve time " + StringTool.strNanoTime(m_resolveTime));
 	}
 
 	protected String generateParameterFile() {
