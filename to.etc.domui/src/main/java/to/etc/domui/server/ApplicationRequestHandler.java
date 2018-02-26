@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.annotation.*;
 import javax.servlet.http.*;
@@ -366,6 +367,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		Page page = cm.tryToMakeOrGetPage(ctx, clz, papa, action);
 		if(page != null) {
+			page.getConversation().mergePersistentParameters(ctx);
 			page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
 			page.internalIncrementRequestCounter();
 			cm.internalSetLastPage(page);
@@ -925,7 +927,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Sends a redirect as a 304 MOVED command. This should be done for all full-requests.
 	 */
-	static public void generateHttpRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
+	static public void generateHttpRedirect(RequestContextImpl ctx, String to, String rsn) throws Exception {
+		to = appendPersistedParameters(to, ctx);
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
 			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
@@ -934,14 +937,36 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Generate an AJAX redirect command. Should be used by all COMMAND actions.
 	 */
-	static public void generateAjaxRedirect(final RequestContextImpl ctx, final String url) throws Exception {
+	static public void generateAjaxRedirect(RequestContextImpl ctx, String url) throws Exception {
 		if(LOG.isInfoEnabled())
 			LOG.info("redirecting to " + url);
+		url = appendPersistedParameters(url, ctx);
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("redirect");
 		out.attr("url", url);
 		out.endAndCloseXmltag();
+	}
+
+	private static String appendPersistedParameters(String url, RequestContextImpl ctx) {
+		Set<String> nameSet = ctx.getApplication().getPersistentParameterSet();
+		if(nameSet.size() == 0)
+			return url;
+		Map<String, String> map = ctx.getPersistedParameterMap();
+		StringBuilder sb = new StringBuilder(url);
+		boolean first = ! url.contains("?");
+		for(Entry<String, String> entry : map.entrySet()) {
+			if(first) {
+				sb.append('?');
+				first = false;
+			} else {
+				sb.append('&');
+			}
+			StringTool.encodeURLEncoded(sb, entry.getKey());
+			sb.append('=');
+			StringTool.encodeURLEncoded(sb, entry.getValue());
+		}
+		return sb.toString();
 	}
 
 

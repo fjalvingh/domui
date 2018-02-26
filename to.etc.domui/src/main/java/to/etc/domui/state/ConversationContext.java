@@ -24,16 +24,28 @@
  */
 package to.etc.domui.state;
 
-import java.io.*;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.delayed.IAsyncListener;
+import to.etc.domui.component.delayed.IAsyncRunnable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.webapp.query.IQContextContainer;
+import to.etc.webapp.query.QContextContainer;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.component.delayed.*;
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A page's conversational context: a base class. Every page is part of a
@@ -164,6 +176,9 @@ public class ConversationContext implements IQContextContainer {
 	@Nonnull
 	private List<File> m_uploadList = Collections.EMPTY_LIST;
 
+	@Nonnull
+	private Map<String, String> m_persistedParameterMap = new HashMap<>();
+
 	/**
 	 * Return the ID for this conversation.
 	 * @return
@@ -186,6 +201,28 @@ public class ConversationContext implements IQContextContainer {
 		m_fullId = m.getWindowID() + "." + m_id;
 	}
 
+	/**
+	 * Updates persistent conversation parameters from the request
+	 * context, and restores in there the parameters already registered.
+	 */
+	public void mergePersistentParameters(RequestContextImpl ctx) {
+		Set<String> nameSet = ctx.getApplication().getPersistentParameterSet();
+		if(nameSet.size() == 0)
+			return;
+		for(String name : nameSet) {
+			String value = ctx.getParameter(name);
+			if(null != value)
+				m_persistedParameterMap.put(name, value);
+		}
+		ctx.updatePersistentParameters(m_persistedParameterMap);
+	}
+
+	public void savePersistedParameter(String name, String value) {
+		Set<String> nameSet = getWindowSession().getApplication().getPersistentParameterSet();
+		if(! nameSet.contains(name))
+			throw new IllegalStateException("The parameter name '" + name + "' is not registered as a persistent parameter. Add it in DomApplication.initialize() using addPersistentParameter");
+		m_persistedParameterMap.put(name, value);
+	}
 
 	public String getFullId() {
 		if(null == m_fullId)
