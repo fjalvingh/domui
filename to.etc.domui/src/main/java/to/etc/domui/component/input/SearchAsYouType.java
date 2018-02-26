@@ -4,10 +4,14 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
 import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.NlsContext;
@@ -17,7 +21,8 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -46,6 +51,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 
 	@Nullable
 	private IObjectToStringConverter<T> m_actualConverter;
+
+	private boolean m_mandatory;
 
 	enum MatchMode {
 		/** The string entered must be part of the value */
@@ -99,7 +106,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 			setState(State.EMPTY);
 		} else {
 			setState(State.SELECTED);
-			IObjectToStringConverter<T> converter = Objects.requireNonNull(m_actualConverter);
+			IObjectToStringConverter<T> converter = requireNonNull(m_actualConverter);
 			input.setRawValue(converter.convertObjectToString(NlsContext.getLocale(), value));
 		}
 	}
@@ -137,12 +144,15 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		if(cv == null)
 			throw new ProgrammerErrorException("You must specify either a property or a converter to handle search on a complex data class");
 		m_actualConverter = cv;
+	}
 
-		//-- By default render a string using the converter.
-		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<>(getDataModel());
-		IObjectToStringConverter<T> finalCv = cv;				// Really, their stupidity seems without bounds.
-		rr.addColumns("", (IRenderInto<T>) (node, object) -> node.add(finalCv.convertObjectToString(NlsContext.getLocale(), object)));
-		setRowRenderer(rr);
+	@Override protected IRenderInto<T> getActualRenderer() throws Exception {
+		IObjectToStringConverter<T> cv = requireNonNull(m_actualConverter);
+		return new IRenderInto<T>() {
+			@Override public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
+				node.add(cv.convertObjectToString(NlsContext.getLocale(), object));
+			}
+		};
 	}
 
 	/**
@@ -167,6 +177,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		setState(instance == null ? State.EMPTY : State.SELECTED);
 		if(MetaManager.areObjectsEqual(instance, m_value))
 			return;
+		if(null != instance)
+			clearMessage();
 		m_value = instance;
 		IValueChanged<?> listener = getOnValueChanged();
 		if(null != listener) {
@@ -194,11 +206,6 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 				break;
 		}
 	}
-
-	//@Override protected void internalOnTyping() throws Exception {
-	//	setState(State.EMPTY);
-	//	selected(null);
-	//}
 
 	@Override protected void onEmptyInput(boolean done) throws Exception {
 		changeSelectionValue(null);
@@ -239,7 +246,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		if(null == data)
 			return Collections.emptyList();					// No results
 
-		IObjectToStringConverter<T> cv = Objects.requireNonNull(m_actualConverter);
+		IObjectToStringConverter<T> cv = requireNonNull(m_actualConverter);
 		List<T> result = new ArrayList<>();
 		T exact = null;
 		for(T datum : data) {
@@ -281,25 +288,57 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		m_onValueChanged = onValueChanged;
 	}
 
-	@Override public void setValue(@Nullable T v) {
-
+	@Override
+	final public T getValue() {
+		try {
+			validateBindValue();
+			setMessage(null);
+			return m_value;
+		} catch(ValidationException vx) {
+			setMessage(UIMessage.error(vx));
+			throw vx;
+		}
 	}
 
-	@Nullable @Override public T getValue() {
-		return null;
+	@Override public void setValue(@Nullable T v) {
+		if(MetaManager.areObjectsEqual(v, m_value))
+			return;
+		m_value = v;
+		clearAllExtras();
+		updateValue();
+		clearMessage();
+	}
+
+	final public T getBindValue() {
+		validateBindValue();
+		return m_value;
+	}
+
+	final public void setBindValue(T value) {
+		if(MetaManager.areObjectsEqual(m_value, value)) {
+			return;
+		}
+		setValue(value);
+	}
+
+	private void validateBindValue() {
+		if(isMandatory() && m_value == null) {
+			throw new ValidationException(Msgs.MANDATORY);
+		}
 	}
 
 	@Override public T getValueSafe() {
-		return null;
+		return m_value;
 	}
 
 	@Override
 	public boolean isMandatory() {
-		return false;
+		return m_mandatory;
 	}
 
 	@Override
 	public void setMandatory(boolean ro) {
+		m_mandatory = ro;
 	}
 
 	public List<T> getData() {

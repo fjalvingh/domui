@@ -2,7 +2,6 @@ package to.etc.domui.component.input;
 
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component2.lookupinput.SelectOnePanel;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.Div;
@@ -46,12 +45,7 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	@Nonnull
 	private final String m_cssBase;
 
-	@Nullable
-	private List<String> m_columns;
-
 	private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
-
-	private Div m_pnlSearchPopup;
 
 	private NodeContainer m_resultMessageContainer;
 
@@ -60,7 +54,7 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	private boolean m_addSingleMatch;
 
 	@Nullable
-	private IClickableRowRenderer<T> m_rowRenderer;
+	private IRenderInto<T> m_rowRenderer;
 
 	private Input m_input = new Input();
 
@@ -77,6 +71,8 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	 * Called when a value is selected from the dropdown.
 	 */
 	protected abstract void onRowSelected(@Nonnull T value) throws Exception;
+
+	protected abstract IRenderInto<T> getActualRenderer() throws Exception;
 
 	@DefaultNonNull
 	public final static class Result<T> {
@@ -102,14 +98,10 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 
 	/**
 	 * Create a control for the specified type.
-	 *
-	 * @param clz     The data class to display/handle
-	 * @param columns The property names to show in the popup window.
 	 */
-	public SearchAsYouTypeBase(String cssBase, @Nonnull Class<T> clz, String... columns) {
+	public SearchAsYouTypeBase(String cssBase, @Nonnull Class<T> clz) {
 		m_cssBase = cssBase;
 		m_actualType = clz;
-		m_columns = Arrays.asList(columns);
 		m_dataModel = MetaManager.findClassMeta(clz);
 	}
 
@@ -204,17 +196,13 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 			setResultMessage("keyword-large", Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_LARGE_MATCH, "" + MAX_RESULTS));
 			return;
 		}
-		clearResultMessage();
-
 		openDropdown(isl);
 	}
 
 	private void openDropdown(@Nonnull List<T> list) throws Exception {
-		IClickableRowRenderer<T> rr = calculateRenderer();
-		SelectOnePanel<T> selectPanel = m_selectPanel;
-		if(selectPanel != null)
-			selectPanel.remove();
-		SelectOnePanel<T> pnl = m_selectPanel = new SelectOnePanel<T>(list, calcRenderInto());
+		clearResultMessage();
+		clearResultPopup();
+		SelectOnePanel<T> pnl = m_selectPanel = new SelectOnePanel<T>(list, getActualRenderer());
 		add(pnl);
 
 		pnl.setOnValueChanged((IValueChanged<SelectOnePanel<T>>) component -> {
@@ -228,41 +216,6 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		pnl.setClicked(clickednode -> {
 			//we just need to deliver selected value here, that is why we have empty click handler
 		});
-	}
-
-	private IRenderInto<T> calcRenderInto() {
-		if(isSimpleType()) {
-			return new IRenderInto<T>() {
-				@Override public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
-					node.add(String.valueOf(object));
-				}
-			};
-		}
-
-		return new IRenderInto<T>() {
-			@Override public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
-				node.add(object.toString());
-			}
-		};
-	}
-
-	private IClickableRowRenderer<T> calculateRenderer() {
-		IClickableRowRenderer<T> rowr = m_rowRenderer;
-		if(null != rowr)
-			return rowr;
-		KeyWordPopupRowRenderer<T> rr = new KeyWordPopupRowRenderer<T>(m_dataModel);
-
-		if(isSimpleType()) {
-			rr.addColumns("", (IRenderInto<Object>) (node, object) -> node.add(String.valueOf(object)));
-		} else {
-			List<String> columns = m_columns;
-			if(columns != null && columns.size() > 0) {
-				for(String column : columns) {
-					rr.addColumn(column);
-				}
-			}
-		}
-		return rr;
 	}
 
 	protected Input getInput() {
@@ -298,12 +251,18 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	//	m_input.setFocus();
 	//}
 
-	private void clearResultPopup() {
-		if(null != m_pnlSearchPopup && m_pnlSearchPopup.isAttached())
-			m_pnlSearchPopup.remove();
+	protected void clearAllExtras() {
+		clearResultPopup();
+		clearResultMessage();
+	}
+
+	protected void clearResultPopup() {
 		SelectOnePanel<T> selectPanel = m_selectPanel;
-		if(null != selectPanel && selectPanel.isAttached())
-			selectPanel.remove();
+		if(null != selectPanel) {
+			if(selectPanel.isAttached())
+				selectPanel.remove();
+			m_selectPanel = null;
+		}
 	}
 
 	/**
@@ -320,7 +279,7 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		clearResultPopup();
 	}
 
-	private void clearResultMessage() {
+	protected void clearResultMessage() {
 		if(m_resultMessageContainer != null && m_resultMessageContainer.isAttached())
 			m_resultMessageContainer.remove();
 	}
@@ -356,15 +315,6 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	public void setDisabled(boolean d) {
 		m_input.setDisabled(d);
 	}
-
-	@Nullable public IClickableRowRenderer<T> getRowRenderer() {
-		return m_rowRenderer;
-	}
-
-	public void setRowRenderer(@Nullable IClickableRowRenderer<T> rowRenderer) {
-		m_rowRenderer = rowRenderer;
-	}
-
 	@Nullable @Override public NodeBase getForTarget() {
 		return m_input;
 	}

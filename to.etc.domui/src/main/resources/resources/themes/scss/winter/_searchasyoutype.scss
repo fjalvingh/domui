@@ -7,6 +7,10 @@
 	}
 }
 
+.ui-sayt.ui-input-err input {
+	background-color: $errors_input_background;
+}
+
 .ui-sayt-error {
 	&::after {
 		content: "\f057";				// times-circle (x)

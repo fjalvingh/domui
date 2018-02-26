@@ -21,6 +21,7 @@ public class DemoSearchAsYouType1 extends UrlPage {
 			.setData(genreList)
 			.setSearchProperty("name")
 			;
+		st.setMandatory(true);
 		add(st);
 
 		Div d = new Div();

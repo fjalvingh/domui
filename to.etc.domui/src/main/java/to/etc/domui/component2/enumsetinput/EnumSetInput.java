@@ -97,7 +97,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			m_input = null;
 		} else {
 			Class<ItemWrapper<T>> clz = (Class<ItemWrapper<T>>) (Object) ItemWrapper.class;
-			SearchAsYouTypeBase<ItemWrapper<T>> input = m_input = new SearchAsYouTypeBase<ItemWrapper<T>>("ui-esic", clz, "text") {
+			SearchAsYouTypeBase<ItemWrapper<T>> input = m_input = new SearchAsYouTypeBase<ItemWrapper<T>>("ui-esic", clz) {
 				@Nullable @Override protected List<ItemWrapper<T>> onLookupTyping(String curdata, boolean done) throws Exception {
 					return null;
 				}
@@ -108,6 +108,10 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 
 				@Override protected void onRowSelected(ItemWrapper<T> value) throws Exception {
 
+				}
+
+				@Override protected IRenderInto<ItemWrapper<T>> getActualRenderer() throws Exception {
+					throw new IllegalStateException();
 				}
 			};
 			add(input);
