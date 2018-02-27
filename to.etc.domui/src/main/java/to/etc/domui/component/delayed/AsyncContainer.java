@@ -27,7 +27,6 @@ package to.etc.domui.component.delayed;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.state.DelayedActivityInfo;
 import to.etc.domui.themes.Theme;
@@ -38,9 +37,12 @@ import to.etc.util.StringTool;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class AsyncContainer extends Div {
+final public class AsyncContainer extends Div {
 	@Nonnull
 	final private IAsyncRunnable m_runnable;
+
+	@Nullable
+	final private IAsyncCompletionListener m_resultListener;
 
 	private DelayedActivityInfo m_scheduledActivity;
 
@@ -57,10 +59,17 @@ public class AsyncContainer extends Div {
 	private String m_busyMarkerSrc = "THEME/asy-container-busy.gif";
 
 	public AsyncContainer(@Nonnull IAsyncRunnable arunnable) {
-		m_runnable = arunnable;
+		this(arunnable, null);
 	}
 
-	public AsyncContainer(@Nonnull final IActivity activity) {
+	public AsyncContainer(@Nonnull IAsyncRunnable arunnable, @Nullable IAsyncCompletionListener listener) {
+		m_runnable = arunnable;
+		m_resultListener = listener;
+	}
+
+	public AsyncContainer(@Nonnull IActivity activity) {
+		Div[] resultLocator = new Div[1];
+
 		m_runnable = new IAsyncRunnable() {
 			@Nullable
 			private Div m_result;
@@ -70,16 +79,13 @@ public class AsyncContainer extends Div {
 				setResult(activity.run(p));
 			}
 
-			private synchronized Div getResult() {
-				return m_result;
-			}
-
 			private synchronized void setResult(Div result) {
-				m_result = result;
+				resultLocator[0] = result;
 			}
+		};
 
-			@Override
-			public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
+		m_resultListener = new IAsyncCompletionListener() {
+			@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
 				//-- If we've got an exception replace the contents with the exception message.
 				if(errorException != null) {
 					errorException.printStackTrace();
@@ -89,13 +95,11 @@ public class AsyncContainer extends Div {
 					s = s.replace("\n", "<br/>\n");
 
 					MsgBox.error(AsyncContainer.this.getParent(), "Exception while creating result for asynchronous task:<br/>" + s);
-					//
-					//					setText(sb.toString()); 						// Just fill myself with the error stack trace.
 					return;
 				}
 
 				//-- If there is no result- either we were cancelled OR there are no results..
-				Div res = getResult();
+				Div res = resultLocator[0];
 				if(res == null) {
 					if(cancelled) {
 						setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED_MSG));
@@ -125,12 +129,9 @@ public class AsyncContainer extends Div {
 		m_progress = new Div();
 		add(m_progress);
 		if(isAbortable()) {
-			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, new IClicked<DefaultButton>() {
-				@Override
-				public void clicked(@Nonnull DefaultButton b) throws Exception {
-					cancel();
-					b.setDisabled(true);
-				}
+			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, b -> {
+				cancel();
+				b.setDisabled(true);
 			});
 			add(db);
 		}
@@ -162,7 +163,10 @@ public class AsyncContainer extends Div {
 	public void updateCompleted(DelayedActivityInfo dai) throws Exception {
 		//-- Call the node's update handler *before* removing myself.
 		try {
-			dai.getActivity().onCompleted(dai.getMonitor().isCancelled(), dai.getException());
+			IAsyncCompletionListener resultListener = m_resultListener;
+			if(null != resultListener)
+				resultListener.onCompleted(dai.getMonitor().isCancelled(), dai.getException());
+			//dai.getActivity().onCompleted(dai.getMonitor().isCancelled(), dai.getException());
 		} finally {
 			try {
 				remove();								// Remove myself *after* this all.
@@ -177,36 +181,19 @@ public class AsyncContainer extends Div {
 		setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
 	}
 
-	/**
-	 * @see AsyncContainer#m_abortable
-	 * @return
-	 */
 	public boolean isAbortable() {
 		return m_abortable;
 	}
 
-	/**
-	 * @see AsyncContainer#m_abortable
-	 * @return
-	 */
 	public void setAbortable(boolean abortable) {
 		m_abortable = abortable;
 	}
 
-	/**
-	 * @see AsyncContainer#m_busyMarkerSrc
-	 * @return
-	 */
 	public String getBusyMarkerSrc() {
 		return m_busyMarkerSrc;
 	}
 
-	/**
-	 * @see AsyncContainer#m_busyMarkerSrc
-	 * @return
-	 */
 	public void setBusyMarkerSrc(String busyMarkerSrc) {
 		m_busyMarkerSrc = busyMarkerSrc;
 	}
-
 }
