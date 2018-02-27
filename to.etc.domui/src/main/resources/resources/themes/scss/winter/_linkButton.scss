@@ -13,6 +13,15 @@
 
 a.ui-lnkb {
 	cursor: pointer;
+
+	.ui-lnkb-icon {
+		padding-right: 5px;
+		color: black;
+
+		.ui-lnkb-dis {
+			color: grey;
+		}
+	}
 }
 
 a:hover.ui-lnkb {

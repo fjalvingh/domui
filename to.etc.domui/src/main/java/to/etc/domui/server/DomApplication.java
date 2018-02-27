@@ -24,6 +24,7 @@
  */
 package to.etc.domui.server;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.ajax.AjaxRequestHandler;
@@ -1867,9 +1868,12 @@ public abstract class DomApplication {
 	 * @param keepAliveInterval
 	 */
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		if(!DeveloperOptions.getBool("domui.log", false) && (DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions
-			.getBool("domui.keepalive", false)))                // If "autorefresh" has been disabled do not use keepalive either.
+		if(!DeveloperOptions.getBool("domui.log", false)
+			&& (DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false))
+			) {
+			// If "autorefresh" has been disabled do not use keepalive either.
 			m_keepAliveInterval = keepAliveInterval;
+		}
 	}
 
 	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
