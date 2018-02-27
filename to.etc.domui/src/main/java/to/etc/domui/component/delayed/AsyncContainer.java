@@ -166,6 +166,9 @@ final public class AsyncContainer extends Div {
 			IAsyncCompletionListener resultListener = m_resultListener;
 			if(null != resultListener)
 				resultListener.onCompleted(dai.getMonitor().isCancelled(), dai.getException());
+			else {
+				new DefaultAsyncCompletionListener(getParent()).onCompleted(dai.getMonitor().isCancelled(), dai.getException());
+			}
 			//dai.getActivity().onCompleted(dai.getMonitor().isCancelled(), dai.getException());
 		} finally {
 			try {
