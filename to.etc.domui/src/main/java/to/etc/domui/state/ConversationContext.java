@@ -454,7 +454,7 @@ public class ConversationContext implements IQContextContainer {
 	 */
 	synchronized DelayedActivitiesManager getDelayedActivitiesManager() {
 		if(m_delayManager == null)
-			m_delayManager = new DelayedActivitiesManager(this);
+			m_delayManager = new DelayedActivitiesManager();
 		return m_delayManager;
 	}
 

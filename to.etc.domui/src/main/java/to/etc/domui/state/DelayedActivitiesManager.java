@@ -24,15 +24,22 @@
  */
 package to.etc.domui.state;
 
-import org.slf4j.*;
-import to.etc.domui.component.delayed.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.IProgressListener;
-import to.etc.util.Progress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.delayed.IActivity;
+import to.etc.domui.component.delayed.IAsyncRunnable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.state.DelayedActivityInfo.State;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This helper class does all of the handling for delayed activities for
@@ -42,39 +49,32 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 7, 2008
  */
-public class DelayedActivitiesManager implements Runnable {
+final public class DelayedActivitiesManager implements Runnable {
 	private static final Logger LOG = LoggerFactory.getLogger(DelayedActivitiesManager.class);
 
-	//	private ConversationContext			m_conversation;
 	private Thread m_executorThread;
 
 	private List<DelayedActivityInfo> m_pendingQueue = new ArrayList<DelayedActivityInfo>();
 
 	private List<DelayedActivityInfo> m_completionQueue = new ArrayList<DelayedActivityInfo>();
 
+	@Nullable
 	private DelayedActivityInfo m_runningActivity;
 
 	/** When set this forces termination of any handling thread for the asynchronous actions. */
 	private boolean m_terminated;
-
-	//	/** When > 0, this defines that we need to poll continuously at at *least* this frequency (#of millis between polls) */
-	//	private int m_continuousPollingInterval;
 
 	/**
 	 * The set of nodes that need a callback for changes to the UI every polltime seconds.
 	 */
 	private Set<NodeContainer> m_pollSet = new HashSet<NodeContainer>();
 
-	protected DelayedActivitiesManager(ConversationContext conversation) {
-	//		m_conversation = conversation;
+	protected DelayedActivitiesManager() {
 	}
 
 	/**
 	 * Schedule a new activity for execution. This does not actually start the executor; it merely queues the thingy. If
 	 * the executor *is* running though it can start with the action.
-	 *
-	 * @param a
-	 * @return
 	 */
 	public DelayedActivityInfo schedule(@Nonnull IAsyncRunnable a, @Nonnull AsyncContainer ac) throws Exception {
 		//-- Schedule.
@@ -113,9 +113,8 @@ public class DelayedActivitiesManager implements Runnable {
 	/**
 	 * Cancels an activity, if possible. If the thing is pending it gets removed. If it is
 	 * executing we try to cancel the executor.
-	 * @param dai
 	 */
-	public boolean cancelActivity(DelayedActivityInfo dai) {
+	public boolean cancelActivity(@Nonnull DelayedActivityInfo dai) {
 		Thread tr;
 
 		synchronized(this) {
@@ -125,12 +124,13 @@ public class DelayedActivitiesManager implements Runnable {
 			}
 
 			//-- Is this thingy currently running?
-			if(m_runningActivity != dai)
+			DelayedActivityInfo runningActivity = m_runningActivity;
+			if(runningActivity != dai || runningActivity == null)
 				return false;
 
 			//-- The activity is currently running. Try to abort the task && thread.
 			tr = m_executorThread;
-			m_runningActivity.getMonitor().cancel(); // Force cancel indication.
+			runningActivity.getMonitor().cancel();				// Force cancel indication.
 		}
 		tr.interrupt();
 		return true;
@@ -138,43 +138,26 @@ public class DelayedActivitiesManager implements Runnable {
 
 	private void wakeupListeners(int lingertime) {}
 
-	void completionStateChanged(DelayedActivityInfo dai, int pct, String statusMsg) {
-		synchronized(this) {
-			dai.setPercentageComplete(pct);
-			dai.setStatusMessage(statusMsg);
-		}
-	}
-
-
 	/**
 	 * Retrieves the current activity state. This creates Progress records for
 	 * all activities currently active, and returns (and removes) all activities
 	 * that have completed.
-	 *
-	 * @return
 	 */
-	private DelayedActivityState getState() {
+	private List<DelayedActivityInfo> getState() {
 		//		System.out.println("$$$$$ getState called.");
 		synchronized(this) {
-			List<DelayedActivityState.Progress> pl = Collections.EMPTY_LIST;
+			List<DelayedActivityInfo> result = new ArrayList<>(5);
 
 			//-- Do we need progress report(s)?
-			if(m_runningActivity != null) {
-				int pct = m_runningActivity.getPercentageComplete();
-				String statusMsg = m_runningActivity.getStatusMessage();
-				if(pct > 0 || !DomUtil.isBlank(statusMsg)) {
-					//					System.out.println("$$$$$ getState, pct="+pct);
-					pl = new ArrayList<DelayedActivityState.Progress>();
-					pl.add(new DelayedActivityState.Progress(m_runningActivity.getContainer(), pct, statusMsg));
-				}
+			DelayedActivityInfo runningActivity = m_runningActivity;
+			if(runningActivity != null) {
+				result.add(runningActivity);
 			}
 
 			//-- Handle all completed thingies.
-			List<DelayedActivityInfo> comp = m_completionQueue.size() == 0 ? (List<DelayedActivityInfo>) Collections.EMPTY_LIST : new ArrayList<DelayedActivityInfo>(m_completionQueue);
+			result.addAll(m_completionQueue);
 			m_completionQueue.clear();
-			if(comp.size() == 0 && pl.size() == 0)
-				return null;
-			return new DelayedActivityState(pl, comp);
+			return result;
 		}
 	}
 
@@ -206,33 +189,14 @@ public class DelayedActivitiesManager implements Runnable {
 		return true;
 	}
 
-	//	/**
-	//	 * Returns whether the client needs to use it's polltimer again and poll for changes. It returns 0 if there is no need to poll.
-	//	 * @return
-	//	 */
-	//	public int getPollInterval() {
-	//		synchronized(this) {
-	//			//-- Determine the minimal poll interval.
-	//			int pinterval = m_continuousPollingInterval;
-	//			if(m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null || m_pollSet.size() > 0) {
-	//				int di = DomApplication.get().getDefaultPollInterval();
-	//				if(pinterval == 0 || pinterval > di)
-	//					pinterval = di;
-	//			}
-	//			return pinterval;
-	//		}
-	//	}
-
 	/**
 	 * Returns whether the client needs to use it's polltimer again and poll for changes.
-	 * @return
 	 */
 	public boolean callbackRequired() {
 		synchronized(this) {
 			return m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null || m_pollSet.size() > 0;
 		}
 	}
-
 
 	public boolean isTerminated() {
 		synchronized(this) {
@@ -265,8 +229,9 @@ public class DelayedActivitiesManager implements Runnable {
 			m_runningActivity = null;
 
 			m_completionQueue.clear();
+			m_pendingQueue.forEach(a -> a.setState(State.DONE));
 			m_pendingQueue.clear();
-			wakeupListeners(100); // Wakeup anything that's listening quickly
+			wakeupListeners(100);				// Wake up anything that's listening quickly
 		}
 
 		//-- Do our utmost to kill the task, not gently.
@@ -295,8 +260,6 @@ public class DelayedActivitiesManager implements Runnable {
 	 * active this will execute activities in the PENDING queue one by one until the queue
 	 * is empty. If that happens it will commit suicide. This suicidal act will not invalidate
 	 * the manager; at any time can new actions be posted and a new thread be started.
-	 *
-	 * @see java.lang.Runnable#run()
 	 */
 	@Override
 	public void run() {
@@ -338,22 +301,13 @@ public class DelayedActivitiesManager implements Runnable {
 
 	/**
 	 * Execute the action and handle it's result.
-	 * @param dai
 	 */
 	private void execute(DelayedActivityInfo dai) {
-		Progress mon = new Progress("");
-		mon.addListener(new IProgressListener() {
-			@Override public void progressed(@Nonnull Progress level) throws Exception {
-				completionStateChanged(dai, level.getPercentage(), level.getActionPath(4));
-			}
-		});
-		dai.setMonitor(mon);
-
 		Exception errorx = null;
 		try {
 			dai.checkIsPageConnected();
 			dai.callBeforeListeners();
-			dai.getActivity().run(mon);
+			dai.getActivity().run(dai.getMonitor());
 		} catch(Exception x) {
 			if(!(x instanceof InterruptedException)) {
 				errorx = x;
@@ -367,13 +321,13 @@ public class DelayedActivitiesManager implements Runnable {
 
 		//-- The activity has stopped. Register it for callback on the next page poll, so that it's result handler can be called.
 		synchronized(this) {
+			dai.finished(errorx);
+			dai.setState(State.DONE);
 			m_runningActivity = null; 		// Nothing is running anymore.
 			if(m_terminated)				// Fondling a corpse? Ignore the result.
 				return;
 
 			//-- We're still alive; post the result in the done queue and awake listeners quickly.
-			if(errorx != null)
-				dai.setException(errorx);	// Mark as fatally wounded.
 			m_completionQueue.add(dai);		// Append to completion queue for access by whatever.
 			wakeupListeners(1000);
 		}
@@ -381,27 +335,24 @@ public class DelayedActivitiesManager implements Runnable {
 
 	/**
 	 * Apply all activity changes to the page. The page is either in "full render" or "delta render" modus.
-	 *
-	 * @param das
 	 */
-	public void applyToTree(DelayedActivityState das) throws Exception {
+	private void applyToTree(List<DelayedActivityInfo> infoList) throws Exception {
 		//-- Handle progress reporting
-		for(DelayedActivityState.Progress p : das.getProgressList()) {
-			AsyncContainer c = p.getContainer();
-			c.updateProgress(p.getPctComplete(), p.getMessage());
-		}
-
-		//-- Handle completion reporting
-		for(DelayedActivityInfo dai : das.getCompletionList()) {
+		for(DelayedActivityInfo dai : infoList) {
 			AsyncContainer c = dai.getContainer();
-			c.updateCompleted(dai);
+			try {
+				c.updateProgress(dai);
+			} catch(Exception x) {
+				System.err.println("Async action update exception: " + x);
+				x.printStackTrace();
+			}
 		}
 	}
 
 	public void processDelayedResults(Page pg) throws Exception {
-		DelayedActivityState das = getState();
-		if(das != null)
-			applyToTree(das);
+		List<DelayedActivityInfo> list = getState();
+		if(! list.isEmpty())
+			applyToTree(list);
 
 		//-- Handle PollThingy callbacks.
 		for(NodeContainer nc : new HashSet<>(m_pollSet)) {

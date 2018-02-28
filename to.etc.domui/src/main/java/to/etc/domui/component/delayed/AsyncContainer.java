@@ -29,6 +29,7 @@ import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.state.DelayedActivityInfo;
+import to.etc.domui.state.DelayedActivityInfo.State;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.Msgs;
 import to.etc.util.Progress;
@@ -144,23 +145,31 @@ final public class AsyncContainer extends Div {
 
 	/**
 	 * Update the progress report.
-	 * @param pct
-	 * @param msg
 	 */
-	public void updateProgress(int pct, String msg) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(pct);
-		sb.append("%");
-		if(msg != null) {
-			sb.append(' ');
-			sb.append(msg);
+	public void updateProgress(DelayedActivityInfo dai) throws Exception {
+		if(dai.getState() == State.DONE) {
+			updateCompleted(dai);
 		} else {
-			sb.append(" " + Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_COMPLETE_INDICATOR));
+			Progress progress = dai.getMonitor();
+			StringBuilder sb = new StringBuilder();
+			sb.append(progress.getPercentage());
+			sb.append("%");
+
+			sb.append(' ');
+			String actionPath = progress.getActionPath(3);
+			sb.append(actionPath);
+
+			//if(msg != null) {
+			//	sb.append(' ');
+			//	sb.append(msg);
+			//} else {
+			//	sb.append(" " + Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_COMPLETE_INDICATOR));
+			//}
+			m_progress.setText(sb.toString());
 		}
-		m_progress.setText(sb.toString());
 	}
 
-	public void updateCompleted(DelayedActivityInfo dai) throws Exception {
+	private void updateCompleted(DelayedActivityInfo dai) throws Exception {
 		//-- Call the node's update handler *before* removing myself.
 		try {
 			IAsyncCompletionListener resultListener = m_resultListener;
