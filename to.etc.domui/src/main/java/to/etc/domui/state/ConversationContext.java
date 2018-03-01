@@ -33,6 +33,7 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.util.FileTool;
 import to.etc.webapp.query.IQContextContainer;
 import to.etc.webapp.query.QContextContainer;
 import to.etc.webapp.query.QDataContext;
@@ -528,7 +529,10 @@ public class ConversationContext implements IQContextContainer {
 	protected void discardTempFiles() {
 		for(File f : m_uploadList) {
 			try {
-				f.delete();
+				if(f.isDirectory())
+					FileTool.deleteDir(f);
+				else
+					f.delete();
 			} catch(Exception x) {}
 		}
 		m_uploadList.clear();
