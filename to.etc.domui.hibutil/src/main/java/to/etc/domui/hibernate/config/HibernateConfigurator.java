@@ -87,6 +87,8 @@ final public class HibernateConfigurator {
 	/** The registered query handlers for DomUI */
 	static private QQueryExecutorRegistry m_handlers = new QQueryExecutorRegistry();
 
+	private static boolean m_allowHibernateSuckySequences;
+
 	/**
 	 * Defines the database update mode (hibernate.hbm2ddl.auto).
 	 *
@@ -251,7 +253,7 @@ final public class HibernateConfigurator {
 	}
 
 	static private void enhanceMappings(@Nonnull Configuration config) throws Exception {
-		HibernateChecker hc = new HibernateChecker(config, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled);
+		HibernateChecker hc = new HibernateChecker(config, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled, m_allowHibernateSuckySequences);
 		hc.enhanceMappings();
 	}
 
@@ -409,5 +411,9 @@ final public class HibernateConfigurator {
 	public static void initialize(final File poolfile, final String poolname) throws Exception {
 		ConnectionPool p = PoolManager.getInstance().definePool(poolfile, poolname);
 		initialize(p.getPooledDataSource());
+	}
+
+	public static void setAllowHibernateSuckySequences(boolean allowHibernateSuckySequences) {
+		m_allowHibernateSuckySequences = allowHibernateSuckySequences;
 	}
 }
