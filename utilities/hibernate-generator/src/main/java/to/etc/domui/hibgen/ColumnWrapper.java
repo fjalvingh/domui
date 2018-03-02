@@ -932,6 +932,7 @@ public class ColumnWrapper {
 					NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.SequenceGenerator");
 					addPairIfMissing(ca, "name", "\"sq\"");
 					setPair(ca, "sequenceName", idSequence, true);
+					addPairIfMissing(ca, "allocationSize", "1");
 
 					//-- And its reference: @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
 					ca = createOrFindAnnotation(getter, "javax.persistence.GeneratedValue");
