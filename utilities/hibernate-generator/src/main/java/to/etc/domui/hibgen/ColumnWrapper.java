@@ -332,6 +332,10 @@ public class ColumnWrapper {
 			default:
 				return false;
 
+			case Types.BINARY:
+				setPropertyType(new ClassOrInterfaceType("java.sql.Blob"));
+				return true;
+
 			case Types.REAL:
 			case Types.DOUBLE:
 			case Types.FLOAT:
