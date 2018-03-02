@@ -33,7 +33,7 @@ public class Album extends DbRecordBase<Long> {
 
 	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "album_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "album_sq", allocationSize = 1)
 	@Column(name = "AlbumId", precision = 20, nullable = false)
 	public Long getId() {
 		return m_id;

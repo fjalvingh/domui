@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "InvoiceLine")
-@SequenceGenerator(name = "sq", sequenceName = "invoiceline_sq")
+@SequenceGenerator(name = "sq", sequenceName = "invoiceline_sq", allocationSize = 1)
 //@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
 public class InvoiceLine extends DbRecordBase<Long> {
 	private Long m_id;
@@ -27,7 +27,7 @@ public class InvoiceLine extends DbRecordBase<Long> {
 
 	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "invoiceline_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "invoiceline_sq", allocationSize = 1)
 	@Column(name = "InvoiceLineId", nullable = false, precision = 20)
 	public Long getId() {
 		return m_id;

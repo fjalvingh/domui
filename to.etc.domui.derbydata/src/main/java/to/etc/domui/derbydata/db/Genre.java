@@ -14,7 +14,7 @@ public class Genre extends DbRecordBase<Long> {
 	private String m_name;
 
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "genre_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "genre_sq", allocationSize = 1)
 	@Column(name = "GenreId", precision = 20, nullable = false)
 	@Override
 	public Long getId() {

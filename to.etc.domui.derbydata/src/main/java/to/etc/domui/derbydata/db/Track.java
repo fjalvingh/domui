@@ -56,7 +56,7 @@ public class Track extends DbRecordBase<Long> {
 
 	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "track_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "track_sq", allocationSize = 1)
 	@Column(name = "TrackId", precision = 20, nullable = false)
 	public Long getId() {
 		return m_id;
