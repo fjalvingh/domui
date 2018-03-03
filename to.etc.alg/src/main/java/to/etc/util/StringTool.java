@@ -167,14 +167,17 @@ public class StringTool {
 	 */
 	static public boolean isNumber(@Nonnull final String s) {
 		int dots = 0;
+		int digits = 0;
 		for(int i = s.length(); --i >= 0;) {
 			char c = s.charAt(i);
 			if(c == '.')
 				dots++;
 			else if(c < '0' || c > '9')
 				return false;
+			else
+				digits++;
 		}
-		return dots < 2;
+		return dots < 2 && digits > 1;
 	}
 
 	static public boolean isDomainChar(final char c) {
