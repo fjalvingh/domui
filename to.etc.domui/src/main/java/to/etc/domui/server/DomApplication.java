@@ -499,6 +499,20 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * FIXME Calculate a webapp context name.
+	 */
+	@Nonnull public String getContextFromApp() {
+		String context = getApplicationContext();
+		if(null != context)
+			return context;
+		File root = getWebAppFileRoot();
+		String name = root.getName();
+		if(name.equals("ROOT"))
+			return "";
+		return name;
+	}
+
+	/**
 	 * If an explicit app URL is set this returns the hostname from that URL, to use for cookies and so.
 	 */
 	@Nullable public String getHostName() {
