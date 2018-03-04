@@ -32,6 +32,11 @@ import to.etc.domui.server.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;
 
+/**
+ * DO NOT USE - ancient and badly written.
+ *
+ */
+@Deprecated
 public class BasicPage<T> extends UrlPage {
 	private Class<T> m_baseClass;
 
@@ -99,5 +104,4 @@ public class BasicPage<T> extends UrlPage {
 	protected BundleRef getBaseClassBundle() {
 		return MetaManager.findClassMeta(getBaseClass()).getClassBundle();
 	}
-
 }
