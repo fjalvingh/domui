@@ -1,11 +1,12 @@
 .ui-idlg-pnl {}
 
 .ui-idlg-pnl label {
-	width: 1%;
-	min-width: 150px;
-	font-weight: bold;
-	display: inline-block;
-	text-align: right;
+	@include ui-control-base;
+	//width: 1%;
+	//min-width: 150px;
+	//font-weight: bold;
+	//display: inline-block;
+	//text-align: right;
 }
 
 .ui-idlg-pnl input {
