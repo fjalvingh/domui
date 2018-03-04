@@ -24,10 +24,12 @@
  */
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
+import to.etc.domui.component.controlfactory.ModelBindings;
+import to.etc.domui.component.form.HorizontalFormBuilder;
+import to.etc.domui.component.form.TabularFormBuilder;
 
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.form.*;
+import javax.annotation.Nonnull;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /**
  * A Dialog that is used to edit some instance of data &lt;T&gt;, containing methods to handle all
