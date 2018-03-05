@@ -169,7 +169,7 @@ public class LinkButton extends ATag implements IActionControl {
 	@Override
 	public void setText(final @Nullable String txt) {
 		m_text = txt;
-		super.setText(txt);
+		forceRebuild();
 	}
 
 	@Override
