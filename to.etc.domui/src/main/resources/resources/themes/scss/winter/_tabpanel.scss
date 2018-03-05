@@ -1,3 +1,10 @@
+$tabpanel-header-bg: #7c7c7c !default;					// The header part containing the tabs
+$tabpanel-tab-bg: #aaa !default;
+$tabpanel-tab-border: #555 !default;
+$tabpanel-content-bg: white !default;
+
+$tabpanel-selected-color: $tabpanel-tab-bg !default;
+
 .ui-tab-c {
 }
 
@@ -8,7 +15,7 @@
 	justify-content: flex-start;
 	padding: .5em 0 0 25px;
 	margin: 0;
-	background: #555;
+	background: $tabpanel-header-bg;
 
 	& > li {
 		margin: 0 0 0 -16px;
@@ -16,14 +23,14 @@
 
 		& > .ui-tab-div {
 			color: #fff;
-			background: #888;
+			background: $tabpanel-tab-bg;
 			position: relative;
 			display: inline-block;
 			margin: 0 22px;
 			padding: 6px 10px;
 			border-radius: 4px 4px 0 0;
 			text-decoration: none;
-			font-size: 1.2rem;
+			//font-size: 1.2rem;
 
 			&:before, &:after {
 				content: " ";
@@ -31,36 +38,37 @@
 				top: 0;
 				width: 23px;
 				height: 100%;
-				background-color: #888;
+				background-color: $tabpanel-tab-bg;
 			}
 
 			&:before {
 				border-radius: 16px 0 0 0;
 				transform: skew(-16deg);
 				left: -16px;
-				border-left: 1px solid #555;
+				border-left: 1px solid $tabpanel-tab-border;
 			}
 			&:after {
 				border-radius: 0 16px 0 0;
 				transform: skew(16deg);
 				right: -16px;
-				border-right: 1px solid #555;
+				border-right: 1px solid $tabpanel-tab-border;
 				z-index: 1;
 			}
 		}
 
 		&.ui-tab-sel .ui-tab-div {
-			color: #777;
-			background: #fff;
+			color: $tabpanel-selected-color;
+			background: $tabpanel-content-bg;
 			font-weight: bold;
 
 			&:before, &:after {
 				z-index: 1;
-				background: #fff;
+				background: $tabpanel-content-bg;
 			}
 		}
 	}
 }
+
 /*** Close button ***/
 .ui-tab-close-li span {
 	display: inline-block;
@@ -85,7 +93,7 @@
 
 .ui-tab-content {
 	padding: 10px;
-	background-color: white;
+	background-color: $tabpanel-content-bg;
 }
 
 //.ui-tab-pg {
