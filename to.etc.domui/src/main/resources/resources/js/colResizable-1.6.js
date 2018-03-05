@@ -38,7 +38,7 @@
 	try{S = sessionStorage;}catch(e){}	//Firefox crashes when executed as local file system
 	
 	//append required CSS rules  
-    h.append("<style type='text/css'>  .JColResizer{table-layout:fixed;} .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th{overflow:hidden;padding-left:0!important; padding-right:0!important;}  .JCLRgrips{ height:0px; position:relative;} .JCLRgrip{margin-left:-5px; position:absolute; z-index:5; } .JCLRgrip .JColResizer{position:absolute;background-color:red;filter:alpha(opacity=1);opacity:0;width:10px;height:100%;cursor: e-resize;top:0px} .JCLRLastGrip{position:absolute; width:1px; } .JCLRgripDrag{ border-left:1px dotted black;	} .JCLRFlex{width:auto!important;} .JCLRgrip.JCLRdisabledGrip .JColResizer{cursor:default; display:none;}</style>");
+    h.append("<style type='text/css'>  .JColResizer{table-layout:fixed;} .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th{overflow:hidden;}  .JCLRgrips{ height:0px; position:relative;} .JCLRgrip{margin-left:-5px; position:absolute; z-index:5; } .JCLRgrip .JColResizer{position:absolute;background-color:red;filter:alpha(opacity=1);opacity:0;width:10px;height:100%;cursor: e-resize;top:0px} .JCLRLastGrip{position:absolute; width:1px; } .JCLRgripDrag{ border-left:1px dotted black;	} .JCLRFlex{width:auto!important;} .JCLRgrip.JCLRdisabledGrip .JColResizer{cursor:default; display:none;}</style>");
 
 	
 	/**
@@ -113,6 +113,7 @@
             }
 
 			g.t = t; g.i = i; g.c = c;	c.w =c.width();		//some values are stored in the grip's node data as shortcut
+            c.mw = c.innerWidth() - c.width();  //FIX issue 45 don't go below total added padding width otherwise skewed results
 			t.g.push(g); t.c.push(c);						//the current grip and column are added to its table object
 			c.width(c.w).removeAttr("width");				//the width of the column is converted into pixel-based measurements
 			g.data(SIGNATURE, {i:i, t:t.attr(ID), last: i == t.ln-1});	 //grip index and its table name are stored in the HTML 												
@@ -187,8 +188,6 @@
 		} 	
 	};
 	
-	
-	
 	/**
 	* This function updates column's width according to the horizontal position increment of the grip being
 	* dragged. The function can be called while dragging if liveDragging is enabled and also from the onGripDragOver
@@ -199,8 +198,22 @@
 	*/
 	var syncCols = function(t,i,isOver){
 		var inc = drag.x-drag.l, c = t.c[i], c2 = t.c[i+1]; 			
-		var w = c.w + inc;	var w2= c2.w- inc;	//their new width is obtained					
-		c.width( w + PX);			
+		var w = c.w + inc;	var w2= c2.w- inc;	//their new width is obtained
+
+        //FIX issue 45
+        if (w < c.mw) {
+            // don't go below total padding width
+            w2 -= c.mw - w;
+            w += c.mw - w;
+        }
+        if (w2 < c2.mw) {
+            // don't go below total padding width
+            w -= c2.mw - w2;
+            w2 += c2.mw - w2;
+        }
+        //FIX
+
+		c.width( w + PX);
 		t.cg.eq(i).width( w + PX); 
         if(t.f){ //if fixed mode
             c2.width(w2 + PX);
