@@ -1,4 +1,6 @@
 /*** Form5 responsive form using flexbox ***/
+$form-label-color: #363636 !default;
+
 .ui-f5 {
 }
 .ui-f5-h {
@@ -10,6 +12,10 @@
 .ui-f5-pair-h {
 	display: inline-block;
 	margin: 0 10px 8px 0;
+}
+.ui-f5-lbl > label {
+	color: $form-label-color;
+	font-weight: $form-label-weight;
 }
 
 .ui-f5-pair {
