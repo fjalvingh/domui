@@ -1,0 +1,18 @@
+/*** Form5 responsive form using flexbox ***/
+.ui-f5 {
+}
+.ui-f5-h {
+	display: flex;
+	flex-direction: row;
+	justify-items: flex-start;
+}
+
+.ui-f5-pair-h {
+	display: inline-block;
+	margin: 0 10px 8px 0;
+}
+
+.ui-f5-pair {
+}
+
+

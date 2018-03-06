@@ -43,6 +43,8 @@ final public class FormBuilder {
 
 	private boolean m_horizontal;
 
+	private boolean m_append;
+
 	private boolean m_currentDirection;
 
 	private String m_nextLabel;
@@ -56,8 +58,6 @@ final public class FormBuilder {
 	private Object m_instance;
 
 	private Boolean m_mandatory;
-
-	private boolean m_append;
 
 	@Nullable
 	private String m_testid;
@@ -106,7 +106,8 @@ final public class FormBuilder {
 
 	public FormBuilder(@Nonnull IAppender appender) {
 		m_appender = appender;
-		m_layouter = new TableFormLayouter(appender);
+		m_layouter = new ResponsiveFormLayouter(appender);
+//		m_layouter = new TableFormLayouter(appender);
 	}
 
 	public FormBuilder(@Nonnull IFormLayouter layout, @Nonnull IAppender appender) {
@@ -432,7 +433,7 @@ final public class FormBuilder {
 
 		NodeContainer lbl = determineLabel();
 		resetDirection();
-		m_layouter.addControl(control, lbl, m_controlCss, m_labelCss);
+		m_layouter.addControl(control, lbl, m_controlCss, m_labelCss, m_append);
 
 		String testid = m_testid;
 		PropertyMetaModel<?> pmm = m_propertyMetaModel;

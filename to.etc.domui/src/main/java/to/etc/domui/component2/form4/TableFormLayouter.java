@@ -28,8 +28,6 @@ public class TableFormLayouter implements IFormLayouter {
 
 	private TR m_controlRow;
 
-	private boolean m_append;
-
 	public TableFormLayouter(@Nonnull FormBuilder.IAppender appender) {
 		m_appender = appender;
 	}
@@ -37,10 +35,6 @@ public class TableFormLayouter implements IFormLayouter {
 	@Override
 	public void setHorizontal(boolean horizontal) {
 		m_horizontal = horizontal;
-	}
-
-	public void setAppend(boolean append) {
-		m_append = append;
 	}
 
 	@Override
@@ -67,16 +61,16 @@ public class TableFormLayouter implements IFormLayouter {
 	}
 
 	@Override
-	public void addControl(NodeBase control, NodeContainer lbl, String controlCss, String labelCss) {
+	public void addControl(NodeBase control, NodeContainer lbl, String controlCss, String labelCss, boolean append) {
 		if(m_horizontal)
-			addHorizontal(control, lbl, controlCss, labelCss);
+			addHorizontal(control, lbl, controlCss, labelCss, append);
 		else
-			addVertical(control, lbl, controlCss, labelCss);
+			addVertical(control, lbl, controlCss, labelCss, append);
 	}
 
-	private void addVertical(NodeBase control, NodeBase lbl, String controlCss, String labelCss) {
+	private void addVertical(NodeBase control, NodeBase lbl, String controlCss, String labelCss, boolean append) {
 		TBody b = body();
-		if(m_append) {
+		if(append) {
 			TD cell = b.cell();
 			if(lbl != null) {
 				lbl.addCssClass("ui-f4-lbl");
@@ -106,9 +100,9 @@ public class TableFormLayouter implements IFormLayouter {
 			((Label) lbl).setForTarget(control);
 	}
 
-	private void addHorizontal(NodeBase control, NodeBase lbl, String controlCss, String labelCss) {
+	private void addHorizontal(NodeBase control, NodeBase lbl, String controlCss, String labelCss, boolean append) {
 		TBody b = body();
-		if(m_append) {
+		if(append) {
 			TR row = controlRow();
 			TD cell;
 			if(row.getChildCount() == 0) {
