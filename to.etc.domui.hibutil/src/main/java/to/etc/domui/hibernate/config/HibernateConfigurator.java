@@ -54,7 +54,9 @@ import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Helper class to help with configuring Hibernate for DomUI easily. You are not required to
@@ -86,6 +88,8 @@ final public class HibernateConfigurator {
 
 	/** The registered query handlers for DomUI */
 	static private QQueryExecutorRegistry m_handlers = new QQueryExecutorRegistry();
+
+	static private List<Consumer<Configuration>> m_onConfigureList = Collections.emptyList();
 
 	private static boolean m_allowHibernateSuckySequences;
 
@@ -180,6 +184,11 @@ final public class HibernateConfigurator {
 	static synchronized private void unconfigured() {
 		if(null == m_sessionFactory)
 			throw new IllegalStateException("This method must be called AFTER one of the 'initialize' methods gets called.");
+	}
+
+	static public synchronized void addConfigListener(Consumer<Configuration> listener) {
+		m_onConfigureList = new ArrayList<>(m_onConfigureList);
+		m_onConfigureList.add(listener);
 	}
 
 	/**
@@ -302,6 +311,10 @@ final public class HibernateConfigurator {
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
 		config.configure(resname);
 		enhanceMappings(config);
+
+		for(Consumer<Configuration> listener : m_onConfigureList) {
+			listener.accept(config);
+		}
 
 		/*
 		 * Set other properties according to config settings made.
