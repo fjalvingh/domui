@@ -68,6 +68,7 @@ public class HtmlFileRenderer extends NodeVisitorBase {
 	static public HtmlFileRenderer create(@Nonnull Writer output, @Nonnull NodeContainer rootNode) {
 		FastXmlOutputWriter out = new FastXmlOutputWriter(output);
 		HtmlTagRenderer rr = new StandardHtmlTagRenderer(BrowserVersion.INSTANCE, out, false);
+		rr.setRenderInline(true);
 		HtmlFileRenderer fr = new HtmlFileRenderer(rr, out, rootNode);
 		return fr;
 	}
