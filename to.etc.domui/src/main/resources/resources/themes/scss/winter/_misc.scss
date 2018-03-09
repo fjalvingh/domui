@@ -99,20 +99,21 @@ body.ui-stretch-body {
 }
 
 .ui-dd-table > TBODY > TR > TD {
-	padding: 1px 2px;
+	padding: 4px 8px;
 	vertical-align: top;
 	border-left: 1px solid #aaaaaa;
 }
 
-.ui-dd-table TR:nth-child(even) {
-	background-color: rgba(255, 255, 255, 0.1);
+.ui-dd-table > tbody > tr:nth-child(even) {
+	background-color: rgba(160, 160, 160, 0.2);
 }
 .ui-dd-table THEAD TH {
 	font-weight: bold;
 	padding: 3px;
 	border-left: 1px solid #7c7c7c;
-	background: $data_tbl_header_bg;
-	color: white;
+	background: #0F3C2C; // $data_tbl_header_bg;
+	color: #77F6C9;
+	text-align: left;
 }
 
 /**
