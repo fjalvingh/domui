@@ -25,6 +25,7 @@ public class JpaEntityManagerFactory implements QDataContextFactory {
 
     public JpaEntityManagerFactory(EntityManagerFactory emFactory) {
         m_emFactory = emFactory;
+        m_handlers.register(JpaQueryExecutor.FACTORY);
     }
 
     @Nonnull @Override public QDataContext getDataContext() throws Exception {
