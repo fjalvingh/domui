@@ -1,5 +1,9 @@
 package to.etc.domui.jpa.em;
 
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import to.etc.domui.jpa.JpaConnector;
+import to.etc.domui.jpa.criteria.GenericHibernateHandler;
 import to.etc.webapp.query.ICriteriaTableDef;
 import to.etc.webapp.query.IQueryExecutor;
 import to.etc.webapp.query.IQueryExecutorFactory;
@@ -7,6 +11,7 @@ import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QSelection;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,17 +48,17 @@ public class JpaQueryExecutor implements IQueryExecutor<JpaDataContext>, IQueryE
     /*--------------------------------------------------------------*/
     @Override
     public void delete(JpaDataContext root, Object o) throws Exception {
-        root.getSession().remove(o);
+        root.getEntityManager().remove(o);
     }
 
     @Override
     public <T> T find(JpaDataContext root, Class<T> clz, Object pk) throws Exception {
-        return root.getSession().find(clz, pk);
+        return root.getEntityManager().find(clz, pk);
     }
 
     @Override
     public <T> T getInstance(JpaDataContext root, Class<T> clz, Object pk) throws Exception {
-        return root.getSession().getReference(clz, pk); // Do not check if instance exists.
+        return root.getEntityManager().getReference(clz, pk); // Do not check if instance exists.
     }
 
     @Override
@@ -68,40 +73,40 @@ public class JpaQueryExecutor implements IQueryExecutor<JpaDataContext>, IQueryE
 
     @Override
     public <T> List<T> query(JpaDataContext root, QCriteria<T> q) throws Exception {
-        throw new IllegalStateException("Not implemented yet");
-        //Criteria crit = GenericHibernateHandler.createCriteria(root.getSession(), q); // Convert to Hibernate criteria
-        //return crit.list();
+        Session hibernateSession = JpaConnector.getHibernateSession(root.getEntityManager());
+        Criteria crit = GenericHibernateHandler.createCriteria(hibernateSession, q); // Convert to Hibernate criteria
+        return crit.list();
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public List<Object[]> query(JpaDataContext root, QSelection< ? > sel) throws Exception {
-        throw new IllegalStateException("Not implemented yet");
-        //Criteria crit = GenericHibernateHandler.createCriteria(root.getSession(), sel);
-        //List resl = crit.list(); // Need to use raw class because ? is a monster fuckup
-        //if(resl.size() == 0)
-        //    return Collections.EMPTY_LIST;
-        //if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
-        //    //-- Re-wrap this result as a list of Object[].
-        //    for(int i = resl.size(); --i >= 0;) {
-        //        resl.set(i, new Object[]{resl.get(i)});
-        //    }
-        //}
-        //return resl;
+        Session hibernateSession = JpaConnector.getHibernateSession(root.getEntityManager());
+        Criteria crit = GenericHibernateHandler.createCriteria(hibernateSession, sel);
+        List<Object[]> resl = crit.list();
+        if(resl.size() == 0)
+            return Collections.EMPTY_LIST;
+        if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
+            //-- Re-wrap this result as a list of Object[].
+            for(int i = resl.size(); --i >= 0;) {
+                resl.set(i, new Object[]{resl.get(i)});
+            }
+        }
+        return resl;
     }
 
     @Override
     public void refresh(JpaDataContext root, Object o) throws Exception {
-        root.getSession().refresh(o);
+        root.getEntityManager().refresh(o);
     }
 
     @Override
     public void save(JpaDataContext root, Object o) throws Exception {
-        root.getSession().persist(o);
+        root.getEntityManager().persist(o);
     }
 
     @Override
     public void attach(JpaDataContext root, Object o) throws Exception {
-        root.getSession().refresh(o);
+        root.getEntityManager().refresh(o);
     }
 }

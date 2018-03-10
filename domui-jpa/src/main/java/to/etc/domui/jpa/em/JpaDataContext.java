@@ -55,7 +55,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
     /**
      * INTERNAL USE ONLY Get the entity manager
      */
-    public EntityManager getSession() throws Exception {
+    public EntityManager getEntityManager() throws Exception {
         checkValid();
 
         if(m_session == null) {
@@ -138,7 +138,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
 
     @Override
     public void startTransaction() throws Exception {
-        EntityManager em = getSession();
+        EntityManager em = getEntityManager();
         if(!em.getTransaction().isActive())
             em.getTransaction().begin();
     }
@@ -147,7 +147,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
     public void commit() throws Exception {
         if(!inTransaction())
             throw new IllegalStateException("Commit called without startTransaction."); // jal 20101028 Finally fix problem where commit fails silently.
-        getSession().getTransaction().commit();
+        getEntityManager().getTransaction().commit();
         runCommitHandlers();
         startTransaction();
     }
@@ -171,13 +171,13 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
 
     @Override
     public boolean inTransaction() throws Exception {
-        return getSession().getTransaction().isActive();
+        return getEntityManager().getTransaction().isActive();
     }
 
     @Override
     public void rollback() throws Exception {
-        if(getSession().getTransaction().isActive())
-            getSession().getTransaction().rollback();
+        if(getEntityManager().getTransaction().isActive())
+            getEntityManager().getTransaction().rollback();
     }
 
     @Override
@@ -217,7 +217,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
     @Override
     public Connection getConnection() throws Exception {
         startTransaction();
-        return JpaConnector.getConnection(getSession());
+        return JpaConnector.getConnection(getEntityManager());
     }
 
     @Override
