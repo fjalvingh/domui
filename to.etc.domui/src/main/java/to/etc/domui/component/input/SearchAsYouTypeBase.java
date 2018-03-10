@@ -43,7 +43,7 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 
 	/** The base string to use for all CSS classes. */
 	@Nonnull
-	private final String m_cssBase;
+	private String m_cssBase;
 
 	private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
 
@@ -103,6 +103,11 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		m_cssBase = cssBase;
 		m_actualType = clz;
 		m_dataModel = MetaManager.findClassMeta(clz);
+	}
+
+	public SearchAsYouTypeBase<T> setCssBase(@Nonnull String cssBase) {
+		m_cssBase = cssBase;
+		return this;
 	}
 
 	/**

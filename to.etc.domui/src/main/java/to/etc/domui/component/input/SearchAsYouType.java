@@ -54,6 +54,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 
 	private boolean m_mandatory;
 
+	private boolean m_setValueCalled;
+
 	enum MatchMode {
 		/** The string entered must be part of the value */
 		CONTAINS,
@@ -108,7 +110,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		T value = m_value;
 		Input input = getInput();
 		if(null == value) {
-			input.setRawValue(null);
+			input.setRawValue("");
 			setState(State.EMPTY);
 		} else {
 			setState(State.SELECTED);
@@ -277,7 +279,12 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 			}
 
 			//-- Set as current value and make valid, but still show the dropdown.
+			m_setValueCalled = false;
 			changeSelectionValue(exact);
+			if(m_setValueCalled)
+				return null;
+			//if(isAddSingleMatch())
+			//	return null;
 			return result;
 		}
 
@@ -307,6 +314,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	}
 
 	@Override public void setValue(@Nullable T v) {
+		m_setValueCalled = true;
 		if(MetaManager.areObjectsEqual(v, m_value))
 			return;
 		m_value = v;

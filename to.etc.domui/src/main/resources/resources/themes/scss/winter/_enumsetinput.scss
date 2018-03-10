@@ -2,6 +2,8 @@
 .ui-esic {
 	@include ui-input-base;
 	padding-left: 1px;
+	flex-wrap: wrap;
+	height: auto;
 }
 
 .ui-esic-label {
@@ -13,6 +15,12 @@
 	margin: 3px 1px 1px 1px;
 	padding: 2px;
 }
+.ui-esic > .ui-sayt > .ui-sayt-keyword {
+	border: none;
+	outline: none;
+	box-shadow: none;
+}
+
 button.ui-esic-del {
 	-moz-appearance: none;
 	-webkit-appearance: none;
