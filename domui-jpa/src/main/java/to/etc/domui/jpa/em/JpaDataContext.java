@@ -264,5 +264,4 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
 
     @Override
     public void conversationNew(final ConversationContext cc) throws Exception {}
-
 }
