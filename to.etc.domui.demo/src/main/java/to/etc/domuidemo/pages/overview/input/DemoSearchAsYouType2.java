@@ -2,6 +2,10 @@ package to.etc.domuidemo.pages.overview.input;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.SearchAsYouType;
+import to.etc.domui.component.layout.ContentPanel;
+import to.etc.domui.component.layout.MessageLine;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.DateUtil;
@@ -18,6 +22,11 @@ import java.util.List;
  */
 public class DemoSearchAsYouType2 extends UrlPage {
 	@Override public void createContent() throws Exception {
+		add(new MessageLine(MsgType.INFO, "Type a year-month pair, like 02-2018"));
+
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
 		List<Date> list = new ArrayList<>();
 		Calendar cal = Calendar.getInstance();
 		DateUtil.clearTime(cal);
@@ -34,16 +43,17 @@ public class DemoSearchAsYouType2 extends UrlPage {
 			})
 			;
 		st.setMandatory(true);
-		add(st);
+		cp.add(st);
 
 		Div d = new Div();
-		add(d);
+		cp.add(d);
 
+		cp.add(new VerticalSpacer(10));
 		DefaultButton b = new DefaultButton("validate", a -> {
 			Div res = new Div();
 			add(res);
 			res.add("Result is " + st.getValue());
 		});
-		add(b);
+		cp.add(b);
 	}
 }

@@ -2,7 +2,11 @@ package to.etc.domuidemo.pages.overview.input;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.SearchAsYouType;
+import to.etc.domui.component.layout.ContentPanel;
+import to.etc.domui.component.layout.MessageLine;
+import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.derbydata.db.Genre;
+import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.webapp.query.QCriteria;
@@ -15,23 +19,29 @@ import java.util.List;
  */
 public class DemoSearchAsYouType1 extends UrlPage {
 	@Override public void createContent() throws Exception {
-		//-- Make a set of cities.
+		ContentPanel cp = new ContentPanel();
+		add(cp);
+
+		cp.add(new MessageLine(MsgType.INFO, "Type a music genre like rock"));
+
+		//-- Make a set of genres
 		List<Genre> genreList = getSharedContext().query(QCriteria.create(Genre.class));
 		SearchAsYouType<Genre> st = new SearchAsYouType<>(Genre.class)
 			.setData(genreList)
 			.setSearchProperty("name")
 			;
 		st.setMandatory(true);
-		add(st);
+		cp.add(st);
 
 		Div d = new Div();
-		add(d);
+		cp.add(d);
 
+		cp.add(new VerticalSpacer(10));
 		DefaultButton b = new DefaultButton("validate", a -> {
 			Div res = new Div();
 			add(res);
 			res.add("Result is " + st.getValue());
 		});
-		add(b);
+		cp.add(b);
 	}
 }
