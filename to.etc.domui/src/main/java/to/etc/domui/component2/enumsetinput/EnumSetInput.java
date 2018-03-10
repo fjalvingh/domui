@@ -116,6 +116,9 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		delBtn.add(new FaIcon(FaIcon.faTimes));
 		delBtn.setClicked(a -> {
 			removeItem(value);
+			SearchAsYouType<T> input = m_input;
+			if(input != null)
+				input.setFocus();
 		});
 		m_displayMap.put(value, label);					// Register
 		return label;
