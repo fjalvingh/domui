@@ -24,8 +24,11 @@
  */
 package to.etc.domui.server;
 
+import to.etc.domui.dom.html.Page;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
@@ -44,6 +47,7 @@ import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class RequestContextImpl implements IRequestContext, IAttributeContainer {
 	@Nonnull
@@ -78,6 +82,9 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	private String m_outputEncoding;
 
 	private Exception m_outputAllocated;
+
+	@Nonnull
+	private Map<String, String> m_persistedParameterMap = new HashMap<>();
 
 	/** Cached copy of theme for this user, lazy */
 	@Nullable
@@ -116,6 +123,35 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 				urlin = urlin.substring(1);
 		}
 		m_urlin = urlin;
+
+		Set<String> nameSet = app.getPersistentParameterSet();
+		for(String name : nameSet) {
+			String parameter = getParameter(name);
+			if(null != parameter)
+				m_persistedParameterMap.put(name, parameter);
+		}
+	}
+
+	@Nonnull public Map<String, String> getPersistedParameterMap() {
+		return m_persistedParameterMap;
+	}
+
+
+	public void updatePersistentParameters(Map<String, String> persistedParameterMap) {
+		m_persistedParameterMap.putAll(persistedParameterMap);
+	}
+
+	@Override
+	public void setPersistedParameter(String name, String value) {
+		Set<String> nameSet = m_application.getPersistentParameterSet();
+		if(! nameSet.contains(name))
+			throw new IllegalStateException("The parameter name '" + name + "' is not registered as a persistent parameter. Add it in DomApplication.initialize() using addPersistentParameter");
+		m_persistedParameterMap.put(name, value);
+		Page page = UIContext.internalGetPage();
+		if(null != page) {
+			ConversationContext conversation = page.getConversation();
+			conversation.savePersistedParameter(name, value);
+		}
 	}
 
 	/**
@@ -451,5 +487,4 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		else
 			m_attributeMap.put(name, value);
 	}
-
 }

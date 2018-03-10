@@ -25,6 +25,7 @@
 package to.etc.domui.component.buttons;
 
 import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IActionControl;
@@ -73,7 +74,10 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	public LinkButton(@Nonnull final String txt, @Nonnull final String image) {
-		setCssClass("ui-lnkb ui-lbtn");
+		if(DomUtil.isIconName(image))
+			setCssClass("ui-lnkb ui-lbtn");
+		else
+			setCssClass("ui-lnkb");
 		m_text = txt;
 		setImage(image);
 	}
@@ -104,8 +108,31 @@ public class LinkButton extends ATag implements IActionControl {
 
 	@Override
 	public void createContent() throws Exception {
-		updateStyle();
-		setText(m_text);
+		String imageUrl = m_imageUrl;
+		if(imageUrl == null) {
+			setBackgroundImage(null);
+			addCssClass("ui-lnkb");
+			removeCssClass("ui-lbtn");
+			add(m_text);
+		} else if(DomUtil.isIconName(imageUrl)) {
+			//-- Do we have an image already?
+			setBackgroundImage(null);
+			setCssClass("ui-lnkb");
+			removeCssClass("ui-lbtn");
+			add(new FaIcon(imageUrl).css("ui-lnkb-icon"));
+			add(m_text);
+		} else {
+			String image = getThemedResourceRURL(imageUrl);
+			if(isDisabled())
+				image = GrayscalerPart.getURL(image);
+			setBackgroundImage(image);
+			addCssClass("ui-lnkb ui-lbtn");
+			add(m_text);
+		}
+		if(isDisabled())
+			addCssClass("ui-lnkb-dis");
+		else
+			removeCssClass("ui-lnkb-dis");
 	}
 
 	/**
@@ -125,12 +152,7 @@ public class LinkButton extends ATag implements IActionControl {
 		}
 		setText(action.getName(getActionInstance()));
 		setImage(action.getIcon(getActionInstance()));
-		setClicked(new IClicked<LinkButton>() {
-			@Override
-			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
-				action.execute(LinkButton.this, getActionInstance());
-			}
-		});
+		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this, getActionInstance()));
 	}
 
 	public void setImage(@Nullable final String url) {
@@ -142,24 +164,6 @@ public class LinkButton extends ATag implements IActionControl {
 
 	public String getImage() {
 		return m_imageUrl;
-	}
-
-	private void updateStyle() {
-		String imageUrl = m_imageUrl;
-		if(imageUrl == null) {
-			setBackgroundImage(null);
-			setCssClass("ui-lnkb");
-		} else {
-			String image = getThemedResourceRURL(imageUrl);
-			if(isDisabled())
-				image = GrayscalerPart.getURL(image);
-			setBackgroundImage(image);
-			setCssClass("ui-lnkb ui-lbtn");
-		}
-		if(isDisabled())
-			addCssClass("ui-lnkb-dis");
-		else
-			removeCssClass("ui-lnkb-dis");
 	}
 
 	@Override

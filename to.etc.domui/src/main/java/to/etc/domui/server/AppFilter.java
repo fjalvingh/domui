@@ -203,6 +203,19 @@ public class AppFilter implements Filter {
 			} catch(Exception ex) {
 			}
 		}
+
+		/*
+		 * Try root resource
+		 */
+
+
+		try {
+			String res = FileTool.readResourceAsString(AppFilter.class, "/etcLoggerConfig.xml", "utf-8");
+			if(res != null)
+				System.out.println("DomUI: using /etcLoggerConfig.xml java resource");
+			return res;
+		} catch(Exception ex) {}
+
 		try {
 			String res = FileTool.readResourceAsString(AppFilter.class, "etcLoggerConfig.xml", "utf-8");
 			if(res != null)

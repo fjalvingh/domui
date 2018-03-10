@@ -315,6 +315,8 @@ public interface Msgs {
 	/** asynccontainer.no.results.msg key */
 	String ASYNC_CONTAINER_NO_RESULTS_MSG = "asynccontainer.no.results.msg";
 
+	String ASYNC_ERROR = "asynccontainer.error";
+
 	/** EditDialog */
 	String EDLG_OKAY = "edlg.okay";
 

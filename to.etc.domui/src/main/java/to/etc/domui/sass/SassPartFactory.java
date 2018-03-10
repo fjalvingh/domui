@@ -1,5 +1,7 @@
 package to.etc.domui.sass;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
@@ -23,6 +25,8 @@ import java.io.OutputStreamWriter;
  */
 @DefaultNonNull
 public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> {
+	static private final Logger LOG = LoggerFactory.getLogger(SassPartFactory.class);
+
 	/**
 	 * Accepts .scss resources as sass stylesheets, and passes them through the
 	 * sass compiler, returning the result as a normal .css stylesheet.
@@ -54,6 +58,6 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 			osw.close();
 		}
 		ts = System.nanoTime() - ts;
-		System.out.println("sass: script render took " + StringTool.strNanoTime(ts));
+		LOG.info("sass: script render took " + StringTool.strNanoTime(ts));
 	}
 }

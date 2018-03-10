@@ -485,12 +485,12 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Define the control factory to create the control to use to show the column's value.
-	 * @param factory
-	 * @return
 	 */
 	@Nonnull
-	public ColumnDef<I, T> factory(@Nonnull IRowControlFactory<I> factory) {
+	public ColumnDef<I, T> factory(@Nullable IRowControlFactory<I> factory) {
 		m_controlFactory = factory;
+		if(factory != null)
+			editable();
 		return this;
 	}
 

@@ -22,53 +22,30 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.state;
+package to.etc.domui.converter;
 
-import java.util.*;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.util.DomUtil;
 
-import to.etc.domui.component.delayed.*;
+public class NumberConverterFactory implements IConverterFactory {
+	@Override
+	public int accept(Class< ? > clz, PropertyMetaModel< ? > pmm) {
+		if(pmm == null)
+			return -1;
 
-public class DelayedActivityState {
-	private List<Progress> m_progressList;
-
-	private List<DelayedActivityInfo> m_completionList;
-
-	public static class Progress {
-		private AsyncContainer m_container;
-
-		private int m_pctComplete;
-
-		private String m_message;
-
-		protected Progress(AsyncContainer container, int pctComplete, String message) {
-			m_container = container;
-			m_pctComplete = pctComplete;
-			m_message = message;
-		}
-
-		public AsyncContainer getContainer() {
-			return m_container;
-		}
-
-		public int getPctComplete() {
-			return m_pctComplete;
-		}
-
-		public String getMessage() {
-			return m_message;
-		}
+		//-- We only accept double and BigDecimal as base types,
+		if(! Number.class.isAssignableFrom(DomUtil.getBoxedForPrimitive(clz)))
+			return -1;
+		return 10;
 	}
 
-	protected DelayedActivityState(List<Progress> progressList, List<DelayedActivityInfo> completionList) {
-		m_progressList = progressList;
-		m_completionList = completionList;
-	}
-
-	public List<Progress> getProgressList() {
-		return m_progressList;
-	}
-
-	public List<DelayedActivityInfo> getCompletionList() {
-		return m_completionList;
+	/**
+	 * Create the appropriate converter.
+	 *
+	 * @see IConverterFactory#createConverter(Class, PropertyMetaModel)
+	 */
+	@Override
+	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel<X> pmm) {
+		return (T) new NumberConverter<>((Class<? extends Number>)clz, pmm.getNumericPresentation(), pmm.getScale() < 0 ? 0 : pmm.getScale());
 	}
 }

@@ -118,6 +118,8 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	@Nonnull
 	String getRelativePath(@Nonnull String rel);
 
+	void setPersistedParameter(@Nonnull String name, @Nonnull String value);
+
 	/**
 	 * Returns the buffered writer to use to generate text-based output to this context.
 	 */

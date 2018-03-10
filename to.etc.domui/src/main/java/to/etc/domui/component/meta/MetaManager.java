@@ -703,7 +703,7 @@ final public class MetaManager {
 	}
 
 	/**
-	 * Copy all matching properties from "from" to "to", but ignore the specified list of
+	 * Copy all matching SIMPLE (non collection) properties from "from" to "to", but ignore the specified list of
 	 * properties. Since properties are copied by name the objects can be of different types.
 	 *
 	 * @param to
@@ -741,6 +741,8 @@ final public class MetaManager {
 
 	private static boolean isExcepted(@Nonnull Set<Object> exceptSet, @Nonnull PropertyMetaModel<?> frpmm) {
 		if(exceptSet.contains(frpmm.getName()))
+			return true;
+		if(Collection.class.isAssignableFrom(frpmm.getActualType()))		// !! NEVER COPY LISTS
 			return true;
 		for(Object t : exceptSet) {
 			if(t == Class.class) {

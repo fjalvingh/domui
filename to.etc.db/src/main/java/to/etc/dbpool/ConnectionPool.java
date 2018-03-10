@@ -570,8 +570,8 @@ final public class ConnectionPool {
 
 				dbc = m_driver.connect(c().getUrl(), p);
 			} catch(SQLException x) {
-				x.printStackTrace();
-				MSG.info("Failed to get connection for " + getID() + ": " + x.toString());
+				//x.printStackTrace();
+				MSG.log(Level.WARNING, "Failed to get connection for " + getID() + ": " + x.toString(), x);
 				lastx = x;
 			}
 

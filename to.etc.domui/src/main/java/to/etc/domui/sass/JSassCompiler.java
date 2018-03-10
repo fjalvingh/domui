@@ -6,6 +6,8 @@ import io.bit3.jsass.Output;
 import io.bit3.jsass.OutputStyle;
 import io.bit3.jsass.context.StringContext;
 import io.bit3.jsass.importer.Import;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
@@ -20,6 +22,8 @@ import java.util.Collections;
  * Created on 29-10-17.
  */
 public class JSassCompiler implements ISassCompiler {
+	static private final Logger LOG = LoggerFactory.getLogger(JSassCompiler.class);
+
 	@Override public void compiler(String rurl, Writer output, @Nonnull ParameterInfoImpl params, @Nonnull IResourceDependencyList rdl) throws Exception {
 		/*
 		 * Define resolvers: these resolve "filenames" in the scss to resources in the webapp.
@@ -39,7 +43,7 @@ public class JSassCompiler implements ISassCompiler {
 			throw new ThingyNotFoundException("The sass/scss file " + rurl + " could not be found");
 
 		File out = File.createTempFile("sass-out-", ".css");
-		System.out.println("out " + out);
+		LOG.debug("CSS output " + out);
 
 		Options opt = new Options();
 		opt.setImporters(Collections.singletonList(jsr));
@@ -56,7 +60,7 @@ public class JSassCompiler implements ISassCompiler {
 		Compiler co = new Compiler();
 		Output res = co.compile(fc);
 		String css = res.getCss();
-		output.write(css);
+		output.write(css == null ? "" : css);
 		out.delete();
 		jsr.close();
 	}

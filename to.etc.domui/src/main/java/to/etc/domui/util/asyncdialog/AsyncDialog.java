@@ -1,6 +1,7 @@
 package to.etc.domui.util.asyncdialog;
 
 import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.delayed.IAsyncCompletionListener;
 import to.etc.domui.component.delayed.IAsyncRunnable;
 import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.misc.MsgBox;
@@ -31,11 +32,7 @@ final public class AsyncDialog {
 		addTo.add(dlg);
 		dlg.setAutoClose(false);
 
-		AsyncContainer	pd = new AsyncContainer(new IAsyncRunnable() {
-			@Override public void run(@Nonnull Progress p) throws Exception {
-				task.execute(p);
-			}
-
+		IAsyncCompletionListener result = new IAsyncCompletionListener() {
 			@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
 				dlg.close();
 				if(errorException == null) {
@@ -55,7 +52,14 @@ final public class AsyncDialog {
 					}
 				}
 			}
-		});
+		};
+
+		IAsyncRunnable runnable = new IAsyncRunnable() {
+			@Override public void run(@Nonnull Progress p) throws Exception {
+				task.execute(p);
+			}
+		};
+		AsyncContainer	pd = new AsyncContainer(runnable, result);
 		if (!isAbortable){
 			pd.setAbortable(false);
 		}

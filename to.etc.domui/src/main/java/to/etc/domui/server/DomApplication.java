@@ -24,6 +24,7 @@
  */
 package to.etc.domui.server;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.ajax.AjaxRequestHandler;
@@ -313,6 +314,10 @@ public abstract class DomApplication {
 
 	/** The ORDERED list of [exception.class, handler] pairs. Exception SUPERCLASSES are ordered AFTER their subclasses. */
 	private List<ExceptionEntry> m_exceptionListeners = new ArrayList<ExceptionEntry>();
+
+	/** A set of parameter names that will be kept in URLs if present */
+	@Nonnull
+	private Set<String> m_persistentParameterSet = new HashSet<>();
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
@@ -1863,9 +1868,12 @@ public abstract class DomApplication {
 	 * @param keepAliveInterval
 	 */
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
-		if(!DeveloperOptions.getBool("domui.log", false) && (DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions
-			.getBool("domui.keepalive", false)))                // If "autorefresh" has been disabled do not use keepalive either.
+		if(!DeveloperOptions.getBool("domui.log", false)
+			&& (DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false))
+			) {
+			// If "autorefresh" has been disabled do not use keepalive either.
 			m_keepAliveInterval = keepAliveInterval;
+		}
 	}
 
 	private List<IDomUIStateListener> m_uiStateListeners = Collections.EMPTY_LIST;
@@ -2025,6 +2033,19 @@ public abstract class DomApplication {
 		if(null == factory)
 			throw new RuntimeException("Undefined theme factory '" + fn + "'");
 		return factory;
+	}
+
+	public void addPersistedParameter(String name) {
+		if(! name.startsWith("_") && ! name.startsWith("$"))
+			throw new IllegalStateException("Persisted parameters must start with _ or $");
+		synchronized(this) {
+			m_persistentParameterSet = new HashSet<>(m_persistentParameterSet);
+			m_persistentParameterSet.add(name);
+		}
+	}
+
+	@Nonnull public Set<String> getPersistentParameterSet() {
+		return m_persistentParameterSet;
 	}
 
 	static {

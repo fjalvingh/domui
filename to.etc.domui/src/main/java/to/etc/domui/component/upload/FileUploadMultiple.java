@@ -135,10 +135,15 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	}
 
 	private void render() {
-		Div valueD = new Div("ui-fup2-value-empty ui-control ui-input");
+		Div valueD = new Div("ui-control ui-input");
 		add(valueD);
-		for(UploadItem uploadItem : m_value) {
-			renderValue(valueD, uploadItem);
+		if(m_value.size() > 0) {
+			valueD.addCssClass("ui-fup2-value");
+			for(UploadItem uploadItem : m_value) {
+				renderValue(valueD, uploadItem);
+			}
+		} else {
+			valueD.addCssClass("ui-fup2-value-empty ");
 		}
 
 		Div btn = new Div("ui-button ui-control");

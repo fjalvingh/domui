@@ -203,6 +203,10 @@ public class TestRequestContext implements IRequestContext {
 	@Override public void setThemeVariant(@Nonnull IThemeVariant variant) {
 	}
 
+	@Override public void setPersistedParameter(@Nonnull String name, @Nonnull String value) {
+
+	}
+
 	@Nullable @Override public String getThemeName() {
 		return getCurrentTheme().getThemeName();
 	}
