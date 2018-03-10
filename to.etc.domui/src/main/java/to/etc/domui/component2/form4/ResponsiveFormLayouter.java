@@ -55,7 +55,7 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 
 		Div form = m_formContainer;
 		if(null == form) {
-			form = m_formContainer = new Div("ui-f5 ui-f5-" + fix);
+			form = m_formContainer = new Div("ui-f5 ui-f5" + fix);
 			m_appender.add(form);
 		}
 

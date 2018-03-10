@@ -3,6 +3,11 @@ $form-label-color: #363636 !default;
 
 .ui-f5 {
 }
+
+.ui-f5-pair {
+}
+
+/*-- horizontal forms --*/
 .ui-f5-h {
 	display: flex;
 	flex-direction: row;
@@ -18,7 +23,20 @@ $form-label-color: #363636 !default;
 	font-weight: $form-label-weight;
 }
 
-.ui-f5-pair {
+/*-- vertical forms --*/
+.ui-f5-v {
+	display: flex;
+	flex-direction: column;
+	justify-items: flex-start;
+}
+.ui-f5-lbl-v {
+	display: inline-block;
+	min-width: $form-label-width;
 }
 
-
+.ui-f5-pair-v {
+	display: flex;
+	flex-direction: row;
+	justify-items: flex-start;
+	margin: 5px 0;
+}

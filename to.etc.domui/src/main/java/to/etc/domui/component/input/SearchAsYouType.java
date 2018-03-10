@@ -92,6 +92,12 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		super("ui-sayt", clz);
 	}
 
+	public SearchAsYouType(@Nonnull Class<T> clz, String property) {
+		super("ui-sayt", clz);
+		m_searchProperty = property;
+	}
+
+
 	@Override public void createContent() throws Exception {
 		calculateHandler();
 		super.createContent();

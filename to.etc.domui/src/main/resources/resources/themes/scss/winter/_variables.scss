@@ -116,9 +116,13 @@ $data_pager_icons: "data-pager-icons.png";
 $data_pager_icon_size_x: 32px;
 $data_pager_icon_size_y: 19px;
 
-/*** Form baseline alignment ***/
+/*** Forms ***/
 $form-line-height:	1.5em;
 $input-line-height: $form-line-height;
+$form-label-color: #363636;
+$form-label-weight: 600;
+$form-label-width: 150px;
+
 
 /***----------------- Bulma like -------------------------***/
 
@@ -172,9 +176,6 @@ $control-padding-vertical: calc(0.375em - 1px) !default;
 $control-padding-horizontal: calc(0.625em - 1px) !default;
 
 $input-border-color: #dbdbdb;
-
-$form-label-color: #363636;
-$form-label-weight: 600;
 
 //-- enumsetinput label colors
 $esic-label-color: #d4f94e;
