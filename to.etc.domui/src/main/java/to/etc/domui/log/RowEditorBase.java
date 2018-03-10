@@ -1,18 +1,16 @@
 package to.etc.domui.log;
 
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.form.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.ntbl.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.html.*;
+import to.etc.domui.component.controlfactory.ModelBindings;
+import to.etc.domui.component.layout.ErrorMessageDiv;
+import to.etc.domui.component.ntbl.IEditor;
+import to.etc.domui.component.tbl.TableModelTableBase;
+import to.etc.domui.component2.form4.FormBuilder;
+import to.etc.domui.dom.html.Div;
 
 public class RowEditorBase<T> extends Div implements IEditor {
 	private final T m_instance;
 
 	private final TableModelTableBase<T> m_model;
-
-	private HorizontalFormBuilder m_builder;
 
 	private ModelBindings m_bindings;
 	
@@ -31,18 +29,21 @@ public class RowEditorBase<T> extends Div implements IEditor {
 		m_cols = cols;
 	}
 
+	public T getInstance() {
+		return m_instance;
+	}
+
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
 		add(new ErrorMessageDiv(this, true));
-		m_builder = new HorizontalFormBuilder(m_instance);
-		addProperties(m_builder);
-		add(m_builder.finish());
-		m_bindings = m_builder.getBindings();
-		m_bindings.moveModelToControl();
+		FormBuilder fb = new FormBuilder(this);
+		addProperties(fb);
 	}
 
-	protected void addProperties(HorizontalFormBuilder builder) {
-		builder.addProps(m_cols);
+	protected void addProperties(FormBuilder builder) throws Exception {
+		for(String col : m_cols) {
+			builder.property(getInstance(), col).control();
+		}
 	}
 }

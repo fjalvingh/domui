@@ -45,11 +45,13 @@ import to.etc.webapp.query.QDataContextFactory;
 import javax.annotation.Nonnull;
 
 /**
- * Generic page handling some cruddy stuff. FIXME Example only; VP specific one should exist.
+ * DO NOT USE - ancient and badly written.
+ * Generic page handling some cruddy stuff.
  *
  * @author vmijic
  * Created on 29 Jul 2009
  */
+@Deprecated
 abstract public class BasicListPage<T> extends BasicPage<T> {
 	private SearchPanel<T> m_lookupForm;
 

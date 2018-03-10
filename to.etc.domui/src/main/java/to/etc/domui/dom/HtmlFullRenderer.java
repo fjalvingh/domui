@@ -294,7 +294,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().tag("link");
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
-		o().attr("href", path);
+		o().rawAttr("href", path);
 		o().endtag();
 		o().dec();					// do not close
 		//o().closetag("link");

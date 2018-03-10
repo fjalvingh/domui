@@ -24,7 +24,6 @@
  */
 package to.etc.domui.server;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.ajax.AjaxRequestHandler;
@@ -497,6 +496,20 @@ public abstract class DomApplication {
 	 */
 	@Nullable public String getApplicationContext() {
 		return m_applicationContext;
+	}
+
+	/**
+	 * FIXME Calculate a webapp context name.
+	 */
+	@Nonnull public String getContextFromApp() {
+		String context = getApplicationContext();
+		if(null != context)
+			return context;
+		File root = getWebAppFileRoot();
+		String name = root.getName();
+		if(name.equals("ROOT"))
+			return "";
+		return name;
 	}
 
 	/**

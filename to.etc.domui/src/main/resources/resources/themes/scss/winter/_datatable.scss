@@ -63,7 +63,10 @@ div.ui-dt > table {
 }
 
 .ui-dt-row > td > span {
-	padding: 0px 4px;
+	padding: 0 4px;
+}
+.ui-dt-row > td {
+	padding: 0 4px;
 }
 
 .ui-dt-nores {

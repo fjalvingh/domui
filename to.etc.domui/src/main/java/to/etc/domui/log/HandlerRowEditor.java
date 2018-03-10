@@ -1,23 +1,41 @@
 package to.etc.domui.log;
 
-import javax.annotation.*;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.controlfactory.ModelBindings;
+import to.etc.domui.component.input.TextStr;
+import to.etc.domui.component.layout.ErrorMessageDiv;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.ntbl.ExpandingEditTable;
+import to.etc.domui.component.ntbl.IEditor;
+import to.etc.domui.component.ntbl.IRowEditorEvent;
+import to.etc.domui.component.ntbl.IRowEditorFactory;
+import to.etc.domui.component.tbl.BasicRowRenderer;
+import to.etc.domui.component.tbl.SimpleListModel;
+import to.etc.domui.component.tbl.TableModelTableBase;
+import to.etc.domui.component2.form4.FormBuilder;
+import to.etc.domui.dom.css.VerticalAlignType;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.log.data.Filter;
+import to.etc.domui.log.data.Handler;
+import to.etc.domui.log.data.HandlerType;
+import to.etc.domui.log.data.Matcher;
+import to.etc.domui.util.Msgs;
+import to.etc.log.EtcLoggerFactory;
+import to.etc.log.EtcMDCAdapter;
+import to.etc.log.handler.LogFilterType;
+import to.etc.webapp.nls.BundleRef;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.form.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.ntbl.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.log.data.*;
-import to.etc.domui.util.*;
-import to.etc.log.*;
-import to.etc.log.handler.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
 
 public class HandlerRowEditor extends Div implements IEditor {
 	protected static final BundleRef BUNDLE = Msgs.BUNDLE;
@@ -25,8 +43,6 @@ public class HandlerRowEditor extends Div implements IEditor {
 	private final Handler m_instance;
 
 	private final TableModelTableBase<Handler> m_model;
-
-	private HorizontalFormBuilder m_builder;
 
 	private ModelBindings m_bindings;
 
@@ -71,24 +87,17 @@ public class HandlerRowEditor extends Div implements IEditor {
 	}
 
 	private void addHandlerPart(NodeContainer container) throws Exception {
-		m_builder = new HorizontalFormBuilder(m_instance);
-		final IControl<HandlerType> typeCtl = (IControl<HandlerType>) m_builder.addProp(Handler.pTYPE);
-		final IControl<String> nameCtl = (IControl<String>) m_builder.addProp(Handler.pFILE);
-		final TextStr formatCtl = new TextStr();
+		FormBuilder fb = new FormBuilder(container);
+		IControl<HandlerType> typeCtl = (IControl<HandlerType>) fb.property(m_instance, Handler.pTYPE).control();
+		IControl<String> nameCtl = (IControl<String>) fb.property(m_instance, Handler.pFILE).control();
+
+		TextStr formatCtl = new TextStr();
 		formatCtl.setMaxLength(150);
 		formatCtl.setSize(60);
 		formatCtl.setTitle(getFormatHelp());
-		m_builder.addProp(Handler.pFORMAT, formatCtl);
-		container.add(m_builder.finish());
-		m_bindings = m_builder.getBindings();
-		m_bindings.moveModelToControl();
+		fb.property(m_instance, Handler.pFORMAT).control(formatCtl);
 		final TextNode holder = new TextNode(nameCtl.getValueSafe());
-		typeCtl.setOnValueChanged(new IValueChanged<NodeBase>() {
-			@Override
-			public void onValueChanged(@Nonnull NodeBase component) throws Exception {
-				updateNameByType(typeCtl, nameCtl, holder);
-			}
-		});
+		typeCtl.setOnValueChanged((IValueChanged<NodeBase>) component -> updateNameByType(typeCtl, nameCtl, holder));
 		if(HandlerType.STDOUT == typeCtl.getValue()) {
 			updateNameByType(typeCtl, nameCtl, holder);
 		}
