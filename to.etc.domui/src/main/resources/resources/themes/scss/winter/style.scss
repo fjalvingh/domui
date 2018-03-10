@@ -9,6 +9,9 @@
 @import "derived-variables";
 @import 'parameters';
 
+//-- Let the user override all that is above by overwriting the following file-
+@import "_userstyle";
+
 @import "bulmaish/_core_defs";
 @import "bulmaish/animations";
 @import "bulmaish/button_common";
