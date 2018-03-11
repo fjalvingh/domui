@@ -26,6 +26,7 @@ package to.etc.domui.trouble;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.util.*;
 import to.etc.util.*;
 
@@ -38,9 +39,13 @@ import to.etc.util.*;
 public class NotLoggedInException extends RuntimeException {
 	private final String m_url;
 
-	public NotLoggedInException(final String url) {
+	private NotLoggedInException(final String url) {
 		super("You need to be logged in");
 		m_url = url;
+	}
+
+	public static Exception create(String url) {
+		return new NotLoggedInException(url);
 	}
 
 	public String getURL() {
@@ -69,5 +74,11 @@ public class NotLoggedInException extends RuntimeException {
 			sb.append(".x"); // Dummy conversation ID
 		DomUtil.addUrlParameters(sb, ctx, false);
 		return new NotLoggedInException(sb.toString()); // Force login exception.
+	}
+
+	static public NotLoggedInException create() {
+		IRequestContext ctx = UIContext.getRequestContext();
+		Page page = UIContext.getCurrentPage();
+		return create(ctx, page);
 	}
 }

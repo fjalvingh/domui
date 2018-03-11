@@ -38,11 +38,11 @@ import javax.annotation.Nullable;
  * Created on Apr 14, 2009
  */
 public interface ILoginAuthenticator {
-	IUser authenticateUser(final String userid, final String credentials) throws Exception;
+	IUser authenticateUser(@Nonnull String userid, @Nullable String credentials) throws Exception;
 
-	IUser authenticateByCookie(String uid, long ts, String string) throws Exception;
+	IUser authenticateByCookie(@Nonnull String uid, long ts, @Nonnull String string) throws Exception;
 
-	String calcCookieHash(String userid, long ts) throws Exception;
+	String calcCookieHash(@Nonnull String userid, long ts) throws Exception;
 
 	default @Nullable IUser authenticateByRequest(@Nonnull IRequestContext rx) throws Exception {
 		return null;

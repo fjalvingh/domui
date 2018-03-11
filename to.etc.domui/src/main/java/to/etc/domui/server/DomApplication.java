@@ -1632,9 +1632,6 @@ public abstract class DomApplication {
 	 * to see if there is an authenticator registered and uses it's result to redirect. If no
 	 * authenticator is registered this returns null, asking the caller to do normal exception
 	 * handling.
-	 *
-	 * @param ci
-	 * @param page
 	 */
 	public String handleNotLoggedInException(RequestContextImpl ci, Page page, NotLoggedInException x) {
 		ILoginDialogFactory ldf = ci.getApplication().getLoginDialogFactory();

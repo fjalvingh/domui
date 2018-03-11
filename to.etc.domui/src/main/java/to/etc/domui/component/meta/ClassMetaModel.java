@@ -25,7 +25,6 @@
 package to.etc.domui.component.meta;
 
 import to.etc.domui.component.input.*;
-import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.meta.impl.*;
 import to.etc.domui.util.*;
 import to.etc.webapp.nls.*;

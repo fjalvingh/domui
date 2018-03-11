@@ -269,6 +269,10 @@ final public class NetTools {
 			return m_encoding;
 		}
 
+		public String getContentType() {
+			return m_connection.getHeaderField("content-type");
+		}
+
 		@Override
 		public int available() throws IOException {
 			return m_is.available();
@@ -379,7 +383,7 @@ final public class NetTools {
 	 * @return
 	 * @throws Exception
 	 */
-	static public InputStream httpGetStream(String url, int timeout) throws Exception {
+	static public HttpInputStream httpGetStream(String url, int timeout) throws Exception {
 		URL u = new URL(url);
 		if(!u.getProtocol().equals("http") && !u.getProtocol().equalsIgnoreCase("https"))
 			throw new IllegalStateException("This call can only accept http(s):// connections.");

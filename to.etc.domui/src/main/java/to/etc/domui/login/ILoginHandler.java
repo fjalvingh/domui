@@ -13,6 +13,11 @@ import javax.annotation.Nullable;
 public interface ILoginHandler {
 	@Nullable
 	IUser decodeCookie(RequestContextImpl rci, String cookie);
+
 	void registerIgnoredHash(String hash);
+
 	LoginResult login(final String userid, final String password) throws Exception;
+
+	@Nullable
+	IUser login(String userid) throws Exception;
 }

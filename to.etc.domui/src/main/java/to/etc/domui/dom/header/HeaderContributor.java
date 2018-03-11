@@ -24,12 +24,13 @@
  */
 package to.etc.domui.dom.header;
 
-import java.util.*;
+import to.etc.domui.dom.HtmlFullRenderer;
+import to.etc.domui.dom.html.OptimalDeltaRenderer;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A header contributor can be registered by nodes to cause something to
@@ -68,8 +69,8 @@ abstract public class HeaderContributor {
 	abstract public boolean equals(final Object obj);
 
 	@Nonnull
-	static synchronized public HeaderContributor loadJavascript(final String name) {
-		HeaderContributor c = m_jsMap.get(name);
+	static synchronized public JavascriptContributor loadJavascript(final String name) {
+		JavascriptContributor c = (JavascriptContributor) m_jsMap.get(name);
 		if(c == null) {
 			c = new JavascriptContributor(name);
 			m_jsMap.put(name, c);

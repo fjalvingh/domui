@@ -300,7 +300,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		//o().closetag("link");
 	}
 
-	public void renderLoadJavascript(@Nonnull String path) throws Exception {
+	public void renderLoadJavascript(@Nonnull String path, boolean async, boolean defer) throws Exception {
 		if(!path.startsWith("http")) {
 			String rurl = m_page.getBody().getThemedResourceRURL(path);
 			path = ctx().getRelativePath(rurl);
@@ -309,6 +309,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		//-- render an app-relative url
 		o().tag("script");
 		o().attr("src", path);
+		if(async)
+			o().writeRaw(" async");
+		if(defer)
+			o().writeRaw(" defer");
 		o().endtag();
 		o().closetag("script");
 	}
