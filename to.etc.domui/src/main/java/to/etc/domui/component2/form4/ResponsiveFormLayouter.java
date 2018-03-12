@@ -59,16 +59,16 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 			m_appender.add(form);
 		}
 
-		Div pair = new Div("ui-f5-pair ui-f5-pair" + fix);
+		Div pair = m_lastPair = new Div("ui-f5-pair ui-f5-pair" + fix);
 		form.add(pair);
 
-		Div lc = new Div("ui-f5-lbl ui-f5-lbl" + fix);
+		Div lc = m_lastLabelContainer = new Div("ui-f5-lbl ui-f5-lbl" + fix);
 		pair.add(lc);
 		if(null != lbl) {
 			lc.add(lbl);
 		}
 
-		Div cc = new Div("ui-f5-ctl ui-f5-ctl" + fix);
+		Div cc = m_lastControlContainer = new Div("ui-f5-ctl ui-f5-ctl" + fix);
 		pair.add(cc);
 		cc.add(control);
 	}
