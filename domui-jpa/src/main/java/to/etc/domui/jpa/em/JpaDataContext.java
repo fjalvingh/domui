@@ -1,5 +1,9 @@
 package to.etc.domui.jpa.em;
 
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
+import org.hibernate.engine.internal.StatefulPersistenceContext;
+import org.hibernate.internal.SessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.jpa.JpaConnector;
@@ -19,6 +23,7 @@ import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -33,7 +38,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
 
     private boolean m_ignoreClose;
 
-    protected EntityManager m_session;
+    protected EntityManager m_manager;
 
     @Nonnull
     private List<IRunnable> m_commitHandlerList = Collections.EMPTY_LIST;
@@ -58,11 +63,16 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
     public EntityManager getEntityManager() throws Exception {
         checkValid();
 
-        if(m_session == null) {
-            EntityManager manager = m_session = m_emFactory.createEntityManager();
+        if(m_manager == null) {
+            EntityManager manager = m_manager = m_emFactory.createEntityManager();
+            Session session = JpaConnector.getHibernateSession(manager);
+            session.setFlushMode(FlushMode.COMMIT);     // EXPERIMENTAL Used to be "manual"
+            if(!session.isConnected())
+                LOG.debug("reconnecting session.");
+
             manager.getTransaction().begin();
         }
-        return m_session;
+        return m_manager;
     }
 
     final protected void checkValid() {
@@ -96,7 +106,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
      */
     @Override
     public void close() {
-        if(m_session == null || m_ignoreClose)
+        if(m_manager == null || m_ignoreClose)
             return;
 
         boolean logCloses = m_logCloses || DeveloperOptions.isDeveloperWorkstation();
@@ -120,20 +130,19 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
             setConversationInvalid(sb.toString());
         }
 
-        //		System.out.println("..... closing hibernate session: "+System.identityHashCode(m_session));
         try {
-            if(m_session.getTransaction().isActive()) {
-                m_session.getTransaction().rollback();
+            if(m_manager.getTransaction().isActive()) {
+                m_manager.getTransaction().rollback();
             }
         } catch(Exception x) {
             x.printStackTrace();
         }
         try {
-            m_session.close();
+            m_manager.close();
         } catch(Exception x) {
             x.printStackTrace();
         }
-        m_session = null;
+        m_manager = null;
     }
 
     @Override
@@ -141,15 +150,6 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
         EntityManager em = getEntityManager();
         if(!em.getTransaction().isActive())
             em.getTransaction().begin();
-    }
-
-    @Override
-    public void commit() throws Exception {
-        if(!inTransaction())
-            throw new IllegalStateException("Commit called without startTransaction."); // jal 20101028 Finally fix problem where commit fails silently.
-        getEntityManager().getTransaction().commit();
-        runCommitHandlers();
-        startTransaction();
     }
 
     protected void runCommitHandlers() throws Exception {
@@ -188,10 +188,6 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
         return bc.findBeforeImage(copy);
     }
 
-    /**
-     *
-     * @see to.etc.webapp.query.QDataContext#setKeepOriginals()
-     */
     @Override
     public void setKeepOriginals() {
         if(m_keepOriginals)
@@ -241,27 +237,80 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
 
 
     /*--------------------------------------------------------------*/
-    /*	CODING:	ConversationStateListener impl.						*/
+    /*	CODING:	Long-running requirements.                          */
     /*--------------------------------------------------------------*/
     @Override
-    public void conversationAttached(final ConversationContext cc) throws Exception {
-        setConversationInvalid(null);
-    }
-
-    @Override
     public void conversationDestroyed(final ConversationContext cc) throws Exception {
-        setIgnoreClose(false); // Disable ignore close - this close should work.
-        close();
-        setConversationInvalid("Conversation was destroyed");
+        if(m_manager == null)
+            return;
+        Session session = JpaConnector.getHibernateSession(m_manager);
+        if(! session.isConnected())
+            return;
+        try {
+            setConversationInvalid("Conversation was destroyed");
+            setIgnoreClose(false);
+            SessionImpl sim = (SessionImpl) session;
+            StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
+            Map<?, ?> flups = spc.getEntitiesByKey();
+            if(LOG.isDebugEnabled())
+                LOG.debug("Hibernate: closing (destroying) session " + System.identityHashCode(m_manager) + " containing " + flups.size() + " persisted instances");
+            if(m_manager.getTransaction().isActive())
+                m_manager.getTransaction().rollback();
+            close();
+        } catch(Exception x) {
+            LOG.info("Exception during conversation destroy: " + x, x);
+        }
     }
 
     @Override
     public void conversationDetached(final ConversationContext cc) throws Exception {
-        setIgnoreClose(false); // Disable ignore close - this close should work.
-        close();
+        if(m_manager == null)
+            return;
+        Session session = JpaConnector.getHibernateSession(m_manager);
+        if(! session.isConnected())
+            return;
         setConversationInvalid("Conversation is detached");
+        SessionImpl sim = (SessionImpl) session;
+        StatefulPersistenceContext spc = (StatefulPersistenceContext) sim.getPersistenceContext();
+
+        if(LOG.isDebugEnabled()) {
+            Map< ? , ? > persisted = spc.getEntitiesByKey();
+            LOG.debug("Hibernate: disconnecting entityManager "
+                    + System.identityHashCode(m_manager) + " containing " + persisted.size()
+                    + " persisted instances"
+            );
+        }
+        if(m_manager.getTransaction().isActive())
+            m_manager.getTransaction().rollback();
+        session.disconnect();                               // disconnect underlying db connection
     }
 
     @Override
-    public void conversationNew(final ConversationContext cc) throws Exception {}
+    public void conversationAttached(ConversationContext cc) {
+        setConversationInvalid(null);
+    }
+
+    @Override
+    public void conversationNew(ConversationContext cc) {
+        setConversationInvalid(null);
+    }
+
+    /**
+     * Commit; make sure a transaction exists (because nothing is flushed anyway) then commit.
+     */
+    @Override
+    public void commit() throws Exception {
+        startTransaction();
+        m_manager.flush();
+        getEntityManager().getTransaction().commit();
+        runCommitHandlers();
+        startTransaction();
+    }
+
+    /**
+     * Should never be used on a long-used context (20091206 jal, error in table update if object not saved 1st).
+     */
+    @Override
+    public void attach(Object o) {
+    }
 }
