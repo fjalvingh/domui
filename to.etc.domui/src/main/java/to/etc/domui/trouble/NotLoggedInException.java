@@ -36,7 +36,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 15, 2009
  */
-public class NotLoggedInException extends RuntimeException {
+final public class NotLoggedInException extends RuntimeException {
 	private final String m_url;
 
 	private NotLoggedInException(final String url) {
@@ -60,7 +60,6 @@ public class NotLoggedInException extends RuntimeException {
 	static public NotLoggedInException create(IRequestContext ctx, Page page) {
 		//-- Create the after-login target URL.
 		StringBuilder sb = new StringBuilder(256);
-		//				sb.append('/');
 		sb.append(ctx.getRelativePath(ctx.getInputPath()));
 		sb.append('?');
 		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
@@ -68,12 +67,13 @@ public class NotLoggedInException extends RuntimeException {
 		sb.append(ctx.getWindowSession().getWindowID());
 
 		// FIXME Not having a page here is VERY questionable!!!
-		if(page != null)
+		if(page != null) {
 			sb.append('.').append(page.getConversation().getId());
-		else
-			sb.append(".x"); // Dummy conversation ID
-		DomUtil.addUrlParameters(sb, ctx, false);
-		return new NotLoggedInException(sb.toString()); // Force login exception.
+			DomUtil.addUrlParameters(sb, page.getPageParameters(), false);
+		} else {
+			sb.append(".x");                                        // Dummy conversation ID
+		}
+		return new NotLoggedInException(sb.toString()); 			// Force login exception.
 	}
 
 	static public NotLoggedInException create() {

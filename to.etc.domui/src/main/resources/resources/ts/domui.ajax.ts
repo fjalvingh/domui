@@ -151,7 +151,7 @@ namespace WebUI {
 		// Collect all input, then create input.
 		WebUI.getInputFields(fields);
 		fields.webuia = action;
-		fields.webuic = id;
+		fields.webuic = id === "" ? "_1" : id;
 		fields["$pt"] = (window as any).DomUIpageTag;
 		fields["$cid"] = (window as any).DomUICID;
 
