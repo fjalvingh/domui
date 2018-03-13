@@ -29,7 +29,7 @@ abstract public class AbstractAsyncDialogTask implements IAsyncRunnable {
 	@Override
 	public final void run(@Nonnull Progress progress) throws Exception {
 		try {
-			run(progress);
+			execute(progress);
 		} finally {
 			m_done = true;
 			FileTool.closeAll(m_dc);
