@@ -8,7 +8,6 @@ import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.trouble.UIException;
 import to.etc.function.ConsumerEx;
-import to.etc.util.Progress;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -24,10 +23,10 @@ final public class AsyncDialog {
 	private AsyncDialog() {
 	}
 
-	static public <T extends IAsyncTask> void runInDialog(@Nonnull NodeContainer addTo, @Nonnull T task, @Nonnull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete) {
+	static public <T extends IAsyncRunnable> void runInDialog(@Nonnull NodeContainer addTo, @Nonnull T task, @Nonnull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete) {
 		runInDialog(addTo, task, dialogTitle, isAbortable, onComplete, null);
 	}
-	static public <T extends IAsyncTask> void runInDialog(@Nonnull NodeContainer addTo, @Nonnull T task, @Nonnull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete, @Nullable ConsumerEx<Exception> onError) {
+	static public <T extends IAsyncRunnable> void runInDialog(@Nonnull NodeContainer addTo, @Nonnull T task, @Nonnull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete, @Nullable ConsumerEx<Exception> onError) {
 		final Dialog dlg = new Dialog(true, false, dialogTitle);
 		addTo.add(dlg);
 		dlg.setAutoClose(false);
@@ -54,12 +53,7 @@ final public class AsyncDialog {
 			}
 		};
 
-		IAsyncRunnable runnable = new IAsyncRunnable() {
-			@Override public void run(@Nonnull Progress p) throws Exception {
-				task.execute(p);
-			}
-		};
-		AsyncContainer	pd = new AsyncContainer(runnable, result);
+		AsyncContainer	pd = new AsyncContainer(task, result);
 		if (!isAbortable){
 			pd.setAbortable(false);
 		}

@@ -1,5 +1,6 @@
 package to.etc.domui.util.asyncdialog;
 
+import to.etc.domui.component.delayed.IAsyncRunnable;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
 import to.etc.util.FileTool;
@@ -14,7 +15,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-10-17.
  */
-abstract public class AbstractAsyncDialogTask implements IAsyncTask {
+abstract public class AbstractAsyncDialogTask implements IAsyncRunnable {
 	@Nullable
 	private QDataContext m_dc;
 
@@ -23,10 +24,10 @@ abstract public class AbstractAsyncDialogTask implements IAsyncTask {
 
 	private volatile boolean m_done;
 
-	abstract protected void run(@Nonnull Progress p) throws Exception;
+	abstract protected void execute(@Nonnull Progress p) throws Exception;
 
 	@Override
-	public final void execute(@Nonnull Progress progress) throws Exception {
+	public final void run(@Nonnull Progress progress) throws Exception {
 		try {
 			run(progress);
 		} finally {
