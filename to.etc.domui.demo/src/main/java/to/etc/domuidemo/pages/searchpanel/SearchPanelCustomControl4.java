@@ -32,7 +32,7 @@ public class SearchPanelCustomControl4 extends AbstractSearchPage<Track> {
 		lf.setClicked(a -> search(lf.getCriteria()));
 
 		//-- For Genre we will use a new control
-		EnumSetInput<Genre> genreC = new EnumSetInput<>(Genre.class);
+		EnumSetInput<Genre> genreC = new EnumSetInput<>(Genre.class, "name");
 		List<Genre> genreList = getSharedContext().query(QCriteria.create(Genre.class));
 		genreC.setData(genreList);
 

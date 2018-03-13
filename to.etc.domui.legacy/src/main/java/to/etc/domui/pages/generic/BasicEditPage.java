@@ -37,11 +37,14 @@ import to.etc.domui.themes.*;
 import to.etc.webapp.query.*;
 
 /**
+ * DO NOT USE - ancient and badly written.
+ *
  * Basic stuff to handle editing a simple entity.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 22, 2008
  */
+@Deprecated
 public abstract class BasicEditPage<T> extends BasicPage<T> {
 	private IButtonBar m_buttonBar;
 

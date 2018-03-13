@@ -1,11 +1,24 @@
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.component.input.SearchAsYouTypeBase.ITypingListener;
+import to.etc.domui.component.input.SearchAsYouTypeBase.Result;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * FIXME Functional duplicate of EnumSetInput
@@ -31,7 +44,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	final private Map<T, Span> m_divMap = new HashMap<T, Span>();
 
 	@Nullable
-	private SearchInput<T> m_input;
+	private SearchAsYouTypeBase<T> m_input;
 
 	@Nullable
 	private IRenderInto<T> m_contentRenderer;
@@ -90,12 +103,12 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 		}
 
 		if(! m_disabled) {
-			SearchInput<T> input = m_input = new SearchInput<T>(m_actualClass);
+			SearchAsYouTypeBase<T> input = m_input = new SearchAsYouTypeBase<T>("ui-lsel", m_actualClass);
 			add(input);
 			updateTooltip();
-			input.setHandler(new SearchInput.IQuery<T>() {
+			input.setHandler(new ITypingListener<T>() {
 				@Override
-				public List<T> queryFromString(String input, int max) throws Exception {
+				public Result<T> queryFromString(String input, int max) throws Exception {
 					return queryLabelsOnType(input, max);
 				}
 
@@ -113,7 +126,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	}
 
 	@Nullable @Override public NodeBase getForTarget() {
-		SearchInput<T> input = m_input;
+		SearchAsYouTypeBase<T> input = m_input;
 		if(null != input)
 			return input.getForTarget();
 		return null;
@@ -145,7 +158,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	 * @return
 	 * @throws Exception
 	 */
-	private List<T> queryLabelsOnType(String input, int max) throws Exception {
+	private Result<T> queryLabelsOnType(String input, int max) throws Exception {
 		input = input.trim();
 		if(input.length() < 1)
 			return null;
@@ -154,15 +167,15 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	}
 
 	private List<T> getAvailableLabels() throws Exception {
-		return getLabels("", MAX_LABELS_IN_TOOLTIP);
+		return getLabels("", MAX_LABELS_IN_TOOLTIP).getList();
 	}
 
-	private List<T> getLabels(String input, int max) throws Exception {
+	private Result<T> getLabels(String input, int max) throws Exception {
 		List<T> isl = m_search.findLike(input, max + m_labelList.size() + 1);
 		for(T tisl : m_labelList) {
 			isl.remove(tisl);					// Remove all that has been entered before
 		}
-		return isl;
+		return new Result<>(isl, null);
 	}
 
 	/**
@@ -390,4 +403,6 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	@Nonnull @Override public Class<T> getActualType() {
 		return m_actualClass;
 	}
+
+
 }

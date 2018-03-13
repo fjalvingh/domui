@@ -1,8 +1,8 @@
 package to.etc.domui.component2.enumsetinput;
 
 import to.etc.domui.component.input.AbstractDivControl;
-import to.etc.domui.component.input.SearchInput;
-import to.etc.domui.component.input.SearchInput.IQuery;
+import to.etc.domui.component.input.SearchAsYouType;
+import to.etc.domui.component.input.SearchAsYouTypeBase;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.FaIcon;
@@ -18,7 +18,6 @@ import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,6 +36,8 @@ import java.util.function.Function;
 public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	private final Class<T> m_actualClass;
 
+	private final String m_property;
+
 	@Nonnull
 	private List<T> m_dataList = new ArrayList<>();
 
@@ -51,32 +52,17 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	@Nullable
 	private IRenderInto<T> m_renderer;
 
-	@Nullable
-	private SearchInput<ItemWrapper<T>> m_input;
-
 	private boolean m_addSingleMatch = true;
 
-	public EnumSetInput(Class<T> actualClass) {
+	@Nullable
+	private SearchAsYouType<T> m_input;
+
+	//public EnumSetInput(Class<T> actualClass) {
+	//	m_actualClass = actualClass;
+	//}
+	public EnumSetInput(Class<T> actualClass, String property) {
 		m_actualClass = actualClass;
-	}
-
-	public class ItemWrapper<E> {
-		final private E m_item;
-
-		final private String m_text;
-
-		public ItemWrapper(E item, String text) {
-			m_item = item;
-			m_text = text;
-		}
-
-		public final String getText() {
-			return m_text;
-		}
-
-		public E getItem() {
-			return m_item;
-		}
+		m_property = property;
 	}
 
 	@Override public void createContent() throws Exception {
@@ -96,54 +82,21 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		if(isDisabled() || isReadOnly()) {
 			m_input = null;
 		} else {
-			Class<ItemWrapper<T>> clz = (Class<ItemWrapper<T>>) (Object) ItemWrapper.class;
-			SearchInput<ItemWrapper<T>> input = m_input = new SearchInput<ItemWrapper<T>>(clz, "text");
+			SearchAsYouType<T> input = m_input = new SearchAsYouType<>(m_actualClass, m_property);
+			//input.setCssBase("ui-esic-input");
 			add(input);
 			input.setAddSingleMatch(isAddSingleMatch());
-			input.setCssClass("ui-esic-input");
-			input.setHandler(new IQuery<ItemWrapper<T>>() {
-				@Override public List<ItemWrapper<T>> queryFromString(String input, int max) throws Exception {
-					return searchItemsBy(input, max);
-				}
+			//input.setCssClass("ui-esic-input");
+			input.setData(getData());
 
-				@Override public void onSelect(ItemWrapper<T> instance) throws Exception {
-					addItem(instance.getItem());
-				}
-
-				@Override public void onEnter(String value) throws Exception {
-
+			input.setOnValueChanged(a -> {
+				T value = input.getValue();
+				if(null != value) {
+					addItem(value);
+					input.setValue(null);
 				}
 			});
 		}
-	}
-
-	/**
-	 * Try to find the value(s) matching.
-	 */
-	private List<ItemWrapper<T>> searchItemsBy(String input, int max) {
-		List<T> data = getData();
-		if(null == data)
-			return Collections.emptyList();
-		input = input.toLowerCase();
-		List<ItemWrapper<T>> res = new ArrayList<>();
-		BiFunction<T, String, Boolean> predicate = m_predicate;
-		for(T item : data) {
-			if(null == predicate) {
-				String text = getLabelText(item);
-				if(text.toLowerCase().contains(input)) {
-					res.add(new ItemWrapper<>(item, text));
-					if(res.size() >= max) {
-						break;
-					}
-				}
-			} else if(predicate.apply(item, input)) {
-				res.add(new ItemWrapper<>(item, getLabelText(item)));
-				if(res.size() >= max) {
-					break;
-				}
-			}
-		}
-		return res;
 	}
 
 	private Div renderLabel(T value) throws Exception {
@@ -163,6 +116,9 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		delBtn.add(new FaIcon(FaIcon.faTimes));
 		delBtn.setClicked(a -> {
 			removeItem(value);
+			SearchAsYouType<T> input = m_input;
+			if(input != null)
+				input.setFocus();
 		});
 		m_displayMap.put(value, label);					// Register
 		return label;
@@ -197,7 +153,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 			return;
 
 		Div label = renderLabel(item);
-		SearchInput<ItemWrapper<T>> input = m_input;
+		SearchAsYouTypeBase<T> input = m_input;
 		if(null == input) {
 			add(label);
 		} else {
@@ -277,11 +233,11 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		return m_addSingleMatch;
 	}
 
-	public EnumSetInput<T>  setAddSingleMatch(boolean addSingleMatch) {
-		m_addSingleMatch = addSingleMatch;
-		SearchInput<ItemWrapper<T>> input = m_input;
-		if(null != input)
-			input.setAddSingleMatch(addSingleMatch);
-		return this;
-	}
+	//public EnumSetInput<T>  setAddSingleMatch(boolean addSingleMatch) {
+	//	m_addSingleMatch = addSingleMatch;
+	//	SearchAsYouTypeBase<ItemWrapper<T>> input = m_input;
+	//	if(null != input)
+	//		input.setAddSingleMatch(addSingleMatch);
+	//	return this;
+	//}
 }

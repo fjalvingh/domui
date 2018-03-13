@@ -115,10 +115,6 @@ public class PartService {
 	/**
 	 * Get the data for a part identified by the specified parameters. If the part
 	 * has not yet been generated it will be generated and then cached.
-	 *
-	 * @param parameters
-	 * @return
-	 * @throws Exception
 	 */
 	public PartData getData(IExtendedParameterInfo parameters) throws Exception {
 		PartExecutionReference executionReference = findPart(parameters);

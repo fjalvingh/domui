@@ -57,6 +57,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	final private boolean m_uiTestMode;
 
+	/** When T image resources are rendered as data: urls */
+	private boolean m_renderInline;
+
 	protected HtmlTagRenderer(BrowserVersion bv, final IBrowserOutput o, boolean uiTestMode) {
 		m_o = o;
 		m_browserVersion = bv;
@@ -65,6 +68,10 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	protected BrowserVersion getBrowser() {
 		return m_browserVersion;
+	}
+
+	public void setRenderInline(boolean renderInline) {
+		m_renderInline = renderInline;
 	}
 
 	/**
@@ -1089,7 +1096,13 @@ public class HtmlTagRenderer implements INodeVisitor {
 			if(n.isDisabled() && !src.startsWith("http")) { // For now we're not supporting grey scaling of servlet images
 				src = GrayscalerPart.getURL(src);
 			}
-			o().attr("src", src); 								// 20110104 was rawAttr causing fails on & in delta????
+			if(m_renderInline) {
+				String s = new ImgToDataRenderer().imageToData(src);
+				o().attr("src", s);
+
+			} else {
+				o().attr("src", src);                                // 20110104 was rawAttr causing fails on & in delta????
+			}
 		}
 		if(n.getImgBorder() >= 0)
 			o().attr("border", n.getImgBorder());

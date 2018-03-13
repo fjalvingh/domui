@@ -213,12 +213,20 @@ abstract public class AbstractSassResolver<O> {
 			String[] values = m_params.getParameters(name);
 			if(null != values && values.length == 1) {
 				String value = values[0];
-				if(!StringTool.isNumber(value)) {
+				if(isString(value)) {
 					value = StringTool.strToJavascriptString(value, true);
 				}
 				sb.append("$").append(name).append(": ").append(value).append(";\n");
 			}
 		}
 		return sb.toString();
+	}
+
+	static private boolean isString(String value) {
+		if(StringTool.isNumber(value))
+			return false;
+		if("true".equals(value) || "false".equals(value))
+			return false;
+		return true;
 	}
 }

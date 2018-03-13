@@ -3,17 +3,14 @@ package to.etc.test.webapp.query.qfield;
 import junit.framework.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
-import to.etc.domui.component.form.TabularFormBuilder;
-import to.etc.domui.dom.html.IControl;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
-import to.etc.webapp.query.QField;
 import to.etc.webapp.query.QRestrictor;
 
 import java.util.List;
 
 /**
- * Not really meant to run. It checks compilation errros that should occur.
+ * Not really meant to run. It checks compilation errors that should occur.
  * Commented out ofcourse
  *
  * @author <a href="mailto:dennis.bekkering@itris.nl">Dennis Bekkering</a>
@@ -59,15 +56,15 @@ public class QFieldCompileTest {
 		//new root
 		Assert.assertEquals("bankname", b.bankname().toString());
 
-		TabularFormBuilder builder = new TabularFormBuilder(new TestBankAccount()) {
-			@Override
-			public <T> IControl<T> addProp(QField< ? , T> field) {//current application unset otherwise, this is just a compile test
-				return null;
-			}
-		};
-		builder.addProp(b.bankname());
-		builder.addProp(r.preferredAccount());
-		builder.addProp(r.preferredAccount().relation());
+//		TabularFormBuilder builder = new TabularFormBuilder(new TestBankAccount()) {
+//			@Override
+//			public <T> IControl<T> addProp(QField< ? , T> field) {//current application unset otherwise, this is just a compile test
+//				return null;
+//			}
+//		};
+//		builder.addProp(b.bankname());
+//		builder.addProp(r.preferredAccount());
+//		builder.addProp(r.preferredAccount().relation());
 	}
 
 	public static void main(String[] args) throws Exception {

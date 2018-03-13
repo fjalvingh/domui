@@ -69,7 +69,7 @@ public class TabPanelBase extends Div {
 	/**
 	 * In case that it is set through constructor TabPanel would mark tabs that contain errors in content
 	 */
-	private boolean m_markErrorTabs = false;
+	private boolean m_markErrorTabs;
 
 	private ITabSelected m_onTabSelected;
 
@@ -122,10 +122,10 @@ public class TabPanelBase extends Div {
 	protected void renderLabel(int index, TabInstance ti) {
 		NodeContainer into = Objects.requireNonNull(m_labelContainer);
 		Li li = ti.getTab();
-		Li separator = new Li();
-		separator.setCssClass("ui-tab-ibt");
-		if(index == 0)
-			separator.addCssClass("ui-tab-ibt-first");
+//		Li separator = new Li();
+//		separator.setCssClass("ui-tab-ibt");
+//		if(index == 0)
+//			separator.addCssClass("ui-tab-ibt-first");
 		if(li == null || !li.isAttached()) {
 			li = new Li();
 			if(ti.isCloseable()) {
@@ -133,10 +133,10 @@ public class TabPanelBase extends Div {
 			} else {
 				li.setCssClass("ui-tab-li");
 			}
-			into.add(separator);
+//			into.add(separator);
 			into.add(li);
-			ti.setTab(li);                    // Save for later use,
-			ti.setSeparator(separator);        // Save for later use,
+			ti.setTab(li);                    	// Save for later use,
+//			ti.setSeparator(separator);			// Save for later use,
 			if(index == getCurrentTab()) {
 				li.addCssClass("ui-tab-sel");
 			} else {

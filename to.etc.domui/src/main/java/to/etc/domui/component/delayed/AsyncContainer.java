@@ -26,6 +26,7 @@ package to.etc.domui.component.delayed;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.state.DelayedActivityInfo;
@@ -66,6 +67,13 @@ final public class AsyncContainer extends Div {
 	public AsyncContainer(@Nonnull IAsyncRunnable arunnable, @Nullable IAsyncCompletionListener listener) {
 		m_runnable = arunnable;
 		m_resultListener = listener;
+	}
+
+	public AsyncContainer inline() {
+		setDisplay(DisplayType.INLINE_BLOCK);
+		setAbortable(false);
+		setBusyMarkerSrc("THEME/io-blk-wait.gif");
+		return this;
 	}
 
 	public AsyncContainer(@Nonnull IActivity activity) {

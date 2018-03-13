@@ -24,13 +24,14 @@
  */
 package to.etc.domui.component2.controlfactory;
 
-import java.util.*;
+import to.etc.domui.component.input.DateInput;
+import to.etc.domui.component.input.DateInput2;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Date;
 
 /**
  * Accepts the "java.util.Date" type only and creates a DateInput component for it.
@@ -41,7 +42,6 @@ import to.etc.domui.dom.html.*;
 public class ControlCreatorDate implements IControlCreator {
 	/**
 	 * Accept java.util.Date class <i>only</i>.
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
@@ -57,6 +57,6 @@ public class ControlCreatorDate implements IControlCreator {
 
 	@Override
 	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
-		return (C) DateInput.createDateInput((PropertyMetaModel<Date>) pmm, true);
+		return (C) DateInput2.createDateInput((PropertyMetaModel<Date>) pmm, true);
 	}
 }

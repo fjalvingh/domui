@@ -127,8 +127,8 @@ public class Dialog extends Window {
 			return;
 		m_buttonBar = new ButtonBar();
 		Div area = onbottom ? getBottomContent() : getTopContent();
-		if(area.getHeight() == null)
-			area.setHeight("34px");
+//		if(area.getHeight() == null)
+//			area.setHeight("34px");
 		area.add(m_buttonBar);
 	}
 
