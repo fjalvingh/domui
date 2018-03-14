@@ -157,6 +157,7 @@ final public class MenuItem {
 		to.m_order = from.m_order;
 		to.m_requiredRights = from.m_requiredRights;
 		to.m_target = from.m_target;
+		m_children.add(to);
 		return to;
 	}
 
@@ -172,12 +173,14 @@ final public class MenuItem {
 	public MenuItem addSub(BundleRef bundle, String labelKey) {
 		MenuItem item = new MenuItem(this);
 		item.labelKey(bundle, labelKey);
+		m_children.add(item);
 		return item;
 	}
 
 	public MenuItem addSub(String name) {
 		MenuItem item = new MenuItem(this);
 		item.label(name);
+		m_children.add(item);
 		return item;
 	}
 
