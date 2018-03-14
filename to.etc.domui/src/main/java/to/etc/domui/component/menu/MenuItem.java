@@ -24,15 +24,20 @@
  */
 package to.etc.domui.component.menu;
 
+import to.etc.domui.annotations.UIMenu;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * A single item in the menu, as defined by the *code*.
@@ -40,33 +45,39 @@ import java.util.Locale;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 3, 2009
  */
-public class MenuItem {
+final public class MenuItem {
 	/** Required for locking purposes. */
-	private MenuManager m_manager;
+	final private MenuManager m_manager;
+
+	/** When adding this can be set to define the child's parent. If unset other items are checked to find a parent menu. */
+	final private MenuItem m_parent;
 
 	private String m_id;
 
-	private BundleRef m_msgBundle;
+	private BundleRef m_labelRef;
+	private BundleRef m_titleRef;
+	private BundleRef m_searchRef;
+	private BundleRef m_descRef;
+
+	private String m_label;
 
 	private String m_labelKey;
 
+	private String m_title;
+
 	private String m_titleKey;
+
+	private String m_desc;
 
 	private String m_descKey;
 
 	private String m_searchKey;
 
-	/** Parent location indicator by ID. */
-	private String m_parentID;
-
-	/** When adding this can be set to define the child's parent. If unset other items are checked to find a parent menu. */
-	private MenuItem m_parent;
+	private String m_image;
 
 	private Class< ? extends UrlPage> m_pageClass;
 
-	private PageParameters m_pageParameters;
-
-	private String m_iconPath;
+	private IPageParameters m_pageParameters;
 
 	private boolean m_disabled;
 
@@ -77,123 +88,169 @@ public class MenuItem {
 	/** The list of rights the user MUST have to access this menu item. This can get delegated to the UrlPage's annotation. */
 	private String[] m_requiredRights;
 
-	private List<MenuItem> m_children = new ArrayList<MenuItem>();
+	private List<MenuItem> m_children = new ArrayList<>();
 
-	/**
-	 * Once this item has been integrated in the main menu it cannot be changed anymore (except it's children)
-	 */
-	//	private boolean		m_complete;
+	private boolean m_calculated;
 
 	private String m_target;
 
 	private String m_rurl;
 
-	public MenuItem(MenuManager m) {
+	/**
+	 * Root node constructor.
+	 */
+	MenuItem(MenuManager m) {
 		m_manager = m;
+		m_parent = null;
+	}
+
+	MenuItem(MenuItem parent) {
+		m_manager = parent.getManager();
+		m_parent = parent;
+	}
+
+	MenuItem(MenuItem parent, Class<UrlPage> pageClass) {
+		m_manager = parent.getManager();
+		m_parent = parent;
+		m_pageClass = pageClass;
+	}
+
+	MenuItem(MenuItem parent, String url) {
+		m_manager = parent.getManager();
+		m_parent = parent;
+		m_rurl = url;
+	}
+
+	MenuManager getManager() {
+		return m_manager;
 	}
 
 	/**
-	 * Defines the rights that the user MUST have to see this menu item. If more than one Right is passed the user needs to possess *all* rights. When
-	 * defined this overrides the rights in
+	 * Add a menu item (leaf) linking to the specified page.
 	 */
-	public MenuItem setRequiredRights(String... rights) {
+	public MenuItem add(Class<UrlPage> pageClass) {
+		MenuItem item = new MenuItem(this, pageClass);
+		m_children.add(item);
+		return item;
+	}
+
+	/**
+	 * Add a menu node linking to the specified relative url.
+	 */
+	public MenuItem add(String rurl) {
+		MenuItem item = new MenuItem(this, rurl);
+		m_children.add(item);
+		return item;
+	}
+
+	public MenuItem addSub(BundleRef bundle, String labelKey) {
+		MenuItem item = new MenuItem(this);
+		item.labelKey(bundle, labelKey);
+		return item;
+	}
+
+	public MenuItem up() {
+		return requireNonNull(m_parent);
+	}
+
+	/**
+	 * Defines the rights that the user MUST have to see this menu item. These rights are in addition to the page rights.
+	 */
+	public MenuItem rights(String... rights) {
 		m_requiredRights = rights;
 		return this;
 	}
 
-	public MenuItem setImage(String name) {
-		m_iconPath = name;
+	public MenuItem image(String name) {
+		m_image = name;
 		return this;
 	}
 
-	public MenuItem setImage(Class< ? > res, String name) {
-		m_iconPath = DomUtil.getJavaResourceRURL(res, name);
+	public MenuItem image(Class< ? > res, String name) {
+		m_image = DomUtil.getJavaResourceRURL(res, name);
 		return this;
 	}
 
-	public MenuItem setLocation(MenuItem parent, int order) {
-		m_parent = parent;
+	private String byKey(BundleRef ref, String k) {
+		if(ref == null || k == null)
+			return null;
+		Locale loc = NlsContext.getLocale();
+		return ref.getString(loc, k);
+	}
+
+	public MenuItem order(int order) {
 		m_order = order;
 		return this;
 	}
 
-	private String byKey(String k) {
-		Locale loc = NlsContext.getLocale();
-		return m_msgBundle.getString(loc, k);
-	}
-
-	public String getId() {
-		return m_id;
-	}
-
-	public void setId(String id) {
-		m_id = id;
-	}
-
-	public BundleRef getMsgBundle() {
-		return m_msgBundle;
-	}
-
-	public void setMsgBundle(BundleRef msgBundle) {
-		m_msgBundle = msgBundle;
-	}
-
-	public String getLabelKey() {
-		return m_labelKey;
-	}
-
-	public void setLabelKey(String labelKey) {
-		m_labelKey = labelKey;
-	}
-
-	public String getDescKey() {
-		return m_descKey;
-	}
-
-	public void setDescKey(String descKey) {
-		m_descKey = descKey;
-	}
-
-	public String getSearchKey() {
-		return m_searchKey;
-	}
-
-	public void setSearchKey(String searchKey) {
-		m_searchKey = searchKey;
-	}
-
-	public String getParentID() {
-		return m_parentID;
-	}
-
-	public void setParentID(String parentID) {
-		m_parentID = parentID;
-	}
-
-	public Class< ? extends UrlPage> getPageClass() {
-		return m_pageClass;
-	}
-
-	public MenuItem setPageClass(Class< ? extends UrlPage> pageClass) {
-		m_pageClass = pageClass;
+	public MenuItem label(String label) {
+		m_label = label;
 		return this;
 	}
 
-	public PageParameters getPageParameters() {
-		return m_pageParameters;
+	public MenuItem desc(String desc) {
+		m_desc = desc;
+		return this;
 	}
 
-	public MenuItem setPageParameters(PageParameters pageParameters) {
+	public MenuItem title(String ttl) {
+		m_title = ttl;
+		return this;
+	}
+
+	public MenuItem labelKey(BundleRef bundle, String labelKey) {
+		m_labelKey = labelKey;
+		m_labelRef = bundle;
+		return this;
+	}
+
+	public MenuItem id(String id) {
+		m_id = id;
+		return this;
+	}
+
+	public MenuItem descKey(BundleRef ref, String descKey) {
+		m_descKey = descKey;
+		m_descRef = ref;
+		return this;
+	}
+
+	public MenuItem titleKey(BundleRef ref, String titleKey) {
+		m_titleKey = titleKey;
+		m_titleRef = ref;
+		return this;
+	}
+
+	public MenuItem target(String target) {
+		m_target = target;
+		return this;
+	}
+
+	public MenuItem searchKey(BundleRef ref, String searchKey) {
+		m_searchKey = searchKey;
+		m_searchRef = ref;
+		return this;
+	}
+
+	public MenuItem parameter(String name, String value) {
+		IPageParameters pp = m_pageParameters;
+		if(pp instanceof PageParameters || pp == null) {
+			PageParameters ppp = (PageParameters) pp;
+			if(ppp == null) {
+				m_pageParameters = ppp = new PageParameters();
+			}
+			ppp.addParameter(name, value);
+		} else
+			throw new IllegalStateException("Invalid page parameters");
+		return this;
+	}
+
+	/**
+	 * Sets all parameters to use.
+	 */
+	public MenuItem parameters(IPageParameters pageParameters) {
 		m_pageParameters = pageParameters;
 		return this;
-	}
-
-	public String getIconPath() {
-		return m_iconPath;
-	}
-
-	public void setIconPath(String iconPath) {
-		m_iconPath = iconPath;
 	}
 
 	public boolean isDisabled() {
@@ -210,77 +267,209 @@ public class MenuItem {
 		}
 	}
 
-	public void setChildren(List<MenuItem> children) {
-		if(!m_subMenu)
-			throw new IllegalStateException("Cannot add children to a LEAF item.");
-		synchronized(m_manager) {
-			m_children = children;
-		}
-	}
-
 	public String getSearchString() {
-		return byKey(m_searchKey);
+		String s = byKey(m_searchRef, m_searchKey);
+		if(null != s)
+			return s;
+		return getLabel();
 	}
 
 	public String[] getRequiredRights() {
 		return m_requiredRights;
 	}
 
+	public String getSearchKey() {
+		return m_searchKey;
+	}
+
+
 	public String getLabel() {
-		return byKey(m_labelKey);
+		String s = byKey(m_labelRef, m_labelKey);
+		if(null != s)
+			return s;
+		if(m_label != null)
+			return m_label;
+		Class<? extends UrlPage> pageClass = m_pageClass;
+		if(null != pageClass) {
+			return pageClass.getSimpleName();
+		}
+		return "Unknown label";
 	}
 
 	public String getDescription() {
-		return byKey(m_descKey);
+		String s = byKey(m_descRef, m_descKey);
+		if(null != s)
+			return s;
+		return m_desc;
 	}
 
 	public boolean isSubMenu() {
-		return m_subMenu;
-	}
-
-	public void setSubMenu(boolean subMenu) {
-		m_subMenu = subMenu;
+		return m_rurl == null && m_pageClass == null;
 	}
 
 	public int getOrder() {
 		return m_order;
 	}
 
-	public void setOrder(int order) {
-		m_order = order;
-	}
-
 	public String getTitleKey() {
 		return m_titleKey;
 	}
-
-	public void setTitleKey(String titleKey) {
-		m_titleKey = titleKey;
-	}
-
 	public MenuItem getParent() {
 		return m_parent;
-	}
-
-	void setParent(MenuItem parent) {
-		m_parent = parent;
 	}
 
 	public String getTarget() {
 		return m_target;
 	}
 
-	public MenuItem setTarget(String target) {
-		m_target = target;
-		return this;
-	}
-
 	public String getRURL() {
 		return m_rurl;
 	}
-
-	public MenuItem setRURL(String rurl) {
-		m_rurl = rurl;
-		return this;
+	@Nullable
+	public String getId() {
+		return m_id;
 	}
+
+	public Class< ? extends UrlPage> getPageClass() {
+		return m_pageClass;
+	}
+
+	public IPageParameters getPageParameters() {
+		return m_pageParameters;
+	}
+
+	public String getImage() {
+		return m_image;
+	}
+
+	private void calculateBundleData() {
+		if(m_calculated)
+			return;
+
+		Class<? extends UrlPage> clz = getPageClass();
+		if(null != clz) {
+			if(m_image == null) {
+				//-- 1. Is an icon or icon resource specified in any attached UIMenu annotation? If so use that;
+				UIMenu ma = clz.getAnnotation(UIMenu.class);
+				if(ma != null) {
+					if(! ma.iconName().isEmpty()) {
+						if(ma.iconBase() != Object.class)
+							image(DomUtil.getJavaResourceRURL(ma.iconBase(), ma.iconName()));
+						else
+							image(ma.iconName());
+					}
+				}
+
+				//-- Not set using a UIMenu annotation. Is a .png with the same classname available?
+				String cn = DomUtil.getClassNameOnly(clz) + ".png";
+				if(DomUtil.hasResource(clz, cn)) {
+					image(DomUtil.getJavaResourceRURL(clz, cn)); // Set class-based URL
+				}
+			}
+
+			/*
+			 * We try to prime the source for title, label, search and description from the properties defined
+			 * in the Page class. This can be overridden by separate calls into the returned item. The logic
+			 * used here should duplicate the logic exposed in AppUIUtil for the items mostly. The exception
+			 * is that the code here tries to find a single source for the strings using the same chain of
+			 * locations specified in AppUIUtil; it will then use this single source for /all/ strings.
+			 * These things all set a bundle and key for all items.
+			 */
+			UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
+			String labelKey = null;
+			String titleKey = null;
+			String searchKey = null;
+			String descKey = null;
+			BundleRef labelRef = null;
+			BundleRef titleRef = null;
+			BundleRef searchRef = null;
+			BundleRef descRef = null;
+
+			if(ma != null) {
+				BundleRef ref = DomUtil.findBundle(ma, clz);
+				if(ref != null) {
+					if(ma.baseKey().length() != 0) {
+						labelKey = ma.baseKey() + ".label";
+						titleKey = ma.baseKey() + ".title";
+						searchKey = ma.baseKey() + ".search";
+						descKey = ma.baseKey() + ".desc";
+						labelRef = titleRef = searchRef = descRef = ref;
+					}
+					if(ma.labelKey().length() != 0) {
+						labelKey = ma.labelKey();
+						labelRef = ref;
+					}
+					if(ma.titleKey().length() != 0) {
+						titleKey = ma.titleKey();
+						titleRef = ref;
+					}
+					if(ma.descKey().length() != 0) {
+						descKey = ma.descKey();
+						descRef = ref;
+					}
+					if(ma.searchKey().length() != 0) {
+						searchKey = ma.searchKey();
+						searchRef = ref;
+					}
+				}
+			}
+
+			//-- Not using UIMenu; use page/package based structures. This depends on whether a Page resource exists.
+			BundleRef br = DomUtil.getClassBundle(clz); 	// PageClass bundle
+			if(br.exists()) {
+				//-- Use page-based resources.
+				if(br.getString("label") != null) {
+					labelKey = "label";
+					labelRef = br;
+				}
+				if(br.getString("title") != null) {
+					titleKey = "title";
+					titleRef = br;
+				}
+				if(br.getString("search") != null) {
+					searchKey = "search";
+					searchRef = br;
+				}
+				if(br.getString("desc") != null) {
+					descKey = "desc";
+					descRef = br;
+				}
+			}
+
+			//-- Try package-based keys
+			br = DomUtil.getPackageBundle(clz); 				// Package bundle.
+			if(br.exists()) {
+				//-- Use the package-based bundle for $ provided some exist...
+				String bn = clz.getSimpleName();
+				String kl = bn + ".label";
+				String kt = bn + ".title";
+				if(br.findMessage(Locale.US, kl) != null || br.findMessage(Locale.US, kt) != null) {
+					titleRef = labelRef = descRef = searchRef = br;
+					labelKey = kl;
+					titleKey = kt;
+					searchKey = bn + ".search";
+					descKey = bn + ".desc";
+				}
+			}
+
+			if(m_labelKey == null && m_label == null)
+				labelKey(labelRef, labelKey);
+			if(m_titleKey == null && m_title == null)
+				titleKey(titleRef, titleKey);
+			if(m_searchKey == null)
+				searchKey(searchRef, searchKey);
+			if(m_desc == null && m_descKey == null)
+				descKey(descRef, descKey);
+		}
+		m_calculated = true;
+	}
+
+	public String getLabelKey() {
+		return m_labelKey;
+	}
+
+	public String getDescKey() {
+		return m_descKey;
+	}
+
 }
