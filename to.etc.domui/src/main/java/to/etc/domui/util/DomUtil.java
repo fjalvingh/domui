@@ -330,6 +330,10 @@ final public class DomUtil {
 		return clz == Boolean.class || clz == boolean.class;
 	}
 
+	static public boolean isNumber(Class<?> clz) {
+		return Number.class.isAssignableFrom(getBoxedForPrimitive(clz));
+	}
+
 	/**
 	 * Return T if the class represents a real (double or float) type.
 	 * @param clz

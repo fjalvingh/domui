@@ -243,10 +243,10 @@ public class NumericUtil {
 				default:
 					throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 
-				case UNKNOWN:
-				case NUMBER:
 				case NUMBER_SCALED:
 					return v.toString();
+				case UNKNOWN:
+				case NUMBER:
 				case NUMBER_FULL:
 					return new DecimalFormat("###,###,###,###,###,###,###,###,###,###,###,###,##0", dfs).format(v);
 				case NUMBER_SCIENTIFIC:

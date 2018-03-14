@@ -3,7 +3,6 @@ package to.etc.domui.component.tbl;
 import kotlin.reflect.KProperty1;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SortableType;
 import to.etc.domui.component.misc.DisplaySpan;
@@ -23,6 +22,7 @@ import to.etc.domui.dom.html.TH;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
@@ -210,22 +210,13 @@ import java.util.function.Predicate;
 				if(!StringTool.isBlank(label))
 					cellSpan.add(new Span(label));
 				final ColumnDef<T, ?> scd = cd;
-				th.setClicked(new IClicked<TH>() {
-					@Override
-					public void clicked(final @Nonnull TH b) throws Exception {
-						handleSortClick(b, scd);
-					}
-				});
+				th.setClicked((IClicked<TH>) b -> handleSortClick(b, scd));
 			}
-			if(cd.getHeaderCssClass() != null) {
-				sb.setLength(0);
-				if(th.getCssClass() != null) {
-					sb.append(th.getCssClass());
-					sb.append(' ');
-				}
-				sb.append(cd.getHeaderCssClass());
-				th.setCssClass(sb.toString());
-			}
+
+			String cssClass = cd.getCssClass();
+			if(cssClass != null)
+				th.addCssClass(cssClass);
+			applyNumericCssClass(th, cd);
 
 			th.setWidth(widthMap.get(cd));
 			if(cd.isNowrap())
@@ -423,13 +414,10 @@ import java.util.function.Predicate;
 				 * FIXME For now I add a separate instance of the handler to every cell. A single instance is OK too,
 				 * provided it can calculate the row and cell data from the TR it is attached to.
 				 */
-				cell.setClicked(new IClicked<TD>() {
-					@Override
-					public void clicked(final @Nonnull TD b) throws Exception {
-						ICellClicked<Object> clicked = (ICellClicked<Object>) cd.getCellClicked();
-						if(null != clicked)
-							clicked.cellClicked(instance);
-					}
+				cell.setClicked((IClicked<TD>) b -> {
+					ICellClicked<Object> clicked = (ICellClicked<Object>) cd.getCellClicked();
+					if(null != clicked)
+						clicked.cellClicked(instance);
 				});
 				cell.addCssClass("ui-cellsel");
 			}
@@ -476,7 +464,7 @@ import java.util.function.Predicate;
 					ds.setConverter(converter);
 				}
 			}
-			applyCellAttributes(cell, cd);
+			applyNumericCssClass(cell, cd);
 		} else if(contentRenderer != null) {
 			//-- No property but a content renderer -> let it take care of binding itself as we cannot.
 			X value = cd.getColumnValue(instance);
@@ -486,9 +474,19 @@ import java.util.function.Predicate;
 		}
 	}
 
-	private void applyCellAttributes(NodeContainer cell, ColumnDef<T, ?> cd) {
-		if(cd.getNumericPresentation() != null && cd.getNumericPresentation() != NumericPresentation.UNKNOWN)
-			cell.addCssClass("ui-numeric");
+	private void applyNumericCssClass(NodeContainer cell, ColumnDef<T, ?> cd) {
+		if(cd.getConverter() != null)
+			return;
+		PropertyMetaModel<?> pmm = cd.getPropertyMetaModel();
+		if(pmm != null && pmm.getConverter() != null)
+			return;
+
+		//NumericPresentation np = cd.getNumericPresentation();
+		if(! Number.class.isAssignableFrom(DomUtil.getBoxedForPrimitive(cd.getActualClass()))) {
+			return;
+		}
+
+		cell.addCssClass("ui-numeric");
 	}
 
 	/**
