@@ -24,12 +24,15 @@
  */
 package to.etc.domui.component.menu;
 
-import java.util.*;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.NlsContext;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * A single item in the menu, as defined by the *code*.
@@ -37,9 +40,9 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 3, 2009
  */
-public class MenuItemImpl implements IMenuItem {
+public class MenuItem {
 	/** Required for locking purposes. */
-	private final MenuManager m_manager;
+	private MenuManager m_manager;
 
 	private String m_id;
 
@@ -57,7 +60,7 @@ public class MenuItemImpl implements IMenuItem {
 	private String m_parentID;
 
 	/** When adding this can be set to define the child's parent. If unset other items are checked to find a parent menu. */
-	private MenuItemImpl m_parent;
+	private MenuItem m_parent;
 
 	private Class< ? extends UrlPage> m_pageClass;
 
@@ -74,7 +77,7 @@ public class MenuItemImpl implements IMenuItem {
 	/** The list of rights the user MUST have to access this menu item. This can get delegated to the UrlPage's annotation. */
 	private String[] m_requiredRights;
 
-	private List<IMenuItem> m_children = new ArrayList<IMenuItem>();
+	private List<MenuItem> m_children = new ArrayList<MenuItem>();
 
 	/**
 	 * Once this item has been integrated in the main menu it cannot be changed anymore (except it's children)
@@ -85,51 +88,45 @@ public class MenuItemImpl implements IMenuItem {
 
 	private String m_rurl;
 
-	public MenuItemImpl(final MenuManager m) {
+	public MenuItem(MenuManager m) {
 		m_manager = m;
 	}
 
 	/**
 	 * Defines the rights that the user MUST have to see this menu item. If more than one Right is passed the user needs to possess *all* rights. When
 	 * defined this overrides the rights in
-	 * @param name
-	 * @return
 	 */
-	public MenuItemImpl setRequiredRights(final String... rights) {
+	public MenuItem setRequiredRights(String... rights) {
 		m_requiredRights = rights;
 		return this;
 	}
 
-	public MenuItemImpl setImage(final String name) {
+	public MenuItem setImage(String name) {
 		m_iconPath = name;
 		return this;
 	}
 
-	public MenuItemImpl setImage(final Class< ? > res, final String name) {
+	public MenuItem setImage(Class< ? > res, String name) {
 		m_iconPath = DomUtil.getJavaResourceRURL(res, name);
 		return this;
 	}
 
-	public MenuItemImpl setLocation(final MenuItemImpl parent, final int order) {
+	public MenuItem setLocation(MenuItem parent, int order) {
 		m_parent = parent;
 		m_order = order;
 		return this;
 	}
 
-	private String byKey(final String k) {
+	private String byKey(String k) {
 		Locale loc = NlsContext.getLocale();
 		return m_msgBundle.getString(loc, k);
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getId()
-	 */
-	@Override
 	public String getId() {
 		return m_id;
 	}
 
-	public void setId(final String id) {
+	public void setId(String id) {
 		m_id = id;
 	}
 
@@ -137,7 +134,7 @@ public class MenuItemImpl implements IMenuItem {
 		return m_msgBundle;
 	}
 
-	public void setMsgBundle(final BundleRef msgBundle) {
+	public void setMsgBundle(BundleRef msgBundle) {
 		m_msgBundle = msgBundle;
 	}
 
@@ -145,7 +142,7 @@ public class MenuItemImpl implements IMenuItem {
 		return m_labelKey;
 	}
 
-	public void setLabelKey(final String labelKey) {
+	public void setLabelKey(String labelKey) {
 		m_labelKey = labelKey;
 	}
 
@@ -153,7 +150,7 @@ public class MenuItemImpl implements IMenuItem {
 		return m_descKey;
 	}
 
-	public void setDescKey(final String descKey) {
+	public void setDescKey(String descKey) {
 		m_descKey = descKey;
 	}
 
@@ -161,83 +158,59 @@ public class MenuItemImpl implements IMenuItem {
 		return m_searchKey;
 	}
 
-	public void setSearchKey(final String searchKey) {
+	public void setSearchKey(String searchKey) {
 		m_searchKey = searchKey;
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getParentID()
-	 */
-	@Override
 	public String getParentID() {
 		return m_parentID;
 	}
 
-	public void setParentID(final String parentID) {
+	public void setParentID(String parentID) {
 		m_parentID = parentID;
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getPageClass()
-	 */
-	@Override
 	public Class< ? extends UrlPage> getPageClass() {
 		return m_pageClass;
 	}
 
-	public MenuItemImpl setPageClass(final Class< ? extends UrlPage> pageClass) {
+	public MenuItem setPageClass(Class< ? extends UrlPage> pageClass) {
 		m_pageClass = pageClass;
 		return this;
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getPageParameters()
-	 */
-	@Override
 	public PageParameters getPageParameters() {
 		return m_pageParameters;
 	}
 
-	public MenuItemImpl setPageParameters(final PageParameters pageParameters) {
+	public MenuItem setPageParameters(PageParameters pageParameters) {
 		m_pageParameters = pageParameters;
 		return this;
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getIconPath()
-	 */
-	@Override
 	public String getIconPath() {
 		return m_iconPath;
 	}
 
-	public void setIconPath(final String iconPath) {
+	public void setIconPath(String iconPath) {
 		m_iconPath = iconPath;
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#isDisabled()
-	 */
-	@Override
 	public boolean isDisabled() {
 		return m_disabled;
 	}
 
-	public void setDisabled(final boolean disabled) {
+	public void setDisabled(boolean disabled) {
 		m_disabled = disabled;
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getChildren()
-	 */
-	@Override
-	public List<IMenuItem> getChildren() {
+	public List<MenuItem> getChildren() {
 		synchronized(m_manager) {
 			return m_children;
 		}
 	}
 
-	public void setChildren(final List<IMenuItem> children) {
+	public void setChildren(List<MenuItem> children) {
 		if(!m_subMenu)
 			throw new IllegalStateException("Cannot add children to a LEAF item.");
 		synchronized(m_manager) {
@@ -245,53 +218,35 @@ public class MenuItemImpl implements IMenuItem {
 		}
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getSearchString()
-	 */
-	@Override
 	public String getSearchString() {
 		return byKey(m_searchKey);
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getRequiredRights()
-	 */
-	@Override
 	public String[] getRequiredRights() {
 		return m_requiredRights;
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getLabel()
-	 */
-	@Override
 	public String getLabel() {
 		return byKey(m_labelKey);
 	}
 
-	/**
-	 * @see to.etc.domui.component.menu.IMenuItem#getDescription()
-	 */
-	@Override
 	public String getDescription() {
 		return byKey(m_descKey);
 	}
 
-	@Override
 	public boolean isSubMenu() {
 		return m_subMenu;
 	}
 
-	public void setSubMenu(final boolean subMenu) {
+	public void setSubMenu(boolean subMenu) {
 		m_subMenu = subMenu;
 	}
 
-	@Override
 	public int getOrder() {
 		return m_order;
 	}
 
-	public void setOrder(final int order) {
+	public void setOrder(int order) {
 		m_order = order;
 	}
 
@@ -299,34 +254,32 @@ public class MenuItemImpl implements IMenuItem {
 		return m_titleKey;
 	}
 
-	public void setTitleKey(final String titleKey) {
+	public void setTitleKey(String titleKey) {
 		m_titleKey = titleKey;
 	}
 
-	public MenuItemImpl getParent() {
+	public MenuItem getParent() {
 		return m_parent;
 	}
 
-	void setParent(final MenuItemImpl parent) {
+	void setParent(MenuItem parent) {
 		m_parent = parent;
 	}
 
-	@Override
 	public String getTarget() {
 		return m_target;
 	}
 
-	public MenuItemImpl setTarget(final String target) {
+	public MenuItem setTarget(String target) {
 		m_target = target;
 		return this;
 	}
 
-	@Override
 	public String getRURL() {
 		return m_rurl;
 	}
 
-	public MenuItemImpl setRURL(final String rurl) {
+	public MenuItem setRURL(String rurl) {
 		m_rurl = rurl;
 		return this;
 	}

@@ -36,7 +36,7 @@ public interface IMenuItemFilter {
 	 * Called to set the node that needs to be handled.
 	 * @param currentNode
 	 */
-	void setNode(MenuItemImpl currentNode) throws Exception;
+	void setNode(MenuItem currentNode) throws Exception;
 
 	/**
 	 * Must return true if the current node is accessible by the user. This must check access rights (Rights).
