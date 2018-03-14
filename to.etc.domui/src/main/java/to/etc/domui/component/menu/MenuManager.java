@@ -24,8 +24,13 @@
  */
 package to.etc.domui.component.menu;
 
+import to.etc.domui.annotations.UIRights;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.IUser;
+
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,6 +87,81 @@ public class MenuManager {
 		for(MenuItem menuItem : root.getChildren()) {
 			calculateIds(menuItem, idMap);
 		}
+	}
+
+	/**
+	 * Calculate the user-specific menu by applying the users' rights on all menu items.
+	 */
+	public MenuItem createUserMenu(IUser user) {
+		MenuItem root = getRoot();
+
+		MenuItem userRoot = new MenuItem(this);
+
+		//-- First: build a tree of all nodes the user is authorized to see
+		buildAuthorization(userRoot, root, user);
+		pruneEmpties(userRoot);
+		return userRoot;
+	}
+
+	/**
+	 * Do a depth-first traversal of the user menu and remove all empty submenus.
+	 */
+	private void pruneEmpties(MenuItem item) {
+		for(MenuItem menuItem : item.getChildren()) {
+			pruneEmpties(menuItem);
+		}
+
+		//-- Now check: which of my children are empty?
+		List<MenuItem> children = item.getChildren();
+		for(int i = children.size() - 1; i >= 0; i--) {
+			MenuItem menuItem = children.get(i);
+			if(menuItem.isSubMenu() && menuItem.getChildren().size() == 0) {
+				children.remove(i);
+			}
+		}
+	}
+
+	private void buildAuthorization(MenuItem userMenu, MenuItem systemMenu, IUser user) {
+		for(MenuItem sysItem : systemMenu.getChildren()) {
+			if(isNodeAuthorized(systemMenu, user)) {
+				//-- We're allowed to use this, so copy it
+				MenuItem userItem = userMenu.addClone(sysItem);
+
+				buildAuthorization(userItem, sysItem, user);
+			}
+		}
+	}
+
+	private boolean isNodeAuthorized(MenuItem item, IUser user) {
+		//-- Collect all applicable rights.
+		String[] requiredRights = item.getRequiredRights();
+		if(null != requiredRights) {
+			boolean menuOk = false;
+
+			//-- If the user has none of these then do not show
+			for(String rr : requiredRights) {
+				if(user.hasRight(rr)) {
+					menuOk = true;
+					break;
+				}
+			}
+			if(! menuOk)
+				return false;
+		}
+
+		Class<? extends UrlPage> pageClass = item.getPageClass();
+		if(null != pageClass) {
+			UIRights uir = pageClass.getAnnotation(UIRights.class);
+			if(null != uir && uir.value().length > 0) {
+				for(String rr : uir.value()) {
+					if(user.hasRight(rr))
+						return true;
+				}
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 

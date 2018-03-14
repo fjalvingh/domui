@@ -83,8 +83,6 @@ final public class MenuItem {
 
 	private int m_order;
 
-	private boolean m_subMenu;
-
 	/** The list of rights the user MUST have to access this menu item. This can get delegated to the UrlPage's annotation. */
 	private String[] m_requiredRights;
 
@@ -109,7 +107,7 @@ final public class MenuItem {
 		m_parent = parent;
 	}
 
-	MenuItem(MenuItem parent, Class<UrlPage> pageClass) {
+	MenuItem(MenuItem parent, Class<? extends UrlPage> pageClass) {
 		m_manager = parent.getManager();
 		m_parent = parent;
 		m_pageClass = pageClass;
@@ -128,10 +126,38 @@ final public class MenuItem {
 	/**
 	 * Add a menu item (leaf) linking to the specified page.
 	 */
-	public MenuItem add(Class<UrlPage> pageClass) {
+	public MenuItem add(Class<? extends UrlPage> pageClass) {
 		MenuItem item = new MenuItem(this, pageClass);
 		m_children.add(item);
 		return item;
+	}
+
+	/**
+	 * Duplicate an item and add it here.
+	 */
+	MenuItem addClone(MenuItem from) {
+		MenuItem to = new MenuItem(this);
+		to.m_labelRef = from.m_labelRef;
+		to.m_label = from.m_label;
+		to.m_labelKey = from.m_labelKey;
+		to.m_searchRef = from.m_searchRef;
+		to.m_searchKey = from.m_searchKey;
+		to.m_titleRef = from.m_titleRef;
+		to.m_titleKey = from.m_titleKey;
+		to.m_title = from.m_title;
+		to.m_descRef = from.m_descRef;
+		to.m_descKey = from.m_descKey;
+		to.m_desc = from.m_desc;
+		to.m_image = from.m_image;
+		to.m_pageClass = from.m_pageClass;
+		to.m_pageParameters = from.m_pageParameters;
+		to.m_rurl = from.m_rurl;
+		to.m_calculated = from.m_calculated;
+		to.m_disabled = from.m_disabled;
+		to.m_order = from.m_order;
+		to.m_requiredRights = from.m_requiredRights;
+		to.m_target = from.m_target;
+		return to;
 	}
 
 	/**
@@ -146,6 +172,12 @@ final public class MenuItem {
 	public MenuItem addSub(BundleRef bundle, String labelKey) {
 		MenuItem item = new MenuItem(this);
 		item.labelKey(bundle, labelKey);
+		return item;
+	}
+
+	public MenuItem addSub(String name) {
+		MenuItem item = new MenuItem(this);
+		item.label(name);
 		return item;
 	}
 
@@ -472,4 +504,14 @@ final public class MenuItem {
 		return m_descKey;
 	}
 
+	public boolean siblingHasIcons() {
+		MenuItem parent = m_parent;
+		if(null == parent)
+			return false;
+		for(MenuItem menuNode : parent.getChildren()) {
+			if(menuNode.getImage() != null)
+				return true;
+		}
+		return false;
+	}
 }
