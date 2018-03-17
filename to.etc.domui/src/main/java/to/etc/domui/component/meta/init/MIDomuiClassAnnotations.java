@@ -54,7 +54,7 @@ public class MIDomuiClassAnnotations extends AbstractClassAnnotationProvider {
 				//	}
 				//});
 			}
-			if(!mo.defaultSortColumn().equals(Constants.NONE))
+			if(!mo.defaultSortColumn().isEmpty())
 				cmm.setDefaultSortProperty(mo.defaultSortColumn());
 			cmm.setDefaultSortDirection(mo.defaultSortOrder());
 
