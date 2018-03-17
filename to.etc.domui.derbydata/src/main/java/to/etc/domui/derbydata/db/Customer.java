@@ -18,7 +18,7 @@ import javax.persistence.Table;
 @Table(name = "Customer")
 @SequenceGenerator(name = "sq", sequenceName = "customer_sq", allocationSize = 1)
 @MetaObject(
-	defaultColumns = {@MetaDisplayProperty(name = "firstName"), @MetaDisplayProperty(name="lastName")}
+	defaultColumns = {@MetaDisplayProperty(name = "firstName", join = " "), @MetaDisplayProperty(name="lastName")}
 ,	searchProperties = {
 		@MetaSearchItem(name="firstName", searchType=SearchPropertyType.BOTH)
 	,	@MetaSearchItem(name="lastName", searchType=SearchPropertyType.BOTH)
