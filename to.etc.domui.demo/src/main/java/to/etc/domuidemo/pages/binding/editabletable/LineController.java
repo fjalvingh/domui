@@ -20,7 +20,7 @@ public class LineController {
 
 	private final List<Date> m_months;
 
-	private BigDecimal m_budgetted;
+	private BigDecimal m_budgeted;
 
 	public LineController() {
 		initializeDemoData();
@@ -36,7 +36,7 @@ public class LineController {
 		}
 		m_months = res;
 
-		m_budgetted = new BigDecimal("876543.21");
+		m_budgeted = new BigDecimal("876543.21");
 	}
 
 	private void initializeDemoData() {
@@ -80,7 +80,7 @@ public class LineController {
 				case Percentage:
 					BigDecimal percentage = line.getPercentage();
 					if(null != percentage) {
-						res = res.setScale(2).add(getBudgetted().multiply(percentage).divide(new BigDecimal(100)));
+						res = res.setScale(2).add(getBudgeted().multiply(percentage).divide(new BigDecimal(100)));
 					}
 					break;
 			}
@@ -89,11 +89,11 @@ public class LineController {
 	}
 
 	public BigDecimal getRemainder() {
-		return getBudgetted().subtract(getTotal());
+		return getBudgeted().subtract(getTotal());
 	}
 
-	public BigDecimal getBudgetted() {
-		return m_budgetted;
+	public BigDecimal getBudgeted() {
+		return m_budgeted;
 	}
 
 	public void addEditRow() {

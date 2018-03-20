@@ -87,8 +87,8 @@ public class EditableTablePage extends UrlPage {
 
 	private void addBegroting(TBody body) throws Exception {
 		Text2<BigDecimal> begrotingCtrl = createBigDecimalControl();
-		begrotingCtrl.bind().to(model(), "budgetted");
-		addControlToBody(body, begrotingCtrl, "Budgetted amount");
+		begrotingCtrl.bind().to(model(), "budgeted");
+		addControlToBody(body, begrotingCtrl, "Budgeted amount");
 	}
 
 	private void addRestant(TBody body) throws Exception {
@@ -116,7 +116,6 @@ public class EditableTablePage extends UrlPage {
 		td2.add(control);
 		return tr;
 	}
-
 
 	@Nonnull
 	private INodeContentRenderer<Line> createRemoveRenderer() {
@@ -149,13 +148,6 @@ public class EditableTablePage extends UrlPage {
 			ctrl.bind("visibility").to(row, "amountVisible");
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("-999999999.99"), new BigDecimal("999999999.99")));
 			ctrl.immediate();
-
-			//if(row.getBedragType() == LiquiditeitsBedragType.BEDRAG) {
-			//	ctrl.setMandatory(true);
-			//} else {
-			//	ctrl.setTextAlign(TextAlign.RIGHT);
-			//	ctrl.setReadOnly(true);
-			//}
 			return ctrl;
 		};
 	}
@@ -169,11 +161,6 @@ public class EditableTablePage extends UrlPage {
 			ctrl.bind("visibility").to(row, "percentageVisible");
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("0.01"), new BigDecimal("100.00")));
 			ctrl.immediate();
-			//if(row.getBedragType() == LiquiditeitsBedragType.BEDRAG) {
-			//	ctrl.setVisibility(VisibilityType.HIDDEN);
-			//} else {
-			//	ctrl.setMandatory(true);
-			//}
 			return ctrl;
 		};
 	}
@@ -185,7 +172,6 @@ public class EditableTablePage extends UrlPage {
 			bedragTypeCombo.bind("readOnly").to(model(), "readOnly");
 			bedragTypeCombo.setMandatory(true);
 			bedragTypeCombo.immediate();
-			//bedragTypeCombo.setOnValueChanged(c -> notify(new LiquiditeitenBedragType(row)));
 			return bedragTypeCombo;
 		};
 	}
@@ -213,7 +199,4 @@ public class EditableTablePage extends UrlPage {
 	public LineController model() {
 		return m_controller;
 	}
-
-
-
 }
