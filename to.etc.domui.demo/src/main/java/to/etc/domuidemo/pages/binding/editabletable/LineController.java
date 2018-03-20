@@ -71,11 +71,16 @@ public class LineController {
 					throw new IllegalStateException(line.getAmountType() + " unhandled");
 
 				case Amount:
-					res = res.add(line.getAmount());
+					BigDecimal amount = line.getAmount();
+					if(null != amount)
+						res = res.add(amount);
 					break;
 
 				case Percentage:
-					res = res.setScale(2).add(getBudgetted().multiply(line.getPercentage()).divide(new BigDecimal(100)));
+					BigDecimal percentage = line.getPercentage();
+					if(null != percentage) {
+						res = res.setScale(2).add(getBudgetted().multiply(percentage).divide(new BigDecimal(100)));
+					}
 					break;
 			}
 		}
@@ -88,5 +93,9 @@ public class LineController {
 
 	public BigDecimal getBudgetted() {
 		return m_budgetted;
+	}
+
+	public void addEditRow() {
+		m_lineList.add(new Line());
 	}
 }

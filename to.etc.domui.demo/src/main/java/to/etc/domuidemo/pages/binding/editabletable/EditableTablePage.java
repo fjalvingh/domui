@@ -4,6 +4,7 @@ import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.IRowControlFactory;
 import to.etc.domui.component.tbl.RowRenderer;
@@ -52,6 +53,9 @@ public class EditableTablePage extends UrlPage {
 		dataTable.setPreventRowHighlight(true);
 		add(dataTable);
 		addTotalsRow();
+
+		add(new VerticalSpacer(10));
+		add(new LinkButton("Add Row", FaIcon.faPlus, a -> model().addEditRow()));
 	}
 
 	private RowRenderer<Line> createRowRenderer() {
@@ -232,5 +236,7 @@ public class EditableTablePage extends UrlPage {
 	public LineController model() {
 		return m_controller;
 	}
+
+
 
 }
