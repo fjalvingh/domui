@@ -29,6 +29,7 @@ public class LineController {
 		Calendar cal = Calendar.getInstance();
 
 		DateUtil.clearTime(cal);
+		cal.set(Calendar.DAY_OF_MONTH, 1);
 		for(int i = 0; i < 24; i++) {
 			cal.add(Calendar.MONTH, -1);
 			res.add(cal.getTime());
@@ -41,7 +42,7 @@ public class LineController {
 	private void initializeDemoData() {
 		m_lineList.add(new Line(DateUtil.dateFor(2017, 0, 1), DateUtil.dateFor(2017, 2, 1), AmountType.Amount, new BigDecimal("1234.56")));
 		m_lineList.add(new Line(DateUtil.dateFor(2017, 2, 1), DateUtil.dateFor(2017, 5, 1), AmountType.Amount, new BigDecimal("567.89")));
-		m_lineList.add(new Line(DateUtil.dateFor(2017, 2, 1), DateUtil.dateFor(2017, 5, 1), AmountType.Percentage, new BigDecimal("12")));
+		m_lineList.add(new Line(DateUtil.dateFor(2017, 8, 1), DateUtil.dateFor(2018, 0, 1), AmountType.Percentage, new BigDecimal("12")));
 	}
 
 	public ObservableList<Line> getLineList() {
