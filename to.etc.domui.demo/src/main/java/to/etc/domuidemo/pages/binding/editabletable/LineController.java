@@ -62,7 +62,7 @@ public class LineController {
 	}
 
 	/**
-	 * Total amount of money allocated so far
+	 * Total amount of money allocated so far (actually part of the model)
 	 */
 	public BigDecimal getTotal() {
 		BigDecimal res = BigDecimal.ZERO;
@@ -88,10 +88,16 @@ public class LineController {
 		return res;
 	}
 
+	/**
+	 * Get the remainder of the money to spend (actually part of the model)
+	 */
 	public BigDecimal getRemainder() {
 		return getBudgeted().subtract(getTotal());
 	}
 
+	/**
+	 * Get the budgeted amount (actually part of the model)
+	 */
 	public BigDecimal getBudgeted() {
 		return m_budgeted;
 	}

@@ -24,12 +24,12 @@
  */
 package to.etc.domui.converter;
 
-import java.math.*;
-import java.util.*;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.DomUtil;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
+import java.math.BigDecimal;
+import java.util.Locale;
 
 /**
  * Parameterizable converter for numbers.
@@ -92,5 +92,9 @@ public class NumberConverter<T extends Number> implements IConverter<T> {
 
 	public Class<T> getActualType() {
 		return m_actualType;
+	}
+
+	@Override public String toString() {
+		return "NumberConverter: " + m_presentation + " for " + m_actualType + " scale " + m_scale + ", delegate " + m_converter;
 	}
 }
