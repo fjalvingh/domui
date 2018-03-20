@@ -1,7 +1,6 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
 import to.etc.domui.component.buttons.LinkButton;
-import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.misc.VerticalSpacer;
@@ -106,7 +105,7 @@ public class EditableTablePage extends UrlPage {
 		return bedragCtrl;
 	}
 
-	private TR addControlToBody(TBody body, NodeBase begrotingCtrl, String label) {
+	private TR addControlToBody(TBody body, NodeBase control, String label) {
 		TR tr = body.addRow();
 		TD td = tr.addCell();
 		td.setCssClass("ui-f-lbl");
@@ -114,7 +113,7 @@ public class EditableTablePage extends UrlPage {
 		td.add(label);
 		TD td2 = tr.addCell();
 		td2.setColspan(3);
-		td2.add(begrotingCtrl);
+		td2.add(control);
 		return tr;
 	}
 
@@ -142,30 +141,15 @@ public class EditableTablePage extends UrlPage {
 
 	private IRowControlFactory<Line> createAmountControlFactory() {
 		return row -> {
-			Text<BigDecimal> ctrl = new Text<>(BigDecimal.class);
+			Text2<BigDecimal> ctrl = new Text2<>(BigDecimal.class);
 			ctrl.setConverter(new MoneyBigDecimalFullConverter());
 			ctrl.setErrorLocation("Bedrag");
 			ctrl.setCssClass("ui-numeric");
 			ctrl.bind("readOnly").to(model(), "readOnly");
+			ctrl.bind("visibility").to(row, "amountVisible");
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("-999999999.99"), new BigDecimal("999999999.99")));
-			//ctrl.immediate();
+			ctrl.immediate();
 
-			//ctrl.setOnValueChanged((IValueChanged<Text<BigDecimal>>) component -> {
-			//	if(!ctrl.bindErrors()) {
-			//		m_simpleListModel.fireModelChanged();
-			//		model().calculateTotals();
-			//	}
-			//});
-			//ctrl.addNotificationListener(LiquiditeitenBedragType.class, r -> {
-			//	if(row.equals(r.getRow())) {
-			//		toggleBedragDisabled(row, ctrl);
-			//	}
-			//});
-			//ctrl.addNotificationListener(LiquiditeitenPercentageChanged.class, r -> {
-			//	if(row.equals(r.getRow())) {
-			//		model().calculateAmount(row);
-			//	}
-			//});
 			//if(row.getBedragType() == LiquiditeitsBedragType.BEDRAG) {
 			//	ctrl.setMandatory(true);
 			//} else {
@@ -182,16 +166,9 @@ public class EditableTablePage extends UrlPage {
 			ctrl.setConverter(new MoneyBigDecimalNoSign());
 			ctrl.setCssClass("ui-numeric");
 			ctrl.bind("readOnly").to(model(), "readOnly");
+			ctrl.bind("visibility").to(row, "percentageVisible");
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("0.01"), new BigDecimal("100.00")));
-			//ctrl.immediate();
-			//ctrl.addNotificationListener(LiquiditeitenBedragType.class, getShowHideNotificationListener(row, ctrl, true));
-			//ctrl.setOnValueChanged(c -> {
-			//	if(!ctrl.bindErrors()) {
-			//		m_simpleListModel.fireModelChanged();
-			//		model().calculateTotals();
-			//		notify(new LiquiditeitenPercentageChanged(row));
-			//	}
-			//});
+			ctrl.immediate();
 			//if(row.getBedragType() == LiquiditeitsBedragType.BEDRAG) {
 			//	ctrl.setVisibility(VisibilityType.HIDDEN);
 			//} else {

@@ -1,5 +1,7 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
+import to.etc.domui.dom.css.VisibilityType;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -87,4 +89,12 @@ public class Line {
 	public void setDivide(boolean divide) {
 		m_divide = divide;
 	}
+
+	public VisibilityType getPercentageVisible() {
+		return getAmountType() == AmountType.Percentage ? VisibilityType.VISIBLE : VisibilityType.HIDDEN;
+	}
+	public VisibilityType getAmountVisible() {
+		return getAmountType() == AmountType.Amount ? VisibilityType.VISIBLE : VisibilityType.HIDDEN;
+	}
+
 }

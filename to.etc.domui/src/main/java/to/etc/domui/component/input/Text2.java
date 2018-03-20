@@ -47,6 +47,7 @@ import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TR;
 import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
@@ -138,6 +139,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 * it's being returned.
 	 */
 	private boolean m_untrimmed;
+
+	private boolean m_immediate;
 
 	/**
 	 * @see Text2#getEmptyMarker()
@@ -957,4 +960,18 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Nullable public String getPlaceHolder() {
 		return m_input.getPlaceHolder();
 	}
+
+	public boolean isImmediate() {
+		return m_input.isImmediate();
+	}
+
+	public void setImmediate(boolean immediate) {
+		m_input.setImmediate(immediate);
+	}
+
+	public Text2<T> immediate() {
+		setImmediate(true);
+		return this;
+	}
+
 }
