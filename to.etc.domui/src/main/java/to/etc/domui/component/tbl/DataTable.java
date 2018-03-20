@@ -98,6 +98,9 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/** When T, rows are not highlighted when table has no selection callbacks on rows. */
 	private boolean m_preventRowHighlight;
 
+	@Nullable
+	private TBody m_footerBody;
+
 	@Nonnull
 	final private IClicked<TH> m_headerSelectClickHandler = clickednode -> {
 		if(isDisabled()) {
@@ -229,6 +232,24 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		m_dataBody = new TBody();
 		m_table.add(m_dataBody);
 		updateBodyClipboardSelection();
+
+		TBody footerBody = m_footerBody;
+		if(null != footerBody)
+			m_table.add(footerBody);
+	}
+
+	/**
+	 * EXPERIMENTAL
+	 */
+	public TBody getFooterBody() {
+		TBody footerBody = m_footerBody;
+		if(null == footerBody) {
+			m_footerBody = footerBody = new TBody();
+			if(m_dataBody != null) {
+				m_table.add(footerBody);
+			}
+		}
+		return footerBody;
 	}
 
 	/**
