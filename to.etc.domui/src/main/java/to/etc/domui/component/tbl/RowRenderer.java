@@ -475,10 +475,14 @@ import java.util.function.Predicate;
 	}
 
 	private void applyNumericCssClass(NodeContainer cell, ColumnDef<T, ?> cd) {
-		if(cd.getConverter() != null)
+		if(cd.getConverter() != null)							// Using a converter: have to add it manually.
 			return;
 		PropertyMetaModel<?> pmm = cd.getPropertyMetaModel();
 		if(pmm != null && pmm.getConverter() != null)
+			return;
+
+		//-- Do we have a control factory?
+		if(cd.isEditable() || cd.getControlFactory() != null)	// Control factory means do it yourself too.
 			return;
 
 		//NumericPresentation np = cd.getNumericPresentation();

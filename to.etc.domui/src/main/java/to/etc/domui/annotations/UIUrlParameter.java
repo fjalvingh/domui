@@ -24,9 +24,10 @@
  */
 package to.etc.domui.annotations;
 
-import java.lang.annotation.*;
-
-import to.etc.domui.util.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Valid for a page property, this defines an URL parameter that is to be filled
@@ -43,20 +44,17 @@ public @interface UIUrlParameter {
 	/**
 	 * The name of the URL parameter to look for. If this is not present we use the property's name
 	 * as the name of the URL parameter.
-	 * @return
 	 */
-	String name() default Constants.NONE;
+	String name() default "";
 
 	/**
 	 * By default all parameters defined are mandatory. Set this to false to make the URL parameter an optional
 	 * value. When a value is optional it's setter is NOT called when the URL parameter is not present.
-	 * @return
 	 */
 	boolean mandatory() default true;
 
 	/**
 	 * When set this defines that the given parameter is the primary key for this entity.
-	 * @return
 	 */
 	Class< ? > entity() default Object.class;
 }
