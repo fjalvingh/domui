@@ -204,6 +204,22 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		return res;
 	}
 
+	public static <X> List<ExpandedDisplayProperty< ? >> expandPropertiesWithDefaults(@Nonnull Class<X> baseClass, @Nullable String[] columns) {
+		ClassMetaModel cmm = MetaManager.findClassMeta(baseClass);
+		if(columns != null && columns.length != 0) {
+			//-- Specified: use those
+			return ExpandedDisplayProperty.expandProperties(cmm, columns);
+		}
+
+		//-- Use defaults
+		List<DisplayPropertyMetaModel> defaultCols = cmm.getTableDisplayProperties();
+		if(defaultCols.size() > 0) {
+			return expandDisplayProperties(defaultCols, cmm, null);
+		}
+		throw new IllegalStateException("The list-of-columns to show is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
+	}
+
+
 	/**
 	 * Expands a compound property. If the originating property has a list-of-display-properties
 	 * we expand these. The formal expansion strategy is:
@@ -569,17 +585,17 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	@Override
 	public boolean isPrimaryKey() {
-		return m_propertyMeta == null ? false : m_propertyMeta.isPrimaryKey();
+		return m_propertyMeta != null && m_propertyMeta.isPrimaryKey();
 	}
 
 	@Override
 	public boolean isRequired() {
-		return m_propertyMeta == null ? false : m_propertyMeta.isRequired();
+		return m_propertyMeta != null && m_propertyMeta.isRequired();
 	}
 
 	@Override
 	public boolean isTransient() {
-		return m_propertyMeta == null ? true : m_propertyMeta.isTransient();
+		return m_propertyMeta == null || m_propertyMeta.isTransient();
 	}
 
 	@Nonnull

@@ -41,7 +41,7 @@ public @interface MetaSearch {
 	 * lookup form.
 	 * @return
 	 */
-	public int order() default -1;
+	int order() default -1;
 
 	/**
 	 * This defines the minimal length a user must enter into a search control before it
@@ -49,17 +49,27 @@ public @interface MetaSearch {
 	 * cause a problematic query.
 	 * @return
 	 */
-	public int minLength() default -1;
+	int minLength() default -1;
 
 	/**
 	 * Generate a CI query by default. Unused?
 	 * @return
 	 */
-	public boolean ignoreCase() default true;
+	boolean ignoreCase() default true;
 
 	/**
 	 * This defines how search property would be used. By default set to  This is normally used for
 	 * compound specs only.
 	 */
-	public SearchPropertyType searchType() default SearchPropertyType.SEARCH_FIELD;
+	SearchPropertyType searchType() default SearchPropertyType.SEARCH_FIELD;
+
+	/**
+	 * When T, and when search field is resolved as lookup type of control, lookup popup is shown with performed initial search automatically.
+	 */
+	boolean popupSearchImmediately() default false;
+
+	/**
+	 * When T, and when search field is resolved as lookup type of control, lookup popup is shown with initially collapsed search options on it's LookupForm.
+	 */
+	boolean popupInitiallyCollapsed() default false;
 }

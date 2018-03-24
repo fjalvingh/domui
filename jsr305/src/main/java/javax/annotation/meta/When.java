@@ -42,6 +42,6 @@ public enum When {
     /** S intersection T is non empty and S - T is nonempty */
     MAYBE,
     /** S intersection T is empty */
-    NEVER;
+    NEVER
 
 }

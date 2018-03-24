@@ -17,7 +17,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "Artist")
-@SequenceGenerator(name = "sq", sequenceName = "artist_sq")
+@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
 @MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")}, defaultSortColumn = "name")
 public class Artist extends DbRecordBase<Long> {
 	private Long m_id;
@@ -28,7 +28,7 @@ public class Artist extends DbRecordBase<Long> {
 
 	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "artist_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "artist_sq", allocationSize = 1)
 	@Column(name = "ArtistId", nullable = false, precision = 20)
 	public Long getId() {
 		return m_id;

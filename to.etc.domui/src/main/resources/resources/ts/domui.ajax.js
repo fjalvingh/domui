@@ -116,7 +116,7 @@ var WebUI;
     WebUI.clicked = clicked;
     function prepareAjaxCall(id, action, fields) {
         if (!fields)
-            fields = new Object();
+            fields = {};
         this.getInputFields(fields);
         fields.webuia = action;
         fields.webuic = id;
@@ -141,7 +141,7 @@ var WebUI;
     WebUI.scall = scall;
     function jsoncall(id, fields) {
         if (!fields)
-            fields = new Object();
+            fields = {};
         fields["webuia"] = "$pagejson";
         fields["webuic"] = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -170,7 +170,7 @@ var WebUI;
     WebUI.sendJsonAction = sendJsonAction;
     function callJsonFunction(id, action, fields) {
         if (!fields)
-            fields = new Object();
+            fields = {};
         fields.webuia = "#" + action;
         fields.webuic = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -207,7 +207,7 @@ var WebUI;
         if (item && (item.tagName == "input" || item.tagName == "INPUT") && item.className == "ui-di") {
             this.dateInputRepairValueIn(item);
         }
-        var fields = new Object();
+        var fields = {};
         this.getInputFields(fields);
         fields["webuia"] = "vchange";
         fields["webuic"] = id;

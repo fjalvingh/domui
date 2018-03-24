@@ -20,7 +20,7 @@ import java.util.*;
 public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	public static final int DEFAULT_COMBO_SIZE = 8;
 
-	public enum HAlign {LEFT, MIDDLE, RIGHT};
+	public enum HAlign {LEFT, MIDDLE, RIGHT}
 
 	@Nullable
 	private IValueChanged<DropDownPicker<T>> m_onValueChanged;
@@ -138,6 +138,10 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		positionPicker();
 	}
 
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_picker.getForTarget();
+	}
+
 	void handlePickerValueChanged() throws Exception {
 		appendJavascript("$('#" + m_picker.getActualID() + "').css('display', 'none');");
 		m_selected = m_picker.getValue();
@@ -149,7 +153,6 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 
 	private final @Nonnull
 	IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
-		@SuppressWarnings("synthetic-access")
 		@Override
 		public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
 			INotifyEvent<DropDownPicker<T>, ComboLookup<T>> onBeforeShow = getOnBeforeShow();

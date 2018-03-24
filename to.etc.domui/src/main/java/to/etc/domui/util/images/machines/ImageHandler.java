@@ -30,11 +30,11 @@ import java.io.*;
 import to.etc.domui.util.images.converters.*;
 
 public interface ImageHandler {
-	public ImageInfo identify(File input) throws Exception;
+	ImageInfo identify(File input) throws Exception;
 
-	public ImageSpec scale(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception;
+	ImageSpec scale(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception;
 
-	public ImageSpec thumbnail(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception;
+	ImageSpec thumbnail(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception;
 
-	public ImageSpec convert(ImageConverterHelper h, ImageSpec source, int page, String targetMime) throws Exception;
+	ImageSpec convert(ImageConverterHelper h, ImageSpec source, int page, String targetMime) throws Exception;
 }

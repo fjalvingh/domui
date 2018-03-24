@@ -20,6 +20,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -38,6 +39,8 @@ import java.util.Properties;
  * Created on Mar 5, 2012
  */
 final public class HibernateChecker {
+	private final boolean m_allowHibernateSuckySequences;
+
 	private Configuration m_config;
 	private int m_dupTables;
 	private int m_badOneToMany;
@@ -71,14 +74,17 @@ final public class HibernateChecker {
 
 	private int m_badManyToOne;
 
-	private static enum Severity {
+	private int m_hibernateSuckySequences;
+
+	private enum Severity {
 		INFO, WARNING, ERROR, MUSTFIXNOW
 	}
 
-	public HibernateChecker(Configuration config, boolean reportProblems, boolean enableObservableCollections) {
+	public HibernateChecker(Configuration config, boolean reportProblems, boolean enableObservableCollections, boolean allowHibernateSuckySequences) {
 		m_config = config;
 		m_reportProblems = reportProblems;
 		m_observableCollections = enableObservableCollections;
+		m_allowHibernateSuckySequences = allowHibernateSuckySequences;
 	}
 
 	private void problem(Severity sev, String s) {
@@ -143,6 +149,7 @@ final public class HibernateChecker {
 					checkBooleanMapping(g);
 					checkOneToOne(g);
 					checkFormula(g);
+					checkSequenceGenerator(g);
 				}
 			}
 
@@ -170,8 +177,20 @@ final public class HibernateChecker {
 				}
 			}
 		}
-		if(m_reportProblems)
+		if(m_reportProblems || (! m_allowHibernateSuckySequences && m_hibernateSuckySequences > 0))
 			report();
+		if(! m_allowHibernateSuckySequences && m_hibernateSuckySequences > 0)
+			throw new IllegalStateException("Using hibernate sucky sequences! Call HibernateConfigurator.setAllowHibernateSuckySequences() to allow this IF YOU KNOW WHAT YOU ARE DOING");
+	}
+
+	private void checkSequenceGenerator(Method g) {
+		SequenceGenerator annotation = g.getAnnotation(SequenceGenerator.class);
+		if(null == annotation)
+			return;
+		if(annotation.allocationSize() != 1) {
+			problem(Severity.ERROR, "@SequenceGenerator without allocationSize=1 will use sequences in a nonstandard way. Only allow if you do not share the database with other code!");
+			m_hibernateSuckySequences++;
+		}
 	}
 
 	private void checkOneToOne(Method g) {
@@ -420,6 +439,10 @@ final public class HibernateChecker {
 
 	public int getNotLazyLoadedFormula() {
 		return m_notLazyLoadedFormula;
+	}
+
+	public int getHibernateSuckySequences() {
+		return m_hibernateSuckySequences;
 	}
 }
 

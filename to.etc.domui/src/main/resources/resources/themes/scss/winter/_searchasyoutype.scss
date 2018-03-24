@@ -1,0 +1,64 @@
+.ui-sayt {
+	position: relative;
+	display: inline-block;
+
+	input {
+		@include ui-input-base;
+	}
+}
+
+.ui-sayt.ui-input-err input {
+	background-color: $errors_input_background;
+}
+
+.ui-sayt-error {
+	&::after {
+		content: "\f057";				// times-circle (x)
+		font-family: "FontAwesome";
+		color: $errors_foreground;
+		position: absolute !important;
+		right: 0.625em;
+		top: 0.625em;
+		z-index: 2; // added to make loading work with focus
+	}
+}
+
+.ui-sayt-selected {
+	&::after {
+		content: "\f058";				// check-circle (v)
+		color: $succesful-color;
+		font-family: "FontAwesome";
+		position: absolute !important;
+		right: 0.625em;
+		top: 0.625em;
+		z-index: 2;						// added to make loading work with focus
+	}
+}
+
+.ui-sayt-popup {
+	position: absolute;
+	left: 0px;
+	top: 18px;
+	background-color: white;
+	border: 1px solid gray;
+	width: 402px;
+	overflow: hidden;
+	margin-bottom: 10px;
+}
+
+@mixin ui-sayt-popup-base {
+   position: absolute;
+   top: 20px;
+   left: 0px;
+   width: auto;
+   border-radius: 4px;
+   padding: 5px;
+   z-index: 10;
+}
+
+.ui-sayt-no-res {
+	@include ui-sayt-popup-base;
+	background-color: $lui-warning-color;
+	border: 1px solid $lui-warning-color-border;
+}
+

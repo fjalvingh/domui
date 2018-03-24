@@ -25,11 +25,11 @@
 package to.etc.domui.component.dynaima;
 
 public interface ICharterHelper {
-	public void finish() throws Exception;
+	void finish() throws Exception;
 
 	/**
 	 * Add field to the chart ( {@link ChartField} provides the value and the label of the field).
 	 * @param element
 	 */
-	public void addChartField(ChartField element);
+	void addChartField(ChartField element);
 }

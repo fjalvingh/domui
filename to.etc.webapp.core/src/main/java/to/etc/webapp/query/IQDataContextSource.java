@@ -8,6 +8,5 @@ public interface IQDataContextSource {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public QDataContext getDataContext() throws Exception;
+	@Nonnull QDataContext getDataContext() throws Exception;
 }

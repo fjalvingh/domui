@@ -35,7 +35,56 @@ public class SecondDurationConverter implements IConverter<Long> {
 	public String convertObjectToString(Locale loc, Long in) throws UIException {
 		if(in == null)
 			return "";
-		return INSTANCE.convertObjectToString(loc, Long.valueOf(in.longValue() * 1000));
+		if(in.longValue() < 0)
+			return "";
+
+		StringBuffer sb = new StringBuffer();
+
+		long dlt = in.longValue();			// Seconds
+
+		final long DAYS = 24 * 60 * 60;
+		final long HOURS = 60 * 60;
+
+		boolean sp = false;
+		if(dlt >= DAYS) {
+			sb.append(dlt / DAYS);
+			sb.append("D");
+			dlt %= DAYS;
+			sp = true;
+		}
+		if(dlt >= HOURS) {
+			long v = dlt / HOURS;
+			if(v != 0) {
+				if(sp)
+					sb.append(' ');
+				sb.append(v);
+				sb.append("u");
+				sp = true;
+			}
+			dlt %= HOURS;
+		}
+		if(dlt >= 60) {
+			long v = dlt / 60;
+			if(v != 0) {
+				if(sp)
+					sb.append(' ');
+				sb.append(v);
+				sb.append("m");
+				sp = true;
+			}
+			dlt %= 60;
+		}
+		if(dlt != 0) {
+			if(sp)
+				sb.append(' ');
+			sb.append(dlt);
+			sb.append("s");
+			sp = true;
+		}
+
+		if(! sp)
+			return "0 s";
+		return sb.toString();
 	}
 
 	/**

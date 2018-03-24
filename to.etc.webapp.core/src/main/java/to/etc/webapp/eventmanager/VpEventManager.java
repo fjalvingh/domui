@@ -158,7 +158,7 @@ public class VpEventManager implements Runnable {
 			m_type = t;
 			m_obj = o;
 		}
-	};
+	}
 
 	@Nullable
 	static private VpEventManager m_instance;
@@ -203,7 +203,7 @@ public class VpEventManager implements Runnable {
 
 	enum DbType {
 		ORACLE, POSTGRES
-	};
+	}
 
 	private DbType m_dbtype;
 

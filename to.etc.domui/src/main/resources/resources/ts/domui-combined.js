@@ -116,8 +116,8 @@ var WebUI;
     WebUI.clicked = clicked;
     function prepareAjaxCall(id, action, fields) {
         if (!fields)
-            fields = new Object();
-        this.getInputFields(fields);
+            fields = {};
+        WebUI.getInputFields(fields);
         fields.webuia = action;
         fields.webuic = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -141,7 +141,7 @@ var WebUI;
     WebUI.scall = scall;
     function jsoncall(id, fields) {
         if (!fields)
-            fields = new Object();
+            fields = {};
         fields["webuia"] = "$pagejson";
         fields["webuic"] = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -170,7 +170,7 @@ var WebUI;
     WebUI.sendJsonAction = sendJsonAction;
     function callJsonFunction(id, action, fields) {
         if (!fields)
-            fields = new Object();
+            fields = {};
         fields.webuia = "#" + action;
         fields.webuic = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -207,7 +207,7 @@ var WebUI;
         if (item && (item.tagName == "input" || item.tagName == "INPUT") && item.className == "ui-di") {
             this.dateInputRepairValueIn(item);
         }
-        var fields = new Object();
+        var fields = {};
         this.getInputFields(fields);
         fields["webuia"] = "vchange";
         fields["webuic"] = id;
@@ -238,6 +238,12 @@ var WebUI;
             if (status == "error")
                 return;
             txt = "De server is niet bereikbaar 1, status=" + status + ", " + request.statusText;
+        }
+        if (status === "parsererror") {
+            alert("ERROR: DomUI server returned invalid XML");
+            var hr = window.location.href;
+            window.location.href = hr;
+            return;
         }
         document.write(txt);
         document.close();
@@ -726,6 +732,30 @@ var WebUI;
         }
     }
     WebUI.popinKeyClose = popinKeyClose;
+    function dataTableResults(id, compId) {
+        setTimeout(function (a) {
+            $('#' + id).colResizable({
+                postbackSafe: false,
+                resizeMode: 'flex',
+                onResize: function (tbl) {
+                    WebUI.dataTableUpdateWidths(tbl, compId);
+                }
+            });
+        }, 500);
+    }
+    WebUI.dataTableResults = dataTableResults;
+    function dataTableUpdateWidths(evt, compId) {
+        var tbl = evt.currentTarget;
+        var hdrs = $(tbl).find(".ui-dt-th");
+        var list = {};
+        for (var i = 0; i < hdrs.length; i++) {
+            var wid = hdrs[i].style.width;
+            list["column_" + hdrs[i].id] = hdrs[i].style.width;
+        }
+        WebUI.scall(compId, "COLWIDTHS", list);
+        console.log("Change event", tbl);
+    }
+    WebUI.dataTableUpdateWidths = dataTableUpdateWidths;
     var _ckEditorMap = {};
     function registerCkEditorId(id, ckeInstance) {
         _ckEditorMap[id] = [ckeInstance, null];
@@ -941,14 +971,11 @@ var WebUI;
                     });
                     $(fckIFrame.contentWindow.window).trigger('resize');
                 }
-                ;
             };
             for (var i = 0; i < _fckEditorIDs.length; i++) {
                 _loop_1(i);
             }
-            ;
         }
-        ;
     }
     WebUI.FCKeditor_OnComplete = FCKeditor_OnComplete;
     function initScrollableTableOld(id) {
@@ -1203,6 +1230,32 @@ var WebUI;
         }
     }
     WebUI.alignToMiddle = alignToMiddle;
+    function copyTextToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        textArea.style.position = 'fixed';
+        textArea.style.top = '0';
+        textArea.style.left = '0';
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+        textArea.style.padding = '0';
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        textArea.style.background = 'transparent';
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? 'successful' : 'unsuccessful';
+            console.log('Copying text command was ' + msg);
+        }
+        catch (err) {
+            console.log('Oops, unable to copy');
+        }
+        document.body.removeChild(textArea);
+    }
+    WebUI.copyTextToClipboard = copyTextToClipboard;
 })(WebUI || (WebUI = {}));
 var WebUI;
 (function (WebUI) {
@@ -1285,7 +1338,7 @@ var WebUI;
             this._pxPerHour = (tblheight - this._headerHeight + 1) / (this._endHour - this._startHour);
             this._endDate = new Date(this._date.getTime());
             this._endDate.setDate(this._endDate.getDate() + this._days);
-            this._dayMap = new Array();
+            this._dayMap = [];
             this._itemdivs = $("div.ui-wa-it", this._rootdiv).get();
         };
         Agenda.prototype.reposition = function () {
@@ -1330,7 +1383,7 @@ var WebUI;
                 day = this._dayMap[so.day] = { day: so.day, ways: [[]] };
             var ys = Math.round(so.min * this._pxPerHour / 60);
             var ye = Math.round(eo.min * this._pxPerHour / 60);
-            var item = new Object();
+            var item = {};
             item.day = so.day;
             item.ys = ys;
             item.ye = ye;
@@ -1338,7 +1391,7 @@ var WebUI;
             for (var i = 0; i < 4; i++) {
                 var way = day.ways[i];
                 if (way == undefined)
-                    way = day.ways[i] = new Array();
+                    way = day.ways[i] = [];
                 if (this.placeOnWay(way, item))
                     return;
             }
@@ -1431,7 +1484,7 @@ var WebUI;
             }
             if (this._timeMode && this._timeMode > 0) {
                 this.timeReset();
-                var fields = new Object();
+                var fields = {};
                 fields.date = this._timeDate.getTime();
                 fields.duration = this._timeDuration;
                 WebUI.scall(this._rootdiv.id, 'newappt', fields);
@@ -2695,7 +2748,6 @@ var WebUI;
             if (selectedIndexInput.value && selectedIndexInput.value != "") {
                 return parseInt(selectedIndexInput.value);
             }
-            ;
         }
         return -1;
     }
@@ -2877,8 +2929,8 @@ var WebUI;
     }
     WebUI.lookupTyping = lookupTyping;
     function lookupTypingDone(id) {
-        var fields = new Object();
-        this.getInputFields(fields);
+        var fields = {};
+        WebUI.getInputFields(fields);
         fields["webuia"] = "lookupTypingDone";
         fields["webuic"] = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -3080,7 +3132,7 @@ var WebUI;
         if (!element) {
             return;
         }
-        var fields = new Object();
+        var fields = {};
         fields[element.id + "_rect"] = $(element).position().left + "," + $(element).position().top + "," + $(element).width() + "," + $(element).height();
         fields["window_size"] = window.innerWidth + "," + window.innerHeight;
         WebUI.scall(element.id, "notifyClientPositionAndSize", fields);
@@ -3292,6 +3344,21 @@ var WebUI;
         }
     }
     WebUI.focus = focus;
+    function refreshPage() {
+        var url = window.location.href;
+        var ix1 = url.indexOf("$cid=");
+        if (ix1 > 0) {
+            var ix2 = url.indexOf("&", ix1);
+            if (ix2 > ix1) {
+                url = url.substring(0, ix1) + url.substring(ix2 + 1);
+            }
+            else {
+                url = url.substring(0, ix1);
+            }
+            window.location.href = url;
+        }
+    }
+    WebUI.refreshPage = refreshPage;
     function getPostURL() {
         var p = window.location.href;
         var ix = p.indexOf('?');
@@ -3719,46 +3786,6 @@ var WebUI;
     }
     WebUI.preventSelection = preventSelection;
 })(WebUI || (WebUI = {}));
-$(function () {
-    $.getScript("$js/domui-date-checker.js");
-});
-function _block() {
-    WebUI.blockUI();
-}
-function _unblock() {
-    WebUI.unblockUI();
-}
-$(document).ajaxStart(_block).ajaxStop(_unblock);
-$(window).bind('beforeunload', function () {
-    WebUI.beforeUnload();
-    return undefined;
-});
-{
-    try {
-        var v = $.browser.version.split(".");
-        $.browser.majorVersion = parseInt(v[0], 10);
-        $.browser.minorVersion = parseInt(v[1], 10);
-        if (navigator.appName == 'Netscape') {
-            var ua = navigator.userAgent;
-            if (ua.indexOf("Trident/") != -1)
-                $.browser.msie = true;
-        }
-        if (/Edge/.test(navigator.userAgent)) {
-            $.browser.ieedge = true;
-        }
-    }
-    catch (x) { }
-}
-var DomUI = WebUI;
-$(document).ready(WebUI.onDocumentReady);
-$(window).resize(WebUI.onWindowResize);
-$(document).ajaxComplete(function () {
-    WebUI.handleCalendarChanges();
-    WebUI.doCustomUpdates();
-});
-$(document).keydown(function (e) {
-    WebUI.addPagerAccessKeys(e);
-});
 (function ($) {
     $.webui = function (xml) {
         processDoc(xml);
@@ -3876,6 +3903,9 @@ $(document).keydown(function (e) {
         }
         process(xml.documentElement.childNodes);
     }
+    $.executeXML = function (xml) {
+        executeXML(xml);
+    };
     function process(commands) {
         var param = {
             postProcess: false
@@ -4149,7 +4179,6 @@ $(document).keydown(function (e) {
                     alert('domjs_ eval failed: ' + ex + ", js=" + s);
                     throw ex;
                 }
-                continue;
             }
             else if (v != "" && dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
                 try {
@@ -4183,4 +4212,44 @@ $(document).keydown(function (e) {
         return attr;
     }
 })(jQuery);
+$(function () {
+    $.getScript("$js/domui-date-checker.js");
+});
+function _block() {
+    WebUI.blockUI();
+}
+function _unblock() {
+    WebUI.unblockUI();
+}
+$(document).ajaxStart(_block).ajaxStop(_unblock);
+$(window).bind('beforeunload', function () {
+    WebUI.beforeUnload();
+    return undefined;
+});
+{
+    try {
+        var v = $.browser.version.split(".");
+        $.browser.majorVersion = parseInt(v[0], 10);
+        $.browser.minorVersion = parseInt(v[1], 10);
+        if (navigator.appName == 'Netscape') {
+            var ua = navigator.userAgent;
+            if (ua.indexOf("Trident/") != -1)
+                $.browser.msie = true;
+        }
+        if (/Edge/.test(navigator.userAgent)) {
+            $.browser.ieedge = true;
+        }
+    }
+    catch (x) { }
+}
+var DomUI = WebUI;
+$(document).ready(WebUI.onDocumentReady);
+$(window).resize(WebUI.onWindowResize);
+$(document).ajaxComplete(function () {
+    WebUI.handleCalendarChanges();
+    WebUI.doCustomUpdates();
+});
+$(document).keydown(function (e) {
+    WebUI.addPagerAccessKeys(e);
+});
 //# sourceMappingURL=domui-combined.js.map

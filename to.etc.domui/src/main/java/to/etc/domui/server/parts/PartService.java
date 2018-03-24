@@ -115,10 +115,6 @@ public class PartService {
 	/**
 	 * Get the data for a part identified by the specified parameters. If the part
 	 * has not yet been generated it will be generated and then cached.
-	 *
-	 * @param parameters
-	 * @return
-	 * @throws Exception
 	 */
 	public PartData getData(IExtendedParameterInfo parameters) throws Exception {
 		PartExecutionReference executionReference = findPart(parameters);
@@ -262,7 +258,7 @@ public class PartService {
 
 	private <K> PartData getCachedInstance2(final IBufferedPartFactory<K> pf, final IExtendedParameterInfo parameters) throws Exception {
 		//-- Convert the data to a key object, then lookup;
-		K key = pf.decodeKey(parameters);
+		K key = pf.decodeKey(m_application, parameters);
 		if(key == null)
 			throw new ThingyNotFoundException("Cannot get resource for " + pf + " with rurl=" + parameters.getInputPath());
 		return getCachedInstance(pf, key);

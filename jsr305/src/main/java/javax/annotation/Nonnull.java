@@ -39,7 +39,7 @@ import javax.annotation.meta.When;
 public @interface Nonnull {
     When when() default When.ALWAYS;
 
-    static class Checker implements TypeQualifierValidator<Nonnull> {
+    class Checker implements TypeQualifierValidator<Nonnull> {
 
         public When forConstantValue(Nonnull qualifierqualifierArgument,
                 Object value) {

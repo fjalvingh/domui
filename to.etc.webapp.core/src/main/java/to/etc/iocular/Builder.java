@@ -40,9 +40,9 @@ public interface Builder {
 	 * @param impl
 	 * @return
 	 */
-	public <T> void bind(Class<T> intf, Class<T> impl);
+	<T> void bind(Class<T> intf, Class<T> impl);
 
-	public ComponentBuilder register();
+	ComponentBuilder register();
 
-	public ContainerDefinition createDefinition();
+	ContainerDefinition createDefinition();
 }

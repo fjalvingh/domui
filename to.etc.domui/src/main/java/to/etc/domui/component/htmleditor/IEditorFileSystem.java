@@ -33,11 +33,11 @@ import java.util.*;
  * Created on Sep 30, 2008
  */
 public interface IEditorFileSystem {
-	public List< ? > getFilesAndFolders(String type, String path) throws Exception;
+	List< ? > getFilesAndFolders(String type, String path) throws Exception;
 
-	public boolean hasThumbnails();
+	boolean hasThumbnails();
 
-	public List<EditorResourceType> getResourceTypes();
+	List<EditorResourceType> getResourceTypes();
 
-	public IEditorFileRef getStreamRef(String type, String path) throws Exception;
+	IEditorFileRef getStreamRef(String type, String path) throws Exception;
 }

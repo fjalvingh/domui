@@ -6,10 +6,10 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.controlfactory.ModelBindings;
-import to.etc.domui.component.form.TabularFormBuilder;
 import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.misc.UIControlUtil;
+import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.css.FontStyle;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.IClicked;
@@ -146,15 +146,15 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 
 	private void addRootConfigPart() throws Exception {
 		m_rootDef = new LoggerRootDef(EtcLoggerFactory.getSingleton().getLogDir(), EtcLoggerFactory.getSingleton().logDirOriginalAsConfigured(), EtcLoggerFactory.getSingleton().getLogDir());
-		TabularFormBuilder tbl = new TabularFormBuilder(m_rootDef);
-		tbl.addProps(LoggerRootDef.pROOTDIR, LoggerRootDef.pLOGDIR);
+		FormBuilder fb = new FormBuilder(this);
+
+		fb.property(m_rootDef, LoggerRootDef.pROOTDIR).control();
+		fb.property(m_rootDef, LoggerRootDef.pLOGDIR).control();
+
 		if(!m_rootDef.getLogDir().equals(m_rootDef.getLogDirAbsolute())) {
 			Label calculatedPath = new Label(m_rootDef.getLogDirAbsolute());
-			tbl.addLabelAndControl("log dir path", calculatedPath, false);
+			fb.label("log dir path").item(calculatedPath);
 		}
-		m_rootDefBindings = tbl.getBindings();
-		m_rootDefBindings.moveModelToControl();
-		add(tbl.finish());
 	}
 
 	protected void createCommitButton() {

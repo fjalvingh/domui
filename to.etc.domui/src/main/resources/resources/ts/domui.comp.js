@@ -300,15 +300,12 @@ var WebUI;
                     });
                     $(fckIFrame.contentWindow.window).trigger('resize');
                 }
-                ;
-            };
+			};
             for (var i = 0; i < _fckEditorIDs.length; i++) {
                 _loop_1(i);
             }
-            ;
-        }
-        ;
-    }
+		}
+	}
     function initScrollableTableOld(id) {
         $('#' + id + " table").fixedHeaderTable({});
         var sbody = $('#' + id + " .fht-tbody");

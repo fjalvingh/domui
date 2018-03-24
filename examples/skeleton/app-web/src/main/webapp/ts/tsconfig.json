@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "system",
+//    "module": "system",
+
+    //    "noImplicitAny": true,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "outFile": "planrenderer.js",
+
+    // https://github.com/angular/angular/issues/14595: fixes cannot find Iterable
+    "lib" : ["es2015", "es2015.iterable", "es2017", "dom"
+      // Fixes cannot find ActiveXObject" https://github.com/dojo/typings/issues/124
+    , "scripthost"
+    ]
+  },
+
+  // Welcome back to 1880: manually specify input file order for namespace consisting of multiple files. Fun.
+  // we cannot yet use modules because that means splitting the WebUI namespace- which is big.
+  "files": [
+//      "xxxx.ts"
+    ]
+}

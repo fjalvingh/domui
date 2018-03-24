@@ -77,7 +77,7 @@ final public class MsgBox2 extends Window {
 		}
 	}
 
-	public static enum Type {
+	public enum Type {
 		INFO, WARNING, ERROR, DIALOG, INPUT
 	}
 
@@ -225,7 +225,7 @@ final public class MsgBox2 extends Window {
 
 		Div bd = m_buttonDiv = new Div();
 		add(bd);
-		bd.addCssClass("ui-bb-middle");
+		bd.addCssClass("ui-mbx-btns");
 		for(Button btn: m_theButtons) {
 			bd.add(btn);
 		}
@@ -280,7 +280,7 @@ final public class MsgBox2 extends Window {
 
 	private void setFocusOnButton() {
 		if(m_buttonDiv.getChildCount() > 0 && m_buttonDiv.getChild(0) instanceof Button) {
-			((Button) m_buttonDiv.getChild(0)).setFocus();
+			m_buttonDiv.getChild(0).setFocus();
 		}
 	}
 
@@ -420,8 +420,6 @@ final public class MsgBox2 extends Window {
 	 */
 	@Nonnull
 	public MsgBox2  button(@Nonnull final MsgBoxButton mbb) {
-		if(mbb == null)
-			throw new NullPointerException("A message button cannot be null");
 		String lbl = MetaManager.findEnumLabel(mbb);
 		if(lbl == null)
 			lbl = mbb.name();

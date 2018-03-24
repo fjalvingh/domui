@@ -16,9 +16,9 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "Customer")
-@SequenceGenerator(name = "sq", sequenceName = "customer_sq")
+@SequenceGenerator(name = "sq", sequenceName = "customer_sq", allocationSize = 1)
 @MetaObject(
-	defaultColumns = {@MetaDisplayProperty(name = "firstName"), @MetaDisplayProperty(name="lastName")}
+	defaultColumns = {@MetaDisplayProperty(name = "firstName", join = " "), @MetaDisplayProperty(name="lastName")}
 ,	searchProperties = {
 		@MetaSearchItem(name="firstName", searchType=SearchPropertyType.BOTH)
 	,	@MetaSearchItem(name="lastName", searchType=SearchPropertyType.BOTH)
@@ -55,7 +55,7 @@ public class Customer extends DbRecordBase<Long> {
 
 	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "customer_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "customer_sq", allocationSize = 1)
 	@Column(name = "CustomerId", nullable = false, precision = 20)
 	public Long getId() {
 		return m_id;

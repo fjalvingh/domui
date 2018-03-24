@@ -4,10 +4,8 @@ import javax.annotation.*;
 import javax.servlet.http.*;
 
 public interface IRequestResponseWrapper {
-	@Nonnull
-	public HttpServletRequest getWrappedRequest(@Nonnull HttpServletRequest request);
+	@Nonnull HttpServletRequest getWrappedRequest(@Nonnull HttpServletRequest request);
 
-	@Nonnull
-	public HttpServletResponse getWrappedResponse(@Nonnull HttpServletResponse response);
+	@Nonnull HttpServletResponse getWrappedResponse(@Nonnull HttpServletResponse response);
 
 }

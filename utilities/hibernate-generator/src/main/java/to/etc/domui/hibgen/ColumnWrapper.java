@@ -639,9 +639,7 @@ public class ColumnWrapper {
 			return false;
 		if(s.equals("true"))
 			return true;
-		if(s.toLowerCase().startsWith("y"))
-			return true;
-		return false;
+		return s.toLowerCase().startsWith("y");
 	}
 
 	private void assignBooleanType(ExtraType extra) {

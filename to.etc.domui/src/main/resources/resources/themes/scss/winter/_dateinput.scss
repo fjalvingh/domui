@@ -25,5 +25,7 @@
 
 /*** LookupFactoryDate date till field ***/
 .ui-lfd-datetill {
+	display: inline-block;
+	@include ui-label-base;
 	font-weight: bold;
 }

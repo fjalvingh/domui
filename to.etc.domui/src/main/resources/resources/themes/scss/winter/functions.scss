@@ -1,0 +1,72 @@
+@function powerNumber($number, $exp) {
+	$value: 1;
+	@if $exp > 0 {
+		@for $i from 1 through $exp {
+			$value: $value * $number;
+		}
+	} @else {
+		@if $exp < 0 {
+			@for $i from 1 through -$exp {
+				$value: $value / $number;
+			}
+		}
+	}
+	@return $value;
+}
+
+@function colorLuminance($color) {
+	$color-rgb: (
+			'red': red($color),
+			'green': green($color),
+			'blue': blue($color)
+	);
+	@each $name, $value in $color-rgb {
+		$adjusted: 0;
+		$value: $value / 255;
+		@if $value < 0.03928 {
+			$value: $value / 12.92;
+		} @else {
+			$value: ($value + .055) / 1.055;
+			$value: powerNumber($value, 2);
+		}
+		$color-rgb: map-merge($color-rgb, ($name:$value));
+	}
+	@return (map-get($color-rgb, 'red') * .2126) + (map-get($color-rgb, 'green') * .7152) + (map-get($color-rgb, 'blue') * .0722);
+}
+
+@function findColorInvert($color) {
+	@if (colorLuminance($color) > 0.55) {
+		@return rgba(#000, 0.7)
+	} @else {
+		@return #fff
+	}
+}
+
+@function findColorHighlight($color, $percentage) {
+	@if (colorLuminance($color) > 0.30) {
+		@return darken($color, $percentage);
+	} @else {
+		@return lighten($color, $percentage);
+	}
+}
+
+@function findButtonFocusBorderColor($color) {
+	$newlum: colorLuminance($color);
+	$hue: hue($color);
+	$sat: saturation($color);
+	$lig: lightness($color);
+
+	@if($newlum < 0.1) {
+		@return $button-focus-border-color;
+		//@return hsl($hue + 180, 70%, 70%);
+		//@return saturate(adjust-hue($color, 180), 50%);
+	} @else if($newlum > 0.7) {
+		@return adjust-hue($color, 180);
+	} @else {
+		@return saturate(adjust-hue($color, 90), 50%);
+	}
+
+	//@return adjust-hue($color, 180);
+}
+
+

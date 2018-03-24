@@ -494,7 +494,7 @@ var WebUI;
                         $(elem).css({ 'overflow-y': 'auto' });
                     }
                 }
-                return;
+
             }
         }
     }

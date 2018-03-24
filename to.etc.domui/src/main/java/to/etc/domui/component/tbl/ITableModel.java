@@ -40,12 +40,12 @@ public interface ITableModel<T> {
 	/**
 	 * Default size used to truncate results in case of large data sets as query results, if no other limit has been set.
 	 */
-	public static final int DEFAULT_MAX_SIZE = 1000;
+	int DEFAULT_MAX_SIZE = 1000;
 
 	/**
 	 * Size used to truncate results in case of in memory filtering or sorting of large data sets as query results.
 	 */
-	public static final int IN_MEMORY_FILTER_OR_SORT_MAX_SIZE = 8000;
+	int IN_MEMORY_FILTER_OR_SORT_MAX_SIZE = 8000;
 
 	@Nonnull
 	List<T> getItems(int start, int end) throws Exception;

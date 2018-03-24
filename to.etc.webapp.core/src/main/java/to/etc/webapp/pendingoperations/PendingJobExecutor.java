@@ -1,10 +1,12 @@
 package to.etc.webapp.pendingoperations;
 
-import java.util.*;
+import to.etc.util.ILogSink;
+import to.etc.util.IProgressListener;
+import to.etc.util.Progress;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class PendingJobExecutor implements Runnable {
@@ -68,7 +70,6 @@ public class PendingJobExecutor implements Runnable {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Job progress										*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * represents significant amount of time in ms, after which
 	 * update of progress in db is needed

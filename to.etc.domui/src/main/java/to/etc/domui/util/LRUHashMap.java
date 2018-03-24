@@ -39,8 +39,42 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 
 	static private final float LOAD = 0.75f;
 
-	static public interface SizeCalculator<V> {
-		public int getObjectSize(V item);
+	/** The bucket table. */
+	transient Entry<K, V>[] m_buckets;
+
+	private SizeCalculator<V> m_sizeCalculator;
+
+	/** Head of the LRU chain for this map. */
+	private Entry<K, V> m_lruFirst, m_lruLast;
+
+	/** The current #elements in the cache */
+	transient int m_currentSize;
+
+	/** The current "size" of the entries in the cache. */
+	private transient int m_objectSize;
+
+	/** The max. "size" in the cache. */
+	private transient int m_maxSize;
+
+	/**
+	 * The next size value at which to resize (capacity * load factor).
+	 * @serial
+	 */
+	private int m_threshold;
+
+	/**
+	 * The number of times this HashMap has been modified
+	 */
+	transient volatile int m_updateCounter;
+
+	private transient Set<Map.Entry<K, V>> m_entrySet = null;
+
+	private transient Set<K> m_keySet = null;
+
+	private transient Collection<V> m_values = null;
+
+	public interface SizeCalculator<V> {
+		int getObjectSize(V item);
 	}
 
 	static private class Entry<K, V> implements Map.Entry<K, V> {
@@ -85,8 +119,7 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 			if(k1 == k2 || (k1 != null && k1.equals(k2))) {
 				Object v1 = getValue();
 				Object v2 = e.getValue();
-				if(v1 == v2 || (v1 != null && v1.equals(v2)))
-					return true;
+				return v1 == v2 || (v1 != null && v1.equals(v2));
 			}
 			return false;
 		}
@@ -101,40 +134,6 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 			return getKey() + "=" + getValue();
 		}
 	}
-
-	/** The bucket table. */
-	transient Entry<K, V>[] m_buckets;
-
-	private SizeCalculator<V> m_sizeCalculator;
-
-	/** Head of the LRU chain for this map. */
-	private Entry<K, V> m_lruFirst, m_lruLast;
-
-	/** The current #elements in the cache */
-	transient int m_currentSize;
-
-	/** The current "size" of the entries in the cache. */
-	private transient int m_objectSize;
-
-	/** The max. "size" in the cache. */
-	private transient int m_maxSize;
-
-	/**
-	 * The next size value at which to resize (capacity * load factor).
-	 * @serial
-	 */
-	private int m_threshold;
-
-	/**
-	 * The number of times this HashMap has been modified
-	 */
-	transient volatile int m_updateCounter;
-
-	private transient Set<Map.Entry<K, V>> m_entrySet = null;
-
-	private transient Set<K> m_keySet = null;
-
-	private transient Collection<V> m_values = null;
 
 	public LRUHashMap(SizeCalculator<V> szc, int maxsize) {
 		this(szc, maxsize, 16);

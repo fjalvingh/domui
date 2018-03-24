@@ -24,10 +24,13 @@
  */
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
+import to.etc.domui.dom.css.VerticalAlignType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
 
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /**
  * A Dialog that is used to input single value of type &lt;T&gt;, using input control of type &lt;C&gt;.
@@ -66,18 +69,18 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	}
 
 	public InputDialog(C inputControl, boolean modal, boolean resizable, String title, String label) {
-		super(modal, resizable, DEFAULT_WIDTH, DEFAULT_MIN_HEIGHT, title);
+		super(modal, resizable, title);
 		m_inputControl = inputControl;
 		m_label = label;
 	}
 
 	public InputDialog(C inputControl, boolean resizable, String title) {
-		super(true, resizable, DEFAULT_WIDTH, DEFAULT_MIN_HEIGHT, title);
+		super(true, resizable, title);
 		m_inputControl = inputControl;
 	}
 
 	public InputDialog(C inputControl, String title) {
-		super(true, false, DEFAULT_WIDTH, DEFAULT_MIN_HEIGHT, title);
+		super(true, false, title);
 		m_inputControl = inputControl;
 	}
 
@@ -88,9 +91,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 * Overridden to create the initial button bar with the "save" button and the
 	 * "cancel" buttons in place.
 	 * Also gives default input dialog layout.
-	 * Overide to set custom layout, but then adding buttons is your responsibility!
-	 *
-	 * @see to.etc.domui.component.layout.Window#createFrame()
+	 * Override to set custom layout, but then adding buttons is your responsibility!
 	 */
 	@OverridingMethodsMustInvokeSuper
 	@Override
@@ -103,11 +104,12 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	public void createContent() throws Exception {
 		Div pnl = new Div();
 		pnl.setCssClass("ui-idlg-pnl");
+		C control = getInputControl();
 		if(m_label != null) {
-			pnl.add(new Label(m_label));
-			getInputControl().setVerticalAlign(VerticalAlignType.TOP);
+			pnl.add(new Label(control, m_label, "ui-idlg-lbl"));
+			control.setVerticalAlign(VerticalAlignType.TOP);
 		}
-		pnl.add(getInputControl());
+		pnl.add(control);
 		add(pnl);
 	}
 
@@ -115,8 +117,6 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 * Can be overridden to add extra buttons to the button bar where needed - this default
 	 * implementation adds the save and cancel buttons. If you override you should decide on
 	 * their fate yourself!
-	 *
-	 * @throws Exception
 	 */
 	@Override
 	protected void createButtons() throws Exception {

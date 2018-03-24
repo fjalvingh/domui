@@ -51,17 +51,23 @@ final public class ThemeResourceFactory implements IResourceFactory {
 		return name.startsWith(PREFIX) ? 30 : -1;
 	}
 
-	static public final String[] splitThemeURL(String name) {
+	/**
+	 * A theme resource URL has the format: $THEME/themeName/aaa/bb/ccc. This call
+	 * returns the theme from that url in [0] and the rest string in [1].
+	 * @param name
+	 * @return
+	 */
+	static public final String[] splitThemeResourceURL(String name) {
 		if(!name.startsWith(PREFIX))
 			throw new IllegalArgumentException("Not a theme RURL: '" + name + "'");
 		String real = name.substring(PREFIX.length()); // Strip $THEME/
-		int pos = real.lastIndexOf('/');
+		int pos = real.indexOf('/');
 		if(pos == -1)
 			throw new ThingyNotFoundException("Bad theme URL (missing current theme): " + name);
 		String themename = real.substring(0, pos);
 		String filename = real.substring(pos + 1);
 		if(themename.length() == 0)
-			throw new ThingyNotFoundException("Bad theme URL (empty current theme): " + name);
+			throw new ThingyNotFoundException("Bad theme resource-URL (empty current theme): " + name);
 		return new String[]{themename, filename};
 	}
 
@@ -70,8 +76,8 @@ final public class ThemeResourceFactory implements IResourceFactory {
 	 */
 	@Override
 	@Nonnull
-	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
-		String[] spl = splitThemeURL(name);
+	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String themeResourceURL, @Nonnull IResourceDependencyList rdl) throws Exception {
+		String[] spl = splitThemeResourceURL(themeResourceURL);
 		String themename = spl[0];
 		String filename = spl[1];
 
@@ -81,7 +87,7 @@ final public class ThemeResourceFactory implements IResourceFactory {
 			throw new IllegalStateException("Unexpected null from theme factory");
 		IResourceRef rr = theme.getThemeResource(filename, rdl);
 		if(null == rr || !rr.exists()) // FIXME Questionable: just return rr?
-			throw new ThingyNotFoundException("The theme resource '" + name + "' cannot be found");
+			throw new ThingyNotFoundException("The theme resource '" + themeResourceURL + "' cannot be found");
 		return rr;
 	}
 }

@@ -375,10 +375,7 @@ final public class WindowSession {
 	 * This checks whether a new page is to be made resident, instead of the
 	 * current page.
 	 *
-	 * @param ctx
 	 * @param currentpg		The page that is <b>current</b> (the one that issued the MOVE command).
-	 * @return
-	 * @throws Exception
 	 */
 	public boolean handleGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
 		//		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
@@ -541,9 +538,7 @@ final public class WindowSession {
 		if(ac == null)
 			return false;
 
-		if(clz.getName().equals(ac.getName()))
-			return true;
-		return false;
+		return clz.getName().equals(ac.getName());
 	}
 
 	void generateRedirect(@Nonnull final RequestContextImpl ctx, @Nonnull final Page to, boolean ajax) throws Exception {

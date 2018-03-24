@@ -60,8 +60,11 @@
  *  saying "nothing to setup".
  */
 Calendar.setup = function (params) {
-	function param_default(pname, def) { if (typeof params[pname] == "undefined") { params[pname] = def; } };
-
+	function param_default(pname, def) {
+		if(typeof params[pname] == "undefined") {
+			params[pname] = def;
+		}
+	}
 	param_default("inputField",     null);
 	param_default("displayArea",    null);
 	param_default("button",         null);
@@ -121,8 +124,7 @@ Calendar.setup = function (params) {
 		}
 		if (update && p.singleClick && cal.dateClicked)
 			cal.callCloseHandler();
-	};
-
+	}
 	if (params.flat != null) {
 		if (typeof params.flat == "string")
 			params.flat = document.getElementById(params.flat);

@@ -31,5 +31,5 @@ package to.etc.template;
  */
 @Deprecated
 public interface TplCallback {
-	public Object getValue(String name);
+	Object getValue(String name);
 }

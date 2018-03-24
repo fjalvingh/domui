@@ -39,7 +39,7 @@ $(window).bind('beforeunload', function() {
 /** WebUI helper namespace */
 var WebUI;
 if(WebUI === undefined)
-	WebUI = new Object();
+	WebUI = {};
 
 
 var DomUI = WebUI;

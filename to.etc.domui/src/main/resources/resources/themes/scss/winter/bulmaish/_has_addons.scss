@@ -1,0 +1,48 @@
+/*** Form layer ***/
+.ui-has-addons .ui-control:not(:first-child) {
+	&, .ui-input, .ui-button {
+		border-bottom-left-radius: 0px;
+		border-top-left-radius: 0px;
+	}
+}
+.ui-has-addons .ui-control:not(:last-child) {
+	&, .ui-input, .ui-button {
+		border-bottom-right-radius: 0px;
+		border-top-right-radius: 0px;
+		margin-right: -1px;
+	}
+}
+
+/*** Control layer ***/
+.ctl-has-addons .ui-input, .ctl-has-addons .ui-button {
+	&:not(:first-child) {
+		border-bottom-left-radius: 0;
+		border-top-left-radius: 0;
+
+		&:hover, &:focus {
+			z-index: 2;
+		}
+	}
+	&:not(:last-child) {
+		border-bottom-right-radius: 0;
+		border-top-right-radius: 0;
+		margin-right: -1px;
+	}
+}
+.ctl-has-addons .ui-control:not(:first-child) {
+	&, .ui-input, .ui-button {
+		border-bottom-left-radius: 0px;
+		border-top-left-radius: 0px;
+
+		&:hover, &:focus {
+			z-index: 2;
+		}
+	}
+}
+.ctl-has-addons .ui-control:not(:last-child) {
+	&, .ui-input, .ui-button {
+		border-bottom-right-radius: 0px;
+		border-top-right-radius: 0px;
+		margin-right: -1px;
+	}
+}

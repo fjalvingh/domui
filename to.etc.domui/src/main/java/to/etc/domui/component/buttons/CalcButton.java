@@ -24,17 +24,19 @@
  */
 package to.etc.domui.component.buttons;
 
-import java.awt.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
 import to.etc.domui.dom.html.Button;
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.parts.ButtonPartKey;
+import to.etc.domui.parts.PropBtnPart;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.parts.PartData;
+import to.etc.domui.server.parts.PartService;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.WrappedException;
+
+import javax.annotation.Nullable;
+import java.awt.*;
 
 /**
  * This was the "DefaultButton" until june 2011.
@@ -150,7 +152,7 @@ public class CalcButton extends Button {
 			return;
 
 		StringBuilder sb = new StringBuilder(128);
-		m_key.append(getPage().getBody().getThemeVariant(), sb);
+		m_key.append(sb);
 		setBackgroundImage(sb.toString());
 
 		//-- Determine image size: force it generated and use the cached copy for sizing

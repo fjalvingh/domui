@@ -1,21 +1,35 @@
 package to.etc.domui.component2.lookupinput;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.layout.Dialog;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.searchpanel.SearchPanel;
+import to.etc.domui.component.tbl.BasicRowRenderer;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.IClickableRowRenderer;
+import to.etc.domui.component.tbl.IQueryHandler;
+import to.etc.domui.component.tbl.IRowRenderer;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.PageQueryHandler;
+import to.etc.domui.dom.errors.IErrorMessageListener;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
-	private LookupForm<QT> m_lookupForm;
+	private SearchPanel<QT> m_lookupForm;
 
 	@Nullable
 	private DataTable<OT> m_result;
@@ -27,6 +41,12 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	private boolean m_allowEmptyQuery = true;
 
 	private boolean m_searchImmediately;
+
+	/**
+	 * Default false for backward compatibility . Controls if the serach panel is initially collapsed or not
+	 */
+	private boolean m_initiallyCollapsed;
+
 
 	/**
 	 * Default T. When set, table result would be stretched to use entire available height on FloatingWindow.
@@ -95,6 +115,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		m_queryMetaModel = queryMetaModel;
 		m_outputMetaModel = outputMetaModel;
 		m_modelFactory = modelFactory;
+		m_initiallyCollapsed = false;
 	}
 
 	@Override
@@ -113,17 +134,21 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			add((NodeBase) cerl);
 			DomUtil.getMessageFence(this).addErrorListener(cerl);
 		}
-		LookupForm<QT> lf = getLookupForm();
+		SearchPanel<QT> lf = getSearchPanel();
 		if(lf == null) {
-			lf = new LookupForm<QT>((Class<QT>) getQueryMetaModel().getActualClass(), getQueryMetaModel());
+			lf = new SearchPanel<QT>((Class<QT>) getQueryMetaModel().getActualClass(), getQueryMetaModel());
 			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
 				lf.setSearchProperties(m_searchPropertyList);
 		}
 
 		ITableModel<OT> initialModel = m_initialModel;
 
-		lf.setCollapsed(initialModel != null && initialModel.getRows() > 0);
-		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
+		//-- Ordered!
+		lf.forceRebuild(); 										// jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
+
+		// this collapse search fields by configuration or if we enter the lookup popup with some already pre set results, for example given by search as you type.
+		lf.setCollapsed(m_initiallyCollapsed || (initialModel != null && initialModel.getRows() > 0));
+		//-- end ordered
 
 		add(lf);
 		//setOnClose(new IWindowClosed() {
@@ -135,19 +160,9 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		//	}
 		//});
 
-		lf.setClicked(new IClicked<LookupForm<QT>>() {
-			@Override
-			public void clicked(@Nonnull LookupForm<QT> b) throws Exception {
-				search(b);
-			}
-		});
+		lf.setClicked((IClicked<SearchPanel<QT>>) b -> search(b));
 
-		lf.setOnCancel(new IClicked<LookupForm<QT>>() {
-			@Override
-			public void clicked(@Nonnull LookupForm<QT> b) throws Exception {
-				closePressed();
-			}
-		});
+		lf.setOnCancel(b -> closePressed());
 
 		if(initialModel != null && initialModel.getRows() > 0) {
 			setResultModel(initialModel);
@@ -158,8 +173,12 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	}
 
-	private void search(@Nonnull LookupForm<QT> lf) throws Exception {
-		QCriteria<QT> c = lf.getEnteredCriteria();
+	public void setInitiallyCollapsed(boolean initiallyCollapsed) {
+		m_initiallyCollapsed = initiallyCollapsed;
+	}
+
+	private void search(@Nonnull SearchPanel<QT> lf) throws Exception {
+		QCriteria<QT> c = lf.getCriteria();
 		if(c == null)						// Some error has occured?
 			return;							// Don't do anything (errors will have been registered)
 
@@ -304,16 +323,16 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * Can be set by a specific lookup form to use when the full query popup is shown. If unset the code will create
-	 * a LookupForm using metadata.
+	 * a SearchPanel using metadata.
 	 * @return
 	 */
 	@Nullable
-	public LookupForm<QT> getLookupForm() {
+	public SearchPanel<QT> getSearchPanel() {
 		return m_lookupForm;
 	}
 
-	public void setLookupForm(@Nullable LookupForm<QT> externalLookupForm) {
-		m_lookupForm = externalLookupForm;
+	public void setSearchPanel(@Nullable SearchPanel<QT> externalSearchPanel) {
+		m_lookupForm = externalSearchPanel;
 	}
 
 	/**
@@ -351,7 +370,6 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 
 	/**
 	 * Set to F to disable stretching of result table height.
-	 * @param useStretchedLayout
 	 */
 	public void setUseStretchedLayout(boolean value) {
 		if(value == m_useStretchedLayout) {

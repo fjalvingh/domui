@@ -37,17 +37,17 @@ import to.etc.util.*;
  * Created on Mar 28, 2007
  */
 public interface BuildPlan {
-	static public final ComponentRef[] EMPTY_PLANS = new ComponentRef[0];
+	ComponentRef[] EMPTY_PLANS = new ComponentRef[0];
 
-	public Object getObject(BasicContainer c) throws Exception;
+	Object getObject(BasicContainer c) throws Exception;
 
-	public void dump(IndentWriter iw) throws IOException;
+	void dump(IndentWriter iw) throws IOException;
 
 	/**
 	 * When T this component has a static (one-time only) initialization requirement.
 	 * @return
 	 */
-	public boolean needsStaticInitialization();
+	boolean needsStaticInitialization();
 
 	/**
 	 * When this has a static initializer this should execute it. This gets called before an actual object
@@ -55,7 +55,7 @@ public interface BuildPlan {
 	 * @param c
 	 * @throws Exception
 	 */
-	public void staticStart(BasicContainer c) throws Exception;
+	void staticStart(BasicContainer c) throws Exception;
 
 	/**
 	 * Call the after-construction methods specified for this object (start methods). When present these are
@@ -64,7 +64,7 @@ public interface BuildPlan {
 	 * @param self
 	 * @throws Exception
 	 */
-	public void start(BasicContainer bc, Object self) throws Exception;
+	void start(BasicContainer bc, Object self) throws Exception;
 
 	/**
 	 * Call the before-destruction methods specified for this object.
@@ -72,7 +72,7 @@ public interface BuildPlan {
 	 * @param self
 	 * @throws Exception
 	 */
-	public void destroy(BasicContainer bc, Object self);
+	void destroy(BasicContainer bc, Object self);
 
 	boolean hasDestructors();
 }

@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.overview.lookup;
 
+import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.lookup.*;
 import to.etc.domui.component.tbl.*;
 import to.etc.domui.derbydata.db.Invoice;
@@ -9,10 +10,15 @@ import to.etc.webapp.query.*;
 public class DemoLookupForm extends UrlPage {
 	private DataTable<Invoice> m_tbl;
 
+	private ContentPanel m_cp;
+
 	@Override
 	public void createContent() throws Exception {
+		ContentPanel cp = m_cp = new ContentPanel();
+		add(cp);
+
 		LookupForm<Invoice> lf = new LookupForm<Invoice>(Invoice.class, "billingAddress", "billingCity", "invoiceDate");
-		add(lf);
+		cp.add(lf);
 
 		//-- Click handler gets called when search button is pressed.
 		lf.setClicked(new IClicked<LookupForm<Invoice>>() {
@@ -39,12 +45,18 @@ public class DemoLookupForm extends UrlPage {
 		}
 
 		//-- We need to create a table to show the result in.
-		BasicRowRenderer<Invoice> brr = new BasicRowRenderer<Invoice>(Invoice.class, "billingAddress", "billingCity", "customer.lastName", "customer.firstName", "invoiceDate", "total");
-		m_tbl = new DataTable<Invoice>(ssm, brr);
-		add(m_tbl);
+		RowRenderer<Invoice> rr = new RowRenderer<>(Invoice.class);
+		rr.column("billingAddress");
+		rr.column("billingCity");
+		rr.column("customer.lastName");
+		rr.column("customer.firstName");
+		rr.column("invoiceDate");
+		rr.column("total");
+		m_tbl = new DataTable<Invoice>(ssm, rr);
+		m_cp.add(m_tbl);
 		m_tbl.setPageSize(25);
 
-		add(new DataPager(m_tbl)); // Add a pager too, to navigate the result set.
+		m_cp.add(new DataPager(m_tbl)); // Add a pager too, to navigate the result set.
 	}
 
 

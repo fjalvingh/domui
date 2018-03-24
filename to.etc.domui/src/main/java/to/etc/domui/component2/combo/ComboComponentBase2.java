@@ -183,8 +183,9 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	}
 
 	private void renderEditable() throws Exception {
-		setCssClass("ui-cbb2 ui-cbb2-rw");
+		setCssClass("ui-cbb2 xxui-cbb2-rw ui-control");
 		add(m_select);
+		m_select.addCssClass("ui-input");
 
 		//-- Append stuff to the combo
 		List<T> list = getData();
@@ -237,6 +238,10 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		if(m_select.isAttached())
 			return m_select.getActualID();
 		return null;
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_select;
 	}
 
 	/*--------------------------------------------------------------*/

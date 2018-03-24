@@ -21,28 +21,25 @@ public interface IUIImageInstance {
 	 * in a separate request (from an {@link IUnbufferedPartFactory}).
 	 * @return
 	 */
-	@Nonnull
-	public InputStream getImage() throws Exception;
+	@Nonnull InputStream getImage() throws Exception;
 
 	/**
 	 * The size of the image, in bytes, if known; -1 if unknown.
 	 * @return
 	 */
-	public int getImageSize();
+	int getImageSize();
 
 	/**
 	 * The size of the image, in pixels.
 	 * @return
 	 */
-	@Nonnull
-	public Dimension getDimension() throws Exception;
+	@Nonnull Dimension getDimension() throws Exception;
 
 	/**
 	 * Return the mime type of the current image, which must be one of the core image mime
 	 * types for png, jpg or gif.
 	 * @return
 	 */
-	@Nonnull
-	public String getMimeType() throws Exception;
+	@Nonnull String getMimeType() throws Exception;
 
 }

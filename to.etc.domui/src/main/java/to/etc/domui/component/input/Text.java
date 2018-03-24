@@ -42,7 +42,6 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.Input;
-import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
@@ -80,7 +79,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	private IConverter<T> m_converter;
 
 	/** Defined value validators on this field. */
-	private List<IValueValidator< ? >> m_validators = Collections.EMPTY_LIST;
+	private List<IValueValidator< ? >> m_validators = Collections.emptyList();
 
 	private T m_value;
 
@@ -105,11 +104,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	private boolean m_untrimmed;
 
-	/**
-	 * @see Text#getEmptyMarker()
-	 */
-	private String m_emptyMarker;
-
 	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
 	}
@@ -128,6 +122,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	public Text(@Nonnull Class<T> inputClass) {
 		m_inputClass = inputClass;
+		addCssClass("ui-otxt");
 
 		NumberMode nm = NumberMode.NONE;
 		if(BigDecimal.class.isAssignableFrom(inputClass) || DomUtil.isRealType(inputClass))
@@ -455,88 +450,6 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	public void setUntrimmed(boolean untrimmed) {
 		m_untrimmed = untrimmed;
-	}
-
-	private void setEmptyMarker(String emptyMarker) {
-		if(DomUtil.isBlank(emptyMarker)) {
-			setSpecialAttribute("marker", null);
-		} else {
-			setSpecialAttribute("marker", emptyMarker);
-		}
-		m_emptyMarker = emptyMarker;
-	}
-
-	/**
-	 * Returns assigned empty marker.
-	 *
-	 * @see Text#setEmptyMarker(String)
-	 */
-	public String getEmptyMarker() {
-		return m_emptyMarker;
-	}
-
-	/**
-	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
-	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used
-	 * only for manually-constructed images.
-	 * @param emptyMarker
-	 */
-	public void setMarkerImage(String emptyMarker) {
-		if(DomUtil.isBlank(emptyMarker)) {
-			setSpecialAttribute("marker", null);
-		} else {
-			setSpecialAttribute("marker", emptyMarker);
-		}
-		m_emptyMarker = emptyMarker;
-	}
-
-	/**
-	 * Returns assigned empty marker.
-	 *
-	 * @see Text#setMarkerImage(String)
-	 */
-	public String getMarkerImage() {
-		return m_emptyMarker;
-	}
-
-
-	/**
-	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
-	 * @return
-	 */
-	public void setMarker() {
-		setMarkerImage(MarkerImagePart.getBackgroundIconOnly());
-	}
-
-	/**
-	 * Method can be used to show custom marker icon as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param iconUrl
-	 * @return
-	 */
-	public void setMarker(String iconUrl) {
-		setMarkerImage(MarkerImagePart.getBackgroundIconOnly(iconUrl));
-	}
-
-	/**
-	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier and custom label as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param caption
-	 * @return
-	 */
-	public void setMarkerText(String caption) {
-		setMarkerImage(MarkerImagePart.getBackgroundImage(caption));
-	}
-
-	/**
-	 * Method can be used to show custom marker icon and custom label as image in background of input. Image is hidden when input have focus or has any content.
-	 *
-	 * @param iconUrl
-	 * @param caption
-	 * @return
-	 */
-	public void setMarker(String iconUrl, String caption) {
-		setMarkerImage(MarkerImagePart.getBackgroundImage(iconUrl, caption));
 	}
 
 	/**

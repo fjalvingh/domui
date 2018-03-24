@@ -46,8 +46,12 @@ final public class SassThemeFactory {
 			return stf.createTheme();
 		}
 
+		@Nonnull @Override public String getFactoryName() {
+			return "scss";
+		}
+
 		@Nonnull @Override public String getDefaultThemeName() {
-			return "winter/default/default";
+			return getFactoryName() + "-winter-default-default";
 		}
 	};
 
@@ -62,13 +66,13 @@ final public class SassThemeFactory {
 
 	private ITheme createTheme() throws Exception {
 		//-- Split theme name into css/icons/color
-		String[] ar = m_themeName.split("/");
-		if(ar.length != 4)
-			throw new StyleException("The theme name '" + m_themeName + "' is invalid for "+getClass()+": expecting styleName/icon/color/variant");
-		String styleName = ar[0];
-		String iconName = ar[1];
-		String colorName = ar[2];
-		String variant = ar[3];
+		String[] ar = m_themeName.split("-");
+		if(ar.length != 4 && ar.length != 5)
+			throw new StyleException("The theme name '" + m_themeName + "' is invalid for "+getClass()+": expecting factory-styleName-icon-color-variant");
+		String styleName = ar[1];
+		String iconName = ar[2];
+		String colorName = ar[3];
+		String variant = ar.length == 4 ? DefaultThemeVariant.INSTANCE.getVariantName() : ar[4];
 
 		//-- Check that the required files exist; this will throw an exception if not
 		List<String> searchpath = new ArrayList<>();

@@ -24,10 +24,9 @@
  */
 package to.etc.domui.themes;
 
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.js.*;
+import to.etc.domui.parts.ButtonPartKey;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.util.js.IScriptScope;
 
 /**
  * This helper class is passed to the theme factory, and can be used to augment
@@ -70,8 +69,8 @@ public class ThemeCssUtils {
 		k.setPropFile(s);
 		k.setText(text);
 		StringBuilder sb = new StringBuilder();
-		sb.append("/").append(AppFilter.internalGetWebappContext()).append("/");
-		k.append(DefaultThemeVariant.INSTANCE, sb);
+		sb.append("/").append(UIContext.getRequestContext().getRequestResponse().getWebappContext()).append("/");
+		k.append(sb);
 		return sb.toString();
 	}
 

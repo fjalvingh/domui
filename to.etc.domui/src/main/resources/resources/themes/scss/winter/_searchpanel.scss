@@ -1,0 +1,11 @@
+/*** SearchPanel ***/
+.ui-dfsb-panel {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.ui-dfsb-part {
+	flex: 1;
+	display: inline-block;
+}

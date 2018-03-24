@@ -95,17 +95,17 @@ var DDD = {
 	
 			var target   = ev.target || ev.srcElement;
 
-			if (DDD.insertHere && target == DDD.insertHere){
+			if (DDD.insertHere && target === DDD.insertHere){
 				return false;
 			}
-			if (target == DDD.dragObject){
+			if (target === DDD.dragObject){
 				return false;
 			}
 			//This makes drag and drop more user friendly.
 			//In case when we hover document (out of any content), lets calculate if any container div is on same vertical line with mouse and enable drop hit
 			//In IE7 body height is stretched over whole existing content, while on IE8 and FF body stays short.
 			//DDD.log(target, target.tagName, true);
-			if (target.tagName == 'HTML' || target == document.body || $(target).hasClass('drag-body')){
+			if (target.tagName === 'HTML' || target === document.body || $(target).hasClass('drag-body')){
 				var dragContainerOnPosX = undefined;
 				$('.drag-body').children('.drag-cont').each(
 					function (){
@@ -128,7 +128,7 @@ var DDD = {
 				var parent = $(target).parents('.drag-div').filter(':first');
 				if (parent && parent.size() > 0){
 					target = parent.get(0);
-					if (target == DDD.dragObject){
+					if (target === DDD.dragObject){
 						return false;
 					}
 				}else{
@@ -147,7 +147,7 @@ var DDD = {
 				}
 				
 				if (DDD.lastTarget){
-					if (DDD.lastTarget != target){
+					if (DDD.lastTarget !== target){
 						DDD.log(DDD.lastTarget, ' stop hovering');
 						newTarget = target;
 						DDD.log(newTarget, ' start hovering');
@@ -163,7 +163,7 @@ var DDD = {
 				}
 			}
 		
-			if (newTarget && (newTarget != DDD.lastTarget || newHoverNearTop != DDD.lastHoverNearTop)){
+			if (newTarget && (newTarget !== DDD.lastTarget || newHoverNearTop !== DDD.lastHoverNearTop)){
 				var dragObjectParent = null;
 				var dragObjectSibling = null;			
 				if ($(newTarget).hasClass('drag-cont')){

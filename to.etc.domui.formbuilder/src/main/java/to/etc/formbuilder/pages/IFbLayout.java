@@ -6,7 +6,6 @@ import to.etc.domui.dom.html.*;
 
 public interface IFbLayout extends IFbComponent {
 	@Override
-	@Nonnull
-	public NodeContainer createNodeInstance() throws Exception;
+	@Nonnull NodeContainer createNodeInstance() throws Exception;
 
 }

@@ -1,5 +1,9 @@
 package to.etc.domui.derbydata.db;
 
+import to.etc.domui.component.meta.MetaDisplayProperty;
+import to.etc.domui.component.meta.MetaObject;
+import to.etc.domui.component.meta.MetaSearchItem;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -17,8 +21,21 @@ import java.util.List;
 
 @Entity
 @Table(name = "Invoice")
-@SequenceGenerator(name = "sq", sequenceName = "invoice_sq")
-//@MetaObject(defaultColumns = {@MetaDisplayProperty(name = "name")})
+@SequenceGenerator(name = "sq", sequenceName = "invoice_sq", allocationSize = 1)
+@MetaObject(defaultColumns = {								// 20180203 Must have metadata for SearchPanel/LookupForm tests.
+	@MetaDisplayProperty(name = "customer.lastName", displayLength = 20)
+	, @MetaDisplayProperty(name = "customer.firstName", displayLength = 10)
+	, @MetaDisplayProperty(name = "invoiceDate")
+	, @MetaDisplayProperty(name = "billingAddress", displayLength = 20)
+	, @MetaDisplayProperty(name = "billingCity", displayLength = 10)
+	, @MetaDisplayProperty(name = "total", displayLength = 10)
+}
+, searchProperties = {
+	@MetaSearchItem(name = "invoiceDate")
+	, @MetaSearchItem(name = "billingCity")
+	, @MetaSearchItem(name = "customer")
+}
+)
 public class Invoice extends DbRecordBase<Long> {
 	private Long m_id;
 
@@ -43,7 +60,7 @@ public class Invoice extends DbRecordBase<Long> {
 
 	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "invoice_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "invoice_sq", allocationSize = 1)
 	@Column(name = "InvoiceId", nullable = false, precision = 20)
 	public Long getId() {
 		return m_id;
@@ -136,3 +153,5 @@ public class Invoice extends DbRecordBase<Long> {
 		m_invoiceLines = invoiceLines;
 	}
 }
+
+

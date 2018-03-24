@@ -1,7 +1,6 @@
 package to.etc.domui.component.meta.init;
 
 import to.etc.domui.component.meta.MetaCombo;
-import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaObject;
 import to.etc.domui.component.meta.MetaSearchItem;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -55,7 +54,7 @@ public class MIDomuiClassAnnotations extends AbstractClassAnnotationProvider {
 				//	}
 				//});
 			}
-			if(!mo.defaultSortColumn().equals(Constants.NONE))
+			if(!mo.defaultSortColumn().isEmpty())
 				cmm.setDefaultSortProperty(mo.defaultSortColumn());
 			cmm.setDefaultSortDirection(mo.defaultSortOrder());
 
@@ -79,12 +78,11 @@ public class MIDomuiClassAnnotations extends AbstractClassAnnotationProvider {
 			List<SearchPropertyMetaModel> keySearchList = new ArrayList<>(cmm.getKeyWordSearchProperties());
 			for(MetaSearchItem msi : mo.searchProperties()) {
 				index++;
-				List<PropertyMetaModel< ? >> pl = MetaManager.parsePropertyPath(cmm, msi.name());
-				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, pl);
+				PropertyMetaModel<?> pmm = cmm.getProperty(msi.name());
+				SearchPropertyMetaModelImpl mm = new SearchPropertyMetaModelImpl(cmm, pmm);
 				mm.setIgnoreCase(msi.ignoreCase());
 				mm.setOrder(msi.order() == -1 ? index : msi.order());
 				mm.setMinLength(msi.minLength());
-				mm.setPropertyName(msi.name());
 				mm.setLookupLabelKey(msi.lookupLabelKey().length() == 0 ? null : msi.lookupLabelKey());
 				mm.setLookupHintKey(msi.lookupHintKey().length() == 0 ? null : msi.lookupHintKey());
 				if(msi.searchType() == SearchPropertyType.SEARCH_FIELD || msi.searchType() == SearchPropertyType.BOTH) {

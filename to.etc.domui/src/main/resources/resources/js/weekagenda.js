@@ -21,18 +21,18 @@ WebUI.Agenda = function(div) {
 	div.onmouseup= function(e) {
 		cal.timeUp(e);
 	};
-}
+};
 
 /**
  * Decode a year,month,day,hour,minute date string.
  */
 WebUI.Agenda.prototype.decodeDate = function(s) {
 	var ar = s.split(",");
-	if(ar.length != 5)
+	if(ar.length !== 5)
 		alert('Invalid date input: '+s);
 	var d = new Date(parseInt(ar[0]), parseInt(ar[1])-1, parseInt(ar[2]), parseInt(ar[3]), parseInt(ar[4]), 0);
 	return d;
-}
+};
 
 /**
  * Get all data for this control from the div.
@@ -63,18 +63,18 @@ WebUI.Agenda.prototype.loadLayout = function() {
 	var tr = undefined;
 	for(var i = 0; i < tbl.childNodes.length; i++) {
 		tr = tbl.childNodes[i];
-		if(tr.tagName == 'tr' || tr.tagName=='TR')
+		if(tr.tagName === 'tr' || tr.tagName==='TR')
 			break;
 	}
 	var td = undefined;
 	var ix = 0;
-	for(var i = 0; i < tr.childNodes.length; i++) {
+	for(var j = 0; j < tr.childNodes.length; j++) {
 		td = tr.childNodes[i];
-		if(td.tagName == 'td' || td.tagName=='TD') {
-			if(ix == 0) {
+		if(td.tagName === 'td' || td.tagName==='TD') {
+			if(ix === 0) {
 				this._headerHeight = tr.clientHeight+1;
 				this._gutterWidth = td.clientWidth+1;
-			} else if(ix == 1) {
+			} else if(ix === 1) {
 				this._cellWidth = td.clientWidth+1;
 			} else
 				break;
@@ -85,7 +85,7 @@ WebUI.Agenda.prototype.loadLayout = function() {
 	this._pxPerHour = (tblheight - this._headerHeight+1) / (this._endHour-this._startHour);
 	this._endDate = new Date(this._date.getTime());
 	this._endDate.setDate(this._endDate.getDate()+this._days);
-	this._dayMap = new Array();
+	this._dayMap = [];
 //	alert('layout: tbl.height='+tblheight+", hdrheight="+this._headerHeight+", endhour="+this._endHour+", starthour="+this._startHour+", pxperhr="+this._pxPerHour);
 
 	/*
@@ -101,7 +101,7 @@ WebUI.Agenda.prototype.loadLayout = function() {
 //
 //		alert('click: tbl.height='+d.clientHeight);
 //	}
-}
+};
 
 /**
  * Recalculate all positions of items.
@@ -124,10 +124,10 @@ WebUI.Agenda.prototype.reposition = function() {
 	var dayxo = this._gutterWidth;
 	for(var i = 0; i < this._dayMap.length; i++) {		// Every day,
 		var	day = this._dayMap[i];
-		if(day == undefined)
+		if(day === undefined)
 			continue;
 		var maxlanes = day.ways.length;					// The #of ways used by this day,
-		if(maxlanes == 0)
+		if(maxlanes === 0)
 			continue;
 
 		//-- Walk all ways
@@ -156,20 +156,20 @@ WebUI.Agenda.prototype.reposition = function() {
 		//-- Next day
 		dayxo += this._cellWidth;
 	}
-}
+};
 
 WebUI.Agenda.prototype.assignDayAndLane = function(idiv, sd, ed) {
 	//-- Calc positions and create the initial "item"
 	var so = this.calcMinuteOffset(sd, 1);
 	var eo = this.calcMinuteOffset(ed, -1);
 	var day	= this._dayMap[so.day];
-	if(day == undefined)
+	if(day === undefined)
 		day = this._dayMap[so.day] = {day: so.day, ways: [[]]};
 
 	var ys = Math.round(so.min * this._pxPerHour / 60);
 	var ye = Math.round(eo.min * this._pxPerHour / 60);
 	
-	var item = new Object();
+	var item = {};
 	item.day = so.day;
 	item.ys	= ys;
 	item.ye = ye;
@@ -178,15 +178,15 @@ WebUI.Agenda.prototype.assignDayAndLane = function(idiv, sd, ed) {
 	//-- Start item placement over the ways,
 	for(var i = 0; i < 4; i++) {
 		var way = day.ways[i];
-		if(way == undefined)
-			way = day.ways[i] = new Array();// Add another way.
+		if(way === undefined)
+			way = day.ways[i] = [];// Add another way.
 		if(this.placeOnWay(way, item))
 			return;
 	}
 
 	//-- Cannot be placed on 4 ways-> overflow; make it overlap.
 	day.ways.push(item);
-}
+};
 
 /**
  * Calculate the #of ways AFTER the item's own way that the item can occupy without overlap.
@@ -203,7 +203,7 @@ WebUI.Agenda.prototype.calcSpanLanes = function(day, start, item) {
 		nways++;
 	}
 	return nways;
-}
+};
 
 /**
  * Try to place this item on this way. Succeeds when there is no overlap.
@@ -218,11 +218,11 @@ WebUI.Agenda.prototype.placeOnWay = function(way, item) {
 	//-- No overlap -> add here,
 	way.push(item);
 	return true;
-}
+};
 
 WebUI.Agenda.prototype.calItemOverlaps = function(i1, i2) {
 	return i1.ys < i2.ye && i1.ye > i2.ys;
-}
+};
 
 /**
  * Calculates a minutes offset for the date passed. This is an offset
@@ -251,7 +251,7 @@ WebUI.Agenda.prototype.calcMinuteOffset = function(d, grav) {
 			mins = 0;
 		else {
 			//-- Round off to end of previous day,
-			if(dayoff == 0)
+			if(dayoff === 0)
 				mins = 0;
 			else {
 				dayoff--;
@@ -276,19 +276,19 @@ WebUI.Agenda.prototype.calcMinuteOffset = function(d, grav) {
 		mins = h * 60 + d.getMinutes();
 	}
 	return {day: dayoff, min: mins};
-}
+};
 
 
 /************** Calendar new appointment dragging *********************/
 WebUI.Agenda.prototype.destroyNode = function(x) {
 	$(x).remove();
-}
+};
 
 WebUI.Agenda.prototype.timeDown = function(e) {
 	this.timeReset();
 	this._timeStart = this.fixPosition(e);
 	this._timeMode = 1;
-}
+};
 
 WebUI.Agenda.prototype.timeReset = function() {
 	if(this._timeDiv) {
@@ -296,7 +296,7 @@ WebUI.Agenda.prototype.timeReset = function() {
 		delete this._timeDiv;
 	}
 	this._timeMode = 0;
-}
+};
 WebUI.Agenda.prototype.timeUp = function(e) {
 	if(this._dragMode && this._dragMode > 0) {
 		this.apptUp(e);
@@ -304,18 +304,18 @@ WebUI.Agenda.prototype.timeUp = function(e) {
 	}
 	if(this._timeMode && this._timeMode > 0) {
 		this.timeReset();
-		var fields = new Object();
+		var fields = {};
 		fields.date = this._timeDate.getTime();
 		fields.duration = this._timeDuration;
 		WebUI.scall(this._rootdiv.id, 'newappt', fields);
 		return;
 	}
 	this.timeReset();
-}
+};
 
 WebUI.Agenda.prototype.roundOff = function(min) {
 	return Math.round(min / this._rounding) * this._rounding;
-}
+};
 
 WebUI.Agenda.prototype.timeMove = function(e) {
 	if(this._dragMode && this._dragMode > 0) {
@@ -341,7 +341,7 @@ WebUI.Agenda.prototype.timeMove = function(e) {
 		ey = this._timeStart.y;
 		sy = cloc.y;
 	}
-	var dy = ey - sy;
+	dy = ey - sy;
 
 	//-- Force x to the start of a day
 	var day = Math.floor( (cloc.x - this._gutterWidth) / this._cellWidth);
@@ -384,10 +384,10 @@ WebUI.Agenda.prototype.timeMove = function(e) {
 	this._timeDiv.style.height = (ey-sy)+"px";
 	this._timeDiv.style.left = xo+"px";
 //	this.status("Time MOVE: y="+sy+", ey="+ey+" xo="+xo+" date "+this._timeDate+", dur="+Util.strDuration(dur));
-}
+};
 
 WebUI.Agenda.prototype.fixPosition = function(e) {
 	var p = WebUI.getAbsolutePosition(this._rootdiv);
 	return {x: e.clientX - p.x, y: e.clientY - p.y };
-}
+};
 

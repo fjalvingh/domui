@@ -70,6 +70,11 @@ final public class NetTools {
 	}
 
 	static public String getHostName(HttpServletRequest req) {
+		//-- Proxied?
+		String hdr = req.getHeader("X-Forwarded-Host");
+		if(null != hdr)
+			return hdr;
+
 		String hostname = req.getHeader("Host");
 		if(hostname != null) {
 			int i = hostname.lastIndexOf(':');
@@ -83,6 +88,42 @@ final public class NetTools {
 		if(hostname == null)
 			throw new IllegalStateException("Unable to get host name from request!?");
 		return hostname;
+	}
+
+	/**
+	 * Return the host name/IP address of the remote side of the connection. This
+	 * is proxy safe: it checks for proxy headers on the request.
+	 */
+	static public String getRemoteHost(HttpServletRequest req) throws Exception {
+		// Only allow proxy headers from non internet addresses (10.x, 172.16..31, 192.168..)
+		String remoteHost = req.getRemoteHost();
+		InetAddress remote = InetAddress.getByName(remoteHost);
+		if(remote.isSiteLocalAddress()) {
+			//-- Proxied?
+			String hdr = req.getHeader("X-Forwarded-For");
+			if(null != hdr)
+				return hdr;
+			hdr = req.getHeader("X-Client-IP");
+			if(null != hdr)
+				return hdr;
+		}
+		return remoteHost;
+	}
+
+	public static boolean isHttps(HttpServletRequest request) throws Exception {
+		String scheme = request.getScheme();
+		if("https".equalsIgnoreCase(scheme))
+			return true;
+		String remoteHost = request.getRemoteHost();
+		InetAddress remote = InetAddress.getByName(remoteHost);
+		if(!remote.isSiteLocalAddress())
+			return false;
+
+		//-- Try proxy headers
+		String hdr = request.getHeader("X-forwarded-proto");
+		if(null == hdr)
+			return false;
+		return "https".equalsIgnoreCase(hdr);
 	}
 
 	static public int getHostPort(HttpServletRequest req) {

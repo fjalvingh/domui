@@ -1,6 +1,6 @@
 var WebUI;
 (function (WebUI) {
-    function returnKeyPress(evt, node) {
+    export function returnKeyPress(evt, node) {
         var keyCode = WebUI.normalizeKey(evt);
         if (keyCode != 13000 && keyCode != 13)
             return true;
@@ -12,10 +12,10 @@ var WebUI;
         WebUI.scall(evt.currentTarget ? evt.currentTarget.id : node.id, 'returnpressed');
         return false;
     }
-    function wtMouseDown(e) {
+    export function wtMouseDown(e) {
         alert(e);
     }
-    function alignTopToBottom(nodeId, alignToId, offsetY, doCallback) {
+    export function alignTopToBottom(nodeId, alignToId, offsetY, doCallback) {
         var alignNode = $('#' + alignToId);
         var node = $('#' + nodeId);
         var myTopPos;

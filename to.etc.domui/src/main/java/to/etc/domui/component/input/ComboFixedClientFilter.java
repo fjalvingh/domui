@@ -28,7 +28,7 @@ import to.etc.domui.dom.header.*;
 import to.etc.domui.dom.html.*;
 
 /**
- * We use javascript to wrap addiotnal client side controls around ComboFixedClientFilter, for that we use jquery plugin:
+ * We use javascript to wrap additional client side controls around ComboFixedClientFilter, for that we use jquery plugin:
  * jquery.clientOptionFilter.js - client side filtering options select, author Vladimir Mijic (vmijic@execom.eu)
  *
  * Intended to be used for larger select boxes that need client side filtering by substring.

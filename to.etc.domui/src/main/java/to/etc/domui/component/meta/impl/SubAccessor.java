@@ -43,7 +43,7 @@ public class SubAccessor<B, V> implements IValueAccessor<V> {
 		Object root = m_rootAccessor.getValue(in);
 		if(root == null)
 			return null;
-		InstanceRefresher.refresh(in);
+		//InstanceRefresher.refresh(in);
 		return m_valueAccessor.getValue(root);
 	}
 

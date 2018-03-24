@@ -5,6 +5,5 @@ import javax.annotation.*;
 import to.etc.domui.state.*;
 
 public interface IComponentJsonProvider {
-	@Nonnull
-	public Object provideJsonData(@Nonnull IPageParameters parameterSource) throws Exception;
+	@Nonnull Object provideJsonData(@Nonnull IPageParameters parameterSource) throws Exception;
 }

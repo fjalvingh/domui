@@ -11,5 +11,5 @@ import to.etc.domui.dom.html.*;
  * Created on Apr 22, 2013
  */
 public interface IGotoAction {
-	public void executeAction(@Nonnull UrlPage page) throws Exception;
+	void executeAction(@Nonnull UrlPage page) throws Exception;
 }

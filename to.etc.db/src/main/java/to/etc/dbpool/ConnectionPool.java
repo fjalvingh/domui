@@ -306,9 +306,9 @@ final public class ConnectionPool {
 	 * Created on Mar 11, 2013
 	 */
 	public interface IPoolEvent {
-		public void connectionAllocated(@Nonnull Connection dbc) throws Exception;
+		void connectionAllocated(@Nonnull Connection dbc) throws Exception;
 
-		public void connectionReleased(@Nonnull Connection dbc) throws Exception;
+		void connectionReleased(@Nonnull Connection dbc) throws Exception;
 	}
 
 	@Nonnull
@@ -570,8 +570,8 @@ final public class ConnectionPool {
 
 				dbc = m_driver.connect(c().getUrl(), p);
 			} catch(SQLException x) {
-				x.printStackTrace();
-				MSG.info("Failed to get connection for " + getID() + ": " + x.toString());
+				//x.printStackTrace();
+				MSG.log(Level.WARNING, "Failed to get connection for " + getID() + ": " + x.toString(), x);
 				lastx = x;
 			}
 
@@ -1626,13 +1626,13 @@ final public class ConnectionPool {
 			writeLong(baos, ((Long) object).longValue());
 		} else if(object instanceof BigDecimal) {
 			baos.write('B');
-			writeString(baos, ((BigDecimal) object).toString());
+			writeString(baos, object.toString());
 		} else if(object instanceof Double) {
 			baos.write('d');
-			writeString(baos, ((Double) object).toString());
+			writeString(baos, object.toString());
 		} else if(object instanceof Float) {
 			baos.write('f');
-			writeString(baos, ((Float) object).toString());
+			writeString(baos, object.toString());
 		} else if(object instanceof String) {
 			baos.write('$');
 			writeString(baos, (String) object);

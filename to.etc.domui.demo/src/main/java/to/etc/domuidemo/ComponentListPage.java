@@ -1,8 +1,10 @@
 package to.etc.domuidemo;
 
+import to.etc.domuidemo.pages.DataTable1Page;
 import to.etc.domuidemo.pages.MenuPage;
 import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.basic.DemoTextArea;
+import to.etc.domuidemo.pages.binding.editabletable.EditableTablePage;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
 import to.etc.domuidemo.pages.graphs.GraphPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
@@ -23,6 +25,8 @@ import to.etc.domuidemo.pages.overview.input.DemoComboFixed;
 import to.etc.domuidemo.pages.overview.input.DemoDateInput;
 import to.etc.domuidemo.pages.overview.input.DemoFileUpload;
 import to.etc.domuidemo.pages.overview.input.DemoRadioButton;
+import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType1;
+import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType2;
 import to.etc.domuidemo.pages.overview.input.DemoText;
 import to.etc.domuidemo.pages.overview.input.DemoTextStr;
 import to.etc.domuidemo.pages.overview.layout.DemoAppTitle;
@@ -39,8 +43,11 @@ import to.etc.domuidemo.pages.overview.menu.DemoPopupMenu;
 import to.etc.domuidemo.pages.overview.misc.DemoALink;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayCheckbox;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayValue;
+import to.etc.domuidemo.pages.overview.misc.DemoMsgBox;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
 import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
+import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
+import to.etc.domuidemo.pages.special.ace.AcePage;
 import to.etc.formbuilder.pages.FormDesigner;
 
 /**
@@ -62,6 +69,7 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoScrollableTabPanel.class, "The ScrollableTabPanel panel, when there's many tabs to show.");
 		addLink(DemoSplitterPanel.class, "The SplitterPanel, containing two panels with a movable separator between them");
 		addLink(DemoMessageLine.class, "A message line");
+		addLink(DemoMsgBox.class, "The Message Box");
 
 		addCaption("Simple components");
 		addLink(DemoDefaultButton.class, "The DefaultButton");
@@ -81,6 +89,10 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
 		addLink(DemoCKEditor.class, "The big HTML editor - CKEditor component");
 
+		addCaption("Search as you type");
+		addLink(DemoSearchAsYouType1.class, "Component to search-as-you-type in a list of possible values");
+		addLink(DemoSearchAsYouType2.class, "Component to search-as-you-type in a list of possible values");
+
 		addCaption("Display-only components");
 		addLink(DemoDisplayValue.class, "The DisplayValue component");
 		addLink(DemoDisplayHtml.class, "The DisplayHtml component");
@@ -93,6 +105,7 @@ public class ComponentListPage extends MenuPage {
 
 		addCaption("Tables");
 		addLink(TableMenuPage.class, "Data tables, row renderers and ITableModels.");
+		addLink(DataTable1Page.class, "Simple data table");
 
 		addCaption("Trees");
 		addLink(Tree2DemoPage.class, "The tree2 component");
@@ -103,12 +116,15 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoTableInDrag.class, "Drag and drop - ordered row drop mode");
 
 		addCaption("LookupForm and form builder");
+		addLink(SearchPanelMenuPage.class, "SearchPanel: searching for things in the database");
+
 		addLink(DemoLookupForm.class, "Using a lookupform to generalize search pages");
 		addLink(DemoLookupForm2.class, "LookupForm with LookupInput for a many-to-one relation, and search-as-you-type");
 
 		addLink(FormDesigner.class, "Form designer - work in progress");
 
 		addCaption("Special components");
+		addLink(AcePage.class, "The ACE code editor");
 		addLink(DemoWeekAgenda.class, "The WeekAgenda");
 		addLink(DemoAsyncContainer.class, "The AsyncContainer");
 		addLink(DemoPollingDiv.class, "The PollingDiv component");
@@ -116,5 +132,7 @@ public class ComponentListPage extends MenuPage {
 
 		addCaption("Binding");
 		addLink(DemoObservableListPage.class, "Database relation IObservableList binding");
+		addLink(EditableTablePage.class, "Editable table using data binding and a model");
+		//addLink(InvoiceListPage.class, "Editable table using data binding and a model");
 	}
 }

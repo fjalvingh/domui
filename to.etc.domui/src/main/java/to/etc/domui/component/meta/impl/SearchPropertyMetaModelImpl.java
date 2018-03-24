@@ -24,9 +24,11 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
 
-import to.etc.domui.component.meta.*;
+import javax.annotation.Nonnull;
 
 /**
  * Represents the metadata for a field that can be searched on.
@@ -35,11 +37,9 @@ import to.etc.domui.component.meta.*;
  * Created on Jul 31, 2009
  */
 public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
-	private ClassMetaModel m_classModel;
+	final private ClassMetaModel m_classModel;
 
-	private String m_propertyName;
-
-	private List<PropertyMetaModel< ? >> m_propertyPath;
+	final private PropertyMetaModel<?> m_property;
 
 	private boolean m_ignoreCase;
 
@@ -51,28 +51,33 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 
 	private String m_lookupHintKey;
 
-	public SearchPropertyMetaModelImpl(ClassMetaModel cmm, List<PropertyMetaModel< ? >> mli) {
-		m_classModel = cmm;
-		m_propertyPath = mli;
-	}
+	private boolean m_popupInitiallyCollapsed;
 
-	public SearchPropertyMetaModelImpl(ClassMetaModel cmm) {
-		this(cmm, null);
+	private boolean m_popupSearchImmediately;
+
+	public SearchPropertyMetaModelImpl(@Nonnull ClassMetaModel cmm, @Nonnull PropertyMetaModel<?> pmm) {
+		m_classModel = cmm;
+		m_property = pmm;
 	}
 
 	@Override
-	public synchronized List<PropertyMetaModel< ? >> getPropertyPath() {
-		if(m_propertyPath == null && m_propertyName != null) {
-			m_propertyPath = MetaManager.parsePropertyPath(m_classModel, m_propertyName);
-			if(m_propertyPath.size() == 0)
-				throw new IllegalStateException("? No path for compound property " + m_propertyName + " in " + m_classModel);
-		}
-		return m_propertyPath;
+	public PropertyMetaModel<?> getProperty() {
+		return m_property;
 	}
 
-	public synchronized void setPropertyPath(List<PropertyMetaModel< ? >> propertyPath) {
-		m_propertyPath = propertyPath;
-	}
+	//@Override
+	//public synchronized List<PropertyMetaModel< ? >> getPropertyPath() {
+	//	if(m_propertyPath == null && m_propertyName != null) {
+	//		m_propertyPath = MetaManager.parsePropertyPath(m_classModel, m_propertyName);
+	//		if(m_propertyPath.size() == 0)
+	//			throw new IllegalStateException("? No path for compound property " + m_propertyName + " in " + m_classModel);
+	//	}
+	//	return m_propertyPath;
+	//}
+	//
+	//public synchronized void setPropertyPath(List<PropertyMetaModel< ? >> propertyPath) {
+	//	m_propertyPath = propertyPath;
+	//}
 
 	/**
 	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#isIgnoreCase()
@@ -110,14 +115,16 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		m_minLength = minLength;
 	}
 
-	@Override
-	public synchronized String getPropertyName() {
-		return m_propertyName;
-	}
 
-	public synchronized void setPropertyName(String propertyName) {
-		m_propertyName = propertyName;
-	}
+
+	//@Override
+	//public synchronized String getPropertyName() {
+	//	return m_propertyName;
+	//}
+	//
+	//public synchronized void setPropertyName(String propertyName) {
+	//	m_propertyName = propertyName;
+	//}
 
 	public String getLookupLabelKey() {
 		return m_lookupLabelKey;
@@ -147,5 +154,29 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 		if(m_lookupHintKey == null)
 			return null;
 		return m_classModel.getClassBundle().getString(m_lookupHintKey);
+	}
+
+	/**
+	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#isPopupSearchImmediately()
+	 */
+	@Override
+	public boolean isPopupSearchImmediately() {
+		return m_popupSearchImmediately;
+	}
+
+	public void setPopupSearchImmediately(boolean v) {
+		m_popupSearchImmediately = v;
+	}
+
+	/**
+	 * @see to.etc.domui.component.meta.SearchPropertyMetaModel#isPopupInitiallyCollapsed()
+	 */
+	@Override
+	public boolean isPopupInitiallyCollapsed() {
+		return m_popupInitiallyCollapsed;
+	}
+
+	public void setPopupInitiallyCollapsed(boolean v) {
+		m_popupInitiallyCollapsed = v;
 	}
 }

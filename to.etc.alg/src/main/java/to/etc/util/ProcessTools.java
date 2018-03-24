@@ -36,7 +36,7 @@ import java.util.*;
  */
 final public class ProcessTools {
 	public interface IFollow {
-		public void newData(boolean stderr, @Nonnull char[] data, int length);
+		void newData(boolean stderr, @Nonnull char[] data, int length);
 	}
 
 	@Nonnull

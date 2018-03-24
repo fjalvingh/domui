@@ -40,6 +40,6 @@ public interface TypeQualifierValidator<A extends Annotation> {
      * @return a value indicating whether or not the value is an member of the
      *         values denoted by the type qualifier
      */
-    public @Nonnull
+    @Nonnull
     When forConstantValue(@Nonnull A annotation, Object value);
 }

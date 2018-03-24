@@ -24,14 +24,25 @@
  */
 package to.etc.util;
 
-import java.io.*;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.net.*;
-import java.sql.*;
-import java.util.*;
-
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 final public class ClassUtil {
 	private ClassUtil() {
@@ -41,10 +52,6 @@ final public class ClassUtil {
 	 * Calls the given method with the given parameters in a given class instance. Used to access
 	 * classes whose definition are not to be linked to the code.
 	 *
-	 * @param on
-	 * @param name
-	 * @param objects
-	 * @return
 	 * @throws NoSuchMethodException if no suitable method can be found in the object.
 	 */
 	@Nullable
@@ -65,10 +72,6 @@ final public class ClassUtil {
 	 * Calls the given method with the given parameters in a given class instance. Used to access
 	 * classes whose definition are not to be linked to the code.
 	 *
-	 * @param on
-	 * @param name
-	 * @param objects
-	 * @return
 	 * @throws NoSuchMethodException if no suitable method can be found in the object.
 	 */
 	@Nullable
@@ -100,11 +103,6 @@ final public class ClassUtil {
 
 	/**
 	 * Tries to find a method that can be called using the specified parameters.
-	 *
-	 * @param clz
-	 * @param name
-	 * @param param
-	 * @return
 	 */
 	@Nullable
 	static public Method findMethod(@Nonnull final Class< ? > clz, @Nonnull final String name, @Nonnull final Object... param) {
@@ -159,14 +157,12 @@ final public class ClassUtil {
 		public Method		getter;
 
 		public List<Method>	setterList	= new ArrayList<Method>();
-	};
+	}
 
 	static private final Map<Class< ? >, ClassInfo>	m_classMap	= new HashMap<Class< ? >, ClassInfo>();
 
 	/**
 	 * Get introspected bean information for the class. This info is cached so access will be fast after the 1st try.
-	 * @param clz
-	 * @return
 	 */
 	@Nonnull
 	static synchronized public ClassInfo getClassInfo(@Nonnull Class< ? > clz) {
@@ -202,8 +198,6 @@ final public class ClassUtil {
 
 	/**
 	 * DO NOT USE - uncached calculation of a class's properties.
-	 * @param cl
-	 * @return
 	 */
 	@Nonnull
 	static public List<PropertyInfo> calculateProperties(@Nonnull final Class< ? > cl, boolean publicOnly) {
@@ -287,12 +281,16 @@ final public class ClassUtil {
 			i = new Info();
 			map.put(name, i);
 		}
+
+		//-- Private rules: a property is private only if the getter is private.
 		if(pvt) {
-			i.isPrivate = true;
-		} else if(i.isPrivate) {
+			if(! setter) {
+				i.isPrivate = true;
+			}
+		} else if(i.isPrivate && ! setter) {
 			i.isPrivate = false;
-			i.getter = null;
-			i.setterList.clear();
+			//i.getter = null;
+			//i.setterList.clear();
 		}
 
 		if(setter)
@@ -323,10 +321,6 @@ final public class ClassUtil {
 	/**
 	 * Generic caller of a method using reflection. This prevents us from having
 	 * to link to the stupid Oracle driver.
-	 * @param src
-	 * @param name
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
 	static public Object callObjectMethod(@Nonnull final Object src, @Nonnull final String name, @Nonnull final Class< ? >[] types, @Nonnull final Object... parameters) throws SQLException {
@@ -370,9 +364,6 @@ final public class ClassUtil {
 
 	/**
 	 * Locates an annotation in an array of 'm, returns null if not found.
-	 * @param <T>
-	 * @param ar
-	 * @param clz
 	 */
 	@Nullable
 	static public <T extends Annotation> T findAnnotation(@Nonnull final Annotation[] ar, @Nonnull final Class<T> clz) {
@@ -402,9 +393,6 @@ final public class ClassUtil {
 	 * This tries to determine the value class for a property defined as some kind
 	 * of Collection&lt;T&gt; or T[]. If the type cannot be determined this returns
 	 * null.
-	 *
-	 * @param genericType
-	 * @return
 	 */
 	@Nullable
 	static public Class< ? > findCollectionType(@Nonnull Type genericType) {
@@ -469,8 +457,6 @@ final public class ClassUtil {
 
 	/**
 	 * Scan the classloader hierarchy and find all urls.
-	 * @param loader
-	 * @return
 	 */
 	@Nonnull
 	static public URL[] findUrlsFor(@Nonnull ClassLoader loader) {
@@ -481,7 +467,6 @@ final public class ClassUtil {
 
 	/**
 	 * Checks to see what kind of classloader this is, and add all paths to my list.
-	 * @param loader
 	 */
 	static private void findUrlsFor(@Nonnull List<URL> result, @Nullable ClassLoader loader) {
 		//		System.out.println(".. loader="+loader);
@@ -516,10 +501,6 @@ final public class ClassUtil {
 
 	/**
 	 * Finds sources for classes in the same project. Not meant for jar searching
-	 * @param className
-	 * @param classLoader
-	 * @return
-	 * @throws Exception
 	 */
 	public static @Nullable
 	File findSrcForModification(@Nonnull String className) throws Exception {
@@ -543,10 +524,6 @@ final public class ClassUtil {
 
 	/**
 	 * Finds source folder for package in the same project. Not meant for jar searching
-	 * @param className
-	 * @param classLoader
-	 * @return
-	 * @throws Exception
 	 */
 	public static @Nullable
 	File findSrcFolderForModification(@Nonnull String packageName) throws Exception {
@@ -568,9 +545,6 @@ final public class ClassUtil {
 
 	/**
 	 * Searches for a file in a root recursively upwards and one level down every time.
-	 * @param root
-	 * @param srcRel
-	 * @param files
 	 */
 	private static void find(@Nullable File root, @Nonnull String srcRel, @Nonnull File[] files) {
 		if(root == null) {
@@ -594,10 +568,6 @@ final public class ClassUtil {
 	 * Retrieves a value from an object using introspection. The name is the direct
 	 * name of a method that *must* exist; it does not add a "get". If the method
 	 * does not exist this throws an exception.
-	 *
-	 * @param inst
-	 * @param name
-	 * @return
 	 */
 	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
 		if(inst == null)
@@ -626,10 +596,6 @@ final public class ClassUtil {
 
 	/**
 	 * Since annotations are not inherited, we do the extends search on super classed in order to be able to work also with annotations on inherited properties.
-	 *
-	 * @param annotatedMethod
-	 * @param annotationType
-	 * @return
 	 */
 	@Nullable
 	public static <T extends Annotation> T findAnnotationIncludingSuperClasses(@Nonnull Method annotatedMethod, @Nonnull Class<T> annotationType) {
@@ -645,11 +611,76 @@ final public class ClassUtil {
 				if(superMethod != null) {
 					return findAnnotationIncludingSuperClasses(superMethod, annotationType);
 				}
-			} catch(NoSuchMethodException e) {
-				// no method
-			} catch(SecurityException e) {
+			} catch(NoSuchMethodException | SecurityException e) {
 				// no method
 			}
+		}
+		return null;
+	}
+
+	/**
+	 * Get all annotations of a given type on a method or its base methods.
+	 */
+	@Nonnull
+	static public <T extends Annotation> List<T> getMethodAnnotations(Method m, Class<T> annotationType) {
+		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());			// Full class hierarchy including interfaces
+
+		List<T> result = new ArrayList<>();
+		for(Class<?> clz : hierarchy) {
+			Method macc = findMethodInClass(m, clz);
+
+			if(macc != null)
+				addAnnotationIf(result, annotationType, macc);
+		}
+		return result;
+	}
+
+	@Nullable private static Method findMethodInClass(Method m, Class<?> clz) {
+		Method macc;
+		if(clz == m.getDeclaringClass()) {
+			macc = m;
+		} else {
+			try {
+				macc = clz.getDeclaredMethod(m.getName(), m.getParameterTypes());
+			} catch(NoSuchMethodException | SecurityException x) {
+				macc = null;
+			}
+		}
+		return macc;
+	}
+
+	@Nullable
+	static public <T extends Annotation> T getMethodAnnotation(Method m, Class<T> annotationType) {
+		T annotation = m.getAnnotation(annotationType);
+		if(null != annotation)
+			return annotation;
+
+		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());			// Full class hierarchy including interfaces
+		for(Class<?> clz : hierarchy) {
+			Method macc = findMethodInClass(m, clz);
+
+			if(macc != null) {
+				annotation = macc.getAnnotation(annotationType);
+				if(null != annotation)
+					return annotation;
+			}
+		}
+		return null;
+	}
+
+	static private <T extends Annotation> void addAnnotationIf(List<T> list, Class<T> annotationType, Method m) {
+		T annotation = m.getAnnotation(annotationType);
+		if(null != annotation)
+			list.add(annotation);
+	}
+
+	static public <T extends Annotation> T getClassAnnotation(Class<?> clzIn, Class<T> annotationType) {
+		List<Class<?>> hierarchy = getClassHierarchy(clzIn);			// Full class hierarchy including interfaces
+		for(Class<?> clz : hierarchy) {
+			T annotation = clz.getAnnotation(annotationType);
+			if(null != annotation)
+				return annotation;
+
 		}
 		return null;
 	}

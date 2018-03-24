@@ -42,6 +42,9 @@ import org.slf4j.*;
  * @version 1.0
  */
 public class StringTool {
+	static private final Pattern	NORMALIZE_PATTERN	= Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+
+	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?:(https?|ftp|file)://|www\\.)?([\\w-]+[\\.\\:\\-])+[\\w-]+(/[\\w- ;#,./?%&=]*)?", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
 	/**
 	 * PLEASE DO NOT USE ANYMORE - this limit will change in Oracle 12. To get the
@@ -55,6 +58,39 @@ public class StringTool {
 	/** According to RFC 3696 */
 	public static final int MAX_EMAIL_LENGTH = 255;
 
+	private final static String	m_charString	= "bcdfghjklmnpqrstvwxyz";
+
+	private final static char[]	m_characters	= m_charString.toCharArray();
+
+	static private final long	DAYS	= 24 * 60 * 60;
+
+	static private final long	HOURS	= 60 * 60;
+
+	/** JRE version as a packed integer: 1.4.2.1 */
+	static private int		m_jre_version;
+
+	static private boolean	m_jre_checked;
+
+	static private int			m_guidSeed;
+
+	static private final char[]	GUIDBASE64MAP	= "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_".toCharArray();
+
+
+	// rfc-2045: Base64 Alphabet
+	static private final byte[]	BASE64MAP	= {(byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D', (byte) 'E', (byte) 'F', (byte) 'G', (byte) 'H', (byte) 'I', (byte) 'J', (byte) 'K', (byte) 'L',
+		(byte) 'M', (byte) 'N', (byte) 'O', (byte) 'P', (byte) 'Q', (byte) 'R', (byte) 'S', (byte) 'T', (byte) 'U', (byte) 'V', (byte) 'W', (byte) 'X', (byte) 'Y', (byte) 'Z', (byte) 'a', (byte) 'b',
+		(byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f', (byte) 'g', (byte) 'h', (byte) 'i', (byte) 'j', (byte) 'k', (byte) 'l', (byte) 'm', (byte) 'n', (byte) 'o', (byte) 'p', (byte) 'q', (byte) 'r',
+		(byte) 's', (byte) 't', (byte) 'u', (byte) 'v', (byte) 'w', (byte) 'x', (byte) 'y', (byte) 'z', (byte) '0', (byte) '1', (byte) '2', (byte) '3', (byte) '4', (byte) '5', (byte) '6', (byte) '7',
+		(byte) '8', (byte) '9', (byte) '+', (byte) '/'};
+
+	static private final byte[]	BASE64DECMAP;
+
+	static {
+		BASE64DECMAP = new byte[128];
+		for(int ix = 0; ix < BASE64MAP.length; ix++)
+			BASE64DECMAP[BASE64MAP[ix]] = (byte) ix;
+	}
+
 	static public boolean isValidJavaIdentifier(@Nonnull final String s) {
 		int len = s.length();
 		if(len == 0)
@@ -67,10 +103,6 @@ public class StringTool {
 		}
 		return true;
 	}
-
-	private final static String	m_charString	= "bcdfghjklmnpqrstvwxyz";
-
-	private final static char[]	m_characters	= m_charString.toCharArray();
 
 	/**
 	 * This methods creates a random String with the specified prefix and length given.
@@ -125,9 +157,7 @@ public class StringTool {
 		if(lastdot == -1 && !"LOCALHOST".equalsIgnoreCase(s)) {
 			return false; // There must be at least one dot.
 		}
-		if(lastdot + 1 == len)
-			return false;
-		return true;
+		return lastdot + 1 != len;
 	}
 
 	/**
@@ -137,14 +167,17 @@ public class StringTool {
 	 */
 	static public boolean isNumber(@Nonnull final String s) {
 		int dots = 0;
+		int digits = 0;
 		for(int i = s.length(); --i >= 0;) {
 			char c = s.charAt(i);
 			if(c == '.')
 				dots++;
 			else if(c < '0' || c > '9')
 				return false;
+			else
+				digits++;
 		}
-		return dots < 2;
+		return dots < 2 && digits > 1;
 	}
 
 	static public boolean isDomainChar(final char c) {
@@ -175,9 +208,7 @@ public class StringTool {
 			return false;
 		}
 		String dom = em.substring(ix + 1);
-		if(!isValidDomainName(dom))
-			return false;
-		return true;
+		return isValidDomainName(dom);
 	}
 
 	/**
@@ -228,9 +259,7 @@ public class StringTool {
 			return true;
 		if(Character.isLetter(c))
 			return true;
-		if(c == '.' || c == '_')
-			return true;
-		return false;
+		return c == '.' || c == '_';
 	}
 
 
@@ -696,11 +725,6 @@ public class StringTool {
 		}
 		return sb.toString();
 	}
-
-
-	static private final long	DAYS	= 24 * 60 * 60;
-
-	static private final long	HOURS	= 60 * 60;
 
 
 	@Nonnull
@@ -1206,29 +1230,6 @@ public class StringTool {
 	}
 
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	URL Scanning stuff..								*/
-	/*--------------------------------------------------------------*/
-	//	static private String urlAIsPort(String url, int ix)
-	//	{
-	//		/*
-	//		 *	The string is a port number if all chars between the colon and the
-	//		 *	slash or eo$ are numeric.
-	//		 */
-	//		int	i	= ++ix;								// Past colon,
-	//		while(i < url.length())
-	//		{
-	//			char	c = url.charAt(i);				// Get a char,
-	//			if(c == '/') break;						// For slash all ok,
-	//			if(c < '0' || c > '9') return null;		// No digit -> no port#
-	//			i++;
-	//		}
-	//
-	//		//** Loop ends; what was in it is numeric or empty.
-	//		if(i == ix) return "";						// Empty :
-	//		return url.substring(ix, i);
-	//	}
-	//
 	/**
 	 *	Returns the last element (document name?) from the url passed.
 	 */
@@ -1640,9 +1641,7 @@ public class StringTool {
 			return true;
 		if(c == '0')
 			return false;
-		if(Character.isDigit(c))
-			return true;
-		return false;
+		return Character.isDigit(c);
 	}
 
 	/**
@@ -1720,20 +1719,6 @@ public class StringTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Base 64 encoding/decoding (rfc2045)					*/
 	/*--------------------------------------------------------------*/
-	// rfc-2045: Base64 Alphabet
-	static private final byte[]	BASE64MAP	= {(byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D', (byte) 'E', (byte) 'F', (byte) 'G', (byte) 'H', (byte) 'I', (byte) 'J', (byte) 'K', (byte) 'L',
-		(byte) 'M', (byte) 'N', (byte) 'O', (byte) 'P', (byte) 'Q', (byte) 'R', (byte) 'S', (byte) 'T', (byte) 'U', (byte) 'V', (byte) 'W', (byte) 'X', (byte) 'Y', (byte) 'Z', (byte) 'a', (byte) 'b',
-		(byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f', (byte) 'g', (byte) 'h', (byte) 'i', (byte) 'j', (byte) 'k', (byte) 'l', (byte) 'm', (byte) 'n', (byte) 'o', (byte) 'p', (byte) 'q', (byte) 'r',
-		(byte) 's', (byte) 't', (byte) 'u', (byte) 'v', (byte) 'w', (byte) 'x', (byte) 'y', (byte) 'z', (byte) '0', (byte) '1', (byte) '2', (byte) '3', (byte) '4', (byte) '5', (byte) '6', (byte) '7',
-		(byte) '8', (byte) '9', (byte) '+', (byte) '/'};
-
-	static private final byte[]	BASE64DECMAP;
-
-	static {
-		BASE64DECMAP = new byte[128];
-		for(int ix = 0; ix < BASE64MAP.length; ix++)
-			BASE64DECMAP[BASE64MAP[ix]] = (byte) ix;
-	}
 
 	static public final byte[] getBase64Map() {
 		return BASE64MAP;
@@ -2095,9 +2080,6 @@ public class StringTool {
 	/**
 	 * Find the 1st part of the path passed, i.e. the part before the first /.
 	 * If the path contains no / it returns the full path.
-	 *
-	 * @param s
-	 * @return
 	 */
 	static public String getNextPathComponent(final int ix, final String s, final boolean includeslash) {
 		int pos = s.indexOf('/', ix);
@@ -2140,12 +2122,9 @@ public class StringTool {
 	/**
 	 * Workaround for Java bug delivering file:// instead of file:/// for
 	 * file.toURL().toString().
-	 *
-	 * @param f
-	 * @return
 	 */
 	static public String makeURL(final File f) {
-		String s = f.getAbsolutePath().toString();
+		String s = f.getAbsolutePath();
 		if(s.startsWith("/"))
 			return "file://" + s;
 		else
@@ -2199,8 +2178,6 @@ public class StringTool {
 	/**
 	 * Encode the string passed to URLEncoded format. See strDecodeURLEncoded
 	 * for description of the format.
-	 * @param sb
-	 * @param data
 	 */
 	static public void encodeURLEncoded(final Appendable sb, final String str) {
 		try {
@@ -2223,8 +2200,6 @@ public class StringTool {
 
 	/**
 	 * ! 	* 	' 	( 	) 	; 	: 	@ 	& 	= 	+ 	$ 	, 	/ 	? 	% 	# 	[ 	]
-	 * @param da
-	 * @return
 	 */
 	static private boolean isSpecialUrlChar(byte da) {
 		if(da <= 32) // Everything including -1..-128 (0x80..0xff) is special
@@ -2399,8 +2374,6 @@ public class StringTool {
 
 	/**
 	 * Removes all whitespace from a string.
-	 * @param s
-	 * @return
 	 */
 	static public String strUnspace(final String s) {
 		if(s == null)
@@ -2423,9 +2396,6 @@ public class StringTool {
 	 *	<li>If the string length, in bytes, is > 4000 bytes (the max stupid size of Oracle's stupid varchar2 column, stupid) remove characters until
 	 *		the string fits the stupidly limited Oracle column</li>
 	 * </ul>
-	 * @param in
-	 * @param nchars
-	 * @return
 	 */
 	static public String oldStrOracleTruncate(String in, int nchars) {
 		if(in == null)
@@ -2560,11 +2530,6 @@ public class StringTool {
 	/**
 	 * Returns string that can fix into Oracle column, and in case that it has to be truncated it adds specified suffix to it, that is still
 	 * not exceding Oracle limit in total.
-	 *
-	 * @param in
-	 * @param nchars
-	 * @param suffixForTooLong
-	 * @return
 	 */
 	static public String oldStrOracleTruncate(String in, int nchars, String suffixForTooLong) {
 		if (null == suffixForTooLong || in == null){
@@ -2612,8 +2577,6 @@ public class StringTool {
 
 	/**
 	 * Return a nanotime timestamp with 2 thousands of precision max.
-	 * @param ns
-	 * @return
 	 */
 	static public String strNanoTime(final long ns) {
 		if(ns < 1000)
@@ -2639,10 +2602,6 @@ public class StringTool {
 
 	/**
 	 * Case-sensitive replace of all occurrences of [old] with [new].
-	 * @param src
-	 * @param old
-	 * @param nw
-	 * @return
 	 */
 	static public String strReplace(final String src, final String old, final String nw) {
 		if(src == null || old == null || nw == null || src.length() < old.length() || old.length() == 0)
@@ -2672,8 +2631,6 @@ public class StringTool {
 	/**
 	 * If the throwable passed as a message then return it verbatim, else
 	 * return the exception's classname.
-	 * @param t
-	 * @return
 	 */
 	static public String getExceptionMessage(final Throwable t) {
 		String s = t.getMessage();
@@ -2705,19 +2662,10 @@ public class StringTool {
 		return ver;
 	}
 
-	/** JRE version as a packed integer: 1.4.2.1 */
-	static private int		m_jre_version;
-
-	static private boolean	m_jre_checked;
-
 	/**
 	 * Replaces long character sequences without space like ---- and ===== with
 	 * a way shorter version (single character).
 	 * If the chars in sequence are digits, they won't be shortened.
-	 *
-	 * @param in
-	 * @param maxlen
-	 * @return
 	 */
 	static public String removeRepeatingCharacters(final String in) {
 		if(null == in || in.length() < 20)
@@ -2746,8 +2694,6 @@ public class StringTool {
 	}
 
 	/**
-	 *
-	 * @param sb
 	 * @param lc	last character
 	 * @param count	repeat count of last character
 	 */
@@ -2765,9 +2711,6 @@ public class StringTool {
 	/**
 	 * Tries to extract a single line of max. 80 chars from a memo field by
 	 * scanning for a closing '.'
-	 *
-	 * @param in
-	 * @return
 	 */
 	static public String extractSingleLine(final String in) {
 		if(in == null || in.length() < 80)
@@ -2778,15 +2721,9 @@ public class StringTool {
 		return in.substring(0, 75) + "...";
 	}
 
-	static private int			m_guidSeed;
-
-	static private final char[]	GUIDBASE64MAP	= "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz$_".toCharArray();
-
 	/**
 	 * Generate an unique identifier with reasonable expectations that it will be globally unique. This
 	 * does not use the known GUID format but shortens the string by encoding into base64-like encoding.
-	 *
-	 * @return
 	 */
 	@Nonnull
 	static public String generateGUID() {
@@ -2823,11 +2760,16 @@ public class StringTool {
 
 	/**
 	 * Checks if string is blank.
-	 * @param s String to be validated.
 	 * @return true if the string is null, empty or only spaces; false otherwise.
 	 */
-	static public boolean isBlank(String s) {
-		return s == null || s.trim().length() == 0;
+	static public boolean isBlank(String in) {
+		if(null == in)
+			return true;
+		for(int i = in.length(); --i >= 0;) {
+			if(! Character.isWhitespace(in.charAt(i)))
+				return false;
+		}
+		return true;
 	}
 
 	static public void createInsertStatement(final StringBuilder sb, final String table, final String pkname, final String pkexpr, final String[] fields) {
@@ -2874,12 +2816,8 @@ public class StringTool {
 		return new String(fill);
 	}
 
-	static private final Pattern	NORMALIZE_PATTERN	= Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-
 	/**
 	 * Replaces all accented letters with their non-accented equivalents - FOR WESTERN LANGUAGES ONLY!
-	 * @param str
-	 * @return
 	 */
 	@Nonnull
 	static public String removeAccents(@Nonnull String str) {
@@ -2896,29 +2834,6 @@ public class StringTool {
 	}
 
 	/**
-	 * SCHEDULED FOR REMOVAL - please use {@link FileTool#readStreamAsString(InputStream, String)} instead. It can be parametrized by "UTF-8" we use here.
-	 * @param is
-	 * @return
-	 * @throws Exception
-	 */
-	@Deprecated
-	@Nonnull
-	public static String getString(@Nonnull InputStream is) throws Exception {
-
-		final char[] buffer = new char[0x10000];
-		StringBuilder out = new StringBuilder();
-		Reader in = new InputStreamReader(is, "UTF-8");
-		int read;
-		do {
-			read = in.read(buffer, 0, buffer.length);
-			if(read > 0) {
-				out.append(buffer, 0, read);
-			}
-		} while(read >= 0);
-		return out.toString();
-	}
-
-	/**
 	 * <pre>
 	 * This method removes the leading characters from the string, if it exceeds the column size
 	 * or needs more then 4000 bytes to store in the database.
@@ -2927,9 +2842,6 @@ public class StringTool {
 	 * 4000 bytes (MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2). So if you declare a varchar2(4000 char),
 	 * it's possible that for example 3970 characters won't fit, because there are charaters in the string
 	 * that needs more then one byte in UTF8.
-	 *
-	 * @param text
-	 * @return
 	 * </pre>
 	 */
 	@Nullable
@@ -2974,8 +2886,6 @@ public class StringTool {
 
 	/**
 	 * Checks whether a given text is too big for the maximum varchar2 database field
-	 * @param text
-	 * @return
 	 */
 	public static boolean isInvalidOracleLength(@Nonnull String text) {
 		return getUtf8LengthInBytes(text) >= MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
@@ -2983,9 +2893,6 @@ public class StringTool {
 
 	/**
 	 * Checks if forwarded string can be parsed into an Integer.
-	 *
-	 * @param string
-	 * @return
 	 * @author jradovic
 	 */
 	public static boolean isInteger(@Nullable String string) {
@@ -3011,19 +2918,13 @@ public class StringTool {
 		return content.replace("\r\n", replacement).replace("\r", replacement).replace("\n", replacement);
 	}
 
-	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?:(https?|ftp|file)://|www\\.)?([\\w-]+[\\.\\:\\-])+[\\w-]+(/[\\w- ;#,./?%&=]*)?", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
-
-
 	/**
 	 * Loose checks if provided URL is valid.</br>
 	 * It allows URLs with and without http, https, ftp... online PDFs, Images, locally mapped IP addresses and IP
 	 * addresses itself.
-	 *
-	 * @param urlValue
-	 * @return
 	 */
 	public static boolean validateUrl(@Nullable String urlValue) {
-		if(urlValue == null || StringTool.isBlank(urlValue.toString())) {
+		if(urlValue == null || urlValue.isEmpty()) {
 			return false;
 		}
 		return URL_PATTERN.matcher(urlValue).matches();
@@ -3033,8 +2934,6 @@ public class StringTool {
 	 * Does some transformation of custom string to html output -> taking into account several customizations.
 	 * If input uses HTML for new line (<br> or <br/>) then it ignores rest or \n characters, otherwise converts \n to <br/>.
 	 * If removeEndingNewLines then it removes all the ending new lines too.
-	 * @param input
-	 * @return
 	 */
 	public static String renderAsRawHtml(@Nonnull String input, boolean removeEndingNewLines){
 		input = input.replace("<br>", "<br/>");
@@ -3055,10 +2954,11 @@ public class StringTool {
 	static public String nullIfEmpty(@Nullable  String in) {
 		if(null == in)
 			return null;
-		if(in.trim().length() == 0)
-			return null;
-		return in;
+		for(int i = in.length(); --i >= 0;) {
+			if(! Character.isWhitespace(in.charAt(i)))
+				return in;
+		}
+		return null;
 	}
-
 }
 

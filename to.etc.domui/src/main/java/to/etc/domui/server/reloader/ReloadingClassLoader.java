@@ -102,7 +102,6 @@ public class ReloadingClassLoader extends URLClassLoader {
 	}
 
 	private void addWatchFor(Class< ? > clz) {
-
 		IModifyableResource rt = m_classInventory.findClassSource(clz);
 		if(rt == null) {
 			LOG.info("Cannot find source file for class=" + clz + "; changes to this class are not tracked");
@@ -117,7 +116,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 
 	List<ResourceTimestamp> getDependencyList() {
 		synchronized(m_reloader) {
-			return new ArrayList<ResourceTimestamp>(m_dependList);
+			return new ArrayList<>(m_dependList);
 		}
 	}
 
@@ -128,11 +127,15 @@ public class ReloadingClassLoader extends URLClassLoader {
 	 */
 	@Override
 	synchronized public Class< ? > loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		//System.out.println("reloadingLoader: input=" + name);
-		if((name.startsWith("java.") || name.startsWith("javax.") || (name.startsWith("to.etc.domui.") /* && !name.startsWith("to.etc.domui.component.") */))) {
-			return m_rootLoader.loadClass(name); // Delegate to the rootLoader.
+		if(Reloader.DEBUG) {
+			System.out.println("reloadingClassLoader: input=" + name);
 		}
-		Class< ? > loadClass = m_rootLoader.loadClass(name);
+
+		if((name.startsWith("java.") || name.startsWith("javax.") || (name.startsWith("to.etc.domui.") /* && !name.startsWith("to.etc.domui.component.") */))) {
+			return m_rootLoader.loadClass(name);				// Delegate to the rootLoader.
+		}
+		//Class< ? > loadClass = m_rootLoader.loadClass(name);	// jal 20171027 Loading from root means the class is never loaded from a NEW jar!!
+		Class< ? > loadClass = super.loadClass(name, resolve);	// Ask this classLoader to load the class.
 		if(!m_reloader.watchClass(name) && (loadClass.getSuperclass() == null || !loadClass.getSuperclass().getName().equals(ResourceBundle.class.getName()))) {
 			if(LOG.isDebugEnabled())
 				LOG.debug("Class " + name + " not matching watch pattern delegated to root loader");
@@ -147,10 +150,8 @@ public class ReloadingClassLoader extends URLClassLoader {
 					LOG.warn("Class " + name + " cannot watch resources");
 				}
 			}
-			return loadClass; // Delegate to the rootLoader.
+			return loadClass;									// Delegate to the rootLoader.
 		}
-
-		//		System.out.println("reloadingClassLoader: watching " + name);
 
 		//-- We need to watch this class..
 		Class< ? > clz = findLoadedClass(name);
@@ -167,23 +168,19 @@ public class ReloadingClassLoader extends URLClassLoader {
 				//-- *this* loader cannot find it.
 				if(getParent() == null)
 					throw x;
-				clz = getParent().loadClass(name); // Try to load by parent,
+				clz = getParent().loadClass(name);				// Try to load by parent,
 			}
 			if(clz == null)
 				throw new ClassNotFoundException(name);
-		} // else
-		//System.out.println("reloadingLoader: got existing class "+clz);
+		}
 
 		if(resolve)
 			resolveClass(clz);
-		//		System.out.println("rcl: loaded "+clz+" using "+clz.getClassLoader());
 		return clz;
 	}
 
 	/**
 	 * This adds watches for resources in the same directory as the onlywatch class. Those will not be loaded by this classloader.
-	 * @param loadClass
-	 * @throws Exception
 	 */
 	@Nonnull
 	private final Set<String> m_scannedPackages = new HashSet<String>();

@@ -101,7 +101,7 @@ namespace WebUI {
 		}
 	}
 
-	//align horizontaly middle of element with nodeId to middle of element with alignToId, with extra offsetX
+	//align horizontally middle of element with nodeId to middle of element with alignToId, with extra offsetX
 	export function alignToMiddle(nodeId, alignToId, offsetX, doCallback) : void {
 		var node = $('#' + nodeId);
 		var alignNode = $('#' + alignToId);
@@ -118,5 +118,44 @@ namespace WebUI {
 		if (doCallback){
 			WebUI.notifySizePositionChangedOnId(nodeId);
 		}
+	}
+
+	/**
+	 * Copies the specified text to the clipboard. Can only be called
+	 * directly on a user action, i.e. on a Javascript onclick event.
+	 * See https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
+	 */
+	export function copyTextToClipboard(text: string): void {
+		let textArea = document.createElement("textarea");
+
+		textArea.style.position = 'fixed';
+		textArea.style.top = '0';
+		textArea.style.left = '0';
+		textArea.style.width = '2em';						// Must have size
+		textArea.style.height = '2em';
+
+		// We don't need padding, reducing the size if it does flash render.
+		textArea.style.padding = '0';
+
+		// Clean up any borders.
+		textArea.style.border = 'none';
+		textArea.style.outline = 'none';
+		textArea.style.boxShadow = 'none';
+
+		// Avoid flash of white box if rendered for any reason.
+		textArea.style.background = 'transparent';
+		textArea.value = text;
+
+		document.body.appendChild(textArea);
+		textArea.select();
+		try {
+			let successful = document.execCommand('copy');
+			var msg = successful ? 'successful' : 'unsuccessful';
+			console.log('Copying text command was ' + msg);
+		} catch (err) {
+			console.log('Oops, unable to copy');
+		}
+
+		document.body.removeChild(textArea);
 	}
 }

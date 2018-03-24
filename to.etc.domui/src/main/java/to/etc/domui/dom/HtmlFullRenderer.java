@@ -24,17 +24,27 @@
  */
 package to.etc.domui.dom;
 
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.javascript.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import to.etc.domui.component.misc.LiteralXhtml;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.header.HeaderContributorEntry;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.NodeVisitorBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.PagePhase;
+import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Visits the node tree in such a way that a valid html document is generated.
@@ -123,6 +133,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			n.build();												// FIXME Should be removed once we prove change is stable
 
 		n.onBeforeFullRender(); // Do pre-node stuff,
+		n.renderJavascriptState(m_createJS);
 		n.visit(getTagRenderer());
 		if(n.getCreateJS() != null)
 			m_createJS.append(n.getCreateJS());
@@ -183,6 +194,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			n.build();												// FIXME Should be removed once we prove change is stable
 
 		n.onBeforeFullRender(); // Do pre-node stuff,
+		n.renderJavascriptState(m_createJS);
 
 		boolean indena = o().isIndentEnabled();				// jal 20090903 Save indenting request....
 		n.visit(getTagRenderer());							// Ask base renderer to render tag
@@ -234,7 +246,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 			);
 		} else {
 			o().writeRaw(
-				"<!DOCTYPE html>"
+				"<!DOCTYPE html>\n"
 			+ 	"<html>\n"					//
 			+ "<head>\n"					//
 			+ 	"<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n"	//
@@ -245,17 +257,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 	/**
 	 * Render the proper themed stylesheet. This will be "style.theme.css" within the current
 	 * "theme directory", which is defined by the "currentTheme" in DomApplication.
-	 * @throws Exception
 	 */
 	protected void renderThemeCSS() throws Exception {
-		String currentTheme = DomApplication.get().getCurrentTheme();
-		IThemeVariant variant = m_page.getBody().getThemeVariant();
-		ITheme theme = DomApplication.get().getTheme(currentTheme + "/" + variant.getVariantName(), ResourceDependencyList.NULL);
+		ITheme theme = m_ctx.getCurrentTheme();
 		String sheet = theme.getStyleSheetName();
-
-		//String sheet = m_page.getBody().getThemedResourceRURL("THEME/style.theme.css");
-		//if(null == sheet)
-		//	throw new IllegalStateException("Unexpected null??");
 
 		//-- Render style fragments part.
 		o().writeRaw("<link rel=\"stylesheet\" type=\"text/css\" href=\"");
@@ -263,7 +268,9 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		if(isXml())
 			o().writeRaw("\"/>");
 		else
-			o().writeRaw("\"></link>\n");
+			o().writeRaw("\">\n");
+		//else
+		//	o().writeRaw("\"></link>\n");					No longer needed
 	}
 
 	/**
@@ -287,9 +294,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().tag("link");
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
-		o().attr("href", path);
+		o().rawAttr("href", path);
 		o().endtag();
-		o().closetag("link");
+		o().dec();					// do not close
+		//o().closetag("link");
 	}
 
 	public void renderLoadJavascript(@Nonnull String path) throws Exception {
@@ -300,7 +308,6 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 		//-- render an app-relative url
 		o().tag("script");
-		o().attr("language", "javascript");
 		o().attr("src", path);
 		o().endtag();
 		o().closetag("script");
@@ -329,13 +336,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 //		page.build();  jal 20100618 moved to users of full renderer; building and rendering are now separate concerns
 
 		renderPageHeader();
-		//		o().writeRaw(
-		//			"<script language=\"javascript\"><!--\n"
-		//		+	"var DomUIpageTag="+page.getPageTag()+";\n"
-		//		+	"var DomUIThemeURL="+StringTool.strToJavascriptString(ctx.getRelativePath( ctx.getRelativeThemePath("") ), true)+";\n"
-		//		+	"--></script>\n"
-		//		);
-		o().writeRaw("<script language=\"javascript\">");
+		o().writeRaw("<script>");
 		if(!isXml())
 			o().writeRaw("<!--\n");
 
@@ -364,12 +365,20 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 		renderThemeCSS();
 		renderHeadContributors();
-		if(page.getBody().getTitle() != null) {
-			o().tag("title");
-			o().endtag();
-			o().text(page.getBody().getTitle());
-			o().closetag("title");
+
+		//-- Title is a required entity in head.
+		String pageTitle = page.getBody().getTitle();
+		if(null == pageTitle) {
+			pageTitle = application.getDefaultPageTitle(page.getBody());
+			if(null == pageTitle) {
+				pageTitle = "DomUI Application";
+			}
 		}
+
+		o().tag("title");
+		o().endtag();
+		o().text(pageTitle);
+		o().closetag("title");
 		o().closetag("head");
 
 		// Render rest ;-)
@@ -380,7 +389,6 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		 * as soon as the body load has completed.
 		 */
 		o().tag("script");
-		o().attr("language", "javascript");
 		o().endtag();
 		o().text("$(document).ready(function() {");
 

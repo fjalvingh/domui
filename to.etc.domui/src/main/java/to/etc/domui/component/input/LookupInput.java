@@ -24,12 +24,17 @@
  */
 package to.etc.domui.component.input;
 
-import javax.annotation.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.tbl.IQueryHandler;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.SimpleSearchModel;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContextFactory;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 
 /**
@@ -57,7 +62,7 @@ import to.etc.webapp.query.*;
  */
 public class LookupInput<T> extends LookupInputBase<T, T> {
 	public LookupInput(@Nonnull Class<T> lookupClass, @Nullable ClassMetaModel metaModel) {
-		super(lookupClass, lookupClass, metaModel, metaModel);
+		super(null, lookupClass, lookupClass, metaModel, metaModel);
 	}
 
 	public LookupInput(@Nonnull Class<T> lookupClass, @Nonnull String... resultColumns) {
@@ -87,7 +92,7 @@ public class LookupInput<T> extends LookupInputBase<T, T> {
 	protected ITableModel<T> createTableModel(@Nonnull QCriteria<T> query) throws Exception {
 		IQueryHandler<T> queryHandler = getQueryHandler();
 		if(queryHandler == null) {
-			QDataContextFactory src = QContextManager.getDataContextFactory(QContextManager.DEFAULT, getPage().getConversation());	// FIXME Urgent bad data context handling.
+			QDataContextFactory src = QContextManager.getDataContextFactory(QContextManager.DEFAULT, getPage().getConversation());    // FIXME Urgent bad data context handling.
 			return new SimpleSearchModel<T>(src, query);
 		} else {
 			return new SimpleSearchModel<T>(queryHandler, query);

@@ -4,7 +4,6 @@ import javax.annotation.*;
 
 @DefaultNonNull
 public interface ITreeEditModel<T> extends ITreeModel<T> {
-
 	/**
 	 * @param node
 	 * @throws Exception

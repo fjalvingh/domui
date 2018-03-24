@@ -44,7 +44,7 @@ public class SimpleListModel<T> extends TableListModelBase<T> {
 	}
 
 	@Override
-	protected List<T> getList() throws Exception {
+	public List<T> getList() throws Exception {
 		return m_list;
 	}
 }

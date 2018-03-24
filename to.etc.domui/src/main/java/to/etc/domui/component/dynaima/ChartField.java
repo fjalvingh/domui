@@ -91,9 +91,7 @@ public final class ChartField {
 				return false;
 		} else if(!m_label.equals(other.m_label))
 			return false;
-		if(Double.doubleToLongBits(m_value) != Double.doubleToLongBits(other.m_value))
-			return false;
-		return true;
+		return Double.doubleToLongBits(m_value) == Double.doubleToLongBits(other.m_value);
 	}
 
 }

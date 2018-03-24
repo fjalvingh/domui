@@ -43,26 +43,26 @@ public @interface MetaProperty {
 	 * the initial sort direction of the property. This defaults to unsortable.
 	 * @return
 	 */
-	public SortableType defaultSortable() default SortableType.UNKNOWN;
+	SortableType defaultSortable() default SortableType.UNKNOWN;
 
 	/**
 	 * The size, in characters, that should be used as the display size. This is not the max size of the input but only of the
 	 * part that is seen in one go.
 	 * @return
 	 */
-	public int displaySize() default -1;
+	int displaySize() default -1;
 
 	/**
 	 * When YES this will indicate the value should not be wrapped in table like displays.
 	 * @return
 	 */
-	public YesNoType noWrap() default YesNoType.UNKNOWN;
+	YesNoType noWrap() default YesNoType.UNKNOWN;
 
 	/**
 	 * The actual maximal input length (for a string) or the precision to use (for a number).
 	 * @return
 	 */
-	public int length() default -1;
+	int length() default -1;
 
 	/**
 	 * Whether the value is a required value. This sadly cannot use boolean because I need a value
@@ -70,14 +70,14 @@ public @interface MetaProperty {
 	 * would be helpful and in conformance with the rest of the language[/irony]).
 	 * @return
 	 */
-	public YesNoType required() default YesNoType.UNKNOWN;
+	YesNoType required() default YesNoType.UNKNOWN;
 
 	/**
 	 * If you have special non-default string-object and object-string conversion rules for this
 	 * property you can specify your own converter class doing those conversions here.
 	 * @return
 	 */
-	public Class< ? extends IConverter< ? >> converterClass() default DummyConverter.class;
+	Class< ? extends IConverter< ? >> converterClass() default DummyConverter.class;
 
 	/**
 	 * Defines this as a readonly (displayonly) property (by default). It defaults to
@@ -85,14 +85,14 @@ public @interface MetaProperty {
 	 * the property is NOT readonly by default. Cannot use "boolean" - see {@link MetaProperty#required()}.
 	 * @return
 	 */
-	public YesNoType readOnly() default YesNoType.UNKNOWN;
+	YesNoType readOnly() default YesNoType.UNKNOWN;
 
 	/**
 	 * If this is defined as some Date type this further defines the domain (date only, date time etc). It defaults
 	 * to UNKNOWN, which is treated much the same as date-time.
 	 * @return
 	 */
-	public TemporalPresentationType temporal() default TemporalPresentationType.UNKNOWN;
+	TemporalPresentationType temporal() default TemporalPresentationType.UNKNOWN;
 
 	//	public DateType				dateType() default DateType.UNKNOWN;
 
@@ -101,15 +101,15 @@ public @interface MetaProperty {
 	 * is fully free, and individual factories decide which hints they listen to.
 	 * @return
 	 */
-	public String componentTypeHint() default "";
+	String componentTypeHint() default "";
 
 	/**
 	 * Defines one or more parameterless validators for this field.
 	 * @return
 	 */
-	public Class< ? extends IValueValidator< ? >>[] validator() default {};
+	Class< ? extends IValueValidator< ? >>[] validator() default {};
 
-	public MetaValueValidator[] parameterizedValidator() default {};
+	MetaValueValidator[] parameterizedValidator() default {};
 
 	/**
 	 * A regular expression defining what text input must look like to be accepted. Can be
@@ -118,13 +118,13 @@ public @interface MetaProperty {
 	 * validation error showing a 'pattern'; this pattern can be set using {@link #regexpUserString()}.
 	 * @return
 	 */
-	public String regexpValidation() default "";
+	String regexpValidation() default "";
 
-	public String regexpUserString() default "";
+	String regexpUserString() default "";
 
 	/**
 	 * Defines the number class AND it's presentation format for numeric values.
 	 * @return
 	 */
-	public NumericPresentation numericPresentation() default NumericPresentation.UNKNOWN;
+	NumericPresentation numericPresentation() default NumericPresentation.UNKNOWN;
 }

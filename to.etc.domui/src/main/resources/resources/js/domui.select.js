@@ -1,4 +1,4 @@
-WebUI = WebUI || new Object();
+WebUI = WebUI || {};
 $.extend(WebUI, {
 	comboBox: function(id) {
 		this._id = id;

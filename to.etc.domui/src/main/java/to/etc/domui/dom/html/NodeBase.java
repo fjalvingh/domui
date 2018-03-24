@@ -50,7 +50,7 @@ import to.etc.domui.parts.IComponentUrlDataProvider;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.IPageParameters;
-import to.etc.domui.themes.IThemeVariant;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
@@ -60,7 +60,9 @@ import to.etc.domui.util.IDragHandler;
 import to.etc.domui.util.IDraggable;
 import to.etc.domui.util.IDropHandler;
 import to.etc.domui.util.IDropTargetable;
+import to.etc.domui.util.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
 import to.etc.webapp.query.QDataContext;
@@ -72,7 +74,6 @@ import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.StringTokenizer;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -206,12 +207,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	@Nullable
 	private Dimension m_browserWindowSize;
 
+	private byte m_disableChanged;
+
+	/** Is nonnull while a binding is being constructed, used to give errors when a binding has not been completed fully. */
+	@Nullable
+	private BindingBuilder<?> m_currentBindBuilder;
+
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
 	 * @param v
 	 * @throws Exception
 	 */
-	abstract public void visit(INodeVisitor v) throws Exception;
+	abstract public void visit(@Nonnull INodeVisitor v) throws Exception;
 
 	protected NodeBase(@Nonnull final String tag) {
 		m_tag = tag;
@@ -287,6 +294,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	@Override
 	final protected void changed() {
+		if(m_disableChanged > 0)
+			return;
 		setCachedStyle(null);
 		internalSetHasChangedAttributes();
 		NodeContainer p = m_parent;
@@ -294,6 +303,17 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			p.childChanged(); 									// Indicate child has changed
 		super.changed();
 	}
+
+	/**
+	 * Call anything inside the thingy, and force the node to remain unchanged.
+	 * @param exec
+	 */
+	final public void unchanged(IExecute exec) throws Exception {
+		m_disableChanged++;
+		exec.execute();
+		m_disableChanged--;
+	}
+
 
 	/**
 	 * INTERNAL USE ONLY Changes the OLD PARENT pointer. THIS FORCES A "set", and validates the pointer
@@ -506,7 +526,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Add the class passed as <i>another</i> CSS class to the "class" attribute. If the class already
 	 * contains class names this one is added separated by space.
-	 * @param name
 	 */
 	final public void addCssClass(@Nonnull final String nameList) {
 		String cssClass = getCssClass();
@@ -550,9 +569,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		int pos = cssClass.indexOf(cls);
 		if(pos == -1)
 			return false;
-		if(pos != 0 && cssClass.charAt(pos - 1) != ' ')
-			return false;
-		return true;
+		return pos == 0 || cssClass.charAt(pos - 1) == ' ';
 	}
 
 
@@ -1766,8 +1783,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(n instanceof IHasChangeListener) { // FIXME Why this 'if'?
 			if(n instanceof IControl< ? >) {
 				IControl< ? > in = (IControl< ? >) n;
-				if(!in.isDisabled() && !in.isReadOnly())
-					return true;
+				return !in.isDisabled() && !in.isReadOnly();
 			} else
 				return true;
 		}
@@ -1852,8 +1868,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	@Nonnull
 	final public String getThemedResourceRURL(@Nonnull String path) {
-		IThemeVariant themeStyle = getPage().getBody().getThemeVariant();
-		return DomApplication.get().internalGetThemeManager().getThemedResourceRURL(themeStyle, path);
+		return DomApplication.get().internalGetThemeManager().getThemedResourceRURL(UIContext.getRequestContext(), path);
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -1918,7 +1933,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Add a binding to the binding list.
-	 * @param binding
 	 */
 	final public void addBinding(@Nonnull IBinding binding) {
 		List<IBinding> list = m_bindingList;
@@ -1927,13 +1941,23 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		list.add(binding);
 	}
 
+	void finishBinding(@Nonnull IBinding binding) {
+		if(m_currentBindBuilder == null)
+			throw new IllegalStateException("No binding in progress - are you calling 'to' multiple times?");
+		addBinding(binding);
+		m_currentBindBuilder = null;
+	}
+
 	final public void removeBinding(@Nonnull IBinding binding) {
 		List<IBinding> list = m_bindingList;
 		if(null != list)
 			list.remove(binding);
 	}
 
-	@Nonnull final public ComponentPropertyBinding bind() {
+	/**
+	 * Shorthand for binding the "bindValue" (or value) property of a control.
+	 */
+	@Nonnull final public BindingBuilder<?> bind() {
 		ClassMetaModel cmm = MetaManager.findClassMeta(getClass());
 		PropertyMetaModel<?> p = cmm.findProperty("bindValue");
 		if(null != p)
@@ -1941,20 +1965,32 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		p = cmm.findProperty("value");
 		if(null != p)
 			return bind("value");
-		throw new IllegalStateException("This control (" + getClass() + ") does not have a 'value' nor a 'bindValue' property");
+		throw new ProgrammerErrorException("This control (" + getClass() + ") does not have a 'value' nor a 'bindValue' property");
 	}
 
+	@Nonnull final public BindingBuilder<?> bind(@Nonnull String componentProperty) {
+		checkBindingCompleted();
+		BindingBuilder<Object> builder = new BindingBuilder<>(this, componentProperty);
+		m_currentBindBuilder = builder;
+		return builder;
+	}
 
-	@Nonnull final public ComponentPropertyBinding bind(@Nonnull String componentProperty) {
-		ComponentPropertyBinding binder = new ComponentPropertyBinding(this, componentProperty);
-		addBinding(binder);
-		return binder;
+	@Nonnull final public <V> BindingBuilder<V> bind(Class<V> valueClass, @Nonnull String componentProperty) {
+		checkBindingCompleted();
+		BindingBuilder<V> builder = new BindingBuilder<>(this, componentProperty);
+		m_currentBindBuilder = builder;
+		return builder;
+	}
+
+	private void checkBindingCompleted() {
+		BindingBuilder<?> currentBindBuilder = m_currentBindBuilder;
+		if(currentBindBuilder != null)
+			throw new ProgrammerErrorException(currentBindBuilder + ": binding has not been finished");
 	}
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Misc														*/
 	/*----------------------------------------------------------------------*/
-
 	/**
 	 * FIXME Should not exist?
 	 * @param result
@@ -1979,11 +2015,11 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		appendJavascript("try { window.opener.WebUI.notifyPage('" + command + "'); } catch (err) {}");
 	}
 
-	private enum AlignmentType {Top, TopToBottom, Left, Right, Middle};
+	private enum AlignmentType {Top, TopToBottom, Left, Right, Middle}
 
 	/**
 	 * Adds javascript that aligns node top to top of specified node, with applying y offset.
-	 * 
+	 *
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -1994,7 +2030,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node top to top of specified node, with applying y offset.
-	 * 
+	 *
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2003,10 +2039,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignToTop(@Nonnull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Top, "WebUI.alignToTop", node, yOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	/**
 	 * Adds javascript that aligns node top to bottom of specified node, with applying y offset.
-	 * 
+	 *
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2017,7 +2053,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node top to bottom of specified node, with applying y offset.
-	 * 
+	 *
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2026,10 +2062,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignTopToBottom(@Nonnull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.TopToBottom, "WebUI.alignTopToBottom", node, yOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	/**
 	 * Adds javascript that aligns node left to left position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2040,7 +2076,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node left to left position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2049,10 +2085,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignToLeft(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Left, "WebUI.alignToLeft", node, xOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	/**
 	 * Adds javascript that aligns node right to right position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2063,7 +2099,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node right to right position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2072,10 +2108,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignToRight(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Right, "WebUI.alignToRight", node, xOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	/**
 	 * Adds javascript that aligns node horizontal middle to middle position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2086,7 +2122,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Adds javascript that aligns node horizontal middle to middle position of specified node, with applying offset.
-	 * 
+	 *
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
@@ -2095,7 +2131,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void alignToMiddle(@Nonnull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Middle, "WebUI.alignToMiddle", node, xOffset, appendAsCreateJs, addServerPositionCallback);
 	}
-	
+
 	private void alignTo(final @Nonnull AlignmentType alignment, @Nonnull String jsFunction, @Nonnull NodeBase node, int offset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		setPosition(PositionType.ABSOLUTE);
 		String id = getActualID();
@@ -2108,14 +2144,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		}
 		if (addServerPositionCallback){
 			setOnSizeAndPositionChange(new INotify<NodeBase>(){
-	
+
 				@Override
 				public void onNotify(NodeBase sender) throws Exception {
 					Rect clientBounds = getClientBounds();
 					if (null != clientBounds){
 						switch (alignment){
-							case Top: 
-							case TopToBottom: 
+							case Top:
+							case TopToBottom:
 								setTop(clientBounds.getTop());
 								break;
 							default: //other are horizontal alignments, so we set left position
@@ -2127,7 +2163,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			});
 		}
 	}
-	
+
 	@Nullable
 	protected Rect getClientBounds() {
 		return m_clientBounds;
@@ -2182,5 +2218,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 				listener.onNotify(this);
 			}
 		}
+	}
+
+	/**
+	 * Add the specified css class(es).
+	 */
+	@Nonnull
+	public NodeBase css(@Nonnull String ...classNames) {
+		for(String cn : classNames) {
+			addCssClass(cn);
+		}
+		return this;
 	}
 }

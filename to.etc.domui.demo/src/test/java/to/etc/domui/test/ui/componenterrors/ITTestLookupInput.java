@@ -1,6 +1,7 @@
 package to.etc.domui.test.ui.componenterrors;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -72,6 +73,7 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 
 	}
 
+	@Ignore("While redesigning")
 	@Test
 	public void testInitialLayout() throws Exception {
 		wd().openScreen(LookupInputTestPage.class);
@@ -104,7 +106,7 @@ public class ITTestLookupInput extends AbstractWebDriverTest {
 		}
 
 		WebElement input = wd().getElement(By.cssSelector("#" + two.getAttribute("id") + " input"));
-		WebElement label = wd().getElement(By.cssSelector("label[for='" + two.getAttribute("id")+"']"));
+		WebElement label = wd().getElement(By.cssSelector("label[for='" + input.getAttribute("id")+"']"));
 
 		ImageHelper.checkBaseLine("/tmp/testInitialLayout", wd(), By.id(label.getAttribute("id")), By.id(input.getAttribute("id")), By.id("_A"));
 	}

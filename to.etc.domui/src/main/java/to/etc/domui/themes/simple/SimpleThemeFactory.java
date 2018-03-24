@@ -24,16 +24,22 @@
  */
 package to.etc.domui.themes.simple;
 
-import java.io.*;
-import java.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeFactory;
+import to.etc.domui.themes.StyleException;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.js.RhinoExecutor;
+import to.etc.domui.util.js.RhinoExecutorFactory;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencyList;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
+import javax.annotation.Nonnull;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Very simple theme engine which uses a theme name defined as themedir/icon/color.
@@ -58,23 +64,35 @@ import to.etc.domui.util.resources.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 27, 2011
  */
-public class SimpleThemeFactory implements IThemeFactory {
-	static public final SimpleThemeFactory INSTANCE = new SimpleThemeFactory();
+public class SimpleThemeFactory {
+	static public final IThemeFactory INSTANCE = new IThemeFactory() {
+		@Override public String getFactoryName() {
+			return "s";
+		}
+
+		@Override
+		public @Nonnull ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
+			SimpleThemeFactory stf = new SimpleThemeFactory(da, themeName);
+			try {
+				return stf.createTheme();
+			} finally {
+				try {
+					stf.close();
+				} catch(Exception x) {}
+			}
+		}
+
+		@Nonnull @Override public String getDefaultThemeName() {
+			return getFactoryName() + "-blue-blue-blue";
+		}
+	};
 
 	private DomApplication m_application;
 
 	private String m_themeName;
 
-	private String m_styleName;
-
-	private String m_iconName;
-
-	private String m_colorName;
-
 	/** A Javascript execution environment. */
 	private RhinoExecutor m_executor;
-
-	private String m_variantName;
 
 	/**
 	 * Factory constructor.
@@ -85,22 +103,6 @@ public class SimpleThemeFactory implements IThemeFactory {
 	private SimpleThemeFactory(DomApplication da, String themeName) {
 		m_application = da;
 		m_themeName = themeName;
-	}
-
-	@Nonnull @Override public String getDefaultThemeName() {
-		return "blue/blue/blue";
-	}
-
-	@Override
-	public @Nonnull ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
-		SimpleThemeFactory stf = new SimpleThemeFactory(da, themeName);
-		try {
-			return stf.createTheme();
-		} finally {
-			try {
-				stf.close();
-			} catch(Exception x) {}
-		}
 	}
 
 	private RhinoExecutor executor() throws Exception {
@@ -123,13 +125,13 @@ public class SimpleThemeFactory implements IThemeFactory {
 	 */
 	private SimpleTheme createTheme() throws Exception {
 		//-- Split theme name into theme/icons/color
-		String[] ar = m_themeName.split("\\/");
-		if(ar.length != 4)
-			throw new StyleException("The theme name '" + m_themeName + "' is invalid for the factory SimpleThemeFactory: expecting theme/icon/color");
-		m_styleName = ar[0];
-		m_iconName = ar[1];
-		m_colorName = ar[2];
-		m_variantName = ar[3];
+		String[] ar = m_themeName.split("-");
+		if(ar.length != 4 && ar.length != 5)
+			throw new StyleException("The theme name '" + m_themeName + "' is invalid for the factory SimpleThemeFactory: expecting factory-theme-icon-color-variant");
+		String styleName = ar[1];
+		String iconName = ar[2];
+		String colorName = ar[3];
+		//String variantName = ar.length == 4 ? DefaultThemeVariant.INSTANCE.getVariantName() : ar[4];
 
 		ResourceDependencyList rdl = new ResourceDependencyList();
 
@@ -138,17 +140,17 @@ public class SimpleThemeFactory implements IThemeFactory {
 		 */
 		executor().eval(Object.class, "icon = new Object();", "internal");
 
-		loadProperties("$themes/" + m_colorName + ".color.js", rdl);
-		loadProperties("$themes/" + m_iconName + ".icons.js", rdl);
-		loadProperties("$themes/css-" + m_styleName + "/style.props.js", rdl);
+		loadProperties("$themes/" + colorName + ".color.js", rdl);
+		loadProperties("$themes/" + iconName + ".icons.js", rdl);
+		loadProperties("$themes/css-" + styleName + "/style.props.js", rdl);
 
 		List<String> searchpath = new ArrayList<String>(3);
-		searchpath.add("$themes/" + m_iconName + "-icons");			// [iconname]-icons
-		searchpath.add("$themes/" + m_colorName + "-colors");		// [iconname]-icons
-		searchpath.add("$themes/css-" + m_styleName);				// [style]
+		searchpath.add("$themes/" + iconName + "-icons");			// [iconname]-icons
+		searchpath.add("$themes/" + colorName + "-colors");		// [iconname]-icons
+		searchpath.add("$themes/css-" + styleName);				// [style]
 		searchpath.add("$themes/all");								// 20130327 jal The "all" folder contains stuff shared for all themes
 
-		return new SimpleTheme(m_application, m_themeName, m_styleName, executor(), rdl.createDependencies(), searchpath);
+		return new SimpleTheme(m_application, m_themeName, styleName, executor(), rdl.createDependencies(), searchpath);
 	}
 
 	/**
@@ -159,8 +161,6 @@ public class SimpleThemeFactory implements IThemeFactory {
 
 	/**
 	 * Load property files as Javascript files. All of the data is contained in one object.
-	 * @param map
-	 * @param da
 	 * @param rurl
 	 * @param rdl
 	 * @throws Exception

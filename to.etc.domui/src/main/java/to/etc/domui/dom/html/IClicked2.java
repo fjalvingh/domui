@@ -35,5 +35,5 @@ public interface IClicked2<T extends NodeBase> extends IClickBase<T> {
 	 * @param clinfo
 	 * @throws Exception
 	 */
-	public void clicked(@Nonnull T node, @Nonnull ClickInfo clinfo) throws Exception;
+	void clicked(@Nonnull T node, @Nonnull ClickInfo clinfo) throws Exception;
 }

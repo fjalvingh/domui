@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import javax.annotation.*;
 import javax.servlet.http.*;
@@ -68,9 +69,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	@Nonnull
 	private final DomApplication m_application;
 
+	@Nullable
+	private JSTemplate m_exceptionTemplate;
+
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
 
-	public ApplicationRequestHandler(@Nonnull final DomApplication application) {
+	ApplicationRequestHandler(@Nonnull final DomApplication application) {
 		m_application = application;
 	}
 
@@ -99,9 +103,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		Class< ? extends UrlPage> runclass = decodeRunClass(ctx);
 		try {
 			runClass(ctx, runclass);
-		} catch(ThingyNotFoundException xxxx) {
-			throw xxxx;
-		} catch(ClientDisconnectedException xxxx) {
+		} catch(ThingyNotFoundException | ClientDisconnectedException xxxx) {
 			throw xxxx;
 		} catch(Exception x) {
 			renderApplicationMail(ctx, x);
@@ -147,8 +149,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	/**
 	 * Decide what class to run depending on the input path.
-	 * @param ctx
-	 * @return
 	 */
 	@Nonnull
 	private Class< ? extends UrlPage> decodeRunClass(@Nonnull final IRequestContext ctx) {
@@ -187,10 +187,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Intermediary impl; should later use interface impl on class to determine factory
 	 * to use.
-	 *
-	 * @param ctx
-	 * @param clz
-	 * @throws Exception
 	 */
 	private void runClass(@Nonnull final RequestContextImpl ctx, @Nonnull final Class< ? extends UrlPage> clz) throws Exception {
 		//		if(! UrlPage.class.isAssignableFrom(clz))
@@ -371,6 +367,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		Page page = cm.tryToMakeOrGetPage(ctx, clz, papa, action);
 		if(page != null) {
+			page.getConversation().mergePersistentParameters(ctx);
 			page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
 			page.internalIncrementRequestCounter();
 			cm.internalSetLastPage(page);
@@ -434,7 +431,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
-		List<NodeBase> pendingChangeList = Collections.EMPTY_LIST;
+		List<NodeBase> pendingChangeList = Collections.emptyList();
 		if(!Constants.ACMD_ASYPOLL.equals(action)) {
 			long ts = System.nanoTime();
 			pendingChangeList = handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
@@ -592,7 +589,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					AppSession aps = ctx.getSession();
 					if(aps.incrementExceptionCount() > 10) {
 						aps.clearExceptionRetryCount();
-						throw new RuntimeException("Loop in exception handling in a full page (new page) render", x);
+						throw new IllegalStateException("Loop in exception handling in a full page (new page) render", x);
 					}
 					return;
 				}
@@ -618,13 +615,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 	/**
-	 * Try to render a terse error to the user as an
-	 * @param ctx
-	 * @param s
+	 * Try to render a terse error to the user.
 	 */
 	private void renderUserError(RequestContextImpl ctx, String s) {
 		try {
-			ctx.sendError(503, "It appears this session was logged out in mid-flight");
+			ctx.sendError(503, "It appears this session was logged out in mid-flight (" + s + ")");
 		} catch(Exception x) {
 			//-- Willfully ignore, nothing else we can do here.
 		}
@@ -643,9 +638,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Handle out-of-bound component requests. These are not allowed to change the tree but must return a result
 	 * by themselves.
-	 *
-	 * @param ctx
-	 * @param page
 	 */
 	private void runComponentAction(@Nonnull RequestContextImpl ctx, @Nonnull Page page, @Nonnull String action) throws Exception {
 		m_application.internalCallPageAction(ctx, page);
@@ -696,8 +688,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	/**
 	 * Call a component's JSON request handler, and render back the result.
-	 * @param ctx
-	 * @param page
 	 */
 	private void runPageJson(@Nonnull RequestContextImpl ctx, @Nonnull Page page) throws Exception {
 		m_application.internalCallPageAction(ctx, page);
@@ -755,9 +745,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	/**
 	 * Fix for huge POST requests being resent as a get.
-	 * @param ctx
-	 * @param cm
-	 * @param pp2
 	 */
 	private void redirectForPost(RequestContextImpl ctx, WindowSession cm, @Nonnull PageParameters pp) throws Exception {
 		//-- Create conversation
@@ -787,9 +774,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	/**
 	 * Check if an exception is thrown every time; if so reset the page and rebuild it again.
-	 * @param page
-	 * @param x
-	 * @throws Exception
 	 */
 	private void checkFullExceptionCount(Page page, Exception x) throws Exception {
 		//-- Full renderer aborted. Handle exception counting.
@@ -814,15 +798,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/*	CODING:	Handle existing page events.						*/
 	/*--------------------------------------------------------------*/
 	/**
-	 *
-	 *
 	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
 	 * user to check it's rights against the page's required rights.
-	 *
-	 * @param cm
-	 * @param ctx
-	 * @param clz
-	 * @throws Exception
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Page page) throws Exception {
 		if(ctx.getParameter("webuia") != null)
@@ -854,7 +831,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			if(null != rann) {
-				if(checkRightsAnnotation(ctx, body, rann, user)) { // Check annotation rights
+				if(checkRightsAnnotation(body, rann, user)) { // Check annotation rights
 					return true;
 				}
 
@@ -891,7 +868,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//-- All required rights
 			int ix = 0;
 			for(String r : rann.value()) {
-				sb.append("&r" + ix + "=");
+				sb.append("&r").append(ix).append("=");
 				ix++;
 				StringTool.encodeURLEncoded(sb, r);
 			}
@@ -925,15 +902,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		generateHttpRedirect(ctx, target, "You need to login before accessing this function");
 	}
 
-	/**
-	 *
-	 * @param ctx
-	 * @param body
-	 * @param rann
-	 * @param user
-	 * @return
-	 */
-	private boolean checkRightsAnnotation(@Nonnull RequestContextImpl ctx, @Nonnull UrlPage body, @Nonnull UIRights rann, @Nonnull IUser user) throws Exception {
+	private boolean checkRightsAnnotation(@Nonnull UrlPage body, @Nonnull UIRights rann, @Nonnull IUser user) throws Exception {
 		if(StringTool.isBlank(rann.dataPath())) {
 			//-- No special data context - we just check plain general rights
 			for(String right : rann.value()) {
@@ -957,13 +926,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	/**
 	 * Sends a redirect as a 304 MOVED command. This should be done for all full-requests.
-	 *
-	 * @param ctx
-	 * @param to
-	 * @param rsn
-	 * @throws Exception
 	 */
-	static public void generateHttpRedirect(final RequestContextImpl ctx, final String to, final String rsn) throws Exception {
+	static public void generateHttpRedirect(RequestContextImpl ctx, String to, String rsn) throws Exception {
+		to = appendPersistedParameters(to, ctx);
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
 			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
@@ -971,13 +936,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	/**
 	 * Generate an AJAX redirect command. Should be used by all COMMAND actions.
-	 * @param ctx
-	 * @param url
-	 * @throws Exception
 	 */
-	static public void generateAjaxRedirect(final RequestContextImpl ctx, final String url) throws Exception {
+	static public void generateAjaxRedirect(RequestContextImpl ctx, String url) throws Exception {
 		if(LOG.isInfoEnabled())
 			LOG.info("redirecting to " + url);
+		url = appendPersistedParameters(url, ctx);
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("redirect");
@@ -985,13 +948,31 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		out.endAndCloseXmltag();
 	}
 
+	private static String appendPersistedParameters(String url, RequestContextImpl ctx) {
+		Set<String> nameSet = ctx.getApplication().getPersistentParameterSet();
+		if(nameSet.size() == 0)
+			return url;
+		Map<String, String> map = ctx.getPersistedParameterMap();
+		StringBuilder sb = new StringBuilder(url);
+		boolean first = ! url.contains("?");
+		for(Entry<String, String> entry : map.entrySet()) {
+			if(first) {
+				sb.append('?');
+				first = false;
+			} else {
+				sb.append('&');
+			}
+			StringTool.encodeURLEncoded(sb, entry.getKey());
+			sb.append('=');
+			StringTool.encodeURLEncoded(sb, entry.getValue());
+		}
+		return sb.toString();
+	}
+
 
 	/**
 	 * Generates an EXPIRED message when the page here does not correspond with
 	 * the page currently in the browser. This causes the browser to do a reload.
-	 * @param ctx
-	 * @param message
-	 * @throws Exception
 	 */
 	private void generateExpired(final RequestContextImpl ctx, final String message) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
@@ -1017,8 +998,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Generates an 'expiredOnPollasy' message when server receives pollasy call from expired page.
 	 * Since pollasy calls are frequent, expired here means that user has navigated to some other page in meanwhile, and that response should be ignored by browser.
-	 * @param ctx
-	 * @throws Exception
 	 */
 	private void generateExpiredPollasy(final RequestContextImpl ctx) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
@@ -1035,20 +1014,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * <p>This collects a list of nodes whose input values have changed <b>and</b> that have
 	 * an onValueChanged listener. This list will later be used to call the change handles
 	 * on all these nodes (bug# 664).
-	 *
-	 * @param ctx
-	 * @param page
-	 * @throws Exception
 	 */
 	private List<NodeBase> handleComponentInput(@Nonnull final IRequestContext ctx, @Nonnull final Page page) throws Exception {
 		//-- Just walk all parameters in the input request.
-		List<NodeBase> changed = new ArrayList<NodeBase>();
+		List<NodeBase> changed = new ArrayList<>();
 		for(String name : ctx.getParameterNames()) {
 			String[] values = ctx.getParameters(name); 				// Get the value;
-			if(null == values)
-				continue;
-			//			System.out.println("input: "+name+", value="+values[0]);
-
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
 				NodeBase nb = page.findNodeByID(name); 				// Can we find this literally?
@@ -1122,9 +1093,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 					handleClicked(ctx, page, wcomp);
 			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
 				//-- Don't do anything at all - everything is done beforehand (bug #664).
-				;
 			} else if(Constants.ACMD_DEVTREE.equals(action)) {
-				handleDevelopmentShowCode(ctx, page, wcomp);
+				handleDevelopmentShowCode(page, wcomp);
 			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
 				inhibitlog = true;
 				//-- Async poll request..
@@ -1208,7 +1178,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			String url = m_application.handleNotLoggedInException(ctx, page, x);
 			if(url != null) {
 				generateHttpRedirect(ctx, url, "You need to be logged in");
-				return;
 			}
 		} catch(Exception x) {
 			logUser(ctx, page, "Delta render failed: " + x);
@@ -1219,9 +1188,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Defines the actions that could arrive too late due to race conditions in client javascript, when target elements are already removed from DOM at server side.
 	 * It is safe to just ignore such obsoleted events, rather than giving error response.
-	 *
-	 * @param action
-	 * @return
 	 */
 	private boolean isSafeToIgnoreUnknownNodeOnAction(@Nonnull String action) {
 		return (Constants.ACMD_LOOKUP_TYPING.equals(action) || Constants.ACMD_LOOKUP_TYPING_DONE.equals(action) || Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action));
@@ -1231,12 +1197,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Called in DEVELOPMENT mode when the source code for a page is requested (double escape press). It shows
 	 * the nodes from the entered one upto the topmost one, and when selected tries to open the source code
 	 * by sending a command to the local Eclipse.
-	 *
-	 * @param ctx
-	 * @param page
-	 * @param wcomp
 	 */
-	private void handleDevelopmentShowCode(RequestContextImpl ctx, Page page, NodeBase wcomp) {
+	private void handleDevelopmentShowCode(Page page, NodeBase wcomp) {
 		if(null == wcomp)
 			return;
 
@@ -1277,9 +1239,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	/**
 	 * Call all "new page" listeners when a page is unbuilt or new at this time.
-	 *
-	 * @param pg
-	 * @throws Exception
 	 */
 	private void callNewPageBuiltListeners(final Page pg) throws Exception {
 		if(pg.getBody().isBuilt())
@@ -1292,18 +1251,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Called when the action is a CLICK event on some thingy. This causes the click handler for
 	 * the object to be called.
-	 *
-	 * @param ctx
-	 * @param page
-	 * @param cid
-	 * @throws Exception
 	 */
-	private void handleClicked(final IRequestContext ctx, final Page page, final NodeBase b) throws Exception {
+	private void handleClicked(IRequestContext ctx, Page page, @Nullable NodeBase b) throws Exception {
 		if(b == null) {
-			logUser((RequestContextImpl) ctx, page, "User clicked to fast on " + DomUtil.getComponentDetails(b));
+			logUser((RequestContextImpl) ctx, page, "User clicked to fast - node has disappeared");
 			System.out.println("User clicked too fast? Node not found. Ignoring.");
 			return;
-			//			throw new IllegalStateException("Clicked must have a node!!");
 		}
 		String msg = "Clicked on " + DomUtil.getComponentDetails(b);
 		logUser((RequestContextImpl) ctx, page, msg);
@@ -1320,14 +1273,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/*	CODING:	If a page failed, show a neater response.			*/
 	/*--------------------------------------------------------------*/
 
-	@Nullable
-	private JSTemplate m_exceptionTemplate;
-
-	/**
-	 *
-	 * @param ctx
-	 * @param x
-	 */
 	private void renderOopsFrame(@Nonnull RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
 		x.printStackTrace();
 		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
@@ -1342,12 +1287,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		dataMap.put("x", x);
 		dataMap.put("ctx", ctx);
 		dataMap.put("app", ctx.getRelativePath(""));
-		String sheet = themeManager.getThemedResourceRURL(DefaultThemeVariant.INSTANCE, "THEME/style.theme.css");
+		String sheet = themeManager.getThemedResourceRURL(ctx, "THEME/style.theme.css");
 		if(null == sheet)
 			throw new IllegalStateException("Unexpected null??");
 		dataMap.put("stylesheet", sheet);
 
-		String theme = themeManager.getThemedResourceRURL(DefaultThemeVariant.INSTANCE, "THEME/");
+		String theme = themeManager.getThemedResourceRURL(ctx, "THEME/");
 		dataMap.put("theme", theme);
 
 		StringBuilder sb = new StringBuilder();

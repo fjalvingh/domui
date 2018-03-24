@@ -1,0 +1,106 @@
+/******** Syntax highlighting for patch renderer ***********/
+.dm-srcp-scrl {
+	position: absolute;
+	top: 30px;
+	bottom: 0px;
+	left: 0px;
+	right: 0px;
+	overflow: auto;
+	font-family: 'Fira Mono';
+	font-size: 12px;
+}
+
+.dm-srcp-lnr {
+	width: 4em;
+	background: #ccc;
+	text-align: right;
+	font-style: italic;
+	padding-right: 4px;
+}
+
+.dm-srcp-txt {
+	padding-left: 5px;
+}
+
+pre.code {
+	font-family: Bitstream Vera Mono, Consolas, Courier, monospace;
+	font-size: small;
+	height: 500px;
+	overflow: scroll;
+
+	/*	margin-top: 0px; */
+}
+
+.s-line {
+	margin: 0px;
+	padding: 0px;
+}
+
+.s-diffstart {
+	background-color: #ccca8f;
+}
+
+.s-diffold, .s-diffmin {
+	background-color: #ffded6;
+}
+
+.s-diffnew, .s-diffplus {
+	background-color: #ebffd7;
+}
+
+.s-diffline {
+	background-color: #b8dfff;
+}
+
+.s-diffchar {
+	color: red;
+}
+
+.s-diffnone {
+}
+
+.s-comment1 {
+	color: #006121;
+	font-style: italic;
+}
+
+.s-comment2 {
+	color: #003842;
+	font-style: italic;
+}
+
+.s-comment3 {
+	color: #003842;
+	font-style: italic;
+}
+
+.s-operator {
+	color: black;
+}
+
+.s-function {
+	color: #000fd4;
+}
+
+.s-keyword1 {
+	color: #fb8d00;
+	font-weight: bold;
+}
+
+.s-keyword2 {
+	color: #86002f;
+	font-weight: bold;
+}
+
+.s-literal1 {
+	color: #00afaf;
+}
+
+.s-literal2 {
+	color: #00afaf;
+}
+
+.s-digit {
+	color: #842900;
+}
+

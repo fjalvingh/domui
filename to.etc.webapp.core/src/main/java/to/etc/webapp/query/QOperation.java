@@ -53,5 +53,4 @@ public enum QOperation {
 	, SELECTION_SUBQUERY
 	, NOT
 	, IN
-	;
 }

@@ -6,7 +6,7 @@ public enum LogFilterType {
 
 	private final boolean	m_persistable;
 
-	private LogFilterType(boolean persistable) {
+	LogFilterType(boolean persistable) {
 		m_persistable = persistable;
 	}
 

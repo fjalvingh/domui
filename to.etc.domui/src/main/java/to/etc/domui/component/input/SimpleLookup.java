@@ -24,16 +24,29 @@
  */
 package to.etc.domui.component.input;
 
-import javax.annotation.*;
+import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.searchpanel.SearchPanel;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.IQueryHandler;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.SimpleRowRenderer;
+import to.etc.domui.component.tbl.SimpleSearchModel;
+import to.etc.domui.dom.errors.IErrorMessageListener;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IValueSelected;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContextFactory;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
 
 /**
  * Represents simple lookup dialog that enables single item selection.
@@ -43,7 +56,7 @@ import to.etc.webapp.query.*;
  */
 
 public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
-	private LookupForm<T> m_externalLookupForm;
+	private SearchPanel<T> m_externalSearchPanel;
 
 	DataTable<T> m_result;
 
@@ -108,7 +121,7 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 			add((NodeBase) m_customErrorMessageListener);
 			DomUtil.getMessageFence(this).addErrorListener(m_customErrorMessageListener);
 		}
-		LookupForm<T> lf = getExternalLookupForm() != null ? getExternalLookupForm() : new LookupForm<T>(getLookupClass(), getMetaModel());
+		SearchPanel<T> lf = getExternalSearchPanel() != null ? getExternalSearchPanel() : new SearchPanel<T>(getLookupClass(), getMetaModel());
 
 		lf.setCollapsed(m_renderAsCollapsed);
 		lf.forceRebuild(); // jal 20091002 Force rebuild to remove any state from earlier invocations of the same form. This prevents the form from coming up in "collapsed" state if it was left that way last time it was used (Lenzo).
@@ -121,16 +134,16 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 			}
 		});
 
-		lf.setClicked(new IClicked<LookupForm<T>>() {
+		lf.setClicked(new IClicked<SearchPanel<T>>() {
 			@Override
-			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
+			public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
 				search(b);
 			}
 		});
 
-		lf.setOnCancel(new IClicked<LookupForm<T>>() {
+		lf.setOnCancel(new IClicked<SearchPanel<T>>() {
 			@Override
-			public void clicked(@Nonnull LookupForm<T> b) throws Exception {
+			public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
 				closePressed();
 			}
 		});
@@ -140,8 +153,8 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 		}
 	}
 
-	void search(LookupForm<T> lf) throws Exception {
-		QCriteria<T> c = lf.getEnteredCriteria();
+	void search(SearchPanel<T> lf) throws Exception {
+		QCriteria<T> c = lf.getCriteria();
 		if(c == null) // Some error has occured?
 			return; // Don't do anything (errors will have been registered)
 
@@ -289,12 +302,12 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 		m_queryManipulator = queryManipulator;
 	}
 
-	public LookupForm<T> getExternalLookupForm() {
-		return m_externalLookupForm;
+	public SearchPanel<T> getExternalSearchPanel() {
+		return m_externalSearchPanel;
 	}
 
-	public void setExternalLookupForm(LookupForm<T> externalLookupForm) {
-		m_externalLookupForm = externalLookupForm;
+	public void setExternalSearchPanel(SearchPanel<T> externalSearchPanel) {
+		m_externalSearchPanel = externalSearchPanel;
 	}
 
 	public String[] getResultColumns() {

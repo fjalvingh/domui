@@ -50,7 +50,6 @@ public class TreeSelect<T> extends Tree<T> implements IHasChangeListener {
 				if(!getNodeSelectablePredicate().predicate(value))
 					throw new IllegalStateException("You cannot the value to a node that is marked as NOT SELECTABLE by the nodeSelectablePredicate");
 			} catch(Exception x) {
-				;
 			}
 		}
 

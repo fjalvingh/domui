@@ -80,10 +80,13 @@ public class SimplePopupMenu extends Div {
 		add(root);
 		root.setCssClass("ui-pmnu-sm");
 
-		Div ttl = new Div();
-		root.add(ttl);
-		ttl.setCssClass("ui-pmnu-ttl");
-		ttl.add(m_menuTitle == null ? "Menu" : m_menuTitle);
+		String menuTitle = m_menuTitle;
+		if(null != menuTitle) {
+			Div ttl = new Div();
+			root.add(ttl);
+			ttl.setCssClass("ui-pmnu-ttl");
+			ttl.add(menuTitle);
+		}
 
 		Div items = new Div();
 		root.add(items);

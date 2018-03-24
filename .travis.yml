@@ -14,25 +14,35 @@ jdk:
 language: java
 
 install: true
-script: mvn -q clean install -Dmaven.test.skip=false
+script: mvn -q clean install -Dmaven.test.skip=false -Dmaven.javadoc.skip=true
 
 cache:
   directories:
   - $HOME/.m2
 
 deploy:
-  skip_cleanup: true
-  provider: script
-  script: scripts/demo-deploy $DEPLOY_KEY
-  on:
-    branch: master
+  - provider: script
+    skip_cleanup: true
+    script: scripts/demo-deploy $DEPLOY_KEY
+    on:
+      branch: master
+  - provider: script
+    skip_cleanup: true
+    script: scripts/demo-deploy $DEPLOY_KEY
+    on:
+      branch: testing
+  - provider: script
+    skip_cleanup: true
+    script: scripts/demo-deploy $DEPLOY_KEY
+    on:
+      branch: demo
 
 before_install:
 - scripts/beforeInstall
 
 after_script:
   - echo "Creating maven report"
-  - mvn site site:deploy
+  - mvn site site:deploy -Dmaven.javadoc.skip=true
   - scripts/deploy-test-reports.sh
 
 after_failure:

@@ -1,0 +1,55 @@
+.ui-fup2 {
+	position: relative;
+	display: inline-block;
+	font-size: 1rem;
+}
+.ui-fup2-value-empty, .ui-fup2-value {
+	@include ui-control-base;
+	display: inline-block;
+	border: 1px solid $border;
+	min-height: 2.25em;
+	height: auto;
+	//position: relative;
+	//min-height: 2.25rem;
+	//line-height: 1.5em;
+	min-width: 20em;
+	//font-size: 1rem;
+	//padding: $control-padding-vertical $control-padding-horizontal;
+	//border-radius: 0.25rem 0 0 0.25rem;
+	background-color: white;
+}
+.ui-fup2-value {
+	max-height: 9em;
+	overflow: auto;
+}
+
+.ui-fup2 input[type="file"] {
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	font-size: 20px;
+	cursor: pointer;
+	opacity: 0.0;
+	filter: alpha(opacity=0);
+	overflow: hidden;
+}
+/** chrome does not show pointer cursor over file upload button */
+::-webkit-file-upload-button {
+	cursor: pointer;
+}
+button.ui-fup2-del {
+	@include ui-appearance-none;
+	margin: 0;
+	outline: none;
+	border: none;
+	background: transparent;
+	line-height: $input-line-height;		// FIXME NEW Should be removed for baseline merge?
+	padding: 0 5px 0 0;
+}
+

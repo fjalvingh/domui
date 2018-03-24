@@ -151,7 +151,7 @@ public class DOMDecoderBase {
 	}
 
 	public String	oneOf(final String name, final String... list) {
-		String	value = string(name, (String)null);					// Locate the string variant or null
+		String	value = string(name, null);					// Locate the string variant or null
 		for(String pv : list) {
 			if(pv == null) {
 				if(value == null)

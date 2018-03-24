@@ -24,22 +24,39 @@
  */
 package to.etc.domui.hibernate.config;
 
-import java.io.*;
-import java.util.*;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.AnnotationConfiguration;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.event.InitializeCollectionEventListener;
+import org.hibernate.event.PostLoadEventListener;
+import to.etc.dbpool.ConnectionPool;
+import to.etc.dbpool.PoolManager;
+import to.etc.domui.hibernate.beforeimages.BeforeImageInterceptor;
+import to.etc.domui.hibernate.beforeimages.CopyCollectionEventListener;
+import to.etc.domui.hibernate.beforeimages.CreateBeforeImagePostLoadListener;
+import to.etc.domui.hibernate.generic.BuggyHibernateBaseContext;
+import to.etc.domui.hibernate.generic.HibernateLongSessionContextFactory;
+import to.etc.domui.hibernate.generic.HibernateQueryExecutor;
+import to.etc.domui.hibernate.generic.HibernateSessionMaker;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.StringTool;
+import to.etc.webapp.qsql.JdbcQueryExecutor;
+import to.etc.webapp.query.IQueryExecutorFactory;
+import to.etc.webapp.query.IQueryListener;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
+import to.etc.webapp.query.QEventListenerSet;
+import to.etc.webapp.query.QQueryExecutorRegistry;
 
-import javax.annotation.*;
-import javax.sql.*;
-
-import org.hibernate.*;
-import org.hibernate.cfg.*;
-import org.hibernate.event.*;
-
-import to.etc.dbpool.*;
-import to.etc.domui.hibernate.beforeimages.*;
-import to.etc.domui.hibernate.generic.*;
-import to.etc.util.*;
-import to.etc.webapp.qsql.*;
-import to.etc.webapp.query.*;
+import javax.annotation.Nonnull;
+import javax.sql.DataSource;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Helper class to help with configuring Hibernate for DomUI easily. You are not required to
@@ -72,13 +89,17 @@ final public class HibernateConfigurator {
 	/** The registered query handlers for DomUI */
 	static private QQueryExecutorRegistry m_handlers = new QQueryExecutorRegistry();
 
+	static private List<Consumer<Configuration>> m_onConfigureList = Collections.emptyList();
+
+	private static boolean m_allowHibernateSuckySequences;
+
 	/**
 	 * Defines the database update mode (hibernate.hbm2ddl.auto).
 	 *
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Dec 30, 2010
 	 */
-	static public enum Mode {
+	public enum Mode {
 		/**
 		 * Assume the database is correct and the same as the Hibernate expected schema.
 		 */
@@ -165,6 +186,11 @@ final public class HibernateConfigurator {
 			throw new IllegalStateException("This method must be called AFTER one of the 'initialize' methods gets called.");
 	}
 
+	static public synchronized void addConfigListener(Consumer<Configuration> listener) {
+		m_onConfigureList = new ArrayList<>(m_onConfigureList);
+		m_onConfigureList.add(listener);
+	}
+
 	/**
 	 * Must be called before one of the "initialize" methods gets called, to register
 	 * all POJO classes that need to be configured with Hibernate. The classes will
@@ -236,7 +262,7 @@ final public class HibernateConfigurator {
 	}
 
 	static private void enhanceMappings(@Nonnull Configuration config) throws Exception {
-		HibernateChecker hc = new HibernateChecker(config, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled);
+		HibernateChecker hc = new HibernateChecker(config, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled, m_allowHibernateSuckySequences);
 		hc.enhanceMappings();
 	}
 
@@ -265,6 +291,17 @@ final public class HibernateConfigurator {
 			config.addAnnotatedClass(clz);
 		m_annotatedClassList = null; // Release memory- list is never used.
 
+
+		/*
+		 * Hibernate defaults to completely non-standard hehavior for sequences, using the
+		 * "hilo" sequence generator by default. This irresponsible behavior means that
+		 * by default Hibernate code is incompatible with any code using sequences.
+		 * Since that is irresponsible and downright DUMB this reverts the behavior to
+		 * using sequences in their normal behavior.
+		 * See https://stackoverflow.com/questions/12745751/hibernate-sequencegenerator-and-allocationsize
+		 */
+		config.setProperty("hibernate.id.new_generator_mappings", "true"); // MUST BE BEFORE config.configure
+
 		/*
 		 * Hibernate apparently cannot initialize without the useless hibernate.cfg.xml file. We cannot
 		 * add that file at the root location because that would interfere with applications. To have a
@@ -274,6 +311,10 @@ final public class HibernateConfigurator {
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
 		config.configure(resname);
 		enhanceMappings(config);
+
+		for(Consumer<Configuration> listener : m_onConfigureList) {
+			listener.accept(config);
+		}
 
 		/*
 		 * Set other properties according to config settings made.
@@ -383,5 +424,9 @@ final public class HibernateConfigurator {
 	public static void initialize(final File poolfile, final String poolname) throws Exception {
 		ConnectionPool p = PoolManager.getInstance().definePool(poolfile, poolname);
 		initialize(p.getPooledDataSource());
+	}
+
+	public static void setAllowHibernateSuckySequences(boolean allowHibernateSuckySequences) {
+		m_allowHibernateSuckySequences = allowHibernateSuckySequences;
 	}
 }

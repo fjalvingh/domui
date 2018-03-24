@@ -6,5 +6,5 @@ import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
 
 public interface IWebActionHandler {
-	public void handleWebAction(@Nonnull NodeBase node, @Nonnull RequestContextImpl context, boolean responseExpected) throws Exception;
+	void handleWebAction(@Nonnull NodeBase node, @Nonnull RequestContextImpl context, boolean responseExpected) throws Exception;
 }

@@ -1,15 +1,17 @@
 package to.etc.domui.component.image;
 
-import java.io.*;
+import to.etc.domui.component.input.AbstractDivControl;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.themes.Theme;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * This displays an image that is contained in an {@link to.etc.domui.component.image.IUIImage} structure.
@@ -48,6 +50,10 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 			String url = getComponentDataURL("THUMB", new PageParameters("datx", System.currentTimeMillis() + ""));
 			img.setSrc(url);
 		}
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return null;
 	}
 
 	/**

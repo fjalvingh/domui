@@ -26,8 +26,6 @@ public class JsModel {
 
 	final private Map<Object, InstanceInfo> m_instanceMap = new HashMap<>();
 
-	final private String m_modelRoot;
-
 	private final Object m_rootObject;
 
 	static private Map<Class<?>, IRenderType<?>> m_simpleTypeRendererMap = new HashMap<>();
@@ -37,8 +35,7 @@ public class JsModel {
 	@Nullable
 	private Set<InstanceInfo> m_reachableSet;
 
-	public JsModel(String modelRoot, Object rootObject) {
-		m_modelRoot = modelRoot;
+	public JsModel(Object rootObject) {
 		m_rootObject = rootObject;
 	}
 

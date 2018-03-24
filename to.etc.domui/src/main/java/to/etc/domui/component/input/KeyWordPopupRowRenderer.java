@@ -40,7 +40,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 27 Jan 2010
  */
-final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
+final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRowRenderer<T> {
 	@Nullable
 	private ICellClicked<T> m_rowClicked;
 
@@ -55,8 +55,6 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
-	 * @param dataClass
-	 * @param cols
 	 */
 	KeyWordPopupRowRenderer(@Nonnull final ClassMetaModel cmm) {
 		m_columnList = new ColumnDefList<T>((Class<T>) cmm.getActualClass(), cmm);
@@ -82,10 +80,14 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 
 	/**
 	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
-	 * @param rowClicked
 	 */
-	void setRowClicked(@Nonnull final ICellClicked<T> rowClicked) {
+	@Override
+	public void setRowClicked(@Nonnull ICellClicked<T> rowClicked) {
 		m_rowClicked = rowClicked;
+	}
+
+	@Override public void setCellClicked(int col, @Nullable ICellClicked<T> cellClicked) {
+		throw new IllegalStateException("Not supported");
 	}
 
 	/**
@@ -121,7 +123,6 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 		if(rowClicked != null) {
 			cc.getTR().setClicked(new IClicked<TR>() {
 				@Override
-				@SuppressWarnings("unchecked")
 				public void clicked(final @Nonnull TR b) throws Exception {
 					ICellClicked< ? > rowClicked = getRowClicked();
 					if(null != rowClicked)
@@ -201,6 +202,10 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T> {
 	public void add(SimpleColumnDef< ? > cd) {
 		check();
 		m_columnList.add(cd);
+	}
+
+	public void addColumn(String name) {
+		m_columnList.addColumns(name);
 	}
 
 	public <R> void addColumns(Object... cols) {

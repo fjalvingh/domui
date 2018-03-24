@@ -3,6 +3,7 @@ package to.etc.domui.component.layout;
 import to.etc.domui.component.event.*;
 import to.etc.domui.dom.errors.*;
 import to.etc.domui.dom.html.*;
+import to.etc.webapp.ProgrammerErrorException;
 
 import javax.annotation.*;
 import java.util.*;
@@ -13,16 +14,17 @@ import java.util.*;
  * Created on 18-8-17.
  */
 @DefaultNonNull
-public class TabInstance implements IErrorMessageListener, ITabHandle {
+final public class TabInstance implements IErrorMessageListener, ITabHandle {
+	private final TabPanelBase m_tabPanel;
 
-	@Nullable
+	@Nonnull
 	private NodeBase m_label;
 
-	@Nullable
+	@Nonnull
 	private NodeBase m_content;
 
 	@Nullable
-	private Img m_img;
+	private String m_image;
 
 	@Nullable
 	private Li m_tab;
@@ -41,84 +43,90 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 	@Nullable
 	private INotify<ITabHandle> m_onClose;
 
-	public TabInstance() {
-		this(null, null, null);
-	}
-
-	public TabInstance(@Nullable NodeBase label, @Nullable NodeBase content, @Nullable String image) {
-		m_label = label;
-		m_content = content;
-		if(null != image) {
-			setImage(image);
-		}
-	}
+	@Nullable
+	private INotify<ITabHandle> m_onDisplay;
 
 	@Nullable
+	private INotify<ITabHandle> m_onHide;
+
+	public TabInstance(TabPanelBase tabPanel, TabBuilder b) {
+		m_tabPanel = tabPanel;
+		NodeBase content = b.getContent();
+		if(null == content)
+			throw new ProgrammerErrorException("Tab panel must have content");
+		m_content = content;
+		NodeBase label = b.getLabel();
+		if(null == label)
+			throw new ProgrammerErrorException("Tab panel must have a label");
+		m_label = label;
+		m_image = b.getImage();
+		m_lazy = b.isLazy();
+		m_closable = b.isClosable();
+		m_onClose = b.getOnClose();
+		m_onDisplay = b.getOnDisplay();
+		m_onHide = b.getOnHide();
+	}
+
 	public NodeBase getContent() {
 		return m_content;
 	}
 
-	public void setContent(NodeBase content) {
-		m_content = content;
-	}
-
-	@Nullable
 	public NodeBase getLabel() {
 		return m_label;
 	}
 
-	public void setLabel(NodeBase label) {
-		m_label = label;
-	}
-
 	@Nullable
-	public Li getTab() {
+	Li getTab() {
 		return m_tab;
 	}
 
-	public void setTab(Li tab) {
+	void setTab(Li tab) {
 		m_tab = tab;
 	}
 
 	@Nullable
-	public Li getSeparator() {
+	Li getSeparator() {
 		return m_separator;
 	}
 
-	public void setSeparator(Li separator) {
+	void setSeparator(Li separator) {
 		m_separator = separator;
 	}
 
-	@Nullable
-	public Img getImg() {
-		return m_img;
+	@Nullable public String getImage() {
+		return m_image;
 	}
 
-	public void setImage(Img image) {
-		m_img = image;
-	}
-
-	public void setImage(String image) {
-		if(image.isEmpty()) {
-			return; // If string is empty, we do not have to create an image.
-		}
-		Img img = createIcon(image);
-		m_img = img;
-	}
+	//@Nullable
+	//public Img getImg() {
+	//	return m_img;
+	//}
+	//
+	//public void setImage(Img image) {
+	//	m_img = image;
+	//}
+	//
+	//public void setImage(String image) {
+	//	if(image.isEmpty()) {
+	//		return; // If string is empty, we do not have to create an image.
+	//	}
+	//	Img img = createIcon(image);
+	//	m_img = img;
+	//}
 
 	public boolean isLazy() {
 		return m_lazy;
 	}
 
-	public void setLazy(boolean lazy) {
-		m_lazy = lazy;
-	}
+	//public void setLazy(boolean lazy) {
+	//	m_lazy = lazy;
+	//}
 
-	public boolean isAdded() {
+	boolean isAdded() {
 		return m_added;
 	}
 
-	protected void setAdded(boolean added) {
+	void setAdded(boolean added) {
 		m_added = added;
 	}
 
@@ -131,18 +139,17 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 		return m_closable;
 	}
 
-	public void closable(boolean closeable) {
-		m_closable = closeable;
-	}
-
-	@Override
-	public void setOnClose(@Nullable INotify<ITabHandle> notify) {
-		m_onClose = notify;
-	}
-
 	@Nullable
 	public INotify<ITabHandle> getOnClose() {
 		return m_onClose;
+	}
+
+	@Nullable public INotify<ITabHandle> getOnDisplay() {
+		return m_onDisplay;
+	}
+
+	@Nullable public INotify<ITabHandle> getOnHide() {
+		return m_onHide;
 	}
 
 	@Override
@@ -198,11 +205,37 @@ public class TabInstance implements IErrorMessageListener, ITabHandle {
 		return m_msgList.size() > 0;
 	}
 
-	private Img createIcon(String icon) {
-		Img i = new Img();
-		i.setSrc(icon);
-		i.setCssClass("ui-tab-icon");
-		i.setBorder(0);
-		return i;
+	public TabPanelBase getTabPanel() {
+		return m_tabPanel;
+	}
+
+	@Override public void close() throws Exception {
+		m_tabPanel.closeTab(this);
+	}
+
+	@Override public void select() throws Exception {
+		m_tabPanel.setCurrentTab(this);
+	}
+
+	@Override
+	public void updateLabel(@Nonnull String name, @Nullable String image) {
+		m_label = new TextNode(name);
+		m_image = image;
+		m_tabPanel.updateLabel(this);
+	}
+
+	@Override public void updateLabel(@Nonnull NodeBase label, @Nullable String image) {
+		m_label = label;
+		m_image = image;
+		m_tabPanel.updateLabel(this);
+	}
+
+	@Override public void updateContent(@Nonnull NodeContainer content) {
+		NodeBase old = m_content;
+		if(content == old)
+			return;
+		m_content = content;
+		m_added = false;
+		m_tabPanel.updateContent(this, old);
 	}
 }

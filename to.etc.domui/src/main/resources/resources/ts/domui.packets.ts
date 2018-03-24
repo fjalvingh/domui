@@ -129,6 +129,10 @@
 		process(xml.documentElement.childNodes);
 	}
 
+	$.executeXML = function(xml) {
+		executeXML(xml);
+	};
+
 	// -- process the commands
 	function process(commands: any[]) : void {
 		const param = {
@@ -441,7 +445,7 @@
 					alert('domjs_ eval failed: ' + ex + ", js=" + s);
 					throw ex;
 				}
-				continue;
+
 			} else if(v != "" && dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
 				try {
 					if(v.indexOf("javascript:") == 0)

@@ -26,7 +26,7 @@ For date time, only ' ' can be used for separating dates from time.
 */
 var WebUI;
 if(WebUI === undefined)
-    WebUI = new Object();
+    WebUI = {};
 
 $.extend(WebUI, {
 	

@@ -19,35 +19,32 @@ import java.util.Set;
  * Created on Dec 22, 2006
  */
 public interface Reverser {
-	@Nonnull
-	public String getIdent();
+	@Nonnull String getIdent();
 
-	@Nonnull
-	public DbSchema loadSchema(@Nullable String schemaName, boolean lazily) throws Exception;
+	@Nonnull DbSchema loadSchema(@Nullable String schemaName, boolean lazily) throws Exception;
 
-	@Nonnull
-	public Set<DbSchema> loadSchemaSet(@Nonnull Collection<String> schemaName, boolean lazily) throws Exception;
+	@Nonnull Set<DbSchema> loadSchemaSet(@Nonnull Collection<String> schemaName, boolean lazily) throws Exception;
 
-	public void lazy(@Nonnull IExec what);
+	void lazy(@Nonnull IExec what);
 
-	public boolean typeHasPrecision(@Nonnull DbColumn column);
+	boolean typeHasPrecision(@Nonnull DbColumn column);
 
-	public boolean typeHasScale(@Nonnull DbColumn column);
+	boolean typeHasScale(@Nonnull DbColumn column);
 
-	public SQLRowSet getData(@Nonnull QCriteria<SQLRow> query, int start, int end) throws Exception;
+	SQLRowSet getData(@Nonnull QCriteria<SQLRow> query, int start, int end) throws Exception;
 
-	public void addSelectColumnAs(@Nonnull StringBuilder statement, @Nonnull String colname, @Nonnull String alias);
+	void addSelectColumnAs(@Nonnull StringBuilder statement, @Nonnull String colname, @Nonnull String alias);
 
-	public String wrapQueryWithRange(@Nonnull List<DbColumn> coll, @Nonnull String sql, int first, int max);
+	String wrapQueryWithRange(@Nonnull List<DbColumn> coll, @Nonnull String sql, int first, int max);
 
 
-	public void reverseColumns(@Nonnull Connection dbc, @Nonnull DbTable t) throws Exception;
+	void reverseColumns(@Nonnull Connection dbc, @Nonnull DbTable t) throws Exception;
 
-	public void reverseIndexes(@Nonnull Connection dbc, @Nonnull DbTable t) throws Exception;
+	void reverseIndexes(@Nonnull Connection dbc, @Nonnull DbTable t) throws Exception;
 
-	public void reversePrimaryKey(@Nonnull Connection dbc, @Nonnull DbTable t) throws Exception;
+	void reversePrimaryKey(@Nonnull Connection dbc, @Nonnull DbTable t) throws Exception;
 
-	public void reverseParentRelation(Connection dbc, @Nonnull DbTable dbTable) throws Exception;
+	void reverseParentRelation(Connection dbc, @Nonnull DbTable dbTable) throws Exception;
 
-	public void reverseChildRelations(Connection dbc, @Nonnull DbTable dbTable) throws Exception;
+	void reverseChildRelations(Connection dbc, @Nonnull DbTable dbTable) throws Exception;
 }

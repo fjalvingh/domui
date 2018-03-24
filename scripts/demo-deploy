@@ -5,9 +5,11 @@ if [ "$TRAVIS_SECURE_ENV_VARS" != "true" ]; then
   exit 0
 fi
 
+SERVER=iena.etc.to
+
 # Actual attempt at deployment
 chmod og=- ~/deployment_id_ecdsa
-scp -P 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa $TRAVIS_BUILD_DIR/to.etc.domui.demo/target/demo.war deployer@monge.etc.to:
+scp -P 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa $TRAVIS_BUILD_DIR/to.etc.domui.demo/target/demo.war deployer@$SERVER:$TRAVIS_BRANCH.war
 if [ $? != 0 ]; then
   echo "Build result demo.war could not be copied to deployment server"
   exit 10
@@ -15,7 +17,7 @@ fi
 
 echo "Copy successfully executed"
 
-ssh -p 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa deployer@monge.etc.to /usr/local/bin/deploy-domui-war
+ssh -p 222 -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i ~/deployment_id_ecdsa deployer@$SERVER /usr/local/bin/deploy-domui-war $TRAVIS_BRANCH
 
 exit 0
 

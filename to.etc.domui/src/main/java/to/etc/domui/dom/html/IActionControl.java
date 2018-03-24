@@ -24,8 +24,6 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
-
 /**
  * A non-input control that usually only controls some action, like a button
  * or tab pane tab. They can only be enabled and disabled, and someone can
@@ -35,6 +33,10 @@ import javax.annotation.*;
  * Created on Dec 6, 2009
  */
 public interface IActionControl {
+	boolean isDisabled();
+
+	void setFocus();
+
 	/**
 	 * Set the input to disabled mode.
 	 * @param d
@@ -46,4 +48,9 @@ public interface IActionControl {
 	 * @param testID
 	 */
 	void setTestID(String testID);
+
+	/**
+	 * Returns the currently assigned test ID.
+	 */
+	String getTestID();
 }

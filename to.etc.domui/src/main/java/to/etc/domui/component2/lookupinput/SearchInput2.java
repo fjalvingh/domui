@@ -24,12 +24,16 @@
  */
 package to.etc.domui.component2.lookupinput;
 
-import javax.annotation.*;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IForTarget;
+import to.etc.domui.dom.html.IReturnPressed;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Input;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.IRequestContext;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.
@@ -39,10 +43,9 @@ import to.etc.domui.server.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 21 Jan 2010
  */
-public class SearchInput2 extends Div {
-
+public class SearchInput2 extends Div implements IForTarget {
 	@Nonnull
-	final private TextStr m_keySearch = new TextStr();
+	final private Input m_keySearch = new Input();
 
 	@Nullable
 	private IValueChanged<SearchInput2> m_onLookupTyping;
@@ -54,21 +57,18 @@ public class SearchInput2 extends Div {
 
 	public SearchInput2(@Nullable String cssClass) {
 		if(cssClass != null)
-			m_keySearch.setCssClass(cssClass);
+			m_keySearch.addCssClass(cssClass);
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-srip");
-
-		if(m_keySearch.getCssClass() == null) {
-			m_keySearch.setCssClass("ui-srip-keyword");
-		}
+		css("ui-lui-srip", "ui-control");
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
 		m_keySearch.setMarker();
 
 		add(m_keySearch);
+		m_keySearch.addCssClass("ui-input");
 
 		appendCreateJS("new WebUI.SearchPopup('" + getActualID() + "','" + m_keySearch.getActualID() + "');");
 	}
@@ -84,14 +84,16 @@ public class SearchInput2 extends Div {
 
 	@Nullable
 	public String getValue() {
-		return m_keySearch.getValue();
+		return m_keySearch.getRawValue();
 	}
 
 	@Override
 	public void setFocus() {
-		if(m_keySearch != null) {
-			m_keySearch.setFocus();
-		}
+		m_keySearch.setFocus();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_keySearch.getForTarget();
 	}
 
 	/**

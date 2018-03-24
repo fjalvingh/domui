@@ -40,12 +40,12 @@ import javax.annotation.*;
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
  * Created on 21 Jan 2010
  */
-public class KeyWordSearchInput<T> extends Div {
+public class KeyWordSearchInput<T> extends Div implements IForTarget {
 
 	private int m_resultsCount = -1; //-1 states for not visible
 
 	@Nonnull
-	final private TextStr m_keySearch = new TextStr();
+	final private Input m_keySearch = new Input();
 
 	private Div m_pnlSearchCount;
 
@@ -58,45 +58,34 @@ public class KeyWordSearchInput<T> extends Div {
 	@Nullable
 	public IRowRenderer<T> m_resultsHintPopupRowRenderer;
 
-	@Nonnull
-	final private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
-
 	private Div m_pnlSearchPopup;
 
 	private int m_popupWidth;
-
-	private boolean m_absolutePopupLayoutQuirkMode;
 
 	public KeyWordSearchInput() {
 	}
 
 	public KeyWordSearchInput(String inputCssClass) {
-		m_keySearch.setCssClass(inputCssClass);
+		addCssClass("ui-control");
+		if(inputCssClass != null)
+			m_keySearch.setCssClass(inputCssClass);
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-lui-kwsi");
-		//position must be set to relative to enable absolute positioning of child elements (waiting image)
-		if(m_absolutePopupLayoutQuirkMode) {
-			setPosition(PositionType.ABSOLUTE);
-		} else {
-			setPosition(PositionType.RELATIVE);
-		}
+		css("ui-lui-srip", "ui-control");
 
-		m_imgWaiting.setCssClass("ui-lui-waiting");
-		m_imgWaiting.setDisplay(DisplayType.NONE);
-		if(m_keySearch.getCssClass() == null) {
-			m_keySearch.setCssClass("ui-lui-keyword");
-		}
+		//m_imgWaiting.setCssClass("ui-lui-waiting");
+		//m_imgWaiting.setDisplay(DisplayType.NONE);
+		m_keySearch.addCssClass("ui-input");
 		m_keySearch.setMaxLength(40);
 		m_keySearch.setSize(14);
 		m_keySearch.setMarker();
 
-		m_keySearch.setOnLookupTyping(new ILookupTypingListener<TextStr>() {
+		m_keySearch.setOnLookupTyping(new ILookupTypingListener<Input>() {
 
 			@Override
-			public void onLookupTyping(@Nonnull TextStr component, boolean done) throws Exception {
+			public void onLookupTyping(@Nonnull Input component, boolean done) throws Exception {
 				if(done) {
 					if(getOnShowResults() != null) {
 						getOnShowResults().onValueChanged(KeyWordSearchInput.this);
@@ -110,9 +99,13 @@ public class KeyWordSearchInput<T> extends Div {
 			}
 		});
 
-		add(m_imgWaiting);
+		//add(m_imgWaiting);
 		add(m_keySearch);
 		renderResultsCountPart();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_keySearch.getForTarget();
 	}
 
 	@Nullable
@@ -126,12 +119,11 @@ public class KeyWordSearchInput<T> extends Div {
 
 	@Nullable
 	public String getKeySearchValue() {
-		return m_keySearch.getValue();
+		return m_keySearch.getRawValue();
 	}
 
 	/**
 	 * Set number of results label. Use -1 for hiding label.
-	 * @param results
 	 */
 	public void setResultsCount(int results) {
 		if(results != m_resultsCount) {
@@ -200,7 +192,7 @@ public class KeyWordSearchInput<T> extends Div {
 		if(parentWindowZIndex < 0) {
 			parentWindowZIndex = 0;
 		}
-		setZIndex(parentWindowZIndex);
+		setZIndex(parentWindowZIndex+1);			// jal 20171109 z-index 0 does not work with handling popup
 	}
 
 	public void showResultsHintPopup(@Nullable final ITableModel<T> popupResults) throws Exception {
@@ -220,9 +212,6 @@ public class KeyWordSearchInput<T> extends Div {
 				m_pnlSearchPopup.setCssClass("ui-lui-keyword-popup");
 				if(getPopupWidth() > 0) {
 					m_pnlSearchPopup.setWidth(getPopupWidth() + "px");
-				}
-				if(m_absolutePopupLayoutQuirkMode) {
-					m_pnlSearchPopup.setPosition(PositionType.ABSOLUTE);
 				}
 				fixZIndex();
 				//increase Z index both for current DIV and popup DIV.
@@ -278,14 +267,5 @@ public class KeyWordSearchInput<T> extends Div {
 
 	public void setPopupWidth(int popupWidth) {
 		m_popupWidth = popupWidth;
-	}
-
-	/**
-	 * @See {@link LookupInputBase#m_absolutePopupLayoutQuirkMode}
-	 *
-	 * @param absolutePopupLayoutQuirkMode
-	 */
-	public void setAbsolutePopupLayoutQuirkMode(boolean absolutePopupLayoutQuirkMode) {
-		m_absolutePopupLayoutQuirkMode = absolutePopupLayoutQuirkMode;
 	}
 }

@@ -122,6 +122,22 @@ namespace WebUI {
 		}
 	}
 
+	/**
+	 * Take the page URL, remove the CID, then reload the page.
+	 */
+	export function refreshPage(): void {
+		let url = window.location.href;
+		let ix1 = url.indexOf("$cid=");
+		if(ix1 > 0) {
+			let ix2 = url.indexOf("&", ix1);
+			if(ix2 > ix1) {
+				url = url.substring(0, ix1) + url.substring(ix2 + 1);
+			} else {
+				url = url.substring(0, ix1);
+			}
+			window.location.href = url;
+		}
+	}
 
 	export function getPostURL(): string {
 		let p = window.location.href;

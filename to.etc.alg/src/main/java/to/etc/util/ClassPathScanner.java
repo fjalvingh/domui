@@ -29,7 +29,7 @@ public class ClassPathScanner {
 	 * Created on Oct 11, 2013
 	 */
 	public interface IPathEntry {
-		public void foundPathEntry(@Nonnull File classpathEntry) throws Exception;
+		void foundPathEntry(@Nonnull File classpathEntry) throws Exception;
 	}
 
 	/**
@@ -39,13 +39,13 @@ public class ClassPathScanner {
 	 * Created on Oct 11, 2013
 	 */
 	public interface IClassFileEntry {
-		public void foundFile(@Nonnull File classPathDirectory, @Nonnull File f, @Nonnull String name) throws Exception;
+		void foundFile(@Nonnull File classPathDirectory, @Nonnull File f, @Nonnull String name) throws Exception;
 
-		public void foundJarEntry(@Nonnull File classPathJarFile, @Nonnull String name, @Nonnull ZipInputStream zis) throws Exception;
+		void foundJarEntry(@Nonnull File classPathJarFile, @Nonnull String name, @Nonnull ZipInputStream zis) throws Exception;
 	}
 
 	public interface IClassEntry {
-		public void foundClass(@Nonnull File source, @Nonnull Class< ? > theClass) throws Exception;
+		void foundClass(@Nonnull File source, @Nonnull Class<?> theClass) throws Exception;
 	}
 
 

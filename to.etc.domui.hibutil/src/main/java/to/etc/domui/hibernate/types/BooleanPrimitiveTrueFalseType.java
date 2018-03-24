@@ -58,12 +58,12 @@ final public class BooleanPrimitiveTrueFalseType implements UserType {
 		String v = resultSet.getString(names[0]);
 		if(v == null)
 			return Boolean.FALSE;
-		return Boolean.valueOf("true".equalsIgnoreCase(v));
+		return parse(v);
 	}
 
 	@Override
 	public void nullSafeSet(PreparedStatement statement, Object value, int index) throws HibernateException, SQLException {
-		statement.setString(index, value == null ? "N" : ((Boolean) value).booleanValue() ? "true" : "false");
+		statement.setString(index, value == null ? "false" : ((Boolean) value).booleanValue() ? "true" : "false");
 	}
 
 	@Override
@@ -89,7 +89,7 @@ final public class BooleanPrimitiveTrueFalseType implements UserType {
 	 * @return
 	 */
 	public static Boolean parse(String src) {
-		if("1".equals(src) || "true".equalsIgnoreCase(src) || "Y".equalsIgnoreCase(src) || "yes".equalsIgnoreCase(src)) {
+		if("1".equals(src) || "t".equalsIgnoreCase(src) || "true".equalsIgnoreCase(src) || "Y".equalsIgnoreCase(src) || "yes".equalsIgnoreCase(src)) {
 			return Boolean.TRUE;
 		} else {
 			return Boolean.FALSE;

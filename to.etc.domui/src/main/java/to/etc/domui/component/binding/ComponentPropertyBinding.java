@@ -24,18 +24,17 @@
  */
 package to.etc.domui.component.binding;
 
-import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IReadOnlyModel;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.domui.util.IWriteOnlyModel;
-import to.etc.webapp.ProgrammerErrorException;
+import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.CodeException;
 
 import javax.annotation.DefaultNonNull;
@@ -58,18 +57,14 @@ final public class ComponentPropertyBinding implements IBinding {
 
 	/** The instance bound to */
 	@Nullable
-	private Object m_instance;
+	final private Object m_instance;
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
-	private IValueAccessor< ? > m_instanceProperty;
-
-	/** If this thing is bound to some event listener... */
-	@Nullable
-	private IBindingListener< ? > m_listener;
+	final private IValueAccessor< ? > m_instanceProperty;
 
 	@Nullable
-	private IBindingConverter<?, ?> m_converter;
+	private IBidiBindingConverter<?, ?> m_converter;
 
 	/**
 	 * The last value read from the control. If a converter is present, this value is converted to a MODEL value.
@@ -87,129 +82,125 @@ final public class ComponentPropertyBinding implements IBinding {
 	@Nullable
 	private IReadOnlyModel<?> m_getter;
 
-	public ComponentPropertyBinding(@Nonnull NodeBase control, @Nonnull String controlProperty) {
-		if(control == null)
-			throw new IllegalArgumentException("The control cannot be null.");
-		if(controlProperty.contains("."))
-			throw new ProgrammerErrorException("You cannot bind a Control property dotted path, see "+ DomUtil.DOCROOT+"x/GYA-/");
+	public ComponentPropertyBinding(NodeBase control, PropertyMetaModel<?> controlProperty, Object modelInstance, IValueAccessor<?> accessor) {
 		m_control = control;
-		m_controlProperty = MetaManager.getPropertyMeta(control.getClass(), controlProperty);
-	}
-
-	private void checkAssigned() {
-		if(m_listener != null || m_instance != null || m_setter != null || m_getter != null)
-			throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
-	}
-	private void checkNonSetterAssigned() {
-		if(m_listener != null || m_instance != null)
-			throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
-	}
-
-	@Nonnull
-	public ComponentPropertyBinding convert(@Nullable IBindingConverter<?, ?> converter) {
-		checkAssigned();
-		if(m_converter != null) {
-			throw new ProgrammerErrorException("This binding already has a converter specified");
-		}
-		m_converter = converter;
-		return this;
-	}
-
-	public void to(@Nonnull IBindingListener< ? > listener) {
-		checkAssigned();
-		if(listener == null)
-			throw new IllegalArgumentException("Argument cannot be null");
-		m_listener = listener;
-	}
-
-	public void to(@Nonnull BindReference<?, ?> ref) throws Exception {
-		checkAssigned();
-		to(ref.getInstance(), ref.getProperty());
-	}
-
-	public <T> void to(@Nonnull T instance, @Nonnull String property) throws Exception {
-		if(instance == null || property == null)
-			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
-		to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
-	}
-
-	/**
-	 * Define a setter method for this binding, which gets called when the component value changes.
-	 *
-	 * @param writer
-	 * @param <T>
-	 * @return
-	 * @throws Exception
-	 */
-	public <T> ComponentPropertyBinding set(IWriteOnlyModel<T> writer) {
-		checkNonSetterAssigned();
-		if(m_setter != null)
-			throw new ProgrammerErrorException("This binding already as a setter defined through a 'set' call");
-		m_setter = writer;
-		return this;
-	}
-
-	/**
-	 * Define a getter method for this binding, which get called to get the current value from the
-	 * model object when it's time to move the model back to the control.
-	 *
-	 * @param reader
-	 * @param <T>
-	 * @return
-	 * @throws Exception
-	 */
-	public <T> ComponentPropertyBinding get(IReadOnlyModel<T> reader) throws Exception {
-		checkNonSetterAssigned();
-		if(m_getter != null)
-			throw new ProgrammerErrorException("This binding already as a getter defined through a 'get' call");
-		m_getter = reader;
-		moveModelToControl();							// Immediately initialize the control's value
-		return this;
+		m_controlProperty = controlProperty;
+		m_instance = modelInstance;
+		m_instanceProperty = accessor;
 	}
 
 
-	/**
-	 * Bind to a IValueAccessor and the given instance.
-	 * @param instance
-	 * @param pmm
-	 * @throws Exception
-	 */
-	public <T, V> void to(@Nonnull T instance, @Nonnull IValueAccessor<V> pmm) throws Exception {
-		checkAssigned();
-		if(instance == null || pmm == null)
-			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
-		m_instanceProperty = pmm;
-		m_instance = instance;
+	//public ComponentPropertyBinding(@Nonnull NodeBase control, @Nonnull String controlProperty) {
+	//	if(control == null)
+	//		throw new IllegalArgumentException("The control cannot be null.");
+	//	if(controlProperty.contains("."))
+	//		throw new ProgrammerErrorException("You cannot bind a Control property dotted path, see "+ Documentation.BINDING_NO_DOTTED_PATH);
+	//	m_control = control;
+	//	m_controlProperty = MetaManager.getPropertyMeta(control.getClass(), controlProperty);
+	//}
+	//
+	//private void checkAssigned() {
+	//	if(m_listener != null || m_instance != null || m_setter != null || m_getter != null)
+	//		throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
+	//}
+	//private void checkNonSetterAssigned() {
+	//	if(m_listener != null || m_instance != null)
+	//		throw new ProgrammerErrorException("This binding is already fully defined. Create a new one.");
+	//}
+	//
+	//@Nonnull
+	//public ComponentPropertyBinding convert(@Nullable IBidiBindingConverter<?, ?> converter) {
+	//	checkAssigned();
+	//	if(m_converter != null) {
+	//		throw new ProgrammerErrorException("This binding already has a converter specified");
+	//	}
+	//	m_converter = converter;
+	//	return this;
+	//}
+	//
+	//public void to(@Nonnull IBindingListener< ? > listener) {
+	//	checkAssigned();
+	//	if(listener == null)
+	//		throw new IllegalArgumentException("Argument cannot be null");
+	//	m_listener = listener;
+	//}
+	//
+	//public void to(@Nonnull BindReference<?, ?> ref) throws Exception {
+	//	checkAssigned();
+	//	to(ref.getInstance(), ref.getProperty());
+	//}
+	//
+	//public <T> void to(@Nonnull T instance, @Nonnull String property) throws Exception {
+	//	if(instance == null || property == null)
+	//		throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
+	//	to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
+	//}
+	//
 
-		//-- Check: are the types of the binding ok?
-		if(pmm instanceof PropertyMetaModel<?> && m_converter == null) {
-			PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;
-			Class<?> actualType = DomUtil.getBoxedForPrimitive(p.getActualType());
-			Class<?> controlType = DomUtil.getBoxedForPrimitive(m_controlProperty.getActualType());
+	///**
+	// * Define a setter method for this binding, which gets called when the component value changes.
+	// */
+	//public <T> ComponentPropertyBinding set(IWriteOnlyModel<T> writer) {
+	//	if(m_setter != null)
+	//		throw new ProgrammerErrorException("This binding already as a setter defined through a 'set' call");
+	//	m_setter = writer;
+	//	return this;
+	//}
+	//
+	///**
+	// * Define a getter method for this binding, which get called to get the current value from the
+	// * model object when it's time to move the model back to the control.
+	// */
+	//public <T> ComponentPropertyBinding get(IReadOnlyModel<T> reader) throws Exception {
+	//	if(m_getter != null)
+	//		throw new ProgrammerErrorException("This binding already as a getter defined through a 'get' call");
+	//	m_getter = reader;
+	//	moveModelToControl();							// Immediately initialize the control's value
+	//	return this;
+	//}
 
-			if(controlType == Object.class) {
-				//-- Type erasure, deep, deep sigh. Can the control tell us the actual type contained?
-				if(m_control instanceof ITypedControl) {
-					ITypedControl<?> typedControl = (ITypedControl<?>) m_control;
-					controlType = DomUtil.getBoxedForPrimitive(typedControl.getActualType());
-				}
-			}
-
-			/*
-			 * For properties that have a generic type the Java "architects" do type erasure, so we cannot check anything. Type safe my ...
-			 */
-			if(actualType != Object.class && controlType != Object.class) {
-				if(!actualType.isAssignableFrom(controlType))
-					throw new BindingDefinitionException(toString(), actualType.getName(), controlType.getName());
-
-				if(!controlType.isAssignableFrom(actualType))
-					throw new BindingDefinitionException(toString(), actualType.getName(), controlType.getName());
-			}
-		}
-
-		//-- Move the data now!
-		moveModelToControl();
-	}
+	///**
+	// * Bind to a IValueAccessor and the given instance.
+	// * @param instance
+	// * @param pmm
+	// * @throws Exception
+	// */
+	//public <T, V> void to(@Nonnull T instance, @Nonnull IValueAccessor<V> pmm) throws Exception {
+	//	checkAssigned();
+	//	if(instance == null || pmm == null)
+	//		throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
+	//	m_instanceProperty = pmm;
+	//	m_instance = instance;
+	//
+	//	//-- Check: are the types of the binding ok?
+	//	if(pmm instanceof PropertyMetaModel<?> && m_converter == null) {
+	//		PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;
+	//		Class<?> actualType = DomUtil.getBoxedForPrimitive(p.getActualType());
+	//		Class<?> controlType = DomUtil.getBoxedForPrimitive(m_controlProperty.getActualType());
+	//
+	//		if(controlType == Object.class) {
+	//			//-- Type erasure, deep, deep sigh. Can the control tell us the actual type contained?
+	//			if(m_control instanceof ITypedControl) {
+	//				ITypedControl<?> typedControl = (ITypedControl<?>) m_control;
+	//				controlType = DomUtil.getBoxedForPrimitive(typedControl.getActualType());
+	//			}
+	//		}
+	//
+	//		/*
+	//		 * For properties that have a generic type the Java "architects" do type erasure, so we cannot check anything. Type safe my ...
+	//		 */
+	//		if(actualType != Object.class && controlType != Object.class) {
+	//			if(!actualType.isAssignableFrom(controlType))
+	//				throw new BindingDefinitionException(toString(), actualType.getName(), controlType.getName());
+	//
+	//			if(!controlType.isAssignableFrom(actualType))
+	//				throw new BindingDefinitionException(toString(), actualType.getName(), controlType.getName());
+	//		}
+	//	}
+	//
+	//	//-- Move the data now!
+	//	moveModelToControl();
+	//}
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Accessing the binding's data.								*/
@@ -235,8 +226,6 @@ final public class ComponentPropertyBinding implements IBinding {
 		sb.append("binding[");
 		if(m_instance != null) {
 			sb.append(m_instance);
-		} else if(m_listener != null) {
-			sb.append("listener ").append(m_listener);
 		} else if(m_setter != null || m_getter != null) {
 			sb.append("get/set lambda");
 		} else {
@@ -297,11 +286,6 @@ final public class ComponentPropertyBinding implements IBinding {
 		return modelValue;
 	}
 
-	/**
-	 *
-	 * @param value
-	 * @param <T>
-	 */
 	@Override public <T> void setModelValue(@Nullable T value) {
 		IWriteOnlyModel<T> setter = (IWriteOnlyModel<T>) m_setter;
 		if(m_getter != null || setter != null) {
@@ -380,12 +364,6 @@ final public class ComponentPropertyBinding implements IBinding {
 			}
 		}
 
-		IBindingListener< ? > listener = m_listener;
-		if(listener != null) {
-			((IBindingListener<NodeBase>) listener).moveControlToModel(control);
-			return null;
-		}
-
 		/*
 		 * Get the control's value. If the control is in error (validation/conversion) then
 		 * add the problem inside the Error collector, signaling a problem to any logic
@@ -395,9 +373,9 @@ final public class ComponentPropertyBinding implements IBinding {
 		UIMessage newError = null;
 		try {
 			controlValue = m_controlProperty.getValue(m_control);
-			IBindingConverter<?, ?> converter = m_converter;
+			IBidiBindingConverter<?, ?> converter = m_converter;
 			if(converter != null) {
-				controlValue = ((IBindingConverter<Object, Object>)converter).controlToModel(controlValue);
+				controlValue = ((IBidiBindingConverter<Object, Object>)converter).controlToModel(controlValue);
 			}
 			m_lastValueFromControlAsModelValue = controlValue;
 			m_bindError = null;
@@ -412,7 +390,13 @@ final public class ComponentPropertyBinding implements IBinding {
 		}
 
 		//-- When in error we cannot set anything anyway, so exit.
-		if(null != newError) {
+		if(null != newError && !newError.getCode().equals(Msgs.MANDATORY)) {
+			/*
+			 * jal 20171018 When a mandatory LookupInput gets cleared its value becomes null, and this
+			 * value should be propagated to the model. It seems likely that in ALL cases of error
+			 * we need to move a null there!
+			 */
+
 			return null;
 		}
 
@@ -420,21 +404,15 @@ final public class ComponentPropertyBinding implements IBinding {
 		if(MetaManager.areObjectsEqual(propertyValue, controlValue))
 			return null;
 
-		return new BindingValuePair<>(this, controlValue, propertyValue);
+		return new BindingValuePair<>(this, controlValue);
 	}
 
 	/**
-	 *
-	 * @throws Exception
+	 * Move the data to the control.
 	 */
 	@Override
 	public void moveModelToControl() throws Exception {
 		try {
-			IBindingListener<?> listener = m_listener;
-			if(listener != null) {
-				((IBindingListener<NodeBase>) listener).moveModelToControl(m_control);
-				return;
-			}
 			Object modelValue = getValueFromModel();
 
 			// FIXME We should think about exception handling here
@@ -443,17 +421,18 @@ final public class ComponentPropertyBinding implements IBinding {
 				//-- Value in instance differs from control's
 				m_lastValueFromControlAsModelValue = modelValue;
 
-				IBindingConverter<?, ?> converter = m_converter;
+				IBidiBindingConverter<?, ?> converter = m_converter;
 				if(null != converter) {
-					modelValue = ((IBindingConverter<Object, Object>) converter).modelToControl(modelValue);
+					modelValue = ((IBidiBindingConverter<Object, Object>) converter).modelToControl(modelValue);
 				}
 
-				((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
+				if(m_controlProperty.getReadOnly() != YesNoType.YES) {
+					((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
+				}
 				m_bindError = null;                                    // Let's assume binding has no trouble.
 			}
 		} catch(Exception x) {
 			throw new BindingFailureException(x, "Model->Control", this.toString());
 		}
 	}
-
 }

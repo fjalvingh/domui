@@ -29,9 +29,7 @@ import java.util.*;
 import javax.annotation.*;
 
 public interface IQContextContainer {
-	@Nonnull
-	public QContextContainer getContextContainer(@Nonnull String key);
+	@Nonnull QContextContainer getContextContainer(@Nonnull String key);
 
-	@Nonnull
-	public List<QContextContainer> getAllContextContainers();
+	@Nonnull List<QContextContainer> getAllContextContainers();
 }

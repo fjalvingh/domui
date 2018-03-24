@@ -33,9 +33,11 @@ import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.Underline;
 import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * The default button for DomUI renders a sliding doors button that can
@@ -68,7 +70,9 @@ public class DefaultButton extends Button implements IActionControl {
 	 * Create an empty button.
 	 */
 	public DefaultButton() {
-		setCssClass("ui-sdbtn");
+		addCssClass("xxui-sdbtn");
+		addCssClass("ui-button");
+		addCssClass("ui-control");
 	}
 
 	/**
@@ -121,31 +125,64 @@ public class DefaultButton extends Button implements IActionControl {
 		setClicked(clicked);
 	}
 
+	/**
+	 * Add the specified css class(es) to the button.
+	 */
+	@Nonnull
+	@Override
+	public DefaultButton css(String... classNames) {
+		super.css(classNames);
+		return this;
+	}
+
+	/**
+	 * Set the optional text (which may include an accelerator).
+	 */
+	@Nonnull
+	public DefaultButton text(String text) {
+		setText(text);
+		return this;
+	}
+
+	@Nonnull
+	public DefaultButton icon(String icon) {
+		setIcon(icon);
+		return this;
+	}
+
+	@Nonnull
+	public DefaultButton clicked(IClicked<DefaultButton> on) {
+		setClicked(on);
+		return this;
+	}
+
 	@Override
 	public void createContent() throws Exception {
-		Span s = new Span();
-		add(s);
-		s.setCssClass("ui-sdbtn-w");
 		String iconUrl = m_icon;
 		if(null != iconUrl) {
 			//-- Does the URL contain a dot? That indicates a resource somehow.
+			Span iconSpan = new Span();
+			add(iconSpan);
+			iconSpan.setCssClass("ui-icon");
 			if(DomUtil.isIconName(iconUrl)) {
 				FaIcon icon = new FaIcon(iconUrl);
-				icon.addCssClass("ui-sdbtn-icon");
-				s.add(icon);
+				//icon.addCssClass("xxui-sdbtn-icon ui-icon");
+				iconSpan.add(icon);
 			} else {
 				String icon = getThemedResourceRURL(iconUrl);
 				Img img = new Img(icon);
-				s.add(img);
+				iconSpan.add(img);
 				img.setImgBorder(0);
 				img.setDisabled(isDisabled());
 			}
 		}
-		Span txt = new Span();
-		txt.setCssClass("ui-sdbtn-txt");
-		s.add(txt);
-		if(!DomUtil.isBlank(m_text))
-			decodeAccelerator(m_text, txt);
+		if(! StringTool.isBlank(getText())) {
+			Span txt = new Span();
+			txt.setCssClass("xxui-sdbtn-txt");
+			add(txt);
+			if(!DomUtil.isBlank(m_text))
+				decodeAccelerator(m_text, txt);
+		}
 	}
 
 	/**
@@ -196,6 +233,8 @@ public class DefaultButton extends Button implements IActionControl {
 	 */
 	@Override
 	public void setText(final @Nullable String text) {
+		if(Objects.equals(text, m_text))
+			return;
 		m_text = text;
 		if(null != text)
 			setCalculcatedId("button_" + DomUtil.convertToID(text));
@@ -233,7 +272,7 @@ public class DefaultButton extends Button implements IActionControl {
 					sb.append(txt, ix, pos);
 
 				if(pos + 1 >= len) {
-					//-- Ends in '!' - treat as liternal 8-/
+					//-- Ends in '!' - treat as literal 8-/
 					sb.append('!');
 					into.add(sb.toString());
 					return;

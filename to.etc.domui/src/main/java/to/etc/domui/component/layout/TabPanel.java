@@ -31,7 +31,7 @@ import to.etc.domui.util.*;
  * A panel containing multiple tabs. Each tab consists of two components: the
  * tab label component and the tab page body.
  * Render tabs in multiple lines if component width is not enough to show all tabs.
- * To have tabs rendered into single line with available scrollers use {@link ScollableTabPanel}.
+ * To have tabs rendered into single line with available scrollers use {@link ScrollableTabPanel}.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 1, 2008
@@ -62,27 +62,21 @@ public class TabPanel extends TabPanelBase {
 	 */
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-tab-c");
+		addCssClass("ui-tab-c");
 
 		//-- Adjust selected tab index
 		if(getCurrentTab() >= getTabCount() || getCurrentTab() < 0)
 			internalSetCurrentTab(0);
 
 		//-- Create the TAB structure..
-		Div hdr = new Div();
-		add(hdr); // The div containing the tab buttons
-		hdr.setCssClass("ui-tab-hdr");
-		Ul u = new Ul();
-		m_tabul = u;
+		Div hdr = new Div("ui-tab-hdr");
+		add(hdr); 									// The div containing the tab buttons
+		Ul u = m_tabul = new Ul();
 		hdr.add(u);
-		Div bgFill = new Div();
-		bgFill.setCssClass("ui-tab-ibte");
-		hdr.add(bgFill);
-		renderTabPanels(m_tabul, this);
-		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
-	}
 
-	public void setLabel(NodeBase tabContent, String tabLabel, String tabIcon) {
-		replaceLabel(m_tabul, tabContent, tabLabel, tabIcon);
+		Div cont = new Div("ui-tab-content");	// The content area showing the tab contents.
+		add(cont);
+		renderTabPanels(m_tabul, cont);
+		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
 	}
 }

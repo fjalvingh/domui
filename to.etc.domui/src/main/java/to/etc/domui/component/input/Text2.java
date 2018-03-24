@@ -23,6 +23,7 @@
  */
 package to.etc.domui.component.input;
 
+import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
@@ -46,10 +47,7 @@ import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.TBody;
-import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
-import to.etc.domui.dom.html.Table;
 import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.trouble.ValidationException;
@@ -142,6 +140,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 */
 	private boolean m_untrimmed;
 
+	private boolean m_immediate;
+
 	/**
 	 * @see Text2#getEmptyMarker()
 	 */
@@ -150,9 +150,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	@Nullable
 	private List<NodeBase> m_buttonList;
-
-	@Nullable
-	private TBody m_body;
 
 	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
@@ -170,9 +167,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Nullable
 	private String m_regexpUserString;
 
-	@Nullable
-	private String m_placeHolder;
-
 	public Text2(@Nonnull Class<T> inputClass) {
 		m_inputClass = inputClass;
 
@@ -187,40 +181,53 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-txt2");
-		Table tbl = new Table("ui-txt2-tbl");
-		add(tbl);
-		TBody tb = m_body= tbl.addBody();
-		TD td = tb.addRowAndCell("ui-txt2-in");
-		td.add(m_input);
+		Div d1 = new Div("ui-control");
+		add(d1);
+		d1.add(m_input);
+		m_input.addCssClass("ui-input");
 		renderButtons();
 		renderMode();
 	}
 
+	@Nullable @Override protected String getFocusID() {
+		return m_input.getActualID();
+	}
+
+	@Nullable @Override public NodeBase getForTarget() {
+		return m_input;
+	}
+
 	private void renderButtons() {
-		TBody body = m_body;
-		if(null == body)
+		if(! isBuilt())
 			return;
 
-		//-- Get row 1 and remove all cells but the 1st one
-		TR tr = body.getRow(0);
-		while(tr.getChildCount() > 1) {
-			tr.getChild(tr.getChildCount() - 1).remove();
+		//-- Remove all but the 1st child
+		while(getChildCount() > 1) {
+			getChild(getChildCount() - 1).remove();
 		}
 
 		List<NodeBase> buttonList = m_buttonList;
-		if(null != buttonList) {
+		if(null != buttonList && buttonList.size() > 0) {
 			buttonList.forEach(b -> {
-				//Div bd = new Div("ui-txt2-bdiv");
-				//body.addCell("ui-txt2-btn").add(bd);
-				//bd.add(b);
-
-				body.addCell("ui-txt2-btn").add(b);
+				//Div d = new Div("ui-control");
+				//add(d);
+				//d.add(b);
+				add(b);
 			});
+			addCssClass("ctl-has-addons");
+			return;
 		}
+		removeCssClass("ctl-has-addons");
 	}
 
-	protected void setPassword() {
+	protected Input internalGetInput() {
+		return m_input;
+	}
+
+	@Nonnull
+	public Text2<T> password() {
 		m_password = true;
+		return this;
 	}
 
 	/**
@@ -543,24 +550,12 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	}
 
 	/**
-	 * Returns assigned empty marker.
-	 */
-	@Nullable
-	public String getEmptyMarker() {
-		return m_emptyMarker;
-	}
-
-	/**
 	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
 	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used
 	 * only for manually-constructed images.
 	 */
 	public void setMarkerImage(@Nullable String emptyMarker) {
-		if(DomUtil.isBlank(emptyMarker)) {
-			setSpecialAttribute("marker", null);
-		} else {
-			setSpecialAttribute("marker", emptyMarker);
-		}
+		m_input.setMarkerImage(emptyMarker);
 		m_emptyMarker = emptyMarker;
 	}
 
@@ -648,16 +643,19 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			m_buttonList = buttonList = new ArrayList<>(2);
 		}
 		buttonList.add(button);
-		TBody body = m_body;
-		if(isBuilt() && body != null) {
-			renderButtons();
-		}
+		renderButtons();
 	}
 
+	@Nonnull
+	public DefaultButton addButton() {
+		DefaultButton sib = new DefaultButton();
+		addButton(sib);
+		return sib;
+	}
 
 	public void addValidator(IValueValidator< ? > v) {
 		if(m_validators == Collections.EMPTY_LIST)
-			m_validators = new ArrayList<IValueValidator< ? >>(5);
+			m_validators = new ArrayList<>(5);
 		m_validators.add(v);
 	}
 
@@ -950,4 +948,30 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		}
 		return txt;
 	}
+
+	@Override public void setSpecialAttribute(@Nonnull String name, @Nullable String value) {
+		m_input.setSpecialAttribute(name, value);
+	}
+
+	public void setPlaceHolder(String text) {
+		m_input.setPlaceHolder(text);
+	}
+
+	@Nullable public String getPlaceHolder() {
+		return m_input.getPlaceHolder();
+	}
+
+	public boolean isImmediate() {
+		return m_input.isImmediate();
+	}
+
+	public void setImmediate(boolean immediate) {
+		m_input.setImmediate(immediate);
+	}
+
+	public Text2<T> immediate() {
+		setImmediate(true);
+		return this;
+	}
+
 }

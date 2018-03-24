@@ -37,9 +37,7 @@ import javax.annotation.*;
  * Created on May 22, 2008
  */
 public interface ConfigParameters {
-	@Nullable
-	public String getString(@Nonnull String name);
+	@Nullable String getString(@Nonnull String name);
 
-	@Nonnull
-	public File getWebFileRoot();
+	@Nonnull File getWebFileRoot();
 }

@@ -67,12 +67,12 @@ public class ReloadingClassResourceRef implements IResourceRef, IModifyableResou
 	 */
 	@Override
 	public InputStream getInputStream() throws Exception {
-		if(m_source == null || !(m_source instanceof ClasspathJarRef))
+		if(m_source == null || !(m_source instanceof JarredFileRef))
 			return m_base.getResourceAsStream(m_name);
 
 		//-- This is a JAR reference: ask it to return the resource to prevent URL caching in the JDK
-		ClasspathJarRef jref = (ClasspathJarRef) m_source;
-		return jref.getResource(m_name.substring(1));
+		JarredFileRef jref = (JarredFileRef) m_source;
+		return jref.getResource();
 	}
 
 	@Override

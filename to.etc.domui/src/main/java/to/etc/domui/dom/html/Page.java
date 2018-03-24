@@ -592,7 +592,7 @@ final public class Page implements IQContextContainer {
 			throw new IllegalStateException("Ehm- I have no body?"); // Existential problems are the hardest...
 
 		//-- Be very sure it's not already in the stack
-		final FloatingDiv window = (FloatingDiv) in;
+		final FloatingDiv window = in;
 		for(FloatingDiv fr : getFloatingStack()) {
 			if(fr == window)
 				return;

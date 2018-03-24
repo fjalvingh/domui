@@ -59,6 +59,11 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 			add(b);
 	}
 
+	public Div(String css, String text) {
+		this(css);
+		setText(text);
+	}
+
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitDiv(this);

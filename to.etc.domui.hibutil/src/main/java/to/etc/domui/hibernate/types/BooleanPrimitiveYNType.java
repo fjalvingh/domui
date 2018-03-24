@@ -57,7 +57,7 @@ final public class BooleanPrimitiveYNType implements UserType {
 		String v = resultSet.getString(names[0]);
 		if(v == null)
 			return Boolean.FALSE;
-		return Boolean.valueOf("Y".equals(v));
+		return parse(v);
 	}
 
 	@Override

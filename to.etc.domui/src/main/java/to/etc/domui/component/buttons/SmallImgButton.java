@@ -26,10 +26,15 @@ package to.etc.domui.component.buttons;
 
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
+
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * A Button tag containing a single, usually small, image. The image is a normal image
@@ -39,14 +44,16 @@ import to.etc.domui.util.DomUtil;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 17, 2008
  */
+@DefaultNonNull
 public class SmallImgButton extends Button {
+	@Nullable
 	private String m_icon;
 
 	/**
 	 * Create the empty button.
 	 */
 	public SmallImgButton() {
-		setCssClass("ui-sib");
+		setCssClass("ui-button is-text");
 	}
 
 	/**
@@ -71,15 +78,32 @@ public class SmallImgButton extends Button {
 	}
 
 	/**
+	 * Add the specified css class(es) to the button.
+	 */
+	@Nonnull
+	@Override
+	public SmallImgButton css(@Nonnull String... classNames) {
+		super.css(classNames);
+		return this;
+	}
+
+	@Nonnull
+	public SmallImgButton icon(String icon) {
+		setSrc(icon);
+		return this;
+	}
+
+	/**
 	 * Set a new image using a web resource's absolute path. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
-	public void setSrc(String src) {
+	public void setSrc(@Nullable String src) {
 		m_icon = src;
 		forceRebuild();
 	}
 
+	@Nullable
 	public String getSrc() {
 		return m_icon;
 	}
@@ -94,14 +118,16 @@ public class SmallImgButton extends Button {
 		String iconUrl = m_icon;
 		if(null != iconUrl) {
 			//-- Does the URL contain a dot? That indicates a resource somehow.
+			Div d = new Div("ui-icon");
+			add(d);
 			if(DomUtil.isIconName(iconUrl)) {
 				FaIcon icon = new FaIcon(iconUrl);
-				icon.addCssClass("ui-sib-icon");
-				add(icon);
+				//icon.addCssClass("ui-sib-icon");
+				d.add(icon);
 			} else {
 				String icon = getThemedResourceRURL(iconUrl);
 				Img img = new Img(icon);
-				add(img);
+				d.add(img);
 				img.setImgBorder(0);
 				img.setDisabled(isDisabled());
 			}

@@ -1,14 +1,21 @@
 package to.etc.domui.component.tbl;
 
-import kotlin.reflect.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.annotations.*;
+import kotlin.reflect.KProperty1;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * A list of columns defined in a new-style row renderer.
@@ -27,6 +34,9 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	private ColumnDef< T, ? > m_sortColumn;
 
 	private boolean m_sortDescending;
+
+	/** The factor to multiply the #of characters with to get the real em width of a column. */
+	private double m_emFactor = 0.65;
 
 	@Nonnull
 	final private Class<T> m_actualClass;
@@ -112,67 +122,8 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		return scd;
 	}
 
-	/**
-	 * Width calculations: this tries to assign widths to columns that have no explicit width assigned. It starts
-	 * by calculating all assigned widths in percents and in pixels. It then calculates widths for the columns that
-	 * have no widths assigned.
-	 */
-	public void assignPercentages() {
-		/*
-		 */
-		//-- Loop 1: calculate current size allocations for columns that have a width assigned.
-		int totpct = 0;
-		int totpix = 0;
-		int ntoass = 0; // #columns that need a width
-		int totdw = 0; // Total display width of all unassigned columns.
-		for(final ColumnDef<T, ? > scd : m_columnList) {
-			String cwidth = scd.getWidth();
-			if(cwidth == null || cwidth.length() == 0) {
-				ntoass++;
-				totdw += scd.getDisplayLength();
-			} else {
-				String s = cwidth.trim();
-				if(s.endsWith("%")) {
-					final int w = StringTool.strToInt(s.substring(0, s.length() - 1).trim(), -1);
-					if(w == -1)
-						throw new IllegalArgumentException("Invalid width percentage: " + s + " for presentation column " + scd.getPropertyName());
-					totpct += w;
-				} else {
-					if(! s.endsWith("px")) {
-						s += "px";
-						scd.width(s);
-					}
-					//-- Should be numeric width, in pixels,
-					final int w = StringTool.strToInt(s.substring(0, s.length()-2).trim(), -1);
-					if(w == -1)
-						throw new IllegalArgumentException("Invalid width #pixels: " + s + " for presentation column " + scd.getPropertyName());
-					totpix += w;
-				}
-			}
-		}
-
-		//-- Is there something to assign, and are the numbers reasonable? If so calculate...
-		final int pixwidth = 1280;
-		if(ntoass > 0 && totpct < 100 && totpix < pixwidth) {
-			int pctleft = 100 - totpct; // How many percents left?
-			if(pctleft == 100 && totpix > 0) {
-				//-- All widths assigned in pixels... Calculate a percentage of the #pixels left
-				pctleft = (100 * (pixwidth - totpix)) / pixwidth;
-			}
-
-			//-- Reassign the percentage left over all unassigned columns. Do it streaming, to ensure we reach 100%
-			for(final ColumnDef<T, ? > scd : m_columnList) {
-				String width = scd.getWidth();
-				if(width == null || width.length() == 0) {
-					//-- Calculate a size factor, then use it to assign
-					final double fact = (double) scd.getDisplayLength() / (double) totdw;
-					final int pct = (int) (fact * pctleft + 0.5);
-					pctleft -= pct;
-					totdw -= scd.getDisplayLength();
-					scd.width(pct + "%");
-				}
-			}
-		}
+	public Stream<ColumnDef<T, ?>> stream() {
+		return m_columnList.stream();
 	}
 
 	/**
@@ -205,6 +156,14 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 
 	public void setSortDescending(boolean desc) {
 		m_sortDescending = desc;
+	}
+
+	public double getEmFactor() {
+		return m_emFactor;
+	}
+
+	public void setEmFactor(double emFactor) {
+		m_emFactor = emFactor;
 	}
 
 	/*--------------------------------------------------------------*/

@@ -57,6 +57,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	final private boolean m_uiTestMode;
 
+	/** When T image resources are rendered as data: urls */
+	private boolean m_renderInline;
+
 	protected HtmlTagRenderer(BrowserVersion bv, final IBrowserOutput o, boolean uiTestMode) {
 		m_o = o;
 		m_browserVersion = bv;
@@ -65,6 +68,10 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	protected BrowserVersion getBrowser() {
 		return m_browserVersion;
+	}
+
+	public void setRenderInline(boolean renderInline) {
+		m_renderInline = renderInline;
 	}
 
 	/**
@@ -210,7 +217,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		return "#" + s;
 	}
 
-	public void appendStyle(final NodeBase c, final Appendable a) throws IOException { // Bloody idiot.
+	public void appendStyle(final NodeBase c, final Appendable a) throws Exception {
 		if(c.getBackgroundAttachment() != null) {
 			a.append("background-attachment: ");
 			switch(c.getBackgroundAttachment()){
@@ -574,7 +581,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 * @param b
 	 * @return
 	 */
-	protected String getStyleFor(final NodeBase b) throws IOException {
+	protected String getStyleFor(final NodeBase b) throws Exception {
 		String s = b.getCachedStyle();
 		if(s != null)
 			return s;
@@ -641,7 +648,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 					o.attr("testid", testid);
 			}
 
-			//-- Adjust any title, if there
+			//-- Adjust any title, if there - except on body where it is the page title.
 			if(!(b instanceof UrlPage)) {
 				if(ttl != null) {
 					if(testid != null) {
@@ -718,7 +725,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 */
 	@Override
 	public void visitDiv(final Div n) throws Exception {
-		setInlineIndent(n);
+		o().setIndentEnabled(false);
+		//setInlineIndent(n);
 		basicNodeRender(n, m_o);
 		if(n.getTag().equals("body")) {
 			o().attr("onunload", "WebUI.unloaded()");
@@ -740,6 +748,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitSpan(final Span n) throws Exception {
+		o().setIndentEnabled(false);
 		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
@@ -1087,7 +1096,13 @@ public class HtmlTagRenderer implements INodeVisitor {
 			if(n.isDisabled() && !src.startsWith("http")) { // For now we're not supporting grey scaling of servlet images
 				src = GrayscalerPart.getURL(src);
 			}
-			o().attr("src", src); 								// 20110104 was rawAttr causing fails on & in delta????
+			if(m_renderInline) {
+				String s = new ImgToDataRenderer().imageToData(src);
+				o().attr("src", s);
+
+			} else {
+				o().attr("src", src);                                // 20110104 was rawAttr causing fails on & in delta????
+			}
 		}
 		if(n.getImgBorder() >= 0)
 			o().attr("border", n.getImgBorder());
@@ -1125,8 +1140,25 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitLabel(final Label n) throws Exception {
 		o().setIndentEnabled(false); // 20170830 jal
 		basicNodeRender(n, o());
-		if(n.getFor() != null)
-			o().attr("for", n.getFor());
+
+		String forLabel = null;
+		NodeBase target = n.getForNode();
+		while(target != null) {
+			if(target instanceof IForTarget) {
+				NodeBase next = ((IForTarget) target).getForTarget();
+				if(next == null || next == target) {
+					break;
+				}
+				target = next;
+			} else {
+				target = null;
+			}
+		}
+		if(null != target) {
+			forLabel = target.getActualID();
+			o().attr("for", forLabel);
+		}
+
 		renderTagend(n, o());
 	}
 

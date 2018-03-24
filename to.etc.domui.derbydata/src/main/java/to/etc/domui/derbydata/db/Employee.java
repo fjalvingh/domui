@@ -18,7 +18,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "Employee")
-@SequenceGenerator(name = "sq", sequenceName = "employee_sq")
+@SequenceGenerator(name = "sq", sequenceName = "employee_sq", allocationSize = 1)
 @MetaObject(defaultColumns = {@MetaDisplayProperty(name = "firstName"), @MetaDisplayProperty(name = "lastName")})
 public class Employee extends DbRecordBase<Long> {
 	private Long m_id;
@@ -53,7 +53,7 @@ public class Employee extends DbRecordBase<Long> {
 
 	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "employee_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "employee_sq", allocationSize = 1)
 	@Column(name = "EmployeeId", nullable = false, precision = 20)
 	public Long getId() {
 		return m_id;

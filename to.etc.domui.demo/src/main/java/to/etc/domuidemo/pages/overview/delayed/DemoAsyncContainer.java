@@ -1,8 +1,12 @@
 package to.etc.domuidemo.pages.overview.delayed;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.delayed.*;
-import to.etc.domui.dom.html.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.delayed.IActivity;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.util.Progress;
 
 public class DemoAsyncContainer extends UrlPage {
 	@Override
@@ -23,7 +27,7 @@ public class DemoAsyncContainer extends UrlPage {
 	public void	addDelayed() {
 		IActivity	act	= new IActivity() {
 			@Override
-			public Div run(IProgress p) throws Exception {
+			public Div run(Progress p) throws Exception {
 				p.setTotalWork(10);
 				for(int i = 0; i < 10; i++) {
 					Thread.sleep(1500);

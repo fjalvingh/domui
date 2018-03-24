@@ -24,10 +24,10 @@
  */
 package to.etc.domui.component.menu;
 
-import java.io.*;
-import java.util.*;
+import to.etc.util.StringTool;
 
-import to.etc.util.*;
+import java.io.Writer;
+import java.util.List;
 
 public class MenuGenerator2 {
 
@@ -37,10 +37,10 @@ public class MenuGenerator2 {
 	 * @param list
 	 * @throws Exception
 	 */
-	public void generate(final Writer pw, final List<IMenuItem> list) throws Exception {
+	public void generate(final Writer pw, final List<MenuItem> list) throws Exception {
 		pw.append("[");
 		boolean first = true;
-		for(IMenuItem m : list) {
+		for(MenuItem m : list) {
 			if(first)
 				first = false;
 			else
@@ -50,7 +50,7 @@ public class MenuGenerator2 {
 		pw.append("]");
 	}
 
-	private void generateNode(final Writer pw, final IMenuItem m) throws Exception {
+	private void generateNode(final Writer pw, final MenuItem m) throws Exception {
 		pw.append("{");
 
 		pw.append("v:");
@@ -59,7 +59,7 @@ public class MenuGenerator2 {
 		p(pw, "id", m.getId());
 		p(pw, "desc", m.getDescription());
 		p(pw, "label", m.getLabel());
-		p(pw, "icon", m.getIconPath());
+		p(pw, "icon", m.getImage());
 		p(pw, "kw", m.getSearchString());
 		//		p(pw, "para", m.getPa());
 		p(pw, "path", m.getPageClass() == null ? "" : m.getPageClass().getName() + ".ui");

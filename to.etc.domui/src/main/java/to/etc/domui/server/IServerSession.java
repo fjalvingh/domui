@@ -10,15 +10,13 @@ import javax.annotation.*;
  * Created on Oct 9, 2013
  */
 public interface IServerSession {
-	@Nonnull
-	public String getId();
+	@Nonnull String getId();
 
-	@Nullable
-	public Object getAttribute(@Nonnull String name);
+	@Nullable Object getAttribute(@Nonnull String name);
 
-	public void setAttribute(@Nonnull String name, @Nullable Object value);
+	void setAttribute(@Nonnull String name, @Nullable Object value);
 
-	public void invalidate();
+	void invalidate();
 
-	public boolean isNew();
+	boolean isNew();
 }

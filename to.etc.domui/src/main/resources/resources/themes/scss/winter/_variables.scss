@@ -1,12 +1,17 @@
 $body-image: "";
 $bg_color: #ffffff;
 
-$font-family: 'Arial', 'Helvetica', sans-serif;
+$font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+//$font-family: 'Arial', 'Helvetica', sans-serif;
 //$font-family: 'Lato', 'Arial', 'Helvetica', sans-serif;
 $font-size: 14px;
 $fixed_font_family: 'Courier New, Courier, monospace';
 $fixed_font_size: 11px;
 $hdr_font_size: 14px;
+
+// Core padding
+$horizontal-padding: 10px;
+$vertical-padding: 10px;
 
 /** colors **/
 $link_color: #2200cc;	// dark blue
@@ -46,6 +51,8 @@ $info_border: #4075db;
 $header_bg: #7c7c7c;
 $main_color: #43b761; 				//Main green
 
+$succesful-color: #84C000;			// Green for checkmark
+
 $common-hdr-color-1: #aeaeae;
 
 /** data table? **/
@@ -75,7 +82,7 @@ $io_blk_wait: "io-blk-wait.gif";			/* Icon definition for DomUI icons */
 $multiple_lookup_label_color: #ffa21e;
 $multiple_lookup_label_border: #fff2ab;
 
-//-- tabpanel
+//-- ScrollableTabPanel FIXME REMOVE
 $tab_pnl_inactive_col: #ffffff;
 $tab_pnl_hover_inactive_col: #ffffff;
 $tab_pnl_active_col: #67267f;
@@ -85,6 +92,13 @@ $tab_pnl_close: "tab-pnl-close.png";
 $tab_pnl_close_hover: "tab-pnl-close-hover.png";
 $tab_pnl_sep_bg: #7c7c7c;
 $tab_pnl_arrows: url(tab-scrl-icon.png);
+
+// TabPanel
+$tabpanel-header-bg: #7c7c7c;					// The header part containing the tabs
+$tabpanel-tab-bg: #aaa;
+$tabpanel-tab-border: #555;
+$tabpanel-content-bg: white;
+$tabpanel-selected-color: #444;
 
 //-- Buttons
 $button-top-color: #f69231;
@@ -102,5 +116,68 @@ $data_pager_icons: "data-pager-icons.png";
 $data_pager_icon_size_x: 32px;
 $data_pager_icon_size_y: 19px;
 
-/*** Form baseline alignment ***/
+/*** Forms ***/
 $form-line-height:	1.5em;
+$input-line-height: $form-line-height;
+$form-label-color: #363636;
+$form-label-weight: 600;
+$form-label-width: 150px;
+
+
+/***----------------- Bulma like -------------------------***/
+
+/*** Colors ***/
+$orange:       hsl(14,  100%, 53%) !default;
+$yellow:       hsl(48,  100%, 67%) !default;
+$green:        hsl(141, 71%,  48%) !default;
+//$turquoise:    hsl(171, 100%, 41%) !default;
+$turquoise:    #f69231				 !default;
+$cyan:         hsl(204, 86%,  53%) !default;
+$blue:         hsl(217, 71%,  53%) !default;
+$purple:       hsl(271, 100%, 71%) !default;
+$red:          hsl(348, 100%, 61%) !default;
+
+$black:        hsl(0, 0%, 4%) !default;
+$black-bis:    hsl(0, 0%, 7%) !default;
+$black-ter:    hsl(0, 0%, 14%) !default;
+
+$grey-darker:  hsl(0, 0%, 21%) !default;
+$grey-dark:    hsl(0, 0%, 29%) !default;
+$grey:         hsl(0, 0%, 48%) !default;
+$grey-light:   hsl(0, 0%, 71%) !default;
+$grey-lighter: hsl(0, 0%, 86%) !default;
+
+$white-ter:    hsl(0, 0%, 96%) !default;
+$white-bis:    hsl(0, 0%, 98%) !default;
+$white:        hsl(0, 0%, 100%) !default;
+
+$size-1: 3rem !default;
+$size-2: 2.5rem !default;
+$size-3: 2rem !default;
+$size-4: 1.5rem !default;
+$size-5: 1.25rem !default;
+$size-6: 1rem !default;
+$size-7: 0.75rem !default;
+
+$weight-light: 300 !default;
+$weight-normal: 400 !default;
+$weight-medium: 500 !default;
+$weight-semibold: 600 !default;
+$weight-bold: 700 !default;
+
+//-- Misc
+$easing: ease-out !default;
+$radius-small: 2px !default;
+$radius: 3px !default;
+$radius-large: 5px !default;
+$speed: 86ms !default;
+
+$control-padding-vertical: calc(0.375em - 1px) !default;
+$control-padding-horizontal: calc(0.625em - 1px) !default;
+
+$input-border-color: #dbdbdb;
+
+//-- enumsetinput label colors
+$esic-label-color: #d4f94e;
+$esic-label-border: darken($esic-label-color, 20%);
+$esic-text-color: findColorInvert($esic-label-color);

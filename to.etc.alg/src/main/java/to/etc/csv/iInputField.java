@@ -30,11 +30,11 @@ package to.etc.csv;
  * @author jal
  */
 public interface iInputField {
-	public void setName(String s);
+	void setName(String s);
 
-	public boolean isEmpty();
+	boolean isEmpty();
 
-	public String getValue();
+	String getValue();
 
-	public String getName();
+	String getName();
 }

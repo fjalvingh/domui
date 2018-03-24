@@ -701,9 +701,7 @@ public class TplExpander {
 		if(tryEnumMethod(o, ivar, loopsect, m))
 			return true;
 		m = findMethod(acl, "values", 0);
-		if(tryEnumMethod(o, ivar, loopsect, m))
-			return true;
-		return false;
+		return tryEnumMethod(o, ivar, loopsect, m);
 	}
 
 	private boolean tryEnumMethod(Object o, String ivar, String loopsect, Method m) throws TplException {

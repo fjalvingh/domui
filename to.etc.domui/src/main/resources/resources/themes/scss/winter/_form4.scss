@@ -29,13 +29,13 @@ td.ui-f4-lbl-v {
 	padding-top: 1px;					// Inputs have 1px border; mirror that here so that the tops align
 }
 
-.ui-f4-ctl-v {
-	input, textarea {
-		line-height: $form-line-height;
-		padding: 0;
-		margin: 0;
-	}
-}
+//.ui-f4-ctl-v {
+//	input, textarea {
+//		line-height: $form-line-height;
+//		padding: 0;
+//		margin: 0;
+//	}
+//}
 
 .ui-f4-ctl-v .ui-lui-val-txt {
 	padding-top: 1px;					// Non-input values need top padding
@@ -49,6 +49,13 @@ td.ui-f4-lbl-v {
 .ui-f4-h {
 	margin-bottom: 10px;
 }
+.ui-f4-lbl-h {
+	padding: 0 4px;
+}
+.ui-f4-ctl-h {
+	padding: 0 4px;
+}
+
 
 .ui-f4-ctl {
 	textarea {

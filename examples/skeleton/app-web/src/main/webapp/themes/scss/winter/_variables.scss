@@ -1,0 +1,171 @@
+$body-image: "";
+$bg_color: #ffffff;
+
+$font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+//$font-family: 'Arial', 'Helvetica', sans-serif;
+//$font-family: 'Lato', 'Arial', 'Helvetica', sans-serif;
+$font-size: 14px;
+$fixed_font_family: 'Courier New, Courier, monospace';
+$fixed_font_size: 11px;
+$hdr_font_size: 14px;
+
+// Core padding
+$horizontal-padding: 10px;
+$vertical-padding: 10px;
+
+/** colors **/
+$link_color: #2200cc;	// dark blue
+
+$bevel_up: #ABADB3;
+$bevel_down: #BFCDD9;
+$bevel_hover_up: #5794BF;
+$bevel_hover_down: #D7E8F8;
+
+$readonly_bg: transparent;
+$readonly_border: #EEEEEF;        // bit darker grey
+
+$bg_ttl_gradient: "bg-ttl-domui.png";
+$bg_ttl_end:  #7c7c7c;
+$bg_ttl_text: #ffffff;
+
+$selected_bg: #ff9436;
+
+$highlight_bg: #ffbb43; 	// row select: hard orange
+$highlight2_bg: lighten($highlight_bg, 20%);
+
+/** Error, warning, info colors **/
+$errors_background: #a9c5f1;
+$errors_border: #ff0000; 			// red
+$errors_foreground: #ff0000;		// red
+
+$errors_input_background: #ffe5e5;	// error bg for input component
+
+$warnings_background: #fffeee; // light yellow
+$warnings_foreground: yellow;
+$warnings_border: #fffeee;
+
+$info_bg: #e4eeff;		// blueish light
+$info_fg: #4075db;
+$info_border: #4075db;
+
+$header_bg: #7c7c7c;
+$main_color: #43b761; 				//Main green
+
+$common-hdr-color-1: #aeaeae;
+
+/** data table? **/
+$data_tbl_selected_bg: #bed6f8;	// blue
+$data_tbl_even_row_bg: #E5E5E5; //greyish
+$data_tbl_cell_highlight_bg: #67267f;	// cell select: purple
+$data_tbl_cell_highlight_link_color_bg: #ffffff;	// link color of cell select: white
+$data_tbl_font_size: 12px;
+$data_tbl_expanding_row_bg: lighten($main_color, 20%);
+
+$data_tbl_header_bg: #7c7c7c;
+$data_tbl_header_text_color: #ffffff;
+$data_tbl_header_bg_img: ""; //-- Table header doesn't have background image
+$data_tbl_header_btm_border: undefined;
+
+/** LookupInput and LookupInput2 **/
+$lui-warning-color: #ff4f27;				// Popup that shows 'no results'
+$lui-warning-color-border: #ff8d60;			// Border of that popup
+$lui-result-color: #d4ee9f;					// Popup showing "xxxx records"
+$lui-result-color-border: #a5c663;			// Border of that
+
+/** Misc **/
+$io_blk_wait: "io-blk-wait.gif";			/* Icon definition for DomUI icons */
+
+
+//multiple lookup labels
+$multiple_lookup_label_color: #ffa21e;
+$multiple_lookup_label_border: #fff2ab;
+
+//-- tabpanel
+$tab_pnl_inactive_col: #ffffff;
+$tab_pnl_hover_inactive_col: #ffffff;
+$tab_pnl_active_col: #67267f;
+$tab_pnl_btm_border: 0px;
+$tab_pnl_img: "tab-all-domui.png";
+$tab_pnl_close: "tab-pnl-close.png";
+$tab_pnl_close_hover: "tab-pnl-close-hover.png";
+$tab_pnl_sep_bg: #7c7c7c;
+$tab_pnl_arrows: url(tab-scrl-icon.png);
+
+//-- Buttons
+$button-top-color: #f69231;
+$button-bottom-color: #f6ac3d;
+$button-focus-top-color: #f6c381;
+$button-focus-bot-color: #f69231;
+$button-focus-glow-color: rgba($button-focus-top-color, .7);
+$button-disabled-color: #999999;
+$button_height: 24px;
+$button-font-size: 15px;
+$button-icon-fontsize: 15px;
+
+/*** Data Pager buttons ***/
+$data_pager_icons: "data-pager-icons.png";
+$data_pager_icon_size_x: 32px;
+$data_pager_icon_size_y: 19px;
+
+/*** Form baseline alignment ***/
+$form-line-height:	1.5em;
+$input-line-height: $form-line-height;
+
+/***----------------- Bulma like -------------------------***/
+
+/*** Colors ***/
+$orange:       hsl(14,  100%, 53%) !default;
+$yellow:       hsl(48,  100%, 67%) !default;
+$green:        hsl(141, 71%,  48%) !default;
+//$turquoise:    hsl(171, 100%, 41%) !default;
+$turquoise:    #f69231				 !default;
+$cyan:         hsl(204, 86%,  53%) !default;
+$blue:         hsl(217, 71%,  53%) !default;
+$purple:       hsl(271, 100%, 71%) !default;
+$red:          hsl(348, 100%, 61%) !default;
+
+$black:        hsl(0, 0%, 4%) !default;
+$black-bis:    hsl(0, 0%, 7%) !default;
+$black-ter:    hsl(0, 0%, 14%) !default;
+
+$grey-darker:  hsl(0, 0%, 21%) !default;
+$grey-dark:    hsl(0, 0%, 29%) !default;
+$grey:         hsl(0, 0%, 48%) !default;
+$grey-light:   hsl(0, 0%, 71%) !default;
+$grey-lighter: hsl(0, 0%, 86%) !default;
+
+$white-ter:    hsl(0, 0%, 96%) !default;
+$white-bis:    hsl(0, 0%, 98%) !default;
+$white:        hsl(0, 0%, 100%) !default;
+
+$size-1: 3rem !default;
+$size-2: 2.5rem !default;
+$size-3: 2rem !default;
+$size-4: 1.5rem !default;
+$size-5: 1.25rem !default;
+$size-6: 1rem !default;
+$size-7: 0.75rem !default;
+
+$weight-light: 300 !default;
+$weight-normal: 400 !default;
+$weight-medium: 500 !default;
+$weight-semibold: 600 !default;
+$weight-bold: 700 !default;
+
+//-- Misc
+$easing: ease-out !default;
+$radius-small: 2px !default;
+$radius: 3px !default;
+$radius-large: 5px !default;
+$speed: 86ms !default;
+
+$control-padding-vertical: calc(0.375em - 1px) !default;
+$control-padding-horizontal: calc(0.625em - 1px) !default;
+
+$input-border-color: #dbdbdb;
+
+
+//-- enumsetinput label colors
+$esic-label-color: #d4f94e;
+$esic-label-border: darken($esic-label-color, 20%);
+$esic-text-color: findColorInvert($esic-label-color);

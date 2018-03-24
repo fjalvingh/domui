@@ -34,6 +34,5 @@ import javax.annotation.*;
  * Created on Jun 18, 2008
  */
 public interface IValueTransformer<T> {
-	@Nullable
-	public T getValue(@Nonnull Object in) throws Exception;
+	@Nullable T getValue(@Nonnull Object in) throws Exception;
 }

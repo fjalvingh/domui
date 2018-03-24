@@ -39,6 +39,7 @@ import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.domui.hibgen.ColumnWrapper.ColumnType;
 import to.etc.domui.hibgen.ColumnWrapper.RelationType;
+import to.etc.util.FileTool;
 import to.etc.util.LineIterator;
 import to.etc.webapp.query.IIdentifyable;
 import to.etc.xml.DomTools;
@@ -47,13 +48,12 @@ import javax.annotation.Nullable;
 import java.beans.Introspector;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -1185,7 +1185,7 @@ class ClassWrapper {
 	 * the inverse list property.
 	 */
 	public void generateOneToManyProperties() {
-		for(ColumnWrapper cw : m_allColumnWrappers) {
+		for(ColumnWrapper cw : new ArrayList<>(m_allColumnWrappers)) {
 			if(cw.isTransient() || cw.getRelationType() != RelationType.manyToOne)
 				continue;
 
@@ -1332,7 +1332,7 @@ class ClassWrapper {
 
 	private void loadPropertyFile(File basePath, String baseName, String ext) throws Exception {
 		String extra = ext.length() == 0 ? "" : "_" + ext;
-
+		baseName = baseName.substring(0, baseName.lastIndexOf('.'));		// Strip extension
 		File propertyFile = new File(basePath, baseName + extra + ".properties");
 		if(! propertyFile.exists() || ! propertyFile.isFile())
 			return;
@@ -1370,11 +1370,24 @@ class ClassWrapper {
 		File basePath = calculatePropertiesBasePath(file.getParentFile());
 		for(Entry<String, SortedProperties> e : m_propertyByKeyMap.entrySet()) {
 			String ext = e.getKey().length() == 0 ? "" : "_" + e.getKey();
+
+			StringWriter sw = new StringWriter();
+			e.getValue().store(sw, "NLS");
+			sw.close();
+
+			//-- Remove all comments because they contain an idiotic date causing useless changes
+			String txt = sw.getBuffer().toString();
+			StringBuilder sb = new StringBuilder();
+			for(String line : new LineIterator(txt)) {
+				if(line.startsWith("#"))
+					continue;
+				sb.append(line).append("\n");
+			}
+			txt = sb.toString();
+
 			File out = new File(basePath, baseName + ext + ".properties");
 			out.getParentFile().mkdirs();
-			try(Writer w = new OutputStreamWriter(new FileOutputStream(out), "utf-8")) {
-				e.getValue().store(w, "NLS bundle");
-			}
+			FileTool.writeFileFromString(out, txt, "utf-8");
 		}
 	}
 

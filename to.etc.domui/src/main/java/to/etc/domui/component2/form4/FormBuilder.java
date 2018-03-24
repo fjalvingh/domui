@@ -1,18 +1,16 @@
 package to.etc.domui.component2.form4;
 
 import to.etc.domui.component.binding.BindReference;
-import to.etc.domui.component.binding.IBindingConverter;
+import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
+import to.etc.domui.dom.html.BindingBuilder;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
-import to.etc.domui.dom.html.TR;
-import to.etc.domui.dom.html.Table;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
@@ -42,7 +40,11 @@ final public class FormBuilder {
 	@Nonnull
 	final private IAppender m_appender;
 
+	private IFormLayouter m_layouter;
+
 	private boolean m_horizontal;
+
+	private boolean m_append;
 
 	private boolean m_currentDirection;
 
@@ -50,15 +52,13 @@ final public class FormBuilder {
 
 	private String m_errorLocation;
 
-	private Label m_nextLabelControl;
+	private NodeContainer m_nextLabelControl;
 
 	private PropertyMetaModel< ? > m_propertyMetaModel;
 
 	private Object m_instance;
 
 	private Boolean m_mandatory;
-
-	private boolean m_append;
 
 	@Nullable
 	private String m_testid;
@@ -103,10 +103,17 @@ final public class FormBuilder {
 	private String m_labelCss;
 
 	@Nullable
-	private IBindingConverter<?, ?> m_bindingConverter;
+	private IBidiBindingConverter<?, ?> m_bindingConverter;
 
 	public FormBuilder(@Nonnull IAppender appender) {
 		m_appender = appender;
+		m_layouter = new ResponsiveFormLayouter(appender);
+//		m_layouter = new TableFormLayouter(appender);
+	}
+
+	public FormBuilder(@Nonnull IFormLayouter layout, @Nonnull IAppender appender) {
+		m_appender = appender;
+		m_layouter = layout;
 	}
 
 	public FormBuilder(@Nonnull final NodeContainer nb) {
@@ -120,15 +127,22 @@ final public class FormBuilder {
 	}
 
 
+	public FormBuilder nl() {
+		m_layouter.clear();
+		return this;
+	}
+
 	@Nonnull
 	public FormBuilder horizontal() {
 		m_horizontal = true;
+		m_layouter.setHorizontal(true);
 		return this;
 	}
 
 	@Nonnull
 	public FormBuilder vertical() {
 		m_horizontal = false;
+		m_layouter.setHorizontal(false);
 		return this;
 	}
 
@@ -144,11 +158,6 @@ final public class FormBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Label control.										*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param label
-	 * @return
-	 */
 	@Nonnull
 	public FormBuilder label(@Nonnull String label) {
 		if(null != m_nextLabelControl)
@@ -158,7 +167,7 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public FormBuilder label(@Nonnull Label label) {
+	public FormBuilder label(@Nonnull NodeContainer label) {
 		if(null != m_nextLabel)
 			throw new IllegalStateException("You already set a String label instance");
 		m_nextLabelControl = label;
@@ -181,10 +190,6 @@ final public class FormBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Readonly, mandatory, disabled.						*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @return
-	 */
 	@Nonnull
 	public FormBuilder readOnly() {
 		m_readOnly = Boolean.TRUE;
@@ -225,7 +230,7 @@ final public class FormBuilder {
 	 * after this are no longer bound to the previously set property.
 	 */
 	@Nonnull
-	public FormBuilder readOnlyAll() {
+	public FormBuilder readOnlyAllClear() {
 		m_readOnlyGlobal = null;
 		return this;
 	}
@@ -271,7 +276,7 @@ final public class FormBuilder {
 	 * after this are no longer bound to the previously set property.
 	 */
 	@Nonnull
-	public FormBuilder disabledAll() {
+	public FormBuilder disabledAllClear() {
 		m_disabledGlobal = null;
 		return this;
 	}
@@ -298,7 +303,7 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public FormBuilder disabledBecause() {
+	public FormBuilder disabledBecauseClear() {
 		m_disabledMessageGlobal = null;
 		return this;
 	}
@@ -325,9 +330,6 @@ final public class FormBuilder {
 	 * but the control here is not then the control stays optional.
 	 * The reverse however is not true: if the control passed in is marked as mandatory then the
 	 * form item will be marked as such too.
-	 *
-	 * @param control
-	 * @throws Exception
 	 */
 	public void control(@Nonnull IControl< ? > control) throws Exception {
 		if(control.isMandatory()) {
@@ -360,7 +362,7 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public FormBuilder converter(@Nonnull IBindingConverter<?, ?> converter) {
+	public FormBuilder converter(@Nonnull IBidiBindingConverter<?, ?> converter) {
 		m_bindingConverter = converter;
 		return this;
 	}
@@ -424,26 +426,15 @@ final public class FormBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Form building code.									*/
 	/*--------------------------------------------------------------*/
-
-	private Table m_table;
-
-	private TBody m_body;
-
-	private TR m_labelRow;
-
-	private TR m_controlRow;
-
 	private void addControl(@Nonnull NodeBase control) throws Exception {
 		if (control.getClass().getSimpleName().contains("TextArea")
 			&& m_labelCss == null) {
 			m_labelCss = "ui-f4-ta";
 		}
 
+		NodeContainer lbl = determineLabel();
 		resetDirection();
-		if(m_horizontal)
-			addHorizontal(control);
-		else
-			addVertical(control);
+		m_layouter.addControl(control, lbl, m_controlCss, m_labelCss, m_append);
 
 		String testid = m_testid;
 		PropertyMetaModel<?> pmm = m_propertyMetaModel;
@@ -459,7 +450,11 @@ final public class FormBuilder {
 			if(null != pmm) {
 				Object instance = m_instance;
 				if(null != instance) {
-					((NodeBase) ctl).bind().convert(m_bindingConverter).to(instance, pmm);
+					IBidiBindingConverter<?, ?> conv = m_bindingConverter;
+					if(null == conv)
+						control.bind().to(instance, pmm);
+					else
+						applyConverter(control, conv, instance, pmm);
 				}
 			}
 
@@ -516,134 +511,17 @@ final public class FormBuilder {
 			control.setCalculcatedId(label.toLowerCase());
 	}
 
+	private <C, V> void applyConverter(NodeBase control, IBidiBindingConverter<C, V> converter, Object instance, PropertyMetaModel<?> pmm) throws Exception {
+		((BindingBuilder<C>) control.bind()).convert(converter).to(instance, pmm);
+	}
+
 	private void resetDirection() {
 		if(m_horizontal == m_currentDirection)
 			return;
-		clearTable();
+		m_layouter.clear();
 		m_currentDirection = m_horizontal;
 	}
 
-	public FormBuilder nl() {
-		clearTable();
-		return this;
-	}
-
-	private void clearTable() {
-		m_table = null;
-		m_body = null;
-		m_labelRow = null;
-		m_controlRow = null;
-	}
-
-	@Nonnull
-	public TBody body() {
-		if(m_body == null) {
-			Table tbl = m_table = new Table();
-			m_appender.add(tbl);
-			tbl.setCssClass(m_horizontal ? "ui-f4 ui-f4-h" : "ui-f4 ui-f4-v");
-			tbl.setCellPadding("0");
-			tbl.setCellSpacing("0");
-			TBody b = m_body = new TBody();
-			tbl.add(b);
-			return b;
-		}
-		return m_body;
-	}
-
-	private void addVertical(NodeBase control) {
-		TBody b = body();
-		Label lbl = determineLabel();
-		if(m_append) {
-			TD cell = b.cell();
-			if(lbl != null) {
-				lbl.addCssClass("ui-f4-lbl");
-				lbl.setMarginLeft("10px");
-				lbl.setMarginRight("3px");
-				cell.add(lbl);
-			}
-			cell.add(control);
-			final String controlCss = m_controlCss;
-			if(null != controlCss)
-				cell.addCssClass(controlCss);
-		} else {
-			TR row = b.addRow("ui-f4-row ui-f4-row-v");
-
-			TD labelcell = b.addCell("ui-f4-lbl ui-f4-lbl-v");
-			if(null != lbl)
-				labelcell.add(lbl);
-			String labelCss = m_labelCss;
-			if(labelCss != null)
-				labelcell.addCssClass(labelCss);
-
-			TD controlcell = b.addCell("ui-f4-ctl ui-f4-ctl-v");
-			controlcell.add(control);
-
-			final String controlCss = m_controlCss;
-			if(null != controlCss)
-				controlcell.addCssClass(controlCss);
-		}
-		if(null != lbl)
-			lbl.setForNode(control);
-	}
-
-	@Nonnull
-	private TR controlRow() {
-		TR row = m_controlRow;
-		if(null == row) {
-			labelRow();
-			row = m_controlRow = body().addRow("ui-f4-row ui-f4-row-h ui-f4-crow");
-		}
-		return row;
-	}
-
-	@Nonnull
-	private TR labelRow() {
-		TR row = m_labelRow;
-		if(null == row) {
-			row = m_labelRow = body().addRow("ui-f4-row ui-f4-row-h ui-f4-lrow");
-		}
-		return row;
-	}
-
-	private void addHorizontal(NodeBase control) {
-		TBody b = body();
-		Label lbl = determineLabel();
-		if(m_append) {
-
-			TR row = controlRow();
-			TD cell;
-			if(row.getChildCount() == 0) {
-				cell = row.addCell();
-				cell.setCssClass("ui-f4-ctl ui-f4-ctl-h");
-			} else {
-				cell = (TD) row.getChild(row.getChildCount() - 1);
-			}
-			cell.add(control);
-
-			final String controlCss = m_controlCss;
-			if(null != controlCss)
-				cell.addCssClass(controlCss);
-		} else {
-			TD labelcell = labelRow().addCell();
-			labelcell.setCssClass("ui-f4-lbl ui-f4-lbl-h");
-			if(null != lbl)
-				labelcell.add(lbl);
-
-			String labelCss = m_labelCss;
-			if(labelCss != null)
-				labelcell.addCssClass(labelCss);
-
-			TD controlcell = controlRow().addCell();
-			controlcell.setCssClass("ui-f4-ctl ui-f4-ctl-h");
-			controlcell.add(control);
-
-			final String controlCss = m_controlCss;
-			if(null != controlCss)
-				controlcell.addCssClass(controlCss);
-		}
-		if(null != lbl)
-			lbl.setForNode(control);
-	}
 
 	public void appendAfterControl(@Nonnull NodeBase what) {
 		getLastControlCell().add(what);
@@ -657,13 +535,9 @@ final public class FormBuilder {
 		return m_lastAddedControl.getParent(TD.class);
 	}
 
-	/**
-	 *
-	 * @return
-	 */
 	@Nullable
-	private Label determineLabel() {
-		Label res = null;
+	private NodeContainer determineLabel() {
+		NodeContainer res = null;
 		String txt = m_nextLabel;
 		if(null != txt) {
 			//m_nextLabel = null;
@@ -696,7 +570,7 @@ final public class FormBuilder {
 				return txt;
 			return null;
 		} else {
-			Label res = m_nextLabelControl;
+			NodeContainer res = m_nextLabelControl;
 			if(res != null) {
 				return res.getTextContents();
 			} else {

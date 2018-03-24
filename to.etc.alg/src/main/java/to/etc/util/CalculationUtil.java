@@ -197,10 +197,7 @@ public class CalculationUtil {
 		if(hour < 0 || hour > 23) {
 			return false;
 		}
-		if(minutes < 0 || minutes > 59) {
-			return false;
-		}
-		return true;
+		return minutes >= 0 && minutes <= 59;
 	}
 
 	/**
