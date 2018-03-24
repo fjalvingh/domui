@@ -290,16 +290,16 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 					return super.visitExecutable(m, p);
 				}
 
-
-
-
-
 				//-- Get a set of annotation names
 				Set<String> annotationNames = new HashSet<>();
 				for(AnnotationMirror a : m.getAnnotationMirrors()) {
 					Name annName = a.getAnnotationType().asElement().getSimpleName();
 					annotationNames.add(annName.toString());
 				}
+				if(annotationNames.contains("to.etc.annotations.IgnoreGeneration")) {	// Ignore?
+					return super.visitExecutable(m, p);
+				}
+
 
 				//-- Now generate the appropriate types.
 				if(annotationNames.contains("Column") || isSimpleType(returnType)) {
