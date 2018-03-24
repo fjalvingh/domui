@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
+import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.FaIcon;
@@ -13,6 +14,7 @@ import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.MoneyBigDecimalFullConverter;
 import to.etc.domui.converter.MoneyBigDecimalNoSign;
 import to.etc.domui.dom.css.TextAlign;
+import to.etc.domui.dom.css.VisibilityType;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.NodeBase;
@@ -25,6 +27,7 @@ import to.etc.domui.util.INodeContentRenderer;
 import to.etc.domui.util.IRenderInto;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -158,7 +161,18 @@ public class EditableTablePage extends UrlPage {
 			ctrl.setConverter(new MoneyBigDecimalNoSign());
 			ctrl.setCssClass("ui-numeric");
 			ctrl.bind("readOnly").to(model(), "readOnly");
-			ctrl.bind("visibility").to(row, "percentageVisible");
+
+			ctrl.bind(VisibilityType.class, "visibility").convert(new IBidiBindingConverter<VisibilityType, AmountType>() {
+				@Nullable @Override public VisibilityType modelToControl(@Nullable AmountType value) throws Exception {
+					return value == AmountType.Amount ? VisibilityType.HIDDEN : VisibilityType.VISIBLE;
+				}
+
+				@Nullable @Override public AmountType controlToModel(@Nullable VisibilityType value) throws Exception {
+					return null;
+				}
+			}).to(row, "amountType");
+
+			//ctrl.bind("visibility").to(row, "percentageVisible");
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("0.01"), new BigDecimal("100.00")));
 			ctrl.immediate();
 			return ctrl;
@@ -199,4 +213,10 @@ public class EditableTablePage extends UrlPage {
 	public LineController model() {
 		return m_controller;
 	}
+
+
+	//public static void main(String[] args) {
+	//	Function<Line, AmountType> getAmountType = Line::getAmountType;
+	//	System.out.println(getAmountType);
+	//}
 }

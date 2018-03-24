@@ -1,11 +1,12 @@
 package to.etc.domui.component.controlfactory;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.util.IReadOnlyModel;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 
 /**
  * This is a base class to bind an input control (an IControl) to some property in a class. The control and
@@ -15,6 +16,7 @@ import to.etc.domui.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 15, 2012
  */
+@Deprecated
 @Immutable
 abstract public class ComponentPropertyBinding<T, C> implements IModelBinding {
 	@Nonnull

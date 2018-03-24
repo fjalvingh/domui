@@ -24,12 +24,13 @@
  */
 package to.etc.domui.component.controlfactory;
 
-import javax.annotation.*;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.util.IReadOnlyModel;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nullable;
 
+@Deprecated
 public class SimpleComponentPropertyBinding<T> extends ComponentPropertyBinding<T, T> implements IModelBinding {
 	public SimpleComponentPropertyBinding(IReadOnlyModel< ? > model, PropertyMetaModel<T> propertyMeta, IControl<T> control) {
 		super(model, propertyMeta, control);

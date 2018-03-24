@@ -384,7 +384,6 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 			//-- Add a click handler to select or pass the rowclicked event.
 			cc.getTR().setClicked2(new IClicked2<TR>() {
 				@Override
-				@SuppressWarnings({"synthetic-access"})
 				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 					handleRowClick(b, value, clinfo);
 				}

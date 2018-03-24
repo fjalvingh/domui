@@ -34,12 +34,13 @@ import to.etc.webapp.*;
 import to.etc.webapp.nls.*;
 
 /**
- * EXPERIMENTAL INTERFACE
+ * DO NOT USE - WILL BE REMOVED SOON - EXPERIMENTAL INTERFACE
  *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 2, 2011
  */
+@Deprecated
 public final class BindingMessenger {
 	@Nonnull
 	private ModelBindings m_bindings;

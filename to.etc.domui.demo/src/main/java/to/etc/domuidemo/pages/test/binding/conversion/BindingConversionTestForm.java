@@ -1,6 +1,6 @@
 package to.etc.domuidemo.pages.test.binding.conversion;
 
-import to.etc.domui.component.binding.IBindingConverter;
+import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.misc.DisplayValue;
@@ -16,7 +16,7 @@ import javax.annotation.Nullable;
 
 /**
  * This form contains a binding between a Text&lt;String&gt; and an Integer
- * property. It uses an {@link IBindingConverter} to convert the types. When
+ * property. It uses an {@link IBidiBindingConverter} to convert the types. When
  * conversion fails it should act as if validation failed.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -28,7 +28,7 @@ public class BindingConversionTestForm extends UrlPage {
 
 	private Div m_div;
 
-	final private class TestConverter implements IBindingConverter<String, Integer> {
+	final private class TestConverter implements IBidiBindingConverter<String, Integer> {
 		@Nullable @Override public String modelToControl(@Nullable Integer value) throws Exception {
 			if(null == value)
 				return null;

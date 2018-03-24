@@ -1,10 +1,11 @@
 package to.etc.domui.component2.form4;
 
 import to.etc.domui.component.binding.BindReference;
-import to.etc.domui.component.binding.IBindingConverter;
+import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
+import to.etc.domui.dom.html.BindingBuilder;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
@@ -102,7 +103,7 @@ final public class FormBuilder {
 	private String m_labelCss;
 
 	@Nullable
-	private IBindingConverter<?, ?> m_bindingConverter;
+	private IBidiBindingConverter<?, ?> m_bindingConverter;
 
 	public FormBuilder(@Nonnull IAppender appender) {
 		m_appender = appender;
@@ -361,7 +362,7 @@ final public class FormBuilder {
 	}
 
 	@Nonnull
-	public FormBuilder converter(@Nonnull IBindingConverter<?, ?> converter) {
+	public FormBuilder converter(@Nonnull IBidiBindingConverter<?, ?> converter) {
 		m_bindingConverter = converter;
 		return this;
 	}
@@ -449,7 +450,11 @@ final public class FormBuilder {
 			if(null != pmm) {
 				Object instance = m_instance;
 				if(null != instance) {
-					((NodeBase) ctl).bind().convert(m_bindingConverter).to(instance, pmm);
+					IBidiBindingConverter<?, ?> conv = m_bindingConverter;
+					if(null == conv)
+						control.bind().to(instance, pmm);
+					else
+						applyConverter(control, conv, instance, pmm);
 				}
 			}
 
@@ -504,6 +509,10 @@ final public class FormBuilder {
 		}
 		if(null != label)
 			control.setCalculcatedId(label.toLowerCase());
+	}
+
+	private <C, V> void applyConverter(NodeBase control, IBidiBindingConverter<C, V> converter, Object instance, PropertyMetaModel<?> pmm) throws Exception {
+		((BindingBuilder<C>) control.bind()).convert(converter).to(instance, pmm);
 	}
 
 	private void resetDirection() {

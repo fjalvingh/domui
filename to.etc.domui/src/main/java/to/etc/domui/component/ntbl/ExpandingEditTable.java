@@ -407,7 +407,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param index
 	 * @param tr
 	 */
-	@SuppressWarnings({"unchecked"})
 	private void collapseRow(int index, @Nonnull TR tr) throws Exception {
 		if(tr.getUserObject() == null) // Already collapsed?
 			return;
@@ -535,7 +534,6 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		clearNewEditor();
 	}
 
-	@SuppressWarnings({"unchecked"})
 	private void clearNewEditor() throws Exception {
 		TBody newBody = m_newBody;
 		NodeContainer newEditor = m_newEditor;

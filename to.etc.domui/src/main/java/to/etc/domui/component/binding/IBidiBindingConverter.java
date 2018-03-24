@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 19-3-17.
  */
-public interface IBindingConverter<C, V> {
+public interface IBidiBindingConverter<C, V> {
 	/**
 	 * Convert the value V, obtained from the model, to a value type that is expected by the control.
 	 * @param value

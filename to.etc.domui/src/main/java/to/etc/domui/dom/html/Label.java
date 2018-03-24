@@ -117,8 +117,7 @@ public class Label extends NodeContainer {
 		m_forTarget = forTarget;
 		if(forTarget instanceof IForTarget) {
 			try {
-				ComponentPropertyBinding binding = m_binding = bind("forNode");
-				binding.to(forTarget, "forTarget");
+				ComponentPropertyBinding binding = m_binding = bind("forNode").to(forTarget, "forTarget");
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
