@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
+import to.etc.annotations.GenerateProperties;
 import to.etc.domui.dom.css.VisibilityType;
 
 import java.math.BigDecimal;
@@ -9,6 +10,7 @@ import java.util.Date;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-3-18.
  */
+@GenerateProperties
 public class Line {
 	public static String pFROM = "from";
 

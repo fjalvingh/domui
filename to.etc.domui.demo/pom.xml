@@ -54,6 +54,11 @@
             <artifactId>to.etc.db</artifactId>
         </dependency>
         <dependency>
+            <groupId>to.etc</groupId>
+            <artifactId>annotations</artifactId>
+            <version>1.2-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>to.etc.domui</groupId>
             <artifactId>to.etc.webapp.core</artifactId>
         </dependency>

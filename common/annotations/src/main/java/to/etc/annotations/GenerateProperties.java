@@ -13,6 +13,6 @@ import java.lang.annotation.Target;
  * Created on 24-3-18.
  */
 @Target(value = ElementType.TYPE)
-@Retention(RetentionPolicy.SOURCE)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface GenerateProperties {
 }
