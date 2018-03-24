@@ -36,6 +36,11 @@ import java.util.Set;
  * Generates QField classes for every Entity annotated class in the project where this processor is selected.
  * Leave the default .apt_generated folder as is.
  *
+ * With great gratitude to:
+ * <ul>
+ *     <li>http://hannesdorfmann.com/annotation-processing/annotationprocessing101</li>
+ * </ul>
+ *
  * @author <a href="mailto:dennis.bekkering@itris.nl">Dennis Bekkering</a>
  * Created on Feb 3, 2013
  */
@@ -411,8 +416,8 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 		, "java.lang.Long"
 		, "java.lang.Float"
 		, "java.lang.Double"
-		, "java.lang.BigInteger"
-		, "java.lang.BigDecimal"
+		, "java.math.BigInteger"
+		, "java.math.BigDecimal"
 		, "java.lang.String"
 		, "java.util.Date"
 		, "java.sql.Date"
