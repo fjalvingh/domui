@@ -21,7 +21,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processor name="db.annotationprocessing.EntityAnnotationProcessor" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/property-annotation-processor/target/classes" />
+        </processorPath>
         <module name="domui-hibernate-generator" />
+        <module name="property-annotations-processor" />
         <module name="to.etc.alg" />
         <module name="to.etc.db" />
         <module name="to.etc.dbcompare" />

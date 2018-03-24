@@ -83,9 +83,9 @@
     </properties>
 
     <modules>
+        <module>property-annotation-processor</module>
         <module>parent</module>
         <module>jsr305</module>
-        <module>property-annotation-processor</module>
         <module>to.etc.logger</module>
         <module>to.etc.alg</module>
         <module>to.etc.db</module>
