@@ -21,13 +21,19 @@ public class Line {
 	public static String pPERCENTAGE = "percentage";
 
 	public static String pAMOUNT = "amount";
+
 	public static String pDIVIDE = "divide";
 
 	private Date m_from;
+
 	private Date m_till;
+
 	private BigDecimal m_amount;
+
 	private AmountType m_amountType = AmountType.Amount;
+
 	private BigDecimal m_percentage;
+
 	private boolean m_divide;
 
 

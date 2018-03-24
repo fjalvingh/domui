@@ -3,6 +3,7 @@ package db.annotationprocessing;
 
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
+import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
@@ -16,12 +17,15 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementScanner6;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
 import java.beans.Introspector;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,8 +43,19 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 	static private final String VERSION = "1.0";
 
 	private static final String PRE_FIX = "P";
+
+	private Types m_typeUtils;
+
+	private Elements m_elementUtils;
+
 	public EntityAnnotationProcessor() {
 		super();
+	}
+
+	@Override public synchronized void init(ProcessingEnvironment processingEnv) {
+		super.init(processingEnv);
+		m_typeUtils = processingEnv.getTypeUtils();
+		m_elementUtils = processingEnv.getElementUtils();
 	}
 
 	@Override
@@ -48,6 +63,7 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 		if(roundEnv.processingOver()) {
 			return false;
 		}
+
 		final Messager messager = processingEnv.getMessager();
 		Set<Element> done = new HashSet<>();
 		for(TypeElement ann : annotations) {
@@ -274,6 +290,10 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 					return super.visitExecutable(m, p);
 				}
 
+
+
+
+
 				//-- Get a set of annotation names
 				Set<String> annotationNames = new HashSet<>();
 				for(AnnotationMirror a : m.getAnnotationMirrors()) {
@@ -282,7 +302,7 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 				}
 
 				//-- Now generate the appropriate types.
-				if(annotationNames.contains("Column")) {
+				if(annotationNames.contains("Column") || isSimpleType(returnType)) {
 					generateColumnProperty(returnType, propertyName);
 				} else if(annotationNames.contains("ManyToOne")) {
 					generateParentProperty(returnType, propertyName);
@@ -353,7 +373,17 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 			return super.visitExecutable(m, p);
 		}
 
+		private boolean isSimpleType(TypeMirror type) {
+			if(type instanceof PrimitiveType)
+				return true;
+			TypeElement enumElement = m_elementUtils.getTypeElement("java.lang.Enum");
 
+			if(m_typeUtils.isSubtype(type, m_typeUtils.getDeclaredType(enumElement)))
+				return true;
+
+			String name = type.toString();
+			return SIMPLETYPES.contains(name);
+		}
 
 		private String packName(String frtypeArgName) {
 			int dotIndex = frtypeArgName.lastIndexOf('.');
@@ -365,12 +395,28 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 		}
 	}
 
+
 	String replaceReserved(String s) {
 		if(m_reserved.contains(s)) {
 			return s + "_";
 		}
 		return s;
 	}
+
+	static private final Set<String> SIMPLETYPES = new HashSet<>(Arrays.asList("java.lang.Short"
+		, "java.lang.Boolean"
+		, "java.lang.Byte"
+		, "java.lang.Character"
+		, "java.lang.Integer"
+		, "java.lang.Long"
+		, "java.lang.Float"
+		, "java.lang.Double"
+		, "java.lang.BigInteger"
+		, "java.lang.BigDecimal"
+		, "java.lang.String"
+		, "java.util.Date"
+		, "java.sql.Date"
+	));
 
 	static final Set<String> m_reserved = new HashSet<String>();
 	static {
