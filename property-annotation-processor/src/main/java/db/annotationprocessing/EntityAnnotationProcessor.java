@@ -15,6 +15,7 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.PrimitiveType;
+import javax.lang.model.type.ReferenceType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementScanner6;
 import javax.lang.model.util.Elements;
@@ -268,7 +269,7 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 			m_w.append(qrtypeArgName);
 			m_w.append("Root>(");
 			m_w.append(qrtypeArgName);
-			m_w.append(".get(), this,\"");
+			m_w.append(".get(), this, \"");
 			m_w.append(propertyName);
 			m_w.append("\");\n\t}");
 		}
@@ -311,7 +312,7 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 					generateColumnProperty(returnType, propertyName);
 				} else if(annotationNames.contains("ManyToOne")) {
 					generateParentProperty(returnType, propertyName);
-				} else if(annotationNames.contains("OneToMany")) {
+				} else if(annotationNames.contains("OneToMany") || isCollection(returnType)) {
 					generateListProperty(returnType, propertyName);
 				}
 
@@ -378,6 +379,9 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 			return super.visitExecutable(m, p);
 		}
 
+		/**
+		 * True if the type is a simple type (any primitive or primitive wrapper, Date, BigDecimal, BigInteger, String, Enum).
+		 */
 		private boolean isSimpleType(TypeMirror type) {
 			if(type instanceof PrimitiveType)
 				return true;
@@ -388,6 +392,15 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 
 			String name = type.toString();
 			return SIMPLETYPES.contains(name);
+		}
+
+		private boolean isCollection(TypeMirror type) {
+			if(! (type instanceof ReferenceType))
+				return false;
+			TypeElement enumElement = m_elementUtils.getTypeElement("java.util.Collection");
+			if(m_typeUtils.isSubtype(type, m_typeUtils.getDeclaredType(enumElement)))
+				return true;
+			return false;
 		}
 
 		private String packName(String frtypeArgName) {

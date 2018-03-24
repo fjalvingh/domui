@@ -38,7 +38,6 @@ public class LineController {
 			res.add(cal.getTime());
 		}
 		m_months = res;
-
 		m_budgeted = new BigDecimal("876543.21");
 	}
 
