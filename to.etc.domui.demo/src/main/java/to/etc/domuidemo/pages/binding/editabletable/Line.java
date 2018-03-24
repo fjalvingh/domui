@@ -13,7 +13,6 @@ import java.util.Date;
 @GenerateProperties
 public class Line {
 	public static String pFROM = "from";
-
 	public static String pTILL = "till";
 
 	public static String pAMOUNTTYPE = "amountType";
