@@ -24,6 +24,7 @@
         <processorPath useClasspath="false">
           <entry name="$PROJECT_DIR$/property-annotation-processor/target/classes" />
         </processorPath>
+        <module name="annotations" />
         <module name="domui-hibernate-generator" />
         <module name="to.etc.alg" />
         <module name="to.etc.db" />
@@ -43,6 +44,9 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="annotations" target="1.8" />
+      <module name="common" target="1.5" />
+      <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="1.8" />
