@@ -1,15 +1,29 @@
 package db.annotationprocessing;
 
 
-import javax.annotation.processing.*;
-import javax.lang.model.*;
-import javax.lang.model.element.*;
-import javax.lang.model.type.*;
-import javax.lang.model.util.*;
-import javax.tools.Diagnostic.*;
-import javax.tools.*;
-import java.io.*;
-import java.util.*;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Messager;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
+import javax.lang.model.element.AnnotationMirror;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.PrimitiveType;
+import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementScanner6;
+import javax.tools.Diagnostic.Kind;
+import javax.tools.FileObject;
+import javax.tools.StandardLocation;
+import java.beans.Introspector;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @SupportedAnnotationTypes({"javax.persistence.Entity", "to.etc.annotations.GenerateProperties"})
@@ -162,155 +176,168 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 			m_qname = qname;
 		}
 
+		private void generateColumnProperty(TypeMirror returnType, String propertyName) throws Exception {
+			String mname = replaceReserved(propertyName);
+			if(returnType instanceof PrimitiveType) {
+				String retStr = returnType.toString();
+				if(retStr.equals("int") || retStr.equals("short")) {
+					retStr = "long";
+				}
+				String mtypeName = Character.toUpperCase(retStr.charAt(0)) + retStr.substring(1);
+				m_w.append("\n\n\t@Nonnull\n\tpublic final QField");
+				m_w.append(mtypeName);
+				m_w.append("<R> ");
+				m_w.append(mname);
+				m_w.append("() {\n\t\treturn new QField");
+				m_w.append(mtypeName);
+				m_w.append("<R>(new QField<R, ");
+				m_w.append(retStr);
+				m_w.append("[]>(m_root, this, \"");
+				m_w.append(propertyName);
+				m_w.append("\"));\n\t}");
+
+			} else {
+				String mtypeName = returnType.toString();
+
+				m_w.append("\n\n\t@Nonnull\n\tpublic final QField<R,");
+				m_w.append(mtypeName);
+				m_w.append("> ");
+				m_w.append(mname);
+				m_w.append("() {\n\t\treturn new QField<R,");
+				m_w.append(mtypeName);
+				m_w.append(">(m_root, this, \"");
+				m_w.append(propertyName);
+				m_w.append("\");\n\t}");
+			}
+		}
+
+		private void generateParentProperty(TypeMirror returnType, String propertyName) throws Exception {
+			Element mtype = processingEnv.getTypeUtils().asElement(returnType);
+			String qtype = packName(returnType.toString()) + "." + PRE_FIX + mtype.getSimpleName().toString();
+
+			String mname = replaceReserved(propertyName);
+			m_w.append("\n\n\t@Nonnull\n\tpublic final ");
+			m_w.append(qtype);
+			m_w.append("<R> ");
+			m_w.append(mname);
+			m_w.append("() {\n\t\treturn new ");
+			m_w.append(qtype);
+			m_w.append("<R>(m_root, this, \"");
+			m_w.append(propertyName);
+			m_w.append("\");\n\t}");
+		}
+
+		private void generateListProperty(TypeMirror returnType, String propertyName) throws Exception {
+			DeclaredType rtype = (DeclaredType) returnType;
+
+			DeclaredType rtypeArg = (DeclaredType) rtype.getTypeArguments().iterator().next();
+			String rtypeArgName = rtypeArg.asElement().getSimpleName().toString();
+			String frtypeArgName = rtypeArg.toString();
+
+			String pack = packName(frtypeArgName);
+
+			String qrtypeArgName = pack + "." + PRE_FIX + rtypeArgName;
+
+			String mname = replaceReserved(propertyName);
+			m_w.append("\n\n\t@Nonnull\n\tpublic final QList<R,");
+			m_w.append(qrtypeArgName);
+			m_w.append("Root> ");
+			m_w.append(mname);
+			m_w.append("() throws Exception {\n\t\treturn new QList<R,");
+			m_w.append(qrtypeArgName);
+			m_w.append("Root>(");
+			m_w.append(qrtypeArgName);
+			m_w.append(".get(), this,\"");
+			m_w.append(propertyName);
+			m_w.append("\");\n\t}");
+		}
+
+		/**
+		 * Visits a single method.
+		 */
 		@Override
 		public Object visitExecutable(ExecutableElement m, Object p) {
 			try {
-				List< ? extends AnnotationMirror> annotationMirrors = m.getAnnotationMirrors();
-				for(AnnotationMirror a : annotationMirrors) {
-					Name annName = a.getAnnotationType().asElement().getSimpleName();
-					if(annName.toString().equals("Column")) {
-						String mname = m.getSimpleName().toString();
-						if(mname.startsWith("is")) {
-							mname = Character.toLowerCase(mname.charAt(2)) + mname.substring(3);
-						} else {
-							mname = Character.toLowerCase(mname.charAt(3)) + mname.substring(4);
-						}
-						TypeMirror returnType = m.getReturnType();
-						String mtypeName;
-						if(returnType instanceof PrimitiveType) {
-							String retStr = returnType.toString();
-							if(retStr.equals("int") || retStr.equals("short")) {
-								retStr = "long";
-							}
-							mtypeName = Character.toUpperCase(retStr.charAt(0)) + retStr.substring(1);
-							String pname = mname;
-							mname = replaceReserved(mname);
-							m_w.append("\n\n\t@Nonnull\n\tpublic final QField");
-							m_w.append(mtypeName);
-							m_w.append("<R> ");
-							m_w.append(mname);
-							m_w.append("() {\n\t\treturn new QField");
-							m_w.append(mtypeName);
-							m_w.append("<R>(new QField<R, ");
-							m_w.append(retStr);
-							m_w.append("[]>(m_root, this, \"");
-							m_w.append(pname);
-							m_w.append("\"));\n\t}");
-
-						} else {
-							Element mtype = processingEnv.getTypeUtils().asElement(returnType);
-
-							//mtypeName = mtype.getSimpleName().toString();
-							mtypeName = m.getReturnType().toString();
-
-							String pname = mname;
-							mname = replaceReserved(mname);
-							m_w.append("\n\n\t@Nonnull\n\tpublic final QField<R,");
-							m_w.append(mtypeName);
-							m_w.append("> ");
-							m_w.append(mname);
-							m_w.append("() {\n\t\treturn new QField<R,");
-							m_w.append(mtypeName);
-							m_w.append(">(m_root, this, \"");
-							m_w.append(pname);
-							m_w.append("\");\n\t}");
-
-						}
-
-					} else if(annName.toString().equals("ManyToOne")) {
-						String mname = m.getSimpleName().toString();
-						mname = Character.toLowerCase(mname.charAt(3)) + mname.substring(4);
-						Element mtype = processingEnv.getTypeUtils().asElement(m.getReturnType());
-						String qtype = packName(m.getReturnType().toString()) + "." + PRE_FIX + mtype.getSimpleName().toString();
-
-						String pname = mname;
-						mname = replaceReserved(mname);
-						m_w.append("\n\n\t@Nonnull\n\tpublic final ");
-						m_w.append(qtype);
-						m_w.append("<R> ");
-						m_w.append(mname);
-						m_w.append("() {\n\t\treturn new ");
-						m_w.append(qtype);
-						m_w.append("<R>(m_root, this, \"");
-						m_w.append(pname);
-						m_w.append("\");\n\t}");
-					} else if(annName.toString().equals("OneToMany")) {
-						String mname = m.getSimpleName().toString();
-						mname = Character.toLowerCase(mname.charAt(3)) + mname.substring(4);
-						Element mtype = processingEnv.getTypeUtils().asElement(m.getReturnType());
-						DeclaredType rtype = (DeclaredType) m.getReturnType();
-
-						DeclaredType rtypeArg = (DeclaredType) rtype.getTypeArguments().iterator().next();
-						String rtypeArgName = rtypeArg.asElement().getSimpleName().toString();
-						String frtypeArgName = rtypeArg.toString();
-
-						String pack = packName(frtypeArgName);
-
-						String qrtypeArgName = pack + "." + PRE_FIX + rtypeArgName;
-
-						String pname = mname;
-						mname = replaceReserved(mname);
-						m_w.append("\n\n\t@Nonnull\n\tpublic final QList<R,");
-						m_w.append(qrtypeArgName);
-						m_w.append("Root> ");
-						m_w.append(mname);
-						m_w.append("() throws Exception {\n\t\treturn new QList<R,");
-						m_w.append(qrtypeArgName);
-						m_w.append("Root>(");
-						m_w.append(qrtypeArgName);
-						m_w.append(".get(), this,\"");
-						m_w.append(pname);
-						m_w.append("\");\n\t}");
-					}
-
-
-					if(annName.toString().equals("ManyToOne") || annName.toString().equals("Column")) {
-						String mname = m.getSimpleName().toString();
-						if(mname.startsWith("is")) {
-							mname = Character.toLowerCase(mname.charAt(2)) + mname.substring(3);
-						} else {
-							mname = Character.toLowerCase(mname.charAt(3)) + mname.substring(4);
-						}
-						TypeMirror returnType = m.getReturnType();
-
-						String mtypeName;
-						if(returnType instanceof PrimitiveType) {
-							mtypeName = returnType.toString();
-							if(mtypeName.equals("int") || mtypeName.equals("short")) {
-								mtypeName = "long";
-							}
-
-						} else {
-							Element mtype = processingEnv.getTypeUtils().asElement(returnType);
-							//mtypeName = mtype.getSimpleName().toString();
-							mtypeName = m.getReturnType().toString();
-						}
-
-						mname = replaceReserved(mname);
-
-						m_w.append("\n\n\t/**\n\t");
-						m_w.append(" * Shortcut eq\n\t");
-						m_w.append(" * @param ");
-						m_w.append(mname);
-						m_w.append("\n\t");
-						m_w.append(" * @return\n\t");
-						m_w.append(" */\n\t@Nonnull\n\tpublic final R ");
-						m_w.append(mname);
-						m_w.append("(@Nonnull ");
-						m_w.append(mtypeName);
-						m_w.append("... ");
-						m_w.append(mname);
-						m_w.append(") {\n\t\treturn ");
-						m_w.append(mname);
-						m_w.append("().eq(");
-						m_w.append(mname);
-						m_w.append(");\n\t}");
-
-
-					}
-
-
+				//-- We accept only the getters, isxxx and getxxxx
+				String methodName = m.getSimpleName().toString();
+				String propertyName;
+				if(methodName.startsWith("is")) {
+					propertyName = Introspector.decapitalize(methodName.substring(2));
+				} else if(methodName.startsWith("get")) {
+					propertyName = Introspector.decapitalize(methodName.substring(3));
+				} else {
+					return super.visitExecutable(m, p);
 				}
+
+				TypeMirror returnType = m.getReturnType();
+				if(returnType instanceof javax.lang.model.type.NoType) {	// void?
+					return super.visitExecutable(m, p);
+				}
+
+				//-- Get a set of annotation names
+				Set<String> annotationNames = new HashSet<>();
+				for(AnnotationMirror a : m.getAnnotationMirrors()) {
+					Name annName = a.getAnnotationType().asElement().getSimpleName();
+					annotationNames.add(annName.toString());
+				}
+
+				//-- Now generate the appropriate types.
+				if(annotationNames.contains("Column")) {
+					generateColumnProperty(returnType, propertyName);
+				} else if(annotationNames.contains("ManyToOne")) {
+					generateParentProperty(returnType, propertyName);
+				} else if(annotationNames.contains("OneToMany")) {
+					generateListProperty(returnType, propertyName);
+				}
+
+
+				//List< ? extends AnnotationMirror> annotationMirrors = m.getAnnotationMirrors();
+				//for(AnnotationMirror a : annotationMirrors) {
+				//	if(annName.toString().equals("ManyToOne") || annName.toString().equals("Column")) {
+				//		String mname = m.getSimpleName().toString();
+				//		if(mname.startsWith("is")) {
+				//			mname = Character.toLowerCase(mname.charAt(2)) + mname.substring(3);
+				//		} else {
+				//			mname = Character.toLowerCase(mname.charAt(3)) + mname.substring(4);
+				//		}
+				//		TypeMirror returnType = m.getReturnType();
+				//
+				//		String mtypeName;
+				//		if(returnType instanceof PrimitiveType) {
+				//			mtypeName = returnType.toString();
+				//			if(mtypeName.equals("int") || mtypeName.equals("short")) {
+				//				mtypeName = "long";
+				//			}
+				//
+				//		} else {
+				//			Element mtype = processingEnv.getTypeUtils().asElement(returnType);
+				//			//mtypeName = mtype.getSimpleName().toString();
+				//			mtypeName = m.getReturnType().toString();
+				//		}
+				//
+				//		mname = replaceReserved(mname);
+				//
+				//		m_w.append("\n\n\t/**\n\t");
+				//		m_w.append(" * Shortcut eq\n\t");
+				//		m_w.append(" * @param ");
+				//		m_w.append(mname);
+				//		m_w.append("\n\t");
+				//		m_w.append(" * @return\n\t");
+				//		m_w.append(" */\n\t@Nonnull\n\tpublic final R ");
+				//		m_w.append(mname);
+				//		m_w.append("(@Nonnull ");
+				//		m_w.append(mtypeName);
+				//		m_w.append("... ");
+				//		m_w.append(mname);
+				//		m_w.append(") {\n\t\treturn ");
+				//		m_w.append(mname);
+				//		m_w.append("().eq(");
+				//		m_w.append(mname);
+				//		m_w.append(");\n\t}");
+				//	}
+				//
+				//
+				//}
 
 
 			} catch(Exception e1) {
@@ -325,6 +352,8 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 			}
 			return super.visitExecutable(m, p);
 		}
+
+
 
 		private String packName(String frtypeArgName) {
 			int dotIndex = frtypeArgName.lastIndexOf('.');
