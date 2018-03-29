@@ -52,7 +52,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
-public class HtmlFullRenderer extends NodeVisitorBase {
+public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRenderer {
 	//	private BrowserVersion m_browserVersion;
 
 	/** The thingy responsible for rendering the tags, */
@@ -109,11 +109,13 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		m_xml = xml;
 	}
 
+	@Override
 	@Nonnull
 	public IBrowserOutput o() {
 		return m_o;
 	}
 
+	@Override
 	public IRequestContext ctx() {
 		return m_ctx;
 	}
@@ -286,6 +288,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		page().internalContributorsRendered(); // Mark as rendered.
 	}
 
+	@Override
 	public void renderLoadCSS(String path) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
@@ -300,6 +303,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		//o().closetag("link");
 	}
 
+	@Override
 	public void renderLoadJavascript(@Nonnull String path) throws Exception {
 		if(!path.startsWith("http")) {
 			String rurl = m_page.getBody().getThemedResourceRURL(path);

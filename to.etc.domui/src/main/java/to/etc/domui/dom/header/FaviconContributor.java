@@ -11,7 +11,10 @@ final public class FaviconContributor extends HeaderContributor {
 	}
 
 	@Override
-	public void contribute(HtmlFullRenderer r) throws Exception {
+	public void contribute(IContributorRenderer r) throws Exception {
+		if(r instanceof OptimalDeltaRenderer)
+			return;
+
 		IBrowserOutput o = r.o();
 
 		o.tag("link");
@@ -20,10 +23,6 @@ final public class FaviconContributor extends HeaderContributor {
 		o.endtag();
 		o.dec();
 		//o.closetag("link");
-	}
-
-	@Override
-	public void contribute(OptimalDeltaRenderer r) throws Exception {
 	}
 
 	@Override
