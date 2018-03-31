@@ -20,8 +20,9 @@ import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
-import javax.tools.StandardLocation;
+import javax.tools.JavaFileObject;
 import java.beans.Introspector;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -152,9 +153,13 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 		return entityName + "_Link";
 	}
 
+	private JavaFileObject createFile(String name, TypeElement ann) throws IOException {
+		return processingEnv.getFiler().createSourceFile(name, ann);
+	}
+
 	private void generateRootClass(String pkgName, String targetClassName, TypeElement ann, List<Property> properties) throws Exception {
 		String className = getRootClass(targetClassName);
-		FileObject jf2 = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, pkgName, className + ".java", ann);
+		FileObject jf2 = createFile(pkgName + "." + className, ann);
 
 		try(Writer w = jf2.openWriter()) {
 			w.append("package ").append(pkgName).append(";\n");
@@ -170,7 +175,7 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 
 	private void generateStaticClass(String pkgName, String targetClassName, TypeElement ann, List<Property> properties) throws Exception {
 		String className = getStaticClass(targetClassName);
-		FileObject jf2 = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, pkgName, className + ".java", ann);
+		FileObject jf2 = createFile(pkgName + "." + className, ann);
 
 		try(Writer w = jf2.openWriter()) {
 			new StaticClassGenerator(this, w, pkgName, className, properties, targetClassName).generate();
@@ -179,7 +184,7 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 
 	private void generateLinkClass(String pkgName, String targetClassName, TypeElement ann, List<Property> properties) throws Exception {
 		String className = getLinkClass(targetClassName);
-		FileObject jf2 = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT, pkgName, className + ".java", ann);
+		FileObject jf2 = createFile(pkgName + "." + className, ann);
 
 		try(Writer w = jf2.openWriter()) {
 			new LinkClassGenerator(this, w, pkgName, className, properties, targetClassName).generate();
