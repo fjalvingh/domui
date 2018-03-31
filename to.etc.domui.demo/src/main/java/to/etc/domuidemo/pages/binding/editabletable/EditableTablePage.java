@@ -25,6 +25,7 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INodeContentRenderer;
 import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.query.QCriteria;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -50,6 +51,9 @@ public class EditableTablePage extends UrlPage {
 		RowRenderer<Line> rr = createRowRenderer();
 		DataTable<Line> dataTable = m_dataTable = new DataTable<>(rr);
 		dataTable.setList(model().getLineList());
+
+		QCriteria<Line> q = QCriteria.create(Line.class);
+		q.eq(Line_.amountType(), AmountType.Amount);
 
 		//m_simpleListModel.setComparator(Comparator.comparing(Line::getPeriodeVan).thenComparing(Line::getPeriodeTm));
 		dataTable.setPreventRowHighlight(true);

@@ -69,6 +69,10 @@ abstract class ClassGenerator {
 		return m_className;
 	}
 
+	public String getTargetClassName() {
+		return m_targetClassName;
+	}
+
 	protected ClassGenerator append(String s) throws IOException {
 		m_w.append(s);
 		return this;
@@ -77,7 +81,7 @@ abstract class ClassGenerator {
 	public void generate() throws Exception {
 		generateClassHeader();
 
-		append("public final class ");
+		append("public class ");
 		append(m_className);
 		generateClassExtends();
 		append(" {\n");

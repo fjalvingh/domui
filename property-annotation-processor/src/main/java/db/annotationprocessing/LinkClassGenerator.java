@@ -21,7 +21,7 @@ public class LinkClassGenerator extends ClassGenerator {
 
 	@Override protected void generateClassExtends() throws IOException {
 		m_w.append("<R extends QField<R, ? >> extends QField<R, ");
-		m_w.append(getLinkClass());
+		m_w.append(getTargetClassName());
 		m_w.append(">");
 	}
 
