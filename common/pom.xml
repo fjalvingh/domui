@@ -34,7 +34,6 @@
 
     <modules>
         <module>annotations</module>
-        <module>annotations</module>
     </modules>
 
 </project>
