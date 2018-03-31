@@ -1,8 +1,8 @@
 package to.etc.webapp.query;
 
-import java.lang.reflect.*;
-
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.ParameterizedType;
 
 /**
  * Class for creating exists queries based upon the list in the Entity class.
@@ -31,15 +31,15 @@ public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 		m_listName = parent.toString().equals("") ? listName : parent.toString() + "." + listName;
 	}
 
-	public @Nonnull
-	<T>
-	R exists() throws Exception {
-
-		Class<T> rootClass = (Class<T>) getRootClass();
-		m_subquery = new QExistsSubquery<T>(m_parent.criteria(), rootClass, m_listName);
-		m_parent.qbrace().add(this);
-		return m_root;
-	}
+	//public @Nonnull
+	//<T>
+	//R exists() throws Exception {
+	//
+	//	Class<T> rootClass = (Class<T>) getRootClass();
+	//	m_subquery = new QExistsSubquery<T>(m_parent.criteria(), rootClass, m_listName);
+	//	m_parent.qbrace().add(this);
+	//	return m_root;
+	//}
 
 
 	@Nonnull Class< ? > getRootClass() {
