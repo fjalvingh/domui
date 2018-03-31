@@ -35,17 +35,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <annotationProcessors>
-                        <annotationProcessor>db.annotationprocessing.EntityAnnotationProcessor</annotationProcessor>
-                    </annotationProcessors>
-                    <annotationProcessorPaths>
-                        <dependency>
-                            <groupId>to.etc.domui</groupId>
-                            <artifactId>property-annotations-processor</artifactId>
-                            <version>1.2-SNAPSHOT</version>
-                        </dependency>
-                    </annotationProcessorPaths>
-
                     <compilerId>eclipse</compilerId>
                     <source>${source.jdk.version}</source>
                     <target>${target.jdk.version}</target>

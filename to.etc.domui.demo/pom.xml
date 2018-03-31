@@ -37,6 +37,14 @@
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
         </dependency>
+
+        <!-- Oddity which seems to be necessary for IntelliJ to pick up the annotation processor. -->
+        <dependency>
+            <groupId>to.etc.domui</groupId>
+            <artifactId>property-annotations-processor</artifactId>
+            <version>1.2-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>to.etc.domui</groupId>
             <artifactId>to.etc.logger</artifactId>
@@ -130,6 +138,32 @@
     <build>
         <finalName>demo</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <annotationProcessors>
+                        <annotationProcessor>db.annotationprocessing.EntityAnnotationProcessor</annotationProcessor>
+                    </annotationProcessors>
+                    <annotationProcessorPaths>
+                        <dependency>
+                            <groupId>to.etc.domui</groupId>
+                            <artifactId>property-annotations-processor</artifactId>
+                            <version>1.2-SNAPSHOT</version>
+                        </dependency>
+                    </annotationProcessorPaths>
+                </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>to.etc.domui</groupId>
+                        <artifactId>property-annotations-processor</artifactId>
+                        <version>1.2-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
             <!--
                 The demo app requires the java source files to be reachable as resources, to allow
                 for "show source".
