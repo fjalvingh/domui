@@ -36,6 +36,7 @@
       <profile name="Annotation profile for domui" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
         <processor name="db.annotationprocessing.EntityAnnotationProcessor" />
         <module name="to.etc.domui.demo" />
       </profile>
