@@ -35,6 +35,7 @@ public class Line {
 
 	private boolean m_divide;
 
+	private LineController m_controller;
 
 	public Line() {
 	}
@@ -104,4 +105,11 @@ public class Line {
 		return getAmountType() == AmountType.Amount ? VisibilityType.VISIBLE : VisibilityType.HIDDEN;
 	}
 
+	public LineController getController() {
+		return m_controller;
+	}
+
+	public void setController(LineController controller) {
+		m_controller = controller;
+	}
 }

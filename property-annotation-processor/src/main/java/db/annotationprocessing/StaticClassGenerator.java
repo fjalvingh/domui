@@ -2,6 +2,7 @@ package db.annotationprocessing;
 
 import db.annotationprocessing.EntityAnnotationProcessor.Property;
 
+import javax.lang.model.element.Element;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
 import java.io.Writer;
@@ -55,5 +56,23 @@ public class StaticClassGenerator extends ClassGenerator {
 			m_w.append(">();\n");
 			m_w.append("\t}\n");
 		}
+	}
+
+	@Override
+	protected void generateParentProperty(TypeMirror returnType, String propertyName) throws Exception {
+		Element mtype = typeUtils().asElement(returnType);
+		String qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(mtype.getSimpleName().toString());
+		String linkClass = getRootClassName();
+
+		String mname = replaceReserved(propertyName);
+		m_w.append("\n\n\t@Nonnull\n\tpublic final ");
+		m_w.append(qtype);
+		m_w.append("<").append(linkClass).append("> ");
+		m_w.append(mname);
+		m_w.append("() {\n\t\treturn new ");
+		m_w.append(qtype);
+		m_w.append("<").append(getRootClassName()).append(">(null, \"");
+		m_w.append(propertyName);
+		m_w.append("\");\n\t}");
 	}
 }

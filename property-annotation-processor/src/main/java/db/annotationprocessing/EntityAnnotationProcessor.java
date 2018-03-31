@@ -44,6 +44,10 @@ import java.util.Set;
  * Created on Feb 3, 2013
  */
 public class EntityAnnotationProcessor extends AbstractProcessor {
+	static public final String PERSISTENCE_ANNOTATION = "javax.persistence.Entity";
+
+	static public final String GENERATED_PROPERTIES_ANNOTATION = "to.etc.annotations.GenerateProperties";
+
 	static public final String VERSION = "1.0";
 
 	private static final String PRE_FIX = "P";
@@ -51,6 +55,8 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 	private Types m_typeUtils;
 
 	private Elements m_elementUtils;
+
+	private Messager m_messager;
 
 	static public final class Property {
 		private final TypeMirror m_type;
@@ -86,6 +92,7 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 		super.init(processingEnv);
 		m_typeUtils = processingEnv.getTypeUtils();
 		m_elementUtils = processingEnv.getElementUtils();
+		m_messager = processingEnv.getMessager();
 	}
 
 	public Types getTypeUtils() {
@@ -94,6 +101,10 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 
 	public Elements getElementUtils() {
 		return m_elementUtils;
+	}
+
+	public Messager getMessager() {
+		return m_messager;
 	}
 
 	@Override
