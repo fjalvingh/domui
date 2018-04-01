@@ -25,6 +25,7 @@
 package to.etc.domui.dom.css;
 
 import to.etc.domui.util.DomUtil;
+import to.etc.webapp.query.QField;
 
 /**
  * Base class for all remote DOM nodes containing only CSS properties && change management for those.
@@ -33,6 +34,9 @@ import to.etc.domui.util.DomUtil;
  * Created on Aug 17, 2007
  */
 public class CssBase {
+	static public final QField<?, DisplayType> DISPLAY = new QField<>("display");
+	static public final QField<?, VisibilityType> VISIBILITY = new QField<>("visibility");
+
 	private String m_cachedStyle;
 
 	/*-- CSS Background properties --*/

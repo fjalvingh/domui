@@ -165,15 +165,7 @@ public class EditableTablePage extends UrlPage {
 			ctrl.setCssClass("ui-numeric");
 			ctrl.bind("readOnly").to(model(), "readOnly");
 
-			//ctrl.bind(VisibilityType.class, "visibility").convert(new IBidiBindingConverter<VisibilityType, AmountType>() {
-			//	@Nullable @Override public VisibilityType modelToControl(@Nullable AmountType value) throws Exception {
-			//		return value == AmountType.Amount ? VisibilityType.HIDDEN : VisibilityType.VISIBLE;
-			//	}
-			//
-			//	@Nullable @Override public AmountType controlToModel(@Nullable VisibilityType value) throws Exception {
-			//		return null;
-			//	}
-			//}).to(row, "amountType");
+			//ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType()).converter();
 
 			ctrl.bind("visibility").to(row, "percentageVisible");
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("0.01"), new BigDecimal("100.00")));

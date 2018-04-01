@@ -14,22 +14,16 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 19-3-17.
  */
-public interface IBidiBindingConverter<C, V> {
+public interface IBidiBindingConverter<CV, MV> {
 	/**
 	 * Convert the value V, obtained from the model, to a value type that is expected by the control.
-	 * @param value
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
-	C modelToControl(@Nullable V value) throws Exception;
+	CV modelToControl(@Nullable MV value) throws Exception;
 
 	/**
 	 * Control the value C, obtained from the control, into some value type expected by the model.
-	 * @param value
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
-	V controlToModel(@Nullable C value) throws Exception;
+	MV controlToModel(@Nullable CV value) throws Exception;
 }

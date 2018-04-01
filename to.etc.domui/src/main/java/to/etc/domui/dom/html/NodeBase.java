@@ -212,7 +212,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/** Is nonnull while a binding is being constructed, used to give errors when a binding has not been completed fully. */
 	@Nullable
-	private BindingBuilder<?> m_currentBindBuilder;
+	private Object m_currentBindBuilder;
 
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
@@ -1956,42 +1956,50 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
-	 * Shorthand for binding the "bindValue" (or value) property of a control.
+	 * Shorthand for binding the "bindValue" (or value) property of a control. This creates
+	 * a bidirectional binding.
 	 */
-	@Nonnull final public BindingBuilder<?> bind() {
+	@Nonnull final public BindingBuilderBidi<?> bind() {
+		checkBindingCompleted();
 		ClassMetaModel cmm = MetaManager.findClassMeta(getClass());
 		PropertyMetaModel<?> p = cmm.findProperty("bindValue");
+		BindingBuilderBidi<?> b;
 		if(null != p)
-			return bind("bindValue");
-		p = cmm.findProperty("value");
-		if(null != p)
-			return bind("value");
-		throw new ProgrammerErrorException("This control (" + getClass() + ") does not have a 'value' nor a 'bindValue' property");
+			b = new BindingBuilderBidi<>(this, p);
+		else {
+			p = cmm.findProperty("value");
+			if(null != p)
+				b = new BindingBuilderBidi<>(this, p);
+			else
+				throw new ProgrammerErrorException("This control (" + getClass() + ") does not have a 'value' nor a 'bindValue' property");
+		}
+		m_currentBindBuilder = b;
+		return b;
 	}
 
-	@Nonnull final public BindingBuilder<?> bind(@Nonnull String componentProperty) {
+	@Nonnull final public BindingBuilderUni<?> bind(@Nonnull String componentProperty) {
 		checkBindingCompleted();
-		BindingBuilder<Object> builder = new BindingBuilder<>(this, componentProperty);
+		BindingBuilderUni<Object> builder = new BindingBuilderUni<>(this, componentProperty);
 		m_currentBindBuilder = builder;
 		return builder;
 	}
 
-	@Nonnull final public <V> BindingBuilder<?> bind(@Nonnull QField<?, V> componentProperty) {
+	@Nonnull final public <V> BindingBuilderUni<?> bind(@Nonnull QField<?, V> componentProperty) {
 		checkBindingCompleted();
-		BindingBuilder<V> builder = new BindingBuilder<>(this, componentProperty);
+		BindingBuilderUni<V> builder = new BindingBuilderUni<>(this, componentProperty);
 		m_currentBindBuilder = builder;
 		return builder;
 	}
 
-	@Nonnull final public <V> BindingBuilder<V> bind(Class<V> valueClass, @Nonnull String componentProperty) {
+	@Nonnull final public <V> BindingBuilderUni<V> bind(Class<V> valueClass, @Nonnull String componentProperty) {
 		checkBindingCompleted();
-		BindingBuilder<V> builder = new BindingBuilder<>(this, componentProperty);
+		BindingBuilderUni<V> builder = new BindingBuilderUni<>(this, componentProperty);
 		m_currentBindBuilder = builder;
 		return builder;
 	}
 
 	private void checkBindingCompleted() {
-		BindingBuilder<?> currentBindBuilder = m_currentBindBuilder;
+		Object currentBindBuilder = m_currentBindBuilder;
 		if(currentBindBuilder != null)
 			throw new ProgrammerErrorException(currentBindBuilder + ": binding has not been finished");
 	}

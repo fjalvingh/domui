@@ -26,19 +26,15 @@ package to.etc.domui.component.binding;
 
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.util.IReadOnlyModel;
 import to.etc.domui.util.IValueAccessor;
-import to.etc.domui.util.IWriteOnlyModel;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.CodeException;
 
 import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
@@ -48,53 +44,16 @@ import javax.annotation.Nullable;
  * Created on Oct 13, 2009
  */
 @DefaultNonNull
-final public class ComponentPropertyBinding<C extends NodeBase, CV, M, MV> implements IBinding {
-	@Nonnull
-	final private C m_control;
-
-	@Nonnull
-	final private PropertyMetaModel<CV> m_controlProperty;
-
-	/** The instance bound to */
-	//@Nullable
-	final private M m_instance;
-
-	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
-	//@Nullable
-	final private IValueAccessor<MV> m_instanceProperty;
-
+final public class ComponentPropertyBinding<C extends NodeBase, CV, M, MV> extends AbstractComponentPropertyBinding<C, CV, M, MV> implements IBinding {
 	@Nullable
 	private IBidiBindingConverter<CV, MV> m_converter;
 
-	/**
-	 * The last value read from the control. If a converter is present, this value is converted to a MODEL value.
-	 */
-	@Nullable
-	private MV m_lastValueFromControlAsModelValue;
-
-	/** If this binding is in error this contains the error. */
-	@Nullable
-	private UIMessage m_bindError;
-
-	@Nullable
-	private IWriteOnlyModel<MV> m_setter;
-
-	@Nullable
-	private IReadOnlyModel<MV> m_getter;
-
 	public ComponentPropertyBinding(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor) {
-		m_control = control;
-		m_controlProperty = controlProperty;
-		m_instance = modelInstance;
-		m_instanceProperty = accessor;
+		super(control, controlProperty, modelInstance, accessor);
 	}
 
-	/*----------------------------------------------------------------------*/
-	/*	CODING:	Accessing the binding's data.								*/
-	/*----------------------------------------------------------------------*/
 	/**
 	 * If this binding is in error: return the message describing that error.
-	 * @return
 	 */
 	@Override
 	@Nullable
@@ -102,113 +61,6 @@ final public class ComponentPropertyBinding<C extends NodeBase, CV, M, MV> imple
 		return m_bindError;
 	}
 
-	@Nonnull
-	public IValueAccessor< ? > getControlProperty() {
-		return m_controlProperty;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("binding[");
-		if(m_instance != null) {
-			sb.append(m_instance);
-		} else if(m_setter != null || m_getter != null) {
-			sb.append("get/set lambda");
-		} else {
-			sb.append("?");
-		}
-		IValueAccessor< ? > instanceProperty = m_instanceProperty;
-		if(instanceProperty != null) {
-			sb.append(".");
-			if(instanceProperty instanceof PropertyMetaModel) {
-				sb.append(((PropertyMetaModel< ? >) instanceProperty).getName());
-			} else {
-				sb.append(instanceProperty.toString());
-			}
-		}
-		NodeBase control = m_control;
-		if(null != control) {
-			sb.append(" to ");
-			sb.append(control.getClass().getSimpleName());
-			IValueAccessor<?> controlProperty = m_controlProperty;
-			if(null != controlProperty) {
-				if(controlProperty instanceof PropertyMetaModel<?>) {
-					sb.append(".").append(((PropertyMetaModel<?>) controlProperty).getName());
-				} else {
-					sb.append(controlProperty.toString());
-				}
-			}
-		}
-		sb.append("]");
-		return sb.toString();
-	}
-
-	//@Nullable
-	public M getInstance() {
-		return m_instance;
-	}
-
-	//@Nullable
-	public IValueAccessor<MV> getInstanceProperty() {
-		return m_instanceProperty;
-	}
-
-
-	@Nullable
-	private MV getValueFromModel() throws Exception {
-		MV modelValue;
-		IReadOnlyModel<MV> getter = m_getter;
-		if(null != getter) {
-			modelValue = getter.getValue();
-		} else {
-			IValueAccessor<MV> instanceProperty = m_instanceProperty;
-			if(null == instanceProperty)
-				throw new IllegalStateException("instance property cannot be null");
-			M instance = m_instance;
-			if(null == instance)
-				throw new IllegalStateException("instance cannot be null");
-			modelValue = instanceProperty.getValue(instance);
-		}
-		return modelValue;
-	}
-
-	@Override public <T> void setModelValue(@Nullable T value) {
-		IWriteOnlyModel<T> setter = (IWriteOnlyModel<T>) m_setter;
-		if(m_getter != null || setter != null) {
-			if(setter != null) {
-				try {
-					setter.getValue(value);
-				} catch(Exception x) {
-					if(value == null)
-						throw new BindingFailureException(x, "->model", this + ": Binding error moving null to the binding's 'set' lambda");
-					throw new BindingFailureException(x, "->model", this + ": Binding error moving " + value + " (a " + value.getClass().getName() + ") to the binding's 'set' lambda");
-				}
-			}
-			return;
-		}
-
-		IValueAccessor< ? > instanceProperty = m_instanceProperty;
-		if(null == instanceProperty)
-			throw new IllegalStateException("instance property cannot be null");
-		if(instanceProperty.isReadOnly())
-			throw new IllegalStateException(instanceProperty + ": You cannot set this read-only property");
-		Object instance = m_instance;
-		if(null == instance)
-			throw new IllegalStateException("instance cannot be null");
-
-		try {
-			((IValueAccessor<T>) instanceProperty).setValue(instance, value);
-		} catch(Exception x) {
-			if(value == null)
-				throw new BindingFailureException(x, "->model", this + ": Binding error moving null to " + m_instanceProperty);
-			throw new BindingFailureException(x, "->model", this + ": Binding error moving " + value + " (a " + value.getClass().getName() + ") to " + m_instanceProperty);
-		}
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IModelBinding interface implementation.				*/
-	/*--------------------------------------------------------------*/
 	/**
 	 * Calculate the list of changes made to controls, as part one of the controlToModel
 	 * process. Each control whose value changed will be registered in a list of
@@ -297,35 +149,13 @@ final public class ComponentPropertyBinding<C extends NodeBase, CV, M, MV> imple
 		return new BindingValuePair<>(this, controlModelValue);
 	}
 
-	/**
-	 * Move the data to the control.
-	 */
-	@Override
-	public void moveModelToControl() throws Exception {
-		try {
-			MV modelValue = getValueFromModel();
-
-			// FIXME We should think about exception handling here
-			//System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
-			if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControlAsModelValue)) {
-				//-- Value in instance differs from control's
-				m_lastValueFromControlAsModelValue = modelValue;
-
-				IBidiBindingConverter<CV, MV> converter = m_converter;
-				CV controlValue = null;
-				if(null != converter) {
-					controlValue = converter.modelToControl(modelValue);
-				} else {
-					controlValue = (CV) modelValue;
-				}
-
-				if(m_controlProperty.getReadOnly() != YesNoType.YES) {
-					m_controlProperty.setValue(m_control, controlValue);
-				}
-				m_bindError = null;                                    // Let's assume binding has no trouble.
-			}
-		} catch(Exception x) {
-			throw new BindingFailureException(x, "Model->Control", this.toString());
+	@Nullable
+	@Override protected CV convertModelToControl(@Nullable MV modelValue) throws Exception {
+		IBidiBindingConverter<CV, MV> converter = m_converter;
+		if(null != converter) {
+			return converter.modelToControl(modelValue);
+		} else {
+			return (CV) modelValue;
 		}
 	}
 
