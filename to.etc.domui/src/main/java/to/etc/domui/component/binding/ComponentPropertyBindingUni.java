@@ -20,8 +20,9 @@ public class ComponentPropertyBindingUni<C extends NodeBase, CV, M, MV> extends 
 	@Nullable
 	private FunctionEx<MV, CV> m_converter;
 
-	public ComponentPropertyBindingUni(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor) {
+	public ComponentPropertyBindingUni(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor, @Nullable FunctionEx<MV, CV> converter) {
 		super(control, controlProperty, modelInstance, accessor);
+		m_converter = converter;
 	}
 
 	/**
@@ -39,10 +40,5 @@ public class ComponentPropertyBindingUni<C extends NodeBase, CV, M, MV> extends 
 		} else {
 			return (CV) modelValue;
 		}
-	}
-
-	public ComponentPropertyBindingUni<C, CV, M, MV> converter(@Nullable FunctionEx<MV, CV> converter) {
-		m_converter = converter;
-		return this;
 	}
 }

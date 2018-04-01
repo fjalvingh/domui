@@ -3,6 +3,7 @@ package to.etc.domui.dom.html;
 import to.etc.domui.component.binding.BindReference;
 import to.etc.domui.component.binding.BindingDefinitionException;
 import to.etc.domui.component.binding.ComponentPropertyBinding;
+import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -13,6 +14,7 @@ import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -60,10 +62,20 @@ final public class BindingBuilderBidi<CV> {
 		return to(ref.getInstance(), ref.getProperty());
 	}
 
+	public <M, MV> ComponentPropertyBinding<?, CV, M, MV> to(@Nonnull BindReference<M, MV> ref, @Nullable IBidiBindingConverter<CV, MV> converter) throws Exception {
+		return to(ref.getInstance(), ref.getProperty(), converter);
+	}
+
 	public <M, MV> ComponentPropertyBinding<?, CV, M, MV> to(@Nonnull M instance, @Nonnull String property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
 		return to(instance, (PropertyMetaModel<MV>) MetaManager.getPropertyMeta(instance.getClass(), property));
+	}
+
+	public <M, MV> ComponentPropertyBinding<?, CV, M, MV> to(@Nonnull M instance, @Nonnull String property, @Nullable IBidiBindingConverter<CV, MV> converter) throws Exception {
+		if(instance == null || property == null)
+			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
+		return to(instance, (PropertyMetaModel<MV>) MetaManager.getPropertyMeta(instance.getClass(), property), converter);
 	}
 
 	public <T, MV> ComponentPropertyBinding<?, CV, T, MV> to(@Nonnull T instance, @Nonnull QField<?, MV> property) throws Exception {
@@ -72,10 +84,20 @@ final public class BindingBuilderBidi<CV> {
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 	}
 
+	public <T, MV> ComponentPropertyBinding<?, CV, T, MV> to(@Nonnull T instance, @Nonnull QField<?, MV> property, @Nullable IBidiBindingConverter<CV, MV> converter) throws Exception {
+		if(instance == null || property == null)
+			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
+		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property), converter);
+	}
+
+	public <T, MV> ComponentPropertyBinding<?, CV, T, MV> to(@Nonnull T instance, @Nonnull IValueAccessor<MV> pmm) throws Exception {
+		return to(instance, pmm, null);
+	}
+
 	/**
 	 * Bind to a IValueAccessor and the given instance.
 	 */
-	public <T, MV> ComponentPropertyBinding<?, CV, T, MV> to(@Nonnull T instance, @Nonnull IValueAccessor<MV> pmm) throws Exception {
+	public <T, MV> ComponentPropertyBinding<?, CV, T, MV> to(@Nonnull T instance, @Nonnull IValueAccessor<MV> pmm, @Nullable IBidiBindingConverter<CV, MV> converter) throws Exception {
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
 
@@ -106,7 +128,7 @@ final public class BindingBuilderBidi<CV> {
 		}
 
 		//-- Move the data now!
-		ComponentPropertyBinding<?, CV, T, MV> binding = new ComponentPropertyBinding<>(m_control, m_controlProperty, instance, pmm);
+		ComponentPropertyBinding<?, CV, T, MV> binding = new ComponentPropertyBinding<>(m_control, m_controlProperty, instance, pmm, converter);
 		binding.moveModelToControl();
 		m_control.finishBinding(binding);
 		return binding;

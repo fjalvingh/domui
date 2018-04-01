@@ -46,10 +46,11 @@ import javax.annotation.Nullable;
 @DefaultNonNull
 final public class ComponentPropertyBinding<C extends NodeBase, CV, M, MV> extends AbstractComponentPropertyBinding<C, CV, M, MV> implements IBinding {
 	@Nullable
-	private IBidiBindingConverter<CV, MV> m_converter;
+	final private IBidiBindingConverter<CV, MV> m_converter;
 
-	public ComponentPropertyBinding(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor) {
+	public ComponentPropertyBinding(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor, @Nullable IBidiBindingConverter<CV, MV> converter) {
 		super(control, controlProperty, modelInstance, accessor);
+		m_converter = converter;
 	}
 
 	/**
@@ -157,10 +158,5 @@ final public class ComponentPropertyBinding<C extends NodeBase, CV, M, MV> exten
 		} else {
 			return (CV) modelValue;
 		}
-	}
-
-	public ComponentPropertyBinding<C, CV, M, MV> converter(IBidiBindingConverter<CV, MV> converter) {
-		m_converter = converter;
-		return this;
 	}
 }

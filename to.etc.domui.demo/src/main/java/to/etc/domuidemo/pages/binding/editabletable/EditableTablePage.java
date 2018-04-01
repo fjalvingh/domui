@@ -152,7 +152,7 @@ public class EditableTablePage extends UrlPage {
 			ctrl.setErrorLocation("Bedrag");
 			ctrl.setCssClass("ui-numeric");
 			ctrl.bind("readOnly").to(model(), "readOnly");
-			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType()).converter(amountType -> amountType == AmountType.Amount ? VisibilityType.VISIBLE : VisibilityType.HIDDEN);
+			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType(), amountType -> amountType == AmountType.Amount ? VisibilityType.VISIBLE : VisibilityType.HIDDEN);
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("-999999999.99"), new BigDecimal("999999999.99")));
 			ctrl.immediate();
 			return ctrl;
@@ -166,7 +166,7 @@ public class EditableTablePage extends UrlPage {
 			ctrl.setCssClass("ui-numeric");
 			ctrl.bind("readOnly").to(model(), "readOnly");
 
-			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType()).converter(amountType -> amountType == AmountType.Amount ? VisibilityType.HIDDEN : VisibilityType.VISIBLE);
+			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType(), amountType -> amountType == AmountType.Amount ? VisibilityType.HIDDEN : VisibilityType.VISIBLE);
 
 			//ctrl.bind("visibility").to(row, "percentageVisible");
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("0.01"), new BigDecimal("100.00")));
@@ -209,10 +209,4 @@ public class EditableTablePage extends UrlPage {
 	public LineController model() {
 		return m_controller;
 	}
-
-
-	//public static void main(String[] args) {
-	//	Function<Line, AmountType> getAmountType = Line::getAmountType;
-	//	System.out.println(getAmountType);
-	//}
 }

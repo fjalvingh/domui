@@ -9,10 +9,12 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.util.Documentation;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IValueAccessor;
+import to.etc.function.FunctionEx;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  *
@@ -60,10 +62,20 @@ final public class BindingBuilderUni<CV> {
 		return to(ref.getInstance(), ref.getProperty());
 	}
 
+	public <M, MV> ComponentPropertyBindingUni<?, CV, M, MV> to(@Nonnull BindReference<M, MV> ref, @Nullable FunctionEx<MV, CV> converter) throws Exception {
+		return to(ref.getInstance(), ref.getProperty(), converter);
+	}
+
 	public <M, MV> ComponentPropertyBindingUni<?, CV, M, MV> to(@Nonnull M instance, @Nonnull String property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
 		return to(instance, (PropertyMetaModel<MV>) MetaManager.getPropertyMeta(instance.getClass(), property));
+	}
+
+	public <M, MV> ComponentPropertyBindingUni<?, CV, M, MV> to(@Nonnull M instance, @Nonnull String property, @Nullable FunctionEx<MV, CV> converter) throws Exception {
+		if(instance == null || property == null)
+			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
+		return to(instance, (PropertyMetaModel<MV>) MetaManager.getPropertyMeta(instance.getClass(), property), converter);
 	}
 
 	public <T, MV> ComponentPropertyBindingUni<?, CV, T, MV> to(@Nonnull T instance, @Nonnull QField<?, MV> property) throws Exception {
@@ -72,15 +84,25 @@ final public class BindingBuilderUni<CV> {
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 	}
 
+	public <T, MV> ComponentPropertyBindingUni<?, CV, T, MV> to(@Nonnull T instance, @Nonnull QField<?, MV> property, @Nullable FunctionEx<MV, CV> converter) throws Exception {
+		if(instance == null || property == null)
+			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
+		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property), converter);
+	}
+
+	public <T, MV> ComponentPropertyBindingUni<?, CV, T, MV> to(@Nonnull T instance, @Nonnull IValueAccessor<MV> pmm) throws Exception {
+		return to(instance, pmm, null);
+	}
+
 	/**
 	 * Bind to a IValueAccessor and the given instance.
 	 */
-	public <T, MV> ComponentPropertyBindingUni<?, CV, T, MV> to(@Nonnull T instance, @Nonnull IValueAccessor<MV> pmm) throws Exception {
+	public <T, MV> ComponentPropertyBindingUni<?, CV, T, MV> to(@Nonnull T instance, @Nonnull IValueAccessor<MV> pmm, @Nullable FunctionEx<MV, CV> converter) throws Exception {
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
 
 		//-- Check: are the types of the binding ok?
-		if(pmm instanceof PropertyMetaModel<?>) {
+		if(pmm instanceof PropertyMetaModel<?> && converter == null) {
 			PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;
 			Class<?> actualType = DomUtil.getBoxedForPrimitive(p.getActualType());
 			Class<?> controlType = DomUtil.getBoxedForPrimitive(m_controlProperty.getActualType());
@@ -106,7 +128,7 @@ final public class BindingBuilderUni<CV> {
 		}
 
 		//-- Move the data now!
-		ComponentPropertyBindingUni<?, CV, T, MV> binding = new ComponentPropertyBindingUni<>(m_control, m_controlProperty, instance, pmm);
+		ComponentPropertyBindingUni<?, CV, T, MV> binding = new ComponentPropertyBindingUni<>(m_control, m_controlProperty, instance, pmm, converter);
 		binding.moveModelToControl();
 		m_control.finishBinding(binding);
 		return binding;
