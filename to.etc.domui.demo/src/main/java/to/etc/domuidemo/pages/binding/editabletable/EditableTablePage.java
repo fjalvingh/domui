@@ -87,20 +87,20 @@ public class EditableTablePage extends UrlPage {
 
 	private void addTotaal(TBody body) throws Exception {
 		Text2<BigDecimal> totaalCtrl = createBigDecimalControl();
-		totaalCtrl.bind().to(model(), "total");
+		totaalCtrl.bind().to(model(), LineController_.total());
 		TR tr = addControlToBody(body, totaalCtrl, "Total amount");
 		//tr.addCssClass(CssVpDomui.VP_BORDER_TOP.toString());
 	}
 
 	private void addBegroting(TBody body) throws Exception {
 		Text2<BigDecimal> begrotingCtrl = createBigDecimalControl();
-		begrotingCtrl.bind().to(model(), "budgeted");
+		begrotingCtrl.bind().to(model(), LineController_.budgeted());
 		addControlToBody(body, begrotingCtrl, "Budgeted amount");
 	}
 
 	private void addRestant(TBody body) throws Exception {
 		Text2<BigDecimal> restantCtrl = createBigDecimalControl();
-		restantCtrl.bind().to(model(), "remainder");
+		restantCtrl.bind().to(model(), LineController_.remainder());
 		addControlToBody(body, restantCtrl, "Total remaining");
 	}
 
@@ -151,7 +151,7 @@ public class EditableTablePage extends UrlPage {
 			ctrl.setConverter(new MoneyBigDecimalFullConverter());
 			ctrl.setErrorLocation("Bedrag");
 			ctrl.setCssClass("ui-numeric");
-			ctrl.bind("readOnly").to(model(), "readOnly");
+			ctrl.bind("readOnly").to(model(), LineController_.readOnly());
 			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType(), amountType -> amountType == AmountType.Amount ? VisibilityType.VISIBLE : VisibilityType.HIDDEN);
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("-999999999.99"), new BigDecimal("999999999.99")));
 			ctrl.immediate();
@@ -164,7 +164,7 @@ public class EditableTablePage extends UrlPage {
 			Text2<BigDecimal> ctrl = new Text2<>(BigDecimal.class);
 			ctrl.setConverter(new MoneyBigDecimalNoSign());
 			ctrl.setCssClass("ui-numeric");
-			ctrl.bind("readOnly").to(model(), "readOnly");
+			ctrl.bind("readOnly").to(model(), LineController_.readOnly());
 
 			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType(), amountType -> amountType == AmountType.Amount ? VisibilityType.HIDDEN : VisibilityType.VISIBLE);
 
@@ -179,7 +179,7 @@ public class EditableTablePage extends UrlPage {
 		return row -> {
 			ComboFixed2<AmountType> bedragTypeCombo = ComboFixed2.createEnumCombo(AmountType.class);
 			bedragTypeCombo.bind().to(row, Line.pAMOUNTTYPE);
-			bedragTypeCombo.bind("readOnly").to(model(), "readOnly");
+			bedragTypeCombo.bind("readOnly").to(model(), LineController_.readOnly());
 			bedragTypeCombo.setMandatory(true);
 			bedragTypeCombo.immediate();
 			return bedragTypeCombo;
@@ -193,7 +193,7 @@ public class EditableTablePage extends UrlPage {
 			node.add(yearMonthCombo);
 			yearMonthCombo.setMandatory(true);
 			yearMonthCombo.bind().to(object, property.getPath());
-			yearMonthCombo.bind("readOnly").to(model(), "readOnly");
+			getMonthYearCombo().bind("readOnly").to(model(), LineController_.readOnly());
 			yearMonthCombo.setErrorLocation(property.getPath());				// FIXME Should come from row header
 		};
 	}
