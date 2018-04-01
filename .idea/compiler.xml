@@ -21,7 +21,6 @@
         <module name="to.etc.db" />
         <module name="to.etc.dbcompare" />
         <module name="to.etc.domui" />
-        <module name="to.etc.domui.derbydata" />
         <module name="to.etc.domui.formbuilder" />
         <module name="to.etc.domui.hibutil" />
         <module name="to.etc.domui.legacy" />
@@ -37,8 +36,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <processor name="db.annotationprocessing.EntityAnnotationProcessor" />
+        <processor name="db.annotationprocessing.PropertyAnnotationProcessor" />
         <module name="to.etc.domui.demo" />
+        <module name="to.etc.domui.derbydata" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

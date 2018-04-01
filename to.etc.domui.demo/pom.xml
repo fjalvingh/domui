@@ -144,7 +144,7 @@
                 <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <annotationProcessors>
-                        <annotationProcessor>db.annotationprocessing.EntityAnnotationProcessor</annotationProcessor>
+                        <annotationProcessor>db.annotationprocessing.PropertyAnnotationProcessor</annotationProcessor>
                     </annotationProcessors>
                     <annotationProcessorPaths>
                         <dependency>
