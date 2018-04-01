@@ -216,7 +216,7 @@ public class ProblemReporter {
 		List<UIMessage> bindingMessageList = new ArrayList<>();
 		for(IBinding binding : bindingList) {
 			if(binding instanceof ComponentPropertyBinding) {
-				ComponentPropertyBinding sib = (ComponentPropertyBinding) binding;
+				ComponentPropertyBinding<?, ?, ?, ?> sib = (ComponentPropertyBinding<?, ?, ?, ?>) binding;
 				getErrorsOnBoundProperty(newErrorSet, all, n, sib);
 				UIMessage be = binding.getBindError();
 				if(null != be)
@@ -253,7 +253,7 @@ public class ProblemReporter {
 	 * @param n
 	 * @param binding
 	 */
-	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @Nonnull List<ProblemInstance> all, @Nonnull NodeBase n, @Nonnull ComponentPropertyBinding binding) {
+	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @Nonnull List<ProblemInstance> all, @Nonnull NodeBase n, @Nonnull ComponentPropertyBinding<?, ?, ?, ?> binding) {
 		Object instance = binding.getInstance();
 		if(null == instance)								// Not an instance binding -> no errors here
 			return;

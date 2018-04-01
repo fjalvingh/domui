@@ -1357,7 +1357,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(null != el) {
 			sb.append(":").append(el);
 		}
-		ComponentPropertyBinding binding = OldBindingHandler.findBinding(this, "value");
+		ComponentPropertyBinding<?, ?, ?, ?> binding = OldBindingHandler.findBinding(this, "value");
 		if(binding != null) {
 			sb.append(" ").append(binding);
 		} else {

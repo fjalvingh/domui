@@ -48,41 +48,41 @@ import javax.annotation.Nullable;
  * Created on Oct 13, 2009
  */
 @DefaultNonNull
-final public class ComponentPropertyBinding implements IBinding {
+final public class ComponentPropertyBinding<C extends NodeBase, CV, M, MV> implements IBinding {
 	@Nonnull
-	final private NodeBase m_control;
+	final private C m_control;
 
 	@Nonnull
-	final private PropertyMetaModel< ? > m_controlProperty;
+	final private PropertyMetaModel<CV> m_controlProperty;
 
 	/** The instance bound to */
-	@Nullable
-	final private Object m_instance;
+	//@Nullable
+	final private M m_instance;
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
-	@Nullable
-	final private IValueAccessor< ? > m_instanceProperty;
+	//@Nullable
+	final private IValueAccessor<MV> m_instanceProperty;
 
 	@Nullable
-	private IBidiBindingConverter<?, ?> m_converter;
+	private IBidiBindingConverter<CV, MV> m_converter;
 
 	/**
 	 * The last value read from the control. If a converter is present, this value is converted to a MODEL value.
 	 */
 	@Nullable
-	private Object m_lastValueFromControlAsModelValue;
+	private MV m_lastValueFromControlAsModelValue;
 
 	/** If this binding is in error this contains the error. */
 	@Nullable
 	private UIMessage m_bindError;
 
 	@Nullable
-	private IWriteOnlyModel<?> m_setter;
+	private IWriteOnlyModel<MV> m_setter;
 
 	@Nullable
-	private IReadOnlyModel<?> m_getter;
+	private IReadOnlyModel<MV> m_getter;
 
-	public ComponentPropertyBinding(NodeBase control, PropertyMetaModel<?> controlProperty, Object modelInstance, IValueAccessor<?> accessor) {
+	public ComponentPropertyBinding(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor) {
 		m_control = control;
 		m_controlProperty = controlProperty;
 		m_instance = modelInstance;
@@ -144,28 +144,28 @@ final public class ComponentPropertyBinding implements IBinding {
 		return sb.toString();
 	}
 
-	@Nullable
-	public Object getInstance() {
+	//@Nullable
+	public M getInstance() {
 		return m_instance;
 	}
 
-	@Nullable
-	public IValueAccessor< ? > getInstanceProperty() {
+	//@Nullable
+	public IValueAccessor<MV> getInstanceProperty() {
 		return m_instanceProperty;
 	}
 
 
 	@Nullable
-	private Object getValueFromModel() throws Exception {
-		Object modelValue;
-		IReadOnlyModel<?> getter = m_getter;
+	private MV getValueFromModel() throws Exception {
+		MV modelValue;
+		IReadOnlyModel<MV> getter = m_getter;
 		if(null != getter) {
 			modelValue = getter.getValue();
 		} else {
-			IValueAccessor<?> instanceProperty = m_instanceProperty;
+			IValueAccessor<MV> instanceProperty = m_instanceProperty;
 			if(null == instanceProperty)
 				throw new IllegalStateException("instance property cannot be null");
-			Object instance = m_instance;
+			M instance = m_instance;
 			if(null == instance)
 				throw new IllegalStateException("instance cannot be null");
 			modelValue = instanceProperty.getValue(instance);
@@ -219,7 +219,7 @@ final public class ComponentPropertyBinding implements IBinding {
 	 */
 	@Override
 	@Nullable
-	public BindingValuePair<?, ?> getBindingDifference() throws Exception {
+	public BindingValuePair<MV> getBindingDifference() throws Exception {
 		NodeBase control = m_control;
 		if(control instanceof IDisplayControl)
 			return null;
@@ -245,7 +245,7 @@ final public class ComponentPropertyBinding implements IBinding {
 		 * conflicting model update).
 		 */
 		if(control instanceof IControl) {
-			IControl<?> ict = (IControl<?>) control;
+			IControl<CV> ict = (IControl<CV>) control;
 			if(ict.isDisabled() || ict.isReadOnly()) {
 				return null;
 			}
@@ -256,17 +256,20 @@ final public class ComponentPropertyBinding implements IBinding {
 		 * add the problem inside the Error collector, signaling a problem to any logic
 		 * that would run after.
 		 */
-		Object controlValue = null;
+		MV controlModelValue;
 		UIMessage newError = null;
 		try {
-			controlValue = m_controlProperty.getValue(m_control);
-			IBidiBindingConverter<?, ?> converter = m_converter;
-			if(converter != null) {
-				controlValue = ((IBidiBindingConverter<Object, Object>)converter).controlToModel(controlValue);
+			CV controlValue = m_controlProperty.getValue(m_control);
+			IBidiBindingConverter<CV, MV> converter = m_converter;
+			if(converter == null) {
+				controlModelValue = (MV) controlValue;
+			} else {
+				controlModelValue = converter.controlToModel(controlValue);
 			}
-			m_lastValueFromControlAsModelValue = controlValue;
+			m_lastValueFromControlAsModelValue = controlModelValue;
 			m_bindError = null;
 		} catch(CodeException cx) {
+			controlModelValue = null;
 			newError = UIMessage.error(cx);
 			newError.setErrorNode(control);
 			newError.setErrorLocation(control.getErrorLocation());
@@ -287,11 +290,11 @@ final public class ComponentPropertyBinding implements IBinding {
 			return null;
 		}
 
-		Object propertyValue = getValueFromModel();
-		if(MetaManager.areObjectsEqual(propertyValue, controlValue))
+		MV currentModelValue = getValueFromModel();
+		if(MetaManager.areObjectsEqual(currentModelValue, controlModelValue))
 			return null;
 
-		return new BindingValuePair<>(this, controlValue);
+		return new BindingValuePair<>(this, controlModelValue);
 	}
 
 	/**
@@ -300,7 +303,7 @@ final public class ComponentPropertyBinding implements IBinding {
 	@Override
 	public void moveModelToControl() throws Exception {
 		try {
-			Object modelValue = getValueFromModel();
+			MV modelValue = getValueFromModel();
 
 			// FIXME We should think about exception handling here
 			//System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
@@ -308,13 +311,16 @@ final public class ComponentPropertyBinding implements IBinding {
 				//-- Value in instance differs from control's
 				m_lastValueFromControlAsModelValue = modelValue;
 
-				IBidiBindingConverter<?, ?> converter = m_converter;
+				IBidiBindingConverter<CV, MV> converter = m_converter;
+				CV controlValue = null;
 				if(null != converter) {
-					modelValue = ((IBidiBindingConverter<Object, Object>) converter).modelToControl(modelValue);
+					controlValue = converter.modelToControl(modelValue);
+				} else {
+					controlValue = (CV) modelValue;
 				}
 
 				if(m_controlProperty.getReadOnly() != YesNoType.YES) {
-					((IValueAccessor<Object>) m_controlProperty).setValue(m_control, modelValue);
+					m_controlProperty.setValue(m_control, controlValue);
 				}
 				m_bindError = null;                                    // Let's assume binding has no trouble.
 			}

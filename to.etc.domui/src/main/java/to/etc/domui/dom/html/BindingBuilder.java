@@ -3,7 +3,6 @@ package to.etc.domui.dom.html;
 import to.etc.domui.component.binding.BindReference;
 import to.etc.domui.component.binding.BindingDefinitionException;
 import to.etc.domui.component.binding.ComponentPropertyBinding;
-import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -18,15 +17,17 @@ import javax.annotation.Nonnull;
 /**
  * This helps with creating control bindings to properties.
  *
+ * @param <CV> 	The type of the value of the control.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 24-3-18.
  */
-final public class BindingBuilder<C> {
+final public class BindingBuilder<CV> {
 	@Nonnull
 	final private NodeBase m_control;
 
 	@Nonnull
-	final private PropertyMetaModel<C> m_controlProperty;
+	final private PropertyMetaModel<CV> m_controlProperty;
 
 	BindingBuilder(@Nonnull NodeBase control, @Nonnull String controlProperty) {
 		if(control == null)
@@ -34,10 +35,10 @@ final public class BindingBuilder<C> {
 		if(controlProperty.contains("."))
 			throw new ProgrammerErrorException("You cannot bind a Control property dotted path, see " + Documentation.BINDING_NO_DOTTED_PATH);
 		m_control = control;
-		m_controlProperty = (PropertyMetaModel<C>) MetaManager.getPropertyMeta(control.getClass(), controlProperty);
+		m_controlProperty = (PropertyMetaModel<CV>) MetaManager.getPropertyMeta(control.getClass(), controlProperty);
 	}
 
-	BindingBuilder(@Nonnull NodeBase control, @Nonnull QField<?, C> controlProperty) {
+	BindingBuilder(@Nonnull NodeBase control, @Nonnull QField<?, CV> controlProperty) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
 		if(controlProperty.getPath().contains("."))
@@ -46,17 +47,17 @@ final public class BindingBuilder<C> {
 		m_controlProperty = MetaManager.getPropertyMeta(control.getClass(), controlProperty);
 	}
 
-	public <M> ComponentPropertyBinding to(@Nonnull BindReference<?, M> ref) throws Exception {
+	public <M, MV> ComponentPropertyBinding<?, CV, M, MV> to(@Nonnull BindReference<M, MV> ref) throws Exception {
 		return to(ref.getInstance(), ref.getProperty());
 	}
 
-	public <T, M> ComponentPropertyBinding to(@Nonnull T instance, @Nonnull String property) throws Exception {
+	public <M, MV> ComponentPropertyBinding<?, CV, M, MV> to(@Nonnull M instance, @Nonnull String property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
-		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
+		return to(instance, (PropertyMetaModel<MV>) MetaManager.getPropertyMeta(instance.getClass(), property));
 	}
 
-	public <T, M> ComponentPropertyBinding to(@Nonnull T instance, @Nonnull QField<?, M> property) throws Exception {
+	public <T, MV> ComponentPropertyBinding<?, CV, T, MV> to(@Nonnull T instance, @Nonnull QField<?, MV> property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
@@ -65,7 +66,7 @@ final public class BindingBuilder<C> {
 	/**
 	 * Bind to a IValueAccessor and the given instance.
 	 */
-	public <T, M> ComponentPropertyBinding to(@Nonnull T instance, @Nonnull IValueAccessor<M> pmm) throws Exception {
+	public <T, MV> ComponentPropertyBinding<?, CV, T, MV> to(@Nonnull T instance, @Nonnull IValueAccessor<MV> pmm) throws Exception {
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
 
@@ -96,13 +97,9 @@ final public class BindingBuilder<C> {
 		}
 
 		//-- Move the data now!
-		ComponentPropertyBinding binding = new ComponentPropertyBinding(m_control, m_controlProperty, instance, pmm);
+		ComponentPropertyBinding<?, CV, T, MV> binding = new ComponentPropertyBinding<>(m_control, m_controlProperty, instance, pmm);
 		binding.moveModelToControl();
 		m_control.finishBinding(binding);
 		return binding;
-	}
-
-	public <M> ConvertingBindingBuilder<C, M> convert(IBidiBindingConverter<C, M> converter) {
-		return new ConvertingBindingBuilder<>(m_control, m_controlProperty, converter);
 	}
 }
