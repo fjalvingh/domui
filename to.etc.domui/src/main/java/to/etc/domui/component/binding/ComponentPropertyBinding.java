@@ -328,4 +328,9 @@ final public class ComponentPropertyBinding<C extends NodeBase, CV, M, MV> imple
 			throw new BindingFailureException(x, "Model->Control", this.toString());
 		}
 	}
+
+	public ComponentPropertyBinding<C, CV, M, MV> converter(IBidiBindingConverter<CV, MV> converter) {
+		m_converter = converter;
+		return this;
+	}
 }
