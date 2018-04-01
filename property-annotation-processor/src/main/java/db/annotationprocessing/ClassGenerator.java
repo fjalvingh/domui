@@ -12,7 +12,6 @@ import javax.lang.model.type.ReferenceType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.Diagnostic.Kind;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -116,7 +115,7 @@ abstract class ClassGenerator {
 		} else {
 			Element mtype = typeUtils().asElement(property.getType());
 			//System.out.println("ANN: elementType " + property + " is " + mtype);
-			getMessager().printMessage(Kind.WARNING, "ANN: elementType " + property + " is " + mtype);
+			//getMessager().printMessage(Kind.WARNING, "ANN: elementType " + property + " is " + mtype);
 			if(! hasAnnotation(mtype, EntityAnnotationProcessor.GENERATED_PROPERTIES_ANNOTATION)
 				&& ! hasAnnotation(mtype, EntityAnnotationProcessor.PERSISTENCE_ANNOTATION))
 				return;
