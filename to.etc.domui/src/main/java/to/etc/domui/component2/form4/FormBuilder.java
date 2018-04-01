@@ -15,6 +15,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
+import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -92,7 +93,6 @@ final public class FormBuilder {
 
 	@Nullable
 	private BindReference<?, Boolean> m_disabledGlobal;
-
 
 	private NodeBase m_lastAddedControl;
 
@@ -361,12 +361,6 @@ final public class FormBuilder {
 		return control;
 	}
 
-	@Nonnull
-	public FormBuilder converter(@Nonnull IBidiBindingConverter<?, ?> converter) {
-		m_bindingConverter = converter;
-		return this;
-	}
-
 	/**
 	 * Adds the specified css class to the control cell.
 	 * @param cssClass
@@ -400,6 +394,35 @@ final public class FormBuilder {
 			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
 		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
 		m_instance = instance;
+		return this;
+	}
+
+	@Nonnull
+	public <T> FormBuilder property(@Nonnull T instance, @GProperty String property, IBidiBindingConverter<?, ?> converter) {
+		if(null != m_propertyMetaModel)
+			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
+		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
+		m_instance = instance;
+		m_bindingConverter = converter;
+		return this;
+	}
+
+	@Nonnull
+	public <T, V> FormBuilder property(@Nonnull T instance, QField<?, V> property) {
+		if(null != m_propertyMetaModel)
+			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
+		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
+		m_instance = instance;
+		return this;
+	}
+
+	@Nonnull
+	public <T, V> FormBuilder property(@Nonnull T instance, QField<?, V> property, IBidiBindingConverter<?, V> converter) {
+		if(null != m_propertyMetaModel)
+			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
+		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
+		m_instance = instance;
+		m_bindingConverter = converter;
 		return this;
 	}
 
