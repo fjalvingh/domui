@@ -2,10 +2,6 @@ package to.etc.webapp.query;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Class that provides means for making type safe queries. It always start at a certain root.
@@ -39,49 +35,28 @@ public class QField<R extends QField<R, ? >, T> {
 	@Nullable
 	private QField<R, ? > m_parent;
 
-	@Nullable
+	@Nonnull
 	private String m_propertyNameInParent;
 
 	boolean m_isSub = false;
 
-	public QField() {
+	public QField(@Nonnull String propertyName) {
 		m_parent = null;
 		//m_root = null;
-		m_propertyNameInParent = null;
+		m_propertyNameInParent = propertyName;
 	}
 
-	public QField(@Nullable QField<R, ? > parent, @Nullable String propertyNameInParent) {
+	public QField(@Nullable QField<R, ? > parent, @Nonnull String propertyNameInParent) {
 		m_parent = parent;
-		//if(root == null) {
-		//	Class<T> cls = (Class<T>) ((ParameterizedType) getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[1];
-		//	m_criteria = QCriteria.create(cls);
-		//	m_qBrace = new QBrace(null);
-		//
-		//}
-		//m_root = (R) (root == null ? this : root);
 		m_propertyNameInParent = propertyNameInParent;
 	}
 
 	@Nonnull
 	final public String getPath() {
-		List<QField<R, ? >> fields = new ArrayList<QField<R, ? >>();
-		QField<R, ? > parent = this;
-		QField<R, ? > f;
-		while((f = parent.m_parent) != null) {
-			fields.add(parent);
-			parent = f;
-		}
-		Collections.reverse(fields);
-		StringBuilder sb = new StringBuilder();
-		Iterator<QField<R, ? >> it = fields.iterator();
-		while(it.hasNext()) {
-			QField<R, ? > field = it.next();
-			sb.append(field.m_propertyNameInParent);
-			if(it.hasNext()) {
-				sb.append(".");
-			}
-		}
-		return sb.toString();
+		QField<R, ?> parent = m_parent;
+		if(parent == null)
+			return m_propertyNameInParent;
+		return parent.getPath() + "." + m_propertyNameInParent;
 	}
 
 	final @Nullable

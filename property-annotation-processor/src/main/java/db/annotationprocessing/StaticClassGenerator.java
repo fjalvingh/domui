@@ -53,7 +53,7 @@ public class StaticClassGenerator extends ClassGenerator {
 			m_w.append(mname);
 			m_w.append("() {\n\t\treturn new QField<").append(linkClass).append(", ");
 			m_w.append(mtypeName);
-			m_w.append(">();\n");
+			m_w.append(">(\"").append(propertyName).append("\");\n");
 			m_w.append("\t}\n");
 		}
 	}
