@@ -102,7 +102,7 @@ final public class BindingBuilderBidi<CV> {
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
 
 		//-- Check: are the types of the binding ok?
-		if(pmm instanceof PropertyMetaModel<?>) {
+		if(pmm instanceof PropertyMetaModel<?> && converter == null) {
 			PropertyMetaModel<?> p = (PropertyMetaModel<?>) pmm;
 			Class<?> actualType = DomUtil.getBoxedForPrimitive(p.getActualType());
 			Class<?> controlType = DomUtil.getBoxedForPrimitive(m_controlProperty.getActualType());
@@ -132,5 +132,9 @@ final public class BindingBuilderBidi<CV> {
 		binding.moveModelToControl();
 		m_control.finishBinding(binding);
 		return binding;
+	}
+
+	@Override public String toString() {
+		return "binding from " + m_control + "." + m_controlProperty.getName();
 	}
 }

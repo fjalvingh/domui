@@ -133,4 +133,8 @@ final public class BindingBuilderUni<CV> {
 		m_control.finishBinding(binding);
 		return binding;
 	}
+
+	@Override public String toString() {
+		return "binding from " + m_control + "." + m_controlProperty.getName();
+	}
 }

@@ -40,6 +40,10 @@ public class QField<R extends QField<R, ? >, T> {
 
 	boolean m_isSub = false;
 
+	protected QField() {
+		m_propertyNameInParent = "";
+	}
+
 	public QField(@Nonnull String propertyName) {
 		m_parent = null;
 		//m_root = null;
