@@ -26,6 +26,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INodeContentRenderer;
 import to.etc.domui.util.IRenderInto;
 import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -66,11 +67,11 @@ public class EditableTablePage extends UrlPage {
 
 	private RowRenderer<Line> createRowRenderer() {
 		RowRenderer<Line> rr = new RowRenderer<>(Line.class);
-		rr.column().label("Period from").renderer(createMonthRenderer(Line.pFROM));
-		rr.column().label("Period till").renderer(createMonthRenderer(Line.pTILL));
-		rr.column(Line.pAMOUNTTYPE).editable().factory(createAmountTypeControlFactory());
-		rr.column(Line.pPERCENTAGE).editable().factory(createPercentageControlFactory());
-		rr.column(Line.pAMOUNT).editable().factory(createAmountControlFactory());
+		rr.column().label("Period from").renderer(createMonthRenderer(Line_.from()));
+		rr.column().label("Period till").renderer(createMonthRenderer(Line_.till()));
+		rr.column(Line_.amountType()).editable().factory(createAmountTypeControlFactory());
+		rr.column(Line_.percentage()).editable().factory(createPercentageControlFactory());
+		rr.column(Line_.amount()).editable().factory(createAmountControlFactory());
 		rr.column().label("Divide").renderer(createDivideRenderer());
 		if(!model().isReadOnly()) {
 			rr.column().renderer(createRemoveRenderer()).width("1%").nowrap();
@@ -195,14 +196,14 @@ public class EditableTablePage extends UrlPage {
 	}
 
 
-	private IRenderInto<Line> createMonthRenderer(String property) {
+	private <V extends Date> IRenderInto<Line> createMonthRenderer(QField<?, V> property) {
 		return (node, object) -> {
 			ComboLookup2<Date> yearMonthCombo = getMonthYearCombo();
 			node.add(yearMonthCombo);
 			yearMonthCombo.setMandatory(true);
-			yearMonthCombo.bind().to(object, property);
+			yearMonthCombo.bind().to(object, property.getPath());
 			yearMonthCombo.bind("readOnly").to(model(), "readOnly");
-			yearMonthCombo.setErrorLocation(property);				// FIXME Should come from row header
+			yearMonthCombo.setErrorLocation(property.getPath());				// FIXME Should come from row header
 		};
 	}
 

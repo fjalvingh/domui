@@ -9,6 +9,7 @@ import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.annotations.GProperty;
+import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -200,6 +201,11 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	@Nonnull
 	public ColumnDef<T, ? > column(@Nonnull @GProperty String property) {
 		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
+		return createColumnDef(pmm);
+	}
+
+	public <V> ColumnDef<T, V> column(@Nonnull QField<?, V> field) {
+		PropertyMetaModel<V> pmm = model().getProperty(field);			// Get the appropriate model
 		return createColumnDef(pmm);
 	}
 

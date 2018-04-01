@@ -63,7 +63,7 @@ public class QField<R extends QField<R, ? >, T> {
 	}
 
 	@Nonnull
-	final String getPath() {
+	final public String getPath() {
 		List<QField<R, ? >> fields = new ArrayList<QField<R, ? >>();
 		QField<R, ? > parent = this;
 		QField<R, ? > f;

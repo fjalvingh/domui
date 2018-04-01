@@ -76,10 +76,18 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 		return m_parent.findProperty(name);
 	}
 
+	@Nullable @Override public <V> PropertyMetaModel<V> findProperty(@Nonnull QField<?, V> field) {
+		return m_parent.findProperty(field);
+	}
+
 	@Override
 	@Nonnull
 	public PropertyMetaModel< ? > getProperty(@Nonnull String name) {
 		return m_parent.getProperty(name);
+	}
+
+	@Nonnull @Override public <V> PropertyMetaModel<V> getProperty(@Nonnull QField<?, V> field) {
+		return m_parent.getProperty(field);
 	}
 
 	@Override

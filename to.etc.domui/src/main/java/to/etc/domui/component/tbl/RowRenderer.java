@@ -27,6 +27,7 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
+import to.etc.webapp.query.QField;
 
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
@@ -755,6 +756,11 @@ import java.util.function.Predicate;
 	@Nonnull
 	public ColumnDef<T, ?> column(@Nonnull String property) {
 		return getColumnList().column(property);
+	}
+
+	@Nonnull
+	public <V> ColumnDef<T, V> column(QField<?, V> field) {
+		return getColumnList().column(field);
 	}
 
 	public <F> ColumnDef<T, F> column(@Nonnull KProperty1<T, F> property) {

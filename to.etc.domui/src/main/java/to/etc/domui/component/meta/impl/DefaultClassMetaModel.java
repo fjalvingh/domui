@@ -251,11 +251,24 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
+	@Nullable
+	public <V> PropertyMetaModel<V> findProperty(@Nonnull QField<?, V> field) {
+		return (PropertyMetaModel<V>) findProperty(field.getPath());
+	}
+
+	@Override
 	@Nonnull
 	public PropertyMetaModel< ? > getProperty(@Nonnull String name) {
 		PropertyMetaModel< ? > pmm = findProperty(name);
 		if(null == pmm)
 			throw new IllegalStateException("The property '" + name + "' is not known in the meta model for " + this);
+		return pmm;
+	}
+
+	@Nonnull @Override public <V> PropertyMetaModel<V> getProperty(@Nonnull QField<?, V> field) {
+		PropertyMetaModel<V> pmm = findProperty(field);
+		if(null == pmm)
+			throw new IllegalStateException("The property '" + field + "' is not known in the meta model for " + this);
 		return pmm;
 	}
 
