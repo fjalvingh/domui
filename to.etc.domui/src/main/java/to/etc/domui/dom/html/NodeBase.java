@@ -1984,7 +1984,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return builder;
 	}
 
-	@Nonnull final public <V> BindingBuilderUni<?> bind(@Nonnull QField<?, V> componentProperty) {
+	@Nonnull final public <V> BindingBuilderUni<V> bind(@Nonnull QField<?, V> componentProperty) {
 		checkBindingCompleted();
 		BindingBuilderUni<V> builder = new BindingBuilderUni<>(this, componentProperty);
 		m_currentBindBuilder = builder;

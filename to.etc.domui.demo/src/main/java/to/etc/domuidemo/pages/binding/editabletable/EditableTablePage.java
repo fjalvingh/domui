@@ -13,6 +13,7 @@ import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.MoneyBigDecimalFullConverter;
 import to.etc.domui.converter.MoneyBigDecimalNoSign;
 import to.etc.domui.dom.css.TextAlign;
+import to.etc.domui.dom.css.VisibilityType;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.NodeBase;
@@ -151,7 +152,7 @@ public class EditableTablePage extends UrlPage {
 			ctrl.setErrorLocation("Bedrag");
 			ctrl.setCssClass("ui-numeric");
 			ctrl.bind("readOnly").to(model(), "readOnly");
-			ctrl.bind("visibility").to(row, "amountVisible");
+			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType()).converter(amountType -> amountType == AmountType.Amount ? VisibilityType.VISIBLE : VisibilityType.HIDDEN);
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("-999999999.99"), new BigDecimal("999999999.99")));
 			ctrl.immediate();
 			return ctrl;
@@ -165,9 +166,9 @@ public class EditableTablePage extends UrlPage {
 			ctrl.setCssClass("ui-numeric");
 			ctrl.bind("readOnly").to(model(), "readOnly");
 
-			//ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType()).converter();
+			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType()).converter(amountType -> amountType == AmountType.Amount ? VisibilityType.HIDDEN : VisibilityType.VISIBLE);
 
-			ctrl.bind("visibility").to(row, "percentageVisible");
+			//ctrl.bind("visibility").to(row, "percentageVisible");
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("0.01"), new BigDecimal("100.00")));
 			ctrl.immediate();
 			return ctrl;
