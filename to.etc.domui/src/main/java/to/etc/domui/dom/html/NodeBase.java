@@ -67,6 +67,7 @@ import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
+import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -1971,6 +1972,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	@Nonnull final public BindingBuilder<?> bind(@Nonnull String componentProperty) {
 		checkBindingCompleted();
 		BindingBuilder<Object> builder = new BindingBuilder<>(this, componentProperty);
+		m_currentBindBuilder = builder;
+		return builder;
+	}
+
+	@Nonnull final public <V> BindingBuilder<?> bind(@Nonnull QField<?, V> componentProperty) {
+		checkBindingCompleted();
+		BindingBuilder<V> builder = new BindingBuilder<>(this, componentProperty);
 		m_currentBindBuilder = builder;
 		return builder;
 	}

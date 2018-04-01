@@ -11,6 +11,7 @@ import to.etc.domui.util.Documentation;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
 
@@ -36,11 +37,26 @@ final public class BindingBuilder<C> {
 		m_controlProperty = (PropertyMetaModel<C>) MetaManager.getPropertyMeta(control.getClass(), controlProperty);
 	}
 
+	BindingBuilder(@Nonnull NodeBase control, @Nonnull QField<?, C> controlProperty) {
+		if(control == null)
+			throw new IllegalArgumentException("The control cannot be null.");
+		if(controlProperty.getPath().contains("."))
+			throw new ProgrammerErrorException("You cannot bind a Control property dotted path, see " + Documentation.BINDING_NO_DOTTED_PATH);
+		m_control = control;
+		m_controlProperty = MetaManager.getPropertyMeta(control.getClass(), controlProperty);
+	}
+
 	public <M> ComponentPropertyBinding to(@Nonnull BindReference<?, M> ref) throws Exception {
 		return to(ref.getInstance(), ref.getProperty());
 	}
 
 	public <T, M> ComponentPropertyBinding to(@Nonnull T instance, @Nonnull String property) throws Exception {
+		if(instance == null || property == null)
+			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
+		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
+	}
+
+	public <T, M> ComponentPropertyBinding to(@Nonnull T instance, @Nonnull QField<?, M> property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
