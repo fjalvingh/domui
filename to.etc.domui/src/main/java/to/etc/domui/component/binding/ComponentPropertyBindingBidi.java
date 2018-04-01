@@ -38,17 +38,17 @@ import javax.annotation.DefaultNonNull;
 import javax.annotation.Nullable;
 
 /**
- * This binds a control property to some model property.
+ * This binds the control's VALUE property to some model property (bidirectional binding).
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
 @DefaultNonNull
-final public class ComponentPropertyBinding<C extends NodeBase, CV, M, MV> extends AbstractComponentPropertyBinding<C, CV, M, MV> implements IBinding {
+final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> extends AbstractComponentPropertyBinding<C, CV, M, MV> implements IBinding {
 	@Nullable
 	final private IBidiBindingConverter<CV, MV> m_converter;
 
-	public ComponentPropertyBinding(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor, @Nullable IBidiBindingConverter<CV, MV> converter) {
+	public ComponentPropertyBindingBidi(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor, @Nullable IBidiBindingConverter<CV, MV> converter) {
 		super(control, controlProperty, modelInstance, accessor);
 		m_converter = converter;
 	}

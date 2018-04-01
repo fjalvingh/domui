@@ -26,7 +26,7 @@ package to.etc.domui.dom.html;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.component.binding.ComponentPropertyBinding;
+import to.etc.domui.component.binding.ComponentPropertyBindingBidi;
 import to.etc.domui.component.binding.IBinding;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.component.event.INotify;
@@ -1357,7 +1357,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(null != el) {
 			sb.append(":").append(el);
 		}
-		ComponentPropertyBinding<?, ?, ?, ?> binding = OldBindingHandler.findBinding(this, "value");
+		ComponentPropertyBindingBidi<?, ?, ?, ?> binding = OldBindingHandler.findBinding(this, "value");
 		if(binding != null) {
 			sb.append(" ").append(binding);
 		} else {
