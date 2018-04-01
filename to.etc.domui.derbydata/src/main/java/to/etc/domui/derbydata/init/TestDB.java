@@ -5,6 +5,7 @@ import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.util.DeveloperOptions;
 import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QDataContext;
 
 import javax.annotation.Nullable;
 import javax.sql.DataSource;
@@ -74,6 +75,10 @@ final public class TestDB {
 
 		//-- Tell the generic layer how to create default DataContext's.
 		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source
+	}
+
+	static public QDataContext getDataContext() throws Exception {
+		return QContextManager.getDataContextFactory().getDataContext();
 	}
 
 	static public void main(String[] args) {

@@ -74,7 +74,6 @@ public class EditableTablePage extends UrlPage {
 			rr.column().renderer(createRemoveRenderer()).width("1%").nowrap();
 		}
 
-		rr.column(Line_.amountVisible()).rend
 		return rr;
 	}
 
