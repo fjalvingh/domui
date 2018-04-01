@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.jdt.apt.core.annotationProcessorFactory">
          <java6processors enableDefault="true">
-                <java6processor class="db.annotationprocessing.EntityAnnotationProcessor"/>
+                <java6processor class="db.annotationprocessing.PropertyAnnotationProcessor"/>
          </java6processors>
    </extension>
 </plugin>

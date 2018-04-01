@@ -44,7 +44,7 @@ import java.util.Set;
  * @author <a href="mailto:dennis.bekkering@itris.nl">Dennis Bekkering</a>
  * Created on Feb 3, 2013
  */
-public class EntityAnnotationProcessor extends AbstractProcessor {
+public class PropertyAnnotationProcessor extends AbstractProcessor {
 	static public final String PERSISTENCE_ANNOTATION = "javax.persistence.Entity";
 
 	static public final String GENERATED_PROPERTIES_ANNOTATION = "to.etc.annotations.GenerateProperties";
@@ -85,7 +85,7 @@ public class EntityAnnotationProcessor extends AbstractProcessor {
 		}
 	}
 
-	public EntityAnnotationProcessor() {
+	public PropertyAnnotationProcessor() {
 		super();
 	}
 

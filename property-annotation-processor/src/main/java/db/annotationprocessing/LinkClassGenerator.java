@@ -1,6 +1,6 @@
 package db.annotationprocessing;
 
-import db.annotationprocessing.EntityAnnotationProcessor.Property;
+import db.annotationprocessing.PropertyAnnotationProcessor.Property;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.type.PrimitiveType;
@@ -14,9 +14,9 @@ import java.util.List;
  * Created on 31-3-18.
  */
 public class LinkClassGenerator extends ClassGenerator {
-	public LinkClassGenerator(EntityAnnotationProcessor entityAnnotationProcessor, Writer w, String packageName, String className,
+	public LinkClassGenerator(PropertyAnnotationProcessor propertyAnnotationProcessor, Writer w, String packageName, String className,
 		List<Property> properties, String entityName) {
-		super(entityAnnotationProcessor, w, packageName, className, properties, entityName);
+		super(propertyAnnotationProcessor, w, packageName, className, properties, entityName);
 	}
 
 	@Override protected void generateClassExtends() throws IOException {
