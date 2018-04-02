@@ -48,7 +48,7 @@ public class StaticClassGenerator extends ClassGenerator {
 		Element mtype = typeUtils().asElement(returnType);
 		String qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(mtype.getSimpleName().toString());
 		String mname = replaceReserved(propertyName);
-		m_w.append("\t@Nonnull\n\tpublic final ");
+		m_w.append("\t@Nonnull\n\tstatic public final ");
 		m_w.append(qtype);
 		m_w.append("<").append(getTargetClassName()).append("> ");
 		m_w.append(mname);
