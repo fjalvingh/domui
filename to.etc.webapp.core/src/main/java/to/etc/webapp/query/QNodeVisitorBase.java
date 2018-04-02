@@ -24,9 +24,8 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
-
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Base class for visiting a node tree. The methods in this base class cause all
@@ -64,7 +63,7 @@ abstract public class QNodeVisitorBase implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ? > n) throws Exception {
+	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase<?, ?> n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(r != null)
 			r.visit(this);

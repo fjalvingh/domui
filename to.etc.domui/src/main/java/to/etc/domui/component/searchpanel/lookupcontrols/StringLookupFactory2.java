@@ -32,7 +32,6 @@ import to.etc.domui.component.meta.SearchPropertyMetaModel;
 
 import javax.annotation.Nonnull;
 
-@SuppressWarnings("unchecked")
 final class StringLookupFactory2<T> implements ILookupFactory<T> {
 	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();

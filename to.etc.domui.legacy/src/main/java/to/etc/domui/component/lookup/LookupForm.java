@@ -65,7 +65,7 @@ import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
-import to.etc.webapp.query.QRestrictor;
+import to.etc.webapp.query.QRestrictor.ExistsRestrictor;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -1129,7 +1129,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				if(subRes == AppendCriteriaResult.INVALID) {
 					return subRes;
 				} else if(r.hasRestrictions()) {
-					QRestrictor< ? > exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
+					ExistsRestrictor<?> exists = crit.exists(childPmm.getClassModel().getActualClass(), parentPmm.getName());
 					exists.setRestrictions(r.getRestrictions());
 					return AppendCriteriaResult.VALID;
 				} else {

@@ -24,7 +24,7 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import javax.annotation.Nonnull;
 
 /**
  * Listener for queries. The methods herein are called before the queries are
@@ -40,5 +40,5 @@ public interface IQueryListener {
 	 * @param criteria
 	 * @throws Exception
 	 */
-	void onBeforeQuery(@Nonnull QDataContext dc, @Nonnull QCriteriaQueryBase< ? > criteria) throws Exception;
+	void onBeforeQuery(@Nonnull QDataContext dc, @Nonnull QCriteriaQueryBase< ?, ? > criteria) throws Exception;
 }

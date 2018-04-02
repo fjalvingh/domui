@@ -24,11 +24,12 @@
  */
 package to.etc.domui.converter;
 
-import javax.annotation.*;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
 
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * This validator checks to see if a Number is between two <b>exclusive</b> bounds. Exclusive means:
@@ -67,7 +68,6 @@ public class MaxMinExclusiveValidator implements IValueValidator<Number> {
 	 * be useful.
 	 * @see IValueValidator#validate(Object)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void validate(Number input) throws Exception {
 		Class< ? > ac = input.getClass();

@@ -1,8 +1,7 @@
 package to.etc.webapp.query;
 
-import java.util.*;
-
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -190,7 +189,7 @@ abstract public class QRenderingVisitorBase implements QNodeVisitor { // jal: DO
 		n.getItem().visit(this);
 	}
 	@Override
-	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ? > n) throws Exception {
+	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ?, ? > n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		QOperatorNode.prune(r);
 		if(r != null)

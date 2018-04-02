@@ -40,7 +40,6 @@ import java.math.BigDecimal;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 5, 2017
  */
-@SuppressWarnings("unchecked")
 public class ControlFactoryString implements PropertyControlFactory {
 	/**
 	 * Accept any type using a string.

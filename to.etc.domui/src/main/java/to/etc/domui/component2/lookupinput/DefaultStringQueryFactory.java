@@ -10,7 +10,7 @@ import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QLiteral;
 import to.etc.webapp.query.QOperation;
 import to.etc.webapp.query.QPropertyComparison;
-import to.etc.webapp.query.QRestrictor;
+import to.etc.webapp.query.QRestrictorImpl;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -67,7 +67,7 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 		List<SearchPropertyMetaModel> spml = keywordLookupPropertyList == null ? getQueryMetaModel().getKeyWordSearchProperties() : keywordLookupPropertyList;
 		QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
 
-		QRestrictor<QT> r = searchQuery.or();
+		QRestrictorImpl<QT> r = searchQuery.or();
 		int ncond = 0;
 		if(spml.size() > 0) {
 			for(SearchPropertyMetaModel spm : spml) {
