@@ -82,7 +82,7 @@ public class LineController {
 				case Percentage:
 					BigDecimal percentage = line.getPercentage();
 					if(null != percentage) {
-						res = res.setScale(2).add(getBudgeted().multiply(percentage).divide(new BigDecimal(100)));
+						res = res.setScale(2, BigDecimal.ROUND_HALF_DOWN).add(getBudgeted().setScale(2, BigDecimal.ROUND_HALF_DOWN).multiply(percentage).setScale(2, BigDecimal.ROUND_HALF_DOWN).divide(new BigDecimal(100)));
 					}
 					break;
 			}
