@@ -124,6 +124,12 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 		return (QCriteria<T>) super.descending(property);
 	}
 
+	@Override
+	@Nonnull
+	public <V> QCriteria<T> descending(@Nonnull QField<T, V> property) {
+		return (QCriteria<T>) super.descending(property);
+	}
+
 	@Nonnull
 	@Override
 	public QCriteria<T> eq(@Nonnull @GProperty final String property, final double value) {
@@ -150,12 +156,6 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 
 	@Override
 	@Nonnull
-	public <V> QCriteria<T> ne(@Nonnull final QField<T, V> property, @Nonnull V value) {
-		return (QCriteria<T>) super.ne(property, value);
-	}
-
-	@Override
-	@Nonnull
 	public QCriteria<T> ge(@Nonnull @GProperty final String property, final double value) {
 		return (QCriteria<T>) super.ge(property, value);
 	}
@@ -169,6 +169,12 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	@Override
 	@Nonnull
 	public QCriteria<T> ge(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+		return (QCriteria<T>) super.ge(property, value);
+	}
+
+	@Override
+	@Nonnull
+	public <V> QCriteria<T> ge(@Nonnull QField<T, V> property, @Nonnull V value) {
 		return (QCriteria<T>) super.ge(property, value);
 	}
 
@@ -189,8 +195,20 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 		return (QCriteria<T>) super.gt(property, value);
 	}
 
+	@Nonnull
 	@Override
-	public @Nonnull QCriteria<T> ilike(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+	public <V> QCriteria<T> gt(@Nonnull QField<T, V> property, @Nonnull V value) {
+		return (QCriteria<T>) super.gt(property, value);
+	}
+
+	@Override
+	public @Nonnull QCriteria<T> ilike(@Nonnull @GProperty final String property, @Nonnull final String value) {
+		return (QCriteria<T>) super.ilike(property, value);
+	}
+
+	@Nonnull
+	@Override
+	public <V> QCriteria<T> ilike(@Nonnull QField<T, V> property, @Nonnull String value) {
 		return (QCriteria<T>) super.ilike(property, value);
 	}
 
@@ -202,7 +220,19 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 
 	@Override
 	@Nonnull
+	public <V> QCriteria<T> isnotnull(@Nonnull QField<T, V> property) {
+		return (QCriteria<T>) super.isnotnull(property);
+	}
+
+	@Override
+	@Nonnull
 	public QCriteria<T> isnull(@Nonnull @GProperty final String property) {
+		return (QCriteria<T>) super.isnull(property);
+	}
+
+	@Override
+	@Nonnull
+	public <V> QCriteria<T> isnull(@Nonnull QField<T, V> property) {
 		return (QCriteria<T>) super.isnull(property);
 	}
 
@@ -226,25 +256,43 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 
 	@Override
 	@Nonnull
-	public QCriteria<T> like(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+	public <V> QCriteria<T> le(@Nonnull QField<T, V> property, @Nonnull V value) {
+		return (QCriteria<T>) super.le(property, value);
+	}
+
+	@Override
+	@Nonnull
+	public QCriteria<T> like(@Nonnull @GProperty final String property, @Nonnull String value) {
 		return (QCriteria<T>) super.like(property, value);
 	}
 
 	@Override
 	@Nonnull
-	public QCriteria<T> lt(@Nonnull @GProperty final String property, final double value) {
+	public <V> QCriteria<T> like(@Nonnull QField<T, V> property, @Nonnull String value) {
+		return (QCriteria<T>) super.like(property, value);
+	}
+
+	@Override
+	@Nonnull
+	public QCriteria<T> lt(@Nonnull @GProperty final String property, double value) {
 		return (QCriteria<T>) super.lt(property, value);
 	}
 
 	@Override
 	@Nonnull
-	public QCriteria<T> lt(@Nonnull @GProperty final String property, final long value) {
+	public QCriteria<T> lt(@Nonnull @GProperty final String property, long value) {
 		return (QCriteria<T>) super.lt(property, value);
 	}
 
 	@Override
 	@Nonnull
-	public QCriteria<T> lt(@Nonnull @GProperty final String property, @Nonnull final Object value) {
+	public QCriteria<T> lt(@Nonnull @GProperty final String property, @Nonnull Object value) {
+		return (QCriteria<T>) super.lt(property, value);
+	}
+
+	@Override
+	@Nonnull
+	public <V> QCriteria<T> lt(@Nonnull QField<T, V> property, @Nonnull V value) {
 		return (QCriteria<T>) super.lt(property, value);
 	}
 
@@ -267,10 +315,9 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 	}
 
 	@Override
-	@Deprecated
 	@Nonnull
-	public QCriteria<T> or(@Nonnull final QOperatorNode a1, @Nonnull final QOperatorNode a2, @Nonnull final QOperatorNode... a) {
-		return (QCriteria<T>) super.or(a1, a2, a);
+	public <V> QCriteria<T> ne(@Nonnull QField<T, V> property, @Nonnull V value) {
+		return (QCriteria<T>) super.ne(property, value);
 	}
 
 	@Override
@@ -304,8 +351,22 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 		return this;
 	}
 
+	@Override
+	@Nonnull
+	public <V> QCriteria<T> fetch(@Nonnull QField<T, V> property, @Nonnull QFetchStrategy strategy) {
+		super.fetch(property, strategy);
+		return this;
+	}
+
+
 	@Nonnull
 	public QCriteria<T> fetch(@Nonnull @GProperty String property) {
+		super.fetch(property, QFetchStrategy.EAGER);
+		return this;
+	}
+
+	@Nonnull
+	public <V> QCriteria<T> fetch(@Nonnull QField<T, V> property) {
 		super.fetch(property, QFetchStrategy.EAGER);
 		return this;
 	}
@@ -319,15 +380,15 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 
 	@Nonnull
 	@Override
-	public <V> QCriteria<T> in(@Nonnull @GProperty String property, QSelection<?> selection) {
-		super.in(property, selection);
+	public <V> QCriteria<T> in(@Nonnull QField<T, V> property, @Nonnull List<V> value) {
+		super.in(property, value);
 		return this;
 	}
 
 	@Nonnull
 	@Override
-	public <V, R extends QField<R, T>> QCriteria<T> in(@Nonnull QField<R, V> property, @Nonnull List<V> value) {
-		super.in(property, value);
+	public <V> QCriteria<T> in(@Nonnull @GProperty String property, QSelection<?> selection) {
+		super.in(property, selection);
 		return this;
 	}
 

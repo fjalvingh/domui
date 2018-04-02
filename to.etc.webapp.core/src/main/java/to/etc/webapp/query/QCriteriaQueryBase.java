@@ -547,7 +547,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	@Nonnull
 	public QCriteriaQueryBase<T> fetch(@Nonnull @GProperty String property, @Nonnull QFetchStrategy strategy) {
 		if(m_fetchMap.size() == 0)
-			m_fetchMap = new HashMap<String, QFetchStrategy>();
+			m_fetchMap = new HashMap<>();
 		m_fetchMap.put(property, strategy);
 		return this;
 	}
@@ -555,7 +555,7 @@ public class QCriteriaQueryBase<T> extends QRestrictor<T> {
 	@Nonnull
 	public <V> QCriteriaQueryBase<T> fetch(@Nonnull QField<T, V> property, @Nonnull QFetchStrategy strategy) {
 		if(m_fetchMap.size() == 0)
-			m_fetchMap = new HashMap<String, QFetchStrategy>();
+			m_fetchMap = new HashMap<>();
 		m_fetchMap.put(property.getPath(), strategy);
 		return this;
 	}
