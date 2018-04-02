@@ -43,7 +43,7 @@ final public class BindingBuilderBidi<CV> {
 	BindingBuilderBidi(@Nonnull NodeBase control, @Nonnull QField<?, CV> controlProperty) {
 		if(control == null)
 			throw new IllegalArgumentException("The control cannot be null.");
-		if(controlProperty.getPath().contains("."))
+		if(controlProperty.getName().contains("."))
 			throw new ProgrammerErrorException("You cannot bind a Control property dotted path, see " + Documentation.BINDING_NO_DOTTED_PATH);
 		m_control = control;
 		m_controlProperty = MetaManager.getPropertyMeta(control.getClass(), controlProperty);

@@ -192,9 +192,9 @@ public class EditableTablePage extends UrlPage {
 			ComboLookup2<Date> yearMonthCombo = getMonthYearCombo();
 			node.add(yearMonthCombo);
 			yearMonthCombo.setMandatory(true);
-			yearMonthCombo.bind().to(object, property.getPath());
+			yearMonthCombo.bind().to(object, property.getName());
 			getMonthYearCombo().bind("readOnly").to(model(), LineController_.readOnly());
-			yearMonthCombo.setErrorLocation(property.getPath());				// FIXME Should come from row header
+			yearMonthCombo.setErrorLocation(property.getName());				// FIXME Should come from row header
 		};
 	}
 

@@ -39,11 +39,11 @@ public class QField<R, P> {
 	}
 
 	@Nonnull
-	final public String getPath() {
+	final public String getName() {
 		QField<R, ?> parent = m_parent;
 		if(parent == null)
 			return m_propertyName;
-		return parent.getPath() + "." + m_propertyName;
+		return parent.getName() + "." + m_propertyName;
 	}
 
 	@Nonnull
@@ -62,6 +62,6 @@ public class QField<R, P> {
 
 	@Override
 	public final String toString() {
-		return getPath();
+		return getName();
 	}
 }

@@ -24,16 +24,32 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
 import to.etc.domui.component.meta.init.MetaInitializer;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.query.ICriteriaTableDef;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-import java.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * This is a DomUI class metamodel info record that only contains data. It can be constructed by
@@ -253,7 +269,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	@Override
 	@Nullable
 	public <V> PropertyMetaModel<V> findProperty(@Nonnull QField<?, V> field) {
-		return (PropertyMetaModel<V>) findProperty(field.getPath());
+		return (PropertyMetaModel<V>) findProperty(field.getName());
 	}
 
 	@Override

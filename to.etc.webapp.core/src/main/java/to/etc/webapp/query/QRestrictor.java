@@ -204,7 +204,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	 */
 	@Nonnull
 	public <V> R eq(@Nonnull QField<T, V> property, @Nonnull V value) {
-		return eq(property.getPath(), value);
+		return eq(property.getName(), value);
 	}
 
 	/**
@@ -239,7 +239,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	 */
 	@Nonnull
 	public <V> R ne(@Nonnull QField<T, V> property, @Nonnull V value) {
-		return ne(property.getPath(), value);
+		return ne(property.getName(), value);
 	}
 
 	/**
@@ -271,7 +271,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R in(@Nonnull QField<T, V> property, @Nonnull List<V> inlist) {
-		add(QRestriction.in(property.getPath(), inlist));
+		add(QRestriction.in(property.getName(), inlist));
 		return (R) this;
 	}
 
@@ -292,7 +292,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R gt(@Nonnull QField<T, V> property, @Nonnull V value) {
-		add(QRestriction.gt(property.getPath(), value));
+		add(QRestriction.gt(property.getName(), value));
 		return (R) this;
 	}
 
@@ -325,7 +325,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R lt(@Nonnull QField<T, V> property, @Nonnull V value) {
-		add(QRestriction.lt(property.getPath(), value));
+		add(QRestriction.lt(property.getName(), value));
 		return (R) this;
 	}
 
@@ -358,7 +358,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R ge(@Nonnull QField<T, V> property, @Nonnull V value) {
-		add(QRestriction.ge(property.getPath(), value));
+		add(QRestriction.ge(property.getName(), value));
 		return (R) this;
 	}
 
@@ -391,7 +391,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R le(@Nonnull QField<T, V> property, @Nonnull V value) {
-		add(QRestriction.le(property.getPath(), value));
+		add(QRestriction.le(property.getName(), value));
 		return (R) this;
 	}
 
@@ -425,7 +425,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R like(@Nonnull QField<T, V> property, @Nonnull String value) {
-		add(QRestriction.like(property.getPath(), value));
+		add(QRestriction.like(property.getName(), value));
 		return (R) this;
 	}
 
@@ -440,7 +440,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R between(@Nonnull QField<T, V> property, @Nonnull V a, @Nonnull V b) {
-		add(QRestriction.between(property.getPath(), a, b));
+		add(QRestriction.between(property.getName(), a, b));
 		return (R) this;
 	}
 
@@ -456,7 +456,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R ilike(@Nonnull QField<T, V> property, @Nonnull String value) {
-		add(QRestriction.ilike(property.getPath(), value));
+		add(QRestriction.ilike(property.getName(), value));
 		return (R) this;
 	}
 
@@ -471,7 +471,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R isnull(@Nonnull QField<T, V> property) {
-		add(QRestriction.isnull(property.getPath()));
+		add(QRestriction.isnull(property.getName()));
 		return (R) this;
 	}
 
@@ -486,7 +486,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <V> R isnotnull(@Nonnull QField<T, V> property) {
-		add(QRestriction.isnotnull(property.getPath()));
+		add(QRestriction.isnotnull(property.getName()));
 		return (R) this;
 	}
 
@@ -530,7 +530,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	@Nonnull
 	public <P, U> ExistsRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull QField<T, P> childproperty) {
-		final QExistsSubquery<U> sq = new QExistsSubquery<>(this, childclass, childproperty.getPath());
+		final QExistsSubquery<U> sq = new QExistsSubquery<>(this, childclass, childproperty.getName());
 		ExistsRestrictor<U> builder = new ExistsRestrictor<U>(childclass, QOperation.AND, sq);
 		add(sq);
 		return builder;

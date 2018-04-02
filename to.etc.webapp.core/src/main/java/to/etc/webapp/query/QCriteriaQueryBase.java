@@ -175,7 +175,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Add a simple property selector to the list.
 	 */
 	protected <V> void addPropertySelection(@Nonnull QSelectionFunction f, @Nonnull QField<T, V> property, @Nullable String alias) {
-		String prop = property.getPath();
+		String prop = property.getName();
 		if(prop == null || prop.length() == 0)
 			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
 		QPropertySelection ps = new QPropertySelection(f, prop);
@@ -467,7 +467,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 
 	@Nonnull
 	public <V> R ascending(@Nonnull QField<T, V> property) {
-		add(QOrder.ascending(property.getPath()));
+		add(QOrder.ascending(property.getName()));
 		return (R) this;
 	}
 
@@ -482,7 +482,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 
 	@Nonnull
 	public <V> R descending(@Nonnull QField<T, V> property) {
-		add(QOrder.descending(property.getPath()));
+		add(QOrder.descending(property.getName()));
 		return (R) this;
 	}
 
@@ -556,7 +556,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	public <V> R fetch(@Nonnull QField<T, V> property, @Nonnull QFetchStrategy strategy) {
 		if(m_fetchMap.size() == 0)
 			m_fetchMap = new HashMap<>();
-		m_fetchMap.put(property.getPath(), strategy);
+		m_fetchMap.put(property.getName(), strategy);
 		return (R) this;
 	}
 
