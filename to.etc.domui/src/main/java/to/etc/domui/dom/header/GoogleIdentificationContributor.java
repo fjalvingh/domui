@@ -18,6 +18,7 @@ public class GoogleIdentificationContributor extends HeaderContributor {
 
 	@Override public void contribute(HtmlFullRenderer r) throws Exception {
 		r.renderLoadJavascript("https://apis.google.com/js/platform.js", true, true);
+		r.renderLoadJavascript(r.ctx().getRelativePath("$js/domui.login.js"), true, true);
 		r.o().tag("meta");
 		r.o().attr("name", "google-signin-client_id");
 		r.o().attr("content", m_key);

@@ -93,19 +93,23 @@ final public class GoogleIdentityLoginHandler {
 	static public GoogleIdentityLoginHandler create(UrlPage page, String clientID, ConsumerEx<Profile> onAuthentication) {
 		GoogleIdentityLoginHandler handler = new GoogleIdentityLoginHandler(page, clientID, onAuthentication);
 		page.getPage().addHeaderContributor(new GoogleIdentificationContributor(clientID), 100);
-//		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("js/login.js"), 101);
+		page.addListener((actionName, context) -> {
+			if(! "GOOGLELOGIN".equals(actionName))
+				return false;
+			handler.onWebAction(context);
+			return true;
+		});
+
 		return handler;
 	}
 
 	public Div getLoginButton() {
 		Div gg = new Div("g-signin2");
-		gg.setSpecialAttribute("data-onsuccess", "WebUI.googleOnSignin");
+		gg.setSpecialAttribute("data-onsuccess", "googleOnSignin");
 		return gg;
 	}
 
-	public boolean onWebAction(String actionName, IRequestContext context) {
-		if(!"GOOGLELOGIN".equals(actionName))
-			return false;
+	public boolean onWebAction(IRequestContext context) {
 		String token = context.getParameter("token");
 
 		//-- Validate the token.
