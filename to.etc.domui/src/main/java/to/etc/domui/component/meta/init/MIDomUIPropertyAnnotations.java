@@ -93,9 +93,11 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 			pmm.setLookupTableProperties(MetaInitializer.decode(cmm, an.defaultColumns()));
 		}
 
-		if(an.defaultSortColumn() != Constants.NONE) {}
+		if(!an.defaultSortColumn().isEmpty()) {
+			cmm.setDefaultSortProperty(an.defaultSortColumn());
+		}
 		if(an.defaultSortOrder() != SortableType.UNKNOWN) {
-			// FIXME Missing metadata!!
+			cmm.setDefaultSortDirection(an.defaultSortOrder());
 
 		}
 

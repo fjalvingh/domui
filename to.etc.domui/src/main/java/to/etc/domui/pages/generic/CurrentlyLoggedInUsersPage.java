@@ -1,5 +1,6 @@
 package to.etc.domui.pages.generic;
 
+import to.etc.domui.annotations.UIRights;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.component.misc.MsgBox;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+@UIRights
 public class CurrentlyLoggedInUsersPage extends UrlPage {
 
 	@Override
