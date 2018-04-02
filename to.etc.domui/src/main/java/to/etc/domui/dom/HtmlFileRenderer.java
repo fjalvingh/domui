@@ -1,6 +1,8 @@
 package to.etc.domui.dom;
 
 import to.etc.domui.component.misc.LiteralXhtml;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.header.HeaderContributorEntry;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.NodeVisitorBase;
@@ -17,6 +19,7 @@ import to.etc.domui.server.parts.PartData;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.ThemeResourceFactory;
+import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.util.ByteBufferInputStream;
 import to.etc.util.DeveloperOptions;
@@ -28,12 +31,15 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 9-3-18.
  */
-public class HtmlFileRenderer extends NodeVisitorBase {
+public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRenderer {
 	private final NodeContainer m_rootNode;
 
 	private final Page m_page;
@@ -140,11 +146,13 @@ public class HtmlFileRenderer extends NodeVisitorBase {
 		m_tagRenderer.setRenderMode(m);
 	}
 
+	@Override
 	@Nonnull
 	public IBrowserOutput o() {
 		return m_o;
 	}
 
+	@Override
 	public IRequestContext ctx() {
 		return m_ctx;
 	}
@@ -272,39 +280,56 @@ public class HtmlFileRenderer extends NodeVisitorBase {
 	 * @throws Exception
 	 */
 	public void renderHeadContributors() throws Exception {
-		//List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(page().getApplication().getHeaderContributorList());
-		//page().internalAddContributors(full);
-		//Collections.sort(full, HeaderContributor.C_ENTRY);
-		//for(HeaderContributorEntry hce : full)
-		//	hce.getContributor().contribute(this);
-		//page().internalContributorsRendered(); // Mark as rendered.
+		List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(m_page.getApplication().getHeaderContributorList());
+		Collections.sort(full, HeaderContributor.C_ENTRY);
+		for(HeaderContributorEntry hce : full)
+			hce.getContributor().contribute(this);
 	}
 
+	@Override
 	public void renderLoadCSS(String path) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
-		path = ctx().getRelativePath(rurl);
+		//path = ctx().getRelativePath(rurl);
 
-		//-- render an app-relative url
-		o().tag("link");
-		o().attr("rel", "stylesheet");
-		o().attr("type", "text/css");
-		o().attr("href", path);
-		o().endtag();
-		o().dec();                    // do not close
-		//o().closetag("link");
-	}
-
-	public void renderLoadJavascript(@Nonnull String path) throws Exception {
-		if(!path.startsWith("http")) {
-			String rurl = m_page.getBody().getThemedResourceRURL(path);
-			path = ctx().getRelativePath(rurl);
+		String themeName = DomApplication.get().getDefaultThemeName();
+		BrowserVersion version = BrowserVersion.INSTANCE;
+		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(themeName, version, rurl, "");
+		try {
+			PartData data = DomApplication.get().getPartService().getData(pi);
+			o().writeRaw("<style type='text/css'>\n");
+			try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
+				try(InputStreamReader isr = new InputStreamReader(bbis, "utf-8")) {
+					String cssStr = FileTool.readStreamAsString(isr);
+					o().writeRaw(cssStr);
+				}
+			}
+			o().writeRaw("\n</style>\n");
+			return;
+		} catch(ThingyNotFoundException tnx) {
+			//-- Not found means we can have a normal resource
 		}
 
-		//-- render an app-relative url
-		o().tag("script");
-		o().attr("src", path);
-		o().endtag();
-		o().closetag("script");
+		File appFile = m_page.getApplication().getAppFile(rurl);
+		if(appFile.exists() && appFile.isFile()) {
+			o().writeRaw("<style type='text/css'>\n");
+			String css = FileTool.readFileAsString(appFile, "utf-8");
+			o().writeRaw(css);
+			o().writeRaw("\n</style>\n");
+		}
+	}
+
+	@Override
+	public void renderLoadJavascript(@Nonnull String path) throws Exception {
+		//if(!path.startsWith("http")) {
+		//	String rurl = m_page.getBody().getThemedResourceRURL(path);
+		//	path = ctx().getRelativePath(rurl);
+		//}
+		//
+		////-- render an app-relative url
+		//o().tag("script");
+		//o().attr("src", path);
+		//o().endtag();
+		//o().closetag("script");
 	}
 
 	private void genVar(String name, String val) throws Exception {

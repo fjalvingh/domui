@@ -33,4 +33,8 @@ public class ExtendedParameterInfoImpl extends ParameterInfoImpl implements IExt
 	@Override public BrowserVersion getBrowserVersion() {
 		return m_browser;
 	}
+
+	@Override public String toString() {
+		return getInputPath() + " theme=" + getThemeName() + " " + getParameterNames();
+	}
 }

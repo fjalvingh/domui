@@ -24,8 +24,7 @@
  */
 package to.etc.domui.dom.header;
 
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.html.*;
+import to.etc.domui.dom.IContributorRenderer;
 
 /**
  * Contributes a specific .js file from the webapp to the page.
@@ -68,13 +67,8 @@ public class JavascriptContributor extends HeaderContributor {
 	}
 
 	@Override
-	public void contribute(HtmlFullRenderer r) throws Exception {
+	public void contribute(IContributorRenderer r) throws Exception {
 		r.renderLoadJavascript(m_path, m_async, m_defer);
-	}
-
-	@Override
-	public void contribute(OptimalDeltaRenderer r) throws Exception {
-		r.renderLoadJavascript(m_path);
 	}
 
 	public JavascriptContributor async() {

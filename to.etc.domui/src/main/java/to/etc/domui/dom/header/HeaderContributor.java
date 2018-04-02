@@ -24,8 +24,7 @@
  */
 package to.etc.domui.dom.header;
 
-import to.etc.domui.dom.HtmlFullRenderer;
-import to.etc.domui.dom.html.OptimalDeltaRenderer;
+import to.etc.domui.dom.IContributorRenderer;
 
 import javax.annotation.Nonnull;
 import java.util.Comparator;
@@ -58,9 +57,7 @@ abstract public class HeaderContributor {
 
 	static private Map<String, HeaderContributor> m_jsMap = new HashMap<String, HeaderContributor>();
 
-	abstract public void contribute(HtmlFullRenderer r) throws Exception;
-
-	abstract public void contribute(OptimalDeltaRenderer r) throws Exception;
+	abstract public void contribute(IContributorRenderer r) throws Exception;
 
 	@Override
 	abstract public int hashCode();

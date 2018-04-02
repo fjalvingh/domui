@@ -24,10 +24,9 @@
  */
 package to.etc.domui.dom.header;
 
-import javax.annotation.*;
+import to.etc.domui.dom.IContributorRenderer;
 
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.html.*;
+import javax.annotation.Nonnull;
 
 final class CssContributor extends HeaderContributor {
 	private String m_path;
@@ -62,12 +61,7 @@ final class CssContributor extends HeaderContributor {
 	}
 
 	@Override
-	public void contribute(HtmlFullRenderer r) throws Exception {
-		r.renderLoadCSS(m_path);
-	}
-
-	@Override
-	public void contribute(OptimalDeltaRenderer r) throws Exception {
+	public void contribute(IContributorRenderer r) throws Exception {
 		r.renderLoadCSS(m_path);
 	}
 }

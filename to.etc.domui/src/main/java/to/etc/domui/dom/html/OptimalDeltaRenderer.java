@@ -28,6 +28,7 @@ import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.HtmlRenderMode;
 import to.etc.domui.dom.HtmlTagRenderer;
 import to.etc.domui.dom.IBrowserOutput;
+import to.etc.domui.dom.IContributorRenderer;
 import to.etc.domui.dom.IHtmlDeltaAttributeRenderer;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.header.HeaderContributorEntry;
@@ -69,7 +70,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 6, 2008
  */
-public class OptimalDeltaRenderer {
+public class OptimalDeltaRenderer implements IContributorRenderer {
 	static private final boolean DEBUG = false;
 
 	private IBrowserOutput m_o;
@@ -171,11 +172,13 @@ public class OptimalDeltaRenderer {
 		m_page = page;
 	}
 
+	@Override
 	@Nonnull
 	public IBrowserOutput o() {
 		return m_o;
 	}
 
+	@Override
 	public IRequestContext ctx() {
 		return m_ctx;
 	}
@@ -277,12 +280,14 @@ public class OptimalDeltaRenderer {
 		return false;
 	}
 
+	@Override
 	public void renderLoadCSS(@Nonnull String path) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");
 	}
 
+	@Override
 	public void renderLoadJavascript(@Nonnull String path) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
@@ -292,7 +297,6 @@ public class OptimalDeltaRenderer {
 	/**
 	 * Do a downward traverse of all nodes and annotate changes, collecting attribute changes and
 	 * tree changes.
-	 * @param page
 	 */
 	private void calc(Page page) throws Exception {
 		//-- Create the BODY node's nodeInfo; this starts the tree of changes.

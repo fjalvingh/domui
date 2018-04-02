@@ -1,7 +1,7 @@
 package to.etc.domui.dom.header;
 
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.html.*;
+import to.etc.domui.dom.HtmlFullRenderer;
+import to.etc.domui.dom.IContributorRenderer;
 
 /**
  * Header to load Google charts library if needed
@@ -29,23 +29,21 @@ final public class GoogleChartsContributor extends HeaderContributor {
 
 	/**
 	 * Generate the specified scriptlet as a script tag.
-	 * @see HeaderContributor#contribute(HtmlFullRenderer)
 	 */
 	@Override
-	public void contribute(final HtmlFullRenderer r) throws Exception {
+	public void contribute(final IContributorRenderer r) throws Exception {
 		r.renderLoadJavascript("https://www.google.com/jsapi", false, false);
-		r.o().tag("script");
-		r.o().attr("language", "javascript");
-		r.o().endtag();
-		r.o().writeRaw("<!--\n"); // Embed JS in comment IMPORTANT: the \n is required!!!
-		r.o().writeRaw("google.load('visualization', '1', {'packages':['corechart','gauge']});");
-		r.o().writeRaw("\n-->");
-		r.o().closetag("script");
-	}
 
-	@Override
-	public void contribute(OptimalDeltaRenderer r) throws Exception {
-		r.renderLoadJavascript("https://www.google.com/jsapi");
-		r.o().writeRaw("google.load('visualization', '1', {'packages':['corechart','gauge']});");
+		if(r instanceof HtmlFullRenderer) {
+			r.o().tag("script");
+			r.o().attr("language", "javascript");
+			r.o().endtag();
+			r.o().writeRaw("<!--\n"); // Embed JS in comment IMPORTANT: the \n is required!!!
+			r.o().writeRaw("google.load('visualization', '1', {'packages':['corechart','gauge']});");
+			r.o().writeRaw("\n-->");
+			r.o().closetag("script");
+		} else {
+			r.o().writeRaw("google.load('visualization', '1', {'packages':['corechart','gauge']});");
+		}
 	}
 }
