@@ -102,7 +102,19 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 
 	@Override
 	@Nonnull
+	public <V> QCriteria<T> ascending(@Nonnull QField<T, V> property) {
+		return (QCriteria<T>) super.ascending(property);
+	}
+
+	@Override
+	@Nonnull
 	public QCriteria<T> between(@Nonnull @GProperty final String property, @Nonnull final Object a, @Nonnull final Object b) {
+		return (QCriteria<T>) super.between(property, a, b);
+	}
+
+	@Override
+	@Nonnull
+	public <V> QCriteria<T> between(@Nonnull QField<T, V> property, @Nonnull V a, @Nonnull V b) {
 		return (QCriteria<T>) super.between(property, a, b);
 	}
 
@@ -138,14 +150,8 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 
 	@Override
 	@Nonnull
-	public <V, R extends QField<R, T>> QCriteria<T> ne(@Nonnull final QField<R, V> property, @Nonnull final V value) {
+	public <V> QCriteria<T> ne(@Nonnull final QField<T, V> property, @Nonnull V value) {
 		return (QCriteria<T>) super.ne(property, value);
-	}
-
-	@Override
-	@Nonnull
-	public <R extends QField<R, T>> QCriteria<T> eq(@Nonnull final QFieldDouble<R> property, final double value) {
-		return (QCriteria<T>) super.eq(property, value);
 	}
 
 	@Override

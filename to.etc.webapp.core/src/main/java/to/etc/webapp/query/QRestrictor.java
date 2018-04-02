@@ -218,7 +218,7 @@ abstract public class QRestrictor<T> {
 	 * Compare a property with some value.
 	 */
 	@Nonnull
-	public <V, R extends QField<R, T>> QRestrictor<T> ne(@Nonnull final QField<R, V> property, @Nonnull V value) {
+	public <V> QRestrictor<T> ne(@Nonnull final QField<T, V> property, @Nonnull V value) {
 		return ne(property.getPath(), value);
 	}
 
@@ -420,6 +420,12 @@ abstract public class QRestrictor<T> {
 		return this;
 	}
 
+	@Nonnull
+	public <V> QRestrictor<T> between(@Nonnull QField<T, V> property, @Nonnull V a, @Nonnull V b) {
+		add(QRestriction.between(property.getPath(), a, b));
+		return this;
+	}
+
 	/**
 	 * Do a case-independent 'like' comparison. The wildcard marks here are always %; a literal % is to
 	 * be presented as \%. The comparison is case-independent.
@@ -513,10 +519,6 @@ abstract public class QRestrictor<T> {
 	@Nonnull
 	public <P extends QField<P, T>, R extends QField<R, U>, U> QRestrictor<U> exists(@Nonnull QList<P, R> listProperty) throws Exception {
 		return (QRestrictor<U>) exists(listProperty.getRootClass(), listProperty.m_listName);
-	}
-
-	public <R extends QField<R, T>> QRestrictor<T> eq(@Nonnull QFieldDouble<R> property, double value) {
-		return eq(property.getPath(), value);
 	}
 
 	public <U> QSubQuery<U, T> subquery(@Nonnull Class<U> childClass) throws Exception {
