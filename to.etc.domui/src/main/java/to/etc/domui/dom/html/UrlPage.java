@@ -41,6 +41,8 @@ import to.etc.webapp.query.QDataContextFactory;
 import javax.annotation.DefaultNonNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -59,6 +61,8 @@ public class UrlPage extends Div {
 	private String m_pageTitle;
 
 	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
+
+	final private List<IWebActionListener> m_actionListeners = new ArrayList<>(1);
 
 	public UrlPage() {
 	}
@@ -215,7 +219,22 @@ public class UrlPage extends Div {
 
 	@Override
 	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+		//-- is there a listener for this?
+		for(IWebActionListener listener : m_actionListeners) {
+			if(listener.onAction(action, ctx))
+				return;
+		}
+
 		super.componentHandleWebAction(ctx, action);
 	}
+
+	public void addListener(IWebActionListener listener) {
+		m_actionListeners.add(listener);
+	}
+
+	public void removeListener(IWebActionListener listener) {
+		m_actionListeners.remove(listener);
+	}
+
 }
 
