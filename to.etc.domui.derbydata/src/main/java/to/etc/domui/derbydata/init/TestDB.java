@@ -23,8 +23,6 @@ final public class TestDB {
 	}
 
 	static public synchronized ConnectionPool getPool() throws Exception {
-		System.getProperties().forEach((k, v) -> System.out.println("  " + k + " = " + v));
-
 		String path = "/tmp/demoDb";
 		if(System.getProperty("maven.home") != null || System.getProperty("failsafe.test.class.path") != null) {
 			File tmp = File.createTempFile("testdb", ".domui");

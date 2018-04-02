@@ -24,11 +24,13 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.*;
-
-import to.etc.webapp.annotations.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Builds the "where" part of a query, or a part of that "where" part, under construction. The nodes added,
@@ -84,7 +86,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Returns the persistent class being queried and returned, <b>if this is a class-based query</b>.
-	 * @return
 	 */
 	@Nullable
 	public Class<T> getBaseClass() {
@@ -93,7 +94,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Returns the metatable being queried, or null.
-	 * @return
 	 */
 	@Nullable
 	public ICriteriaTableDef<T> getMetaTable() {
@@ -102,7 +102,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Return the datatype returned by a principal query using this criteria.
-	 * @return
 	 */
 	@Nonnull
 	public Class<T> getReturnClass() {
@@ -119,7 +118,6 @@ abstract public class QRestrictor<T> {
 	/**
 	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsing: when the node added is an "and"
 	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
-	 * @param r
 	 */
 	protected void internalAdd(@Nonnull QOperatorNode r) {
 		QOperatorNode restrictions = getRestrictions();
@@ -139,7 +137,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Return a thingy that constructs nodes combined with "or".
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> or() {
@@ -161,7 +158,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Add NOT restriction.
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> not() {
@@ -206,9 +202,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> eq(@Nonnull @GProperty final String property, @Nullable Object value) {
@@ -217,9 +210,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some value.
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public <V, R extends QField<R, T>> QRestrictor<T> eq(@Nonnull final QField<R, V> property, @Nonnull V value) {
@@ -228,9 +218,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some value.
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public <V, R extends QField<R, T>> QRestrictor<T> ne(@Nonnull final QField<R, V> property, @Nonnull V value) {
@@ -239,9 +226,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> eq(@Nonnull @GProperty final String property, long value) {
@@ -251,9 +235,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> eq(@Nonnull @GProperty final String property, double value) {
@@ -263,10 +244,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> ne(@Nonnull @GProperty final String property, @Nullable Object value) {
@@ -276,10 +253,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> ne(@Nonnull @GProperty final String property, long value) {
@@ -289,10 +262,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> ne(@Nonnull @GProperty final String property, double value) {
@@ -302,10 +271,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * A property must be one of a list of values.
-	 * @param property
-	 * @param inlist
-	 * @param <V>
-	 * @return
 	 */
 	@Nonnull
 	public <V> QRestrictor<T> in(@Nonnull @GProperty final String property, List<V> inlist) {
@@ -341,10 +306,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> gt(@Nonnull @GProperty final String property, long value) {
@@ -354,10 +315,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> gt(@Nonnull @GProperty final String property, double value) {
@@ -367,10 +324,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> lt(@Nonnull @GProperty final String property, @Nonnull Object value) {
@@ -380,10 +333,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> lt(@Nonnull @GProperty final String property, long value) {
@@ -393,10 +342,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> lt(@Nonnull @GProperty final String property, double value) {
@@ -406,10 +351,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> ge(@Nonnull @GProperty final String property, @Nonnull Object value) {
@@ -419,10 +360,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> ge(@Nonnull @GProperty final String property, long value) {
@@ -432,10 +369,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> ge(@Nonnull @GProperty final String property, double value) {
@@ -445,10 +378,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> le(@Nonnull @GProperty final String property, @Nonnull Object value) {
@@ -458,10 +387,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> le(@Nonnull @GProperty final String property, long value) {
@@ -471,10 +396,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare a property with some literal object value.
-	 *
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> le(@Nonnull @GProperty final String property, double value) {
@@ -485,9 +406,6 @@ abstract public class QRestrictor<T> {
 	/**
 	 * Do a 'like' comparison. The wildcard marks here are always %; a literal % is to
 	 * be presented as \%. The comparison is case-dependent.
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> like(@Nonnull @GProperty final String property, @Nonnull Object value) {
@@ -497,10 +415,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Compare the value of a property with two literal bounds.
-	 * @param property
-	 * @param a
-	 * @param b
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> between(@Nonnull @GProperty final String property, @Nonnull Object a, @Nonnull Object b) {
@@ -511,9 +425,6 @@ abstract public class QRestrictor<T> {
 	/**
 	 * Do a case-independent 'like' comparison. The wildcard marks here are always %; a literal % is to
 	 * be presented as \%. The comparison is case-independent.
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> ilike(@Nonnull @GProperty final String property, @Nonnull Object value) {
@@ -523,8 +434,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Add a set of OR nodes to the set.
-	 * @param a
-	 * @return
 	 */
 	@Deprecated
 	@Nonnull
@@ -539,8 +448,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Add the restriction that the property specified must be null.
-	 * @param property
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> isnull(@Nonnull @GProperty final String property) {
@@ -550,9 +457,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Add the restriction that the property specified must be not-null.
-	 *
-	 * @param property
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> isnotnull(@Nonnull @GProperty final String property) {
@@ -562,8 +466,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * Add a restriction specified in bare SQL. This is implementation-dependent.
-	 * @param sql
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> sqlCondition(@Nonnull String sql) {
@@ -576,10 +478,6 @@ abstract public class QRestrictor<T> {
 	 * is implementation-dependent. The first ? in the string corresponds to params[0]. Parameters are
 	 * not allowed to be null (i.e. the type is @Nonnull Object[@Nonnull] or something).
 	 * Alternatively parameters can be given as ":nnn" where nnn is the 1-based index in the params array.
-	 *
-	 * @param sql
-	 * @param params
-	 * @return
 	 */
 	@Nonnull
 	public QRestrictor<T> sqlCondition(@Nonnull final String sql, @Nonnull Object[] params) {
@@ -595,7 +493,6 @@ abstract public class QRestrictor<T> {
 	 * @param <U>			The type of the children.
 	 * @param childclass	The class type of the children, because Java Generics is too bloody stupid to find out itself.
 	 * @param childproperty	The name of the property <i>in</i> the parent class <T> that represents the List<U> of child records.
-	 * @return
 	 */
 	@Nonnull
 	public <U> QRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty("U") String childproperty) {
@@ -638,8 +535,6 @@ abstract public class QRestrictor<T> {
 	 * Registering all subqueries created here allows any querying visitor to implement a check: it should
 	 * remove all subqueries that it actually encounters and handles, and after that it checks to ensure that this
 	 * set is empty. If not there are subqueries left that were not joined back.
-	 *
-	 * @return
 	 */
 	public Set<QSubQuery<?, ?>> getUnusedSubquerySet() {
 		return m_unusedSubquerySet;
@@ -647,7 +542,6 @@ abstract public class QRestrictor<T> {
 
 	/**
 	 * See {@link #getUnusedSubquerySet()}
-	 * @param q
 	 */
 	public void internalUseQuery(QSubQuery<?, ?> q) {
 		m_unusedSubquerySet.remove(q);
