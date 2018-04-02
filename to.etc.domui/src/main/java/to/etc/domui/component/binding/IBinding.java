@@ -1,8 +1,8 @@
 package to.etc.domui.component.binding;
 
-import to.etc.domui.dom.errors.*;
+import to.etc.domui.dom.errors.UIMessage;
 
-import javax.annotation.*;
+import javax.annotation.Nullable;
 
 /**
  * This represents a single "binding", a thing that needs to be updated at server entry
@@ -13,7 +13,7 @@ import javax.annotation.*;
  */
 public interface IBinding {
 	@Nullable
-	BindingValuePair<?, ?> getBindingDifference() throws Exception;
+	BindingValuePair<?> getBindingDifference() throws Exception;
 
 	void moveModelToControl() throws Exception;
 

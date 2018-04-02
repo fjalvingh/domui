@@ -24,14 +24,23 @@
  */
 package to.etc.domui.component.dynaima;
 
-import java.awt.*;
-import java.util.*;
-import java.util.List;
+import org.jCharts.axisChart.AxisChart;
+import org.jCharts.chartData.AxisChartDataSet;
+import org.jCharts.chartData.DataSeries;
+import org.jCharts.properties.AreaChartProperties;
+import org.jCharts.properties.AxisProperties;
+import org.jCharts.properties.ChartProperties;
+import org.jCharts.properties.LegendProperties;
+import org.jCharts.types.ChartType;
 
-import org.jCharts.axisChart.*;
-import org.jCharts.chartData.*;
-import org.jCharts.properties.*;
-import org.jCharts.types.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helps constructing an area graph.
@@ -59,7 +68,6 @@ public class AreaCharter implements ICharterHelper {
 	private LegendProperties m_legendProperties = new LegendProperties();
 
 	// FIXME Cannot create ANY construct here that does NOT cause generic warnings. Good job, Sun.
-	@SuppressWarnings({"unchecked"})
 	static public class BucketData {
 		private String m_bucketName;
 

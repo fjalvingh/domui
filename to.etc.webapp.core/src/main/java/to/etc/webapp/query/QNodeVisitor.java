@@ -24,9 +24,8 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
-
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import java.util.List;
 
 public interface QNodeVisitor {
 	void visitCriteria(@Nonnull QCriteria<?> qc) throws Exception;
@@ -47,7 +46,7 @@ public interface QNodeVisitor {
 
 	void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception;
 
-	void visitRestrictionsBase(@Nonnull QCriteriaQueryBase<?> n) throws Exception;
+	void visitRestrictionsBase(@Nonnull QCriteriaQueryBase<?, ?> n) throws Exception;
 
 	void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception;
 

@@ -102,8 +102,6 @@ import java.util.function.Function;
 final public class DomUtil {
 	static public final Logger USERLOG = LoggerFactory.getLogger("to.etc.domui.userAction");
 
-	static public final String DOCROOT = "https://etc.to/confluence/";
-
 	static private int m_guidSeed;
 
 	/** Map value types of primitive type to their boxed (wrapped) types. */
@@ -328,6 +326,10 @@ final public class DomUtil {
 
 	static public boolean isBooleanOrWrapper(Class<?> clz) {
 		return clz == Boolean.class || clz == boolean.class;
+	}
+
+	static public boolean isNumber(Class<?> clz) {
+		return Number.class.isAssignableFrom(getBoxedForPrimitive(clz));
 	}
 
 	/**

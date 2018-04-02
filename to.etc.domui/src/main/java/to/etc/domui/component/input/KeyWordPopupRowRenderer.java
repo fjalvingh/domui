@@ -123,7 +123,6 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 		if(rowClicked != null) {
 			cc.getTR().setClicked(new IClicked<TR>() {
 				@Override
-				@SuppressWarnings("unchecked")
 				public void clicked(final @Nonnull TR b) throws Exception {
 					ICellClicked< ? > rowClicked = getRowClicked();
 					if(null != rowClicked)

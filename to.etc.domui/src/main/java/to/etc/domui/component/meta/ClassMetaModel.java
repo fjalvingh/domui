@@ -72,6 +72,8 @@ public interface ClassMetaModel {
 	@Nullable
 	PropertyMetaModel< ? > findProperty(@Nonnull String name);
 
+	@Nullable <V> PropertyMetaModel<V> findProperty(@Nonnull QField<?, V> field);
+
 	/**
 	 * Same as {@link #findProperty(String)}, but throws an exception if the property (or path) is not found, so
 	 * it never returns null.
@@ -81,6 +83,8 @@ public interface ClassMetaModel {
 	@Nonnull
 	PropertyMetaModel< ? > getProperty(@Nonnull String name);
 
+	@Nonnull
+	<V> PropertyMetaModel<V> getProperty(@Nonnull QField<?, V> field);
 
 	boolean isPersistentClass();
 

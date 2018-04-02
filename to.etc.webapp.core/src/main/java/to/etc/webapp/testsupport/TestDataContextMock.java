@@ -1,12 +1,20 @@
 package to.etc.webapp.testsupport;
 
-import java.lang.reflect.*;
-import java.util.*;
+import to.etc.util.ClassUtil;
+import to.etc.util.PropertyInfo;
+import to.etc.webapp.query.IIdentifyable;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QCriteriaQueryBase;
+import to.etc.webapp.query.QSelection;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import javax.annotation.DefaultNonNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Special mock data context that should be used for tests that never hit the database.
@@ -378,7 +386,7 @@ public class TestDataContextMock extends TestDataContextStub {
 		}
 		registerSelectionOne(testId, selectionResult);
 	}
-	private String checkTestsId(QCriteriaQueryBase< ? > cqb) {
+	private String checkTestsId(QCriteriaQueryBase<?, ?> cqb) {
 		String testId = cqb.getTestId();
 		if (null == testId){
 			throw new IllegalStateException("No testId defined for: " + cqb);

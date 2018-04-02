@@ -10,14 +10,17 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <processorPath>
+          <entry name="$PROJECT_DIR$/utilities/property-annotation-processor/target/property-annotations-processor-1.2-SNAPSHOT.jar" />
+        </processorPath>
+        <module name="annotations" />
         <module name="domui-hello" />
         <module name="domui-hibernate-generator" />
+        <module name="property-annotations-processor" />
         <module name="to.etc.alg" />
         <module name="to.etc.db" />
         <module name="to.etc.dbcompare" />
         <module name="to.etc.domui" />
-        <module name="to.etc.domui.demo" />
-        <module name="to.etc.domui.derbydata" />
         <module name="to.etc.domui.formbuilder" />
         <module name="to.etc.domui.hibutil" />
         <module name="to.etc.domui.legacy" />
@@ -29,13 +32,23 @@
         <module name="to.etc.webapp.core" />
         <module name="vaadin-sass-compiler" />
       </profile>
+      <profile name="Annotation profile for domui" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processor name="db.annotationprocessing.PropertyAnnotationProcessor" />
+        <module name="to.etc.domui.demo" />
+        <module name="to.etc.domui.derbydata" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="annotations" target="1.8" />
+      <module name="common" target="1.5" />
+      <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="1.8" />
       <module name="domui-utilities" target="1.5" />
-      <module name="gendb" target="1.5" />
       <module name="property-annotations-processor" target="1.8" />
       <module name="to.etc.alg" target="1.8" />
       <module name="to.etc.db" target="1.8" />

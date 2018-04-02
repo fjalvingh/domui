@@ -24,13 +24,17 @@
  */
 package to.etc.domui.component2.controlfactory;
 
-import javax.annotation.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component2.combo.ComboLookup2;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.util.Constants;
+import to.etc.util.WrappedException;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component2.combo.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Accepts any property defined as an UP relation (parent) and score higher if a component type
@@ -39,7 +43,6 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-@SuppressWarnings("unchecked")
 public class ControlCreatorRelationCombo implements IControlCreator {
 	/**
 	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.

@@ -70,7 +70,6 @@ import java.math.BigDecimal;
 	 * @see to.etc.domui.component.lookup.ILookupControlFactory#createControl(to.etc.domui.component.meta.SearchPropertyMetaModel, to.etc.domui.dom.html.IControl)
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(@Nonnull SearchPropertyMetaModel spm, X control) {
 		final PropertyMetaModel<?> pmm = spm.getProperty();
 		Text2<String> numText = (Text2<String>) control;

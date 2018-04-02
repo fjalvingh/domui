@@ -65,7 +65,6 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 		cmm.setKeyWordSearchProperties(m_keySearchList);
 	}
 
-	@SuppressWarnings({"unchecked"})
 	protected <T> void decodePropertyAnnotation(DefaultClassMetaModel cmm, DefaultPropertyMetaModel<T> pmm, Annotation an) {
 		if(an instanceof MetaProperty) {
 			handleMetaProperty(pmm, (MetaProperty) an);
@@ -93,9 +92,11 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 			pmm.setLookupTableProperties(MetaInitializer.decode(cmm, an.defaultColumns()));
 		}
 
-		if(an.defaultSortColumn() != Constants.NONE) {}
+		if(!an.defaultSortColumn().isEmpty()) {
+			cmm.setDefaultSortProperty(an.defaultSortColumn());
+		}
 		if(an.defaultSortOrder() != SortableType.UNKNOWN) {
-			// FIXME Missing metadata!!
+			cmm.setDefaultSortDirection(an.defaultSortOrder());
 
 		}
 

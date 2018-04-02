@@ -78,7 +78,6 @@ public class DisplayPropertyMetaModel {
 			throw new IllegalArgumentException("Cannot be null");
 	}
 
-	@SuppressWarnings({"unchecked"})
 	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaDisplayProperty p) {
 		m_containedInClass = cmm;
 
@@ -103,7 +102,6 @@ public class DisplayPropertyMetaModel {
 //		setRenderHint(p.renderHint());	jal 20101220 Removed, unused and seems silly in table display
 	}
 
-	@SuppressWarnings({"unchecked"})
 	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaComboProperty p) {
 		m_containedInClass = cmm;
 

@@ -41,7 +41,6 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-@SuppressWarnings("unchecked")
 public class ControlCreatorString implements IControlCreator {
 	/**
 	 * Accept any type using a string.

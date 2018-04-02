@@ -26,7 +26,7 @@ package to.etc.domui.dom.html;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.component.binding.ComponentPropertyBinding;
+import to.etc.domui.component.binding.ComponentPropertyBindingBidi;
 import to.etc.domui.component.binding.IBinding;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.component.event.INotify;
@@ -62,10 +62,12 @@ import to.etc.domui.util.IDropHandler;
 import to.etc.domui.util.IDropTargetable;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
+import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -207,6 +209,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	private Dimension m_browserWindowSize;
 
 	private byte m_disableChanged;
+
+	/** Is nonnull while a binding is being constructed, used to give errors when a binding has not been completed fully. */
+	@Nullable
+	private Object m_currentBindBuilder;
 
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
@@ -521,7 +527,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Add the class passed as <i>another</i> CSS class to the "class" attribute. If the class already
 	 * contains class names this one is added separated by space.
-	 * @param name
 	 */
 	final public void addCssClass(@Nonnull final String nameList) {
 		String cssClass = getCssClass();
@@ -1352,7 +1357,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		if(null != el) {
 			sb.append(":").append(el);
 		}
-		ComponentPropertyBinding binding = OldBindingHandler.findBinding(this, "value");
+		ComponentPropertyBindingBidi<?, ?, ?, ?> binding = OldBindingHandler.findBinding(this, "value");
 		if(binding != null) {
 			sb.append(" ").append(binding);
 		} else {
@@ -1929,7 +1934,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Add a binding to the binding list.
-	 * @param binding
 	 */
 	final public void addBinding(@Nonnull IBinding binding) {
 		List<IBinding> list = m_bindingList;
@@ -1938,34 +1942,71 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		list.add(binding);
 	}
 
+	void finishBinding(@Nonnull IBinding binding) {
+		if(m_currentBindBuilder == null)
+			throw new IllegalStateException("No binding in progress - are you calling 'to' multiple times?");
+		addBinding(binding);
+		m_currentBindBuilder = null;
+	}
+
 	final public void removeBinding(@Nonnull IBinding binding) {
 		List<IBinding> list = m_bindingList;
 		if(null != list)
 			list.remove(binding);
 	}
 
-	@Nonnull final public ComponentPropertyBinding bind() {
+	/**
+	 * Shorthand for binding the "bindValue" (or value) property of a control. This creates
+	 * a bidirectional binding.
+	 */
+	@Nonnull final public BindingBuilderBidi<?> bind() {
+		checkBindingCompleted();
 		ClassMetaModel cmm = MetaManager.findClassMeta(getClass());
 		PropertyMetaModel<?> p = cmm.findProperty("bindValue");
+		BindingBuilderBidi<?> b;
 		if(null != p)
-			return bind("bindValue");
-		p = cmm.findProperty("value");
-		if(null != p)
-			return bind("value");
-		throw new IllegalStateException("This control (" + getClass() + ") does not have a 'value' nor a 'bindValue' property");
+			b = new BindingBuilderBidi<>(this, p);
+		else {
+			p = cmm.findProperty("value");
+			if(null != p)
+				b = new BindingBuilderBidi<>(this, p);
+			else
+				throw new ProgrammerErrorException("This control (" + getClass() + ") does not have a 'value' nor a 'bindValue' property");
+		}
+		m_currentBindBuilder = b;
+		return b;
 	}
 
+	@Nonnull final public BindingBuilderUni<?> bind(@Nonnull String componentProperty) {
+		checkBindingCompleted();
+		BindingBuilderUni<Object> builder = new BindingBuilderUni<>(this, componentProperty);
+		m_currentBindBuilder = builder;
+		return builder;
+	}
 
-	@Nonnull final public ComponentPropertyBinding bind(@Nonnull String componentProperty) {
-		ComponentPropertyBinding binder = new ComponentPropertyBinding(this, componentProperty);
-		addBinding(binder);
-		return binder;
+	@Nonnull final public <V> BindingBuilderUni<V> bind(@Nonnull QField<?, V> componentProperty) {
+		checkBindingCompleted();
+		BindingBuilderUni<V> builder = new BindingBuilderUni<>(this, componentProperty);
+		m_currentBindBuilder = builder;
+		return builder;
+	}
+
+	@Nonnull final public <V> BindingBuilderUni<V> bind(Class<V> valueClass, @Nonnull String componentProperty) {
+		checkBindingCompleted();
+		BindingBuilderUni<V> builder = new BindingBuilderUni<>(this, componentProperty);
+		m_currentBindBuilder = builder;
+		return builder;
+	}
+
+	private void checkBindingCompleted() {
+		Object currentBindBuilder = m_currentBindBuilder;
+		if(currentBindBuilder != null)
+			throw new ProgrammerErrorException(currentBindBuilder + ": binding has not been finished");
 	}
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Misc														*/
 	/*----------------------------------------------------------------------*/
-
 	/**
 	 * FIXME Should not exist?
 	 * @param result

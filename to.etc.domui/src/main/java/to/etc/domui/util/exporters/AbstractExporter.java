@@ -38,7 +38,7 @@ abstract public class AbstractExporter<T> extends AbstractAsyncDialogTask implem
 		m_outputName = name + " " + new SimpleDateFormat("yyyymmdd-HHmm").format(new Date()) + "." + format.extension();
 	}
 
-	@Override protected void run(@Nonnull Progress progress) throws Exception {
+	@Override protected void execute(@Nonnull Progress progress) throws Exception {
 		File out = m_out = File.createTempFile("xp-",  "." + m_format.extension());
 		try(IExportWriter<T> writer = m_writer = (IExportWriter<T>) m_format.createWriter(out)) {
 			m_mimeType = writer.getMimeType();

@@ -229,7 +229,6 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return (IRenderInto< ? >) DomApplication.get().createInstance(nrclass);
 	}
 
-	@SuppressWarnings("unchecked")
 	static private <R> IConverter<R> tryConverter(final Class<R> cclz, final IConverter<R> ins) {
 		if(cclz != null) {
 			if(ins != null)

@@ -19,7 +19,7 @@ abstract public class AbstractImportTask extends AbstractAsyncDialogTask {
 	public AbstractImportTask() {
 	}
 
-	@Override public void run(Progress progress) throws Exception {
+	@Override public void execute(Progress progress) throws Exception {
 		try(IRowReader reader = openReader(Objects.requireNonNull(m_inputFile))) {
 			initialize(reader);
 			execute(reader, progress);

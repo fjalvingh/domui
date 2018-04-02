@@ -1,10 +1,11 @@
 package to.etc.domui.component2.form4;
 
 import to.etc.domui.component.binding.BindReference;
-import to.etc.domui.component.binding.IBindingConverter;
+import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
+import to.etc.domui.dom.html.BindingBuilderBidi;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
@@ -14,6 +15,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
+import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -92,7 +94,6 @@ final public class FormBuilder {
 	@Nullable
 	private BindReference<?, Boolean> m_disabledGlobal;
 
-
 	private NodeBase m_lastAddedControl;
 
 	@Nullable
@@ -102,7 +103,7 @@ final public class FormBuilder {
 	private String m_labelCss;
 
 	@Nullable
-	private IBindingConverter<?, ?> m_bindingConverter;
+	private IBidiBindingConverter<?, ?> m_bindingConverter;
 
 	public FormBuilder(@Nonnull IAppender appender) {
 		m_appender = appender;
@@ -360,12 +361,6 @@ final public class FormBuilder {
 		return control;
 	}
 
-	@Nonnull
-	public FormBuilder converter(@Nonnull IBindingConverter<?, ?> converter) {
-		m_bindingConverter = converter;
-		return this;
-	}
-
 	/**
 	 * Adds the specified css class to the control cell.
 	 * @param cssClass
@@ -399,6 +394,35 @@ final public class FormBuilder {
 			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
 		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
 		m_instance = instance;
+		return this;
+	}
+
+	@Nonnull
+	public <T> FormBuilder property(@Nonnull T instance, @GProperty String property, IBidiBindingConverter<?, ?> converter) {
+		if(null != m_propertyMetaModel)
+			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
+		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
+		m_instance = instance;
+		m_bindingConverter = converter;
+		return this;
+	}
+
+	@Nonnull
+	public <T, V> FormBuilder property(@Nonnull T instance, QField<?, V> property) {
+		if(null != m_propertyMetaModel)
+			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
+		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
+		m_instance = instance;
+		return this;
+	}
+
+	@Nonnull
+	public <T, V> FormBuilder property(@Nonnull T instance, QField<?, V> property, IBidiBindingConverter<?, V> converter) {
+		if(null != m_propertyMetaModel)
+			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
+		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
+		m_instance = instance;
+		m_bindingConverter = converter;
 		return this;
 	}
 
@@ -449,7 +473,13 @@ final public class FormBuilder {
 			if(null != pmm) {
 				Object instance = m_instance;
 				if(null != instance) {
-					((NodeBase) ctl).bind().convert(m_bindingConverter).to(instance, pmm);
+					IBidiBindingConverter<Object, Object> conv = (IBidiBindingConverter<Object, Object>) m_bindingConverter;
+					if(null == conv) {
+						control.bind().to(instance, pmm);
+					} else {
+						BindingBuilderBidi<?> bind = control.bind();
+						((BindingBuilderBidi<Object>) bind).to(instance, (PropertyMetaModel<Object>)pmm, conv);
+					}
 				}
 			}
 

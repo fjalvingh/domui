@@ -43,7 +43,6 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-@SuppressWarnings("unchecked")
 public class ControlFactoryRelationCombo implements PropertyControlFactory {
 	/**
 	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.

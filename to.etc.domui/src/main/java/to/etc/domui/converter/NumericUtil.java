@@ -243,10 +243,10 @@ public class NumericUtil {
 				default:
 					throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 
-				case UNKNOWN:
-				case NUMBER:
 				case NUMBER_SCALED:
 					return v.toString();
+				case UNKNOWN:
+				case NUMBER:
 				case NUMBER_FULL:
 					return new DecimalFormat("###,###,###,###,###,###,###,###,###,###,###,###,##0", dfs).format(v);
 				case NUMBER_SCIENTIFIC:
@@ -296,7 +296,6 @@ public class NumericUtil {
 		return new NumberConverter<T>(type, np, scale);
 	}
 
-	@SuppressWarnings({"unchecked"})
 	public static <T extends Number> void assignNumericConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
 		if(pmm.getConverter() != null)
 			node.setConverter(pmm.getConverter());

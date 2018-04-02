@@ -4,6 +4,7 @@ import to.etc.domuidemo.pages.DataTable1Page;
 import to.etc.domuidemo.pages.MenuPage;
 import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.basic.DemoTextArea;
+import to.etc.domuidemo.pages.binding.editabletable.EditableTablePage;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
 import to.etc.domuidemo.pages.graphs.GraphPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
@@ -131,5 +132,7 @@ public class ComponentListPage extends MenuPage {
 
 		addCaption("Binding");
 		addLink(DemoObservableListPage.class, "Database relation IObservableList binding");
+		addLink(EditableTablePage.class, "Editable table using data binding and a model");
+		//addLink(InvoiceListPage.class, "Editable table using data binding and a model");
 	}
 }

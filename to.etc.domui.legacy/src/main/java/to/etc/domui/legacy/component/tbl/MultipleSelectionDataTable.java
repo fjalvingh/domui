@@ -129,7 +129,6 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 					final T theitem = item;
 					cc.getTR().setClicked2(new IClicked2<TR>() {
 						@Override
-						@SuppressWarnings({"synthetic-access"})
 						public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 							ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
 							if(null != rowClicked)
@@ -200,7 +199,6 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 			final T theitem = item;
 			cc.getTR().setClicked2(new IClicked2<TR>() {
 				@Override
-				@SuppressWarnings({"synthetic-access"})
 				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
 					ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
 					if(null != rowClicked)
