@@ -171,8 +171,6 @@ abstract public class QRestrictor<T> {
 	 * This merges the "other" restrictor's restrictions inside this restriction. Both
 	 * restrictions are merged by using an "and" between both complete sets. Only "this"
 	 * restriction is altered; the original is kept as-is (the nodes are copied).
-	 *
-	 * @param other
 	 */
 	public void mergeCriteria(@Nonnull QRestrictor<T> other) {
 		QOperatorNode othertree = other.getRestrictions();
@@ -212,7 +210,7 @@ abstract public class QRestrictor<T> {
 	 * Compare a property with some value.
 	 */
 	@Nonnull
-	public <V, R extends QField<R, T>> QRestrictor<T> eq(@Nonnull final QField<R, V> property, @Nonnull V value) {
+	public <V> QRestrictor<T> eq(@Nonnull final QField<T, V> property, @Nonnull V value) {
 		return eq(property.getPath(), value);
 	}
 

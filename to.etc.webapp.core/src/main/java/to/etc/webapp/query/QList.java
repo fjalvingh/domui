@@ -26,7 +26,6 @@ public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 
 	public QList(@Nonnull R root, @Nonnull QField<P, ? > parent, String listName) throws Exception {
 		m_root = root;
-		m_root.m_isSub = true;
 		m_parent = parent;
 		m_listName = parent.toString().equals("") ? listName : parent.toString() + "." + listName;
 	}

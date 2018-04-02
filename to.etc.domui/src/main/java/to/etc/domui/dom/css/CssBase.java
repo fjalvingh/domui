@@ -24,6 +24,7 @@
  */
 package to.etc.domui.dom.css;
 
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.query.QField;
 
@@ -34,8 +35,8 @@ import to.etc.webapp.query.QField;
  * Created on Aug 17, 2007
  */
 public class CssBase {
-	static public final QField<?, DisplayType> DISPLAY = new QField<>("display");
-	static public final QField<?, VisibilityType> VISIBILITY = new QField<>("visibility");
+	static public final QField<NodeBase, DisplayType> DISPLAY = new QField<>(NodeBase.class, "display");
+	static public final QField<NodeBase, VisibilityType> VISIBILITY = new QField<>(NodeBase.class, "visibility");
 
 	private String m_cachedStyle;
 

@@ -3,8 +3,8 @@ package db.annotationprocessing;
 import db.annotationprocessing.PropertyAnnotationProcessor.Property;
 
 import javax.lang.model.element.Element;
-import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeMirror;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
@@ -21,58 +21,42 @@ public class StaticClassGenerator extends ClassGenerator {
 		super(propertyAnnotationProcessor, w, packageName, className, properties, entityName);
 	}
 
+	@Override protected void generateConstructor() throws IOException {
+		append("\tprivate ").append(getStaticClassName()).append("() {\n");
+		append("\t}\n\n");
+	}
+
 	@Override
 	protected void generateColumnProperty(TypeMirror returnType, String propertyName) throws Exception {
 		String mname = replaceReserved(propertyName);
-		String linkClass = getRootClassName();
+		//String linkClass = getRootClassName();
 
-		if(false && returnType instanceof PrimitiveType) {
-			String retStr = returnType.toString();
-			if(retStr.equals("int") || retStr.equals("short")) {
-				retStr = "long";
-			}
-			String mtypeName = Character.toUpperCase(retStr.charAt(0)) + retStr.substring(1);
-			m_w.append("\n\n\t@Nonnull\n\tstatic public final QField<");
-			m_w.append(linkClass);
-			m_w.append(", ").append(mtypeName).append("> ");
-			m_w.append(mname);
-			m_w.append("() {\n\t\treturn new QField");
-			m_w.append(mtypeName);
-			m_w.append("<").append(linkClass).append(">");
-			m_w.append("(new QField<").append(linkClass).append(", ");
-			m_w.append(retStr);
-			m_w.append("[]>();\n");
-			m_w.append("\t}\n");
+		String mtypeName = getWrappedType(returnType.toString());
 
-		} else {
-			String mtypeName = getWrappedType(returnType.toString());
-
-			m_w.append("\n\n\t@Nonnull\n\tstatic public final QField<");
-			m_w.append(linkClass);
-			m_w.append(", ").append(mtypeName).append("> ");
-			m_w.append(mname);
-			m_w.append("() {\n\t\treturn new QField<").append(linkClass).append(", ");
-			m_w.append(mtypeName);
-			m_w.append(">(\"").append(propertyName).append("\");\n");
-			m_w.append("\t}\n");
-		}
+		m_w.append("\t@Nonnull\n");
+		m_w.append("\tstatic public final QField<");
+		m_w.append(getTargetClassName());
+		m_w.append(", ").append(mtypeName).append("> ");
+		m_w.append(mname);
+		m_w.append("() {");
+		m_w.append("\n\t\treturn new QField<>(").append(getTargetClassName()).append(".class, \"").append(propertyName).append("\");\n");
+		m_w.append("\t}\n\n");
 	}
 
 	@Override
 	protected void generateParentProperty(TypeMirror returnType, String propertyName) throws Exception {
 		Element mtype = typeUtils().asElement(returnType);
 		String qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(mtype.getSimpleName().toString());
-		String linkClass = getRootClassName();
-
 		String mname = replaceReserved(propertyName);
-		m_w.append("\n\n\t@Nonnull\n\tpublic final ");
+		m_w.append("\t@Nonnull\n\tpublic final ");
 		m_w.append(qtype);
-		m_w.append("<").append(linkClass).append("> ");
+		m_w.append("<").append(getTargetClassName()).append("> ");
 		m_w.append(mname);
 		m_w.append("() {\n\t\treturn new ");
 		m_w.append(qtype);
-		m_w.append("<").append(getRootClassName()).append(">(null, \"");
+		m_w.append("<>(").append(getTargetClassName()).append(".class, null, \"");
 		m_w.append(propertyName);
-		m_w.append("\");\n\t}");
+		m_w.append("\");\n");
+		m_w.append("\t}\n\n");
 	}
 }

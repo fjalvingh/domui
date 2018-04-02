@@ -80,7 +80,7 @@ abstract class ClassGenerator {
 	public void generate() throws Exception {
 		generateClassHeader();
 
-		append("public class ");
+		append("final public class ");
 		append(m_className);
 		generateClassExtends();
 		append(" {\n");
@@ -91,11 +91,7 @@ abstract class ClassGenerator {
 		append("}\n");
 	}
 
-	protected void generateConstructor() throws IOException {
-		append("\t").append(m_className).append("() {\n");
-		append("\n");
-		append("\t}\n");
-	}
+	abstract protected void generateConstructor() throws IOException;
 
 	private void generateProperties() throws Exception {
 		for(Property property : m_properties) {
@@ -211,9 +207,9 @@ abstract class ClassGenerator {
 		return m_processor.getStaticClass(m_targetClassName);
 	}
 
-	protected String getRootClassName() {
-		return m_processor.getRootClass(m_targetClassName);
-	}
+	//protected String getRootClassName() {
+	//	return m_processor.getRootClass(m_targetClassName);
+	//}
 
 	protected String getLinkClass() {
 		return m_processor.getLinkClass(m_targetClassName);

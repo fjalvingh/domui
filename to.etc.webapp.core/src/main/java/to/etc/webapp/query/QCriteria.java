@@ -132,7 +132,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T> {
 
 	@Override
 	@Nonnull
-	public <V, R extends QField<R, T>> QCriteria<T> eq(@Nonnull final QField<R, V> property, @Nonnull final V value) {
+	public <V> QCriteria<T> eq(@Nonnull final QField<T, V> property, @Nonnull final V value) {
 		return (QCriteria<T>) super.eq(property, value);
 	}
 
