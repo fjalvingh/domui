@@ -64,6 +64,18 @@
             <artifactId>to.etc.webapp.core</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava-jdk5</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.mozilla/rhino -->
         <dependency>
             <groupId>org.mozilla</groupId>
