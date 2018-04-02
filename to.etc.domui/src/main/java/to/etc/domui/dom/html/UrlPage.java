@@ -30,12 +30,10 @@ import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
-import to.etc.domui.util.Constants;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
@@ -59,9 +57,6 @@ public class UrlPage extends Div {
 	/** The title for the page in the head's TITLE tag. */
 	@Nullable
 	private String m_pageTitle;
-
-	@Nullable
-	private INotifyPageEvent m_notifyPageEvent;
 
 	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
 
@@ -220,28 +215,7 @@ public class UrlPage extends Div {
 
 	@Override
 	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
-		if(Constants.ACDM_NOTIFY_PAGE.equals(action)) {
-			handleNotifyPageCommand(ctx);
-		} else {
-			super.componentHandleWebAction(ctx, action);
-		}
-	}
-
-	private void handleNotifyPageCommand(@Nonnull final IRequestContext ctx) throws Exception {
-		String command = ctx.getParameter(getActualID() + "_command");
-		INotifyPageEvent listener = getNotifyPageEvent();
-		if(null != listener) {
-			listener.execute(command);
-		}
-	}
-
-	@Nullable
-	public INotifyPageEvent getNotifyPageEvent() {
-		return m_notifyPageEvent;
-	}
-
-	public void setNotifyPageEvent(@Nonnull INotifyPageEvent notifyPageEvent) {
-		m_notifyPageEvent = notifyPageEvent;
+		super.componentHandleWebAction(ctx, action);
 	}
 }
 
