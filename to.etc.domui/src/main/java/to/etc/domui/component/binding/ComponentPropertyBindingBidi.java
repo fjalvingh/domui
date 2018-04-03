@@ -31,7 +31,6 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.IValueAccessor;
-import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.CodeException;
 
 import javax.annotation.DefaultNonNull;
@@ -133,7 +132,7 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 		}
 
 		//-- When in error we cannot set anything anyway, so exit.
-		if(null != newError && !newError.getCode().equals(Msgs.MANDATORY)) {
+		if(null != newError /* && !newError.getCode().equals(Msgs.MANDATORY) */) {
 			/*
 			 * jal 20171018 When a mandatory LookupInput gets cleared its value becomes null, and this
 			 * value should be propagated to the model. It seems likely that in ALL cases of error
