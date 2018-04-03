@@ -9,6 +9,14 @@ import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.UrlPage;
 
 /**
+ * Test for the following:
+ *
+ * - a mandatoty control bound to a model has an initial value through the model (i.e. the start value is not null)
+ * - clear the value in the control, then press the click button which validates the bindings
+ *
+ * expected result: as the control is now empty it is invalid, and a mandatory error must be shown.
+ * actual result before: the validation fails, but no message is shown.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 3-4-18.
  */
