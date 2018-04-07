@@ -1,7 +1,6 @@
 package to.etc.domui.dom.header;
 
-import to.etc.domui.dom.HtmlFullRenderer;
-import to.etc.domui.dom.html.OptimalDeltaRenderer;
+import to.etc.domui.dom.IContributorRenderer;
 
 import java.util.Objects;
 
@@ -16,17 +15,13 @@ public class GoogleIdentificationContributor extends HeaderContributor {
 		m_key = key;
 	}
 
-	@Override public void contribute(HtmlFullRenderer r) throws Exception {
+	@Override public void contribute(IContributorRenderer r) throws Exception {
 		r.renderLoadJavascript("https://apis.google.com/js/platform.js", true, true);
 		r.renderLoadJavascript(r.ctx().getRelativePath("$js/domui.login.js"), true, true);
 		r.o().tag("meta");
 		r.o().attr("name", "google-signin-client_id");
 		r.o().attr("content", m_key);
 		r.o().endtag();
-	}
-
-	@Override public void contribute(OptimalDeltaRenderer r) throws Exception {
-
 	}
 
 	@Override public boolean equals(Object o) {

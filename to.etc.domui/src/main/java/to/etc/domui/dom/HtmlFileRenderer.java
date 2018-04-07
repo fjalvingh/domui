@@ -319,7 +319,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	}
 
 	@Override
-	public void renderLoadJavascript(@Nonnull String path) throws Exception {
+	public void renderLoadJavascript(@Nonnull String path, boolean async, boolean defer) throws Exception {
 		//if(!path.startsWith("http")) {
 		//	String rurl = m_page.getBody().getThemedResourceRURL(path);
 		//	path = ctx().getRelativePath(rurl);

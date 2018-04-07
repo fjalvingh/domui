@@ -288,7 +288,7 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 	}
 
 	@Override
-	public void renderLoadJavascript(@Nonnull String path) throws Exception {
+	public void renderLoadJavascript(@Nonnull String path, boolean async, boolean defer) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ");\n");

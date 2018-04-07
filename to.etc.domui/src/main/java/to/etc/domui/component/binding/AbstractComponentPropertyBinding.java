@@ -34,10 +34,10 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 	final private IValueAccessor<MV> m_instanceProperty;
 
 	/**
-	 * The last value read from the control. If a converter is present, this value is converted to a MODEL value.
+	 * The last value that was moved to the control. See the comment in moveModelToControl below.
 	 */
 	@Nullable
-	protected MV m_lastValueFromControlAsModelValue;
+	protected MV m_lastModelValueMovedToControl;
 
 	/** If this binding is in error this contains the error. */
 	@Nullable
@@ -186,12 +186,21 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 
 			// FIXME We should think about exception handling here
 			//System.out.println("binder: set "+control.getComponentInfo()+" value="+modelValue);
-			if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControlAsModelValue)) {
+			/*
+			 * We only update the control if the model value /changed/ since the last time
+			 * the value was moved to the control. If the value in the model did not change
+			 * then leave the control as-is. This is needed for properly reporting binding
+			 * errors: if the value in a control is changed so that it causes a binding
+			 * error then the return value for the control is null. If we would then set the
+			 * model value /back/ in the control then the binding error would be overwritten.
+			 */
+			if(!MetaManager.areObjectsEqual(modelValue, m_lastModelValueMovedToControl)) {
 				//-- Value in instance differs from control's
-				m_lastValueFromControlAsModelValue = modelValue;
+				m_lastModelValueMovedToControl = modelValue;
 				CV controlValue = convertModelToControl(modelValue);
 				if(m_controlProperty.getReadOnly() != YesNoType.YES) {
 					m_controlProperty.setValue(m_control, controlValue);
+					System.out.println(this + ": m2c " + controlValue);
 				}
 				m_bindError = null;                                    // Let's assume binding has no trouble.
 			}
