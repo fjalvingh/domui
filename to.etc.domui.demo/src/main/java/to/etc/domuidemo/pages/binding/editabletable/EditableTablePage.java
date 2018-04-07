@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
 import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.misc.VerticalSpacer;
@@ -178,8 +179,8 @@ public class EditableTablePage extends UrlPage {
 	private IRowControlFactory<Line> createAmountTypeControlFactory() {
 		return row -> {
 			ComboFixed2<AmountType> bedragTypeCombo = ComboFixed2.createEnumCombo(AmountType.class);
-			bedragTypeCombo.bind().to(row, Line.pAMOUNTTYPE);
-			bedragTypeCombo.bind("readOnly").to(model(), LineController_.readOnly());
+			bedragTypeCombo.bind().to(row, Line_.amountType());
+			bedragTypeCombo.bind(ComboFixed.READONLY).to(model(), LineController_.readOnly());
 			bedragTypeCombo.setMandatory(true);
 			bedragTypeCombo.immediate();
 			return bedragTypeCombo;
