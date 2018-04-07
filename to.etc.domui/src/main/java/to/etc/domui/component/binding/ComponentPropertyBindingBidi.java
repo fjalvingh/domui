@@ -119,7 +119,7 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 			} else {
 				controlModelValue = converter.controlToModel(controlValue);
 			}
-			m_lastModelValueMovedToControl = controlModelValue;
+			m_lastValueFromControlAsModelValue = controlModelValue;
 			System.out.println(this + ": diff - control value = " + controlValue);
 			m_bindError = null;
 		} catch(CodeException cx) {

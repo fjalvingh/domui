@@ -37,7 +37,7 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 	 * The last value that was moved to the control. See the comment in moveModelToControl below.
 	 */
 	@Nullable
-	protected MV m_lastModelValueMovedToControl;
+	protected MV m_lastValueFromControlAsModelValue;
 
 	/** If this binding is in error this contains the error. */
 	@Nullable
@@ -194,9 +194,9 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 			 * error then the return value for the control is null. If we would then set the
 			 * model value /back/ in the control then the binding error would be overwritten.
 			 */
-			if(!MetaManager.areObjectsEqual(modelValue, m_lastModelValueMovedToControl)) {
+			if(!MetaManager.areObjectsEqual(modelValue, m_lastValueFromControlAsModelValue)) {
 				//-- Value in instance differs from control's
-				m_lastModelValueMovedToControl = modelValue;
+				m_lastValueFromControlAsModelValue = modelValue;
 				CV controlValue = convertModelToControl(modelValue);
 				if(m_controlProperty.getReadOnly() != YesNoType.YES) {
 					m_controlProperty.setValue(m_control, controlValue);
