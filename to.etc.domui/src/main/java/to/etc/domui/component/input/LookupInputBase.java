@@ -943,7 +943,7 @@ abstract public class LookupInputBase<QT, OT> extends Div implements IControl<OT
 	 * Set a hint text for this control, for some reason only on the select button??
 	 * @param text
 	 */
-	public void setHint(@Nonnull String text) {
+	public void setHint(@Nullable String text) {
 		if(m_selButton != null)
 			m_selButton.setTitle(text);
 	}
