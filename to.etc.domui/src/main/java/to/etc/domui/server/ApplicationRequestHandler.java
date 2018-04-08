@@ -198,7 +198,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 */
 		String action = ctx.getParameter(Constants.PARAM_UIACTION); 			// AJAX action request?
 		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
-		CidPair cida = cid == null ? null : CidPair.decode(cid);
+		CidPair cida = cid == null ? null : CidPair.decodeLax(cid);
 
 		if(DomUtil.USERLOG.isDebugEnabled()) {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + cid + "\nAction=" + action + "\n");

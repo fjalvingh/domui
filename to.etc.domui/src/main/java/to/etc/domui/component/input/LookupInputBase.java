@@ -681,6 +681,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		return actualFormRowRenderer;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected String getKeySearchValue() {
 		KeyWordSearchInput<OT> ks = getKeySearch();

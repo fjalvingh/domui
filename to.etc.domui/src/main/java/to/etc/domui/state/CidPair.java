@@ -35,4 +35,14 @@ final public class CidPair {
 			throw new IllegalStateException("Missing '.' in $CID parameter");
 		return new CidPair(param.substring(0, pos), param.substring(pos + 1));
 	}
+
+	@Nullable
+	static public CidPair decodeLax(@Nonnull final String param) {
+		if(param == null)
+			return null;
+		int pos = param.indexOf('.');
+		if(pos == -1)
+			return null;
+		return new CidPair(param.substring(0, pos), param.substring(pos + 1));
+	}
 }
