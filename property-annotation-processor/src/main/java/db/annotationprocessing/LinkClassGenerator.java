@@ -27,11 +27,11 @@ public class LinkClassGenerator extends ClassGenerator {
 	@Override protected void generateConstructor() throws IOException {
 		//super.generateConstructor();							// Generate the empty contructor
 
-		append("\t").append(getClassName()).append("(@Nonnull Class<R> rootClass, @Nonnull String propertyName) {\n");
+		append("\tpublic ").append(getClassName()).append("(@Nonnull Class<R> rootClass, @Nonnull String propertyName) {\n");
 		append("\t\tsuper(rootClass, propertyName);\n");
 		append("\t}\n\n");
 
-		append("\t").append(getClassName()).append("(@Nonnull Class<R> rootClass, @Nullable QField<R,?> parent, @Nonnull String propertyName) {\n");
+		append("\tpublic ").append(getClassName()).append("(@Nonnull Class<R> rootClass, @Nullable QField<R,?> parent, @Nonnull String propertyName) {\n");
 		append("\t\tsuper(rootClass, parent, propertyName);\n");
 		append("\t}\n\n");
 	}
