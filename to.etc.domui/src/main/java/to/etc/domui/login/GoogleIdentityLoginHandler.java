@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.header.GoogleIdentificationContributor;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.IRequestContext;
 import to.etc.function.ConsumerEx;
@@ -145,6 +146,10 @@ final public class GoogleIdentityLoginHandler {
 			LOG.error("Authentication exception: " + x, x);
 		}
 		return true;
+	}
+
+	public static void logout(NodeContainer node, String key) {
+
 	}
 
 }
