@@ -37,7 +37,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 			decodeJpaColumn(pmm, an);
 		} else if("javax.persistence.JoinColumn".equals(name)) {
 			decodeJpaJoinColumn(pmm, an);
-		} else if("javax.persistence.Id".equals(name)) {
+		} else if("javax.persistence.Id".equals(name) || "javax.persistence.EmbeddedId".equals(name)) {
 			pmm.setPrimaryKey(true);
 			cmm.setPersistentClass(true);
 		} else if("javax.persistence.ManyToOne".equals(name) || "javax.persistence.OneToOne".equals(name)) {
