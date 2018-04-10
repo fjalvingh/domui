@@ -24,6 +24,8 @@
  */
 package to.etc.xml;
 
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -986,6 +988,16 @@ public class DomTools {
 		t.transform(s, r);
 	}
 
+	static public void saveDocumentFormatted(Writer of, Document doc) throws Exception {
+		DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			OutputFormat format = new OutputFormat(doc);
+		format.setIndenting(true);
+		format.setIndent(2);
+		format.setOmitXMLDeclaration(false);
+		format.setLineWidth(Integer.MAX_VALUE);
+		XMLSerializer serializer = new XMLSerializer(of, format);
+		serializer.serialize(doc);
+	}
 
 	static public void setAttr(final Node elem, final String name, final String value) {
 		Node n = elem.getOwnerDocument().createAttribute(name);
