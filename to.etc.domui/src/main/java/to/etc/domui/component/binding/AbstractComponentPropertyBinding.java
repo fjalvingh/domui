@@ -200,7 +200,7 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 				CV controlValue = convertModelToControl(modelValue);
 				if(m_controlProperty.getReadOnly() != YesNoType.YES) {
 					m_controlProperty.setValue(m_control, controlValue);
-					System.out.println(this + ": m2c " + controlValue);
+//					System.out.println(this + ": m2c " + controlValue);
 				}
 				m_bindError = null;                                    // Let's assume binding has no trouble.
 			}
