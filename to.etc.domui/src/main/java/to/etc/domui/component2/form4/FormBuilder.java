@@ -10,7 +10,6 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.TD;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
@@ -93,8 +92,6 @@ final public class FormBuilder {
 
 	@Nullable
 	private BindReference<?, Boolean> m_disabledGlobal;
-
-	private NodeBase m_lastAddedControl;
 
 	@Nullable
 	private String m_controlCss;
@@ -524,7 +521,6 @@ final public class FormBuilder {
 		}
 
 		String label = labelTextCalculated();
-		m_lastAddedControl =  control;
 		if (null != m_errorLocation){
 			control.setErrorLocation(m_errorLocation);
 		} else {
@@ -545,15 +541,7 @@ final public class FormBuilder {
 
 
 	public void appendAfterControl(@Nonnull NodeBase what) {
-		getLastControlCell().add(what);
-	}
-
-	@Nonnull
-	public NodeContainer getLastControlCell() {
-		if (m_lastAddedControl == null) {
-			throw new IllegalStateException("No controls were added yet.");
-		}
-		return m_lastAddedControl.getParent(TD.class);
+		m_layouter.appendAfterControl(what);
 	}
 
 	@Nullable

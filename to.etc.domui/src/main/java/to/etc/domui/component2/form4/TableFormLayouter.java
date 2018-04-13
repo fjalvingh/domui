@@ -9,6 +9,7 @@ import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -27,6 +28,9 @@ public class TableFormLayouter implements IFormLayouter {
 	private TR m_labelRow;
 
 	private TR m_controlRow;
+
+	@Nullable
+	private TD m_lastControlCell;
 
 	public TableFormLayouter(@Nonnull FormBuilder.IAppender appender) {
 		m_appender = appender;
@@ -90,7 +94,7 @@ public class TableFormLayouter implements IFormLayouter {
 			if(labelCss != null)
 				labelcell.addCssClass(labelCss);
 
-			TD controlcell = b.addCell("ui-f4-ctl ui-f4-ctl-v");
+			TD controlcell = m_lastControlCell = b.addCell("ui-f4-ctl ui-f4-ctl-v");
 			controlcell.add(control);
 
 			if(null != controlCss)
@@ -112,6 +116,7 @@ public class TableFormLayouter implements IFormLayouter {
 				cell = (TD) row.getChild(row.getChildCount() - 1);
 			}
 			cell.add(control);
+			m_lastControlCell = cell;
 
 			if(null != controlCss)
 				cell.addCssClass(controlCss);
@@ -153,5 +158,12 @@ public class TableFormLayouter implements IFormLayouter {
 			row = m_labelRow = body().addRow("ui-f4-row ui-f4-row-h ui-f4-lrow");
 		}
 		return row;
+	}
+
+	@Override public void appendAfterControl(NodeBase what) {
+		TD cell = m_lastControlCell;
+		if(cell == null)
+			throw new IllegalStateException("Last control not known");
+		cell.add(what);
 	}
 }
