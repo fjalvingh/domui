@@ -1,9 +1,9 @@
 package to.etc.domui.state;
 
-import jdk.nashorn.internal.ir.annotations.*;
-import org.eclipse.jdt.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-@Immutable
+//@Immutable
 final public class CidPair {
 	@NonNull
 	final private String m_windowId;

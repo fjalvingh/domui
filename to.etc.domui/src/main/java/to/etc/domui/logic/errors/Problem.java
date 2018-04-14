@@ -1,6 +1,5 @@
 package to.etc.domui.logic.errors;
 
-import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -26,7 +25,7 @@ import to.etc.webapp.nls.BundleRef;
  * Created on Nov 7, 2014
  */
 @NonNullByDefault
-@Immutable
+//@Immutable
 public class Problem {
 	final private BundleRef m_bundle;
 
