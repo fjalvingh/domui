@@ -8,7 +8,7 @@ import to.etc.domui.login.IUser;
 import to.etc.domui.state.UIContext;
 import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.DefaultNonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import java.util.Collections;

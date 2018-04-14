@@ -1,7 +1,7 @@
 package to.etc.domui.state;
 
-import jdk.nashorn.internal.ir.annotations.Immutable;
-import org.eclipse.jdt.annotation.NonNull;
+import jdk.nashorn.internal.ir.annotations.*;
+import org.eclipse.jdt.annotation.*;
 
 @Immutable
 final public class CidPair {
@@ -37,7 +37,7 @@ final public class CidPair {
 	}
 
 	@Nullable
-	static public CidPair decodeLax(@Nonnull final String param) {
+	static public CidPair decodeLax(@NonNull final String param) {
 		if(param == null)
 			return null;
 		int pos = param.indexOf('.');

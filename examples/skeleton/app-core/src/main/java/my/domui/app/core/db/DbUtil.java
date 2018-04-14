@@ -14,7 +14,7 @@ import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
 
-import javax.annotation.DefaultNonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import javax.sql.DataSource;
 import java.io.File;

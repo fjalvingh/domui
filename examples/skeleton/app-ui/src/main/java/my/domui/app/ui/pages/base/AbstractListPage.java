@@ -14,7 +14,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.webapp.query.IIdentifyable;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.DefaultNonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 

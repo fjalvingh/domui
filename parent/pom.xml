@@ -73,7 +73,6 @@
 
         <xml-apis.version>2.0.2</xml-apis.version>
         <com.ibm.icu.version>58.2</com.ibm.icu.version>
-        <com.google.code.findbugs.version>3.0.1</com.google.code.findbugs.version>
 
         <vaadin.sass.compiler.version>1.0.0-SNAPSHOT</vaadin.sass.compiler.version>
 
@@ -164,6 +163,13 @@
                 <groupId>com.google.api-client</groupId>
                 <artifactId>google-api-client</artifactId>
                 <version>1.23.0</version>
+
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>jsr305</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>

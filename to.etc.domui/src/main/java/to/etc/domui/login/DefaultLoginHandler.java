@@ -1,23 +1,17 @@
 package to.etc.domui.login;
 
-import to.etc.domui.server.ILoginListener;
-import to.etc.domui.server.IRequestContext;
-import to.etc.domui.server.IServerSession;
-import to.etc.domui.server.RequestContextImpl;
-import to.etc.domui.state.UIContext;
+import org.eclipse.jdt.annotation.*;
+import to.etc.domui.server.*;
+import to.etc.domui.state.*;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 10-11-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class DefaultLoginHandler implements ILoginHandler {
 	/** After this amount of failed logins just pretend we're logging in */
 	private volatile int m_maxFailLogins = 10;

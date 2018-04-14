@@ -24,9 +24,8 @@
  */
 package to.etc.domui.login;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.server.IRequestContext;
+import org.eclipse.jdt.annotation.*;
+import to.etc.domui.server.*;
 
 /**
  * Checks the user's access and if granted returns a IUser for the credentials
@@ -37,11 +36,11 @@ import to.etc.domui.server.IRequestContext;
  * Created on Apr 14, 2009
  */
 public interface ILoginAuthenticator {
-	IUser authenticateUser(@Nonnull String userid, @Nullable String credentials) throws Exception;
+	IUser authenticateUser(@NonNull String userid, @Nullable String credentials) throws Exception;
 
-	IUser authenticateByCookie(@Nonnull String uid, long ts, @Nonnull String string) throws Exception;
+	IUser authenticateByCookie(@NonNull String uid, long ts, @NonNull String string) throws Exception;
 
-	String calcCookieHash(@Nonnull String userid, long ts) throws Exception;
+	String calcCookieHash(@NonNull String userid, long ts) throws Exception;
 
 	default @Nullable IUser authenticateByRequest(@NonNull IRequestContext rx) throws Exception {
 		return null;
