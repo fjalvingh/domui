@@ -21,7 +21,7 @@
 
     <properties>
         <!-- JDK properties -->
-        <jdk.version>1.8</jdk.version>
+        <jdk.version>9</jdk.version>
         <ecj.version>3.13.102</ecj.version>
         <kotlin.version>1.2.31</kotlin.version>
 
