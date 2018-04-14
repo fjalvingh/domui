@@ -53,6 +53,7 @@ import to.etc.webapp.qsql.JdbcUtil;
 import to.etc.webapp.query.IIdentifyable;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QField;
 import to.etc.webapp.query.QOrder;
 import to.etc.webapp.query.QSortOrderDirection;
 
@@ -125,9 +126,6 @@ final public class MetaManager {
 
 	/**
 	 * Find a property using the metamodel for a class. Returns null if not found.
-	 * @param clz
-	 * @param name
-	 * @return
 	 */
 	@Nullable
 	static public PropertyMetaModel<?> findPropertyMeta(@Nonnull Class<?> clz, @Nonnull String name) {
@@ -136,10 +134,16 @@ final public class MetaManager {
 	}
 
 	/**
+	 * Find a property using the metamodel for a class. Returns null if not found.
+	 */
+	@Nullable
+	static public <V> PropertyMetaModel<V> findPropertyMeta(@Nonnull Class<?> clz, @Nonnull QField<?, V> name) {
+		ClassMetaModel cm = findClassMeta(clz);
+		return cm.findProperty(name);
+	}
+
+	/**
 	 * Find a property using some genericized meta definition. Returns null if not found.
-	 * @param mc
-	 * @param name
-	 * @return
 	 */
 	@Nullable
 	static public PropertyMetaModel<?> findPropertyMeta(IMetaClass mc, String name) {
@@ -150,6 +154,14 @@ final public class MetaManager {
 	@Nonnull
 	static public PropertyMetaModel<?> getPropertyMeta(Class<?> clz, String name) {
 		PropertyMetaModel<?> pmm = findPropertyMeta(clz, name);
+		if(pmm == null)
+			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
+		return pmm;
+	}
+
+	@Nonnull
+	static public <V> PropertyMetaModel<V> getPropertyMeta(Class<?> clz, QField<?, V> name) {
+		PropertyMetaModel<V> pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
 		return pmm;
@@ -178,10 +190,6 @@ final public class MetaManager {
 	 * <pre>
 	 * 	"admin" OR "tester" OR ("editroles" AND "user")
 	 * </pre>
-	 *
-	 * @param roleset
-	 * @param ctx
-	 * @return
 	 */
 	static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
 		if(roleset == null)

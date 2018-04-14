@@ -153,7 +153,6 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 
 	private final @Nonnull
 	IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
-		@SuppressWarnings("synthetic-access")
 		@Override
 		public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
 			INotifyEvent<DropDownPicker<T>, ComboLookup<T>> onBeforeShow = getOnBeforeShow();

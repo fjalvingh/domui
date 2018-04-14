@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
+import to.etc.annotations.GenerateProperties;
 import to.etc.domui.dom.css.VisibilityType;
 
 import java.math.BigDecimal;
@@ -9,9 +10,9 @@ import java.util.Date;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-3-18.
  */
+@GenerateProperties
 public class Line {
 	public static String pFROM = "from";
-
 	public static String pTILL = "till";
 
 	public static String pAMOUNTTYPE = "amountType";
@@ -19,15 +20,22 @@ public class Line {
 	public static String pPERCENTAGE = "percentage";
 
 	public static String pAMOUNT = "amount";
+
 	public static String pDIVIDE = "divide";
 
 	private Date m_from;
+
 	private Date m_till;
+
 	private BigDecimal m_amount;
+
 	private AmountType m_amountType = AmountType.Amount;
+
 	private BigDecimal m_percentage;
+
 	private boolean m_divide;
 
+	private LineController m_controller;
 
 	public Line() {
 	}
@@ -97,4 +105,11 @@ public class Line {
 		return getAmountType() == AmountType.Amount ? VisibilityType.VISIBLE : VisibilityType.HIDDEN;
 	}
 
+	public LineController getController() {
+		return m_controller;
+	}
+
+	public void setController(LineController controller) {
+		m_controller = controller;
+	}
 }

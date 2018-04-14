@@ -131,12 +131,12 @@ final public class OldBindingHandler {
 	}
 
 	@Nullable
-	public static ComponentPropertyBinding findBinding(NodeBase nodeBase, String string) {
+	public static ComponentPropertyBindingBidi<?,?,?,?> findBinding(NodeBase nodeBase, String string) {
 		List<IBinding> list = nodeBase.getBindingList();
 		if(list != null) {
 			for(IBinding sb : list) {
-				if(sb instanceof ComponentPropertyBinding) {
-					ComponentPropertyBinding sib = (ComponentPropertyBinding) sb;
+				if(sb instanceof ComponentPropertyBindingBidi) {
+					ComponentPropertyBindingBidi<?, ?, ?, ?> sib = (ComponentPropertyBindingBidi<?, ?, ?, ?>) sb;
 					IValueAccessor<?> property = sib.getControlProperty();
 					if(property instanceof PropertyMetaModel) {
 						if(string.equals(((PropertyMetaModel<?>) property).getName()))

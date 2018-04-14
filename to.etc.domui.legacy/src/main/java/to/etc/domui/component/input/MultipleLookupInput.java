@@ -211,7 +211,6 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		m_renderColumns = renderColumns;
 		m_clearButton = new HoverButton(Theme.BTN_HOVERMULTILOOKUKPCLEAR, new IClicked<HoverButton>() {
 			@Override
-			@SuppressWarnings("synthetic-access")
 			public void clicked(@Nonnull HoverButton b) throws Exception {
 				clearSelection(null);
 			}

@@ -83,7 +83,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 		visitOrderList(qc.getOrder());
 	}
 
-	private void renderFrom(QCriteriaQueryBase< ? > qc) {
+	private void renderFrom(QCriteriaQueryBase< ?, ? > qc) {
 		append("FROM ");
 		Class< ? > baseClass = qc.getBaseClass();
 		if(baseClass != null)
@@ -348,7 +348,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ? > n) throws Exception {
+	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ?, ? > n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		QOperatorNode.prune(r);
 		if(r != null)

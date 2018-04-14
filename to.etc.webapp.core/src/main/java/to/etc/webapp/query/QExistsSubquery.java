@@ -24,7 +24,7 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import javax.annotation.Nonnull;
 
 /**
  * Represents an "exists" subquery on some child relation of a record. This
@@ -42,7 +42,7 @@ import javax.annotation.*;
  * Created on Dec 22, 2009
  */
 public class QExistsSubquery<T> extends QOperatorNode {
-	private QRestrictor< ? > m_parentQuery;
+	private QRestrictor< ?, ? > m_parentQuery;
 
 	private String m_parentProperty;
 
@@ -50,7 +50,7 @@ public class QExistsSubquery<T> extends QOperatorNode {
 
 	private QOperatorNode m_restrictions;
 
-	public QExistsSubquery(QRestrictor< ? > parent, Class<T> baseClass, String property) {
+	public QExistsSubquery(QRestrictor< ?, ? > parent, Class<T> baseClass, String property) {
 		super(QOperation.EXISTS_SUBQUERY);
 		m_parentQuery = parent;
 		m_parentProperty = property;
@@ -66,13 +66,14 @@ public class QExistsSubquery<T> extends QOperatorNode {
 		return q;
 	}
 
-	public QRestrictor< ? > getParentQuery() {
+	public QRestrictor< ?, ? > getParentQuery() {
 		return m_parentQuery;
 	}
 
 	public Class< ? > getBaseClass() {
 		return m_baseClass;
 	}
+
 	public String getParentProperty() {
 		return m_parentProperty;
 	}

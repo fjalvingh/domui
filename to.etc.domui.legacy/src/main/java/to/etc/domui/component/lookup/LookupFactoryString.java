@@ -35,7 +35,7 @@ import to.etc.webapp.query.QCriteria;
 import javax.annotation.Nonnull;
 
 @Deprecated
-@SuppressWarnings("unchecked") final class LookupFactoryString implements ILookupControlFactory {
+final class LookupFactoryString implements ILookupControlFactory {
 	@Override
 	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
 		if(control != null) {

@@ -39,7 +39,6 @@ import java.math.BigDecimal;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-@SuppressWarnings("unchecked")
 public class ControlFactoryStringOld implements PropertyControlFactory {
 	/**
 	 * Accept any type using a string.

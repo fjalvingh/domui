@@ -24,15 +24,19 @@
  */
 package to.etc.domui.converter;
 
-import java.math.*;
-import java.text.*;
-import java.util.*;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import javax.annotation.Nonnull;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.Locale;
 
 /**
  * Utility class to handle all kinds of monetary value presentation and conversion.
@@ -336,7 +340,6 @@ public class MoneyUtil {
 		return (roundValue(BigDecimal.ZERO).equals(roundValue(value)));
 	}
 
-	@SuppressWarnings({"unchecked"})
 	static public <T> void assignMonetaryConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node) {
 		if(pmm.getConverter() != null)
 			node.setConverter(pmm.getConverter());

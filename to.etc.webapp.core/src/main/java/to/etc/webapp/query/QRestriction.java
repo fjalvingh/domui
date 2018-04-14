@@ -24,9 +24,9 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
-
-import javax.annotation.*;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Factory for creating syntax tree nodes.
@@ -145,7 +145,7 @@ public class QRestriction {
 	}
 
 	@Nonnull
-	static public final QPropertyComparison like(String property, Object value) {
+	static public final QPropertyComparison like(String property, String value) {
 		return new QPropertyComparison(QOperation.LIKE, property, createValueNode(value));
 	}
 
@@ -165,7 +165,7 @@ public class QRestriction {
 	}
 
 	@Nonnull
-	static public final QPropertyComparison ilike(String property, Object value) {
+	static public final QPropertyComparison ilike(String property, String value) {
 		return new QPropertyComparison(QOperation.ILIKE, property, createValueNode(value));
 	}
 

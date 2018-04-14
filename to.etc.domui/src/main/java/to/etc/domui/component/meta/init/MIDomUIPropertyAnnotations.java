@@ -65,7 +65,6 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 		cmm.setKeyWordSearchProperties(m_keySearchList);
 	}
 
-	@SuppressWarnings({"unchecked"})
 	protected <T> void decodePropertyAnnotation(DefaultClassMetaModel cmm, DefaultPropertyMetaModel<T> pmm, Annotation an) {
 		if(an instanceof MetaProperty) {
 			handleMetaProperty(pmm, (MetaProperty) an);

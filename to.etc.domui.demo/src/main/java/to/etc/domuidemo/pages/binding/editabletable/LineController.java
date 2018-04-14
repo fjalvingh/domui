@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
+import to.etc.annotations.GenerateProperties;
 import to.etc.domui.databinding.observables.ObservableList;
 import to.etc.util.DateUtil;
 
@@ -14,6 +15,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-3-18.
  */
+@GenerateProperties
 @DefaultNonNull
 public class LineController {
 	private final ObservableList<Line> m_lineList = new ObservableList<>();
@@ -21,6 +23,7 @@ public class LineController {
 	private final List<Date> m_months;
 
 	private BigDecimal m_budgeted;
+
 
 	public LineController() {
 		initializeDemoData();
@@ -35,7 +38,6 @@ public class LineController {
 			res.add(cal.getTime());
 		}
 		m_months = res;
-
 		m_budgeted = new BigDecimal("876543.21");
 	}
 
@@ -80,7 +82,7 @@ public class LineController {
 				case Percentage:
 					BigDecimal percentage = line.getPercentage();
 					if(null != percentage) {
-						res = res.setScale(2).add(getBudgeted().multiply(percentage).divide(new BigDecimal(100)));
+						res = res.setScale(2, BigDecimal.ROUND_HALF_DOWN).add(getBudgeted().setScale(2, BigDecimal.ROUND_HALF_DOWN).multiply(percentage).setScale(2, BigDecimal.ROUND_HALF_DOWN).divide(new BigDecimal(100)));
 					}
 					break;
 			}

@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
 import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.misc.VerticalSpacer;
@@ -13,6 +14,7 @@ import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.MoneyBigDecimalFullConverter;
 import to.etc.domui.converter.MoneyBigDecimalNoSign;
 import to.etc.domui.dom.css.TextAlign;
+import to.etc.domui.dom.css.VisibilityType;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.NodeBase;
@@ -23,6 +25,8 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INodeContentRenderer;
 import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
@@ -48,6 +52,9 @@ public class EditableTablePage extends UrlPage {
 		DataTable<Line> dataTable = m_dataTable = new DataTable<>(rr);
 		dataTable.setList(model().getLineList());
 
+		QCriteria<Line> q = QCriteria.create(Line.class);
+		q.eq(Line_.amountType(), AmountType.Amount);
+
 		//m_simpleListModel.setComparator(Comparator.comparing(Line::getPeriodeVan).thenComparing(Line::getPeriodeTm));
 		dataTable.setPreventRowHighlight(true);
 		add(dataTable);
@@ -59,15 +66,16 @@ public class EditableTablePage extends UrlPage {
 
 	private RowRenderer<Line> createRowRenderer() {
 		RowRenderer<Line> rr = new RowRenderer<>(Line.class);
-		rr.column().label("Period from").renderer(createMonthRenderer(Line.pFROM));
-		rr.column().label("Period till").renderer(createMonthRenderer(Line.pTILL));
-		rr.column(Line.pAMOUNTTYPE).editable().factory(createAmountTypeControlFactory());
-		rr.column(Line.pPERCENTAGE).editable().factory(createPercentageControlFactory());
-		rr.column(Line.pAMOUNT).editable().factory(createAmountControlFactory());
+		rr.column().label("Period from").renderer(createMonthRenderer(Line_.from()));
+		rr.column().label("Period till").renderer(createMonthRenderer(Line_.till()));
+		rr.column(Line_.amountType()).editable().factory(createAmountTypeControlFactory());
+		rr.column(Line_.percentage()).editable().factory(createPercentageControlFactory());
+		rr.column(Line_.amount()).editable().factory(createAmountControlFactory());
 		rr.column().label("Divide").renderer(createDivideRenderer());
 		if(!model().isReadOnly()) {
 			rr.column().renderer(createRemoveRenderer()).width("1%").nowrap();
 		}
+
 		return rr;
 	}
 
@@ -80,20 +88,20 @@ public class EditableTablePage extends UrlPage {
 
 	private void addTotaal(TBody body) throws Exception {
 		Text2<BigDecimal> totaalCtrl = createBigDecimalControl();
-		totaalCtrl.bind().to(model(), "total");
+		totaalCtrl.bind().to(model(), LineController_.total());
 		TR tr = addControlToBody(body, totaalCtrl, "Total amount");
 		//tr.addCssClass(CssVpDomui.VP_BORDER_TOP.toString());
 	}
 
 	private void addBegroting(TBody body) throws Exception {
 		Text2<BigDecimal> begrotingCtrl = createBigDecimalControl();
-		begrotingCtrl.bind().to(model(), "budgeted");
+		begrotingCtrl.bind().to(model(), LineController_.budgeted());
 		addControlToBody(body, begrotingCtrl, "Budgeted amount");
 	}
 
 	private void addRestant(TBody body) throws Exception {
 		Text2<BigDecimal> restantCtrl = createBigDecimalControl();
-		restantCtrl.bind().to(model(), "remainder");
+		restantCtrl.bind().to(model(), LineController_.remainder());
 		addControlToBody(body, restantCtrl, "Total remaining");
 	}
 
@@ -144,8 +152,8 @@ public class EditableTablePage extends UrlPage {
 			ctrl.setConverter(new MoneyBigDecimalFullConverter());
 			ctrl.setErrorLocation("Bedrag");
 			ctrl.setCssClass("ui-numeric");
-			ctrl.bind("readOnly").to(model(), "readOnly");
-			ctrl.bind("visibility").to(row, "amountVisible");
+			ctrl.bind("readOnly").to(model(), LineController_.readOnly());
+			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType(), amountType -> amountType == AmountType.Amount ? VisibilityType.VISIBLE : VisibilityType.HIDDEN);
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("-999999999.99"), new BigDecimal("999999999.99")));
 			ctrl.immediate();
 			return ctrl;
@@ -157,8 +165,11 @@ public class EditableTablePage extends UrlPage {
 			Text2<BigDecimal> ctrl = new Text2<>(BigDecimal.class);
 			ctrl.setConverter(new MoneyBigDecimalNoSign());
 			ctrl.setCssClass("ui-numeric");
-			ctrl.bind("readOnly").to(model(), "readOnly");
-			ctrl.bind("visibility").to(row, "percentageVisible");
+			ctrl.bind("readOnly").to(model(), LineController_.readOnly());
+
+			ctrl.bind(NodeBase.VISIBILITY).to(row, Line_.amountType(), amountType -> amountType == AmountType.Amount ? VisibilityType.HIDDEN : VisibilityType.VISIBLE);
+
+			//ctrl.bind("visibility").to(row, "percentageVisible");
 			ctrl.addValidator(new MaxMinValidator(new BigDecimal("0.01"), new BigDecimal("100.00")));
 			ctrl.immediate();
 			return ctrl;
@@ -168,8 +179,8 @@ public class EditableTablePage extends UrlPage {
 	private IRowControlFactory<Line> createAmountTypeControlFactory() {
 		return row -> {
 			ComboFixed2<AmountType> bedragTypeCombo = ComboFixed2.createEnumCombo(AmountType.class);
-			bedragTypeCombo.bind().to(row, Line.pAMOUNTTYPE);
-			bedragTypeCombo.bind("readOnly").to(model(), "readOnly");
+			bedragTypeCombo.bind().to(row, Line_.amountType());
+			bedragTypeCombo.bind(ComboFixed.READONLY).to(model(), LineController_.readOnly());
 			bedragTypeCombo.setMandatory(true);
 			bedragTypeCombo.immediate();
 			return bedragTypeCombo;
@@ -177,14 +188,14 @@ public class EditableTablePage extends UrlPage {
 	}
 
 
-	private IRenderInto<Line> createMonthRenderer(String property) {
+	private <V extends Date> IRenderInto<Line> createMonthRenderer(QField<?, V> property) {
 		return (node, object) -> {
 			ComboLookup2<Date> yearMonthCombo = getMonthYearCombo();
 			node.add(yearMonthCombo);
 			yearMonthCombo.setMandatory(true);
-			yearMonthCombo.bind().to(object, property);
-			yearMonthCombo.bind("readOnly").to(model(), "readOnly");
-			yearMonthCombo.setErrorLocation(property);				// FIXME Should come from row header
+			yearMonthCombo.bind().to(object, property.getName());
+			getMonthYearCombo().bind("readOnly").to(model(), LineController_.readOnly());
+			yearMonthCombo.setErrorLocation(property.getName());				// FIXME Should come from row header
 		};
 	}
 

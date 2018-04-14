@@ -1,6 +1,6 @@
 package to.etc.domui.logic.errors;
 
-import to.etc.domui.component.binding.ComponentPropertyBinding;
+import to.etc.domui.component.binding.ComponentPropertyBindingBidi;
 import to.etc.domui.component.binding.IBinding;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.dom.errors.IErrorFence;
@@ -215,8 +215,8 @@ public class ProblemReporter {
 
 		List<UIMessage> bindingMessageList = new ArrayList<>();
 		for(IBinding binding : bindingList) {
-			if(binding instanceof ComponentPropertyBinding) {
-				ComponentPropertyBinding sib = (ComponentPropertyBinding) binding;
+			if(binding instanceof ComponentPropertyBindingBidi) {
+				ComponentPropertyBindingBidi<?, ?, ?, ?> sib = (ComponentPropertyBindingBidi<?, ?, ?, ?>) binding;
 				getErrorsOnBoundProperty(newErrorSet, all, n, sib);
 				UIMessage be = binding.getBindError();
 				if(null != be)
@@ -253,7 +253,7 @@ public class ProblemReporter {
 	 * @param n
 	 * @param binding
 	 */
-	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @Nonnull List<ProblemInstance> all, @Nonnull NodeBase n, @Nonnull ComponentPropertyBinding binding) {
+	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @Nonnull List<ProblemInstance> all, @Nonnull NodeBase n, @Nonnull ComponentPropertyBindingBidi<?, ?, ?, ?> binding) {
 		Object instance = binding.getInstance();
 		if(null == instance)								// Not an instance binding -> no errors here
 			return;

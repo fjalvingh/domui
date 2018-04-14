@@ -57,7 +57,6 @@ public class ControlFactoryMoney implements PropertyControlFactory {
 	 * Create a Text control with the basic monetary converter, or the proper converter for the specified type.
 	 */
 	@Override
-	@SuppressWarnings({"unchecked"})
 	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		Class<T> iclz = pmm.getActualType();
 

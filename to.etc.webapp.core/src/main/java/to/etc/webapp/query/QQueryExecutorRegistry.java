@@ -24,7 +24,9 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This represents a list of registered query handlers that together should be
@@ -89,7 +91,7 @@ final public class QQueryExecutorRegistry {
 		throw new IllegalStateException("None of the QQueryHandlerList's registered accepts a query on meta-table=" + tableMeta);
 	}
 
-	public IQueryExecutor<QDataContext> getHandler(QDataContext root, QCriteriaQueryBase< ? > query) {
+	public IQueryExecutor<QDataContext> getHandler(QDataContext root, QCriteriaQueryBase<?, ?> query) {
 		if(query.getBaseClass() != null)
 			return getHandler(root, query.getBaseClass());
 		else

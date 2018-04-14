@@ -1,8 +1,8 @@
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import to.etc.webapp.annotations.GProperty;
 
-import to.etc.webapp.annotations.*;
+import javax.annotation.Nonnull;
 
 /**
  * Helper class to create joins between nested master and subqueries.
@@ -12,12 +12,12 @@ import to.etc.webapp.annotations.*;
  */
 public class QJoiner<A, P, T> {
 	@Nonnull
-	final private QRestrictor<A> m_parent;
+	final private QRestrictor<A, ?> m_parent;
 
 	@Nonnull
 	final private QSubQuery<T, P> m_subQuery;
 
-	protected QJoiner(@Nonnull QRestrictor<A> parent, @Nonnull QSubQuery<T, P> qSubQuery) {
+	protected QJoiner(@Nonnull QRestrictor<A, ?> parent, @Nonnull QSubQuery<T, P> qSubQuery) {
 		m_parent = parent;
 		m_subQuery = qSubQuery;
 	}

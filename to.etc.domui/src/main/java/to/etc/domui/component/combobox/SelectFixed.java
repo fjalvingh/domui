@@ -59,7 +59,6 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 		return in.getValue();
 	}
 
-	@SuppressWarnings({"unchecked"})
 	private void initRenderer() {
 		IRenderInto< ? > r = STATICRENDERER;
 		setContentRenderer((IRenderInto<ValueLabelPair<T>>) r);
