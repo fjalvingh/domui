@@ -24,10 +24,10 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.INodeErrorDelegate;
 import to.etc.domui.trouble.ValidationException;
-
-import javax.annotation.Nullable;
+import to.etc.webapp.query.QField;
 
 /**
  * Something to control a control: some input or control comnponent in a generic way. This
@@ -37,6 +37,10 @@ import javax.annotation.Nullable;
  * Created on Dec 6, 2009
  */
 public interface IControl<T> extends IActionControl, IHasChangeListener, INodeErrorDelegate, IForTarget {
+	static public final QField<NodeBase, Boolean> READONLY = new QField<>(NodeBase.class, "readOnly");
+
+	static public final QField<NodeBase, Boolean> DISABLED = new QField<>(NodeBase.class, "disabled");
+
 	/**
 	 * Set a new value into this control. Setting a value to null means the control holds no value. This
 	 * value is converted to a presentable form using any (implicitly) defined converters; it will not

@@ -1,11 +1,10 @@
 package to.etc.domui.component.lookup.filter;
 
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
-import to.etc.webapp.query.*;
-import to.etc.xml.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.w3c.dom.Node;
+import to.etc.webapp.query.QDataContext;
+import to.etc.xml.XmlWriter;
 
 /**
  * The serialize method writes the characteristics of the object to the XmlWriter
@@ -29,8 +28,8 @@ public interface ITranslator<T> {
 	String CLASS = "class";
 
 	@Nullable
-	T deserialize(@Nonnull QDataContext dc, @Nonnull Node node) throws Exception;
+	T deserialize(@NonNull QDataContext dc, @NonNull Node node) throws Exception;
 
-	boolean serialize(@Nonnull XmlWriter writer, @Nonnull Object o) throws Exception;
+	boolean serialize(@NonNull XmlWriter writer, @NonNull Object o) throws Exception;
 
 }

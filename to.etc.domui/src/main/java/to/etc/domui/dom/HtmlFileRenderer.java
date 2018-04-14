@@ -1,5 +1,6 @@
 package to.etc.domui.dom;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.misc.LiteralXhtml;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.header.HeaderContributorEntry;
@@ -25,7 +26,6 @@ import to.etc.util.ByteBufferInputStream;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
@@ -51,27 +51,27 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	private final String m_pageTitle = "DomUI report";
 
-	@Nonnull
+	@NonNull
 	private IBrowserOutput m_o;
 
 	private IRequestContext m_ctx;
 
-	@Nonnull
+	@NonNull
 	private StringBuilder m_createJS = new StringBuilder();
 
 	/**
 	 * Javascript state change calls.
 	 */
-	@Nonnull
+	@NonNull
 	private StringBuilder m_stateJS = new StringBuilder();
 
 	/**
 	 * Builder wrapping the above.
 	 */
-	@Nonnull
+	@NonNull
 	private JavascriptStmt m_stateBuilder = new JavascriptStmt(m_stateJS);
 
-	static public HtmlFileRenderer create(@Nonnull Writer output, @Nonnull NodeContainer rootNode) {
+	static public HtmlFileRenderer create(@NonNull Writer output, @NonNull NodeContainer rootNode) {
 		FastXmlOutputWriter out = new FastXmlOutputWriter(output);
 		HtmlTagRenderer rr = new StandardHtmlTagRenderer(BrowserVersion.INSTANCE, out, false);
 		rr.setRenderInline(true);
@@ -79,7 +79,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		return fr;
 	}
 
-	static public void download(@Nonnull NodeContainer resultFragment, @Nonnull String fileName) throws Exception {
+	static public void download(@NonNull NodeContainer resultFragment, @NonNull String fileName) throws Exception {
 		File tempFile = File.createTempFile("ht-", ".html");
 		try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), "utf-8")) {
 			HtmlFileRenderer fr = HtmlFileRenderer.create(osw, resultFragment);
@@ -89,7 +89,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		}
 	}
 
-	protected HtmlFileRenderer(@Nonnull HtmlTagRenderer tagRenderer, @Nonnull IBrowserOutput output, NodeContainer rootNode) {
+	protected HtmlFileRenderer(@NonNull HtmlTagRenderer tagRenderer, @NonNull IBrowserOutput output, NodeContainer rootNode) {
 		m_tagRenderer = tagRenderer;
 		m_o = output;
 		m_rootNode = rootNode;
@@ -147,7 +147,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public IBrowserOutput o() {
 		return m_o;
 	}
@@ -319,7 +319,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	}
 
 	@Override
-	public void renderLoadJavascript(@Nonnull String path) throws Exception {
+	public void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception {
 		//if(!path.startsWith("http")) {
 		//	String rurl = m_page.getBody().getThemedResourceRURL(path);
 		//	path = ctx().getRelativePath(rurl);

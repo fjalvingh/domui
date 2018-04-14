@@ -24,9 +24,10 @@
  */
 package to.etc.util;
 
-import java.lang.reflect.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.lang.reflect.Type;
 
 /**
  * Generic way to access/represent some kind of property.
@@ -35,10 +36,10 @@ import javax.annotation.*;
  * Created on Oct 15, 2010
  */
 public interface IPropertyAccessor {
-	@Nonnull
+	@NonNull
 	String getName();
 
-	@Nonnull
+	@NonNull
 	Class< ? > getActualType();
 
 	@Nullable

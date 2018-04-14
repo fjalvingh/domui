@@ -1,16 +1,16 @@
 package to.etc.domui.hibernate.types;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.hibernate.collection.PersistentBag;
+import org.hibernate.engine.SessionImplementor;
+import to.etc.domui.databinding.IChangeListener;
+import to.etc.domui.databinding.list2.IListChangeListener;
+import to.etc.domui.databinding.observables.IObservableList;
+import to.etc.domui.databinding.observables.ObservableList;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import org.hibernate.collection.*;
-import org.hibernate.engine.*;
-
-import to.etc.domui.databinding.*;
-import to.etc.domui.databinding.list2.*;
-import to.etc.domui.databinding.observables.*;
-import to.etc.util.*;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This is the Hibernate "wrapper" for an Observable list. This delegates all methods to
@@ -22,10 +22,10 @@ import to.etc.util.*;
 public class PersistentObservableList<T> extends PersistentBag implements IObservableList {
 	private String m_from;
 
-	@Nonnull
+	@NonNull
 	static private final IListChangeListener< ? >[] NONE = new IListChangeListener[0];
 
-	@Nonnull
+	@NonNull
 	private IListChangeListener<T>[] m_listeners = (IListChangeListener<T>[]) NONE;
 
 	public PersistentObservableList() {

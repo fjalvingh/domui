@@ -24,7 +24,8 @@
  */
 package to.etc.domui.login;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Represents a logged-in user. This base interface only knows data that must be known about
@@ -46,7 +47,7 @@ public interface IUser {
 	 */
 	String getDisplayName();
 
-	boolean hasRight(@Nonnull String r);
+	boolean hasRight(@NonNull String r);
 
 	/**
 	 * EXPERIMENTAL INTERFACE, DO NOT USE Determines if right r is enabled for the specified data element. The implementation
@@ -59,7 +60,7 @@ public interface IUser {
 	 * @param dataElement
 	 * @return
 	 */
-	<T> boolean hasRight(@Nonnull String r, @Nullable T dataElement);
+	<T> boolean hasRight(@NonNull String r, @Nullable T dataElement);
 
 	default boolean canImpersonate() {
 		return false;

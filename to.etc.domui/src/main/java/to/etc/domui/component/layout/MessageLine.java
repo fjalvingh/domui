@@ -1,10 +1,12 @@
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.util.DomUtil;
 
 /**
  * Forms a simple error message line with a small icon and a text (which may contain basic html).
@@ -16,19 +18,19 @@ public class MessageLine extends Div {
 	@Nullable
 	final private MsgType m_type;
 
-	@Nonnull
+	@NonNull
 	final private String m_text;
 
 	@Nullable
 	final private String m_icon;
 
-	public MessageLine(@Nonnull MsgType type, @Nonnull String text) {
+	public MessageLine(@NonNull MsgType type, @NonNull String text) {
 		m_type = type;
 		m_text = text;
 		m_icon = null;
 	}
 
-	public MessageLine(@Nonnull String icon, @Nonnull String text) {
+	public MessageLine(@NonNull String icon, @NonNull String text) {
 		m_icon = icon;
 		m_text = text;
 		m_type = null;

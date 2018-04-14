@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.test.binding.order1;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.misc.DisplayValue;
@@ -7,8 +8,6 @@ import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
-
-import javax.annotation.Nonnull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -27,7 +26,7 @@ public class BindingTypeForm1 extends UrlPage {
 		fb.property(this, "value").label("Integer").control(control);
 
 		DefaultButton db = new DefaultButton("click", new IClicked<DefaultButton>() {
-			@Override public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				checkClickValue();
 			}
 		});

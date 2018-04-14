@@ -1,22 +1,31 @@
 package to.etc.domui.server.parts;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.parts.ParameterInfoProxy;
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.IParameterInfo;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.LRUHashMap;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import to.etc.domui.util.resources.ResourceDependencyList;
+import to.etc.util.ByteBufferOutputStream;
+import to.etc.util.DeveloperOptions;
 
-import javax.annotation.*;
-import java.io.*;
-import java.util.*;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 23-5-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class PartService {
 
 	public static final String PART_SUFFIX = ".part";
@@ -25,7 +34,7 @@ public class PartService {
 
 	private final boolean m_allowExpires;
 
-	@Nonnull
+	@NonNull
 	private final LRUHashMap<Object, PartData> m_cache;
 
 	/**
@@ -184,7 +193,7 @@ public class PartService {
 		}
 
 		IExtendedParameterInfo infoProxy = new ParameterInfoProxy(parameters) {
-			@Nonnull @Override public String getInputPath() {
+			@NonNull @Override public String getInputPath() {
 				return rest;
 			}
 		};

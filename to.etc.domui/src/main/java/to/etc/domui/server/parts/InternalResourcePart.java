@@ -24,7 +24,10 @@
  */
 package to.etc.domui.server.parts;
 
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.parts.InternalResourcePart.ResKey;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
@@ -35,7 +38,6 @@ import to.etc.util.FileTool;
 import to.etc.webapp.core.ServerTools;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.util.Locale;
@@ -57,7 +59,7 @@ import java.util.Locale;
  */
 final public class InternalResourcePart implements IBufferedPartFactory<ResKey> {
 	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+		@Override public boolean accepts(@NonNull IParameterInfo parameters) {
 			return parameters.getInputPath().startsWith("$");
 		}
 	};
@@ -116,7 +118,7 @@ final public class InternalResourcePart implements IBufferedPartFactory<ResKey> 
 	}
 
 	@Override
-	public @Nonnull ResKey decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @NonNull ResKey decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
 		String rurl = param.getInputPath();
 		if(FileTool.getFileExtension(rurl).length() == 0) {
 			throw new HttpCallException("", HttpServletResponse.SC_FORBIDDEN, "Request forbidden for directory " + rurl);
@@ -147,7 +149,7 @@ final public class InternalResourcePart implements IBufferedPartFactory<ResKey> 
 	 *
 	 */
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull ResKey k, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull ResKey k, @NonNull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Locate the resource
 		IResourceRef ires;
 		if(k.getLoc() != null)

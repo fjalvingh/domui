@@ -24,11 +24,13 @@
  */
 package to.etc.util;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Collection;
 
 /**
  * Information on properties on a class.
@@ -36,7 +38,7 @@ import javax.annotation.concurrent.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 9, 2007
  */
-@Immutable
+//@Immutable
 final public class PropertyInfo implements IPropertyAccessor {
 	final private String	m_name;
 
@@ -52,12 +54,12 @@ final public class PropertyInfo implements IPropertyAccessor {
 		m_setter = setter;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getName() {
 		return m_name;
 	}
 
-	@Nonnull
+	@NonNull
 	public Method getGetter() {
 		return m_getter;
 	}
@@ -67,7 +69,7 @@ final public class PropertyInfo implements IPropertyAccessor {
 		return m_setter;
 	}
 
-	@Nonnull
+	@NonNull
 	public Class< ? > getActualType() {
 		return m_getter.getReturnType();
 	}

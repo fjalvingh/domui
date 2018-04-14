@@ -24,21 +24,34 @@
  */
 package to.etc.domui.state;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
-
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.ApplicationRequestHandler;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.ConversationContext.ConversationState;
-import to.etc.domui.util.*;
-import to.etc.net.*;
-import to.etc.util.*;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.INewPageInstantiated;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Manages conversations and the shelve stack. A WindowSession is in charge of all conversations
@@ -50,10 +63,10 @@ import to.etc.util.*;
 final public class WindowSession {
 	static final Logger LOG = LoggerFactory.getLogger(WindowSession.class);
 
-	@Nonnull
+	@NonNull
 	final private AppSession m_appSession;
 
-	@Nonnull
+	@NonNull
 	final private String m_windowID;
 
 	final private boolean m_developerMode;
@@ -111,7 +124,7 @@ final public class WindowSession {
 	/** The map of all attribute objects added to this window session. */
 	private Map<String, Object> m_map = Collections.EMPTY_MAP;
 
-	public WindowSession(@Nonnull final AppSession session) {
+	public WindowSession(@NonNull final AppSession session) {
 		m_appSession = session;
 		m_windowID = DomUtil.generateGUID();
 		m_id = nextID();
@@ -122,12 +135,12 @@ final public class WindowSession {
 		return ++m_nextId;
 	}
 
-	@Nonnull
+	@NonNull
 	final public DomApplication getApplication() {
 		return m_appSession.getApplication();
 	}
 
-	@Nonnull
+	@NonNull
 	final public String getWindowID() {
 		return m_windowID;
 	}
@@ -149,7 +162,7 @@ final public class WindowSession {
 	 * @return
 	 */
 	@Nullable
-	public ConversationContext findConversation(@Nonnull final String cid) throws Exception {
+	public ConversationContext findConversation(@NonNull final String cid) throws Exception {
 		ConversationContext cc = m_conversationMap.get(cid);
 		if(null != cc)
 			internalAttachConversations();
@@ -161,8 +174,8 @@ final public class WindowSession {
 	 * @param clz
 	 * @return
 	 */
-	@Nonnull
-	List<ConversationContext> findConversationsFor(@Nonnull final Class< ? extends NodeBase> clz) throws Exception {
+	@NonNull
+	List<ConversationContext> findConversationsFor(@NonNull final Class< ? extends NodeBase> clz) throws Exception {
 		List<ConversationContext> res = new ArrayList<ConversationContext>();
 		for(ConversationContext cc : m_conversationMap.values()) {
 			if(cc.findPage(clz) != null)
@@ -177,7 +190,7 @@ final public class WindowSession {
 	 * Add a new conversation to the conversation context.
 	 * @param cc
 	 */
-	void registerConversation(@Nonnull final ConversationContext cc, @Nullable String cid) {
+	void registerConversation(@NonNull final ConversationContext cc, @Nullable String cid) {
 		if(cid == null)
 			cid = "c" + nextCID();
 		cc.initialize(this, cid);
@@ -256,7 +269,7 @@ final public class WindowSession {
 		m_conversationMap.clear();
 	}
 
-	protected void destroyConversation(@Nonnull final ConversationContext cc) {
+	protected void destroyConversation(@NonNull final ConversationContext cc) {
 		if(null == m_conversationMap.remove(cc.getId()))
 			return;
 
@@ -292,7 +305,7 @@ final public class WindowSession {
 	 * @param ccid
 	 * @return
 	 */
-	public boolean isConversationDestroyed(@Nonnull String ccid) {
+	public boolean isConversationDestroyed(@NonNull String ccid) {
 		boolean isdestroyed = m_destroyedConversationMap.containsKey(ccid);
 
 		//-- Remove entries if it grows too big.
@@ -308,7 +321,7 @@ final public class WindowSession {
 		return isdestroyed;
 	}
 
-	public ConversationContext createConversation(@Nonnull final Class< ? extends ConversationContext> clz) throws Exception {
+	public ConversationContext createConversation(@NonNull final Class< ? extends ConversationContext> clz) throws Exception {
 		if(clz == null)
 			throw new IllegalStateException("Null");
 		ConversationContext cc = clz.newInstance(); 	// FIXME Should do something with injection and stuff.
@@ -316,7 +329,7 @@ final public class WindowSession {
 		return cc;
 	}
 
-	public void acceptNewConversation(@Nonnull final ConversationContext cc) throws Exception {
+	public void acceptNewConversation(@NonNull final ConversationContext cc) throws Exception {
 		//-- Drop all "old" conversations, then add the new one
 //		destroyConversations();							// ORDERED 1
 		registerConversation(cc, null); 				// ORDERED 2
@@ -331,7 +344,7 @@ final public class WindowSession {
 	 * Shelve the current page, then move to the new one.
 	 * @param shelved
 	 */
-	private void shelvePage(@Nonnull final Page shelved) {
+	private void shelvePage(@NonNull final Page shelved) {
 		if(shelved == null)
 			throw new IllegalStateException("Missing current page??");
 		m_shelvedPageStack.add(new ShelvedDomUIPage(this, shelved));
@@ -341,7 +354,7 @@ final public class WindowSession {
 	 * Get the current contents of the shelved page stack.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public List<IShelvedEntry> getShelvedPageStack() {
 		return new ArrayList<IShelvedEntry>(m_shelvedPageStack);
 	}
@@ -353,7 +366,7 @@ final public class WindowSession {
 	 * @param ajax
 	 * @return
 	 */
-	public boolean handleExceptionGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
+	public boolean handleExceptionGoto(@NonNull final RequestContextImpl ctx, @NonNull final Page currentpg, boolean ajax) throws Exception {
 		MoveMode targetMode = getTargetMode();
 		if(targetMode == null)
 			return false;
@@ -377,7 +390,7 @@ final public class WindowSession {
 	 *
 	 * @param currentpg		The page that is <b>current</b> (the one that issued the MOVE command).
 	 */
-	public boolean handleGoto(@Nonnull final RequestContextImpl ctx, @Nonnull final Page currentpg, boolean ajax) throws Exception {
+	public boolean handleGoto(@NonNull final RequestContextImpl ctx, @NonNull final Page currentpg, boolean ajax) throws Exception {
 		//		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
 		if(getTargetMode() == null)
 			return false;
@@ -533,7 +546,7 @@ final public class WindowSession {
 	 * @param clz
 	 * @return
 	 */
-	private boolean mustResetShelve(@Nonnull final Class< ? extends UrlPage> clz) {
+	private boolean mustResetShelve(@NonNull final Class< ? extends UrlPage> clz) {
 		Class<?> ac = m_appSession.getApplication().getRootPage();
 		if(ac == null)
 			return false;
@@ -541,7 +554,7 @@ final public class WindowSession {
 		return clz.getName().equals(ac.getName());
 	}
 
-	void generateRedirect(@Nonnull final RequestContextImpl ctx, @Nonnull final Page to, boolean ajax) throws Exception {
+	void generateRedirect(@NonNull final RequestContextImpl ctx, @NonNull final Page to, boolean ajax) throws Exception {
 		//-- Send a "redirect" to the new page;
 		StringBuilder sb = new StringBuilder();
 		sb.append(ctx.getRelativePath(to.getBody().getClass().getName()));
@@ -573,7 +586,7 @@ final public class WindowSession {
 		generateRedirect(ctx, sb.toString(), ajax);
 	}
 
-	private void generateRedirect(@Nonnull final RequestContextImpl ctx, @Nonnull final String url, boolean ajax) throws Exception {
+	private void generateRedirect(@NonNull final RequestContextImpl ctx, @NonNull final String url, boolean ajax) throws Exception {
 		if(ajax)
 			ApplicationRequestHandler.generateAjaxRedirect(ctx, url);
 		else
@@ -584,7 +597,7 @@ final public class WindowSession {
 	 * Moves one shelve entry back. If there's no shelve entry current moves back to the application's index.
 	 * @param currentpg
 	 */
-	private void handleMoveBack(@Nonnull final RequestContextImpl ctx, @Nonnull Page currentpg, boolean ajax) throws Exception {
+	private void handleMoveBack(@NonNull final RequestContextImpl ctx, @NonNull Page currentpg, boolean ajax) throws Exception {
 		int ix = m_shelvedPageStack.size() - 2;
 		if(ix < 0) {
 			clearShelve(0);									// Discard EVERYTHING
@@ -611,7 +624,7 @@ final public class WindowSession {
 		saveWindowState();
 	}
 
-	private void logUser(@Nonnull RequestContextImpl ctx, @Nonnull Page page, String string) {
+	private void logUser(@NonNull RequestContextImpl ctx, @NonNull Page page, String string) {
 		ConversationContext conversation = page.internalGetConversation();
 		String cid = conversation == null ? null : conversation.getFullId();
 		ctx.getSession().log(new UserLogItem(cid, page.getBody().getClass().getName(), null, null, string));
@@ -631,7 +644,7 @@ final public class WindowSession {
 		m_targetMode = null;
 	}
 
-	public void internalSetNextPage(@Nonnull final MoveMode m, @Nullable final Class< ? extends UrlPage> clz, @Nullable final ConversationContext cc,
+	public void internalSetNextPage(@NonNull final MoveMode m, @Nullable final Class< ? extends UrlPage> clz, @Nullable final ConversationContext cc,
 		@Nullable final Class< ? extends ConversationContext> ccclz, @Nullable final IPageParameters pp) {
 		m_targetMode = m;
 		m_targetPageClass = clz;
@@ -640,7 +653,7 @@ final public class WindowSession {
 		m_targetConversation = cc;
 	}
 
-	public void internalSetRedirect(@Nonnull final String targeturl) {
+	public void internalSetRedirect(@NonNull final String targeturl) {
 		m_targetMode = MoveMode.REDIRECT;
 		m_targetURL = targeturl;
 	}
@@ -702,7 +715,7 @@ final public class WindowSession {
 	 * longer present on the shelf.
 	 * @param pg
 	 */
-	void discardPage(@Nonnull final Page pg) {
+	void discardPage(@NonNull final Page pg) {
 		boolean destroyc = true;
 		ConversationContext conversation = pg.internalGetConversation();
 		for(int i = m_shelvedPageStack.size(); --i >= 0;) {
@@ -737,7 +750,7 @@ final public class WindowSession {
 	 * @return
 	 * @throws Exception
 	 */
-	public Page tryToMakeOrGetPage(@Nonnull final IRequestContext rctx, @Nonnull final Class< ? extends UrlPage> clz, @Nullable final PageParameters papa, @Nullable final String action)
+	public Page tryToMakeOrGetPage(@NonNull final IRequestContext rctx, @NonNull final Class< ? extends UrlPage> clz, @Nullable final PageParameters papa, @Nullable final String action)
 		throws Exception {
 		//-- 1. If a conversation ID is present try to get the page from there,
 		ConversationContext cc = null;
@@ -817,7 +830,7 @@ final public class WindowSession {
 	 * @param pg
 	 * @throws Exception
 	 */
-	private void callNewPageCreatedListeners(@Nonnull final Page pg) throws Exception {
+	private void callNewPageCreatedListeners(@NonNull final Page pg) throws Exception {
 		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners()) {
 			npi.newPageCreated(pg.getBody());
 
@@ -842,7 +855,7 @@ final public class WindowSession {
 	 * @param papa	Nonnull for a "new page" request, null for an AJAX request to an existing page.
 	 * @return
 	 */
-	private int findInPageStack(@Nullable final ConversationContext cc, @Nonnull final Class< ? extends UrlPage> clz, @Nullable final IPageParameters papa) throws Exception {
+	private int findInPageStack(@Nullable final ConversationContext cc, @NonNull final Class< ? extends UrlPage> clz, @Nullable final IPageParameters papa) throws Exception {
 		//		if(cc == null) FIXME jal 20090824 Revisit: this is questionable; why can it be null? Has code path from UIGoto-> handleGoto.
 		//			throw new IllegalStateException("The conversation cannot be empty here.");
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
@@ -865,7 +878,7 @@ final public class WindowSession {
 		return -1;												// Nothing acceptable
 	}
 
-	public boolean isPageOnStack(@Nonnull final Class< ? extends UrlPage> clz, @Nonnull final IPageParameters papa) throws Exception {
+	public boolean isPageOnStack(@NonNull final Class< ? extends UrlPage> clz, @NonNull final IPageParameters papa) throws Exception {
 		for(int ix = m_shelvedPageStack.size(); --ix >= 0;) {
 			IShelvedEntry se = m_shelvedPageStack.get(ix);
 			if(se instanceof ShelvedDomUIPage) {
@@ -881,7 +894,7 @@ final public class WindowSession {
 		return false;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String toString() {
 		return "Window[" + m_id + ":" + m_windowID + "]";
@@ -903,7 +916,7 @@ final public class WindowSession {
 		m_obituaryTimer = obituaryTimer;
 	}
 
-	public void internalSetLastPage(@Nonnull final Page page) {
+	public void internalSetLastPage(@NonNull final Page page) {
 		synchronized(m_appSession) {
 			m_lastRequestedPageTag = page.getPageTag();
 		}
@@ -923,7 +936,7 @@ final public class WindowSession {
 	 * @param name
 	 * @param val
 	 */
-	public void setAttribute(@Nonnull final String name, @Nullable final Object val) {
+	public void setAttribute(@NonNull final String name, @Nullable final Object val) {
 		if(m_map == Collections.EMPTY_MAP)
 			m_map = new HashMap<String, Object>();
 		if(val == null)
@@ -939,7 +952,7 @@ final public class WindowSession {
 	 * @return
 	 */
 	@Nullable
-	public Object getAttribute(@Nonnull final String name) {
+	public Object getAttribute(@NonNull final String name) {
 		return m_map.get(name);
 	}
 
@@ -951,7 +964,7 @@ final public class WindowSession {
 	 * @param depth
 	 * @param entry
 	 */
-	public void addShelveEntry(int depth, @Nonnull IShelvedEntry entry) {
+	public void addShelveEntry(int depth, @NonNull IShelvedEntry entry) {
 		if(depth > 0)
 			throw new IllegalArgumentException("Depth must be <= 0");
 		int ix = m_shelvedPageStack.size() + depth;			// Depth moves index backwards because it is -ve
@@ -967,7 +980,7 @@ final public class WindowSession {
 	 * @param clz
 	 * @param parameters
 	 */
-	public boolean insertShelveEntry(int depth, @Nonnull Class< ? extends UrlPage> clz, @Nonnull IPageParameters parameters) throws Exception {
+	public boolean insertShelveEntry(int depth, @NonNull Class< ? extends UrlPage> clz, @NonNull IPageParameters parameters) throws Exception {
 		boolean res = null != insertShelveEntryMain(depth, clz, parameters);
 		saveWindowState();
 		return res;
@@ -981,7 +994,7 @@ final public class WindowSession {
 	 * @param parameters
 	 */
 	@Nullable
-	private Page insertShelveEntryMain(int depth, @Nonnull Class< ? extends UrlPage> clz, @Nonnull IPageParameters parameters) throws Exception {
+	private Page insertShelveEntryMain(int depth, @NonNull Class< ? extends UrlPage> clz, @NonNull IPageParameters parameters) throws Exception {
 		if(isPageOnStack(clz, parameters))
 			return null;
 
@@ -1039,7 +1052,7 @@ final public class WindowSession {
 	 * Get all of the pages from the shelve stack, and return them as a string based structure for later reload.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<SavedPage> getSavedPageList() {
 		List<SavedPage> res = new ArrayList<>(m_shelvedPageStack.size());
 		for(IShelvedEntry se : m_shelvedPageStack) {
@@ -1059,7 +1072,7 @@ final public class WindowSession {
 	 * @param clz2
 	 */
 	@Nullable
-	public String internalAttemptReload(@Nonnull HttpSession hs, @Nonnull Class< ? extends UrlPage> clz2, @Nonnull PageParameters pageParameters, @Nonnull String oldWindowId) {
+	public String internalAttemptReload(@NonNull HttpSession hs, @NonNull Class< ? extends UrlPage> clz2, @NonNull PageParameters pageParameters, @NonNull String oldWindowId) {
 		SavedWindow sw = (SavedWindow) hs.getAttribute(oldWindowId);
 		List<SavedPage> list;
 		if(null != sw) {
@@ -1122,8 +1135,8 @@ final public class WindowSession {
 	 * @param sessionID
 	 * @return
 	 */
-	@Nonnull
-	static private File getStateFile(@Nonnull String sessionID) {
+	@NonNull
+	static private File getStateFile(@NonNull String sessionID) {
 		File tmpdir = FileTool.getTmpDir();
 		return new File(tmpdir, "domui-session-" + sessionID);
 	}

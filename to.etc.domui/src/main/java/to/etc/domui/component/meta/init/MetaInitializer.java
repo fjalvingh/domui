@@ -1,5 +1,7 @@
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaComboProperty;
 import to.etc.domui.component.meta.MetaDisplayProperty;
@@ -9,8 +11,6 @@ import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.PathPropertyMetaModel;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -104,13 +104,13 @@ public final class MetaInitializer {
 		m_classProviderList = Collections.unmodifiableList(list);
 	}
 
-	static synchronized public void registerModel(@Nonnull IClassMetaModelFactory model) {
+	static synchronized public void registerModel(@NonNull IClassMetaModelFactory model) {
 		List<IClassMetaModelFactory> mm = new ArrayList<IClassMetaModelFactory>(m_modelList);
 		mm.add(model);
 		m_modelList = mm;
 	}
 
-	@Nonnull
+	@NonNull
 	static public synchronized List<IClassMetaModelFactory> getList() {
 		if(m_modelList.size() == 0)
 			registerModel(new DefaultJavaClassMetaModelFactory());
@@ -126,8 +126,8 @@ public final class MetaInitializer {
 		m_classMap.clear();
 	}
 
-	@Nonnull
-	static public ClassMetaModel findAndInitialize(@Nonnull Object mc) {
+	@NonNull
+	static public ClassMetaModel findAndInitialize(@NonNull Object mc) {
 		//-- We need some factory to create it.
 		synchronized(MetaManager.class) {
 			ClassMetaModel cmm = m_classMap.get(mc);
@@ -141,7 +141,7 @@ public final class MetaInitializer {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private static ClassMetaModel initializeRecursively(Object mc) {
 		MetaInitContext context = new MetaInitContext(m_classMap);			// Keeps track of state, and provides services to metadata providers.
 		m_currentContext = context;
@@ -194,7 +194,7 @@ public final class MetaInitializer {
 	/**
 	 * We need to find a factory that knows how to deliver this metadata.
 	 */
-	@Nonnull
+	@NonNull
 	synchronized static IClassMetaModelFactory findModelFactory(Object theThingy) {
 		int bestscore = 0;
 		int hitct = 0;

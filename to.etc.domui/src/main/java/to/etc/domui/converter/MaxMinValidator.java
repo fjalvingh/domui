@@ -24,20 +24,21 @@
  */
 package to.etc.domui.converter;
 
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-import java.text.*;
+import java.text.NumberFormat;
 
 /**
  * This validator checks to see if a Number is between two <b>inclusive</b> bounds. Inclusive means:
  * if the number == max or the number == min it is allowed, i.e. the range is [min..max].
  */
 public class MaxMinValidator implements IValueValidator<Number> {
-	@Nonnull
+	@NonNull
 	private Number m_max, m_min;
 
 	@Nullable
@@ -49,7 +50,7 @@ public class MaxMinValidator implements IValueValidator<Number> {
 	 * @param min
 	 * @param msg If specified this error message will be shown, otherwise default error message is shown.
 	 */
-	public MaxMinValidator(@Nonnull Number min, @Nonnull Number max, @Nullable UIMessage msg) {
+	public MaxMinValidator(@NonNull Number min, @NonNull Number max, @Nullable UIMessage msg) {
 		m_max = max;
 		m_min = min;
 		m_msg = msg;
@@ -60,7 +61,7 @@ public class MaxMinValidator implements IValueValidator<Number> {
 	 * @param max
 	 * @param min
 	 */
-	public MaxMinValidator(@Nonnull Number min, @Nonnull Number max) {
+	public MaxMinValidator(@NonNull Number min, @NonNull Number max) {
 		this(min, max, null);
 	}
 
@@ -69,7 +70,6 @@ public class MaxMinValidator implements IValueValidator<Number> {
 	 * be useful.
 	 * @see to.etc.domui.converter.IValueValidator#validate(java.lang.Object)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void validate(Number input) throws Exception {
 		Class< ? > ac = input.getClass();
@@ -90,7 +90,7 @@ public class MaxMinValidator implements IValueValidator<Number> {
 		}
 	}
 
-	private void throwError(@Nonnull String code, @Nonnull Number val) {
+	private void throwError(@NonNull String code, @NonNull Number val) {
 		UIMessage msg = m_msg;
 		if(msg != null) {
 			throw new ValidationException(msg.getBundle(), msg.getCode(), msg.getParameters());

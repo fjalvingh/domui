@@ -1,9 +1,8 @@
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
 
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.lang.annotation.Annotation;
 
 /**
@@ -13,8 +12,8 @@ import java.lang.annotation.Annotation;
 abstract public class AbstractClassAnnotationProvider implements IClassMetaProvider<DefaultClassMetaModel> {
 	abstract protected void decodeClassAnnotation(MetaInitContext context, DefaultClassMetaModel cmm, Annotation an, String ana) throws Exception;
 
-	@OverridingMethodsMustInvokeSuper
-	@Override public void provide(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel cmm) throws Exception {
+	//@OverridingMethodsMustInvokeSuper
+	@Override public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm) throws Exception {
 		Annotation[] annar = cmm.getActualClass().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName(); // Get the annotation's name

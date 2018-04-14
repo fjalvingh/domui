@@ -1,11 +1,11 @@
 package to.etc.domui.component.binding;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,10 +13,10 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 12-3-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class DefaultBindingHandler implements IBindingHandler {
 	static public final IBindingHandlerFactory	FACTORY = new IBindingHandlerFactory() {
-		@Nonnull @Override public IBindingHandler getBindingHandler(@Nonnull NodeBase node) {
+		@NonNull @Override public IBindingHandler getBindingHandler(@NonNull NodeBase node) {
 			return new DefaultBindingHandler(node);
 		}
 	};
@@ -35,12 +35,12 @@ public class DefaultBindingHandler implements IBindingHandler {
 	 */
 	@Override
 	public void controlToModel() throws Exception {
-		List<BindingValuePair<?, ?>> pairs = collectChangedBindings();
+		List<BindingValuePair<?>> pairs = collectChangedBindings();
 		if(pairs.size() == 0)
 			return;
 
 		//-- We now know all bindings that changed values, and the list is in the proper order. Move all data.
-		for(BindingValuePair<?, ?> pair : pairs) {
+		for(BindingValuePair<?> pair : pairs) {
 			pair.moveControlToModel();
 		}
 	}
@@ -54,8 +54,8 @@ public class DefaultBindingHandler implements IBindingHandler {
 	 * </ul>
 	 * @throws Exception
 	 */
-	private List<BindingValuePair<?, ?>>  collectChangedBindings() throws Exception {
-		List<BindingValuePair<?, ?>> result = new ArrayList<>();
+	private List<BindingValuePair<?>>  collectChangedBindings() throws Exception {
+		List<BindingValuePair<?>> result = new ArrayList<>();
 
 		DomUtil.walkTreeUndelegated(m_rootNode, new DomUtil.IPerNode() {
 			@Nullable
@@ -70,7 +70,7 @@ public class DefaultBindingHandler implements IBindingHandler {
 				List<IBinding> list = n.getBindingList();
 				if(null != list) {
 					for(IBinding sb : list) {
-						BindingValuePair<?, ?> pair = sb.getBindingDifference();
+						BindingValuePair<?> pair = sb.getBindingDifference();
 						if(null != pair)
 							result.add(pair);
 					}

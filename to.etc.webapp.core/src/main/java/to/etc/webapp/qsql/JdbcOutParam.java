@@ -24,9 +24,10 @@
  */
 package to.etc.webapp.qsql;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.sql.Connection;
 
 /**
  * OUT parameter definition when calling oracle function/stored procedure that has OUT params.<BR/>
@@ -37,13 +38,13 @@ import javax.annotation.*;
  * Created on Sep 16, 2010
  */
 public class JdbcOutParam<T> {
-	@Nonnull
+	@NonNull
 	final private Class<T> m_classType;
 
 	@Nullable
 	private T m_value;
 
-	public JdbcOutParam(@Nonnull Class<T> classType) {
+	public JdbcOutParam(@NonNull Class<T> classType) {
 		m_classType = classType;
 	}
 
@@ -56,7 +57,7 @@ public class JdbcOutParam<T> {
 		m_value = value;
 	}
 
-	@Nonnull
+	@NonNull
 	public Class<T> getClassType() {
 		return m_classType;
 	}

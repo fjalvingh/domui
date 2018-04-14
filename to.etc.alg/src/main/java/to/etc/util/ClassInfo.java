@@ -24,8 +24,9 @@
  */
 package to.etc.util;
 
-import java.util.*;
-import javax.annotation.concurrent.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Cached information on class properties detected in ClassUtil.
@@ -33,7 +34,7 @@ import javax.annotation.concurrent.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 24, 2009
  */
-@Immutable
+//@Immutable
 final public class ClassInfo {
 	private Class< ? >	m_theClass;
 

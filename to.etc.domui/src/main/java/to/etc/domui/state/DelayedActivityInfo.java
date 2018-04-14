@@ -24,14 +24,14 @@
  */
 package to.etc.domui.state;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.delayed.IAsyncRunnable;
 import to.etc.domui.server.DomApplication;
 import to.etc.util.Progress;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,12 +52,12 @@ final public class DelayedActivityInfo {
 
 	private Exception m_exception;
 
-	@Nonnull private State m_state = State.WAITING;
+	@NonNull private State m_state = State.WAITING;
 
-	@Nonnull
+	@NonNull
 	final private Map<IAsyncListener< ? >, Object> m_listenerDataMap = new HashMap<IAsyncListener< ? >, Object>();
 
-	protected DelayedActivityInfo(@Nonnull DelayedActivitiesManager manager, @Nonnull IAsyncRunnable activity, @Nonnull AsyncContainer ac) {
+	protected DelayedActivityInfo(@NonNull DelayedActivitiesManager manager, @NonNull IAsyncRunnable activity, @NonNull AsyncContainer ac) {
 		m_activity = activity;
 		m_manager = manager;
 		m_container = ac;
@@ -67,7 +67,7 @@ final public class DelayedActivityInfo {
 		return m_activity;
 	}
 
-	@Nonnull
+	@NonNull
 	public Progress getMonitor() {
 		return m_monitor;
 	}

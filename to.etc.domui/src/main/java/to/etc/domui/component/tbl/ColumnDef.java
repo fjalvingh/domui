@@ -1,28 +1,33 @@
 package to.etc.domui.component.tbl;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.dom.css.TextAlign;
+import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.*;
 import java.util.function.Predicate;
 
 final public class ColumnDef<I, T> {
-	@Nonnull
+	@NonNull
 	final private Class<T> m_actualClass;
 
 	/** The label text, if needed, to use as the column heading */
 	@Nullable
 	private String m_columnLabel;
 
-	@Nonnull
+	@NonNull
 	final private ColumnList<I> m_defList;
 
-	@Nonnull
+	@NonNull
 	final private Class<T> m_columnType;
 
-	@Nonnull
+	@NonNull
 	private SortableType m_sortable = SortableType.SORTABLE_ASC;
 
 	@Nullable
@@ -54,7 +59,7 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private PropertyMetaModel<T> m_propertyMetaModel;
 
-	@Nonnull
+	@NonNull
 	private NumericPresentation m_numericPresentation = NumericPresentation.UNKNOWN;
 
 	@Nullable
@@ -80,7 +85,7 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private Predicate<I> m_showCellClickedWhen;
 
-	ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull Class<T> valueClass) {
+	ColumnDef(@NonNull ColumnList<I> cdl, @NonNull Class<T> valueClass) {
 		m_actualClass = valueClass;
 		m_columnType = valueClass;
 		m_defList = cdl;
@@ -90,7 +95,7 @@ final public class ColumnDef<I, T> {
 	 * Create a column definition using metadata for the column.
 	 * @param pmm
 	 */
-	ColumnDef(@Nonnull ColumnList<I> cdl, @Nonnull PropertyMetaModel<T> pmm) {
+	ColumnDef(@NonNull ColumnList<I> cdl, @NonNull PropertyMetaModel<T> pmm) {
 		m_actualClass = pmm.getActualType();
 		m_defList = cdl;
 		m_columnType = pmm.getActualType();
@@ -115,7 +120,7 @@ final public class ColumnDef<I, T> {
 		width(MetaManager.calculateTextSize(pmm));
 	}
 
-	@Nonnull
+	@NonNull
 	public Class<T> getActualClass() {
 		return m_actualClass;
 	}
@@ -140,7 +145,7 @@ final public class ColumnDef<I, T> {
 	 * @since 2013/1/2
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> editable() {
 		if(m_propertyMetaModel == null)
 			throw new IllegalStateException("Cannot edit a row instance");
@@ -156,8 +161,8 @@ final public class ColumnDef<I, T> {
 	 * @param name
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<I, T> property(@Nonnull String name) {
+	@NonNull
+	public ColumnDef<I, T> property(@NonNull String name) {
 		if(m_propertyName != null)
 			throw new IllegalStateException("The property name is already defined.");
 		m_propertyName = name;
@@ -169,7 +174,7 @@ final public class ColumnDef<I, T> {
 	}
 
 	@Nullable
-	public <R> T getColumnValue(@Nonnull R instance) throws Exception {
+	public <R> T getColumnValue(@NonNull R instance) throws Exception {
 		PropertyMetaModel<T> pmm = m_propertyMetaModel;
 		if(pmm == null)
 			return (T) instance;
@@ -177,12 +182,12 @@ final public class ColumnDef<I, T> {
 			return pmm.getValue(instance);
 	}
 
-	@Nonnull
+	@NonNull
 	public Class<T> getColumnType() {
 		return m_columnType;
 	}
 
-	@Nonnull
+	@NonNull
 	public SortableType getSortable() {
 		return m_sortable;
 	}
@@ -254,7 +259,7 @@ final public class ColumnDef<I, T> {
 		return m_showCellClickedWhen;
 	}
 
-	@Nonnull
+	@NonNull
 	public NumericPresentation getNumericPresentation() {
 		return m_numericPresentation;
 	}
@@ -279,11 +284,11 @@ final public class ColumnDef<I, T> {
 		return m_sortProperty;
 	}
 
-	public void setSortable(@Nonnull SortableType sortable) {
+	public void setSortable(@NonNull SortableType sortable) {
 		m_sortable = sortable == null ? SortableType.UNKNOWN : sortable;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String toString() {
 		return "ColumnDef[" + getPropertyName() + ", type=" + getColumnType() + ", lbl=" + getColumnLabel() + "]";
@@ -298,7 +303,7 @@ final public class ColumnDef<I, T> {
 	 * @param columnLabel
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> label(@Nullable String columnLabel) {
 		m_columnLabel = columnLabel;
 		return this;
@@ -309,8 +314,8 @@ final public class ColumnDef<I, T> {
 	 * @param align
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<I, T> align(@Nonnull TextAlign align) {
+	@NonNull
+	public ColumnDef<I, T> align(@NonNull TextAlign align) {
 		m_align = align;
 		return this;
 	}
@@ -320,7 +325,7 @@ final public class ColumnDef<I, T> {
 	 * @param ck
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked<I> ck) {
 		m_cellClicked = ck;
 		return this;
@@ -331,8 +336,8 @@ final public class ColumnDef<I, T> {
 	 * @param ck
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked<I> ck, @Nonnull Predicate<I> showWhen) {
+	@NonNull
+	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked<I> ck, @NonNull Predicate<I> showWhen) {
 		m_cellClicked = ck;
 		m_showCellClickedWhen = showWhen;
 		return this;
@@ -344,7 +349,7 @@ final public class ColumnDef<I, T> {
 	 * @param cr
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> renderer(@Nullable IRenderInto<T> cr) {
 		m_contentRenderer = cr;
 		return this;
@@ -355,8 +360,8 @@ final public class ColumnDef<I, T> {
 	 * @param css
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<I, T> css(@Nonnull String css) {
+	@NonNull
+	public ColumnDef<I, T> css(@NonNull String css) {
 		m_cssClass = css;
 		return this;
 	}
@@ -366,8 +371,8 @@ final public class ColumnDef<I, T> {
 	 * @param css
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<I, T> cssHeader(@Nonnull String css) {
+	@NonNull
+	public ColumnDef<I, T> cssHeader(@NonNull String css) {
 		m_headerCssClass = css;
 		return this;
 	}
@@ -376,7 +381,7 @@ final public class ColumnDef<I, T> {
 	 * Make sure this column's contents are wrapped (by default columns added by {@link RowRenderer} are marked as not wrappable.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> wrap() {
 		m_nowrap = false;
 		return this;
@@ -386,7 +391,7 @@ final public class ColumnDef<I, T> {
 	 * Set the column to nowrap.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> nowrap() {
 		m_nowrap = true;
 		return this;
@@ -397,8 +402,8 @@ final public class ColumnDef<I, T> {
 	 * @param np
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<I, T> numeric(@Nonnull NumericPresentation np) {
+	@NonNull
+	public ColumnDef<I, T> numeric(@NonNull NumericPresentation np) {
 		m_numericPresentation = np;
 		return this;
 	}
@@ -408,8 +413,8 @@ final public class ColumnDef<I, T> {
 	 * @param hint
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<I, T> hint(@Nonnull String hint) {
+	@NonNull
+	public ColumnDef<I, T> hint(@NonNull String hint) {
 		m_renderHint = hint;
 		return this;
 	}
@@ -418,7 +423,7 @@ final public class ColumnDef<I, T> {
 	 * Set the default sort order to ascending first.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> ascending() {
 		setSortable(SortableType.SORTABLE_ASC);
 		return this;
@@ -428,7 +433,7 @@ final public class ColumnDef<I, T> {
 	 * Set the default sort order to descending first.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> descending() {
 		setSortable(SortableType.SORTABLE_DESC);
 		return this;
@@ -438,7 +443,7 @@ final public class ColumnDef<I, T> {
 	 * Set this column as the default column to sort on.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> sortdefault() {
 		m_defList.setSortColumn(this);
 		return this;
@@ -450,8 +455,8 @@ final public class ColumnDef<I, T> {
 	 * @param sh
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<I, T> sort(@Nonnull ISortHelper<?> sh) {
+	@NonNull
+	public ColumnDef<I, T> sort(@NonNull ISortHelper<?> sh) {
 		m_sortHelper = sh;
 		if(m_sortable == SortableType.UNKNOWN)
 			m_sortable = SortableType.SORTABLE_ASC;
@@ -465,19 +470,19 @@ final public class ColumnDef<I, T> {
 	 * @param propertyName
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<I, T> sort(@Nonnull String propertyName) {
+	@NonNull
+	public ColumnDef<I, T> sort(@NonNull String propertyName) {
 		m_sortProperty = propertyName;
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> width(@Nullable String w) {
 		m_width = w;
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> converter(@Nullable IConverter<T> converter) {
 		m_converter = converter;
 		return this;
@@ -486,7 +491,7 @@ final public class ColumnDef<I, T> {
 	/**
 	 * Define the control factory to create the control to use to show the column's value.
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<I, T> factory(@Nullable IRowControlFactory<I> factory) {
 		m_controlFactory = factory;
 		if(factory != null)

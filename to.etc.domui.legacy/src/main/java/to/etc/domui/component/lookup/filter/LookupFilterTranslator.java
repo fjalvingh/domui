@@ -1,16 +1,17 @@
 package to.etc.domui.component.lookup.filter;
 
-import java.io.*;
-import java.util.*;
-import java.util.Map.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.w3c.dom.Node;
+import to.etc.domui.component.lookup.LookupForm;
+import to.etc.webapp.query.QDataContext;
+import to.etc.xml.DomTools;
+import to.etc.xml.XmlWriter;
 
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
-import to.etc.domui.component.lookup.*;
-import to.etc.webapp.query.*;
-import to.etc.xml.*;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Translates the controls on a {@link LookupForm} to a readable format
@@ -18,7 +19,7 @@ import to.etc.xml.*;
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since 1/27/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 public final class LookupFilterTranslator {
 
 	private static final String FILTER = "Filter";

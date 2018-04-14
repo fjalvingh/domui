@@ -24,6 +24,7 @@
  */
 package to.etc.domui.parts;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
@@ -34,7 +35,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.FileTool;
 
-import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -55,7 +55,7 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	private static final Color DEFAULT_COLOR = Color.GRAY;
 
 	@Override
-	public @Nonnull MarkerImagePartKey decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @NonNull MarkerImagePartKey decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
 		MarkerImagePartKey key = MarkerImagePartKey.decode(application, param);
 		return key;
 	}
@@ -65,7 +65,7 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	 * @see to.etc.domui.server.parts.IBufferedPartFactory#generate(to.etc.domui.server.parts.PartResponse, to.etc.domui.server.DomApplication, java.lang.Object, to.etc.domui.util.resources.IResourceDependencyList)
 	 */
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull MarkerImagePartKey sipKey, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull MarkerImagePartKey sipKey, @NonNull IResourceDependencyList rdl) throws Exception {
 		InputStream is = null;
 
 		try {
@@ -192,7 +192,7 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	 * @param icon
 	 * @return
 	 */
-	private BufferedImage drawImage(@Nonnull BufferedImage icon, MarkerImagePartKey key) {
+	private BufferedImage drawImage(@NonNull BufferedImage icon, MarkerImagePartKey key) {
 		BufferedImage bufferedImage = new BufferedImage(200, 20, Transparency.TRANSLUCENT);
 
 		Graphics2D g = bufferedImage.createGraphics();

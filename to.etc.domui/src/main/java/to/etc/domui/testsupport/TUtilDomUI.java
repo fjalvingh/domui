@@ -24,14 +24,26 @@
  */
 package to.etc.domui.testsupport;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.HtmlFullRenderer;
+import to.etc.domui.dom.IBrowserOutput;
+import to.etc.domui.dom.PrettyXmlOutputWriter;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.ConfigParameters;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.state.WindowSession;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
+import java.io.File;
+import java.io.StringWriter;
 
 public class TUtilDomUI {
 	static private volatile AppSession m_session;
@@ -41,11 +53,11 @@ public class TUtilDomUI {
 	static public synchronized void setApplication(DomApplication application) throws Exception {
 		ConfigParameters cp = new ConfigParameters() {
 			@Override
-			public String getString(@Nonnull String name) {
+			public String getString(@NonNull String name) {
 				return null;
 			}
 
-			@Nonnull
+			@NonNull
 			@Override
 			public File getWebFileRoot() {
 				return new File("/tmp"); // FIXME Howto?
@@ -66,11 +78,11 @@ public class TUtilDomUI {
 			ConfigParameters cp = new ConfigParameters() {
 				@Nullable
 				@Override
-				public String getString(@Nonnull String name) {
+				public String getString(@NonNull String name) {
 					return null;
 				}
 
-				@Nonnull
+				@NonNull
 				@Override
 				public File getWebFileRoot() {
 					return new File("/tmp"); // FIXME Howto?

@@ -24,14 +24,17 @@
  */
 package to.etc.xml;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.XMLReaderFactory;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-
-import to.etc.util.*;
+import java.io.Reader;
 
 /**
  * Utility class for handling SAX documents
@@ -41,7 +44,7 @@ import to.etc.util.*;
  */
 public class SAXTools {
 
-	static public void parseSAX(@Nonnull Reader r, @Nullable String id, @Nullable ContentHandler ch, @Nullable ErrorHandler eh) throws Exception {
+	static public void parseSAX(@NonNull Reader r, @Nullable String id, @Nullable ContentHandler ch, @Nullable ErrorHandler eh) throws Exception {
 		XMLReader xr = XMLReaderFactory.createXMLReader();
 		xr.setFeature("http://xml.org/sax/features/namespace-prefixes", false);
 		xr.setFeature("http://xml.org/sax/features/namespaces", true);
@@ -53,7 +56,7 @@ public class SAXTools {
 		xr.parse(ips);
 	}
 
-	static public void parseSAX(@Nonnull Class< ? > base, @Nullable String name, @Nullable ContentHandler ch, @Nullable ErrorHandler eh) throws Exception {
+	static public void parseSAX(@NonNull Class< ? > base, @Nullable String name, @Nullable ContentHandler ch, @Nullable ErrorHandler eh) throws Exception {
 		Reader r = FileTool.getResourceReader(base, name);
 		try {
 			parseSAX(r, base.getName() + "/" + name, ch, eh);
@@ -64,7 +67,7 @@ public class SAXTools {
 		}
 	}
 
-	static public void parseSAX(@Nonnull Class< ? > base, @Nullable String name, @Nullable ContentHandler ch) throws Exception {
+	static public void parseSAX(@NonNull Class< ? > base, @Nullable String name, @Nullable ContentHandler ch) throws Exception {
 		DefaultErrorHandler deh = new DefaultErrorHandler();
 		parseSAX(base, name, ch, deh);
 		if(deh.hasErrors())

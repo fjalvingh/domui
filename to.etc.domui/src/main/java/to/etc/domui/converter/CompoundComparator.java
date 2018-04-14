@@ -1,8 +1,9 @@
 package to.etc.domui.converter;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * A list of comparators executed in order.
@@ -11,7 +12,7 @@ import javax.annotation.*;
  * Created on Mar 15, 2013
  */
 final public class CompoundComparator<T> implements Comparator<T> {
-	@Nonnull
+	@NonNull
 	final private List<Comparator<T>> m_list;
 
 	final private int m_descending;

@@ -1,10 +1,9 @@
 package to.etc.domui.parts;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.PageParameters;
 
 /**
  * When implemented on a NodeBase component, this can be used to accept HTTP requests that target
@@ -20,5 +19,5 @@ import to.etc.domui.state.*;
  * Created on Sep 12, 2013
  */
 public interface IComponentUrlDataProvider {
-	void provideUrlData(@Nonnull RequestContextImpl parameterSource) throws Exception;
+	void provideUrlData(@NonNull RequestContextImpl parameterSource) throws Exception;
 }

@@ -24,7 +24,8 @@
  */
 package to.etc.util;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.security.KeyFactory;
@@ -193,8 +194,8 @@ public class SecurityUtils {
 		return md.digest();
 	}
 
-	@Nonnull
-	static public String getMD5Hash(@Nonnull String in, @Nonnull String encoding) {
+	@NonNull
+	static public String getMD5Hash(@NonNull String in, @NonNull String encoding) {
 		try {
 			byte[] hash = md5Hash(in.getBytes(encoding));
 			return StringTool.toHex(hash);
@@ -224,7 +225,7 @@ public class SecurityUtils {
 		return StringTool.toHex(salt) + ";" + result;
 	}
 
-	static public boolean checkPassword(@Nonnull String encodedPassword, @Nonnull String password) {
+	static public boolean checkPassword(@NonNull String encodedPassword, @NonNull String password) {
 		String[] split = encodedPassword.split(";");
 		if(split.length != 2)
 			return false;

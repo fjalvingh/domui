@@ -24,7 +24,7 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A tablemodel that can also change it's backing data.
@@ -33,11 +33,11 @@ import javax.annotation.*;
  * Created on Dec 9, 2009
  */
 public interface IModifyableTableModel<T> {
-	void add(int index, @Nonnull T row) throws Exception;
+	void add(int index, @NonNull T row) throws Exception;
 
-	void add(@Nonnull T row) throws Exception;
+	void add(@NonNull T row) throws Exception;
 
 	T delete(int index) throws Exception;
 
-	boolean delete(@Nonnull T val) throws Exception;
+	boolean delete(@NonNull T val) throws Exception;
 }

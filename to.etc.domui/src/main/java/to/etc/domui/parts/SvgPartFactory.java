@@ -28,6 +28,7 @@ import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.PNGTranscoder;
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.parts.SvgPartFactory.SvgKey;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
@@ -37,7 +38,6 @@ import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
-import javax.annotation.Nonnull;
 import java.io.StringReader;
 import java.util.Objects;
 
@@ -49,7 +49,7 @@ import java.util.Objects;
  */
 public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+		@Override public boolean accepts(@NonNull IParameterInfo parameters) {
 			return parameters.getInputPath().endsWith(".png.svg");		}
 	};
 
@@ -101,14 +101,14 @@ public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 	}
 
 	@Override
-	public @Nonnull SvgKey decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @NonNull SvgKey decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
 		int width = PartUtil.getInt(param, "w", -1);
 		int height = PartUtil.getInt(param, "h", -1);
 		return new SvgKey(param.getThemeName(), param.getInputPath(), width, height);
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull SvgKey k, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull SvgKey k, @NonNull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Get the input as a theme-replaced resource
 		String svg = da.internalGetThemeManager().getThemeReplacedString(rdl, k.getRurl());
 

@@ -1,7 +1,6 @@
 package to.etc.util;
 
-import javax.annotation.*;
-
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.util.ExceptionClassifier.Severity;
 
 /**
@@ -15,5 +14,5 @@ import to.etc.util.ExceptionClassifier.Severity;
  * @since Jun 20, 2014
  */
 public interface IExceptionClassifier {
-	@Nonnull Severity getExceptionSeverity(@Nonnull Throwable throwable);
+	@NonNull Severity getExceptionSeverity(@NonNull Throwable throwable);
 }

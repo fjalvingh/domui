@@ -1,8 +1,13 @@
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This is a selection model that selects simple instances. It allows both single and multiple
@@ -40,7 +45,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 	}
 
 	@Override
-	public boolean acceptable(@Nonnull T value) {
+	public boolean acceptable(@NonNull T value) {
 		IAcceptable<T> acceptor = m_acceptable;
 		if(acceptor != null)
 			return acceptor.acceptable(value);
@@ -48,14 +53,14 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 	}
 
 	@Override
-	public boolean isSelected(@Nonnull T rowinstance) {
+	public boolean isSelected(@NonNull T rowinstance) {
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
 		return m_selectedSet.contains(rowinstance);
 	}
 
 	@Override
-	public void setInstanceSelected(@Nonnull T rowinstance, boolean on) throws Exception {
+	public void setInstanceSelected(@NonNull T rowinstance, boolean on) throws Exception {
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
 		if(on) {
@@ -114,7 +119,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		return m_selectedSet.iterator();
 	}
 
-	public @Nonnull
+	public @NonNull
 	Set<T> getSelectedSet() {
 		return new HashSet<T>(m_selectedSet);
 	}
@@ -132,7 +137,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 		return getSelectedSet().iterator().next();
 	}
 
-	public void setSelectedSet(@Nonnull Collection<T> in) throws Exception {
+	public void setSelectedSet(@NonNull Collection<T> in) throws Exception {
 		if(null == in) {
 			clearSelection();
 			return;

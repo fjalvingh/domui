@@ -24,23 +24,64 @@
  */
 package to.etc.domui.hibernate.model;
 
-import java.util.*;
-import java.util.concurrent.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
+import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projection;
+import org.hibernate.criterion.ProjectionList;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.Subqueries;
+import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.metadata.ClassMetadata;
+import org.hibernate.persister.collection.OneToManyPersister;
+import org.hibernate.persister.entity.AbstractEntityPersister;
+import org.hibernate.persister.entity.SingleTableEntityPersister;
+import org.hibernate.type.CollectionType;
+import org.hibernate.type.ComponentType;
+import org.hibernate.type.Type;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.qsql.QQuerySyntaxException;
+import to.etc.webapp.query.QBetweenNode;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QCriteriaQueryBase;
+import to.etc.webapp.query.QExistsSubquery;
+import to.etc.webapp.query.QFetchStrategy;
+import to.etc.webapp.query.QLiteral;
+import to.etc.webapp.query.QMultiNode;
+import to.etc.webapp.query.QMultiSelection;
+import to.etc.webapp.query.QNodeVisitor;
+import to.etc.webapp.query.QOperation;
+import to.etc.webapp.query.QOperatorNode;
+import to.etc.webapp.query.QOrder;
+import to.etc.webapp.query.QPropertyComparison;
+import to.etc.webapp.query.QPropertyIn;
+import to.etc.webapp.query.QPropertyJoinComparison;
+import to.etc.webapp.query.QPropertySelection;
+import to.etc.webapp.query.QSelection;
+import to.etc.webapp.query.QSelectionColumn;
+import to.etc.webapp.query.QSelectionItem;
+import to.etc.webapp.query.QSelectionSubquery;
+import to.etc.webapp.query.QSortOrderDirection;
+import to.etc.webapp.query.QSqlRestriction;
+import to.etc.webapp.query.QSubQuery;
+import to.etc.webapp.query.QUnaryNode;
+import to.etc.webapp.query.QUnaryProperty;
 
-import javax.annotation.*;
-
-import org.hibernate.*;
-import org.hibernate.criterion.*;
-import org.hibernate.impl.*;
-import org.hibernate.metadata.*;
-import org.hibernate.persister.collection.*;
-import org.hibernate.persister.entity.*;
-import org.hibernate.type.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.webapp.*;
-import to.etc.webapp.qsql.*;
-import to.etc.webapp.query.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 /**
  * Thingy which creates a Hibernate Criteria thingy from a generic query. This is harder than
  * it looks because the Criteria and DetachedCriteria kludge and Hibernate's metadata dungheap
@@ -129,7 +170,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitRestrictionsBase(QCriteriaQueryBase< ? > n) throws Exception {
+	public void visitRestrictionsBase(QCriteriaQueryBase<?, ?> n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(r == null)
 			return;
@@ -154,7 +195,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		checkSubqueriesUsed(n);
 	}
 
-	private void checkSubqueriesUsed(QCriteriaQueryBase<?> n) {
+	private void checkSubqueriesUsed(QCriteriaQueryBase<?, ?> n) {
 		if(n.getUnusedSubquerySet().size() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("There are ").append(n.getUnusedSubquerySet().size()).append(" subqueries that are not linked (used) in the main query!\n");
@@ -192,7 +233,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * Handle fetch selections.
 	 * @param qc
 	 */
-	private void handleFetch(QCriteriaQueryBase< ? > qc) {
+	private void handleFetch(QCriteriaQueryBase<?, ?> qc) {
 		for(Map.Entry<String, QFetchStrategy> ms : qc.getFetchStrategies().entrySet()) {
 			PropertyMetaModel< ? > pmm = MetaManager.findPropertyMeta(m_rootClass, ms.getKey());
 			if(null == pmm)
@@ -702,7 +743,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+	public void visitPropertyIn(@NonNull QPropertyIn n) throws Exception {
 		QOperatorNode rhs = n.getExpr();
 		String name = n.getProperty();
 		QLiteral lit = null;
@@ -767,7 +808,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @param compoundName
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	private String[] getPropertyColumnNamesFromLousyMetadata(AbstractEntityPersister aep, String compoundName) {
 		String name = compoundName;
 		int dotix = compoundName.lastIndexOf('.');
@@ -909,7 +950,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {
 		if(v.getParameters().length == 0) {
 			m_last = Restrictions.sqlRestriction(v.getSql());
 			return;
@@ -1170,7 +1211,6 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 
 		//-- 3. Handle fetch.
 		handleFetch(s);
-
 	}
 
 	@Override
@@ -1235,7 +1275,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @see to.etc.webapp.query.QNodeVisitor#visitSubquery(to.etc.webapp.query.QSubQuery)
 	 */
 	@Override
-	public void visitSubquery(@Nonnull final QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull final QSubQuery< ? , ? > n) throws Exception {
 		n.getParent().internalUseQuery(n);
 		visitSelection(n);
 //
@@ -1257,7 +1297,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @see to.etc.webapp.query.QNodeVisitor#visitSelectionSubquery(to.etc.webapp.query.QSelectionSubquery)
 	 */
 	@Override
-	public void visitSelectionSubquery(@Nonnull final QSelectionSubquery n) throws Exception {
+	public void visitSelectionSubquery(@NonNull final QSelectionSubquery n) throws Exception {
 		DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
 		recurseSubquery(dc, n.getSelectionQuery(), new Callable<Void>() {
 			@Override
@@ -1274,7 +1314,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @param n
 	 * @throws Exception
 	 */
-	private void recurseSubquery(@Nonnull DetachedCriteria dc, @Nonnull QSelection< ? > n, Callable<Void> callable) throws Exception {
+	private void recurseSubquery(@NonNull DetachedCriteria dc, @NonNull QSelection< ? > n, Callable<Void> callable) throws Exception {
 		//-- Recursively apply all parts to the detached thingerydoo
 		ProjectionList oldpro = m_proli;
 		m_proli = null;
@@ -1306,7 +1346,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison comparison) throws Exception {
+	public void visitPropertyJoinComparison(@NonNull QPropertyJoinComparison comparison) throws Exception {
 		String alias = m_parentAlias + "." + parseSubcriteria(comparison.getParentProperty());
 		switch(comparison.getOperation()) {
 			default:
@@ -1339,13 +1379,13 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
+	public void visitOrderList(@NonNull List<QOrder> orderlist) throws Exception {
 		for(QOrder o : orderlist)
 			o.visit(this);
 	}
 
-	public void visitSelectionColumns(@Nonnull QSelection< ? > s) throws Exception {
-		for(@Nonnull QSelectionColumn col : s.getColumnList())
+	public void visitSelectionColumns(@NonNull QSelection< ? > s) throws Exception {
+		for(@NonNull QSelectionColumn col : s.getColumnList())
 			col.visit(this);
 	}
 }

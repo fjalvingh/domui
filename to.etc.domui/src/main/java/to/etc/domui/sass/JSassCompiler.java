@@ -6,13 +6,13 @@ import io.bit3.jsass.Output;
 import io.bit3.jsass.OutputStyle;
 import io.bit3.jsass.context.StringContext;
 import io.bit3.jsass.importer.Import;
+import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.Writer;
 import java.util.Collections;
@@ -24,7 +24,7 @@ import java.util.Collections;
 public class JSassCompiler implements ISassCompiler {
 	static private final Logger LOG = LoggerFactory.getLogger(JSassCompiler.class);
 
-	@Override public void compiler(String rurl, Writer output, @Nonnull ParameterInfoImpl params, @Nonnull IResourceDependencyList rdl) throws Exception {
+	@Override public void compiler(String rurl, Writer output, @NonNull ParameterInfoImpl params, @NonNull IResourceDependencyList rdl) throws Exception {
 		/*
 		 * Define resolvers: these resolve "filenames" in the scss to resources in the webapp.
 		 */

@@ -1,27 +1,27 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import java.util.Set;
 
 public interface IFbComponent {
-	@Nonnull String getTypeID();
+	@NonNull String getTypeID();
 
-	void drawSelector(@Nonnull NodeContainer container) throws Exception;
+	void drawSelector(@NonNull NodeContainer container) throws Exception;
 
-	@Nonnull String getShortName();
+	@NonNull String getShortName();
 
-	@Nonnull String getLongName();
+	@NonNull String getLongName();
 
-	@Nonnull String getCategoryName();
+	@NonNull String getCategoryName();
 
-	@Nonnull NodeBase createNodeInstance() throws Exception;
+	@NonNull NodeBase createNodeInstance() throws Exception;
 
 	/**
 	 * Return all properties for this component.
 	 * @return
 	 */
-	@Nonnull Set<PropertyDefinition> getProperties();
+	@NonNull Set<PropertyDefinition> getProperties();
 }

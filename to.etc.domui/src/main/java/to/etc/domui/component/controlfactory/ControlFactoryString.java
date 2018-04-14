@@ -24,12 +24,12 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.misc.DisplayValue;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 
 /**
@@ -40,13 +40,12 @@ import java.math.BigDecimal;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 5, 2017
  */
-@SuppressWarnings("unchecked")
 public class ControlFactoryString implements PropertyControlFactory {
 	/**
 	 * Accept any type using a string.
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public int accepts(final @NonNull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(controlClass != null) {
 			if(!controlClass.isAssignableFrom(Text2.class) && !controlClass.isAssignableFrom(DisplayValue.class))
 				return -1;
@@ -55,7 +54,7 @@ public class ControlFactoryString implements PropertyControlFactory {
 	}
 
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public @NonNull <T> ControlFactoryResult createControl(final @NonNull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		Class<T> iclz = pmm.getActualType();
 		//if(!editable) {
 		//	/*

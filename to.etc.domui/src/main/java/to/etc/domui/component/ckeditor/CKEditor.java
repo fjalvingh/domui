@@ -24,18 +24,25 @@
  */
 package to.etc.domui.component.ckeditor;
 
-import to.etc.domui.component.htmleditor.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.misc.MsgBox.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.htmleditor.IEditorFileSystem;
+import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.component.misc.MsgBox.IAnswer;
+import to.etc.domui.component.misc.MsgBox.Type;
+import to.etc.domui.component.misc.MsgBoxButton;
+import to.etc.domui.component.misc.OddCharacters;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.VisibilityType;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
+import to.etc.webapp.nls.NlsContext;
 
 /**
  * This represents a CKEditor instance.
@@ -51,7 +58,7 @@ public class CKEditor extends TextArea {
 	@Nullable
 	private String m_vn;
 
-	@Nonnull
+	@NonNull
 	private CKToolbarSet m_toolbarSet = CKToolbarSet.DOMUI;
 
 	private IEditorFileSystem m_fileSystem; //not in use?
@@ -62,10 +69,10 @@ public class CKEditor extends TextArea {
 	@Nullable
 	private IClicked<NodeBase> m_onDomuiOddCharsClicked;
 
-	@Nonnull
+	@NonNull
 	private static final String WEBUI_CK_DOMUIIMAGE_ACTION = "CKIMAGE";
 
-	@Nonnull
+	@NonNull
 	private static final String WEBUI_CK_DOMUIODDCHAR_ACTION = "CKODDCHAR";
 
 	private boolean m_toolbarStartExpanded = true;
@@ -161,7 +168,7 @@ public class CKEditor extends TextArea {
 		m_internalHeight = height;
 	}
 
-	private void appendOption(@Nonnull final StringBuilder sb, @Nonnull final String option, @Nonnull final String value) {
+	private void appendOption(@NonNull final StringBuilder sb, @NonNull final String option, @NonNull final String value) {
 		sb.append(m_vn).append(".").append(option).append(" = ");
 		try {
 			StringTool.strToJavascriptString(sb, value, true);
@@ -171,12 +178,12 @@ public class CKEditor extends TextArea {
 		sb.append(";");
 	}
 
-	@Nonnull
+	@NonNull
 	public CKToolbarSet getToolbarSet() {
 		return m_toolbarSet;
 	}
 
-	public void setToolbarSet(@Nonnull final CKToolbarSet toolbarSet) {
+	public void setToolbarSet(@NonNull final CKToolbarSet toolbarSet) {
 		if(DomUtil.isEqual(toolbarSet, m_toolbarSet))
 			return;
 		m_toolbarSet = toolbarSet;
@@ -203,7 +210,7 @@ public class CKEditor extends TextArea {
 	 * @see to.etc.domui.dom.html.Div#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if(WEBUI_CK_DOMUIIMAGE_ACTION.equals(action))
 			selectImage(ctx);
 		else if(WEBUI_CK_DOMUIODDCHAR_ACTION.equals(action))
@@ -212,7 +219,7 @@ public class CKEditor extends TextArea {
 			super.componentHandleWebAction(ctx, action);
 	}
 
-	private void selectImage(@Nonnull RequestContextImpl ctx) throws Exception {
+	private void selectImage(@NonNull RequestContextImpl ctx) throws Exception {
 		IClicked<NodeBase> clicked = m_onDomuiImageClicked;
 		if(clicked == null) {
 			MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
@@ -226,7 +233,7 @@ public class CKEditor extends TextArea {
 		}
 	}
 
-	private void oddChars(@Nonnull RequestContextImpl ctx) throws Exception {
+	private void oddChars(@NonNull RequestContextImpl ctx) throws Exception {
 		IClicked<NodeBase> clicked = m_onDomuiOddCharsClicked;
 		if(clicked == null) {
 			//if no other handler is specified we show framework default OddCharacters dialog
@@ -234,7 +241,7 @@ public class CKEditor extends TextArea {
 			oddChars.setOnClose(new IWindowClosed() {
 
 				@Override
-				public void closed(@Nonnull String closeReason) throws Exception {
+				public void closed(@NonNull String closeReason) throws Exception {
 					CKEditor.this.renderCloseOddCharacters();
 				}
 			});
@@ -244,7 +251,7 @@ public class CKEditor extends TextArea {
 		}
 	}
 
-	public void renderImageSelected(@Nonnull String url) {
+	public void renderImageSelected(@NonNull String url) {
 		appendJavascript("CkeditorDomUIImage.addImage('" + getActualID() + "', '" + url + "');");
 	}
 
@@ -256,7 +263,7 @@ public class CKEditor extends TextArea {
 		appendJavascript("CkeditorDomUIOddChar.cancel('" + getActualID() + "');");
 	}
 
-	public void renderOddCharacters(@Nonnull String input) {
+	public void renderOddCharacters(@NonNull String input) {
 		appendJavascript("CkeditorDomUIOddChar.addString('" + getActualID() + "', '" + input + "');");
 	}
 
@@ -265,7 +272,7 @@ public class CKEditor extends TextArea {
 		return m_onDomuiImageClicked;
 	}
 
-	public void setOnDomuiImageClicked(@Nonnull IClicked<NodeBase> onDomuiImageClicked) {
+	public void setOnDomuiImageClicked(@NonNull IClicked<NodeBase> onDomuiImageClicked) {
 		m_onDomuiImageClicked = onDomuiImageClicked;
 	}
 
@@ -274,7 +281,7 @@ public class CKEditor extends TextArea {
 		return m_onDomuiOddCharsClicked;
 	}
 
-	public void setOnDomuiOddCharsClicked(@Nonnull IClicked<NodeBase> onDomuiOddCharsClicked) {
+	public void setOnDomuiOddCharsClicked(@NonNull IClicked<NodeBase> onDomuiOddCharsClicked) {
 		m_onDomuiOddCharsClicked = onDomuiOddCharsClicked;
 	}
 
@@ -287,7 +294,7 @@ public class CKEditor extends TextArea {
 	}
 
 	@Override
-	public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+	public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
 		if(isDisabled()) {
 			return false;
 		}
@@ -307,7 +314,7 @@ public class CKEditor extends TextArea {
 	}
 
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	public void onRemoveFromPage(Page p) {
 		super.onRemoveFromPage(p);
 		appendJavascript("WebUI.unregisterCkEditorId('" + getActualID() + "');");

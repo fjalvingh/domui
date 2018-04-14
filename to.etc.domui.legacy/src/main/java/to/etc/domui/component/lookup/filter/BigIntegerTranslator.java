@@ -1,13 +1,13 @@
 package to.etc.domui.component.lookup.filter;
 
-import java.math.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.w3c.dom.Node;
+import to.etc.webapp.query.QDataContext;
+import to.etc.xml.DomTools;
+import to.etc.xml.XmlWriter;
 
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
-import to.etc.webapp.query.*;
-import to.etc.xml.*;
+import java.math.BigInteger;
 
 /**
  *  Translates a BigInteger value to XML and vice versa
@@ -15,7 +15,7 @@ import to.etc.xml.*;
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since 2/8/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 final class BigIntegerTranslator implements ITranslator<BigInteger> {
 
 	@Nullable

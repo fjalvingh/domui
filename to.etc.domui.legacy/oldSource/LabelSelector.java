@@ -13,8 +13,8 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,13 +34,13 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 
 	private static final int MAX_LABELS_IN_TOOLTIP = 10;
 
-	@Nonnull
+	@NonNull
 	private Class<T> m_actualClass;
 
-	@Nonnull
+	@NonNull
 	private List<T> m_labelList = new ArrayList<T>();
 
-	@Nonnull
+	@NonNull
 	final private Map<T, Span> m_divMap = new HashMap<T, Span>();
 
 	@Nullable
@@ -51,22 +51,22 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 
 	public interface ISearch<T> {
 		@Nullable
-		T find(@Nonnull String name) throws Exception;
+		T find(@NonNull String name) throws Exception;
 
-		@Nonnull
-		List<T> findLike(@Nonnull String input, int i) throws Exception;
+		@NonNull
+		List<T> findLike(@NonNull String input, int i) throws Exception;
 	}
 
 	public interface INew<T> {
 		@Nullable
-		T create(@Nonnull String name) throws Exception;
+		T create(@NonNull String name) throws Exception;
 	}
 
 	public interface IAllow<T> {
-		boolean allowSelection(@Nonnull T instance) throws Exception;
+		boolean allowSelection(@NonNull T instance) throws Exception;
 	}
 
-	@Nonnull
+	@NonNull
 	final private ISearch<T> m_search;
 
 	@Nullable
@@ -82,7 +82,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 
 	private boolean m_defaultTooltip = true;
 
-	public LabelSelector(@Nonnull Class<T> clz, @Nonnull ISearch<T> search) {
+	public LabelSelector(@NonNull Class<T> clz, @NonNull ISearch<T> search) {
 		m_actualClass = clz;
 		m_search = search;
 		setCssClass("ui-lsel");
@@ -209,7 +209,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 		addLabelOnInput(sel);					// Just add the thingy.
 	}
 
-	private void addLabelOnInput(@Nonnull T instance) throws Exception {
+	private void addLabelOnInput(@NonNull T instance) throws Exception {
 		if(m_divMap.containsKey(instance))
 			return;
 
@@ -228,7 +228,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	 * @param instance
 	 * @throws Exception
 	 */
-	public void addItem(@Nonnull T instance) throws Exception {
+	public void addItem(@NonNull T instance) throws Exception {
 		addLabel(instance);										// Just add the thingy.
 	}
 
@@ -236,7 +236,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 		m_instanceFactory = instanceFactory;
 	}
 
-	private void addLabel(@Nonnull T instance) throws Exception {
+	private void addLabel(@NonNull T instance) throws Exception {
 		if(m_divMap.containsKey(instance))
 			return;
 		m_labelList.add(instance);
@@ -253,7 +253,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	 * @param instance
 	 * @throws Exception
 	 */
-	public void removeItem(@Nonnull T instance) throws Exception {
+	public void removeItem(@NonNull T instance) throws Exception {
 		Span span = m_divMap.get(instance);
 		if(span == null)
 			return;
@@ -263,7 +263,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 	}
 
 
-	private Span createLabel(@Nonnull final T lbl) throws Exception {
+	private Span createLabel(@NonNull final T lbl) throws Exception {
 		final Span d = new Span();
 		m_divMap.put(lbl, d);
 		d.setCssClass("ui-lsel-item");
@@ -280,7 +280,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 			d.add(btn);
 			btn.setClicked(new IClicked<Div>() {
 				@Override
-				public void clicked(@Nonnull Div clickednode) throws Exception {
+				public void clicked(@NonNull Div clickednode) throws Exception {
 					d.remove();
 					m_labelList.remove(lbl);
 					m_divMap.remove(lbl);
@@ -328,13 +328,13 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 		forceRebuild();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<T> getValue() {
 		return new ArrayList<T>(m_labelList);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<T> getValueSafe() {
 		return getValue();
@@ -400,7 +400,7 @@ public class LabelSelector<T> extends Div implements IControl<List<T>>, ITypedCo
 		m_defaultTooltip = defaultTooltip;
 	}
 
-	@Nonnull @Override public Class<T> getActualType() {
+	@NonNull @Override public Class<T> getActualType() {
 		return m_actualClass;
 	}
 

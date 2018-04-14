@@ -24,9 +24,9 @@
  */
 package to.etc.webapp.qsql;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.sql.Connection;
 
 /**
  * IN OUT parameter definition when calling oracle function/stored procedure that has IN OUT params.<BR/>
@@ -37,7 +37,7 @@ import javax.annotation.*;
  * Created on Sep 24, 2010
  */
 public class JdbcInOutParam<T> extends JdbcOutParam<T> {
-	public JdbcInOutParam(@Nonnull Class<T> classType, T value) {
+	public JdbcInOutParam(@NonNull Class<T> classType, T value) {
 		super(classType);
 		setValue(value);
 	}

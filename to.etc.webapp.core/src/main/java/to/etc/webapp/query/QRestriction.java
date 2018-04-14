@@ -24,9 +24,10 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.List;
 
 /**
  * Factory for creating syntax tree nodes.
@@ -37,12 +38,12 @@ import javax.annotation.*;
 public class QRestriction {
 	private QRestriction() {}
 
-	@Nonnull
+	@NonNull
 	static public final QMultiNode and(QOperatorNode... list) {
 		return new QMultiNode(QOperation.AND, list);
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QMultiNode or(QOperatorNode... list) {
 		return new QMultiNode(QOperation.OR, list);
 	}
@@ -54,147 +55,147 @@ public class QRestriction {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison eq(String property, Object value) {
 		return new QPropertyComparison(QOperation.EQ, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison eq(String property, long value) {
 		return new QPropertyComparison(QOperation.EQ, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison eq(String property, double value) {
 		return new QPropertyComparison(QOperation.EQ, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison ne(String property, Object value) {
 		return new QPropertyComparison(QOperation.NE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison ne(String property, long value) {
 		return new QPropertyComparison(QOperation.NE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison ne(String property, double value) {
 		return new QPropertyComparison(QOperation.NE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison gt(String property, Object value) {
 		return new QPropertyComparison(QOperation.GT, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison gt(String property, long value) {
 		return new QPropertyComparison(QOperation.GT, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison gt(String property, double value) {
 		return new QPropertyComparison(QOperation.GT, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison lt(String property, Object value) {
 		return new QPropertyComparison(QOperation.LT, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison lt(String property, long value) {
 		return new QPropertyComparison(QOperation.LT, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison lt(String property, double value) {
 		return new QPropertyComparison(QOperation.LT, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison ge(String property, Object value) {
 		return new QPropertyComparison(QOperation.GE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison ge(String property, long value) {
 		return new QPropertyComparison(QOperation.GE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison ge(String property, double value) {
 		return new QPropertyComparison(QOperation.GE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison le(String property, Object value) {
 		return new QPropertyComparison(QOperation.LE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison le(String property, long value) {
 		return new QPropertyComparison(QOperation.LE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QPropertyComparison le(String property, double value) {
 		return new QPropertyComparison(QOperation.LE, property, createValueNode(value));
 	}
 
-	@Nonnull
-	static public final QPropertyComparison like(String property, Object value) {
+	@NonNull
+	static public final QPropertyComparison like(String property, String value) {
 		return new QPropertyComparison(QOperation.LIKE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QBetweenNode between(String property, Object a, Object b) {
 		return new QBetweenNode(QOperation.BETWEEN, property, createValueNode(a), createValueNode(b));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QBetweenNode between(String property, long a, long b) {
 		return new QBetweenNode(QOperation.BETWEEN, property, createValueNode(a), createValueNode(b));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QBetweenNode between(String property, double a, double b) {
 		return new QBetweenNode(QOperation.BETWEEN, property, createValueNode(a), createValueNode(b));
 	}
 
-	@Nonnull
-	static public final QPropertyComparison ilike(String property, Object value) {
+	@NonNull
+	static public final QPropertyComparison ilike(String property, String value) {
 		return new QPropertyComparison(QOperation.ILIKE, property, createValueNode(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QUnaryProperty isnull(String property) {
 		return new QUnaryProperty(QOperation.ISNULL, property);
 	}
 
-	@Nonnull
+	@NonNull
 	static public final QUnaryProperty isnotnull(String property) {
 		return new QUnaryProperty(QOperation.ISNOTNULL, property);
 	}
 
-	@Nonnull
+	@NonNull
 	static public final <V> QPropertyIn in(String property, List<V> list) {
 		return new QPropertyIn(QOperation.IN, property, createValueNode(list));
 	}
-	@Nonnull
+	@NonNull
 	static public final <V> QPropertyIn in(String property, QSelection<V> subQuery) {
 		return new QPropertyIn(QOperation.IN, property, createValueNode(subQuery));
 	}
 
-	@Nonnull
-	static public final QSqlRestriction sqlCondition(@Nonnull String sql) {
+	@NonNull
+	static public final QSqlRestriction sqlCondition(@NonNull String sql) {
 		return new QSqlRestriction(sql, new Object[0]);
 	}
 
-	@Nonnull
-	static public final QSqlRestriction sqlCondition(@Nonnull String sql, @Nonnull Object[] param) {
+	@NonNull
+	static public final QSqlRestriction sqlCondition(@NonNull String sql, @NonNull Object[] param) {
 		return new QSqlRestriction(sql, param);
 	}
 
@@ -203,7 +204,7 @@ public class QRestriction {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public QOperatorNode createValueNode(@Nullable Object value) {
 		if(value instanceof QOperatorNode) {
 			return (QOperatorNode) value;
@@ -213,12 +214,12 @@ public class QRestriction {
 		return new QLiteral(value);
 	}
 
-	@Nonnull
+	@NonNull
 	static private QOperatorNode createValueNode(long value) {
 		return new QLiteral(Long.valueOf(value));
 	}
 
-	@Nonnull
+	@NonNull
 	static private QOperatorNode createValueNode(double value) {
 		return new QLiteral(Double.valueOf(value));
 	}

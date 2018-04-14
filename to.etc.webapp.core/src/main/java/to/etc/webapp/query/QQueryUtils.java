@@ -1,18 +1,23 @@
 package to.etc.webapp.query;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.RuntimeConversions;
+import to.etc.webapp.qsql.QQuerySyntaxException;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
-import to.etc.webapp.qsql.*;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 final public class QQueryUtils {
 	private QQueryUtils() {}
 
-	@Nonnull
-	static public <R> List<R> mapSelectionQuery(@Nonnull QDataContext dc, @Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+	@NonNull
+	static public <R> List<R> mapSelectionQuery(@NonNull QDataContext dc, @NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
 		if(!resultInterface.isInterface())
 			throw new IllegalArgumentException(resultInterface + " must be an interface");
 
@@ -32,7 +37,7 @@ final public class QQueryUtils {
 	}
 
 	@Nullable
-	static public <R> R mapSelectionOneQuery(@Nonnull QDataContext dc, @Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+	static public <R> R mapSelectionOneQuery(@NonNull QDataContext dc, @NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
 		if(!resultInterface.isInterface())
 			throw new IllegalArgumentException(resultInterface + " must be an interface");
 
@@ -50,15 +55,15 @@ final public class QQueryUtils {
 
 		final private Class<T>[] m_resultInterface;
 
-		public ProxyFactory(@Nonnull ClassLoader cl, @Nonnull Map<Method, Integer> imap, @Nonnull Class<T> resultInterface) {
+		public ProxyFactory(@NonNull ClassLoader cl, @NonNull Map<Method, Integer> imap, @NonNull Class<T> resultInterface) {
 			m_cl = cl;
 			m_imap = imap;
 			m_resultInterface = new Class[1];
 			m_resultInterface[0] = resultInterface;
 		}
 
-		@Nonnull
-		public T createInstance(@Nonnull final Object[] row) {
+		@NonNull
+		public T createInstance(@NonNull final Object[] row) {
 			return (T) Proxy.newProxyInstance(m_cl, m_resultInterface, new InvocationHandler() {
 				@Override
 				public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -72,7 +77,7 @@ final public class QQueryUtils {
 		}
 	}
 
-	static private <T> ProxyFactory<T> createResultFactory(@Nonnull Class<T> resultInterface) {
+	static private <T> ProxyFactory<T> createResultFactory(@NonNull Class<T> resultInterface) {
 		//-- Get all defined methods in order.
 		Map<Method, Integer> imap = new HashMap<Method, Integer>();
 		Method[] mar = resultInterface.getDeclaredMethods();
@@ -96,7 +101,7 @@ final public class QQueryUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static <K, T extends IIdentifyable<K>> int queryCount(@Nonnull QDataContext dc, @Nonnull QCriteria<T> q) throws Exception {
+	public static <K, T extends IIdentifyable<K>> int queryCount(@NonNull QDataContext dc, @NonNull QCriteria<T> q) throws Exception {
 		QSelection<T> rest = QSelection.create(q.getBaseClass());
 		rest.setRestrictions(q.getRestrictions());
 		rest.count("id");

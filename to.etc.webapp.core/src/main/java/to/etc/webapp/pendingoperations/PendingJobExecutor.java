@@ -1,10 +1,10 @@
 package to.etc.webapp.pendingoperations;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.util.ILogSink;
 import to.etc.util.IProgressListener;
 import to.etc.util.Progress;
 
-import javax.annotation.Nonnull;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -23,7 +23,7 @@ public class PendingJobExecutor implements Runnable {
 	static public void register() {
 		PendingOperationTaskProvider.getInstance().registerPendingOperationType("PJEX", new IPendingOperationExecutor() {
 			@Override
-			public void executePendingOperation(final @Nonnull PendingOperation po, final @Nonnull ILogSink ls) throws Exception {
+			public void executePendingOperation(final @NonNull PendingOperation po, final @NonNull ILogSink ls) throws Exception {
 				new PendingJobExecutor(po, ls).run();
 			}
 		});
@@ -112,7 +112,7 @@ public class PendingJobExecutor implements Runnable {
 			}
 
 			@Override
-			public void progressed(@Nonnull Progress level) throws Exception {
+			public void progressed(@NonNull Progress level) throws Exception {
 				if(doUpdate(level)) {
 					getPendingOperation().setProgressPath(level.getActionPath(3));
 					getPendingOperation().setProgressPercentage(level.getPercentage());

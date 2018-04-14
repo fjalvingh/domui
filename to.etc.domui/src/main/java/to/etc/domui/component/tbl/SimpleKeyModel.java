@@ -1,8 +1,10 @@
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Model for key-value list data.
@@ -41,7 +43,7 @@ public abstract class SimpleKeyModel<T, P> extends TableModelBase<T> implements 
 	}
 
 	@Override
-	public @Nonnull List<T> getItems(int start, int end) throws Exception {
+	public @NonNull List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
 		if(start < 0)
 			start = 0;

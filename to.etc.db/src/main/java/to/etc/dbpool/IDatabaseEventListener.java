@@ -1,8 +1,8 @@
 package to.etc.dbpool;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.sql.Connection;
 
 /**
  * Gets called on database-connection related events. Calling is a best effort. Calls can be done more than once.
@@ -17,19 +17,19 @@ public interface IDatabaseEventListener {
 	 * @param dbc
 	 * @throws Exception
 	 */
-	void onBeforeRelease(@Nonnull Connection dbc) throws Exception;
+	void onBeforeRelease(@NonNull Connection dbc) throws Exception;
 
 	/**
 	 * Called when a commit has been done <b>and has been succesful</b> (meaning no exception was thrown).
 	 * @param dbc
 	 * @throws Exception
 	 */
-	void onAfterCommit(@Nonnull Connection dbc) throws Exception;
+	void onAfterCommit(@NonNull Connection dbc) throws Exception;
 
 	/**
 	 * Called when a rollback has been done <b>and has been succesful</b> (meaning no exception was thrown).
 	 * @param dbc
 	 * @throws Exception
 	 */
-	void onAfterRollback(@Nonnull Connection dbc) throws Exception;
+	void onAfterRollback(@NonNull Connection dbc) throws Exception;
 }

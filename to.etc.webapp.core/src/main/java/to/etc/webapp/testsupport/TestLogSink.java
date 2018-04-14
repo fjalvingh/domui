@@ -1,10 +1,11 @@
 package to.etc.webapp.testsupport;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.util.ILogSink;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.io.IOException;
 
 /**
  * This is a log sink for test classes. It will log it's output into a local stringbuilder that
@@ -36,7 +37,7 @@ public class TestLogSink implements ILogSink {
 	}
 
 	@Override
-	public void log(@Nonnull String msg) {
+	public void log(@NonNull String msg) {
 		m_sb.append(msg).append("\n");
 		if(m_link != null) {
 			try {
@@ -49,7 +50,7 @@ public class TestLogSink implements ILogSink {
 	}
 
 	@Override
-	public void exception(@Nonnull Throwable t, @Nonnull String msg) {
+	public void exception(@NonNull Throwable t, @NonNull String msg) {
 		m_sb.append(msg).append("\n");
 		StringTool.strStacktrace(m_sb, t);
 		if(m_link != null) {

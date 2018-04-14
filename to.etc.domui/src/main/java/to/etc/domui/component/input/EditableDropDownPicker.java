@@ -1,15 +1,18 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.event.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.event.INotifyEvent;
 import to.etc.domui.component.input.DropDownPicker.HAlign;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.NlsContext;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Encapsulates AutocompleteText and drop down picker into single component. Input behaves as autocomplete field that does search on select inside select within drop down picker.
@@ -25,13 +28,13 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	@Nullable
 	private DropDownPicker<T> m_picker;
 
-	@Nonnull
+	@NonNull
 	private List<T> m_data = Collections.EMPTY_LIST;
 
 	@Nullable
 	private String m_dropDownIcon;
 
-	@Nonnull
+	@NonNull
 	private HAlign m_halign = DropDownPicker.HAlign.LEFT;
 
 	@Nullable
@@ -40,7 +43,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	@Nullable
 	private T m_object;
 
-	@Nonnull
+	@NonNull
 	private final Class<T> m_type;
 
 	/**
@@ -54,7 +57,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 *
 	 * @param type
 	 */
-	public EditableDropDownPicker(@Nonnull Class<T> type) {
+	public EditableDropDownPicker(@NonNull Class<T> type) {
 		super();
 		m_type = type;
 	}
@@ -66,7 +69,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 * @param dropDownIcon
 	 * @param toStringConverter In case of T = String, toStringConverter can be left null, otherwise it needs to be specified.
 	 */
-	public EditableDropDownPicker(@Nonnull Class<T> type, @Nonnull List<T> data, @Nonnull String dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
+	public EditableDropDownPicker(@NonNull Class<T> type, @NonNull List<T> data, @NonNull String dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
 		this(type);
 		m_data = data;
 		m_dropDownIcon = dropDownIcon;
@@ -89,7 +92,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		picker.setAlignmentBase(this);
 		picker.setOnBeforeShow(new INotifyEvent<DropDownPicker<T>, ComboLookup<T>>() {
 			@Override
-			public void onNotify(@Nonnull DropDownPicker<T> sender, @Nullable ComboLookup<T> combo) throws Exception {
+			public void onNotify(@NonNull DropDownPicker<T> sender, @Nullable ComboLookup<T> combo) throws Exception {
 				String text = getValueSafe();
 				clearMessage();
 				adjustSelection(combo, text);
@@ -99,7 +102,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		picker.setOnValueChanged(new IValueChanged<DropDownPicker<T>>() {
 
 			@Override
-			public void onValueChanged(@Nonnull DropDownPicker<T> component) throws Exception {
+			public void onValueChanged(@NonNull DropDownPicker<T> component) throws Exception {
 				T value = m_object = component.getValueSafe();
 				setValue(convertObjectToString(NlsContext.getCurrencyLocale(), value));
 				IValueChanged<EditableDropDownPicker<T>> onValueChanged = (IValueChanged<EditableDropDownPicker<T>>) EditableDropDownPicker.this.getOnValueChanged();
@@ -145,7 +148,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	/**
 	 * Gets picker select options.
 	 */
-	public @Nonnull
+	public @NonNull
 	List<T> getData() {
 		return m_data;
 	}
@@ -154,7 +157,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 * Sets data that is used for picker select options.
 	 * @param data
 	 */
-	private void setData(@Nonnull List<T> data) {
+	private void setData(@NonNull List<T> data) {
 		if(m_data != data) {
 			m_data = data;
 			if(null != m_picker) {
@@ -169,7 +172,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 * @param data
 	 * @throws Exception 
 	 */
-	public void updateData(@Nonnull List<T> data) throws Exception {
+	public void updateData(@NonNull List<T> data) throws Exception {
 		setData(data);
 		initSelectSizeAndValue();
 	}
@@ -206,12 +209,12 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		}
 	}
 
-	public @Nonnull
+	public @NonNull
 	HAlign getHalign() {
 		return m_halign;
 	}
 
-	public void setHalign(@Nonnull HAlign halign) {
+	public void setHalign(@NonNull HAlign halign) {
 		m_halign = halign;
 		if(m_picker != null) {
 			m_picker.setHalign(halign);

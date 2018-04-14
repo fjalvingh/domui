@@ -1,5 +1,6 @@
 package to.etc.domui.log;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -29,7 +30,6 @@ import to.etc.log.handler.EtcLogFormat;
 import to.etc.log.handler.LogFilterType;
 import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.Nonnull;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -160,7 +160,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	protected void createCommitButton() {
 		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton b) throws Exception {
+			public void clicked(@NonNull DefaultButton b) throws Exception {
 				save();
 			}
 		});
@@ -172,7 +172,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	protected void createCancelButton() {
 		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton b) throws Exception {
+			public void clicked(@NonNull DefaultButton b) throws Exception {
 				reloadPageData();
 			}
 		});

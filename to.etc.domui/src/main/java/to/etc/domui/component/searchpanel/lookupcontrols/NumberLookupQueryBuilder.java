@@ -1,12 +1,12 @@
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QLiteral;
 import to.etc.webapp.query.QOperation;
 import to.etc.webapp.query.QPropertyComparison;
 import to.etc.webapp.query.QUnaryProperty;
 
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.Set;
 

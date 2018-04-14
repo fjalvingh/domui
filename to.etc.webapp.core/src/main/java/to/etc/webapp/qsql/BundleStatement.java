@@ -1,8 +1,10 @@
 package to.etc.webapp.qsql;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 /**
  * A SQL statement that comes from a {@link SQLBundle}, which can be prepared and executed.
@@ -11,7 +13,7 @@ import javax.annotation.*;
  * Created on Dec 16, 2011
  */
 final public class BundleStatement {
-	@Nonnull
+	@NonNull
 	private String m_stmt;
 
 	private int[][] m_parameterar;
@@ -21,8 +23,8 @@ final public class BundleStatement {
 		m_parameterar = nar;
 	}
 
-	@Nonnull
-	static BundleStatement create(@Nonnull String sql) {
+	@NonNull
+	static BundleStatement create(@NonNull String sql) {
 		//-- Split the statement to get all parameters.
 		StringBuilder sb = new StringBuilder();
 		int ix = 0;
@@ -124,7 +126,7 @@ final public class BundleStatement {
 	 * @param parameters
 	 * @throws SQLException
 	 */
-	public void assignParameters(PreparedStatement ps, @Nonnull Object... parameters) throws SQLException {
+	public void assignParameters(PreparedStatement ps, @NonNull Object... parameters) throws SQLException {
 		if(parameters.length < m_parameterar.length)
 			throw new SQLException("Incorrect parameter count: you provided " + parameters.length + " but the statement needs " + m_parameterar.length);
 		for(int i = 0; i < m_parameterar.length; i++) {

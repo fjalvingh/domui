@@ -1,11 +1,14 @@
 package to.etc.domui.dom.webaction;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.RequestContextImpl;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This factory-based web action registry finds a handler method to use for a web action, i.e.
@@ -16,31 +19,31 @@ import to.etc.domui.server.*;
  */
 public class WebActionRegistry {
 	public interface IFactory {
-		@Nullable IWebActionHandler createHandler(@Nonnull Class<? extends NodeBase> node, @Nonnull String actionCode);
+		@Nullable IWebActionHandler createHandler(@NonNull Class<? extends NodeBase> node, @NonNull String actionCode);
 	}
 
-	@Nonnull
+	@NonNull
 	final private List<IFactory> m_factoryList = new ArrayList<IFactory>();
 
-	@Nonnull
+	@NonNull
 	static private final IWebActionHandler DUMMY = new IWebActionHandler() {
 		@Override
-		public void handleWebAction(@Nonnull NodeBase node, @Nonnull RequestContextImpl context, boolean responseExpected) throws Exception {
+		public void handleWebAction(@NonNull NodeBase node, @NonNull RequestContextImpl context, boolean responseExpected) throws Exception {
 			throw new IllegalStateException("Stop calling me!");
 		}
 	};
 
-	@Nonnull
+	@NonNull
 	private final Map<Class< ? extends NodeBase>, Map<String, IWebActionHandler>> m_map = new HashMap<Class< ? extends NodeBase>, Map<String, IWebActionHandler>>();
 
 	public WebActionRegistry() {}
 
-	public synchronized void register(@Nonnull IFactory f) {
+	public synchronized void register(@NonNull IFactory f) {
 		m_factoryList.add(f);
 	}
 
 	@Nullable
-	public synchronized IWebActionHandler findActionHandler(@Nonnull Class< ? extends NodeBase> node, @Nonnull String actionCode) {
+	public synchronized IWebActionHandler findActionHandler(@NonNull Class< ? extends NodeBase> node, @NonNull String actionCode) {
 		Map<String, IWebActionHandler> map = m_map.get(node);
 		if(null != map) {
 			IWebActionHandler ah = map.get(actionCode);

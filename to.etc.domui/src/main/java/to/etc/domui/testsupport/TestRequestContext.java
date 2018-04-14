@@ -24,6 +24,8 @@
  */
 package to.etc.domui.testsupport;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
@@ -40,8 +42,6 @@ import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencies;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -73,7 +73,7 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public @Nonnull DomApplication getApplication() {
+	public @NonNull DomApplication getApplication() {
 		if(m_app == null)
 			m_app = new DomApplication() {
 				@Override
@@ -85,14 +85,14 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public @Nonnull WindowSession getWindowSession() {
+	public @NonNull WindowSession getWindowSession() {
 		if(m_conversationManager == null)
 			m_conversationManager = new WindowSession(getSession());
 		return m_conversationManager;
 	}
 
 	@Override
-	public @Nonnull String getExtension() {
+	public @NonNull String getExtension() {
 		int pos = m_input.lastIndexOf('.');
 		if(pos == -1)
 			return "";
@@ -100,25 +100,25 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public @Nonnull String getInputPath() {
+	public @NonNull String getInputPath() {
 		return m_input;
 	}
 
 	@Override
-	@Nonnull
-	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
+	@NonNull
+	public Writer getOutputWriter(@NonNull String contentType, @Nullable String encoding) throws IOException {
 		if(m_sw == null)
 			m_sw = new StringWriter();
 		return m_sw;
 	}
 
 	@Override
-	public @Nonnull String getRelativePath(final @Nonnull String rel) {
+	public @NonNull String getRelativePath(final @NonNull String rel) {
 		return "webapp/" + rel;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public AppSession getSession() {
 		if(m_session == null)
 			m_session = new AppSession(getApplication());
@@ -131,7 +131,7 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	public String getParameter(final @Nonnull String name) {
+	public String getParameter(final @NonNull String name) {
 		String[] v = getParameters(name);
 		if(v == null || v.length != 1)
 			return null;
@@ -139,14 +139,14 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
 	@Override
-	@Nonnull
-	public String[] getParameters(final @Nonnull String name) {
+	@NonNull
+	public String[] getParameters(final @NonNull String name) {
 		String[] strings = m_parameterMap.get(name);
 		return strings == null ? new String[0] : strings;
 	}
@@ -157,7 +157,7 @@ public class TestRequestContext implements IRequestContext {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public IRequestResponse getRequestResponse() {
 		throw new IllegalStateException("Not implemented");
 	}
@@ -168,42 +168,42 @@ public class TestRequestContext implements IRequestContext {
 		throw new IllegalStateException("Not implemented");
 	}
 
-	@Nonnull @Override public ITheme getCurrentTheme() {
+	@NonNull @Override public ITheme getCurrentTheme() {
 		return new ITheme() {
-			@Nonnull @Override public String getThemeName() {
+			@NonNull @Override public String getThemeName() {
 				return "aa/bb";
 			}
 
-			@Nonnull @Override public ResourceDependencies getDependencies() {
+			@NonNull @Override public ResourceDependencies getDependencies() {
 				return new ResourceDependencies(Collections.emptyList());
 			}
 
-			@Nonnull @Override public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+			@NonNull @Override public IResourceRef getThemeResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
 				throw new IllegalStateException("Not implemented");
 			}
 
-			@Nonnull @Override public IScriptScope getPropertyScope() {
+			@NonNull @Override public IScriptScope getPropertyScope() {
 				throw new IllegalStateException("Not implemented");
 			}
 
-			@Nonnull @Override public String translateResourceName(@Nonnull String name) {
+			@NonNull @Override public String translateResourceName(@NonNull String name) {
 				return name;
 			}
 
-			@Nonnull @Override public String getStyleSheetName() throws Exception {
+			@NonNull @Override public String getStyleSheetName() throws Exception {
 				return "style.css";
 			}
 		};
 	}
 
-	@Nonnull @Override public IThemeVariant getThemeVariant() {
+	@NonNull @Override public IThemeVariant getThemeVariant() {
 		return DefaultThemeVariant.INSTANCE;
 	}
 
-	@Override public void setThemeVariant(@Nonnull IThemeVariant variant) {
+	@Override public void setThemeVariant(@NonNull IThemeVariant variant) {
 	}
 
-	@Override public void setPersistedParameter(@Nonnull String name, @Nonnull String value) {
+	@Override public void setPersistedParameter(@NonNull String name, @NonNull String value) {
 
 	}
 

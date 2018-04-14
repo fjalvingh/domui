@@ -24,13 +24,13 @@
  */
 package to.etc.domui.databinding.value;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.*;
 import to.etc.domui.util.*;
 
 public interface IObservableValue<T> extends IObservable<T, ValueChangeEvent<T>, IValueChangeListener<T>>, IReadWriteModel<T> {
-	@Nonnull
+	@NonNull
 	public Class<T> getValueType();
 
 	/**

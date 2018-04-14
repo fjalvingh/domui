@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.MiniLogger;
 import to.etc.domui.dom.html.Checkbox;
@@ -47,8 +49,6 @@ import to.etc.domui.util.JavascriptUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.util.DeveloperOptions;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +98,10 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/** When T, rows are not highlighted when table has no selection callbacks on rows. */
 	private boolean m_preventRowHighlight;
 
-	@Nonnull
+	@Nullable
+	private TBody m_footerBody;
+
+	@NonNull
 	final private IClicked<TH> m_headerSelectClickHandler = clickednode -> {
 		if(isDisabled()) {
 			return;
@@ -115,18 +118,18 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	};
 
 
-	public DataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
+	public DataTable(@NonNull ITableModel<T> m, @NonNull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
 		cInit();
 	}
 
-	public DataTable(@Nonnull IRowRenderer<T> r) {
+	public DataTable(@NonNull IRowRenderer<T> r) {
 		m_rowRenderer = r;
 		cInit();
 	}
 
-	public DataTable(@Nonnull ITableModel<T> m) {
+	public DataTable(@NonNull ITableModel<T> m) {
 		super(m);
 		cInit();
 	}
@@ -229,6 +232,24 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		m_dataBody = new TBody();
 		m_table.add(m_dataBody);
 		updateBodyClipboardSelection();
+
+		TBody footerBody = m_footerBody;
+		if(null != footerBody)
+			m_table.add(footerBody);
+	}
+
+	/**
+	 * EXPERIMENTAL
+	 */
+	public TBody getFooterBody() {
+		TBody footerBody = m_footerBody;
+		if(null == footerBody) {
+			m_footerBody = footerBody = new TBody();
+			if(m_dataBody != null) {
+				m_table.add(footerBody);
+			}
+		}
+		return footerBody;
 	}
 
 	/**
@@ -242,7 +263,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * @throws Exception
 	 */
 	@Deprecated
-	void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
+	void renderHeader(@NonNull HeaderContainer<T> hc) throws Exception {
 		//-- Are we rendering a multi-selection?
 		if(m_multiSelectMode) {
 			TH headerCell = hc.add("");
@@ -352,7 +373,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
-	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
+	private void renderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
 		tr.addCssClass("ui-dt-row");
 		//-- Is a rowclick handler needed?
 		ISelectionModel<T> sm = getSelectionModel();
@@ -360,8 +381,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			//-- Add a click handler to select or pass the rowclicked event.
 			cc.getTR().setClicked2(new IClicked2<TR>() {
 				@Override
-				@SuppressWarnings({"synthetic-access"})
-				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
+				public void clicked(@NonNull TR b, @NonNull ClickInfo clinfo) throws Exception {
 					handleRowClick(b, value, clinfo);
 				}
 			});
@@ -416,7 +436,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * @throws Exception
 	 */
 	@Deprecated
-	void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
+	void internalRenderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
 		m_rowRenderer.renderRow(this, cc, index, value);
 	}
 
@@ -456,7 +476,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * @param info
 	 * @throws Exception
 	 */
-	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @Nonnull Checkbox checkbox) throws Exception {
+	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @NonNull Checkbox checkbox) throws Exception {
 		handleSelectClicky(instance, info, Boolean.valueOf(checked));
 		ISelectionModel<T> sm = getSelectionModel();
 		if(null != sm) {
@@ -483,7 +503,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * and shift+click as "toggle everything between this and the last one".
 	 * @param setTo        When null toggle, else set to specific.
 	 */
-	private void handleSelectClicky(@Nonnull T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
+	private void handleSelectClicky(@NonNull T instance, @NonNull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
 		if(null == sm)
 			throw new IllegalStateException("SelectionModel is null??");
@@ -539,7 +559,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		}
 	}
 
-	private int getVisibleItemindex(@Nonnull T instance) {
+	private int getVisibleItemindex(@NonNull T instance) {
 		//-- Toggle region. Get the current item's index.
 		int itemindex = -1, index = 0;
 		for(TableRowSet<T> rowSet : m_visibleItemList) {
@@ -643,8 +663,8 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		fireSelectionUIChanged();
 	}
 
-	@Nonnull
-	private Checkbox createSelectionCheckbox(@Nonnull final T rowInstance, @Nullable ISelectionModel<T> selectionModel) {
+	@NonNull
+	private Checkbox createSelectionCheckbox(@NonNull final T rowInstance, @Nullable ISelectionModel<T> selectionModel) {
 		Checkbox cb = new Checkbox();
 		boolean selectable = true;
 		if(selectionModel instanceof IAcceptable) {
@@ -653,7 +673,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		if(selectable) {
 			cb.setClicked2(new IClicked2<Checkbox>() {
 				@Override
-				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
+				public void clicked(@NonNull Checkbox clickednode, @NonNull ClickInfo info) throws Exception {
 					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info, clickednode);
 				}
 			});
@@ -696,7 +716,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		try {
 			if(!isBuilt())
 				return;
@@ -790,7 +810,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * @see ITableModelListener#rowDeleted(ITableModel, int, Object)
 	 */
 	@Override
-	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowDeleted(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		try {
 			if(!isBuilt())
 				return;
@@ -865,7 +885,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * @see ITableModelListener#rowModified(ITableModel, int, Object)
 	 */
 	@Override
-	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowModified(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		if(!isBuilt())
 			return;
 		if(index < m_six || index >= m_eix)					// Outside visible bounds
@@ -898,12 +918,12 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		m_table.setTableWidth(w);
 	}
 
-	@Nonnull
+	@NonNull
 	public IRowRenderer<T> getRowRenderer() {
 		return m_rowRenderer;
 	}
 
-	public void setRowRenderer(@Nonnull IRowRenderer<T> rowRenderer) {
+	public void setRowRenderer(@NonNull IRowRenderer<T> rowRenderer) {
 		if(DomUtil.isEqual(m_rowRenderer, rowRenderer))
 			return;
 		m_rowRenderer = rowRenderer;
@@ -930,7 +950,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * @see ISelectionListener#selectionChanged(Object, boolean)
 	 */
 	@Override
-	public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
+	public void selectionChanged(@NonNull T row, boolean on) throws Exception {
 		//-- Is this a visible row?
 		for(TableRowSet<T> tableRowSet : m_visibleItemList) {
 			if(MetaManager.areObjectsEqual(row, tableRowSet.getInstance())) {
@@ -1004,12 +1024,12 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
 	 * @param dataBody
 	 */
-	private void setDataBody(@Nonnull TBody dataBody) {
+	private void setDataBody(@NonNull TBody dataBody) {
 		m_dataBody = dataBody;
 		updateBodyClipboardSelection();
 	}
 
-	@Nonnull
+	@NonNull
 	private TBody getDataBody() {
 		if(null == m_dataBody)
 			throw new IllegalStateException("dataBody is still null");
@@ -1020,7 +1040,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	protected Table getTable() {
 		if(null == m_table)
 			throw new IllegalStateException("Backing table is still null");
@@ -1076,7 +1096,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * Gets called when column widths have been altered. This retrieves all columns that were changed
 	 * and saves the widths so that a next render will reuse the sizes.
 	 */
-	public void webActionCOLWIDTHS(@Nonnull RequestContextImpl context) throws Exception {
+	public void webActionCOLWIDTHS(@NonNull RequestContextImpl context) throws Exception {
 		m_rowRenderer.updateWidths(this, context);
 	}
 }

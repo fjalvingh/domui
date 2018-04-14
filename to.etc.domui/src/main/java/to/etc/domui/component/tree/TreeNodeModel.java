@@ -1,7 +1,8 @@
 package to.etc.domui.component.tree;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,7 +28,7 @@ public class TreeNodeModel<T extends TreeNode> implements ITreeModel<T>, ITreeEd
 		return m_root;
 	}
 
-	@Nonnull @Override public T getChild(@Nullable T parent, int index) throws Exception {
+	@NonNull @Override public T getChild(@Nullable T parent, int index) throws Exception {
 		return (T) Objects.requireNonNull(parent).getChildren().get(index);
 	}
 
@@ -35,11 +36,11 @@ public class TreeNodeModel<T extends TreeNode> implements ITreeModel<T>, ITreeEd
 		return Objects.requireNonNull(child).getParent();
 	}
 
-	@Override public void addChangeListener(@Nonnull ITreeModelChangedListener<T> l) {
+	@Override public void addChangeListener(@NonNull ITreeModelChangedListener<T> l) {
 		m_listeners.add(l);
 	}
 
-	@Override public void removeChangeListener(@Nonnull ITreeModelChangedListener<T> l) {
+	@Override public void removeChangeListener(@NonNull ITreeModelChangedListener<T> l) {
 		m_listeners.remove(l);
 	}
 

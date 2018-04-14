@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.test.componenterrors;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.layout.Caption;
 import to.etc.domui.component.lookup.AbstractLookupControlImpl;
 import to.etc.domui.component.lookup.ILookupControlInstance;
@@ -14,7 +15,6 @@ import to.etc.domui.dom.html.Pre;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -44,9 +44,9 @@ public class LookupForm2TestPage extends UrlPage {
 		genreL1.setMandatory(true);
 
 		lf1.addManualPropertyLabel("album", new AbstractLookupControlImpl(trackL1) {
-			@Nonnull
+			@NonNull
 			@Override
-			public AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(@NonNull QCriteria<?> crit) throws Exception {
 				Album track = trackL1.getValue();
 				if(null == track) {
 					return AppendCriteriaResult.EMPTY;
@@ -57,9 +57,9 @@ public class LookupForm2TestPage extends UrlPage {
 		});
 
 		lf1.addManualPropertyLabel("genre", new AbstractLookupControlImpl(genreL1) {
-			@Nonnull
+			@NonNull
 			@Override
-			public AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception {
+			public AppendCriteriaResult appendCriteria(@NonNull QCriteria<?> crit) throws Exception {
 				Genre genre = genreL1.getValue();
 				if(null == genre) {
 					return AppendCriteriaResult.EMPTY;

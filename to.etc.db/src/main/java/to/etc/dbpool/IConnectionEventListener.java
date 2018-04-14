@@ -24,9 +24,10 @@
  */
 package to.etc.dbpool;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.sql.SQLException;
 
 /**
  * This listener gets notified of all kinds of events that take place on a connection. It
@@ -39,25 +40,25 @@ interface IConnectionEventListener {
 	/**
 	 * Called when a prepare is started. This starts the prepare clock for the statement.
 	 */
-	void prepareStatement(@Nonnull StatementProxy sp);
+	void prepareStatement(@NonNull StatementProxy sp);
 
 	/**
 	 * Called when the prepare call has finished. Ends the prepare clock, and posts the "statement prepared" event.
 	 * @param sp
 	 */
-	void prepareStatementEnd(@Nonnull StatementProxy sp);
+	void prepareStatementEnd(@NonNull StatementProxy sp);
 
 	/**
 	 * Started a statement query.
 	 * @param sp
 	 */
-	void executeQueryStart(@Nonnull StatementProxy sp, @Nonnull ResultSetProxy rsp);
+	void executeQueryStart(@NonNull StatementProxy sp, @NonNull ResultSetProxy rsp);
 
-	void executeQueryEnd(@Nonnull StatementProxy sp, @Nullable SQLException wx, @Nonnull ResultSetProxy rs);
+	void executeQueryEnd(@NonNull StatementProxy sp, @Nullable SQLException wx, @NonNull ResultSetProxy rs);
 
-	void executePreparedQueryStart(StatementProxy sp, @Nonnull ResultSetProxy rsp);
+	void executePreparedQueryStart(StatementProxy sp, @NonNull ResultSetProxy rsp);
 
-	void executePreparedQueryEnd(@Nonnull StatementProxy sp, @Nullable SQLException wx, @Nonnull ResultSetProxy rs);
+	void executePreparedQueryEnd(@NonNull StatementProxy sp, @Nullable SQLException wx, @NonNull ResultSetProxy rs);
 
 
 	/**
@@ -65,7 +66,7 @@ interface IConnectionEventListener {
 	 * @param sp
 	 * @param rsp
 	 */
-	void resultSetClosed(@Nonnull StatementProxy sp, @Nonnull ResultSetProxy rsp);
+	void resultSetClosed(@NonNull StatementProxy sp, @NonNull ResultSetProxy rsp);
 
 	void executeUpdateStart(StatementProxy sp);
 

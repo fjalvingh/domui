@@ -1,5 +1,7 @@
 package to.etc.domui.component.ace;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
@@ -8,8 +10,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -315,7 +315,7 @@ public class AceEditor extends Div implements IControl<String> {
 		return null;
 	}
 
-	@Override public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+	@Override public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
 		if(values.length != 1)
 			throw new IllegalStateException("? Expecting but one value?");
 		String value = values[0];

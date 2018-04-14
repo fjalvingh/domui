@@ -35,6 +35,10 @@ import to.etc.domui.dom.IContributorRenderer;
 public class JavascriptContributor extends HeaderContributor {
 	private String m_path;
 
+	private boolean m_async;
+
+	private boolean m_defer;
+
 	public JavascriptContributor(String path) {
 		m_path = path;
 	}
@@ -64,7 +68,17 @@ public class JavascriptContributor extends HeaderContributor {
 
 	@Override
 	public void contribute(IContributorRenderer r) throws Exception {
-		r.renderLoadJavascript(m_path);
+		r.renderLoadJavascript(m_path, m_async, m_defer);
+	}
+
+	public JavascriptContributor async() {
+		m_async = true;
+		return this;
+	}
+
+	public JavascriptContributor defer() {
+		m_defer = true;
+		return this;
 	}
 
 }

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.server;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -35,8 +37,6 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -85,7 +85,7 @@ public class AppFilter implements Filter {
 
 	private ILoginDeterminator m_loginDeterminator;
 
-	static public synchronized void setIoWrapper(@Nonnull IRequestResponseWrapper ww) {
+	static public synchronized void setIoWrapper(@NonNull IRequestResponseWrapper ww) {
 		m_ioWrapper = ww;
 	}
 

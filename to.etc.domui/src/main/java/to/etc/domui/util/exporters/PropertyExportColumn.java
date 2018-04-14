@@ -1,16 +1,15 @@
 package to.etc.domui.util.exporters;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
-
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-10-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class PropertyExportColumn<T> implements IExportColumn<T> {
 	final private PropertyMetaModel<T> m_pmm;
 
@@ -27,7 +26,7 @@ public class PropertyExportColumn<T> implements IExportColumn<T> {
 		m_label = null;
 	}
 
-	@Nonnull @Override public Class<?> getActualType() {
+	@NonNull @Override public Class<?> getActualType() {
 		return m_pmm.getActualType();
 	}
 
@@ -35,7 +34,7 @@ public class PropertyExportColumn<T> implements IExportColumn<T> {
 		return m_label == null ? m_pmm.getDefaultLabel() : m_label;
 	}
 
-	@Nullable @Override public T getValue(@Nonnull Object in) throws Exception {
+	@Nullable @Override public T getValue(@NonNull Object in) throws Exception {
 		return m_pmm.getValue(in);
 	}
 }

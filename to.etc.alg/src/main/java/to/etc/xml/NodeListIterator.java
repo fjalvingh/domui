@@ -1,10 +1,10 @@
 package to.etc.xml;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import javax.annotation.*;
-
-import org.w3c.dom.*;
+import java.util.Iterator;
 
 /**
  * Iterator for NodeList
@@ -12,7 +12,7 @@ import org.w3c.dom.*;
  * @author tinie
  * Created on 9/30/15.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class NodeListIterator implements Iterable<Node>, Iterator<Node> {
 	private final NodeList m_nodeList;
 

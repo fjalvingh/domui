@@ -1,12 +1,12 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.panellayout.LayoutPanelBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.IntPoint;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.panellayout.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This wraps a component that can contain other components using some kind
@@ -16,25 +16,25 @@ import to.etc.domui.util.*;
  * Created on Oct 15, 2013
  */
 public class LayoutInstance extends ComponentInstance {
-	@Nonnull
+	@NonNull
 	final private IFbLayout m_component;
 
 	private NodeContainer m_rendered;
 
-	@Nonnull
+	@NonNull
 	final private List<ComponentInstance> m_componentList = new ArrayList<ComponentInstance>();
 
-	public LayoutInstance(@Nonnull PageContainer pc, @Nonnull String id, @Nonnull IFbLayout component) {
+	public LayoutInstance(@NonNull PageContainer pc, @NonNull String id, @NonNull IFbLayout component) {
 		super(pc, id, component);
 		m_component = component;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<ComponentInstance> getComponentList() {
 		return m_componentList;
 	}
 
-	public void addComponent(@Nonnull ComponentInstance ci) {
+	public void addComponent(@NonNull ComponentInstance ci) {
 		LayoutInstance oldparent = ci.getParent();
 		if(oldparent == this)
 			return;
@@ -45,13 +45,13 @@ public class LayoutInstance extends ComponentInstance {
 		ci.setParent(this);
 	}
 
-	public void removeComponent(@Nonnull ComponentInstance ci) {
+	public void removeComponent(@NonNull ComponentInstance ci) {
 		if(m_componentList.remove(ci))
 			ci.setParent(null);
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public NodeContainer getRendered() throws Exception {
 		NodeContainer nc = m_rendered;
 		if(null == nc) {

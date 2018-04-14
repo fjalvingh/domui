@@ -24,10 +24,15 @@
  */
 package to.etc.util;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * This is a static-only class which should be used to access
@@ -48,7 +53,7 @@ public class DeveloperOptions {
 	@Nullable
 	static private Properties			m_p;
 
-	@Nonnull
+	@NonNull
 	static private Set<String> m_warnedSet = new HashSet<>();
 
 	private DeveloperOptions() {
@@ -110,7 +115,7 @@ public class DeveloperOptions {
 	 * Returns the developer option specified as a string. Return null if the option is not present.
 	 */
 	@Nullable
-	static synchronized public String getString(@Nonnull final String name) {
+	static synchronized public String getString(@NonNull final String name) {
 		return internalGetString(name);
 	}
 
@@ -122,8 +127,8 @@ public class DeveloperOptions {
 	 * @param def
 	 * @return
 	 */
-	@Nonnull
-	static synchronized public String getString(@Nonnull final String name, @Nonnull final String def) {
+	@NonNull
+	static synchronized public String getString(@NonNull final String name, @NonNull final String def) {
 		String s = internalGetString(name);
 		return s == null ? def : s;
 	}
@@ -136,7 +141,7 @@ public class DeveloperOptions {
 	 * @param def
 	 * @return
 	 */
-	static synchronized public boolean getBool(@Nonnull final String name, final boolean def) {
+	static synchronized public boolean getBool(@NonNull final String name, final boolean def) {
 		String s = internalGetString(name);
 		if(null == s)
 			return def;
@@ -152,7 +157,7 @@ public class DeveloperOptions {
 	 * @param def
 	 * @return
 	 */
-	static synchronized public int getInt(@Nonnull final String name, final int def) {
+	static synchronized public int getInt(@NonNull final String name, final int def) {
 		String s = internalGetString(name);
 		if(null == s)
 			return def;
@@ -160,7 +165,7 @@ public class DeveloperOptions {
 	}
 
 	@Nullable
-	static synchronized private String internalGetString(@Nonnull final String name) {
+	static synchronized private String internalGetString(@NonNull final String name) {
 		Properties p = m_p;
 		if(null == p)
 			return null;

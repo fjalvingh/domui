@@ -1,5 +1,6 @@
 package to.etc.domuidemo.components;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.misc.ALink;
 import to.etc.domui.component.misc.WindowParameters;
@@ -21,7 +22,6 @@ import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domuidemo.sourceviewer.SourcePage;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 final public class SourceBreadCrumb extends Div {
@@ -89,7 +89,7 @@ final public class SourceBreadCrumb extends Div {
 
 	}
 
-	private static boolean hasSuper(@Nonnull Object instance, String what) {
+	private static boolean hasSuper(@NonNull Object instance, String what) {
 		Class< ? > clz = instance.getClass();
 		for(;;) {
 			if(clz.getName().endsWith(what)) {

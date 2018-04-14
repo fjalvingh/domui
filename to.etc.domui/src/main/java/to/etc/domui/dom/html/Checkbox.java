@@ -24,10 +24,10 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -119,7 +119,7 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	}
 
 	@Override
-	public boolean acceptRequestParameter(@Nonnull String[] values) {
+	public boolean acceptRequestParameter(@NonNull String[] values) {
 		if(isDisabled())								// Never accept data from request in disabled control.
 			return false;
 		if(values == null || values.length != 1)
@@ -139,7 +139,7 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	 * @see to.etc.domui.dom.html.IControl#getValue()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public Boolean getValue() {
 		return Boolean.valueOf(isChecked());
 	}

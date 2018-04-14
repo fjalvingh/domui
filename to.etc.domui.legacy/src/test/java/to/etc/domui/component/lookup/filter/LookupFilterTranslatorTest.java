@@ -1,5 +1,6 @@
 package to.etc.domui.component.lookup.filter;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -9,7 +10,6 @@ import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.testsupport.TestDataContextStub;
 import to.etc.xml.XmlWriter;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigInteger;
@@ -208,7 +208,7 @@ public class LookupFilterTranslatorTest {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private String getXMLString(String... keyValues) throws IOException {
 		StringWriter serializedFilter = new StringWriter();
 		XmlWriter w = new XmlWriter(serializedFilter);

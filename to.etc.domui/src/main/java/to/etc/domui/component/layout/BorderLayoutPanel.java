@@ -1,11 +1,12 @@
 package to.etc.domui.component.layout;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Page;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BorderLayoutPanel extends Div {
 	public enum Panel {
@@ -19,7 +20,7 @@ public class BorderLayoutPanel extends Div {
 		setCssClass("ui-blap");
 	}
 
-	public void select(@Nonnull Panel p) {
+	public void select(@NonNull Panel p) {
 		if(null == p)
 			throw new IllegalArgumentException("null not allowed");
 		delegateTo(null);

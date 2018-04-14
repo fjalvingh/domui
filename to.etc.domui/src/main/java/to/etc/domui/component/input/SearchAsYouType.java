@@ -1,5 +1,7 @@
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.ConverterRegistry;
@@ -16,8 +18,6 @@ import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -88,13 +88,13 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		boolean matches(T instance, String input) throws Exception;
 	}
 
-	@Nonnull private MatchMode m_mode = MatchMode.CONTAINS_CI;
+	@NonNull private MatchMode m_mode = MatchMode.CONTAINS_CI;
 
-	public SearchAsYouType(@Nonnull Class<T> clz) {
+	public SearchAsYouType(@NonNull Class<T> clz) {
 		super("ui-sayt", clz);
 	}
 
-	public SearchAsYouType(@Nonnull Class<T> clz, String property) {
+	public SearchAsYouType(@NonNull Class<T> clz, String property) {
 		super("ui-sayt", clz);
 		m_searchProperty = property;
 	}
@@ -157,7 +157,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	@Override protected IRenderInto<T> getActualRenderer() throws Exception {
 		IObjectToStringConverter<T> cv = requireNonNull(m_actualConverter);
 		return new IRenderInto<T>() {
-			@Override public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
+			@Override public void render(@NonNull NodeContainer node, @NonNull T object) throws Exception {
 				node.add(cv.convertObjectToString(NlsContext.getLocale(), object));
 			}
 		};
@@ -374,7 +374,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		return this;
 	}
 
-	@Nonnull public MatchMode getMode() {
+	@NonNull public MatchMode getMode() {
 		return m_mode;
 	}
 
@@ -382,7 +382,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	/**
 	 * Sets the string matching mode. This only has effect if no {@link #setComparator(ICompare)} has been set.
 	 */
-	public SearchAsYouType<T>  setMode(@Nonnull MatchMode mode) {
+	public SearchAsYouType<T>  setMode(@NonNull MatchMode mode) {
 		if(m_mode == mode)
 			return this;
 		m_mode = mode;

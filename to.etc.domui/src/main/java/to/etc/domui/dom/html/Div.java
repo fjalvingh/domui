@@ -24,6 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.IDragHandler;
 import to.etc.domui.util.IDraggable;
@@ -32,8 +33,6 @@ import to.etc.domui.util.IDropHandler;
 import to.etc.domui.util.IDropTargetable;
 import to.etc.domui.util.MiniTableBuilder;
 import to.etc.domui.util.UIDragDropUtil;
-
-import javax.annotation.Nonnull;
 
 public class Div extends NodeContainer implements IDropTargetable, IDraggable, IDropBody {
 	private IReturnPressed< ? extends NodeBase> m_returnPressed;
@@ -88,7 +87,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if(!"returnpressed".equals(action)) {
 			super.componentHandleWebAction(ctx, action);
 			return;
@@ -159,7 +158,7 @@ public class Div extends NodeContainer implements IDropTargetable, IDraggable, I
 	 * @param body
 	 * @param dropMode
 	 */
-	public void setDropBody(@Nonnull IDropBody body, DropMode dropMode) {
+	public void setDropBody(@NonNull IDropBody body, DropMode dropMode) {
 		switch(dropMode){
 			default:
 				throw new IllegalStateException("Unsupported DROP mode for TABLE or DIV container: " + dropMode);

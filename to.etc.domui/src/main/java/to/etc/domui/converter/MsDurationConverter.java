@@ -24,11 +24,12 @@
  */
 package to.etc.domui.converter;
 
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.Locale;
 
 public class MsDurationConverter implements IConverter<Long> {
 	static private final long DAYS = 24 * 60 * 60;
@@ -108,7 +109,7 @@ public class MsDurationConverter implements IConverter<Long> {
 		return Long.valueOf(dur);
 	}
 
-	private int scanNumber(@Nonnull MiniScanner ms) {
+	private int scanNumber(@NonNull MiniScanner ms) {
 		int nr = 0;
 		int ct = 0;
 		for(;;) {

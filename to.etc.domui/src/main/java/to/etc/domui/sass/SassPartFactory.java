@@ -1,5 +1,7 @@
 package to.etc.domui.sass;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.parts.ParameterInfoImpl;
@@ -12,8 +14,6 @@ import to.etc.domui.server.parts.PartResponse;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.StringTool;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
@@ -23,7 +23,7 @@ import java.io.OutputStreamWriter;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 17-4-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> {
 	static private final Logger LOG = LoggerFactory.getLogger(SassPartFactory.class);
 
@@ -32,17 +32,17 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 	 * sass compiler, returning the result as a normal .css stylesheet.
 	 */
 	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+		@Override public boolean accepts(@NonNull IParameterInfo parameters) {
 			return parameters.getInputPath().endsWith(".scss") || parameters.getInputPath().endsWith(".sass");
 		}
 	};
 
-	@Nonnull @Override public ParameterInfoImpl decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
+	@NonNull @Override public ParameterInfoImpl decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
 		ParameterInfoImpl ppi = new ParameterInfoImpl(param, name -> ! name.startsWith("$"));	// Ignore DomUI system parameters
 		return ppi;
 	}
 
-	@Override public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull ParameterInfoImpl params, @Nonnull IResourceDependencyList rdl) throws Exception {
+	@Override public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull ParameterInfoImpl params, @NonNull IResourceDependencyList rdl) throws Exception {
 		long ts = System.nanoTime();
 
 		/*

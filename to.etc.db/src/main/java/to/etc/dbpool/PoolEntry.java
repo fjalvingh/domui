@@ -24,10 +24,11 @@
  */
 package to.etc.dbpool;
 
-import java.sql.*;
-import java.util.*;
-
-import javax.annotation.concurrent.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Entry in the connection pool, either used or free. Data in here is protected
@@ -60,7 +61,7 @@ final class PoolEntry {
 	private int m_timeout;
 
 	/** This entry's state; will change if the entry is forced closed. */
-	@GuardedBy("m_pool")
+	//@GuardedBy("m_pool")
 	private ConnState m_state = ConnState.OPEN;
 
 	PoolEntry(final Connection cx, final ConnectionPool pool, final int idnr, final String userid) throws SQLException {
@@ -119,14 +120,14 @@ final class PoolEntry {
 		}
 	}
 
-	@GuardedBy("m_pool")
+	//@GuardedBy("m_pool")
 	void setUnpooled(final boolean unpooled) {
 		synchronized(m_pool) {
 			m_unpooled = unpooled;
 		}
 	}
 
-	@GuardedBy("m_pool")
+	//@GuardedBy("m_pool")
 	boolean isUnpooled() {
 		synchronized(m_pool) {
 			return m_unpooled;
@@ -176,7 +177,7 @@ final class PoolEntry {
 	 * Returns the current proxy. Returns null if unassigned. LOCKS POOL.
 	 * @return
 	 */
-	@GuardedBy("m_pool")
+	//@GuardedBy("m_pool")
 	ConnectionProxy getProxy() {
 		synchronized(m_pool) {
 			return m_proxy;
@@ -335,7 +336,7 @@ final class PoolEntry {
 	/*	CODING:	Connection resource management...					*/
 	/*--------------------------------------------------------------*/
 	/** All objects allocated FROM this connection. */
-	@GuardedBy("m_pool")
+	//@GuardedBy("m_pool")
 	private HashSet<Object> m_use_set = new HashSet<Object>();
 
 	/**

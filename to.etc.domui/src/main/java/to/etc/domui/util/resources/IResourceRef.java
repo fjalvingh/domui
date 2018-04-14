@@ -24,8 +24,9 @@
  */
 package to.etc.domui.util.resources;
 
-import javax.annotation.*;
-import java.io.*;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.InputStream;
 
 /**
  * A reference to some stream resource which can be read to create something else, and which is

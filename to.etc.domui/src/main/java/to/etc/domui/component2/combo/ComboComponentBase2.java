@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component2.combo;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.component.input.CriteriaComboDataSet;
@@ -51,8 +53,6 @@ import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +69,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	private V m_currentValue;
 
-	@Nonnull
+	@NonNull
 	final private Select m_select = new Select() {
 		@Override
 		protected boolean internalOnUserInput(int oldindex, int nindex) {
@@ -110,15 +110,15 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	public ComboComponentBase2() {}
 
-	public ComboComponentBase2(@Nonnull IListMaker<T> maker) {
+	public ComboComponentBase2(@NonNull IListMaker<T> maker) {
 		m_listMaker = maker;
 	}
 
-	public ComboComponentBase2(@Nonnull IComboDataSet<T> dataSet) {
+	public ComboComponentBase2(@NonNull IComboDataSet<T> dataSet) {
 		m_dataSet = dataSet;
 	}
 
-	public ComboComponentBase2(@Nonnull QCriteria<T> query) {
+	public ComboComponentBase2(@NonNull QCriteria<T> query) {
 		m_dataSet = new CriteriaComboDataSet<T>(query);
 	}
 
@@ -126,7 +126,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		m_dataSetClass = dataSetClass;
 	}
 
-	public ComboComponentBase2(@Nonnull List<T> in) {
+	public ComboComponentBase2(@NonNull List<T> in) {
 		m_data = in;
 	}
 
@@ -421,7 +421,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		return (IRenderInto<T>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 	}
 
-	final protected void renderOptionLabel(@Nonnull NodeContainer o, @Nonnull T object) throws Exception {
+	final protected void renderOptionLabel(@NonNull NodeContainer o, @NonNull T object) throws Exception {
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(object);
 		m_actualContentRenderer.render( o, object);
@@ -492,7 +492,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		if(click != null) {
 			si.setClicked(new IClicked<SmallImgButton>() {
 				@Override
-				public void clicked(@Nonnull SmallImgButton b) throws Exception {
+				public void clicked(@NonNull SmallImgButton b) throws Exception {
 					click.clicked(ComboComponentBase2.this);
 				}
 			});
@@ -631,7 +631,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		} else {
 			m_select.setOnValueChanged(new IValueChanged<Select>() {
 				@Override
-				public void onValueChanged(@Nonnull Select component) throws Exception {
+				public void onValueChanged(@NonNull Select component) throws Exception {
 					IValueChanged<ComboComponentBase2<T, V>> vc = (IValueChanged<ComboComponentBase2<T, V>>) m_onValueChanged;
 					if(null != vc)
 						vc.onValueChanged(ComboComponentBase2.this);

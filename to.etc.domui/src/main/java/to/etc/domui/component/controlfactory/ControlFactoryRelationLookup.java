@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.IQueryManipulator;
 import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -35,8 +37,6 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -51,7 +51,7 @@ public class ControlFactoryRelationLookup implements PropertyControlFactory {
 	 * Accept any UP relation.
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public int accepts(final @NonNull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(LookupInput.class))
 			return -1;
 
@@ -66,7 +66,7 @@ public class ControlFactoryRelationLookup implements PropertyControlFactory {
 	 * Create the lookup thingy.
 	 */
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public @NonNull <T> ControlFactoryResult createControl(final @NonNull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		//-- We'll do a lookup thingy for sure.
 		LookupInput<T> li = editable ? new LookupInput<T>(pmm.getActualType(), pmm.getValueModel()) : new RelationLookupDisplayInput<T>(pmm.getActualType(), pmm.getValueModel());
 		li.setReadOnly(!editable);

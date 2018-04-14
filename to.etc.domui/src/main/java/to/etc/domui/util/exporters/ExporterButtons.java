@@ -1,5 +1,6 @@
 package to.etc.domui.util.exporters;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.menu.PopupMenu;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -17,7 +18,6 @@ import to.etc.function.SupplierEx;
 import to.etc.util.Progress;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +86,7 @@ public class ExporterButtons {
 			m_columns = columns;
 		}
 
-		@Override protected void export(IExportWriter<T> writer, @Nonnull Progress progress) throws Exception {
+		@Override protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
 			QCriteriaExporter<T> qxp = new QCriteriaExporter<>(writer, dc(), m_criteria, m_columns);
 			qxp.export(progress);
 		}

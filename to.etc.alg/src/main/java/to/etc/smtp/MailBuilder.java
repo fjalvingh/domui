@@ -24,13 +24,18 @@
  */
 package to.etc.smtp;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility class to generate email messages containing embedded HTML and plaintext, and allowing
@@ -105,7 +110,7 @@ public class MailBuilder {
 	 * @see MailBuilder#m_decorateHtml
 	 * @return
 	 */
-	public static @Nonnull
+	public static @NonNull
 	MailBuilder createNondecoratedMailBuilder() {
 		return new MailBuilder(false);
 	}
@@ -256,14 +261,14 @@ public class MailBuilder {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public MailBuilder addAttachment(@Nonnull String name, @Nonnull File source) throws Exception {
+	@NonNull
+	public MailBuilder addAttachment(@NonNull String name, @NonNull File source) throws Exception {
 		m_attachmentList.add(new Attachment(getMimeByFile(source), name, source));
 		return this;
 	}
 	
-	@Nonnull
-	private String getMimeByFile(@Nonnull File file) throws IOException {
+	@NonNull
+	private String getMimeByFile(@NonNull File file) throws IOException {
 		Path path = FileSystems.getDefault().getPath(file.getPath());
 		return Files.probeContentType(path);
 	}
@@ -331,7 +336,7 @@ public class MailBuilder {
 		m.send();
 	}
 
-	@Nonnull
+	@NonNull
 	public Message createMessage() {
 		Message m = new Message();
 		m.setSubject(m_subject);

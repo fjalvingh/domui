@@ -1,24 +1,24 @@
 package to.etc.domui.logic.events;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
 final public class LogiEventPropertyChange<T> extends LogiEventBase {
-	@Nonnull
+	@NonNull
 	final private PropertyMetaModel<T> m_pmm;
 
 	@Nullable
 	final private T m_oldvalue, m_newvalue;
 
-	public LogiEventPropertyChange(@Nonnull String path, @Nonnull PropertyMetaModel<T> pmm, @Nullable T oldvalue, @Nullable T newvalue) {
+	public LogiEventPropertyChange(@NonNull String path, @NonNull PropertyMetaModel<T> pmm, @Nullable T oldvalue, @Nullable T newvalue) {
 		super(path);
 		m_pmm = pmm;
 		m_oldvalue = oldvalue;
 		m_newvalue = newvalue;
 	}
 
-	@Nonnull
+	@NonNull
 	public PropertyMetaModel<T> getPmm() {
 		return m_pmm;
 	}
@@ -34,7 +34,7 @@ final public class LogiEventPropertyChange<T> extends LogiEventBase {
 	}
 
 	@Override
-	void dump(@Nonnull Appendable a) throws Exception {
+	void dump(@NonNull Appendable a) throws Exception {
 		a.append(getPath()).append(" [property ").append(m_pmm.toString()).append(" changed from ").append(toString(m_oldvalue)).append(" to ").append(toString(m_newvalue)).append("\n");
 	}
 }

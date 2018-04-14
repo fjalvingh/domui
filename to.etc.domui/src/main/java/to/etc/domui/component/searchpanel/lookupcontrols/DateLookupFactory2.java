@@ -24,15 +24,14 @@
  */
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.TemporalPresentationType;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
-
 final class DateLookupFactory2 implements ILookupFactory<DatePeriod> {
-	@Override public FactoryPair<DatePeriod> createControl(@Nonnull SearchPropertyMetaModel spm) {
+	@Override public FactoryPair<DatePeriod> createControl(@NonNull SearchPropertyMetaModel spm) {
 		//get temporal type from metadata and set withTime later to date inout components
 		PropertyMetaModel<?> pmm = spm.getProperty();
 

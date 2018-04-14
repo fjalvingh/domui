@@ -1,10 +1,9 @@
 package to.etc.domui.component.panellayout;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeBase;
 
 public interface ILayoutManager {
-	void place(@Nonnull LayoutPanelBase layoutPanelBase, @Nonnull NodeBase node, @Nonnull Object layoutOptions);
+	void place(@NonNull LayoutPanelBase layoutPanelBase, @NonNull NodeBase node, @NonNull Object layoutOptions);
 
 }

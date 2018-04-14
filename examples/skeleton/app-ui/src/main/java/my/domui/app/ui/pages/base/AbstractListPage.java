@@ -14,15 +14,15 @@ import to.etc.domui.util.DomUtil;
 import to.etc.webapp.query.IIdentifyable;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Very simple basic code to create a list page, with protected customize methods
  * to customize.
  */
-@DefaultNonNull
+@NonNullByDefault
 abstract public class AbstractListPage<T extends IIdentifyable<?>> extends BasicPage {
 	final private Class<T> m_typeClass;
 
@@ -93,7 +93,7 @@ abstract public class AbstractListPage<T extends IIdentifyable<?>> extends Basic
 		search(ssm);
 	}
 
-	@Nonnull
+	@NonNull
 	protected SimpleSearchModel<T> createTableModel(QCriteria<T> criteria) {
 		return new SimpleSearchModel<>(this, criteria);
 	}
@@ -129,7 +129,7 @@ abstract public class AbstractListPage<T extends IIdentifyable<?>> extends Basic
 		}
 	}
 
-	@Nonnull protected RowRenderer<T> createRowRenderer() {
+	@NonNull protected RowRenderer<T> createRowRenderer() {
 		RowRenderer<T> rr = new RowRenderer<>(m_typeClass);
 		return rr;
 	}
@@ -169,7 +169,7 @@ abstract public class AbstractListPage<T extends IIdentifyable<?>> extends Basic
 	 * Override to create special criteria.
 	 * @return
 	 */
-	@Nonnull protected QCriteria<T> createBaseCriteria() throws Exception {
+	@NonNull protected QCriteria<T> createBaseCriteria() throws Exception {
 		return QCriteria.create(m_typeClass);
 	}
 

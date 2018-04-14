@@ -24,16 +24,25 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IShelvedListener;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
+import to.etc.webapp.query.QOrder;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  *
@@ -110,7 +119,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		}
 
 		@Override
-		public <M extends ITableModel<T>> void adjustSort(@Nonnull M model, boolean descending) throws Exception {
+		public <M extends ITableModel<T>> void adjustSort(@NonNull M model, boolean descending) throws Exception {
 			SimpleSearchModel<T> ssm = (SimpleSearchModel<T>) model;
 			QCriteria<T> sq = ssm.getCriteria();
 			if(descending)
@@ -125,7 +134,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * Implementation of ISortHelper that can be used when sort is specified by sort column comparator.
 	 * @param <T>
 	 */
-	@DefaultNonNull
+	@NonNullByDefault
 	public final static class ByComparatorSortHelper<T> implements ISortHelper<T>{
 
 		private final String m_columnKey;
@@ -154,7 +163,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * @param contextSourceNode
 	 * @param qc
 	 */
-	public SimpleSearchModel(@Nonnull NodeBase contextSourceNode, @Nonnull QCriteria<T> qc) {
+	public SimpleSearchModel(@NonNull NodeBase contextSourceNode, @NonNull QCriteria<T> qc) {
 		m_query = qc;
 		m_contextSourceNode = contextSourceNode;
 		m_queryFunctor = null;
@@ -167,7 +176,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * @param ss
 	 * @param qc
 	 */
-	public SimpleSearchModel(@Nonnull QDataContextFactory ss, @Nonnull QCriteria<T> qc) {
+	public SimpleSearchModel(@NonNull QDataContextFactory ss, @NonNull QCriteria<T> qc) {
 		m_query = qc;
 		m_sessionSource = ss;
 		m_queryFunctor = null;
@@ -175,7 +184,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		m_contextSourceNode = null;
 	}
 
-	public SimpleSearchModel(@Nonnull IQueryHandler<T> ss, @Nonnull QCriteria<T> qc) {
+	public SimpleSearchModel(@NonNull IQueryHandler<T> ss, @NonNull QCriteria<T> qc) {
 		m_query = qc;
 		m_queryHandler = ss;
 		m_queryFunctor = null;
@@ -183,7 +192,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		m_sessionSource = null;
 	}
 
-	public SimpleSearchModel(@Nonnull QDataContextFactory f, @Nonnull IQuery<T> q) {
+	public SimpleSearchModel(@NonNull QDataContextFactory f, @NonNull IQuery<T> q) {
 		m_sessionSource = f;
 		m_queryFunctor = q;
 		m_contextSourceNode = null;
@@ -191,7 +200,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		m_queryHandler = null;
 	}
 
-	public SimpleSearchModel(@Nonnull NodeBase contextSource, @Nonnull IQuery<T> q) {
+	public SimpleSearchModel(@NonNull NodeBase contextSource, @NonNull IQuery<T> q) {
 		m_contextSourceNode = contextSource;
 		m_queryFunctor = q;
 		m_sessionSource = null;
@@ -240,7 +249,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	private QDataContext getQueryContext() throws Exception {
 		if(m_sessionSource != null) {
 			return m_sessionSource.getDataContext(); // Create/get session
@@ -348,7 +357,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * FIXME This urgently needs to duplicate the query instead of messing around with the original!
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public QCriteria<T> getCriteria() {
 		QCriteria<T> query = m_query;
 		if(null == query)
@@ -358,7 +367,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		return query;
 	}
 
-	public void setCriteria(@Nonnull QCriteria<T> query) {
+	public void setCriteria(@NonNull QCriteria<T> query) {
 		//-- For now: if the new sort order in the query is the same as the previous one -> we do nothing to prevent duplicate queries
 		List<QOrder> oldOrder = m_criteriaSortOrder;
 		m_criteriaSortOrder = null;
@@ -396,14 +405,14 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			execQuery();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	protected List<T> getList() throws Exception {
 		initResult();
 		return getWorkResult();
 	}
 
-	@Nonnull
+	@NonNull
 	private List<T> getWorkResult() {
 		if(null != m_workResult)
 			return m_workResult;
@@ -412,7 +421,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	@Override
 	@SuppressWarnings("deprecation")
-	@Nonnull
+	@NonNull
 	public List<T> getItems(int start, int end) throws Exception {
 		initResult();
 		if(start < 0)

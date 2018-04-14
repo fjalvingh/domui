@@ -1,9 +1,9 @@
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -20,7 +20,7 @@ public class ListQueryHandler<T> implements IQueryHandler<T> {
 		m_list = list;
 	}
 
-	@Nonnull @Override public List<T> query(@Nonnull QCriteria<T> q) throws Exception {
+	@NonNull @Override public List<T> query(@NonNull QCriteria<T> q) throws Exception {
 		List<T> filter = MetaManager.query(m_list, q);
 		return filter;
 	}

@@ -1,9 +1,15 @@
 package to.etc.domui.component.graph;
 
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HiddenInput;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IHasChangeListener;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Input;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
 
 /**
  * This is a Small button which shows a selected color, and which opens

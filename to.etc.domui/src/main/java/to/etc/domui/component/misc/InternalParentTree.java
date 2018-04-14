@@ -24,16 +24,28 @@
  */
 package to.etc.domui.component.misc;
 
-import java.io.*;
-import java.net.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.ImgAlign;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
 
 /**
  * This popup floater shows all parent nodes from a given node up, and selects one. It is part
@@ -65,7 +77,7 @@ public class InternalParentTree extends Div {
 		ttl.add(img);
 		img.setClicked(new IClicked<Img>() {
 			@Override
-			public void clicked(@Nonnull Img clickednode) throws Exception {
+			public void clicked(@NonNull Img clickednode) throws Exception {
 				//-- Remove this.
 				InternalParentTree.this.remove();
 			}
@@ -110,7 +122,7 @@ public class InternalParentTree extends Div {
 			td.setCellWidth("1%");
 			td.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+				public void clicked(@NonNull NodeBase clickednode) throws Exception {
 					openSource(clicked);
 				}
 			});
@@ -124,7 +136,7 @@ public class InternalParentTree extends Div {
 				td.setCellWidth("1%");
 				td.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+					public void clicked(@NonNull NodeBase clickednode) throws Exception {
 						showCreationTrace(clicked, clicked.getAllocationTracepoint());
 					}
 				});
@@ -155,7 +167,7 @@ public class InternalParentTree extends Div {
 		m_structure.add(alt);
 		LinkButton lb = new LinkButton("Back to structure", "THEME/btnBack.png", new IClicked<LinkButton>() {
 			@Override
-			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+			public void clicked(@NonNull LinkButton clickednode) throws Exception {
 				m_structure.removeAllChildren();
 				renderStructure(m_structure);
 			}
@@ -215,7 +227,7 @@ public class InternalParentTree extends Div {
 			final StackTraceElement cste = ste;
 			td.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+				public void clicked(@NonNull NodeBase clickednode) throws Exception {
 					openSource(cste);
 				}
 			});
@@ -229,8 +241,8 @@ public class InternalParentTree extends Div {
 		}
 	}
 
-	@Nonnull
-	private String openableClassName(@Nonnull String str) {
+	@NonNull
+	private String openableClassName(@NonNull String str) {
 		return str.replace('.', '/').replaceAll("\\$.*", "");
 	}
 
@@ -243,7 +255,7 @@ public class InternalParentTree extends Div {
 		openSourceWithWarning(body, name);
 	}
 
-	private void openSourceWithWarning(@Nonnull NodeBase body, @Nonnull String name) {
+	private void openSourceWithWarning(@NonNull NodeBase body, @NonNull String name) {
 		CommandResponse cr = openEclipseSource(name);
 		if(cr.getType() == AnswerType.SUCCESS)
 			return;
@@ -252,8 +264,8 @@ public class InternalParentTree extends Div {
 		MsgBox.message(body, MsgBox.Type.ERROR, message);
 	}
 
-	@Nonnull
-	static public String getResponseMessage(@Nonnull CommandResponse cr) {
+	@NonNull
+	static public String getResponseMessage(@NonNull CommandResponse cr) {
 		switch(cr.getType()){
 			default:
 				throw new IllegalStateException("Missing case: " + cr.getType());
@@ -299,8 +311,8 @@ public class InternalParentTree extends Div {
 
 	static private final String URL = "http://www.domui.org/wiki/bin/view/Documentation/EclipsePlugin";
 
-	@Nonnull
-	static public CommandResponse openEclipseSource(@Nonnull String name) {
+	@NonNull
+	static public CommandResponse openEclipseSource(@NonNull String name) {
 		File root = DomApplication.get().getAppFile("");
 		return openEclipseSource(root.toString(), name);
 	}
@@ -310,8 +322,8 @@ public class InternalParentTree extends Div {
 	 * @param name
 	 * @return
 	 */
-	@Nonnull
-	static public CommandResponse openEclipseSource(@Nonnull String webappRoot, @Nonnull String name) {
+	@NonNull
+	static public CommandResponse openEclipseSource(@NonNull String webappRoot, @NonNull String name) {
 		int nconnects = 0;
 		for(int port = 5051; port < 5060; port++) {
 			CommandResponse cr = tryPortCommand(port, webappRoot, name);
@@ -366,13 +378,13 @@ public class InternalParentTree extends Div {
 	}
 
 	static public class CommandResponse {
-		@Nonnull
+		@NonNull
 		final private AnswerType m_type;
 
 		@Nullable
 		final private String m_message;
 
-		public CommandResponse(@Nonnull AnswerType type, @Nullable String message) {
+		public CommandResponse(@NonNull AnswerType type, @Nullable String message) {
 			m_type = type;
 			m_message = message;
 		}
@@ -385,7 +397,7 @@ public class InternalParentTree extends Div {
 			return message;
 		}
 
-		@Nonnull
+		@NonNull
 		public AnswerType getType() {
 			return m_type;
 		}
@@ -398,8 +410,8 @@ public class InternalParentTree extends Div {
 	 * @param name
 	 * @return
 	 */
-	@Nonnull
-	static private CommandResponse tryPortCommand(int port, @Nonnull String webappRoot, @Nonnull String name) {
+	@NonNull
+	static private CommandResponse tryPortCommand(int port, @NonNull String webappRoot, @NonNull String name) {
 		Socket s = null;
 		//		boolean connected = false;
 		try {

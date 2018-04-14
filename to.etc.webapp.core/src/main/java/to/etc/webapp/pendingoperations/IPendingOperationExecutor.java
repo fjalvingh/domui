@@ -24,9 +24,8 @@
  */
 package to.etc.webapp.pendingoperations;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.util.ILogSink;
 
 /**
  * Factory type which generates an executor instance
@@ -36,5 +35,5 @@ import to.etc.util.*;
  * Created on Mar 6, 2009
  */
 public interface IPendingOperationExecutor {
-	void executePendingOperation(@Nonnull final PendingOperation po, @Nonnull final ILogSink ls) throws Exception;
+	void executePendingOperation(@NonNull final PendingOperation po, @NonNull final ILogSink ls) throws Exception;
 }

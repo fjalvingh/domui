@@ -24,7 +24,7 @@
  */
 package to.etc.domui.util.bugs;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Receives all posted bug events on a thread and has to do something to them.
@@ -33,5 +33,5 @@ import javax.annotation.*;
  * Created on Jun 18, 2010
  */
 public interface IBugListener {
-	void bugSignaled(@Nonnull BugItem item);
+	void bugSignaled(@NonNull BugItem item);
 }

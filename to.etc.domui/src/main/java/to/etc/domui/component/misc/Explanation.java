@@ -24,12 +24,11 @@
  */
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.XmlTextNode;
-
-import javax.annotation.Nullable;
 
 public class Explanation extends Div {
 	private final XmlTextNode m_text = new XmlTextNode();

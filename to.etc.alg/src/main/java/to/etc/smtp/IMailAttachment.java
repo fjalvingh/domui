@@ -24,11 +24,11 @@
  */
 package to.etc.smtp;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
-import javax.annotation.*;
+import java.io.InputStream;
 
-@DefaultNonNull
+@NonNullByDefault
 public interface IMailAttachment {
 
 	InputStream getInputStream() throws Exception;

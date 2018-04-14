@@ -5,7 +5,7 @@ package to.etc.util;
  *         Created on 6/29/16.
  */
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * <p>A hash map that uses primitive ints for the key rather than objects.</p>

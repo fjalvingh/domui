@@ -1,9 +1,8 @@
 package to.etc.domui.logic.errors;
 
-import to.etc.domui.component.meta.*;
-
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import jdk.nashorn.internal.ir.annotations.Immutable;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
 /**
  * Created by jal on 11/16/14.
@@ -12,11 +11,11 @@ import javax.annotation.concurrent.*;
 final public class Problems {
 	private Problems() {}
 
-	static public final <T> void mandatory(@Nonnull ProblemModel model, @Nonnull T instance, @Nonnull String property) {
+	static public final <T> void mandatory(@NonNull ProblemModel model, @NonNull T instance, @NonNull String property) {
 		MandatoryProblem.INSTANCE.check(model, instance, property);
 	}
 
-	static public final <T, V> void mandatory(@Nonnull ProblemModel model, @Nonnull T instance, @Nonnull PropertyMetaModel<V> property) {
+	static public final <T, V> void mandatory(@NonNull ProblemModel model, @NonNull T instance, @NonNull PropertyMetaModel<V> property) {
 		MandatoryProblem.INSTANCE.check(model, instance, property);
 	}
 }

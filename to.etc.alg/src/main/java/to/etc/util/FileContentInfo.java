@@ -24,7 +24,8 @@
  */
 package to.etc.util;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -69,8 +70,8 @@ final public class FileContentInfo {
 		m_name = name;
 	}
 
-	@Nonnull
-	static public FileContentInfo createType(@Nonnull File src, @Nonnull String name) throws Exception {
+	@NonNull
+	static public FileContentInfo createType(@NonNull File src, @NonNull String name) throws Exception {
 		FileContentInfo fc = new FileContentInfo(src, name);
 		fc.load();
 		return fc;

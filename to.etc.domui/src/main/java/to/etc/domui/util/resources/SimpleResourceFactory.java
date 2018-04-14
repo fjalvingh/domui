@@ -1,8 +1,7 @@
 package to.etc.domui.util.resources;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
 
 /**
  * Handles all normal $xxx type resources. These either come from web files (default) or if not found there
@@ -13,15 +12,15 @@ import to.etc.domui.server.*;
  */
 public class SimpleResourceFactory implements IResourceFactory {
 	@Override
-	public int accept(@Nonnull String name) {
+	public int accept(@NonNull String name) {
 		if(name.startsWith("$"))
 			return 10;
 		return -1;
 	}
 
 	@Override
-	@Nonnull
-	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+	@NonNull
+	public IResourceRef getResource(@NonNull DomApplication da, @NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
 		IResourceRef r = da.getAppFileOrResource(name.substring(1));
 		if(null != rdl)
 			rdl.add(r);

@@ -1,8 +1,7 @@
 package to.etc.domui.state;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.UrlPage;
 
 /**
  * An action request as part of a GOTO, to be executed on the page gone to.
@@ -11,5 +10,5 @@ import to.etc.domui.dom.html.*;
  * Created on Apr 22, 2013
  */
 public interface IGotoAction {
-	void executeAction(@Nonnull UrlPage page) throws Exception;
+	void executeAction(@NonNull UrlPage page) throws Exception;
 }

@@ -1,27 +1,28 @@
 package to.etc.domui.component.image;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 5, 2014
  */
-@Immutable
+//@Immutable
 public class LoadedImageInstance implements IUIImageInstance {
-	@Nonnull
+	@NonNull
 	final private File m_imageFile;
 
-	@Nonnull
+	@NonNull
 	private final String m_mime;
 
-	@Nonnull
+	@NonNull
 	final private Dimension m_dimension;
 
-	public LoadedImageInstance(@Nonnull File imageFile, @Nonnull String mime, @Nonnull Dimension dimension) {
+	public LoadedImageInstance(@NonNull File imageFile, @NonNull String mime, @NonNull Dimension dimension) {
 		m_imageFile = imageFile;
 		m_mime = mime;
 		m_dimension = dimension;

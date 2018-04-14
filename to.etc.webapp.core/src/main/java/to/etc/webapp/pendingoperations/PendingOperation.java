@@ -24,15 +24,30 @@
  */
 package to.etc.webapp.pendingoperations;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.util.ClassUtil;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedDatabaseInputStream;
+
+import javax.sql.DataSource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.sql.Blob;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.Date;
-
-import javax.annotation.*;
-import javax.sql.*;
-
-import to.etc.util.*;
+import java.util.Properties;
 
 /**
  * Represents a pending operation in the pending operation queue.
@@ -434,7 +449,7 @@ public class PendingOperation {
 		m_submitsource = rs.getString(f++);
 	}
 
-	public void delete(@Nonnull Connection dbc) throws SQLException {
+	public void delete(@NonNull Connection dbc) throws SQLException {
 		PreparedStatement ps = null;
 		try {
 			ps = dbc.prepareStatement("delete from sys_pending_operations where spo_id=?");

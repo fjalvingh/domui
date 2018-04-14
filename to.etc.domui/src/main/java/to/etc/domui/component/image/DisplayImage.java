@@ -1,5 +1,7 @@
 package to.etc.domui.component.image;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
@@ -8,8 +10,6 @@ import to.etc.domui.state.PageParameters;
 import to.etc.domui.themes.Theme;
 import to.etc.util.FileTool;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -26,7 +26,7 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 
 	private Dimension m_maxSize;
 
-	public DisplayImage(@Nonnull Dimension size, boolean thumb) {
+	public DisplayImage(@NonNull Dimension size, boolean thumb) {
 		setCssClass("ui-dsplyima");
 		m_thumbnail = thumb;
 		m_maxSize = size;
@@ -72,7 +72,7 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 		super.componentHandleWebDataRequest(ctx, action);
 	}
 
-	private void renderImage(@Nonnull RequestContextImpl ctx, @Nonnull IUIImage thumbnail) throws Exception {
+	private void renderImage(@NonNull RequestContextImpl ctx, @NonNull IUIImage thumbnail) throws Exception {
 		IUIImageInstance ii = thumbnail.getImage(m_maxSize, m_thumbnail);
 		OutputStream os = ctx.getRequestResponse().getOutputStream(ii.getMimeType(), null, ii.getImageSize());
 		InputStream is = ii.getImage();

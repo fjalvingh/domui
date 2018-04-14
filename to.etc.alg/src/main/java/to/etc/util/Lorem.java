@@ -1,12 +1,13 @@
 package to.etc.util;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4/10/15.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class Lorem {
 	@Nullable
 	static private String m_lorem;

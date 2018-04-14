@@ -1,15 +1,15 @@
 package to.etc.dbpool.info;
 
-import to.etc.dbpool.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.dbpool.ConnectionProxy;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 3/21/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 public interface IConnectionStatisticsFactory {
 	void startConnectionStatistics(ConnectionProxy proxy) throws Exception;
 

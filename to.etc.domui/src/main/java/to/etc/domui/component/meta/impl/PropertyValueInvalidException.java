@@ -1,14 +1,14 @@
 package to.etc.domui.component.meta.impl;
 
-import to.etc.domui.component.meta.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 1/20/15.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class PropertyValueInvalidException extends RuntimeException {
 	final private Object m_targetObject;
 

@@ -24,17 +24,18 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 abstract public class QOperatorNode extends QNodeBase {
-	@Nonnull
+	@NonNull
 	final private QOperation m_operation;
 
-	public QOperatorNode(@Nonnull QOperation operation) {
+	public QOperatorNode(@NonNull QOperation operation) {
 		m_operation = operation;
 	}
 
-	@Nonnull
+	@NonNull
 	public QOperation getOperation() {
 		return m_operation;
 	}

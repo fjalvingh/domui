@@ -24,7 +24,8 @@
  */
 package to.etc.domui.component.misc;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * This is a special control which can be used to display all kinds of values. It behaves as a "span" containing some
@@ -35,17 +36,17 @@ import javax.annotation.*;
  * Created on Feb 15, 2010
  */
 public class DisplayValue<T> extends DisplaySpan<T> {
-	public DisplayValue(@Nonnull Class<T> valueClass) {
+	public DisplayValue(@NonNull Class<T> valueClass) {
 		super(valueClass);
 		setCssClass("ui-dspv");
 	}
 
-	public DisplayValue(@Nonnull Class<T> valueClass, @Nullable T value) {
+	public DisplayValue(@NonNull Class<T> valueClass, @Nullable T value) {
 		super(valueClass, value);
 		setCssClass("ui-dspv");
 	}
 
-	public DisplayValue(@Nonnull T literal) {
+	public DisplayValue(@NonNull T literal) {
 		super(literal);
 		setCssClass("ui-dspv");
 	}

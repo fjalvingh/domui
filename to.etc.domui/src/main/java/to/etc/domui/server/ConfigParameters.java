@@ -24,9 +24,10 @@
  */
 package to.etc.domui.server;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.File;
 
 /**
  * Hides the method to get app parameters. Currently proxies to
@@ -37,7 +38,7 @@ import javax.annotation.*;
  * Created on May 22, 2008
  */
 public interface ConfigParameters {
-	@Nullable String getString(@Nonnull String name);
+	@Nullable String getString(@NonNull String name);
 
-	@Nonnull File getWebFileRoot();
+	@NonNull File getWebFileRoot();
 }

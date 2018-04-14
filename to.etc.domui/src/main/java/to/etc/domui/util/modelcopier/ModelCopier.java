@@ -1,13 +1,23 @@
 package to.etc.domui.util.modelcopier;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.util.ILogSink;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 /**
  * This helps with copying models by using natural/defined keys instead of just PK's.
@@ -16,16 +26,16 @@ import to.etc.webapp.query.*;
  * Created on Jan 9, 2013
  */
 public class ModelCopier {
-//	@Nonnull
+//	@NonNull
 //	final private QDataContext m_sds;
 
-	@Nonnull
+	@NonNull
 	final private QDataContext m_dds;
 
 	@Nullable
 	final private ILogSink m_sink;
 
-	@Nonnull
+	@NonNull
 	final Map<Class< ? >, EntityDef< ? >> m_defMap = new HashMap<>();
 
 	private StringBuilder m_pathSb = new StringBuilder();
@@ -36,7 +46,7 @@ public class ModelCopier {
 
 	private boolean m_updateExisting;
 
-	public ModelCopier(@Nullable ILogSink sink, @Nonnull QDataContext sds, @Nonnull QDataContext dds) throws Exception {
+	public ModelCopier(@Nullable ILogSink sink, @NonNull QDataContext sds, @NonNull QDataContext dds) throws Exception {
 		m_sink = sink;
 //		m_sds = sds;
 		m_dds = dds;
@@ -48,7 +58,7 @@ public class ModelCopier {
 			m_sink.log(s);
 	}
 
-	@Nonnull
+	@NonNull
 	public ModelCopier ignorePath(String path) {
 		m_ignorePathSet.add(path);
 		return this;
@@ -67,7 +77,7 @@ public class ModelCopier {
 	/*	CODING:	Defining.											*/
 	/*--------------------------------------------------------------*/
 
-	public <T> EntityDef<T> define(@Nonnull Class<T> eclass) {
+	public <T> EntityDef<T> define(@NonNull Class<T> eclass) {
 		EntityDef<T> ed = (EntityDef<T>) m_defMap.get(eclass);
 		if(null == ed) {
 			ed = new EntityDef<T>(this, eclass);
@@ -77,12 +87,12 @@ public class ModelCopier {
 	}
 
 	@Nullable
-	public <T> EntityDef<T> findDefinition(@Nonnull Class<T> eclass) {
+	public <T> EntityDef<T> findDefinition(@NonNull Class<T> eclass) {
 		return (EntityDef<T>) m_defMap.get(eclass);
 	}
 
-	@Nonnull
-	public <T> EntityDef<T> getDefinition(@Nonnull Class<T> eclass) {
+	@NonNull
+	public <T> EntityDef<T> getDefinition(@NonNull Class<T> eclass) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(eclass);
 
 		EntityDef<T> ed = findDefinition((Class<T>) cmm.getActualClass());
@@ -96,14 +106,14 @@ public class ModelCopier {
 	/*--------------------------------------------------------------*/
 
 	/** Maps known/located/created instances in dest by key. */
-	@Nonnull
+	@NonNull
 	private Map<InstanceKey< ? >, Object> m_destInstanceMap = new HashMap<>();
 
 	/** Maps known/located/created instances in src by key. */
-	@Nonnull
+	@NonNull
 	private Map<InstanceKey< ? >, Object> m_srcInstanceMap = new HashMap<>();
 
-	@Nonnull
+	@NonNull
 	private Stack<InstanceKey< ? >> m_currentFindSet = new Stack<InstanceKey< ? >>();
 
 	/**
@@ -115,7 +125,7 @@ public class ModelCopier {
 	 * @return
 	 */
 	@Nullable
-	public <T> T copy(@Nonnull T src, Object... except) throws Exception {
+	public <T> T copy(@NonNull T src, Object... except) throws Exception {
 		Set<Object> exceptSet = new HashSet<Object>();
 		for(Object xc : except)
 			exceptSet.add(xc);
@@ -124,12 +134,12 @@ public class ModelCopier {
 	}
 
 	@Nullable
-	private <T> T findKnownDestInstance(@Nonnull InstanceKey<T> k) {
+	private <T> T findKnownDestInstance(@NonNull InstanceKey<T> k) {
 		return (T) m_destInstanceMap.get(k);
 	}
 
 	@Nullable
-	private <T> T copyInstance(@Nonnull T src) throws Exception {
+	private <T> T copyInstance(@NonNull T src) throws Exception {
 //		if(except.contains(instancePath))
 //			return null;
 
@@ -201,7 +211,7 @@ public class ModelCopier {
 	 * @return
 	 * @throws Exception
 	 */
-	public <T> T destCreate(@Nonnull InstanceKey<T> key) throws Exception {
+	public <T> T destCreate(@NonNull InstanceKey<T> key) throws Exception {
 		T di = destLocate(key);
 		if(null != di)
 			return di;
@@ -238,7 +248,7 @@ public class ModelCopier {
 		return di;
 	}
 
-	private <T, I> void copyProperties(@Nonnull EntityDef<T> ed, @Nonnull T di, @Nonnull T si, @Nonnull InstanceKey<T> key) throws Exception {
+	private <T, I> void copyProperties(@NonNull EntityDef<T> ed, @NonNull T di, @NonNull T si, @NonNull InstanceKey<T> key) throws Exception {
 		List<PropertyMetaModel< ? >> pl = ed.getMetaModel().getProperties();
 		List<PropertyMetaModel< ? >> childList = new ArrayList<>();
 
@@ -301,7 +311,7 @@ public class ModelCopier {
 		}
 	}
 
-	private <T, I, X extends List<I>> void copyChildren(@Nonnull EntityDef<T> ed, @Nonnull T di, @Nonnull T si, @Nonnull PropertyMetaModel<X> pmm) throws Exception {
+	private <T, I, X extends List<I>> void copyChildren(@NonNull EntityDef<T> ed, @NonNull T di, @NonNull T si, @NonNull PropertyMetaModel<X> pmm) throws Exception {
 		int sbl = m_pathSb.length();
 		adjustPath(sbl, pmm.getName());
 		if(isIgnoredPath()) {
@@ -338,7 +348,7 @@ public class ModelCopier {
 		pmm.setValue(di, dval);
 	}
 
-	private <T, X> void copyParent(@Nonnull EntityDef<T> ed, @Nonnull T di, @Nonnull T si, @Nonnull PropertyMetaModel<X> pmm) throws Exception {
+	private <T, X> void copyParent(@NonNull EntityDef<T> ed, @NonNull T di, @NonNull T si, @NonNull PropertyMetaModel<X> pmm) throws Exception {
 		int sbl = m_pathSb.length();
 		adjustPath(sbl, pmm.getName());
 		if(isIgnoredPath()) {
@@ -358,7 +368,7 @@ public class ModelCopier {
 //		System.out.println("P: " + pmm + " = " + MetaManager.identify(val));
 	}
 
-	private <T, X> void copyValue(@Nonnull EntityDef<T> ed, @Nonnull T di, @Nonnull T si, @Nonnull PropertyMetaModel<X> pmm) throws Exception {
+	private <T, X> void copyValue(@NonNull EntityDef<T> ed, @NonNull T di, @NonNull T si, @NonNull PropertyMetaModel<X> pmm) throws Exception {
 		if(pmm.isTransient() || pmm.getReadOnly() == YesNoType.YES)
 			return;
 		if(pmm.isPrimaryKey())
@@ -430,7 +440,7 @@ public class ModelCopier {
 		return m_ignorePathSet.contains(m_currentPath);
 	}
 
-	private static boolean isExcepted(@Nonnull Set<Object> exceptSet, @Nonnull PropertyMetaModel< ? > frpmm) {
+	private static boolean isExcepted(@NonNull Set<Object> exceptSet, @NonNull PropertyMetaModel< ? > frpmm) {
 		if(exceptSet.contains(frpmm.getName()))
 			return true;
 		for(Object t : exceptSet) {

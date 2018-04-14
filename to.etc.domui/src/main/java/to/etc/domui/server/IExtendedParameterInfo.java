@@ -24,7 +24,7 @@
  */
 package to.etc.domui.server;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 public interface IExtendedParameterInfo extends IParameterInfo {
 	BrowserVersion getBrowserVersion();

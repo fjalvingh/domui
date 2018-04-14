@@ -24,13 +24,14 @@
  */
 package to.etc.domui.injector;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.IPageParameters;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
-@DefaultNonNull
+@NonNullByDefault
 final class PageInjector {
 	final private List<PropertyInjector> m_propInjectorList;
 

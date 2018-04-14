@@ -24,7 +24,9 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Used to separate event registration from the data source. An instance of
@@ -35,7 +37,7 @@ import java.util.*;
  * Created on Jul 15, 2009
  */
 public class QEventListenerSet {
-	static public final QEventListenerSet	EMPTY_SET = new QEventListenerSet(Collections.unmodifiableList(new ArrayList<IQueryListener>()));
+	static public final QEventListenerSet	EMPTY_SET = new QEventListenerSet(Collections.unmodifiableList(new ArrayList<>()));
 
 	private List<IQueryListener>		m_listeners = Collections.EMPTY_LIST;
 
@@ -55,9 +57,9 @@ public class QEventListenerSet {
 		if(m_listeners.contains(l))
 			return;
 		if(m_listeners == Collections.EMPTY_LIST)
-			m_listeners = new ArrayList<IQueryListener>(1);
+			m_listeners = new ArrayList<>(1);
 		else
-			m_listeners = new ArrayList<IQueryListener>(m_listeners);
+			m_listeners = new ArrayList<>(m_listeners);
 		m_listeners.add(l);
 	}
 
@@ -66,7 +68,7 @@ public class QEventListenerSet {
 	 * @param l
 	 */
 	synchronized public void removeQueryListener(IQueryListener l) {
-		m_listeners = new ArrayList<IQueryListener>(m_listeners);
+		m_listeners = new ArrayList<>(m_listeners);
 		m_listeners.remove(l);
 	}
 
@@ -82,7 +84,7 @@ public class QEventListenerSet {
 	 * Calls all listeners in order.
 	 * @param qc
 	 */
-	public void		callOnBeforeQuery(QDataContext dc, QCriteriaQueryBase<?> qc) throws Exception {
+	public void		callOnBeforeQuery(QDataContext dc, QCriteriaQueryBase<?, ?> qc) throws Exception {
 		for(IQueryListener l: getListenerIterator())
 			l.onBeforeQuery(dc, qc);
 	}

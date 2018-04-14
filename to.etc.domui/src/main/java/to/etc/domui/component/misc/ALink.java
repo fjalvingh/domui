@@ -24,13 +24,18 @@
  */
 package to.etc.domui.component.misc;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.state.MoveMode;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
 
 /**
  * A hyperlink which allows for opening windows in a separate conversation from the
@@ -251,7 +256,7 @@ public class ALink extends ATag {
 	 * @see to.etc.domui.dom.html.NodeBase#internalOnClicked()
 	 */
 	@Override
-	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
+	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		if(getClicked() != null) {
 			super.internalOnClicked(cli);
 			return;

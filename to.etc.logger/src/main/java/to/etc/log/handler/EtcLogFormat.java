@@ -1,9 +1,9 @@
 package to.etc.log.handler;
 
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
+import org.eclipse.jdt.annotation.NonNull;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import to.etc.log.EtcLoggerFactory.LoggerConfigException;
 
 /**
@@ -26,26 +26,26 @@ public class EtcLogFormat {
 
 	public static final String	TIMESTAMP	= "HH:mm:ss.SSS";
 
-	@Nonnull
+	@NonNull
 	private String				m_format	= DEFAULT;
 
-	@Nonnull
+	@NonNull
 	public String getFormat() {
 		return m_format;
 	}
 
-	public void setFormat(@Nonnull String format) {
+	public void setFormat(@NonNull String format) {
 		m_format = format;
 	}
 
-	@Nonnull
-	static EtcLogFormat createFromXml(@Nonnull Node node) throws LoggerConfigException {
+	@NonNull
+	static EtcLogFormat createFromXml(@NonNull Node node) throws LoggerConfigException {
 		EtcLogFormat format = new EtcLogFormat();
 		format.setFormat(node.getAttributes().getNamedItem("pattern").getNodeValue());
 		return format;
 	}
 
-	void saveToXml(@Nonnull Document doc, @Nonnull Element formatNode) {
+	void saveToXml(@NonNull Document doc, @NonNull Element formatNode) {
 		formatNode.setAttribute("pattern", m_format);
 	}
 }

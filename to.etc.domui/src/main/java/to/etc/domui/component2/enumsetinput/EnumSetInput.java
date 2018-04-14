@@ -1,5 +1,8 @@
 package to.etc.domui.component2.enumsetinput;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.component.input.SearchAsYouType;
 import to.etc.domui.component.input.SearchAsYouTypeBase;
@@ -14,10 +17,8 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IRenderInto;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,19 +27,21 @@ import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * FIXME Functional duplicate of LabelSelector.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4-2-18.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	private final Class<T> m_actualClass;
 
 	private final String m_property;
 
-	@Nonnull
+	@NonNull
 	private List<T> m_dataList = new ArrayList<>();
 
 	private final Map<T, Div> m_displayMap = new HashMap<>();
@@ -57,12 +60,15 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	@Nullable
 	private SearchAsYouType<T> m_input;
 
-	//public EnumSetInput(Class<T> actualClass) {
-	//	m_actualClass = actualClass;
-	//}
 	public EnumSetInput(Class<T> actualClass, String property) {
 		m_actualClass = actualClass;
 		m_property = property;
+	}
+
+	public EnumSetInput(Class<T> actualClass, List<T> data, String property) {
+		m_actualClass = actualClass;
+		m_property = property;
+		m_dataList = data;
 	}
 
 	@Override public void createContent() throws Exception {
@@ -94,9 +100,26 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 				if(null != value) {
 					addItem(value);
 					input.setValue(null);
+					updateValueList();
 				}
 			});
 		}
+	}
+
+	private void updateValueList() {
+		List<T> list = new ArrayList<>();
+		List<T> source = m_dataList;
+
+		Set<T> value = internalGetValue();
+		if(null == value)
+			value = Collections.emptySet();
+		if(null != source) {
+			for(T datum : source) {
+				if(! value.contains(datum))
+					list.add(datum);
+			}
+		}
+		requireNonNull(m_input).setData(list);
 	}
 
 	private Div renderLabel(T value) throws Exception {
@@ -117,8 +140,11 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		delBtn.setClicked(a -> {
 			removeItem(value);
 			SearchAsYouType<T> input = m_input;
-			if(input != null)
+			if(input != null) {
 				input.setFocus();
+				updateValueList();
+			}
+
 		});
 		m_displayMap.put(value, label);					// Register
 		return label;
@@ -137,8 +163,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		}
 	}
 
-
-	private void addItem(T item) throws Exception {
+	public void addItem(T item) throws Exception {
 		Set<T> set = getValue();
 		if(null == set) {
 			set = new HashSet<>();
@@ -197,11 +222,11 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		return null;
 	}
 
-	@Nonnull public List<T> getData() {
+	@NonNull public List<T> getData() {
 		return m_dataList;
 	}
 
-	public EnumSetInput<T> setData(@Nonnull List<T> dataList) {
+	public EnumSetInput<T> setData(@NonNull List<T> dataList) {
 		m_dataList = dataList;
 		forceRebuild();
 		return this;

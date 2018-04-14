@@ -1,19 +1,28 @@
 package to.etc.domui.hibernate.beforeimages;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.hibernate.EmptyInterceptor;
+import org.hibernate.Hibernate;
+import org.hibernate.collection.PersistentCollection;
+import org.hibernate.event.InitializeCollectionEventListener;
+import org.hibernate.event.PostLoadEvent;
+import org.hibernate.proxy.HibernateProxy;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.util.WrappedException;
+import to.etc.webapp.query.IBeforeImageCache;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-
-import org.hibernate.*;
-import org.hibernate.collection.*;
-import org.hibernate.event.*;
-import org.hibernate.proxy.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This session interceptor delegates load events to the before-image load cache.
@@ -22,7 +31,7 @@ import to.etc.webapp.query.*;
  * Created on Jan 13, 2014
  */
 public class BeforeImageInterceptor extends EmptyInterceptor {
-	@Nonnull
+	@NonNull
 	final private IBeforeImageCache m_cache;
 
 	static private final boolean DEBUG = false;
@@ -33,25 +42,25 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Jan 20, 2014
 	 */
-	@Immutable
+	//@Immutable
 	static private class CollectionKey {
-		@Nonnull
+		@NonNull
 		final private String m_role;
 
-		@Nonnull
+		@NonNull
 		final private Serializable m_key;
 
-		public CollectionKey(@Nonnull String role, @Nonnull Serializable key) {
+		public CollectionKey(@NonNull String role, @NonNull Serializable key) {
 			m_role = role;
 			m_key = key;
 		}
 
-		@Nonnull
+		@NonNull
 		public String getRole() {
 			return m_role;
 		}
 
-		@Nonnull
+		@NonNull
 		public Serializable getKey() {
 			return m_key;
 		}
@@ -86,14 +95,14 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	final private Map<CollectionKey, IBeforeImageCollectionProxy< ? >> m_mirrorMap = new HashMap<CollectionKey, IBeforeImageCollectionProxy< ? >>();
 
-	public BeforeImageInterceptor(@Nonnull IBeforeImageCache cache) {
+	public BeforeImageInterceptor(@NonNull IBeforeImageCache cache) {
 		m_cache = cache;
 	}
 
-	@Nonnull
+	@NonNull
 	public IBeforeImageCache getCache() {
 		return m_cache;
 	}
@@ -105,7 +114,7 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 *
 	 * @see org.hibernate.EmptyInterceptor#onAfterLoad(org.hibernate.event.PostLoadEvent)
 	 */
-	public void onAfterLoad(@Nonnull PostLoadEvent loadevent) {
+	public void onAfterLoad(@NonNull PostLoadEvent loadevent) {
 		Object instance = loadevent.getEntity();
 		if(null == instance)
 			throw new IllegalStateException("entity instance null in interceptor!?");
@@ -132,14 +141,14 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 * @param copy
 	 * @param instance
 	 */
-	private <T> void copyProperties(@Nonnull T dst, @Nonnull T src) throws Exception {
+	private <T> void copyProperties(@NonNull T dst, @NonNull T src) throws Exception {
 		for(PropertyMetaModel< ? > pmm : MetaManager.findClassMeta(src.getClass()).getProperties()) {
 //			System.out.println("   >> copy property " + pmm + " of " + src.getClass());
 			copyProperty(dst, src, pmm);
 		}
 	}
 
-	private <T, V> void copyProperty(@Nonnull T dst, @Nonnull T src, @Nonnull PropertyMetaModel<V> pmm) throws Exception {
+	private <T, V> void copyProperty(@NonNull T dst, @NonNull T src, @NonNull PropertyMetaModel<V> pmm) throws Exception {
 		if(pmm.getReadOnly() == YesNoType.YES)					// Cannot set readonlies
 			return;
 		if(pmm.isTransient())									// We don't wanna play with transients.
@@ -176,7 +185,7 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 * @param src
 	 * @return
 	 */
-	private <V> V convertParentRelation(@Nonnull V src) throws Exception {
+	private <V> V convertParentRelation(@NonNull V src) throws Exception {
 		if(Hibernate.isInitialized(src)) {						// Loaded?
 			//-- Replace the instance with the before image of that instance.
 			V before = m_cache.findBeforeImage(src);
@@ -224,7 +233,7 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 * @return
 	 * @throws Exception
 	 */
-	private <E, C extends Collection<E>> C convertChildCollection(@Nonnull C src) throws Exception {
+	private <E, C extends Collection<E>> C convertChildCollection(@NonNull C src) throws Exception {
 		if(Hibernate.isInitialized(src)) {
 			return createMirrorCollection(src);					// Just create an immutable copy.
 		}
@@ -244,8 +253,8 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 * @param source
 	 * @return
 	 */
-	@Nonnull
-	static private <T, V extends Collection<T>, R extends IBeforeImageCollectionProxy<V>> R createMirrorCollectionProxy(@Nonnull V source) {
+	@NonNull
+	static private <T, V extends Collection<T>, R extends IBeforeImageCollectionProxy<V>> R createMirrorCollectionProxy(@NonNull V source) {
 		Class<V> clz = (Class<V>) source.getClass();
 		if(List.class.isAssignableFrom(clz)) {
 			return (R) new BeforeImageListProxy<T>();
@@ -261,8 +270,8 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 * @param source
 	 * @return
 	 */
-	@Nonnull
-	static private <T, V extends Collection<T>> V createMirrorCollection(@Nonnull V source) {
+	@NonNull
+	static private <T, V extends Collection<T>> V createMirrorCollection(@NonNull V source) {
 		Class<V> clz = (Class<V>) source.getClass();
 		if(List.class.isAssignableFrom(clz)) {
 			return (V) Collections.unmodifiableList(new ArrayList<T>(source));
@@ -273,8 +282,8 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	}
 
 
-	@Nonnull
-	static private <T> Class<T> getProxyClass(@Nonnull T proxy) {
+	@NonNull
+	static private <T> Class<T> getProxyClass(@NonNull T proxy) {
 		if(proxy instanceof HibernateProxy) {
 			return ((HibernateProxy) proxy).getHibernateLazyInitializer().getPersistentClass();
 		} else {
@@ -287,7 +296,7 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 * initializes the "before" image of that collection.
 	 * @param collection
 	 */
-	public void collectionLoaded(@Nonnull PersistentCollection collection) {
+	public void collectionLoaded(@NonNull PersistentCollection collection) {
 		CollectionKey kk = new CollectionKey(collection.getRole(), collection.getKey());
 		IBeforeImageCollectionProxy mirror = m_mirrorMap.remove(kk);
 		if(null == mirror) {

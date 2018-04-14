@@ -24,17 +24,21 @@
  */
 package to.etc.domui.caches.images;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.caches.FileImageRetriever;
+import to.etc.domui.caches.filecache.FileCache;
+import to.etc.domui.caches.filecache.FileCacheRef;
+import to.etc.domui.parts.CachedImagePart;
+import to.etc.domui.util.images.IImageReference;
+import to.etc.domui.util.images.IImageRetriever;
+import to.etc.domui.util.images.converters.IImageConversionSpecifier;
+import to.etc.domui.util.images.machines.ImageInfo;
 
-import javax.annotation.*;
-
-import to.etc.domui.caches.*;
-import to.etc.domui.caches.filecache.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.util.images.*;
-import to.etc.domui.util.images.converters.*;
-import to.etc.domui.util.images.machines.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This cache handles images and transformations of images.
@@ -270,7 +274,7 @@ public class ImageCache {
 	 * @param key	The key of the image.
 	 * @return	The root entry to use for that instance. This entry can be mostly empty!
 	 */
-	@Nonnull
+	@NonNull
 	private ImageTask getImageTask(ImageKey key) throws Exception {
 		synchronized(this) {
 			ImageRoot r = m_cacheMap.get(key);

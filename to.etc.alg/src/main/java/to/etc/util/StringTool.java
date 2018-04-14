@@ -24,15 +24,27 @@
  */
 package to.etc.util;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.text.*;
-import java.util.*;
-import java.util.regex.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Modifier;
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
+import java.util.StringTokenizer;
+import java.util.regex.Pattern;
 
 /**
  * This static utility class contains a load of string functions. And some other
@@ -91,7 +103,7 @@ public class StringTool {
 			BASE64DECMAP[BASE64MAP[ix]] = (byte) ix;
 	}
 
-	static public boolean isValidJavaIdentifier(@Nonnull final String s) {
+	static public boolean isValidJavaIdentifier(@NonNull final String s) {
 		int len = s.length();
 		if(len == 0)
 			return false;
@@ -112,8 +124,8 @@ public class StringTool {
 	 * @param prefix
 	 * @return
 	 */
-	@Nonnull
-	public static String getRandomStringWithPrefix(int length, @Nonnull String prefix) {
+	@NonNull
+	public static String getRandomStringWithPrefix(int length, @NonNull String prefix) {
 
 		if(length <= prefix.length())
 			throw new IllegalArgumentException("Prefix is too long");
@@ -137,7 +149,7 @@ public class StringTool {
 	 * @param s
 	 * @return
 	 */
-	static public boolean isValidDomainName(@Nonnull final String s) {
+	static public boolean isValidDomainName(@NonNull final String s) {
 		int len = s.length();
 		if(len == 0)
 			return false;
@@ -165,7 +177,7 @@ public class StringTool {
 	 * @param s
 	 * @return
 	 */
-	static public boolean isNumber(@Nonnull final String s) {
+	static public boolean isNumber(@NonNull final String s) {
 		int dots = 0;
 		int digits = 0;
 		for(int i = s.length(); --i >= 0;) {
@@ -188,7 +200,7 @@ public class StringTool {
 		return c == 0x00a0 || Character.isWhitespace(c);
 	}
 
-	static public boolean isAllSpaces(@Nonnull final String s) {
+	static public boolean isAllSpaces(@NonNull final String s) {
 		for(int i = s.length(); --i >= 0;) {
 			if(!isWhiteSpaceOrNbsp(s.charAt(i)))
 				return false;
@@ -196,7 +208,7 @@ public class StringTool {
 		return true;
 	}
 
-	static public boolean isValidEmail(@Nonnull final String em) {
+	static public boolean isValidEmail(@NonNull final String em) {
 		if(em.length() > MAX_EMAIL_LENGTH){
 			return false;
 		}
@@ -216,7 +228,7 @@ public class StringTool {
 	 * @param s
 	 * @return
 	 */
-	static public boolean isValidDbFieldName(@Nonnull String s) {
+	static public boolean isValidDbFieldName(@NonNull String s) {
 		if(s == null || s.length() == 0)
 			return false;
 		if(s.length() > 30)
@@ -279,7 +291,7 @@ public class StringTool {
 		return a.equalsIgnoreCase(b);
 	}
 
-	public static void stringize(@Nonnull final StringBuffer sb, @Nonnull final String s) {
+	public static void stringize(@NonNull final StringBuffer sb, @NonNull final String s) {
 		for(int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i); // Get the char to put,
 			switch(c){
@@ -316,7 +328,7 @@ public class StringTool {
 	 *	Converts a string into a java-compilable version of a string, i.e.
 	 *	surrounded by quotes, and with escape sequences escaped..
 	 */
-	public static StringBuffer stringize(@Nonnull final String s) {
+	public static StringBuffer stringize(@NonNull final String s) {
 		StringBuffer sb = new StringBuffer(s.length() + 20);
 
 		sb.append("\""); // Write a quote,
@@ -325,7 +337,7 @@ public class StringTool {
 		return sb;
 	}
 
-	public static StringBuffer stringizeNQ(@Nonnull final String s) {
+	public static StringBuffer stringizeNQ(@NonNull final String s) {
 		StringBuffer sb = new StringBuffer(s.length() + 20);
 		stringize(sb, s);
 		return sb;
@@ -336,7 +348,7 @@ public class StringTool {
 	 *	Takes an input string and replaces all occurences of the backslash with
 	 *	a forward slash.
 	 */
-	public static String strBackslashToSlash(@Nonnull final String s) {
+	public static String strBackslashToSlash(@NonNull final String s) {
 		StringBuffer sb = new StringBuffer(s.length());
 
 		int six, ix;
@@ -405,7 +417,7 @@ public class StringTool {
 	 *	Takes a java string, without quotes, and replaces all escape sequences
 	 *	in there with their actual character representation.
 	 */
-	public static void parseString(@Nonnull final StringBuilder sb, @Nonnull final String s) {
+	public static void parseString(@NonNull final StringBuilder sb, @NonNull final String s) {
 		int i = 0;
 
 		while(i < s.length()) {
@@ -501,7 +513,7 @@ public class StringTool {
 	 *	Returns a string with the specified length. If the string is too long
 	 *	it is truncated; if it is too short it is filled with c.
 	 */
-	public static String strToFixedLength(@Nonnull final String s, final char c, final int l) {
+	public static String strToFixedLength(@NonNull final String s, final char c, final int l) {
 		if(s.length() == l)
 			return s; // Length already OK,
 		if(s.length() > l)
@@ -520,7 +532,7 @@ public class StringTool {
 	/**
 	 *	Returns a coordinate pair as a string.
 	 */
-	@Nonnull
+	@NonNull
 	static public String toXY(final int x, final int y) {
 		return "(" + x + "," + y + ")";
 	}
@@ -535,7 +547,7 @@ public class StringTool {
 	 * that are needed to convert source into target. The number of changes is an indication of the difference between
 	 * those strings.
 	 */
-	public static int getLevenshteinDistance(@Nonnull String s, @Nonnull String t, boolean ignorecase) {
+	public static int getLevenshteinDistance(@NonNull String s, @NonNull String t, boolean ignorecase) {
 		if(s == null || t == null)
 			throw new IllegalArgumentException("Strings must not be null");
 		if(ignorecase) {
@@ -598,7 +610,7 @@ public class StringTool {
 	 * @param with		the start string
 	 * @return
 	 */
-	static public boolean strStartsWithIgnoreCase(@Nonnull final String st, @Nonnull final String with) {
+	static public boolean strStartsWithIgnoreCase(@NonNull final String st, @NonNull final String with) {
 		if(st.length() < with.length())
 			return false;
 
@@ -613,7 +625,7 @@ public class StringTool {
 	 * @param with		the end string
 	 * @return
 	 */
-	static public boolean strEndsWithIgnoreCase(@Nonnull final String st, @Nonnull final String with) {
+	static public boolean strEndsWithIgnoreCase(@NonNull final String st, @NonNull final String with) {
 		if(st.length() < with.length())
 			return false;
 
@@ -629,7 +641,7 @@ public class StringTool {
 	 * @param match
 	 * @return
 	 */
-	static public int strIndexOfIgnoreCase(@Nonnull final String txt, @Nonnull final String match) {
+	static public int strIndexOfIgnoreCase(@NonNull final String txt, @NonNull final String match) {
 		int lm = match.length();
 		int sl = txt.length();
 		if(lm > sl || lm == 0)
@@ -667,7 +679,7 @@ public class StringTool {
 	 *	positions. If the number is too large for the #positions then the
 	 *	high values are cut off.
 	 */
-	@Nonnull
+	@NonNull
 	static public String intToStr(final int val, final int radix, final int npos) {
 		String v = "000000000000" + Integer.toString(val, radix);
 
@@ -682,7 +694,7 @@ public class StringTool {
 	     * @param radix
 	     * @param len
 	     */
-	static public void strAddIntFixed(@Nonnull final Appendable sb, final int val, final int radix, final int len) {
+	static public void strAddIntFixed(@NonNull final Appendable sb, final int val, final int radix, final int len) {
 		try {
 			String iv = Integer.toString(val, radix);
 			int l = iv.length();
@@ -707,7 +719,7 @@ public class StringTool {
 	 * @param val
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public String strCommad(final long val) {
 		String v = Long.toString(val);
 		StringBuffer sb = new StringBuffer(30);
@@ -727,7 +739,7 @@ public class StringTool {
 	}
 
 
-	@Nonnull
+	@NonNull
 	static public String strDuration(long dlt) {
 		StringBuffer sb = new StringBuffer();
 
@@ -751,7 +763,7 @@ public class StringTool {
 		return sb.toString();
 	}
 
-	@Nonnull
+	@NonNull
 	static public String strDurationMillis(long dlt) {
 		StringBuffer sb = new StringBuffer();
 
@@ -819,7 +831,7 @@ public class StringTool {
 	     *      @parameter      bi: The initial index where the 1st byte is in the array
 	     *      @parameter      nc:     The number of bytes to decode.
 	     */
-	static public void arrayToHexStr(@Nonnull final Appendable sb, @Nonnull final byte[] ar, final int bi, final int nc, final boolean fillout) throws IOException {
+	static public void arrayToHexStr(@NonNull final Appendable sb, @NonNull final byte[] ar, final int bi, final int nc, final boolean fillout) throws IOException {
 		int i, ei;
 
 		ei = nc + bi;
@@ -840,7 +852,7 @@ public class StringTool {
 	/**
 	 *      Returns a string containing only printable chars for the given bytes.
 	 */
-	static public void arrayToAsciiStr(@Nonnull final Appendable sb, @Nonnull final byte[] ar, final int bi, final int nc) throws IOException {
+	static public void arrayToAsciiStr(@NonNull final Appendable sb, @NonNull final byte[] ar, final int bi, final int nc) throws IOException {
 		int i, ei;
 
 		ei = nc + bi;
@@ -858,7 +870,7 @@ public class StringTool {
 	 *      Returns a dumpstring containing the offset, the hex bytes, and the ascii
 	 *      representation of a given dump buffer.
 	 */
-	static public void arrayToDumpLine(@Nonnull final Appendable sb, @Nonnull final byte[] ar, final int bi, final int nc) throws IOException {
+	static public void arrayToDumpLine(@NonNull final Appendable sb, @NonNull final byte[] ar, final int bi, final int nc) throws IOException {
 		sb.append(intToStr(bi, 16, 4)); // Buffer offset
 		sb.append(": ");
 		arrayToHexStr(sb, ar, bi, nc, true); // Get filled-out string of nc bytes in HEX
@@ -877,7 +889,7 @@ public class StringTool {
 	 * @param len
 	 * @throws IOException
 	 */
-	static public void dumpData(@Nonnull final Appendable sb, @Nonnull final byte[] ar, final int off, final int len) throws IOException {
+	static public void dumpData(@NonNull final Appendable sb, @NonNull final byte[] ar, final int off, final int len) throws IOException {
 		int ix = off;
 		int left = len;
 		while(left > 0) {
@@ -888,12 +900,12 @@ public class StringTool {
 		}
 	}
 
-	static public void printHex(@Nonnull final PrintWriter pw, @Nonnull final byte[] arr) {
+	static public void printHex(@NonNull final PrintWriter pw, @NonNull final byte[] arr) {
 		printHex(pw, arr, 0, arr.length);
 	}
 
 
-	static public void printHex(@Nonnull final PrintWriter pw, @Nonnull final byte[] arr, final int start, final int end) {
+	static public void printHex(@NonNull final PrintWriter pw, @NonNull final byte[] arr, final int start, final int end) {
 		//-- Dump the data as a hex string, completely.
 		for(int i = start; i < end; i++) {
 			pw.print(intToStr((arr[i]) & 0xff, 16, 2));
@@ -901,12 +913,12 @@ public class StringTool {
 		pw.println("");
 	}
 
-	static public void printHex(@Nonnull final PrintStream pw, @Nonnull final byte[] arr) {
+	static public void printHex(@NonNull final PrintStream pw, @NonNull final byte[] arr) {
 		printHex(pw, arr, 0, arr.length);
 	}
 
 
-	static public void printHex(@Nonnull final PrintStream pw, @Nonnull final byte[] arr, final int start, final int end) {
+	static public void printHex(@NonNull final PrintStream pw, @NonNull final byte[] arr, final int start, final int end) {
 		//-- Dump the data as a hex string, completely.
 		for(int i = start; i < end; i++) {
 			pw.print(intToStr((arr[i]) & 0xff, 16, 2));
@@ -2320,7 +2332,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpDebugLocation(@Nonnull Logger log, final @Nonnull String msg) {
+	static public final void dumpDebugLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at debug level for source location...");
 		} catch(IllegalStateException x) {
@@ -2328,7 +2340,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpTraceLocation(@Nonnull Logger log, final @Nonnull String msg) {
+	static public final void dumpTraceLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at trace level for source location...");
 		} catch(IllegalStateException x) {
@@ -2336,7 +2348,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpInfoLocation(@Nonnull Logger log, final @Nonnull String msg) {
+	static public final void dumpInfoLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at info level for source location...");
 		} catch(IllegalStateException x) {
@@ -2344,7 +2356,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpWarnLocation(@Nonnull Logger log, final @Nonnull String msg) {
+	static public final void dumpWarnLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at warn level for source location...");
 		} catch(IllegalStateException x) {
@@ -2352,7 +2364,7 @@ public class StringTool {
 		}
 	}
 
-	static public final void dumpErrorLocation(@Nonnull Logger log, final @Nonnull String msg) {
+	static public final void dumpErrorLocation(@NonNull Logger log, final @NonNull String msg) {
 		try {
 			throw new IllegalStateException("Dump at error level for source location...");
 		} catch(IllegalStateException x) {
@@ -2725,7 +2737,7 @@ public class StringTool {
 	 * Generate an unique identifier with reasonable expectations that it will be globally unique. This
 	 * does not use the known GUID format but shortens the string by encoding into base64-like encoding.
 	 */
-	@Nonnull
+	@NonNull
 	static public String generateGUID() {
 		byte[] bin = new byte[18];
 		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed
@@ -2819,8 +2831,8 @@ public class StringTool {
 	/**
 	 * Replaces all accented letters with their non-accented equivalents - FOR WESTERN LANGUAGES ONLY!
 	 */
-	@Nonnull
-	static public String removeAccents(@Nonnull String str) {
+	@NonNull
+	static public String removeAccents(@NonNull String str) {
 		if(str == null)
 			return null;
 		String nfdNormalizedString = Normalizer.normalize(str, Normalizer.Form.NFD);
@@ -2867,7 +2879,7 @@ public class StringTool {
 		return text;
 	}
 
-	private static int getUtf8LengthInBytes(@Nonnull String text) {
+	private static int getUtf8LengthInBytes(@NonNull String text) {
 
 		try {
 			return text.getBytes("utf8").length;
@@ -2876,8 +2888,8 @@ public class StringTool {
 		}
 	}
 
-	@Nonnull
-	public static String strCapitalized(@Nonnull String name) {
+	@NonNull
+	public static String strCapitalized(@NonNull String name) {
 		if(name.length() == 0)
 			return name;
 		char c = name.charAt(0);
@@ -2887,7 +2899,7 @@ public class StringTool {
 	/**
 	 * Checks whether a given text is too big for the maximum varchar2 database field
 	 */
-	public static boolean isInvalidOracleLength(@Nonnull String text) {
+	public static boolean isInvalidOracleLength(@NonNull String text) {
 		return getUtf8LengthInBytes(text) >= MAX_SIZE_IN_BYTES_FOR_ORACLE_VARCHAR2;
 	}
 
@@ -2913,8 +2925,8 @@ public class StringTool {
 	 * @param replacement for new line characters
 	 * @return given string without new line characters
 	 */
-	@Nonnull
-	public static String replaceNewLineChars(@Nonnull String content, @Nonnull String replacement) {
+	@NonNull
+	public static String replaceNewLineChars(@NonNull String content, @NonNull String replacement) {
 		return content.replace("\r\n", replacement).replace("\r", replacement).replace("\n", replacement);
 	}
 
@@ -2935,7 +2947,7 @@ public class StringTool {
 	 * If input uses HTML for new line (<br> or <br/>) then it ignores rest or \n characters, otherwise converts \n to <br/>.
 	 * If removeEndingNewLines then it removes all the ending new lines too.
 	 */
-	public static String renderAsRawHtml(@Nonnull String input, boolean removeEndingNewLines){
+	public static String renderAsRawHtml(@NonNull String input, boolean removeEndingNewLines){
 		input = input.replace("<br>", "<br/>");
 		if (input.contains("<br/>")){
 			input = input.replace("\n", "");

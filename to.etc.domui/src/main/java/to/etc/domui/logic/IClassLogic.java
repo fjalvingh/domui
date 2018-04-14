@@ -1,6 +1,6 @@
 package to.etc.domui.logic;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Marker interface for any logic class.
@@ -10,6 +10,6 @@ import javax.annotation.*;
  */
 public interface IClassLogic extends ILogic {
 
-	@Nonnull ILogicContext lc();
+	@NonNull ILogicContext lc();
 
 }

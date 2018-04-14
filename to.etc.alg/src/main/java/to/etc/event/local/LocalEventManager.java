@@ -1,9 +1,11 @@
 package to.etc.event.local;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Manager can be used to fire events that will be handled on the same server that fires them.
@@ -16,8 +18,8 @@ public class LocalEventManager {
 
 	private static final LocalEventManager					m_instance	= new LocalEventManager();
 
-	@GuardedBy("this")
-	@Nonnull
+	//@GuardedBy("this")
+	@NonNull
 	private final Map<Class< ? >, List<ILocalEventListener< ? >>>	m_listeners	= new HashMap<Class< ? >, List<ILocalEventListener< ? >>>();
 
 
@@ -27,7 +29,7 @@ public class LocalEventManager {
 	 * @param eventObject
 	 * @param l
 	 */
-	public <T> void addListenerForEvent(@Nonnull ILocalEventListener<T> l, @Nonnull Class< ? extends T> eventClass) {
+	public <T> void addListenerForEvent(@NonNull ILocalEventListener<T> l, @NonNull Class< ? extends T> eventClass) {
 		List<ILocalEventListener< ? >> existingListeners;
 		synchronized(this) {
 			existingListeners = m_listeners.get(eventClass);
@@ -50,7 +52,7 @@ public class LocalEventManager {
 	 * @param firedEvent
 	 * @throws Exception
 	 */
-	public <T> void eventFired(@Nonnull T firedEvent) throws Exception {
+	public <T> void eventFired(@NonNull T firedEvent) throws Exception {
 		List<ILocalEventListener< ? >> listeners;
 		synchronized(this) {
 			listeners = m_listeners.get(firedEvent.getClass());

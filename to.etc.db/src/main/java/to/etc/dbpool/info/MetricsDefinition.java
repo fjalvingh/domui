@@ -1,16 +1,20 @@
 package to.etc.dbpool.info;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.dbpool.DbPoolUtil;
 
-import javax.annotation.*;
-
-import to.etc.dbpool.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2/2/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class MetricsDefinition {
 	public static final int M_PHYSICAL_READS = 1;
 
@@ -435,7 +439,7 @@ final public class MetricsDefinition {
 		return res;
 	}
 
-	static public synchronized MetricsDefinition getOrCreate(@Nonnull String name) {
+	static public synchronized MetricsDefinition getOrCreate(@NonNull String name) {
 		MetricsDefinition md = m_definitionMap.get(name);
 		if(null == md) {
 			md = new MetricsDefinition(-1, name, name, a -> String.valueOf(a), null, false, 0, null);

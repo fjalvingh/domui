@@ -1,5 +1,7 @@
 package to.etc.domui.component2.lookupinput;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
@@ -10,10 +12,8 @@ import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QLiteral;
 import to.etc.webapp.query.QOperation;
 import to.etc.webapp.query.QPropertyComparison;
-import to.etc.webapp.query.QRestrictor;
+import to.etc.webapp.query.QRestrictorImpl;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -34,14 +34,14 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 	 * The metamodel to use to handle the query data in this class. For Javabean data classes this is automatically
 	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
 	 */
-	@Nonnull
+	@NonNull
 	final private ClassMetaModel m_queryMetaModel;
 
 	/** Contains manually added quicksearch properties. Is null if none are added. */
 	@Nullable
 	private List<SearchPropertyMetaModel> m_keywordLookupPropertyList;
 
-	public DefaultStringQueryFactory(@Nonnull ClassMetaModel queryMetaModel) {
+	public DefaultStringQueryFactory(@NonNull ClassMetaModel queryMetaModel) {
 		m_queryMetaModel = queryMetaModel;
 	}
 
@@ -67,7 +67,7 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 		List<SearchPropertyMetaModel> spml = keywordLookupPropertyList == null ? getQueryMetaModel().getKeyWordSearchProperties() : keywordLookupPropertyList;
 		QCriteria<QT> searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
 
-		QRestrictor<QT> r = searchQuery.or();
+		QRestrictorImpl<QT> r = searchQuery.or();
 		int ncond = 0;
 		if(spml.size() > 0) {
 			for(SearchPropertyMetaModel spm : spml) {
@@ -109,7 +109,7 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 		return searchQuery;
 	}
 
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getQueryMetaModel() {
 		return m_queryMetaModel;
 	}

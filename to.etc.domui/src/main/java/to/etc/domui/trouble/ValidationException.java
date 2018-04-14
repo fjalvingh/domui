@@ -24,11 +24,10 @@
  */
 package to.etc.domui.trouble;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.BundleRef;
 
 public class ValidationException extends UIException {
 	public ValidationException() {
@@ -43,7 +42,7 @@ public class ValidationException extends UIException {
 		super(Msgs.BUNDLE, code, param);
 	}
 
-	public ValidationException(@Nonnull UIMessage msg) {
+	public ValidationException(@NonNull UIMessage msg) {
 		super(msg.getBundle(), msg.getCode(), msg.getParameters());
 	}
 }

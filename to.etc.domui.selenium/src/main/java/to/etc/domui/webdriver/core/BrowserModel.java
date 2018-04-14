@@ -1,6 +1,6 @@
 package to.etc.domui.webdriver.core;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 public enum BrowserModel {
 	FIREFOX("firefox")
@@ -14,19 +14,19 @@ public enum BrowserModel {
 	, EDGE15("edge-15")
 	, PHANTOMJS("phantomjs");
 
-	private final @Nonnull
+	private final @NonNull
 	String m_code;
 
-	BrowserModel(@Nonnull String code) {
+	BrowserModel(@NonNull String code) {
 		m_code = code;
 	}
 
-	@Nonnull
+	@NonNull
 	String getCode() {
 		return m_code;
 	}
 
-	public static BrowserModel get(@Nonnull String browserString) {
+	public static BrowserModel get(@NonNull String browserString) {
 		for(BrowserModel kind : values()) {
 			if(kind.getCode().equalsIgnoreCase(browserString)) {
 				return kind;

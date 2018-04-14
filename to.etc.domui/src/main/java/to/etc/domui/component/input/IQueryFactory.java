@@ -1,8 +1,7 @@
 package to.etc.domui.component.input;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.QCriteria;
 
 /**
  * Custom query factory.
@@ -15,7 +14,7 @@ public interface IQueryFactory<T> {
 	 * Create query
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	QCriteria<T> createQuery();
 
 }

@@ -24,9 +24,9 @@
  */
 package to.etc.webapp.nls;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.Locale;
 
 /**
  * Base interface for all resource bundle constructs.
@@ -44,8 +44,8 @@ public interface IBundle extends NlsMessageProvider {
 	 * @param key
 	 * @throws  ResourceNotFoundException the bundle cannot be located.
 	 */
-	@Nonnull
-	String getString(@Nonnull final Locale loc, @Nonnull final String key);
+	@NonNull
+	String getString(@NonNull final Locale loc, @NonNull final String key);
 
 	/**
 	 * Returns the translation of the key passed in the <i>current</i> client
@@ -54,8 +54,8 @@ public interface IBundle extends NlsMessageProvider {
 	 * @param key
 	 * @return
 	 */
-	@Nonnull
-	String getString(@Nonnull final String key);
+	@NonNull
+	String getString(@NonNull final String key);
 
 	/**
 	 * Gets the string, and applies default message formatting using the parameters
@@ -64,6 +64,6 @@ public interface IBundle extends NlsMessageProvider {
 	 * @param param
 	 * @return
 	 */
-	@Nonnull
-	String formatMessage(@Nonnull final String key, @Nonnull final Object... param);
+	@NonNull
+	String formatMessage(@NonNull final String key, @NonNull final Object... param);
 }

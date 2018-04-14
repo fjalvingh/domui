@@ -1,15 +1,14 @@
 package to.etc.dbutil.reverse;
 
-import javax.annotation.*;
-
-import to.etc.dbutil.schema.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.dbutil.schema.DbColumn;
 
 public class SQLRow {
 	private SQLRowSet m_rowSet;
 
 	private Object[] m_values;
 
-	SQLRow(@Nonnull SQLRowSet rowSet, @Nonnull Object[] values) {
+	SQLRow(@NonNull SQLRowSet rowSet, @NonNull Object[] values) {
 		m_rowSet = rowSet;
 		m_values = values;
 	}
@@ -18,7 +17,7 @@ public class SQLRow {
 		return m_values[index];
 	}
 
-	public Object getValue(@Nonnull DbColumn col) {
+	public Object getValue(@NonNull DbColumn col) {
 		int index = m_rowSet.getColumnList().indexOf(col);
 		if(index < 0)
 			throw new IllegalArgumentException(col + ": not in result");

@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -40,7 +41,6 @@ import to.etc.domui.dom.html.Page;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.DateUtil;
 
-import javax.annotation.Nonnull;
 import java.util.Date;
 
 /**
@@ -109,7 +109,7 @@ public class DateInput extends Text<Date> {
 			if(m_todayButton == null) {
 				m_todayButton = new HoverButton("THEME/btnToday.png", new IClicked<HoverButton>() {
 					@Override
-					public void clicked(@Nonnull HoverButton b) throws Exception {
+					public void clicked(@NonNull HoverButton b) throws Exception {
 						Date currentDate = new Date();
 						if(!m_withTime) {
 							currentDate = DateUtil.truncateDate(currentDate);
@@ -151,7 +151,7 @@ public class DateInput extends Text<Date> {
 		updateCalendarButtons(disabled ? DisplayType.NONE : DisplayType.INLINE);
 	}
 
-	private void updateCalendarButtons(@Nonnull DisplayType displayType) {
+	private void updateCalendarButtons(@NonNull DisplayType displayType) {
 		m_selCalButton.setDisplay(displayType);
 		if(null != m_todayButton)
 			m_todayButton.setDisplay(displayType);
@@ -197,7 +197,7 @@ public class DateInput extends Text<Date> {
 		m_hideTodayButton = hideTodayButton;
 	}
 
-	@Nonnull
+	@NonNull
 	public static DateInput createDateInput(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(clz, property);
 		Class< ? > aclz = pmm.getActualType();
@@ -206,12 +206,12 @@ public class DateInput extends Text<Date> {
 		return DateInput.createDateInput((PropertyMetaModel<Date>) pmm, editable);
 	}
 
-	@Nonnull
+	@NonNull
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable) {
 		return createDateInput(pmm, editable, false);
 	}
 
-	@Nonnull
+	@NonNull
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		DateInput di = new DateInput();
 		if(pmm.isRequired())

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tree2;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -43,8 +45,6 @@ import to.etc.domui.dom.html.Ul;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -368,13 +368,13 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
 		IRenderInto<Object> rr = (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 		return new IRenderInto<T>() {
-			@Override public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
+			@Override public void render(@NonNull NodeContainer node, @NonNull T object) throws Exception {
 				rr.render(node, object);
 			}
 		};
 	}
 
-	private void renderContent(@Nonnull final NodeContainer cell, @Nullable final T value) throws Exception {
+	private void renderContent(@NonNull final NodeContainer cell, @Nullable final T value) throws Exception {
 		cell.removeAllChildren();
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(value);
@@ -387,7 +387,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 
 			cell.setClicked2(new IClicked2<NodeContainer>() {
 				@Override
-				public void clicked(@Nonnull NodeContainer node, @Nonnull ClickInfo clinfo) throws Exception {
+				public void clicked(@NonNull NodeContainer node, @NonNull ClickInfo clinfo) throws Exception {
 					// FIXME This means null root nodes cannot be clicked
 					if(null != value) {
 						cellClicked(value, clinfo);
@@ -398,7 +398,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		updateSelectable(cell, value);
 	}
 
-	private void updateSelectable(@Nonnull NodeContainer cell, @Nullable T value) throws Exception {
+	private void updateSelectable(@NonNull NodeContainer cell, @Nullable T value) throws Exception {
 		INodePredicate<T> predicate = m_nodeSelectablePredicate;
 		if(null != predicate) {
 			boolean isSelectable = predicate.predicate(value);
@@ -412,7 +412,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		}
 	}
 
-	protected void cellClicked(@Nonnull final T value, @Nonnull ClickInfo clinfo) throws Exception {
+	protected void cellClicked(@NonNull final T value, @NonNull ClickInfo clinfo) throws Exception {
 		if(getCellClicked() != null)
 			getCellClicked().cellClicked(value);
 	}

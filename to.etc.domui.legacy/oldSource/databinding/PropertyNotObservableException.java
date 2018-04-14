@@ -24,7 +24,7 @@
  */
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 /**
  * Thrown when an attempt is made to observe a property that does not support it.
@@ -33,7 +33,7 @@ import javax.annotation.*;
  * Created on Apr 24, 2013
  */
 final public class PropertyNotObservableException extends RuntimeException {
-	public PropertyNotObservableException(@Nonnull Class< ? > clz, @Nonnull String property) {
+	public PropertyNotObservableException(@NonNull Class< ? > clz, @NonNull String property) {
 		super("The property '" + property + "' in class '" + clz + "' is not Observable");
 	}
 }

@@ -2,10 +2,10 @@ package to.etc.domui.util.importers;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.query.QNotFoundException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class ExcelImportRow implements IImportRow {
 
 		private final String m_name;
 
-		public ExcelColumn(@Nonnull Cell cell, String name) {
+		public ExcelColumn(@NonNull Cell cell, String name) {
 			if(null == cell)
 				throw new IllegalStateException("Cell cannot be null");
 			m_cell = cell;

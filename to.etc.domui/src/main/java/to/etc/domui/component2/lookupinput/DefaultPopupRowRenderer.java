@@ -1,5 +1,6 @@
 package to.etc.domui.component2.lookupinput;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.tbl.ColumnDefList;
 import to.etc.domui.component.tbl.SimpleColumnDef;
@@ -9,19 +10,18 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueTransformer;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class DefaultPopupRowRenderer<T> implements IRenderInto<T> {
-	@Nonnull
+	@NonNull
 	final private ColumnDefList<T> m_columnList;
 
-	public DefaultPopupRowRenderer(@Nonnull ClassMetaModel cmm) {
+	public DefaultPopupRowRenderer(@NonNull ClassMetaModel cmm) {
 		m_columnList = new ColumnDefList<T>((Class<T>) cmm.getActualClass(), cmm);
 		m_columnList.addDefaultColumns();
 	}
 
-	public DefaultPopupRowRenderer(@Nonnull ClassMetaModel cmm, List<String> columns) {
+	public DefaultPopupRowRenderer(@NonNull ClassMetaModel cmm, List<String> columns) {
 		m_columnList = new ColumnDefList<T>((Class<T>) cmm.getActualClass(), cmm);
 		for(String column : columns) {
 			m_columnList.column(column);
@@ -37,7 +37,7 @@ public class DefaultPopupRowRenderer<T> implements IRenderInto<T> {
 		}
 	}
 
-	private <X> void renderColumn(@Nonnull NodeContainer node, int column, @Nonnull T instance, @Nonnull SimpleColumnDef<X> cd) throws Exception {
+	private <X> void renderColumn(@NonNull NodeContainer node, int column, @NonNull T instance, @NonNull SimpleColumnDef<X> cd) throws Exception {
 		//-- If a value transformer is known get the column value, else just use the instance itself (case when Renderer is used)
 		X colval;
 		IValueTransformer< ? > vtr = cd.getValueTransformer();

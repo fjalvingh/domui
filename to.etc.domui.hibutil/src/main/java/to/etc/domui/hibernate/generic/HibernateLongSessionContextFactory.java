@@ -24,16 +24,17 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QEventListenerSet;
+import to.etc.webapp.query.QQueryExecutorRegistry;
 
 public class HibernateLongSessionContextFactory extends AbstractHibernateContextFactory {
-	public HibernateLongSessionContextFactory(@Nonnull QEventListenerSet eventSet, @Nonnull HibernateSessionMaker sessionMaker, @Nonnull QQueryExecutorRegistry handlers) {
+	public HibernateLongSessionContextFactory(@NonNull QEventListenerSet eventSet, @NonNull HibernateSessionMaker sessionMaker, @NonNull QQueryExecutorRegistry handlers) {
 		super(eventSet, sessionMaker, handlers);
 	}
 
-	public HibernateLongSessionContextFactory(@Nonnull QEventListenerSet eventSet, @Nonnull HibernateSessionMaker sessionMaker) {
+	public HibernateLongSessionContextFactory(@NonNull QEventListenerSet eventSet, @NonNull HibernateSessionMaker sessionMaker) {
 		super(eventSet, sessionMaker);
 	}
 

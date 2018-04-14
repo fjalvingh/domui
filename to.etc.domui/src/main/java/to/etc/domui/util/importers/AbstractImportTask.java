@@ -1,10 +1,10 @@
 package to.etc.domui.util.importers;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.asyncdialog.AbstractAsyncDialogTask;
 import to.etc.util.Progress;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.Objects;
 
@@ -56,7 +56,7 @@ abstract public class AbstractImportTask extends AbstractAsyncDialogTask {
 	private void onHeaderRow(IImportRow headerRow) throws Exception {
 	}
 
-	@Nonnull
+	@NonNull
 	abstract protected IRowReader openReader(File input) throws Exception;
 
 	public void setInputFile(File inputFile) {

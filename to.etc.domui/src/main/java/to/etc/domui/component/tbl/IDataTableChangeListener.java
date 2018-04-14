@@ -24,7 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Accepts datatable change events.
@@ -36,9 +37,9 @@ public interface IDataTableChangeListener {
 	/**
 	 * Called when the datatable as accepted a different model.
 	 */
-	void modelChanged(@Nonnull TableModelTableBase< ? > tbl, @Nullable ITableModel< ? > old, @Nullable ITableModel< ? > nw) throws Exception;
+	void modelChanged(@NonNull TableModelTableBase< ? > tbl, @Nullable ITableModel< ? > old, @Nullable ITableModel< ? > nw) throws Exception;
 
-	void pageChanged(@Nonnull TableModelTableBase< ? > tbl) throws Exception;
+	void pageChanged(@NonNull TableModelTableBase< ? > tbl) throws Exception;
 
-	void selectionUIChanged(@Nonnull TableModelTableBase< ? > tbl) throws Exception;
+	void selectionUIChanged(@NonNull TableModelTableBase< ? > tbl) throws Exception;
 }

@@ -1,6 +1,6 @@
 package to.etc.domui.component.delayed;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

@@ -24,9 +24,15 @@
  */
 package to.etc.dbpool.info;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Definition for some performance counter. It defines the list key, it's presentation name,
@@ -124,7 +130,7 @@ final public class PerfList {
 	 * @param value
 	 * @param data
 	 */
-	void addItem(@Nonnull String itemKey, long value, @Nullable String request, @Nullable Object data) {
+	void addItem(@NonNull String itemKey, long value, @Nullable String request, @Nullable Object data) {
 		//-- 1. Can this item ever be part of this list?
 		if(m_itemList.size() >= m_maxSize) { // At max size?
 			PerfItem pi = m_itemList.get(m_maxSize - 1);
@@ -161,7 +167,7 @@ final public class PerfList {
 		addItem(npi);
 	}
 
-	void addItem(@Nonnull PerfItem npi) {
+	void addItem(@NonNull PerfItem npi) {
 		int ispot = Collections.binarySearch(m_itemList, npi, m_descending ? C_DESCENDING : C_ASCENDING);
 		if(ispot < 0)
 			ispot = -ispot - 1;

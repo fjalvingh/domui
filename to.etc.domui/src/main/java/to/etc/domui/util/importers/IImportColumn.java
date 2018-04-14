@@ -1,6 +1,7 @@
 package to.etc.domui.util.importers;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.Date;
 
 /**

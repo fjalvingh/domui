@@ -1,41 +1,45 @@
 package to.etc.domui.themes.sass;
 
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.parts.ExtendedParameterInfoImpl;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.parts.PartData;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.ThemeResourceFactory;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencies;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 14-5-17.
  */
 final public class SassTheme implements ITheme {
-	@Nonnull
+	@NonNull
 	final private DomApplication m_da;
 
 	private final String m_themeName;
 
-	@Nonnull
+	@NonNull
 	final private String m_styleName;
 
-	@Nonnull
+	@NonNull
 	final private ResourceDependencies m_rd;
 
-	@Nonnull
+	@NonNull
 	final private IScriptScope m_propertyScope;
 
-	@Nonnull
+	@NonNull
 	final private List<String> m_searchPath;
 
-	public SassTheme(@Nonnull DomApplication da, String themeName, @Nonnull String styleName, @Nonnull IScriptScope themeProperties, @Nonnull ResourceDependencies rd,
-		@Nonnull List<String> searchpath) {
+	public SassTheme(@NonNull DomApplication da, String themeName, @NonNull String styleName, @NonNull IScriptScope themeProperties, @NonNull ResourceDependencies rd,
+		@NonNull List<String> searchpath) {
 		m_da = da;
 		m_themeName = themeName;
 		m_styleName = styleName;
@@ -44,19 +48,19 @@ final public class SassTheme implements ITheme {
 		m_searchPath = searchpath;
 	}
 
-	@Nonnull @Override public String getThemeName() {
+	@NonNull @Override public String getThemeName() {
 		return m_themeName;
 	}
 
-	@Nonnull @Override public IScriptScope getPropertyScope() {
+	@NonNull @Override public IScriptScope getPropertyScope() {
 		throw new IllegalStateException("Cannot do this as I'm not javascript based.");
 	}
 
-	@Nonnull @Override public String translateResourceName(@Nonnull String name) {
+	@NonNull @Override public String translateResourceName(@NonNull String name) {
 		return name;
 	}
 
-	@Nonnull @Override public String getStyleSheetName() throws Exception {
+	@NonNull @Override public String getStyleSheetName() throws Exception {
 		BrowserVersion version = UIContext.getRequestContext().getBrowserVersion();	// FIXME Fugly!!
 		String css = ThemeResourceFactory.PREFIX + m_themeName + "/style.scss";
 		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(getThemeName(), version, css, "");
@@ -66,7 +70,7 @@ final public class SassTheme implements ITheme {
 		return css + "?$hash=" + hash;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public ResourceDependencies getDependencies() {
 		return m_rd;
@@ -75,9 +79,9 @@ final public class SassTheme implements ITheme {
 	/**
 	 * Find the specified resource using the theme path.
 	 */
-	@Nonnull
+	@NonNull
 	@Override
-	public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public IResourceRef getThemeResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
 		//-- "Normal" resource.
 		for(String sitem : m_searchPath) {
 			String real = sitem + "/" + name;

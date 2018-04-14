@@ -24,7 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Represents an UL node.
@@ -37,7 +37,7 @@ public class Ul extends NodeContainer {
 		super("ul");
 	}
 
-	public Ul(@Nonnull String cssClass) {
+	public Ul(@NonNull String cssClass) {
 		this();
 		setCssClass(cssClass);
 	}

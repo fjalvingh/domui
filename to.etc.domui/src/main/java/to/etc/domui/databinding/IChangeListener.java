@@ -24,8 +24,8 @@
  */
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IChangeListener<V, E extends IChangeEvent<V, E, L>, L extends IChangeListener<V, E, L>> {
-	void handleChange(@Nonnull E event) throws Exception;
+	void handleChange(@NonNull E event) throws Exception;
 }

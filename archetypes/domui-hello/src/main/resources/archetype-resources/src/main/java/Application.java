@@ -4,7 +4,7 @@ import to.etc.domui.dom.html.*;
 import ${package}.pages.*;
 import to.etc.domui.server.*;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

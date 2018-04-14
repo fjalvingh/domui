@@ -1,12 +1,12 @@
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.init.MetaInitializer.ClassProviderRef;
 import to.etc.domui.component.meta.init.MetaInitializer.PropertyProviderRef;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2-10-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class MetaInitContext {
 	private final Map<Object, ClassMetaModel> m_classMap;
 

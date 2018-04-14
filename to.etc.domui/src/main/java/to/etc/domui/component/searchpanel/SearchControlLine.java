@@ -1,12 +1,11 @@
 package to.etc.domui.component.searchpanel;
 
-import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeContainer;
-
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 
 /**
  * This is the definition for an Item to look up. A list of these
@@ -18,7 +17,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 31, 2009
  */
-@DefaultNonNull
+@NonNullByDefault
 public class SearchControlLine<D> {
 	final private ILookupQueryBuilder<D> m_queryBuilder;
 

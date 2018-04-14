@@ -1,8 +1,7 @@
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
-
-import javax.annotation.Nonnull;
 
 /**
  * If this is a Class&lt;enum> or the class Boolean define it's domain values.
@@ -14,7 +13,7 @@ public class MIClassDomainValues implements IClassMetaProvider<DefaultClassMetaM
 	/**
 	 * If this is an enum or the class Boolean define it's domain values.
 	 */
-	@Override public void provide(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel model) throws Exception {
+	@Override public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel model) throws Exception {
 		//-- If this is an enumerable thingerydoo...
 		Class<?> actualClass = model.getActualClass();
 

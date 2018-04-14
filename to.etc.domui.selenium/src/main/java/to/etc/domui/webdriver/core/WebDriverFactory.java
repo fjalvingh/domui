@@ -1,5 +1,8 @@
 package to.etc.domui.webdriver.core;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Dimension;
@@ -23,9 +26,6 @@ import org.slf4j.LoggerFactory;
 import to.etc.webapp.testsupport.TUtilTestProperties;
 import to.etc.webapp.testsupport.TestProperties;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 /**
  * Factory to create raw WebDriver instances.
  */
-@DefaultNonNull final class WebDriverFactory {
+@NonNullByDefault final class WebDriverFactory {
 	private static Logger LOG = LoggerFactory.getLogger(WebDriverFactory.class);
 
 	/**
@@ -174,7 +174,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return wd;
 	}
 
-	@Nonnull private static File createFontConfigFile() throws IOException {
+	@NonNull private static File createFontConfigFile() throws IOException {
 		//-- 1. Make a temp directory which will contain our fonts.conf
 		String tmp = System.getProperty("java.io.tmpdir");
 		if(tmp == null) {
@@ -204,7 +204,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return new HtmlUnitDriver(capabilities);
 	}
 
-	private static WebDriver allocateRemoteInstance(BrowserModel browser, @Nonnull String hubUrl, Locale lang) throws Exception {
+	private static WebDriver allocateRemoteInstance(BrowserModel browser, @NonNull String hubUrl, Locale lang) throws Exception {
 		return new RemoteWebDriver(new URL(hubUrl), calculateCapabilities(browser, lang));
 	}
 

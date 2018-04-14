@@ -24,12 +24,10 @@
  */
 package to.etc.domui.caches.images;
 
-import javax.annotation.concurrent.*;
+import to.etc.domui.caches.filecache.FileCacheRef;
+import to.etc.domui.util.images.machines.ImageInfo;
 
-import to.etc.domui.caches.filecache.*;
-import to.etc.domui.util.images.machines.*;
-
-@Immutable
+//@Immutable
 final class CachedImageInfo extends CachedImageFragment {
 	private ImageInfo m_imageData;
 

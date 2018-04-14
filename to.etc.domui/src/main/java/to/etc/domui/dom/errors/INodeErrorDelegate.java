@@ -24,7 +24,7 @@
  */
 package to.etc.domui.dom.errors;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.Nullable;
 
 
 /**

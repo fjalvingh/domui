@@ -24,6 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.HtmlRenderMode;
 import to.etc.domui.dom.HtmlTagRenderer;
@@ -37,7 +38,6 @@ import to.etc.domui.server.IRequestContext;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -173,7 +173,7 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public IBrowserOutput o() {
 		return m_o;
 	}
@@ -281,14 +281,14 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 	}
 
 	@Override
-	public void renderLoadCSS(@Nonnull String path) throws Exception {
+	public void renderLoadCSS(@NonNull String path) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");
 	}
 
 	@Override
-	public void renderLoadJavascript(@Nonnull String path) throws Exception {
+	public void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ");\n");

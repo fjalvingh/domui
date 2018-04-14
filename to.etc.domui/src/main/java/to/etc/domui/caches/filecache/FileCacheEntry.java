@@ -24,10 +24,9 @@
  */
 package to.etc.domui.caches.filecache;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import java.io.File;
 
 class FileCacheEntry {
 	private FileCache m_cache;
@@ -36,7 +35,7 @@ class FileCacheEntry {
 
 	private File m_file;
 
-	@GuardedBy("m_cache")
+	//@GuardedBy("m_cache")
 	int m_useCount;
 
 	public FileCacheEntry(FileCache fc, File file, String key) {
@@ -46,12 +45,12 @@ class FileCacheEntry {
 		m_useCount = 1;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getKey() {
 		return m_key;
 	}
 
-	@Nonnull
+	@NonNull
 	public File getFile() {
 		return m_file;
 	}

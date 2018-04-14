@@ -1,5 +1,7 @@
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -14,8 +16,6 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
 import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -32,19 +32,19 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 
 	static public final String NUMERIC_CSS_CLASS = "ui-numeric";
 
-	@Nonnull
+	@NonNull
 	final private ClassMetaModel m_metaModel;
 
-	@Nonnull
+	@NonNull
 	final private List<SimpleColumnDef< ? >> m_columnList = new ArrayList<SimpleColumnDef< ? >>();
 
 	@Nullable
 	private SimpleColumnDef< ? > m_sortColumn;
 
-	@Nonnull
+	@NonNull
 	final private Class<T> m_rootClass;
 
-	public ColumnDefList(@Nonnull Class<T> rootClass, @Nonnull ClassMetaModel cmm) {
+	public ColumnDefList(@NonNull Class<T> rootClass, @NonNull ClassMetaModel cmm) {
 		m_rootClass = rootClass;
 		m_metaModel = cmm;
 //		m_sortDescending = cmm.getDefaultSortDirection() == SortableType.SORTABLE_DESC;
@@ -54,18 +54,18 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return m_columnList.size();
 	}
 
-	public void add(@Nonnull SimpleColumnDef< ? > cd) {
+	public void add(@NonNull SimpleColumnDef< ? > cd) {
 		if(null == cd)
 			throw new IllegalArgumentException("Cannot be null");
 		m_columnList.add(cd);
 	}
 
-	@Nonnull
+	@NonNull
 	private ClassMetaModel model() {
 		return m_metaModel;
 	}
 
-	@Nonnull
+	@NonNull
 	public SimpleColumnDef< ? > get(int ix) {
 		if(ix < 0 || ix >= m_columnList.size())
 			throw new IndexOutOfBoundsException("Column " + ix + " does not exist");
@@ -73,7 +73,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	@Nullable
-	public SimpleColumnDef< ? > findColumn(@Nonnull String propertyName) {
+	public SimpleColumnDef< ? > findColumn(@NonNull String propertyName) {
 		for(final SimpleColumnDef< ? > scd : m_columnList) {
 			if(DomUtil.isEqual(scd.getPropertyName(), propertyName)) {
 				return scd;
@@ -129,7 +129,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 */
 	@Deprecated
 	@SuppressWarnings("fallthrough")
-	public <R> void addColumns(@Nonnull final Object... cols) {
+	public <R> void addColumns(@NonNull final Object... cols) {
 		if(cols == null || cols.length == 0)
 			throw new IllegalArgumentException("The list-of-columns is empty or null; I need at least one column to continue.");
 		String property = null;
@@ -229,7 +229,6 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return (IRenderInto< ? >) DomApplication.get().createInstance(nrclass);
 	}
 
-	@SuppressWarnings("unchecked")
 	static private <R> IConverter<R> tryConverter(final Class<R> cclz, final IConverter<R> ins) {
 		if(cclz != null) {
 			if(ins != null)
@@ -421,8 +420,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 	}
 
-	@Nonnull
-	private <V> SimpleColumnDef<V> addExpandedDisplayProp(@Nonnull ExpandedDisplayProperty<V> xdp) {
+	@NonNull
+	private <V> SimpleColumnDef<V> addExpandedDisplayProp(@NonNull ExpandedDisplayProperty<V> xdp) {
 		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, xdp);
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 			scd.setCssClass(NUMERIC_CSS_CLASS);
@@ -497,12 +496,12 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public Iterator<SimpleColumnDef< ? >> iterator() {
 		return m_columnList.iterator();
 	}
 
-	public int indexOf(@Nonnull SimpleColumnDef< ? > scd) {
+	public int indexOf(@NonNull SimpleColumnDef< ? > scd) {
 		return m_columnList.indexOf(scd);
 	}
 
@@ -511,7 +510,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return m_sortColumn;
 	}
 
-//	protected void updateDefaultSort(@Nonnull SimpleColumnDef< ? > scd) {
+//	protected void updateDefaultSort(@NonNull SimpleColumnDef< ? > scd) {
 //		if(m_sortColumn == scd)
 //			m_sortDescending = scd.getSortable() == SortableType.SORTABLE_DESC;
 //	}
@@ -532,14 +531,14 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public <V> SimpleColumnDef<V> column(@Nonnull Class<V> type, @Nonnull @GProperty String property) {
+	@NonNull
+	public <V> SimpleColumnDef<V> column(@NonNull Class<V> type, @NonNull @GProperty String property) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
 		return createColumnDef(pmm);
 	}
 
-	@Nonnull
-	private <V> SimpleColumnDef<V> createColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
+	@NonNull
+	private <V> SimpleColumnDef<V> createColumnDef(@NonNull PropertyMetaModel<V> pmm) {
 		SimpleColumnDef<V> scd = new SimpleColumnDef<V>(this, pmm);
 		scd.setNowrap(Boolean.TRUE);
 		add(scd);
@@ -552,8 +551,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public SimpleColumnDef< ? > column(@Nonnull @GProperty String property) {
+	@NonNull
+	public SimpleColumnDef< ? > column(@NonNull @GProperty String property) {
 		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
 		return createColumnDef(pmm);
 	}
@@ -562,7 +561,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * Add a column which gets referred the row element instead of a column element. This is normally used together with
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public SimpleColumnDef<T> column() {
 		SimpleColumnDef<T> scd = new SimpleColumnDef<T>(this, m_rootClass);
 		add(scd);
@@ -576,8 +575,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public <V> ExpandedColumnDef<V> expand(@Nonnull Class<V> clz, @Nonnull @GProperty String property) {
+	@NonNull
+	public <V> ExpandedColumnDef<V> expand(@NonNull Class<V> clz, @NonNull @GProperty String property) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
 		return createExpandedColumnDef(pmm);
 	}
@@ -588,8 +587,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public ExpandedColumnDef< ? > expand(@Nonnull @GProperty String property) {
+	@NonNull
+	public ExpandedColumnDef< ? > expand(@NonNull @GProperty String property) {
 		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
 		return createExpandedColumnDef(pmm);
 	}
@@ -599,8 +598,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @param pmm
 	 * @return
 	 */
-	@Nonnull
-	private <V> ExpandedColumnDef<V> createExpandedColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
+	@NonNull
+	private <V> ExpandedColumnDef<V> createExpandedColumnDef(@NonNull PropertyMetaModel<V> pmm) {
 		//-- Try to see what the column expands to
 		final ExpandedDisplayProperty< ? > xdpt = ExpandedDisplayProperty.expandProperty(pmm);
 		final List<ExpandedDisplayProperty< ? >> flat = new ArrayList<ExpandedDisplayProperty< ? >>();

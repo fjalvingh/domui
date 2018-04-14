@@ -1,14 +1,22 @@
 package to.etc.domui.server;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.util.Constants;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import to.etc.domui.util.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ServerClientRegistry {
-	@Nonnull
+	@NonNull
 	static final private ServerClientRegistry m_instance = new ServerClientRegistry();
 
 
@@ -24,7 +32,7 @@ public class ServerClientRegistry {
 		@Nullable
 		private String m_url;
 
-		void update(@Nonnull final String url, final long ts) {
+		void update(@NonNull final String url, final long ts) {
 			m_url = url;
 			m_timeStamp = ts;
 		}
@@ -33,7 +41,7 @@ public class ServerClientRegistry {
 			return m_timeStamp;
 		}
 
-		@Nonnull
+		@NonNull
 		public String getUrl() {
 			if(null != m_url)
 				return m_url;
@@ -114,13 +122,13 @@ public class ServerClientRegistry {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	final private Map<String, List<Client>> m_userMap = new HashMap<String, List<Client>>();
 
 	public ServerClientRegistry() {
 	}
 
-	@Nonnull
+	@NonNull
 	static public ServerClientRegistry getInstance() {
 		return m_instance;
 	}
@@ -129,7 +137,7 @@ public class ServerClientRegistry {
 	 * Called from the filter to register all requests.
 	 * @param req
 	 */
-	void registerRequest(@Nonnull final HttpServletRequest req, @Nonnull String remoteUser) {
+	void registerRequest(@NonNull final HttpServletRequest req, @NonNull String remoteUser) {
 		try {
 			if(req == null)
 				throw new IllegalStateException("??");
@@ -174,7 +182,7 @@ public class ServerClientRegistry {
 	}
 
 	@Nullable
-	static private Client findClient(@Nonnull final List<Client> list, @Nonnull final String a) {
+	static private Client findClient(@NonNull final List<Client> list, @NonNull final String a) {
 		for(Client c : list) {
 			if(c.getRemoteAddress().equals(a))
 				return c;
@@ -186,7 +194,7 @@ public class ServerClientRegistry {
 	 * Discards a client's data when it's session is destroyed.
 	 * @param c
 	 */
-	void unregisterUser(@Nonnull final Client c) {
+	void unregisterUser(@NonNull final Client c) {
 		synchronized(m_userMap) {
 			List<Client> list = m_userMap.get(c.getRemoteUser());
 			if(list == null)
@@ -195,8 +203,8 @@ public class ServerClientRegistry {
 		}
 	}
 
-	@Nonnull
-	private Client dupClient(@Nonnull final Client in) {
+	@NonNull
+	private Client dupClient(@NonNull final Client in) {
 		Client c = new Client();
 		c.m_nRequests = in.m_nRequests;
 		c.m_remoteAddress = in.m_remoteAddress;
@@ -221,7 +229,7 @@ public class ServerClientRegistry {
 	 * session exists).
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public List<Client> getActiveClients() {
 		List<Client> res = new ArrayList<Client>();
 		synchronized(m_userMap) {
@@ -239,7 +247,7 @@ public class ServerClientRegistry {
 	 * information call {@link ServerRuntime#getActiveClients()}.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public Set<String> getActiveLogins() {
 		Set<String> idmap = new TreeSet<String>();
 		synchronized(m_userMap) {

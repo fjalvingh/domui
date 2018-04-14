@@ -24,41 +24,46 @@
  */
 package to.etc.domui.server;
 
-import java.io.*;
-import java.util.*;
-import java.util.regex.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.state.UIContext;
+import to.etc.net.HttpCallException;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-import to.etc.domui.state.*;
-import to.etc.net.*;
-import to.etc.webapp.nls.*;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.UnavailableException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 abstract public class AbstractContextMaker implements IContextMaker {
 	private static final String LOCALE_PARAM = "___locale";
 
 	@Override
-	abstract public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception;
+	abstract public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception;
 
 	private static class Pair {
-		@Nonnull
+		@NonNull
 		final private Pattern m_pattern;
 
-		@Nonnull
+		@NonNull
 		final private String m_version;
 
-		public Pair(@Nonnull Pattern pattern, @Nonnull String version) {
+		public Pair(@NonNull Pattern pattern, @NonNull String version) {
 			m_pattern = pattern;
 			m_version = version;
 		}
 
-		public boolean matches(@Nonnull String url) {
+		public boolean matches(@NonNull String url) {
 			return m_pattern.matcher(url).matches();
 		}
 
-		@Nonnull
+		@NonNull
 		public String getVersion() {
 			return m_version;
 		}
@@ -100,7 +105,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		}
 	}
 
-	private Locale decodeLocale(@Nonnull HttpServerRequestResponse rr, @Nonnull final RequestContextImpl ctx) throws Exception {
+	private Locale decodeLocale(@NonNull HttpServerRequestResponse rr, @NonNull final RequestContextImpl ctx) throws Exception {
 		String forceloc = rr.getParameter(LOCALE_PARAM);
 		if(null != forceloc) {
 			String[] args = forceloc.split("_");
@@ -123,7 +128,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		return ctx.getApplication().getRequestLocale(rr.getRequest());
 	}
 
-	public void execute(@Nonnull HttpServerRequestResponse requestResponse, @Nonnull final RequestContextImpl ctx, FilterChain chain) throws Exception {
+	public void execute(@NonNull HttpServerRequestResponse requestResponse, @NonNull final RequestContextImpl ctx, FilterChain chain) throws Exception {
 		//-- 201012 jal Set the locale for this request
 		Locale loc = decodeLocale(requestResponse, ctx);
 		NlsContext.setLocale(loc);
@@ -161,7 +166,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 		}
 	}
 
-	private void handleDoFilter(@Nonnull FilterChain chain, @Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response) throws ServletException, IOException {
+	private void handleDoFilter(@NonNull FilterChain chain, @NonNull HttpServletRequest request, @NonNull HttpServletResponse response) throws ServletException, IOException {
 		if(m_ieEmulationList.size() == 0) {
 			chain.doFilter(request, response);
 			return;

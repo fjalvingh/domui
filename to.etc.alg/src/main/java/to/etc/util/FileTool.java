@@ -24,21 +24,55 @@
  */
 package to.etc.util;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.net.*;
-import java.nio.file.*;
-import java.security.*;
-import java.sql.*;
-import java.util.*;
-import java.util.zip.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import to.etc.xml.DomTools;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-import org.w3c.dom.*;
-
-import to.etc.xml.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Vector;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Contains some often-used file subroutines.
@@ -64,8 +98,8 @@ public class FileTool {
 	 * checks for several default locations.
 	 * @return
 	 */
-	@Nonnull
-	synchronized static public File getLogRoot(@Nonnull String appVar) {
+	@NonNull
+	synchronized static public File getLogRoot(@NonNull String appVar) {
 		String name = appVar.toUpperCase().replace(".", "").replace("-", "");
 
 		//-- Is there a valid "vp.logroot" thing?
@@ -102,7 +136,7 @@ public class FileTool {
 	}
 
 	@Nullable
-	private static File checkLogDir(@Nonnull String s, @Nonnull String source) {
+	private static File checkLogDir(@NonNull String s, @NonNull String source) {
 		if(null != s && s.trim().length() > 0) {
 			File f = new File(s);
 			if(!f.exists()) {
@@ -283,7 +317,7 @@ public class FileTool {
 	 * Returns the extension of a file. The extension DOES NOT INCLUDE the . If no
 	 * extension is present then the empty string is returned ("").
 	 */
-	@Nonnull
+	@NonNull
 	static public String getFileExtension(final String fn) {
 		int s1 = fn.lastIndexOf('/');
 		int s2 = fn.lastIndexOf('\\');
@@ -321,7 +355,7 @@ public class FileTool {
 	 *	Returns the file name excluding the suffix of the name. So test.java
 	 *  returns test.
 	 */
-	@Nonnull
+	@NonNull
 	static public String fileNameSansExtension(final String fn) {
 		int slp = fn.lastIndexOf('/');
 		int t = fn.lastIndexOf('\\');
@@ -437,7 +471,7 @@ public class FileTool {
 	 * @param sourceDir
 	 * @throws IOException
 	 */
-	static public void copyHardlinked(@Nonnull File targetDir, @Nonnull File sourceDir, String... ignorePaths) throws IOException {
+	static public void copyHardlinked(@NonNull File targetDir, @NonNull File sourceDir, String... ignorePaths) throws IOException {
 		if(! sourceDir.exists())
 			return;
 
@@ -461,7 +495,7 @@ public class FileTool {
 		internalCopyHardDir(targetDir, sourceDir, sb, ignoreSet);
 	}
 
-	static private void internalCopyHardDir(@Nonnull File targetDir, @Nonnull File sourceDir, @Nonnull StringBuilder sb, @Nonnull Set<String> ignoreSet) throws IOException {
+	static private void internalCopyHardDir(@NonNull File targetDir, @NonNull File sourceDir, @NonNull StringBuilder sb, @NonNull Set<String> ignoreSet) throws IOException {
 		File[] ar = sourceDir.listFiles();
 		if(null == ar)
 			return;
@@ -484,7 +518,7 @@ public class FileTool {
 		}
 	}
 
-	private static void hardlinkFile(@Nonnull File destf, @Nonnull File srcf) throws IOException {
+	private static void hardlinkFile(@NonNull File destf, @NonNull File srcf) throws IOException {
 		Files.createLink(destf.toPath(), srcf.toPath());
 	}
 
@@ -510,7 +544,7 @@ public class FileTool {
 	 * @throws IOException
 	 * @throws Exception
 	 */
-	public static byte[] readFileAsByteArray(@Nonnull File file) throws IOException {
+	public static byte[] readFileAsByteArray(@NonNull File file) throws IOException {
 		FileInputStream in = null;
 		try {
 			in = new FileInputStream(file);
@@ -523,8 +557,8 @@ public class FileTool {
 		}
 	}
 
-	@Nonnull
-	public static byte[] readByteArray(@Nonnull InputStream is) throws Exception {
+	@NonNull
+	public static byte[] readByteArray(@NonNull InputStream is) throws Exception {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		FileTool.copyFile(baos, is);
 		baos.close();
@@ -539,7 +573,7 @@ public class FileTool {
 	 * @throws IOException
 	 */
 	@Nullable
-	public static byte[] readResourceAsByteArray(@Nonnull Class< ? > clz, @Nonnull String name) throws IOException {
+	public static byte[] readResourceAsByteArray(@NonNull Class< ? > clz, @NonNull String name) throws IOException {
 		InputStream is = clz.getResourceAsStream(name);
 		if(null == is)
 			return null;
@@ -752,7 +786,7 @@ public class FileTool {
 	}
 
 
-	@Nonnull
+	@NonNull
 	static public final String readResourceAsString(Class< ? > base, String name, String encoding) throws Exception {
 		InputStream is = base.getResourceAsStream(name);
 		if(null == is)
@@ -772,7 +806,7 @@ public class FileTool {
 	/**
 	 * Create an MD5 hash for a file's contents.
 	 */
-	@Nonnull
+	@NonNull
 	static public byte[] hashFile(final File f) throws IOException {
 		InputStream is = null;
 		try {
@@ -791,7 +825,7 @@ public class FileTool {
 	 * @param data
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public byte[] hashBuffers(final byte[][] data) {
 		MessageDigest md = null;
 		try {
@@ -811,7 +845,7 @@ public class FileTool {
 	 * @param data
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public String hashBuffersHex(final byte[][] data) {
 		return StringTool.toHex(hashBuffers(data));
 	}
@@ -822,7 +856,7 @@ public class FileTool {
 	 * @return		A hash (16 bytes MD5)
 	 * @throws IOException
 	 */
-	@Nonnull
+	@NonNull
 	static public byte[] hashFile(final InputStream is) throws IOException {
 		MessageDigest md = null;
 		try {
@@ -845,7 +879,7 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
-	@Nonnull
+	@NonNull
 	static public String hashFileHex(final File f) throws IOException {
 		return StringTool.toHex(hashFile(f));
 	}
@@ -856,7 +890,7 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
-	@Nonnull
+	@NonNull
 	static public String hashFileHex(final InputStream is) throws IOException {
 		return StringTool.toHex(hashFile(is));
 	}
@@ -869,8 +903,8 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
-	@Nonnull
-	static public String hashTextFile(@Nonnull final File f) throws IOException {
+	@NonNull
+	static public String hashTextFile(@NonNull final File f) throws IOException {
 		InputStream is = null;
 		try {
 			is = new FileInputStream(f);
@@ -890,8 +924,8 @@ public class FileTool {
 	 * @return		A hash (16 bytes MD5)
 	 * @throws IOException
 	 */
-	@Nonnull
-	static public byte[] hashTextFile(@Nonnull final InputStream is) throws IOException {
+	@NonNull
+	static public byte[] hashTextFile(@NonNull final InputStream is) throws IOException {
 		MessageDigest md = null;
 		try {
 			md = MessageDigest.getInstance("MD5");
@@ -926,7 +960,7 @@ public class FileTool {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	static public Properties loadProperties(final File f) throws Exception {
 		InputStream is = new FileInputStream(f);
 		try {
@@ -1273,8 +1307,8 @@ public class FileTool {
 		}
 	}
 
-	@Nonnull
-	static public List<String> getZipDirectory(@Nonnull File in) throws Exception {
+	@NonNull
+	static public List<String> getZipDirectory(@NonNull File in) throws Exception {
 		ZipInputStream zis = null;
 		List<String> res = new ArrayList<>();
 		try {
@@ -1317,7 +1351,7 @@ public class FileTool {
 	 * @throws IOException
 	 */
 	@Nullable
-	static public InputStream getZipContent(@Nonnull final InputStream zipis, @Nonnull final String name) throws IOException {
+	static public InputStream getZipContent(@NonNull final InputStream zipis, @NonNull final String name) throws IOException {
 		ZipInputStream zis = null;
 
 		//-- Try to locate a zipentry for the spec'd name
@@ -1390,8 +1424,8 @@ public class FileTool {
 	 * @param is
 	 * @return
 	 */
-	@Nonnull
-	static public byte[][] loadByteBuffers(@Nonnull final InputStream is) throws IOException {
+	@NonNull
+	static public byte[][] loadByteBuffers(@NonNull final InputStream is) throws IOException {
 		ArrayList<byte[]> al = new ArrayList<byte[]>();
 		byte[] buf = new byte[8192];
 		int off = 0;
@@ -1463,8 +1497,8 @@ public class FileTool {
 			os.write(b);
 	}
 
-	@Nonnull
-	static public byte[] loadArray(@Nonnull File src) throws IOException {
+	@NonNull
+	static public byte[] loadArray(@NonNull File src) throws IOException {
 		long sz = src.length();
 		if(sz > Integer.MAX_VALUE)
 			throw new IOException("File too large (> 2GB)");
@@ -1687,7 +1721,7 @@ public class FileTool {
 	 * @param obj
 	 * @throws IOException
 	 */
-	static public void saveSerialized(@WillClose OutputStream os, Serializable obj) throws IOException {
+	static public void saveSerialized(OutputStream os, Serializable obj) throws IOException {
 		try {
 			ObjectOutputStream oos = new ObjectOutputStream(os);
 			oos.writeObject(obj);
@@ -1717,7 +1751,7 @@ public class FileTool {
 	 * @throws IOException
 	 */
 	@Nullable
-	static public Object loadSerialized(@WillNotClose InputStream is) throws IOException, ClassNotFoundException {
+	static public Object loadSerialized(InputStream is) throws IOException, ClassNotFoundException {
 		ObjectInputStream iis = null;
 		try {
 			iis = new ObjectInputStream(is);
@@ -1750,7 +1784,7 @@ public class FileTool {
 	 * @return
 	 */
 	@Nullable
-	static public Object loadSerializedNullOnError(@WillNotClose InputStream is) {
+	static public Object loadSerializedNullOnError(InputStream is) {
 		ObjectInputStream iis = null;
 		try {
 			iis = new ObjectInputStream(is);
@@ -1787,7 +1821,7 @@ public class FileTool {
 	 * This list can also contain File objects; these files/directories will be deleted.
 	 * @param list
 	 */
-	static public void closeAll(@WillClose Object... list) {
+	static public void closeAll(Object... list) {
 		//-- Level 0 closes
 		int tox = 0;
 		for(Object v : list) {
@@ -2029,7 +2063,7 @@ public class FileTool {
 	 * @param in
 	 * @throws Exception
 	 */
-	static public void saveBlob(@Nonnull File out, @Nonnull Blob in) throws Exception {
+	static public void saveBlob(@NonNull File out, @NonNull Blob in) throws Exception {
 		InputStream is = null;
 		OutputStream os = null;
 		try {
@@ -2055,7 +2089,7 @@ public class FileTool {
 	 * @param file
 	 * @return
 	 */
-	public static int getIntSizeOfFile(@Nonnull File file) {
+	public static int getIntSizeOfFile(@NonNull File file) {
 		long size = file.length();
 		if (size > Integer.MAX_VALUE){
 			throw new IllegalStateException("We do not allow file sizes > " + StringTool.strSize(Integer.MAX_VALUE) + ", found file size:" + StringTool.strSize(size));
@@ -2063,7 +2097,7 @@ public class FileTool {
 		return (int) size;
 	}
 
-	@Nonnull
+	@NonNull
 	public static File createTmpDir() throws IOException {
 		File f = File.createTempFile("work", ".dir");
 		f.delete();
@@ -2077,7 +2111,7 @@ public class FileTool {
 	 * @return
 	 * @throws IOException
 	 */
-	public static int getNumberOfLines(@Nonnull File file) throws IOException {
+	public static int getNumberOfLines(@NonNull File file) throws IOException {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(file));
@@ -2098,7 +2132,7 @@ public class FileTool {
 	 * @throws Exception
 	 */
 	@Nullable
-	static public String getRelativePath(@Nonnull File root, @Nonnull File other) {
+	static public String getRelativePath(@NonNull File root, @NonNull File other) {
 		try {
 			String modroot = root.toString().replace('\\', '/');
 			String inroot = other.toString().replace('\\', '/');
@@ -2114,8 +2148,8 @@ public class FileTool {
 		}
 	}
 
-	@Nonnull
-	static public Reader getResourceReader(@Nonnull Class< ? > root, @Nullable String name) {
+	@NonNull
+	static public Reader getResourceReader(@NonNull Class< ? > root, @Nullable String name) {
 		InputStream is = root.getResourceAsStream(name);
 		if(null == is)
 			throw new IllegalStateException("JUnit test: missing test resource with base=" + root + " and name " + name);
@@ -2133,8 +2167,8 @@ public class FileTool {
 	 * @throws SQLException 
 	 * @throws IOException 
 	 */
-	@Nonnull
-	public static String readAsString(@Nonnull Clob data) throws IOException, SQLException{
+	@NonNull
+	public static String readAsString(@NonNull Clob data) throws IOException, SQLException{
 	    try(Reader reader = data.getCharacterStream()) {
 	        char[] buf = new char[8192];
 	        int len;

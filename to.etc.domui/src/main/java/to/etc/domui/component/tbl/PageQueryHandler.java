@@ -1,11 +1,10 @@
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import java.util.List;
 
 /**
  * This query handler uses the page's data context factory to issue a query.
@@ -14,10 +13,10 @@ import to.etc.webapp.query.*;
  * Created on Jul 10, 2014
  */
 final public class PageQueryHandler<T> implements IQueryHandler<T> {
-	@Nonnull
+	@NonNull
 	private NodeBase m_source;
 
-	public PageQueryHandler(@Nonnull NodeBase source) {
+	public PageQueryHandler(@NonNull NodeBase source) {
 		m_source = source;
 	}
 

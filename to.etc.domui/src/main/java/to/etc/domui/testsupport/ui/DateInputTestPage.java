@@ -1,15 +1,17 @@
 package to.etc.domui.testsupport.ui;
 
-import java.text.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.input.DateInput;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.annotations.*;
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Selenium test date input check page.

@@ -30,8 +30,6 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 
-import javax.annotation.OverridingMethodsMustInvokeSuper;
-
 /**
  * A Dialog that is used to input single value of type &lt;T&gt;, using input control of type &lt;C&gt;.
  * It uses default layout that shows [Save], [Cancel] buttons, and label and input control as main panel data.
@@ -93,7 +91,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 * Also gives default input dialog layout.
 	 * Override to set custom layout, but then adding buttons is your responsibility!
 	 */
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	@Override
 	protected void createFrame() throws Exception {
 		super.createFrame();
@@ -132,7 +130,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 *
 	 * @see to.etc.domui.component.layout.Dialog#onSaveBind()
 	 */
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	@Override
 	protected boolean onSaveBind() throws Exception {
 		//-- Move all bound data to the actual instance
@@ -162,7 +160,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 * Finalized implementation, call to onValidateData with passed input instance.
 	 * @see to.etc.domui.component.layout.InputDialog#onValidateData(T)
 	 */
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	@Override
 	protected final boolean onValidate() throws Exception {
 		return onValidateData(getInstance());

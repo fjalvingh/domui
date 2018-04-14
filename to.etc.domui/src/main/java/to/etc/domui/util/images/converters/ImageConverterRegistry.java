@@ -24,12 +24,12 @@
  */
 package to.etc.domui.util.images.converters;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.images.machines.ImageInfo;
 
-import javax.annotation.*;
-
-import to.etc.domui.util.images.machines.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 final public class ImageConverterRegistry {
 	static private List<IImageConverter> m_list = new ArrayList<IImageConverter>();
@@ -62,7 +62,7 @@ final public class ImageConverterRegistry {
 	 * @param convs
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public IImageConverter getBestConverter(String mime, List<IImageConversionSpecifier> convs) throws Exception {
 		IImageConverter best = null;
 		int bestscore = -1;

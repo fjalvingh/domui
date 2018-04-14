@@ -1,5 +1,7 @@
 package to.etc.domui.component.tree2;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
@@ -7,8 +9,6 @@ import to.etc.domui.dom.html.Li;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Ul;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -16,7 +16,7 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 21-8-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class Tree2Node<V> extends Li {
 	final private V m_value;
 

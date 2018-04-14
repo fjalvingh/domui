@@ -24,6 +24,7 @@
  */
 package to.etc.domui.pages.generic;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.AbstractRowRenderer;
 import to.etc.domui.component.tbl.BasicRowRenderer;
@@ -41,8 +42,6 @@ import to.etc.domui.util.Msgs;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContextFactory;
-
-import javax.annotation.Nonnull;
 
 /**
  * DO NOT USE - ancient and badly written.
@@ -72,7 +71,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * @param rcord
 	 * @throws Exception
 	 */
-	abstract public void onSelect(@Nonnull T rcord) throws Exception;
+	abstract public void onSelect(@NonNull T rcord) throws Exception;
 
 	/**
 	 * Implement to handle pressing the "new record" button.
@@ -92,7 +91,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * Override this to customize the lookup form. No need to call super. method.
 	 * @param lf
 	 */
-	protected void customizeSearchPanel(@Nonnull SearchPanel<T> lf) throws Exception {}
+	protected void customizeSearchPanel(@NonNull SearchPanel<T> lf) throws Exception {}
 
 	@Override
 	public void createContent() throws Exception {
@@ -103,21 +102,21 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		add(m_lookupForm);
 		m_lookupForm.setClicked(new IClicked<SearchPanel<T>>() {
 			@Override
-			public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
+			public void clicked(@NonNull SearchPanel<T> b) throws Exception {
 				search(b);
 			}
 		});
 		if(hasEditRight()) {
 			m_lookupForm.setOnNew(new IClicked<SearchPanel<T>>() {
 				@Override
-				public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
+				public void clicked(@NonNull SearchPanel<T> b) throws Exception {
 					onNew();
 				}
 			});
 		}
 		m_lookupForm.setOnClear(new IClicked<SearchPanel<T>>() {
 			@Override
-			public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
+			public void clicked(@NonNull SearchPanel<T> b) throws Exception {
 				onSearchPanelClear(b);
 			}
 		});
@@ -148,7 +147,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		setTableQuery(c);
 	}
 
-	protected void adjustCriteria(@Nonnull QCriteria<T> crit) {}
+	protected void adjustCriteria(@NonNull QCriteria<T> crit) {}
 
 	private void setTableQuery(QCriteria<T> qc) throws Exception {
 		adjustCriteria(qc);
@@ -170,7 +169,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 				if(arrh.getRowClicked() == null) {
 					arrh.setRowClicked(new ICellClicked<T>() {
 						@Override
-						public void cellClicked(@Nonnull T val) throws Exception {
+						public void cellClicked(@NonNull T val) throws Exception {
 							onSelect(val);
 						}
 					});
@@ -226,7 +225,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			if(arrh.getRowClicked() == null) {
 				arrh.setRowClicked(new ICellClicked<T>() {
 					@Override
-					public void cellClicked(@Nonnull T val) throws Exception {
+					public void cellClicked(@NonNull T val) throws Exception {
 						onSelect(val);
 					}
 				});

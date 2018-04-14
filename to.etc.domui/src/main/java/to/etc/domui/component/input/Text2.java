@@ -23,6 +23,9 @@
  */
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.meta.MetaManager;
@@ -56,9 +59,6 @@ import to.etc.util.RuntimeConversionException;
 import to.etc.util.RuntimeConversions;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,7 +69,7 @@ import java.util.regex.Pattern;
  * A single-line input box with conversion and validation ability, and
  * allowing buttons to be added to its right.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication, IConvertable<T>, ITypedControl<T> {
 	private final Input m_input = new Input() {
 		/**
@@ -77,7 +77,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		 * @see Input#acceptRequestParameter(String[])
 		 */
 		@Override
-		public boolean acceptRequestParameter(@Nonnull String[] values) {
+		public boolean acceptRequestParameter(@NonNull String[] values) {
 			String oldValue = getRawValue();									// Retain previous value,
 			super.acceptRequestParameter(values);								// Set the new one;
 
@@ -97,7 +97,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	};
 
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
-	@Nonnull
+	@NonNull
 	private Class<T> m_inputClass;
 
 	@Nullable
@@ -139,6 +139,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 */
 	private boolean m_untrimmed;
 
+	private boolean m_immediate;
+
 	/**
 	 * @see Text2#getEmptyMarker()
 	 */
@@ -152,7 +154,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		NONE, DIGITS, FLOAT,
 	}
 
-	@Nonnull
+	@NonNull
 	private NumberMode m_numberMode = NumberMode.NONE;
 
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
@@ -164,7 +166,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Nullable
 	private String m_regexpUserString;
 
-	public Text2(@Nonnull Class<T> inputClass) {
+	public Text2(@NonNull Class<T> inputClass) {
 		m_inputClass = inputClass;
 
 		NumberMode nm = NumberMode.NONE;
@@ -221,7 +223,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return m_input;
 	}
 
-	@Nonnull
+	@NonNull
 	public Text2<T> password() {
 		m_password = true;
 		return this;
@@ -344,7 +346,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 * @return
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public Class<T> getActualType() {
 		return m_inputClass;
 	}
@@ -596,7 +598,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	/**
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.
 	 */
-	@Nonnull
+	@NonNull
 	public NumberMode getNumberMode() {
 		return m_numberMode;
 	}
@@ -604,7 +606,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	/**
 	 * Sets the current numeric mode in effect. This mode prevents letters from being input on the screen.
 	 */
-	public void setNumberMode(@Nonnull NumberMode numberMode) {
+	public void setNumberMode(@NonNull NumberMode numberMode) {
 		m_numberMode = numberMode;
 		renderMode();
 	}
@@ -643,7 +645,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		renderButtons();
 	}
 
-	@Nonnull
+	@NonNull
 	public DefaultButton addButton() {
 		DefaultButton sib = new DefaultButton();
 		addButton(sib);
@@ -723,17 +725,17 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	/**
 	 * Create a control to input a monetary value proper for the specified property.
 	 */
-	@Nonnull
-	static public Text2<Double> createDoubleMoneyInput(@Nonnull Class< ? > clz, @Nonnull String property, boolean editable) {
+	@NonNull
+	static public Text2<Double> createDoubleMoneyInput(@NonNull Class< ? > clz, @NonNull String property, boolean editable) {
 		return Text2.createDoubleMoneyInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Text2<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {
 		return Text2.createBDMoneyInput((PropertyMetaModel<BigDecimal>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Text2<BigDecimal> createBDMoneyInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -743,8 +745,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return txt;
 	}
 
-	@Nonnull
-	static public Text2<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel<Double> pmm, boolean editable) {
+	@NonNull
+	static public Text2<Double> createDoubleMoneyInput(@NonNull PropertyMetaModel<Double> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text2<Double> txt = new Text2<Double>(Double.class);
@@ -753,7 +755,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return txt;
 	}
 
-	public static void configureNumericInput(@Nonnull Text2< ? > txt, @Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
+	public static void configureNumericInput(@NonNull Text2< ? > txt, @NonNull PropertyMetaModel< ? > pmm, boolean editable) {
 		if(!editable)
 			txt.setReadOnly(true);
 
@@ -787,7 +789,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	/*	CODING:	Numeric Text inputs for base types.					*/
 	/*--------------------------------------------------------------*/
 
-	@Nonnull
+	@NonNull
 	static public <T extends Number> Text2<T> createNumericInput(PropertyMetaModel<T> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -804,38 +806,38 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 * @param editable
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public Text2<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
 		return Text2.createNumericInput((PropertyMetaModel<Integer>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Text2<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
 		return Text2.createNumericInput((PropertyMetaModel<Long>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Text2<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
 		return Text2.createNumericInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Text2<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
 		return Text2.createNumericInput((PropertyMetaModel<BigDecimal>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public <T> Text2< ? > createText(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.getPropertyMeta(clz, property);
 		return Text2.createText(pmm.getActualType(), pmm, editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public <T> Text2<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
 		return createText(iclz, pmm, editable, false);
 	}
 
-	@Nonnull
+	@NonNull
 	static public <T> Text2<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		Class< ? > aclz = pmm.getActualType();
 		if(!iclz.isAssignableFrom(aclz))
@@ -946,7 +948,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return txt;
 	}
 
-	@Override public void setSpecialAttribute(@Nonnull String name, @Nullable String value) {
+	@Override public void setSpecialAttribute(@NonNull String name, @Nullable String value) {
 		m_input.setSpecialAttribute(name, value);
 	}
 
@@ -957,4 +959,18 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Nullable public String getPlaceHolder() {
 		return m_input.getPlaceHolder();
 	}
+
+	public boolean isImmediate() {
+		return m_input.isImmediate();
+	}
+
+	public void setImmediate(boolean immediate) {
+		m_input.setImmediate(immediate);
+	}
+
+	public Text2<T> immediate() {
+		setImmediate(true);
+		return this;
+	}
+
 }

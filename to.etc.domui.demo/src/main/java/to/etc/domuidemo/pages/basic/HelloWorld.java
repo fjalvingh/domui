@@ -1,8 +1,9 @@
 package to.etc.domuidemo.pages.basic;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.UrlPage;
 
 public class HelloWorld extends UrlPage {
 	@Override
@@ -12,7 +13,7 @@ public class HelloWorld extends UrlPage {
 		d.add("Hello world! Click me!");
 		d.setClicked(new IClicked<Div>() {
 			@Override
-			public void clicked(@Nonnull Div clickednode) throws Exception {
+			public void clicked(@NonNull Div clickednode) throws Exception {
 				if("red".equals(clickednode.getBackgroundColor()))
 					clickednode.setBackgroundColor("green");
 				else

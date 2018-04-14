@@ -1,13 +1,20 @@
 package to.etc.domui.themes.sass;
 
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.DefaultThemeVariant;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeFactory;
+import to.etc.domui.themes.StyleException;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.resources.ResourceDependencyList;
 
-import javax.annotation.*;
-import java.io.*;
-import java.util.*;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Sass based theming engine.
@@ -36,21 +43,21 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 17-4-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class SassThemeFactory {
 	static public final IThemeFactory INSTANCE = new IThemeFactory() {
-		@Nonnull
+		@NonNull
 		@Override
-		public ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
+		public ITheme getTheme(@NonNull DomApplication da, @NonNull String themeName) throws Exception {
 			SassThemeFactory stf = new SassThemeFactory(da, themeName);
 			return stf.createTheme();
 		}
 
-		@Nonnull @Override public String getFactoryName() {
+		@NonNull @Override public String getFactoryName() {
 			return "scss";
 		}
 
-		@Nonnull @Override public String getDefaultThemeName() {
+		@NonNull @Override public String getDefaultThemeName() {
 			return getFactoryName() + "-winter-default-default";
 		}
 	};
@@ -84,35 +91,35 @@ final public class SassThemeFactory {
 		searchpath.add("$themes/scss/all");							// 20130327 jal The "all" folder contains stuff shared for all themes
 
 		IScriptScope iss = new IScriptScope() {
-			@Nullable @Override public <T> T getValue(@Nonnull Class<T> valueClass, @Nonnull String name) {
+			@Nullable @Override public <T> T getValue(@NonNull Class<T> valueClass, @NonNull String name) {
 				return null;
 			}
 
-			@Override public <T> void put(@Nonnull String name, @Nullable T instance) {
+			@Override public <T> void put(@NonNull String name, @Nullable T instance) {
 
 			}
 
-			@Nonnull @Override public <T> List<T> getProperties(@Nonnull Class<T> filterClass) {
+			@NonNull @Override public <T> List<T> getProperties(@NonNull Class<T> filterClass) {
 				return Collections.EMPTY_LIST;
 			}
 
-			@Nonnull @Override public IScriptScope addObjectProperty(@Nonnull String name) {
+			@NonNull @Override public IScriptScope addObjectProperty(@NonNull String name) {
 				return this;
 			}
 
-			@Nullable @Override public <T> T eval(@Nonnull Class<T> targetType, @Nonnull Reader r, @Nonnull String sourceFileNameIndicator) throws Exception {
+			@Nullable @Override public <T> T eval(@NonNull Class<T> targetType, @NonNull Reader r, @NonNull String sourceFileNameIndicator) throws Exception {
 				return null;
 			}
 
-			@Nullable @Override public <T> T eval(@Nonnull Class<T> targetType, @Nonnull String expression, @Nonnull String sourceFileNameIndicator) throws Exception {
+			@Nullable @Override public <T> T eval(@NonNull Class<T> targetType, @NonNull String expression, @NonNull String sourceFileNameIndicator) throws Exception {
 				return null;
 			}
 
-			@Nonnull @Override public IScriptScope newScope() {
+			@NonNull @Override public IScriptScope newScope() {
 				return this;
 			}
 
-			@Nullable @Override public <T> T getAdapter(@Nonnull Class<T> clz) {
+			@Nullable @Override public <T> T getAdapter(@NonNull Class<T> clz) {
 				return null;
 			}
 		};

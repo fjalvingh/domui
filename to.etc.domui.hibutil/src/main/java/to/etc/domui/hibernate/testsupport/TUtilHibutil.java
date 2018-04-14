@@ -1,24 +1,30 @@
 package to.etc.domui.hibernate.testsupport;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.engine.SessionFactoryImplementor;
+import org.hibernate.impl.CriteriaImpl;
+import org.hibernate.impl.SessionImpl;
+import org.hibernate.jdbc.util.BasicFormatterImpl;
+import org.hibernate.loader.OuterJoinLoader;
+import org.hibernate.loader.criteria.CriteriaLoader;
+import org.hibernate.persister.entity.OuterJoinLoadable;
+import to.etc.domui.hibernate.generic.BuggyHibernateBaseContext;
+import to.etc.domui.hibernate.model.GenericHibernateHandler;
+import to.etc.lexer.ReaderScannerBase;
+import to.etc.lexer.ReaderTokenizerBase;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QSelection;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-
-import org.hibernate.*;
-import org.hibernate.engine.*;
-import org.hibernate.impl.*;
-import org.hibernate.jdbc.util.*;
-import org.hibernate.loader.*;
-import org.hibernate.loader.criteria.*;
-import org.hibernate.persister.entity.*;
-
-import to.etc.domui.hibernate.generic.*;
-import to.etc.domui.hibernate.model.*;
-import to.etc.lexer.*;
-import to.etc.webapp.query.*;
+import java.io.StringReader;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Helper class for writing JUnit tests around hibernate stuff.
@@ -26,7 +32,7 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 5, 2013
  */
-@Immutable
+//@Immutable
 final public class TUtilHibutil {
 	private TUtilHibutil() {}
 
@@ -36,8 +42,8 @@ final public class TUtilHibutil {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	static public Session getSession(@Nonnull QDataContext dc) throws Exception {
+	@NonNull
+	static public Session getSession(@NonNull QDataContext dc) throws Exception {
 		BuggyHibernateBaseContext hdc = (BuggyHibernateBaseContext) dc;
 		return hdc.getSession();
 	}
@@ -49,8 +55,8 @@ final public class TUtilHibutil {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	static public String getCriteriaSQL(@Nonnull Criteria crit) throws Exception {
+	@NonNull
+	static public String getCriteriaSQL(@NonNull Criteria crit) throws Exception {
 		CriteriaImpl c = (CriteriaImpl) crit;
 		SessionImpl s = (SessionImpl) c.getSession();
 		SessionFactoryImplementor factory = (SessionFactoryImplementor) s.getSessionFactory();
@@ -72,8 +78,8 @@ final public class TUtilHibutil {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	static public <T> String getCriteriaSQL(@Nonnull QDataContext dc, @Nonnull QCriteria<T> query) throws Exception {
+	@NonNull
+	static public <T> String getCriteriaSQL(@NonNull QDataContext dc, @NonNull QCriteria<T> query) throws Exception {
 		Session ses = getSession(dc);
 		Criteria crit = GenericHibernateHandler.createCriteria(ses, query);
 		return getCriteriaSQL(crit);
@@ -86,8 +92,8 @@ final public class TUtilHibutil {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	static public <T> String getCriteriaSQL(@Nonnull QDataContext dc, @Nonnull QSelection<T> query) throws Exception {
+	@NonNull
+	static public <T> String getCriteriaSQL(@NonNull QDataContext dc, @NonNull QSelection<T> query) throws Exception {
 		Session ses = getSession(dc);
 		Criteria crit = GenericHibernateHandler.createCriteria(ses, query);
 		return getCriteriaSQL(crit);
@@ -98,8 +104,8 @@ final public class TUtilHibutil {
 	 * @param sql
 	 * @return
 	 */
-	@Nonnull
-	static public String formatSQL(@Nonnull String sql) {
+	@NonNull
+	static public String formatSQL(@NonNull String sql) {
 		return new BasicFormatterImpl().format(sql);
 	}
 
@@ -113,8 +119,8 @@ final public class TUtilHibutil {
 	 * @param sql
 	 * @return
 	 */
-	@Nonnull
-	static public final String getFromClause(@Nonnull String sql) throws Exception {
+	@NonNull
+	static public final String getFromClause(@NonNull String sql) throws Exception {
 		ReaderTokenizerBase rsb = new ReaderTokenizerBase(sql, new StringReader(sql));
 		rsb.setKeepQuotes(true);
 		rsb.setReturnWhitespace(true);
@@ -131,8 +137,8 @@ final public class TUtilHibutil {
 
 	static private final Set<String> JOINKWS = new HashSet<String>(Arrays.asList("inner", "outer", "left", "right", "join", "as"));
 
-	@Nonnull
-	static public final Map<String, String> getTableAliasMap(@Nonnull String fromclause) throws Exception {
+	@NonNull
+	static public final Map<String, String> getTableAliasMap(@NonNull String fromclause) throws Exception {
 		ReaderTokenizerBase rsb = new ReaderTokenizerBase(fromclause, new StringReader(fromclause));
 		Map<String, String> res = new HashMap<String, String>();
 		int parencount = 0;
@@ -170,8 +176,8 @@ final public class TUtilHibutil {
 		}
 	}
 
-	@Nonnull
-	static public final String getWhereClause(@Nonnull String sql) throws Exception {
+	@NonNull
+	static public final String getWhereClause(@NonNull String sql) throws Exception {
 		ReaderTokenizerBase rsb = new ReaderTokenizerBase(sql, new StringReader(sql));
 		rsb.setKeepQuotes(true);
 		rsb.setReturnWhitespace(true);
@@ -192,8 +198,8 @@ final public class TUtilHibutil {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	static public final String getSubSelect(@Nonnull String sql) throws Exception {
+	@NonNull
+	static public final String getSubSelect(@NonNull String sql) throws Exception {
 		ReaderTokenizerBase rsb = new ReaderTokenizerBase(sql, new StringReader(sql));
 		rsb.setKeepQuotes(true);
 		rsb.setReturnWhitespace(true);
@@ -223,8 +229,8 @@ final public class TUtilHibutil {
 	}
 
 
-	@Nonnull
-	private static String scanTillToken(@Nonnull StringBuilder upto, @Nonnull ReaderTokenizerBase rsb, String... tokens) throws Exception {
+	@NonNull
+	private static String scanTillToken(@NonNull StringBuilder upto, @NonNull ReaderTokenizerBase rsb, String... tokens) throws Exception {
 		Set<String> tokenset = new HashSet<String>();
 		for(String token : tokens)
 			tokenset.add(token.toLowerCase());

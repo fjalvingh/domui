@@ -24,15 +24,18 @@
  */
 package to.etc.domui.themes.simple;
 
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.StyleException;
+import to.etc.domui.themes.ThemeResourceFactory;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencies;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-import java.io.*;
-import java.util.*;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * The result of a "simple" theme. It only contains the properties map for colors
@@ -41,27 +44,27 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 27, 2011
  */
-@Immutable
+//@Immutable
 public final class SimpleTheme implements ITheme {
-	@Nonnull
+	@NonNull
 	final private DomApplication m_da;
 
 	private final String m_themeName;
 
-	@Nonnull
+	@NonNull
 	final private String m_styleName;
 
-	@Nonnull
+	@NonNull
 	final private ResourceDependencies m_rd;
 
-	@Nonnull
+	@NonNull
 	final private IScriptScope m_propertyScope;
 
-	@Nonnull
+	@NonNull
 	final private List<String> m_searchpath;
 
-	public SimpleTheme(@Nonnull DomApplication da, String themeName, @Nonnull String styleName, @Nonnull IScriptScope themeProperties, @Nonnull ResourceDependencies rd,
-		@Nonnull List<String> searchpath) {
+	public SimpleTheme(@NonNull DomApplication da, String themeName, @NonNull String styleName, @NonNull IScriptScope themeProperties, @NonNull ResourceDependencies rd,
+		@NonNull List<String> searchpath) {
 		m_da = da;
 		m_themeName = themeName;
 		m_styleName = styleName;
@@ -70,29 +73,29 @@ public final class SimpleTheme implements ITheme {
 		m_searchpath = searchpath;
 	}
 
-	@Nonnull @Override public String getThemeName() {
+	@NonNull @Override public String getThemeName() {
 		return m_themeName;
 	}
 
-	@Nonnull @Override public String getStyleSheetName() {
+	@NonNull @Override public String getStyleSheetName() {
 		return ThemeResourceFactory.PREFIX + m_themeName + "/" + "/style.theme.css";
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public ResourceDependencies getDependencies() {
 		return m_rd;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public IScriptScope getPropertyScope() {
 		return m_propertyScope;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public IResourceRef getThemeResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
 		//-- "Normal" resource.
 		for(String sitem : m_searchpath) {
 			String real = sitem + "/" + name;
@@ -116,8 +119,8 @@ public final class SimpleTheme implements ITheme {
 	}
 
 	@Override
-	@Nonnull
-	public String translateResourceName(@Nonnull String name) {
+	@NonNull
+	public String translateResourceName(@NonNull String name) {
 		try {
 			IScriptScope ss = getPropertyScope().getValue(IScriptScope.class, "icon");
 			if(null == ss)

@@ -24,9 +24,9 @@
  */
 package to.etc.domui.component.controlfactory;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
 /**
  * A factory which creates the correct EDITING control to edit a property, specified by the property's
@@ -71,7 +71,7 @@ public interface PropertyControlFactory {
 	 * @param controlClass When set the control factory *must* be able to return a component which is assignment-compatible with this class type. If it cannot it MUST refuse to create the control.
 	 * @return
 	 */
-	int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass);
+	int accepts(@NonNull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass);
 
 	/**
 	 * This MUST create all nodes necessary for a control to edit the specified item. The nodes must be added
@@ -85,6 +85,6 @@ public interface PropertyControlFactory {
 	 * @param container
 	 * @return
 	 */
-	@Nonnull
-	<T> ControlFactoryResult createControl(@Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass);
+	@NonNull
+	<T> ControlFactoryResult createControl(@NonNull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass);
 }

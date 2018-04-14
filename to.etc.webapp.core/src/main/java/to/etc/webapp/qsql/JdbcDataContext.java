@@ -24,13 +24,22 @@
  */
 package to.etc.webapp.qsql;
 
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.webapp.core.IRunnable;
+import to.etc.webapp.query.ICriteriaTableDef;
+import to.etc.webapp.query.IQDataContextListener;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
+import to.etc.webapp.query.QNotFoundException;
+import to.etc.webapp.query.QQueryUtils;
+import to.etc.webapp.query.QSelection;
 
-import javax.annotation.*;
-
-import to.etc.webapp.core.*;
-import to.etc.webapp.query.*;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * WATCH OUT- THIS DOES NOT OBEY OBJECT IDENTITY RULES!! Records loaded through
@@ -52,7 +61,7 @@ public class JdbcDataContext implements QDataContext {
 
 	private boolean m_ignoreClose;
 
-	@Nonnull
+	@NonNull
 	private List<IRunnable> m_commitHandlerList = Collections.EMPTY_LIST;
 
 	public JdbcDataContext(QDataContextFactory factory, Connection dbc) {
@@ -83,7 +92,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#attach(java.lang.Object)
 	 */
 	@Override
-	public void attach(@Nonnull Object o) throws Exception {
+	public void attach(@NonNull Object o) throws Exception {
 	}
 
 	@Override
@@ -126,7 +135,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#delete(java.lang.Object)
 	 */
 	@Override
-	public void delete(@Nonnull Object o) throws Exception {
+	public void delete(@NonNull Object o) throws Exception {
 		unsupported();
 	}
 
@@ -135,7 +144,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#find(java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public <T> T find(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public <T> T find(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		unclosed();
 		return JdbcQuery.find(this, clz, pk);
 	}
@@ -145,8 +154,8 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#get(java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public @Nonnull
-	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull
+	<T> T get(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		T res = find(clz, pk);
 		if(res == null) {
 			throw new QNotFoundException(clz, pk);
@@ -160,7 +169,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#getInstance(java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public @Nonnull <T> T getInstance(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull <T> T getInstance(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		unclosed();
 		return JdbcQuery.getInstance(this, clz, pk);
 	}
@@ -170,13 +179,13 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#getConnection()
 	 */
 	@Override
-	public @Nonnull Connection getConnection() throws Exception {
+	public @NonNull Connection getConnection() throws Exception {
 		unclosed();
 		return internalGetConnection();
 	}
 
 	@Override
-	public @Nonnull QDataContextFactory getFactory() {
+	public @NonNull QDataContextFactory getFactory() {
 		return m_factory;
 	}
 
@@ -186,47 +195,47 @@ public class JdbcDataContext implements QDataContext {
 	}
 
 	@Override
-	public @Nonnull <T> List<T> query(@Nonnull QCriteria<T> q) throws Exception {
+	public @NonNull <T> List<T> query(@NonNull QCriteria<T> q) throws Exception {
 		unclosed();
 		return JdbcQuery.query(this, q);
 	}
 
 	@Override
-	public @Nonnull List<Object[]> query(@Nonnull QSelection< ? > sel) throws Exception {
+	public @NonNull List<Object[]> query(@NonNull QSelection< ? > sel) throws Exception {
 		unclosed();
 		return JdbcQuery.query(this, sel);
 	}
 
 	@Override
-	public <T> T queryOne(@Nonnull QCriteria<T> q) throws Exception {
+	public <T> T queryOne(@NonNull QCriteria<T> q) throws Exception {
 		unclosed();
 		return JdbcQuery.queryOne(this, q);
 	}
 
 	@Override
-	public Object[] queryOne(@Nonnull QSelection< ? > q) throws Exception {
+	public Object[] queryOne(@NonNull QSelection< ? > q) throws Exception {
 		unclosed();
 		return JdbcQuery.queryOne(this, q);
 	}
 
 	@Override
-	public <T> T find(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception {
+	public <T> T find(@NonNull ICriteriaTableDef<T> metatable, @NonNull Object pk) throws Exception {
 		throw new IllegalStateException("Inapplicable call for JdbcDataContext");
 	}
 
-	@Nonnull
-	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+	@NonNull
+	public <R> List<R> query(@NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
 		return QQueryUtils.mapSelectionQuery(this, resultInterface, sel);
 	}
 
 	@Override
 	@Nullable
-	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+	public <R> R queryOne(@NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
 		return QQueryUtils.mapSelectionOneQuery(this, resultInterface, sel);
 	}
 
 	@Override
-	public @Nonnull <T> T getInstance(@Nonnull ICriteriaTableDef<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull <T> T getInstance(@NonNull ICriteriaTableDef<T> clz, @NonNull Object pk) throws Exception {
 		throw new IllegalStateException("Inapplicable call for JdbcDataContext");
 	}
 
@@ -235,7 +244,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#refresh(java.lang.Object)
 	 */
 	@Override
-	public void refresh(@Nonnull Object o) throws Exception {
+	public void refresh(@NonNull Object o) throws Exception {
 		unsupported();
 	}
 
@@ -250,7 +259,7 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#save(java.lang.Object)
 	 */
 	@Override
-	public void save(@Nonnull Object o) throws Exception {
+	public void save(@NonNull Object o) throws Exception {
 		unsupported();
 	}
 
@@ -265,7 +274,7 @@ public class JdbcDataContext implements QDataContext {
 	}
 
 	@Override
-	public void addCommitAction(@Nonnull IRunnable cx) {
+	public void addCommitAction(@NonNull IRunnable cx) {
 		if(m_commitHandlerList == Collections.EMPTY_LIST)
 			m_commitHandlerList = new ArrayList<IRunnable>();
 		m_commitHandlerList.add(cx);
@@ -276,10 +285,10 @@ public class JdbcDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#addListener(to.etc.webapp.query.IQDataContextListener)
 	 */
 	@Override
-	public void addListener(@Nonnull IQDataContextListener qDataContextListener) {}
+	public void addListener(@NonNull IQDataContextListener qDataContextListener) {}
 
 	@Override
-	public <T> T original(@Nonnull T copy) {
+	public <T> T original(@NonNull T copy) {
 		throw new IllegalStateException("Not implemented");
 	}
 

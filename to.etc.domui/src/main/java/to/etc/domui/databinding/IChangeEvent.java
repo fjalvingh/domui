@@ -24,7 +24,7 @@
  */
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * The basic data binding change event core interface - not intended for direct use; use it's implementations
@@ -35,5 +35,5 @@ import javax.annotation.*;
  */
 public interface IChangeEvent<V, E extends IChangeEvent<V, E, T>, T extends IChangeListener<V, E, T>> {
 	/** The thingy that generated this event */
-	@Nonnull IObservable<V, E, T> getSource();
+	@NonNull IObservable<V, E, T> getSource();
 }

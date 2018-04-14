@@ -24,9 +24,9 @@
  */
 package to.etc.iocular.def;
 
-import javax.annotation.*;
-
-import to.etc.iocular.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.iocular.IocException;
 
 public class IocConfigurationException extends IocException {
 	private BasicContainerBuilder m_builder;
@@ -35,7 +35,7 @@ public class IocConfigurationException extends IocException {
 
 	private String m_location;
 
-	public IocConfigurationException(@Nullable ComponentBuilder b, @Nonnull String message) {
+	public IocConfigurationException(@Nullable ComponentBuilder b, @NonNull String message) {
 		super(message);
 		m_cb = b;
 		if(b != null) {
@@ -45,19 +45,19 @@ public class IocConfigurationException extends IocException {
 	}
 
 
-	public IocConfigurationException(@Nullable BasicContainerBuilder b, @Nullable String location, @Nonnull String message) {
+	public IocConfigurationException(@Nullable BasicContainerBuilder b, @Nullable String location, @NonNull String message) {
 		super(message);
 		m_builder = b;
 		m_location = location;
 	}
 
-	public IocConfigurationException(@Nullable BasicContainerBuilder b, @Nullable String location, @Nonnull Throwable cause) {
+	public IocConfigurationException(@Nullable BasicContainerBuilder b, @Nullable String location, @NonNull Throwable cause) {
 		super(cause);
 		m_builder = b;
 		m_location = location;
 	}
 
-	public IocConfigurationException(@Nullable BasicContainerBuilder b, @Nullable String location, @Nonnull String message, @Nonnull Throwable cause) {
+	public IocConfigurationException(@Nullable BasicContainerBuilder b, @Nullable String location, @NonNull String message, @NonNull Throwable cause) {
 		super(message, cause);
 		m_builder = b;
 		m_location = location;

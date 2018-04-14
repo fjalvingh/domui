@@ -1,13 +1,13 @@
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 13-12-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class LookupControlRegistry2 {
 	static public final LookupControlRegistry2 INSTANCE = new LookupControlRegistry2();
 

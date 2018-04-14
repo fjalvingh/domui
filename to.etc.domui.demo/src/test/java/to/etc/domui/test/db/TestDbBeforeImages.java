@@ -1,19 +1,22 @@
 package to.etc.domui.test.db;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import org.hibernate.*;
-import org.junit.*;
-
+import org.eclipse.jdt.annotation.NonNull;
+import org.hibernate.Hibernate;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.derbydata.db.Track;
-import to.etc.domui.hibernate.beforeimages.*;
-import to.etc.domui.hibernate.generic.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.hibernate.beforeimages.QBeforeCollectionNotLoadedException;
+import to.etc.domui.hibernate.generic.BuggyHibernateBaseContext;
+import to.etc.util.FileTool;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+
+import java.util.List;
 
 /**
  * Tests related to getting before images for data.
@@ -40,7 +43,7 @@ public class TestDbBeforeImages {
 		FileTool.closeAll(m_dc);
 	}
 
-	@Nonnull
+	@NonNull
 	private Album getTestableAlbum() throws Exception {
 		List<Album> list = m_dc.query(QCriteria.create(Album.class).isnotnull("artist").limit(1));
 		Assert.assertTrue(list.size() > 0);

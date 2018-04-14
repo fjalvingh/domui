@@ -1,5 +1,8 @@
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.dom.html.ATag;
@@ -13,9 +16,6 @@ import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -25,7 +25,7 @@ import java.util.List;
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since 2/19/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 public final class LookupFormSavedFilterFragment extends Div {
 
 	private final List<SavedFilter> m_savedFilters;
@@ -77,7 +77,7 @@ public final class LookupFormSavedFilterFragment extends Div {
 			row.addCell().add(filterName);
 			filterName.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+				public void clicked(@NonNull NodeBase clickednode) throws Exception {
 					if(m_onFilterClicked != null) {
 						m_onFilterClicked.onNotify(filter);
 					}
@@ -88,7 +88,7 @@ public final class LookupFormSavedFilterFragment extends Div {
 			body.addCell().add(delImage);
 			delImage.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+				public void clicked(@NonNull NodeBase clickednode) throws Exception {
 					m_savedFilters.remove(filter);
 					if(m_savedFilters.isEmpty()) {
 						table.remove();

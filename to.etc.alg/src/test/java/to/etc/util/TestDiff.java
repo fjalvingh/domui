@@ -1,10 +1,12 @@
 package to.etc.util;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
-import javax.annotation.*;
-
-import org.junit.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TestDiff {
 	@BeforeClass
@@ -94,8 +96,8 @@ public class TestDiff {
 		}
 	}
 
-	@Nonnull
-	private List<Character> createList(@Nonnull String s) {
+	@NonNull
+	private List<Character> createList(@NonNull String s) {
 		List<Character> res = new ArrayList<Character>(s.length());
 		for(int i = 0; i < s.length(); i++) {
 			res.add(Character.valueOf(s.charAt(i)));

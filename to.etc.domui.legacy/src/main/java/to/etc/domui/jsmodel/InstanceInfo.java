@@ -1,10 +1,11 @@
 package to.etc.domui.jsmodel;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Cached data for a given Javascript model object.

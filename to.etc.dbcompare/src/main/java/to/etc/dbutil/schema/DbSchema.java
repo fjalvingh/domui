@@ -1,11 +1,13 @@
 package to.etc.dbutil.schema;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.dbutil.reverse.Reverser;
 
-import javax.annotation.*;
-
-import to.etc.dbutil.reverse.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A database (schema) definition.
@@ -42,7 +44,7 @@ public class DbSchema implements Serializable {
 		m_reverser = r;
 	}
 
-	@Nonnull
+	@NonNull
 	public Reverser getReverser() {
 		if(null != m_reverser)
 			return m_reverser;

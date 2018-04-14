@@ -24,18 +24,25 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.hibernate.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.IConversationStateListener;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.StringTool;
+import to.etc.webapp.core.IRunnable;
+import to.etc.webapp.query.DefaultBeforeImageCache;
+import to.etc.webapp.query.QAbstractDataContext;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
 
-import javax.annotation.*;
-
-import org.hibernate.*;
-import org.slf4j.*;
-
-import to.etc.domui.state.*;
-import to.etc.util.*;
-import to.etc.webapp.core.*;
-import to.etc.webapp.query.*;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is a basic Hibernate QDataContext implementation, suitable for
@@ -60,7 +67,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	protected Session m_session;
 
-	@Nonnull
+	@NonNull
 	private List<IRunnable> m_commitHandlerList = Collections.EMPTY_LIST;
 
 	@Nullable
@@ -259,7 +266,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		return m_keepOriginals;
 	}
 
-	@Nonnull
+	@NonNull
 	public DefaultBeforeImageCache getBeforeCache() {
 		DefaultBeforeImageCache beforeCache = m_beforeCache;
 		if(null == beforeCache) {

@@ -24,13 +24,19 @@
  */
 package to.etc.smtp;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
 
-import javax.annotation.DefaultNonNull;
-
-import to.etc.util.*;
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.List;
 
 /**
  * A thingy which uses the SMTP protocol to send messages.
@@ -38,7 +44,7 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2006
  */
-@DefaultNonNull
+@NonNullByDefault
 public class SmtpTransport {
 	static private boolean		DEBUG		= DeveloperOptions.getBool("smtp.debug", false);
 

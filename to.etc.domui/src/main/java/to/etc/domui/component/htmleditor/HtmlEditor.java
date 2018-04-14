@@ -24,13 +24,14 @@
  */
 package to.etc.domui.component.htmleditor;
 
-import to.etc.domui.dom.css.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.errors.UIMessage;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-
-import javax.annotation.*;
+import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.HtmlUtil;
+import to.etc.util.StringTool;
 
 /**
  * This is a small but very fast html editor. It shows way faster than
@@ -196,7 +197,7 @@ public class HtmlEditor extends TextArea {
 	}
 
 	@Override
-	public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+	public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
 		if(isDisabled()) {
 			return false;
 		}

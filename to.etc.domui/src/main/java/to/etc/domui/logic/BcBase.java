@@ -1,8 +1,7 @@
 package to.etc.domui.logic;
 
-import to.etc.webapp.query.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.QDataContext;
 
 /**
  * Base class for all {@link LogicContextImpl} class wrappers.
@@ -12,20 +11,20 @@ import javax.annotation.*;
  */
 public abstract class BcBase implements IClassLogic {
 
-	@Nonnull
+	@NonNull
 	private final ILogicContext m_lc;
 
-	public BcBase(@Nonnull ILogicContext lc) {
+	public BcBase(@NonNull ILogicContext lc) {
 		m_lc = lc;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public ILogicContext lc() {
 		return m_lc;
 	}
 
-	@Nonnull
+	@NonNull
 	protected QDataContext dc() {
 		return m_lc.dc();
 	}

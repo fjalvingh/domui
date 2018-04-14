@@ -1,12 +1,15 @@
 package to.etc.domuidemo.pages.binding.tbl;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.tbl.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.RowRenderer;
+import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.derbydata.db.Artist;
-import to.etc.domui.dom.html.*;
-import to.etc.domuidemo.pages.*;
-import to.etc.webapp.query.*;
+import to.etc.domuidemo.pages.WikiExplanationPage;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
 
 public class DemoTableBinding1 extends WikiExplanationPage {
 	@Override
@@ -31,7 +34,7 @@ public class DemoTableBinding1 extends WikiExplanationPage {
 		});
 	}
 
-	private void clickedOne(@Nonnull final Artist a) {
+	private void clickedOne(@NonNull final Artist a) {
 		//-- Change the artist's name field.
 		String name = a.getName();
 		name = name.substring(1) + name.substring(0, 1);

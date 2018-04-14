@@ -24,9 +24,12 @@
  */
 package to.etc.util;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A progress reporter utility. A single instance defines progress in user-specified
@@ -74,7 +77,7 @@ public class Progress {
 	@Nullable
 	private String					m_extra;
 
-	@Nonnull
+	@NonNull
 	private List<IProgressListener>	m_listeners	= Collections.emptyList();
 
 	static public class Info {
@@ -105,7 +108,7 @@ public class Progress {
 		m_name = name;
 	}
 
-	private Progress(@Nonnull Progress parent, @Nullable String name) {
+	private Progress(@NonNull Progress parent, @Nullable String name) {
 		m_parent = parent;
 		m_root = parent.m_root;
 		m_name = name;
@@ -116,7 +119,7 @@ public class Progress {
 	 * @param level
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public List<Info> getParallels(int level) {
 		List<Info> prl = new ArrayList<Info>();
 		synchronized(m_root) {
@@ -137,7 +140,7 @@ public class Progress {
 		return prl;
 	}
 
-	private void handleSplit(@Nonnull StringBuilder sb, @Nonnull List<Info> prl, @Nonnull Progress split) {
+	private void handleSplit(@NonNull StringBuilder sb, @NonNull List<Info> prl, @NonNull Progress split) {
 		int len = sb.length();
 
 		for(Progress sub : split.m_subProgress) {
@@ -152,7 +155,7 @@ public class Progress {
 		sb.setLength(len);
 	}
 
-	private Progress findSplitPoint(@Nonnull StringBuilder sb, @Nonnull Progress progress, int level) {
+	private Progress findSplitPoint(@NonNull StringBuilder sb, @NonNull Progress progress, int level) {
 		while(progress != null) {
 			String name = progress.m_name;
 			if(name != null) {
@@ -181,7 +184,7 @@ public class Progress {
 	 * Return the root progress handler; this NEVER returns null - it returns itself if it is the root.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public Progress getRoot() {
 		return m_root;
 	}
@@ -236,7 +239,7 @@ public class Progress {
 	/**
 	 * Get the path until the first parallel subprocess or the specified level
 	 */
-	@Nonnull
+	@NonNull
 	public String getActionPath(int levels) {
 		StringBuilder sb = new StringBuilder(80);
 
@@ -420,7 +423,7 @@ public class Progress {
 	 * Create a single (non-parallel) sub-progress indicator for the specified portion of work.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public Progress createSubProgress(@Nullable String name, double work) {
 		synchronized(m_root) {
 			clearSubProgress();
@@ -437,7 +440,7 @@ public class Progress {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	public Progress createParallelProgress(@Nullable String name, double work) {
 		checkCancelled();
 		if(!m_parallel) {
@@ -476,17 +479,17 @@ public class Progress {
 
 	}
 
-	public synchronized void addListener(@Nonnull IProgressListener l) {
+	public synchronized void addListener(@NonNull IProgressListener l) {
 		m_listeners = new ArrayList<IProgressListener>(m_listeners);
 		m_listeners.add(l);
 	}
 
-	public synchronized void removeListener(@Nonnull IProgressListener l) {
+	public synchronized void removeListener(@NonNull IProgressListener l) {
 		m_listeners = new ArrayList<IProgressListener>(m_listeners);
 		m_listeners.remove(l);
 	}
 
-	@Nonnull
+	@NonNull
 	synchronized private List<IProgressListener> getListeners() {
 		return m_listeners;
 	}

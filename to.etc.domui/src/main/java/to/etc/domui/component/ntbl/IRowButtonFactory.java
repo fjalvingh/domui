@@ -24,10 +24,9 @@
  */
 package to.etc.domui.component.ntbl;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.tbl.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.tbl.RowButtonContainer;
 
 public interface IRowButtonFactory<T> {
-	void addButtonsFor(@Nonnull RowButtonContainer c, @Nonnull T data) throws Exception;
+	void addButtonsFor(@NonNull RowButtonContainer c, @NonNull T data) throws Exception;
 }

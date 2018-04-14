@@ -1,6 +1,6 @@
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A verbatim SQL fragment, with optional JDBC parameters, to use inside a query.
@@ -9,16 +9,16 @@ import javax.annotation.*;
  * Created on May 22, 2013
  */
 public class QSqlRestriction extends QOperatorNode {
-	@Nonnull
+	@NonNull
 	private final String m_sql;
 
-	@Nonnull
+	@NonNull
 	private final Object[] m_parameters;
 
-	@Nonnull
+	@NonNull
 	private final Class< ? >[] m_types;
 
-	public QSqlRestriction(@Nonnull String sql, @Nonnull Object[] parameters, @Nonnull Class< ? >[] types) {
+	public QSqlRestriction(@NonNull String sql, @NonNull Object[] parameters, @NonNull Class< ? >[] types) {
 		super(QOperation.SQL);
 		m_sql = sql;
 		m_parameters = parameters;
@@ -27,7 +27,7 @@ public class QSqlRestriction extends QOperatorNode {
 			throw new IllegalStateException("Parameter and type array do not have the same size");
 	}
 
-	public QSqlRestriction(@Nonnull String sql, @Nonnull Object[] parameters) {
+	public QSqlRestriction(@NonNull String sql, @NonNull Object[] parameters) {
 		super(QOperation.SQL);
 		m_sql = sql;
 		m_parameters = parameters;
@@ -46,21 +46,21 @@ public class QSqlRestriction extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitSqlRestriction(this);
 	}
 
-	@Nonnull
+	@NonNull
 	public String getSql() {
 		return m_sql;
 	}
 
-	@Nonnull
+	@NonNull
 	public Object[] getParameters() {
 		return m_parameters;
 	}
 
-	@Nonnull
+	@NonNull
 	public Class< ? >[] getTypes() {
 		return m_types;
 	}

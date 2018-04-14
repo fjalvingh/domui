@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.meta.impl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.controlfactory.PropertyControlFactory;
 import to.etc.domui.component.input.IQueryManipulator;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -46,8 +48,6 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,12 +74,12 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	private int m_displayLength;
 
-	@Nonnull
+	@NonNull
 	private YesNoType m_noWrap = YesNoType.UNKNOWN;
 
 	private IConverter<T> m_converter;
 
-	@Nonnull
+	@NonNull
 	private SortableType m_sortableType = SortableType.UNKNOWN;
 
 	private String m_propertyName;
@@ -204,7 +204,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		return res;
 	}
 
-	public static <X> List<ExpandedDisplayProperty< ? >> expandPropertiesWithDefaults(@Nonnull Class<X> baseClass, @Nullable String[] columns) {
+	public static <X> List<ExpandedDisplayProperty< ? >> expandPropertiesWithDefaults(@NonNull Class<X> baseClass, @Nullable String[] columns) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(baseClass);
 		if(columns != null && columns.length != 0) {
 			//-- Specified: use those
@@ -341,7 +341,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	/*--------------------------------------------------------------*/
 
 	@Override
-	public @Nonnull Class<T> getActualType() {
+	public @NonNull Class<T> getActualType() {
 		return m_actualType;
 	}
 
@@ -370,7 +370,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public @Nonnull String getDefaultLabel() {
+	public @NonNull String getDefaultLabel() {
 		return m_defaultLabel;
 	}
 
@@ -393,7 +393,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public @Nonnull SortableType getSortable() {
+	public @NonNull SortableType getSortable() {
 		if(m_sortableType == null)
 			throw new IllegalStateException("?? Sortable may never be null??");
 		return m_sortableType;
@@ -406,7 +406,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public @Nonnull String getName() {
+	public @NonNull String getName() {
 		return m_propertyName;
 	}
 
@@ -459,7 +459,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getClassModel()
 	 */
 	@Override
-	public @Nonnull ClassMetaModel getClassModel() {
+	public @NonNull ClassMetaModel getClassModel() {
 		return m_classModel;
 	}
 
@@ -469,7 +469,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getComboDisplayProperties();
 	}
 
@@ -513,22 +513,22 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupSelectedProperties();
 	}
 
 	@Override
-	public @Nonnull List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+	public @NonNull List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
 		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupFieldSearchProperties();
 	}
 
 	@Override
-	public @Nonnull List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+	public @NonNull List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
 		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupFieldKeySearchProperties();
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getLookupTableProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getLookupTableProperties() {
 		return m_propertyMeta == null ? Collections.EMPTY_LIST : m_propertyMeta.getLookupTableProperties();
 	}
 
@@ -543,12 +543,12 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public @Nonnull YesNoType getReadOnly() {
+	public @NonNull YesNoType getReadOnly() {
 		return m_propertyMeta == null ? YesNoType.UNKNOWN : m_propertyMeta.getReadOnly();
 	}
 
 	@Override
-	public @Nonnull PropertyRelationType getRelationType() {
+	public @NonNull PropertyRelationType getRelationType() {
 		return m_propertyMeta == null ? PropertyRelationType.NONE : m_propertyMeta.getRelationType();
 	}
 
@@ -567,17 +567,17 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	}
 
 	@Override
-	public @Nonnull TemporalPresentationType getTemporal() {
+	public @NonNull TemporalPresentationType getTemporal() {
 		return m_propertyMeta == null ? TemporalPresentationType.UNKNOWN : m_propertyMeta.getTemporal();
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public NumericPresentation getNumericPresentation() {
 		return m_propertyMeta == null ? NumericPresentation.UNKNOWN : m_propertyMeta.getNumericPresentation();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return m_propertyMeta == null ? NO_VALIDATORS : m_propertyMeta.getValidators();
@@ -598,7 +598,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		return m_propertyMeta == null || m_propertyMeta.isTransient();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public YesNoType getNowrap() {
 		return m_noWrap;
@@ -633,7 +633,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	 */
 	@Override
 	@Nullable
-	public <A> A getAnnotation(@Nonnull Class<A> annclass) {
+	public <A> A getAnnotation(@NonNull Class<A> annclass) {
 		return null;
 	}
 
@@ -642,7 +642,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotations()
 	 */
 	@Override
-	public @Nonnull List<Object> getAnnotations() {
+	public @NonNull List<Object> getAnnotations() {
 		return Collections.emptyList();
 	}
 
@@ -650,7 +650,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	 * Returns empty by definition.
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getColumnNames()
 	 */
-	@Nonnull
+	@NonNull
 	@Override
 	public String[] getColumnNames() {
 		return BasicPropertyMetaModel.NO_NAMES;

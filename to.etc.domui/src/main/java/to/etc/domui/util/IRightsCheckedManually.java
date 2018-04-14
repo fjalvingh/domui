@@ -1,10 +1,9 @@
 package to.etc.domui.util;
 
-import javax.annotation.*;
-
-import to.etc.domui.annotations.*;
-import to.etc.domui.login.*;
-import to.etc.webapp.nls.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.annotations.UIRights;
+import to.etc.domui.login.IUser;
+import to.etc.webapp.nls.CodeException;
 
 /**
  * When implemented on an UrlPage class, this indicates that that page handles (part of) it's
@@ -28,5 +27,5 @@ public interface IRightsCheckedManually {
 	 * @return
 	 * @throws Exception
 	 */
-	boolean isAccessAllowedBy(@Nonnull IUser user) throws Exception;
+	boolean isAccessAllowedBy(@NonNull IUser user) throws Exception;
 }

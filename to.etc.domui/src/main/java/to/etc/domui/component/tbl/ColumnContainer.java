@@ -24,9 +24,12 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.TextNode;
 
 /**
  * Helper class which maintains data for a set of columns (i.e. a row).
@@ -35,7 +38,7 @@ import to.etc.domui.dom.html.*;
  * Created on Jun 1, 2008
  */
 public class ColumnContainer<T> {
-	@Nonnull
+	@NonNull
 	final private TableModelTableBase<T> m_table;
 
 	@Nullable
@@ -44,15 +47,15 @@ public class ColumnContainer<T> {
 	@Nullable
 	private TR m_tr;
 
-	public ColumnContainer(@Nonnull TableModelTableBase<T> table) {
+	public ColumnContainer(@NonNull TableModelTableBase<T> table) {
 		m_table = table;
 	}
 
-	public void setParent(@Nonnull TR p) {
+	public void setParent(@NonNull TR p) {
 		m_tr = p;
 	}
 
-	@Nonnull
+	@NonNull
 	public TableModelTableBase<T> getTable() {
 		return m_table;
 	}
@@ -61,7 +64,7 @@ public class ColumnContainer<T> {
 	 * Adds a column to the table.
 	 * @param columnContent
 	 */
-	@Nonnull
+	@NonNull
 	public TD add(NodeBase columnContent) {
 		TD td = new TD();
 		getTR().add(td);
@@ -70,19 +73,19 @@ public class ColumnContainer<T> {
 		return td;
 	}
 
-	@Nonnull
+	@NonNull
 	public TD add(@Nullable String txt) {
 		return add(new TextNode(txt));
 	}
 
-	@Nonnull
+	@NonNull
 	public TR getTR() {
 		if(null != m_tr)
 			return m_tr;
 		throw new IllegalStateException("Row not set.");
 	}
 
-	@Nonnull
+	@NonNull
 	public RowButtonContainer getRowButtonContainer() {
 		RowButtonContainer c = m_rowButtonContainer;
 		if(c == null)

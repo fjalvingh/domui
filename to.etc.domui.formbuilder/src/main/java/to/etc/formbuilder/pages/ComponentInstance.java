@@ -1,9 +1,10 @@
 package to.etc.formbuilder.pages;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.NodeBase;
 
 /**
  * Wraps some kind of thingy inside the editable form.
@@ -14,19 +15,19 @@ import to.etc.domui.dom.html.*;
 public class ComponentInstance {
 	final private IFbComponent m_component;
 
-	@Nonnull
+	@NonNull
 	final private String m_componentId;
 
 	@Nullable
 	private NodeBase m_rendered;
 
-	@Nonnull
+	@NonNull
 	final private PageContainer m_pageContainer;
 
 	@Nullable
 	private LayoutInstance m_parent;
 
-	ComponentInstance(@Nonnull PageContainer page, @Nonnull String id, @Nonnull IFbComponent component) {
+	ComponentInstance(@NonNull PageContainer page, @NonNull String id, @NonNull IFbComponent component) {
 		m_component = component;
 		m_componentId = id;
 		m_pageContainer = page;
@@ -41,17 +42,17 @@ public class ComponentInstance {
 		return m_parent;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getId() {
 		return m_componentId;
 	}
 
-	@Nonnull
+	@NonNull
 	public IFbComponent getComponentType() {
 		return m_component;
 	}
 
-	@Nonnull
+	@NonNull
 	public NodeBase getRendered() throws Exception {
 		NodeBase nc = m_rendered;
 		if(null == nc) {
@@ -61,7 +62,7 @@ public class ComponentInstance {
 	}
 
 	@Nullable
-	public Object getPropertyValue(@Nonnull PropertyDefinition pd) throws Exception {
+	public Object getPropertyValue(@NonNull PropertyDefinition pd) throws Exception {
 		NodeBase nb = getRendered();
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(nb.getClass(), pd.getName());
 		if(null == pmm)

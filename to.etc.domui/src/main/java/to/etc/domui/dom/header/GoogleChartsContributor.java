@@ -32,7 +32,7 @@ final public class GoogleChartsContributor extends HeaderContributor {
 	 */
 	@Override
 	public void contribute(final IContributorRenderer r) throws Exception {
-		r.renderLoadJavascript("https://www.google.com/jsapi");
+		r.renderLoadJavascript("https://www.google.com/jsapi", false, false);
 
 		if(r instanceof HtmlFullRenderer) {
 			r.o().tag("script");

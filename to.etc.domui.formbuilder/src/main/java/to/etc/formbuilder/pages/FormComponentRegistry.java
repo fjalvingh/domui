@@ -1,17 +1,28 @@
 package to.etc.formbuilder.pages;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.graph.ColorPickerButton;
+import to.etc.domui.component.input.Text;
+import to.etc.domui.component.panellayout.ILayoutPanel;
+import to.etc.domui.component.panellayout.LayoutPanelBase;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.util.ClassPathScanner;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.graph.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.panellayout.*;
-import to.etc.domui.dom.html.*;
-import to.etc.util.*;
+import java.io.File;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * This singleton class will collect all DomUI components that are usable inside the form builder.
@@ -22,13 +33,13 @@ import to.etc.util.*;
 final public class FormComponentRegistry {
 	static private final FormComponentRegistry m_instance = new FormComponentRegistry();
 
-	@Nonnull
+	@NonNull
 	private Set<Class< ? >> m_ignoreSet = new HashSet<Class< ? >>();
 
-	@Nonnull
+	@NonNull
 	private List<IFbComponent> m_componentList = new ArrayList<IFbComponent>();
 
-	@Nonnull
+	@NonNull
 	private Map<String, IFbComponent> m_byNameMap = new HashMap<String, IFbComponent>();
 
 	public FormComponentRegistry() {
@@ -40,12 +51,12 @@ final public class FormComponentRegistry {
 		registerComponent(LayoutPanelBase.class);
 	}
 
-	@Nonnull
+	@NonNull
 	public static FormComponentRegistry getInstance() {
 		return m_instance;
 	}
 
-	public synchronized void register(@Nonnull IFbComponent component, @Nullable Class< ? > rootClass) {
+	public synchronized void register(@NonNull IFbComponent component, @Nullable Class< ? > rootClass) {
 		List<IFbComponent> compl = new ArrayList<IFbComponent>(m_componentList);
 		compl.add(component);
 		m_componentList = Collections.unmodifiableList(compl);
@@ -56,18 +67,18 @@ final public class FormComponentRegistry {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	public synchronized List<IFbComponent> getComponentList() {
 		return m_componentList;
 	}
 
 	@Nullable
-	public synchronized IFbComponent findComponent(@Nonnull String name) {
+	public synchronized IFbComponent findComponent(@NonNull String name) {
 		return m_byNameMap.get(name);
 	}
 
 	@Nullable
-	public IFbComponent findComponent(@Nonnull Class< ? > clz) {
+	public IFbComponent findComponent(@NonNull Class< ? > clz) {
 		return m_byNameMap.get(clz.getName());
 	}
 
@@ -75,7 +86,7 @@ final public class FormComponentRegistry {
 	 * Auto-register a component class.
 	 * @param componentClass
 	 */
-	public void registerComponent(@Nonnull Class< ? > componentClass) {
+	public void registerComponent(@NonNull Class< ? > componentClass) {
 		if(!m_ignoreSet.add(componentClass))
 			return;
 		if(Modifier.isAbstract(componentClass.getModifiers()))
@@ -136,14 +147,14 @@ final public class FormComponentRegistry {
 		register(component, componentClass);
 	}
 
-	private AutoComponent autoRegister(@Nonnull Class< ? extends NodeBase> componentClass) {
+	private AutoComponent autoRegister(@NonNull Class< ? extends NodeBase> componentClass) {
 		if(ILayoutPanel.class.isAssignableFrom(componentClass))
 			return new AutoLayout(componentClass);
 
 		return new AutoComponent(componentClass);
 	}
 
-	private void registerComponentHelper(@Nonnull Class< ? extends IFbComponent> componentClass) {
+	private void registerComponentHelper(@NonNull Class< ? extends IFbComponent> componentClass) {
 		// TODO Auto-generated method stub
 
 	}
@@ -152,7 +163,7 @@ final public class FormComponentRegistry {
 		ClassPathScanner csc = new ClassPathScanner();
 		csc.addListener(new ClassPathScanner.IClassEntry() {
 			@Override
-			public void foundClass(@Nonnull File source, @Nonnull Class< ? > theClass) throws Exception {
+			public void foundClass(@NonNull File source, @NonNull Class< ? > theClass) throws Exception {
 //				System.out.println("Clz: " + theClass.getName());
 				if(NodeBase.class.isAssignableFrom(theClass) && !UrlPage.class.isAssignableFrom(theClass)) {
 //					System.out.println("Trying: " + theClass.getName());

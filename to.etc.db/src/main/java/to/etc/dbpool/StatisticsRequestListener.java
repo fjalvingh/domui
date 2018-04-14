@@ -24,13 +24,22 @@
  */
 package to.etc.dbpool;
 
-import to.etc.dbpool.info.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.dbpool.info.GlobalPerformanceStore;
+import to.etc.dbpool.info.OracleStatisticsCreator;
+import to.etc.dbpool.info.PerformanceCollector;
+import to.etc.dbpool.info.SessionStatistics;
+import to.etc.dbpool.info.StatisticsCollector;
+import to.etc.dbpool.info.StatisticsCollectorBase;
 
-import javax.annotation.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
-import java.io.*;
-import java.util.*;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletRequestEvent;
+import javax.servlet.ServletRequestListener;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * This listener can be used to collect statistics for the database pool
@@ -323,7 +332,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	 * session statistics collection. If the block already exists nothing happens.
 	 * @param r
 	 */
-	@Nonnull
+	@NonNull
 	public static SessionStatistics createSessionStats(HttpServletRequest r) {
 		HttpSession hs = r.getSession(true); 					// Get/create session.
 		SessionStatistics ss;

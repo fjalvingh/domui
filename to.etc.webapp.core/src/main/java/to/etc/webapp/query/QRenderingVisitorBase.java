@@ -1,8 +1,8 @@
 package to.etc.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -11,9 +11,9 @@ import javax.annotation.*;
 abstract public class QRenderingVisitorBase implements QNodeVisitor { // jal: DO NOT EXTEND QNodeVisitorBase here!
 	protected int m_curPrec;
 
-	abstract protected void appendWhere(@Nonnull String what);
+	abstract protected void appendWhere(@NonNull String what);
 
-	abstract protected void appendOperation(@Nonnull QOperation operation);
+	abstract protected void appendOperation(@NonNull QOperation operation);
 
 
 	final protected void precedenceClose(int oldprec) {
@@ -22,7 +22,7 @@ abstract public class QRenderingVisitorBase implements QNodeVisitor { // jal: DO
 		m_curPrec = oldprec;
 	}
 
-	final protected int precedenceOpen(@Nonnull QOperatorNode n) {
+	final protected int precedenceOpen(@NonNull QOperatorNode n) {
 		int oldprec = m_curPrec;
 		m_curPrec = getOperationPrecedence(n.getOperation());
 		if(oldprec > m_curPrec)
@@ -121,7 +121,7 @@ abstract public class QRenderingVisitorBase implements QNodeVisitor { // jal: DO
 	 * @see to.etc.webapp.query.QNodeVisitorBase#visitMulti(to.etc.webapp.query.QMultiNode)
 	 */
 	@Override
-	final public void visitMulti(@Nonnull QMultiNode n) throws Exception {
+	final public void visitMulti(@NonNull QMultiNode n) throws Exception {
 		if(n.getChildren().size() == 0)
 			return;
 		if(n.getChildren().size() == 1) {				// Should not really happen
@@ -141,7 +141,7 @@ abstract public class QRenderingVisitorBase implements QNodeVisitor { // jal: DO
 	}
 
 	@Override
-	final public void visitUnaryNode(final @Nonnull QUnaryNode n) throws Exception {
+	final public void visitUnaryNode(final @NonNull QUnaryNode n) throws Exception {
 		switch(n.getOperation()){
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
@@ -169,28 +169,28 @@ abstract public class QRenderingVisitorBase implements QNodeVisitor { // jal: DO
 
 
 	@Override
-	public void visitCriteria(@Nonnull QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@NonNull QCriteria< ? > qc) throws Exception {
 		visitRestrictionsBase(qc);
 		visitOrderList(qc.getOrder());
 	}
 
 	@Override
-	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
+	public void visitOrderList(@NonNull List<QOrder> orderlist) throws Exception {
 		for(QOrder o : orderlist)
 			o.visit(this);
 	}
 
 	@Override
-	public void visitMultiSelection(@Nonnull QMultiSelection n) throws Exception {
+	public void visitMultiSelection(@NonNull QMultiSelection n) throws Exception {
 		for(QSelectionItem it: n.getItemList())
 			it.visit(this);
 	}
 	@Override
-	public void visitSelectionColumn(@Nonnull QSelectionColumn n) throws Exception {
+	public void visitSelectionColumn(@NonNull QSelectionColumn n) throws Exception {
 		n.getItem().visit(this);
 	}
 	@Override
-	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ? > n) throws Exception {
+	public void visitRestrictionsBase(@NonNull QCriteriaQueryBase< ?, ? > n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		QOperatorNode.prune(r);
 		if(r != null)

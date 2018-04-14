@@ -1,7 +1,8 @@
 package to.etc.domui.util.resources;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class DirectoryFileContainer implements IFileContainer {
 	final private File m_directory;
 

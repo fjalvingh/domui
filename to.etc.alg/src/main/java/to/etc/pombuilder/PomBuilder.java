@@ -1,15 +1,26 @@
 package to.etc.pombuilder;
 
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
+import org.eclipse.jdt.annotation.NonNull;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import to.etc.pombuilder.PomBuilder.JarRef;
-import to.etc.util.*;
-import to.etc.xml.*;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.xml.DOMDecoder;
+import to.etc.xml.DomTools;
+import to.etc.xml.XmlWriter;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Generates the heaps of crap Maven needs to build a simple webapp.
@@ -39,7 +50,7 @@ public class PomBuilder {
 
 	private String				m_version			= "trunk-SNAPSHOT";
 
-	@Nonnull
+	@NonNull
 	final static private Set<String>	m_knownNameSet		= new HashSet<String>();
 
 	static private final String			TOPNAME				= "allViewpointModules";
@@ -138,8 +149,8 @@ public class PomBuilder {
 		System.out.println("done");
 	}
 
-	@Nonnull
-	private String getSonarModules(@Nonnull Project prj) {
+	@NonNull
+	private String getSonarModules(@NonNull Project prj) {
 		StringBuilder sb = new StringBuilder();
 
 		List<Project> depset = new ArrayList<Project>(prj.getFullDepList());
@@ -156,8 +167,8 @@ public class PomBuilder {
 		return sb.toString();
 	}
 
-	@Nonnull
-	private String getSkippedSonarModules(@Nonnull Project prj) {
+	@NonNull
+	private String getSkippedSonarModules(@NonNull Project prj) {
 		StringBuilder sb = new StringBuilder();
 
 		//		sb.append("viewpointModuleSet");
@@ -181,8 +192,8 @@ public class PomBuilder {
 	 *
 	 * @throws FileNotFoundException if project cannot be found
 	 */
-	@Nonnull
-	private File findViewpointProjectPath(@Nonnull String rootPath) throws FileNotFoundException {
+	@NonNull
+	private File findViewpointProjectPath(@NonNull String rootPath) throws FileNotFoundException {
 		File root = new File(rootPath);
 
 		try {
@@ -203,8 +214,8 @@ public class PomBuilder {
 		throw new FileNotFoundException("Viewpoint project directory cannot be found.");
 	}
 
-	@Nonnull
-	private File findViewpointProjectPathInDirectory(@Nonnull File directory) throws FileNotFoundException {
+	@NonNull
+	private File findViewpointProjectPathInDirectory(@NonNull File directory) throws FileNotFoundException {
 		if(directory.isDirectory()) {
 			File[] fileList = directory.listFiles();
 
@@ -251,7 +262,7 @@ public class PomBuilder {
 		w.close();
 	}
 
-	@Nonnull
+	@NonNull
 	private String generateSourceBuild(Project sub) throws Exception {
 		File mv = new File(sub.getRoot(), MAVENSHIT);
 		mv.mkdirs();
@@ -596,8 +607,8 @@ public class PomBuilder {
 		w.close();
 	}
 
-	@Nonnull
-	public Project loadProject(@Nonnull File dir) throws Exception {
+	@NonNull
+	public Project loadProject(@NonNull File dir) throws Exception {
 		String name = dir.getName().toLowerCase();
 		Project p = m_prjMap.get(name);
 		if(null != p)
@@ -608,8 +619,8 @@ public class PomBuilder {
 
 	}
 
-	@Nonnull
-	static public String generateUniqueName(@Nonnull String bn) {
+	@NonNull
+	static public String generateUniqueName(@NonNull String bn) {
 		//-- Start cutting off version numbers.
 		int cn = 1;
 		String name = bn;
@@ -622,8 +633,8 @@ public class PomBuilder {
 		return name;
 	}
 
-	@Nonnull
-	static public String removeVersionFromDir(@Nonnull String in) {
+	@NonNull
+	static public String removeVersionFromDir(@NonNull String in) {
 		String[] ar = in.split("-");
 		if(ar == null)
 			return in;
@@ -639,8 +650,8 @@ public class PomBuilder {
 		return sb.toString();
 	}
 
-	@Nonnull
-	static private String removeVersionFromFile(@Nonnull String in) {
+	@NonNull
+	static private String removeVersionFromFile(@NonNull String in) {
 		int d = in.lastIndexOf('.');
 		String ext;
 		if(d != -1) {
@@ -669,7 +680,7 @@ public class PomBuilder {
 		return sb.toString();
 	}
 
-	static private boolean isDottedVersion(@Nonnull String string) {
+	static private boolean isDottedVersion(@NonNull String string) {
 		string = string.replace("rc", ".");
 
 		String[] dots = string.split("\\.");
@@ -683,7 +694,7 @@ public class PomBuilder {
 		return true;
 	}
 
-	static public boolean isTestSources(@Nonnull String src) {
+	static public boolean isTestSources(@NonNull String src) {
 		return src.endsWith("test") || src.endsWith("test/");
 	}
 
@@ -697,22 +708,22 @@ public class PomBuilder {
  * Created on Nov 5, 2013
  */
 class Project {
-	@Nonnull
+	@NonNull
 	final private PomBuilder	m_builder;
 
-	@Nonnull
+	@NonNull
 	private final File			m_root;
 
-	@Nonnull
+	@NonNull
 	private final String		m_baseName;
 
-	@Nonnull
+	@NonNull
 	private final String		m_baseGroup;
 
-	@Nonnull
+	@NonNull
 	private final String		m_name;
 
-	@Nonnull
+	@NonNull
 	private final String		m_encoding;
 
 	/** T if there are actually source files in the project that need a compile. */
@@ -724,10 +735,10 @@ class Project {
 
 	private final String				m_sourceArtefactId;
 
-	@Nonnull
+	@NonNull
 	private String						m_sourceVersion	= "1.6";
 
-	@Nonnull
+	@NonNull
 	private String						m_targetVersion	= "1.6";
 
 	private final List<String>			m_sourceList	= new ArrayList<String>();
@@ -740,7 +751,7 @@ class Project {
 
 	private boolean m_hasTests;
 
-	private Project(@Nonnull PomBuilder b, @Nonnull String name, @Nonnull File root, @Nonnull String baseGroup, @Nonnull String baseName, @Nonnull String encoding) {
+	private Project(@NonNull PomBuilder b, @NonNull String name, @NonNull File root, @NonNull String baseGroup, @NonNull String baseName, @NonNull String encoding) {
 		m_builder = b;
 		m_root = root;
 		m_name = name;
@@ -750,7 +761,7 @@ class Project {
 		m_sourceArtefactId = getBaseName() + ".source";
 	}
 
-	static public Project createProject(@Nonnull PomBuilder b, @Nonnull File dir) throws Exception {
+	static public Project createProject(@NonNull PomBuilder b, @NonNull File dir) throws Exception {
 		String name = dir.getName().toLowerCase();
 		File classfile = new File(dir, ".classpath");
 		File prjfile = new File(dir, ".project");
@@ -795,7 +806,7 @@ class Project {
 		}
 	}
 
-	private int countFiles(@Nonnull File root, int max) {
+	private int countFiles(@NonNull File root, int max) {
 		File[] ar = root.listFiles();
 		int count = 0;
 		for(int i = ar.length; --i >= 0;) {
@@ -830,8 +841,8 @@ class Project {
 		}
 	}
 
-	@Nonnull
-	static private String loadEncoding(@Nonnull File dir) throws Exception {
+	@NonNull
+	static private String loadEncoding(@NonNull File dir) throws Exception {
 		File enc = new File(dir, ".settings/org.eclipse.core.resources.prefs");
 		String encoding = null;
 		if(enc.exists()) {
@@ -843,7 +854,7 @@ class Project {
 		return encoding;
 	}
 
-	private void loadClassFile(@Nonnull File classfile) throws Exception {
+	private void loadClassFile(@NonNull File classfile) throws Exception {
 		Document doc = DomTools.getDocument(classfile, false);
 		Node root = DomTools.getRootElement(doc);
 		DOMDecoder d = new DOMDecoder(root);
@@ -884,7 +895,7 @@ class Project {
 		}
 	}
 
-	public void generateDependencies(@Nonnull HashSet<Project> stack) {
+	public void generateDependencies(@NonNull HashSet<Project> stack) {
 		if(m_dependenciesDone)
 			return;
 
@@ -903,77 +914,77 @@ class Project {
 		m_dependenciesDone = true;
 	}
 
-	static private void addNewTo(@Nonnull List<Project> target, @Nonnull List<Project> src) {
+	static private void addNewTo(@NonNull List<Project> target, @NonNull List<Project> src) {
 		for(Project p : src) {
 			if(!target.contains(p))
 				target.add(p);
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	public File getRoot() {
 		return m_root;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getBaseName() {
 		return m_baseName;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getBaseGroup() {
 		return m_baseGroup;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getName() {
 		return m_name;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getEncoding() {
 		return m_encoding;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getSourceVersion() {
 		return m_sourceVersion;
 	}
 
-	public void setSourceVersion(@Nonnull String sourceVersion) {
+	public void setSourceVersion(@NonNull String sourceVersion) {
 		m_sourceVersion = sourceVersion;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getTargetVersion() {
 		return m_targetVersion;
 	}
 
-	public void setTargetVersion(@Nonnull String targetVersion) {
+	public void setTargetVersion(@NonNull String targetVersion) {
 		m_targetVersion = targetVersion;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<String> getSourceList() {
 		return m_sourceList;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<Project> getDirectDepList() {
 		return m_directDepList;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<JarRef> getJarList() {
 		return m_jarList;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<Project> getFullDepList() {
 		return m_fullDepList;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getSourceArtefactId() {
 		if(!hasSources())
 			throw new IllegalStateException("There should not be an artifact ID for a module without sources (module " + getName() + ")");
@@ -984,7 +995,7 @@ class Project {
 		return m_hasSources;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getProjectArtifactID() {
 		return getBaseName() + ".BasePOM";
 	}

@@ -1,5 +1,7 @@
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.input.LookupInputBase.ILookupFormModifier;
@@ -30,8 +32,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -72,7 +72,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 			m_isSelectionModel.addListener(new ISelectionListener<T>() {
 
 				@Override
-				public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
+				public void selectionChanged(@NonNull T row, boolean on) throws Exception {
 					showSelectedCount();
 				}
 
@@ -93,7 +93,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 			window.setWindowTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_LUI_TTL_MULTI, Integer.valueOf(selectionCount)));
 		}
 
-		@Nonnull
+		@NonNull
 		private Window getLookupWindow() throws IllegalStateException {
 			SearchPanel<T> lookupForm = getSearchPanel();
 			if(lookupForm != null) {
@@ -150,7 +150,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 	 */
 	final private IRenderInto<T> DEFAULT_RENDERER = new IRenderInto<T>() {
 		@Override
-		public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
+		public void render(@NonNull NodeContainer node, @NonNull T object) throws Exception {
 			if(object != null) {
 				ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
 				if(cmm != null) {
@@ -185,12 +185,12 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		}
 	};
 
-	public MultipleLookupInput(@Nonnull Class<T> clazz, String... renderColumns) {
+	public MultipleLookupInput(@NonNull Class<T> clazz, String... renderColumns) {
 		m_lookupInput = new MultiLookupInput(clazz, renderColumns);
 		m_lookupInput.setSearchPanelInitialization(new ILookupFormModifier<T>() {
 			private boolean initialized = false;
 			@Override
-			public void initialize(@Nonnull SearchPanel<T> lf) throws Exception {
+			public void initialize(@NonNull SearchPanel<T> lf) throws Exception {
 				if(!initialized) {
 					DefaultButton confirm = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
 					confirm.setIcon("THEME/btnConfirm.png");
@@ -198,7 +198,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 					confirm.setClicked(new IClicked<NodeBase>() {
 
 						@Override
-						public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+						public void clicked(@NonNull NodeBase clickednode) throws Exception {
 							m_lookupInput.closePopup();
 							addSelection();
 						}
@@ -211,8 +211,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		m_renderColumns = renderColumns;
 		m_clearButton = new HoverButton(Theme.BTN_HOVERMULTILOOKUKPCLEAR, new IClicked<HoverButton>() {
 			@Override
-			@SuppressWarnings("synthetic-access")
-			public void clicked(@Nonnull HoverButton b) throws Exception {
+			public void clicked(@NonNull HoverButton b) throws Exception {
 				clearSelection(null);
 			}
 		});
@@ -230,7 +229,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		endUpdate();
 	}
 
-	@Nonnull @Override public Class<T> getActualType() {
+	@NonNull @Override public Class<T> getActualType() {
 		return m_lookupInput.getActualType();
 	}
 
@@ -283,7 +282,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		add(m_lookupInput);
 		m_lookupInput.setOnValueChanged(new IValueChanged<LookupInput<T>>() {
 			@Override
-			public void onValueChanged(@Nonnull LookupInput<T> component) throws Exception {
+			public void onValueChanged(@NonNull LookupInput<T> component) throws Exception {
 				T item = component.getValueSafe();
 				if(item != null) {
 					DomUtil.setModifiedFlag(component);
@@ -367,7 +366,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		add(m_selectionContainer);
 	}
 
-	private Span createItemNode(@Nonnull final T item) throws Exception {
+	private Span createItemNode(@NonNull final T item) throws Exception {
 		final Span itemNode = new Span();
 		Label itemText = new Label();
 		if(getCssForSelectedItems() != null) {
@@ -382,7 +381,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		final IClicked<NodeBase> removeHandler = new IClicked<NodeBase>() {
 
 			@Override
-			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+			public void clicked(@NonNull NodeBase clickednode) throws Exception {
 				removeItem(item);
 			}
 
@@ -398,7 +397,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		return itemNode;
 	}
 
-	@Nonnull
+	@NonNull
 	public LookupInput<T> getMultipleLookupInput() {
 		return m_lookupInput;
 	}

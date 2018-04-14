@@ -1,12 +1,12 @@
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 
 public interface IRestrictor<T> {
 
-	@Nonnull
-	QOperatorNode restrict(@Nonnull T value);
+	@NonNull
+	QOperatorNode restrict(@NonNull T value);
 
 
 }

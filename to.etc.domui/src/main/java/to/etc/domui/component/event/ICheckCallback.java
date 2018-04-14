@@ -1,6 +1,6 @@
 package to.etc.domui.component.event;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface ICheckCallback< T > {
 
@@ -9,5 +9,5 @@ public interface ICheckCallback< T > {
 	 * @param sender
 	 * @throws Exception
 	 */
-	boolean check(@Nonnull T sender) throws Exception;
+	boolean check(@NonNull T sender) throws Exception;
 }

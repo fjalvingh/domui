@@ -24,13 +24,13 @@
  */
 package to.etc.domui.component2.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.DateInput;
 import to.etc.domui.component.input.DateInput2;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Date;
 
 /**
@@ -56,7 +56,7 @@ public class ControlCreatorDate implements IControlCreator {
 	}
 
 	@Override
-	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		return (C) DateInput2.createDateInput((PropertyMetaModel<Date>) pmm, true);
 	}
 }

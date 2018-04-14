@@ -1,20 +1,17 @@
 package to.etc.domui.login;
 
-import to.etc.domui.server.ILoginListener;
-import to.etc.domui.server.IRequestContext;
-import to.etc.domui.server.IServerSession;
-import to.etc.domui.server.RequestContextImpl;
-import to.etc.domui.state.UIContext;
+import org.eclipse.jdt.annotation.*;
+import to.etc.domui.server.*;
+import to.etc.domui.state.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 10-11-17.
  */
+@NonNullByDefault
 public class DefaultLoginHandler implements ILoginHandler {
 	/** After this amount of failed logins just pretend we're logging in */
 	private volatile int m_maxFailLogins = 10;
@@ -56,7 +53,8 @@ public class DefaultLoginHandler implements ILoginHandler {
 	 * @param cookie
 	 */
 	@Override
-	public IUser decodeCookie(final RequestContextImpl rci, final String cookie) {
+	@Nullable
+	public IUser decodeCookie(RequestContextImpl rci, String cookie) {
 		if(cookie == null)
 			return null;
 		String[] car = cookie.split(":");
@@ -109,23 +107,19 @@ public class DefaultLoginHandler implements ILoginHandler {
 
 	/**
 	 * Logs in a user. If he was logged in before he is logged out.
-	 * @param userid
-	 * @param password
-	 * @return
 	 */
 	@Override
-	public LoginResult login(final String userid, final String password) throws Exception {
+	public LoginResult login(String userid, @Nullable String password) throws Exception {
 		IRequestContext rcx = UIContext.getRequestContext();
 		if(rcx == null)
 			throw new IllegalStateException("You can login from a server request only");
 		if(!(rcx instanceof RequestContextImpl))
 			return LoginResult.FAILED;
-
-		LastLogin ll = m_lastLoginMap.get(userid);
-
 		IServerSession hs = rcx.getServerSession(false);
-		if(hs == null)
+		if(hs == null) {
 			return LoginResult.FAILED;
+		}
+		LastLogin ll = m_lastLoginMap.get(userid);
 		synchronized(hs) {
 			//-- Force logout
 			hs.setAttribute(UILogin.LOGIN_KEY, null);
@@ -161,16 +155,38 @@ public class DefaultLoginHandler implements ILoginHandler {
 			//-- Login succeeded: save the user in the session context
 			if(null != ll)
 				ll.setFailCount(0);
-			hs.setAttribute(UILogin.LOGIN_KEY, user); 					// This causes the user to be logged on.
-			UIContext.setCurrentUser(user);
-
-			List<ILoginListener> li = rcx.getApplication().getLoginListenerList();
-			for(ILoginListener l : li)
-				l.userLogin(user);
+			setLoggedInUser(rcx, hs, user);
 			return LoginResult.SUCCESS;
 		}
 	}
 
+	private void setLoggedInUser(IRequestContext rcx, IServerSession hs, IUser user) {
+		hs.setAttribute(UILogin.LOGIN_KEY, user); 					// This causes the user to be logged on.
+		UIContext.setCurrentUser(user);
 
+		List<ILoginListener> li = rcx.getApplication().getLoginListenerList();
+		for(ILoginListener l : li)
+			l.userLogin(user);
+	}
 
+	@Override
+	@Nullable
+	public IUser login(String userId) throws Exception {
+		IRequestContext rcx = UIContext.getRequestContext();
+		if(rcx == null)
+			throw new IllegalStateException("You can login from a server request only");
+		if(!(rcx instanceof RequestContextImpl))
+			return null;
+		IServerSession hs = rcx.getServerSession(false);
+		if(hs == null)
+			return null;
+		ILoginAuthenticator la = rcx.getApplication().getLoginAuthenticator();
+		if(la == null)
+			throw new IllegalStateException("There is no login authenticator set in the Application!");
+		IUser user = la.authenticateUser(userId, null);
+		if(null == user)
+			return null;
+		setLoggedInUser(rcx, hs, user);
+		return user;
+	}
 }

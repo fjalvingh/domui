@@ -24,9 +24,7 @@
  */
 package to.etc.domui.caches.images;
 
-import javax.annotation.concurrent.*;
-
-import to.etc.domui.caches.filecache.*;
+import to.etc.domui.caches.filecache.FileCacheRef;
 
 /**
  * Some permutation of an image that was recently used. Once created, an CachedImageData is immutable
@@ -62,7 +60,7 @@ import to.etc.domui.caches.filecache.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 2, 2008
  */
-@Immutable
+//@Immutable
 final class CachedImageData extends CachedImageFragment {
 	/** If this is cached in memory the data of this image. */
 	private byte[][] m_buffers;

@@ -1,9 +1,9 @@
 package to.etc.json;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface ITypeMapping {
-	void render(@Nonnull JsonWriter w, @Nonnull Object instance) throws Exception;
+	void render(@NonNull JsonWriter w, @NonNull Object instance) throws Exception;
 
-	Object parse(@Nonnull JsonReader reader) throws Exception;
+	Object parse(@NonNull JsonReader reader) throws Exception;
 }

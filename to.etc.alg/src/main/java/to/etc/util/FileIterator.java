@@ -1,11 +1,12 @@
 package to.etc.util;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.util.FileIterator.Entry;
 
-import javax.annotation.*;
-
-import to.etc.util.FileIterator.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This iterator allows you to walk through all files/directories in a directory
@@ -29,7 +30,7 @@ import to.etc.util.FileIterator.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4/12/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class FileIterator implements Iterator<Entry>, Iterable<Entry> {
 	public enum Type {
 		DirectoryBefore,

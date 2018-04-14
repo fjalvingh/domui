@@ -24,11 +24,11 @@
  */
 package to.etc.domui.component2.controlfactory;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component2.combo.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component2.combo.ComboFixed2;
+import to.etc.domui.dom.html.IControl;
 
 /**
  * Accepts both enum and bools and shows a combobox with the possible choices.
@@ -56,7 +56,7 @@ public class ControlCreatorEnumAndBool implements IControlCreator {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		ComboFixed2< ? > c = ComboFixed2.createComboFor(pmm, true);
 		if(pmm.getActualType() == boolean.class)
 			c.setMandatory(true);

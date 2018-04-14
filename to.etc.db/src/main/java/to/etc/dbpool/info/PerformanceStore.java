@@ -24,9 +24,13 @@
  */
 package to.etc.dbpool.info;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Generic metrics storage class; base class both the per-thread metrics
@@ -66,7 +70,7 @@ public class PerformanceStore {
 		m_listMap.put(key, pl);
 	}
 
-	@Nonnull
+	@NonNull
 	final public PerfList getList(String key) {
 		PerfList pl = m_listMap.get(key);
 		if(null == pl)
@@ -90,12 +94,12 @@ public class PerformanceStore {
 	 * @param value
 	 * @param data
 	 */
-	public void addItem(@Nonnull String listKey, @Nonnull String itemKey, long value, @Nullable String request, @Nullable Object data) {
+	public void addItem(@NonNull String listKey, @NonNull String itemKey, long value, @Nullable String request, @Nullable Object data) {
 		PerfList pl = getList(listKey);
 		pl.addItem(itemKey, value, request, data);
 	}
 
-	public void addItem(@Nonnull String listKey, @Nonnull PerfItem pi) {
+	public void addItem(@NonNull String listKey, @NonNull PerfItem pi) {
 		PerfList pl = getList(listKey);
 		pl.addItem(pi);
 	}

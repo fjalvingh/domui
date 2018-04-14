@@ -1,29 +1,28 @@
 package to.etc.domui.util.javascript;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.json.*;
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.json.JSON;
+import to.etc.util.StringTool;
 
 public class JavascriptStmt {
-	@Nonnull
+	@NonNull
 	final private StringBuilder m_sb;
 
 	private boolean m_instmt;
 
 	private JsMethod m_currentMethod;
 
-	public JavascriptStmt(@Nonnull StringBuilder worksb) {
+	public JavascriptStmt(@NonNull StringBuilder worksb) {
 		m_sb = worksb;
 	}
 
-	@Nonnull
+	@NonNull
 	public StringBuilder sb() {
 		return m_sb;
 	}
 
-	@Nonnull
+	@NonNull
 	public JavascriptStmt next() {
 		if(!m_instmt)
 			return this;
@@ -41,8 +40,8 @@ public class JavascriptStmt {
 	 * @param node
 	 * @return
 	 */
-	@Nonnull
-	public JavascriptStmt select(@Nonnull NodeBase node) {
+	@NonNull
+	public JavascriptStmt select(@NonNull NodeBase node) {
 		return select(node.getActualID());
 	}
 
@@ -51,8 +50,8 @@ public class JavascriptStmt {
 	 * @param id
 	 * @return
 	 */
-	@Nonnull
-	public JavascriptStmt select(@Nonnull String id) {
+	@NonNull
+	public JavascriptStmt select(@NonNull String id) {
 		sb().append("$('#").append(id).append("')");
 		m_instmt = true;
 		return this;
@@ -70,8 +69,8 @@ public class JavascriptStmt {
 	 * @param string
 	 * @return
 	 */
-	@Nonnull
-	public JavascriptStmt append(@Nonnull String string) {
+	@NonNull
+	public JavascriptStmt append(@NonNull String string) {
 		sb().append(string);
 		m_instmt = true;
 		return this;
@@ -82,8 +81,8 @@ public class JavascriptStmt {
 	 * @param object
 	 * @return
 	 */
-	@Nonnull
-	public JavascriptStmt object(@Nonnull Object object) throws Exception {
+	@NonNull
+	public JavascriptStmt object(@NonNull Object object) throws Exception {
 		m_instmt = true;
 
 		if(object == null) {
@@ -103,7 +102,7 @@ public class JavascriptStmt {
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public JavascriptStmt endmethod() {
 		JsMethod jm = m_currentMethod;
 		if(null != jm) {
@@ -113,8 +112,8 @@ public class JavascriptStmt {
 		return this;
 	}
 
-	@Nonnull
-	public JsMethod method(@Nonnull String name) {
+	@NonNull
+	public JsMethod method(@NonNull String name) {
 		m_instmt = true;
 		endmethod();
 		char lc = lastChar();

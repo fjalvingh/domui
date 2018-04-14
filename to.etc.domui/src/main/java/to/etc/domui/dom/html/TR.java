@@ -24,11 +24,10 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.IDragHandler;
 import to.etc.domui.util.IDraggable;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class TR extends NodeContainer implements IDraggable {
 	private Object m_rowData;
@@ -58,14 +57,14 @@ public class TR extends NodeContainer implements IDraggable {
 		m_rowData = rowData;
 	}
 
-	@Nonnull
+	@NonNull
 	public TD addCell() {
 		TD td = new TD();
 		add(td);
 		return td;
 	}
 
-	@Nonnull
+	@NonNull
 	public TD addCell(@Nullable String cssclass) {
 		TD td = new TD();
 		add(td);

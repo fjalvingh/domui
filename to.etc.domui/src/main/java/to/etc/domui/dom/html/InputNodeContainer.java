@@ -90,7 +90,7 @@ abstract public class InputNodeContainer extends NodeContainer implements IHasCh
 		return m_immediate;
 	}
 
-	public void immediate(boolean immediate) {
+	public void setImmediate(boolean immediate) {
 		m_immediate = immediate;
 	}
 

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.converter.MiniScanner;
 import to.etc.domui.converter.MoneyUtil;
@@ -36,8 +38,6 @@ import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.query.QOperation;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -280,7 +280,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 			throw new IllegalStateException("Unsupported value type: " + value.getClass());
 	}
 
-	@Nonnull
+	@NonNull
 	private String scanNumeric(boolean allowpct) {
 		m_s.skipWs();
 		m_s.getStringResult(); // Clear old result

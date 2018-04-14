@@ -119,7 +119,7 @@ var WebUI;
             fields = {};
         WebUI.getInputFields(fields);
         fields.webuia = action;
-        fields.webuic = id;
+        fields.webuic = id === "" ? "_1" : id;
         fields["$pt"] = window.DomUIpageTag;
         fields["$cid"] = window.DomUICID;
         return {
@@ -4212,6 +4212,20 @@ var WebUI;
         return attr;
     }
 })(jQuery);
+var WebUI;
+(function (WebUI) {
+    function googleOnSignin(gu) {
+        var user = gu.getBasicProfile();
+        var obj = {
+            name: user.getName(),
+            image: user.getImageUrl(),
+            email: user.getEmail(),
+            token: gu.getAuthResponse().id_token
+        };
+        WebUI.scall("", "GOOGLELOGIN", obj);
+    }
+    WebUI.googleOnSignin = googleOnSignin;
+})(WebUI || (WebUI = {}));
 $(function () {
     $.getScript("$js/domui-date-checker.js");
 });

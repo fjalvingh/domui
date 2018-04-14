@@ -2,7 +2,7 @@ package to.etc.domui.databinding.list;
 
 import java.util.*;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.*;
 import to.etc.domui.databinding.list2.*;
@@ -16,20 +16,20 @@ import to.etc.domui.databinding.list2.*;
  * Created on Nov 1, 2013
  */
 public class ListValueChangeEvent<E> extends ObservableEvent<List<E>, ListValueChangeEvent<E>, IListValueChangeListener<E>> {
-	@Nonnull
+	@NonNull
 	final private List<ListChange<E>> m_changeList;
 
-	public ListValueChangeEvent(@Nonnull IObservableListValue<E> source, @Nonnull List<ListChange<E>> changeList) {
+	public ListValueChangeEvent(@NonNull IObservableListValue<E> source, @NonNull List<ListChange<E>> changeList) {
 		super(source);
 		m_changeList = changeList;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<ListChange<E>> getChanges() {
 		return m_changeList;
 	}
 
-	public void visit(@Nonnull IListChangeVisitor<E> visitor) throws Exception {
+	public void visit(@NonNull IListChangeVisitor<E> visitor) throws Exception {
 		for(ListChange<E> lc : m_changeList)
 			lc.visit(visitor);
 	}

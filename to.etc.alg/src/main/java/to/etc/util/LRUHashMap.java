@@ -24,7 +24,14 @@
  */
 package to.etc.util;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * Hashmap which can use LRU removal of items.
@@ -32,7 +39,6 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 25, 2010
  */
-@SuppressWarnings("unchecked")
 public class LRUHashMap<K, V> implements Map<K, V> {
 	static final Object			NULL	= new Object();
 
@@ -630,7 +636,6 @@ public class LRUHashMap<K, V> implements Map<K, V> {
 	}
 
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	private class EntrySet extends AbstractSet/*<Map.Entry<K,V>>*/
 	{
 		public EntrySet() {

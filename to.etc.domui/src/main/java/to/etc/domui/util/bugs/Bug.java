@@ -24,11 +24,11 @@
  */
 package to.etc.domui.util.bugs;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import java.util.List;
 
 /**
  * Accessor to post odd conditions for later review.
@@ -45,7 +45,7 @@ public class Bug {
 	 * Show a bug using the specified message.
 	 * @param message
 	 */
-	static public void bug(@Nonnull String message) {
+	static public void bug(@NonNull String message) {
 		BugItem	bi = new BugItem(message);
 		postBug(bi);
 	}
@@ -55,12 +55,12 @@ public class Bug {
 		postBug(bi);
 	}
 
-	static public void bug(@Nullable Throwable x, @Nonnull String message) {
+	static public void bug(@Nullable Throwable x, @NonNull String message) {
 		BugItem bi = new BugItem(message, x);
 		postBug(bi);
 	}
 
-	static public void bug(@Nonnull Throwable x) {
+	static public void bug(@NonNull Throwable x) {
 		BugItem bi = new BugItem(x.getMessage(), x);
 		postBug(bi);
 	}

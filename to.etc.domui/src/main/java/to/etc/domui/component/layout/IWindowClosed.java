@@ -24,7 +24,7 @@
  */
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Used by {@link FloatingDiv} derived classes to tell the world that a floating
@@ -36,5 +36,5 @@ import javax.annotation.*;
  * Created on Jul 19, 2011
  */
 public interface IWindowClosed {
-	void closed(@Nonnull String closeReason) throws Exception;
+	void closed(@NonNull String closeReason) throws Exception;
 }

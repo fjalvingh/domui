@@ -1,11 +1,11 @@
 package to.etc.json;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.lexer.ReaderScannerBase;
 
-import javax.annotation.*;
-
-import to.etc.lexer.*;
+import java.lang.reflect.Type;
+import java.util.Date;
 
 /**
  * Maps java.util.Date to a long utc value.
@@ -15,18 +15,18 @@ import to.etc.lexer.*;
  */
 public class JsonUtcDateFactory implements IJsonTypeFactory {
 	@Override
-	public ITypeMapping createMapper(@Nonnull JsonTypeRegistry registry, @Nonnull Class< ? > typeClass, @Nullable Type type) {
+	public ITypeMapping createMapper(@NonNull JsonTypeRegistry registry, @NonNull Class< ? > typeClass, @Nullable Type type) {
 		if(Date.class.isAssignableFrom(typeClass)) {
 			return new ITypeMapping() {
 
 				@Override
-				public void render(@Nonnull JsonWriter w, @Nonnull Object instance) throws Exception {
+				public void render(@NonNull JsonWriter w, @NonNull Object instance) throws Exception {
 					Date dt = (Date) instance;
 					w.writeLong(dt.getTime());
 				}
 
 				@Override
-				public Object parse(@Nonnull JsonReader reader) throws Exception {
+				public Object parse(@NonNull JsonReader reader) throws Exception {
 					if(reader.getLastToken() != ReaderScannerBase.T_NUMBER)
 						throw new JsonParseException(reader, this, "Expecting a number (UTC date) but got " + reader.getTokenString());
 					long val = Long.parseLong(reader.getCopied());

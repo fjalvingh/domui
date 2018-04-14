@@ -1,8 +1,8 @@
 package to.etc.domui.log.data;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.MetaProperty;
+import to.etc.domui.component.meta.YesNoType;
 
 public class LoggerRootDef {
 	/**
@@ -26,7 +26,7 @@ public class LoggerRootDef {
 
 	public static final String pLOGDIRABSOLUTE = "logDirAbsolute";
 
-	public LoggerRootDef(@Nonnull String rootDir, @Nonnull String logDir, @Nonnull String logDirAbsolute) {
+	public LoggerRootDef(@NonNull String rootDir, @NonNull String logDir, @NonNull String logDirAbsolute) {
 		super();
 		m_rootDir = rootDir;
 		m_logDir = logDir;

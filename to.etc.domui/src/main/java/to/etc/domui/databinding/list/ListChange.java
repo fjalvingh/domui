@@ -1,8 +1,7 @@
 package to.etc.domui.databinding.list;
 
-import javax.annotation.*;
-
-import to.etc.domui.databinding.list2.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.databinding.list2.IListChangeVisitor;
 
 /**
  * The base class for all list change event items.
@@ -17,5 +16,5 @@ abstract public class ListChange<E> {
 	 * @param visitor
 	 * @throws Exception
 	 */
-	abstract public void visit(@Nonnull IListChangeVisitor<E> visitor) throws Exception;
+	abstract public void visit(@NonNull IListChangeVisitor<E> visitor) throws Exception;
 }

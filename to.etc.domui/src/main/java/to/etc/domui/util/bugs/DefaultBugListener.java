@@ -24,17 +24,35 @@
  */
 package to.etc.domui.util.bugs;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.layout.FloatingWindow;
+import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.dom.css.VerticalAlignType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.ImgAlign;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IDomUIStateListener;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.IRequestInterceptor;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.state.WindowSession;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is a default DomUI bug listener. It collects all bugs in the ConversationContext, and
@@ -112,7 +130,7 @@ public class DefaultBugListener implements IBugListener {
 	 * @see to.etc.domui.util.bugs.IBugListener#bugSignaled(to.etc.domui.util.bugs.BugItem)
 	 */
 	@Override
-	public void bugSignaled(@Nonnull BugItem item) {
+	public void bugSignaled(@NonNull BugItem item) {
 		ConversationContext cc;
 		try {
 			cc = UIContext.getCurrentConversation();
@@ -247,7 +265,7 @@ public class DefaultBugListener implements IBugListener {
 			final BugRef info = ref; // Sigh
 			ind.setClicked(new IClicked<Div>() {
 				@Override
-				public void clicked(@Nonnull Div clickednode) throws Exception {
+				public void clicked(@NonNull Div clickednode) throws Exception {
 					toggleBugDisplay(pg, info);
 				}
 			});
@@ -300,7 +318,7 @@ public class DefaultBugListener implements IBugListener {
 		//-- When the window is closed - clear messages
 		fw.setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(@Nonnull String closeReason) throws Exception {
+			public void closed(@NonNull String closeReason) throws Exception {
 				ref.setWindow(null);
 				clearMessages(ref);
 			}
@@ -346,7 +364,7 @@ public class DefaultBugListener implements IBugListener {
 			m_clickimg.setAlign(ImgAlign.LEFT);
 			m_clickimg.setClicked(new IClicked<Img>() {
 				@Override
-				public void clicked(@Nonnull Img clickednode) throws Exception {
+				public void clicked(@NonNull Img clickednode) throws Exception {
 					toggle();
 				}
 			});

@@ -2,7 +2,7 @@ package to.etc.domui.databinding.observables;
 
 import java.util.*;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
@@ -11,10 +11,10 @@ public class ObservableObject implements IObservableEntity {
 	@Nullable
 	private ClassMetaModel m_model;
 
-	@Nonnull
+	@NonNull
 	private Map<String, IObservable< ? , ? , ? >> m_propertyMap = Collections.EMPTY_MAP;
 
-	@Nonnull
+	@NonNull
 	public ClassMetaModel classMetaModel() {
 		ClassMetaModel cmm = m_model;
 		if(null == cmm) {
@@ -28,8 +28,8 @@ public class ObservableObject implements IObservableEntity {
 	 * @see to.etc.domui.databinding.observables.IObservableEntity#observableValue(java.lang.String)
 	 */
 	@Override
-	@Nonnull
-	public ObservablePropertyValue<ObservableObject, ? > observableValue(@Nonnull String property) {
+	@NonNull
+	public ObservablePropertyValue<ObservableObject, ? > observableValue(@NonNull String property) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
 		if(null == po) {
 			if(m_propertyMap.size() == 0)
@@ -45,14 +45,14 @@ public class ObservableObject implements IObservableEntity {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	private <T> ObservablePropertyValue<ObservableObject, T> createObservableValue(@Nonnull String property) {
+	@NonNull
+	private <T> ObservablePropertyValue<ObservableObject, T> createObservableValue(@NonNull String property) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) classMetaModel().getProperty(property);
 		return new ObservablePropertyValue<ObservableObject, T>(this, pmm);
 	}
 
-	@Nonnull
-	public ObservablePropertyList<ObservableObject, ? > observableList(@Nonnull String property) {
+	@NonNull
+	public ObservablePropertyList<ObservableObject, ? > observableList(@NonNull String property) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
 		if(null == po) {
 			if(m_propertyMap.size() == 0)
@@ -68,15 +68,15 @@ public class ObservableObject implements IObservableEntity {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	private <T> ObservablePropertyList<ObservableObject, T> createObservableList(@Nonnull String property) {
+	@NonNull
+	private <T> ObservablePropertyList<ObservableObject, T> createObservableList(@NonNull String property) {
 		PropertyMetaModel<List<T>> pmm = (PropertyMetaModel<List<T>>) classMetaModel().getProperty(property);
 		if(!List.class.isAssignableFrom(pmm.getActualType()))
 			throw new IllegalStateException("Property " + property + " is not of type List<T>");
 		return new ObservablePropertyList<ObservableObject, T>(this, pmm);
 	}
 
-	public <T> void firePropertyChange(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
+	public <T> void firePropertyChange(@NonNull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
 		if(po instanceof IPropertyChangeNotifier) {
 			((IPropertyChangeNotifier) po).notifyIfChanged(oldValue, newValue);

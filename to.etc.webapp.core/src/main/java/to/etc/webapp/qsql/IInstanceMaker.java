@@ -24,12 +24,11 @@
  */
 package to.etc.webapp.qsql;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import java.sql.ResultSet;
 
 interface IInstanceMaker {
-	Object make(@Nonnull QDataContext dc, @Nonnull ResultSet rs) throws Exception;
+	Object make(@NonNull QDataContext dc, @NonNull ResultSet rs) throws Exception;
 }

@@ -1,6 +1,6 @@
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.value.*;
 import to.etc.domui.dom.errors.*;
@@ -13,10 +13,10 @@ import to.etc.domui.trouble.*;
  * Created on Jul 22, 2013
  */
 abstract public class Binding {
-	@Nonnull
+	@NonNull
 	final private BindingContext m_context;
 
-	@Nonnull
+	@NonNull
 	final protected IObservableValue< ? > m_from;
 
 	@Nullable
@@ -33,7 +33,7 @@ abstract public class Binding {
 	abstract protected void moveSourceToTarget() throws Exception;
 
 
-	protected Binding(@Nonnull BindingContext context, @Nonnull IObservableValue< ? > sourceo) {
+	protected Binding(@NonNull BindingContext context, @NonNull IObservableValue< ? > sourceo) {
 		m_from = sourceo;
 		m_context = context;
 	}
@@ -48,7 +48,7 @@ abstract public class Binding {
 	protected <V> void addSourceListener() {
 		IValueChangeListener<V> ml = new IValueChangeListener<V>() {
 			@Override
-			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {
+			public void handleChange(@NonNull ValueChangeEvent<V> event) throws Exception {
 				moveSourceToTarget();
 			}
 		};

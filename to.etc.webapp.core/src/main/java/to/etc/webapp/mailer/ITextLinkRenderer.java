@@ -1,6 +1,6 @@
 package to.etc.webapp.mailer;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Render a textlink instance from some message string. The implementation
@@ -15,11 +15,11 @@ public interface ITextLinkRenderer {
 	 * @param rurl
 	 * @param text
 	 */
-	void appendLink(@Nonnull String rurl, @Nonnull String text);
+	void appendLink(@NonNull String rurl, @NonNull String text);
 
 	/**
 	 * Append verbatim literal text.
 	 * @param text
 	 */
-	void appendText(@Nonnull String text);
+	void appendText(@NonNull String text);
 }

@@ -24,14 +24,15 @@
  */
 package to.etc.domui.injector;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.converter.CompoundKeyConverter;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.IPageParameters;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QNotFoundException;
 
-import javax.annotation.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
 
 /**
  * This property injector takes the named URL parameter as a string. It does a lookup of the entity specified
@@ -117,7 +118,7 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 	}
 
 	@Override
-	public void inject(@Nonnull final UrlPage page, @Nonnull final IPageParameters papa) throws Exception {
+	public void inject(@NonNull final UrlPage page, @NonNull final IPageParameters papa) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = getParameterValue(page, papa);
 		if(pv == null)

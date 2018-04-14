@@ -1,28 +1,28 @@
 package to.etc.domui.server;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
-import javax.servlet.*;
+import javax.servlet.FilterConfig;
+import java.io.File;
 
 public class FilterConfigParameters implements ConfigParameters {
-	@Nonnull
+	@NonNull
 	private FilterConfig m_fc;
 
-	@Nonnull
+	@NonNull
 	private File m_webFileRoot;
 
-	public FilterConfigParameters(@Nonnull FilterConfig fc, @Nonnull File webFileRoot) {
+	public FilterConfigParameters(@NonNull FilterConfig fc, @NonNull File webFileRoot) {
 		m_fc = fc;
 		m_webFileRoot = webFileRoot;
 	}
 
 	@Override
-	public String getString(@Nonnull String name) {
+	public String getString(@NonNull String name) {
 		return m_fc.getInitParameter(name);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public File getWebFileRoot() {
 		return m_webFileRoot;

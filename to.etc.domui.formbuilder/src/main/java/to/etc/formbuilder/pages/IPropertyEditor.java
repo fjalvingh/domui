@@ -1,13 +1,13 @@
 package to.etc.formbuilder.pages;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeContainer;
 
 public interface IPropertyEditor {
 
 	void setValue(@Nullable Object value);
 
-	void renderValue(@Nonnull NodeContainer target) throws Exception;
+	void renderValue(@NonNull NodeContainer target) throws Exception;
 
 }

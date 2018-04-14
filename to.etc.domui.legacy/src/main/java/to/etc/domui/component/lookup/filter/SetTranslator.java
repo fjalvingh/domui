@@ -1,13 +1,16 @@
 package to.etc.domui.component.lookup.filter;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.w3c.dom.Node;
+import to.etc.webapp.query.QDataContext;
+import to.etc.xml.DomTools;
+import to.etc.xml.XmlWriter;
 
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
-import to.etc.webapp.query.*;
-import to.etc.xml.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Translates a Set of values to XML and vice versa.
@@ -17,7 +20,7 @@ import to.etc.xml.*;
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since 2/8/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 final class SetTranslator implements ITranslator<Set<?>> {
 
 	@Nullable

@@ -24,9 +24,11 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A QDataContext proxy which allows queries to be sent to multiple rendering/selecting implementations. It delegates
@@ -37,7 +39,7 @@ import javax.annotation.*;
  */
 abstract public class QAbstractDataContext implements QDataContext {
 
-	@Nonnull
+	@NonNull
 	private List<IQDataContextListener> m_qDataContextListeners = new ArrayList<IQDataContextListener>();
 
 	private QDataContextFactory m_contextFactory;
@@ -61,7 +63,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @Nonnull QDataContextFactory getFactory() {
+	public @NonNull QDataContextFactory getFactory() {
 		return m_contextFactory;
 	}
 
@@ -70,7 +72,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#find(java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public <T> T find(final @Nonnull Class<T> clz, final @Nonnull Object pk) throws Exception {
+	public <T> T find(final @NonNull Class<T> clz, final @NonNull Object pk) throws Exception {
 		return getHandlerFactory().getHandler(this, clz).find(this, clz, pk);
 	}
 
@@ -79,8 +81,8 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#get(java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public @Nonnull
-	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull
+	<T> T get(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		T res = find(clz, pk);
 		if(res == null) {
 			throw new QNotFoundException(clz, pk);
@@ -89,7 +91,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	}
 
 	@Override
-	public <T> T find(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception {
+	public <T> T find(@NonNull ICriteriaTableDef<T> metatable, @NonNull Object pk) throws Exception {
 		return getHandlerFactory().getHandler(this, metatable).find(this, metatable, pk);
 	}
 
@@ -98,12 +100,12 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#getInstance(java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public @Nonnull <T> T getInstance(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull <T> T getInstance(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		return getHandlerFactory().getHandler(this, clz).getInstance(this, clz, pk);
 	}
 
 	@Override
-	public @Nonnull <T> T getInstance(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception {
+	public @NonNull <T> T getInstance(@NonNull ICriteriaTableDef<T> metatable, @NonNull Object pk) throws Exception {
 		return getHandlerFactory().getHandler(this, metatable).getInstance(this, metatable, pk);
 	}
 
@@ -112,7 +114,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#query(to.etc.webapp.query.QCriteria)
 	 */
 	@Override
-	public @Nonnull <T> List<T> query(final @Nonnull QCriteria<T> q) throws Exception {
+	public @NonNull <T> List<T> query(final @NonNull QCriteria<T> q) throws Exception {
 		getFactory().getEventListeners().callOnBeforeQuery(this, q);
 		return getHandlerFactory().getHandler(this, q).query(this, q);
 	}
@@ -128,20 +130,20 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#query(to.etc.webapp.query.QSelection)
 	 */
 	@Override
-	public @Nonnull List<Object[]> query(@Nonnull QSelection< ? > sel) throws Exception {
+	public @NonNull List<Object[]> query(@NonNull QSelection< ? > sel) throws Exception {
 		getFactory().getEventListeners().callOnBeforeQuery(this, sel);
 		return getHandlerFactory().getHandler(this, sel).query(this, sel);
 	}
 
 	@Override
-	@Nonnull
-	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+	@NonNull
+	public <R> List<R> query(@NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
 		return QQueryUtils.mapSelectionQuery(this, resultInterface, sel);
 	}
 
 	@Override
 	@Nullable
-	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+	public <R> R queryOne(@NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
 		return QQueryUtils.mapSelectionOneQuery(this, resultInterface, sel);
 	}
 
@@ -150,7 +152,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#queryOne(to.etc.webapp.query.QCriteria)
 	 */
 	@Override
-	public <T> T queryOne(final @Nonnull QCriteria<T> q) throws Exception {
+	public <T> T queryOne(final @NonNull QCriteria<T> q) throws Exception {
 		List<T> res = query(q);
 		if(res.size() == 0)
 			return null;
@@ -165,7 +167,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#queryOne(to.etc.webapp.query.QCriteria)
 	 */
 	@Override
-	public Object[] queryOne(final @Nonnull QSelection< ? > sel) throws Exception {
+	public Object[] queryOne(final @NonNull QSelection< ? > sel) throws Exception {
 		List<Object[]> res = query(sel);
 		if(res.size() == 0)
 			return null;
@@ -180,7 +182,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#attach(java.lang.Object)
 	 */
 	@Override
-	public void attach(final @Nonnull Object o) throws Exception {
+	public void attach(final @NonNull Object o) throws Exception {
 		getHandlerFactory().getHandler(this, o).attach(this, o);
 	}
 
@@ -189,7 +191,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#delete(java.lang.Object)
 	 */
 	@Override
-	public void delete(final @Nonnull Object o) throws Exception {
+	public void delete(final @NonNull Object o) throws Exception {
 		getHandlerFactory().getHandler(this, o).delete(this, o);
 	}
 
@@ -198,7 +200,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#save(java.lang.Object)
 	 */
 	@Override
-	public void save(final @Nonnull Object o) throws Exception {
+	public void save(final @NonNull Object o) throws Exception {
 		getHandlerFactory().getHandler(this, o).save(this, o);
 		if(o instanceof IIdentifyable) {
 			for(IQDataContextListener icl : m_qDataContextListeners) {
@@ -212,7 +214,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#refresh(java.lang.Object)
 	 */
 	@Override
-	public void refresh(final @Nonnull Object o) throws Exception {
+	public void refresh(final @NonNull Object o) throws Exception {
 		getHandlerFactory().getHandler(this, o).refresh(this, o);
 	}
 
@@ -221,7 +223,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	 * @see to.etc.webapp.query.QDataContext#addListener(to.etc.webapp.query.IQDataContextListener)
 	 */
 	@Override
-	public void addListener(@Nonnull IQDataContextListener qDataContextListener) {
+	public void addListener(@NonNull IQDataContextListener qDataContextListener) {
 		m_qDataContextListeners.add(qDataContextListener);
 	}
 }

@@ -1,7 +1,7 @@
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IQContextFactorySquared {
-	@Nonnull QDataContextFactory getDataContextFactory();
+	@NonNull QDataContextFactory getDataContextFactory();
 }

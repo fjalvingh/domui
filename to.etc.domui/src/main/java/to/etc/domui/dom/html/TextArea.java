@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -34,8 +36,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 public class TextArea extends InputNodeContainer implements INativeChangeListener, IControl<String>, IHasModifiedIndication, IHtmlInput {
@@ -208,7 +208,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	}
 
 	@Override
-	public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+	public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
 		if(isDisabled()) {
 			return false;
 		}
@@ -271,8 +271,8 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_modifiedByUser = as;
 	}
 
-	@Nonnull
-	static public TextArea create(@Nonnull PropertyMetaModel< ? > pmm) {
+	@NonNull
+	static public TextArea create(@NonNull PropertyMetaModel< ? > pmm) {
 		TextArea ta = new TextArea();
 		String cth = pmm.getComponentTypeHint();
 		if(cth != null) {

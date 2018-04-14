@@ -1,12 +1,24 @@
 package to.etc.template;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-import javax.script.*;
-
-import to.etc.util.*;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This factory class creates a compiled template for a JSP like template. The
@@ -80,7 +92,7 @@ public class JSTemplateCompiler {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private List<JSLib>	m_libraryList	= new ArrayList<JSTemplateCompiler.JSLib>();
 
 	public void addLibrary(String identifier, String sourceCode) {
@@ -102,7 +114,7 @@ public class JSTemplateCompiler {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	public JSTemplate compile(Reader input, String sourceName) throws Exception {
 		m_source = sourceName;
 		translate(input);
@@ -121,8 +133,8 @@ public class JSTemplateCompiler {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public JSTemplate compile(@Nonnull Class< ? > clz, @Nonnull String resource, @Nullable String encoding) throws Exception {
+	@NonNull
+	public JSTemplate compile(@NonNull Class< ? > clz, @NonNull String resource, @Nullable String encoding) throws Exception {
 		if(null == encoding)
 			encoding = "utf-8";
 

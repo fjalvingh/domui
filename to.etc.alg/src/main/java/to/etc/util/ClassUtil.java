@@ -24,8 +24,9 @@
  */
 package to.etc.util;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -55,7 +56,7 @@ final public class ClassUtil {
 	 * @throws NoSuchMethodException if no suitable method can be found in the object.
 	 */
 	@Nullable
-	static public Object callMethod(@Nonnull final Object on, @Nonnull final String name, @Nonnull final Object... param) throws Exception {
+	static public Object callMethod(@NonNull final Object on, @NonNull final String name, @NonNull final Object... param) throws Exception {
 		Method m = findMethod(on.getClass(), name, param);
 		if(m == null)
 			throw new NoSuchMethodException("A suitable method " + name + " cannot be found");
@@ -75,7 +76,7 @@ final public class ClassUtil {
 	 * @throws NoSuchMethodException if no suitable method can be found in the object.
 	 */
 	@Nullable
-	static public Object callMethod(@Nonnull final Object on, @Nonnull final String name, @Nonnull Class[] formals, @Nonnull final Object... instances) throws Exception {
+	static public Object callMethod(@NonNull final Object on, @NonNull final String name, @NonNull Class[] formals, @NonNull final Object... instances) throws Exception {
 		Method m = findMethod(on.getClass(), name, formals);
 		if(m == null)
 			throw new NoSuchMethodException("A suitable method " + name + " cannot be found");
@@ -89,7 +90,7 @@ final public class ClassUtil {
 	}
 
 	@Nullable
-	static public Method findMethod(@Nonnull final Class< ? > clz, @Nonnull final String name, @Nonnull final Class< ? >... param) {
+	static public Method findMethod(@NonNull final Class< ? > clz, @NonNull final String name, @NonNull final Class< ? >... param) {
 		try {
 			return clz.getMethod(name, param);
 		} catch(Exception x) {
@@ -105,7 +106,7 @@ final public class ClassUtil {
 	 * Tries to find a method that can be called using the specified parameters.
 	 */
 	@Nullable
-	static public Method findMethod(@Nonnull final Class< ? > clz, @Nonnull final String name, @Nonnull final Object... param) {
+	static public Method findMethod(@NonNull final Class< ? > clz, @NonNull final String name, @NonNull final Object... param) {
 		boolean hard = false;
 		Class< ? >[] par = new Class< ? >[param.length];
 		for(int i = param.length; --i >= 0;) {
@@ -164,8 +165,8 @@ final public class ClassUtil {
 	/**
 	 * Get introspected bean information for the class. This info is cached so access will be fast after the 1st try.
 	 */
-	@Nonnull
-	static synchronized public ClassInfo getClassInfo(@Nonnull Class< ? > clz) {
+	@NonNull
+	static synchronized public ClassInfo getClassInfo(@NonNull Class< ? > clz) {
 		ClassInfo ci = m_classMap.get(clz);
 		if(ci == null) {
 			List<PropertyInfo> proplist = calculateProperties(clz);
@@ -176,12 +177,12 @@ final public class ClassUtil {
 	}
 
 	@Nullable
-	static public PropertyInfo findPropertyInfo(@Nonnull Class< ? > clz, @Nonnull String property) {
+	static public PropertyInfo findPropertyInfo(@NonNull Class< ? > clz, @NonNull String property) {
 		return getClassInfo(clz).findProperty(property);
 	}
 
-	@Nonnull
-	static public List<PropertyInfo> getProperties(@Nonnull final Class< ? > cl) {
+	@NonNull
+	static public List<PropertyInfo> getProperties(@NonNull final Class< ? > cl) {
 		ClassInfo ci = getClassInfo(cl);
 		return ci.getProperties();
 	}
@@ -191,16 +192,16 @@ final public class ClassUtil {
 	 * @param cl
 	 * @return
 	 */
-	@Nonnull
-	static public List<PropertyInfo> calculateProperties(@Nonnull final Class< ? > cl) {
+	@NonNull
+	static public List<PropertyInfo> calculateProperties(@NonNull final Class< ? > cl) {
 		return calculateProperties(cl, true);
 	}
 
 	/**
 	 * DO NOT USE - uncached calculation of a class's properties.
 	 */
-	@Nonnull
-	static public List<PropertyInfo> calculateProperties(@Nonnull final Class< ? > cl, boolean publicOnly) {
+	@NonNull
+	static public List<PropertyInfo> calculateProperties(@NonNull final Class< ? > cl, boolean publicOnly) {
 		Map<String, Info> map = new HashMap<String, Info>();
 
 		//-- First handle private properties
@@ -306,8 +307,8 @@ final public class ClassUtil {
 		}
 	}
 
-	@Nonnull
-	static public String getMethodName(@Nonnull String prefix, @Nonnull String property) {
+	@NonNull
+	static public String getMethodName(@NonNull String prefix, @NonNull String property) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(prefix);
 		if(property.length() > 0) {
@@ -323,7 +324,7 @@ final public class ClassUtil {
 	 * to link to the stupid Oracle driver.
 	 */
 	@Nullable
-	static public Object callObjectMethod(@Nonnull final Object src, @Nonnull final String name, @Nonnull final Class< ? >[] types, @Nonnull final Object... parameters) throws SQLException {
+	static public Object callObjectMethod(@NonNull final Object src, @NonNull final String name, @NonNull final Class< ? >[] types, @NonNull final Object... parameters) throws SQLException {
 		try {
 			Method m = src.getClass().getMethod(name, types);
 			return m.invoke(src, parameters);
@@ -343,8 +344,8 @@ final public class ClassUtil {
 		return null;
 	}
 
-	@Nonnull
-	static public final <T> T loadInstance(@Nonnull final ClassLoader cl, @Nonnull Class<T> clz, @Nonnull final String className) throws Exception {
+	@NonNull
+	static public final <T> T loadInstance(@NonNull final ClassLoader cl, @NonNull Class<T> clz, @NonNull final String className) throws Exception {
 		Class< ? > acl;
 		try {
 			acl = cl.loadClass(className);
@@ -366,7 +367,7 @@ final public class ClassUtil {
 	 * Locates an annotation in an array of 'm, returns null if not found.
 	 */
 	@Nullable
-	static public <T extends Annotation> T findAnnotation(@Nonnull final Annotation[] ar, @Nonnull final Class<T> clz) {
+	static public <T extends Annotation> T findAnnotation(@NonNull final Annotation[] ar, @NonNull final Class<T> clz) {
 		for(Annotation a : ar) {
 			if(a.annotationType() == clz)
 				return (T) a;
@@ -374,7 +375,7 @@ final public class ClassUtil {
 		return null;
 	}
 
-	static public void propertyNameToJava(@Nonnull StringBuilder sb, @Nonnull String in) {
+	static public void propertyNameToJava(@NonNull StringBuilder sb, @NonNull String in) {
 		if(in.length() == 0)
 			return;
 		int len = sb.length();
@@ -382,8 +383,8 @@ final public class ClassUtil {
 		sb.setCharAt(len, Character.toUpperCase(sb.charAt(len)));
 	}
 
-	@Nonnull
-	static public String propertyNameToJava(@Nonnull String in) {
+	@NonNull
+	static public String propertyNameToJava(@NonNull String in) {
 		StringBuilder sb = new StringBuilder();
 		propertyNameToJava(sb, in);
 		return sb.toString();
@@ -395,7 +396,7 @@ final public class ClassUtil {
 	 * null.
 	 */
 	@Nullable
-	static public Class< ? > findCollectionType(@Nonnull Type genericType) {
+	static public Class< ? > findCollectionType(@NonNull Type genericType) {
 		if(genericType instanceof Class< ? >) {
 			Class< ? > cl = (Class< ? >) genericType;
 			if(cl.isArray()) {
@@ -420,7 +421,7 @@ final public class ClassUtil {
 		return null;
 	}
 
-	static public boolean isCollectionOrArrayType(@Nonnull Class< ? > clz) {
+	static public boolean isCollectionOrArrayType(@NonNull Class< ? > clz) {
 		return clz.isArray() || Collection.class.isAssignableFrom(clz);
 	}
 
@@ -428,14 +429,14 @@ final public class ClassUtil {
 	 * Walk the class hierarchy and create a list that goes from base class to derived class. This includes both classes
 	 * and interfaces, where interfaces have "multiple bases".
 	 */
-	@Nonnull
-	static public List<Class< ? >> getClassHierarchy(@Nonnull Class< ? > clzin) {
+	@NonNull
+	static public List<Class< ? >> getClassHierarchy(@NonNull Class< ? > clzin) {
 		List<Class< ? >> res = new ArrayList<Class< ? >>();
 		appendClassHierarchy(res, clzin);
 		return res;
 	}
 
-	static public void appendClassHierarchy(@Nonnull List<Class< ? >> res, @Nonnull Class< ? > clzin) {
+	static public void appendClassHierarchy(@NonNull List<Class< ? >> res, @NonNull Class< ? > clzin) {
 		if(res.contains(clzin))
 			return;
 
@@ -458,8 +459,8 @@ final public class ClassUtil {
 	/**
 	 * Scan the classloader hierarchy and find all urls.
 	 */
-	@Nonnull
-	static public URL[] findUrlsFor(@Nonnull ClassLoader loader) {
+	@NonNull
+	static public URL[] findUrlsFor(@NonNull ClassLoader loader) {
 		List<URL> res = new ArrayList<URL>();
 		findUrlsFor(res, loader);
 		return res.toArray(new URL[res.size()]);
@@ -468,7 +469,7 @@ final public class ClassUtil {
 	/**
 	 * Checks to see what kind of classloader this is, and add all paths to my list.
 	 */
-	static private void findUrlsFor(@Nonnull List<URL> result, @Nullable ClassLoader loader) {
+	static private void findUrlsFor(@NonNull List<URL> result, @Nullable ClassLoader loader) {
 		//		System.out.println(".. loader="+loader);
 		if(loader == null)
 			return;
@@ -484,7 +485,7 @@ final public class ClassUtil {
 	}
 
 	@Nullable
-	public static <T> Constructor<T> findConstructor(@Nonnull Class<T> clz, @Nonnull Class< ? >... formals) {
+	public static <T> Constructor<T> findConstructor(@NonNull Class<T> clz, @NonNull Class< ? >... formals) {
 		try {
 			return clz.getConstructor(formals);
 		} catch(Exception x) {
@@ -503,7 +504,7 @@ final public class ClassUtil {
 	 * Finds sources for classes in the same project. Not meant for jar searching
 	 */
 	public static @Nullable
-	File findSrcForModification(@Nonnull String className) throws Exception {
+	File findSrcForModification(@NonNull String className) throws Exception {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		final String rel = className.replace(".", "/") + ".class";
 		URL resource = classLoader.getResource(rel);
@@ -526,7 +527,7 @@ final public class ClassUtil {
 	 * Finds source folder for package in the same project. Not meant for jar searching
 	 */
 	public static @Nullable
-	File findSrcFolderForModification(@Nonnull String packageName) throws Exception {
+	File findSrcFolderForModification(@NonNull String packageName) throws Exception {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		final String rel = packageName.replace(".", "/");
 		URL resource = classLoader.getResource(rel);
@@ -546,7 +547,7 @@ final public class ClassUtil {
 	/**
 	 * Searches for a file in a root recursively upwards and one level down every time.
 	 */
-	private static void find(@Nullable File root, @Nonnull String srcRel, @Nonnull File[] files) {
+	private static void find(@Nullable File root, @NonNull String srcRel, @NonNull File[] files) {
 		if(root == null) {
 			return;
 		}
@@ -569,7 +570,7 @@ final public class ClassUtil {
 	 * name of a method that *must* exist; it does not add a "get". If the method
 	 * does not exist this throws an exception.
 	 */
-	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
+	static public final Object getClassValue(@NonNull final Object inst, @NonNull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
 		Class< ? > clz = inst.getClass();
@@ -598,7 +599,7 @@ final public class ClassUtil {
 	 * Since annotations are not inherited, we do the extends search on super classed in order to be able to work also with annotations on inherited properties.
 	 */
 	@Nullable
-	public static <T extends Annotation> T findAnnotationIncludingSuperClasses(@Nonnull Method annotatedMethod, @Nonnull Class<T> annotationType) {
+	public static <T extends Annotation> T findAnnotationIncludingSuperClasses(@NonNull Method annotatedMethod, @NonNull Class<T> annotationType) {
 		T annotation = annotatedMethod.getAnnotation(annotationType);
 		if(annotation != null) {
 			return annotation;
@@ -621,7 +622,7 @@ final public class ClassUtil {
 	/**
 	 * Get all annotations of a given type on a method or its base methods.
 	 */
-	@Nonnull
+	@NonNull
 	static public <T extends Annotation> List<T> getMethodAnnotations(Method m, Class<T> annotationType) {
 		List<Class<?>> hierarchy = getClassHierarchy(m.getDeclaringClass());			// Full class hierarchy including interfaces
 

@@ -26,8 +26,8 @@
             <artifactId>to.etc.alg</artifactId>
         </dependency>
         <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.jsr305</artifactId>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.annotation</artifactId>
         </dependency>
         <dependency>
             <groupId>gnu-regexp</groupId>

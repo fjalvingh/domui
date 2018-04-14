@@ -1,11 +1,15 @@
 package to.etc.dbpool.info;
 
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.dbpool.ConnectionProxy;
 
-import javax.annotation.*;
-
-import to.etc.dbpool.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This Oracle-only thing enables per-session tracing of database performance data.
@@ -13,7 +17,7 @@ import to.etc.dbpool.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2/2/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class OracleStatisticsCreator {
 	static final private String KEY = "OraStatCtx";
 

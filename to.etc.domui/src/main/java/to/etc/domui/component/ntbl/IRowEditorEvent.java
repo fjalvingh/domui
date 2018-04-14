@@ -24,11 +24,10 @@
  */
 package to.etc.domui.component.ntbl;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.tbl.TableModelTableBase;
+import to.etc.domui.dom.html.NodeContainer;
 
 /**
  * Event handler for row-based editors.
@@ -49,5 +48,5 @@ public interface IRowEditorEvent<T, E extends NodeContainer> {
 	 * @return false to refuse the change.
 	 * @throws Exception
 	 */
-	boolean onRowChanged(@Nonnull TableModelTableBase<T> tablecomponent, @Nonnull E editor, @Nonnull T instance, boolean isNew) throws Exception;
+	boolean onRowChanged(@NonNull TableModelTableBase<T> tablecomponent, @NonNull E editor, @NonNull T instance, boolean isNew) throws Exception;
 }

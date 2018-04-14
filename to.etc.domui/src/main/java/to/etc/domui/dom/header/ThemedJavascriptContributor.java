@@ -65,6 +65,6 @@ public class ThemedJavascriptContributor extends HeaderContributor {
 
 	@Override
 	public void contribute(IContributorRenderer r) throws Exception {
-		r.renderLoadJavascript(m_path);
+		r.renderLoadJavascript(m_path, false, false);
 	}
 }

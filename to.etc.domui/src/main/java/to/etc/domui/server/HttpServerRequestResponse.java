@@ -1,61 +1,69 @@
 package to.etc.domui.server;
 
-import to.etc.domui.util.upload.*;
-import to.etc.net.*;
-import to.etc.webapp.core.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.util.upload.UploadHttpRequestWrapper;
+import to.etc.domui.util.upload.UploadItem;
+import to.etc.domui.util.upload.UploadParser;
+import to.etc.net.NetTools;
+import to.etc.webapp.core.ServerTools;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-import java.io.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
 
 public class HttpServerRequestResponse implements IRequestResponse {
-	@Nonnull
+	@NonNull
 	final private HttpServletRequest m_request;
 
-	@Nonnull
+	@NonNull
 	final private HttpServletResponse m_response;
 
-	@Nonnull
+	@NonNull
 	final private String m_webappContext;
 
 	private IServerSession m_serverSession;
 
-	private HttpServerRequestResponse(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull String webappContext) {
+	private HttpServerRequestResponse(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull String webappContext) {
 		m_request = request;
 		m_response = response;
 		m_webappContext = webappContext;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getRequestURI() {
 		return m_request.getRequestURI();
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getQueryString() {
 		return m_request.getQueryString();
 	}
 
-	@Nonnull
+	@NonNull
 	public HttpServletRequest getRequest() {
 		return m_request;
 	}
 
-	@Nonnull
+	@NonNull
 	public HttpServletResponse getResponse() {
 		return m_response;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getWebappContext() {
 		return m_webappContext;
 	}
 
-	@Nonnull
-	static public HttpServerRequestResponse create(@Nonnull DomApplication application, @Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response) {
+	@NonNull
+	static public HttpServerRequestResponse create(@NonNull DomApplication application, @NonNull HttpServletRequest request, @NonNull HttpServletResponse response) {
 		String webapp = request.getContextPath();
 		if(webapp == null)
 			webapp = "";
@@ -97,13 +105,13 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getUserAgent() {
 		return m_request.getHeader("user-agent");
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getApplicationURL() {
 		String appUrl = DomApplication.get().getApplicationURL();
 		if(null != appUrl) {
@@ -114,7 +122,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getHostURL() {
 		String appUrl = DomApplication.get().getApplicationURL();
 		if(null != appUrl) {
@@ -127,7 +135,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getHostName() {
 		String hostName = DomApplication.get().getHostName();
 		if(null != hostName)
@@ -140,7 +148,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	 */
 	@Override
 	@Nullable
-	public String getParameter(@Nonnull String name) {
+	public String getParameter(@NonNull String name) {
 		return getRequest().getParameter(name);
 	}
 
@@ -148,8 +156,8 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
 	 */
 	@Override
-	@Nonnull
-	public String[] getParameters(@Nonnull String name) {
+	@NonNull
+	public String[] getParameters(@NonNull String name) {
 		return getRequest().getParameterValues(name);
 	}
 
@@ -157,7 +165,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	 * @see to.etc.domui.server.IRequestContext#getParameterNames()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public String[] getParameterNames() {
 		return (String[]) getRequest().getParameterMap().keySet().toArray(new String[getRequest().getParameterMap().size()]);
 	}
@@ -167,7 +175,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	 * @return
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public String[] getFileParameters() throws Exception {
 		if(!(m_request instanceof UploadHttpRequestWrapper))
 			return new String[0];
@@ -176,8 +184,8 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
-	public UploadItem[] getFileParameter(@Nonnull String name) throws Exception {
+	@NonNull
+	public UploadItem[] getFileParameter(@NonNull String name) throws Exception {
 		if(!(m_request instanceof UploadHttpRequestWrapper))
 			return new UploadItem[0];
 		UploadHttpRequestWrapper urw = (UploadHttpRequestWrapper) m_request;
@@ -199,8 +207,8 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
-	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
+	@NonNull
+	public Writer getOutputWriter(@NonNull String contentType, @Nullable String encoding) throws IOException {
 		getResponse().setContentType(contentType);
 		if(null != encoding)
 			getResponse().setCharacterEncoding(encoding);
@@ -208,8 +216,8 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
-	public OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception {
+	@NonNull
+	public OutputStream getOutputStream(@NonNull String contentType, @Nullable String encoding, int contentLength) throws Exception {
 		getResponse().setContentType(contentType);
 		if(null != encoding)
 			getResponse().setCharacterEncoding(encoding);
@@ -223,29 +231,29 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	 * @param newUrl
 	 */
 	@Override
-	public void redirect(@Nonnull String newUrl) throws Exception {
+	public void redirect(@NonNull String newUrl) throws Exception {
 		getResponse().sendRedirect(newUrl);
 	}
 
 	@Override
-	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception {
+	public void sendError(int httpErrorCode, @NonNull String message) throws Exception {
 		getResponse().sendError(httpErrorCode, message);
 	}
 
 	@Override
-	public void addHeader(@Nonnull String name, @Nonnull String value) {
+	public void addHeader(@NonNull String name, @NonNull String value) {
 		getResponse().addHeader(name, value);
 	}
 
 
 	@Override
-	public void addCookie(@Nonnull Cookie cookie) {
+	public void addCookie(@NonNull Cookie cookie) {
 		cookie.setDomain(getHostName());
 		getResponse().addCookie(cookie);
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public Cookie[] getCookies() {
 		return getRequest().getCookies();
 	}
@@ -271,7 +279,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	}
 
 	@Nullable
-	public static HttpServerRequestResponse get(@Nonnull IRequestContext ctx) {
+	public static HttpServerRequestResponse get(@NonNull IRequestContext ctx) {
 		IRequestResponse rr = ctx.getRequestResponse();
 		if(rr instanceof HttpServerRequestResponse)
 			return (HttpServerRequestResponse) rr;

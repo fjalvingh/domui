@@ -24,6 +24,8 @@
  */
 package to.etc.domui.server;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
@@ -38,8 +40,6 @@ import to.etc.domui.util.upload.UploadItem;
 import to.etc.util.FileTool;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -50,13 +50,13 @@ import java.util.Map;
 import java.util.Set;
 
 public class RequestContextImpl implements IRequestContext, IAttributeContainer {
-	@Nonnull
+	@NonNull
 	final private DomApplication m_application;
 
-	@Nonnull
+	@NonNull
 	final private AppSession m_session;
 
-	@Nonnull
+	@NonNull
 	final private IRequestResponse m_requestResponse;
 
 	private WindowSession m_windowSession;
@@ -69,10 +69,10 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
-	@Nonnull
+	@NonNull
 	final private String m_urlin;
 
-	@Nonnull
+	@NonNull
 	final private String m_extension;
 
 	private boolean m_amLockingSession;
@@ -83,7 +83,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	private Exception m_outputAllocated;
 
-	@Nonnull
+	@NonNull
 	private Map<String, String> m_persistedParameterMap = new HashMap<>();
 
 	/** Cached copy of theme for this user, lazy */
@@ -94,12 +94,12 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	@Nullable
 	private String m_themeName;
 
-	@Nonnull
+	@NonNull
 	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
 	
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
-	public RequestContextImpl(@Nonnull IRequestResponse rr, @Nonnull DomApplication app, @Nonnull AppSession ses) {
+	public RequestContextImpl(@NonNull IRequestResponse rr, @NonNull DomApplication app, @NonNull AppSession ses) {
 		m_requestResponse = rr;
 		m_application = app;
 		m_session = ses;
@@ -132,7 +132,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		}
 	}
 
-	@Nonnull public Map<String, String> getPersistedParameterMap() {
+	@NonNull public Map<String, String> getPersistedParameterMap() {
 		return m_persistedParameterMap;
 	}
 
@@ -158,7 +158,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getApplication()
 	 */
 	@Override
-	final public @Nonnull DomApplication getApplication() {
+	final public @NonNull DomApplication getApplication() {
 		return m_application;
 	}
 
@@ -167,7 +167,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getSession()
 	 */
 	@Override
-	final public @Nonnull AppSession getSession() {
+	final public @NonNull AppSession getSession() {
 		m_session.internalLockSession(); 						// Someone uses session -> lock it for use by CURRENT-THREAD.
 		if(!m_amLockingSession)
 			m_session.internalCheckExpiredWindowSessions();
@@ -176,7 +176,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public IRequestResponse getRequestResponse() {
 		return m_requestResponse;
 	}
@@ -197,7 +197,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getWindowSession()
 	 */
 	@Override
-	final public @Nonnull WindowSession getWindowSession() {
+	final public @NonNull WindowSession getWindowSession() {
 		if(m_windowSession != null)
 			return m_windowSession;
 
@@ -250,7 +250,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getExtension()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public String getExtension() {
 		return m_extension;
 	}
@@ -259,7 +259,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getInputPath()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public final String getInputPath() {
 		return m_urlin;
 	}
@@ -284,7 +284,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * This should be replaced by getThemeName below as that uniquely identifies the theme.
 	 * @return
 	 */
-	@Nonnull @Override final public ITheme getCurrentTheme() {
+	@NonNull @Override final public ITheme getCurrentTheme() {
 		ITheme currentTheme = m_currentTheme;
 		if(null == currentTheme) {
 			try {
@@ -298,7 +298,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	static private final String THEMENAME = "ctx$themename";
 
-	@Nonnull @Override public String getThemeName() {
+	@NonNull @Override public String getThemeName() {
 		String themeName = m_themeName;
 		if(null == themeName) {
 			 themeName = (String) getSession().getAttribute(THEMENAME);
@@ -316,11 +316,11 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		getSession().setAttribute(THEMENAME, userThemeName);
 	}
 
-	@Override @Nonnull public IThemeVariant getThemeVariant() {
+	@Override @NonNull public IThemeVariant getThemeVariant() {
 		return m_themeVariant;
 	}
 
-	@Override public void setThemeVariant(@Nonnull IThemeVariant themeVariant) {
+	@Override public void setThemeVariant(@NonNull IThemeVariant themeVariant) {
 		m_themeVariant = themeVariant;
 	}
 
@@ -361,7 +361,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getRelativePath(java.lang.String)
 	 */
 	@Override
-	public @Nonnull String getRelativePath(@Nonnull String rel) {
+	public @NonNull String getRelativePath(@NonNull String rel) {
 		StringBuilder sb = new StringBuilder(rel.length() + 128);
 		sb.append(m_requestResponse.getApplicationURL());
 		sb.append(rel);
@@ -374,8 +374,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * to output will be chosen.
 	 */
 	@Override
-	@Nonnull
-	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException {
+	@NonNull
+	public Writer getOutputWriter(@NonNull String contentType, @Nullable String encoding) throws IOException {
 		StringWriter sw = m_sw;
 		if(null != sw) {
 			if(sw.getBuffer().length() > PAGE_HEADER_BUFFER_LENGTH) {
@@ -394,7 +394,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * Send a redirect response to the client.
 	 * @param newUrl
 	 */
-	public void redirect(@Nonnull String newUrl) throws Exception {
+	public void redirect(@NonNull String newUrl) throws Exception {
 		getRequestResponse().redirect(newUrl);
 	}
 
@@ -403,7 +403,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @param httpErrorCode
 	 * @param message
 	 */
-	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception {
+	public void sendError(int httpErrorCode, @NonNull String message) throws Exception {
 		getRequestResponse().sendError(httpErrorCode, message);
 	}
 
@@ -422,7 +422,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	@Override
 	@Nullable
-	public String getParameter(@Nonnull String name) {
+	public String getParameter(@NonNull String name) {
 		return m_requestResponse.getParameter(name);
 	}
 
@@ -430,8 +430,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
 	 */
 	@Override
-	@Nonnull
-	public String[] getParameters(@Nonnull String name) {
+	@NonNull
+	public String[] getParameters(@NonNull String name) {
 		return m_requestResponse.getParameters(name);
 	}
 
@@ -439,7 +439,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IRequestContext#getParameterNames()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public String[] getParameterNames() {
 		return m_requestResponse.getParameterNames();
 	}
@@ -452,7 +452,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_requestResponse.getFileParameters();
 	}
 
-	public UploadItem[] getFileParameter(@Nonnull String name) throws Exception {
+	public UploadItem[] getFileParameter(@NonNull String name) throws Exception {
 		return m_requestResponse.getFileParameter(name);
 	}
 
@@ -474,12 +474,12 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
 	 */
 	@Override
-	public Object getAttribute(@Nonnull String name) {
+	public Object getAttribute(@NonNull String name) {
 		return m_attributeMap.get(name);
 	}
 
 	@Override
-	public void setAttribute(@Nonnull String name, @Nullable Object value) {
+	public void setAttribute(@NonNull String name, @Nullable Object value) {
 		if(m_attributeMap == Collections.EMPTY_MAP)
 			m_attributeMap = new HashMap<String, Object>();
 		if(value == null)

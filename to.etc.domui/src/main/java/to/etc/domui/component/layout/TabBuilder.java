@@ -1,13 +1,12 @@
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TextNode;
 import to.etc.util.StringTool;
-
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * TabBuilder used for building tabs.
@@ -15,7 +14,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:marc.mol@itris.nl">Marc Mol</a>
  * @since Nov 20, 2014
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class TabBuilder {
 	private final TabPanelBase m_tabPanel;
 
@@ -48,7 +47,7 @@ final public class TabBuilder {
 		m_tabPanel = tabPanelBase;
 	}
 
-	public TabBuilder label(@Nonnull String label) {
+	public TabBuilder label(@NonNull String label) {
 		m_label = new TextNode(label);
 		return this;
 	}
@@ -58,12 +57,12 @@ final public class TabBuilder {
 		return this;
 	}
 
-	public TabBuilder content(@Nonnull NodeBase content) {
+	public TabBuilder content(@NonNull NodeBase content) {
 		m_content = content;
 		return this;
 	}
 
-	public TabBuilder image(@Nonnull String image) {
+	public TabBuilder image(@NonNull String image) {
 		if(! StringTool.isBlank(image))
 			m_image = image;
 		return this;
@@ -92,12 +91,12 @@ final public class TabBuilder {
 		return this;
 	}
 
-	public TabBuilder onDisplay(@Nonnull INotify<ITabHandle> notify) {
+	public TabBuilder onDisplay(@NonNull INotify<ITabHandle> notify) {
 		m_onDisplay = notify;
 		return this;
 	}
 
-	public TabBuilder onHide(@Nonnull INotify<ITabHandle> notify) {
+	public TabBuilder onHide(@NonNull INotify<ITabHandle> notify) {
 		m_onHide = notify;
 		return this;
 	}
@@ -115,13 +114,13 @@ final public class TabBuilder {
 		return m_onHide;
 	}
 
-	@Nonnull
+	@NonNull
 	public TabBuilder closable() {
 		m_closable = true;
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public ITabHandle build() {
 		return m_tabPanel.add(this);
 	}

@@ -24,32 +24,37 @@
  */
 package to.etc.domui.component.meta;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.lookup.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
 
 public interface ClassMetaModel {
 	/**
 	 * FIXME Questionable nullity
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	Class< ? > getActualClass();
 
 	/**
 	 * Returns the message bundle for translations related to this class. This will never return null.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	BundleRef getClassBundle();
 
-	@Nonnull
+	@NonNull
 	List<PropertyMetaModel< ? >> getProperties();
 
 	/**
@@ -59,7 +64,7 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	PropertyMetaModel< ? > findSimpleProperty(@Nonnull String name);
+	PropertyMetaModel< ? > findSimpleProperty(@NonNull String name);
 
 	/**
 	 * Returns a property reference to the specified property by following the dotted path
@@ -71,7 +76,9 @@ public interface ClassMetaModel {
 	 * @return
 	 */
 	@Nullable
-	PropertyMetaModel< ? > findProperty(@Nonnull String name);
+	PropertyMetaModel< ? > findProperty(@NonNull String name);
+
+	@Nullable <V> PropertyMetaModel<V> findProperty(@NonNull QField<?, V> field);
 
 	/**
 	 * Same as {@link #findProperty(String)}, but throws an exception if the property (or path) is not found, so
@@ -79,9 +86,11 @@ public interface ClassMetaModel {
 	 * @param name
 	 * @return
 	 */
-	@Nonnull
-	PropertyMetaModel< ? > getProperty(@Nonnull String name);
+	@NonNull
+	PropertyMetaModel< ? > getProperty(@NonNull String name);
 
+	@NonNull
+	<V> PropertyMetaModel<V> getProperty(@NonNull QField<?, V> field);
 
 	boolean isPersistentClass();
 
@@ -165,7 +174,7 @@ public interface ClassMetaModel {
 	 * properties as the display value.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
 	/**
@@ -182,7 +191,7 @@ public interface ClassMetaModel {
 	 * search.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<DisplayPropertyMetaModel> getTableDisplayProperties();
 
 	/**
@@ -192,7 +201,7 @@ public interface ClassMetaModel {
 	 * the {@link MetaSearch} annotations.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<SearchPropertyMetaModel> getSearchProperties();
 
 	/**
@@ -202,7 +211,7 @@ public interface ClassMetaModel {
 	 * annotations.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<SearchPropertyMetaModel> getKeyWordSearchProperties();
 
 	/**
@@ -247,7 +256,7 @@ public interface ClassMetaModel {
 	 * record in the edit page.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<DisplayPropertyMetaModel> getLookupSelectedProperties();
 
 	/**
@@ -260,7 +269,7 @@ public interface ClassMetaModel {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	QCriteria< ? > createCriteria() throws Exception;
 
 	/**

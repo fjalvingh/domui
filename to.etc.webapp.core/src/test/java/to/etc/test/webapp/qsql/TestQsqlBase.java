@@ -1,14 +1,17 @@
 package to.etc.test.webapp.qsql;
 
-import org.junit.*;
-import org.junit.experimental.categories.*;
-import to.etc.puzzler.*;
-import to.etc.webapp.qsql.*;
-import to.etc.webapp.query.*;
-import to.etc.webapp.testsupport.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.junit.After;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.experimental.categories.Category;
+import to.etc.puzzler.GroupUsesDatabase;
+import to.etc.webapp.qsql.JdbcDataContext;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.testsupport.TUtilTestProperties;
 
-import javax.annotation.*;
-import javax.sql.*;
+import javax.sql.DataSource;
 
 @Category(GroupUsesDatabase.class)
 public class TestQsqlBase {
@@ -27,7 +30,7 @@ public class TestQsqlBase {
 		getDc().close();
 	}
 
-	@Nonnull
+	@NonNull
 	protected QDataContext getDc() {
 		QDataContext dc = m_dc;
 		if(dc == null) {

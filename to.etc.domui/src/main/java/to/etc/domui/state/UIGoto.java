@@ -24,14 +24,16 @@
  */
 package to.etc.domui.state;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.misc.MessageFlare;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Moving to other pages.
@@ -67,13 +69,13 @@ final public class UIGoto {
 	 * Destroy the current page, and reload a fresh copy with fresh new parameters.
 	 * @param pp
 	 */
-	static public void reload(@Nonnull PageParameters pp) {
+	static public void reload(@NonNull PageParameters pp) {
 		Page pg = UIContext.getCurrentPage();
 		Class< ? extends UrlPage> clz = pg.getBody().getClass();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
 
-	static public void reload(@Nonnull Object... parameters) {
+	static public void reload(@NonNull Object... parameters) {
 		PageParameters pp = new PageParameters(parameters);
 		reload(pp);
 	}
@@ -82,7 +84,7 @@ final public class UIGoto {
 	 * Add a "goto action" to be executed on the page we will go-to.
 	 * @param action
 	 */
-	static public void addAction(@Nonnull IGotoAction action) {
+	static public void addAction(@NonNull IGotoAction action) {
 		WindowSession ws = UIContext.getCurrentConversation().getWindowSession();
 		List<IGotoAction> ga = (List<IGotoAction>) ws.getAttribute(PAGE_ACTION);
 		if(null == ga) {
@@ -96,10 +98,10 @@ final public class UIGoto {
 	 * Add a message as a {@link IGotoAction} action. It will be shown as a {@link MessageFlare}.
 	 * @param message
 	 */
-	static public void addActionMessage(@Nonnull final UIMessage message) {
+	static public void addActionMessage(@NonNull final UIMessage message) {
 		addAction(new IGotoAction() {
 			@Override
-			public void executeAction(@Nonnull UrlPage page) throws Exception {
+			public void executeAction(@NonNull UrlPage page) throws Exception {
 				MessageFlare.display(page, message);
 			}
 		});
@@ -111,10 +113,10 @@ final public class UIGoto {
 	 * @param type
 	 * @param message
 	 */
-	static public void addActionMessage(@Nonnull final MsgType type, @Nonnull final String message) {
+	static public void addActionMessage(@NonNull final MsgType type, @NonNull final String message) {
 		addAction(new IGotoAction() {
 			@Override
-			public void executeAction(@Nonnull UrlPage page) throws Exception {
+			public void executeAction(@NonNull UrlPage page) throws Exception {
 				MessageFlare.display(page, type, message);
 			}
 		});

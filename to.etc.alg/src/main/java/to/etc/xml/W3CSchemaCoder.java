@@ -24,13 +24,18 @@
  */
 package to.etc.xml;
 
-import java.io.*;
-import java.math.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.util.DateUtil;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.io.IOException;
+import java.io.Writer;
+import java.math.BigDecimal;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.SimpleTimeZone;
+import java.util.TimeZone;
 
 /**
  * Helper class which encodes data using the w3c schema definitions; see
@@ -69,7 +74,7 @@ public class W3CSchemaCoder {
 	 * Get the per-thread shared copy of a Calendar; this prevents lots of garbage while scanning XML.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static private GregorianCalendar calendar() {
 		GregorianCalendar c = m_calendar.get();
 		if(c == null) {
@@ -80,8 +85,8 @@ public class W3CSchemaCoder {
 		return c;
 	}
 
-	@Nonnull
-	static private GregorianCalendar calendar(@Nonnull Date in) {
+	@NonNull
+	static private GregorianCalendar calendar(@NonNull Date in) {
 		GregorianCalendar c = calendar();
 		c.setTime(in);
 		return c;

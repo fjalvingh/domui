@@ -24,20 +24,33 @@
  */
 package to.etc.webapp.eventmanager;
 
-import java.lang.ref.*;
-import java.net.*;
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.FileTool;
+import to.etc.webapp.testsupport.TestDataSourceStub;
+
+import javax.sql.DataSource;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.net.InetAddress;
+import java.sql.Connection;
 import java.sql.Date;
-import java.util.*;
-import java.util.concurrent.*;
-
-import javax.annotation.*;
-import javax.sql.*;
-
-import org.slf4j.*;
-
-import to.etc.util.*;
-import to.etc.webapp.testsupport.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.TimeoutException;
 
 /**
  * <h1>Overview</h1>
@@ -167,13 +180,13 @@ public class VpEventManager implements Runnable {
 	@Nullable
 	static private ThreadLocal<VpEventManager> m_testInstances;
 
-	@Nonnull
+	@NonNull
 	private DataSource m_ds;
 
-	@Nonnull
+	@NonNull
 	private String m_tableName;
 
-	@Nonnull
+	@NonNull
 	private IEventMarshaller m_eventMarshaller;
 
 	/** The last update ID that was encountered while scanning the set. */
@@ -213,7 +226,7 @@ public class VpEventManager implements Runnable {
 	/*	CODING:	Singleton init.                                  	*/
 	/*--------------------------------------------------------------*/
 
-	private VpEventManager(@Nonnull final DataSource ds, @Nonnull final String tableName, @Nonnull final IEventMarshaller eventMarshaller) {
+	private VpEventManager(@NonNull final DataSource ds, @NonNull final String tableName, @NonNull final IEventMarshaller eventMarshaller) {
 		m_ds = ds;
 		m_tableName = tableName;
 		m_eventMarshaller = eventMarshaller;
@@ -268,7 +281,7 @@ public class VpEventManager implements Runnable {
 	 * @param eventMarshaller
 	 * @throws Exception
 	 */
-	static public synchronized void initialize(final DataSource ds, final String tableName, @Nonnull final IEventMarshaller eventMarshaller) throws Exception {
+	static public synchronized void initialize(final DataSource ds, final String tableName, @NonNull final IEventMarshaller eventMarshaller) throws Exception {
 		ThreadLocal<VpEventManager> tl = m_testInstances;
 		if(null != tl)
 			throw new IllegalStateException("The VpEventManager has already been initialized for TEST mode");
@@ -627,7 +640,7 @@ public class VpEventManager implements Runnable {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Event Poster.                                    	*/
 	/*--------------------------------------------------------------*/
-	@Nonnull
+	@NonNull
 	static private Timestamp now() {
 		return new Timestamp(System.currentTimeMillis());
 	}
@@ -637,7 +650,7 @@ public class VpEventManager implements Runnable {
 	 * adds it to the "local" event queue *if* the event is an immediate event (an event whose
 	 * handler will be called immediately).
 	 */
-	public long sendEventMain(@Nonnull final Connection dbc, @Nonnull final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
+	public long sendEventMain(@NonNull final Connection dbc, @NonNull final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		boolean ac = dbc.getAutoCommit(); // Do not autocommit when storing a blub
@@ -700,7 +713,7 @@ public class VpEventManager implements Runnable {
 	/*	CODING:	Listener caller                                  	*/
 	/*--------------------------------------------------------------*/
 
-	private synchronized void addListener(@Nonnull final Class< ? > cl, @Nonnull final ListenerType lt, @Nonnull final AppEventListener< ? > listener, final boolean weak) {
+	private synchronized void addListener(@NonNull final Class< ? > cl, @NonNull final ListenerType lt, @NonNull final AppEventListener< ? > listener, final boolean weak) {
 		List<Item> l = m_listenerList.get(cl.getName());
 		if(l == null) {
 			l = new ArrayList<Item>(5);
@@ -733,7 +746,7 @@ public class VpEventManager implements Runnable {
 	 * @param cl
 	 * @param listener
 	 */
-	public synchronized void removeListener(@Nonnull final Class< ? > cl, @Nonnull final AppEventListener< ? > listener) {
+	public synchronized void removeListener(@NonNull final Class< ? > cl, @NonNull final AppEventListener< ? > listener) {
 		List<Item> l = m_listenerList.get(cl.getName());
 		if(l == null)
 			return;
@@ -756,7 +769,7 @@ public class VpEventManager implements Runnable {
 		}
 	}
 
-	private synchronized void getListeners(@Nonnull final List<AppEventListener<AppEventBase>> list, @Nonnull final AppEventBase ae, final boolean ateventtime, final boolean islocalevent) {
+	private synchronized void getListeners(@NonNull final List<AppEventListener<AppEventBase>> list, @NonNull final AppEventBase ae, final boolean ateventtime, final boolean islocalevent) {
 		Class< ? > cl = ae.getClass();
 		for(;;) {
 			List<Item> l = m_listenerList.get(cl.getName()); // List of registrations for the current type
@@ -803,7 +816,7 @@ public class VpEventManager implements Runnable {
 	 * @param ae        The event that occured
 	 * @param immediate When T call all events that need to be called immediately.
 	 */
-	private void callListeners(@Nonnull final AppEventBase ae, final boolean immediate, final boolean islocalevent) {
+	private void callListeners(@NonNull final AppEventBase ae, final boolean immediate, final boolean islocalevent) {
 		List<AppEventListener<AppEventBase>> list = new ArrayList<AppEventListener<AppEventBase>>();
 		getListeners(list, ae, immediate, islocalevent);
 		for(int i = list.size(); --i >= 0;) {
@@ -820,15 +833,15 @@ public class VpEventManager implements Runnable {
 	/*	CODING:	Public interface.                                	*/
 	/*--------------------------------------------------------------*/
 
-	public <T extends AppEventBase> void addListener(@Nonnull final Class<T> cl, @Nonnull final ListenerType lt, @Nonnull final AppEventListener<T> listener) {
+	public <T extends AppEventBase> void addListener(@NonNull final Class<T> cl, @NonNull final ListenerType lt, @NonNull final AppEventListener<T> listener) {
 		addListener(cl, lt, listener, false);
 	}
 
-	public <T extends AppEventBase> void addWeakListener(@Nonnull final Class<T> cl, @Nonnull final ListenerType lt, @Nonnull final AppEventListener<T> listener) {
+	public <T extends AppEventBase> void addWeakListener(@NonNull final Class<T> cl, @NonNull final ListenerType lt, @NonNull final AppEventListener<T> listener) {
 		addListener(cl, lt, listener, true);
 	}
 
-	public <T extends AppEventBase> void removeWeakListener(@Nonnull final Class<T> cl, @Nonnull final AppEventListener<T> listener) {
+	public <T extends AppEventBase> void removeWeakListener(@NonNull final Class<T> cl, @NonNull final AppEventListener<T> listener) {
 		removeListener(cl, listener);
 	}
 
@@ -842,7 +855,7 @@ public class VpEventManager implements Runnable {
 	 * @param ae
 	 * @throws Exception
 	 */
-	public void postEvent(@Nonnull final Connection dbc, @Nonnull final AppEventBase ae) throws Exception {
+	public void postEvent(@NonNull final Connection dbc, @NonNull final AppEventBase ae) throws Exception {
 		if(!inJUnitTestMode())
 			sendEventMain(dbc, ae, true, true); // First save the thingy everywhere, ORDER IMPORTANT!!
 		callListeners(ae, true, true); // Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
@@ -857,7 +870,7 @@ public class VpEventManager implements Runnable {
 	 * @param ae
 	 * @throws Exception
 	 */
-	public void postDelayedEvent(@Nonnull final Connection dbc, @Nonnull final AppEventBase ae) throws Exception {
+	public void postDelayedEvent(@NonNull final Connection dbc, @NonNull final AppEventBase ae) throws Exception {
 		if(!inJUnitTestMode())
 			sendEventMain(dbc, ae, false, false); // First save the thingy everywhere, ORDER IMPORTANT!!
 		else
@@ -879,7 +892,7 @@ public class VpEventManager implements Runnable {
 	 * @param ae
 	 * @throws Exception
 	 */
-	public void postDelayedEvent(@Nonnull final Connection dbc, @Nonnull final List< ? extends AppEventBase> ae) throws Exception {
+	public void postDelayedEvent(@NonNull final Connection dbc, @NonNull final List< ? extends AppEventBase> ae) throws Exception {
 		for(AppEventBase a : ae) {
 			if(inJUnitTestMode()) {
 				callListeners(a, true, true); 			// Call all listeners that need the event immediately. ORDER IMPORTANT: must be after sendEvent.
@@ -899,7 +912,7 @@ public class VpEventManager implements Runnable {
 	 * @param aelist
 	 * @throws Exception
 	 */
-	public void postEvent(@Nonnull final Connection dbc, @Nonnull final List< ? extends AppEventBase> aelist) throws Exception {
+	public void postEvent(@NonNull final Connection dbc, @NonNull final List< ? extends AppEventBase> aelist) throws Exception {
 		if(!inJUnitTestMode()) {
 			for(AppEventBase ae : aelist) {
 				sendEventMain(dbc, ae, false, true); // First save the thingy everywhere, ORDER IMPORTANT!!

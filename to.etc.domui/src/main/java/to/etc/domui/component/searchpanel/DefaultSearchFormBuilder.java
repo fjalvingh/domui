@@ -1,12 +1,11 @@
 package to.etc.domui.component.searchpanel;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeContainer;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
@@ -47,7 +46,7 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 		m_builder = null;
 	}
 
-	@Nonnull
+	@NonNull
 	public FormBuilder fb() {
 		return requireNonNull(m_builder);
 	}

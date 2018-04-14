@@ -24,14 +24,13 @@
  */
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.dom.css.TextAlign;
-
-import javax.annotation.Nonnull;
 
 /**
  * This is a factory for numeric entry of values, where the value entered can be preceded with some kind of
@@ -47,7 +46,7 @@ import javax.annotation.Nonnull;
  * Created on Sep 28, 2009
  */
 final class NumberLookupFactory2 implements ILookupFactory<NumberLookupValue> {
-	@Nonnull @Override public FactoryPair<NumberLookupValue> createControl(@Nonnull SearchPropertyMetaModel spm) {
+	@NonNull @Override public FactoryPair<NumberLookupValue> createControl(@NonNull SearchPropertyMetaModel spm) {
 		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		Double minmax = Double.valueOf(calcMaxValue(pmm));
 		boolean monetary = NumericPresentation.isMonetary(pmm.getNumericPresentation());

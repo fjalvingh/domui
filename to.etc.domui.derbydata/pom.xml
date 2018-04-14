@@ -32,12 +32,18 @@
             <artifactId>to.etc.logger</artifactId>
         </dependency>
         <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.jsr305</artifactId>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.annotation</artifactId>
         </dependency>
         <dependency>
             <groupId>to.etc.domui</groupId>
             <artifactId>to.etc.domui.hibutil</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>to.etc.domui</groupId>
+            <artifactId>property-annotations-processor</artifactId>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
 
         <!-- Test dependencies  -->
@@ -47,4 +53,34 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <annotationProcessors>
+                        <annotationProcessor>db.annotationprocessing.PropertyAnnotationProcessor</annotationProcessor>
+                    </annotationProcessors>
+                    <annotationProcessorPaths>
+                        <dependency>
+                            <groupId>to.etc.domui</groupId>
+                            <artifactId>property-annotations-processor</artifactId>
+                            <version>1.2-SNAPSHOT</version>
+                        </dependency>
+                    </annotationProcessorPaths>
+                </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>to.etc.domui</groupId>
+                        <artifactId>property-annotations-processor</artifactId>
+                        <version>1.2-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
 </project>

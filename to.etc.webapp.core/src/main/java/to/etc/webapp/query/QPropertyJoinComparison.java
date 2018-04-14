@@ -24,7 +24,7 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Describes a join between a query and one of it's subqueries. The join is defined in {@link QSubQuery}.
@@ -33,13 +33,13 @@ import javax.annotation.*;
  * Created on Apr 5, 2013
  */
 public class QPropertyJoinComparison extends QOperatorNode {
-	@Nonnull
+	@NonNull
 	final private String m_parentProperty;
 
-	@Nonnull
+	@NonNull
 	final private String m_subProperty;
 
-	public QPropertyJoinComparison(@Nonnull QOperation operation, @Nonnull String parentProperty, @Nonnull String subProperty) {
+	public QPropertyJoinComparison(@NonNull QOperation operation, @NonNull String parentProperty, @NonNull String subProperty) {
 		super(operation);
 		m_parentProperty = parentProperty;
 		m_subProperty = subProperty;
@@ -50,18 +50,18 @@ public class QPropertyJoinComparison extends QOperatorNode {
 		return new QPropertyJoinComparison(getOperation(), getParentProperty(), getSubProperty());
 	}
 
-	@Nonnull
+	@NonNull
 	public String getParentProperty() {
 		return m_parentProperty;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getSubProperty() {
 		return m_subProperty;
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitPropertyJoinComparison(this);
 	}
 }

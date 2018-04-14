@@ -1,11 +1,11 @@
 package to.etc.domui.converter;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SortableType;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 
 /**
@@ -17,15 +17,15 @@ import java.util.Comparator;
  * Created on May 18, 2012
  */
 final public class PropertyComparator<T> implements Comparator<T> {
-	@Nonnull
+	@NonNull
 	final private PropertyMetaModel<T> m_pmm;
 
-	@Nonnull
+	@NonNull
 	final private Comparator<T> m_valueComp;
 
 	private boolean m_descending;
 
-	public PropertyComparator(@Nonnull PropertyMetaModel<T> pmm, @Nonnull Comparator<T> comp, boolean descending) {
+	public PropertyComparator(@NonNull PropertyMetaModel<T> pmm, @NonNull Comparator<T> comp, boolean descending) {
 		m_pmm = pmm;
 		m_valueComp = comp;
 		m_descending = descending;
@@ -43,7 +43,7 @@ final public class PropertyComparator<T> implements Comparator<T> {
 		}
 	}
 
-	static public <T> PropertyComparator<T> create(@Nonnull ClassMetaModel cmm, @Nonnull String propertyName, @Nonnull SortableType direction) {
+	static public <T> PropertyComparator<T> create(@NonNull ClassMetaModel cmm, @NonNull String propertyName, @NonNull SortableType direction) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) cmm.getProperty(propertyName);
 
 		//-- Get the actual data type, and get a comparator for that data type;

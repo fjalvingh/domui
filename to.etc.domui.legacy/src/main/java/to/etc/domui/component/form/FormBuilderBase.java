@@ -24,15 +24,22 @@
  */
 package to.etc.domui.component.form;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.controlfactory.ControlBuilder;
+import to.etc.domui.component.controlfactory.ControlFactoryResult;
+import to.etc.domui.component.controlfactory.DisplayOnlyPropertyBinding;
+import to.etc.domui.component.controlfactory.IModelBinding;
+import to.etc.domui.component.controlfactory.ModelBindings;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IControlLabelFactory;
+import to.etc.domui.util.IReadOnlyModel;
 
 /**
  * Deprecated: use {@link to.etc.domui.component2.form4.FormBuilder}.
@@ -221,7 +228,7 @@ public class FormBuilderBase {
 		updateReadOnly(initialValue, newObj, getBindings());
 	}
 
-	private <V> void updateReadOnly(@Nullable Object initialValue, @Nullable Object newObj, @Nonnull ModelBindings modelBindings) throws Exception {
+	private <V> void updateReadOnly(@Nullable Object initialValue, @Nullable Object newObj, @NonNull ModelBindings modelBindings) throws Exception {
 		for(IModelBinding mb : getBindings()) {
 			if(mb instanceof DisplayOnlyPropertyBinding) {
 				DisplayOnlyPropertyBinding< ? > b = (DisplayOnlyPropertyBinding< ? >) mb;

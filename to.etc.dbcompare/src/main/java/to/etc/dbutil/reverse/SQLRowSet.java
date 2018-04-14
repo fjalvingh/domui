@@ -1,10 +1,12 @@
 package to.etc.dbutil.reverse;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbTable;
 
-import javax.annotation.*;
-
-import to.etc.dbutil.schema.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 public class SQLRowSet implements Iterable<SQLRow> {
 	private List<DbColumn> m_columnList;
@@ -13,21 +15,21 @@ public class SQLRowSet implements Iterable<SQLRow> {
 
 	private List<SQLRow> m_rowSet;
 
-	public SQLRowSet(@Nonnull List<DbColumn> columnList, @Nonnull DbTable table) {
+	public SQLRowSet(@NonNull List<DbColumn> columnList, @NonNull DbTable table) {
 		m_columnList = columnList;
 		m_table = table;
 	}
 
-	void init(@Nonnull List<SQLRow> res) {
+	void init(@NonNull List<SQLRow> res) {
 		m_rowSet = Collections.unmodifiableList(res);
 	}
 
-	@Nonnull
+	@NonNull
 	public List<DbColumn> getColumnList() {
 		return m_columnList;
 	}
 
-	@Nonnull
+	@NonNull
 	public DbColumn getColumn(int ix) {
 		return getColumnList().get(ix);
 	}
@@ -36,7 +38,7 @@ public class SQLRowSet implements Iterable<SQLRow> {
 		return getColumnList().size();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Iterator<SQLRow> iterator() {
 		return m_rowSet.iterator();

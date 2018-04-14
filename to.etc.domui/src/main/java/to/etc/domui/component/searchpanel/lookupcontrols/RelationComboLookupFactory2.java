@@ -24,16 +24,15 @@
  */
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.ComboLookup;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
-
 final class RelationComboLookupFactory2<T> implements ILookupFactory<T> {
-	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
+	@NonNull @Override public FactoryPair<T> createControl(@NonNull SearchPropertyMetaModel spm) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
 		try {
 			ComboLookup<T> co = ComboLookup.createLookup(pmm);

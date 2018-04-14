@@ -1,6 +1,7 @@
 package to.etc.dbutil.schema;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,18 +14,18 @@ import java.util.Objects;
  * Created on Dec 22, 2006
  */
 public class DbRelation implements Serializable {
-	@Nonnull
+	@NonNull
 	final private DbTable m_parent;
 
-	@Nonnull
+	@NonNull
 	final private DbTable m_child;
 
-	@Nonnull
+	@NonNull
 	final private List<FieldPair> m_pairList = new ArrayList<FieldPair>();
 
 	private String m_name;
 
-	public DbRelation(@Nonnull DbTable parent, @Nonnull DbTable child) {
+	public DbRelation(@NonNull DbTable parent, @NonNull DbTable child) {
 		m_parent = parent;
 		m_child = child;
 	}
@@ -37,22 +38,22 @@ public class DbRelation implements Serializable {
 		m_name = name;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<FieldPair> getPairList() {
 		return m_pairList;
 	}
 
-	@Nonnull
+	@NonNull
 	public DbTable getChild() {
 		return m_child;
 	}
 
-	@Nonnull
+	@NonNull
 	public DbTable getParent() {
 		return m_parent;
 	}
 
-	public void addPair(@Nonnull DbColumn pkc, @Nonnull DbColumn fkc) {
+	public void addPair(@NonNull DbColumn pkc, @NonNull DbColumn fkc) {
 		m_pairList.add(new FieldPair(pkc, fkc));
 	}
 

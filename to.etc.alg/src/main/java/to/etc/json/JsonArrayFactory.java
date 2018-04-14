@@ -1,14 +1,15 @@
 package to.etc.json;
 
-import java.lang.reflect.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.ClassUtil;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 
 public class JsonArrayFactory  implements IJsonTypeFactory {
 	@Override
-	public ITypeMapping createMapper(@Nonnull JsonTypeRegistry registry, @Nonnull final Class< ? > typeClass, @Nullable Type type) {
+	public ITypeMapping createMapper(@NonNull JsonTypeRegistry registry, @NonNull final Class< ? > typeClass, @Nullable Type type) {
 		if(! typeClass.isArray())
 			return null;
 		final Class< ? > memberType = ClassUtil.findCollectionType(typeClass);

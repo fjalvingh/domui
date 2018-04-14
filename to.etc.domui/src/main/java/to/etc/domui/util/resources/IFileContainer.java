@@ -1,7 +1,8 @@
 package to.etc.domui.util.resources;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -13,8 +14,8 @@ import java.util.List;
  */
 public interface IFileContainer {
 	@Nullable
-	IModifyableResource findFile(@Nonnull String name);
+	IModifyableResource findFile(@NonNull String name);
 
-	@Nonnull
+	@NonNull
 	List<String> getInventory();
 }

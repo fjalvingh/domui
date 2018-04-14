@@ -24,9 +24,9 @@
  */
 package to.etc.domui.util;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
 
 public interface IDragHandler {
 	/**
@@ -35,14 +35,14 @@ public interface IDragHandler {
 	 * drop target.
 	 * @return a non-null string.
 	 */
-	@Nonnull
-	String getTypeName(@Nonnull NodeBase source);
+	@NonNull
+	String getTypeName(@NonNull NodeBase source);
 
 	/**
 	 * Called when the dragged node has been dropped on a DropTarget which has accepted the
 	 * node. This should then remove the source to prevent it from being reused.
 	 */
-	void onDropped(@Nonnull DropEvent context) throws Exception;
+	void onDropped(@NonNull DropEvent context) throws Exception;
 
 	/**
 	 * Indicates that the handler is responsible for the drag and drop implementation, but does not

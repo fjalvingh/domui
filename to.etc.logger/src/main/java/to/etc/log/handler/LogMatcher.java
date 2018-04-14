@@ -1,12 +1,14 @@
 package to.etc.log.handler;
 
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
-import to.etc.log.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import to.etc.log.EtcLoggerFactory;
 import to.etc.log.EtcLoggerFactory.LoggerConfigException;
-import to.etc.log.event.*;
+import to.etc.log.Level;
+import to.etc.log.event.EtcLogEvent;
 
 /**
  * Defines what logger level is listened on defined logger name pattern.
@@ -19,38 +21,39 @@ class LogMatcher {
 	/**
 	 * Defines logger name pattern on which handler applies.
 	 */
-	@Nonnull
+	@NonNull
 	private final String	m_name;
 
 	/**
 	 * Defines log level on which handler applies.
 	 */
-	@Nonnull
+	@NonNull
 	private final Level		m_level;
 
-	LogMatcher(@Nonnull String name, @Nonnull Level level) {
+	LogMatcher(@NonNull String name, @NonNull Level level) {
 		m_name = name;
 		m_level = level;
 	}
 
-	@Nonnull
+	@NonNull
 	String getName() {
 		return m_name;
 	}
 
-	@Nonnull
+	@NonNull
 	Level getLevel() {
 		return m_level;
 	}
 
-	boolean matches(@Nonnull EtcLogEvent event) {
+	@Nullable
+	boolean matches(@NonNull EtcLogEvent event) {
 		return matchesName(event.getLogger().getName()) && m_level.includes(event.getLevel());
 	}
 
 	/**
 	 * Returns if current matcher is subset of other matcher.
 	 */
-	boolean isSubmatcherOf(@Nonnull LogMatcher other) {
+	boolean isSubmatcherOf(@NonNull LogMatcher other) {
 		if(m_name.length() == 0) {
 			return false;
 		} else if(other.getName().length() == 0) {
@@ -60,12 +63,12 @@ class LogMatcher {
 		}
 	}
 
-	boolean matchesName(@Nonnull String key) {
+	boolean matchesName(@NonNull String key) {
 		return (m_name.length() == 0 || key.startsWith(m_name + ".") || key.equals(m_name));
 	}
 
-	@Nonnull
-	static LogMatcher createFromXml(@Nonnull Node node) throws LoggerConfigException {
+	@NonNull
+	static LogMatcher createFromXml(@NonNull Node node) throws LoggerConfigException {
 		Node nameNode = node.getAttributes().getNamedItem("name");
 		String name = nameNode == null ? "" : nameNode.getNodeValue();
 		Node levelNode = node.getAttributes().getNamedItem("level");
@@ -76,7 +79,7 @@ class LogMatcher {
 		return new LogMatcher(name, level);
 	}
 
-	public void saveToXml(@Nonnull Document doc, @Nonnull Element logNode) {
+	public void saveToXml(@NonNull Document doc, @NonNull Element logNode) {
 		logNode.setAttribute("name", m_name);
 		logNode.setAttribute("level", m_level.name());
 	}

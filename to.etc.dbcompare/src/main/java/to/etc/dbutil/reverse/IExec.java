@@ -1,9 +1,9 @@
 package to.etc.dbutil.reverse;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.sql.Connection;
 
 public interface IExec {
-	void exec(@Nonnull Connection dbc) throws Exception;
+	void exec(@NonNull Connection dbc) throws Exception;
 }

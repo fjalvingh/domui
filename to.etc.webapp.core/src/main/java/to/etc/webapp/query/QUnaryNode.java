@@ -24,13 +24,13 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class QUnaryNode extends QOperatorNode {
-	@Nonnull
+	@NonNull
 	final private QOperatorNode m_node;
 
-	public QUnaryNode(@Nonnull QOperation operation, @Nonnull QOperatorNode node) {
+	public QUnaryNode(@NonNull QOperation operation, @NonNull QOperatorNode node) {
 		super(operation);
 		m_node = node;
 	}
@@ -40,13 +40,13 @@ public class QUnaryNode extends QOperatorNode {
 		return new QUnaryNode(getOperation(), getNode());
 	}
 
-	@Nonnull
+	@NonNull
 	public QOperatorNode getNode() {
 		return m_node;
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitUnaryNode(this);
 	}
 }

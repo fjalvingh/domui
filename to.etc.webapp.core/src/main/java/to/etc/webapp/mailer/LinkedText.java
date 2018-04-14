@@ -1,8 +1,7 @@
 package to.etc.webapp.mailer;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.IIdentifyable;
 
 /**
  * Looks like a stringbuffer which can be used to collect text containing generic links. Links have a specific format, and
@@ -27,7 +26,7 @@ public class LinkedText /* implements Appendable */{
 	 *
 	 * @see java.lang.Appendable#append(char)
 	 */
-	@Nonnull
+	@NonNull
 	public LinkedText append(char c) {
 		if(c == '$')
 			m_sb.append("\\$");
@@ -36,20 +35,20 @@ public class LinkedText /* implements Appendable */{
 		return this;
 	}
 
-	@Nonnull
-	public LinkedText append(@Nonnull CharSequence csq) {
+	@NonNull
+	public LinkedText append(@NonNull CharSequence csq) {
 		m_sb.append(csq);
 		return this;
 	}
 
-	@Nonnull
-	public LinkedText append(@Nonnull CharSequence csq, int start, int end) {
+	@NonNull
+	public LinkedText append(@NonNull CharSequence csq, int start, int end) {
 		m_sb.append(csq, start, end);
 		return this;
 	}
 
-	@Nonnull
-	public LinkedText link(@Nonnull String key, @Nonnull String id, @Nonnull String txt) {
+	@NonNull
+	public LinkedText link(@NonNull String key, @NonNull String id, @NonNull String txt) {
 		m_sb.append("$[");
 		appendQ$(key);
 		m_sb.append('$');
@@ -78,8 +77,8 @@ public class LinkedText /* implements Appendable */{
 	 * @param p
 	 * @return
 	 */
-	@Nonnull
-	public LinkedText link(@Nonnull IIdentifyable< ? > instance) {
+	@NonNull
+	public LinkedText link(@NonNull IIdentifyable< ? > instance) {
 		return link(instance, String.valueOf(instance));
 	}
 
@@ -88,8 +87,8 @@ public class LinkedText /* implements Appendable */{
 	 * @param p
 	 * @return
 	 */
-	@Nonnull
-	public LinkedText link(@Nonnull IIdentifyable< ? > instance, @Nonnull String linktext) {
+	@NonNull
+	public LinkedText link(@NonNull IIdentifyable< ? > instance, @NonNull String linktext) {
 		if(null == instance) {
 			append("[null link to ").append(linktext).append("]");
 			return this;
@@ -117,7 +116,7 @@ public class LinkedText /* implements Appendable */{
 	 * @param in
 	 * @return
 	 */
-	static public void decode(@Nonnull ITextLinkRenderer r, @Nonnull String in) {
+	static public void decode(@NonNull ITextLinkRenderer r, @NonNull String in) {
 		if(in == null)
 			in = "";
 		StringBuilder sb = new StringBuilder();
@@ -149,7 +148,7 @@ public class LinkedText /* implements Appendable */{
 	 * @param len
 	 * @return
 	 */
-	private static int decodeKey(@Nonnull ITextLinkRenderer r, @Nonnull StringBuilder sb, int ix, @Nonnull String in, int len) {
+	private static int decodeKey(@NonNull ITextLinkRenderer r, @NonNull StringBuilder sb, int ix, @NonNull String in, int len) {
 		int dol = 0;
 		String type = null;
 		String key = null;

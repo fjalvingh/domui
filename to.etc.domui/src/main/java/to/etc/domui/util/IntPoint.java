@@ -1,8 +1,6 @@
 package to.etc.domui.util;
 
-import javax.annotation.concurrent.*;
-
-@Immutable
+//@Immutable
 final public class IntPoint {
 	private int m_x, m_y;
 

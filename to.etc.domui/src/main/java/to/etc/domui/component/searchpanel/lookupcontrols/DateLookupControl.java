@@ -1,5 +1,6 @@
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.DateInput2;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
@@ -9,7 +10,6 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.Msgs;
 import to.etc.util.DateUtil;
 
-import javax.annotation.Nullable;
 import java.util.Date;
 import java.util.Objects;
 

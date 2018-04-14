@@ -24,10 +24,11 @@
  */
 package to.etc.domui.util;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 public interface IValueAccessor<T> extends IValueTransformer<T> {
-	void setValue(@Nonnull Object target, @Nullable T value) throws Exception;
+	void setValue(@NonNull Object target, @Nullable T value) throws Exception;
 
 	boolean isReadOnly();
 }

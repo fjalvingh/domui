@@ -24,14 +24,14 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.component.binding.ComponentPropertyBinding;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.binding.ComponentPropertyBindingUni;
 import to.etc.util.WrappedException;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
-@DefaultNonNull
+@NonNullByDefault
 public class Label extends NodeContainer {
 	@Nullable
 	private NodeBase m_forTarget;
@@ -40,7 +40,7 @@ public class Label extends NodeContainer {
 	private NodeBase m_forNode;
 
 	@Nullable
-	private ComponentPropertyBinding m_binding;
+	private ComponentPropertyBindingUni<?, ?, ?, ?> m_binding;
 
 	public Label() {
 		super("label");
@@ -109,7 +109,7 @@ public class Label extends NodeContainer {
 		NodeBase old = m_forTarget;
 		if(null != old) {
 			// Unbind from previous
-			ComponentPropertyBinding binding = m_binding;
+			ComponentPropertyBindingUni<?,?,?,?> binding = m_binding;
 			if(null != binding)
 				old.removeBinding(binding);
 			m_binding = null;
@@ -117,8 +117,7 @@ public class Label extends NodeContainer {
 		m_forTarget = forTarget;
 		if(forTarget instanceof IForTarget) {
 			try {
-				ComponentPropertyBinding binding = m_binding = bind("forNode");
-				binding.to(forTarget, "forTarget");
+				ComponentPropertyBindingUni<?, ?, ?, ?> binding = m_binding = bind("forNode").to(forTarget, "forTarget");
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}

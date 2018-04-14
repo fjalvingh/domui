@@ -1,5 +1,8 @@
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component2.lookupinput.SelectOnePanel;
@@ -16,9 +19,6 @@ import to.etc.domui.server.IRequestContext;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
@@ -37,12 +37,12 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 
 	static private final Set<Class<?>> SIMPLECLASSES = new HashSet<Class<?>>(Arrays.asList(String.class, Date.class, Integer.class, int.class, Long.class, long.class));
 
-	@Nonnull final private ClassMetaModel m_dataModel;
+	@NonNull final private ClassMetaModel m_dataModel;
 
-	@Nonnull final private Class<T> m_actualType;
+	@NonNull final private Class<T> m_actualType;
 
 	/** The base string to use for all CSS classes. */
-	@Nonnull
+	@NonNull
 	private String m_cssBase;
 
 	private Img m_imgWaiting = new Img("THEME/lui-keyword-wait.gif");
@@ -65,16 +65,16 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	 * Called with input, required to either accept the data or return a list of choices.
 	 */
 	@Nullable
-	protected abstract List<T> onLookupTyping(@Nonnull String curdata, boolean done) throws Exception;
+	protected abstract List<T> onLookupTyping(@NonNull String curdata, boolean done) throws Exception;
 
 	/**
 	 * Called when a value is selected from the dropdown.
 	 */
-	protected abstract void onRowSelected(@Nonnull T value) throws Exception;
+	protected abstract void onRowSelected(@NonNull T value) throws Exception;
 
 	protected abstract IRenderInto<T> getActualRenderer() throws Exception;
 
-	@DefaultNonNull
+	@NonNullByDefault
 	public final static class Result<T> {
 		private final List<T> m_list;
 
@@ -99,13 +99,13 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	/**
 	 * Create a control for the specified type.
 	 */
-	public SearchAsYouTypeBase(String cssBase, @Nonnull Class<T> clz) {
+	public SearchAsYouTypeBase(String cssBase, @NonNull Class<T> clz) {
 		m_cssBase = cssBase;
 		m_actualType = clz;
 		m_dataModel = MetaManager.findClassMeta(clz);
 	}
 
-	public SearchAsYouTypeBase<T> setCssBase(@Nonnull String cssBase) {
+	public SearchAsYouTypeBase<T> setCssBase(@NonNull String cssBase) {
 		m_cssBase = cssBase;
 		return this;
 	}
@@ -204,7 +204,7 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		openDropdown(isl);
 	}
 
-	private void openDropdown(@Nonnull List<T> list) throws Exception {
+	private void openDropdown(@NonNull List<T> list) throws Exception {
 		clearResultMessage();
 		clearResultPopup();
 		SelectOnePanel<T> pnl = m_selectPanel = new SelectOnePanel<T>(list, getActualRenderer());
@@ -297,11 +297,11 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		m_addSingleMatch = addSingleMatch;
 	}
 
-	@Nonnull public Class<T> getActualType() {
+	@NonNull public Class<T> getActualType() {
 		return m_actualType;
 	}
 
-	@Nonnull public ClassMetaModel getDataModel() {
+	@NonNull public ClassMetaModel getDataModel() {
 		return m_dataModel;
 	}
 

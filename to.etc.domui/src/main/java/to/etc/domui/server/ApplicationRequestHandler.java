@@ -24,34 +24,87 @@
  */
 package to.etc.domui.server;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.annotations.UIRights;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.misc.InternalParentTree;
+import to.etc.domui.component.misc.MessageFlare;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.dom.HtmlFullRenderer;
+import to.etc.domui.dom.IBrowserOutput;
+import to.etc.domui.dom.PrettyXmlOutputWriter;
+import to.etc.domui.dom.errors.IExceptionListener;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.IHasChangeListener;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.OptimalDeltaRenderer;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.PagePhase;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.AccessDeniedPage;
+import to.etc.domui.login.ILoginDialogFactory;
+import to.etc.domui.login.IUser;
+import to.etc.domui.parts.IComponentJsonProvider;
+import to.etc.domui.parts.IComponentUrlDataProvider;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.CidPair;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.ConversationDestroyedException;
+import to.etc.domui.state.IGotoAction;
+import to.etc.domui.state.INotReloadablePage;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.state.UIGoto;
+import to.etc.domui.state.UserLogItem;
+import to.etc.domui.state.WindowSession;
+import to.etc.domui.themes.ThemeManager;
+import to.etc.domui.trouble.ClientDisconnectedException;
+import to.etc.domui.trouble.ExpiredSessionPage;
+import to.etc.domui.trouble.MsgException;
+import to.etc.domui.trouble.NotLoggedInException;
+import to.etc.domui.trouble.SessionInvalidException;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.INewPageInstantiated;
+import to.etc.domui.util.IRebuildOnRefresh;
+import to.etc.domui.util.IRightsCheckedManually;
+import to.etc.domui.util.Msgs;
+import to.etc.template.JSTemplate;
+import to.etc.template.JSTemplateCompiler;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.FileTool;
+import to.etc.util.IndentWriter;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.ajax.renderer.json.JSONRegistry;
+import to.etc.webapp.ajax.renderer.json.JSONRenderer;
+import to.etc.webapp.nls.CodeException;
+import to.etc.webapp.query.QContextManager;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.FileReader;
+import java.io.Reader;
+import java.io.Writer;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.annotations.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.login.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.template.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.ajax.renderer.json.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import java.util.Set;
 
 import static to.etc.domui.util.DomUtil.nullChecked;
 
@@ -66,7 +119,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 public class ApplicationRequestHandler implements IFilterRequestHandler {
 	static Logger LOG = LoggerFactory.getLogger(ApplicationRequestHandler.class);
 
-	@Nonnull
+	@NonNull
 	private final DomApplication m_application;
 
 	@Nullable
@@ -74,7 +127,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
 
-	ApplicationRequestHandler(@Nonnull final DomApplication application) {
+	ApplicationRequestHandler(@NonNull final DomApplication application) {
 		m_application = application;
 	}
 
@@ -82,12 +135,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Accept .obit, the defined DomUI extension (.ui by default) and the empty URL if a home page is set in {@link DomApplication}.
 	 * @see to.etc.domui.server.IFilterRequestHandler#accepts(to.etc.domui.server.IRequestContext)
 	 */
-	private boolean accepts(@Nonnull IRequestContext ctx) throws Exception {
+	private boolean accepts(@NonNull IRequestContext ctx) throws Exception {
 		return m_application.getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (m_application.getRootPage() != null && ctx.getInputPath().length() == 0);
 	}
 
 	@Override
-	public boolean handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
+	public boolean handleRequest(@NonNull final RequestContextImpl ctx) throws Exception {
 		if(! accepts(ctx))
 			return false;
 		ctx.getRequestResponse().setNoCache();					// All replies may not be cached at all!!
@@ -99,7 +152,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		return true;
 	}
 
-	private void handleMain(@Nonnull final RequestContextImpl ctx) throws Exception {
+	private void handleMain(@NonNull final RequestContextImpl ctx) throws Exception {
 		Class< ? extends UrlPage> runclass = decodeRunClass(ctx);
 		try {
 			runClass(ctx, runclass);
@@ -124,7 +177,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 	}
 
-	private void renderApplicationMail(@Nonnull final RequestContextImpl ctx, @Nonnull Throwable x) {
+	private void renderApplicationMail(@NonNull final RequestContextImpl ctx, @NonNull Throwable x) {
 		String s = x.getMessage();
 		if(s != null && s.contains("compilation") && s.contains("problem")) {
 			return;
@@ -133,7 +186,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		util.renderEmail(x);
 	}
 
-	private void tryRenderOopsFrame(@Nonnull final RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
+	private void tryRenderOopsFrame(@NonNull final RequestContextImpl ctx, @NonNull Throwable x) throws Exception {
 		try {
 			renderOopsFrame(ctx, x);
 		} catch(Exception oopx) {
@@ -150,8 +203,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Decide what class to run depending on the input path.
 	 */
-	@Nonnull
-	private Class< ? extends UrlPage> decodeRunClass(@Nonnull final IRequestContext ctx) {
+	@NonNull
+	private Class< ? extends UrlPage> decodeRunClass(@NonNull final IRequestContext ctx) {
 		if(ctx.getInputPath().length() == 0) {
 			/*
 			 * We need to EXECUTE the application's main class. We cannot use the .class directly
@@ -188,7 +241,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Intermediary impl; should later use interface impl on class to determine factory
 	 * to use.
 	 */
-	private void runClass(@Nonnull final RequestContextImpl ctx, @Nonnull final Class< ? extends UrlPage> clz) throws Exception {
+	private void runClass(@NonNull final RequestContextImpl ctx, @NonNull final Class< ? extends UrlPage> clz) throws Exception {
 		//		if(! UrlPage.class.isAssignableFrom(clz))
 		//			throw new IllegalStateException("Class "+clz+" is not a valid page class (does not extend "+UrlPage.class.getName()+")");
 		//		System.out.println("runClass="+clz);
@@ -198,7 +251,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 */
 		String action = ctx.getParameter(Constants.PARAM_UIACTION); 			// AJAX action request?
 		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
-		CidPair cida = cid == null ? null : CidPair.decode(cid);
+		CidPair cida = cid == null ? null : CidPair.decodeLax(cid);
 
 		if(DomUtil.USERLOG.isDebugEnabled()) {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + cid + "\nAction=" + action + "\n");
@@ -625,11 +678,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 	}
 
-	private void logUser(@Nonnull RequestContextImpl ctx, @Nullable String cid, @Nonnull String pageName, String string) {
+	private void logUser(@NonNull RequestContextImpl ctx, @Nullable String cid, @NonNull String pageName, String string) {
 		ctx.getSession().log(new UserLogItem(cid, pageName, null, null, string));
 	}
 
-	private void logUser(@Nonnull RequestContextImpl ctx, @Nonnull Page page, String string) {
+	private void logUser(@NonNull RequestContextImpl ctx, @NonNull Page page, String string) {
 		ConversationContext conversation = page.internalGetConversation();
 		String cid = conversation == null ? null : conversation.getFullId();
 		ctx.getSession().log(new UserLogItem(cid, page.getBody().getClass().getName(), null, null, string));
@@ -639,7 +692,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Handle out-of-bound component requests. These are not allowed to change the tree but must return a result
 	 * by themselves.
 	 */
-	private void runComponentAction(@Nonnull RequestContextImpl ctx, @Nonnull Page page, @Nonnull String action) throws Exception {
+	private void runComponentAction(@NonNull RequestContextImpl ctx, @NonNull Page page, @NonNull String action) throws Exception {
 		m_application.internalCallPageAction(ctx, page);
 		page.callRequestStarted();
 		try {
@@ -658,7 +711,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 	}
 
-	private void runPageData(@Nonnull RequestContextImpl ctx, @Nonnull Page page) throws Exception {
+	private void runPageData(@NonNull RequestContextImpl ctx, @NonNull Page page) throws Exception {
 		m_application.internalCallPageAction(ctx, page);
 		page.callRequestStarted();
 
@@ -689,7 +742,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Call a component's JSON request handler, and render back the result.
 	 */
-	private void runPageJson(@Nonnull RequestContextImpl ctx, @Nonnull Page page) throws Exception {
+	private void runPageJson(@NonNull RequestContextImpl ctx, @NonNull Page page) throws Exception {
 		m_application.internalCallPageAction(ctx, page);
 		page.callRequestStarted();
 
@@ -717,10 +770,10 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	final private JSONRegistry m_jsonRegistry = new JSONRegistry();
 
-	private void renderJsonLikeResponse(@Nonnull RequestContextImpl ctx, @Nonnull Object value) throws Exception {
+	private void renderJsonLikeResponse(@NonNull RequestContextImpl ctx, @NonNull Object value) throws Exception {
 		Writer w = ctx.getOutputWriter("application/javascript", "utf-8");
 		if(value instanceof String) {
 			//-- String return: we'll assume this is a javascript response by itself.
@@ -746,7 +799,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Fix for huge POST requests being resent as a get.
 	 */
-	private void redirectForPost(RequestContextImpl ctx, WindowSession cm, @Nonnull PageParameters pp) throws Exception {
+	private void redirectForPost(RequestContextImpl ctx, WindowSession cm, @NonNull PageParameters pp) throws Exception {
 		//-- Create conversation
 		ConversationContext cc = cm.createConversation(ConversationContext.class);
 		cm.acceptNewConversation(cc);
@@ -892,8 +945,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
 		ILoginDialogFactory ldf = m_application.getLoginDialogFactory();
 		if(ldf == null)
-			throw new NotLoggedInException(sb.toString()); // Force login exception.
-		String target = ldf.getLoginRURL(sb.toString()); // Create a RURL to move to.
+			throw NotLoggedInException.create(sb.toString());				// Force login exception.
+		String target = ldf.getLoginRURL(sb.toString());				// Create a RURL to move to.
 		if(target == null)
 			throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
 
@@ -902,7 +955,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		generateHttpRedirect(ctx, target, "You need to login before accessing this function");
 	}
 
-	private boolean checkRightsAnnotation(@Nonnull UrlPage body, @Nonnull UIRights rann, @Nonnull IUser user) throws Exception {
+	private boolean checkRightsAnnotation(@NonNull UrlPage body, @NonNull UIRights rann, @NonNull IUser user) throws Exception {
 		if(StringTool.isBlank(rann.dataPath())) {
 			//-- No special data context - we just check plain general rights
 			for(String right : rann.value()) {
@@ -1015,7 +1068,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * an onValueChanged listener. This list will later be used to call the change handles
 	 * on all these nodes (bug# 664).
 	 */
-	private List<NodeBase> handleComponentInput(@Nonnull final IRequestContext ctx, @Nonnull final Page page) throws Exception {
+	private List<NodeBase> handleComponentInput(@NonNull final IRequestContext ctx, @NonNull final Page page) throws Exception {
 		//-- Just walk all parameters in the input request.
 		List<NodeBase> changed = new ArrayList<>();
 		for(String name : ctx.getParameterNames()) {
@@ -1189,7 +1242,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Defines the actions that could arrive too late due to race conditions in client javascript, when target elements are already removed from DOM at server side.
 	 * It is safe to just ignore such obsoleted events, rather than giving error response.
 	 */
-	private boolean isSafeToIgnoreUnknownNodeOnAction(@Nonnull String action) {
+	private boolean isSafeToIgnoreUnknownNodeOnAction(@NonNull String action) {
 		return (Constants.ACMD_LOOKUP_TYPING.equals(action) || Constants.ACMD_LOOKUP_TYPING_DONE.equals(action) || Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action));
 	}
 
@@ -1273,7 +1326,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/*	CODING:	If a page failed, show a neater response.			*/
 	/*--------------------------------------------------------------*/
 
-	private void renderOopsFrame(@Nonnull RequestContextImpl ctx, @Nonnull Throwable x) throws Exception {
+	private void renderOopsFrame(@NonNull RequestContextImpl ctx, @NonNull Throwable x) throws Exception {
 		x.printStackTrace();
 		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
@@ -1312,7 +1365,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		w.close();
 	}
 
-	@Nonnull
+	@NonNull
 	public JSTemplate getExceptionTemplate() throws Exception {
 		JSTemplate xt = m_exceptionTemplate;
 		if(xt == null) {
@@ -1332,7 +1385,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		return xt;
 	}
 
-	static private void dumpException(@Nonnull StringBuilder a, @Nonnull Throwable x) {
+	static private void dumpException(@NonNull StringBuilder a, @NonNull Throwable x) {
 		Set<String> allset = new HashSet<>();
 		StackTraceElement[] ssear = x.getStackTrace();
 		for(StackTraceElement sse : ssear) {
@@ -1353,7 +1406,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 	}
 
-	static private void dumpSingle(@Nonnull StringBuilder sb, @Nonnull Throwable x, @Nonnull Set<String> initset) {
+	static private void dumpSingle(@NonNull StringBuilder sb, @NonNull Throwable x, @NonNull Set<String> initset) {
 		//-- Try to render openable stack trace elements as links.
 		List<StackTraceElement> list = Arrays.asList(x.getStackTrace());
 
@@ -1386,7 +1439,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 
-	private static int findName(@Nonnull List<StackTraceElement> list, String name) {
+	private static int findName(@NonNull List<StackTraceElement> list, String name) {
 		for(int i = list.size(); --i >= 0;) {
 			String cn = list.get(i).getClassName();
 			if(name.equals(cn))
@@ -1395,11 +1448,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		return -1;
 	}
 
-	private static List<StackTraceElement> stripFrames(@Nonnull List<StackTraceElement> list, int from) {
+	private static List<StackTraceElement> stripFrames(@NonNull List<StackTraceElement> list, int from) {
 		return list.subList(0, from - 1);
 	}
 
-	private static void appendTraceLink(@Nonnull StringBuilder sb, @Nonnull StackTraceElement ste) {
+	private static void appendTraceLink(@NonNull StringBuilder sb, @NonNull StackTraceElement ste) {
 		sb.append("        <a class='exc-stk-l' href=\"#\" onclick=\"linkClicked('");
 		//-- Get name for the thingy,
 		String name;

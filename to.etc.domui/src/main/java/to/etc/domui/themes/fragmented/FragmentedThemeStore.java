@@ -24,14 +24,19 @@
  */
 package to.etc.domui.themes.fragmented;
 
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.StyleException;
+import to.etc.domui.themes.ThemeResourceFactory;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.resources.ByteArrayResourceRef;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencies;
 
-import javax.annotation.*;
-import java.io.*;
-import java.util.*;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * This contains the results for a fragmented theme.
@@ -61,11 +66,11 @@ public class FragmentedThemeStore implements ITheme {
 		m_themeName = themeName;
 	}
 
-	@Nonnull @Override public String getThemeName() {
+	@NonNull @Override public String getThemeName() {
 		return m_themeName;
 	}
 
-	@Nonnull @Override public String getStyleSheetName() {
+	@NonNull @Override public String getStyleSheetName() {
 		return ThemeResourceFactory.PREFIX + m_themeName + "/style.theme.css";
 	}
 
@@ -74,18 +79,18 @@ public class FragmentedThemeStore implements ITheme {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public ResourceDependencies getDependencies() {
 		return m_dependencies;
 	}
 
 	@Override
-	public @Nonnull IScriptScope getPropertyScope() {
+	public @NonNull IScriptScope getPropertyScope() {
 		return m_propertyScope;
 	}
 
 	@Override
-	public @Nonnull String translateResourceName(@Nonnull String name) {
+	public @NonNull String translateResourceName(@NonNull String name) {
 		try {
 			IScriptScope ss = getPropertyScope().getValue(IScriptScope.class, "icon");
 			if(null == ss)
@@ -104,8 +109,8 @@ public class FragmentedThemeStore implements ITheme {
 	 * @see to.etc.domui.themes.ITheme#getThemeResource(java.lang.String, to.etc.domui.util.resources.IResourceDependencyList)
 	 */
 	@Override
-	@Nonnull
-	public IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+	@NonNull
+	public IResourceRef getThemeResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
 		//-- Are we looking for the root stylesheet? We have that as the expanded fragments...
 		if("style.theme.css".equals(name)) {
 			byte[] data = getStyleSheetBytes();

@@ -1,14 +1,25 @@
 package to.etc.dbutil.schema;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.dbutil.reverse.IExec;
+import to.etc.dbutil.reverse.Reverser;
+import to.etc.util.FileTool;
+
+import java.io.Serializable;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.annotation.*;
-
-import to.etc.dbutil.reverse.*;
-import to.etc.util.*;
+import java.util.Set;
 
 /**
  * A database table.
@@ -17,7 +28,7 @@ import to.etc.util.*;
  * Created on Dec 22, 2006
  */
 public class DbTable implements Serializable {
-	@Nonnull
+	@NonNull
 	final private DbSchema m_schema;
 
 	@Nullable
@@ -59,7 +70,7 @@ public class DbTable implements Serializable {
 		m_name = name;
 	}
 
-	@Nonnull
+	@NonNull
 	public Reverser r() {
 		return m_schema.getReverser();
 	}
@@ -131,13 +142,13 @@ public class DbTable implements Serializable {
 	 * Return the relations that I am a <i>parent</i> in.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public List<DbRelation> getParentRelationList() {
 		initParentRelationList();
 		return m_parentRelationList;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<DbRelation> internalGetParentRelationList() {
 		return m_parentRelationList;
 	}
@@ -145,7 +156,7 @@ public class DbTable implements Serializable {
 	 * Return the relations that I am a <i>child</i> in.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public List<DbRelation> getChildRelationList() {
 		initChildRelationList();
 		return m_childRelationList;
@@ -155,12 +166,12 @@ public class DbTable implements Serializable {
 	 * Return the relations that I am a <i>child</i> in.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public List<DbRelation> internalGetChildRelationList() {
 		return m_childRelationList;
 	}
 
-	@Nonnull
+	@NonNull
 	public Map<String, DbColumn> getColumnMap() {
 		initColumns();
 		return m_columnMap;
@@ -216,7 +227,7 @@ public class DbTable implements Serializable {
 			if(!m_gotRecordCount) {
 				r().lazy(new IExec() {
 					@Override
-					public void exec(@Nonnull Connection dbc) throws Exception {
+					public void exec(@NonNull Connection dbc) throws Exception {
 						PreparedStatement ps = null;
 						ResultSet rs = null;
 						try {
@@ -247,7 +258,7 @@ public class DbTable implements Serializable {
 		return c;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<DbColumn> getColumnList() {
 		initColumns();
 		if(null != m_columnList)
@@ -255,7 +266,7 @@ public class DbTable implements Serializable {
 		throw new IllegalStateException("Columns not initialized");
 	}
 
-	@Nonnull
+	@NonNull
 	public synchronized List<DbColumn> getColumnListSorted() {
 		List<DbColumn> sc = m_sortedColumns;
 		if(sc == null) {
@@ -397,7 +408,7 @@ public class DbTable implements Serializable {
 		return m_schema.getName() + "." + getName();
 	}
 
-	public void initializeColumns(@Nonnull List<DbColumn> columnList, @Nonnull Map<String, DbColumn> columnMap) {
+	public void initializeColumns(@NonNull List<DbColumn> columnList, @NonNull Map<String, DbColumn> columnMap) {
 		m_columnList = columnList;
 		m_columnMap = columnMap;
 	}

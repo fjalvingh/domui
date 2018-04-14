@@ -1,20 +1,29 @@
 package to.etc.json;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.ClassUtil;
+import to.etc.util.PropertyInfo;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 public class JsonTypeRegistry {
 	static private class Entry {
 		final private int m_order;
 
-		@Nonnull
+		@NonNull
 		final private IJsonTypeFactory m_factory;
 
-		public Entry(int order, @Nonnull IJsonTypeFactory factory) {
+		public Entry(int order, @NonNull IJsonTypeFactory factory) {
 			m_order = order;
 			m_factory = factory;
 		}
@@ -23,7 +32,7 @@ public class JsonTypeRegistry {
 			return m_order;
 		}
 
-		@Nonnull
+		@NonNull
 		public IJsonTypeFactory getFactory() {
 			return m_factory;
 		}
@@ -54,12 +63,12 @@ public class JsonTypeRegistry {
 //		register(1000, new JsonFactory());
 	}
 
-	public synchronized void register(int order, @Nonnull IJsonTypeFactory factory) {
+	public synchronized void register(int order, @NonNull IJsonTypeFactory factory) {
 		m_list.add(new Entry(order, factory));
 	}
 
 	@Nullable
-	public synchronized ITypeMapping findFactory(@Nonnull Class< ? > typeClass, @Nullable Type type) {
+	public synchronized ITypeMapping findFactory(@NonNull Class< ? > typeClass, @Nullable Type type) {
 		for(Entry e: m_list) {
 			ITypeMapping mapper = e.getFactory().createMapper(this, typeClass, type);
 			if(null != mapper)
@@ -71,7 +80,7 @@ public class JsonTypeRegistry {
 	static private Set<String> IGNORESET = new HashSet<String>(Arrays.asList("class"));
 
 	@Nullable
-	public synchronized <T> ITypeMapping createMapping(@Nonnull Class<T> clz, @Nullable Type type) {
+	public synchronized <T> ITypeMapping createMapping(@NonNull Class<T> clz, @Nullable Type type) {
 		ITypeMapping cm = m_classMap.get(clz);
 		if(null != cm)
 			return cm;
@@ -101,7 +110,7 @@ public class JsonTypeRegistry {
 	}
 
 	@Nullable
-	private <T> PropertyMapping createPropertyMapper(@Nonnull Class<T> type, @Nonnull PropertyInfo pi) {
+	private <T> PropertyMapping createPropertyMapper(@NonNull Class<T> type, @NonNull PropertyInfo pi) {
 		try {
 			ITypeMapping pm = createMapping(pi.getActualType(), pi.getActualGenericType());
 			if(null == pm)

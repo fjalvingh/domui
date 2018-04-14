@@ -24,7 +24,7 @@
  */
 package to.etc.domui.databinding.value;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 /**
  * The old/new value pair for a change.

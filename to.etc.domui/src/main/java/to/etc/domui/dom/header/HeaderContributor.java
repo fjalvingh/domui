@@ -24,9 +24,9 @@
  */
 package to.etc.domui.dom.header;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.IContributorRenderer;
 
-import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,9 +65,9 @@ abstract public class HeaderContributor {
 	@Override
 	abstract public boolean equals(final Object obj);
 
-	@Nonnull
-	static synchronized public HeaderContributor loadJavascript(final String name) {
-		HeaderContributor c = m_jsMap.get(name);
+	@NonNull
+	static synchronized public JavascriptContributor loadJavascript(final String name) {
+		JavascriptContributor c = (JavascriptContributor) m_jsMap.get(name);
 		if(c == null) {
 			c = new JavascriptContributor(name);
 			m_jsMap.put(name, c);
@@ -75,7 +75,7 @@ abstract public class HeaderContributor {
 		return c;
 	}
 
-	@Nonnull
+	@NonNull
 	static synchronized public HeaderContributor loadJavaScriptlet(final String name) {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {

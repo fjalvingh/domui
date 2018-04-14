@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.form;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.controlfactory.ControlFactoryResult;
 import to.etc.domui.component.controlfactory.DisplayOnlyPropertyBinding;
 import to.etc.domui.component.controlfactory.IModelBinding;
@@ -37,8 +38,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.IReadOnlyModel;
 import to.etc.webapp.query.QField;
-
-import javax.annotation.Nonnull;
 
 /**
  * Deprecated: use {@link to.etc.domui.component2.form4.FormBuilder}.
@@ -73,7 +72,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * of the item added here.
 	 * @param item
 	 */
-	public void addContent(@Nonnull NodeBase item) {
+	public void addContent(@NonNull NodeBase item) {
 		addContent(null, new NodeBase[]{item}, false);
 	}
 
@@ -170,7 +169,7 @@ abstract public class GenericFormBuilder extends FormBuilderBase {
 	 * @param editable When false this adds a display-only field, when true a fully editable control.
 	 * @param mandatory Specify if field is mandatory. This <b>always</b> overrides the mandatoryness of the metadata which is questionable.
 	 */
-	@Nonnull
+	@NonNull
 	public <C> IControl<C> addProp(final String name, String label, final boolean editable, final boolean mandatory) {
 		PropertyMetaModel<C> pmm = (PropertyMetaModel<C>) resolveProperty(name);
 

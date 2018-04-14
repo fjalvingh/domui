@@ -1,9 +1,13 @@
 package to.etc.util;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.Iterator;
 
 public class LineIterator implements Iterable<String>, Iterator<String> {
 	private LineNumberReader m_reader;
@@ -24,7 +28,7 @@ public class LineIterator implements Iterable<String>, Iterator<String> {
 			m_reader = new LineNumberReader(r);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Iterator<String> iterator() {
 		return this;

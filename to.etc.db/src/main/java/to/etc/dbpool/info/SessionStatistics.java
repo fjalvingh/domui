@@ -24,9 +24,10 @@
  */
 package to.etc.dbpool.info;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Collects statistics inside a http session, for debugging purposes. This stores most of the data for the

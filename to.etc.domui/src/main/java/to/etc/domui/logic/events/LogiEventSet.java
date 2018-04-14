@@ -1,11 +1,14 @@
 package to.etc.domui.logic.events;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.webapp.eventmanager.ChangeType;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.webapp.eventmanager.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A builder class which is used to create the logic events set. It builds a single event structure which
@@ -21,21 +24,21 @@ public class LogiEventSet {
 
 	private int m_pathIndex;
 
-	@Nonnull
+	@NonNull
 	final private List<LogiEventBase> m_allEvents = new ArrayList<LogiEventBase>();
 
-	@Nonnull
+	@NonNull
 	final private Map<Object, LogiEventInstanceChange> m_instanceEventMap = new HashMap<Object, LogiEventInstanceChange>();
 
-	public void addRootInstanceRemoved(@Nonnull Object root, @Nonnull Object rootCopy) {
+	public void addRootInstanceRemoved(@NonNull Object root, @NonNull Object rootCopy) {
 	}
 
-	public void addRootInstanceAdded(@Nonnull Object root) {
+	public void addRootInstanceAdded(@NonNull Object root) {
 		getInstance(ChangeType.ADDED, root);
 	}
 
-	@Nonnull
-	private LogiEventInstanceChange getInstance(@Nonnull ChangeType ct, @Nonnull Object inst) {
+	@NonNull
+	private LogiEventInstanceChange getInstance(@NonNull ChangeType ct, @NonNull Object inst) {
 		LogiEventInstanceChange ic = m_instanceEventMap.get(inst);
 		if(null == ic) {
 			ic = new LogiEventInstanceChange(ct, m_path_sb.toString(), inst);
@@ -53,7 +56,7 @@ public class LogiEventSet {
 	 * @param sourceval
 	 * @param copyval
 	 */
-	public <T, P> void propertyChange(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nullable T copy, @Nullable P sourceval, @Nullable P copyval) {
+	public <T, P> void propertyChange(@NonNull PropertyMetaModel<P> pmm, @NonNull T source, @Nullable T copy, @Nullable P sourceval, @Nullable P copyval) {
 		LogiEventInstanceChange ic = getInstance(ChangeType.MODIFIED, source);
 		enter();
 		appendPath(pmm.getName());
@@ -63,7 +66,7 @@ public class LogiEventSet {
 		leave();
 	}
 
-	public <T, P> void addCollectionClear(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nullable T copy, @Nullable P sourceval, @Nullable P copyval) {
+	public <T, P> void addCollectionClear(@NonNull PropertyMetaModel<P> pmm, @NonNull T source, @Nullable T copy, @Nullable P sourceval, @Nullable P copyval) {
 		enter();
 		appendPath(pmm.getName());
 		LogiEventListDelta<T, P, Object> ld = new LogiEventListDelta<T, P, Object>(m_path_sb.toString(), source, pmm, -1, null, ListDeltaType.CLEAR);
@@ -71,7 +74,7 @@ public class LogiEventSet {
 		leave();
 	}
 
-	public <T, P> void addCollectionDelete(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nullable T copy, int collectionIndex, @Nullable Object sourceCollectionInstanceEntry) {
+	public <T, P> void addCollectionDelete(@NonNull PropertyMetaModel<P> pmm, @NonNull T source, @Nullable T copy, int collectionIndex, @Nullable Object sourceCollectionInstanceEntry) {
 		enter();
 		appendPath(pmm.getName());
 		LogiEventListDelta<T, P, Object> ld = new LogiEventListDelta<T, P, Object>(m_path_sb.toString(), source, pmm, collectionIndex, sourceCollectionInstanceEntry, ListDeltaType.DELETE);
@@ -79,7 +82,7 @@ public class LogiEventSet {
 		leave();
 	}
 
-	public <T, P> void addCollectionAdd(@Nonnull PropertyMetaModel<P> pmm, @Nonnull T source, @Nullable T copy, int collectionIndex, @Nullable Object sourceCollectionInstanceEntry) {
+	public <T, P> void addCollectionAdd(@NonNull PropertyMetaModel<P> pmm, @NonNull T source, @Nullable T copy, int collectionIndex, @Nullable Object sourceCollectionInstanceEntry) {
 		enter();
 		appendPath(pmm.getName());
 		LogiEventListDelta<T, P, Object> ld = new LogiEventListDelta<T, P, Object>(m_path_sb.toString(), source, pmm, collectionIndex, sourceCollectionInstanceEntry, ListDeltaType.INSERT);
@@ -120,7 +123,7 @@ public class LogiEventSet {
 		leave();
 	}
 
-	protected void dump(@Nonnull Appendable a) throws Exception {
+	protected void dump(@NonNull Appendable a) throws Exception {
 		a.append("eventSet[\n");
 		for(LogiEventBase lb : m_allEvents) {
 			lb.dump(a);
@@ -128,7 +131,7 @@ public class LogiEventSet {
 		a.append("]");
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

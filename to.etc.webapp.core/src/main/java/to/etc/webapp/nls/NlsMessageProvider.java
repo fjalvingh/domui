@@ -24,9 +24,10 @@
  */
 package to.etc.webapp.nls;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.Locale;
 
 /**
  * Something which can provide a message for a given code and locale.
@@ -46,5 +47,5 @@ public interface NlsMessageProvider {
 	 * @return
 	 */
 	@Nullable
-	String findMessage(@Nonnull Locale loc, @Nonnull String code);
+	String findMessage(@NonNull Locale loc, @NonNull String code);
 }

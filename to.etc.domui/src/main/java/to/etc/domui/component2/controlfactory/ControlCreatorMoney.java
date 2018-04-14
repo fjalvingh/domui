@@ -24,13 +24,13 @@
  */
 package to.etc.domui.component2.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 
 /**
@@ -61,7 +61,7 @@ public class ControlCreatorMoney implements IControlCreator {
 	 * Create a Text control with the basic monetary converter, or the proper converter for the specified type.
 	 */
 	@Override
-	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		Text2<T> txt;
 		if(pmm.getActualType() == Double.class || pmm.getActualType() == double.class) {
 			txt = (Text2<T>) Text2.createDoubleMoneyInput((PropertyMetaModel<Double>) pmm, true);

@@ -24,10 +24,9 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-@Immutable
+//@Immutable
 public class QLiteral extends QOperatorNode {
 	private Object m_value;
 
@@ -46,7 +45,7 @@ public class QLiteral extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitLiteral(this);
 	}
 }

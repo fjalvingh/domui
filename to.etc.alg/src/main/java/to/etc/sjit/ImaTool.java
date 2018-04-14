@@ -24,15 +24,23 @@
  */
 package to.etc.sjit;
 
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.FileTool;
+import to.etc.util.NullOutputStream;
 
-import javax.annotation.*;
-import javax.imageio.*;
-import javax.imageio.stream.*;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
-import java.awt.image.*;
-import java.io.*;
-import java.util.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Iterator;
 
 /**
  * This static utility class has a lot of image-related helper functions.
@@ -536,7 +544,7 @@ public class ImaTool {
 	}
 
 	@Nullable
-	static public Dimension getImageDimension(@Nonnull InputStream is) throws IOException {
+	static public Dimension getImageDimension(@NonNull InputStream is) throws IOException {
 		try(ImageInputStream in = ImageIO.createImageInputStream(is)) {
 			return getDimension(in);
 		}

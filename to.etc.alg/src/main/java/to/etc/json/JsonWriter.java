@@ -1,23 +1,25 @@
 package to.etc.json;
 
-import java.io.*;
-import java.lang.reflect.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.IndentWriter;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.io.IOException;
+import java.io.Writer;
+import java.lang.reflect.Type;
 
 public class JsonWriter extends Writer {
-	@Nonnull
+	@NonNull
 	final private Writer m_writer;
 
-	@Nonnull
+	@NonNull
 	final private JsonTypeRegistry m_registry;
 
 	@Nullable
 	private IndentWriter m_iw;
 
-	public JsonWriter(@Nonnull Writer writer, @Nonnull JsonTypeRegistry registry) {
+	public JsonWriter(@NonNull Writer writer, @NonNull JsonTypeRegistry registry) {
 		m_writer = writer;
 		m_registry = registry;
 
@@ -41,7 +43,7 @@ public class JsonWriter extends Writer {
 		m_writer.write(cbuf, off, len);
 	}
 
-	public void writeNumber(@Nonnull Number value) throws Exception {
+	public void writeNumber(@NonNull Number value) throws Exception {
 		m_writer.append(value.toString());
 	}
 

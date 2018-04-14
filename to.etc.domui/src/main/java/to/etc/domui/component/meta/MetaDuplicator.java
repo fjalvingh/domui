@@ -1,8 +1,8 @@
 package to.etc.domui.component.meta;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
-@DefaultNonNull
+@NonNullByDefault
 public class MetaDuplicator<T> extends MetaObjectCopyBase<T> {
 	public MetaDuplicator(T source) {
 		super(source, Mode.SHALLOW);

@@ -24,18 +24,57 @@
  */
 package to.etc.domui.dom;
 
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.misc.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.misc.LiteralXhtml;
 import to.etc.domui.dom.css.DisplayType;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.FileInput;
+import to.etc.domui.dom.html.Form;
+import to.etc.domui.dom.html.HTag;
+import to.etc.domui.dom.html.IForTarget;
+import to.etc.domui.dom.html.IFrame;
+import to.etc.domui.dom.html.INativeChangeListener;
+import to.etc.domui.dom.html.INodeVisitor;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.Input;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.Li;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Para;
+import to.etc.domui.dom.html.Pre;
+import to.etc.domui.dom.html.RadioButton;
+import to.etc.domui.dom.html.Select;
+import to.etc.domui.dom.html.SelectOption;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TH;
+import to.etc.domui.dom.html.THead;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.dom.html.Ul;
+import to.etc.domui.dom.html.Underline;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.html.XmlTextNode;
+import to.etc.domui.parts.GrayscalerPart;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IDragHandler;
+import to.etc.domui.util.IDraggable;
+import to.etc.domui.util.IDropHandler;
+import to.etc.domui.util.IDropTargetable;
+import to.etc.domui.util.UIDragDropUtil;
+import to.etc.util.StringTool;
+
+import java.io.IOException;
+import java.util.List;
 
 /**
  * Basic, mostly standard-compliant handler for rendering HTML tags.
@@ -566,7 +605,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		return a.toString();
 	}
 
-	static private void renderBorderIf(@Nonnull Appendable a, @Nullable String border) throws IOException {
+	static private void renderBorderIf(@NonNull Appendable a, @Nullable String border) throws IOException {
 		if(StringTool.isBlank(border))
 			return;
 		a.append("border:").append(border).append(";");

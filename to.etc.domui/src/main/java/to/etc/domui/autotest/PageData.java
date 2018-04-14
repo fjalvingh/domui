@@ -1,10 +1,14 @@
 package to.etc.domui.autotest;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Collection of all that is known for the page, by scanning all it's nodes.
@@ -15,25 +19,25 @@ import to.etc.domui.dom.html.*;
 public class PageData {
 	static private final Set<String> INPUTTAGS = new HashSet<String>(Arrays.asList("input", "select", "textarea"));
 
-	@Nonnull
+	@NonNull
 	private final List<NodeBase> m_clickTargets = new ArrayList<NodeBase>();
 
-	@Nonnull
+	@NonNull
 	private final List<NodeBase> m_baseInputs = new ArrayList<NodeBase>();
 
-	@Nonnull
+	@NonNull
 	final private Page m_page;
 
-	public PageData(@Nonnull Page page) {
+	public PageData(@NonNull Page page) {
 		m_page = page;
 	}
 
-	@Nonnull
+	@NonNull
 	public Page getPage() {
 		return m_page;
 	}
 
-	public void checkNode(@Nonnull NodeBase node) {
+	public void checkNode(@NonNull NodeBase node) {
 		if(node.getClicked() != null)
 			m_clickTargets.add(node);
 
@@ -44,12 +48,12 @@ public class PageData {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	public List<NodeBase> getClickTargets() {
 		return m_clickTargets;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<NodeBase> getBaseInputs() {
 		return m_baseInputs;
 	}

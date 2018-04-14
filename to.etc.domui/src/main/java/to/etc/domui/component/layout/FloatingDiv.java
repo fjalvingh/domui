@@ -24,14 +24,16 @@
  */
 package to.etc.domui.component.layout;
 
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.image.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.image.Dimension;
+import to.etc.domui.dom.css.PositionType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
 
 /**
  * The base class for all floating thingeries (new style).
@@ -82,30 +84,30 @@ public class FloatingDiv extends Div {
 		setDimensions(widthinpx, heightinpx);
 	}
 
-	@Nonnull
+	@NonNull
 	public FloatingDiv size(int width, int height) {
 		setDimensions(width, height);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public FloatingDiv resizable() {
 		m_resizable = true;
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public FloatingDiv modal(boolean yes) {
 		m_modal = yes;
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public FloatingDiv modal() {
 		return modal(true);
 	}
 
-	@Nonnull
+	@NonNull
 	public FloatingDiv width(int pxsl) {
 		setWidth(pxsl + "px");
 		return this;
@@ -269,7 +271,7 @@ public class FloatingDiv extends Div {
 	 * @param reasonCode
 	 * @throws Exception
 	 */
-	final protected void callCloseHandler(@Nonnull String closeReason) throws Exception {
+	final protected void callCloseHandler(@NonNull String closeReason) throws Exception {
 		if(null == closeReason)
 			throw new IllegalArgumentException("Close reason cannot be null");
 		onClosed(closeReason);
@@ -283,7 +285,7 @@ public class FloatingDiv extends Div {
 	 * @param closeReason
 	 * @throws Exception
 	 */
-	protected void onClosed(@Nonnull String closeReason) throws Exception {}
+	protected void onClosed(@NonNull String closeReason) throws Exception {}
 
 	/**
 	 * Close the window !AND CALL THE CLOSE HANDLER!. To close the window without calling
@@ -301,7 +303,7 @@ public class FloatingDiv extends Div {
 	 * Close this floater and cause it to be destroyed from the UI without calling the
 	 * close handler. To call the close handler use {@link #closePressed()}.
 	 */
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	public void close() {
 		reactivateHiddenAccessKeys();
 		remove();
@@ -312,7 +314,7 @@ public class FloatingDiv extends Div {
 	 * the surrounding dialog.
 	 * @param node
 	 */
-	public static void close(@Nonnull NodeBase node) {
+	public static void close(@NonNull NodeBase node) {
 		while(! (node instanceof FloatingDiv)) {
 			if(node == null)
 				return;
@@ -375,7 +377,7 @@ public class FloatingDiv extends Div {
 	 * @see to.etc.domui.dom.html.NodeBase#setOnSizeAndPositionChange()
 	 */
 	@Override
-	public final void setOnSizeAndPositionChange(@Nonnull INotify<NodeBase> onSizeAndPositionChange) {
+	public final void setOnSizeAndPositionChange(@NonNull INotify<NodeBase> onSizeAndPositionChange) {
 		super.setOnSizeAndPositionChange(onSizeAndPositionChange);
 	}
 }

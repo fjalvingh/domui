@@ -1,16 +1,17 @@
 package to.etc.domui.parts;
 
-import java.awt.*;
-import java.awt.image.*;
-
-import javax.annotation.*;
-import javax.imageio.*;
-
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.parts.GrayscalerPart.Key;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.parts.IBufferedPartFactory;
+import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.util.StringTool;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  * This part creates a grayscaled version of an image passed. The image can come from a theme. It's main usage is
@@ -26,17 +27,17 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 
 	static public final class Key {
 
-		@Nonnull
+		@NonNull
 		final private String m_icon;
 
 		final private boolean m_sprite;
 
-		public Key(@Nonnull String icon, boolean isSprite) {
+		public Key(@NonNull String icon, boolean isSprite) {
 			m_icon = icon;
 			m_sprite = isSprite;
 		}
 
-		@Nonnull
+		@NonNull
 		public String getIcon() {
 			return m_icon;
 		}
@@ -75,8 +76,8 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 	}
 
 	@Override
-	@Nonnull
-	public Key decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
+	@NonNull
+	public Key decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
 		String icon = param.getParameter("icon");
 		if(null == icon)
 			throw new IllegalStateException("Missing icon parameter");
@@ -87,7 +88,7 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Key k, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull Key k, @NonNull IResourceDependencyList rdl) throws Exception {
 		BufferedImage bi = PartUtil.loadImage(da, k.getIcon(), rdl);
 
 		if(k.isSprite())
@@ -100,13 +101,13 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 		pr.setCacheTime(da.getDefaultExpiryTime());
 	}
 
-	@Nonnull
-	private BufferedImage prepareImage(@Nonnull BufferedImage image) {
+	@NonNull
+	private BufferedImage prepareImage(@NonNull BufferedImage image) {
 		convertToGrayscale(image);
 		return image;
 	}
 
-	@Nonnull
+	@NonNull
 	private BufferedImage prepareSpriteImage(BufferedImage image) {
 		BufferedImage sprite = new BufferedImage(image.getWidth(), 2 * image.getHeight(), BufferedImage.TYPE_INT_ARGB);
 		Graphics2D g2 = sprite.createGraphics();
@@ -145,8 +146,8 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 	 * @param icon
 	 * @return
 	 */
-	@Nonnull
-	public static String getURL(@Nonnull String icon) {
+	@NonNull
+	public static String getURL(@NonNull String icon) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(GrayscalerPart.class.getName()).append(".part?icon=");
 		StringTool.encodeURLEncoded(sb, icon);
@@ -159,8 +160,8 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 	 * @param icon
 	 * @return
 	 */
-	@Nonnull
-	public static String getSpriteURL(@Nonnull String icon) {
+	@NonNull
+	public static String getSpriteURL(@NonNull String icon) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(GrayscalerPart.class.getName()).append(".part?sprite=true&icon=");
 		StringTool.encodeURLEncoded(sb, icon);

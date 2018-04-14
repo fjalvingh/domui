@@ -1,12 +1,12 @@
 package to.etc.util;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.io.File;
 
 public interface IDirectoryDelta {
 
-	void fileAdded(@Nonnull File b, @Nonnull File a, @Nonnull String relpath) throws Exception;
+	void fileAdded(@NonNull File b, @NonNull File a, @NonNull String relpath) throws Exception;
 
 	/**
 	 * The directory "b" was added, and did not exist in "a". Return
@@ -18,9 +18,9 @@ public interface IDirectoryDelta {
 	 * @param relpath
 	 * @return
 	 */
-	boolean directoryAdded(@Nonnull File b, @Nonnull File a, @Nonnull String relpath) throws Exception;
+	boolean directoryAdded(@NonNull File b, @NonNull File a, @NonNull String relpath) throws Exception;
 
-	void fileDeleted(@Nonnull File b, @Nonnull File a, @Nonnull String relpath) throws Exception;
+	void fileDeleted(@NonNull File b, @NonNull File a, @NonNull String relpath) throws Exception;
 
 	/**
 	 * Mark directory "b" as deleted (it exists as "a"). Return true
@@ -31,7 +31,7 @@ public interface IDirectoryDelta {
 	 * @param relpath
 	 * @return
 	 */
-	boolean directoryDeleted(@Nonnull File b, @Nonnull File a, @Nonnull String relpath) throws Exception;
+	boolean directoryDeleted(@NonNull File b, @NonNull File a, @NonNull String relpath) throws Exception;
 
 	/**
 	 * Called when a and b both contain the same-named file. You can add
@@ -40,6 +40,6 @@ public interface IDirectoryDelta {
 	 * @param a
 	 * @param relpath
 	 */
-	void compareFiles(@Nonnull File b, @Nonnull File a, @Nonnull String relpath) throws Exception;
+	void compareFiles(@NonNull File b, @NonNull File a, @NonNull String relpath) throws Exception;
 
 }

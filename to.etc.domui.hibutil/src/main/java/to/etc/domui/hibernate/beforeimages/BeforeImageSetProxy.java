@@ -1,8 +1,11 @@
 package to.etc.domui.hibernate.beforeimages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 class BeforeImageSetProxy<T> implements Set<T>, IBeforeImageCollectionProxy<Set<T>> {
 	private Set<T> m_set;
@@ -12,13 +15,13 @@ class BeforeImageSetProxy<T> implements Set<T>, IBeforeImageCollectionProxy<Set<
 			throw new QBeforeCollectionNotLoadedException("The before image for this collection is not loaded because the original was not.");
 	}
 
-	@Nonnull
+	@NonNull
 	private RuntimeException immutable() {
 		throw new IllegalStateException("Attempt to change an immutable collection");
 	}
 
 	@Override
-	public void initializeFromOriginal(@Nonnull Set<T> source) {
+	public void initializeFromOriginal(@NonNull Set<T> source) {
 		m_set = new HashSet<T>(source);
 	}
 

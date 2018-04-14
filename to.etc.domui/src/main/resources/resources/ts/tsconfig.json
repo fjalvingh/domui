@@ -38,6 +38,7 @@
     , "domui.webui.ts"
     , "domui.webui.util.ts"
     , "domui.packets.ts"
+    , "domui.auth.ts"
     , "domui.main.ts"
     ]
 }

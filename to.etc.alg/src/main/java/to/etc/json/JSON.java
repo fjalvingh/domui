@@ -1,9 +1,12 @@
 package to.etc.json;
 
-import java.io.*;
-import java.lang.reflect.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.Type;
 
 /**
  * Shared accessor to handle JSON marshalling/unmarshalling.
@@ -12,36 +15,36 @@ import javax.annotation.*;
  * Created on Oct 18, 2013
  */
 final public class JSON {
-	@Nonnull
+	@NonNull
 	static private JsonTypeRegistry m_registry = new JsonTypeRegistry();
 
 	private JSON() {}
 
-	@Nonnull
+	@NonNull
 	public static JsonTypeRegistry getRegistry() {
 		return m_registry;
 	}
 
-	static public <T> T decode(@Nonnull Class<T> typeClass, @Nonnull Reader input) throws Exception {
+	static public <T> T decode(@NonNull Class<T> typeClass, @NonNull Reader input) throws Exception {
 		JsonReader reader = new JsonReader("input", input, m_registry);
 		return reader.parse(typeClass, null);
 	}
 
-	static public <T> T decode(@Nonnull Class<T> typeClass, @Nonnull Type type, @Nonnull Reader input) throws Exception {
+	static public <T> T decode(@NonNull Class<T> typeClass, @NonNull Type type, @NonNull Reader input) throws Exception {
 		JsonReader reader = new JsonReader("input", input, m_registry);
 		return reader.parse(typeClass, type);
 	}
 
-	static public <T> void render(@Nonnull Writer writer, @Nullable T instance) throws Exception {
+	static public <T> void render(@NonNull Writer writer, @Nullable T instance) throws Exception {
 		render(writer, instance, null);
 	}
 
-	static public <T> void render(@Nonnull Writer writer, @Nullable T instance, @Nullable Type fullType) throws Exception {
+	static public <T> void render(@NonNull Writer writer, @Nullable T instance, @Nullable Type fullType) throws Exception {
 		JsonWriter w = (writer instanceof JsonWriter ? (JsonWriter) writer : new JsonWriter(writer, m_registry));
 		w.render(instance, fullType);
 	}
 
-	@Nonnull
+	@NonNull
 	static public <T> String render(@Nullable T instance, @Nullable Type fullType) throws Exception {
 		StringWriter sw = new StringWriter();
 		JsonWriter w = new JsonWriter(sw, m_registry);
@@ -49,7 +52,7 @@ final public class JSON {
 		return sw.getBuffer().toString();
 	}
 
-	@Nonnull
+	@NonNull
 	static public <T> String render(@Nullable T instance) throws Exception {
 		return render(instance, null);
 	}

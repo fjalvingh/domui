@@ -1,12 +1,17 @@
 package to.etc.domui.log.tailer;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.IConversationStateListener;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.state.*;
-import to.etc.util.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This will run a "tail -f xxxx" operation through an ssh session to a remote system. The ssh session
@@ -21,7 +26,7 @@ import to.etc.util.*;
  */
 public class LogTailerTask implements IConversationStateListener {
 	/** The path of the tailed file on server. */
-	@Nonnull
+	@NonNull
 	final private String m_logpath;
 
 	/** Writer: offsets of every 100th line (0, 100, 200, etc) */
@@ -41,7 +46,7 @@ public class LogTailerTask implements IConversationStateListener {
 
 	private String m_errorMsg = null;
 
-	public LogTailerTask(@Nonnull String logpath) {
+	public LogTailerTask(@NonNull String logpath) {
 		m_logpath = logpath;
 	}
 
@@ -183,16 +188,16 @@ public class LogTailerTask implements IConversationStateListener {
 	/*--------------------------------------------------------------*/
 
 	@Override
-	public void conversationNew(@Nonnull ConversationContext cc) throws Exception {}
+	public void conversationNew(@NonNull ConversationContext cc) throws Exception {}
 
 	@Override
-	public void conversationAttached(@Nonnull ConversationContext cc) throws Exception {}
+	public void conversationAttached(@NonNull ConversationContext cc) throws Exception {}
 
 	@Override
-	public void conversationDetached(@Nonnull ConversationContext cc) throws Exception {}
+	public void conversationDetached(@NonNull ConversationContext cc) throws Exception {}
 
 	@Override
-	public void conversationDestroyed(@Nonnull ConversationContext cc) throws Exception {
+	public void conversationDestroyed(@NonNull ConversationContext cc) throws Exception {
 		synchronized(this) {
 			FileTool.closeAll(m_fileContentReader, m_fileDeltaReader);
 		}

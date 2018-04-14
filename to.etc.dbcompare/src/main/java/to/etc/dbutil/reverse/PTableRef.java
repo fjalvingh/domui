@@ -24,25 +24,24 @@
  */
 package to.etc.dbutil.reverse;
 
-import javax.annotation.*;
-
-import to.etc.dbutil.schema.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.dbutil.schema.DbTable;
 
 final class PTableRef {
 	static private int m_nextid;
 
-	@Nonnull
+	@NonNull
 	final private DbTable m_table;
 
-	@Nonnull
+	@NonNull
 	final private String m_alias;
 
-	public PTableRef(@Nonnull DbTable table, @Nonnull String alias) {
+	public PTableRef(@NonNull DbTable table, @NonNull String alias) {
 		m_table = table;
 		m_alias = alias;
 	}
 
-	public PTableRef(@Nonnull DbTable table) {
+	public PTableRef(@NonNull DbTable table) {
 		m_table = table;
 		m_alias = "T" + nextId();
 	}
@@ -51,12 +50,12 @@ final class PTableRef {
 		return ++m_nextid;
 	}
 
-	@Nonnull
+	@NonNull
 	public DbTable getTable() {
 		return m_table;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getAlias() {
 		return m_alias;
 	}

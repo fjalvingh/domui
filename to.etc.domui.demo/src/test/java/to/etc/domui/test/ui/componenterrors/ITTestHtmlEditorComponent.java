@@ -1,5 +1,6 @@
 package to.etc.domui.test.ui.componenterrors;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -8,7 +9,6 @@ import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domuidemo.pages.test.componenterrors.HtmlEditorTestPage;
 
-import javax.annotation.Nonnull;
 import java.awt.image.BufferedImage;
 
 /**
@@ -49,7 +49,7 @@ public class ITTestHtmlEditorComponent extends AbstractWebDriverTest {
 		Assert.assertTrue("The background of the control should be red because it is in error after screen refresh", TestHelper.isReddish(bi));
 	}
 
-	@Nonnull
+	@NonNull
 	private WebElement findEditorElement(String testid) {
 		WebElement two = wd().findElement(testid);
 		if(null == two)

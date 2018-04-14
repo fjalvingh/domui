@@ -1,5 +1,7 @@
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.layout.Window;
@@ -26,8 +28,6 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.bugs.Bug;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +42,7 @@ final public class MsgBox2 extends Window {
 	private MsgBoxButton m_clickedButton;
 
 	public interface IAnswer {
-		void onAnswer(@Nonnull MsgBoxButton result) throws Exception;
+		void onAnswer(@NonNull MsgBoxButton result) throws Exception;
 	}
 	public interface IAnswer2 {
 		void onAnswer(Object result) throws Exception;
@@ -119,7 +119,7 @@ final public class MsgBox2 extends Window {
 
 	private MsgBoxButton 	m_assumedCancelButton = MsgBoxButton.CANCEL;
 
-	@Nonnull
+	@NonNull
 	private List<InputPair> m_inputList = new ArrayList<>();
 
 	private MsgBox2() {
@@ -127,7 +127,7 @@ final public class MsgBox2 extends Window {
 		setErrorFence(null); // Do not accept handling errors!!
 		setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(@Nonnull String closeReason) throws Exception {
+			public void closed(@NonNull String closeReason) throws Exception {
 				if(null != m_onAnswer) {
 					m_selectedChoice = m_closeButtonObject;
 					try {
@@ -234,7 +234,7 @@ final public class MsgBox2 extends Window {
 			setFocusOnButton();
 	}
 
-	private boolean renderInputs(@Nonnull NodeContainer nc) {
+	private boolean renderInputs(@NonNull NodeContainer nc) {
 		boolean unfocused = true;
 		Div area = new Div();
 		nc.add(area);
@@ -289,23 +289,23 @@ final public class MsgBox2 extends Window {
 	 * @param parent
 	 * @return
 	 */
-	@Nonnull
-	static public MsgBox2 on(@Nonnull NodeBase parent) {
+	@NonNull
+	static public MsgBox2 on(@NonNull NodeBase parent) {
 		MsgBox2 b = new MsgBox2();
 		UrlPage body = parent.getPage().getBody();
 		body.undelegatedAdd(0, b);
 		return b;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public MsgBox2 title(String set) {
 		super.title(set);
 		return this;
 	}
 
-	@Nonnull
-	public MsgBox2 type(@Nonnull Type type) {
+	@NonNull
+	public MsgBox2 type(@NonNull Type type) {
 		String ttl;
 		String icon;
 		switch(type){
@@ -340,46 +340,46 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgBox2 info() {
 		type(Type.INFO);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgBox2 warning() {
 		type(Type.WARNING);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgBox2 error() {
 		type(Type.ERROR);
 		return this;
 	}
 
-	@Nonnull
-	public MsgBox2 info(@Nonnull String message) {
+	@NonNull
+	public MsgBox2 info(@NonNull String message) {
 		type(Type.INFO);
 		text(message);
 		return this;
 	}
 
-	@Nonnull
-	public MsgBox2 warning(@Nonnull String message) {
+	@NonNull
+	public MsgBox2 warning(@NonNull String message) {
 		type(Type.WARNING);
 		text(message);
 		return this;
 	}
 
-	@Nonnull
-	public MsgBox2 error(@Nonnull String message) {
+	@NonNull
+	public MsgBox2 error(@NonNull String message) {
 		type(Type.ERROR);
 		text(message);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgBox2 question() {
 		type(Type.DIALOG);
 		return this;
@@ -390,8 +390,8 @@ final public class MsgBox2 extends Window {
 	 * @param txt
 	 * @return
 	 */
-	@Nonnull
-	public MsgBox2 text(@Nonnull String txt) {
+	@NonNull
+	public MsgBox2 text(@NonNull String txt) {
 		m_theText = txt;
 		return this;
 	}
@@ -401,14 +401,14 @@ final public class MsgBox2 extends Window {
 	 * @param content
 	 * @return
 	 */
-	@Nonnull
-	public MsgBox2 content(@Nonnull NodeContainer content) {
+	@NonNull
+	public MsgBox2 content(@NonNull NodeContainer content) {
 		m_content = content;
 		return this;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public MsgBox2 size(int w, int h) {
 		setDimensions(w, h);
 		return this;
@@ -418,14 +418,14 @@ final public class MsgBox2 extends Window {
 	 * Add a default kind of button.
 	 * @param mbb
 	 */
-	@Nonnull
-	public MsgBox2  button(@Nonnull final MsgBoxButton mbb) {
+	@NonNull
+	public MsgBox2  button(@NonNull final MsgBoxButton mbb) {
 		String lbl = MetaManager.findEnumLabel(mbb);
 		if(lbl == null)
 			lbl = mbb.name();
 		DefaultButton btn = new DefaultButton(lbl, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton b) throws Exception {
+			public void clicked(@NonNull DefaultButton b) throws Exception {
 				answer(mbb);
 			}
 		});
@@ -439,56 +439,56 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgBox2 continueCancel() {
 		button(MsgBoxButton.CONTINUE);
 		button(MsgBoxButton.CANCEL);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgBox2 yesNo() {
 		button(MsgBoxButton.YES);
 		button(MsgBoxButton.NO);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgBox2 button(final String lbl, final Object selval) {
 		return button(lbl, null, selval);
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgBox2 button(final String lbl, final String icon, final Object selval) {
 		m_theButtons.add(new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton b) throws Exception {
+			public void clicked(@NonNull DefaultButton b) throws Exception {
 				answer(selval);
 			}
 		}));
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgBox2 renderer(IRenderInto<String> cr) {
 		m_dataRenderer = cr;
 		return this;
 	}
 
-	@Nonnull
-	public MsgBox2 onAnswer(@Nonnull IAnswer onAnswer) {
+	@NonNull
+	public MsgBox2 onAnswer(@NonNull IAnswer onAnswer) {
 		m_onAnswer = onAnswer;
 		return this;
 	}
 
-	@Nonnull
-	public MsgBox2 onAnswer(@Nonnull IAnswer2 onAnswer) {
+	@NonNull
+	public MsgBox2 onAnswer(@NonNull IAnswer2 onAnswer) {
 		m_onAnswer2 = onAnswer;
 		return this;
 	}
 
-	@Nonnull
-	public MsgBox2 onAnswer(@Nonnull IClicked<MsgBox2> clicked) {
+	@NonNull
+	public MsgBox2 onAnswer(@NonNull IClicked<MsgBox2> clicked) {
 		m_clicked = clicked;
 		return this;
 	}
@@ -550,8 +550,8 @@ final public class MsgBox2 extends Window {
 	 * @param control
 	 * @return
 	 */
-	@Nonnull
-	public MsgBox2 input(@Nonnull String label, @Nonnull NodeBase control) {
+	@NonNull
+	public MsgBox2 input(@NonNull String label, @NonNull NodeBase control) {
 		Label l = new Label(control, label);
 		input(l, control);
 		return this;
@@ -563,8 +563,8 @@ final public class MsgBox2 extends Window {
 	 * @param control
 	 * @return
 	 */
-	@Nonnull
-	public MsgBox2 input(@Nonnull Label label, @Nonnull NodeBase control) {
+	@NonNull
+	public MsgBox2 input(@NonNull Label label, @NonNull NodeBase control) {
 		_input(label, control);
 		return this;
 	}
@@ -577,8 +577,8 @@ final public class MsgBox2 extends Window {
 		m_inputList.add(p);
 	}
 
-	@Nonnull
-	public <T> MsgBox2 input(@Nonnull String label, @Nonnull IControl<T> control, @Nonnull IInput<T> onanswer) {
+	@NonNull
+	public <T> MsgBox2 input(@NonNull String label, @NonNull IControl<T> control, @NonNull IInput<T> onanswer) {
 		//-- Only allowed with input list empty
 		if(m_inputList.size() != 0)
 			throw new IllegalStateException("You cannot combine this with other input controls as there's only one answer.");
@@ -587,8 +587,8 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
-	@Nonnull
-	public <T> MsgBox2 input(@Nonnull IControl<T> control, @Nonnull IInput<T> onanswer) {
+	@NonNull
+	public <T> MsgBox2 input(@NonNull IControl<T> control, @NonNull IInput<T> onanswer) {
 		if(m_oninput != null)
 			throw new IllegalStateException("Duplicate IInput<> set");
 
@@ -600,7 +600,7 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
-	public <T> MsgBox2 icon(@Nonnull String icon){
+	public <T> MsgBox2 icon(@NonNull String icon){
 		m_theImage.setSrc(icon);
 		return this;
 	}

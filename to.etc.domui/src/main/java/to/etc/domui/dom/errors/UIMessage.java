@@ -24,14 +24,16 @@
  */
 package to.etc.domui.dom.errors;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.logic.errors.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.logic.errors.ProblemInstance;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.CodeException;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  * A single error message for a component. The message consists of a message code and optional
@@ -43,27 +45,27 @@ import java.util.*;
  * Created on Jun 11, 2008
  */
 public class UIMessage {
-	@Nonnull
+	@NonNull
 	static private final Object[] NONE = new Object[0];
 
 
 	/** The message bundle to use, or null if the deprecated "global messages" are used. */
-	@Nonnull
+	@NonNull
 	private BundleRef m_bundle;
 
 	/** The error message code for the error that has occured. This exists always and is a lookup into the error NLS messages. */
-	@Nonnull
+	@NonNull
 	private String m_code;
 
 	/** The type of the message (error, warning, informational); this mainly defines whether actions continue, and it defines an icon to show. */
-	@Nonnull
+	@NonNull
 	final private MsgType m_type;
 
 	/** When set this is used in error messages as an indication of which input field contains the error. It usually contains the value for the "label" of the control. */
 	private String m_errorLocation;
 
 	/** For errors that have parameters - these are the parameters. This is null if no parameters are present. */
-	@Nonnull
+	@NonNull
 	private Object[] m_parameters;
 
 	/**
@@ -86,11 +88,11 @@ public class UIMessage {
 	 * @param code				The code for the message.
 	 * @param parameters		If needed a set of parameters to render into the message.
 	 */
-	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @Nonnull MsgType type, @Nonnull BundleRef br, @Nonnull String code, @Nullable Object[] parameters) {
+	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull BundleRef br, @NonNull String code, @Nullable Object[] parameters) {
 		this(errorNode, errorLocation, type, br, code, parameters, null);
 	}
 
-	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @Nonnull MsgType type, @Nonnull BundleRef br, @Nonnull String code, @Nullable Object[] parameters,
+	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull BundleRef br, @NonNull String code, @Nullable Object[] parameters,
 		@Nullable String group) {
 		if(code == null)
 			throw new NullPointerException("Message code cannot be null");
@@ -114,8 +116,8 @@ public class UIMessage {
 		return m_key;
 	}
 
-	@Nonnull
-	public UIMessage group(@Nonnull String name) {
+	@NonNull
+	public UIMessage group(@NonNull String name) {
 		m_group = name;
 		return this;
 	}
@@ -138,7 +140,7 @@ public class UIMessage {
 		return m_bundle;
 	}
 
-	@Nonnull
+	@NonNull
 	public Object[] getParameters() {
 		return m_parameters;
 	}
@@ -152,7 +154,7 @@ public class UIMessage {
 		m_errorNode = errorNode;
 	}
 
-	@Nonnull
+	@NonNull
 	public MsgType getType() {
 		return m_type;
 	}
@@ -177,7 +179,7 @@ public class UIMessage {
 	 * @param errorLocation
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public UIMessage location(@Nullable String errorLocation){
 		m_errorLocation = errorLocation;
 		return this;
@@ -187,7 +189,7 @@ public class UIMessage {
 	 * Returns the message part of the error message, properly localized for the request's locale.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public String getMessage() {
 		if(m_bundle != null)
 			return m_bundle.formatMessage(m_code, m_parameters);
@@ -195,58 +197,58 @@ public class UIMessage {
 		return Msgs.BUNDLE.formatMessage(m_code, m_parameters);
 	}
 
-	@Nonnull
-	public static UIMessage create(@Nullable NodeBase n, @Nonnull ProblemInstance pi) {
+	@NonNull
+	public static UIMessage create(@Nullable NodeBase n, @NonNull ProblemInstance pi) {
 		return new UIMessage(n, null, pi.getProblem().getSeverity(), pi.getProblem().getBundle(), pi.getProblem().getCode(), pi.getParameters());
 	}
 
-	@Nonnull
-	static public UIMessage error(@Nonnull CodeException x) {
+	@NonNull
+	static public UIMessage error(@NonNull CodeException x) {
 		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 	}
 
-	@Nonnull
-	static public UIMessage error(@Nonnull UIException x) {
+	@NonNull
+	static public UIMessage error(@NonNull UIException x) {
 		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 	}
 
-	@Nonnull
-	static public UIMessage error(NodeBase node, String errorLocation, @Nonnull BundleRef ref, @Nonnull String code, Object... param) {
+	@NonNull
+	static public UIMessage error(NodeBase node, String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(node, errorLocation, MsgType.ERROR, ref, code, param);
 	}
 
-	@Nonnull
-	static public UIMessage error(String errorLocation, @Nonnull BundleRef ref, @Nonnull String code, Object... param) {
+	@NonNull
+	static public UIMessage error(String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(null, errorLocation, MsgType.ERROR, ref, code, param);
 	}
 
-	@Nonnull
-	static public UIMessage error(NodeBase node, @Nonnull BundleRef ref, @Nonnull String code, Object... param) {
+	@NonNull
+	static public UIMessage error(NodeBase node, @NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(node, node.getErrorLocation(), MsgType.ERROR, ref, code, param);
 	}
 
-	@Nonnull
-	static public UIMessage error(@Nonnull BundleRef ref, @Nonnull String code, Object... param) {
+	@NonNull
+	static public UIMessage error(@NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(null, null, MsgType.ERROR, ref, code, param);
 	}
 
-	@Nonnull
-	static public UIMessage warning(NodeBase node, String errorLocation, @Nonnull BundleRef ref, @Nonnull String code, Object... param) {
+	@NonNull
+	static public UIMessage warning(NodeBase node, String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(node, errorLocation, MsgType.WARNING, ref, code, param);
 	}
 
-	@Nonnull
-	static public UIMessage warning(NodeBase node, @Nonnull BundleRef ref, @Nonnull String code, Object... param) {
+	@NonNull
+	static public UIMessage warning(NodeBase node, @NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(node, null, MsgType.WARNING, ref, code, param);
 	}
 
-	@Nonnull
-	static public UIMessage warning(@Nonnull BundleRef ref, @Nonnull String code, Object... param) {
+	@NonNull
+	static public UIMessage warning(@NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(null, null, MsgType.WARNING, ref, code, param);
 	}
 
-	@Nonnull
-	static public UIMessage info(@Nonnull BundleRef ref, @Nonnull String code, Object... param) {
+	@NonNull
+	static public UIMessage info(@NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(null, null, MsgType.INFO, ref, code, param);
 	}
 
@@ -307,7 +309,7 @@ public class UIMessage {
 
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String toString() {
 		return getMessage();

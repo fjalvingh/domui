@@ -1,5 +1,6 @@
 package to.etc.domui.component2.form4;
 
+import org.eclipse.jdt.annotation.*;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -8,14 +9,12 @@ import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 
-import javax.annotation.Nonnull;
-
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 6-3-18.
  */
 public class TableFormLayouter implements IFormLayouter {
-	@Nonnull
+	@NonNull
 	final private FormBuilder.IAppender m_appender;
 
 	private boolean m_horizontal;
@@ -28,7 +27,10 @@ public class TableFormLayouter implements IFormLayouter {
 
 	private TR m_controlRow;
 
-	public TableFormLayouter(@Nonnull FormBuilder.IAppender appender) {
+	@Nullable
+	private TD m_lastControlCell;
+
+	public TableFormLayouter(@NonNull FormBuilder.IAppender appender) {
 		m_appender = appender;
 	}
 
@@ -45,7 +47,7 @@ public class TableFormLayouter implements IFormLayouter {
 		m_controlRow = null;
 	}
 
-	@Nonnull
+	@NonNull
 	public TBody body() {
 		if(m_body == null) {
 			Table tbl = m_table = new Table();
@@ -90,7 +92,7 @@ public class TableFormLayouter implements IFormLayouter {
 			if(labelCss != null)
 				labelcell.addCssClass(labelCss);
 
-			TD controlcell = b.addCell("ui-f4-ctl ui-f4-ctl-v");
+			TD controlcell = m_lastControlCell = b.addCell("ui-f4-ctl ui-f4-ctl-v");
 			controlcell.add(control);
 
 			if(null != controlCss)
@@ -112,6 +114,7 @@ public class TableFormLayouter implements IFormLayouter {
 				cell = (TD) row.getChild(row.getChildCount() - 1);
 			}
 			cell.add(control);
+			m_lastControlCell = cell;
 
 			if(null != controlCss)
 				cell.addCssClass(controlCss);
@@ -136,7 +139,7 @@ public class TableFormLayouter implements IFormLayouter {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private TR controlRow() {
 		TR row = m_controlRow;
 		if(null == row) {
@@ -146,12 +149,19 @@ public class TableFormLayouter implements IFormLayouter {
 		return row;
 	}
 
-	@Nonnull
+	@NonNull
 	private TR labelRow() {
 		TR row = m_labelRow;
 		if(null == row) {
 			row = m_labelRow = body().addRow("ui-f4-row ui-f4-row-h ui-f4-lrow");
 		}
 		return row;
+	}
+
+	@Override public void appendAfterControl(NodeBase what) {
+		TD cell = m_lastControlCell;
+		if(cell == null)
+			throw new IllegalStateException("Last control not known");
+		cell.add(what);
 	}
 }

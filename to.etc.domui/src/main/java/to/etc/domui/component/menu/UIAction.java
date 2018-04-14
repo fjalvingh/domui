@@ -1,6 +1,7 @@
 package to.etc.domui.component.menu;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 abstract public class UIAction<T> implements IUIAction<T> {
 	final private String m_name;
@@ -29,7 +30,7 @@ abstract public class UIAction<T> implements IUIAction<T> {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getName(@Nullable T instance) throws Exception {
 		return m_name;
 	}

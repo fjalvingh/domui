@@ -1,19 +1,26 @@
 package to.etc.domuidemo.pages.binding.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.databinding.observables.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.RowRenderer;
+import to.etc.domui.component.tbl.SimpleSearchModel;
+import to.etc.domui.databinding.observables.IObservableList;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
-import to.etc.domui.dom.html.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.util.StringTool;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+
+import java.util.List;
+import java.util.Random;
 
 /**
  * Demo/test for {@link IObservableList} support in Hibernate relations.
@@ -49,7 +56,7 @@ public class DemoObservableListPage extends UrlPage {
 
 	}
 
-	private void clickedOne(@Nonnull final Artist a) {
+	private void clickedOne(@NonNull final Artist a) {
 		List<Album> res = a.getAlbumList();
 		System.out.println("Type is: " + res.getClass());
 
@@ -84,7 +91,7 @@ public class DemoObservableListPage extends UrlPage {
 
 	}
 
-	private void deleteAlbum(@Nonnull Artist a, @Nonnull IObservableList<Album> ol) {
+	private void deleteAlbum(@NonNull Artist a, @NonNull IObservableList<Album> ol) {
 		if(ol.size() == 0)
 			return;
 		int ix = random(ol.size());
@@ -98,7 +105,7 @@ public class DemoObservableListPage extends UrlPage {
 		return r.nextInt(max);
 	}
 
-	private void addAlbum(@Nonnull Artist a, @Nonnull IObservableList<Album> ol) {
+	private void addAlbum(@NonNull Artist a, @NonNull IObservableList<Album> ol) {
 		Album al = new Album();
 		al.setArtist(a);
 		al.setTitle(StringTool.getRandomStringWithPrefix(10, "NewAl-"));

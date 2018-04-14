@@ -1,14 +1,19 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.component.panellayout.LayoutPanelBase;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.IntPoint;
+import to.etc.domui.util.javascript.JavascriptStmt;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.panellayout.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.javascript.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This is the peer component of the painter representing the paint area.
@@ -20,27 +25,27 @@ public class PaintPanel extends Div {
 	@Nullable
 	private LayoutInstance m_rootLayout;
 
-	@Nonnull
+	@NonNull
 	final private FormComponentRegistry m_registry;
 
-	@Nonnull
+	@NonNull
 	final private PageContainer m_pageContainer = new PageContainer();
 
-	@Nonnull
+	@NonNull
 	private Set<ComponentInstance> m_selectSet = new HashSet<ComponentInstance>();
 
 	public interface ISelectionChanged {
-		void selectionChanged(@Nonnull Set<ComponentInstance> newSelection, Set<ComponentInstance> oldSelection) throws Exception;
+		void selectionChanged(@NonNull Set<ComponentInstance> newSelection, Set<ComponentInstance> oldSelection) throws Exception;
 	}
 
-	@Nonnull
+	@NonNull
 	private List<ISelectionChanged> m_selectionChangedListeners = new ArrayList<ISelectionChanged>();
 
-	public PaintPanel(@Nonnull FormComponentRegistry registry) {
+	public PaintPanel(@NonNull FormComponentRegistry registry) {
 		m_registry = registry;
 	}
 
-	public void addSelectionChanged(@Nonnull ISelectionChanged sel) {
+	public void addSelectionChanged(@NonNull ISelectionChanged sel) {
 		m_selectionChangedListeners.add(sel);
 	}
 
@@ -54,17 +59,17 @@ public class PaintPanel extends Div {
 		m_rootLayout = li;
 	}
 
-	@Nonnull
+	@NonNull
 	private FormComponentRegistry r() {
 		return m_registry;
 	}
 
-	@Nonnull
+	@NonNull
 	private PageContainer pc() {
 		return m_pageContainer;
 	}
 
-	@Nonnull
+	@NonNull
 	private LayoutInstance root() {
 		if(null != m_rootLayout)
 			return m_rootLayout;
@@ -82,7 +87,7 @@ public class PaintPanel extends Div {
 		renderLayout(this, m_rootLayout);
 	}
 
-	private void renderLayout(@Nonnull NodeContainer target, LayoutInstance layout) throws Exception {
+	private void renderLayout(@NonNull NodeContainer target, LayoutInstance layout) throws Exception {
 		NodeContainer layoutc = layout.getRendered();
 		target.add(layoutc);
 //		updateComponent(layout);
@@ -101,12 +106,12 @@ public class PaintPanel extends Div {
 	 * @see to.etc.domui.dom.html.NodeBase#renderJavascriptState(to.etc.domui.util.javascript.JavascriptStmt)
 	 */
 	@Override
-	protected void renderJavascriptState(@Nonnull JavascriptStmt b) throws Exception {
+	protected void renderJavascriptState(@NonNull JavascriptStmt b) throws Exception {
 		setFocus();
 		renderJsState(b, m_rootLayout);
 	}
 
-	private void renderJsState(@Nonnull JavascriptStmt b, @Nonnull ComponentInstance ci) throws Exception {
+	private void renderJsState(@NonNull JavascriptStmt b, @NonNull ComponentInstance ci) throws Exception {
 		b.method("window._fb.registerInstance")				//
 			.arg(ci.getComponentType().getTypeID())			//
 			.arg(ci.getId())								//
@@ -120,13 +125,13 @@ public class PaintPanel extends Div {
 		}
 	}
 
-	private void renderComponent(@Nonnull NodeContainer layoutc, @Nonnull ComponentInstance ci) throws Exception {
+	private void renderComponent(@NonNull NodeContainer layoutc, @NonNull ComponentInstance ci) throws Exception {
 		NodeBase inst = ci.getRendered();
 		layoutc.add(inst);
 //		updateComponent(ci);
 	}
 
-	private void updateComponent(@Nonnull ComponentInstance ci) throws Exception {
+	private void updateComponent(@NonNull ComponentInstance ci) throws Exception {
 		renderJsState(appendStatement(), ci);
 //
 //		appendJavascript("window._fb.registerInstance('" + ci.getComponentType().getTypeID() + "','" + ci.getId() + "','" + ci.getRendered().getActualID() + "');");
@@ -140,7 +145,7 @@ public class PaintPanel extends Div {
 	 * @param ctx
 	 * @throws Exception
 	 */
-	public void webActionDropComponent(@Nonnull JsonComponentInfo info) throws Exception {
+	public void webActionDropComponent(@NonNull JsonComponentInfo info) throws Exception {
 		IFbComponent componentType = r().findComponent(info.getTypeId());
 		if(null == componentType) {
 			MsgBox.error(this, "Internal: no type '" + info.getTypeId() + "'");
@@ -158,7 +163,7 @@ public class PaintPanel extends Div {
 		updateComponent(ci);
 	}
 
-	public void webActionMoveComponent(@Nonnull JsonComponentInfo info) throws Exception {
+	public void webActionMoveComponent(@NonNull JsonComponentInfo info) throws Exception {
 		System.out.println("Move event: " + info.getId() + " @(" + info.getX() + "," + info.getY() + ")");
 		ComponentInstance ci = pc().getComponent(info.getId());
 		LayoutInstance layout = ci.getParent();
@@ -168,7 +173,7 @@ public class PaintPanel extends Div {
 		layout.positionComponent(ci, new IntPoint(info.getX(), info.getY()));
 	}
 
-	public void webActionSelection(@Nonnull Set<String> idlist) throws Exception {
+	public void webActionSelection(@NonNull Set<String> idlist) throws Exception {
 		Set<ComponentInstance> selectSet = new HashSet<ComponentInstance>();
 		for(String id : idlist) {
 			ComponentInstance component = pc().getComponent(id);

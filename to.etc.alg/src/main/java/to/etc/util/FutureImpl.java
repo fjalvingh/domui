@@ -1,8 +1,12 @@
 package to.etc.util;
 
-import java.util.concurrent.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Basic Implementation of {@code Future<T>} which is nicely missing from the JDK, sigh.
@@ -50,7 +54,7 @@ public class FutureImpl<T> implements Future<T> {
 	 * Create a future that's already done, with the specified error.
 	 * @param error
 	 */
-	public FutureImpl(@Nonnull Exception error) {
+	public FutureImpl(@NonNull Exception error) {
 		m_exception = error;
 		m_done = true;
 		m_description = null;
@@ -118,7 +122,7 @@ public class FutureImpl<T> implements Future<T> {
 	 * Mark the future as ready, but aborted with an exception.
 	 * @param reason
 	 */
-	public synchronized void set(@Nonnull Exception reason) {
+	public synchronized void set(@NonNull Exception reason) {
 		m_exception = reason;
 		m_done = true;
 		notifyAll();

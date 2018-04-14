@@ -1,13 +1,15 @@
 package to.etc.util;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-
-import java.util.*;
-
-import javax.annotation.*;
-
-import org.junit.*;
 
 /**
  * Test StringTool methods
@@ -38,7 +40,7 @@ public class TestStringTool {
 		}
 	}
 
-	private void checkRandomString(int length, @Nonnull String result) {
+	private void checkRandomString(int length, @NonNull String result) {
 		Assert.assertEquals("The string must be smaller than " + length + " : " + result, length, result.length());
 		Assert.assertTrue("THe string must start with tne prefix 'PREFIX_' : " + result, result.startsWith(PREFIX));
 	}

@@ -1,10 +1,10 @@
 package to.etc.dbreplay;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.DbPoolUtil;
 import to.etc.dbpool.PoolManager;
 
-import javax.annotation.Nullable;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;

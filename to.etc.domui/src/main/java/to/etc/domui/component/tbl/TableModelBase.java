@@ -24,9 +24,10 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 abstract public class TableModelBase<T> implements ITableModel<T> {
 	final private List<ITableModelListener<T>> m_listeners = new ArrayList<ITableModelListener<T>>();
@@ -37,7 +38,7 @@ abstract public class TableModelBase<T> implements ITableModel<T> {
 	 * Add a change listener to this model. Don't forget to remove it at destruction time.
 	 */
 	@Override
-	public void addChangeListener(@Nonnull ITableModelListener<T> l) {
+	public void addChangeListener(@NonNull ITableModelListener<T> l) {
 		m_listeners.add(l);
 	}
 
@@ -46,7 +47,7 @@ abstract public class TableModelBase<T> implements ITableModel<T> {
 	 * @see to.etc.domui.component.tbl.ITableModel#removeChangeListener(to.etc.domui.component.tbl.ITableModelListener)
 	 */
 	@Override
-	public void removeChangeListener(@Nonnull ITableModelListener<T> l) {
+	public void removeChangeListener(@NonNull ITableModelListener<T> l) {
 		m_listeners.remove(l);
 	}
 

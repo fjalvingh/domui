@@ -1,9 +1,9 @@
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.query.QOperation;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -16,7 +16,7 @@ final public class NumberLookupValue {
 	@Nullable
 	private final Number m_from;
 
-	@Nonnull
+	@NonNull
 	private final QOperation m_fromOperation;
 
 	@Nullable
@@ -36,11 +36,11 @@ final public class NumberLookupValue {
 		m_from = null;
 	}
 
-	public NumberLookupValue(@Nonnull QOperation fromOperation, @Nullable Number from) {
+	public NumberLookupValue(@NonNull QOperation fromOperation, @Nullable Number from) {
 		this(fromOperation, from, null, null);
 	}
 
-	public NumberLookupValue(@Nonnull QOperation fromOperation, @Nullable Number from, QOperation toOperation, Number to) {
+	public NumberLookupValue(@NonNull QOperation fromOperation, @Nullable Number from, QOperation toOperation, Number to) {
 		m_from = from;
 		m_fromOperation = fromOperation;
 		m_to = to;
@@ -51,7 +51,7 @@ final public class NumberLookupValue {
 		return m_from;
 	}
 
-	@Nonnull public QOperation getFromOperation() {
+	@NonNull public QOperation getFromOperation() {
 		return m_fromOperation;
 	}
 

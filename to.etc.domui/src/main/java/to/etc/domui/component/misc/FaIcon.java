@@ -1,9 +1,9 @@
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Span;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -13,7 +13,7 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4-8-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class FaIcon extends Span {
 	@Nullable
 	private String m_iconName;

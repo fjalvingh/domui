@@ -1,6 +1,6 @@
 package to.etc.domui.dom.html;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * This should be implemented by nodes that can be used in

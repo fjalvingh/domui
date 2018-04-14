@@ -24,9 +24,8 @@
  */
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.util.WrappedException;
 
 /**
  * Threadsafe fast listener list implementation.
@@ -35,17 +34,17 @@ import to.etc.util.*;
  * Created on Apr 23, 2013
  */
 public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeListener<V, E, T>> {
-	@Nonnull
+	@NonNull
 	static private final Object[] NONE = new Object[0];
 
-	@Nonnull
+	@NonNull
 	private Object[] m_listeners = NONE;
 
 	/**
 	 * Add a new listener to the set.
 	 * @param listener
 	 */
-	public synchronized void addChangeListener(@Nonnull T listener) {
+	public synchronized void addChangeListener(@NonNull T listener) {
 		//-- Already exists?
 		final int length = m_listeners.length;
 		for(int i = length; --i >= 0;) {
@@ -64,7 +63,7 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 	 * Remove the listener if it exists. This leaves a null hole in the array.
 	 * @param listener
 	 */
-	public synchronized void removeChangeListener(@Nonnull T listener) {
+	public synchronized void removeChangeListener(@NonNull T listener) {
 		//-- Already exists?
 		final int length = m_listeners.length;
 		for(int i = length; --i >= 0;) {
@@ -75,7 +74,7 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private synchronized Object[] getListeners() {
 		return m_listeners;
 	}
@@ -91,7 +90,7 @@ public class ListenerList<V, E extends IChangeEvent<V, E, T>, T extends IChangeL
 	 * Call all listeners.
 	 * @param event
 	 */
-	public void fireEvent(@Nonnull E event) {
+	public void fireEvent(@NonNull E event) {
 		try {
 			for(Object o : getListeners()) {
 				if(null != o) {

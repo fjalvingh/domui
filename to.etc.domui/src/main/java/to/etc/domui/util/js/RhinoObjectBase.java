@@ -1,21 +1,24 @@
 package to.etc.domui.util.js;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.UniqueTag;
+import to.etc.util.RuntimeConversions;
 
-import javax.annotation.*;
-
-import org.mozilla.javascript.*;
-
-import to.etc.util.*;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 class RhinoObjectBase implements IScriptScope {
-	@Nonnull
+	@NonNull
 	private ScriptableObject m_scriptable;
 
 	private boolean m_writable;
 
-	RhinoObjectBase(@Nonnull ScriptableObject scriptable, boolean writable) {
+	RhinoObjectBase(@NonNull ScriptableObject scriptable, boolean writable) {
 		m_scriptable = scriptable;
 		m_writable = writable;
 	}
@@ -57,13 +60,13 @@ class RhinoObjectBase implements IScriptScope {
 	}
 
 	@Override
-	public void put(@Nonnull String name, @Nullable Object instance) {
+	public void put(@NonNull String name, @Nullable Object instance) {
 		if(!m_writable)
 			throw new IllegalStateException("This scope is read-only.");
 		m_scriptable.put(name, m_scriptable, instance);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public RhinoScriptScope newScope() {
 		Context jcx = Context.enter();
@@ -83,22 +86,22 @@ class RhinoObjectBase implements IScriptScope {
 	 */
 	@Nullable
 	@Override
-	public <T> T getValue(@Nonnull Class<T> targetType, @Nonnull String name) {
+	public <T> T getValue(@NonNull Class<T> targetType, @NonNull String name) {
 		Object val = ScriptableObject.getProperty(m_scriptable, name);
 		return translateValue(targetType, val);
 	}
 
 	@Nullable
 	@Override
-	public <T> T getAdapter(@Nonnull Class<T> clz) {
+	public <T> T getAdapter(@NonNull Class<T> clz) {
 		if(clz.isAssignableFrom(Scriptable.class))
 			return (T) m_scriptable;
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public <T> List<T> getProperties(@Nonnull Class<T> filterClass) {
+	public <T> List<T> getProperties(@NonNull Class<T> filterClass) {
 		Object[] ids = m_scriptable.getIds();
 		List<T> res = new ArrayList<T>(ids.length);
 		for(Object id : ids) {
@@ -110,7 +113,7 @@ class RhinoObjectBase implements IScriptScope {
 
 	@Override
 	@Nullable
-	public <T> T eval(@Nonnull Class<T> targetType, @Nonnull Reader r, @Nonnull String sourceFileNameIndicator) throws Exception {
+	public <T> T eval(@NonNull Class<T> targetType, @NonNull Reader r, @NonNull String sourceFileNameIndicator) throws Exception {
 		Context jcx = Context.enter();
 		try {
 			Object val = jcx.evaluateReader(m_scriptable, r, sourceFileNameIndicator, 1, null);
@@ -121,7 +124,7 @@ class RhinoObjectBase implements IScriptScope {
 	}
 
 	@Override
-	public <T> T eval(@Nonnull Class<T> targetType, @Nonnull String expression, @Nonnull String sourceFileNameIndicator) throws Exception {
+	public <T> T eval(@NonNull Class<T> targetType, @NonNull String expression, @NonNull String sourceFileNameIndicator) throws Exception {
 		Context jcx = Context.enter();
 		try {
 			Object val = jcx.evaluateString(m_scriptable, expression, sourceFileNameIndicator, 1, null);
@@ -135,9 +138,9 @@ class RhinoObjectBase implements IScriptScope {
 		return Context.toObject(o, m_scriptable);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public IScriptScope addObjectProperty(@Nonnull String name) {
+	public IScriptScope addObjectProperty(@NonNull String name) {
 		IScriptScope ns = newScope();
 		put(name, ns);
 		return ns;

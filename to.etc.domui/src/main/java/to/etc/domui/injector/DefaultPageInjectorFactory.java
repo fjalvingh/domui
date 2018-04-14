@@ -1,10 +1,15 @@
 package to.etc.domui.injector;
 
-import to.etc.domui.dom.html.*;
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.util.ClassUtil;
+import to.etc.util.PropertyInfo;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -50,7 +55,7 @@ public class DefaultPageInjectorFactory implements IPageInjectorCalculator {
 		m_list = Collections.unmodifiableList(res);
 	}
 
-	@Nonnull
+	@NonNull
 	private synchronized List<IPagePropertyFactory> getFactoryList() {
 		return m_list;
 	}

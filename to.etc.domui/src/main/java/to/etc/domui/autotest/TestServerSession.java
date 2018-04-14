@@ -1,18 +1,19 @@
 package to.etc.domui.autotest;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.IServerSession;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TestServerSession implements IServerSession {
 	static private int m_idcount;
 
-	@Nonnull
+	@NonNull
 	final private String m_id;
 
-	@Nonnull
+	@NonNull
 	private final Map<String, Object> m_data = new HashMap<String, Object>();
 
 	public TestServerSession() {
@@ -20,7 +21,7 @@ public class TestServerSession implements IServerSession {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getId() {
 		return m_id;
 	}
@@ -31,12 +32,12 @@ public class TestServerSession implements IServerSession {
 
 	@Override
 	@Nullable
-	public Object getAttribute(@Nonnull String name) {
+	public Object getAttribute(@NonNull String name) {
 		return m_data.get(name);
 	}
 
 	@Override
-	public void setAttribute(@Nonnull String name, @Nullable Object value) {
+	public void setAttribute(@NonNull String name, @Nullable Object value) {
 		m_data.put(name, value);
 	}
 

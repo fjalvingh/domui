@@ -1,5 +1,7 @@
 package to.etc.log;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.ILoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -10,8 +12,6 @@ import to.etc.log.event.EtcLogEvent;
 import to.etc.log.handler.ILogHandler;
 import to.etc.log.handler.LogHandlerRegistry;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,10 +44,10 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	/**
 	 * The unique instance of this class.
 	 */
-	@Nonnull
+	@NonNull
 	private static final EtcLoggerFactory SINGLETON;
 
-	@Nonnull
+	@NonNull
 	private static final ThreadLocal<SimpleDateFormat> DATEFORMATTER = new ThreadLocal<SimpleDateFormat>() {
 		@Override
 		protected SimpleDateFormat initialValue() {
@@ -68,18 +68,18 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	private String m_logDirOriginalConfigured;
 
 	/** Contains loaded Logger instances. */
-	@Nonnull
+	@NonNull
 	private final Map<String, EtcLogger> LOGGERS = new HashMap<String, EtcLogger>();
 
 	/** Contains handler instances - logger instances behavior definition. */
-	@Nonnull
+	@NonNull
 	private List<ILogHandler> m_handlers = new ArrayList<ILogHandler>();
 
-	@Nonnull
+	@NonNull
 	private Object m_handlersLock = new Object();
 
 	/** Default general log level */
-	@Nonnull
+	@NonNull
 	private static final Level DEFAULT_LEVEL = Level.ERROR;
 
 	/** Name of logger factory configuration file */
@@ -91,7 +91,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 *
 	 * @return the MyLoggerFactory singleton
 	 */
-	@Nonnull
+	@NonNull
 	public static final EtcLoggerFactory getSingleton() {
 		return SINGLETON;
 	}
@@ -104,7 +104,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 * Created on Oct 30, 2012
 	 */
 	public static class LoggerConfigException extends Exception {
-		public LoggerConfigException(@Nonnull String msg) {
+		public LoggerConfigException(@NonNull String msg) {
 			super(msg);
 		}
 	}
@@ -113,8 +113,8 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 * @see org.slf4j.ILoggerFactory#getLogger(java.lang.String)
 	 */
 	@Override
-	@Nonnull
-	public EtcLogger getLogger(@Nonnull String key) {
+	@NonNull
+	public EtcLogger getLogger(@NonNull String key) {
 		EtcLogger logger;
 		synchronized(LOGGERS) {
 			logger = LOGGERS.get(key);
@@ -127,7 +127,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	}
 
 	@Nullable
-	private Level calcLevel(@Nonnull String key) {
+	private Level calcLevel(@NonNull String key) {
 		Level current = null;
 		for(ILogHandler handler : getHandlers()) {
 			Level level = handler.listenAt(key);
@@ -169,7 +169,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 * @param configFile
 	 * @throws Exception
 	 */
-	public synchronized void initialize(@Nonnull File configFile) throws Exception {
+	public synchronized void initialize(@NonNull File configFile) throws Exception {
 		m_configFile = configFile;
 		if(configFile.exists()) {
 			String configXml = LogUtil.readFileAsString(configFile, "utf-8");
@@ -195,7 +195,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 * @param configXml
 	 * @return
 	 */
-	public synchronized boolean tryLoadConfigFromXml(@Nonnull File configFile, @Nonnull String configXml) {
+	public synchronized boolean tryLoadConfigFromXml(@NonNull File configFile, @NonNull String configXml) {
 		m_configFile = configFile;
 		try {
 			loadConfigFromXml(configXml);
@@ -221,7 +221,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public synchronized void initialize(@Nonnull File configFile, @Nonnull String defaultConfig) throws Exception {
+	public synchronized void initialize(@NonNull File configFile, @NonNull String defaultConfig) throws Exception {
 		m_configFile = configFile;
 		System.out.println(
 			this.getClass().getName() + " logger configuration location set to " + configFile.getAbsolutePath());
@@ -245,7 +245,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		initializeBuiltInLoggerConfig();
 	}
 
-	private synchronized void loadConfigFromXml(@Nonnull String configXml) throws Exception {
+	private synchronized void loadConfigFromXml(@NonNull String configXml) throws Exception {
 		StringReader sr = null;
 		try {
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -258,8 +258,8 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		}
 	}
 
-	@Nonnull
-	private ILogHandler loadHandler(@Nonnull Node handlerNode) throws LoggerConfigException {
+	@NonNull
+	private ILogHandler loadHandler(@NonNull Node handlerNode) throws LoggerConfigException {
 		Node typeNode = handlerNode.getAttributes().getNamedItem("type");
 		if(typeNode == null) {
 			throw new LoggerConfigException("Missing [type] attribute on <handler> element!");
@@ -286,7 +286,7 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	public Document toXml(boolean includeNonPerstistable) throws ParserConfigurationException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
@@ -313,12 +313,12 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		}
 	}
 
-	//@Nonnull
+	//@NonNull
 	//public String getRootDir() {
 	//	return new File(m_configFile, CONFIG_FILENAME).getAbsolutePath();
 	//}
 
-	@Nonnull
+	@NonNull
 	public String getLogDir() {
 		File logDir = m_logDir;
 		if(null == logDir) {
@@ -327,12 +327,12 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		return logDir.getAbsolutePath();
 	}
 
-	@Nonnull
+	@NonNull
 	public String logDirOriginalAsConfigured() {
 		return m_logDirOriginalConfigured;
 	}
 
-	public void loadConfig(@Nonnull Document doc) throws LoggerConfigException {
+	public void loadConfig(@NonNull Document doc) throws LoggerConfigException {
 		List<ILogHandler> loadedHandlers = new ArrayList<ILogHandler>();
 		doc.getDocumentElement().normalize();
 		NodeList configNodes = doc.getElementsByTagName("config");
@@ -391,13 +391,13 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		recalculateLoggers();
 	}
 
-	@Nonnull
+	@NonNull
 	public Level getDefaultLevel() {
 		return DEFAULT_LEVEL;
 	}
 
-	@Nonnull
-	public String composeFullLogFileName(@Nonnull String logPath, @Nonnull String fileName) {
+	@NonNull
+	public String composeFullLogFileName(@NonNull String logPath, @NonNull String fileName) {
 		String res;
 		if(fileName.contains(":")) {
 			res = fileName;
@@ -409,18 +409,18 @@ public class EtcLoggerFactory implements ILoggerFactory {
 		return res;
 	}
 
-	@Nonnull
-	public String composeFullLogFileName(@Nonnull String fileName) {
+	@NonNull
+	public String composeFullLogFileName(@NonNull String fileName) {
 		return composeFullLogFileName(m_logDir.getAbsolutePath(), fileName);
 	}
 
-	void notifyHandlers(@Nonnull EtcLogEvent event) {
+	void notifyHandlers(@NonNull EtcLogEvent event) {
 		for(ILogHandler handler : getHandlers()) {
 			handler.handle(event);
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private List<ILogHandler> getHandlers() {
 		synchronized(m_handlersLock) {
 			return m_handlers;

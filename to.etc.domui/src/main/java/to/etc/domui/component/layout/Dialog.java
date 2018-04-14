@@ -24,12 +24,14 @@
  */
 package to.etc.domui.component.layout;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.IExecute;
+import to.etc.domui.util.Msgs;
 
 /**
  * A base class for retrieving any kind of input from a user.
@@ -69,37 +71,37 @@ public class Dialog extends Window {
 		super(width, height, title);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Dialog size(int width, int height) {
 		super.size(width, height);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Dialog resizable() {
 		super.resizable();
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Dialog modal(boolean yes) {
 		super.modal(yes);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Dialog modal() {
 		super.modal();
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public Dialog title(@Nonnull String set) {
+	public Dialog title(@NonNull String set) {
 		super.title(set);
 		return this;
 	}
@@ -160,31 +162,31 @@ public class Dialog extends Window {
 		createCancelButton(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL));
 	}
 
-	protected void createCancelButton(@Nonnull String text) {
+	protected void createCancelButton(@NonNull String text) {
 		createCancelButton(text, Theme.BTN_CANCEL);
 	}
 
-	protected void createCancelButton(@Nonnull String text, @Nonnull String image) {
+	protected void createCancelButton(@NonNull String text, @NonNull String image) {
 		DefaultButton b;
 		b = getButtonBar().addButton(text, image, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				buttonCancel();
 			}
 		});
 		b.setTestID("cancelButton");
 	}
 
-	@Nonnull
+	@NonNull
 	protected DefaultButton createSaveButton() {
 		return createSaveButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE);
 	}
 
-	@Nonnull
+	@NonNull
 	protected DefaultButton createSaveButton(String caption, String iconUrl) {
 		DefaultButton b = getButtonBar().addButton(caption, iconUrl, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				buttonSave();
 			}
 		});

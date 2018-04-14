@@ -1,15 +1,25 @@
 package to.etc.formbuilder.pages;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.IHtmlInput;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.ClassUtil;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * An auto-registered DomUI component: the class is just instantiated as a component and drawn as
@@ -21,16 +31,16 @@ import to.etc.util.*;
 public class AutoComponent implements IFbComponent {
 	final private Class< ? extends NodeBase> m_componentClass;
 
-	@Nonnull
+	@NonNull
 	final private String m_shortName;
 
 	@Nullable
 	private String m_selectorImage;
 
-	@Nonnull
+	@NonNull
 	final private String m_categoryName;
 
-	@Nonnull
+	@NonNull
 	final private Set<PropertyDefinition> m_propertySet;
 
 	public AutoComponent(Class< ? extends NodeBase> componentClass) {
@@ -58,11 +68,11 @@ public class AutoComponent implements IFbComponent {
 		return getLongName();
 	}
 
-	public void setSelectorImage(@Nonnull String image) {
+	public void setSelectorImage(@NonNull String image) {
 		m_selectorImage = image;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getSelectorImage() {
 		String si = m_selectorImage;
 		if(null == si) {
@@ -78,14 +88,14 @@ public class AutoComponent implements IFbComponent {
 		return si;
 	}
 
-	private boolean hasClassResource(@Nonnull String ref) {
+	private boolean hasClassResource(@NonNull String ref) {
 		InputStream is = m_componentClass.getResourceAsStream(ref);
 		FileTool.closeAll(is);
 		return is != null;
 	}
 
 	@Override
-	public void drawSelector(@Nonnull NodeContainer container) throws Exception {
+	public void drawSelector(@NonNull NodeContainer container) throws Exception {
 		Img img = new Img(getSelectorImage());
 		container.add(img);
 //
@@ -103,25 +113,25 @@ public class AutoComponent implements IFbComponent {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getShortName() {
 		return m_shortName;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getLongName() {
 		return m_componentClass.getName();
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getCategoryName() {
 		return m_categoryName;
 	}
 
 	/* Java sucks */
-	@Nonnull
+	@NonNull
 	static final private Class< ? >[] PARAMCLZ = {String.class, Integer.class, Boolean.class};
 
 	public void checkInstantiation() throws Exception {
@@ -130,7 +140,7 @@ public class AutoComponent implements IFbComponent {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public NodeBase createNodeInstance() throws Exception {
 		Constructor< ? > cons = ClassUtil.findConstructor(m_componentClass);	// Parameterless constructor?
 		if(null != cons) {
@@ -152,7 +162,7 @@ public class AutoComponent implements IFbComponent {
 		throw new IllegalStateException(m_componentClass + ": no idea how to make'un.");
 	}
 
-	public NodeBase convertToPainter(@Nonnull NodeBase node) {
+	public NodeBase convertToPainter(@NonNull NodeBase node) {
 		forcePainterView(node);
 
 		return node;
@@ -165,7 +175,7 @@ public class AutoComponent implements IFbComponent {
 	}
 
 
-	public void forcePainterView(@Nonnull NodeBase node) {
+	public void forcePainterView(@NonNull NodeBase node) {
 		if(node instanceof IHtmlInput) {
 //			((IHtmlInput) node).setDisabled(true);
 //			node.setSpecialAttribute("onfocus", "return false;");
@@ -194,8 +204,8 @@ public class AutoComponent implements IFbComponent {
 		return m_propertySet;
 	}
 
-	@Nonnull
-	private Set<PropertyDefinition> calculatePropertySet(@Nonnull Class< ? extends NodeBase> componentClass) {
+	@NonNull
+	private Set<PropertyDefinition> calculatePropertySet(@NonNull Class< ? extends NodeBase> componentClass) {
 		List<PropertyMetaModel< ? >> prl = MetaManager.findClassMeta(componentClass).getProperties();
 		Set<PropertyDefinition> res = new HashSet<PropertyDefinition>();
 		for(PropertyMetaModel< ? > pmm : prl) {
@@ -214,7 +224,7 @@ public class AutoComponent implements IFbComponent {
 //	}
 
 	@Nullable
-	private PropertyDefinition createDefinition(@Nonnull PropertyMetaModel< ? > pmm) {
+	private PropertyDefinition createDefinition(@NonNull PropertyMetaModel< ? > pmm) {
 		if(pmm.getReadOnly() == YesNoType.YES)
 			return null;
 		if(PropertyDefinition.isIgnored(pmm.getName()))
@@ -238,8 +248,8 @@ public class AutoComponent implements IFbComponent {
 	 * @param pmm
 	 * @return
 	 */
-	@Nonnull
-	private String calculateCategory(@Nonnull PropertyMetaModel< ? > pmm) {
+	@NonNull
+	private String calculateCategory(@NonNull PropertyMetaModel< ? > pmm) {
 		return PropertyDefinition.getCategory(pmm.getName());
 	}
 

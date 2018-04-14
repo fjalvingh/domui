@@ -24,9 +24,8 @@
  */
 package to.etc.webapp.qsql;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.webapp.query.IIdentifyable;
 
 /**
  * DO NOT USE - USE {@code "implements IIdentifyable<Long>" }

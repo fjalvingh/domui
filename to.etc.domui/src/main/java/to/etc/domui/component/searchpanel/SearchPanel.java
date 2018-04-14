@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.searchpanel;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.IQueryFactory;
@@ -56,8 +58,6 @@ import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -81,15 +81,15 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	private QCriteria<T> m_rootCriteria;
 
 	/** The data class we're looking for */
-	@Nonnull
+	@NonNull
 	private Class<T> m_lookupClass;
 
 	/** The metamodel for the class. */
-	@Nonnull
+	@NonNull
 	private ClassMetaModel m_metaModel;
 
 	/** The primary list of defined lookup items. */
-	@Nonnull
+	@NonNull
 	private final List<Object> m_itemList = new ArrayList<>(20);
 
 	/** The list of buttons to show on the button row. */
@@ -117,7 +117,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	@Nullable
 	private DefaultButton m_filterButton;
 
-	//@Nonnull
+	//@NonNull
 	//private List<SavedFilter> m_savedFilters = Collections.EMPTY_LIST;
 
 	//private boolean m_searchFilterEnabled;
@@ -225,14 +225,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	//	return filterValues;
 	//}
 
-	public SearchPanel(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
+	public SearchPanel(@NonNull final Class<T> lookupClass, @GProperty String... propertyList) {
 		this(lookupClass, null, propertyList);
 	}
 
 	/**
 	 * Create a LookupForm to find instances of the specified class.
 	 */
-	public SearchPanel(@Nonnull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
+	public SearchPanel(@NonNull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
 		m_rootCriteria = null;
 		m_lookupClass = lookupClass;
 		m_metaModel = cmm != null ? cmm : MetaManager.findClassMeta(lookupClass);
@@ -242,7 +242,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		defineDefaultButtons();
 	}
 
-	public SearchPanel(@Nonnull QCriteria<T> rootCriteria, String... propertyList) {
+	public SearchPanel(@NonNull QCriteria<T> rootCriteria, String... propertyList) {
 		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), null, propertyList);
 		m_rootCriteria = rootCriteria;
 	}
@@ -321,7 +321,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	//	LookupFormSavedFilterFragment div = m_lookupFormSavedFilterFragment = new LookupFormSavedFilterFragment(m_savedFilters);
 	//	div.onFilterClicked(new INotify<SavedFilter>() {
 	//		@Override
-	//		public void onNotify(@Nonnull SavedFilter sender) throws Exception {
+	//		public void onNotify(@NonNull SavedFilter sender) throws Exception {
 	//			clearInput();
 	//			fillSearchFields(sender);
 	//			if(m_clicker != null) {
@@ -331,7 +331,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	//	});
 	//	div.onFilterDeleted(new INotify<SavedFilter>() {
 	//		@Override
-	//		public void onNotify(@Nonnull SavedFilter sender) throws Exception {
+	//		public void onNotify(@NonNull SavedFilter sender) throws Exception {
 	//			deleteSavedFilter(sender);
 	//		}
 	//	});
@@ -357,7 +357,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	//	m_lookupFilterHandler = filterSaver;
 	//}
 	//
-	//@Nonnull
+	//@NonNull
 	//private synchronized static ILookupFilterHandler getLookupFilterHandler() {
 	//	ILookupFilterHandler lookupFilterHandler = m_lookupFilterHandler;
 	//	if(lookupFilterHandler == null) {
@@ -586,7 +586,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
 				m_newBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(final @Nonnull NodeBase xb) throws Exception {
+					public void clicked(final @NonNull NodeBase xb) throws Exception {
 						if(getOnNew() != null) {
 							getOnNew().clicked(SearchPanel.this);
 						}
@@ -646,7 +646,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_cancelBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL_TITLE));
 				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(final @Nonnull NodeBase xb) throws Exception {
+					public void clicked(final @NonNull NodeBase xb) throws Exception {
 
 						if(getOnCancel() != null) {
 							getOnCancel().clicked(SearchPanel.this);
@@ -824,14 +824,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * @see IButtonContainer#addButton(NodeBase, int)
 	 */
 	@Override
-	public void addButton(@Nonnull NodeBase thing, int order) {
+	public void addButton(@NonNull NodeBase thing, int order) {
 		if(order < 0)
 			addButtonItem(thing);
 		else
 			addButtonItem(thing, order);
 	}
 
-	@Nonnull
+	@NonNull
 	public ButtonFactory getButtonFactory() {
 		return m_buttonFactory;
 	}
@@ -860,7 +860,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return m_clearButton;
 	}
 
-	@Nonnull public ISearchFormBuilder getFormBuilder() {
+	@NonNull public ISearchFormBuilder getFormBuilder() {
 		ISearchFormBuilder builder = m_formBuilder;
 		if(null == builder) {
 			Supplier<ISearchFormBuilder> factory = m_defaultFormBuilderFactory;
@@ -889,7 +889,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	/**
 	 * Return the metamodel that this class uses to get its data from.
 	 */
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getMetaModel() {
 		return m_metaModel;
 	}
@@ -897,7 +897,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	/**
 	 * Returns the class whose instances we're looking up (a persistent class somehow).
 	 */
-	@Nonnull
+	@NonNull
 	public Class<T> getLookupClass() {
 		return m_lookupClass;
 	}
@@ -924,7 +924,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		return item;
 	}
 
-	@Nonnull <D> SearchControlLine<D> finishBuilder(SearchItemBuilder<T> builder) {
+	@NonNull <D> SearchControlLine<D> finishBuilder(SearchItemBuilder<T> builder) {
 		if(m_currentBuilder != builder)
 			throw new IllegalStateException(this + ": the item builder " + builder + " is not the 'current' item - call order problem");
 		SearchControlLine<D> line = createLine(builder);
@@ -941,7 +941,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		m_itemList.add(action);
 	}
 
-	@Nonnull
+	@NonNull
 	private <D> SearchControlLine<D> createLine(SearchItemBuilder<T> builder) {
 		IExecute action = builder.getAction();
 		if(action != null) {
@@ -1129,7 +1129,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		forceRebuild();
 	}
 
-	private <D> void assignCalcTestID(@Nonnull SearchControlLine<D> item, @Nullable PropertyMetaModel<?> pmm, @Nullable String labelText) {
+	private <D> void assignCalcTestID(@NonNull SearchControlLine<D> item, @Nullable PropertyMetaModel<?> pmm, @Nullable String labelText) {
 		String testID = item.getControl().getTestID();
 		if(null != testID)
 			return;

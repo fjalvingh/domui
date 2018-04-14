@@ -1,6 +1,6 @@
 package to.etc.dbutil;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class DbConnectionInfo {
 	final private String m_hostname;
@@ -25,8 +25,8 @@ public class DbConnectionInfo {
 	 *
 	 * @return
 	 */
-	@Nonnull
-	static public DbConnectionInfo decode(@Nonnull String db) {
+	@NonNull
+	static public DbConnectionInfo decode(@NonNull String db) {
 		int pos = db.indexOf('@');
 		if(pos != -1) {
 			String a = db.substring(0, pos);

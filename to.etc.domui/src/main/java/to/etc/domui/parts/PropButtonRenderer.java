@@ -24,20 +24,22 @@
  */
 package to.etc.domui.parts;
 
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.util.resources.IResourceDependencyList;
+
+import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.font.*;
-import java.awt.geom.*;
-import java.awt.image.*;
-import java.text.*;
-import java.util.*;
+import java.awt.font.FontRenderContext;
+import java.awt.font.TextAttribute;
+import java.awt.font.TextLayout;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.text.AttributedString;
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.annotation.*;
-import javax.imageio.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.util.resources.*;
+import java.util.Properties;
 
 /**
  * The actual renderer class for a property-file based renderer.
@@ -64,7 +66,7 @@ public class PropButtonRenderer {
 
 	protected BufferedImage m_iconImage;
 
-	public void generate(PartResponse pr, DomApplication da, ButtonPartKey key, Properties p, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(PartResponse pr, DomApplication da, ButtonPartKey key, Properties p, @NonNull IResourceDependencyList rdl) throws Exception {
 		m_application = da;
 		m_properties = p;
 		m_key = key;

@@ -1,9 +1,9 @@
 package to.etc.dbreplay;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.StatementProxy;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -17,7 +17,7 @@ import java.sql.Timestamp;
  * Created on Aug 31, 2011
  */
 class ReplayRecord {
-	static public ReplayRecord readRecord(@Nonnull DbReplay r) throws Exception {
+	static public ReplayRecord readRecord(@NonNull DbReplay r) throws Exception {
 		try {
 			long magic = r.readLong();
 			if(magic != ConnectionPool.STMT_START_MAGIC)
@@ -51,7 +51,7 @@ class ReplayRecord {
 	 * @param bis
 	 * @throws Exception
 	 */
-	private void load(@Nonnull DbReplay r) throws Exception {
+	private void load(@NonNull DbReplay r) throws Exception {
 		//-- Read the fixed header.
 		int type = r.readByte(); // The record/statement type.
 		m_type = type;

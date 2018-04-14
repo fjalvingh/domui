@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -39,7 +40,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.DateUtil;
 
-import javax.annotation.Nonnull;
 import java.util.Date;
 
 /**
@@ -194,7 +194,7 @@ public class DateInput2 extends Text2<Date> {
 		m_hideTodayButton = hideTodayButton;
 	}
 
-	@Nonnull
+	@NonNull
 	public static DateInput2 createDateInput(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(clz, property);
 		Class< ? > aclz = pmm.getActualType();
@@ -203,12 +203,12 @@ public class DateInput2 extends Text2<Date> {
 		return DateInput2.createDateInput((PropertyMetaModel<Date>) pmm, editable);
 	}
 
-	@Nonnull
+	@NonNull
 	public static DateInput2 createDateInput(PropertyMetaModel<Date> pmm, boolean editable) {
 		return createDateInput(pmm, editable, false);
 	}
 
-	@Nonnull
+	@NonNull
 	public static DateInput2 createDateInput(PropertyMetaModel<Date> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		DateInput2 di = new DateInput2();
 		if(pmm.isRequired())

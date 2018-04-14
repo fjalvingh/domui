@@ -17,8 +17,8 @@ import to.etc.domui.themes.sass.SassThemeFactory;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import javax.crypto.Cipher;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -42,7 +42,7 @@ public class Application extends DomApplication {
 		return HomePage.class;
 	}
 
-	@Override protected void initialize(@Nonnull ConfigParameters pp) throws Exception {
+	@Override protected void initialize(@NonNull ConfigParameters pp) throws Exception {
 		setKeepAliveInterval(60);
 
 		//-- Redirect all JUL logging to slf4j
@@ -87,7 +87,7 @@ public class Application extends DomApplication {
 		registerNewPageListener();
 	}
 
-	@Nonnull @Override public Locale getRequestLocale(HttpServletRequest request) {
+	@NonNull @Override public Locale getRequestLocale(HttpServletRequest request) {
 		return DUTCH;
 	}
 
@@ -100,7 +100,7 @@ public class Application extends DomApplication {
 		return p;
 	}
 
-	@Nonnull private File getPropertyFile() {
+	@NonNull private File getPropertyFile() {
 		String name = System.getProperty("config");
 		if(null != name) {
 			File f = new File(name);
@@ -139,7 +139,7 @@ public class Application extends DomApplication {
 	private void defineLoginAndLoginPage(LoginAuthenticator loginAuthenticator) {
 		setLoginAuthenticator(loginAuthenticator);
 		setLoginDialogFactory(new ILoginDialogFactory() {
-			@Nonnull
+			@NonNull
 			@Override
 			public String getLoginRURL(final String originalTarget) {
 				StringBuilder sb = new StringBuilder();
@@ -159,11 +159,11 @@ public class Application extends DomApplication {
 	private void registerNewPageListener() {
 		//addNewPageInstantiatedListener(new INewPageInstantiated() {
 		//	@Override
-		//	public void newPageCreated(@Nonnull UrlPage body) throws Exception {
+		//	public void newPageCreated(@NonNull UrlPage body) throws Exception {
 		//	}
 		//
 		//	@Override
-		//	public void newPageBuilt(@Nonnull UrlPage body) throws Exception {
+		//	public void newPageBuilt(@NonNull UrlPage body) throws Exception {
 		//		//System.out.println("PAGE BUILT");
 		//		if(body instanceof INoTopBar)
 		//			return;

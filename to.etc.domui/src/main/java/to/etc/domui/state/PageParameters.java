@@ -24,18 +24,35 @@
  */
 package to.etc.domui.state;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.converter.CompoundKeyConverter;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.trouble.MissingParameterException;
+import to.etc.domui.trouble.MultipleParameterException;
+import to.etc.domui.trouble.UnusableParameterException;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
+import to.etc.webapp.query.IIdentifyable;
 
-import javax.annotation.*;
-import java.io.*;
-import java.security.*;
-import java.util.*;
+import java.io.Serializable;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Encapsulates parameters for a page. All parameters must be presentable in URL form,
@@ -91,7 +108,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	/**
 	 * @see to.etc.domui.state.IPageParameters#getUnlockedCopy()
 	 */
-	@Nonnull
+	@NonNull
 	@Override
 	public PageParameters getUnlockedCopy() {
 		PageParameters clone = new PageParameters();
@@ -177,7 +194,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * Throws MissingParameterException when the parameter can not be found.
 	 *
 	 */
-	@Nonnull
+	@NonNull
 	private String getOneNotNull(String name) {
 		String v = getOne(name);
 		if(null == v)
@@ -465,7 +482,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * @see to.etc.domui.state.IPageParameters#getString(java.lang.String)
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public String getString(String name) {
 		return getOneNotNull(name);
 	}
@@ -484,8 +501,8 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * @see to.etc.domui.state.IPageParameters#getStringArray(java.lang.String)
 	 */
 	@Override
-	@Nonnull
-	public String[] getStringArray(@Nonnull String name) {
+	@NonNull
+	public String[] getStringArray(@NonNull String name) {
 		String[] arr = getStringArray(name, null);
 		if(null == arr)
 			throw new MissingParameterException(name);
@@ -497,7 +514,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	 */
 	@Override
 	@Nullable
-	public String[] getStringArray(@Nonnull String name, @Nullable String[] deflt) {
+	public String[] getStringArray(@NonNull String name, @Nullable String[] deflt) {
 		Object var = m_map.get(name);
 		if(null != var) {
 			if(var instanceof String)
@@ -522,7 +539,7 @@ public class PageParameters implements IPageParameters, Serializable {
 		return m_map.get(name);
 	}
 
-	public void putObject(@Nonnull String name, @Nullable Object value) {
+	public void putObject(@NonNull String name, @Nullable Object value) {
 		if(null == value)
 			m_map.remove(name);
 		else
@@ -534,7 +551,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * @param c
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public PageParameters createFrom(IRequestContext ctx) {
 		PageParameters pp = new PageParameters();
 		for(String name : ctx.getParameterNames()) {
@@ -559,8 +576,8 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * @param paramsAsString
 	 * @return
 	 */
-	@Nonnull
-	static public PageParameters createFromEncodedUrlString(@Nonnull String paramsAsString) {
+	@NonNull
+	static public PageParameters createFromEncodedUrlString(@NonNull String paramsAsString) {
 		PageParameters pp = new PageParameters();
 		if(DomUtil.isBlank(paramsAsString)) {
 			return pp;
@@ -616,7 +633,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * @see to.etc.domui.state.IPageParameters#getParameterNames()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public String[] getParameterNames() {
 		return m_map.keySet().toArray(new String[m_map.size()]);
 	}
@@ -699,7 +716,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * @see to.etc.domui.state.IPageParameters#calculateHashString()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public String calculateHashString() {
 		MessageDigest md = null;
 		try {
@@ -752,7 +769,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * @param query
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public PageParameters decodeParameters(@Nullable String query) {
 		if(null == query)
 			return new PageParameters();

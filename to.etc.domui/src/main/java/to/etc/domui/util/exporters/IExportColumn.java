@@ -1,9 +1,8 @@
 package to.etc.domui.util.exporters;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.IValueTransformer;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -12,7 +11,7 @@ import javax.annotation.Nullable;
 public interface IExportColumn<T> extends IValueTransformer<T> {
 	@Nullable String getLabel();
 
-	@Nonnull Class<?> getActualType();
+	@NonNull Class<?> getActualType();
 
 	@Nullable
 	default IExportCellRenderer<?, ?, ?> getRenderer() {

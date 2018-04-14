@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.css.ClearType;
@@ -39,8 +41,6 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -185,7 +185,7 @@ public class TabPanelBase extends Div {
 	/**
 	 * Close the given tab instance. This will call the onClose listener if present.
 	 */
-	public void closeTab(@Nonnull ITabHandle th) throws Exception {
+	public void closeTab(@NonNull ITabHandle th) throws Exception {
 		if(!(th instanceof TabInstance)) {
 			throw new IllegalArgumentException("Only instance of TabInstance can be used for closing a tab.");
 		}
@@ -261,7 +261,7 @@ public class TabPanelBase extends Div {
 	/**
 	 * Adding a tabInstance by use of the {@link TabBuilder}
 	 */
-	@Nonnull
+	@NonNull
 	public TabBuilder tab() {
 		if(null != m_tabBuilder) {
 			throw new ProgrammerErrorException("A new tab is already created without adding it to the panel (call the build() method on the TabBuilder)");
@@ -269,7 +269,7 @@ public class TabPanelBase extends Div {
 		return m_tabBuilder = new TabBuilder(this);
 	}
 
-	@Nonnull
+	@NonNull
 	TabInstance add(TabBuilder b) {
 		TabInstance ti = new TabInstance(this, b);
 		return addTabInstance(ti, b.getPosition());
@@ -347,7 +347,7 @@ public class TabPanelBase extends Div {
 		m_currentTab = index;
 	}
 
-	public boolean setCurrentTab(@Nonnull final ITabHandle tabHandle) throws Exception {
+	public boolean setCurrentTab(@NonNull final ITabHandle tabHandle) throws Exception {
 
 		if(!(tabHandle instanceof TabInstance))
 			throw new IllegalArgumentException("Only instance of TabInstance can be used for setting the current tab.");
@@ -363,7 +363,7 @@ public class TabPanelBase extends Div {
 
 	}
 
-	private void setCurrentTab(@Nonnull final TabInstance ti) throws Exception {
+	private void setCurrentTab(@NonNull final TabInstance ti) throws Exception {
 
 		int index = m_tablist.indexOf(ti);
 		setCurrentTab(index);
@@ -452,7 +452,7 @@ public class TabPanelBase extends Div {
 		return m_tablist.get(currentTabIndex);
 	}
 
-	public void updateContent(TabInstance tabInstance, @Nonnull NodeBase old) {
+	public void updateContent(TabInstance tabInstance, @NonNull NodeBase old) {
 		int index = m_tablist.indexOf(tabInstance);
 		if(index == -1) {
 			throw new IllegalStateException("The tab instance is no longer part of the panel");

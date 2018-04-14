@@ -1,12 +1,12 @@
 package to.etc.domui.component.lookup;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since 1/28/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 public final class SavedFilter {
 	private final Long m_recordId;
 	private final String m_filterName;

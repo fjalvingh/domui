@@ -24,7 +24,7 @@
  */
 package to.etc.domui.databinding.value;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.*;
 
@@ -35,10 +35,10 @@ import to.etc.domui.databinding.*;
  * Created on Apr 23, 2013
  */
 public class ValueChangeEvent<T> extends ObservableEvent<T, ValueChangeEvent<T>, IValueChangeListener<T>> {
-	@Nonnull
+	@NonNull
 	final private ValueDiff<T> m_diff;
 
-	public ValueChangeEvent(@Nonnull IObservableValue<T> source, @Nonnull ValueDiff<T> diff) {
+	public ValueChangeEvent(@NonNull IObservableValue<T> source, @NonNull ValueDiff<T> diff) {
 		super(source);
 		m_diff = diff;
 	}
@@ -48,12 +48,12 @@ public class ValueChangeEvent<T> extends ObservableEvent<T, ValueChangeEvent<T>,
 	 * @return
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public IObservableValue<T> getSource() {
 		return (IObservableValue<T>) super.getSource();
 	}
 
-	@Nonnull
+	@NonNull
 	public ValueDiff<T> getDiff() {
 		return m_diff;
 	}

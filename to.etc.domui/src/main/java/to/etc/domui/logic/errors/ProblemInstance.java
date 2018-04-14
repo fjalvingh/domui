@@ -1,10 +1,12 @@
 package to.etc.domui.logic.errors;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import java.util.Arrays;
 
 /**
  * An actual occurrence of a {@link Problem} that was found to occur on some instance
@@ -15,7 +17,7 @@ import to.etc.domui.component.meta.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 8, 2014
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class ProblemInstance {
 	static private final Object[] NONE = new Object[0];
 
@@ -95,7 +97,7 @@ final public class ProblemInstance {
 		return sb.toString();
 	}
 
-	@Nonnull
+	@NonNull
 	public String getMessage() {
 		return getProblem().getBundle().formatMessage(getProblem().getCode(), getParameters());
 	}

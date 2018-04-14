@@ -24,9 +24,9 @@
  */
 package to.etc.domui.util.db;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.webapp.query.QDataContext;
 
 /**
  * EXPERIMENTAL INTERFACE
@@ -39,11 +39,11 @@ public class QCopy {
 	@Nullable
 	static private IModelCopier m_copier;
 
-	static public synchronized void setImplementation(@Nonnull IModelCopier m) {
+	static public synchronized void setImplementation(@NonNull IModelCopier m) {
 		m_copier = m;
 	}
 
-	@Nonnull
+	@NonNull
 	static synchronized private IModelCopier c() {
 		if(null != m_copier)
 			return m_copier;

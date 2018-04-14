@@ -24,16 +24,31 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
 import to.etc.domui.component.meta.init.MetaInitializer;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.query.ICriteriaTableDef;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * This is a DomUI class metamodel info record that only contains data. It can be constructed by
@@ -53,17 +68,17 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	private String m_classNameOnly;
 
 	/** Theclass' resource bundle. */
-	@Nonnull
+	@NonNull
 	final private BundleRef m_classBundle;
 
 	/** An immutable list of all properties of this class. */
 	private List<PropertyMetaModel< ? >> m_rootProperties;
 
 	/** All undotted properties, set at initialization time, */
-	@Nonnull
+	@NonNull
 	private Map<String, PropertyMetaModel< ? >> m_simplePropertyMap = Collections.EMPTY_MAP;
 
-	@Nonnull
+	@NonNull
 	final private Map<String, PropertyMetaModel< ? >> m_dottedPropertyMap = new HashMap<>();
 
 	/**
@@ -101,16 +116,16 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 //	private ComboOptionalType m_comboOptional;
 
-	@Nonnull
+	@NonNull
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
 
-	@Nonnull
+	@NonNull
 	private List<DisplayPropertyMetaModel> m_tableDisplayProperties = Collections.EMPTY_LIST;
 
-	@Nonnull
+	@NonNull
 	private List<SearchPropertyMetaModel> m_searchProperties = Collections.EMPTY_LIST;
 
-	@Nonnull
+	@NonNull
 	private List<SearchPropertyMetaModel> m_keyWordSearchProperties = Collections.EMPTY_LIST;
 
 	/**
@@ -122,7 +137,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	/**
 	 * The default properties to show in a {@link LookupInput} field's instance display.
 	 */
-	@Nonnull
+	@NonNull
 	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
 
 	private String m_defaultSortProperty;
@@ -140,7 +155,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		m_classBundle = BundleRef.create(metaClass, m_classNameOnly);
 	}
 
-	@GuardedBy("MetaManager.class")
+	//@GuardedBy("MetaManager.class")
 	public void setClassProperties(List<PropertyMetaModel< ? >> reslist) {
 		m_rootProperties = Collections.unmodifiableList(reslist);
 		Map<String, PropertyMetaModel<?>> propMap = new HashMap<>();		// Set all undotted properties
@@ -157,7 +172,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * Return the class' resource bundle.
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public BundleRef getClassBundle() {
 		return m_classBundle;
 	}
@@ -172,7 +187,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @param loc
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	String getPropertyLabel(final DefaultPropertyMetaModel< ? > p, final Locale loc) {
 		String s = getClassBundle().findMessage(loc, p.getName() + ".label");
 		return s == null ? p.getName() : s;
@@ -219,7 +234,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	@Override
 	@Nullable
-	public PropertyMetaModel< ? > findProperty(@Nonnull final String name) {
+	public PropertyMetaModel< ? > findProperty(@NonNull final String name) {
 		if(name.indexOf('.') == -1)						// No dot?
 			return findSimpleProperty(name);			// Find it without lock
 
@@ -251,11 +266,24 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	@Nonnull
-	public PropertyMetaModel< ? > getProperty(@Nonnull String name) {
+	@Nullable
+	public <V> PropertyMetaModel<V> findProperty(@NonNull QField<?, V> field) {
+		return (PropertyMetaModel<V>) findProperty(field.getName());
+	}
+
+	@Override
+	@NonNull
+	public PropertyMetaModel< ? > getProperty(@NonNull String name) {
 		PropertyMetaModel< ? > pmm = findProperty(name);
 		if(null == pmm)
 			throw new IllegalStateException("The property '" + name + "' is not known in the meta model for " + this);
+		return pmm;
+	}
+
+	@NonNull @Override public <V> PropertyMetaModel<V> getProperty(@NonNull QField<?, V> field) {
+		PropertyMetaModel<V> pmm = findProperty(field);
+		if(null == pmm)
+			throw new IllegalStateException("The property '" + field + "' is not known in the meta model for " + this);
 		return pmm;
 	}
 
@@ -266,12 +294,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 */
 	@Override
 	@Nullable
-	public PropertyMetaModel< ? > findSimpleProperty(@Nonnull final String name) {
+	public PropertyMetaModel< ? > findSimpleProperty(@NonNull final String name) {
 		return m_simplePropertyMap.get(name);
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public List<PropertyMetaModel< ? >> getProperties() {
 		return m_rootProperties;
 	}
@@ -296,7 +324,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
 
@@ -318,12 +346,12 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getSearchProperties()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public List<SearchPropertyMetaModel> getSearchProperties() {
 		return m_searchProperties;
 	}
 
-	public void setSearchProperties(@Nonnull List<SearchPropertyMetaModel> searchProperties) {
+	public void setSearchProperties(@NonNull List<SearchPropertyMetaModel> searchProperties) {
 		m_searchProperties = searchProperties.size() == 0 ? Collections.EMPTY_LIST : searchProperties;
 	}
 
@@ -332,22 +360,22 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#getKeyWordSearchProperties()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public List<SearchPropertyMetaModel> getKeyWordSearchProperties() {
 		return m_keyWordSearchProperties;
 	}
 
-	public void setKeyWordSearchProperties(@Nonnull List<SearchPropertyMetaModel> keyWordSearchProperties) {
+	public void setKeyWordSearchProperties(@NonNull List<SearchPropertyMetaModel> keyWordSearchProperties) {
 		m_keyWordSearchProperties = keyWordSearchProperties.size() == 0 ? Collections.EMPTY_LIST : keyWordSearchProperties;
 	}
 
 	@Override
-	public @Nonnull Class< ? > getActualClass() {
+	public @NonNull Class< ? > getActualClass() {
 		return m_metaClass;
 	}
 
 	@Override
-	public synchronized @Nonnull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
+	public synchronized @NonNull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		if(m_tableDisplayProperties == null || m_tableDisplayProperties.size() == 0) {
 			m_tableDisplayProperties = MetaManager.calculateObjectProperties(this);
 		}
@@ -401,7 +429,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
@@ -495,7 +523,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * @see to.etc.domui.component.meta.ClassMetaModel#createCriteria()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public QCriteria< ? > createCriteria() throws Exception {
 		ICriteriaTableDef< ? > tdef = getMetaTableDef();
 		if(tdef != null)

@@ -1,5 +1,7 @@
 package to.etc.domui.component.meta.impl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.controlfactory.PropertyControlFactory;
 import to.etc.domui.component.input.IQueryManipulator;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -17,8 +19,6 @@ import to.etc.domui.util.IComboDataSet;
 import to.etc.domui.util.ILabelStringRenderer;
 import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
@@ -41,7 +41,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 		m_name = name;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public ClassMetaModel getClassModel() {
 		return m_classMetaModel;
@@ -53,7 +53,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 		return MetaManager.findClassMeta(getActualType());
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Class<T> getActualType() {
 		return m_actualType;
@@ -65,7 +65,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String getDefaultLabel() {
 		throw new IllegalStateException("Not implemented");
@@ -97,13 +97,13 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 		return 0;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String getName() {
 		return m_name;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public SortableType getSortable() {
 		return SortableType.UNKNOWN;
@@ -125,7 +125,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 		return false;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public PropertyRelationType getRelationType() {
 		return PropertyRelationType.NONE;
@@ -143,13 +143,13 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public TemporalPresentationType getTemporal() {
 		return TemporalPresentationType.UNKNOWN;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public NumericPresentation getNumericPresentation() {
 		return NumericPresentation.UNKNOWN;
@@ -173,13 +173,13 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return Collections.EMPTY_LIST;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public YesNoType getReadOnly() {
 		return YesNoType.UNKNOWN;
@@ -202,31 +202,31 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return Collections.EMPTY_LIST;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
 		return Collections.EMPTY_LIST;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
 		return Collections.EMPTY_LIST;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
 		return Collections.EMPTY_LIST;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return new PropertyMetaValidator[0];
@@ -252,11 +252,11 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 
 	@Nullable
 	@Override
-	public <A> A getAnnotation(@Nonnull Class<A> annclass) {
+	public <A> A getAnnotation(@NonNull Class<A> annclass) {
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<Object> getAnnotations() {
 		return Collections.EMPTY_LIST;
@@ -273,14 +273,14 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public YesNoType getNowrap() {
 		return YesNoType.UNKNOWN;
 	}
 
 	@Override
-	public void setValue(@Nonnull Object target, @Nullable T value) throws Exception {
+	public void setValue(@NonNull Object target, @Nullable T value) throws Exception {
 	}
 
 	@Override
@@ -290,7 +290,7 @@ abstract public class AbstractPropertyMetaModel<T> implements PropertyMetaModel<
 
 	@Nullable
 	@Override
-	public T getValue(@Nonnull Object in) throws Exception {
+	public T getValue(@NonNull Object in) throws Exception {
 		return null;
 	}
 }

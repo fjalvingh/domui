@@ -5,10 +5,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.util.exporters.ExcelFormat;
 import to.etc.util.FileTool;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		m_workbook = openWorkbook();
 	}
 
-	@Nonnull @Override public Iterator<IImportRow> iterator() {
+	@NonNull @Override public Iterator<IImportRow> iterator() {
 		checkStart();
 		Sheet sheet = getSheet();
 		if(m_hasHeaderRow) {

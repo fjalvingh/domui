@@ -24,9 +24,9 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.List;
 
 /**
  * Base class for visiting a node tree. The methods in this base class cause all
@@ -37,107 +37,107 @@ import javax.annotation.*;
  */
 abstract public class QNodeVisitorBase implements QNodeVisitor {
 	@Override
-	public void visitPropertyComparison(@Nonnull QPropertyComparison n) throws Exception {
+	public void visitPropertyComparison(@NonNull QPropertyComparison n) throws Exception {
 		n.getExpr().visit(this);
 	}
 
 	@Override
-	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+	public void visitPropertyIn(@NonNull QPropertyIn n) throws Exception {
 		n.getExpr().visit(this);
 	}
 
 	@Override
-	public void visitUnaryNode(@Nonnull QUnaryNode n) throws Exception {
+	public void visitUnaryNode(@NonNull QUnaryNode n) throws Exception {
 		n.getNode().visit(this);
 	}
 
 	@Override
-	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {}
+	public void visitUnaryProperty(@NonNull QUnaryProperty n) throws Exception {}
 
 	@Override
-	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {}
+	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {}
 
 	@Override
-	public void visitBetween(@Nonnull QBetweenNode n) throws Exception {
+	public void visitBetween(@NonNull QBetweenNode n) throws Exception {
 		n.getA().visit(this);
 		n.getB().visit(this);
 	}
 
 	@Override
-	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ? > n) throws Exception {
+	public void visitRestrictionsBase(@NonNull QCriteriaQueryBase<?, ?> n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(r != null)
 			r.visit(this);
 	}
 
 	@Override
-	public void visitCriteria(@Nonnull QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@NonNull QCriteria< ? > qc) throws Exception {
 		visitRestrictionsBase(qc);
 		visitOrderList(qc.getOrder());
 	}
 	@Override
-	public void visitSelection(@Nonnull QSelection< ? > s) throws Exception {
+	public void visitSelection(@NonNull QSelection< ? > s) throws Exception {
 		visitSelectionColumns(s);
 		visitRestrictionsBase(s);
 		visitOrderList(s.getOrder());
 	}
 
-	public void visitSelectionColumns(@Nonnull QSelection< ? > s) throws Exception {
-		for(@Nonnull
+	public void visitSelectionColumns(@NonNull QSelection< ? > s) throws Exception {
+		for(@NonNull
 		QSelectionColumn col : s.getColumnList())
 			col.visit(this);
 	}
 
 	@Override
-	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
+	public void visitOrderList(@NonNull List<QOrder> orderlist) throws Exception {
 		for(QOrder o : orderlist)
 			o.visit(this);
 	}
 
 	@Override
-	public void visitLiteral(@Nonnull QLiteral n) throws Exception {}
+	public void visitLiteral(@NonNull QLiteral n) throws Exception {}
 
 	@Override
-	public void visitMulti(@Nonnull QMultiNode n) throws Exception {
+	public void visitMulti(@NonNull QMultiNode n) throws Exception {
 		for(QOperatorNode o : n.getChildren())
 			o.visit(this);
 	}
 
 	@Override
-	public void visitOrder(@Nonnull QOrder o) throws Exception {}
+	public void visitOrder(@NonNull QOrder o) throws Exception {}
 
 	@Override
-	public void visitPropertySelection(@Nonnull QPropertySelection n) throws Exception {
+	public void visitPropertySelection(@NonNull QPropertySelection n) throws Exception {
 	}
 	@Override
-	public void visitSelectionColumn(@Nonnull QSelectionColumn n) throws Exception {
+	public void visitSelectionColumn(@NonNull QSelectionColumn n) throws Exception {
 		n.getItem().visit(this);
 	}
 	@Override
-	public void visitSelectionItem(@Nonnull QSelectionItem n) throws Exception {
+	public void visitSelectionItem(@NonNull QSelectionItem n) throws Exception {
 	}
 	@Override
-	public void visitMultiSelection(@Nonnull QMultiSelection n) throws Exception {
+	public void visitMultiSelection(@NonNull QMultiSelection n) throws Exception {
 		for(QSelectionItem it: n.getItemList())
 			it.visit(this);
 	}
 
 	@Override
-	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {
+	public void visitExistsSubquery(@NonNull QExistsSubquery< ? > q) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 
 	@Override
-	public void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull QSubQuery< ? , ? > n) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 
 	@Override
-	public void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception {
+	public void visitSelectionSubquery(@NonNull QSelectionSubquery n) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 
 	@Override
-	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) throws Exception {
+	public void visitPropertyJoinComparison(@NonNull QPropertyJoinComparison qPropertyJoinComparison) throws Exception {
 	}
 }

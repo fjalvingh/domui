@@ -1,5 +1,8 @@
 package to.etc.domui.webdriver.core;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.openqa.selenium.Alert;
@@ -37,9 +40,6 @@ import to.etc.util.WrappedException;
 import to.etc.webapp.testsupport.TUtilTestProperties;
 import to.etc.webapp.testsupport.TestProperties;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -63,7 +63,7 @@ import java.util.regex.Pattern;
 /**
  * This wraps the WebDriver core and exposes ways to use it.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class WebDriverConnector {
 
 	private static final Logger LOG = LoggerFactory.getLogger(WebDriverConnector.class);
@@ -92,12 +92,12 @@ final public class WebDriverConnector {
 	private int m_nextInterval = -1;
 
 	/** The base of the application URL, to which page names will be appended. */
-	@Nonnull final private String m_applicationURL;
+	@NonNull final private String m_applicationURL;
 
-	@Nonnull
+	@NonNull
 	private final WebDriverType m_driverType;
 
-	@Nonnull final private BrowserModel m_kind;
+	@NonNull final private BrowserModel m_kind;
 
 	private boolean m_inhibitAfter;
 
@@ -107,13 +107,13 @@ final public class WebDriverConnector {
 	private IExecute m_afterCommandCallback;
 
 	/** The default viewport size. */
-	@Nonnull
+	@NonNull
 	private Dimension m_viewportSize = new Dimension(1280, 1024);
 
 	@Nullable
 	private final IWebdriverScreenshotHelper m_screenshotHelper;
 
-	private WebDriverConnector(@Nonnull WebDriver driver, @Nonnull BrowserModel kind, @Nonnull String webapp, @Nonnull WebDriverType driverType, @Nullable IWebdriverScreenshotHelper helper) {
+	private WebDriverConnector(@NonNull WebDriver driver, @NonNull BrowserModel kind, @NonNull String webapp, @NonNull WebDriverType driverType, @Nullable IWebdriverScreenshotHelper helper) {
 		m_driver = driver;
 		m_kind = kind;
 		m_applicationURL = webapp;
@@ -216,7 +216,7 @@ final public class WebDriverConnector {
 		return tu;
 	}
 
-	@Nonnull
+	@NonNull
 	private static WebDriverType getDriverType(@Nullable String hubUrl) {
 		if(null == hubUrl || hubUrl.trim().length() == 0)
 			return WebDriverType.HTMLUNIT;                    // Used as a target because it can emulate multiple browser types
@@ -232,7 +232,7 @@ final public class WebDriverConnector {
 	 * Called after every screen action, this checks whether the DomUI "waiting" backdrop is present and waits for it
 	 * to be gone.
 	 */
-	private static void initializeAfterCommandListener(final @Nonnull WebDriverConnector tu) {
+	private static void initializeAfterCommandListener(final @NonNull WebDriverConnector tu) {
 		tu.setAfterCommandCallback(new IExecute() {
 			@Override
 			public void execute() {
@@ -269,11 +269,11 @@ final public class WebDriverConnector {
 		m_nextInterval = -1;
 	}
 
-	@Nonnull public WebDriverType getDriverType() {
+	@NonNull public WebDriverType getDriverType() {
 		return m_driverType;
 	}
 
-	@Nonnull
+	@NonNull
 	public WebDriver driver() {
 		WebDriver d = m_driver;
 		if(null == d)
@@ -311,11 +311,11 @@ final public class WebDriverConnector {
 	/**
 	 * Create the locator for a given testid.
 	 */
-	@Nonnull final public By byId(@Nonnull String testid) {
+	@NonNull final public By byId(@NonNull String testid) {
 		return By.cssSelector("*[testid='" + testid + "']");
 	}
 
-	@Nonnull final public By byId(@Nonnull String testid, @Nonnull String elementType) {
+	@NonNull final public By byId(@NonNull String testid, @NonNull String elementType) {
 		return By.cssSelector("*[testid='" + testid + "'] " + elementType);
 	}
 
@@ -323,7 +323,7 @@ final public class WebDriverConnector {
 	/**
 	 * Create a full locator using any supported expression.
 	 */
-	@Nonnull final public By locator(@Nonnull String locator) {
+	@NonNull final public By locator(@NonNull String locator) {
 		if(locator.startsWith("//")) {
 			return By.xpath(locator);
 		} else if(locator.startsWith("#")) {
@@ -340,14 +340,14 @@ final public class WebDriverConnector {
 	/**
 	 * Returns the number of nodes matching the css.
 	 */
-	public int countMatching(@Nonnull String locator) {
+	public int countMatching(@NonNull String locator) {
 		return countMatching(locator(locator));
 	}
 
 	/**
 	 * Returns the number of nodes matching the specified locator.
 	 */
-	public int countMatching(@Nonnull By locator) {
+	public int countMatching(@NonNull By locator) {
 		List<WebElement> elements = driver().findElements(locator);
 		return elements.size();
 	}
@@ -360,13 +360,13 @@ final public class WebDriverConnector {
 	/**
 	 * Wait for the given element to appear.
 	 */
-	public void wait(@Nonnull By locator) {
+	public void wait(@NonNull By locator) {
 		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
 		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
 	}
 
 	@Nullable
-	public WebElement wait(@Nonnull ExpectedCondition<WebElement> exc) {
+	public WebElement wait(@NonNull ExpectedCondition<WebElement> exc) {
 		Wait<WebDriver> wait = new FluentWait<>(driver())
 			.withTimeout(getWaitTimeout(), TimeUnit.SECONDS)
 			.pollingEvery(getWaitInterval(), TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
@@ -377,35 +377,35 @@ final public class WebDriverConnector {
 	/**
 	 * Waits until the element is present.
 	 */
-	public void wait(@Nonnull String testid) {
+	public void wait(@NonNull String testid) {
 		wait(byId(testid));
 	}
 
-	void waitForElementClickable(@Nonnull By locator) {
+	void waitForElementClickable(@NonNull By locator) {
 		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
 		wait.until(ExpectedConditions.elementToBeClickable(locator));
 	}
 
-	void waitForElementPresent(@Nonnull By locator) {
+	void waitForElementPresent(@NonNull By locator) {
 		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
 		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
 	}
 
-	public void waitForElementVisible(@Nonnull By locator) {
+	public void waitForElementVisible(@NonNull By locator) {
 		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
 		wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
 	}
 
-	public void waitForElementVisible(@Nonnull String testid) {
+	public void waitForElementVisible(@NonNull String testid) {
 		waitForElementVisible(byId(testid));
 	}
 
-	void waitForElementInvisible(@Nonnull By locator) {
+	void waitForElementInvisible(@NonNull By locator) {
 		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
 		wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
 	}
 
-	void waitForLink(@Nonnull String linkText) {
+	void waitForLink(@NonNull String linkText) {
 		wait(By.linkText(linkText));
 	}
 
@@ -432,7 +432,7 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Specials.											*/
 	/*--------------------------------------------------------------*/
-	void internalClick(@Nonnull By locator, @Nullable Keys[] withKeys) {
+	void internalClick(@NonNull By locator, @Nullable Keys[] withKeys) {
 		try {
 			waitForElementClickable(locator);
 			clickNoWait(locator, withKeys);
@@ -447,17 +447,17 @@ final public class WebDriverConnector {
 		}
 	}
 
-	private void internalClickNoRetry(@Nonnull By locator, @Nullable Keys[] withKeys) {
+	private void internalClickNoRetry(@NonNull By locator, @Nullable Keys[] withKeys) {
 		waitForElementClickable(locator);
 		clickNoWait(locator, withKeys);
 	}
 
-	void clickNoWait(@Nonnull By locator, @Nullable Keys[] withKeys) {
+	void clickNoWait(@NonNull By locator, @Nullable Keys[] withKeys) {
 		WebElement elem = driver().findElement(locator);
 		clickNoWait(elem, withKeys);
 	}
 
-	void clickNoWait(@Nonnull WebElement elem, @Nullable Keys[] withKeys) {
+	void clickNoWait(@NonNull WebElement elem, @Nullable Keys[] withKeys) {
 		if(withKeys == null || withKeys.length == 0) {
 			elem.click();
 		} else {
@@ -480,7 +480,7 @@ final public class WebDriverConnector {
 	 *
 	 * @throws Exception
 	 */
-	public void clickInstance(@Nonnull final By locator, final int index, final Keys... optionalKeys) throws Exception {
+	public void clickInstance(@NonNull final By locator, final int index, final Keys... optionalKeys) throws Exception {
 		wait(locator);
 		timed(new WebDriverConnector.Action<Boolean>() {
 
@@ -506,7 +506,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	final public boolean isPresent(@Nonnull By locator) {
+	final public boolean isPresent(@NonNull By locator) {
 		return !driver().findElements(locator).isEmpty();
 	}
 
@@ -515,7 +515,7 @@ final public class WebDriverConnector {
 	 * @param testId
 	 * @return
 	 */
-	final public boolean isPresent(@Nonnull String testId) {
+	final public boolean isPresent(@NonNull String testId) {
 		return isPresent(byId(testId));
 	}
 
@@ -525,7 +525,7 @@ final public class WebDriverConnector {
 	 * @param linkText
 	 * @return
 	 */
-	final public boolean isLinkPresent(@Nonnull String linkText) {
+	final public boolean isLinkPresent(@NonNull String linkText) {
 		return isPresent(By.linkText(linkText));
 	}
 
@@ -534,7 +534,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	final public boolean isVisible(@Nonnull String testid) {
+	final public boolean isVisible(@NonNull String testid) {
 		return isVisible(byId(testid));
 	}
 
@@ -543,7 +543,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	final public boolean isVisible(@Nonnull By locator) {
+	final public boolean isVisible(@NonNull By locator) {
 		if(!isPresent(locator)) {
 			return false;
 		}
@@ -558,7 +558,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	final public boolean isEnabled(@Nonnull String testid) {
+	final public boolean isEnabled(@NonNull String testid) {
 		return isEnabled(byId(testid));
 	}
 
@@ -567,7 +567,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	final public boolean isEnabled(@Nonnull By locator) {
+	final public boolean isEnabled(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
 		return elem.isEnabled();
@@ -578,7 +578,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	final public boolean isEditable(@Nonnull String testid) {
+	final public boolean isEditable(@NonNull String testid) {
 		return isEditable(byId(testid));
 	}
 
@@ -587,7 +587,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	final public boolean isEditable(@Nonnull By locator) {
+	final public boolean isEditable(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
 		boolean enabled = elem.isEnabled();
@@ -600,7 +600,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	final public boolean isChecked(@Nonnull String testid) {
+	final public boolean isChecked(@NonNull String testid) {
 		return isChecked(byId(testid));
 	}
 
@@ -609,7 +609,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	final public boolean isChecked(@Nonnull By locator) {
+	final public boolean isChecked(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
 		return elem.isSelected();
@@ -625,7 +625,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nullable final public String getValue(@Nonnull String testid) {
+	@Nullable final public String getValue(@NonNull String testid) {
 		return getValue(byId(testid));
 	}
 
@@ -634,7 +634,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	@Nullable final public String getValue(@Nonnull By locator) {
+	@Nullable final public String getValue(@NonNull By locator) {
 		WebElement elem = driver().findElement(locator);
 		return elem.getAttribute("value");
 	}
@@ -644,7 +644,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nonnull final public String getHtmlText(@Nonnull String testid) {
+	@NonNull final public String getHtmlText(@NonNull String testid) {
 		return getHtmlText(byId(testid));
 	}
 
@@ -653,7 +653,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	@Nonnull final public String getHtmlText(@Nonnull By locator) {
+	@NonNull final public String getHtmlText(@NonNull By locator) {
 		WebElement elem = driver().findElement(locator);
 		return elem.getText();
 	}
@@ -663,8 +663,8 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	@Nonnull
-	public String getAttribute(@Nonnull By locator, @Nonnull String attribute) {
+	@NonNull
+	public String getAttribute(@NonNull By locator, @NonNull String attribute) {
 		String value = driver().findElement(locator).getAttribute(attribute);
 		if(value == null) {
 			throw new IllegalStateException("No value for expected attribute " + attribute + " at locator " + locator);
@@ -677,8 +677,8 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nonnull
-	public String getAttribute(@Nonnull String testid, @Nonnull String attribute) {
+	@NonNull
+	public String getAttribute(@NonNull String testid, @NonNull String attribute) {
 		return getAttribute(byId(testid), attribute);
 	}
 
@@ -688,8 +688,8 @@ final public class WebDriverConnector {
 	 * @param testidandattr
 	 * @return
 	 */
-	@Nonnull
-	public String getAttribute(@Nonnull String testidandattr) {
+	@NonNull
+	public String getAttribute(@NonNull String testidandattr) {
 		int loc = testidandattr.indexOf('@');
 		if(loc == -1)
 			throw new IllegalStateException("No @ in specification");
@@ -703,7 +703,7 @@ final public class WebDriverConnector {
 	 * @return
 	 */
 	@Nullable
-	public String findAttribute(@Nonnull By locator, @Nonnull String attribute) {
+	public String findAttribute(@NonNull By locator, @NonNull String attribute) {
 		return driver().findElement(locator).getAttribute(attribute);
 	}
 
@@ -713,7 +713,7 @@ final public class WebDriverConnector {
 	 * @return
 	 */
 	@Nullable
-	public String findAttribute(@Nonnull String testid, @Nonnull String attribute) {
+	public String findAttribute(@NonNull String testid, @NonNull String attribute) {
 		return findAttribute(byId(testid), attribute);
 	}
 
@@ -734,7 +734,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	public void select(@Nonnull String testid, @Nonnull String value) throws Exception {
+	public void select(@NonNull String testid, @NonNull String value) throws Exception {
 		select(byId(testid), value);
 	}
 
@@ -751,7 +751,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	public void select(@Nonnull By locator, @Nonnull String value) throws Exception {
+	public void select(@NonNull By locator, @NonNull String value) throws Exception {
 		List<WebElement> options = getSelectElementOptions(locator);
 		WebElement toSelectOption = null;
 		for(WebElement option : options) {
@@ -790,7 +790,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	public void selectContaining(@Nonnull By locator, @Nonnull String value) throws Exception {
+	public void selectContaining(@NonNull By locator, @NonNull String value) throws Exception {
 		List<WebElement> options = getSelectElementOptions(locator);
 		WebElement toSelectOption = null;
 		value = value.toLowerCase();
@@ -832,12 +832,12 @@ final public class WebDriverConnector {
 		handleAfterCommandCallback();
 	}
 
-	private List<WebElement> getSelectElementOptions(@Nonnull By locator) {
+	private List<WebElement> getSelectElementOptions(@NonNull By locator) {
 		Select selectElement = getSelectElement(locator);
 		return selectElement.getOptions();
 	}
 
-	@Nonnull private Select getSelectElement(@Nonnull By locator) {
+	@NonNull private Select getSelectElement(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
 		WebElement select = elem.findElement(By.tagName("select"));
@@ -850,7 +850,7 @@ final public class WebDriverConnector {
 	 * @param optionContainsText
 	 * @return
 	 */
-	public void selectOptionContainingText(@Nonnull By locator, @Nonnull String optionContainsText) throws Exception {
+	public void selectOptionContainingText(@NonNull By locator, @NonNull String optionContainsText) throws Exception {
 		String option = getSelectOptionContaining(locator, optionContainsText);
 		select(locator, option);
 	}
@@ -862,7 +862,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull final public TreeSet<String> selectGetOptionSet(@Nonnull String testid, boolean value) {
+	@NonNull final public TreeSet<String> selectGetOptionSet(@NonNull String testid, boolean value) {
 		return selectGetOptionSet(byId(testid), value);
 	}
 
@@ -874,7 +874,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull final public TreeSet<String> selectGetOptionSet(@Nonnull By locator, boolean value) {
+	@NonNull final public TreeSet<String> selectGetOptionSet(@NonNull By locator, boolean value) {
 		List<WebElement> options = getSelectElementOptions(locator);
 		TreeSet<String> optionList = new TreeSet<String>();                // Ordered set.
 
@@ -893,7 +893,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull final public String selectGetOptionsString(@Nonnull By locator, boolean value) {
+	@NonNull final public String selectGetOptionsString(@NonNull By locator, boolean value) {
 		StringBuilder sb = new StringBuilder(128);
 		int count = 0;
 		for(String s : selectGetOptionSet(locator, value)) {
@@ -912,7 +912,7 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@Nonnull final public String selectGetOptionsString(@Nonnull String testid, boolean value) {
+	@NonNull final public String selectGetOptionsString(@NonNull String testid, boolean value) {
 		return selectGetOptionsString(byId(testid), value);
 	}
 
@@ -921,7 +921,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nullable final public String selectGetSelectedLabel(@Nonnull String testid) {
+	@Nullable final public String selectGetSelectedLabel(@NonNull String testid) {
 		return selectGetSelected(byId(testid), false);
 	}
 
@@ -930,7 +930,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nullable final public String selectGetSelectedValue(@Nonnull String testid) {
+	@Nullable final public String selectGetSelectedValue(@NonNull String testid) {
 		return selectGetSelected(byId(testid), true);
 	}
 
@@ -940,7 +940,7 @@ final public class WebDriverConnector {
 	 * @param byvalue
 	 * @return
 	 */
-	@Nonnull final public String selectGetSelected(@Nonnull By locator, boolean byvalue) {
+	@NonNull final public String selectGetSelected(@NonNull By locator, boolean byvalue) {
 		Select selectElement = getSelectElement(locator);
 		WebElement option = selectElement.getFirstSelectedOption();
 		if(null == option) {
@@ -952,11 +952,11 @@ final public class WebDriverConnector {
 			return option.getText();
 	}
 
-	@Nonnull final private String getSelectOptionContaining(@Nonnull String testid, @Nonnull String optionContainsText) {
+	@NonNull final private String getSelectOptionContaining(@NonNull String testid, @NonNull String optionContainsText) {
 		return getSelectOptionContaining(byId(testid), optionContainsText);
 	}
 
-	@Nonnull final private String getSelectOptionContaining(@Nonnull By locator, @Nonnull String optionContainsText) {
+	@NonNull final private String getSelectOptionContaining(@NonNull By locator, @NonNull String optionContainsText) {
 		waitForElementPresent(locator);
 		Set<String> options = selectGetOptionSet(locator, false);
 
@@ -979,7 +979,7 @@ final public class WebDriverConnector {
 	/**
 	 * Sets size of browser window.
 	 */
-	public void setSize(@Nonnull Dimension dimension) {
+	public void setSize(@NonNull Dimension dimension) {
 		driver().manage().window().setSize(dimension);
 		m_viewportSize = dimension;
 	}
@@ -988,7 +988,7 @@ final public class WebDriverConnector {
 	 *
 	 * @return size of the browser window
 	 */
-	@Nonnull
+	@NonNull
 	public Dimension getSize() {
 		return driver().manage().window().getSize();
 	}
@@ -1000,7 +1000,7 @@ final public class WebDriverConnector {
 	 * @return T if the screenshot was made.
 	 * @throws IOException
 	 */
-	public boolean screenshot(@Nonnull File screenshotFile) throws Exception {
+	public boolean screenshot(@NonNull File screenshotFile) throws Exception {
 		IWebdriverScreenshotHelper helper = m_screenshotHelper;
 		if(null == helper)
 			return false;
@@ -1033,7 +1033,7 @@ final public class WebDriverConnector {
 	 * remote server using the same session.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	private List<Cookie> getSessionCookies() {
 		List<Cookie> res = new ArrayList<Cookie>();
 		Cookie cookie = driver().manage().getCookieNamed("JSESSIONID"); // Tomcat specific.
@@ -1057,7 +1057,7 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	private String sendOobRequest(@Nonnull String url) throws Exception {
+	private String sendOobRequest(@NonNull String url) throws Exception {
 		List<Cookie> sescook = getSessionCookies();
 
 		URL u = new URL(url);
@@ -1108,7 +1108,7 @@ final public class WebDriverConnector {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	static private HttpCallException handleHttpError(String url, HttpURLConnection huc) throws Exception {
 		return new HttpCallException(url, huc.getResponseCode(), huc.getResponseMessage());
 	}
@@ -1116,8 +1116,8 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DomUI screen(s).									*/
 	/*--------------------------------------------------------------*/
-	@Nonnull
-	public WebDriverConnector openScreen(@Nonnull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
+	@NonNull
+	public WebDriverConnector openScreen(@NonNull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
 		return openScreen(null, clz, parameters);
 	}
 
@@ -1128,8 +1128,8 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public WebDriverConnector openScreen(@Nullable Locale locale, @Nonnull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
+	@NonNull
+	public WebDriverConnector openScreen(@Nullable Locale locale, @NonNull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
 		m_lastTestClass = null;
 		m_lastTestPage = null;
 
@@ -1171,8 +1171,8 @@ final public class WebDriverConnector {
 	@Nullable
 	private String m_lastTestPage;
 
-	@Nonnull
-	public WebDriverConnector openScreenIf(@Nonnull Object testClass, @Nonnull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
+	@NonNull
+	public WebDriverConnector openScreenIf(@NonNull Object testClass, @NonNull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
 		String sb = calculatePageURL(null, clz, parameters);
 		if(m_lastTestClass == testClass.getClass() && sb.equals(m_lastTestPage)) {
 			//-- Already open
@@ -1207,7 +1207,7 @@ final public class WebDriverConnector {
 		return this;
 	}
 
-	@NotNull private String calculatePageURL(@Nullable Locale locale, @Nonnull Class<? extends UrlPage> clz, Object[] parameters) {
+	@NotNull private String calculatePageURL(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object[] parameters) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(m_applicationURL);
 		sb.append(clz.getName());
@@ -1250,8 +1250,8 @@ final public class WebDriverConnector {
 	 * @param clz
 	 * @return
 	 */
-	@Nonnull
-	public WebDriverConnector waitScreen(@Nonnull Class< ? extends UrlPage> clz) {
+	@NonNull
+	public WebDriverConnector waitScreen(@NonNull Class< ? extends UrlPage> clz) {
 		wait(locator("body[" + PAGENAME_PARAMETER + "='" + clz.getName() + "']"));
 		return this;
 	}
@@ -1262,13 +1262,13 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public WebDriverConnector waitScreenNotPresent(@Nonnull Class< ? extends UrlPage> clz) throws Exception {
+	@NonNull
+	public WebDriverConnector waitScreenNotPresent(@NonNull Class< ? extends UrlPage> clz) throws Exception {
 		notPresent(locator("body[" + PAGENAME_PARAMETER + "='" + clz.getName() + "']"));
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder cmd() {
 		return new WebDriverCommandBuilder(this);
 	}
@@ -1290,7 +1290,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @param textlist
 	 */
-	void text(@Nonnull By locator, @Nonnull List<CharSequence> textlist) {
+	void text(@NonNull By locator, @NonNull List<CharSequence> textlist) {
 		waitForElementVisible(locator);
 		WebElement elem = m_driver.findElement(locator);
 		elem.sendKeys(Keys.chord(Keys.CONTROL, Keys.HOME));
@@ -1303,7 +1303,7 @@ final public class WebDriverConnector {
 		elem.sendKeys(sb);
 	}
 
-	private void text(@Nonnull StringBuilder sb, @Nullable Object o) {
+	private void text(@NonNull StringBuilder sb, @Nullable Object o) {
 		if(null == o)
 			return;
 		if(o instanceof String) {
@@ -1324,11 +1324,11 @@ final public class WebDriverConnector {
 	}
 
 
-	//	public void click(@Nonnull WebElement element) {
+	//	public void click(@NonNull WebElement element) {
 	//		element.click();
 	//	}
 
-	void internalCheck(@Nonnull By locator, boolean selected) {
+	void internalCheck(@NonNull By locator, boolean selected) {
 		WebElement elem = m_driver.findElement(locator);
 		if(elem.isSelected() != selected) {
 			elem.click();
@@ -1336,7 +1336,7 @@ final public class WebDriverConnector {
 		}
 	}
 
-	protected void on(@Nonnull By locator) {}
+	protected void on(@NonNull By locator) {}
 
 
 	/*--------------------------------------------------------------*/
@@ -1345,15 +1345,15 @@ final public class WebDriverConnector {
 	/**
 	 *
 	 */
-	@Nonnull
+	@NonNull
 	public WebDriverConnector resetFrames() {
 		//String whandle = m_driver.getWindowHandle();
 		m_driver.switchTo().defaultContent();
 		return this;
 	}
 
-	@Nonnull
-	public WebDriverConnector switchToFrame(@Nonnull String... names) {
+	@NonNull
+	public WebDriverConnector switchToFrame(@NonNull String... names) {
 		switchToFrameInternal(names.length, names);
 		return this;
 	}
@@ -1366,7 +1366,7 @@ final public class WebDriverConnector {
 	 * @param retryCount
 	 * @param names
 	 */
-	private void switchToFrameInternal(int retryCount, @Nonnull String... names) {
+	private void switchToFrameInternal(int retryCount, @NonNull String... names) {
 		try {
 			resetFrames();
 			for(String name : names) {
@@ -1402,7 +1402,7 @@ final public class WebDriverConnector {
 //	 * Wait for the element to become present.
 //	 * @return
 //	 */
-//	@Nonnull
+//	@NonNull
 //	public WebDriverCommandBuilder present() {
 //		return cmd().present();
 //	}
@@ -1411,7 +1411,7 @@ final public class WebDriverConnector {
 //	 * Wait for the element to become visible.
 //	 * @return
 //	 */
-//	@Nonnull
+//	@NonNull
 //	public WebDriverCommandBuilder visible() {
 //		return cmd().visible();
 //	}
@@ -1420,7 +1420,7 @@ final public class WebDriverConnector {
 //	 * Wait for the element to become invisible.
 //	 * @return
 //	 */
-//	@Nonnull
+//	@NonNull
 //	public WebDriverCommandBuilder invisible() {
 //		return cmd().invisible();
 //	}
@@ -1430,7 +1430,7 @@ final public class WebDriverConnector {
 //	 * Wait until the element is clickable.
 //	 * @return
 //	 */
-//	@Nonnull
+//	@NonNull
 //	public WebDriverCommandBuilder clickable() {
 //		return cmd().clickable();
 //	}
@@ -1441,8 +1441,8 @@ final public class WebDriverConnector {
 //	 * @param text
 //	 * @return
 //	 */
-//	@Nonnull
-//	public WebDriverCommandBuilder type(@Nonnull String text) {
+//	@NonNull
+//	public WebDriverCommandBuilder type(@NonNull String text) {
 //		return cmd().type(text);
 //	}
 //
@@ -1450,7 +1450,7 @@ final public class WebDriverConnector {
 //	 * Click the later selected element. You can optionally specify keys to keep pressed while the thingy is clicked.
 //	 * @return
 //	 */
-//	@Nonnull
+//	@NonNull
 //	public WebDriverCommandBuilder click(Keys... optionalWityKeys) {
 //		return cmd().click(optionalWityKeys);
 //	}
@@ -1458,7 +1458,7 @@ final public class WebDriverConnector {
 //	 * Check a checkbox, readiobutton or combobox option.
 //	 * @return
 //	 */
-//	@Nonnull
+//	@NonNull
 //	public WebDriverCommandBuilder check() {
 //		return cmd().check();
 //	}
@@ -1467,7 +1467,7 @@ final public class WebDriverConnector {
 //	 * Uncheck a checkbox, readiobutton or combobox option.
 //	 * @return
 //	 */
-//	@Nonnull
+//	@NonNull
 //	public WebDriverCommandBuilder uncheck() {
 //		return cmd().uncheck();
 //	}
@@ -1477,7 +1477,7 @@ final public class WebDriverConnector {
 //	 * @param selected
 //	 * @return
 //	 */
-//	@Nonnull
+//	@NonNull
 //	public WebDriverCommandBuilder check(boolean selected) {
 //		return cmd().check(selected);
 //	}
@@ -1488,8 +1488,8 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public WebDriverConnector notPresent(@Nonnull String testid) throws Exception {
+	@NonNull
+	public WebDriverConnector notPresent(@NonNull String testid) throws Exception {
 		return notPresent(byId(testid));
 	}
 
@@ -1499,8 +1499,8 @@ final public class WebDriverConnector {
 	 * @return
 	 */
 	@Deprecated
-	@Nonnull
-	private WebDriverConnector notPresent_notWorking(@Nonnull By locator) {
+	@NonNull
+	private WebDriverConnector notPresent_notWorking(@NonNull By locator) {
 		WebDriverWait wait = new WebDriverWait(m_driver, m_waitTimeout, m_waitInterval);
 		wait.until(ExpectedConditions.not(ExpectedConditions.presenceOfElementLocated(locator)));
 		return this;
@@ -1514,8 +1514,8 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public WebDriverConnector notPresent(@Nonnull final By locator) throws Exception {
+	@NonNull
+	public WebDriverConnector notPresent(@NonNull final By locator) throws Exception {
 		timed(getWaitTimeout(), getWaitInterval(), new Action<Boolean>() {
 			@Override
 			@Nullable
@@ -1536,8 +1536,8 @@ final public class WebDriverConnector {
 	 * @param count
 	 * @throws Exception
 	 */
-	@Nonnull
-	public WebDriverConnector waitMultiplePresent(@Nonnull final By locator, final int count) throws Exception {
+	@NonNull
+	public WebDriverConnector waitMultiplePresent(@NonNull final By locator, final int count) throws Exception {
 		timed(getWaitTimeout(), getWaitInterval(), new Action<Boolean>() {
 			@Override
 			@Nullable
@@ -1556,8 +1556,8 @@ final public class WebDriverConnector {
 	//	 * @param count
 	//	 * @throws Exception
 	//	 */
-	//	@Nonnull
-	//	public TUtilWebdriver waitMultipleNotPresent(@Nonnull final By locator, final int count) throws Exception {
+	//	@NonNull
+	//	public TUtilWebdriver waitMultipleNotPresent(@NonNull final By locator, final int count) throws Exception {
 	//		timed(getWaitTimeout(), getWaitInterval(), new Action<Boolean>() {
 	//			@Nullable
 	//			public Boolean execute() throws Exception {
@@ -1604,7 +1604,7 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	public void waitForNoneOfElementsPresent(final @Nonnull By... locators) throws Exception {
+	public void waitForNoneOfElementsPresent(final @NonNull By... locators) throws Exception {
 		if(locators.length == 0)
 			throw new IllegalStateException("Missing locators");
 		Boolean value = timed(new Action<Boolean>() {
@@ -1650,8 +1650,8 @@ final public class WebDriverConnector {
 		return value.intValue();
 	}
 
-	@Nonnull
-	public String waitValuePresent(@Nonnull final By locator, @Nullable final String text) throws Exception {
+	@NonNull
+	public String waitValuePresent(@NonNull final By locator, @Nullable final String text) throws Exception {
 		wait(locator);
 		return timed(new Action<String>() {
 			@Override
@@ -1670,8 +1670,8 @@ final public class WebDriverConnector {
 		});
 	}
 
-	@Nonnull
-	public String waitValueNotEmpty(@Nonnull final By locator) throws Exception {
+	@NonNull
+	public String waitValueNotEmpty(@NonNull final By locator) throws Exception {
 		wait(locator);
 		return timed(new Action<String>() {
 			@Override
@@ -1688,8 +1688,8 @@ final public class WebDriverConnector {
 		});
 	}
 
-	@Nonnull
-	public String waitHtmlTextPresent(@Nonnull final By locator, @Nullable final String text) throws Exception {
+	@NonNull
+	public String waitHtmlTextPresent(@NonNull final By locator, @Nullable final String text) throws Exception {
 		wait(locator);
 		return timed(new Action<String>() {
 			@Override
@@ -1713,7 +1713,7 @@ final public class WebDriverConnector {
 	 * @param linkText
 	 * @return
 	 */
-	public void clickLink(@Nonnull String linkText, Keys... optionalWithKeys) {
+	public void clickLink(@NonNull String linkText, Keys... optionalWithKeys) {
 		internalClick(By.linkText(linkText), optionalWithKeys);
 	}
 
@@ -1722,15 +1722,15 @@ final public class WebDriverConnector {
 	 * @param title
 	 */
 	@Deprecated
-	public void clickButtonTitled(@Nonnull String title) {
+	public void clickButtonTitled(@NonNull String title) {
 		cmd().click().on(By.cssSelector("button[title='" + title + "']"));
 	}
 
 	/**
 	* @see org.openqa.selenium.JavascriptExecutor#executeScript(String, Object...)
 	*/
-	@Nonnull
-	public String executeScript(@Nonnull String javaScriptFunction) {
+	@NonNull
+	public String executeScript(@NonNull String javaScriptFunction) {
 		if(m_driver instanceof JavascriptExecutor) {
 			Object result = ((JavascriptExecutor) m_driver).executeScript(javaScriptFunction);
 			if(result == null) {
@@ -1762,7 +1762,7 @@ final public class WebDriverConnector {
 		return driver().findElement(byId(testid));
 	}
 
-	@Nonnull
+	@NonNull
 	public WebElement getElement(String testId) {
 		WebElement element = findElement(testId);
 		if(null == element)
@@ -1770,7 +1770,7 @@ final public class WebDriverConnector {
 		return element;
 	}
 
-	@Nonnull
+	@NonNull
 	public WebElement getElement(String testId, String extraCss) {
 		WebElement element = findElement(testId, extraCss);
 		if(null == element)
@@ -1784,7 +1784,7 @@ final public class WebDriverConnector {
 		return findElement(byId(testId, extraCss));
 	}
 
-	@Nonnull
+	@NonNull
 	public WebElement getElement(By by) {
 		WebElement element = findElement(by);
 		if(null == element)
@@ -1792,7 +1792,7 @@ final public class WebDriverConnector {
 		return element;
 	}
 
-	static public void onTestFailure(@Nonnull WebDriverConnector wd, @Nullable Method failedMethod) throws Exception {
+	static public void onTestFailure(@NonNull WebDriverConnector wd, @Nullable Method failedMethod) throws Exception {
 		//-- Make a screenshot
 		System.out.println("@onTestFailure: attempting to create a screenshot");
 		File tmpf = File.createTempFile("screenshot", ".png");
@@ -1863,8 +1863,8 @@ final public class WebDriverConnector {
 	 * Run the specified action repeatedly, with [interval] millis between tries, until it returns a nonnull value. If
 	 * the timeout specified in seconds is exceeded throw an exception.
 	 */
-	@Nonnull
-	<T> T timed(long timeoutSeconds, long intervalMillis, @Nonnull Action<T> action) throws Exception {
+	@NonNull
+	<T> T timed(long timeoutSeconds, long intervalMillis, @NonNull Action<T> action) throws Exception {
 		long ts = System.currentTimeMillis() + (timeoutSeconds * 1000);
 		int count = 0;
 		for(;;) {
@@ -1881,8 +1881,8 @@ final public class WebDriverConnector {
 		}
 	}
 
-	@Nonnull
-	public <T> T timed(@Nonnull Action<T> action) throws Exception {
+	@NonNull
+	public <T> T timed(@NonNull Action<T> action) throws Exception {
 		return timed(getWaitTimeout(), getWaitInterval(), action);
 	}
 
@@ -1896,8 +1896,8 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public <T> T timed(long timeoutSeconds, @Nonnull Class< ? > testClass, @Nonnull Action<T> action) throws Exception {
+	@NonNull
+	public <T> T timed(long timeoutSeconds, @NonNull Class< ? > testClass, @NonNull Action<T> action) throws Exception {
 		org.junit.experimental.categories.Category category = testClass.getAnnotation(org.junit.experimental.categories.Category.class);
 		boolean isAnnotatedAsRunSlow = false;
 		if(category != null) {
@@ -1921,7 +1921,7 @@ final public class WebDriverConnector {
 	 *
 	 * @param keys
 	 */
-	public void pressKeys(@Nonnull CharSequence... keys) throws Exception {
+	public void pressKeys(@NonNull CharSequence... keys) throws Exception {
 		pressKeys(By.cssSelector("body"), keys);
 	}
 
@@ -1931,7 +1931,7 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @param keys
 	 */
-	public void pressKeys(@Nonnull By locator, @Nonnull CharSequence... keys) throws Exception {
+	public void pressKeys(@NonNull By locator, @NonNull CharSequence... keys) throws Exception {
 		WebElement elem = driver().findElement(locator);
 		elem.sendKeys(Keys.chord(keys));
 		handleAfterCommandCallback();
@@ -1942,7 +1942,7 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	public void focus(@Nonnull String testid) {
+	public void focus(@NonNull String testid) {
 		focus(byId(testid));
 	}
 
@@ -1951,26 +1951,26 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	public void focus(@Nonnull By locator) {
+	public void focus(@NonNull By locator) {
 		new Actions(driver()).moveToElement(driver().findElement(locator)).perform();
 	}
 
-	public void keyUp(@Nonnull String testid, @Nonnull Keys... keys) {
+	public void keyUp(@NonNull String testid, @NonNull Keys... keys) {
 		keyUp(byId(testid), keys);
 	}
 
-	public void keyUp(@Nonnull By locator, @Nonnull Keys... keys) {
+	public void keyUp(@NonNull By locator, @NonNull Keys... keys) {
 		Actions a = new Actions(driver()).moveToElement(driver().findElement(locator));
 		for(Keys k: keys)
 			a.keyUp(k);
 		a.perform();
 	}
 
-	public void keyDown(@Nonnull String testid, @Nonnull Keys... keys) {
+	public void keyDown(@NonNull String testid, @NonNull Keys... keys) {
 		keyDown(byId(testid), keys);
 	}
 
-	public void keyDown(@Nonnull By locator, @Nonnull Keys... keys) {
+	public void keyDown(@NonNull By locator, @NonNull Keys... keys) {
 		Actions a = new Actions(driver()).moveToElement(driver().findElement(locator));
 		for(Keys k : keys)
 			a.keyDown(k);
@@ -2011,7 +2011,7 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	public void switchToWindow(@Nonnull final UrlPage page) throws Exception {
+	public void switchToWindow(@NonNull final UrlPage page) throws Exception {
 		switchToWindow(page.toString());
 	}
 
@@ -2020,7 +2020,7 @@ final public class WebDriverConnector {
 	 * @param screen
 	 * @throws Exception
 	 */
-	public void switchToWindow(@Nonnull String screen) throws Exception {
+	public void switchToWindow(@NonNull String screen) throws Exception {
 		String windowHandler = waitForPopup(screen);
 		driver().switchTo().window(windowHandler);
 	}
@@ -2029,7 +2029,7 @@ final public class WebDriverConnector {
 	 * Used for switching control to the other browser window by its handle.
 	 * @param handle
 	 */
-	public void switchToWindowByHandle(@Nonnull String handle) {
+	public void switchToWindowByHandle(@NonNull String handle) {
 		driver().switchTo().window(handle);
 	}
 
@@ -2038,7 +2038,7 @@ final public class WebDriverConnector {
 	 * Used when you are expecting some parameters in your popup
 	 * @throws Exception
 	 */
-	public void switchToByUrlPart(@Nonnull String urlPart) throws Exception {
+	public void switchToByUrlPart(@NonNull String urlPart) throws Exception {
 		switchToWindowByHandle(waitForWithUrlPart(urlPart));
 	}
 
@@ -2046,7 +2046,7 @@ final public class WebDriverConnector {
 	 * Get handle from the current window under driver control
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public String getWindowHandle() {
 		final String currentWindowHandle = driver().getWindowHandle();
 		if(currentWindowHandle == null) {
@@ -2062,8 +2062,8 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	private String waitForPopup(@Nonnull final String page) throws Exception {
+	@NonNull
+	private String waitForPopup(@NonNull final String page) throws Exception {
 		alertAccept();
 		final String currentWindowHandle = driver().getWindowHandle();
 		return timed(getWaitTimeout(), getWaitInterval(), new Action<String>() {
@@ -2094,8 +2094,8 @@ final public class WebDriverConnector {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	private String waitForWithUrlPart(@Nonnull final String urlPart) throws Exception {
+	@NonNull
+	private String waitForWithUrlPart(@NonNull final String urlPart) throws Exception {
 		return timed(getWaitTimeout(), getWaitInterval(), new Action<String>() {
 			@Override
 			@Nullable
@@ -2121,11 +2121,11 @@ final public class WebDriverConnector {
 	 * Force the test to fail with the specified message.
 	 * @param message
 	 */
-	final public static void fail(@Nonnull String message) {
+	final public static void fail(@NonNull String message) {
 		Assert.fail(message);
 	}
 
-	final public void assertTrue(@Nonnull String message, boolean condition) {
+	final public void assertTrue(@NonNull String message, boolean condition) {
 		Assert.assertTrue(message, condition);
 	}
 
@@ -2133,7 +2133,7 @@ final public class WebDriverConnector {
 		Assert.assertTrue(condition);
 	}
 
-	final public void assertFalse(@Nonnull String message, boolean condition) {
+	final public void assertFalse(@NonNull String message, boolean condition) {
 		Assert.assertFalse(message, condition);
 	}
 
@@ -2201,7 +2201,7 @@ final public class WebDriverConnector {
 	}
 
 	@Nullable
-	private static Boolean handleRegex(@Nonnull String prefix, @Nonnull String expectedPattern, @Nonnull String actual, int flags) {
+	private static Boolean handleRegex(@NonNull String prefix, @NonNull String expectedPattern, @NonNull String actual, int flags) {
 		if(expectedPattern.startsWith(prefix)) {
 			String expectedRegEx = expectedPattern.replaceFirst(prefix, ".*") + ".*";
 			Pattern p = Pattern.compile(expectedRegEx, flags);
@@ -2215,98 +2215,98 @@ final public class WebDriverConnector {
 	}
 
 
-	public void verifyInvisible(@Nonnull String testid) {
+	public void verifyInvisible(@NonNull String testid) {
 		verifyInvisible(byId(testid));
 	}
 
-	public void verifyInvisible(@Nonnull By locator) {
+	public void verifyInvisible(@NonNull By locator) {
 		assertFalse("Locator " + locator + " is not invisible", isVisible(locator));
 	}
 
-	public void verifyVisible(@Nonnull String testid) {
+	public void verifyVisible(@NonNull String testid) {
 		verifyVisible(byId(testid));
 	}
 
-	public void verifyVisible(@Nonnull By locator) {
+	public void verifyVisible(@NonNull By locator) {
 		assertTrue("Locator " + locator + " is not visible", isVisible(locator));
 	}
 
-	public void verifyNotEditable(@Nonnull String testid) {
+	public void verifyNotEditable(@NonNull String testid) {
 		assertFalse("TestID " + testid + " is editable", isEditable(testid));
 	}
 
-	public void verifyEditable(@Nonnull String testid) {
+	public void verifyEditable(@NonNull String testid) {
 		assertTrue("TestID " + testid + " is not editable", isEditable(testid));
 	}
 
-	public void verifyDisabled(@Nonnull String testid) {
+	public void verifyDisabled(@NonNull String testid) {
 		assertFalse("TestID " + testid + " is not disabled", isEnabled(testid));
 	}
 
-	public void verifyEnabled(@Nonnull String testid) {
+	public void verifyEnabled(@NonNull String testid) {
 		assertTrue("TestID " + testid + " is not enabled", isEnabled(testid));
 	}
 
-	public void verifyPresent(@Nonnull By locator) {
+	public void verifyPresent(@NonNull By locator) {
 		assertTrue("Locator " + locator + " not present", isPresent(locator));
 	}
 
-	public void verifyPresent(@Nonnull String... testIds) {
+	public void verifyPresent(@NonNull String... testIds) {
 		for(String testid : testIds)
 			verifyPresent(byId(testid));
 	}
 
-	public void verifyNotPresent(@Nonnull By locator) {
+	public void verifyNotPresent(@NonNull By locator) {
 		assertFalse("Locator " + locator + " is present", isPresent(locator));
 	}
 
-	public void verifyNotPresent(@Nonnull String testid) {
+	public void verifyNotPresent(@NonNull String testid) {
 		verifyNotPresent(byId(testid));
 	}
 
-	public void verifyTextEquals(@Nonnull String testid, @Nonnull String text) {
+	public void verifyTextEquals(@NonNull String testid, @NonNull String text) {
 		verifyTextEquals(byId(testid), text);
 	}
 
-	public void verifyTextEquals(@Nonnull By locator, @Nonnull String text) {
+	public void verifyTextEquals(@NonNull By locator, @NonNull String text) {
 		assertEquals(getHtmlText(locator), text);
 	}
 
-	public void verifyTextNotEmpty(@Nonnull String testid) {
+	public void verifyTextNotEmpty(@NonNull String testid) {
 		assertFalse("TestID " + testid + ": text is empty", StringTool.isBlank(getHtmlText(testid)));
 	}
 
-	public void verifyTextContains(@Nonnull String testid, @Nonnull String text) {
+	public void verifyTextContains(@NonNull String testid, @NonNull String text) {
 		verifyTextContains(byId(testid), text);
 	}
 
-	public void verifyTextContains(@Nonnull By locator, @Nonnull String text) {
+	public void verifyTextContains(@NonNull By locator, @NonNull String text) {
 		String html = getHtmlText(locator);
 		assertTrue("Locator " + locator + " does not contain " + text + "(value = " + html + ")", html.toLowerCase().contains(text.toLowerCase()));
 	}
 
-	public void verifyTextStartsWith(@Nonnull String testid, @Nonnull String text) {
+	public void verifyTextStartsWith(@NonNull String testid, @NonNull String text) {
 		verifyTextStartsWith(byId(testid), text);
 	}
 
-	public void verifyTextStartsWith(@Nonnull By locator, @Nonnull String text) {
+	public void verifyTextStartsWith(@NonNull By locator, @NonNull String text) {
 		String html = getHtmlText(locator);
 		assertTrue("Locator " + locator + " text does not start with " + text + " (value=" + html + ")", html.toLowerCase().startsWith(text.toLowerCase()));
 	}
 
-	public void verifyValue(@Nonnull By locator, @Nullable String value) {
+	public void verifyValue(@NonNull By locator, @Nullable String value) {
 		assertEquals(getValue(locator), value);
 	}
 
-	public void verifyValue(@Nonnull String testid, @Nullable String value) {
+	public void verifyValue(@NonNull String testid, @Nullable String value) {
 		verifyValue(byId(testid), value);
 	}
 
-	public void verifySelect(@Nonnull String testid, @Nonnull String value) {
+	public void verifySelect(@NonNull String testid, @NonNull String value) {
 		verifySelect(byId(testid), value);
 	}
 
-	public void verifySelect(@Nonnull By locator, @Nonnull String value) {
+	public void verifySelect(@NonNull By locator, @NonNull String value) {
 		assertEquals(selectGetSelected(locator, false), value);
 	}
 
@@ -2326,8 +2326,8 @@ final public class WebDriverConnector {
 		}
 	}
 
-	@Nonnull
-	public Map<String, String> getComputedStyles(@Nonnull WebElement element, Predicate<String> filter) {
+	@NonNull
+	public Map<String, String> getComputedStyles(@NonNull WebElement element, Predicate<String> filter) {
 		JavascriptExecutor executor = (JavascriptExecutor) driver();
 		String script = "var s = '';" +
 			"var o = getComputedStyle(arguments[0]);" +
@@ -2352,8 +2352,8 @@ final public class WebDriverConnector {
 		return res;
 
 	}
-	@Nonnull
-	public Map<String, String> getComputedStyles(@Nonnull WebElement element) {
+	@NonNull
+	public Map<String, String> getComputedStyles(@NonNull WebElement element) {
 		return getComputedStyles(element, a -> true);
 
 	}

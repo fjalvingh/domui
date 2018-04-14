@@ -24,16 +24,22 @@
  */
 package to.etc.domui.parts;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.server.parts.IUnbufferedPartFactory;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.webapp.core.ServerTools;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.trouble.*;
-import to.etc.util.*;
-import to.etc.webapp.core.*;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Safe reference to a server-side tempfile.
@@ -43,14 +49,14 @@ import to.etc.webapp.core.*;
  */
 public class TempDirPart implements IUnbufferedPartFactory {
 	static private class TmpDir implements HttpSessionBindingListener {
-		@Nonnull
+		@NonNull
 		final private File m_dir;
 
-		public TmpDir(@Nonnull File dir) {
+		public TmpDir(@NonNull File dir) {
 			m_dir = dir;
 		}
 
-		@Nonnull
+		@NonNull
 		public File getDir() {
 			return m_dir;
 		}
@@ -66,7 +72,7 @@ public class TempDirPart implements IUnbufferedPartFactory {
 		}
 	}
 
-	static public String registerTempDir(@Nonnull IRequestContext ctx, @Nonnull File target) {
+	static public String registerTempDir(@NonNull IRequestContext ctx, @NonNull File target) {
 		String key = StringTool.generateGUID();
 
 		ctx.getSession().setAttribute("tmpdir-" + key, new TmpDir(target));				// Store in session context
@@ -82,7 +88,7 @@ public class TempDirPart implements IUnbufferedPartFactory {
 	 * @see to.etc.domui.server.parts.IUnbufferedPartFactory#generate(to.etc.domui.server.DomApplication, java.lang.String, to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
-	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
+	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
 		//-- 1. Get the key from the 1st part of the url,
 		int pos = rurl.indexOf('/');
 		if(pos == -1)

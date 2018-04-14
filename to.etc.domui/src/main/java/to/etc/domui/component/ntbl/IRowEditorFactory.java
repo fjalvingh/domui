@@ -24,9 +24,8 @@
  */
 package to.etc.domui.component.ntbl;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeContainer;
 
 /**
  * Thingy to create a row editor to use within the {@link ExpandingEditTable}.
@@ -35,6 +34,6 @@ import to.etc.domui.dom.html.*;
  * Created on Dec 8, 2009
  */
 public interface IRowEditorFactory<T, E extends NodeContainer & IEditor> {
-	@Nonnull
-	E createRowEditor(@Nonnull T instance, boolean isnew, boolean isReadonly) throws Exception;
+	@NonNull
+	E createRowEditor(@NonNull T instance, boolean isnew, boolean isReadonly) throws Exception;
 }

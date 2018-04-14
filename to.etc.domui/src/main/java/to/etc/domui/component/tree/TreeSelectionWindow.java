@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tree;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.component.layout.FloatingWindow;
@@ -36,9 +38,6 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * A popup window that shows a tree and lets the user select one entry from it. It shows a tree with
@@ -53,7 +52,7 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 
 	private T	m_selected;
 
-	@Nonnull
+	@NonNull
 	private ITreeModel<T>	m_model;
 
 //	private NodeBase		m_selectedNode;
@@ -66,12 +65,12 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 
 	private IRenderInto<T> m_contentRenderer;
 
-	public TreeSelectionWindow(boolean modal, String txt, @Nonnull ITreeModel<T> model) {
+	public TreeSelectionWindow(boolean modal, String txt, @NonNull ITreeModel<T> model) {
 		super(modal, txt);
 		m_model = model;
 		setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(@Nonnull String closeReason) throws Exception {
+			public void closed(@NonNull String closeReason) throws Exception {
 				cancel();
 			}
 		});
@@ -85,13 +84,13 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 		add(bb);
 		bb.addButton(Msgs.BUNDLE.getString("ui.tsw.select"), new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				select();
 			}
 		});
 		bb.addButton(Msgs.BUNDLE.getString("ui.tsw.cancel"), new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				cancel();
 			}
 		});
@@ -135,7 +134,7 @@ public class TreeSelectionWindow<T> extends FloatingWindow implements ICellClick
 	 * @see ICellClicked#cellClicked(Object)
 	 */
 	@Override
-	final public void cellClicked(@Nonnull T rowval) throws Exception {
+	final public void cellClicked(@NonNull T rowval) throws Exception {
 		long ts = System.currentTimeMillis();
 		if(m_selected == rowval) {
 			//-- Reselect...

@@ -3,11 +3,11 @@ package to.etc.domuidemo.pages.test.binding;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
+import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domuidemo.pages.test.binding.conversion.BindingConversionTestForm;
 import to.etc.domuidemo.pages.test.binding.order1.BindingTypeForm1;
 import to.etc.domuidemo.pages.test.binding.order1.DoNotBindControlDottedTestPage;
 import to.etc.domuidemo.pages.test.binding.order1.TestBindingOrder1;
-import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 
 /**
  * Integration Test to check for binding order being obeyed.
@@ -79,7 +79,6 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 
 	/**
 	 * Enter 123 must properly get a new value 123 after binding.
-	 * @throws Exception
 	 */
 	@Test
 	public void testBindingConverter2() throws Exception {

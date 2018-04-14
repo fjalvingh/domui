@@ -24,7 +24,7 @@
  */
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.observables.*;
 
@@ -37,7 +37,7 @@ import to.etc.domui.databinding.observables.*;
  * Created on May 8, 2013
  */
 public class ComponentObserverSupport<C> extends ObserverSupport<C> {
-	public ComponentObserverSupport(@Nonnull C instance) {
+	public ComponentObserverSupport(@NonNull C instance) {
 		super(instance);
 	}
 }

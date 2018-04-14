@@ -1,15 +1,16 @@
 package to.etc.json;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Iterator;
 
 final class JsonCollectionType extends AbstractJsonArrayType implements ITypeMapping {
-	@Nonnull
+	@NonNull
 	private final Class<? extends Collection<?>>	m_implementationType;
 
-	JsonCollectionType(@Nonnull ITypeMapping memberMapping, @Nonnull Class< ? extends Collection< ? >> implementationType) {
+	JsonCollectionType(@NonNull ITypeMapping memberMapping, @NonNull Class< ? extends Collection< ? >> implementationType) {
 		super(memberMapping);
 		m_implementationType = implementationType;
 	}
@@ -19,8 +20,8 @@ final class JsonCollectionType extends AbstractJsonArrayType implements ITypeMap
 	 * @param typeClass
 	 * @return
 	 */
-	@Nonnull
-	static public Class< ? extends Collection< ? >> getImplementationClass(@Nonnull Class< ? > typeClass, @Nonnull Class< ? > defaultImplementation) {
+	@NonNull
+	static public Class< ? extends Collection< ? >> getImplementationClass(@NonNull Class< ? > typeClass, @NonNull Class< ? > defaultImplementation) {
 		int mod = typeClass.getModifiers();
 		if(!Modifier.isAbstract(mod) && Modifier.isPublic(mod) && !Modifier.isInterface(mod))
 			return (Class< ? extends Collection< ? >>) typeClass;
@@ -28,14 +29,14 @@ final class JsonCollectionType extends AbstractJsonArrayType implements ITypeMap
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	protected Collection< ? > createInstance() throws Exception {
 		return m_implementationType.newInstance();
 	}
 
 	@Override
-	@Nonnull
-	protected Iterator<Object> getIterator(@Nonnull Object instance) {
+	@NonNull
+	protected Iterator<Object> getIterator(@NonNull Object instance) {
 		return ((Collection<Object>) instance).iterator();
 	}
 }

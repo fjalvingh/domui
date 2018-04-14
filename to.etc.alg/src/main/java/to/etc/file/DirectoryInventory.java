@@ -1,11 +1,11 @@
 package to.etc.file;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.FunctionEx;
 import to.etc.util.FileTool;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -37,20 +37,20 @@ final public class DirectoryInventory implements Serializable {
 	static public final class InvEntry implements Serializable {
 		private static final long serialVersionUID = 423284312L;
 
-		@Nonnull
+		@NonNull
 		private final String m_name;
 
 		private final long m_lastModified;
 
 		private final int m_size;
 
-		@Nonnull
+		@NonNull
 		private final byte[] m_md5hash;
 
 		@Nullable
 		private final InvEntry[] m_children;
 
-		public InvEntry(@Nonnull String name, int size, long lastModified, @Nonnull byte[] md5hash) {
+		public InvEntry(@NonNull String name, int size, long lastModified, @NonNull byte[] md5hash) {
 			m_name = name;
 			m_size = size;
 			m_lastModified = lastModified;
@@ -58,7 +58,7 @@ final public class DirectoryInventory implements Serializable {
 			m_children = null;
 		}
 
-		public InvEntry(@Nonnull String name, int size, long lastModified, @Nonnull byte[] md5hash, @Nonnull InvEntry[] children) {
+		public InvEntry(@NonNull String name, int size, long lastModified, @NonNull byte[] md5hash, @NonNull InvEntry[] children) {
 			m_name = name;
 			m_size = size;
 			m_lastModified = lastModified;
@@ -70,7 +70,7 @@ final public class DirectoryInventory implements Serializable {
 			return null != getChildren();
 		}
 
-		@Nonnull public String getName() {
+		@NonNull public String getName() {
 			return m_name;
 		}
 
@@ -82,7 +82,7 @@ final public class DirectoryInventory implements Serializable {
 			return m_size;
 		}
 
-		@Nonnull public byte[] getMd5hash() {
+		@NonNull public byte[] getMd5hash() {
 			return m_md5hash;
 		}
 
@@ -91,7 +91,7 @@ final public class DirectoryInventory implements Serializable {
 		}
 
 		@Nullable
-		public <R> R visit(@Nonnull FunctionEx<InvEntry, R> consumer) throws Exception {
+		public <R> R visit(@NonNull FunctionEx<InvEntry, R> consumer) throws Exception {
 			R val = consumer.apply(this);
 			if(null != val)
 				return val;
@@ -113,7 +113,7 @@ final public class DirectoryInventory implements Serializable {
 
 	private long m_totalBytes;
 
-	@Nonnull
+	@NonNull
 	private InvEntry m_root;
 
 	private long m_creationTime;
@@ -122,7 +122,7 @@ final public class DirectoryInventory implements Serializable {
 		m_creationTime = currentTimeMillis;
 	}
 
-	@Nonnull
+	@NonNull
 	public static DirectoryInventory createEmpty() {
 		DirectoryInventory de = new DirectoryInventory(System.currentTimeMillis());
 		de.m_root = new InvEntry("", 0, 0, new byte[16], new InvEntry[0]);
@@ -135,8 +135,8 @@ final public class DirectoryInventory implements Serializable {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	static public DirectoryInventory create(@Nonnull File src) throws Exception {
+	@NonNull
+	static public DirectoryInventory create(@NonNull File src) throws Exception {
 		if(!src.exists())
 			throw new IOException(src + ": directory does not exist");
 		if(!src.isDirectory())
@@ -159,7 +159,7 @@ final public class DirectoryInventory implements Serializable {
 		}
 	};
 
-	static public int compareArrays(@Nonnull byte[] aa, @Nonnull byte[] ba) {
+	static public int compareArrays(@NonNull byte[] aa, @NonNull byte[] ba) {
 		int ct = Math.min(aa.length, ba.length);
 		while(--ct >= 0) {
 			int r = aa[ct] - ba[ct];
@@ -169,8 +169,8 @@ final public class DirectoryInventory implements Serializable {
 		return aa.length - ba.length;
 	}
 
-	@Nonnull
-	private InvEntry scanDirectory(@Nonnull File src) throws Exception {
+	@NonNull
+	private InvEntry scanDirectory(@NonNull File src) throws Exception {
 		File[] far = src.listFiles();
 		if(null == far)
 			throw new IllegalStateException("No results from " + src);
@@ -207,8 +207,8 @@ final public class DirectoryInventory implements Serializable {
 	 * @param src
 	 * @return
 	 */
-	@Nonnull
-	static public DirectoryInventory load(@Nonnull File src) throws Exception {
+	@NonNull
+	static public DirectoryInventory load(@NonNull File src) throws Exception {
 		if(!src.exists())
 			throw new FileNotFoundException(src + ": not found");
 		ObjectInputStream ois = null;
@@ -224,7 +224,7 @@ final public class DirectoryInventory implements Serializable {
 	 * Saves the entire inventory.
 	 * @param src
 	 */
-	public void save(@Nonnull File src) {
+	public void save(@NonNull File src) {
 		boolean ok = false;
 		ObjectOutputStream oos = null;
 		try {
@@ -254,15 +254,15 @@ final public class DirectoryInventory implements Serializable {
 	 * Created on Nov 16, 2013
 	 */
 	public interface IDeltaListener {
-		void fileDeleted(@Nonnull String path, long lastModified, @Nonnull byte[] md5hash) throws Exception;
+		void fileDeleted(@NonNull String path, long lastModified, @NonNull byte[] md5hash) throws Exception;
 
-		void directoryDeleted(@Nonnull String path) throws Exception;
+		void directoryDeleted(@NonNull String path) throws Exception;
 
-		void directoryAdded(@Nonnull String path) throws Exception;
+		void directoryAdded(@NonNull String path) throws Exception;
 
-		void fileAdded(@Nonnull String path, long lastModified, @Nonnull byte[] md5hash) throws Exception;
+		void fileAdded(@NonNull String path, long lastModified, @NonNull byte[] md5hash) throws Exception;
 
-		void fileModified(@Nonnull String path, long srcLastModified, long dstLastModified, @Nonnull byte[] srchash, @Nonnull byte[] dsthash) throws Exception;
+		void fileModified(@NonNull String path, long srcLastModified, long dstLastModified, @NonNull byte[] srchash, @NonNull byte[] dsthash) throws Exception;
 	}
 
 	public enum DeltaType {
@@ -276,23 +276,23 @@ final public class DirectoryInventory implements Serializable {
 	 * Created on Nov 17, 2013
 	 */
 	static public class DeltaRecord {
-		@Nonnull
+		@NonNull
 		final private DeltaType m_type;
 
-		@Nonnull
+		@NonNull
 		final private String m_path;
 
-		public DeltaRecord(@Nonnull DeltaType type, @Nonnull String path) {
+		public DeltaRecord(@NonNull DeltaType type, @NonNull String path) {
 			m_type = type;
 			m_path = path;
 		}
 
-		@Nonnull
+		@NonNull
 		public DeltaType getType() {
 			return m_type;
 		}
 
-		@Nonnull
+		@NonNull
 		public String getPath() {
 			return m_path;
 		}
@@ -302,7 +302,7 @@ final public class DirectoryInventory implements Serializable {
 	 * Compare this and another inventory, and generate events that tell how THIS would need to change to become OTHER.
 	 * @param other
 	 */
-	public void compareTo(@Nonnull DirectoryInventory other, @Nonnull IDeltaListener listener) throws Exception {
+	public void compareTo(@NonNull DirectoryInventory other, @NonNull IDeltaListener listener) throws Exception {
 		StringBuilder sb = new StringBuilder();					// For building paths.
 		handleCompare(sb, listener, m_root, other.m_root);
 	}
@@ -312,8 +312,8 @@ final public class DirectoryInventory implements Serializable {
 	 * @param other
 	 * @return
 	 */
-	@Nonnull
-	public List<DeltaRecord> compareTo(@Nonnull DirectoryInventory other) {
+	@NonNull
+	public List<DeltaRecord> compareTo(@NonNull DirectoryInventory other) {
 		try {
 			final List<DeltaRecord> result = new ArrayList<>();
 
@@ -357,7 +357,7 @@ final public class DirectoryInventory implements Serializable {
 	 * @param dst
 	 * @throws Exception
 	 */
-	private void handleCompare(@Nonnull StringBuilder sb, @Nonnull IDeltaListener listener, @Nonnull InvEntry src, @Nonnull InvEntry dst) throws Exception {
+	private void handleCompare(@NonNull StringBuilder sb, @NonNull IDeltaListener listener, @NonNull InvEntry src, @NonNull InvEntry dst) throws Exception {
 		//-- If both directory hash entries are equal this dir has no changes
 		if(Arrays.equals(src.getMd5hash(), dst.getMd5hash()))
 			return;
@@ -451,7 +451,7 @@ final public class DirectoryInventory implements Serializable {
 	 * @param sb
 	 * @param listener
 	 */
-	private void compareEntries(@Nonnull StringBuilder sb, @Nonnull InvEntry src, @Nonnull InvEntry dst, @Nonnull IDeltaListener listener) throws Exception {
+	private void compareEntries(@NonNull StringBuilder sb, @NonNull InvEntry src, @NonNull InvEntry dst, @NonNull IDeltaListener listener) throws Exception {
 		if(src.isDirectory() && dst.isDirectory()) {
 			handleCompare(sb, listener, src, dst);
 		} else if(src.isDirectory()) {
@@ -476,11 +476,11 @@ final public class DirectoryInventory implements Serializable {
 	 * @throws Exception
 	 */
 	@Nullable
-	public <R> R visit(@Nonnull FunctionEx<InvEntry, R> consumer) throws Exception {
+	public <R> R visit(@NonNull FunctionEx<InvEntry, R> consumer) throws Exception {
 		return m_root.visit(consumer);
 	}
 
-	public static void main(@Nonnull String[] args) throws Exception {
+	public static void main(@NonNull String[] args) throws Exception {
 		DirectoryInventory a = DirectoryInventory.create(new File("/home/jal/bzr/puzzler-split/domui/to.etc.domui/src"));
 		DirectoryInventory b = DirectoryInventory.create(new File("/home/jal/bzr/puzzler-split/domui/to.etc.domui/src"));
 		List<DeltaRecord> res = a.compareTo(b);
