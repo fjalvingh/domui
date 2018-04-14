@@ -1,17 +1,22 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.dom.html.Div;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.html.*;
 
 public class ComponentPanel extends Div {
 	final private List<IFbComponent> m_componentList;
 
-	public ComponentPanel(@Nonnull List<IFbComponent> componentList) {
+	public ComponentPanel(@NonNull List<IFbComponent> componentList) {
 		m_componentList = componentList;
 
 	}

@@ -1,10 +1,10 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.annotations.GenerateProperties;
 import to.etc.domui.databinding.observables.ObservableList;
 import to.etc.util.DateUtil;
 
-import javax.annotation.DefaultNonNull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,7 +16,7 @@ import java.util.List;
  * Created on 20-3-18.
  */
 @GenerateProperties
-@DefaultNonNull
+@NonNullByDefault
 public class LineController {
 	private final ObservableList<Line> m_lineList = new ObservableList<>();
 

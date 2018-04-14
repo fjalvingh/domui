@@ -1,8 +1,9 @@
 package to.etc.domui.util.modelcopier;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.Arrays;
 
 /**
  * A specific (search) key for a specific entity instance.
@@ -11,10 +12,10 @@ import javax.annotation.*;
  * Created on Jan 9, 2013
  */
 public class InstanceKey<T> {
-	@Nonnull
+	@NonNull
 	final private EntityDef<T> m_entity;
 
-	@Nonnull
+	@NonNull
 	final private Object[] m_keyValues;
 
 	final private T m_sourceInstance;
@@ -64,7 +65,7 @@ public class InstanceKey<T> {
 		return Arrays.equals(m_keyValues, other.m_keyValues);
 	}
 
-	@Nonnull
+	@NonNull
 	public Object getValue(int ix) {
 		return m_keyValues[ix];
 	}

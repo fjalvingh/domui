@@ -24,7 +24,8 @@
  */
 package to.etc.domui.util;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Transforms a given Object into another object, in an unspecified
@@ -34,5 +35,5 @@ import javax.annotation.*;
  * Created on Jun 18, 2008
  */
 public interface IValueTransformer<T> {
-	@Nullable T getValue(@Nonnull Object in) throws Exception;
+	@Nullable T getValue(@NonNull Object in) throws Exception;
 }

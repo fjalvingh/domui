@@ -24,10 +24,9 @@
  */
 package to.etc.webapp.query;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.annotations.GProperty;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 
 /**
@@ -48,7 +47,7 @@ import javax.annotation.Nullable;
  * Created on Jul 14, 2009
  */
 public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
-	protected QSelection(@Nonnull Class<T> clz) {
+	protected QSelection(@NonNull Class<T> clz) {
 		super(clz);
 	}
 
@@ -67,13 +66,13 @@ public class QSelection<T> extends QCriteriaQueryBase<T, QSelection<T>> {
 	}
 
 
-	@Nonnull
-	public QSelection<T> fetch(@Nonnull @GProperty String property) {
+	@NonNull
+	public QSelection<T> fetch(@NonNull @GProperty String property) {
 		super.fetch(property, QFetchStrategy.EAGER);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String toString() {
 		QQueryRenderer	r	= new QQueryRenderer();

@@ -1,13 +1,13 @@
 package to.etc.domui.injector;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
 import to.etc.util.RuntimeConversions;
 import to.etc.webapp.ProgrammerErrorException;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -22,7 +22,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-2-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class SimplePropertyInjectorFactory implements IPagePropertyFactory {
 	final private Set<String> m_ucs = new HashSet<String>();
 

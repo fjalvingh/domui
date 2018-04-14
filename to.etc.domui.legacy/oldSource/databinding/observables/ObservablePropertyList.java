@@ -2,7 +2,7 @@ package to.etc.domui.databinding.observables;
 
 import java.util.*;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
@@ -26,10 +26,10 @@ import to.etc.util.*;
  * Created on Oct 31, 2013
  */
 public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValueChangeEvent<T>, IListValueChangeListener<T>> implements IObservableListValue<T>, IPropertyChangeNotifier {
-	@Nonnull
+	@NonNull
 	final private C m_instance;
 
-	@Nonnull
+	@NonNull
 	final private PropertyMetaModel<List<T>> m_property;
 
 	/**
@@ -39,7 +39,7 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 	@Nullable
 	private ListEventAdapter m_listEventAdapter;
 
-	public ObservablePropertyList(@Nonnull C instance, @Nonnull PropertyMetaModel<List<T>> property) {
+	public ObservablePropertyList(@NonNull C instance, @NonNull PropertyMetaModel<List<T>> property) {
 		m_instance = instance;
 		m_property = property;
 	}
@@ -76,7 +76,7 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 	 * @see to.etc.domui.databinding.ListenerList#addChangeListener(to.etc.domui.databinding.IChangeListener)
 	 */
 	@Override
-	public synchronized void addChangeListener(@Nonnull IListValueChangeListener<T> listener) {
+	public synchronized void addChangeListener(@NonNull IListValueChangeListener<T> listener) {
 		if(null == m_listEventAdapter) {
 			try {
 				//-- Do we have a value?
@@ -105,7 +105,7 @@ public class ObservablePropertyList<C, T> extends ListenerList<List<T>, ListValu
 	 */
 	private class ListEventAdapter implements IListChangeListener<T> {
 		@Override
-		public void handleChange(@Nonnull ListChangeEvent<T> event) throws Exception {
+		public void handleChange(@NonNull ListChangeEvent<T> event) throws Exception {
 			ListValueChangeEvent<T> lvce = new ListValueChangeEvent<T>(ObservablePropertyList.this, event.getChanges());
 			fireEvent(lvce);									// Send the converted event.
 		}

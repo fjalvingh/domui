@@ -24,13 +24,12 @@
  */
 package to.etc.domui.themes;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceFactory;
 import to.etc.domui.util.resources.IResourceRef;
-
-import javax.annotation.Nonnull;
 
 /**
  * This handles resource references that start with $THEME; indicating resources
@@ -47,7 +46,7 @@ final public class ThemeResourceFactory implements IResourceFactory {
 	static public final String PREFIX = "$THEME/";
 
 	@Override
-	public int accept(@Nonnull String name) {
+	public int accept(@NonNull String name) {
 		return name.startsWith(PREFIX) ? 30 : -1;
 	}
 
@@ -75,8 +74,8 @@ final public class ThemeResourceFactory implements IResourceFactory {
 	 * Get a resource from the proper theme.
 	 */
 	@Override
-	@Nonnull
-	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String themeResourceURL, @Nonnull IResourceDependencyList rdl) throws Exception {
+	@NonNull
+	public IResourceRef getResource(@NonNull DomApplication da, @NonNull String themeResourceURL, @NonNull IResourceDependencyList rdl) throws Exception {
 		String[] spl = splitThemeResourceURL(themeResourceURL);
 		String themename = spl[0];
 		String filename = spl[1];

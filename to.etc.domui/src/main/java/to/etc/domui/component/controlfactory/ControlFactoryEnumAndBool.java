@@ -24,12 +24,12 @@
  */
 package to.etc.domui.component.controlfactory;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.ComboFixed;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.misc.DisplayValue;
+import to.etc.domui.server.DomApplication;
 
 /**
  * Accepts both enum and bools and shows a combobox with the possible choices.
@@ -44,7 +44,7 @@ public class ControlFactoryEnumAndBool implements PropertyControlFactory {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public int accepts(final @NonNull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(ComboFixed.class)) // This one only creates ComboFixed thingies
 			return -1;
 		Class< ? > iclz = pmm.getActualType();
@@ -57,7 +57,7 @@ public class ControlFactoryEnumAndBool implements PropertyControlFactory {
 	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public @NonNull <T> ControlFactoryResult createControl(final @NonNull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		//-- FIXME EXPERIMENTAL use a DisplayValue control to present the value instead of a horrible disabled combobox
 		if(!editable && controlClass == null) {
 			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());

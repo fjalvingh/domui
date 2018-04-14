@@ -24,8 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface ICellClicked<T> {
-	void cellClicked(@Nonnull T rowval) throws Exception;
+	void cellClicked(@NonNull T rowval) throws Exception;
 }

@@ -24,17 +24,23 @@
  */
 package to.etc.domui.parts;
 
-import java.io.*;
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.server.parts.IUnbufferedPartFactory;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
-import to.etc.util.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.Blob;
 
 /**
  * Safe reference to a server-side tempfile.
@@ -96,7 +102,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	 * @return
 	 */
 	@Deprecated
-	static public String registerTempFile(@Nonnull IRequestContext ctx, @Nonnull File target, @Nonnull String mime, @Nullable String type, @Nullable String name) {
+	static public String registerTempFile(@NonNull IRequestContext ctx, @NonNull File target, @NonNull String mime, @Nullable String type, @Nullable String name) {
 		String key = StringTool.generateGUID();
 		String pw = StringTool.generateGUID();
 		String disp = null;
@@ -122,7 +128,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	 * @param name
 	 * @return			The absolute full URL to the file.
 	 */
-	static public String registerTempFile(@Nonnull File target, @Nonnull String mime, @Nonnull Disposition disp, @Nullable String name) {
+	static public String registerTempFile(@NonNull File target, @NonNull String mime, @NonNull Disposition disp, @Nullable String name) {
 		String key = StringTool.generateGUID();
 		String pw = StringTool.generateGUID();
 		String s = null;
@@ -162,7 +168,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	public static String getDownloadLink(@Nonnull IRequestContext ctx, @Nonnull Blob blob, String mime, String type, String filename) throws Exception {
+	public static String getDownloadLink(@NonNull IRequestContext ctx, @NonNull Blob blob, String mime, String type, String filename) throws Exception {
 		File temp = File.createTempFile("tmp", ".tmp");
 		FileTool.saveBlob(temp, blob);
 		return TempFilePart.registerTempFile(ctx, temp, mime, type, filename);
@@ -176,13 +182,13 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	 * @param disposition
 	 * @param name
 	 */
-	public static void	createDownloadAction(@Nonnull NodeBase sourcePage, @Nonnull File target, @Nonnull String mime, @Nonnull Disposition disposition, @Nullable String name) {
+	public static void	createDownloadAction(@NonNull NodeBase sourcePage, @NonNull File target, @NonNull String mime, @NonNull Disposition disposition, @Nullable String name) {
 		String url = registerTempFile(target, mime, disposition, name);
 		sourcePage.appendJavascript("location.href=" + StringTool.strToJavascriptString(url, true) + ";");
 	}
 
 	@Override
-	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
+	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
 		String fkey = param.getParameter("key");
 		String fpw = param.getParameter("passkey");
 		if(fkey == null || fpw == null)

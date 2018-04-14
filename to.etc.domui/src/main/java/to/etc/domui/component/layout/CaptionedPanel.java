@@ -24,9 +24,10 @@
  */
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TextNode;
 
 /**
  * A panel with a beveled caption above it. The caption defaults to some text but can be
@@ -91,7 +92,7 @@ public class CaptionedPanel extends Div {
 	}
 
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	public void createContent() throws Exception {
 		super.createContent();
 		add(m_titleContainer);

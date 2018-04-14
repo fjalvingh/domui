@@ -1,12 +1,21 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Shows and allows editing of the currently-selected component instance(s).
@@ -15,10 +24,10 @@ import to.etc.domui.util.*;
  * Created on Oct 8, 2013
  */
 public class PropertyPanel extends Div {
-	@Nonnull
+	@NonNull
 	private Set<ComponentInstance> m_selected = new HashSet<ComponentInstance>();
 
-	@Nonnull
+	@NonNull
 	private Map<PropertyDefinition, IPropertyEditor> m_editorMap = new HashMap<PropertyDefinition, IPropertyEditor>();
 
 	@Override
@@ -46,7 +55,7 @@ public class PropertyPanel extends Div {
 		}
 	}
 
-	private void renderCategory(@Nonnull TBody b, @Nonnull String cat, @Nonnull List<PropertyDefinition> props) throws Exception {
+	private void renderCategory(@NonNull TBody b, @NonNull String cat, @NonNull List<PropertyDefinition> props) throws Exception {
 		Collections.sort(props, new Comparator<PropertyDefinition>() {
 			@Override
 			public int compare(PropertyDefinition a, PropertyDefinition b) {
@@ -62,7 +71,7 @@ public class PropertyPanel extends Div {
 		}
 	}
 
-	private void renderPropertyDef(@Nonnull TBody b, @Nonnull PropertyDefinition pd) throws Exception {
+	private void renderPropertyDef(@NonNull TBody b, @NonNull PropertyDefinition pd) throws Exception {
 		IPropertyEditor pe = pd.getEditor().createEditor(pd);
 		m_editorMap.put(pd, pe);
 		TD namecell = b.addRowAndCell();
@@ -82,7 +91,7 @@ public class PropertyPanel extends Div {
 	 * @return
 	 */
 	@Nullable
-	private Object getPropertyValue(@Nonnull PropertyDefinition pd) throws Exception {
+	private Object getPropertyValue(@NonNull PropertyDefinition pd) throws Exception {
 		Object theValue = null;
 
 		int count = 0;

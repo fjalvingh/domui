@@ -24,10 +24,9 @@
  */
 package to.etc.domui.dom.errors;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.DomUtil;
 
 /**
  * Use this error fence handler in case when some UIMessage should be handled by more than one error fence.
@@ -43,7 +42,7 @@ public class PropagatingErrorFenceHandler extends ErrorFenceHandler {
 	}
 
 	@Override
-	public void addMessage(@Nonnull UIMessage uim) {
+	public void addMessage(@NonNull UIMessage uim) {
 		super.addMessage(uim);
 		NodeContainer propagationContainer = (getContainer() != null && getContainer().hasParent()) ? getContainer().getParent() : null;
 		if(propagationContainer != null) {
@@ -55,7 +54,7 @@ public class PropagatingErrorFenceHandler extends ErrorFenceHandler {
 	}
 
 	@Override
-	public void removeMessage(@Nonnull UIMessage uim) {
+	public void removeMessage(@NonNull UIMessage uim) {
 		super.removeMessage(uim);
 		NodeContainer propagationContainer = (getContainer() != null && getContainer().hasParent()) ? getContainer().getParent() : null;
 		if(propagationContainer != null) {

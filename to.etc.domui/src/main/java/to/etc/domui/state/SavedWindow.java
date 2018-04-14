@@ -1,9 +1,9 @@
 package to.etc.domui.state;
 
-import java.util.*;
+import jdk.nashorn.internal.ir.annotations.Immutable;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import java.util.List;
 
 /**
  * The content of a previously-destroyed {@link WindowSession}, in a format suitable for a
@@ -15,23 +15,23 @@ import javax.annotation.concurrent.*;
  */
 @Immutable
 final public class SavedWindow {
-	@Nonnull
+	@NonNull
 	private final String m_id;
 
-	@Nonnull
+	@NonNull
 	final private List<SavedPage> m_pageList;
 
-	SavedWindow(@Nonnull String id, @Nonnull List<SavedPage> pageList) {
+	SavedWindow(@NonNull String id, @NonNull List<SavedPage> pageList) {
 		m_id = id;
 		m_pageList = pageList;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getId() {
 		return m_id;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<SavedPage> getPageList() {
 		return m_pageList;
 	}

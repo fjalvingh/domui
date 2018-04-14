@@ -1,18 +1,31 @@
 package to.etc.webapp.mailer;
 
-import org.slf4j.*;
-import to.etc.dbpool.*;
-import to.etc.dbutil.*;
-import to.etc.dbutil.DbLockKeeper.*;
-import to.etc.smtp.*;
-import to.etc.util.*;
-import to.etc.webapp.pendingoperations.*;
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import to.etc.dbpool.ConnectionPool;
+import to.etc.dbpool.PoolManager;
+import to.etc.dbutil.DbLockKeeper;
+import to.etc.dbutil.DbLockKeeper.LockHandle;
+import to.etc.dbutil.GenericDB;
+import to.etc.smtp.Address;
+import to.etc.smtp.Message;
+import to.etc.smtp.SmtpTransport;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.webapp.pendingoperations.IPollQueueTaskProvider;
+import to.etc.webapp.pendingoperations.PollingWorkerQueue;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.*;
-import javax.sql.*;
-import java.io.*;
-import java.sql.*;
+import javax.sql.DataSource;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 
 /**
  * Bulk mailer storing messages into the database for repeated delivery.
@@ -116,7 +129,7 @@ public class BulkMailer {
 	 * @param m
 	 * @throws Exception
 	 */
-	public void store(@Nonnull Message m) throws Exception {
+	public void store(@NonNull Message m) throws Exception {
 		boolean ok = false;
 		Connection dbc = m_ds.getConnection();
 		try {
@@ -140,7 +153,7 @@ public class BulkMailer {
 	 * @param m
 	 * @throws Exception
 	 */
-	public void store(@Nonnull QDataContext dc, @Nonnull Message m) throws Exception {
+	public void store(@NonNull QDataContext dc, @NonNull Message m) throws Exception {
 		store(dc.getConnection(), m);
 	}
 
@@ -148,7 +161,7 @@ public class BulkMailer {
 	 * This stores the message into the database. This will cause the message to be sent as soon as the connection is committed.
 	 * @param m
 	 */
-	public void store(@Nonnull Connection dbc, @Nonnull Message m) throws Exception {
+	public void store(@NonNull Connection dbc, @NonNull Message m) throws Exception {
 		PreparedStatement cs = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;

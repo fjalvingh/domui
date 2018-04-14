@@ -24,13 +24,20 @@
  */
 package to.etc.webapp.pendingoperations;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.ILogSink;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This is a runnable which tries to execute one or more PendingOperations. This only executes multiple
@@ -149,7 +156,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	 * @param nextop
 	 * @throws Exception
 	 */
-	private void handleDatabaseUpdate(@Nonnull Set<PendingOperation> updateset, @Nullable PendingOperation deleteme) throws Exception {
+	private void handleDatabaseUpdate(@NonNull Set<PendingOperation> updateset, @Nullable PendingOperation deleteme) throws Exception {
 		if(updateset.size() == 0)
 			return;
 
@@ -201,14 +208,14 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	private PrintWriter m_errorWriter;
 
 	@Override
-	public void exception(final @Nonnull Throwable t, final @Nonnull String msg) {
+	public void exception(final @NonNull Throwable t, final @NonNull String msg) {
 		m_errorWriter.println("[exception] " + msg);
 		t.printStackTrace(m_errorWriter);
 		System.err.println("[pending task exception] " + msg);
 	}
 
 	@Override
-	public void log(final @Nonnull String msg) {
+	public void log(final @NonNull String msg) {
 		m_errorWriter.println("[log] " + msg);
 	}
 

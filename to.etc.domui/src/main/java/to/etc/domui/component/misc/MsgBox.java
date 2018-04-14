@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.Text;
@@ -55,11 +56,9 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.bugs.Bug;
 
-import javax.annotation.Nonnull;
-
 public class MsgBox extends Window {
 	public interface IAnswer {
-		void onAnswer(@Nonnull MsgBoxButton result) throws Exception;
+		void onAnswer(@NonNull MsgBoxButton result) throws Exception;
 	}
 	public interface IAnswer2 {
 		void onAnswer(Object result) throws Exception;
@@ -72,8 +71,8 @@ public class MsgBox extends Window {
 	public enum Type {
 		INFO, WARNING, ERROR, DIALOG, INPUT;
 
-		@Nonnull
-		static public Type from(@Nonnull MsgType messageType) {
+		@NonNull
+		static public Type from(@NonNull MsgType messageType) {
 			switch(messageType) {
 				default:
 					return Type.INFO;
@@ -122,7 +121,7 @@ public class MsgBox extends Window {
 		m_theButtons.addCssClass("ui-mbx-btns");
 		setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(@Nonnull String closeReason) throws Exception {
+			public void closed(@NonNull String closeReason) throws Exception {
 				if(null != m_onAnswer) {
 					m_selectedChoice = m_closeButtonObject;
 					try {
@@ -228,7 +227,7 @@ public class MsgBox extends Window {
 		box.construct();
 	}
 
-	private void setContent(@Nonnull NodeContainer content) {
+	private void setContent(@NonNull NodeContainer content) {
 		m_content = content;
 	}
 
@@ -518,7 +517,7 @@ public class MsgBox extends Window {
 	 * @param onAnswer
 	 * @param buttonresultpairs
 	 */
-	public static void flexDialog(@Nonnull NodeBase dad, @Nonnull Type boxType, @Nonnull String message, @Nonnull IAnswer2 onAnswer, Object... buttonresultpairs) {
+	public static void flexDialog(@NonNull NodeBase dad, @NonNull Type boxType, @NonNull String message, @NonNull IAnswer2 onAnswer, Object... buttonresultpairs) {
 		MsgBox box = create(dad);
 		box.setType(boxType);
 		box.setMessage(message);
@@ -552,15 +551,15 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public static DefaultButton areYouSureButton(String text, String icon, final String message, final IClicked<DefaultButton> ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
 		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton b) throws Exception {
+			public void clicked(@NonNull DefaultButton b) throws Exception {
 				yesNo(b, message, new IClicked<MsgBox>() {
 					@Override
-					public void clicked(@Nonnull MsgBox bx) throws Exception {
+					public void clicked(@NonNull MsgBox bx) throws Exception {
 						ch.clicked(btn);
 					}
 				});
@@ -579,7 +578,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public static DefaultButton areYouSureButton(String text, final String message, final IClicked<DefaultButton> ch) {
 		return areYouSureButton(text, null, message, ch);
 	}
@@ -593,15 +592,15 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public static LinkButton areYouSureLinkButton(String text, String icon, final String message, final IClicked<LinkButton> ch) {
 		final LinkButton btn = new LinkButton(text, icon);
 		IClicked<LinkButton> bch = new IClicked<LinkButton>() {
 			@Override
-			public void clicked(@Nonnull LinkButton b) throws Exception {
+			public void clicked(@NonNull LinkButton b) throws Exception {
 				yesNo(b, message, new IClicked<MsgBox>() {
 					@Override
-					public void clicked(@Nonnull MsgBox bx) throws Exception {
+					public void clicked(@NonNull MsgBox bx) throws Exception {
 						ch.clicked(btn);
 					}
 				});
@@ -620,7 +619,7 @@ public class MsgBox extends Window {
 	 * @param ch		The delegate to call when the user is sure.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public static LinkButton areYouSureLinkButton(String text, final String message, final IClicked<LinkButton> ch) {
 		return areYouSureLinkButton(text, null, message, ch);
 	}
@@ -758,7 +757,7 @@ public class MsgBox extends Window {
 
 		DefaultButton btn = new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton b) throws Exception {
+			public void clicked(@NonNull DefaultButton b) throws Exception {
 				answer(mbb);
 			}
 		});
@@ -769,7 +768,7 @@ public class MsgBox extends Window {
 	protected void addButton(final String lbl, final Object selval) {
 		m_theButtons.add(new DefaultButton(lbl, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton b) throws Exception {
+			public void clicked(@NonNull DefaultButton b) throws Exception {
 				answer(selval);
 			}
 		}));
@@ -821,7 +820,7 @@ public class MsgBox extends Window {
 	 * @param dad
 	 * @param msg
 	 */
-	public static void message(@Nonnull NodeBase dad, @Nonnull UIMessage msg) {
+	public static void message(@NonNull NodeBase dad, @NonNull UIMessage msg) {
 		message(dad, msg.getType(), msg.getMessage());
 	}
 
@@ -831,11 +830,11 @@ public class MsgBox extends Window {
 	 * @param dad
 	 * @param msgEx
 	 */
-	public static void message(@Nonnull NodeBase dad, @Nonnull UIMsgException msgEx) {
+	public static void message(@NonNull NodeBase dad, @NonNull UIMsgException msgEx) {
 		message(dad, msgEx.getType(), msgEx.getMessage());
 	}
 
-	private static void message(@Nonnull NodeBase dad, @Nonnull MsgType type, @Nonnull String msg) {
+	private static void message(@NonNull NodeBase dad, @NonNull MsgType type, @NonNull String msg) {
 		MsgBox box = create(dad);
 		switch(type){
 			case INFO:

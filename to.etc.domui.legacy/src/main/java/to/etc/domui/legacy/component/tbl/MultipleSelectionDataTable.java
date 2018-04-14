@@ -24,16 +24,29 @@
  */
 package to.etc.domui.legacy.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.tbl.ColumnContainer;
 import to.etc.domui.component.tbl.HeaderContainer;
 import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.component.tbl.IRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IClicked2;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.THead;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * DataTable customized to support multiple selection functionality. Supports accmulation of selection along multiple queries.
@@ -44,14 +57,14 @@ import java.util.*;
  */
 public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 
-	public MultipleSelectionDataTable(@Nonnull Class<T> dataClass, @Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
+	public MultipleSelectionDataTable(@NonNull Class<T> dataClass, @NonNull ITableModel<T> m, @NonNull IRowRenderer<T> r) {
 		super(m, r);
 	}
 
-	@Nonnull
+	@NonNull
 	private List<T> m_accumulatedRows = new ArrayList<T>();
 
-	@Nonnull
+	@NonNull
 	List<Boolean> m_accumulatedSelections = new ArrayList<Boolean>();
 
 	//	private Class<T> m_dataClass;
@@ -129,7 +142,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 					final T theitem = item;
 					cc.getTR().setClicked2(new IClicked2<TR>() {
 						@Override
-						public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
+						public void clicked(@NonNull TR b, @NonNull ClickInfo clinfo) throws Exception {
 							ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
 							if(null != rowClicked)
 								((ICellClicked<T>) rowClicked).cellClicked(theitem);
@@ -170,7 +183,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 		Checkbox b = new Checkbox();
 		b.setClicked(new IClicked<Checkbox>() {
 			@Override
-			public void clicked(@Nonnull Checkbox ckb) throws Exception {
+			public void clicked(@NonNull Checkbox ckb) throws Exception {
 				TR row = ckb.getParent(TR.class);
 				handleAccumulatedItemRowSelectionChanged(row, Boolean.valueOf(ckb.isChecked()));
 			}
@@ -183,7 +196,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 		tr.setClicked(new IClicked<TR>() {
 
 			@Override
-			public void clicked(@Nonnull TR row) throws Exception {
+			public void clicked(@NonNull TR row) throws Exception {
 				Object userObject = row.getUserObject();
 				if(userObject instanceof Checkbox) {
 					((Checkbox) userObject).setChecked(!((Checkbox) userObject).isChecked());
@@ -199,7 +212,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 			final T theitem = item;
 			cc.getTR().setClicked2(new IClicked2<TR>() {
 				@Override
-				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
+				public void clicked(@NonNull TR b, @NonNull ClickInfo clinfo) throws Exception {
 					ICellClicked< ? > rowClicked = getRowRenderer().getRowClicked();
 					if(null != rowClicked)
 						((ICellClicked<T>) rowClicked).cellClicked(theitem);
@@ -246,7 +259,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 	 * Set a new model for this table. This discards the entire presentation and causes a full build at render time.
 	 */
 	@Override
-	public void setModel(@Nonnull ITableModel<T> model) {
+	public void setModel(@NonNull ITableModel<T> model) {
 		clearDeselectedAccumulatedRows();
 		super.setModel(model);
 	}

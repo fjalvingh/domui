@@ -24,6 +24,8 @@
  */
 package to.etc.xml;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -32,8 +34,6 @@ import org.xml.sax.InputSource;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLInputFactory;
@@ -189,8 +189,8 @@ public class DomTools {
 	 * associated with the thing. If errors occur they are logged into an error
 	 * message string; these are thrown as an exception when complete.
 	 */
-	@Nonnull
-	static public Document getDocument(@Nonnull final File inf, final boolean nsaware) throws Exception {
+	@NonNull
+	static public Document getDocument(@NonNull final File inf, final boolean nsaware) throws Exception {
 		DefaultErrorHandler deh = new DefaultErrorHandler();
 		Document doc = getDocument(inf, deh, nsaware);
 		if(deh.hasErrors())
@@ -309,7 +309,7 @@ public class DomTools {
 	 *  concatenated with a single space.
 	 */
 	@Nullable
-	static public String textFrom(@Nonnull final Node n) {
+	static public String textFrom(@NonNull final Node n) {
 		StringBuffer sb = new StringBuffer();
 		NodeList nl = n.getChildNodes();
 		for(int i = 0; i < nl.getLength(); i++) {
@@ -673,7 +673,7 @@ public class DomTools {
 	 * @param defval	the value to return if the attribute is not present,
 	 * @return			a string containing the attribute's value or the default.
 	 */
-	static public String getNodeAttribute(@Nonnull final Node n, @Nonnull final String aname, @Nullable final String defval) {
+	static public String getNodeAttribute(@NonNull final Node n, @NonNull final String aname, @Nullable final String defval) {
 		if(n.hasAttributes()) {
 			Node idn = n.getAttributes().getNamedItem(aname);
 			if(idn != null)
@@ -686,8 +686,8 @@ public class DomTools {
 		return getNodeAttribute(n, aname, def);
 	}
 
-	@Nonnull
-	static public String strAttr(@Nonnull final Node n, @Nonnull final String aname) {
+	@NonNull
+	static public String strAttr(@NonNull final Node n, @NonNull final String aname) {
 		String s = getNodeAttribute(n, aname, null);
 		if(s == null)
 			throw new IllegalStateException("Missing attribute '" + aname + "' on node '" + n.getNodeName() +"'");
@@ -1022,7 +1022,7 @@ public class DomTools {
 	 * Get a stream reader that does not ^&*^(^$ connect to the Internet while fscking reading xml 8-(
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public XMLInputFactory getStreamFactory() {
 		XMLInputFactory xmlif = XMLInputFactory.newInstance();
 		//		xmlif.setProperty("http://apache.org/xml/features/nonvalidating/load-external-dtd", Boolean.FALSE);

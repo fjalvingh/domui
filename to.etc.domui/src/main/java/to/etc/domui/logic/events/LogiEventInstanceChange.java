@@ -1,42 +1,44 @@
 package to.etc.domui.logic.events;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.webapp.eventmanager.ChangeType;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.webapp.eventmanager.*;
+import java.util.HashMap;
+import java.util.Map;
 
 final public class LogiEventInstanceChange extends LogiEventBase {
-	@Nonnull
+	@NonNull
 	final private Object m_instance;
 
-	@Nonnull
+	@NonNull
 	final private ChangeType m_type;
 
-	@Nonnull
+	@NonNull
 	final private Map<String, LogiEventPropertyChange< ? >> m_propertyChangeMap = new HashMap<String, LogiEventPropertyChange< ? >>();
 
-	public LogiEventInstanceChange(@Nonnull ChangeType type, @Nonnull String path, @Nonnull Object instance) {
+	public LogiEventInstanceChange(@NonNull ChangeType type, @NonNull String path, @NonNull Object instance) {
 		super(path);
 		m_instance = instance;
 		m_type = type;
 	}
 
-	public <P> void addChange(@Nonnull LogiEventPropertyChange<P> pc) {
+	public <P> void addChange(@NonNull LogiEventPropertyChange<P> pc) {
 		m_propertyChangeMap.put(pc.getPmm().getName(), pc);
 	}
 
-	@Nonnull
+	@NonNull
 	public Object getInstance() {
 		return m_instance;
 	}
 
-	public boolean isPropertyChanged(@Nonnull String propertyName) {
+	public boolean isPropertyChanged(@NonNull String propertyName) {
 		return m_propertyChangeMap.containsKey(propertyName);
 	}
 
-	public <T> boolean isPropertyChanged(@Nonnull PropertyMetaModel<T> pmm) {
+	public <T> boolean isPropertyChanged(@NonNull PropertyMetaModel<T> pmm) {
 		return m_propertyChangeMap.containsKey(pmm.getName());
 	}
 
@@ -46,12 +48,12 @@ final public class LogiEventInstanceChange extends LogiEventBase {
 	}
 
 	@Nullable
-	public <T> LogiEventPropertyChange<T> findPropertyChange(@Nonnull PropertyMetaModel<T> pmm) {
+	public <T> LogiEventPropertyChange<T> findPropertyChange(@NonNull PropertyMetaModel<T> pmm) {
 		return (LogiEventPropertyChange<T>) m_propertyChangeMap.get(pmm.getName());
 	}
 
 	@Override
-	void dump(@Nonnull Appendable a) throws Exception {
+	void dump(@NonNull Appendable a) throws Exception {
 		a.append(getPath());
 		a.append(" [instance ").append(MetaManager.identify(m_instance)).append(" ").append(m_type.toString()).append(" ").append(Integer.toString(m_propertyChangeMap.size()))
 			.append(" properties]\n");

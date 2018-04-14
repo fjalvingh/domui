@@ -24,10 +24,10 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -236,7 +236,7 @@ public class Img extends NodeBase implements IActionControl {
 	}
 
 	@Override
-	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
+	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		if(isDisabled())
 			return;
 		super.internalOnClicked(cli);

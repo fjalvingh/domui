@@ -1,9 +1,8 @@
 package to.etc.domui.converter;
 
-import javax.annotation.*;
-
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
 
 /**
  * Checks if the number is zero or greater then zero. if the number is smaller

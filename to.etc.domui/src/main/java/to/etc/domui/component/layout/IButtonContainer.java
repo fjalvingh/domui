@@ -1,8 +1,8 @@
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
 
 /**
  * Used by button container components to have the {@link ButtonFactory} delegate button creation events to.
@@ -11,7 +11,7 @@ import to.etc.domui.dom.html.*;
  * Created on Feb 11, 2013
  */
 public interface IButtonContainer {
-	void addButton(@Nonnull NodeBase thing, int order);
+	void addButton(@NonNull NodeBase thing, int order);
 
-	@Nonnull Page getPage();
+	@NonNull Page getPage();
 }

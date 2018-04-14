@@ -1,27 +1,27 @@
 package to.etc.dbutil.schema;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.io.Serializable;
 
 final public class FieldPair implements Serializable {
-	@Nonnull
+	@NonNull
 	final private DbColumn m_parentColumn;
 
-	@Nonnull
+	@NonNull
 	final private DbColumn m_childColumn;
 
-	public FieldPair(@Nonnull DbColumn parentColumn, @Nonnull DbColumn childColumn) {
+	public FieldPair(@NonNull DbColumn parentColumn, @NonNull DbColumn childColumn) {
 		m_parentColumn = parentColumn;
 		m_childColumn = childColumn;
 	}
 
-	@Nonnull
+	@NonNull
 	public DbColumn getChildColumn() {
 		return m_childColumn;
 	}
 
-	@Nonnull
+	@NonNull
 	public DbColumn getParentColumn() {
 		return m_parentColumn;
 	}

@@ -24,19 +24,41 @@
  */
 package to.etc.dbpool;
 
-import java.io.*;
-import java.math.*;
-import java.sql.*;
-import java.util.*;
-import java.util.Date;
-import java.util.logging.*;
-
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-import javax.sql.*;
-
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbpool.DbPoolUtil.HostAndPort;
-import to.etc.dbpool.info.*;
+import to.etc.dbpool.info.IConnectionStatisticsFactory;
+import to.etc.dbpool.info.OracleConnectionStatisticsFactory;
+
+import javax.sql.DataSource;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -306,12 +328,12 @@ final public class ConnectionPool {
 	 * Created on Mar 11, 2013
 	 */
 	public interface IPoolEvent {
-		void connectionAllocated(@Nonnull Connection dbc) throws Exception;
+		void connectionAllocated(@NonNull Connection dbc) throws Exception;
 
-		void connectionReleased(@Nonnull Connection dbc) throws Exception;
+		void connectionReleased(@NonNull Connection dbc) throws Exception;
 	}
 
-	@Nonnull
+	@NonNull
 	private List<IPoolEvent> m_poolListeners = Collections.EMPTY_LIST;
 
 	private boolean m_hasPlSqlHandler;
@@ -338,7 +360,7 @@ final public class ConnectionPool {
 	 * Add a listener for pool related events.
 	 * @param l
 	 */
-	public synchronized void addListener(@Nonnull IPoolEvent l) {
+	public synchronized void addListener(@NonNull IPoolEvent l) {
 		m_poolListeners = new ArrayList<IPoolEvent>(m_poolListeners);
 		m_poolListeners.add(l);
 	}
@@ -347,17 +369,17 @@ final public class ConnectionPool {
 	 * Remove the specified listener.
 	 * @param l
 	 */
-	public synchronized void removeListener(@Nonnull IPoolEvent l) {
+	public synchronized void removeListener(@NonNull IPoolEvent l) {
 		m_poolListeners = new ArrayList<IPoolEvent>(m_poolListeners);
 		m_poolListeners.remove(l);
 	}
 
-	@Nonnull
+	@NonNull
 	private synchronized List<IPoolEvent> getPoolListeners() {
 		return m_poolListeners;
 	}
 
-	private void callAllocatedListeners(@Nonnull Connection dbc) {
+	private void callAllocatedListeners(@NonNull Connection dbc) {
 		List<IPoolEvent> poolListeners = getPoolListeners();
 		for(int i = poolListeners.size(); --i >= 0;) {
 			try {
@@ -369,7 +391,7 @@ final public class ConnectionPool {
 		}
 	}
 
-	void callReleasedListeners(@Nonnull Connection dbc) {
+	void callReleasedListeners(@NonNull Connection dbc) {
 		List<IPoolEvent> poolListeners = getPoolListeners();
 		for(int i = poolListeners.size(); --i >= 0;) {
 			try {
@@ -478,7 +500,7 @@ final public class ConnectionPool {
 		}
 	}
 
-	public void addPlSqlDebugHandler(@Nonnull String plsqldebug) throws SQLException {
+	public void addPlSqlDebugHandler(@NonNull String plsqldebug) throws SQLException {
 
 		final HostAndPort hostAndPort = HostAndPort.parse(plsqldebug);
 
@@ -490,10 +512,10 @@ final public class ConnectionPool {
 
 		addListener(new IPoolEvent() {
 			@Override
-			public void connectionReleased(@Nonnull Connection dbc) throws Exception {}
+			public void connectionReleased(@NonNull Connection dbc) throws Exception {}
 
 			@Override
-			public void connectionAllocated(@Nonnull Connection dbc) throws Exception {
+			public void connectionAllocated(@NonNull Connection dbc) throws Exception {
 				DbPoolUtil.enableRemoteDebug(dbc, hostAndPort);
 			}
 		});
@@ -629,7 +651,7 @@ final public class ConnectionPool {
 	/**
 	 * Terminate the pool. Forces all connections closed.
 	 */
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	void destroyPool() {
 		if(!m_manager.internalRemovePool(this))
 			return;
@@ -1813,15 +1835,15 @@ final public class ConnectionPool {
 		m_n_open_rs--;
 	}
 
-	public synchronized void setAttribute(@Nonnull String name, @Nullable Object value) {
+	public synchronized void setAttribute(@NonNull String name, @Nullable Object value) {
 		m_attributeMap.put(name, value);
 	}
 
-	public synchronized Object getAttribute(@Nonnull String name) {
+	public synchronized Object getAttribute(@NonNull String name) {
 		return m_attributeMap.get(name);
 	}
 
-	public synchronized <T> T getOrCreateAttribute(@Nonnull String name, @Nonnull java.util.function.Supplier<T> supplier) {
+	public synchronized <T> T getOrCreateAttribute(@NonNull String name, @NonNull java.util.function.Supplier<T> supplier) {
 		T value = (T) m_attributeMap.get(name);
 		if(null == value) {
 			value = supplier.get();

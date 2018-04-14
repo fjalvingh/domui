@@ -24,10 +24,12 @@
  */
 package to.etc.domui.component2.controlfactory;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.TextArea;
 
 public class ControlCreatorTextArea implements IControlCreator {
 	/**
@@ -47,7 +49,7 @@ public class ControlCreatorTextArea implements IControlCreator {
 	}
 
 	@Override
-	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		return (C) TextArea.create(pmm);
 	}
 }

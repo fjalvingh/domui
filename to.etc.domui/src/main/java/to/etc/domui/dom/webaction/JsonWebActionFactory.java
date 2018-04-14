@@ -1,14 +1,18 @@
 package to.etc.domui.dom.webaction;
 
-import java.io.*;
-import java.lang.reflect.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.json.JSON;
+import to.etc.util.FileTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.json.*;
-import to.etc.util.*;
+import java.io.StringReader;
+import java.io.Writer;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 
 /**
  * This action factory tries to find a method with the name specified in actionCode which accepts a single java class type
@@ -22,7 +26,7 @@ import to.etc.util.*;
 public class JsonWebActionFactory implements WebActionRegistry.IFactory {
 	@Override
 	@Nullable
-	public IWebActionHandler createHandler(@Nonnull Class< ? extends NodeBase> node, @Nonnull String actionCode) {
+	public IWebActionHandler createHandler(@NonNull Class< ? extends NodeBase> node, @NonNull String actionCode) {
 		for(Method m: node.getMethods()) {
 			if(m.getName().equals(actionCode)) {
 				Class< ? >[] par = m.getParameterTypes();
@@ -48,7 +52,7 @@ public class JsonWebActionFactory implements WebActionRegistry.IFactory {
 	 * @param response
 	 * @throws Exception
 	 */
-	static public void renderResponse(@Nonnull Method calledMethod, @Nonnull RequestContextImpl ctx, @Nullable Object response) throws Exception {
+	static public void renderResponse(@NonNull Method calledMethod, @NonNull RequestContextImpl ctx, @Nullable Object response) throws Exception {
 		Writer out = ctx.getRequestResponse().getOutputWriter("application/javascript; charset=UTF-8", "utf-8");
 		try {
 			JSON.render(out, response);
@@ -59,23 +63,23 @@ public class JsonWebActionFactory implements WebActionRegistry.IFactory {
 }
 
 class JsonWebAction implements IWebActionHandler {
-	@Nonnull
+	@NonNull
 	final private Method m_method;
 
-	@Nonnull
+	@NonNull
 	final private Class< ? > m_formal;
 
-	@Nonnull
+	@NonNull
 	final private Type m_paramType;
 
-	public JsonWebAction(@Nonnull Method method, @Nonnull Class< ? > formal, @Nonnull Type paramType) {
+	public JsonWebAction(@NonNull Method method, @NonNull Class< ? > formal, @NonNull Type paramType) {
 		m_method = method;
 		m_formal = formal;
 		m_paramType = paramType;
 	}
 
 	@Override
-	public void handleWebAction(@Nonnull NodeBase node, @Nonnull RequestContextImpl context, boolean responseExpected) throws Exception {
+	public void handleWebAction(@NonNull NodeBase node, @NonNull RequestContextImpl context, boolean responseExpected) throws Exception {
 		String json = context.getParameter("json");						// Get required json parameter
 		if(null == json)
 			throw new IllegalArgumentException("The request parameter 'json' is missing for web action method " + m_method);

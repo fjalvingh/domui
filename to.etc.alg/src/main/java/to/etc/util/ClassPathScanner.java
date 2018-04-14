@@ -1,11 +1,19 @@
 package to.etc.util;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.util.zip.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * This scans all parts of the classpath as passed, and calls user-supplied methods for the parts discovered. The idea
@@ -29,7 +37,7 @@ public class ClassPathScanner {
 	 * Created on Oct 11, 2013
 	 */
 	public interface IPathEntry {
-		void foundPathEntry(@Nonnull File classpathEntry) throws Exception;
+		void foundPathEntry(@NonNull File classpathEntry) throws Exception;
 	}
 
 	/**
@@ -39,30 +47,30 @@ public class ClassPathScanner {
 	 * Created on Oct 11, 2013
 	 */
 	public interface IClassFileEntry {
-		void foundFile(@Nonnull File classPathDirectory, @Nonnull File f, @Nonnull String name) throws Exception;
+		void foundFile(@NonNull File classPathDirectory, @NonNull File f, @NonNull String name) throws Exception;
 
-		void foundJarEntry(@Nonnull File classPathJarFile, @Nonnull String name, @Nonnull ZipInputStream zis) throws Exception;
+		void foundJarEntry(@NonNull File classPathJarFile, @NonNull String name, @NonNull ZipInputStream zis) throws Exception;
 	}
 
 	public interface IClassEntry {
-		void foundClass(@Nonnull File source, @Nonnull Class<?> theClass) throws Exception;
+		void foundClass(@NonNull File source, @NonNull Class<?> theClass) throws Exception;
 	}
 
 
-	@Nonnull
+	@NonNull
 	private List<IPathEntry>	m_entryList	= new ArrayList<ClassPathScanner.IPathEntry>();
 
-	@Nonnull
+	@NonNull
 	private List<IClassFileEntry>	m_classFileEntryList = new ArrayList<ClassPathScanner.IClassFileEntry>();
 
-	@Nonnull
+	@NonNull
 	private List<IClassEntry>	m_classEntryList	= new ArrayList<ClassPathScanner.IClassEntry>();
 
 	private int						m_nentries;
 
 	private int						m_nclasses;
 
-	@Nonnull
+	@NonNull
 	public static synchronized ClassPathScanner getInstance() {
 		ClassPathScanner cs = m_instance;
 		if(null == cs) {
@@ -72,19 +80,19 @@ public class ClassPathScanner {
 		return cs;
 	}
 
-	public void addListener(@Nonnull IPathEntry pe) {
+	public void addListener(@NonNull IPathEntry pe) {
 		m_entryList.add(pe);
 	}
 
-	public void addListener(@Nonnull IClassFileEntry pe) {
+	public void addListener(@NonNull IClassFileEntry pe) {
 		m_classFileEntryList.add(pe);
 	}
 
-	public void addListener(@Nonnull IClassEntry pe) {
+	public void addListener(@NonNull IClassEntry pe) {
 		m_classEntryList.add(pe);
 	}
 
-	public void addClassloader(@Nonnull ClassLoader classLoader) {
+	public void addClassloader(@NonNull ClassLoader classLoader) {
 		ClassLoader pc = classLoader;
 		for(;;) {
 			if(m_classLoaders.contains(classLoader))
@@ -96,12 +104,12 @@ public class ClassPathScanner {
 		}
 	}
 
-	public void addUrl(@Nonnull URL url) {
+	public void addUrl(@NonNull URL url) {
 		m_urls.add(url);
 	}
 
-	@Nonnull
-	private List<File> findEntriesFor(@Nonnull ClassLoader cl) throws Exception {
+	@NonNull
+	private List<File> findEntriesFor(@NonNull ClassLoader cl) throws Exception {
 		if(!(cl instanceof URLClassLoader))
 			return Collections.EMPTY_LIST;
 		URLClassLoader ucl = (URLClassLoader) cl;
@@ -149,7 +157,7 @@ public class ClassPathScanner {
 		System.out.println("classpath: scanned " + m_nentries + " entries containing " + m_nclasses + " classes in " + StringTool.strNanoTime(ts));
 	}
 
-	private void scanPathEntry(@Nonnull File pathEntry, @Nullable ClassLoader loader) throws Exception {
+	private void scanPathEntry(@NonNull File pathEntry, @Nullable ClassLoader loader) throws Exception {
 		for(IPathEntry pe : m_entryList)
 			pe.foundPathEntry(pathEntry);
 
@@ -170,7 +178,7 @@ public class ClassPathScanner {
 		}
 	}
 
-	private void scanDir(@Nonnull StringBuilder sb, @Nonnull final File directory, @Nonnull final File classPathDirectory, @Nullable ClassLoader loader) throws Exception {
+	private void scanDir(@NonNull StringBuilder sb, @NonNull final File directory, @NonNull final File classPathDirectory, @Nullable ClassLoader loader) throws Exception {
 		int len = sb.length();
 		for(File f : directory.listFiles()) {
 			sb.setLength(len);
@@ -184,7 +192,7 @@ public class ClassPathScanner {
 		}
 	}
 
-	private void scanFileEntry(@Nullable ClassLoader loader, @Nonnull File classPathDirectory, @Nonnull File f, @Nonnull String name) throws Exception {
+	private void scanFileEntry(@Nullable ClassLoader loader, @NonNull File classPathDirectory, @NonNull File f, @NonNull String name) throws Exception {
 		for(IClassFileEntry fe: m_classFileEntryList) {
 			fe.foundFile(classPathDirectory, f, name);
 		}
@@ -194,7 +202,7 @@ public class ClassPathScanner {
 	}
 
 
-	private void scanJarEntry(@Nullable ClassLoader loader, @Nonnull File jar, @Nonnull String name, @Nonnull ZipInputStream zis) throws Exception {
+	private void scanJarEntry(@Nullable ClassLoader loader, @NonNull File jar, @NonNull String name, @NonNull ZipInputStream zis) throws Exception {
 		for(IClassFileEntry fe : m_classFileEntryList) {
 			fe.foundJarEntry(jar, name, zis);
 		}
@@ -203,7 +211,7 @@ public class ClassPathScanner {
 			scanClass(loader, jar, name);
 	}
 
-	private void scanClass(@Nonnull ClassLoader loader, @Nonnull File classPathDirectory, @Nonnull String name) throws Exception {
+	private void scanClass(@NonNull ClassLoader loader, @NonNull File classPathDirectory, @NonNull String name) throws Exception {
 		if(!name.endsWith(".class"))
 			return;
 		name = name.substring(0, name.length() - 6);			// Remove .class
@@ -222,7 +230,7 @@ public class ClassPathScanner {
 		}
 	}
 
-	private void scanJar(@Nonnull final File jar, @Nullable ClassLoader loader) throws Exception {
+	private void scanJar(@NonNull final File jar, @Nullable ClassLoader loader) throws Exception {
 		//		long ts = System.nanoTime();
 		FileInputStream fis = new FileInputStream(jar);
 		ZipInputStream zis = null;

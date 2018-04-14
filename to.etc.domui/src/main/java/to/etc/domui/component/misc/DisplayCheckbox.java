@@ -24,13 +24,12 @@
  */
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
-
-import javax.annotation.Nullable;
 
 /**
  * Display-only checkbox which renders better than a disabled checkbox thingy.

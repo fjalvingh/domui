@@ -11,11 +11,11 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class ExcelExportWriter<T> implements IExportWriter<T> {
 	private static final int EXCEL_CHAR_WIDTH = 256;
 

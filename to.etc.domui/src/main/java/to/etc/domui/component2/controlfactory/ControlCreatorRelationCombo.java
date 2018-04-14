@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component2.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -32,9 +34,6 @@ import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.util.Constants;
 import to.etc.util.WrappedException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Accepts any property defined as an UP relation (parent) and score higher if a component type
@@ -67,7 +66,7 @@ public class ControlCreatorRelationCombo implements IControlCreator {
 	}
 
 	@Override
-	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		try {
 			ComboLookup2<T> co = ComboLookup2.createLookup(pmm);
 			return (C) co;

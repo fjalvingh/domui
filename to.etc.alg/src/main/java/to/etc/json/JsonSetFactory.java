@@ -1,15 +1,19 @@
 package to.etc.json;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.ClassUtil;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 public class JsonSetFactory implements IJsonTypeFactory {
 	@Override
-	public ITypeMapping createMapper(@Nonnull JsonTypeRegistry registry, @Nonnull final Class< ? > typeClass, @Nullable Type type) {
+	public ITypeMapping createMapper(@NonNull JsonTypeRegistry registry, @NonNull final Class< ? > typeClass, @Nullable Type type) {
 		if(!Set.class.isAssignableFrom(typeClass) || type == null)
 			return null;
 		final Class< ? > memberType = ClassUtil.findCollectionType(type);

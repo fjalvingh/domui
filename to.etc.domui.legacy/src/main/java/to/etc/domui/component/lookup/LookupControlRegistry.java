@@ -24,12 +24,12 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +43,7 @@ import java.util.List;
 final public class LookupControlRegistry {
 	static public final LookupControlRegistry INSTANCE = new LookupControlRegistry();
 
-	@Nonnull
+	@NonNull
 	private List<ILookupControlFactory> m_factoryList = new ArrayList<ILookupControlFactory>();
 
 	public LookupControlRegistry() {
@@ -56,18 +56,18 @@ final public class LookupControlRegistry {
 		register(new LookupFactoryRelationCombo());
 	}
 
-	@Nonnull
+	@NonNull
 	public synchronized List<ILookupControlFactory> getFactoryList() {
 		return m_factoryList;
 	}
 
-	public synchronized void register(@Nonnull ILookupControlFactory f) {
+	public synchronized void register(@NonNull ILookupControlFactory f) {
 		m_factoryList = new ArrayList<ILookupControlFactory>(m_factoryList);
 		m_factoryList.add(f);
 	}
 
 	@Nullable
-	public ILookupControlFactory findFactory(@Nonnull SearchPropertyMetaModel pmm) {
+	public ILookupControlFactory findFactory(@NonNull SearchPropertyMetaModel pmm) {
 		ILookupControlFactory best = null;
 		int score = 0;
 		for(ILookupControlFactory cf : getFactoryList()) {
@@ -80,16 +80,16 @@ final public class LookupControlRegistry {
 		return best;
 	}
 
-	@Nonnull
-	public ILookupControlFactory getControlFactory(@Nonnull SearchPropertyMetaModel pmm) {
+	@NonNull
+	public ILookupControlFactory getControlFactory(@NonNull SearchPropertyMetaModel pmm) {
 		ILookupControlFactory cf = findFactory(pmm);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a Lookup Control factory for " + pmm);
 		return cf;
 	}
 
-	@Nonnull
-	public <T, X extends NodeBase & IControl<T>> ILookupControlFactory getLookupQueryFactory(@Nonnull final SearchPropertyMetaModel pmm, @Nonnull X control) {
+	@NonNull
+	public <T, X extends NodeBase & IControl<T>> ILookupControlFactory getLookupQueryFactory(@NonNull final SearchPropertyMetaModel pmm, @NonNull X control) {
 		ILookupControlFactory best = null;
 		int score = 0;
 		for(ILookupControlFactory cf : getFactoryList()) {

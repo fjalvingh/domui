@@ -1,5 +1,8 @@
 package to.etc.domui.component2.enumsetinput;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.component.input.SearchAsYouType;
 import to.etc.domui.component.input.SearchAsYouTypeBase;
@@ -14,9 +17,6 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IRenderInto;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,13 +32,13 @@ import java.util.function.Function;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4-2-18.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	private final Class<T> m_actualClass;
 
 	private final String m_property;
 
-	@Nonnull
+	@NonNull
 	private List<T> m_dataList = new ArrayList<>();
 
 	private final Map<T, Div> m_displayMap = new HashMap<>();
@@ -197,11 +197,11 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		return null;
 	}
 
-	@Nonnull public List<T> getData() {
+	@NonNull public List<T> getData() {
 		return m_dataList;
 	}
 
-	public EnumSetInput<T> setData(@Nonnull List<T> dataList) {
+	public EnumSetInput<T> setData(@NonNull List<T> dataList) {
 		m_dataList = dataList;
 		forceRebuild();
 		return this;

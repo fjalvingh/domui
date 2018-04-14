@@ -1,14 +1,16 @@
 package to.etc.domui.log.tailer;
 
-import javax.annotation.*;
-
-import to.etc.domui.annotations.*;
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.title.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.component.misc.InfoPanel;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.state.UIGoto;
 
 public class ServerLogPage extends UrlPage {
 	private String m_logPath;
@@ -42,7 +44,7 @@ public class ServerLogPage extends UrlPage {
 
 		add(new DefaultButton("Back", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				UIGoto.back();
 			}
 		}));

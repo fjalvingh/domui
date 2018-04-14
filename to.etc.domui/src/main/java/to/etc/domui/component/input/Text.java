@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.NumericPresentation;
@@ -50,8 +52,6 @@ import to.etc.util.RuntimeConversionException;
 import to.etc.util.RuntimeConversions;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,7 +70,7 @@ import java.util.regex.Pattern;
 @Deprecated
 public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T>, ITypedControl<T> {
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
-	@Nonnull
+	@NonNull
 	private Class<T> m_inputClass;
 
 	/**
@@ -108,7 +108,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		NONE, DIGITS, FLOAT,
 	}
 
-	@Nonnull
+	@NonNull
 	private NumberMode m_numberMode = NumberMode.NONE;
 
 	/** Indication if the contents of this thing has been altered by the user. This merely compares any incoming value with the present value and goes "true" when those are not equal. */
@@ -120,7 +120,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 	private String m_placeHolder;
 
-	public Text(@Nonnull Class<T> inputClass) {
+	public Text(@NonNull Class<T> inputClass) {
 		m_inputClass = inputClass;
 		addCssClass("ui-otxt");
 
@@ -137,7 +137,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @see to.etc.domui.dom.html.Input#acceptRequestParameter(java.lang.String[])
 	 */
 	@Override
-	public boolean acceptRequestParameter(@Nonnull String[] values) {
+	public boolean acceptRequestParameter(@NonNull String[] values) {
 		String oldValue = getRawValue();									// Retain previous value,
 		super.acceptRequestParameter(values);								// Set the new one;
 		oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.trim();
@@ -275,7 +275,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @return
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public Class<T> getActualType() {
 		return m_inputClass;
 	}
@@ -456,7 +456,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * Returns the current numeric mode in effect. This mode prevents letters from being input on the screen.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public NumberMode getNumberMode() {
 		return m_numberMode;
 	}
@@ -465,7 +465,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * Sets the current numeric mode in effect. This mode prevents letters from being input on the screen.
 	 * @param numberMode
 	 */
-	public void setNumberMode(@Nonnull NumberMode numberMode) {
+	public void setNumberMode(@NonNull NumberMode numberMode) {
 		m_numberMode = numberMode;
 
 		switch(numberMode){
@@ -547,7 +547,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @param control
 	 * @param pmm
 	 */
-	public static final void assignPrecisionValidator(@Nonnull Text< ? > control, @Nonnull PropertyMetaModel< ? > pmm) {
+	public static final void assignPrecisionValidator(@NonNull Text< ? > control, @NonNull PropertyMetaModel< ? > pmm) {
 		IValueValidator<?> validator = MetaManager.calculatePrecisionValidator(pmm);
 		if(null != validator)
 			control.addValidator(validator);
@@ -562,17 +562,17 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull Class< ? > clz, @Nonnull String property, boolean editable) {
+	@NonNull
+	static public Text<Double> createDoubleMoneyInput(@NonNull Class< ? > clz, @NonNull String property, boolean editable) {
 		return Text.createDoubleMoneyInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Text<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createBDMoneyInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Text<BigDecimal> createBDMoneyInput(PropertyMetaModel<BigDecimal> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -582,8 +582,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		return txt;
 	}
 
-	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel<Double> pmm, boolean editable) {
+	@NonNull
+	static public Text<Double> createDoubleMoneyInput(@NonNull PropertyMetaModel<Double> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
 		Text<Double> txt = new Text<Double>(Double.class);
@@ -592,7 +592,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		return txt;
 	}
 
-	public static void configureNumericInput(@Nonnull Text< ? > txt, @Nonnull PropertyMetaModel< ? > pmm, boolean editable) {
+	public static void configureNumericInput(@NonNull Text< ? > txt, @NonNull PropertyMetaModel< ? > pmm, boolean editable) {
 		if(!editable)
 			txt.setReadOnly(true);
 
@@ -627,7 +627,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	/*	CODING:	Numeric Text inputs for base types.					*/
 	/*--------------------------------------------------------------*/
 
-	@Nonnull
+	@NonNull
 	static public <T extends Number> Text<T> createNumericInput(PropertyMetaModel<T> pmm, boolean editable) {
 		if(pmm == null)
 			throw new NullPointerException("Null property model not allowed");
@@ -644,22 +644,22 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * @param editable
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public Text<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createNumericInput((PropertyMetaModel<Integer>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Text<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createNumericInput((PropertyMetaModel<Long>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Text<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createNumericInput((PropertyMetaModel<Double>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-//	@Nonnull
+//	@NonNull
 //	static public <N extends Number> Text<N> createNumericInput(PropertyMetaModel<N> pmm, boolean editable) {
 //		if(pmm == null)
 //			throw new NullPointerException("Null property model not allowed");
@@ -670,23 +670,23 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 //	}
 //
 
-	@Nonnull
+	@NonNull
 	static public Text<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
 		return Text.createNumericInput((PropertyMetaModel<BigDecimal>) MetaManager.findPropertyMeta(clz, property), editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public <T> Text< ? > createText(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.getPropertyMeta(clz, property);
 		return Text.createText(pmm.getActualType(), pmm, editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable) {
 		return createText(iclz, pmm, editable, false);
 	}
 
-	@Nonnull
+	@NonNull
 	static public <T> Text<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		Class< ? > aclz = pmm.getActualType();
 		if(!iclz.isAssignableFrom(aclz))

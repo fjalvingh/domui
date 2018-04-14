@@ -1,13 +1,25 @@
 package to.etc.domui.util;
 
-import java.io.*;
-import java.util.*;
+import net.htmlparser.jericho.Attribute;
+import net.htmlparser.jericho.CharacterReference;
+import net.htmlparser.jericho.Element;
+import net.htmlparser.jericho.EndTagType;
+import net.htmlparser.jericho.HTMLElementName;
+import net.htmlparser.jericho.HTMLElements;
+import net.htmlparser.jericho.OutputDocument;
+import net.htmlparser.jericho.Segment;
+import net.htmlparser.jericho.Source;
+import net.htmlparser.jericho.StartTag;
+import net.htmlparser.jericho.StartTagType;
+import net.htmlparser.jericho.Tag;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
-
-import net.htmlparser.jericho.*;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Html utilities.

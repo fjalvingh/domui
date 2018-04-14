@@ -24,13 +24,18 @@
  */
 package to.etc.webapp.qsql;
 
-import java.math.*;
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.util.RuntimeConversions;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.math.BigDecimal;
+import java.sql.Clob;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * EXPERIMENTAL A record read from the database. Stores all (usable) attributes as a map of values.
@@ -45,7 +50,7 @@ public class JdbcAnyRecord {
 
 	//	private String m_tableName;
 
-	public void initFromRS(String tablename, ResultSetMetaData rsm, @Nonnull ResultSet rs) throws SQLException {
+	public void initFromRS(String tablename, ResultSetMetaData rsm, @NonNull ResultSet rs) throws SQLException {
 		if(rs == null)
 			throw new IllegalStateException("Null rs not allowed");
 		m_valueMap.clear();

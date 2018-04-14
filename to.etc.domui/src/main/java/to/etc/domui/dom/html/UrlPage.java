@@ -24,6 +24,9 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.BreadCrumb;
 import to.etc.domui.component.layout.Window;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
@@ -40,10 +43,6 @@ import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 
 /**
  * The base for all pages that can be accessed through URL's. This is mostly a
@@ -54,7 +53,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 1, 2008
  */
-@DefaultNonNull
+@NonNullByDefault
 public class UrlPage extends Div {
 	/** The title for the page in the head's TITLE tag. */
 	@Nullable
@@ -73,7 +72,7 @@ public class UrlPage extends Div {
 	 * by {@link DefaultThemeVariant#INSTANCE}.
 	 * @param themeVariant
 	 */
-	public final void setThemeVariant(@Nonnull IThemeVariant themeVariant) {
+	public final void setThemeVariant(@NonNull IThemeVariant themeVariant) {
 		UIContext.getRequestContext().setThemeVariant(themeVariant);
 	}
 
@@ -114,7 +113,7 @@ public class UrlPage extends Div {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getTestRepeatId() {
 		return "";
 	}
@@ -162,24 +161,24 @@ public class UrlPage extends Div {
 	 * @see to.etc.domui.dom.html.NodeBase#getSharedContext()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public QDataContext getSharedContext() throws Exception {
 		return getSharedContext(QContextManager.DEFAULT);
 	}
 
-	@Nonnull
-	public QDataContext getSharedContext(@Nonnull String key) throws Exception {
+	@NonNull
+	public QDataContext getSharedContext(@NonNull String key) throws Exception {
 		return QContextManager.getContext(key, getPage().getContextContainer(key));
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public QDataContextFactory getSharedContextFactory() {
 		return getSharedContextFactory(QContextManager.DEFAULT);
 	}
 
-	@Nonnull
-	public QDataContextFactory getSharedContextFactory(@Nonnull String key) {
+	@NonNull
+	public QDataContextFactory getSharedContextFactory(@NonNull String key) {
 		return QContextManager.getDataContextFactory(key, getPage().getContextContainer(key));
 	}
 
@@ -194,7 +193,7 @@ public class UrlPage extends Div {
 	 * @see to.etc.domui.dom.html.NodeBase#lc()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public ILogicContext lc() throws Exception {
 		ILogicContext lc = (ILogicContext) getPage().getConversation().getAttribute(LogicContextImpl.class.getName());
 		if(null == lc) {
@@ -219,7 +218,7 @@ public class UrlPage extends Div {
 	}
 
 	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if(Constants.ACDM_NOTIFY_PAGE.equals(action)) {
 			handleNotifyPageCommand(ctx);
 		} else {
@@ -227,7 +226,7 @@ public class UrlPage extends Div {
 		}
 	}
 
-	private void handleNotifyPageCommand(@Nonnull final IRequestContext ctx) throws Exception {
+	private void handleNotifyPageCommand(@NonNull final IRequestContext ctx) throws Exception {
 		String command = ctx.getParameter(getActualID() + "_command");
 		INotifyPageEvent listener = getNotifyPageEvent();
 		if(null != listener) {
@@ -240,7 +239,7 @@ public class UrlPage extends Div {
 		return m_notifyPageEvent;
 	}
 
-	public void setNotifyPageEvent(@Nonnull INotifyPageEvent notifyPageEvent) {
+	public void setNotifyPageEvent(@NonNull INotifyPageEvent notifyPageEvent) {
 		m_notifyPageEvent = notifyPageEvent;
 	}
 }

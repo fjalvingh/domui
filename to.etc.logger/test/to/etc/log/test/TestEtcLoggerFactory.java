@@ -2,7 +2,7 @@ package to.etc.log.test;
 
 import java.io.*;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import org.junit.*;
 import org.slf4j.*;
@@ -17,7 +17,7 @@ public class TestEtcLoggerFactory {
 		EtcLoggerFactory.getSingleton().initialize(new File(m_testHome), getConfig(Level.ERROR));
 	}
 
-	private static String getConfig(@Nonnull Level level) {
+	private static String getConfig(@NonNull Level level) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<config logLocation=\"%user.home%/testlog/logs\">");
 		sb.append("<handler type=\"stdout\">");

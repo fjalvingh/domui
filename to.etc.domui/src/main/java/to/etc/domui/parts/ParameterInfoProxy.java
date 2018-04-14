@@ -1,11 +1,10 @@
 package to.etc.domui.parts;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.IParameterInfo;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -18,19 +17,19 @@ public class ParameterInfoProxy implements IExtendedParameterInfo {
 		m_delegate = delegate;
 	}
 
-	@Override @Nullable public String getParameter(@Nonnull String name) {
+	@Override @Nullable public String getParameter(@NonNull String name) {
 		return m_delegate.getParameter(name);
 	}
 
-	@Override @Nonnull public String[] getParameters(@Nonnull String name) {
+	@Override @NonNull public String[] getParameters(@NonNull String name) {
 		return m_delegate.getParameters(name);
 	}
 
-	@Override @Nonnull public String[] getParameterNames() {
+	@Override @NonNull public String[] getParameterNames() {
 		return m_delegate.getParameterNames();
 	}
 
-	@Override @Nonnull public String getInputPath() {
+	@Override @NonNull public String getInputPath() {
 		return m_delegate.getInputPath();
 	}
 

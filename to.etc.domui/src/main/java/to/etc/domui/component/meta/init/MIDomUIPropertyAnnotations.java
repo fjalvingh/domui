@@ -1,5 +1,7 @@
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.component.meta.MetaCombo;
 import to.etc.domui.component.meta.MetaObject;
 import to.etc.domui.component.meta.MetaProperty;
@@ -30,8 +32,6 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.domui.util.UndefinedLabelStringRenderer;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,15 +41,15 @@ import java.util.regex.Pattern;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 3-10-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<DefaultClassMetaModel, DefaultPropertyMetaModel<?>> {
-	@Nonnull
+	@NonNull
 	final private List<SearchPropertyMetaModel> m_searchList = new ArrayList<SearchPropertyMetaModel>();
 
-	@Nonnull
+	@NonNull
 	final private List<SearchPropertyMetaModel> m_keySearchList = new ArrayList<SearchPropertyMetaModel>();
 
-	@Override public void provide(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel cmm, @Nonnull DefaultPropertyMetaModel<?> pmm) throws Exception {
+	@Override public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm, @NonNull DefaultPropertyMetaModel<?> pmm) throws Exception {
 		Annotation[] annar = pmm.getDescriptor().getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
@@ -57,7 +57,7 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 		}
 	}
 
-	@Override public void afterPropertiesDone(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel cmm) {
+	@Override public void afterPropertiesDone(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm) {
 		m_searchList.sort(SearchPropertyMetaModel.BY_ORDER);
 		m_keySearchList.sort(SearchPropertyMetaModel.BY_ORDER);
 
@@ -140,7 +140,7 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 		}
 	}
 
-	private <T> void handleMetaCombo(@Nonnull DefaultClassMetaModel cmm, @Nonnull DefaultPropertyMetaModel<T> pmm, MetaCombo an) {
+	private <T> void handleMetaCombo(@NonNull DefaultClassMetaModel cmm, @NonNull DefaultPropertyMetaModel<T> pmm, MetaCombo an) {
 		final MetaCombo c = an;
 		if(c.dataSet() != UndefinedComboDataSet.class) {
 			pmm.setRelationType(PropertyRelationType.UP);
@@ -161,7 +161,7 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 		}
 	}
 
-	private <T> void handleMetaProperty(@Nonnull DefaultPropertyMetaModel<T> pmm, MetaProperty an) {
+	private <T> void handleMetaProperty(@NonNull DefaultPropertyMetaModel<T> pmm, MetaProperty an) {
 		//-- Handle meta-assignments.
 		MetaProperty mp = an;
 		if(mp.defaultSortable() != SortableType.UNKNOWN)

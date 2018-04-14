@@ -1,15 +1,20 @@
 package to.etc.domui.autotest;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.IRequestResponse;
+import to.etc.domui.server.IServerSession;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.upload.UploadItem;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.upload.*;
+import javax.servlet.http.Cookie;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The request/response data for an automated inline test.
@@ -18,13 +23,13 @@ import to.etc.domui.util.upload.*;
  * Created on Oct 9, 2013
  */
 public class TestRequestResponse implements IRequestResponse {
-	@Nonnull
+	@NonNull
 	final private IDomUITestInfo m_testInfo;
 
-	@Nonnull
+	@NonNull
 	final private Map<String, Object> m_parameterMap = new HashMap<String, Object>();
 
-	@Nonnull
+	@NonNull
 	private String m_requestURI;
 
 	@Nullable
@@ -39,7 +44,7 @@ public class TestRequestResponse implements IRequestResponse {
 	@Nullable
 	private String m_outputContentType;
 
-	@Nonnull
+	@NonNull
 	private TestResponseType m_responseType = TestResponseType.NOTHING;
 
 	@Nullable
@@ -50,13 +55,13 @@ public class TestRequestResponse implements IRequestResponse {
 	@Nullable
 	private String m_errorMessage;
 
-	@Nonnull
+	@NonNull
 	final private TestServerSession m_session;
 
-	@Nonnull
+	@NonNull
 	final private String m_queryString;
 
-	public TestRequestResponse(@Nonnull TestServerSession session, @Nonnull IDomUITestInfo info, @Nonnull String requestURI, @Nonnull String queryString) {
+	public TestRequestResponse(@NonNull TestServerSession session, @NonNull IDomUITestInfo info, @NonNull String requestURI, @NonNull String queryString) {
 		m_testInfo = info;
 		m_requestURI = requestURI;
 		m_session = session;
@@ -66,7 +71,7 @@ public class TestRequestResponse implements IRequestResponse {
 	}
 
 
-	public TestRequestResponse(@Nonnull TestServerSession session, @Nonnull IDomUITestInfo info, @Nonnull String requestURI, @Nonnull PageParameters parameters) {
+	public TestRequestResponse(@NonNull TestServerSession session, @NonNull IDomUITestInfo info, @NonNull String requestURI, @NonNull PageParameters parameters) {
 		m_testInfo = info;
 		m_requestURI = requestURI;
 		m_session = session;
@@ -76,7 +81,7 @@ public class TestRequestResponse implements IRequestResponse {
 		m_queryString = sb.toString();
 	}
 
-	private void initParameters(@Nonnull PageParameters parameters) {
+	private void initParameters(@NonNull PageParameters parameters) {
 		for(String name : parameters.getParameterNames()) {
 			String[] vals = parameters.getStringArray(name);
 			m_parameterMap.put(name, vals);
@@ -84,29 +89,29 @@ public class TestRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getRequestURI() {
 		return m_requestURI;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getQueryString() {
 		return m_queryString;
 	}
 
-	public void setRequestURI(@Nonnull String requestURI) {
+	public void setRequestURI(@NonNull String requestURI) {
 		m_requestURI = requestURI;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getUserAgent() {
 		return m_testInfo.getUserAgent();
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getApplicationURL() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(m_testInfo.getApplicationHost());
@@ -119,15 +124,15 @@ public class TestRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
-	public String[] getParameters(@Nonnull String name) {
+	@NonNull
+	public String[] getParameters(@NonNull String name) {
 		String[] vals = (String[]) m_parameterMap.get(name);
 		return null == vals ? new String[0] : vals;
 	}
 
 	@Override
 	@Nullable
-	public String getParameter(@Nonnull String name) {
+	public String getParameter(@NonNull String name) {
 		String[] vals = getParameters(name);
 		if(vals.length >= 1)
 			return vals[0];
@@ -136,26 +141,26 @@ public class TestRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.keySet().size()]);
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String[] getFileParameters() {
 		return new String[0];
 	}
 
 	@Override
-	@Nonnull
-	public UploadItem[] getFileParameter(@Nonnull String name) {
+	@NonNull
+	public UploadItem[] getFileParameter(@NonNull String name) {
 		throw new IllegalStateException("Unsupported");
 	}
 
 	@Override
-	@Nonnull
-	public Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws Exception {
+	@NonNull
+	public Writer getOutputWriter(@NonNull String contentType, @Nullable String encoding) throws Exception {
 		if(m_writer != null)
 			throw new IllegalStateException("Duplicate request for output writer");
 
@@ -165,8 +170,8 @@ public class TestRequestResponse implements IRequestResponse {
 	}
 
 	@Override
-	@Nonnull
-	public OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception {
+	@NonNull
+	public OutputStream getOutputStream(@NonNull String contentType, @Nullable String encoding, int contentLength) throws Exception {
 		if(m_os != null)
 			throw new IllegalStateException("Duplicate request for output stream");
 		setType(TestResponseType.DOCUMENT);
@@ -181,41 +186,41 @@ public class TestRequestResponse implements IRequestResponse {
 			m_writer.flush();
 	}
 
-	private void setType(@Nonnull TestResponseType type) {
+	private void setType(@NonNull TestResponseType type) {
 		if(m_responseType != TestResponseType.NOTHING)
 			throw new IllegalStateException("Reassigning output from " + m_responseType + " to ");
 		m_responseType = type;
 	}
 
 	@Override
-	public void redirect(@Nonnull String newUrl) throws Exception {
+	public void redirect(@NonNull String newUrl) throws Exception {
 		setType(TestResponseType.REDIRECT);
 		m_redirectURL = newUrl;
 	}
 
 	@Override
-	public void sendError(int httpErrorCode, @Nonnull String message) throws Exception {
+	public void sendError(int httpErrorCode, @NonNull String message) throws Exception {
 		setType(TestResponseType.ERROR);
 		m_errorCode = httpErrorCode;
 		m_errorMessage = message;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getWebappContext() {
 		return m_testInfo.getWebappContext();
 	}
 
-	@Nonnull @Override public String getHostName() {
+	@NonNull @Override public String getHostName() {
 		return m_testInfo.getApplicationHost();
 	}
 
 	@Override
-	public void addCookie(@Nonnull Cookie cookie) {
+	public void addCookie(@NonNull Cookie cookie) {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public Cookie[] getCookies() {
 		return new Cookie[0];
 	}
@@ -234,9 +239,9 @@ public class TestRequestResponse implements IRequestResponse {
 	public void setNoCache() {}
 
 	@Override
-	public void addHeader(@Nonnull String name, @Nonnull String value) {}
+	public void addHeader(@NonNull String name, @NonNull String value) {}
 
-	@Nonnull
+	@NonNull
 	public TestResponseType getResponseType() {
 		return m_responseType;
 	}
@@ -303,7 +308,7 @@ public class TestRequestResponse implements IRequestResponse {
 		return null;
 	}
 
-	@Nonnull @Override public String getHostURL() {
+	@NonNull @Override public String getHostURL() {
 		return "http://www.test.nl/";
 	}
 

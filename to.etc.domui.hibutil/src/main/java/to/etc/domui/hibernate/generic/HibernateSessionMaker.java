@@ -24,9 +24,8 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import javax.annotation.*;
-
-import org.hibernate.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.hibernate.Session;
 
 
 /**
@@ -36,5 +35,5 @@ import org.hibernate.*;
  * Created on Jun 26, 2008
  */
 public interface HibernateSessionMaker {
-	Session makeSession(@Nonnull BuggyHibernateBaseContext bhbc) throws Exception;
+	Session makeSession(@NonNull BuggyHibernateBaseContext bhbc) throws Exception;
 }

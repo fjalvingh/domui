@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.ComboLookup;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -33,12 +34,10 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.util.Constants;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
-
 @Deprecated
 final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	@Override
-	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = spm.getProperty();
 
 		if(pmm.getRelationType() != PropertyRelationType.UP)
@@ -49,7 +48,7 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 	}
 
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		IControl< ? > input = control;
 		if(input == null) {
 			final PropertyMetaModel< ? > pmm = spm.getProperty();

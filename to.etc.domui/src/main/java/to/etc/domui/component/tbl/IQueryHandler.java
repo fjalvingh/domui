@@ -24,12 +24,11 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import java.util.List;
 
 public interface IQueryHandler<T> {
-	@Nonnull List<T> query(@Nonnull QCriteria<T> q) throws Exception;
+	@NonNull List<T> query(@NonNull QCriteria<T> q) throws Exception;
 }

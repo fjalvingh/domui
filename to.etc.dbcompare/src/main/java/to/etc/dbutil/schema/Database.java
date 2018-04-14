@@ -1,13 +1,17 @@
 package to.etc.dbutil.schema;
 
-import java.io.*;
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.dbpool.PoolManager;
+import to.etc.dbutil.reverse.Reverser;
+import to.etc.dbutil.reverse.ReverserRegistry;
 
-import javax.annotation.*;
-import javax.sql.*;
-
-import to.etc.dbpool.*;
-import to.etc.dbutil.reverse.*;
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.sql.Connection;
 
 public class Database {
 	private String m_poolid;
@@ -32,7 +36,7 @@ public class Database {
 	 * @param src
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static private DbSchema loadSchema(File src) throws Exception {
 		ObjectInputStream ois = null;
 		try {

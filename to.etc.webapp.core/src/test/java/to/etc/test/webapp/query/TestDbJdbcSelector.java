@@ -1,14 +1,21 @@
 package to.etc.test.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.junit.Assert;
+import org.junit.Test;
+import to.etc.test.webapp.qsql.LedgerAccount;
+import to.etc.test.webapp.qsql.TestQsqlBase;
+import to.etc.webapp.qsql.JdbcAnyRecord;
+import to.etc.webapp.qsql.JdbcClassMeta;
+import to.etc.webapp.qsql.JdbcMetaManager;
+import to.etc.webapp.qsql.JdbcUtil;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QQueryRenderer;
+import to.etc.webapp.query.QSelection;
+import to.etc.webapp.query.QSelectionFunction;
 
-import javax.annotation.*;
-
-import org.junit.*;
-
-import to.etc.test.webapp.qsql.*;
-import to.etc.webapp.qsql.*;
-import to.etc.webapp.query.*;
+import java.util.List;
 
 /**
  * Tests rendering and querying on JDBC selectors.
@@ -69,13 +76,13 @@ public class TestDbJdbcSelector extends TestQsqlBase {
 		}
 	}
 
-	public <T> void testSingleSelector(QSelectionFunction selectFunction, @Nonnull String propertyName, @Nonnull Class<T> type) throws Exception {
+	public <T> void testSingleSelector(QSelectionFunction selectFunction, @NonNull String propertyName, @NonNull Class<T> type) throws Exception {
 		testSingleSelectorStatic(getDc(), selectFunction, propertyName, type, "%a");
 	}
 
-	@Nonnull
-	public static <T> Number testSingleSelectorStatic(@Nonnull QDataContext dc, @Nonnull QSelectionFunction selectFunction, @Nonnull String propertyName, @Nonnull Class<T> type,
-		@Nonnull String descriptionLikePattern) throws Exception {
+	@NonNull
+	public static <T> Number testSingleSelectorStatic(@NonNull QDataContext dc, @NonNull QSelectionFunction selectFunction, @NonNull String propertyName, @NonNull Class<T> type,
+		@NonNull String descriptionLikePattern) throws Exception {
 		JdbcClassMeta cm = JdbcMetaManager.getMeta(LedgerAccount.class);
 		String columnName = cm.findProperty(propertyName).getColumnName();
 
@@ -108,7 +115,7 @@ public class TestDbJdbcSelector extends TestQsqlBase {
 		return (Number) selectBySql;
 	}
 
-	private static String toSqlSelectFunction(@Nonnull QSelectionFunction selectFunction, @Nonnull String columnName) {
+	private static String toSqlSelectFunction(@NonNull QSelectionFunction selectFunction, @NonNull String columnName) {
 		switch(selectFunction){
 			case COUNT:
 				return "count(" + columnName + ")";
@@ -127,7 +134,7 @@ public class TestDbJdbcSelector extends TestQsqlBase {
 		}
 	}
 
-	private static void addSelector(@Nonnull QSelection<LedgerAccount> selection, @Nonnull QSelectionFunction selectFunction, @Nonnull String propertyName) {
+	private static void addSelector(@NonNull QSelection<LedgerAccount> selection, @NonNull QSelectionFunction selectFunction, @NonNull String propertyName) {
 		switch(selectFunction){
 			case COUNT:
 				selection.count(propertyName);
@@ -152,8 +159,8 @@ public class TestDbJdbcSelector extends TestQsqlBase {
 		}
 	}
 
-	public <T, D> void testMultipleSelector(@Nonnull QSelectionFunction selectFunction1, @Nonnull String propertyName1, @Nonnull Class<T> type1, @Nonnull QSelectionFunction selectFunction2,
-		@Nonnull String propertyName2, @Nonnull Class<D> type2) throws Exception {
+	public <T, D> void testMultipleSelector(@NonNull QSelectionFunction selectFunction1, @NonNull String propertyName1, @NonNull Class<T> type1, @NonNull QSelectionFunction selectFunction2,
+		@NonNull String propertyName2, @NonNull Class<D> type2) throws Exception {
 		JdbcClassMeta cm = JdbcMetaManager.getMeta(LedgerAccount.class);
 		String columnName1 = cm.findProperty(propertyName1).getColumnName();
 		String sqlSelectFunction1 = toSqlSelectFunction(selectFunction1, columnName1);

@@ -24,11 +24,25 @@
  */
 package to.etc.dbpool;
 
-import java.sql.*;
-import java.util.*;
-import java.util.concurrent.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.sql.Array;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.NClob;
+import java.sql.PreparedStatement;
+import java.sql.SQLClientInfoException;
+import java.sql.SQLException;
+import java.sql.SQLXML;
+import java.sql.Struct;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Executor;
 
 /**
  * This "implements" Connection, and is a proxy to the actual
@@ -142,7 +156,7 @@ final public class ConnectionProxy implements Connection {
 		return m_id;
 	}
 
-	@Nonnull
+	@NonNull
 	protected IConnectionEventListener statsHandler() {
 		return m_pe.getPool().getManager().getConnectionEventListener();
 	}
@@ -604,7 +618,7 @@ final public class ConnectionProxy implements Connection {
 	 * @since 2011/08/12
 	 * @param c
 	 */
-	public void addCommitListener(@Nonnull IDatabaseEventListener c) {
+	public void addCommitListener(@NonNull IDatabaseEventListener c) {
 		if(m_commitListenerList == Collections.EMPTY_LIST)
 			m_commitListenerList = new ArrayList<IDatabaseEventListener>();
 		m_commitListenerList.add(c);
@@ -615,7 +629,7 @@ final public class ConnectionProxy implements Connection {
 	 * @since 2011/08/12
 	 * @param c
 	 */
-	public void removeCommitListener(@Nonnull IDatabaseEventListener c) {
+	public void removeCommitListener(@NonNull IDatabaseEventListener c) {
 		if(m_commitListenerList.size() == 0)
 			return;
 		m_commitListenerList.remove(c);

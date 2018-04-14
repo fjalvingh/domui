@@ -1,9 +1,11 @@
 package to.etc.domui.util.modelcopier;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.webapp.annotations.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.webapp.annotations.GProperty;
 
 /**
  * Defines search and create/ignore rules for an entity.
@@ -14,13 +16,13 @@ import to.etc.webapp.annotations.*;
 public class EntityDef<T> {
 	final private ModelCopier m_model;
 
-	@Nonnull
+	@NonNull
 	final private Class<T> m_entityClass;
 
 	@Nullable
 	private String[] m_searchKey;
 
-	@Nonnull
+	@NonNull
 	private ClassMetaModel m_mm;
 
 	private boolean m_copy = true;
@@ -31,7 +33,7 @@ public class EntityDef<T> {
 
 	private boolean m_updateExisting = false;
 
-	public EntityDef(@Nonnull ModelCopier model, @Nonnull Class<T> entityClass) {
+	public EntityDef(@NonNull ModelCopier model, @NonNull Class<T> entityClass) {
 		m_model = model;
 		m_entityClass = entityClass;
 		m_mm = MetaManager.findClassMeta(entityClass);
@@ -45,7 +47,7 @@ public class EntityDef<T> {
 		return m_entityClass;
 	}
 
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getMetaModel() {
 		return m_mm;
 	}
@@ -72,7 +74,7 @@ public class EntityDef<T> {
 	 * @param instance
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public InstanceKey<T> getInstanceKey(T instance) throws Exception {
 		Object[] vals = new Object[getSearchKey().length];
 		int ix = 0;

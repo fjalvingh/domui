@@ -24,20 +24,20 @@
  */
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class ObservableEvent<V, E extends IChangeEvent<V, E, L>, L extends IChangeListener<V, E, L>> implements IChangeEvent<V, E, L> {
-	@Nonnull
+	@NonNull
 	final private IObservable<V, E, L> m_source;
 
-	public ObservableEvent(@Nonnull IObservable<V, E, L> source) {
+	public ObservableEvent(@NonNull IObservable<V, E, L> source) {
 		if(null == source)
 			throw new IllegalArgumentException("Source cannot be null");
 		m_source = source;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public IObservable<V, E, L> getSource() {
 		return m_source;
 	}

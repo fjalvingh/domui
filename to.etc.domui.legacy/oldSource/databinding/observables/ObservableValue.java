@@ -31,8 +31,8 @@ import to.etc.domui.databinding.value.IValueChangeListener;
 import to.etc.domui.databinding.value.ValueChangeEvent;
 import to.etc.domui.databinding.value.ValueDiff;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Just some observable value container. This is meant to be used directly.
@@ -43,14 +43,14 @@ import javax.annotation.Nullable;
 public class ObservableValue<T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T> {
 	private T m_value;
 
-	@Nonnull
+	@NonNull
 	final private Class<T> m_valueType;
 
 	/**
 	 * Create a null-holding value of the specified type.
 	 * @param valueType
 	 */
-	public ObservableValue(@Nonnull Class<T> valueType) {
+	public ObservableValue(@NonNull Class<T> valueType) {
 		m_valueType = valueType;
 	}
 
@@ -58,13 +58,13 @@ public class ObservableValue<T> extends ListenerList<T, ValueChangeEvent<T>, IVa
 	 * Create a new value with the specified initial non-null value.
 	 * @param value
 	 */
-	public ObservableValue(@Nonnull T value) {
+	public ObservableValue(@NonNull T value) {
 		m_value = value;
 		m_valueType = (Class<T>) value.getClass();
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public Class<T> getValueType() {
 		return m_valueType;
 	}

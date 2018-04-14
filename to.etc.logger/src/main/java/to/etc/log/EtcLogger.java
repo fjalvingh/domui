@@ -1,12 +1,12 @@
 package to.etc.log;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.Marker;
+import to.etc.log.event.EtcLogEvent;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.log.event.*;
+import java.util.Date;
 
 /**
  * {@link Logger} implementation. See {@link EtcLoggerFactory} for more details.
@@ -15,91 +15,91 @@ import to.etc.log.event.*;
  * Created on Nov 9, 2012
  */
 public class EtcLogger implements Logger {
-	@Nonnull
+	@NonNull
 	private final String	m_key;
 
 	@Nullable
 	private Level			m_level;
 
-	private EtcLogger(@Nonnull String key, @Nullable Level level) {
+	private EtcLogger(@NonNull String key, @Nullable Level level) {
 		m_key = key;
 		m_level = level;
 	}
 
-	@Nonnull
-	static EtcLogger create(@Nonnull String key, @Nullable Level level) {
+	@NonNull
+	static EtcLogger create(@NonNull String key, @Nullable Level level) {
 		return new EtcLogger(key, level);
 	}
 
-	private void logEvent(@Nonnull Date date, @Nonnull Level level, @Nullable Marker marker, @Nullable Throwable throwable, @Nonnull String msg, Object... args) {
+	private void logEvent(@NonNull Date date, @NonNull Level level, @Nullable Marker marker, @Nullable Throwable throwable, @NonNull String msg, Object... args) {
 		EtcLogEvent event = new EtcLogEvent(this, level, marker, msg, throwable, date, Thread.currentThread(), args);
 		EtcLoggerFactory.getSingleton().notifyHandlers(event);
 	}
 
-	private synchronized boolean checkEnabled(@Nonnull Level level) {
+	private synchronized boolean checkEnabled(@NonNull Level level) {
 		return m_level != null && m_level.includes(level);
 	}
 
-	private boolean checkEnabled(@Nonnull Level level, @Nonnull Marker marker) {
+	private boolean checkEnabled(@NonNull Level level, @NonNull Marker marker) {
 		//FIXME: in case that we introduce markers support we need to connect it here.
 		return checkEnabled(level);
 	}
 
-	private void execute(@Nonnull Level level, @Nullable String arg0) {
+	private void execute(@NonNull Level level, @Nullable String arg0) {
 		if(checkEnabled(level)) {
 			logEvent(new Date(), level, null, null, arg0);
 		}
 	}
 
-	private void execute(@Nonnull Level level, @Nullable String arg0, @Nullable Object arg1) {
+	private void execute(@NonNull Level level, @Nullable String arg0, @Nullable Object arg1) {
 		if(checkEnabled(level)) {
 			logEvent(new Date(), level, null, null, arg0, arg1);
 		}
 	}
 
-	private void execute(@Nonnull Level level, @Nullable String arg0, @Nullable Object[] arg1) {
+	private void execute(@NonNull Level level, @Nullable String arg0, @Nullable Object[] arg1) {
 		if(checkEnabled(level)) {
 			logEvent(new Date(), level, null, null, arg0, arg1);
 		}
 	}
 
-	private void execute(@Nonnull Level level, @Nullable String arg0, @Nullable Throwable arg1) {
+	private void execute(@NonNull Level level, @Nullable String arg0, @Nullable Throwable arg1) {
 		if(checkEnabled(level)) {
 			logEvent(new Date(), level, null, arg1, arg0);
 		}
 	}
 
-	private void execute(@Nonnull Level level, @Nullable String arg0, @Nullable Object arg1, @Nullable Object arg2) {
+	private void execute(@NonNull Level level, @Nullable String arg0, @Nullable Object arg1, @Nullable Object arg2) {
 		if(checkEnabled(level)) {
 			logEvent(new Date(), level, null, null, arg0, arg1, arg2);
 		}
 	}
 
-	private void execute(@Nonnull Level level, @Nullable Marker arg0, @Nullable String arg1) {
+	private void execute(@NonNull Level level, @Nullable Marker arg0, @Nullable String arg1) {
 		if(checkEnabled(level, arg0)) {
 			logEvent(new Date(), level, arg0, null, arg1);
 		}
 	}
 
-	private void execute(@Nonnull Level level, @Nullable Marker arg0, @Nullable String arg1, @Nullable Object arg2) {
+	private void execute(@NonNull Level level, @Nullable Marker arg0, @Nullable String arg1, @Nullable Object arg2) {
 		if(checkEnabled(level, arg0)) {
 			logEvent(new Date(), level, arg0, null, arg1, arg2);
 		}
 	}
 
-	private void execute(@Nonnull Level level, @Nullable Marker arg0, @Nullable String arg1, @Nullable Object[] arg2) {
+	private void execute(@NonNull Level level, @Nullable Marker arg0, @Nullable String arg1, @Nullable Object[] arg2) {
 		if(checkEnabled(level, arg0)) {
 			logEvent(new Date(), level, arg0, null, arg1, arg2);
 		}
 	}
 
-	private void execute(@Nonnull Level level, @Nullable Marker arg0, @Nullable String arg1, @Nullable Throwable arg2) {
+	private void execute(@NonNull Level level, @Nullable Marker arg0, @Nullable String arg1, @Nullable Throwable arg2) {
 		if(checkEnabled(level, arg0)) {
 			logEvent(new Date(), level, arg0, arg2, arg1);
 		}
 	}
 
-	private void execute(@Nonnull Level level, @Nullable Marker arg0, @Nullable String arg1, @Nullable Object arg2, @Nullable Object arg3) {
+	private void execute(@NonNull Level level, @Nullable Marker arg0, @Nullable String arg1, @Nullable Object arg2, @Nullable Object arg3) {
 		if(checkEnabled(level, arg0)) {
 			logEvent(new Date(), level, arg0, null, arg1, arg2, arg3);
 		}

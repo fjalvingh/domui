@@ -24,12 +24,12 @@
  */
 package to.etc.webapp.query;
 
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.webapp.core.IRunnable;
 
-import javax.annotation.*;
-
-import to.etc.webapp.core.*;
+import java.sql.Connection;
+import java.util.List;
 
 /**
  * Generalized thingy representing a database connection, and state associated with
@@ -45,7 +45,7 @@ public interface QDataContext extends AutoCloseable {
 	 * query listeners to execute when a query is done.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	QDataContextFactory getFactory();
 
 	/**
@@ -74,8 +74,8 @@ public interface QDataContext extends AutoCloseable {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	<T> List<T> query(@Nonnull QCriteria<T> q) throws Exception;
+	@NonNull
+	<T> List<T> query(@NonNull QCriteria<T> q) throws Exception;
 
 	/**
 	 * Execute the query specified by q, and expect and return at most 1 result. If the query has no
@@ -86,7 +86,7 @@ public interface QDataContext extends AutoCloseable {
 	 * @throws Exception
 	 */
 	@Nullable
-	<T> T queryOne(@Nonnull QCriteria<T> q) throws Exception;
+	<T> T queryOne(@NonNull QCriteria<T> q) throws Exception;
 
 	/**
 	 * Issue a selection query, where multiple fields or projections on fields are selected from a base class.
@@ -94,8 +94,8 @@ public interface QDataContext extends AutoCloseable {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	List<Object[]> query(@Nonnull QSelection< ? > sel) throws Exception;
+	@NonNull
+	List<Object[]> query(@NonNull QSelection< ? > sel) throws Exception;
 
 	/**
 	 * Query a selection, and return the result in the specified proxied interface. Members in the interface must
@@ -105,7 +105,7 @@ public interface QDataContext extends AutoCloseable {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection<?> sel) throws Exception;
+	@NonNull <R> List<R> query(@NonNull Class<R> resultInterface, @NonNull QSelection<?> sel) throws Exception;
 
 	/**
 	 * Execute the selection query specified by q, and expect and return at most 1 result. If the query has no
@@ -116,7 +116,7 @@ public interface QDataContext extends AutoCloseable {
 	 * @throws Exception
 	 */
 	@Nullable
-	Object[] queryOne(@Nonnull QSelection< ? > q) throws Exception;
+	Object[] queryOne(@NonNull QSelection< ? > q) throws Exception;
 
 	/**
 	 * Query a selection, and return the result in the specified proxied interface. Members in the interface must
@@ -127,7 +127,7 @@ public interface QDataContext extends AutoCloseable {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection<?> sel) throws Exception;
+	@Nullable <R> R queryOne(@NonNull Class<R> resultInterface, @NonNull QSelection<?> sel) throws Exception;
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will
@@ -141,7 +141,7 @@ public interface QDataContext extends AutoCloseable {
 	 * @throws Exception
 	 */
 	@Nullable
-	<T> T find(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception;
+	<T> T find(@NonNull Class<T> clz, @NonNull Object pk) throws Exception;
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will
@@ -154,11 +154,11 @@ public interface QDataContext extends AutoCloseable {
 	 * @return		The actual and fully initialized instance (or proxy).
 	 * @throws Exception
 	 */
-	@Nonnull
-	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception;
+	@NonNull
+	<T> T get(@NonNull Class<T> clz, @NonNull Object pk) throws Exception;
 
 	@Nullable
-	<T> T find(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception;
+	<T> T find(@NonNull ICriteriaTableDef<T> metatable, @NonNull Object pk) throws Exception;
 
 	/**
 	 * EXPERIMENTAL INTERFACE This retrieves the "original" copy of the specified instance (which must
@@ -168,7 +168,7 @@ public interface QDataContext extends AutoCloseable {
 	 * @return
 	 */
 	@Nullable
-	<T> T original(@Nonnull T copy);
+	<T> T original(@NonNull T copy);
 
 	/**
 	 * EXPERIMENTAL Sets the context so that it creates "before" copies. Can only be used before any data
@@ -191,39 +191,39 @@ public interface QDataContext extends AutoCloseable {
 	 * @return		Always returns an instance; it can be invalid when it does not really exist on the backing store.
 	 * @throws Exception
 	 */
-	@Nonnull
-	<T> T getInstance(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception;
+	@NonNull
+	<T> T getInstance(@NonNull Class<T> clz, @NonNull Object pk) throws Exception;
 
-	@Nonnull
-	<T> T getInstance(@Nonnull ICriteriaTableDef<T> clz, @Nonnull Object pk) throws Exception;
+	@NonNull
+	<T> T getInstance(@NonNull ICriteriaTableDef<T> clz, @NonNull Object pk) throws Exception;
 
 	/**
 	 * If the object was from an earlier database session reattach it to another, live session.
 	 * @param o
 	 * @throws Exception
 	 */
-	void attach(@Nonnull Object o) throws Exception;
+	void attach(@NonNull Object o) throws Exception;
 
 	/**
 	 * Cause the object to be inserted in the database.
 	 * @param o
 	 * @throws Exception
 	 */
-	void save(@Nonnull Object o) throws Exception;
+	void save(@NonNull Object o) throws Exception;
 
 	/**
 	 * EXPERIMENTAL/NOT FINAL Refresh with latest content in the database.
 	 * @param o
 	 * @throws Exception
 	 */
-	void refresh(@Nonnull Object o) throws Exception;
+	void refresh(@NonNull Object o) throws Exception;
 
 	/**
 	 * Cause the object to be deleted from the database.
 	 * @param o
 	 * @throws Exception
 	 */
-	void delete(@Nonnull Object o) throws Exception;
+	void delete(@NonNull Object o) throws Exception;
 
 
 	void startTransaction() throws Exception;
@@ -234,19 +234,19 @@ public interface QDataContext extends AutoCloseable {
 
 	boolean inTransaction() throws Exception;
 
-	@Nonnull
+	@NonNull
 	Connection getConnection() throws Exception;
 
 	/**
 	 * Add an action which should be executed after a succesful commit on this context.
 	 * @param cx
 	 */
-	void addCommitAction(@Nonnull IRunnable cx);
+	void addCommitAction(@NonNull IRunnable cx);
 
 	/**
 	 * Add a listener to keep track of the events on an instance.
 	 *
 	 * @param testDataListener
 	 */
-	void addListener(@Nonnull IQDataContextListener qDataContextListener);
+	void addListener(@NonNull IQDataContextListener qDataContextListener);
 }

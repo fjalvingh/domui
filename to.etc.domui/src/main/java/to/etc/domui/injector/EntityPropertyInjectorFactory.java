@@ -1,5 +1,7 @@
 package to.etc.domui.injector;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -9,8 +11,6 @@ import to.etc.util.PropertyInfo;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.qsql.QJdbcTable;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-2-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class EntityPropertyInjectorFactory implements IPagePropertyFactory {
 	@Nullable @Override public PropertyInjector calculateInjector(PropertyInfo propertyInfo) {
 		Method getter = propertyInfo.getGetter();

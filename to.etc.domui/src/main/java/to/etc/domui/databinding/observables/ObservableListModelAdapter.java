@@ -1,12 +1,17 @@
 package to.etc.domui.databinding.observables;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.ITableModelListener;
+import to.etc.domui.databinding.list.ListChangeAdd;
+import to.etc.domui.databinding.list.ListChangeAssign;
+import to.etc.domui.databinding.list.ListChangeDelete;
+import to.etc.domui.databinding.list.ListChangeModify;
+import to.etc.domui.databinding.list2.IListChangeListener;
+import to.etc.domui.databinding.list2.IListChangeVisitor;
+import to.etc.domui.databinding.list2.ListChangeEvent;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.databinding.list.*;
-import to.etc.domui.databinding.list2.*;
+import java.util.List;
 
 /**
  * This adapter creates a {@link ITableModel} from an {@link IObservableList} instance. This does <b>not</b> handle
@@ -17,19 +22,19 @@ import to.etc.domui.databinding.list2.*;
  * Created on Sep 4, 2013
  */
 final public class ObservableListModelAdapter<T> implements ITableModel<T> {
-	@Nonnull
+	@NonNull
 	final private IObservableList<T> m_list;
 
-	public ObservableListModelAdapter(@Nonnull IObservableList<T> list) {
+	public ObservableListModelAdapter(@NonNull IObservableList<T> list) {
 		m_list = list;
 	}
 
-	@Nonnull
+	@NonNull
 	public IObservableList<T> getSource() {
 		return m_list;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<T> getItems(int start, int end) throws Exception {
 		return m_list.subList(start, end);
@@ -41,11 +46,11 @@ final public class ObservableListModelAdapter<T> implements ITableModel<T> {
 	}
 
 	@Override
-	public void addChangeListener(@Nonnull ITableModelListener<T> l) {
+	public void addChangeListener(@NonNull ITableModelListener<T> l) {
 	}
 
 	@Override
-	public void removeChangeListener(@Nonnull ITableModelListener<T> l) {
+	public void removeChangeListener(@NonNull ITableModelListener<T> l) {
 	}
 
 	@Override
@@ -63,25 +68,25 @@ final public class ObservableListModelAdapter<T> implements ITableModel<T> {
 		 * @see to.etc.domui.databinding.IChangeListener#handleChange(to.etc.domui.databinding.IChangeEvent)
 		 */
 		@Override
-		public void handleChange(@Nonnull ListChangeEvent<T> event) throws Exception {
+		public void handleChange(@NonNull ListChangeEvent<T> event) throws Exception {
 			event.visit(new IListChangeVisitor<T>() {
 				@Override
-				public void visitAdd(@Nonnull ListChangeAdd<T> l) throws Exception {
+				public void visitAdd(@NonNull ListChangeAdd<T> l) throws Exception {
 					m_modelListener.rowAdded(ObservableListModelAdapter.this, l.getIndex(), l.getValue());
 				}
 
 				@Override
-				public void visitDelete(@Nonnull ListChangeDelete<T> l) throws Exception {
+				public void visitDelete(@NonNull ListChangeDelete<T> l) throws Exception {
 					m_modelListener.rowDeleted(ObservableListModelAdapter.this, l.getIndex(), l.getValue());
 				}
 
 				@Override
-				public void visitModify(@Nonnull ListChangeModify<T> l) throws Exception {
+				public void visitModify(@NonNull ListChangeModify<T> l) throws Exception {
 					m_modelListener.rowModified(ObservableListModelAdapter.this, l.getIndex(), l.getNewValue());
 				}
 
 				@Override
-				public void visitAssign(@Nonnull ListChangeAssign<T> assign) throws Exception {
+				public void visitAssign(@NonNull ListChangeAssign<T> assign) throws Exception {
 					m_modelListener.modelChanged(ObservableListModelAdapter.this);
 				}
 			});

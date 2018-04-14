@@ -1,5 +1,7 @@
 package to.etc.domui.util.asyncdialog;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IAsyncCompletionListener;
 import to.etc.domui.component.delayed.IAsyncRunnable;
@@ -8,9 +10,6 @@ import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.trouble.UIException;
 import to.etc.function.ConsumerEx;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This implements some core required logic to easily do asynchronous code that shows progress
@@ -23,10 +22,10 @@ final public class AsyncDialog {
 	private AsyncDialog() {
 	}
 
-	static public <T extends IAsyncRunnable> void runInDialog(@Nonnull NodeContainer addTo, @Nonnull T task, @Nonnull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete) {
+	static public <T extends IAsyncRunnable> void runInDialog(@NonNull NodeContainer addTo, @NonNull T task, @NonNull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete) {
 		runInDialog(addTo, task, dialogTitle, isAbortable, onComplete, null);
 	}
-	static public <T extends IAsyncRunnable> void runInDialog(@Nonnull NodeContainer addTo, @Nonnull T task, @Nonnull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete, @Nullable ConsumerEx<Exception> onError) {
+	static public <T extends IAsyncRunnable> void runInDialog(@NonNull NodeContainer addTo, @NonNull T task, @NonNull String dialogTitle, boolean isAbortable, @Nullable ConsumerEx<T> onComplete, @Nullable ConsumerEx<Exception> onError) {
 		final Dialog dlg = new Dialog(true, false, dialogTitle);
 		addTo.add(dlg);
 		dlg.setAutoClose(false);

@@ -24,9 +24,8 @@
  */
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.ClassMetaModel;
-
-import javax.annotation.Nonnull;
 
 /**
  * This is responsible for creating the initial structure for a metamodel: the
@@ -45,7 +44,7 @@ public interface IClassMetaModelFactory {
 	 * @param theThingy
 	 * @return
 	 */
-	int accepts(@Nonnull Object theThingy);
+	int accepts(@NonNull Object theThingy);
 
 	/**
 	 * When accept() has returned a &gt; 0 value, this <i>must</i> create a metamodel for
@@ -54,6 +53,6 @@ public interface IClassMetaModelFactory {
 	 * @param theThingy
 	 * @return
 	 */
-	@Nonnull
-	ClassMetaModel createModel(@Nonnull MetaInitContext context, @Nonnull Object theThingy);
+	@NonNull
+	ClassMetaModel createModel(@NonNull MetaInitContext context, @NonNull Object theThingy);
 }

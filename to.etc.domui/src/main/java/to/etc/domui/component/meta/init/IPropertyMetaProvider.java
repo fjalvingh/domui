@@ -1,10 +1,9 @@
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
-
-import javax.annotation.Nonnull;
 
 /**
  * Add extra data to a PropertyMetaModel - provided you accept the model and the class
@@ -18,9 +17,9 @@ public interface IPropertyMetaProvider<C extends ClassMetaModel, P extends Prope
 		return (Class<C>) DefaultClassMetaModel.class;
 	}
 
-	default void beforeProperties(@Nonnull MetaInitContext context, @Nonnull C classModel) throws Exception {}
+	default void beforeProperties(@NonNull MetaInitContext context, @NonNull C classModel) throws Exception {}
 
-	void provide(@Nonnull MetaInitContext context, @Nonnull C classModel, @Nonnull P propertyModel) throws Exception;
+	void provide(@NonNull MetaInitContext context, @NonNull C classModel, @NonNull P propertyModel) throws Exception;
 
-	default void afterPropertiesDone(@Nonnull MetaInitContext context, @Nonnull C classModel) throws Exception {}
+	default void afterPropertiesDone(@NonNull MetaInitContext context, @NonNull C classModel) throws Exception {}
 }

@@ -24,12 +24,10 @@
  */
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.controlfactory.ModelBindings;
 import to.etc.domui.component.form.HorizontalFormBuilder;
 import to.etc.domui.component.form.TabularFormBuilder;
-
-import javax.annotation.Nonnull;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 
 /**
  * A Dialog that is used to edit some instance of data &lt;T&gt;, containing methods to handle all
@@ -102,7 +100,7 @@ public class EditDialog<T> extends Dialog {
 	 *
 	 * @see to.etc.domui.component.layout.Window#createFrame()
 	 */
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	@Override
 	protected void createFrame() throws Exception {
 		super.createFrame();
@@ -129,7 +127,7 @@ public class EditDialog<T> extends Dialog {
 	 *
 	 * @see to.etc.domui.component.layout.Dialog#onSaveBind()
 	 */
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	@Override
 	protected boolean onSaveBind() throws Exception {
 		//-- Move all bound data to the actual instance
@@ -179,7 +177,7 @@ public class EditDialog<T> extends Dialog {
 	 * Set the data to change.
 	 * @param instance
 	 */
-	public void setInstance(@Nonnull T instance) {
+	public void setInstance(@NonNull T instance) {
 		if(null == instance)
 			throw new IllegalArgumentException("Instance cannot be null!!");
 		m_instance = instance;
@@ -189,7 +187,7 @@ public class EditDialog<T> extends Dialog {
 	 * The bindings as returned by the createEditable call.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ModelBindings getBindings() {
 		return m_bindings;
 	}

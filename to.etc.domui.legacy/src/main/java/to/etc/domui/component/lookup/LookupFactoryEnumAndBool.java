@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -34,7 +35,6 @@ import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,13 +47,13 @@ import java.util.List;
 @Deprecated
 final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 	@Override
-	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		return pmm.getActualType() == Boolean.class || pmm.getActualType() == Boolean.TYPE || Enum.class.isAssignableFrom(pmm.getActualType()) ? 2 : 0;
 	}
 
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		IControl< ? > ctlnode = control;
 		PropertyMetaModel< ? > pmm = spm.getProperty();
 		if(ctlnode == null) {

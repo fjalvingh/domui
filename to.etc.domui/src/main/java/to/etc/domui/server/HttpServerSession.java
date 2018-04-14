@@ -1,30 +1,32 @@
 package to.etc.domui.server;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+import javax.servlet.http.HttpSession;
 
 public class HttpServerSession implements IServerSession {
-	@Nonnull
+	@NonNull
 	final private HttpSession m_session;
 
-	public HttpServerSession(@Nonnull HttpSession session) {
+	public HttpServerSession(@NonNull HttpSession session) {
 		m_session = session;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getId() {
 		return m_session.getId();
 	}
 
 	@Override
 	@Nullable
-	public Object getAttribute(@Nonnull String name) {
+	public Object getAttribute(@NonNull String name) {
 		return m_session.getAttribute(name);
 	}
 
 	@Override
-	public void setAttribute(@Nonnull String name, @Nullable Object value) {
+	public void setAttribute(@NonNull String name, @Nullable Object value) {
 		if(null == value)
 			m_session.removeAttribute(name);
 		else

@@ -1,11 +1,13 @@
 package to.etc.json;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.ClassUtil;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Renders generic lists.
@@ -15,7 +17,7 @@ import to.etc.util.*;
  */
 public class JsonListFactory implements IJsonTypeFactory {
 	@Override
-	public ITypeMapping createMapper(@Nonnull JsonTypeRegistry registry, @Nonnull final Class< ? > typeClass, @Nullable Type type) {
+	public ITypeMapping createMapper(@NonNull JsonTypeRegistry registry, @NonNull final Class< ? > typeClass, @Nullable Type type) {
 		if(!List.class.isAssignableFrom(typeClass) || type == null)
 			return null;
 		final Class< ? > memberType = ClassUtil.findCollectionType(type);

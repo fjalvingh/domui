@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.layout.title;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.annotations.UIMenu;
 import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.buttons.SmallImgButton;
@@ -47,7 +48,6 @@ import to.etc.domui.state.UIGoto;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -61,7 +61,7 @@ import java.util.List;
 public class AppPageTitleBar extends BasePageTitleBar {
 	final private boolean m_catchError;
 
-	@Nonnull
+	@NonNull
 	private final Img m_img = new Img();
 
 	private TD m_buttonpart = new TD();
@@ -122,13 +122,13 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		return m_showBackButton;
 	}
 
-	@Nonnull
+	@NonNull
 	public AppPageTitleBar setShowBackButton(boolean showBackButton) {
 		m_showBackButton = showBackButton;
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public TBody getBody() {
 		if(null != m_body)
 			return m_body;
@@ -185,7 +185,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		}
 	}
 
-	private void addBackOrCloseButton(@Nonnull TD td) {
+	private void addBackOrCloseButton(@NonNull TD td) {
 		List<IShelvedEntry> ps = getPage().getConversation().getWindowSession().getShelvedPageStack();
 
 		if(ps.size() > 1) {									// Nothing to go back to (only myself is on page) -> exit
@@ -201,20 +201,20 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		addBackButton(td);
 	}
 
-	private void addBackButton(@Nonnull TD td) {
+	private void addBackButton(@NonNull TD td) {
 		HoverButton backButton = new HoverButton(Theme.APPBAR_BACK_ICON, new IClicked<HoverButton>() {
 			@Override
-			public void clicked(@Nonnull HoverButton clickednode) throws Exception {
+			public void clicked(@NonNull HoverButton clickednode) throws Exception {
 				UIGoto.back();
 			}
 		});
 		td.add(backButton);
 	}
 
-	private void addCloseButton(@Nonnull TD td) {
+	private void addCloseButton(@NonNull TD td) {
 		HoverButton button = new HoverButton(Theme.APPBAR_CLOSE_ICON, new IClicked<HoverButton>() {
 			@Override
-			public void clicked(@Nonnull HoverButton clickednode) throws Exception {
+			public void clicked(@NonNull HoverButton clickednode) throws Exception {
 				getPage().getBody().closeWindow();
 			}
 		});
@@ -344,7 +344,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		ib.setTitle("Toon lijst van bijzondere tekens");
 		ib.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final @Nonnull NodeBase b) throws Exception {
+			public void clicked(final @NonNull NodeBase b) throws Exception {
 				OddCharacters oc = new OddCharacters();
 				getPage().getBody().add(oc);
 			}

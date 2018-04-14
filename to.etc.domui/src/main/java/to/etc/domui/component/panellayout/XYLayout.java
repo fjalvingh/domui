@@ -1,14 +1,13 @@
 package to.etc.domui.component.panellayout;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.css.PositionType;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.util.IntPoint;
 
 public class XYLayout implements ILayoutManager {
 	@Override
-	public void place(@Nonnull LayoutPanelBase target, @Nonnull NodeBase node, @Nonnull Object layoutOptions) {
+	public void place(@NonNull LayoutPanelBase target, @NonNull NodeBase node, @NonNull Object layoutOptions) {
 		IntPoint pt = (IntPoint) layoutOptions;
 		if(!node.hasParent() || node.getParent() != target)
 			target.add(node);

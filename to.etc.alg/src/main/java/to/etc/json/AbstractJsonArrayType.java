@@ -1,23 +1,23 @@
 package to.etc.json;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.lexer.ReaderScannerBase;
 
-import javax.annotation.*;
-
-import to.etc.lexer.*;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
+import java.util.Iterator;
 
 abstract public class AbstractJsonArrayType implements ITypeMapping {
-	@Nonnull
+	@NonNull
 	private final ITypeMapping m_memberMapping;
 
-	@Nonnull
-	abstract protected Iterator<Object> getIterator(@Nonnull Object instance);
+	@NonNull
+	abstract protected Iterator<Object> getIterator(@NonNull Object instance);
 
-	@Nonnull
+	@NonNull
 	abstract protected Collection< ? > createInstance() throws Exception;
 
-	protected AbstractJsonArrayType(@Nonnull ITypeMapping memberMapping) {
+	protected AbstractJsonArrayType(@NonNull ITypeMapping memberMapping) {
 		m_memberMapping = memberMapping;
 	}
 
@@ -26,8 +26,8 @@ abstract public class AbstractJsonArrayType implements ITypeMapping {
 	 * @param typeClass
 	 * @return
 	 */
-	@Nonnull
-	static public Class< ? extends Collection< ? >> getImplementationClass(@Nonnull Class< ? > typeClass, @Nonnull Class< ? > defaultImplementation) {
+	@NonNull
+	static public Class< ? extends Collection< ? >> getImplementationClass(@NonNull Class< ? > typeClass, @NonNull Class< ? > defaultImplementation) {
 		int mod = typeClass.getModifiers();
 		if(!Modifier.isAbstract(mod) && Modifier.isPublic(mod) && !Modifier.isInterface(mod))
 			return (Class< ? extends Collection< ? >>) typeClass;
@@ -35,7 +35,7 @@ abstract public class AbstractJsonArrayType implements ITypeMapping {
 	}
 
 	@Override
-	public void render(@Nonnull JsonWriter w, @Nonnull Object instance) throws Exception {
+	public void render(@NonNull JsonWriter w, @NonNull Object instance) throws Exception {
 		Collection<Object> coll = (Collection<Object>) instance;
 		w.write('[');
 		w.inc();
@@ -59,7 +59,7 @@ abstract public class AbstractJsonArrayType implements ITypeMapping {
 	}
 
 	@Override
-	public Object parse(@Nonnull JsonReader reader) throws Exception {
+	public Object parse(@NonNull JsonReader reader) throws Exception {
 		if(reader.getLastToken() == ReaderScannerBase.T_IDENT) {
 			//-- We can have null here.
 			if("null".equalsIgnoreCase(reader.getCopied())) {
@@ -73,7 +73,7 @@ abstract public class AbstractJsonArrayType implements ITypeMapping {
 		throw new JsonParseException(reader, this, "Expecting a json array '[' but got " + reader.getTokenString());
 	}
 
-	private Object parseList(@Nonnull JsonReader reader) throws Exception {
+	private Object parseList(@NonNull JsonReader reader) throws Exception {
 		//-- 1. Instantiate the data thing.
 		Collection<Object> collection = (Collection<Object>) createInstance();
 		for(;;) {
@@ -98,7 +98,7 @@ abstract public class AbstractJsonArrayType implements ITypeMapping {
 		return convertResult(collection);
 	}
 
-	protected Object convertResult(@Nonnull Collection<Object> res) throws Exception {
+	protected Object convertResult(@NonNull Collection<Object> res) throws Exception {
 		return res;
 	}
 }

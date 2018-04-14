@@ -24,14 +24,14 @@
  */
 package to.etc.domui.util.resources;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.server.reloader.Reloader;
 import to.etc.util.StringTool;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -54,7 +54,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 5, 2011
  */
-@DefaultNonNull
+@NonNullByDefault
 public class ClasspathInventory {
 	static final Logger LOG = LoggerFactory.getLogger(ClasspathInventory.class);
 
@@ -236,8 +236,8 @@ public class ClasspathInventory {
 	 * @param pkgdirname
 	 * @return
 	 */
-	@Nonnull
-	public List<String> getPackageInventory(@Nonnull String pkgdirname) {
+	@NonNull
+	public List<String> getPackageInventory(@NonNull String pkgdirname) {
 		pkgdirname = pkgdirname.replace('.', '/') + "/";
 
 		List<String>	res = new ArrayList<String>();

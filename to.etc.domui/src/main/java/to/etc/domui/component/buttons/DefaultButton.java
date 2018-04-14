@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.buttons;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.Button;
@@ -35,8 +37,6 @@ import to.etc.domui.dom.html.Underline;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -128,7 +128,7 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Add the specified css class(es) to the button.
 	 */
-	@Nonnull
+	@NonNull
 	@Override
 	public DefaultButton css(String... classNames) {
 		super.css(classNames);
@@ -138,19 +138,19 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Set the optional text (which may include an accelerator).
 	 */
-	@Nonnull
+	@NonNull
 	public DefaultButton text(String text) {
 		setText(text);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public DefaultButton icon(String icon) {
 		setIcon(icon);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public DefaultButton clicked(IClicked<DefaultButton> on) {
 		setClicked(on);
 		return this;
@@ -343,7 +343,7 @@ public class DefaultButton extends Button implements IActionControl {
 		setIcon(action.getIcon(m_actionInstance));
 		setClicked(new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				action.execute(DefaultButton.this, m_actionInstance);
 			}
 		});

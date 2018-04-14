@@ -2,7 +2,7 @@ package to.etc.domui.databinding.list;
 
 import java.util.*;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.*;
 import to.etc.domui.util.*;

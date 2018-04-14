@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.errors.IErrorMessageListener;
@@ -34,8 +35,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
-
-import javax.annotation.Nonnull;
 
 /**
  * This is a CaptionedPanel which captures and displays errors for the tree
@@ -93,7 +92,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageAdded(@Nonnull UIMessage m) {
+	public void errorMessageAdded(@NonNull UIMessage m) {
 		Div d = new Div();
 		d.setUserObject(m);
 		//		String text = m.getErrorLocation() != null ? m.getErrorLocation() + ": " + m.getMessage() : m.getMessage();
@@ -137,7 +136,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageRemoved(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageRemoved(@Nonnull UIMessage m) {
+	public void errorMessageRemoved(@NonNull UIMessage m) {
 		MsgType highest = null;
 		for(int i = getContent().getChildCount(); --i >= 0;) {
 			NodeBase b = getContent().getChild(i);

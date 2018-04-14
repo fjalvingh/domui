@@ -24,13 +24,12 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import java.util.List;
 
 /**
  * A Combobox dataset provider which creates a dataset by using a QCriteria passed to it.
@@ -39,14 +38,14 @@ import to.etc.webapp.query.*;
  * Created on Dec 16, 2010
  */
 public class CriteriaComboDataSet<T> implements IComboDataSet<T> {
-	@Nonnull
+	@NonNull
 	final private QCriteria<T> m_query;
 
 	/**
 	 * Create with the specified immutable QCriteria.
 	 * @param query
 	 */
-	public CriteriaComboDataSet(@Nonnull QCriteria<T> query) {
+	public CriteriaComboDataSet(@NonNull QCriteria<T> query) {
 		m_query = query;
 	}
 
@@ -55,7 +54,7 @@ public class CriteriaComboDataSet<T> implements IComboDataSet<T> {
 	 * @see to.etc.domui.util.IComboDataSet#getComboDataSet(to.etc.domui.dom.html.UrlPage)
 	 */
 	@Override
-	public @Nonnull List<T> getComboDataSet(@Nonnull UrlPage page) throws Exception {
+	public @NonNull List<T> getComboDataSet(@NonNull UrlPage page) throws Exception {
 		return page.getSharedContext().query(m_query);
 	}
 }

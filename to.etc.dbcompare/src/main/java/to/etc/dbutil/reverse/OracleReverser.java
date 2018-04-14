@@ -1,14 +1,35 @@
 package to.etc.dbutil.reverse;
 
-import java.sql.*;
-import java.util.*;
-
-import javax.annotation.*;
-import javax.sql.*;
-
-import to.etc.dbutil.schema.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.dbutil.schema.ColumnType;
+import to.etc.dbutil.schema.DbCheckConstraint;
+import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbIndex;
+import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbSchema;
+import to.etc.dbutil.schema.DbTable;
+import to.etc.dbutil.schema.DbUniqueConstraint;
+import to.etc.dbutil.schema.DbView;
 import to.etc.dbutil.schema.Package;
-import to.etc.util.*;
+import to.etc.dbutil.schema.Procedure;
+import to.etc.dbutil.schema.SpecialIndex;
+import to.etc.dbutil.schema.Trigger;
+import to.etc.util.FileTool;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Oracle kost emmers aan geld, maar de godvergeten stomme eikels zijn te achterlijk
@@ -30,7 +51,7 @@ public class OracleReverser extends JDBCReverser {
 	}
 
 	@Override
-	protected void afterLoad(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
+	protected void afterLoad(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
 		super.afterLoad(dbc, schema);
 
 		//-- Append extra ORACLE data from meta (column and table comments)
@@ -38,7 +59,7 @@ public class OracleReverser extends JDBCReverser {
 	}
 
 	@Override
-	protected String translateSchemaName(@Nonnull Connection dbc, @Nullable String name) throws Exception {
+	protected String translateSchemaName(@NonNull Connection dbc, @Nullable String name) throws Exception {
 		if(name != null)
 			return name.toUpperCase();
 
@@ -60,11 +81,11 @@ public class OracleReverser extends JDBCReverser {
 	 * Override column reverser because crap oracle driver does not properly return column lengths.
 	 */
 	@Override
-	public void reverseColumns(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schema) throws Exception {
+	public void reverseColumns(@NonNull Connection dbc, @NonNull Set<DbSchema> schema) throws Exception {
 		columnScanner(dbc, schema, null);
 	}
 
-	private void columnScanner(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet, @Nullable String tablename) throws Exception {
+	private void columnScanner(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet, @Nullable String tablename) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		List<DbColumn> columnList = new ArrayList<DbColumn>();
@@ -218,7 +239,7 @@ public class OracleReverser extends JDBCReverser {
 	//            try { if(ps != null) ps.close(); } catch(Exception x){}
 	//        }
 	//    }
-	protected void updateTableComments(@Nonnull Connection dbc, DbSchema s) throws Exception {
+	protected void updateTableComments(@NonNull Connection dbc, DbSchema s) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -288,8 +309,8 @@ public class OracleReverser extends JDBCReverser {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	private List<Cons> getRelationConstraints(@Nonnull Connection dbc, @Nonnull DbTable table, boolean asparent) throws Exception {
+	@NonNull
+	private List<Cons> getRelationConstraints(@NonNull Connection dbc, @NonNull DbTable table, boolean asparent) throws Exception {
 		List<Cons> list = new ArrayList<Cons>();
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -320,8 +341,8 @@ public class OracleReverser extends JDBCReverser {
 		}
 	}
 
-	@Nonnull
-	private List<DbColumn> getRelationColumns(@Nonnull Connection dbc, @Nonnull DbSchema schema, @Nonnull String owner, @Nonnull String constraintName) throws Exception {
+	@NonNull
+	private List<DbColumn> getRelationColumns(@NonNull Connection dbc, @NonNull DbSchema schema, @NonNull String owner, @NonNull String constraintName) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		List<DbColumn> res = new ArrayList<DbColumn>();
@@ -369,8 +390,8 @@ public class OracleReverser extends JDBCReverser {
 		}
 	}
 
-	@Nonnull
-	private DbRelation createRelation(@Nonnull String owner, @Nonnull String name, @Nonnull List<DbColumn> parentColumns, @Nonnull List<DbColumn> childColumns) {
+	@NonNull
+	private DbRelation createRelation(@NonNull String owner, @NonNull String name, @NonNull List<DbColumn> parentColumns, @NonNull List<DbColumn> childColumns) {
 		if(parentColumns.size() != childColumns.size())
 			throw new IllegalStateException("Parent and child column lists do not have the same size for constraint=" + owner + "." + name);
 		if(parentColumns.size() == 0)
@@ -392,7 +413,7 @@ public class OracleReverser extends JDBCReverser {
 	 * @see to.etc.dbutil.reverse.JDBCReverser#reverseRelations(to.etc.dbutil.schema.DbTable)
 	 */
 	@Override
-	protected void reverseRelations(@Nonnull Connection dbc, DbTable t) throws Exception {
+	protected void reverseRelations(@NonNull Connection dbc, DbTable t) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		PreparedStatement ps2 = null;
@@ -479,7 +500,7 @@ public class OracleReverser extends JDBCReverser {
 	 * to obtain the view definitions.
 	 */
 	@Override
-	public void reverseViews(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
+	public void reverseViews(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -506,7 +527,7 @@ public class OracleReverser extends JDBCReverser {
 	}
 
 	@Override
-	public void reverseProcedures(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
+	public void reverseProcedures(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		PreparedStatement ps2 = null;
@@ -555,7 +576,7 @@ public class OracleReverser extends JDBCReverser {
 	}
 
 	@Override
-	public void reversePackages(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
+	public void reversePackages(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		PreparedStatement ps2 = null;
@@ -614,7 +635,7 @@ public class OracleReverser extends JDBCReverser {
 	}
 
 	@Override
-	public void reverseTriggers(@Nonnull Connection dbc, @Nonnull DbSchema schema) throws Exception {
+	public void reverseTriggers(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		PreparedStatement ps2 = null;
@@ -661,7 +682,7 @@ public class OracleReverser extends JDBCReverser {
 	}
 
 	@Override
-	public void reverseConstraints(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
+	public void reverseConstraints(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -735,7 +756,7 @@ public class OracleReverser extends JDBCReverser {
 	 * piece of work.
 	 */
 	@Override
-	public void reverseIndexes(@Nonnull Connection dbc, @Nonnull Set<DbSchema> schemaSet) throws Exception {
+	public void reverseIndexes(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		PreparedStatement ps3 = null;

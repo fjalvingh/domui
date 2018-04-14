@@ -24,19 +24,26 @@
  */
 package to.etc.domui.component.ckeditor;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.htmleditor.EditorFile;
+import to.etc.domui.component.htmleditor.EditorFolder;
+import to.etc.domui.component.htmleditor.EditorResourceType;
+import to.etc.domui.component.htmleditor.IEditorFileRef;
+import to.etc.domui.component.htmleditor.IEditorFileSystem;
+import to.etc.domui.dom.IBrowserOutput;
+import to.etc.domui.dom.PrettyXmlOutputWriter;
+import to.etc.domui.parts.ComponentPartRenderer;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.server.parts.IUnbufferedPartFactory;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.trouble.ThingyNotFoundException;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.htmleditor.*;
-import to.etc.domui.dom.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
 
 /**
  * This part handles requests from the HtmlEditor component (using the
@@ -62,7 +69,7 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 	}
 
 	@Override
-	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
+	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
 		System.out.println("QS=" + param.getRequestResponse().getQueryString());
 		System.out.println("RURL=" + rurl);
 

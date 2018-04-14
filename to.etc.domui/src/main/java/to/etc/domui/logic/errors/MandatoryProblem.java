@@ -1,9 +1,9 @@
 package to.etc.domui.logic.errors;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.util.Msgs;
 
 /**
  * This problem helper checks mandatoryness on fields.
@@ -16,11 +16,11 @@ final public class MandatoryProblem extends Problem {
 		super(Msgs.class, Msgs.MANDATORY);
 	}
 
-	public <T> void check(@Nonnull ProblemModel model, @Nonnull T instance, @Nonnull String property) {
+	public <T> void check(@NonNull ProblemModel model, @NonNull T instance, @NonNull String property) {
 		check(model, instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 	}
 
-	public <T, V> void check(@Nonnull ProblemModel model, @Nonnull T instance, @Nonnull PropertyMetaModel<V> property) {
+	public <T, V> void check(@NonNull ProblemModel model, @NonNull T instance, @NonNull PropertyMetaModel<V> property) {
 		off(model, instance, property);
 		try {
 			V value = property.getValue(instance);

@@ -1,6 +1,6 @@
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Default caption types for {@link Caption2}.
@@ -11,14 +11,14 @@ import javax.annotation.*;
 public enum CaptionType {
 	Default("ui-cptn2-alg"), Panel("ui-cptn2-pnl");
 
-	@Nonnull
+	@NonNull
 	final private String m_css;
 
-	CaptionType(@Nonnull String css) {
+	CaptionType(@NonNull String css) {
 		m_css = css;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getCssClass() {
 		return m_css;
 	}

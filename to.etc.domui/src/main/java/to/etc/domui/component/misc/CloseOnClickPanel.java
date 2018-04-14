@@ -1,16 +1,16 @@
 package to.etc.domui.component.misc;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.RequestContextImpl;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 11/30/15.
  */
 public class CloseOnClickPanel extends Div {
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	@Override
 	public void createContent() throws Exception {
 		cleanUpPanels();
@@ -44,7 +44,7 @@ public class CloseOnClickPanel extends Div {
 		appendJavascript("WebUI.closeOnClick.markClosed('" + getActualID() + "');");
 	}
 
-	public void webActionCLOSEMENU(@Nonnull RequestContextImpl context) throws Exception {
+	public void webActionCLOSEMENU(@NonNull RequestContextImpl context) throws Exception {
 		remove();
 	}
 }

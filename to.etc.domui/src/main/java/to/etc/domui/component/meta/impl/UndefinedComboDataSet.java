@@ -24,12 +24,11 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.IComboDataSet;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import java.util.List;
 
 /**
  * This is a helper class used in annotations as a "default" indicator. It is
@@ -40,7 +39,7 @@ import to.etc.domui.util.*;
  */
 public class UndefinedComboDataSet implements IComboDataSet<Object> {
 	@Override
-	public @Nonnull List<Object> getComboDataSet(@Nonnull UrlPage cc) throws Exception {
+	public @NonNull List<Object> getComboDataSet(@NonNull UrlPage cc) throws Exception {
 		throw new IllegalStateException("Do not call me"); // FIXME Implement, please
 	}
 }

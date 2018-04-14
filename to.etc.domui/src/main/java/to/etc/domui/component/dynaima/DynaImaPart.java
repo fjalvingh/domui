@@ -24,19 +24,19 @@
  */
 package to.etc.domui.component.dynaima;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.parts.ComponentPartRenderer;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.server.parts.IUnbufferedPartFactory;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.trouble.*;
-import to.etc.util.*;
+import java.io.OutputStream;
 
 public class DynaImaPart implements IUnbufferedPartFactory {
 	@Override
-	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
+	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
 		DynaRenderer cpr = new DynaRenderer();
 		cpr.generate(app, param, rurl);							// Decode input to get to the component in question.
 	}

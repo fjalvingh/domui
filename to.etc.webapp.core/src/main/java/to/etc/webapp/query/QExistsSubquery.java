@@ -24,7 +24,7 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Represents an "exists" subquery on some child relation of a record. This
@@ -87,7 +87,7 @@ public class QExistsSubquery<T> extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitExistsSubquery(this);
 	}
 }

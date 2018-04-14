@@ -1,18 +1,24 @@
 package to.etc.domui.component.headers;
 
-import static to.etc.domui.util.DomUtil.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.HoverButton;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.layout.MessageLine;
+import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.Table;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.menu.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
+import static to.etc.domui.util.DomUtil.nullChecked;
 
 /**
  * This is a header for a collapsable region with an expand/collapse
@@ -82,7 +88,7 @@ public class ExpandHeader extends Div {
 		table.setCssClass("ui-xphd-bar");
 		HoverButton sib = m_expandButton = new HoverButton(getImage(false), new IClicked<HoverButton>() {
 			@Override
-			public void clicked(@Nonnull HoverButton clickednode) throws Exception {
+			public void clicked(@NonNull HoverButton clickednode) throws Exception {
 				toggleExpansion();
 			}
 		});
@@ -108,7 +114,7 @@ public class ExpandHeader extends Div {
 
 			m_hamburgerButton = sib = new HoverButton("THEME/btnHeaderHamburger.png", new IClicked<HoverButton>() {
 				@Override
-				public void clicked(@Nonnull HoverButton clickednode) throws Exception {
+				public void clicked(@NonNull HoverButton clickednode) throws Exception {
 					toggleMenu();
 				}
 			});

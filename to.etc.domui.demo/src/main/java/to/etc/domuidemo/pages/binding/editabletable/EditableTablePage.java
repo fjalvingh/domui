@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.binding.editabletable;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.Text2;
@@ -28,7 +29,6 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QField;
 
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -125,7 +125,7 @@ public class EditableTablePage extends UrlPage {
 		return tr;
 	}
 
-	@Nonnull
+	@NonNull
 	private INodeContentRenderer<Line> createRemoveRenderer() {
 		return (component, node, object, parameters) -> {
 			if(null == object) {

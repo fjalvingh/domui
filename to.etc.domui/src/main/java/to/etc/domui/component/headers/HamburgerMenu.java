@@ -1,20 +1,23 @@
 package to.etc.domui.component.headers;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.component.misc.CloseOnClickPanel;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.parts.GrayscalerPart;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.menu.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 9/21/15.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class HamburgerMenu extends CloseOnClickPanel {
 	final private List<IUIAction<?>> m_actionList;
 
@@ -60,7 +63,7 @@ public class HamburgerMenu extends CloseOnClickPanel {
 		} else {
 			sel.setClicked(new IClicked<Div>() {
 				@Override
-				public void clicked(@Nonnull Div clickednode) throws Exception {
+				public void clicked(@NonNull Div clickednode) throws Exception {
 					handleSelection(action);
 				}
 			});

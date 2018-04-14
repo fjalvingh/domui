@@ -1,5 +1,8 @@
 package to.etc.webapp.testsupport;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
 import to.etc.webapp.query.IIdentifyable;
@@ -7,9 +10,6 @@ import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QCriteriaQueryBase;
 import to.etc.webapp.query.QSelection;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +25,7 @@ import java.util.Map;
  *
  * Created by vmijic on 11.6.15..
  */
-@DefaultNonNull
+@NonNullByDefault
 public class TestDataContextMock extends TestDataContextStub {
 
 	/**
@@ -64,7 +64,7 @@ public class TestDataContextMock extends TestDataContextStub {
 		m_onSaveCallback = onSaveCallback;
 	}
 
-	@DefaultNonNull
+	@NonNullByDefault
 	final static private class EntityKey {
 		private final Class<?> m_entityClass;
 
@@ -212,9 +212,9 @@ public class TestDataContextMock extends TestDataContextStub {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public <T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public <T> T get(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		T item = find(clz, pk);
 		if (null == item) {
 			throw new IllegalStateException("Not located object of class " + clz + " with ID: " + pk);
@@ -222,9 +222,9 @@ public class TestDataContextMock extends TestDataContextStub {
 		return item;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public <T> T getInstance(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public <T> T getInstance(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		T item = find(clz, pk);
 		if(null != item)
 			return item;
@@ -241,7 +241,7 @@ public class TestDataContextMock extends TestDataContextStub {
 
 	@Nullable
 	@Override
-	public <T> T find(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public <T> T find(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		EntityKey key = new EntityKey(clz, pk);
 		EntityInstance instance = m_entityByIdMap.get(key);
 		if(null != instance) {
@@ -267,14 +267,14 @@ public class TestDataContextMock extends TestDataContextStub {
 
 	@Nullable
 	@Override
-	public <T> T queryOne(@Nonnull QCriteria<T> q) throws Exception {
+	public <T> T queryOne(@NonNull QCriteria<T> q) throws Exception {
 		String testId = checkTestsId(q);
 		return processQueryOneTestId(testId);
 	}
 
 	@Nullable
 	@Override
-	public Object[] queryOne(@Nonnull QSelection<?> sel) throws Exception {
+	public Object[] queryOne(@NonNull QSelection<?> sel) throws Exception {
 		String testId = checkTestsId(sel);
 		return processSelectionOneTestId(testId);
 	}

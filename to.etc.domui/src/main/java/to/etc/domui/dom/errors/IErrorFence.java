@@ -24,9 +24,10 @@
  */
 package to.etc.domui.dom.errors;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.List;
 
 /**
  * The fence over which errors cannot pass. An error fence maintains the
@@ -36,13 +37,13 @@ import javax.annotation.*;
  * Created on Sep 29, 2008
  */
 public interface IErrorFence {
-	void addErrorListener(@Nonnull IErrorMessageListener eml);
+	void addErrorListener(@NonNull IErrorMessageListener eml);
 
-	void removeErrorListener(@Nonnull IErrorMessageListener eml);
+	void removeErrorListener(@NonNull IErrorMessageListener eml);
 
-	void addMessage(@Nonnull UIMessage uim);
+	void addMessage(@NonNull UIMessage uim);
 
-	void removeMessage(@Nonnull UIMessage uim);
+	void removeMessage(@NonNull UIMessage uim);
 
 	void clearGlobalMessages(@Nullable String code);
 
@@ -50,5 +51,5 @@ public interface IErrorFence {
 	 * Experimental, do not use. Return the current set of errors inside this fence.
 	 * @return
 	 */
-	@Nonnull List<UIMessage> getMessageList();
+	@NonNull List<UIMessage> getMessageList();
 }

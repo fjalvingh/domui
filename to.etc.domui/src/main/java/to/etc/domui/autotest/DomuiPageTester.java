@@ -1,17 +1,36 @@
 package to.etc.domui.autotest;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.Input;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.AbstractContextMaker;
+import to.etc.domui.server.AppFilter;
+import to.etc.domui.server.ConfigParameters;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.HttpServerRequestResponse;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.IRequestInterceptor;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.Constants;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Experimental.
@@ -22,32 +41,32 @@ import to.etc.util.*;
  */
 public class DomuiPageTester implements IDomUITestInfo {
 	private static class PageRef {
-		@Nonnull
+		@NonNull
 		private final Class< ? extends UrlPage> m_pageClass;
 
-		@Nonnull
+		@NonNull
 		private final PageParameters	m_parameters;
 
-		public PageRef(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull PageParameters parameters) {
+		public PageRef(@NonNull Class< ? extends UrlPage> pageClass, @NonNull PageParameters parameters) {
 			m_pageClass = pageClass;
 			m_parameters = parameters;
 		}
 
-		@Nonnull
+		@NonNull
 		public Class< ? extends UrlPage> getPageClass() {
 			return m_pageClass;
 		}
 
-		@Nonnull
+		@NonNull
 		public PageParameters getParameters() {
 			return m_parameters;
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	final private List<PageRef> m_pageList = new ArrayList<PageRef>();
 
-	@Nonnull
+	@NonNull
 	private String m_userAgent = "Mozilla/5.0 (Windows; U; MSIE 9.0; Windows NT 9.0; en-US)";
 
 	@Nullable
@@ -64,7 +83,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	private Set<String>		m_clickedNodeSet = new HashSet<String>();
 
 
-	static synchronized public void initApplication(@Nonnull Class< ? extends DomApplication> applicationClass, @Nonnull File webappFiles) throws Exception {
+	static synchronized public void initApplication(@NonNull Class< ? extends DomApplication> applicationClass, @NonNull File webappFiles) throws Exception {
 		AppFilter.initLogConfig(null, null);
 
 		DomApplication da = m_appInstance;
@@ -86,7 +105,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 	}
 
-	@Nonnull
+	@NonNull
 	static public DomApplication app() {
 		DomApplication da = m_appInstance;
 		if(null == da)
@@ -99,24 +118,24 @@ public class DomuiPageTester implements IDomUITestInfo {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public DomApplication getApplication() {
 		return app();
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getApplicationHost() {
 		return "http://www.test.nl/";
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String getWebappContext() {
 		return "test";
 	}
 
-	@Nonnull
+	@NonNull
 	public String getApplicationURL() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(getApplicationHost());
@@ -129,12 +148,12 @@ public class DomuiPageTester implements IDomUITestInfo {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getUserAgent() {
 		return m_userAgent;
 	}
 
-	public void setUserAgent(@Nonnull String userAgent) {
+	public void setUserAgent(@NonNull String userAgent) {
 		m_userAgent = userAgent;
 	}
 
@@ -145,11 +164,11 @@ public class DomuiPageTester implements IDomUITestInfo {
 	}
 
 
-	public void addPage(@Nonnull Class< ? extends UrlPage> page, @Nonnull PageParameters pp) {
+	public void addPage(@NonNull Class< ? extends UrlPage> page, @NonNull PageParameters pp) {
 		m_pageList.add(new PageRef(page, pp));
 	}
 
-	public void addPage(@Nonnull Class< ? extends UrlPage> page, Object... data) {
+	public void addPage(@NonNull Class< ? extends UrlPage> page, Object... data) {
 		PageParameters pp = new PageParameters(data);
 		m_pageList.add(new PageRef(page, pp));
 	}
@@ -168,7 +187,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @param parameters
 	 * @throws Exception
 	 */
-	private void run(@Nonnull Class< ? extends UrlPage> pageClass, @Nonnull PageParameters parameters) throws Exception {
+	private void run(@NonNull Class< ? extends UrlPage> pageClass, @NonNull PageParameters parameters) throws Exception {
 		checkInit();
 
 		//-- We need an appsession for this page.
@@ -216,7 +235,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	}
 
 	@Nullable
-	private TestRequestResponse handleDocument(@Nonnull String doc, @Nonnull TestRequestResponse rr) throws Exception {
+	private TestRequestResponse handleDocument(@NonNull String doc, @NonNull TestRequestResponse rr) throws Exception {
 		//-- Contains javascript redirect (initial-response)?
 		String str = "location.replace(";
 		int pos = doc.indexOf(str);
@@ -247,7 +266,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	}
 
 	@Nullable
-	private NodeBase findClickTarget(@Nonnull PageData pinfo) {
+	private NodeBase findClickTarget(@NonNull PageData pinfo) {
 		for(NodeBase nb : pinfo.getClickTargets()) {
 			if(!m_clickedNodeSet.contains(nb.getActualID())) {
 				m_clickedNodeSet.add(nb.getActualID());
@@ -263,8 +282,8 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @param page
 	 * @return
 	 */
-	@Nonnull
-	private TestRequestResponse createClickRequest(@Nonnull PageData pinfo, @Nonnull NodeBase nodeToClick) throws Exception {
+	@NonNull
+	private TestRequestResponse createClickRequest(@NonNull PageData pinfo, @NonNull NodeBase nodeToClick) throws Exception {
 		PageParameters pp = pinfo.getPage().getPageParameters().getUnlockedCopy();
 
 		for(NodeBase nb : pinfo.getBaseInputs()) {
@@ -289,7 +308,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @param clickTargets
 	 * @param body
 	 */
-	private void scanPageData(@Nonnull PageData pageData, @Nonnull NodeBase body) {
+	private void scanPageData(@NonNull PageData pageData, @NonNull NodeBase body) {
 		pageData.checkNode(body);
 		if(body instanceof NodeContainer) {
 			for(NodeBase nb : ((NodeContainer) body))
@@ -308,7 +327,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @return
 	 */
 	@Nullable
-	private TestRequestResponse handleDocumentRedirect(@Nonnull String doc, int pos) {
+	private TestRequestResponse handleDocumentRedirect(@NonNull String doc, int pos) {
 		int end = doc.indexOf(')', pos);
 		if(end == -1)
 			throw new IllegalStateException("No redirect statement found");
@@ -329,7 +348,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @return
 	 */
 	@Nullable
-	private TestRequestResponse handleRedirect(@Nonnull TestRequestResponse rr) {
+	private TestRequestResponse handleRedirect(@NonNull TestRequestResponse rr) {
 		String redirectURL = rr.getRedirectURL();
 		if(null == redirectURL)
 			throw new IllegalStateException("Null redirect URL in test response");
@@ -343,7 +362,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @return
 	 */
 	@Nullable
-	private TestRequestResponse handleRedirectTo(@Nonnull String redirectURL) {
+	private TestRequestResponse handleRedirectTo(@NonNull String redirectURL) {
 		System.out.println("URL redirect to: " + redirectURL);
 		String app = getApplicationURL();
 		if(redirectURL.contains(":")) {
@@ -390,16 +409,16 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @param pp
 	 * @return
 	 */
-	@Nonnull
-	private TestRequestResponse createRequestResponse(@Nonnull Class< ? extends UrlPage> clz, @Nonnull PageParameters pp) {
+	@NonNull
+	private TestRequestResponse createRequestResponse(@NonNull Class< ? extends UrlPage> clz, @NonNull PageParameters pp) {
 		String requestURI = getClassURI(clz);
 
 		TestRequestResponse rr = new TestRequestResponse(getSvSession(), this, requestURI, pp);
 		return rr;
 	}
 
-	@Nonnull
-	private String getClassURI(@Nonnull Class< ? extends UrlPage> clz) {
+	@NonNull
+	private String getClassURI(@NonNull Class< ? extends UrlPage> clz) {
 		StringBuilder sb = new StringBuilder();
 		sb.append('/');
 		String webappContext = getWebappContext();
@@ -414,8 +433,8 @@ public class DomuiPageTester implements IDomUITestInfo {
 		return sb.toString();
 	}
 
-	@Nonnull
-	private TestRequestResponse createRequestResponse(@Nonnull Page page, @Nonnull PageParameters pp) {
+	@NonNull
+	private TestRequestResponse createRequestResponse(@NonNull Page page, @NonNull PageParameters pp) {
 		String requestURI = getClassURI(page.getBody().getClass());
 		ConversationContext internalGetConversation = page.internalGetConversation();
 		if(null == internalGetConversation)
@@ -434,7 +453,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 	 * @param rr
 	 * @throws Exception
 	 */
-	private void interact(@Nonnull AppSession session, @Nonnull TestRequestResponse rr) throws Exception {
+	private void interact(@NonNull AppSession session, @NonNull TestRequestResponse rr) throws Exception {
 		System.out.println("T: url: " + rr.getRequestURI() + rr.getQueryString());
 
 		RequestContextImpl ctx = new RequestContextImpl(rr, getApplication(), session);
@@ -473,7 +492,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private TestServerSession getSvSession() {
 		if(null != m_ssession)
 			return m_ssession;

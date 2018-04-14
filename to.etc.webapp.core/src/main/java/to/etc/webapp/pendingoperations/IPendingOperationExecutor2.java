@@ -1,6 +1,6 @@
 package to.etc.webapp.pendingoperations;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * This extended version of {@link IPendingOperationExecutor} allows operations that failed in
@@ -18,5 +18,5 @@ public interface IPendingOperationExecutor2 extends IPendingOperationExecutor {
 	 * @param op
 	 * @return
 	 */
-	boolean isSkipFailedAllowed(@Nonnull PendingOperation op);
+	boolean isSkipFailedAllowed(@NonNull PendingOperation op);
 }

@@ -1,12 +1,12 @@
 package to.etc.log.event;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Marker;
+import to.etc.log.EtcLogger;
+import to.etc.log.Level;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.log.*;
+import java.util.Date;
 
 /**
  * Encapsulates properties of single log event.
@@ -16,10 +16,10 @@ import to.etc.log.*;
  * Created on Oct 31, 2012
  */
 public class EtcLogEvent {
-	@Nonnull
+	@NonNull
 	private final EtcLogger	m_logger;
 
-	@Nonnull
+	@NonNull
 	private final Level		m_level;
 
 	@Nullable
@@ -28,10 +28,10 @@ public class EtcLogEvent {
 	@Nullable
 	private final Throwable	m_thrown;
 
-	@Nonnull
+	@NonNull
 	private final Date		m_timestamp;
 
-	@Nonnull
+	@NonNull
 	private final Thread	m_thread;
 
 	@Nullable
@@ -40,7 +40,7 @@ public class EtcLogEvent {
 	@Nullable
 	private final Marker	m_marker;
 
-	public EtcLogEvent(@Nonnull EtcLogger logger, @Nonnull Level level, @Nullable Marker marker, @Nullable String msg, @Nullable Throwable thrown, @Nonnull Date timestamp, @Nonnull Thread thread,
+	public EtcLogEvent(@NonNull EtcLogger logger, @NonNull Level level, @Nullable Marker marker, @Nullable String msg, @Nullable Throwable thrown, @NonNull Date timestamp, @NonNull Thread thread,
 		Object... args) {
 		m_logger = logger;
 		m_level = level;
@@ -52,12 +52,12 @@ public class EtcLogEvent {
 		m_args = args;
 	}
 
-	@Nonnull
+	@NonNull
 	public EtcLogger getLogger() {
 		return m_logger;
 	}
 
-	@Nonnull
+	@NonNull
 	public Level getLevel() {
 		return m_level;
 	}
@@ -77,12 +77,12 @@ public class EtcLogEvent {
 		return m_thrown;
 	}
 
-	@Nonnull
+	@NonNull
 	public Date getTimestamp() {
 		return m_timestamp;
 	}
 
-	@Nonnull
+	@NonNull
 	public Thread getThread() {
 		return m_thread;
 	}

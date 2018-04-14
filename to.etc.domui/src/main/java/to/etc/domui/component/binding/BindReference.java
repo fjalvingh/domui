@@ -1,8 +1,7 @@
 package to.etc.domui.component.binding;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.component.meta.PropertyMetaModel;
-
-import javax.annotation.DefaultNonNull;
 
 /**
  * A reference to an instance and property that is the source or the target of some binding.
@@ -10,7 +9,7 @@ import javax.annotation.DefaultNonNull;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 22-8-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class BindReference<I, V> {
 	private final I m_instance;
 

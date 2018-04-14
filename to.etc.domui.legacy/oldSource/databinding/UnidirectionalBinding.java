@@ -1,6 +1,6 @@
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.value.*;
 import to.etc.domui.trouble.*;
@@ -15,7 +15,7 @@ import to.etc.domui.util.*;
 final public class UnidirectionalBinding extends Binding {
 	private IReadWriteModel< ? > m_model;
 
-	public UnidirectionalBinding(@Nonnull BindingContext context, @Nonnull IObservableValue< ? > sourceo, @Nonnull IReadWriteModel< ? > mdl) throws Exception {
+	public UnidirectionalBinding(@NonNull BindingContext context, @NonNull IObservableValue< ? > sourceo, @NonNull IReadWriteModel< ? > mdl) throws Exception {
 		super(context, sourceo);
 		m_model = mdl;
 		addSourceListener();

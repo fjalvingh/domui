@@ -1,17 +1,40 @@
 package to.etc.dbutil.reverse;
 
-import java.math.*;
-import java.sql.*;
-import java.text.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbTable;
+import to.etc.util.FileTool;
+import to.etc.webapp.qsql.IQValueSetter;
+import to.etc.webapp.qsql.JdbcPropertyMeta;
+import to.etc.webapp.qsql.QQuerySyntaxException;
+import to.etc.webapp.query.QBetweenNode;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QLiteral;
+import to.etc.webapp.query.QMultiNode;
+import to.etc.webapp.query.QNodeVisitorBase;
+import to.etc.webapp.query.QOperation;
+import to.etc.webapp.query.QOperatorNode;
+import to.etc.webapp.query.QOrder;
+import to.etc.webapp.query.QPropertyComparison;
+import to.etc.webapp.query.QSelection;
+import to.etc.webapp.query.QUnaryNode;
+import to.etc.webapp.query.QUnaryProperty;
+
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
-
-import javax.annotation.*;
-
-import to.etc.dbutil.schema.*;
-import to.etc.util.*;
-import to.etc.webapp.qsql.*;
-import to.etc.webapp.query.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class to create a query statement where the exact table and column of each result row is known. It
@@ -21,16 +44,16 @@ import to.etc.webapp.query.*;
  * Created on Feb 19, 2013
  */
 public class SQLBuilder extends QNodeVisitorBase {
-	@Nonnull
+	@NonNull
 	final private Reverser m_reverser;
 
-	@Nonnull
+	@NonNull
 	final private QCriteria<SQLRow> m_criteria;
 
-	@Nonnull
+	@NonNull
 	final private DbTable m_table;
 
-	@Nonnull
+	@NonNull
 	private StringBuilder m_statement = new StringBuilder();
 
 	private int m_firstRow = 0;
@@ -71,7 +94,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 
 	private int m_timeout = -1;
 
-	public SQLBuilder(@Nonnull JDBCReverser r, @Nonnull QCriteria<SQLRow> table, boolean oracle) {
+	public SQLBuilder(@NonNull JDBCReverser r, @NonNull QCriteria<SQLRow> table, boolean oracle) {
 		m_oracle = oracle;
 		m_reverser = r;
 		m_criteria = table;
@@ -84,7 +107,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 		m_maxRows = max;
 	}
 
-	@Nonnull
+	@NonNull
 	private Reverser r() {
 		return m_reverser;
 	}
@@ -135,7 +158,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 //		m_columnList = coll;
 	}
 
-	public SQLRowSet query(@Nonnull Connection dbc) throws Exception {
+	public SQLRowSet query(@NonNull Connection dbc) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -170,7 +193,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 		}
 	}
 
-	private SQLRow createRow(@Nonnull SQLRowSet set, @Nonnull ResultSet rs) throws Exception {
+	private SQLRow createRow(@NonNull SQLRowSet set, @NonNull ResultSet rs) throws Exception {
 		int cols = set.getColumnList().size();
 		Object[] values = new Object[cols];
 		for(int i = 0; i < cols; i++) {
@@ -180,7 +203,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 		return new SQLRow(set, values);
 	}
 
-	private SQLBuilder a(@Nonnull String s) {
+	private SQLBuilder a(@NonNull String s) {
 		m_statement.append(s);
 		return this;
 	}
@@ -293,7 +316,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitOrder(@Nonnull QOrder o) throws Exception {
+	public void visitOrder(@NonNull QOrder o) throws Exception {
 		if(m_order == null)
 			m_order = new StringBuilder();
 		DbColumn pm = resolveProperty(o.getProperty());
@@ -396,7 +419,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 	 * @param pm
 	 * @param expr
 	 */
-	private void appendValueSetter(@Nonnull DbColumn pm, @Nonnull QLiteral expr) {
+	private void appendValueSetter(@NonNull DbColumn pm, @NonNull QLiteral expr) {
 		appendWhere("?");
 		int index = m_nextWhereIndex++;
 		ValSetter vs = new ValSetter(index, expr.getValue(), pm);
@@ -408,7 +431,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 	 * @param pm
 	 * @param expr
 	 */
-	private void appendLikeValueSetter(@Nonnull DbColumn pm, @Nonnull QLiteral expr) {
+	private void appendLikeValueSetter(@NonNull DbColumn pm, @NonNull QLiteral expr) {
 		if(!(expr.getValue() instanceof String))
 			throw new QQuerySyntaxException("Invalid value type " + expr.getValue() + " for LIKE operation - expecting string.");
 		appendWhere("?");
@@ -657,7 +680,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 			m_column = pm;
 		}
 
-		@Nonnull
+		@NonNull
 		public DbColumn getColumn() {
 			return m_column;
 		}

@@ -1,7 +1,8 @@
 package to.etc.util;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -21,13 +22,13 @@ final public class Diff<T> {
 
 	final private int		m_endIndex;
 
-	@Nonnull
+	@NonNull
 	final private List<T>	m_list;
 
-	@Nonnull
+	@NonNull
 	final private Type		m_type;
 
-	private Diff(int startIndex, int endIndex, @Nonnull List<T> list, @Nonnull Type type) {
+	private Diff(int startIndex, int endIndex, @NonNull List<T> list, @NonNull Type type) {
 		m_startIndex = startIndex;
 		m_endIndex = endIndex;
 		m_list = list;
@@ -46,7 +47,7 @@ final public class Diff<T> {
 		return m_startIndex;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<T> getList() {
 		return m_list;
 	}
@@ -130,11 +131,11 @@ final public class Diff<T> {
 		}
 	}
 
-	static public <I> List<Diff<I>> diffList(@Nonnull List<I> oldl, @Nonnull List<I> newl, @Nullable Comparator<I> comparator) {
+	static public <I> List<Diff<I>> diffList(@NonNull List<I> oldl, @NonNull List<I> newl, @Nullable Comparator<I> comparator) {
 		return diffList(oldl, newl, comparator, true);
 	}
 
-	static public <I> List<Diff<I>> diffList(@Nonnull List<I> oldl, @Nonnull List<I> newl, @Nullable Comparator<I> comparator, boolean skipsame) {
+	static public <I> List<Diff<I>> diffList(@NonNull List<I> oldl, @NonNull List<I> newl, @Nullable Comparator<I> comparator, boolean skipsame) {
 		if(null == comparator) {
 			comparator = new DiffComparator<>();
 		}

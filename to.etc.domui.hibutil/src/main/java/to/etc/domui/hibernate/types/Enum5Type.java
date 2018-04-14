@@ -24,14 +24,17 @@
  */
 package to.etc.domui.hibernate.types;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.hibernate.HibernateException;
+import org.hibernate.usertype.EnhancedUserType;
+import org.hibernate.usertype.ParameterizedType;
 
-import javax.annotation.*;
-
-import org.hibernate.*;
-import org.hibernate.usertype.*;
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Properties;
 
 /**
  * Java 5 Hibernate enum type. Coded because the XML variant of Hibernate does not
@@ -47,7 +50,7 @@ public class Enum5Type implements EnhancedUserType, ParameterizedType {
 
 	private boolean m_ordinal;
 
-	public void setParameterValues(@Nonnull final Properties parameters) {
+	public void setParameterValues(@NonNull final Properties parameters) {
 		String enumClassName = parameters.getProperty("enumClass");
 		try {
 			m_enumClass = (Class<Enum< ? >>) Class.forName(enumClassName);

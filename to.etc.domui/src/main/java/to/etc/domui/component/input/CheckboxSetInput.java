@@ -1,8 +1,8 @@
 package to.etc.domui.component.input;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.List;
 
 public class CheckboxSetInput<T> extends CheckboxSetInputBase<T, T> {
 	public CheckboxSetInput() {}
@@ -12,8 +12,8 @@ public class CheckboxSetInput<T> extends CheckboxSetInputBase<T, T> {
 	}
 
 	@Override
-	@Nonnull
-	protected T listToValue(@Nonnull T in) throws Exception {
+	@NonNull
+	protected T listToValue(@NonNull T in) throws Exception {
 		return in;
 	}
 }

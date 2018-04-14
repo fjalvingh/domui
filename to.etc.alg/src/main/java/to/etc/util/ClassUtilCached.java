@@ -24,11 +24,15 @@
  */
 package to.etc.util;
 
-import java.lang.ref.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Like ClassUtil, but this caches the retrieved information.
@@ -39,16 +43,16 @@ import javax.annotation.concurrent.*;
 public class ClassUtilCached {
 	static private final ClassUtilCached	m_instance	= new ClassUtilCached();
 
-	@Immutable
+	//@Immutable
 	public static class ClassInfo {
-		@Nonnull
+		@NonNull
 		private Class<?>	m_theClass;
 
 		private Map<String, PropertyInfo>	m_propertyMap;
 
 		private List<PropertyInfo>	m_propertyList;
 
-		ClassInfo(@Nonnull Class< ? > theClass) {
+		ClassInfo(@NonNull Class< ? > theClass) {
 			m_theClass = theClass;
 		}
 
@@ -66,12 +70,12 @@ public class ClassUtilCached {
 			m_propertyMap = Collections.unmodifiableMap(pmap);
 		}
 
-		@Nonnull
+		@NonNull
 		public List<PropertyInfo> getPropertyList() {
 			return m_propertyList;
 		}
 
-		@Nonnull
+		@NonNull
 		public Map<String, PropertyInfo> getPropertyMap() {
 			return m_propertyMap;
 		}
@@ -92,7 +96,7 @@ public class ClassUtilCached {
 	 * Get an instance to use for retrieving cached information.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public ClassUtilCached getInstance() {
 		return m_instance;
 	}
@@ -102,8 +106,8 @@ public class ClassUtilCached {
 	 * @param clz
 	 * @return
 	 */
-	@Nonnull
-	public ClassInfo getClassInfo(@Nonnull Class< ? > clz) {
+	@NonNull
+	public ClassInfo getClassInfo(@NonNull Class< ? > clz) {
 		ClassInfo ci = null;
 		synchronized(m_classMap) {
 			Reference<ClassInfo> rci = m_classMap.get(clz);
@@ -123,7 +127,7 @@ public class ClassUtilCached {
 	 * @param clz
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public List<PropertyInfo> getProperties(Class< ? > clz) {
 		return getClassInfo(clz).getPropertyList();
 	}

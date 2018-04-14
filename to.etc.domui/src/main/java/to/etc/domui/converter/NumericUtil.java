@@ -24,6 +24,8 @@
  */
 package to.etc.domui.converter;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.trouble.ValidationException;
@@ -31,8 +33,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -232,7 +232,7 @@ public class NumericUtil {
 		, "#0.######" //
 	};
 
-	@Nonnull
+	@NonNull
 	static public String renderNumber(Number v, NumericPresentation np, int inScale) {
 		if(v == null)
 			return "";
@@ -275,7 +275,7 @@ public class NumericUtil {
 					return nf.format(v);
 				}
 
-				@Nonnull
+				@NonNull
 				String res = new DecimalFormat(NUMBER_BY_SCALE_TRUNC_ZEROS[scale], dfs).format(v);
 				if(res != null && (res.endsWith(".") || res.endsWith(","))) {
 					//If we have 1000. then we need to cut of last decimal separator

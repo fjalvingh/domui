@@ -24,21 +24,37 @@
  */
 package to.etc.domui.parts;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.caches.images.FullImage;
+import to.etc.domui.caches.images.IImageMemorySource;
+import to.etc.domui.caches.images.ImageCache;
+import to.etc.domui.caches.images.ImageKey;
+import to.etc.domui.server.ApplicationRequestHandler;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IParameterInfo;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.server.parts.IUnbufferedPartFactory;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.trouble.ExpiredDataPage;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.images.IImageRetriever;
+import to.etc.domui.util.images.converters.IImageConversionSpecifier;
+import to.etc.domui.util.images.converters.ImageConvert;
+import to.etc.domui.util.images.converters.ImagePageSelect;
+import to.etc.domui.util.images.converters.ImageResize;
+import to.etc.domui.util.images.converters.ImageThumbnail;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.webapp.core.ServerTools;
 
-import javax.annotation.*;
-
-import to.etc.domui.caches.images.*;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.images.*;
-import to.etc.domui.util.images.converters.*;
-import to.etc.util.*;
-import to.etc.webapp.core.*;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CachedImagePart implements IUnbufferedPartFactory {
 
@@ -113,7 +129,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 	}
 
 	@Override
-	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
+	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
 		//-- Split the url into retriever key and instance key.
 		String[] ar = rurl.split("/");
 		if(ar == null || ar.length != 2)

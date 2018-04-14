@@ -24,9 +24,9 @@
  */
 package to.etc.dbutil;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.dbpool.DbPoolUtil;
 
-import javax.annotation.Nonnull;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -419,8 +419,8 @@ public class GenericDB {
 	 * @return
 	 * @throws SQLException
 	 */
-	@Nonnull
-	static public String getScriptResource(@Nonnull Connection dbc, @Nonnull Class< ? > clz, @Nonnull String baseName) throws Exception {
+	@NonNull
+	static public String getScriptResource(@NonNull Connection dbc, @NonNull Class< ? > clz, @NonNull String baseName) throws Exception {
 		BaseDB type = getDbType(dbc);
 		String name = type.getName();
 

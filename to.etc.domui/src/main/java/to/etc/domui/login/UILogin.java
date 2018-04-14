@@ -1,5 +1,8 @@
 package to.etc.domui.login;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.HttpServerRequestResponse;
 import to.etc.domui.server.ILoginListener;
 import to.etc.domui.server.IRequestContext;
@@ -7,9 +10,6 @@ import to.etc.domui.server.IServerSession;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
 import java.util.List;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 10-11-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class UILogin {
 	static private volatile ILoginHandler	m_loginHandler = new DefaultLoginHandler();
 
@@ -197,7 +197,7 @@ final public class UILogin {
 		hs.setAttribute(IMPERSONATION_KEY, user);
 	}
 
-	static public void impersonateByLoginId(@Nonnull String userId) throws Exception {
+	static public void impersonateByLoginId(@NonNull String userId) throws Exception {
 		//-- Be sure the current user is allowed this.
 		IUser realUser = getRealUser();
 		if(null == realUser)

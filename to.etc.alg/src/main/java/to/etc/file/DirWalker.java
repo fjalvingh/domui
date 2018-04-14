@@ -1,9 +1,11 @@
 package to.etc.file;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Walks a directory tree and calls a handler  for each entry, recursively. Or returns a list of everything inside
@@ -16,7 +18,7 @@ final public class DirWalker {
 	private DirWalker() {}
 
 	public interface IEntry<T> {
-		@Nullable T onEntry(@Nonnull File file, @Nonnull String relativePath) throws Exception;
+		@Nullable T onEntry(@NonNull File file, @NonNull String relativePath) throws Exception;
 	}
 
 	/**
@@ -27,13 +29,13 @@ final public class DirWalker {
 	 * @throws Exception
 	 */
 	@Nullable
-	static public <T> T scan(@Nonnull File srcdir, @Nonnull IEntry<T> handler) throws Exception {
+	static public <T> T scan(@NonNull File srcdir, @NonNull IEntry<T> handler) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		return scanInternal(srcdir, handler, sb);
 	}
 
 	@Nullable
-	static private <T> T scanInternal(@Nonnull File srcdir, @Nonnull IEntry<T> handler, @Nonnull StringBuilder sb) throws Exception {
+	static private <T> T scanInternal(@NonNull File srcdir, @NonNull IEntry<T> handler, @NonNull StringBuilder sb) throws Exception {
 		File[] ar = srcdir.listFiles();
 		if(ar == null)
 			return null;
@@ -63,8 +65,8 @@ final public class DirWalker {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	static public List<File> dir(@Nonnull File srcdir, boolean files, boolean dirs) throws Exception {
+	@NonNull
+	static public List<File> dir(@NonNull File srcdir, boolean files, boolean dirs) throws Exception {
 		if(!files && !dirs)
 			throw new IllegalArgumentException("Looking for nothing is not useful");
 		List<File> res = new ArrayList<File>();
@@ -72,7 +74,7 @@ final public class DirWalker {
 		return res;
 	}
 
-	static private void dir(@Nonnull List<File> res, @Nonnull File srcdir, boolean files, boolean dirs) throws Exception {
+	static private void dir(@NonNull List<File> res, @NonNull File srcdir, boolean files, boolean dirs) throws Exception {
 		File[] ar = srcdir.listFiles();
 		if(null == ar)
 			return;

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
@@ -35,9 +37,6 @@ import to.etc.domui.logic.errors.ProblemReporter;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.OverridingMethodsMustInvokeSuper;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
@@ -78,7 +77,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Create a container with the specified tag name.
 	 * @param tag
 	 */
-	public NodeContainer(@Nonnull final String tag) {
+	public NodeContainer(@NonNull final String tag) {
 		super(tag);
 	}
 
@@ -210,7 +209,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	final public Iterator<NodeBase> iterator() {
 		if(m_delegate != null)
 			return m_delegate.iterator();
@@ -234,7 +233,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param b
 	 * @return
 	 */
-	final public int findChildIndex(@Nonnull final NodeBase b) {
+	final public int findChildIndex(@NonNull final NodeBase b) {
 		if(m_delegate != null) {
 			int ix = m_delegate.findChildIndex(b);
 			if(ix != -1)
@@ -253,7 +252,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param i
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	final public NodeBase getChild(final int i) {
 		if(m_delegate != null)
 			return m_delegate.getChild(i);
@@ -318,7 +317,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * --]
 	 * @param child
 	 */
-	final private void registerWithPage(@Nonnull final NodeBase child) {
+	final private void registerWithPage(@NonNull final NodeBase child) {
 		if(!isAttached()) // No page-> cannot register
 			return;
 		child.registerWithPage(getPage());
@@ -331,7 +330,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @see to.etc.domui.dom.html.NodeBase#registerWithPage(to.etc.domui.dom.html.Page)
 	 */
 	@Override
-	final void registerWithPage(@Nonnull final Page p) {
+	final void registerWithPage(@NonNull final Page p) {
 		super.registerWithPage(p); // Base registration of *this*
 		registerChildren();
 	}
@@ -365,15 +364,15 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param node
 	 * @return
 	 */
-	@OverridingMethodsMustInvokeSuper
-	protected void canContain(@Nonnull final NodeBase node) {}
+	//@OverridingMethodsMustInvokeSuper
+	protected void canContain(@NonNull final NodeBase node) {}
 
 	/**
 	 * Add the child at the end of the list.
 	 * @param nd
 	 */
-	@Nonnull
-	final public NodeContainer add(@Nonnull final NodeBase nd) {
+	@NonNull
+	final public NodeContainer add(@NonNull final NodeBase nd) {
 		add(Integer.MAX_VALUE, nd);
 		return this;
 	}
@@ -383,7 +382,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param index
 	 * @param nd
 	 */
-	final public void add(final int index, @Nonnull final NodeBase nd) {
+	final public void add(final int index, @NonNull final NodeBase nd) {
 		/*
 		 * Nodes that *must* be added to the body should delegate there immediately.
 		 */
@@ -403,7 +402,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		internalAdd(index, nd);
 	}
 
-	final public void undelegatedAdd(final int index, @Nonnull final NodeBase nd) {
+	final public void undelegatedAdd(final int index, @NonNull final NodeBase nd) {
 		/*
 		 * Nodes that *must* be added to the body should delegate there immediately.
 		 */
@@ -418,7 +417,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		internalAdd(index, nd);
 	}
 
-	final protected void internalAdd(final int index, @Nonnull final NodeBase nd) {
+	final protected void internalAdd(final int index, @NonNull final NodeBase nd) {
 		if(nd == this)
 			throw new IllegalStateException("Attempt to add a node " + nd + " to itself as a child.");
 
@@ -444,7 +443,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Add a #text node.
 	 * @param txt
 	 */
-	@Nonnull
+	@NonNull
 	final public NodeContainer add(@Nullable final String txt) {
 		if(txt != null && txt.length() > 0)
 			add(new TextNode(txt));
@@ -455,7 +454,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Remove a child node from me. This also removes ALL descendants from the current page's view.
 	 * @param child
 	 */
-	final public void removeChild(@Nonnull final NodeBase child) {
+	final public void removeChild(@NonNull final NodeBase child) {
 		//child can be direct child or child of delegate
 		int ix = m_children.indexOf(child);
 		//we first try to find child in direct children
@@ -483,7 +482,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param index
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	final public NodeBase removeChild(final int index) {
 		if(m_delegate != null) {
 			return m_delegate.removeChild(index);
@@ -505,7 +504,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param child
 	 * @param nw
 	 */
-	final public void replaceChild(@Nonnull final NodeBase child, @Nonnull final NodeBase nw) {
+	final public void replaceChild(@NonNull final NodeBase child, @NonNull final NodeBase nw) {
 		//child can be direct child or child of delegate
 		int ix = m_children.indexOf(child);
 		//we first try to find child in direct children
@@ -558,7 +557,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * tree is rendered.
 	 */
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	final public void forceRebuild() {
 		//-- If we have nodes destroy 'm all
 		m_delegate = null; // FIXME URGENT Wrong!!!!!
@@ -655,7 +654,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return b;
 	}
 
-	@Nonnull
+	@NonNull
 	public TBody addTableForLayout(String css) {
 		Table t = new Table();
 		t.setCssClass(css);
@@ -669,7 +668,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return b;
 	}
 
-	@Nonnull
+	@NonNull
 	public TBody addTableForLayout() {
 		return addTableForLayout(null);
 	}
@@ -680,7 +679,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param ofClass
 	 * @return
 	 */
-	final public <T> List<T> getChildren(@Nonnull Class<T> ofClass) {
+	final public <T> List<T> getChildren(@NonNull Class<T> ofClass) {
 		if(m_delegate != null)
 			return m_delegate.getChildren(ofClass);
 
@@ -701,8 +700,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param ofClass
 	 * @return
 	 */
-	@Nonnull
-	final public <T> List<T> getDeepChildren(@Nonnull Class<T> ofClass) {
+	@NonNull
+	final public <T> List<T> getDeepChildren(@NonNull Class<T> ofClass) {
 		if(m_delegate != null)
 			return m_delegate.getDeepChildren(ofClass);
 
@@ -749,7 +748,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param value
 	 * @throws Exception
 	 */
-	public <T, C extends IConverter<T>> void setValue(@Nonnull Class<C> conv, @Nullable T value) throws Exception {
+	public <T, C extends IConverter<T>> void setValue(@NonNull Class<C> conv, @Nullable T value) throws Exception {
 		setText(ConverterRegistry.convertValueToString(conv, value));
 	}
 
@@ -833,13 +832,13 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * EXPERIMENTAL This can be overridden to handle nodes that have an explicit "frame".
 	 */
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	protected void createFrame() throws Exception {
 	}
 
 
 	@Override
-	public void appendTreeErrors(@Nonnull List<UIMessage> errorList) {
+	public void appendTreeErrors(@NonNull List<UIMessage> errorList) {
 		super.appendTreeErrors(errorList);
 		for(NodeBase nb : this) {
 			nb.appendTreeErrors(errorList);

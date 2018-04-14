@@ -1,6 +1,7 @@
 package to.etc.domui.component.tree;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.List;
 
 /**

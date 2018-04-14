@@ -1,8 +1,14 @@
 package to.etc.log;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.io.Reader;
 
 /**
  * Internal file tool related utils. It has to be inside logger project to minimize external dependencies for logger project itself.
@@ -12,7 +18,7 @@ import javax.annotation.*;
  * Created on May 23, 2014
  */
 class LogUtil {
-	@Nonnull
+	@NonNull
 	static final String readResourceAsString(Class< ? > base, String name, String encoding) throws Exception {
 		InputStream is = base.getResourceAsStream(name);
 		if(null == is)

@@ -1,5 +1,6 @@
 package to.etc.domui.pages.generic;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.annotations.UIRights;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
@@ -22,7 +23,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -52,14 +52,14 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 		rr.column("remoteUser").width("10%").label("User ID");
 		rr.column().label("IP Address/host").width("1%").renderer(new IRenderInto<Client>() {
 			@Override
-			public void render(@Nonnull NodeContainer node, @Nonnull Client cl) throws Exception {
+			public void render(@NonNull NodeContainer node, @NonNull Client cl) throws Exception {
 				node.add(cl.getRemoteAddress() + "/" + cl.getRemoteHost());
 			}
 		});
 		rr.column("NRequests").width("1%").label("# requests");
 		rr.column(Long.class, "tsSessionStart").width("1%").label("Logged in since").descending().renderer(new IRenderInto<Long>() {
 			@Override
-			public void render(@Nonnull NodeContainer node, @Nonnull Long cl) throws Exception {
+			public void render(@NonNull NodeContainer node, @NonNull Long cl) throws Exception {
 				long ts = cl.longValue();
 				node.add(df.format(new Date(ts)) + " (" + StringTool.strDurationMillis(cts - ts) + ")");
 			}
@@ -67,7 +67,7 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 
 		rr.column(Long.class, "tsLastRequest").width("1%").label("Last use").sortdefault().descending().renderer(new IRenderInto<Long>() {
 			@Override
-			public void render(@Nonnull NodeContainer node, @Nonnull Long cl) throws Exception {
+			public void render(@NonNull NodeContainer node, @NonNull Long cl) throws Exception {
 				long ts = cl.longValue();
 				node.add(df.format(new Date(ts)) + " (" + StringTool.strDurationMillis(cts - ts) + ")");
 			}
@@ -75,10 +75,10 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 
 		rr.setRowButtonFactory(new IRowButtonFactory<Client>() {
 			@Override
-			public void addButtonsFor(@Nonnull RowButtonContainer c, @Nonnull final Client data) throws Exception {
+			public void addButtonsFor(@NonNull RowButtonContainer c, @NonNull final Client data) throws Exception {
 				c.addLinkButton("Last used pages", "THEME/btnEdit.png", new IClicked<LinkButton>() {
 					@Override
-					public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+					public void clicked(@NonNull LinkButton clickednode) throws Exception {
 						showClientData(data);
 					}
 				});
@@ -102,7 +102,7 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 //			tr.addCell().setText(df.format(new Date(cl.getTsLastRequest())) + " (" + StringTool.strDurationMillis(cts - cl.getTsLastRequest()) + " ago)");
 //			final LinkButton lb = new LinkButton("Last Used pages", new IClicked<LinkButton>() {
 //				@Override
-//				public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+//				public void clicked(@NonNull LinkButton clickednode) throws Exception {
 //					TR ntr = new TR();
 //					tr.appendAfterMe(ntr);
 //					ntr.addCell();

@@ -24,38 +24,38 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class QPropertyComparison extends QOperatorNode {
-	@Nonnull
+	@NonNull
 	final private String m_property;
 
-	@Nonnull
+	@NonNull
 	final private QOperatorNode m_expr;
 
-	public QPropertyComparison(@Nonnull QOperation operation, @Nonnull String property, @Nonnull QOperatorNode expr) {
+	public QPropertyComparison(@NonNull QOperation operation, @NonNull String property, @NonNull QOperatorNode expr) {
 		super(operation);
 		m_property = property;
 		m_expr = expr;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public QPropertyComparison dup() {
 		return new QPropertyComparison(getOperation(), getProperty(), getExpr().dup());
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitPropertyComparison(this);
 	}
 
-	@Nonnull
+	@NonNull
 	public QOperatorNode getExpr() {
 		return m_expr;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getProperty() {
 		return m_property;
 	}

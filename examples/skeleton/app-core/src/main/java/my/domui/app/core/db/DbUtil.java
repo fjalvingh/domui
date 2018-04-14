@@ -15,7 +15,7 @@ import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
 
 import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import javax.sql.DataSource;
 import java.io.File;
 import java.sql.Connection;
@@ -24,7 +24,7 @@ import java.util.Properties;
 /**
  * Helper class to initialize the database, handling updates using Flyway, and starting off Hibernate.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class DbUtil {
 	@Nullable
 	private static ConnectionPool m_pool;
@@ -135,7 +135,7 @@ public class DbUtil {
 		}
 	}
 
-	@DefaultNonNull(false)
+	@NonNullByDefault(false)
 	private static class MyFlywayCallback implements FlywayCallback {
 		@Override public void beforeClean(Connection connection) {
 

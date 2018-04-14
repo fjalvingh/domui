@@ -1,9 +1,8 @@
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.query.QCriteria;
-
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
@@ -11,7 +10,7 @@ import static java.util.Objects.requireNonNull;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 6-12-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class ObjectLookupQueryBuilder<D> implements ILookupQueryBuilder<D> {
 	static private volatile boolean m_lookupWildcardByDefault = true;
 

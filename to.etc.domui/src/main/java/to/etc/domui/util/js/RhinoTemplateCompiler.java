@@ -24,15 +24,22 @@
  */
 package to.etc.domui.util.js;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.mozilla.javascript.Script;
+import org.mozilla.javascript.Scriptable;
+import to.etc.template.IJSTemplateContext;
+import to.etc.template.JSLocationMapping;
+import to.etc.template.JSTemplateError;
 
-import javax.annotation.*;
-import javax.script.*;
-
-import org.mozilla.javascript.*;
-
-import to.etc.template.*;
+import javax.script.ScriptException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This singleton creates a compiled template for a JSP like template. The
@@ -94,7 +101,7 @@ public class RhinoTemplateCompiler {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	public RhinoTemplate compile(Reader input, String sourceName) throws Exception {
 		m_source = sourceName;
 		translate(input);
@@ -113,7 +120,7 @@ public class RhinoTemplateCompiler {
 	 * @return
 	 * @throws Exception
 	 */
-	public RhinoTemplate compile(@Nonnull Class< ? > clz, @Nonnull String resource, @Nullable String encoding) throws Exception {
+	public RhinoTemplate compile(@NonNull Class< ? > clz, @NonNull String resource, @Nullable String encoding) throws Exception {
 		if(null == encoding)
 			encoding = "utf-8";
 

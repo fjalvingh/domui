@@ -24,7 +24,7 @@
  */
 package to.etc.domui.databinding.observables;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.util.*;
 
@@ -43,7 +43,7 @@ public class ObservableBoolean extends ObservableValue<Boolean> {
 		super(Boolean.valueOf(value));
 	}
 
-	public ObservableBoolean(@Nonnull Boolean value) {
+	public ObservableBoolean(@NonNull Boolean value) {
 		super(value);
 	}
 

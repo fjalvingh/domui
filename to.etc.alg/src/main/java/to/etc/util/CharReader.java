@@ -1,8 +1,9 @@
 package to.etc.util;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.io.IOException;
+import java.io.Reader;
 
 /**
  * A character stream wrapped around (part of) a character array.
@@ -17,13 +18,13 @@ public class CharReader extends Reader {
 
 	private int				m_eoff;
 
-	public CharReader(@Nonnull char[] data) {
+	public CharReader(@NonNull char[] data) {
 		m_data = data;
 		m_soff = 0;
 		m_eoff = data.length;
 	}
 
-	public CharReader(@Nonnull char[] data, int soff, int eoff) {
+	public CharReader(@NonNull char[] data, int soff, int eoff) {
 		m_data = data;
 		m_soff = soff;
 		m_eoff = eoff;

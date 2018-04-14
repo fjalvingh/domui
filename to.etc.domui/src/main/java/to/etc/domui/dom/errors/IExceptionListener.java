@@ -24,11 +24,12 @@
  */
 package to.etc.domui.dom.errors;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.server.IRequestContext;
 
 public interface IExceptionListener {
-	boolean handleException(@Nonnull IRequestContext ctx, @Nonnull Page pg, @Nullable NodeBase source, @Nonnull Throwable t) throws Exception;
+	boolean handleException(@NonNull IRequestContext ctx, @NonNull Page pg, @Nullable NodeBase source, @NonNull Throwable t) throws Exception;
 }

@@ -1,13 +1,12 @@
 package to.etc.domui.component.binding;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IValueAccessor;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This is a binding that "translates" a model property into a css style on the component, using
@@ -17,10 +16,10 @@ import javax.annotation.Nullable;
  * Created on 12/10/14.
  */
 final public class StyleBinding implements IBinding {
-	@Nonnull
+	@NonNull
 	private final StyleBinder m_styleBinder;
 
-	@Nonnull
+	@NonNull
 	private final NodeBase m_component;
 
 	/** The instance bound to */
@@ -34,13 +33,13 @@ final public class StyleBinding implements IBinding {
 	@Nullable
 	private String m_previousStyle;
 
-	StyleBinding(@Nonnull StyleBinder styleBinder, @Nonnull NodeBase component) {
+	StyleBinding(@NonNull StyleBinder styleBinder, @NonNull NodeBase component) {
 		m_styleBinder = styleBinder;
 		m_component = component;
 	}
 
-	@Nonnull
-	public <T, P> StyleBinder to(@Nonnull T instance, @Nonnull IValueAccessor<P> property) throws Exception {
+	@NonNull
+	public <T, P> StyleBinder to(@NonNull T instance, @NonNull IValueAccessor<P> property) throws Exception {
 		m_instance = instance;
 		m_instanceProperty = property;
 		m_component.addBinding(this);
@@ -48,8 +47,8 @@ final public class StyleBinding implements IBinding {
 		return m_styleBinder;
 	}
 
-	@Nonnull
-	public <T> StyleBinder	to(@Nonnull T instance, @Nonnull String property) throws Exception {
+	@NonNull
+	public <T> StyleBinder	to(@NonNull T instance, @NonNull String property) throws Exception {
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 	}
 

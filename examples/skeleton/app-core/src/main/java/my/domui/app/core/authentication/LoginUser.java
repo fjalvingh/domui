@@ -9,8 +9,8 @@ import to.etc.domui.state.UIContext;
 import to.etc.webapp.query.QDataContext;
 
 import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -21,12 +21,12 @@ import java.util.Set;
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
-@DefaultNonNull
+@NonNullByDefault
 public class LoginUser implements IUser {
-	@Nonnull
+	@NonNull
 	private final String m_loginName;
 
-	@Nonnull
+	@NonNull
 	final private DbUser m_user;
 
 	/** Set when user has ADMIN right so all other checks are unneeded. */
@@ -38,7 +38,7 @@ public class LoginUser implements IUser {
 
 	private final Set<DbPermission> m_permissionSet;
 
-	public LoginUser(QDataContext dc, @Nonnull final DbUser p) {
+	public LoginUser(QDataContext dc, @NonNull final DbUser p) {
 		m_user = p;
 		m_loginName = p.getEmail();
 
@@ -64,8 +64,8 @@ public class LoginUser implements IUser {
 		m_groupSet = Collections.unmodifiableSet(groupSet);
 	}
 
-	@Nonnull
-	static public LoginUser create(@Nonnull QDataContext dc, @Nonnull DbUser whom) throws Exception {
+	@NonNull
+	static public LoginUser create(@NonNull QDataContext dc, @NonNull DbUser whom) throws Exception {
 		return new LoginUser(dc, whom);
 	}
 
@@ -80,12 +80,12 @@ public class LoginUser implements IUser {
 		return lu == null ? null : lu.getUser();
 	}
 
-	@Nonnull
+	@NonNull
 	static public LoginUser	getCurrent() {
 		return (LoginUser) UIContext.getLoggedInUser();
 	}
 
-	@Nonnull
+	@NonNull
 	static public DbUser getCurrentUser() {
 		LoginUser lu = getCurrent();
 		return lu.getUser();
@@ -96,7 +96,7 @@ public class LoginUser implements IUser {
 		return m_loginName;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String getDisplayName() {
 		DbUser user = m_user;
@@ -113,7 +113,7 @@ public class LoginUser implements IUser {
 	 * @see to.etc.domui.login.IUser#hasRight(String)
 	 */
 	@Override
-	public boolean hasRight(@Nonnull String r) {
+	public boolean hasRight(@NonNull String r) {
 		return m_permissionNameSet.contains(r) || m_permissionNameSet.contains(Rights.ADMIN);
 	}
 
@@ -122,7 +122,7 @@ public class LoginUser implements IUser {
 	 * @see to.etc.domui.login.IUser#hasRight(String, Object)
 	 */
 	@Override
-	public <T> boolean hasRight(@Nonnull String r, @Nullable T dataElement) {
+	public <T> boolean hasRight(@NonNull String r, @Nullable T dataElement) {
 		return true;
 	}
 

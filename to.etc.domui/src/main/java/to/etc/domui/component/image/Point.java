@@ -1,6 +1,6 @@
 package to.etc.domui.component.image;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class Point {
 	private final int m_x;
@@ -19,7 +19,7 @@ public class Point {
 	public int getY() {
 		return m_y;
 	}
-	@Nonnull
+	@NonNull
 	public Point move(int dx, int dy) {
 		return new Point(m_x + dx, m_y + dy);
 	}

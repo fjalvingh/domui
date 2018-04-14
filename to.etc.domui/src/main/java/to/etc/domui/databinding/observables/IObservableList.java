@@ -1,11 +1,13 @@
 package to.etc.domui.databinding.observables;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.databinding.IObservable;
+import to.etc.domui.databinding.list2.IListChangeListener;
+import to.etc.domui.databinding.list2.ListChangeEvent;
 
-import javax.annotation.*;
-
-import to.etc.domui.databinding.*;
-import to.etc.domui.databinding.list2.*;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This extension to the List interface describes a list that can be Observed, and which sends "updates" for
@@ -17,14 +19,14 @@ import to.etc.domui.databinding.list2.*;
  */
 public interface IObservableList<T> extends List<T>, IObservable<T, ListChangeEvent<T>, IListChangeListener<T>> {
 	@Override
-	@Nonnull
+	@NonNull
 	Iterator<T> iterator();
 
 	@Override
 	boolean add(T item);
 
 	@Override
-	@Nonnull
+	@NonNull
 	T get(int index);
 
 	@Override
@@ -37,7 +39,7 @@ public interface IObservableList<T> extends List<T>, IObservable<T, ListChangeEv
 	@Override
 	T remove(int index);
 
-	@Nonnull
+	@NonNull
 	@Override
 	List<T> subList(int fromIndex, int toIndex);
 }

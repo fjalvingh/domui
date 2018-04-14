@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
@@ -37,8 +39,6 @@ import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +79,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 	private Div m_buttonDiv;
 
-	@Nonnull
+	@NonNull
 	private List<SmallImgButton> m_extraButtonList = new ArrayList<SmallImgButton>();
 
 	public DataPager() {}
@@ -126,7 +126,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		m_buttonDiv.add(m_lastBtn);
 
 		m_buttonDiv.add("\u00a0\u00a0");
-		for(@Nonnull SmallImgButton sib : m_extraButtonList) {
+		for(@NonNull SmallImgButton sib : m_extraButtonList) {
 			m_buttonDiv.add(sib);
 		}
 
@@ -135,13 +135,13 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		//-- Click handlers for paging.
 		m_firstBtn.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final @Nonnull NodeBase b) throws Exception {
+			public void clicked(final @NonNull NodeBase b) throws Exception {
 				m_table.setCurrentPage(0);
 			}
 		});
 		m_lastBtn.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final @Nonnull NodeBase b) throws Exception {
+			public void clicked(final @NonNull NodeBase b) throws Exception {
 				int pg = m_table.getPageCount();
 				if(pg == 0)
 					return;
@@ -150,7 +150,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		});
 		m_prevBtn.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final @Nonnull NodeBase b) throws Exception {
+			public void clicked(final @NonNull NodeBase b) throws Exception {
 				int cp = m_table.getCurrentPage();
 				if(cp <= 0)
 					return;
@@ -159,7 +159,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		});
 		m_nextBtn.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(final @Nonnull NodeBase b) throws Exception {
+			public void clicked(final @NonNull NodeBase b) throws Exception {
 				int cp = m_table.getCurrentPage();
 				int mx = m_table.getPageCount();
 				cp++;
@@ -205,7 +205,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	}
 
 	@Override
-	public void selectionUIChanged(@Nonnull TableModelTableBase< ? > tbl) throws Exception {
+	public void selectionUIChanged(@NonNull TableModelTableBase< ? > tbl) throws Exception {
 		redraw();
 	}
 
@@ -277,7 +277,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 				m_buttonDiv.add(4, m_showSelectionBtn); // Always after last navigation button
 				m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+					public void clicked(@NonNull NodeBase clickednode) throws Exception {
 						dt.setShowSelection(true);
 						clickednode.remove();
 						m_showSelectionBtn = null;
@@ -300,7 +300,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	public void addButton(final String image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
 		SmallImgButton i = new SmallImgButton(image, new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(final @Nonnull SmallImgButton b) throws Exception {
+			public void clicked(final @NonNull SmallImgButton b) throws Exception {
 				click.clicked(DataPager.this);
 			}
 		});
@@ -315,14 +315,14 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	/*	CODING:	DataTableChangeListener implementation.				*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public void modelChanged(final @Nonnull TableModelTableBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
+	public void modelChanged(final @NonNull TableModelTableBase< ? > tbl, final @Nullable ITableModel< ? > old, final @Nullable ITableModel< ? > nw) throws Exception {
 		forceRebuild();										// jal See bugzilla 7383: table queries done twice
 		m_buttonDiv = null;									// Odd thing indicating that control is unbuilt, apparently
 		//redraw();
 	}
 
 	@Override
-	public void pageChanged(final @Nonnull TableModelTableBase< ? > tbl) throws Exception {
+	public void pageChanged(final @NonNull TableModelTableBase< ? > tbl) throws Exception {
 		redraw();
 	}
 
@@ -337,12 +337,12 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		forceRebuild();
 	}
 
-	public void addButton(@Nonnull SmallImgButton sib) {
+	public void addButton(@NonNull SmallImgButton sib) {
 		m_extraButtonList.add(sib);
 		forceRebuild();
 	}
 
-	public void addButton(@Nonnull String img, @Nonnull IClicked<SmallImgButton> clicked) {
+	public void addButton(@NonNull String img, @NonNull IClicked<SmallImgButton> clicked) {
 		m_extraButtonList.add(new SmallImgButton(img, clicked));
 	}
 }

@@ -1,8 +1,7 @@
 package to.etc.webapp.query;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.webapp.annotations.GProperty;
-
-import javax.annotation.Nonnull;
 
 /**
  * Helper class to create joins between nested master and subqueries.
@@ -11,13 +10,13 @@ import javax.annotation.Nonnull;
  * Created on Apr 12, 2013
  */
 public class QJoiner<A, P, T> {
-	@Nonnull
+	@NonNull
 	final private QRestrictor<A, ?> m_parent;
 
-	@Nonnull
+	@NonNull
 	final private QSubQuery<T, P> m_subQuery;
 
-	protected QJoiner(@Nonnull QRestrictor<A, ?> parent, @Nonnull QSubQuery<T, P> qSubQuery) {
+	protected QJoiner(@NonNull QRestrictor<A, ?> parent, @NonNull QSubQuery<T, P> qSubQuery) {
 		m_parent = parent;
 		m_subQuery = qSubQuery;
 	}
@@ -29,7 +28,7 @@ public class QJoiner<A, P, T> {
 	 * @param parentProperty
 	 * @param property
 	 */
-	public QJoiner<A, P, T> eq(@Nonnull @GProperty("A") String parentProperty, @Nonnull @GProperty("T") String property) {
+	public QJoiner<A, P, T> eq(@NonNull @GProperty("A") String parentProperty, @NonNull @GProperty("T") String property) {
 		m_subQuery.add(new QPropertyJoinComparison(QOperation.EQ, parentProperty, property));
 		return this;
 	}
@@ -39,7 +38,7 @@ public class QJoiner<A, P, T> {
 	 * @param parentProperty
 	 * @param property
 	 */
-	public QJoiner<A, P, T> ne(@Nonnull @GProperty("A") String parentProperty, @Nonnull @GProperty("T") String property) {
+	public QJoiner<A, P, T> ne(@NonNull @GProperty("A") String parentProperty, @NonNull @GProperty("T") String property) {
 		m_subQuery.add(new QPropertyJoinComparison(QOperation.NE, parentProperty, property));
 		return this;
 	}
@@ -49,7 +48,7 @@ public class QJoiner<A, P, T> {
 	 * @param parentProperty
 	 * @param property
 	 */
-	public QJoiner<A, P, T> lt(@Nonnull @GProperty("A") String parentProperty, @Nonnull @GProperty("T") String property) {
+	public QJoiner<A, P, T> lt(@NonNull @GProperty("A") String parentProperty, @NonNull @GProperty("T") String property) {
 		m_subQuery.add(new QPropertyJoinComparison(QOperation.LT, parentProperty, property));
 		return this;
 	}
@@ -59,7 +58,7 @@ public class QJoiner<A, P, T> {
 	 * @param parentProperty
 	 * @param property
 	 */
-	public QJoiner<A, P, T> le(@Nonnull @GProperty("A") String parentProperty, @Nonnull @GProperty("T") String property) {
+	public QJoiner<A, P, T> le(@NonNull @GProperty("A") String parentProperty, @NonNull @GProperty("T") String property) {
 		m_subQuery.add(new QPropertyJoinComparison(QOperation.LE, parentProperty, property));
 		return this;
 	}
@@ -69,7 +68,7 @@ public class QJoiner<A, P, T> {
 	 * @param parentProperty
 	 * @param property
 	 */
-	public QJoiner<A, P, T> gt(@Nonnull @GProperty("A") String parentProperty, @Nonnull @GProperty("T") String property) {
+	public QJoiner<A, P, T> gt(@NonNull @GProperty("A") String parentProperty, @NonNull @GProperty("T") String property) {
 		m_subQuery.add(new QPropertyJoinComparison(QOperation.GT, parentProperty, property));
 		return this;
 	}
@@ -79,7 +78,7 @@ public class QJoiner<A, P, T> {
 	 * @param parentProperty
 	 * @param property
 	 */
-	public QJoiner<A, P, T> ge(@Nonnull @GProperty("A") String parentProperty, @Nonnull @GProperty("T") String property) {
+	public QJoiner<A, P, T> ge(@NonNull @GProperty("A") String parentProperty, @NonNull @GProperty("T") String property) {
 		m_subQuery.add(new QPropertyJoinComparison(QOperation.GE, parentProperty, property));
 		return this;
 	}

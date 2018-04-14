@@ -24,14 +24,20 @@
  */
 package to.etc.net;
 
-import org.w3c.dom.*;
-import to.etc.util.*;
-import to.etc.xml.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.w3c.dom.Document;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.xml.DomTools;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-import java.io.*;
-import java.net.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.HttpURLConnection;
+import java.net.InetAddress;
+import java.net.URL;
 
 /**
  * Utilities for net access.
@@ -176,8 +182,8 @@ final public class NetTools {
 	 * @param req
 	 * @return
 	 */
-	@Nonnull
-	static public String getApplicationURL(@Nonnull HttpServletRequest req) {
+	@NonNull
+	static public String getApplicationURL(@NonNull HttpServletRequest req) {
 		String hu = getHostURL(req);
 		String ctx = req.getContextPath();
 		if(ctx.length() == 0) // Is this the root application?

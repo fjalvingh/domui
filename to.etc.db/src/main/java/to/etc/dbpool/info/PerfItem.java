@@ -24,7 +24,8 @@
  */
 package to.etc.dbpool.info;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * This encapsulates a single stored performance metric of a given type and key.
@@ -34,7 +35,7 @@ import javax.annotation.*;
  */
 public class PerfItem {
 	/** The key to use to prevent duplicates in the list, like screen name or sql statement. */
-	@Nonnull
+	@NonNull
 	final private String m_key;
 
 	/** If applicable, an ident for the request that caused this metric. This is usually the complete URL for web requests. */
@@ -48,14 +49,14 @@ public class PerfItem {
 	/** The actual value used to sort this in the top-xxx list. */
 	final private long m_metric;
 
-	public PerfItem(@Nonnull String key, long metric, @Nullable String request, @Nullable Object data) {
+	public PerfItem(@NonNull String key, long metric, @Nullable String request, @Nullable Object data) {
 		m_key = key;
 		m_metric = metric;
 		m_data = data;
 		m_request = request;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getKey() {
 		return m_key;
 	}

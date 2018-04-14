@@ -1,10 +1,14 @@
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.IIdentifyable;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Example implementation of a simple selection model, retaining only the instances key.
@@ -41,7 +45,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 	}
 
 	@Override
-	public boolean isSelected(@Nonnull T rowinstance) {
+	public boolean isSelected(@NonNull T rowinstance) {
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
 		return m_selectedSet.containsKey(getKey(rowinstance));
@@ -55,7 +59,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 	 * @param rowinstance
 	 * @return
 	 */
-	public K getKey(@Nonnull T rowinstance) {
+	public K getKey(@NonNull T rowinstance) {
 		if(rowinstance instanceof IIdentifyable< ? >) {
 			return ((IIdentifyable<K>) rowinstance).getId();
 		} else if(null == rowinstance) // Should not happen.
@@ -69,7 +73,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 	}
 
 	@Override
-	public void setInstanceSelected(@Nonnull T rowinstance, boolean on) throws Exception {
+	public void setInstanceSelected(@NonNull T rowinstance, boolean on) throws Exception {
 		if(null == rowinstance) // Should not happen.
 			throw new IllegalArgumentException("null row");
 

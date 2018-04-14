@@ -1,6 +1,7 @@
 package to.etc.domui.state;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 
 public interface IPageParameters {
@@ -128,7 +129,7 @@ public interface IPageParameters {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a String
 	 */
-	@Nonnull String getString(String name);
+	@NonNull String getString(String name);
 
 	/**
 	 * Gets the value for the specified parametername as a String object.
@@ -150,15 +151,15 @@ public interface IPageParameters {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a String
 	 */
-	@Nonnull String[] getStringArray(@Nonnull String name);
+	@NonNull String[] getStringArray(@NonNull String name);
 
-	@Nullable String[] getStringArray(@Nonnull String name, @Nullable String[] deflt);
+	@Nullable String[] getStringArray(@NonNull String name, @Nullable String[] deflt);
 
 	/**
 	 * Gets all the names of the parameters this object is holding
 	 * @return the parameter names in an array
 	 */
-	@Nonnull String[] getParameterNames();
+	@NonNull String[] getParameterNames();
 
 	/**
 	 * Compare this with another instance. Used to see that a new request has different parameters
@@ -178,7 +179,7 @@ public interface IPageParameters {
 	 * EXPENSIVE Hash all parameter values into an MD5 hash. This must be repeatable so same parameters get the same hash code.
 	 * @return
 	 */
-	@Nonnull String calculateHashString();
+	@NonNull String calculateHashString();
 
 	/**
 	 * Return the number of characters that this would take on an url.

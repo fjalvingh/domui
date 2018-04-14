@@ -24,10 +24,11 @@
  */
 package to.etc.domui.util.js;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.Reader;
+import java.util.List;
 
 public interface IScriptScope {
 	/**
@@ -37,45 +38,45 @@ public interface IScriptScope {
 	 * @return
 	 */
 	@Nullable
-	<T> T getValue(@Nonnull Class<T> valueClass, @Nonnull String name);
+	<T> T getValue(@NonNull Class<T> valueClass, @NonNull String name);
 
 	/**
 	 * Put a simple value inside the scope.
 	 * @param name
 	 * @param instance
 	 */
-	<T> void put(@Nonnull String name, @Nullable T instance);
+	<T> void put(@NonNull String name, @Nullable T instance);
 
 	/**
 	 * Get all properties of this object.
 	 * @param filterClass
 	 * @return
 	 */
-	@Nonnull
-	<T> List<T> getProperties(@Nonnull Class<T> filterClass);
+	@NonNull
+	<T> List<T> getProperties(@NonNull Class<T> filterClass);
 
 	/**
 	 * Create a new object property inside this one, with the specified name.
 	 * @param name
 	 * @return
 	 */
-	@Nonnull
-	IScriptScope addObjectProperty(@Nonnull String name);
+	@NonNull
+	IScriptScope addObjectProperty(@NonNull String name);
 
 	@Nullable
-	<T> T eval(@Nonnull Class<T> targetType, @Nonnull Reader r, @Nonnull String sourceFileNameIndicator) throws Exception;
+	<T> T eval(@NonNull Class<T> targetType, @NonNull Reader r, @NonNull String sourceFileNameIndicator) throws Exception;
 
 	@Nullable
-	<T> T eval(@Nonnull Class<T> targetType, @Nonnull String expression, @Nonnull String sourceFileNameIndicator) throws Exception;
+	<T> T eval(@NonNull Class<T> targetType, @NonNull String expression, @NonNull String sourceFileNameIndicator) throws Exception;
 
 	/**
 	* Create a new writable scope that has this scope as the "delegate". This new scope
 	* is writable.
 	* @return
 	*/
-	@Nonnull
+	@NonNull
 	IScriptScope newScope();
 
 	@Nullable
-	<T> T getAdapter(@Nonnull Class<T> clz);
+	<T> T getAdapter(@NonNull Class<T> clz);
 }

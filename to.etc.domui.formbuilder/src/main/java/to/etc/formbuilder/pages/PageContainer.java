@@ -1,8 +1,10 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Registers all components on the page.
@@ -13,11 +15,11 @@ import javax.annotation.*;
 public class PageContainer {
 	private int m_idcounter;
 
-	@Nonnull
+	@NonNull
 	final private Map<String, ComponentInstance> m_instanceMap = new HashMap<String, ComponentInstance>();
 
-	@Nonnull
-	public ComponentInstance createComponent(@Nonnull IFbComponent type) {
+	@NonNull
+	public ComponentInstance createComponent(@NonNull IFbComponent type) {
 		if(type instanceof IFbLayout)
 			return createLayout((IFbLayout) type);
 
@@ -27,8 +29,8 @@ public class PageContainer {
 		return ci;
 	}
 
-	@Nonnull
-	public LayoutInstance createLayout(@Nonnull IFbLayout type) {
+	@NonNull
+	public LayoutInstance createLayout(@NonNull IFbLayout type) {
 		String nextid = "L" + (m_idcounter++);
 		LayoutInstance ci = new LayoutInstance(this, nextid, type);
 		m_instanceMap.put(nextid, ci);
@@ -36,12 +38,12 @@ public class PageContainer {
 	}
 
 	@Nullable
-	public ComponentInstance findComponent(@Nonnull String id) {
+	public ComponentInstance findComponent(@NonNull String id) {
 		return m_instanceMap.get(id);
 	}
 
-	@Nonnull
-	public ComponentInstance getComponent(@Nonnull String id) {
+	@NonNull
+	public ComponentInstance getComponent(@NonNull String id) {
 		ComponentInstance ci = findComponent(id);
 		if(null == ci)
 			throw new IllegalStateException("Form Component[" + id + "] not found");

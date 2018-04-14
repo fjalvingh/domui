@@ -1,6 +1,7 @@
 package to.etc.domui.component.delayed;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Listener interface for asynchronous UI actions. Used to collect and restore context information
@@ -19,9 +20,9 @@ public interface IAsyncListener<T> {
 	 * @throws Exception
 	 */
 	@Nullable
-	T onActivityScheduled(@Nonnull IAsyncRunnable runnable) throws Exception;
+	T onActivityScheduled(@NonNull IAsyncRunnable runnable) throws Exception;
 
-	void onActivityStart(@Nonnull IAsyncRunnable runnable, @Nullable T contextData) throws Exception;
+	void onActivityStart(@NonNull IAsyncRunnable runnable, @Nullable T contextData) throws Exception;
 
-	void onActivityEnd(@Nonnull IAsyncRunnable runnable, @Nullable T contextData) throws Exception;
+	void onActivityEnd(@NonNull IAsyncRunnable runnable, @Nullable T contextData) throws Exception;
 }

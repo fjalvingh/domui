@@ -28,6 +28,7 @@ import com.github.javaparser.ast.type.PrimitiveType.Primitive;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Node;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbPrimaryKey;
@@ -37,7 +38,6 @@ import to.etc.dbutil.schema.DbTable;
 import to.etc.dbutil.schema.FieldPair;
 import to.etc.xml.DomTools;
 
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

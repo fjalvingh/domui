@@ -1,26 +1,29 @@
 package to.etc.domui.component.lookup;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.binding.OldBindingHandler;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.input.TextStr;
+import to.etc.domui.component.layout.Dialog;
+import to.etc.domui.component.lookup.filter.LookupFilterTranslator;
+import to.etc.domui.component.misc.MessageFlare;
+import to.etc.domui.component2.form4.FormBuilder;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IExecute;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.CodeException;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.binding.*;
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.lookup.filter.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component2.form4.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since 1/25/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 public final class SaveSearchFilterDialog extends Dialog {
 
 	private final ILookupFilterHandler m_lookupFilterHandler;

@@ -1,6 +1,6 @@
 package to.etc.domui.util.resources;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Collects dependencies.
@@ -17,23 +17,23 @@ public interface IResourceDependencyList {
 	 *
 	 * @param ref
 	 */
-	void add(@Nonnull IResourceRef ref);
+	void add(@NonNull IResourceRef ref);
 
 	/**
 	 * Add a IIsModified instance.
 	 * @param m
 	 */
-	void add(@Nonnull IIsModified m);
+	void add(@NonNull IIsModified m);
 
 	/**
 	 * Add an {@link IModifyableResource} instance.
 	 * @param m
 	 */
-	void add(@Nonnull IModifyableResource c);
+	void add(@NonNull IModifyableResource c);
 
 	//	/**
 	//	 * Add another list of resources to this one.
 	//	 * @param c
 	//	 */
-	//	public abstract void add(@Nonnull ResourceDependencyList c);
+	//	public abstract void add(@NonNull ResourceDependencyList c);
 }

@@ -24,11 +24,13 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.IShelvedListener;
 
-import javax.annotation.*;
-
-import to.etc.domui.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * DEPRECATED Use SimpleListModel instead. The SimpleCollectionModel is a very basic model that directly represents a collection.
@@ -79,7 +81,7 @@ public class SimpleCollectionModel<T> extends TableModelBase<T> implements IShel
 
 	//	@SuppressWarnings("unchecked")
 	@Override
-	public @Nonnull List<T> getItems(int start, int end) throws Exception {
+	public @NonNull List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
 		if(start < 0)
 			start = 0;

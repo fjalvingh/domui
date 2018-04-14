@@ -1,19 +1,18 @@
 package to.etc.domui.dom;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.IRequestContext;
-
-import javax.annotation.Nonnull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-3-18.
  */
 public interface IContributorRenderer {
-	@Nonnull IBrowserOutput o();
+	@NonNull IBrowserOutput o();
 
-	@Nonnull IRequestContext ctx();
+	@NonNull IRequestContext ctx();
 
-	void renderLoadCSS(@Nonnull String path) throws Exception;
+	void renderLoadCSS(@NonNull String path) throws Exception;
 
-	void renderLoadJavascript(@Nonnull String path) throws Exception;
+	void renderLoadJavascript(@NonNull String path) throws Exception;
 }

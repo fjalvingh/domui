@@ -1,10 +1,11 @@
 package to.etc.webapp.qsql;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QSelection;
+import to.etc.webapp.query.QSelectionColumn;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import java.sql.ResultSet;
 
 /**
  * Extracts count selection result from result set as first integer type column value.
@@ -15,16 +16,16 @@ import to.etc.webapp.query.*;
  */
 public class SelectorColumnsResultMaker implements IInstanceMaker {
 
-	private final @Nonnull
+	private final @NonNull
 	QSelection< ? > m_selection;
 
-	SelectorColumnsResultMaker(@Nonnull QSelection< ? > selection) {
+	SelectorColumnsResultMaker(@NonNull QSelection< ? > selection) {
 		m_selection = selection;
 	}
 
 	@Override
-	public @Nonnull
-	Object make(@Nonnull QDataContext dc, @Nonnull ResultSet rs) throws Exception {
+	public @NonNull
+	Object make(@NonNull QDataContext dc, @NonNull ResultSet rs) throws Exception {
 		//has to be returned as array of size 1
 		Object[] res = new Object[m_selection.getColumnList().size()];
 		int index = 0;

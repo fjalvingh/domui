@@ -1,5 +1,6 @@
 package to.etc.domui.derbydata.init;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
@@ -7,7 +8,6 @@ import to.etc.util.DeveloperOptions;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.io.File;
 

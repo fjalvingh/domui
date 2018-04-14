@@ -1,6 +1,6 @@
 package to.etc.log;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Defines self-explanatory logger levels.
@@ -21,7 +21,7 @@ public enum Level {
 		return m_code;
 	}
 
-	public boolean includes(@Nonnull Level level) {
+	public boolean includes(@NonNull Level level) {
 		return m_code <= level.getCode();
 	}
 }

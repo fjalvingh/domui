@@ -1,24 +1,24 @@
 package to.etc.json;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.lexer.ReaderScannerBase;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.lexer.*;
-import to.etc.util.*;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class JsonClassType<T> implements ITypeMapping {
 	private Class<T> m_rootClass;
 
 	private Map<String, PropertyMapping> m_map;
 
-	public JsonClassType(@Nonnull Class<T> rootClass) {
+	public JsonClassType(@NonNull Class<T> rootClass) {
 		m_rootClass = rootClass;
 	}
 
 	@Override
-	public void render(@Nonnull JsonWriter w, @Nonnull Object instance) throws Exception {
+	public void render(@NonNull JsonWriter w, @NonNull Object instance) throws Exception {
 		w.write("{");
 		w.nl();
 		w.inc();
@@ -46,7 +46,7 @@ public class JsonClassType<T> implements ITypeMapping {
 	}
 
 	@Override
-	public Object parse(@Nonnull JsonReader reader) throws Exception {
+	public Object parse(@NonNull JsonReader reader) throws Exception {
 		if(reader.getLastToken() != '{') {
 			throw new JsonParseException(reader, this, "Expecting '{' but got " + reader.getLastToken());
 		}
@@ -105,7 +105,7 @@ public class JsonClassType<T> implements ITypeMapping {
 		return instance;
 	}
 
-	public void setMap(@Nonnull Map<String, PropertyMapping> res) {
+	public void setMap(@NonNull Map<String, PropertyMapping> res) {
 		m_map = res;
 	}
 }

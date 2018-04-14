@@ -1,5 +1,7 @@
 package to.etc.domui.component2.lookupinput;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.IQueryManipulator;
 import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -23,8 +25,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 public class DefaultLookupInputDialog<QT, OT> extends Dialog {
@@ -85,13 +85,13 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	 * The metamodel to use to handle the query data in this class. For Javabean data classes this is automatically
 	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
 	 */
-	@Nonnull
+	@NonNull
 	final private ClassMetaModel m_queryMetaModel;
 
 	/**
 	 * The metamodel for output (display) objects.
 	 */
-	@Nonnull
+	@NonNull
 	final private ClassMetaModel m_outputMetaModel;
 
 	/**
@@ -111,7 +111,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	@Nullable
 	private IClicked<DefaultLookupInputDialog<QT, OT>> m_onSelection;
 
-	public DefaultLookupInputDialog(@Nonnull ClassMetaModel queryMetaModel, @Nonnull ClassMetaModel outputMetaModel, @Nonnull ITableModelFactory<QT, OT> modelFactory) {
+	public DefaultLookupInputDialog(@NonNull ClassMetaModel queryMetaModel, @NonNull ClassMetaModel outputMetaModel, @NonNull ITableModelFactory<QT, OT> modelFactory) {
 		m_queryMetaModel = queryMetaModel;
 		m_outputMetaModel = outputMetaModel;
 		m_modelFactory = modelFactory;
@@ -153,7 +153,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		add(lf);
 		//setOnClose(new IWindowClosed() {
 		//	@Override
-		//	public void closed(@Nonnull String closeReason) throws Exception {
+		//	public void closed(@NonNull String closeReason) throws Exception {
 		//		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		//		m_floater = null;
 		//		m_result = null;
@@ -177,7 +177,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		m_initiallyCollapsed = initiallyCollapsed;
 	}
 
-	private void search(@Nonnull SearchPanel<QT> lf) throws Exception {
+	private void search(@NonNull SearchPanel<QT> lf) throws Exception {
 		QCriteria<QT> c = lf.getCriteria();
 		if(c == null)						// Some error has occured?
 			return;							// Don't do anything (errors will have been registered)
@@ -199,20 +199,20 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		setTableQuery(c);
 	}
 
-	private void setTableQuery(@Nonnull QCriteria<QT> qc) throws Exception {
+	private void setTableQuery(@NonNull QCriteria<QT> qc) throws Exception {
 		ITableModel<OT> model = createTableModel(qc);					// Ask derived to convert the query into my output model
 		setResultModel(model);
 	}
 
-	@Nonnull
-	private ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> qc) throws Exception {
+	@NonNull
+	private ITableModel<OT> createTableModel(@NonNull QCriteria<QT> qc) throws Exception {
 		ITableModelFactory<QT, OT> factory = m_modelFactory;
 		if(null == factory)
 			throw new IllegalStateException("Table model factory unset");
 		return factory.createTableModel(getQueryHandler(), qc);
 	}
 
-	private void setResultModel(@Nonnull ITableModel<OT> model) throws Exception {
+	private void setResultModel(@NonNull ITableModel<OT> model) throws Exception {
 		DataTable<OT> dt = m_result;
 		if(dt == null) {
 			//-- We do not yet have a result table -> create one.
@@ -247,7 +247,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	 * Either use the user-specified popup form row renderer or create one using resultColumns or the default metadata.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	private IRowRenderer<OT> getActualFormRowRenderer() {
 		IClickableRowRenderer<OT> actualFormRowRenderer = m_actualFormRowRenderer;
 		if(null == actualFormRowRenderer) {
@@ -260,7 +260,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			//-- Always set a click handler on the row renderer, so we can accept the selected record.
 			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
 				@Override
-				public void cellClicked(@Nonnull OT val) throws Exception {
+				public void cellClicked(@NonNull OT val) throws Exception {
 					rowSelected(val);
 				}
 			});
@@ -274,7 +274,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	 * @param value
 	 * @throws Exception
 	 */
-	protected void rowSelected(@Nonnull OT value) throws Exception {
+	protected void rowSelected(@NonNull OT value) throws Exception {
 		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 		close();
 		setValue(value);
@@ -303,7 +303,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 	 * Add column specs for the full query form's result list, according to the specifications as defined by {@link BasicRowRenderer}.
 	 * @param columns
 	 */
-	public void addFormColumns(@Nonnull Object... columns) {
+	public void addFormColumns(@NonNull Object... columns) {
 		IRowRenderer<OT> rr = getActualFormRowRenderer();
 		if(rr instanceof BasicRowRenderer) {
 			((BasicRowRenderer<OT>) rr).addColumns(columns);
@@ -311,12 +311,12 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			throw new IllegalStateException("The row renderer for the form is set to something else than a BasicRowRenderer.");
 	}
 
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getQueryMetaModel() {
 		return m_queryMetaModel;
 	}
 
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getOutputMetaModel() {
 		return m_outputMetaModel;
 	}
@@ -470,7 +470,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		m_queryManipulator = queryManipulator;
 	}
 
-	@Nonnull
+	@NonNull
 	public IQueryHandler<QT> getQueryHandler() {
 		IQueryHandler<QT> handler = m_queryHandler;
 		if(null == handler)

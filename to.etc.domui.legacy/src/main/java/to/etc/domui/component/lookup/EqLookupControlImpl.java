@@ -24,11 +24,10 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.webapp.query.QCriteria;
-
-import javax.annotation.Nonnull;
 
 /**
  * ILookupControlInstance which uses a generic input control to create an equals criterion
@@ -50,8 +49,8 @@ final public class EqLookupControlImpl<T> extends BaseAbstractLookupControlImpl<
 	}
 
 	@Override
-	@Nonnull
-	public AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception {
+	@NonNull
+	public AppendCriteriaResult appendCriteria(@NonNull QCriteria<?> crit) throws Exception {
 		Object value = m_control.getValue();
 		if(value != null) {
 			crit.eq(m_property, value);

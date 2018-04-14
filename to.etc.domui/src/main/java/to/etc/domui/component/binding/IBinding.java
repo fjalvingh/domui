@@ -1,8 +1,7 @@
 package to.etc.domui.component.binding;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.UIMessage;
-
-import javax.annotation.Nullable;
 
 /**
  * This represents a single "binding", a thing that needs to be updated at server entry

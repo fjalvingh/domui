@@ -24,18 +24,41 @@
  */
 package to.etc.domui.themes.fragmented;
 
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.DefaultThemeVariant;
+import to.etc.domui.themes.ITheme;
+import to.etc.domui.themes.IThemeFactory;
+import to.etc.domui.themes.StyleException;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.js.RhinoExecutor;
+import to.etc.domui.util.js.RhinoExecutorFactory;
+import to.etc.domui.util.js.RhinoTemplate;
+import to.etc.domui.util.js.RhinoTemplateCompiler;
+import to.etc.domui.util.resources.ClasspathInventory;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencies;
+import to.etc.domui.util.resources.ResourceDependencyList;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import static to.etc.domui.util.DomUtil.*;
+import static to.etc.domui.util.DomUtil.nullChecked;
 
 /**
  * <p>This theme factory uses fragments to create a "theme". A DomUI theme consists of the following:
@@ -78,21 +101,21 @@ import static to.etc.domui.util.DomUtil.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 5, 2011
  */
-@DefaultNonNull
+@NonNullByDefault
 public class FragmentedThemeFactory {
 	static private final IThemeFactory INSTANCE = new IThemeFactory() {
-		@Nonnull
+		@NonNull
 		@Override
-		public ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
+		public ITheme getTheme(@NonNull DomApplication da, @NonNull String themeName) throws Exception {
 			FragmentedThemeFactory stf = new FragmentedThemeFactory(da, themeName);
 			return stf.createTheme();
 		}
 
-		@Nonnull @Override public String getFactoryName() {
+		@NonNull @Override public String getFactoryName() {
 			return "fragmented";
 		}
 
-		@Nonnull @Override public String getDefaultThemeName() {
+		@NonNull @Override public String getDefaultThemeName() {
 			return getFactoryName() + "-domui-orange-domui";
 		}
 	};
@@ -131,7 +154,7 @@ public class FragmentedThemeFactory {
 	 * Get the shared executor and scope. If it does not yet exist it is created.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	protected RhinoExecutor executor() throws Exception {
 		RhinoExecutor executor = m_executor;
 		if(null == executor) {
@@ -474,7 +497,7 @@ public class FragmentedThemeFactory {
 	}
 
 	@Nullable
-	protected IResourceRef findRef(@Nonnull IResourceDependencyList rdl, @Nonnull String rurl) throws Exception {
+	protected IResourceRef findRef(@NonNull IResourceDependencyList rdl, @NonNull String rurl) throws Exception {
 		try {
 			IResourceRef ires = m_application.getResource(rurl, rdl); // Get the source file, abort if not found
 			return ires;

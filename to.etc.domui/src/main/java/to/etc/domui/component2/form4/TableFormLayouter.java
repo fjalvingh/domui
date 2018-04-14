@@ -1,5 +1,6 @@
 package to.etc.domui.component2.form4;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -8,14 +9,12 @@ import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 
-import javax.annotation.Nonnull;
-
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 6-3-18.
  */
 public class TableFormLayouter implements IFormLayouter {
-	@Nonnull
+	@NonNull
 	final private FormBuilder.IAppender m_appender;
 
 	private boolean m_horizontal;
@@ -28,7 +27,7 @@ public class TableFormLayouter implements IFormLayouter {
 
 	private TR m_controlRow;
 
-	public TableFormLayouter(@Nonnull FormBuilder.IAppender appender) {
+	public TableFormLayouter(@NonNull FormBuilder.IAppender appender) {
 		m_appender = appender;
 	}
 
@@ -45,7 +44,7 @@ public class TableFormLayouter implements IFormLayouter {
 		m_controlRow = null;
 	}
 
-	@Nonnull
+	@NonNull
 	public TBody body() {
 		if(m_body == null) {
 			Table tbl = m_table = new Table();
@@ -136,7 +135,7 @@ public class TableFormLayouter implements IFormLayouter {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private TR controlRow() {
 		TR row = m_controlRow;
 		if(null == row) {
@@ -146,7 +145,7 @@ public class TableFormLayouter implements IFormLayouter {
 		return row;
 	}
 
-	@Nonnull
+	@NonNull
 	private TR labelRow() {
 		TR row = m_labelRow;
 		if(null == row) {

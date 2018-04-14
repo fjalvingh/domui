@@ -24,10 +24,9 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.IRenderNBSPIfEmpty;
+import to.etc.domui.util.DomUtil;
 
 public class TD extends NodeContainer implements IRenderNBSPIfEmpty {
 	private TableVAlign m_valign;
@@ -57,7 +56,7 @@ public class TD extends NodeContainer implements IRenderNBSPIfEmpty {
 		v.visitTD(this);
 	}
 
-	@Nonnull
+	@NonNull
 	public Table getTable() {
 		return getParent(Table.class);
 	}

@@ -1,11 +1,19 @@
 package to.etc.domui.component.meta;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-@DefaultNonNull
+@NonNullByDefault
 class MetaObjectCopyBase<T> {
 	final private T m_source;
 
@@ -24,7 +32,7 @@ class MetaObjectCopyBase<T> {
 
 	private Map<String, Mode> m_modeMap = new HashMap<>();
 
-	@Nonnull
+	@NonNull
 	private Map<Object, Object> m_old2newmap = new HashMap<>();
 
 	private int m_copies;

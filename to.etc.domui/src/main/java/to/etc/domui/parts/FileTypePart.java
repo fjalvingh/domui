@@ -24,6 +24,7 @@
  */
 package to.etc.domui.parts;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
@@ -31,7 +32,6 @@ import to.etc.domui.server.parts.PartResponse;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.FileTool;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -44,12 +44,12 @@ public class FileTypePart implements IBufferedPartFactory<String> {
 	 * the resource name preceded with a prefix to make it unique.
 	 */
 	@Override
-	public @Nonnull String decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @NonNull String decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
 		return PREFIX + param.getInputPath();
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull String key, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull String key, @NonNull IResourceDependencyList rdl) throws Exception {
 		String ext = key.substring(PREFIX.length()).toLowerCase();
 
 		//-- Can we locate a filetype of that type in the web resources?

@@ -14,6 +14,8 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.VoidType;
 import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -23,8 +25,6 @@ import to.etc.dbutil.schema.DbTable;
 import to.etc.util.FileTool;
 import to.etc.xml.DomTools;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -888,7 +888,7 @@ abstract public class AbstractGenerator {
 	 * @return
 	 */
 	@Nullable
-	public DbTable findTableByNames(@Nullable String schemaName, @Nonnull String tableName) {
+	public DbTable findTableByNames(@Nullable String schemaName, @NonNull String tableName) {
 		if(schemaName == null) {
 			//-- Is there a schema in the table name, perhaps?
 			String[] ar = tableName.split("\\.");

@@ -1,6 +1,7 @@
 package to.etc.webapp.eventmanager;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Marshal event to string, ready for storing into database as varchar, and
@@ -20,7 +21,7 @@ public interface IEventMarshaller {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable <T extends AppEventBase> T unmarshalEvent(@Nonnull String varchar) throws Exception;
+	@Nullable <T extends AppEventBase> T unmarshalEvent(@NonNull String varchar) throws Exception;
 
 	/**
 	 * Convert formated string from provided event
@@ -28,6 +29,6 @@ public interface IEventMarshaller {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull String marshalEvent(@Nonnull AppEventBase event) throws Exception;
+	@NonNull String marshalEvent(@NonNull AppEventBase event) throws Exception;
 
 }

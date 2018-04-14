@@ -1,10 +1,10 @@
 package to.etc.domui.server;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.login.IUser;
 import to.etc.domui.login.UILogin;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 final public class DefaultLoginDeterminator implements ILoginDeterminator {
 	@Override
 	@Nullable
-	public String getLoginData(@Nonnull HttpServletRequest req) throws Exception {
+	public String getLoginData(@NonNull HttpServletRequest req) throws Exception {
 		//-- Decode: input must be for a logged-on user and for a .jsp/.ajax.
 		String remoteUser = req.getRemoteUser();
 		if(remoteUser == null || remoteUser.length() == 0) {

@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.menu;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIMenu;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
@@ -32,7 +33,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;

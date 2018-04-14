@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.form;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
@@ -31,9 +33,6 @@ import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IReadOnlyModel;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Deprecated: use {@link to.etc.domui.component2.form4.FormBuilder}.
@@ -213,7 +212,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	 * Add a new row to the current body; create a body (and a table) if necessary. The row becomes the "last row".
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public TR addRow() {
 		m_lastUsedRow = tbody().addRow();
 		onRowAdded(m_lastUsedRow);
@@ -225,7 +224,7 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	 * table if needed.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public TR row() {
 		if(m_lastUsedRow == null)
 			addRow();
@@ -258,23 +257,23 @@ abstract public class GenericTableFormBuilder extends GenericFormBuilder {
 	 * Add a new cell to the last-used row.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public TD addCell() {
 		return /* m_lastUsedCell = */row().addCell();
 	}
 
-	@Nonnull
+	@NonNull
 	public TD addCell(String css) {
 		return /* m_lastUsedCell = */row().addCell(css);
 	}
 
-	@Nonnull
+	@NonNull
 	public TD addRowAndCell() {
 		addRow();
 		return addCell();
 	}
 
-	@Nonnull
+	@NonNull
 	public TD addRowAndCell(String tdcss) {
 		addRow();
 		return addCell(tdcss);

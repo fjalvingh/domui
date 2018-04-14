@@ -24,12 +24,12 @@
  */
 package to.etc.domui.injector;
 
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.IPageParameters;
 
-import javax.annotation.*;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
 
 /**
  * This property injector contains the name of an URL parameter plus the property to set from it. At
@@ -55,7 +55,7 @@ final public class UrlParameterInjector extends PropertyInjector {
 	 * Effects the actual injection of an URL parameter to a value.
 	 */
 	@Override
-	public void inject(@Nonnull final UrlPage page, final @Nonnull IPageParameters papa) throws Exception {
+	public void inject(@NonNull final UrlPage page, final @NonNull IPageParameters papa) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = papa.getString(m_name, null);
 		if(pv == null) {

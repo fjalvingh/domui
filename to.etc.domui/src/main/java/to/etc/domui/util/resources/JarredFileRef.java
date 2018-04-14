@@ -1,8 +1,8 @@
 package to.etc.domui.util.resources;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.ByteBufferInputStream;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 

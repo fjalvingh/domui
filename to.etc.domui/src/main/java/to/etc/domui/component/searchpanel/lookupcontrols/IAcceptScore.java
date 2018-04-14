@@ -1,6 +1,6 @@
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -8,5 +8,5 @@ import javax.annotation.Nonnull;
  */
 @FunctionalInterface
 public interface IAcceptScore<T> {
-	int score(@Nonnull T item);
+	int score(@NonNull T item);
 }

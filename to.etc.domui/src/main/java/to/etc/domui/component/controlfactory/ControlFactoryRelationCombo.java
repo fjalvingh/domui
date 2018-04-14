@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.ComboLookup;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -32,9 +34,6 @@ import to.etc.domui.component.misc.DisplayValue;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.IRenderInto;
 import to.etc.util.WrappedException;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Accepts any property defined as an UP relation (parent) and score higher if a component type
@@ -48,7 +47,7 @@ public class ControlFactoryRelationCombo implements PropertyControlFactory {
 	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.
 	 */
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public int accepts(final @NonNull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(ComboLookup.class))
 			return -1;
 
@@ -62,7 +61,7 @@ public class ControlFactoryRelationCombo implements PropertyControlFactory {
 	}
 
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public @NonNull <T> ControlFactoryResult createControl(final @NonNull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(!editable && controlClass == null) {
 			DisplayValue<T> dv = new DisplayValue<T>(pmm.getActualType());
 			dv.defineFrom(pmm);

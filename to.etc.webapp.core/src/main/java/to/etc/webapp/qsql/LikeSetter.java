@@ -1,8 +1,8 @@
 package to.etc.webapp.qsql;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.sql.PreparedStatement;
 
 class LikeSetter implements IQValueSetter {
 	private int m_index;
@@ -29,7 +29,7 @@ class LikeSetter implements IQValueSetter {
 	 * @see to.etc.webapp.qsql.IQValueSetter#assign(java.sql.PreparedStatement)
 	 */
 	@Override
-	public void assign(@Nonnull PreparedStatement ps) throws Exception {
+	public void assign(@NonNull PreparedStatement ps) throws Exception {
 		ps.setString(getIndex(), m_value);
 	}
 }

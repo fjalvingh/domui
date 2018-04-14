@@ -24,16 +24,18 @@
  */
 package to.etc.dbutil;
 
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.dbpool.PoolManager;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-import javax.sql.*;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
-import to.etc.dbpool.*;
-
-@ThreadSafe
+//@ThreadSafe
 public final class DbLockKeeper {
 
 	private DataSource m_dataSource;
@@ -42,7 +44,7 @@ public final class DbLockKeeper {
 
 	private static final String TABLENAME = "SYS_SERVER_LOCKS";
 
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	private static final Map<LockThreadKey, Lock> M_MAINTAINED_LOCKS = new HashMap<LockThreadKey, Lock>();
 
 	public synchronized static DbLockKeeper getInstance() {
@@ -292,7 +294,7 @@ public final class DbLockKeeper {
 	private static final class Lock {
 		private Connection m_lockedConnection;
 
-		@GuardedBy("m_keeper")
+		//@GuardedBy("m_keeper")
 		private int m_lockCounter;
 
 		private String m_lockName;
@@ -309,7 +311,6 @@ public final class DbLockKeeper {
 			return m_lockedConnection == null;
 		}
 
-		@SuppressWarnings("synthetic-access")
 		public void release() {
 			synchronized(m_keeper) {
 				m_lockCounter--;

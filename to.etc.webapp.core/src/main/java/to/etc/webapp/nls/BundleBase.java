@@ -24,10 +24,11 @@
  */
 package to.etc.webapp.nls;
 
-import java.text.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.text.MessageFormat;
+import java.util.Locale;
 
 /**
  * Base class for bundle related things, exposing formatters and other code around the
@@ -39,7 +40,7 @@ import javax.annotation.*;
 abstract public class BundleBase implements NlsMessageProvider {
 	@Nullable
 	@Override
-	abstract public String findMessage(@Nonnull Locale loc, @Nonnull String code);
+	abstract public String findMessage(@NonNull Locale loc, @NonNull String code);
 
 	/**
 	 * Returns a translation of key in the specified locale (or the one
@@ -50,8 +51,8 @@ abstract public class BundleBase implements NlsMessageProvider {
 	 * @param key
 	 * @throws  ResourceNotFoundException the bundle cannot be located.
 	 */
-	@Nonnull
-	public String getString(@Nonnull final Locale loc, @Nonnull final String key) {
+	@NonNull
+	public String getString(@NonNull final Locale loc, @NonNull final String key) {
 		String msg = findMessage(loc, key);
 		return msg != null ? msg : "???" + key + "???";
 	}
@@ -63,8 +64,8 @@ abstract public class BundleBase implements NlsMessageProvider {
 	 * @param key
 	 * @return
 	 */
-	@Nonnull
-	public String getString(@Nonnull final String key) {
+	@NonNull
+	public String getString(@NonNull final String key) {
 		return getString(NlsContext.getLocale(), key);
 	}
 
@@ -75,8 +76,8 @@ abstract public class BundleBase implements NlsMessageProvider {
 	 * @param param
 	 * @return
 	 */
-	@Nonnull
-	public String formatMessage(@Nonnull final String key, @Nonnull final Object... param) {
+	@NonNull
+	public String formatMessage(@NonNull final String key, @NonNull final Object... param) {
 		return formatMessage(NlsContext.getLocale(), key, param);
 	}
 	
@@ -88,8 +89,8 @@ abstract public class BundleBase implements NlsMessageProvider {
 	 * @param param
 	 * @return
 	 */
-	@Nonnull
-	public String formatMessage(@Nonnull final Locale loc, @Nonnull final String key, @Nonnull final Object... param) {
+	@NonNull
+	public String formatMessage(@NonNull final Locale loc, @NonNull final String key, @NonNull final Object... param) {
 		String s = findMessage(loc, key);
 		if(s == null)
 			return "???" + key + "???";

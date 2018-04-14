@@ -1,18 +1,17 @@
 package to.etc.domui.component2.form4;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 6-3-18.
  */
 public class ResponsiveFormLayouter implements IFormLayouter {
-	@Nonnull
+	@NonNull
 	final private FormBuilder.IAppender m_appender;
 
 	private boolean m_horizontal;
@@ -29,7 +28,7 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 	@Nullable
 	private Div m_lastLabelContainer;
 
-	public ResponsiveFormLayouter(@Nonnull FormBuilder.IAppender appender) {
+	public ResponsiveFormLayouter(@NonNull FormBuilder.IAppender appender) {
 		m_appender = appender;
 	}
 
@@ -37,7 +36,7 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 		m_horizontal = horizontal;
 	}
 
-	@Override public void addControl(@Nonnull NodeBase control, @Nullable NodeContainer lbl, String controlCss, String labelCss, boolean append) {
+	@Override public void addControl(@NonNull NodeBase control, @Nullable NodeContainer lbl, String controlCss, String labelCss, boolean append) {
 		if(append) {
 			Div controlContainer = m_lastControlContainer;
 			Div labelContainer = m_lastLabelContainer;

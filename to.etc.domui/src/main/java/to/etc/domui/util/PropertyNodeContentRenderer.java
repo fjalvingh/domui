@@ -24,10 +24,9 @@
  */
 package to.etc.domui.util;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.webapp.nls.NlsContext;
-
-import javax.annotation.Nonnull;
 
 /**
  * Renders the content for a node by looking up a property value of the specified class and rendering that one.
@@ -36,10 +35,10 @@ import javax.annotation.Nonnull;
  * Created on Dec 16, 2010
  */
 public class PropertyNodeContentRenderer<T> implements IRenderInto<T>{
-	@Nonnull
+	@NonNull
 	final private PropertyValueConverter<T> m_converter;
 
-	public PropertyNodeContentRenderer(@Nonnull PropertyValueConverter<T> converter) {
+	public PropertyNodeContentRenderer(@NonNull PropertyValueConverter<T> converter) {
 		m_converter = converter;
 	}
 
@@ -47,7 +46,7 @@ public class PropertyNodeContentRenderer<T> implements IRenderInto<T>{
 		m_converter = new PropertyValueConverter<T>(properties);
 	}
 
-	@Override public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
+	@Override public void render(@NonNull NodeContainer node, @NonNull T object) throws Exception {
 		String val = m_converter.convertObjectToString(NlsContext.getLocale(), object);
 		node.add(val);
 	}

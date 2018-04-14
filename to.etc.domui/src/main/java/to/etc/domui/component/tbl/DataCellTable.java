@@ -24,13 +24,23 @@
  */
 package to.etc.domui.component.tbl;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.TableVAlign;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A table-related component which shows all "rows" in a single cell instead of
@@ -45,7 +55,7 @@ import java.util.*;
 public class DataCellTable<T> extends PageableTabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
 	private int m_rows = 3, m_columns = 3;
 
-	@Nonnull
+	@NonNull
 	final private Table m_table = new Table();
 
 	private TBody m_dataBody;
@@ -61,10 +71,10 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 
 	private Class< ? extends IRenderInto<T>> m_contentRendererClass;
 
-	@Nonnull
+	@NonNull
 	final private Map<T, Div> m_visibleMap = new HashMap<T, Div>();
 
-	public DataCellTable(@Nonnull ITableModel<T> model) {
+	public DataCellTable(@NonNull ITableModel<T> model) {
 		super(model);
 	}
 
@@ -141,7 +151,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 		forceRebuild();
 	}
 
-	@Nonnull
+	@NonNull
 	private IRenderInto<T> calculateContentRenderer(@Nullable Object val) {
 		if(m_actualContentRenderer != null)
 			return m_actualContentRenderer;
@@ -228,7 +238,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	}
 
 
-	private void renderCell(@Nonnull final Div td, @Nonnull final T value) throws Exception {
+	private void renderCell(@NonNull final Div td, @NonNull final T value) throws Exception {
 		boolean selected = false;
 		ISelectionModel<T> sm = getSelectionModel();
 		if(null != sm) {
@@ -236,7 +246,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 			td.addCssClass("ui-clickable");
 			td.setClicked(new IClicked<Div>() {
 				@Override
-				public void clicked(@Nonnull Div clickednode) throws Exception {
+				public void clicked(@NonNull Div clickednode) throws Exception {
 					handleSelectionClick(td, value);
 				}
 			});
@@ -249,7 +259,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 			td.setCssClass("ui-dct-selected");
 	}
 
-	private void handleSelectionClick(@Nonnull Div td, @Nonnull T value) throws Exception {
+	private void handleSelectionClick(@NonNull Div td, @NonNull T value) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
 		if(null == sm)
 			throw new IllegalStateException("SelectionModel is null??");
@@ -270,15 +280,15 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	}
 
 	@Override
-	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 	}
 
 	@Override
-	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowDeleted(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 	}
 
 	@Override
-	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowModified(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 	}
 
 
@@ -293,7 +303,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	 * @see to.etc.domui.component.tbl.ISelectionListener#selectionChanged(java.lang.Object, boolean)
 	 */
 	@Override
-	public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
+	public void selectionChanged(@NonNull T row, boolean on) throws Exception {
 		//-- Is this a visible row?
 		for(Map.Entry<T, Div> me : m_visibleMap.entrySet()) {
 			if(MetaManager.areObjectsEqual(me.getKey(), row)) {

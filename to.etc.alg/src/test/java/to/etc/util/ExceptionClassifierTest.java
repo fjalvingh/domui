@@ -1,12 +1,12 @@
 package to.etc.util;
 
-import java.sql.*;
-
-import javax.annotation.*;
-
-import org.junit.*;
-
+import org.eclipse.jdt.annotation.NonNull;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import to.etc.util.ExceptionClassifier.Severity;
+
+import java.sql.SQLException;
 
 
 /**
@@ -21,7 +21,7 @@ public class ExceptionClassifierTest {
 	public class CustomException extends Throwable {
 		String m_code;
 
-		public CustomException(@Nonnull String code) {
+		public CustomException(@NonNull String code) {
 			m_code = code;
 		}
 

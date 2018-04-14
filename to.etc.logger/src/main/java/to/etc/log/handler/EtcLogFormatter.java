@@ -1,13 +1,13 @@
 package to.etc.log.handler;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.MDC;
 import org.slf4j.Marker;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 import to.etc.log.event.EtcLogEvent;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 
@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
  * Created on Oct 31, 2012
  */
 public class EtcLogFormatter {
-	@Nonnull
+	@NonNull
 	private static final ThreadLocal<SimpleDateFormat>	TIMEFORMATTER	= new ThreadLocal<SimpleDateFormat>() {
 																			@Override
 																			protected SimpleDateFormat initialValue() {
@@ -29,8 +29,8 @@ public class EtcLogFormatter {
 																			}
 																		};
 
-	@Nonnull
-	static String format(@Nonnull EtcLogEvent event, @Nonnull String format, @Nullable String filterData) {
+	@NonNull
+	static String format(@NonNull EtcLogEvent event, @NonNull String format, @Nullable String filterData) {
 		StringBuilder sb = new StringBuilder();
 
 		//-- Get all % markers and replace it with log values.
@@ -105,7 +105,7 @@ public class EtcLogFormatter {
 		return sb.toString();
 	}
 
-	private static void handleMsg(@Nonnull EtcLogEvent event, @Nonnull StringBuilder sb) {
+	private static void handleMsg(@NonNull EtcLogEvent event, @NonNull StringBuilder sb) {
 		Object[] args = event.getArgs();
 		if(args != null && args.length > 0) {
 			FormattingTuple tuple;
@@ -122,7 +122,7 @@ public class EtcLogFormatter {
 		}
 	}
 
-	private static int handleMdc(@Nonnull String format, int ix, @Nonnull StringBuilder sb) {
+	private static int handleMdc(@NonNull String format, int ix, @NonNull StringBuilder sb) {
 		if(format.charAt(ix) != '{') {
 			return ix;
 		} else {
@@ -140,7 +140,7 @@ public class EtcLogFormatter {
 		}
 	}
 
-	private static void logThrowable(@Nonnull StringBuilder sb, int causeIndex, @Nonnull Throwable t, boolean checkNextExceptions) {
+	private static void logThrowable(@NonNull StringBuilder sb, int causeIndex, @NonNull Throwable t, boolean checkNextExceptions) {
 		if(t.getMessage() != null) {
 			sb.append("- message: ").append(t.getMessage()).append("\n");
 		}

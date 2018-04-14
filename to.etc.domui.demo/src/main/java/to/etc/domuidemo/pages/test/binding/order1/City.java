@@ -1,12 +1,12 @@
 package to.etc.domuidemo.pages.test.binding.order1;
 
-import javax.annotation.DefaultNonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 13-3-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class City {
 	private final Country m_country;
 

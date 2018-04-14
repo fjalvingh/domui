@@ -24,17 +24,27 @@
  */
 package to.etc.domui.component2.combo;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.component.misc.UIControlUtil;
+import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.IListMaker;
+import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Simple combobox handling [String, Object] pairs where the string is the
@@ -48,7 +58,7 @@ import java.util.*;
 public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 	static private final IRenderInto<ValueLabelPair<Object>> STATICRENDERER = new IRenderInto<ValueLabelPair<Object>>() {
 		@Override
-		public void render(@Nonnull NodeContainer node, @Nullable ValueLabelPair<Object> object) throws Exception {
+		public void render(@NonNull NodeContainer node, @Nullable ValueLabelPair<Object> object) throws Exception {
 			if(object != null)
 				node.setText(object.getLabel());
 		}
@@ -172,7 +182,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 		return new ComboFixed2<T>(l);
 	}
 
-	@Nonnull
+	@NonNull
 	public static <T extends Enum<T>> List<ValueLabelPair<T>> createEnumValueList(T... items) {
 		if(items.length == 0)
 			throw new IllegalArgumentException("Missing parameters");
@@ -221,7 +231,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 	/**
 	 * Default tostring converter.
 	 */
-	@Nonnull
+	@NonNull
 	static private final IObjectToStringConverter<Object> TOSTRING_CV = new IObjectToStringConverter<Object>() {
 		@Override
 		public String convertObjectToString(Locale loc, Object in) throws UIException {
@@ -251,7 +261,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 	 * @param items
 	 * @return
 	 */
-	static public <T> ComboFixed2<T> createCombo(@Nonnull IObjectToStringConverter<T> converter, T... items) {
+	static public <T> ComboFixed2<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) {
 		List<ValueLabelPair<T>> values = new ArrayList<ValueLabelPair<T>>();
 		for(T item : items) {
 			String v = converter.convertObjectToString(NlsContext.getLocale(), item);
@@ -262,7 +272,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 		return new ComboFixed2<T>(values);
 	}
 
-	@Nonnull
+	@NonNull
 	static public <T> ComboFixed2<T> createComboFor(PropertyMetaModel<T> pmm, boolean editable) {
 		if(pmm == null)
 			throw new IllegalArgumentException("propertyMeta cannot be null");

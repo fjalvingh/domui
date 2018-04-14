@@ -1,9 +1,8 @@
 package to.etc.domui.state;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import java.io.Serializable;
 
 /**
  * A saved page from a destroyed {@link WindowSession}, suitable to be resurrected
@@ -12,25 +11,25 @@ import javax.annotation.concurrent.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 27, 2013
  */
-@Immutable
+//@Immutable
 final public class SavedPage implements Serializable {
-	@Nonnull
+	@NonNull
 	final private String m_className;
 
-	@Nonnull
+	@NonNull
 	final private IPageParameters m_parameters;
 
-	SavedPage(@Nonnull String className, @Nonnull IPageParameters parameters) {
+	SavedPage(@NonNull String className, @NonNull IPageParameters parameters) {
 		m_className = className;
 		m_parameters = parameters;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getClassName() {
 		return m_className;
 	}
 
-	@Nonnull
+	@NonNull
 	public IPageParameters getParameters() {
 		return m_parameters;
 	}

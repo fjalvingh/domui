@@ -24,14 +24,14 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.ComponentPropertyBindingUni;
 import to.etc.util.WrappedException;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
-@DefaultNonNull
+@NonNullByDefault
 public class Label extends NodeContainer {
 	@Nullable
 	private NodeBase m_forTarget;

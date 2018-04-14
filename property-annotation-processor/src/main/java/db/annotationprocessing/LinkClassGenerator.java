@@ -27,11 +27,11 @@ public class LinkClassGenerator extends ClassGenerator {
 	@Override protected void generateConstructor() throws IOException {
 		//super.generateConstructor();							// Generate the empty contructor
 
-		append("\tpublic ").append(getClassName()).append("(@Nonnull Class<R> rootClass, @Nonnull String propertyName) {\n");
+		append("\tpublic ").append(getClassName()).append("(@NonNull Class<R> rootClass, @NonNull String propertyName) {\n");
 		append("\t\tsuper(rootClass, propertyName);\n");
 		append("\t}\n\n");
 
-		append("\tpublic ").append(getClassName()).append("(@Nonnull Class<R> rootClass, @Nullable QField<R,?> parent, @Nonnull String propertyName) {\n");
+		append("\tpublic ").append(getClassName()).append("(@NonNull Class<R> rootClass, @Nullable QField<R,?> parent, @NonNull String propertyName) {\n");
 		append("\t\tsuper(rootClass, parent, propertyName);\n");
 		append("\t}\n\n");
 	}
@@ -41,7 +41,7 @@ public class LinkClassGenerator extends ClassGenerator {
 		String mname = replaceReserved(propertyName);
 		String mtypeName = getWrappedType(returnType.toString());
 
-		m_w.append("\t@Nonnull\n\tpublic final QField<R,");
+		m_w.append("\t@NonNull\n\tpublic final QField<R,");
 		m_w.append(mtypeName);
 		m_w.append("> ");
 		m_w.append(mname);
@@ -57,7 +57,7 @@ public class LinkClassGenerator extends ClassGenerator {
 		String qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(mtype.getSimpleName().toString());
 
 		String mname = replaceReserved(propertyName);
-		m_w.append("\t@Nonnull\n");
+		m_w.append("\t@NonNull\n");
 		m_w.append("\tpublic final ").append(qtype).append("<R> ").append(mname).append("() {");
 		m_w.append("\n\t\treturn new ").append(qtype).append("<R>(getRootClass(), this, \"").append(propertyName).append("\");\n");
 		m_w.append("\t}\n\n");

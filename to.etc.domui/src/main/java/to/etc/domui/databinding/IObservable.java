@@ -24,18 +24,18 @@
  */
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IObservable<T, E extends IChangeEvent<T, E, L>, L extends IChangeListener<T, E, L>> {
 	/**
 	 * Adds a change listener for this observable item. The listener is notified of changes on the specified observable.
 	 * @param listener
 	 */
-	void addChangeListener(@Nonnull L listener);
+	void addChangeListener(@NonNull L listener);
 
 	/**
 	 * Remove the specified listener for changes on this observable item.
 	 * @param listener
 	 */
-	void removeChangeListener(@Nonnull L listener);
+	void removeChangeListener(@NonNull L listener);
 }

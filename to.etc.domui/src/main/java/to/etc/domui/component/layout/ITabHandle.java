@@ -1,10 +1,9 @@
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Handle to a tab panel, with methods to change it.
@@ -19,9 +18,9 @@ public interface ITabHandle {
 	/** Set this tab as selected */
 	void select() throws Exception;
 
-	void updateLabel(@Nonnull String label, @Nullable String image);
+	void updateLabel(@NonNull String label, @Nullable String image);
 
-	void updateLabel(@Nonnull NodeBase label, @Nullable String image);
+	void updateLabel(@NonNull NodeBase label, @Nullable String image);
 
-	void updateContent(@Nonnull NodeContainer content);
+	void updateContent(@NonNull NodeContainer content);
 }

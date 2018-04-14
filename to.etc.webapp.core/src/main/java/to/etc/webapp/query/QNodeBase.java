@@ -24,10 +24,10 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 abstract public class QNodeBase {
-	abstract public void visit(@Nonnull QNodeVisitor v) throws Exception;
+	abstract public void visit(@NonNull QNodeVisitor v) throws Exception;
 
 
 	/**
@@ -35,7 +35,7 @@ abstract public class QNodeBase {
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public String toString() {
 		QQueryRenderer qr = new QQueryRenderer();
 		try {

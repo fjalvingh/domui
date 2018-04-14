@@ -24,6 +24,8 @@
  */
 package to.etc.domui.state;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.delayed.AsyncContainer;
@@ -34,8 +36,6 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.state.DelayedActivityInfo.State;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -76,7 +76,7 @@ final public class DelayedActivitiesManager implements Runnable {
 	 * Schedule a new activity for execution. This does not actually start the executor; it merely queues the thingy. If
 	 * the executor *is* running though it can start with the action.
 	 */
-	public DelayedActivityInfo schedule(@Nonnull IAsyncRunnable a, @Nonnull AsyncContainer ac) throws Exception {
+	public DelayedActivityInfo schedule(@NonNull IAsyncRunnable a, @NonNull AsyncContainer ac) throws Exception {
 		//-- Schedule.
 		synchronized(this) {
 			for(DelayedActivityInfo tdai : m_pendingQueue) {
@@ -114,7 +114,7 @@ final public class DelayedActivitiesManager implements Runnable {
 	 * Cancels an activity, if possible. If the thing is pending it gets removed. If it is
 	 * executing we try to cancel the executor.
 	 */
-	public boolean cancelActivity(@Nonnull DelayedActivityInfo dai) {
+	public boolean cancelActivity(@NonNull DelayedActivityInfo dai) {
 		Thread tr;
 
 		synchronized(this) {

@@ -1,14 +1,23 @@
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.event.INotifyEvent;
+import to.etc.domui.component.layout.Window;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.PositionType;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IReturnPressed;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Select;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.List;
 
 /**
  * Control that behaves as {@link SmallImgButton} that has built in click handler that popups select list with predefined data to choose from.
@@ -28,7 +37,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	@Nullable
 	private List<T> m_data;
 
-	@Nonnull
+	@NonNull
 	private final ComboLookup<T> m_picker;
 
 	private int m_size = DEFAULT_COMBO_SIZE;
@@ -45,7 +54,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	@Nullable
 	private INotifyEvent<DropDownPicker<T>, ComboLookup<T>> m_onBeforeShow;
 
-	@Nonnull
+	@NonNull
 	private HAlign m_halign = HAlign.LEFT;
 
 	/**
@@ -66,7 +75,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	 * DropDownPicker constructor. By default size of drop down list is DropDownPicker.DEFAULT_COMBO_SIZE.
 	 * @param data data for picker popup
 	 */
-	public DropDownPicker(@Nonnull List<T> data) {
+	public DropDownPicker(@NonNull List<T> data) {
 		this(data, DEFAULT_COMBO_SIZE);
 	}
 
@@ -75,7 +84,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	 * @param data data for picker popup
 	 * @param size size of drop down list
 	 */
-	public DropDownPicker(@Nonnull List<T> data, int size) {
+	public DropDownPicker(@NonNull List<T> data, int size) {
 		m_data = data;
 		m_size = size;
 		m_picker = new ComboLookup<T>(m_data);
@@ -107,14 +116,14 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		m_picker.setClicked(new IClicked<NodeBase>() {
 
 			@Override
-			public void clicked(@Nonnull NodeBase node) throws Exception {
+			public void clicked(@NonNull NodeBase node) throws Exception {
 				handlePickerValueChanged();
 			}
 		});
 		m_picker.setReturnPressed(new IReturnPressed<Select>() {
 
 			@Override
-			public void returnPressed(@Nonnull Select node) throws Exception {
+			public void returnPressed(@NonNull Select node) throws Exception {
 				handlePickerValueChanged();
 			}
 		});
@@ -151,10 +160,10 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		}
 	}
 
-	private final @Nonnull
+	private final @NonNull
 	IClicked<SmallImgButton> m_defaultClickHandler = new IClicked<SmallImgButton>() {
 		@Override
-		public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
+		public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
 			INotifyEvent<DropDownPicker<T>, ComboLookup<T>> onBeforeShow = getOnBeforeShow();
 			if(onBeforeShow != null) {
 				onBeforeShow.onNotify(DropDownPicker.this, m_picker);
@@ -289,7 +298,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	 * Horizontal alignment of dropdown popup. By default set to {@link HAlign#Left}.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public HAlign getHalign() {
 		return m_halign;
 	}
@@ -306,7 +315,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	 * In order to affect offset to this aligment rules use {@link DropDownPicker#setOffsetY(int)} and {@link DropDownPicker#setOffsetX(int)}.
 	 * @param halign
 	 */
-	public void setHalign(@Nonnull HAlign halign) {
+	public void setHalign(@NonNull HAlign halign) {
 		m_halign = halign;
 		if(isBuilt()) {
 			positionPicker();
@@ -330,12 +339,12 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		m_alignmentBase = halignmentBase;
 	}
 
-	public @Nonnull
+	public @NonNull
 	Select getSelectControl() throws Exception {
 		return m_picker;
 	}
 
-	@Nonnull
+	@NonNull
 	private List<T> getData() {
 		List<T> data = m_data;
 		if(null == data)
@@ -347,7 +356,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		return m_data != null;
 	}
 
-	public void setData(@Nonnull List<T> data) {
+	public void setData(@NonNull List<T> data) {
 		if(m_data != data) {
 			m_data = data;
 			m_picker.setData(data);

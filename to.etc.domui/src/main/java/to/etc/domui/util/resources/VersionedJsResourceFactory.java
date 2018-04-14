@@ -1,12 +1,11 @@
 package to.etc.domui.util.resources;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import java.io.File;
 
 /**
  * Handle $js/xxx resources, which are versionable.
@@ -16,15 +15,15 @@ import to.etc.util.*;
  */
 public class VersionedJsResourceFactory implements IResourceFactory {
 	@Override
-	public int accept(@Nonnull String name) {
+	public int accept(@NonNull String name) {
 		if(name.startsWith("$js/"))
 			return 15;
 		return -1;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public IResourceRef getResource(@NonNull DomApplication da, @NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
 		//-- 1. Create a 'min version of the name
 		name = name.substring(3); 							// Strip $js, leave leading /.
 		int pos = name.lastIndexOf('.');

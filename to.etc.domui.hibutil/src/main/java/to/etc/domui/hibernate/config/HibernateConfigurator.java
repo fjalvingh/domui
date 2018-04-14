@@ -24,6 +24,7 @@
  */
 package to.etc.domui.hibernate.config;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AnnotationConfiguration;
@@ -50,7 +51,6 @@ import to.etc.webapp.query.QDataContextFactory;
 import to.etc.webapp.query.QEventListenerSet;
 import to.etc.webapp.query.QQueryExecutorRegistry;
 
-import javax.annotation.Nonnull;
 import javax.sql.DataSource;
 import java.io.File;
 import java.util.ArrayList;
@@ -132,7 +132,7 @@ final public class HibernateConfigurator {
 	/**
 	 * Return the datasource, as configured.
 	 */
-	@Nonnull
+	@NonNull
 	static synchronized public DataSource getDataSource() {
 		if(null == m_dataSource)
 			throw new IllegalStateException("The initialize() method has not yet been called with a valid datasource");
@@ -219,7 +219,7 @@ final public class HibernateConfigurator {
 	 * to the annotated classes' definition.
 	 * @param m
 	 */
-	static public void schemaUpdate(@Nonnull Mode m) {
+	static public void schemaUpdate(@NonNull Mode m) {
 		configured();
 		m_mode = m;
 	}
@@ -261,7 +261,7 @@ final public class HibernateConfigurator {
 		m_observableEnabled = yes;
 	}
 
-	static private void enhanceMappings(@Nonnull Configuration config) throws Exception {
+	static private void enhanceMappings(@NonNull Configuration config) throws Exception {
 		HibernateChecker hc = new HibernateChecker(config, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled, m_allowHibernateSuckySequences);
 		hc.enhanceMappings();
 	}
@@ -382,14 +382,14 @@ final public class HibernateConfigurator {
 			//-- We need the copy interceptor to handle these.
 			hsm = new HibernateSessionMaker() {
 				@Override
-				public Session makeSession(@Nonnull BuggyHibernateBaseContext dc) throws Exception {
+				public Session makeSession(@NonNull BuggyHibernateBaseContext dc) throws Exception {
 					return m_sessionFactory.openSession(new BeforeImageInterceptor(dc.getBeforeCache()));
 				}
 			};
 		} else {
 			hsm = new HibernateSessionMaker() {
 				@Override
-				public Session makeSession(@Nonnull BuggyHibernateBaseContext dc) throws Exception {
+				public Session makeSession(@NonNull BuggyHibernateBaseContext dc) throws Exception {
 					return m_sessionFactory.openSession();
 				}
 			};

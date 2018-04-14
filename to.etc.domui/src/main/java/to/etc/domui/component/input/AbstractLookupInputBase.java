@@ -1,5 +1,8 @@
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -26,9 +29,6 @@ import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -39,7 +39,7 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 18-11-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 abstract public class AbstractLookupInputBase<QT, OT> extends Div implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication, IQueryManipulator<QT>, IForTarget {
 	protected enum RebuildCause {
 		CLEAR, SELECT
@@ -52,29 +52,29 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	 * The query class/type. For Java classes this usually also defines the metamodel to use; for generic meta this should
 	 * be the value record class type.
 	 */
-	@Nonnull
+	@NonNull
 	final private Class<QT> m_queryClass;
 
-	@Nonnull
+	@NonNull
 	final private Class<OT> m_outputClass;
 
 	/**
 	 * The metamodel to use to handle the query data in this class. For Javabean data classes this is automatically
 	 * obtained using MetaManager; for meta-based data models this gets passed as a constructor argument.
 	 */
-	@Nonnull
+	@NonNull
 	final private ClassMetaModel m_queryMetaModel;
 
 	/**
 	 * The metamodel for output (display) objects.
 	 */
-	@Nonnull
+	@NonNull
 	final private ClassMetaModel m_outputMetaModel;
 
-	@Nonnull
+	@NonNull
 	final private DefaultButton m_selButton;
 
-	@Nonnull
+	@NonNull
 	final private DefaultButton m_clearButton;
 
 	@Nullable
@@ -154,7 +154,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	@Nullable
 	protected abstract NodeBase getKeySearch();
 
-	public AbstractLookupInputBase(@Nullable QCriteria<QT> rootCriteria, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
+	public AbstractLookupInputBase(@Nullable QCriteria<QT> rootCriteria, @NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel, @Nullable ClassMetaModel outputMetaModel) {
 		m_rootCriteria = rootCriteria;
 		m_queryClass = queryClass;
 		m_outputClass = resultClass;
@@ -257,12 +257,12 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private DefaultButton getSelButton() {
 		return m_selButton;
 	}
 
-	@Nonnull
+	@NonNull
 	private DefaultButton getClearButton() {
 		return m_clearButton;
 	}
@@ -504,7 +504,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 
 	@Override
 	@Nullable
-	public QCriteria<QT> adjustQuery(@Nonnull QCriteria<QT> enteredCriteria) {
+	public QCriteria<QT> adjustQuery(@NonNull QCriteria<QT> enteredCriteria) {
 		IQueryManipulator<QT> qm = getQueryManipulator();
 		QCriteria<QT> result = enteredCriteria;
 		if(qm != null) {
@@ -669,7 +669,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	/**
 	 * Set a hint text for this control, for some reason only on the select button??
 	 */
-	public void setHint(@Nonnull String text) {
+	public void setHint(@NonNull String text) {
 		if(m_selButton != null)
 			m_selButton.setTitle(text);
 	}
@@ -695,26 +695,26 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		m_keySearchHint = keySearchHint;
 	}
 
-	@Nonnull
+	@NonNull
 	public Class<OT> getOutputClass() {
 		return m_outputClass;
 	}
 
-	@Nonnull @Override public Class<OT> getActualType() {
+	@NonNull @Override public Class<OT> getActualType() {
 		return m_outputClass;
 	}
 
-	@Nonnull
+	@NonNull
 	public Class<QT> getQueryClass() {
 		return m_queryClass;
 	}
 
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getOutputMetaModel() {
 		return m_outputMetaModel;
 	}
 
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getQueryMetaModel() {
 		return m_queryMetaModel;
 	}
@@ -727,7 +727,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	 * Define a property to use for quick search. When used this overrides any metadata-defined
 	 * properties.
 	 */
-	public void addKeywordProperty(@Nonnull String name, int minlen) {
+	public void addKeywordProperty(@NonNull String name, int minlen) {
 		if(m_keywordLookupPropertyList == null)
 			m_keywordLookupPropertyList = new ArrayList<>();
 		PropertyMetaModel<?> pmm = getQueryMetaModel().getProperty(name);
@@ -742,14 +742,14 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	 * Define a property to use for quick search. When used this overrides any metadata-defined
 	 * properties.
 	 */
-	public void addKeywordProperty(@Nonnull String name) {
+	public void addKeywordProperty(@NonNull String name) {
 		addKeywordProperty(name, -1);
 	}
 
 	/**
 	 * Not normally used; use {@link #addKeywordProperty(String, int)} instead.
 	 */
-	public void setKeywordSearchProperties(@Nonnull List<SearchPropertyMetaModel> keywordLookupPropertyList) {
+	public void setKeywordSearchProperties(@NonNull List<SearchPropertyMetaModel> keywordLookupPropertyList) {
 		m_keywordLookupPropertyList = keywordLookupPropertyList;
 	}
 

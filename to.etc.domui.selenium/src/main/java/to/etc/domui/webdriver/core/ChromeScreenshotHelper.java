@@ -1,7 +1,8 @@
 package to.etc.domui.webdriver.core;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
 
@@ -15,7 +16,7 @@ public class ChromeScreenshotHelper implements IWebdriverScreenshotHelper {
 		return true;
 	}
 
-	@Nullable @Override public BufferedImage createScreenshot(@Nonnull WebDriverConnector webDriverConnector) throws Exception {
+	@Nullable @Override public BufferedImage createScreenshot(@NonNull WebDriverConnector webDriverConnector) throws Exception {
 		return new ChromeExtender((MyChromeDriver) webDriverConnector.driver()).takeScreenshot();
 	}
 }

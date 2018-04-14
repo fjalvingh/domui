@@ -1,6 +1,6 @@
 package to.etc.domui.component.binding;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Convert some binding value from one type to another type at binding time.

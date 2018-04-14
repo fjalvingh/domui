@@ -1,6 +1,6 @@
 package to.etc.domui.component.event;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * General callback, can be used for definition of general purpose call-backs with null as valid callback input.

@@ -24,15 +24,19 @@
  */
 package to.etc.util;
 
-import java.text.*;
-import java.time.*;
-import java.time.format.*;
-import java.util.*;
-import java.util.concurrent.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
-
-import javafx.util.converter.*;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Static date/time utiility class.
@@ -43,7 +47,7 @@ import javafx.util.converter.*;
 final public class DateUtil {
 
 	/** Date for testing within threat */
-	@Nonnull
+	@NonNull
 	private final static ThreadLocal<Calendar> m_testDate = new ThreadLocal<>();
 
 	/** System date for testing */
@@ -52,7 +56,7 @@ final public class DateUtil {
 
 	/** A fixed date way into the future. */
 
-	@Nonnull
+	@NonNull
 	static public final Date	FUTURE	= dateFor(9999, 11, 31);
 
 	private DateUtil() {
@@ -66,7 +70,7 @@ final public class DateUtil {
 	 * @param unit
 	 * @return
 	 */
-	static public long getTime(@Nonnull Date from, @Nonnull TimeUnit unit) {
+	static public long getTime(@NonNull Date from, @NonNull TimeUnit unit) {
 		Calendar instance = Calendar.getInstance();
 		instance.setTime(from);
 
@@ -86,8 +90,8 @@ final public class DateUtil {
 	 * @param date
 	 * @return
 	 */
-	@Nonnull
-	static public Date	truncateCeil(@Nonnull Date date) {
+	@NonNull
+	static public Date	truncateCeil(@NonNull Date date) {
 		long time = getTime(date, TimeUnit.SECONDS);
 		if(time == 0)											// It's exactly 0:00, so we're precise
 			return date;
@@ -98,7 +102,7 @@ final public class DateUtil {
 		return cal.getTime();
 	}
 
-	static public boolean isWeekend(@Nonnull Calendar cal) {
+	static public boolean isWeekend(@NonNull Calendar cal) {
 		int day = cal.get(Calendar.DAY_OF_WEEK);
 		return day == Calendar.SUNDAY || day == Calendar.SATURDAY;
 	}
@@ -445,8 +449,8 @@ final public class DateUtil {
 		return new Date(cal.getTimeInMillis());
 	}
 
-	@Nonnull
-	static public Date addDays(@Nonnull Date in, int days) {
+	@NonNull
+	static public Date addDays(@NonNull Date in, int days) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(in);
 		cal.add(Calendar.DAY_OF_YEAR, days);
@@ -596,8 +600,8 @@ final public class DateUtil {
 	 * @return
 	 * @throws ParseException
 	 */
-	@Nonnull
-	static public java.util.Date convertToDate(@Nonnull final String input, @Nonnull final String dateFormat, boolean lenient) throws ParseException {
+	@NonNull
+	static public java.util.Date convertToDate(@NonNull final String input, @NonNull final String dateFormat, boolean lenient) throws ParseException {
 		if(StringTool.isBlank(dateFormat)) {
 			throw new IllegalArgumentException("dateFormat must not be empty");
 		}
@@ -618,8 +622,8 @@ final public class DateUtil {
 	 * @return
 	 * @throws ParseException
 	 */
-	@Nonnull
-	static public java.util.Date convertToDate(@Nonnull final String input, @Nonnull final String dateFormat) throws ParseException {
+	@NonNull
+	static public java.util.Date convertToDate(@NonNull final String input, @NonNull final String dateFormat) throws ParseException {
 	    return convertToDate(input, dateFormat, true);
 	}
 
@@ -661,7 +665,7 @@ final public class DateUtil {
 	 * @param date
 	 * @return
 	 */
-	public static int getYear(@Nonnull Date date) {
+	public static int getYear(@NonNull Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		return cal.get(Calendar.YEAR);
@@ -670,7 +674,7 @@ final public class DateUtil {
 	/**
 	 * Returns the correct (non-Java) month for Date. January is 1, February 2, etc...
 	 */
-	public static int getMonthReal(@Nonnull Date date) {
+	public static int getMonthReal(@NonNull Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		return cal.get(Calendar.MONTH) + 1;
@@ -680,13 +684,13 @@ final public class DateUtil {
 	 * Return the month as defined by the complete and utter IDIOT that defined
 	 * Java's Calendar jokefest: 0 = january etc.
 	 */
-	public static int getMonthDumbJava(@Nonnull Date date) {
+	public static int getMonthDumbJava(@NonNull Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		return cal.get(Calendar.MONTH) + 1;
 	}
 
-	public static int getDay(@Nonnull Date date) {
+	public static int getDay(@NonNull Date date) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		return cal.get(Calendar.DAY_OF_MONTH);
@@ -712,8 +716,8 @@ final public class DateUtil {
 	 * @param format
 	 * @return
 	 */
-	@Nonnull
-	public static String formatSafe(@Nullable Date date, @Nonnull DateFormat format){
+	@NonNull
+	public static String formatSafe(@Nullable Date date, @NonNull DateFormat format){
 		if (null == date){
 			return "";
 		}else{
@@ -721,7 +725,7 @@ final public class DateUtil {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	public synchronized static Date now() {
 
 		Calendar now = m_testDate.get();
@@ -769,7 +773,7 @@ final public class DateUtil {
 	 *
 	 * @return GregorianCalendarFixDutchTime
 	 */
-	@Nonnull
+	@NonNull
 	public static Calendar getCalendar() {
 		TimeZone zone = TimeZone.getDefault();
 		String id = zone.getID();
@@ -785,8 +789,8 @@ final public class DateUtil {
 	 * @param aLocale
 	 * @return GregorianCalendarFixDutchTime
 	 */
-	@Nonnull
-	public static Calendar getCalendar(@Nonnull Locale aLocale) {
+	@NonNull
+	public static Calendar getCalendar(@NonNull Locale aLocale) {
 		return new GregorianCalendarFixDutchTime(aLocale);
 	}
 

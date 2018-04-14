@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.tree;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IHasChangeListener;
@@ -31,9 +34,6 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.util.JavascriptUtil;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -44,9 +44,9 @@ import static to.etc.domui.util.DomUtil.nullChecked;
  * A tree component that allows selection of multiple items.
  * @param <T>
  */
-@DefaultNonNull
+@NonNullByDefault
 public class TreeSelectMulti<T> extends Tree<T> implements IHasChangeListener {
-	@Nonnull
+	@NonNull
 	private Set<T> m_value = new HashSet<>();
 
 	@Nullable
@@ -64,7 +64,7 @@ public class TreeSelectMulti<T> extends Tree<T> implements IHasChangeListener {
 		appendCreateJS(JavascriptUtil.disableSelection(this));
 	}
 
-	@Nonnull
+	@NonNull
 	public Set<T> getValue() {
 		return new HashSet<>(m_value);
 	}

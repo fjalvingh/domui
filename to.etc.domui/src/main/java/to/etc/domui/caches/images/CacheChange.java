@@ -24,9 +24,10 @@
  */
 package to.etc.domui.caches.images;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This is an accounting record for a cache change in progress. While individual
@@ -58,7 +59,7 @@ class CacheChange {
 	 * called for deleted images.
 	 * @param ii
 	 */
-	public void addUsedFragment(@Nonnull CachedImageFragment ii) {
+	public void addUsedFragment(@NonNull CachedImageFragment ii) {
 		if(ii == null)
 			throw new IllegalArgumentException("Cannot pass null");
 		if(m_deletedFragmentList.contains(ii))
@@ -66,19 +67,19 @@ class CacheChange {
 		m_usedFragmentList.add(ii);
 	}
 
-	public void addDeletedFragment(@Nonnull CachedImageFragment ii) {
+	public void addDeletedFragment(@NonNull CachedImageFragment ii) {
 		if(ii == null)
 			throw new IllegalArgumentException("Cannot pass null");
 		m_usedFragmentList.remove(ii); // If it was used earlier remove from there
 		m_deletedFragmentList.add(ii);
 	}
 
-	@Nonnull
+	@NonNull
 	public List<CachedImageFragment> getUsedFragmentList() {
 		return m_usedFragmentList;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<CachedImageFragment> getDeletedFragmentList() {
 		return m_deletedFragmentList;
 	}

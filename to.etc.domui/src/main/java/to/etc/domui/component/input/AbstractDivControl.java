@@ -24,12 +24,13 @@
  */
 package to.etc.domui.component.input;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import java.util.Objects;
 
 /**
  * Abstract base class for a control that is implemented on top of a DIV. This handles most basic actions required of

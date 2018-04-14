@@ -24,7 +24,7 @@
  */
 package to.etc.domui.server;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IFilterRequestHandler {
 	/**
@@ -35,5 +35,5 @@ public interface IFilterRequestHandler {
 	 * @return
 	 * @throws Exception
 	 */
-	boolean handleRequest(@Nonnull RequestContextImpl ctx) throws Exception;
+	boolean handleRequest(@NonNull RequestContextImpl ctx) throws Exception;
 }

@@ -24,7 +24,7 @@
  */
 package to.etc.util;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Stuff to write logging to.
@@ -33,20 +33,20 @@ import javax.annotation.*;
  * Created on Apr 16, 2005
  */
 public interface ILogSink {
-	@Nonnull ILogSink STDOUTSINK = new ILogSink() {
+	@NonNull ILogSink STDOUTSINK = new ILogSink() {
 		@Override
-		public void log(@Nonnull String msg) {
+		public void log(@NonNull String msg) {
 			System.out.println(msg);
 		}
 
 		@Override
-		public void exception(@Nonnull Throwable t, @Nonnull String msg) {
+		public void exception(@NonNull Throwable t, @NonNull String msg) {
 			System.out.println(msg);
 			t.printStackTrace();
 		}
 	};
 
-	void log(@Nonnull String msg);
+	void log(@NonNull String msg);
 
-	void exception(@Nonnull Throwable t, @Nonnull String msg);
+	void exception(@NonNull Throwable t, @NonNull String msg);
 }

@@ -1,11 +1,11 @@
 package to.etc.formbuilder.pages;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
 
 public class AutoLayout extends AutoComponent implements IFbLayout {
-	public AutoLayout(@Nonnull Class< ? extends NodeBase> componentClass) {
+	public AutoLayout(@NonNull Class< ? extends NodeBase> componentClass) {
 		super(componentClass);
 	}
 

@@ -24,14 +24,20 @@
  */
 package to.etc.domui.component.agenda;
 
-import java.text.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.util.DateUtil;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
+import java.text.DateFormatSymbols;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * This is a small panel which contains all days in a given month as a calendar. It can be
@@ -78,7 +84,7 @@ public class MonthPanel extends Div {
 		if(getDayClicked() != null && m_clickHandler == null) {
 			m_clickHandler = new IClicked<TD>() {
 				@Override
-				public void clicked(@Nonnull TD bx) throws Exception {
+				public void clicked(@NonNull TD bx) throws Exception {
 					handleClick(bx);
 				}
 			};

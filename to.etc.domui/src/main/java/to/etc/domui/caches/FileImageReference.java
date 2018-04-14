@@ -24,11 +24,13 @@
  */
 package to.etc.domui.caches;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.images.IImageReference;
 
-import javax.annotation.*;
-
-import to.etc.domui.util.images.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class FileImageReference implements IImageReference {
 	private File m_source;
@@ -50,7 +52,7 @@ public class FileImageReference implements IImageReference {
 	}
 
 	@Override
-	public @Nonnull String getMimeType() throws Exception {
+	public @NonNull String getMimeType() throws Exception {
 		return m_mime;
 	}
 

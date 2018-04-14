@@ -1,8 +1,7 @@
 package to.etc.domui.util.resources;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
 
 /**
  * A factory which can provide for a resource depending on it's name.
@@ -18,7 +17,7 @@ public interface IResourceFactory {
 	 * @param name
 	 * @return
 	 */
-	int accept(@Nonnull String name);
+	int accept(@NonNull String name);
 
 	/**
 	 * Create the ref for the resource.
@@ -27,6 +26,6 @@ public interface IResourceFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	IResourceRef getResource(@Nonnull DomApplication da, @Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception;
+	@NonNull
+	IResourceRef getResource(@NonNull DomApplication da, @NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception;
 }

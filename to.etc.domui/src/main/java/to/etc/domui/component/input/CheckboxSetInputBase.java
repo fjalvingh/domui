@@ -1,5 +1,7 @@
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.Checkbox;
@@ -8,8 +10,6 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,12 +27,12 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	private Map<V, Checkbox> m_checkMap = new HashMap<>();
 
-	@Nonnull
-	abstract protected V listToValue(@Nonnull T in) throws Exception;
+	@NonNull
+	abstract protected V listToValue(@NonNull T in) throws Exception;
 
 	public CheckboxSetInputBase() {}
 
-	public CheckboxSetInputBase(@Nonnull List<T> data) {
+	public CheckboxSetInputBase(@NonNull List<T> data) {
 		m_data = data;
 	}
 
@@ -85,7 +85,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		return id == null ? null : id.getActualID();
 	}
 
-	private void renderCheckbox(@Nonnull T lv) throws Exception {
+	private void renderCheckbox(@NonNull T lv) throws Exception {
 		V listval = listToValue(lv);
 
 		Checkbox cb = new Checkbox();
@@ -106,7 +106,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		if(ovc != null) {
 			cb.setClicked(new IClicked<Checkbox>() {
 				@Override
-				public void clicked(@Nonnull Checkbox clickednode) throws Exception {
+				public void clicked(@NonNull Checkbox clickednode) throws Exception {
 					ovc.onValueChanged(CheckboxSetInputBase.this);
 				}
 			});
@@ -122,7 +122,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		return (IRenderInto<T>) MetaManager.createDefaultComboRenderer(null, cmm);
 	}
 
-	//protected void renderOptionLabel(@Nonnull SelectOption o, @Nonnull T object) throws Exception {
+	//protected void renderOptionLabel(@NonNull SelectOption o, @NonNull T object) throws Exception {
 	//	if(m_actualContentRenderer == null)
 	//		m_actualContentRenderer = calculateContentRenderer(object);
 	//	m_actualContentRenderer.render(o, object);
@@ -137,7 +137,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		return value;
 	}
 
-	private void updateValue(@Nonnull Set<V> value) {
+	private void updateValue(@NonNull Set<V> value) {
 		for(Map.Entry<V, Checkbox> me : m_checkMap.entrySet()) {
 			if(me.getValue().isChecked()) {
 				value.add(me.getKey());

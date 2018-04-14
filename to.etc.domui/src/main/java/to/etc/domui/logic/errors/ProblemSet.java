@@ -1,10 +1,18 @@
 package to.etc.domui.logic.errors;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.util.IValueAccessor;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * EXPERIMENTAL - Do not use.
@@ -18,10 +26,10 @@ final public class ProblemSet implements Iterable<ProblemInstance> {
 	/**
 	 * Maps [object, property] to a set of errors. If the property is not known it is mapped as null.
 	 */
-	@Nonnull
+	@NonNull
 	final private Map<Object, Map<IValueAccessor< ? >, Set<ProblemInstance>>> m_map;
 
-	ProblemSet(@Nonnull Map<Object, Map<PropertyMetaModel< ? >, Set<ProblemInstance>>> map) {
+	ProblemSet(@NonNull Map<Object, Map<PropertyMetaModel< ? >, Set<ProblemInstance>>> map) {
 		m_map = new HashMap<>();
 
 		for(Map.Entry<Object, Map<PropertyMetaModel< ? >, Set<ProblemInstance>>> m1 : map.entrySet()) {
@@ -46,7 +54,7 @@ final public class ProblemSet implements Iterable<ProblemInstance> {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	public List<ProblemInstance> getErrorList() {
 		List<ProblemInstance> res = new ArrayList<>();
 		for(Map.Entry<Object, Map<IValueAccessor< ? >, Set<ProblemInstance>>> m1 : m_map.entrySet()) {
@@ -57,7 +65,7 @@ final public class ProblemSet implements Iterable<ProblemInstance> {
 		return res;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Iterator<ProblemInstance> iterator() {
 		return getErrorList().iterator();
@@ -70,7 +78,7 @@ final public class ProblemSet implements Iterable<ProblemInstance> {
 	 * @param property
 	 * @return
 	 */
-	public Set<ProblemInstance> remove(@Nonnull Object instance, @Nullable IValueAccessor< ? > property) {
+	public Set<ProblemInstance> remove(@NonNull Object instance, @Nullable IValueAccessor< ? > property) {
 		Map<IValueAccessor< ? >, Set<ProblemInstance>> objectMap = m_map.get(instance);
 		if(null != objectMap) {
 			Set<ProblemInstance> set = objectMap.remove(property);

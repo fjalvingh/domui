@@ -1,7 +1,8 @@
 package to.etc.webapp.query;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.lang.reflect.ParameterizedType;
 
 /**
@@ -13,24 +14,24 @@ import java.lang.reflect.ParameterizedType;
 public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 
 
-	private @Nonnull R m_root;
+	private @NonNull R m_root;
 
-	@Nonnull
+	@NonNull
 	QField<P, ? > m_parent;
 
 	@Nullable
 	private QExistsSubquery< ? > m_subquery;
 
-	@Nonnull
+	@NonNull
 	String m_listName;
 
-	public QList(@Nonnull R root, @Nonnull QField<P, ? > parent, String listName) throws Exception {
+	public QList(@NonNull R root, @NonNull QField<P, ? > parent, String listName) throws Exception {
 		m_root = root;
 		m_parent = parent;
 		m_listName = parent.toString().equals("") ? listName : parent.toString() + "." + listName;
 	}
 
-	//public @Nonnull
+	//public @NonNull
 	//<T>
 	//R exists() throws Exception {
 	//
@@ -41,11 +42,11 @@ public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 	//}
 
 
-	@Nonnull Class< ? > getRootClass() {
+	@NonNull Class< ? > getRootClass() {
 		return  (Class<?>) ((ParameterizedType) m_root.getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[1];
 	}
 
-	@Nonnull
+	@NonNull
 	QExistsSubquery< ? > getSubquery() {
 		QExistsSubquery< ? > subquery = m_subquery;
 		if(null == subquery)
@@ -53,7 +54,7 @@ public class QList<P extends QField<P, ? >, R extends QField<R, ? >> {
 		return subquery;
 	}
 
-	@Nonnull
+	@NonNull
 	R getRoot() {
 		return m_root;
 	}

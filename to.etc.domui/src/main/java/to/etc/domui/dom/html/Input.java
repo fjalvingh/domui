@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.INodeErrorDelegate;
 import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.server.IRequestContext;
@@ -31,8 +33,6 @@ import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -197,7 +197,7 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 * @see to.etc.domui.dom.html.NodeBase#acceptRequestParameter(java.lang.String[])
 	 */
 	@Override
-	public boolean acceptRequestParameter(@Nonnull String[] values) {
+	public boolean acceptRequestParameter(@NonNull String[] values) {
 		if(isDisabled()) {
 			return false;
 		}
@@ -218,7 +218,7 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if(Constants.ACMD_LOOKUP_TYPING.equals(action)) {
 			handleLookupTyping(ctx);
 		} else if(Constants.ACMD_LOOKUP_TYPING_DONE.equals(action)) {

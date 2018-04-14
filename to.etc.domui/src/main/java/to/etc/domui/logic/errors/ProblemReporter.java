@@ -1,5 +1,7 @@
 package to.etc.domui.logic.errors;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.ComponentPropertyBindingBidi;
 import to.etc.domui.component.binding.IBinding;
 import to.etc.domui.component.binding.OldBindingHandler;
@@ -10,8 +12,6 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IValueAccessor;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,7 +43,7 @@ public class ProblemReporter {
 	 * Get all error fences.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	private Set<IErrorFence> getAllFences() throws Exception {
 		final Set<IErrorFence> res = new HashSet<>();
 		DomUtil.walkTree(m_rootNode, new DomUtil.IPerNode() {
@@ -74,8 +74,8 @@ public class ProblemReporter {
 	 * @param fenceList
 	 * @return
 	 */
-	@Nonnull
-	private Set<UIMessage> getAllErrorSet(@Nonnull Collection<IErrorFence> fenceList) {
+	@NonNull
+	private Set<UIMessage> getAllErrorSet(@NonNull Collection<IErrorFence> fenceList) {
 		Set<UIMessage> res = new HashSet<>();
 		for(IErrorFence f : fenceList)
 			res.addAll(f.getMessageList());
@@ -165,7 +165,7 @@ public class ProblemReporter {
 	 * @param newErrorSet
 	 * @param n
 	 */
-	private void handleClaimError(Set<UIMessage> existingErrorSet, ProblemSet newErrorSet, @Nonnull NodeBase n) {
+	private void handleClaimError(Set<UIMessage> existingErrorSet, ProblemSet newErrorSet, @NonNull NodeBase n) {
 		//-- Get the errors on all bindings to this component.
 		List<ProblemInstance> all = new ArrayList<>();
 		List<UIMessage> bindingMessageList = collectBindingErrorsFromComponent(newErrorSet, n, all);
@@ -187,7 +187,7 @@ public class ProblemReporter {
 		moveMessageToComponent(existingErrorSet, n, all);
 	}
 
-	private void moveMessageToComponent(Set<UIMessage> existingErrorSet, @Nonnull NodeBase n, List<ProblemInstance> all) {
+	private void moveMessageToComponent(Set<UIMessage> existingErrorSet, @NonNull NodeBase n, List<ProblemInstance> all) {
 		//IErrorFence fence = DomUtil.getMessageFence(n);
 		for(ProblemInstance pi: all) {
 			if(!inExistingSet(existingErrorSet, n, pi)) {
@@ -208,7 +208,7 @@ public class ProblemReporter {
 		}
 	}
 
-	@Nonnull private List<UIMessage> collectBindingErrorsFromComponent(ProblemSet newErrorSet, @Nonnull NodeBase n, List<ProblemInstance> all) {
+	@NonNull private List<UIMessage> collectBindingErrorsFromComponent(ProblemSet newErrorSet, @NonNull NodeBase n, List<ProblemInstance> all) {
 		List<IBinding> bindingList = n.getBindingList();
 		if(null == bindingList)
 			return Collections.emptyList();
@@ -253,7 +253,7 @@ public class ProblemReporter {
 	 * @param n
 	 * @param binding
 	 */
-	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @Nonnull List<ProblemInstance> all, @Nonnull NodeBase n, @Nonnull ComponentPropertyBindingBidi<?, ?, ?, ?> binding) {
+	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @NonNull List<ProblemInstance> all, @NonNull NodeBase n, @NonNull ComponentPropertyBindingBidi<?, ?, ?, ?> binding) {
 		Object instance = binding.getInstance();
 		if(null == instance)								// Not an instance binding -> no errors here
 			return;

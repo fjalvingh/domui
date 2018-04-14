@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.buttons;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.ATag;
@@ -34,8 +36,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.parts.GrayscalerPart;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -66,14 +66,14 @@ public class LinkButton extends ATag implements IActionControl {
 		setCssClass("ui-lnkb");
 	}
 
-	public LinkButton(@Nonnull final String txt, @Nonnull final String image, @Nonnull final IClicked< ? extends NodeBase> clk) {
+	public LinkButton(@NonNull final String txt, @NonNull final String image, @NonNull final IClicked< ? extends NodeBase> clk) {
 		setCssClass("ui-lnkb ui-lbtn");
 		setClicked(clk);
 		m_text = txt;
 		setImage(image);
 	}
 
-	public LinkButton(@Nonnull final String txt, @Nonnull final String image) {
+	public LinkButton(@NonNull final String txt, @NonNull final String image) {
 		if(DomUtil.isIconName(image))
 			setCssClass("ui-lnkb ui-lbtn");
 		else
@@ -82,24 +82,24 @@ public class LinkButton extends ATag implements IActionControl {
 		setImage(image);
 	}
 
-	public LinkButton(@Nonnull final String txt) {
+	public LinkButton(@NonNull final String txt) {
 		setCssClass("ui-lnkb");
 		m_text = txt;
 	}
 
-	public LinkButton(@Nonnull final String txt, @Nonnull final IClicked< ? extends NodeBase> clk) {
+	public LinkButton(@NonNull final String txt, @NonNull final IClicked< ? extends NodeBase> clk) {
 		setCssClass("ui-lnkb");
 		setClicked(clk);
 		m_text = txt;
 	}
 
-	public LinkButton(@Nonnull IUIAction<Void> action) throws Exception {
+	public LinkButton(@NonNull IUIAction<Void> action) throws Exception {
 		this();
 		m_action = action;
 		actionRefresh();
 	}
 
-	public LinkButton(@Nonnull IUIAction<Void> action, @Nullable Object actionInstance) throws Exception {
+	public LinkButton(@NonNull IUIAction<Void> action, @Nullable Object actionInstance) throws Exception {
 		this();
 		m_action = action;
 		m_actionInstance = actionInstance;
@@ -173,7 +173,7 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getComponentInfo() {
 		return "LinkButton:" + m_text;
 	}
@@ -188,7 +188,7 @@ public class LinkButton extends ATag implements IActionControl {
 		return m_actionInstance;
 	}
 
-	public void setAction(@Nonnull IUIAction<Void> action) throws Exception {
+	public void setAction(@NonNull IUIAction<Void> action) throws Exception {
 		if(DomUtil.isEqual(m_action, action))
 			return;
 		m_action = action;
@@ -209,7 +209,7 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	@Override
-	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
+	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		if(isDisabled())
 			return;
 		super.internalOnClicked(cli);

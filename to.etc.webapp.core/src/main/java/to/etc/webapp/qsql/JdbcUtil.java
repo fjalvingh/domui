@@ -24,6 +24,8 @@
  */
 package to.etc.webapp.qsql;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.util.DateUtil;
@@ -31,8 +33,6 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.IIdentifyable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.CallableStatement;
@@ -71,21 +71,21 @@ final public class JdbcUtil {
 
 	private JdbcUtil() {}
 
-	static public void setLong(@Nonnull PreparedStatement ps, int index, Long value) throws SQLException {
+	static public void setLong(@NonNull PreparedStatement ps, int index, Long value) throws SQLException {
 		if(value == null)
 			ps.setNull(index, Types.NUMERIC);
 		else
 			ps.setLong(index, value.longValue());
 	}
 
-	static public void setInteger(@Nonnull PreparedStatement ps, int index, Integer value) throws SQLException {
+	static public void setInteger(@NonNull PreparedStatement ps, int index, Integer value) throws SQLException {
 		if(value == null)
 			ps.setNull(index, Types.NUMERIC);
 		else
 			ps.setInt(index, value.intValue());
 	}
 
-	static public void setDouble(@Nonnull PreparedStatement ps, int index, Double value) throws SQLException {
+	static public void setDouble(@NonNull PreparedStatement ps, int index, Double value) throws SQLException {
 		if(value == null)
 			ps.setNull(index, Types.DOUBLE);
 		else
@@ -99,7 +99,7 @@ final public class JdbcUtil {
 	 * @param value
 	 * @throws SQLException
 	 */
-	static public void setTimestamp(@Nonnull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
+	static public void setTimestamp(@NonNull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
 		if(value == null)
 			ps.setNull(index, Types.TIMESTAMP);
 		else if(value instanceof Timestamp)
@@ -115,7 +115,7 @@ final public class JdbcUtil {
 	 * @param value
 	 * @throws SQLException
 	 */
-	static public void setDateTruncated(@Nonnull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
+	static public void setDateTruncated(@NonNull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
 		if(value == null)
 			ps.setNull(index, Types.TIMESTAMP);
 		else {
@@ -127,7 +127,7 @@ final public class JdbcUtil {
 	/**
 	 * Sets a date..
 	 */
-	static public void setDate(@Nonnull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
+	static public void setDate(@NonNull PreparedStatement ps, int index, java.util.Date value) throws SQLException {
 		if(value == null)
 			ps.setNull(index, Types.DATE);
 		else {
@@ -136,14 +136,14 @@ final public class JdbcUtil {
 	}
 
 
-	static public void setString(@Nonnull PreparedStatement ps, int index, String value) throws SQLException {
+	static public void setString(@NonNull PreparedStatement ps, int index, String value) throws SQLException {
 		if(value == null || value.trim().length() == 0)
 			ps.setNull(index, Types.VARCHAR);
 		else
 			ps.setString(index, value);
 	}
 
-	static public void setStringTruncated(@Nonnull PreparedStatement ps, int index, String value, int maxlen) throws SQLException {
+	static public void setStringTruncated(@NonNull PreparedStatement ps, int index, String value, int maxlen) throws SQLException {
 		if(value == null || value.trim().length() == 0)
 			ps.setNull(index, Types.VARCHAR);
 		else {
@@ -154,14 +154,14 @@ final public class JdbcUtil {
 		}
 	}
 
-	static public void setYN(@Nonnull PreparedStatement ps, int index, Boolean value) throws SQLException {
+	static public void setYN(@NonNull PreparedStatement ps, int index, Boolean value) throws SQLException {
 		if(value == null)
 			ps.setNull(index, Types.VARCHAR);
 		else
 			ps.setString(index, value.booleanValue() ? "Y" : "N");
 	}
 
-	static public void setFK(@Nonnull PreparedStatement ps, int index, @Nullable IIdentifyable< ? extends Number> foreigner) throws SQLException {
+	static public void setFK(@NonNull PreparedStatement ps, int index, @Nullable IIdentifyable< ? extends Number> foreigner) throws SQLException {
 		if(foreigner == null)
 			ps.setNull(index, Types.NUMERIC);
 		else {
@@ -181,7 +181,7 @@ final public class JdbcUtil {
 	 * @param select
 	 * @return
 	 */
-	public static <T> T selectOne(@Nonnull Connection connection, @Nonnull Class<T> clz, @Nonnull String select, @Nonnull Object... params) throws SQLException {
+	public static <T> T selectOne(@NonNull Connection connection, @NonNull Class<T> clz, @NonNull String select, @NonNull Object... params) throws SQLException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -239,7 +239,7 @@ final public class JdbcUtil {
 	 * @param select
 	 * @return
 	 */
-	public static <T> List<T> selectSingleColumnList(@Nonnull Connection connection, @Nonnull Class<T> clz, @Nonnull String select, @Nonnull Object... params) throws SQLException {
+	public static <T> List<T> selectSingleColumnList(@NonNull Connection connection, @NonNull Class<T> clz, @NonNull String select, @NonNull Object... params) throws SQLException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -289,7 +289,7 @@ final public class JdbcUtil {
 		}
 	}
 
-	public static void setParameters(@Nonnull PreparedStatement ps, int startindex, @Nullable Object[] params) throws SQLException {
+	public static void setParameters(@NonNull PreparedStatement ps, int startindex, @Nullable Object[] params) throws SQLException {
 		if(params == null)
 			return;
 		for(int i = 0; i < params.length; i++) {
@@ -309,7 +309,7 @@ final public class JdbcUtil {
 		}
 	}
 
-	public static void setParameter(@Nonnull PreparedStatement ps, @Nullable Object val, int px) throws SQLException {
+	public static void setParameter(@NonNull PreparedStatement ps, @Nullable Object val, int px) throws SQLException {
 		if(val == null)
 			ps.setString(px, null);
 		else if(val instanceof String) {
@@ -340,7 +340,7 @@ final public class JdbcUtil {
 			throw new IllegalStateException("Call error: unknown SQL parameter of type " + val.getClass());
 	}
 
-	public static void readParameters(@Nonnull PreparedStatement ps, int startindex, @Nullable Object[] params) throws SQLException {
+	public static void readParameters(@NonNull PreparedStatement ps, int startindex, @Nullable Object[] params) throws SQLException {
 		if(params == null)
 			return;
 		for(int i = 0; i < params.length; i++) {
@@ -354,7 +354,7 @@ final public class JdbcUtil {
 		}
 	}
 
-	static public List<JdbcAnyRecord> queryAny(@Nonnull Connection dbc, @Nonnull String select, Object... parameters) throws SQLException {
+	static public List<JdbcAnyRecord> queryAny(@NonNull Connection dbc, @NonNull String select, Object... parameters) throws SQLException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -379,7 +379,7 @@ final public class JdbcUtil {
 		return l;
 	}
 
-	static public JdbcAnyRecord queryAnyOne(@Nonnull Connection dbc, @Nonnull String select, Object... parameters) throws SQLException {
+	static public JdbcAnyRecord queryAnyOne(@NonNull Connection dbc, @NonNull String select, Object... parameters) throws SQLException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -393,7 +393,7 @@ final public class JdbcUtil {
 		}
 	}
 
-	static public JdbcAnyRecord queryAnyOne(@Nonnull String tblname, @Nonnull ResultSet rs) throws SQLException {
+	static public JdbcAnyRecord queryAnyOne(@NonNull String tblname, @NonNull ResultSet rs) throws SQLException {
 		if(!rs.next())
 			return null;
 		ResultSetMetaData md = rs.getMetaData();
@@ -404,7 +404,7 @@ final public class JdbcUtil {
 		return a;
 	}
 
-	static private int calcSQLTypeFor(@Nonnull Class< ? > rt) {
+	static private int calcSQLTypeFor(@NonNull Class< ? > rt) {
 		if(rt == String.class)
 			return Types.VARCHAR;
 		else if(rt == Integer.class || rt == int.class || rt == Long.class || rt == long.class || rt == BigDecimal.class || rt == Double.class || rt == double.class)
@@ -415,7 +415,7 @@ final public class JdbcUtil {
 			throw new IllegalStateException("Call error: cannot get SQLType for java type=" + rt);
 	}
 
-	private static void appendSPParameters(@Nonnull StringBuilder sb, @Nonnull List<Object> pars, @Nonnull Object[] args) {
+	private static void appendSPParameters(@NonNull StringBuilder sb, @NonNull List<Object> pars, @NonNull Object[] args) {
 		//-- Handle parameters, and handle boolean arguments, sigh.
 		for(int i = 0; i < args.length; i++) {
 			Object val = args[i];
@@ -430,7 +430,7 @@ final public class JdbcUtil {
 		}
 	}
 
-	public static boolean executeStatement(@Nonnull Connection dbc, @Nonnull String sql, Object... args) throws SQLException {
+	public static boolean executeStatement(@NonNull Connection dbc, @NonNull String sql, Object... args) throws SQLException {
 		PreparedStatement ps = null;
 		try {
 			ps = dbc.prepareStatement(sql);
@@ -454,7 +454,7 @@ final public class JdbcUtil {
 	 * @return T in case update changed any data, otherwise F.
 	 * @throws SQLException
 	 */
-	public static boolean executeUpdatingCallableStatement(@Nonnull Connection dbc, @Nonnull String sql, @Nullable Object... args) throws SQLException {
+	public static boolean executeUpdatingCallableStatement(@NonNull Connection dbc, @NonNull String sql, @Nullable Object... args) throws SQLException {
 		sql = sql.trim();
 		if(!StringTool.strStartsWithIgnoreCase(sql, "begin") || !StringTool.strEndsWithIgnoreCase(sql, "end;")) {
 			StringBuilder response = new StringBuilder();
@@ -497,7 +497,7 @@ final public class JdbcUtil {
 	 * @return Oracle function return value in case of rtype != Void.class
 	 * @throws SQLException
 	 */
-	static public <T> T oracleSpCall(@Nonnull Connection con, @Nonnull Class<T> rtype, @Nonnull String sp, @Nonnull Object... args) throws SQLException {
+	static public <T> T oracleSpCall(@NonNull Connection con, @NonNull Class<T> rtype, @NonNull String sp, @NonNull Object... args) throws SQLException {
 		if(rtype == Boolean.class || rtype == boolean.class) {
 			return (T) Boolean.valueOf(oracleSpCallReturningBool(con, sp, args));
 		}
@@ -547,7 +547,7 @@ final public class JdbcUtil {
 	 * @return
 	 * @throws SQLException
 	 */
-	public static boolean oracleSpCallReturningBool(@Nonnull Connection con, @Nonnull String sp, @Nonnull Object... args) throws SQLException {
+	public static boolean oracleSpCallReturningBool(@NonNull Connection con, @NonNull String sp, @NonNull Object... args) throws SQLException {
 		StringBuilder sb = new StringBuilder();
 		sb.append("declare l_res number; ");
 		sb.append("begin if(").append(sp).append("(");
@@ -573,12 +573,12 @@ final public class JdbcUtil {
 		}
 	}
 
-	private static <T> void setOutParamValue(@Nonnull CallableStatement ps, int index, @Nonnull Class<T> rtype, @Nonnull JdbcOutParam< ? > pOutParam) throws SQLException {
+	private static <T> void setOutParamValue(@NonNull CallableStatement ps, int index, @NonNull Class<T> rtype, @NonNull JdbcOutParam< ? > pOutParam) throws SQLException {
 		JdbcOutParam<T> outParam = (JdbcOutParam<T>) pOutParam;
 		outParam.setValue(readPsValue(ps, index, rtype));
 	}
 
-	private static <T> T readPsValue(@Nonnull CallableStatement ps, int index, @Nonnull Class<T> rtype) throws SQLException {
+	private static <T> T readPsValue(@NonNull CallableStatement ps, int index, @NonNull Class<T> rtype) throws SQLException {
 		if(rtype == String.class) {
 			return (T) ps.getString(index);
 		} else if(rtype == Integer.class || rtype == int.class) {
@@ -620,7 +620,7 @@ final public class JdbcUtil {
 	 * @throws Exception
 	 */
 	@Nullable
-	static public String hasChildRecords(@Nonnull Connection dbc, @Nullable String schemaName, @Nonnull String tableName, @Nonnull String primaryKey) throws Exception {
+	static public String hasChildRecords(@NonNull Connection dbc, @Nullable String schemaName, @NonNull String tableName, @NonNull String primaryKey) throws Exception {
 		DatabaseMetaData dmd = dbc.getMetaData();
 		ResultSet rs = null;
 		ResultSet rs2 = null;
@@ -680,14 +680,14 @@ final public class JdbcUtil {
 		}
 	}
 
-	private static void logDebug(@Nonnull String sourceMethod, @Nonnull String sql, Object[] params) {
+	private static void logDebug(@NonNull String sourceMethod, @NonNull String sql, Object[] params) {
 		if(LOG.isDebugEnabled()) {
 			LOG.debug(sourceMethod + ": " + sql);
 			logDebugParams(params);
 		}
 	}
 
-	private static void logDebug(@Nonnull String sourceMethod, @Nonnull String sql, List<Object> params) {
+	private static void logDebug(@NonNull String sourceMethod, @NonNull String sql, List<Object> params) {
 		if(LOG.isDebugEnabled()) {
 			logDebug(sourceMethod, sql, params.toArray());
 		}
@@ -738,7 +738,7 @@ final public class JdbcUtil {
 	}
 
 	@Nullable
-	public static Long readLong(@Nonnull ResultSet rs, @Nonnull String colName) throws SQLException {
+	public static Long readLong(@NonNull ResultSet rs, @NonNull String colName) throws SQLException {
 		Long value = rs.getLong(colName);
 		if (rs.wasNull()){
 			return null;
@@ -747,7 +747,7 @@ final public class JdbcUtil {
 	}
 
 	@Nullable
-	public static Integer readInt(@Nonnull ResultSet rs, @Nonnull String colName) throws SQLException {
+	public static Integer readInt(@NonNull ResultSet rs, @NonNull String colName) throws SQLException {
 		Integer value = rs.getInt(colName);
 		if (rs.wasNull()){
 			return null;
@@ -756,18 +756,18 @@ final public class JdbcUtil {
 	}
 
 	@Nullable
-	public static java.util.Date readDate(@Nonnull ResultSet rs, @Nonnull String colName) throws SQLException {
+	public static java.util.Date readDate(@NonNull ResultSet rs, @NonNull String colName) throws SQLException {
 		return DateUtil.sqlToUtilDate(rs.getDate(colName));
 	}
 
 	@Nullable
-	public static java.util.Date readDate(@Nonnull ResultSet rs, int index) throws SQLException {
+	public static java.util.Date readDate(@NonNull ResultSet rs, int index) throws SQLException {
 		return DateUtil.sqlToUtilDate(rs.getDate(index));
 	}
 
 
 	@Nullable
-	public static java.util.Date readTimestamp(@Nonnull ResultSet rs, int colIndex) throws SQLException {
+	public static java.util.Date readTimestamp(@NonNull ResultSet rs, int colIndex) throws SQLException {
 		Timestamp ts = rs.getTimestamp(colIndex);
 		return null == ts ? null : new java.util.Date(ts.getTime());
 	}

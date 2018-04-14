@@ -1,8 +1,8 @@
 package to.etc.dbutil.schema;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.dbutil.reverse.Reverser;
 
-import javax.annotation.Nonnull;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,7 +46,7 @@ public class DbColumn implements Serializable {
 		m_autoIncrement = autoIncrement;
 	}
 
-	@Nonnull
+	@NonNull
 	public Reverser r() {
 		return m_table.r();
 	}

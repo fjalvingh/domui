@@ -24,6 +24,7 @@
  */
 package to.etc.domui.login;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.layout.CaptionedPanel;
 import to.etc.domui.component.misc.ALink;
 import to.etc.domui.dom.html.Div;
@@ -39,8 +40,6 @@ import to.etc.domui.state.MoveMode;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
-
-import javax.annotation.Nonnull;
 
 /**
  * Shows access denied info.
@@ -127,7 +126,7 @@ public class AccessDeniedPage extends UrlPage {
 	 *
 	 * @param d
 	 */
-	protected void renderMissingRightsInfo(@Nonnull Div d) {
+	protected void renderMissingRightsInfo(@NonNull Div d) {
 		Ul ul = new Ul();
 		d.add(ul);
 		for(int i = 0; i < 99; i++) {

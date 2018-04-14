@@ -1,10 +1,8 @@
 package to.etc.domui.component.delayed;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.util.Progress;
 import to.etc.webapp.query.QContextManager;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This defines a handler for asynchronous execution within a DomUI page. See {@link AsyncContainer} for a component that uses it.
@@ -30,7 +28,7 @@ public interface IAsyncRunnable {
 	 * @param p
 	 * @throws Exception
 	 */
-	void run(@Nonnull Progress p) throws Exception;
+	void run(@NonNull Progress p) throws Exception;
 	//
 	///**
 	// * This method gets called with your originating DomUI page "active" when the activity has completed. At the time

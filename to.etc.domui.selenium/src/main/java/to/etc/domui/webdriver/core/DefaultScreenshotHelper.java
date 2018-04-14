@@ -1,5 +1,7 @@
 package to.etc.domui.webdriver.core;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -7,8 +9,6 @@ import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import to.etc.util.FileTool;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -38,7 +38,7 @@ public class DefaultScreenshotHelper implements IWebdriverScreenshotHelper {
 		return false;
 	}
 
-	@Nullable @Override public BufferedImage createScreenshot(@Nonnull WebDriverConnector wd) throws Exception {
+	@Nullable @Override public BufferedImage createScreenshot(@NonNull WebDriverConnector wd) throws Exception {
 		WebDriver ad = wd.driver();
 
 		if(ad instanceof RemoteWebDriver && wd.getDriverType() == WebDriverType.REMOTE) {

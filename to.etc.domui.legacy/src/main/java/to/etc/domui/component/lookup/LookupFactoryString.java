@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
@@ -32,12 +33,10 @@ import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
-
 @Deprecated
 final class LookupFactoryString implements ILookupControlFactory {
 	@Override
-	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		if(control != null) {
 			if(!(control instanceof Text2<?>))
 				return -1;
@@ -49,7 +48,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 	}
 
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance<T> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<T> createControl(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
 		Class<T> iclz = pmm.getActualType();
 
@@ -75,7 +74,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 		//-- Converter thingy is known. Now add a
 		return new BaseAbstractLookupControlImpl<T>(txt) {
 			@Override
-			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception {
+			public @NonNull AppendCriteriaResult appendCriteria(@NonNull QCriteria<?> crit) throws Exception {
 				Object value = null;
 				try {
 					value = txt.getValue();

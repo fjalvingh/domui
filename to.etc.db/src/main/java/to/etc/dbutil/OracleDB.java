@@ -24,17 +24,31 @@
  */
 package to.etc.dbutil;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.dbpool.DbPoolUtil;
 
-import javax.annotation.*;
-import javax.sql.*;
-
-import org.slf4j.*;
-
-import to.etc.dbpool.*;
+import javax.sql.DataSource;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class OracleDB extends BaseDB {
 
@@ -589,7 +603,7 @@ public class OracleDB extends BaseDB {
 	 * @param owner
 	 * @param objectNames
 	 */
-	public static void updateSynonyms(@Nonnull DataSource ds, @Nonnull String owner, String... objectNames) {
+	public static void updateSynonyms(@NonNull DataSource ds, @NonNull String owner, String... objectNames) {
 		PreparedStatement ps = null;
 		PreparedStatement ps2 = null;
 		ResultSet rs = null;
@@ -711,7 +725,7 @@ public class OracleDB extends BaseDB {
 	 * Created on Apr 5, 2011
 	 */
 	public interface IPrivilegedAction {
-		Object execute(@Nonnull Connection dbc) throws Exception;
+		Object execute(@NonNull Connection dbc) throws Exception;
 	}
 
 	/**
@@ -728,7 +742,7 @@ public class OracleDB extends BaseDB {
 	 * @return
 	 * @throws Exception
 	 */
-	static public Object runAsOtherSchemaUser(@Nonnull DataSource otherSchemaDs, @Nonnull String otherUserName, @Nonnull DataSource defaultDs, @Nonnull IPrivilegedAction paction) throws Exception {
+	static public Object runAsOtherSchemaUser(@NonNull DataSource otherSchemaDs, @NonNull String otherUserName, @NonNull DataSource defaultDs, @NonNull IPrivilegedAction paction) throws Exception {
 		Connection otherSchemaConn = null;
 		Connection defaultConn = defaultDs.getConnection();
 		try {
@@ -755,8 +769,8 @@ public class OracleDB extends BaseDB {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	static public Connection allocateConnectionAs(@Nonnull DataSource otherSchemaDs, @Nonnull String otherUserName, @Nonnull Connection sourceConn) throws Exception {
+	@NonNull
+	static public Connection allocateConnectionAs(@NonNull DataSource otherSchemaDs, @NonNull String otherUserName, @NonNull Connection sourceConn) throws Exception {
 		int phase = 0;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -842,7 +856,7 @@ public class OracleDB extends BaseDB {
 		}
 	}
 
-	static private void restorePassword(@Nonnull Connection dbc, @Nonnull String userName, @Nonnull String hash) {
+	static private void restorePassword(@NonNull Connection dbc, @NonNull String userName, @NonNull String hash) {
 		PreparedStatement ps = null;
 		try {
 			//-- Immediately restore the original password,
@@ -864,7 +878,7 @@ public class OracleDB extends BaseDB {
 	 * @param ischar
 	 * @throws Exception
 	 */
-	static public void setCharSemantics(@Nonnull Connection dbc, boolean ischar) throws Exception {
+	static public void setCharSemantics(@NonNull Connection dbc, boolean ischar) throws Exception {
 		PreparedStatement ps = null;
 		try {
 			ps = dbc.prepareStatement("alter session set nls_length_semantics=" + (ischar ? "CHAR" : "BYTE"));
@@ -904,7 +918,7 @@ public class OracleDB extends BaseDB {
 	 * @param charsemantics
 	 * @throws Exception
 	 */
-	static public void recompileAll(@Nonnull Connection dbc, @Nonnull String schema, boolean invalidsonly, boolean charsemantics) throws Exception {
+	static public void recompileAll(@NonNull Connection dbc, @NonNull String schema, boolean invalidsonly, boolean charsemantics) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -944,7 +958,7 @@ public class OracleDB extends BaseDB {
 		}
 	}
 
-	private static void dropSynonym(@Nonnull Connection dbc, @Nonnull Pair p) {
+	private static void dropSynonym(@NonNull Connection dbc, @NonNull Pair p) {
 		PreparedStatement ps = null;
 		try {
 			String sql = "PUBLIC".equalsIgnoreCase(p.getOwner()) ? "drop public synonym \"" + p.getName() + "\"" : "drop synonym " + p.getOwner() + ".\"" + p.getName() + "\"";

@@ -1,11 +1,11 @@
 package to.etc.domui.webdriver.core;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.WebElement;
 
-import javax.annotation.DefaultNonNull;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -16,7 +16,7 @@ import java.io.File;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 25-8-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class ScreenInspector {
 	private final WebDriverConnector m_wd;
 

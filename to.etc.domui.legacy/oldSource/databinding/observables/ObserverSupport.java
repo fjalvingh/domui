@@ -30,8 +30,8 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.databinding.IObservable;
 import to.etc.domui.databinding.IPropertyChangeNotifier;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import java.beans.PropertyChangeSupport;
 import java.util.Collections;
 import java.util.HashMap;
@@ -46,22 +46,22 @@ import java.util.Map;
  * Created on Apr 23, 2013
  */
 public class ObserverSupport<C> {
-	@Nonnull
+	@NonNull
 	final private C m_instance;
 
-	@Nonnull
+	@NonNull
 	final private ClassMetaModel m_model;
 
-	@Nonnull
+	@NonNull
 	private Map<String, IObservable< ? , ? , ? >> m_propertyMap = Collections.EMPTY_MAP;
 
-	public ObserverSupport(@Nonnull C instance) {
+	public ObserverSupport(@NonNull C instance) {
 		m_instance = instance;
 		m_model = MetaManager.findClassMeta(instance.getClass());
 	}
 
-	@Nonnull
-	public <T> ObservablePropertyValue<C, T> observableValue(@Nonnull String property) {
+	@NonNull
+	public <T> ObservablePropertyValue<C, T> observableValue(@NonNull String property) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
 		if(null == po) {
 			if(m_propertyMap.size() == 0)
@@ -73,8 +73,8 @@ public class ObserverSupport<C> {
 		return (ObservablePropertyValue<C, T>) po;
 	}
 
-	@Nonnull
-	public <T> ObservablePropertyList<C, T> observableList(@Nonnull String property) {
+	@NonNull
+	public <T> ObservablePropertyList<C, T> observableList(@NonNull String property) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(property);
 		if(null == po) {
 			if(m_propertyMap.size() == 0)
@@ -88,7 +88,7 @@ public class ObserverSupport<C> {
 		return (ObservablePropertyList<C, T>) po;
 	}
 
-	public <T> void fireModified(@Nonnull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
+	public <T> void fireModified(@NonNull String propertyName, @Nullable T oldValue, @Nullable T newValue) {
 		IObservable< ? , ? , ? > po = m_propertyMap.get(propertyName);
 		if(po instanceof IPropertyChangeNotifier) {
 			((IPropertyChangeNotifier) po).notifyIfChanged(oldValue, newValue);

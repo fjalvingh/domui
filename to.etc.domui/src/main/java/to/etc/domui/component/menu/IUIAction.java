@@ -1,8 +1,8 @@
 package to.etc.domui.component.menu;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
 
 public interface IUIAction<T> {
 	/**
@@ -15,7 +15,7 @@ public interface IUIAction<T> {
 	@Nullable
 	String getDisableReason(@Nullable T instance) throws Exception;
 
-	@Nonnull
+	@NonNull
 	String getName(@Nullable T instance) throws Exception;
 
 	@Nullable
@@ -24,5 +24,5 @@ public interface IUIAction<T> {
 	@Nullable
 	String getIcon(@Nullable T instance) throws Exception;
 
-	void execute(@Nonnull NodeBase component, @Nullable T instance) throws Exception;
+	void execute(@NonNull NodeBase component, @Nullable T instance) throws Exception;
 }

@@ -24,13 +24,14 @@
  */
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.state.UIGoto;
+import to.etc.domui.themes.Theme;
 
 abstract public class ButtonMakerBase {
 	abstract protected void addButton(NodeBase b);
@@ -57,7 +58,7 @@ abstract public class ButtonMakerBase {
 	public DefaultButton addBackButton(final String txt, final String icon) {
 		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(final @Nonnull DefaultButton bxx) throws Exception {
+			public void clicked(final @NonNull DefaultButton bxx) throws Exception {
 				UIGoto.back();
 			}
 		});

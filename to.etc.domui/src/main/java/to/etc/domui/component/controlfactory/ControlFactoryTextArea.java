@@ -24,18 +24,19 @@
  */
 package to.etc.domui.component.controlfactory;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.server.DomApplication;
 
 public class ControlFactoryTextArea implements PropertyControlFactory {
 	/**
 	 * Accept if the componentHint says textarea.
 	 */
 	@Override
-	public int accepts(@Nonnull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass) {
+	public int accepts(@NonNull PropertyMetaModel< ? > pmm, boolean editable, @Nullable Class< ? > controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(TextArea.class))
 			return -1;
 		String cth = pmm.getComponentTypeHint();
@@ -47,7 +48,7 @@ public class ControlFactoryTextArea implements PropertyControlFactory {
 	}
 
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(@Nonnull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass) {
+	public @NonNull <T> ControlFactoryResult createControl(@NonNull PropertyMetaModel<T> pmm, boolean editable, @Nullable Class< ? > controlClass) {
 		TextArea ta = editable ? new TextArea() : new TextDisplayArea();
 		if(!editable)
 			ta.setReadOnly(true);

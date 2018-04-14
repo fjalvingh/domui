@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
@@ -32,7 +33,6 @@ import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**

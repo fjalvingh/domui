@@ -24,15 +24,28 @@
  */
 package to.etc.domui.component.input;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.tbl.ColumnContainer;
+import to.etc.domui.component.tbl.ColumnDefList;
+import to.etc.domui.component.tbl.HeaderContainer;
+import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.IClickableRowRenderer;
+import to.etc.domui.component.tbl.IRowRenderer;
+import to.etc.domui.component.tbl.SimpleColumnDef;
+import to.etc.domui.component.tbl.TableModelTableBase;
+import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.IValueTransformer;
+import to.etc.webapp.nls.NlsContext;
 
 /**
  * This is simplified row renderer that is used ad default render for popup results in keyword search.
@@ -47,7 +60,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 	/** When the definition has completed (the object is used) this is TRUE; it disables all calls that change the definition */
 	private boolean m_completed;
 
-	@Nonnull
+	@NonNull
 	private final ColumnDefList<T> m_columnList;
 
 	/*--------------------------------------------------------------*/
@@ -56,7 +69,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 	/**
 	 * Create a renderer by handling the specified class and a list of properties off it.
 	 */
-	KeyWordPopupRowRenderer(@Nonnull final ClassMetaModel cmm) {
+	KeyWordPopupRowRenderer(@NonNull final ClassMetaModel cmm) {
 		m_columnList = new ColumnDefList<T>((Class<T>) cmm.getActualClass(), cmm);
 	}
 
@@ -82,7 +95,7 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
 	 */
 	@Override
-	public void setRowClicked(@Nonnull ICellClicked<T> rowClicked) {
+	public void setRowClicked(@NonNull ICellClicked<T> rowClicked) {
 		m_rowClicked = rowClicked;
 	}
 
@@ -99,14 +112,14 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 	 * @see to.etc.domui.component.tbl.IRowRenderer#beforeQuery(to.etc.domui.component.tbl.DataTable)
 	 */
 	@Override
-	public void beforeQuery(final @Nonnull TableModelTableBase<T> tbl) throws Exception {
+	public void beforeQuery(final @NonNull TableModelTableBase<T> tbl) throws Exception {
 		if(m_columnList.size() == 0)
 			addDefaultColumns();
 		m_completed = true;
 	}
 
 	@Override
-	public void renderHeader(@Nonnull TableModelTableBase<T> tbl, @Nonnull HeaderContainer<T> cc) throws Exception {
+	public void renderHeader(@NonNull TableModelTableBase<T> tbl, @NonNull HeaderContainer<T> cc) throws Exception {
 		//-- Do not render a header.
 	}
 
@@ -118,12 +131,12 @@ final class KeyWordPopupRowRenderer<T> implements IRowRenderer<T>, IClickableRow
 	 * @see to.etc.domui.component.tbl.IRowRenderer#renderRow(to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
-	public void renderRow(final @Nonnull TableModelTableBase<T> tbl, final @Nonnull ColumnContainer<T> cc, final int index, final @Nonnull T instance) throws Exception {
+	public void renderRow(final @NonNull TableModelTableBase<T> tbl, final @NonNull ColumnContainer<T> cc, final int index, final @NonNull T instance) throws Exception {
 		final ICellClicked< ? > rowClicked = m_rowClicked;
 		if(rowClicked != null) {
 			cc.getTR().setClicked(new IClicked<TR>() {
 				@Override
-				public void clicked(final @Nonnull TR b) throws Exception {
+				public void clicked(final @NonNull TR b) throws Exception {
 					ICellClicked< ? > rowClicked = getRowClicked();
 					if(null != rowClicked)
 						((ICellClicked<T>) rowClicked).cellClicked(instance);

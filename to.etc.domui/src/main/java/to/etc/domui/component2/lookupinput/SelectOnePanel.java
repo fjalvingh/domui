@@ -1,11 +1,19 @@
 package to.etc.domui.component2.lookupinput;
 
-import to.etc.domui.component.combobox.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.combobox.ComboBoxBase;
+import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IHasChangeListener;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.List;
 
 /**
  * A panel that is meant as a dropdown for a {@link SearchInput2} or {@link ComboBoxBase}. It
@@ -19,7 +27,7 @@ import java.util.*;
  * Created on Jul 13, 2014
  */
 public class SelectOnePanel<T> extends Div implements IHasChangeListener {
-	@Nonnull
+	@NonNull
 	final private List<T> m_itemList;
 
 	final private IRenderInto<T> m_renderer;
@@ -32,7 +40,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 
 	private IValueChanged< ? > m_valueChanged;
 
-	public SelectOnePanel(@Nonnull List<T> itemList, @Nonnull IRenderInto<T> renderer) {
+	public SelectOnePanel(@NonNull List<T> itemList, @NonNull IRenderInto<T> renderer) {
 		m_itemList = itemList;
 		m_renderer = renderer;
 	}
@@ -54,7 +62,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 		m_currentValue = -1;
 	}
 
-	private void renderItem(@Nonnull TBody body, @Nonnull T item) throws Exception {
+	private void renderItem(@NonNull TBody body, @NonNull T item) throws Exception {
 		TR row = body.addRow();
 		row.setCssClass("ui-ssop-row");
 		TD cell = row.addCell();
@@ -85,7 +93,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 	}
 
 	@Override
-	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
+	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		//-- We have a click. Has the value changed?
 		if(m_currentValue != m_currentSelection) {
 			m_currentValue = m_currentSelection;					// The selected one becomes the value

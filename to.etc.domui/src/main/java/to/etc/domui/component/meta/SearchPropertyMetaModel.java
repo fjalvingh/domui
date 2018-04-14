@@ -24,7 +24,8 @@
  */
 package to.etc.domui.component.meta;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.Comparator;
 
 public interface SearchPropertyMetaModel {
@@ -49,7 +50,7 @@ public interface SearchPropertyMetaModel {
 	 */
 	int getMinLength();
 
-	@Nonnull
+	@NonNull
 	PropertyMetaModel<?> getProperty();
 
 	//String getPropertyName();

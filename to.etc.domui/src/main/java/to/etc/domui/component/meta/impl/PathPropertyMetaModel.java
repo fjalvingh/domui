@@ -24,17 +24,31 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.controlfactory.PropertyControlFactory;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyMetaValidator;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.TemporalPresentationType;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.IValueAccessor;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This is a proxy for an existing PropertyMetaModel for path-based properties. This overrides
@@ -59,13 +73,13 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 		m_dottedName = dottedName;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String toString() {
 		return "PathProperty[" + m_dottedName + "@" + m_accessPath[0].getClassModel().toString() + "]";
 	}
 
-	@Nonnull
+	@NonNull
 	public List<PropertyMetaModel< ? >> getAccessPath() {
 		return Arrays.asList(m_accessPath);
 	}
@@ -128,7 +142,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getDefaultLabel()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public String getDefaultLabel() {
 		String toReturn = locateProperty("label");
 		return toReturn == null? getName() : toReturn;
@@ -221,7 +235,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	/*	CODING:	Silly proxies.										*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public @Nonnull Class<T> getActualType() {
+	public @NonNull Class<T> getActualType() {
 		return m_original.getActualType();
 	}
 
@@ -236,7 +250,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public @Nonnull ClassMetaModel getClassModel() {
+	public @NonNull ClassMetaModel getClassModel() {
 		return m_original.getClassModel();
 	}
 
@@ -246,7 +260,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_original.getComboDisplayProperties();
 	}
 
@@ -291,7 +305,7 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_original.getLookupSelectedProperties();
 	}
 
@@ -301,22 +315,22 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public @Nonnull List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+	public @NonNull List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
 		return m_original.getLookupFieldSearchProperties();
 	}
 
 	@Override
-	public @Nonnull List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+	public @NonNull List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
 		return m_original.getLookupFieldKeySearchProperties();
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getLookupTableProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getLookupTableProperties() {
 		return m_original.getLookupTableProperties();
 	}
 
 	@Override
-	public @Nonnull String getName() {
+	public @NonNull String getName() {
 		return m_dottedName;
 	}
 
@@ -326,17 +340,17 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public @Nonnull YesNoType getReadOnly() {
+	public @NonNull YesNoType getReadOnly() {
 		return m_original.getReadOnly();
 	}
 
 	@Override
-	public @Nonnull PropertyRelationType getRelationType() {
+	public @NonNull PropertyRelationType getRelationType() {
 		return m_original.getRelationType();
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public YesNoType getNowrap() {
 		return m_original.getNowrap();
 	}
@@ -347,21 +361,21 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public @Nonnull SortableType getSortable() {
+	public @NonNull SortableType getSortable() {
 		return m_original.getSortable();
 	}
 
 	@Override
-	public @Nonnull TemporalPresentationType getTemporal() {
+	public @NonNull TemporalPresentationType getTemporal() {
 		return m_original.getTemporal();
 	}
 
 	@Override
-	public @Nonnull NumericPresentation getNumericPresentation() {
+	public @NonNull NumericPresentation getNumericPresentation() {
 		return m_original.getNumericPresentation();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public PropertyMetaValidator[] getValidators() {
 		return m_original.getValidators();
@@ -398,16 +412,16 @@ public class PathPropertyMetaModel<T> implements PropertyMetaModel<T>, IValueAcc
 	}
 
 	@Override
-	public <A> A getAnnotation(@Nonnull Class<A> annclass) {
+	public <A> A getAnnotation(@NonNull Class<A> annclass) {
 		return m_original.getAnnotation(annclass);
 	}
 
 	@Override
-	public @Nonnull List<Object> getAnnotations() {
+	public @NonNull List<Object> getAnnotations() {
 		return m_original.getAnnotations();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String[] getColumnNames() {
 		return m_original.getColumnNames();

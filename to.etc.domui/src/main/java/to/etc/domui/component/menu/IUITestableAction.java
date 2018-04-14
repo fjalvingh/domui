@@ -1,6 +1,6 @@
 package to.etc.domui.component.menu;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Extension of {@link IUIAction<T>} that support automatic tests.

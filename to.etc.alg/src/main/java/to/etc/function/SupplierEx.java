@@ -1,6 +1,6 @@
 package to.etc.function;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Version of Supplier which allows for exceptions, replacing the version

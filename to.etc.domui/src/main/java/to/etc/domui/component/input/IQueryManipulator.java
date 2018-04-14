@@ -24,9 +24,9 @@
  */
 package to.etc.domui.component.input;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.webapp.query.QCriteria;
 
 /**
  * Allows manipulation of some generic query after it's creation.
@@ -41,5 +41,5 @@ public interface IQueryManipulator<T> {
 	 * @return
 	 */
 	@Nullable
-	QCriteria<T> adjustQuery(@Nonnull QCriteria<T> c);
+	QCriteria<T> adjustQuery(@NonNull QCriteria<T> c);
 }

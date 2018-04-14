@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.searchpanel.SearchPanel;
@@ -45,8 +46,6 @@ import to.etc.domui.util.Msgs;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContextFactory;
-
-import javax.annotation.Nonnull;
 
 /**
  * Represents simple lookup dialog that enables single item selection.
@@ -128,7 +127,7 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 		add(lf);
 		setOnClose(new IWindowClosed() {
 			@Override
-			public void closed(@Nonnull String closeReason) throws Exception {
+			public void closed(@NonNull String closeReason) throws Exception {
 				clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 				m_result = null;
 			}
@@ -136,14 +135,14 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 
 		lf.setClicked(new IClicked<SearchPanel<T>>() {
 			@Override
-			public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
+			public void clicked(@NonNull SearchPanel<T> b) throws Exception {
 				search(b);
 			}
 		});
 
 		lf.setOnCancel(new IClicked<SearchPanel<T>>() {
 			@Override
-			public void clicked(@Nonnull SearchPanel<T> b) throws Exception {
+			public void clicked(@NonNull SearchPanel<T> b) throws Exception {
 				closePressed();
 			}
 		});
@@ -202,7 +201,7 @@ public class SimpleLookup<T> extends AbstractFloatingLookup<T> {
 
 			rr.setRowClicked(new ICellClicked<T>() {
 				@Override
-				public void cellClicked(@Nonnull T val) throws Exception {
+				public void cellClicked(@NonNull T val) throws Exception {
 					clearGlobalMessage(Msgs.V_MISSING_SEARCH);
 					close();
 					if(getOnValueSelected() != null) {

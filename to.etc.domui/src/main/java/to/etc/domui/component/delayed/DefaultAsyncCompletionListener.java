@@ -1,12 +1,11 @@
 package to.etc.domui.component.delayed;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.Msgs;
 import to.etc.util.CancelledException;
 import to.etc.util.StringTool;
-
-import javax.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

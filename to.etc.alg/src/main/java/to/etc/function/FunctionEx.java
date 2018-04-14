@@ -1,6 +1,7 @@
 package to.etc.function;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.Objects;
 
 /**
@@ -33,7 +34,7 @@ public interface FunctionEx<T, R> {
 	 *
 	 * @see #andThen(FunctionEx)
 	 */
-	default <V> FunctionEx<V, R> compose(@Nonnull FunctionEx<? super V, ? extends T> before) throws Exception {
+	default <V> FunctionEx<V, R> compose(@NonNull FunctionEx<? super V, ? extends T> before) throws Exception {
 		return (V v) -> apply(before.apply(v));
 	}
 

@@ -24,6 +24,7 @@
  */
 package to.etc.domui.converter;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -31,7 +32,6 @@ import to.etc.domui.component.meta.SortableType;
 import to.etc.util.RuntimeConversions;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -79,8 +79,8 @@ public class ConverterRegistry {
 	 * @param clz
 	 * @return
 	 */
-	@Nonnull
-	static public synchronized <X, T extends IConverter<X>> T getConverterInstance(@Nonnull Class<T> clz) {
+	@NonNull
+	static public synchronized <X, T extends IConverter<X>> T getConverterInstance(@NonNull Class<T> clz) {
 		T c = (T) m_converterMap.get(clz);
 		if(c == null) {
 			try {
@@ -141,7 +141,7 @@ public class ConverterRegistry {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	static public <X, T extends IConverter<X>> String convertValueToString(Class<T> clz, X in) throws Exception {
 		if(clz == null)
 			return in == null ? "" : in.toString();
@@ -431,7 +431,7 @@ public class ConverterRegistry {
 	 * @param valueClass
 	 * @param comp
 	 */
-	static synchronized public <T> void registerComparator(@Nonnull Comparator<T> comp, Class< ? >... valueClass) {
+	static synchronized public <T> void registerComparator(@NonNull Comparator<T> comp, Class< ? >... valueClass) {
 		m_comparatorMap = new HashMap<Class< ? >, Comparator< ? >>(m_comparatorMap);
 		for(Class< ? > clz : valueClass)
 			m_comparatorMap.put(clz, comp);
@@ -448,7 +448,7 @@ public class ConverterRegistry {
 	 * @param descending
 	 * @return
 	 */
-	static public <T> Comparator<T> getComparator(@Nonnull Class<T> dataClass, @Nonnull String property, boolean descending) {
+	static public <T> Comparator<T> getComparator(@NonNull Class<T> dataClass, @NonNull String property, boolean descending) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
 		return (Comparator<T>) getComparator(cmm, property, descending);
 	}
@@ -462,7 +462,7 @@ public class ConverterRegistry {
 	 * </pre>
 	 * If no order parameters are specified the order defaults to the "descending" parameter.
 	 */
-	static public <C> Comparator<C> getComparator(@Nonnull ClassMetaModel cmm, @Nonnull String propertyPath, boolean descending) {
+	static public <C> Comparator<C> getComparator(@NonNull ClassMetaModel cmm, @NonNull String propertyPath, boolean descending) {
 		List<Comparator<C>> all = new ArrayList<>();
 		String[] ar = propertyPath.split(";");
 		for(String pn : ar) {

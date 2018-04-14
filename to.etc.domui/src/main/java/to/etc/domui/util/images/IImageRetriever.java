@@ -24,7 +24,8 @@
  */
 package to.etc.domui.util.images;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Factory to obtain an image's data from a per-retriever key string.
@@ -42,7 +43,7 @@ public interface IImageRetriever {
 	 * by this call may not change over the lifetime of this factory.
 	 * @return
 	 */
-	@Nonnull String getRetrieverKey();
+	@NonNull String getRetrieverKey();
 
 	/**
 	 * Returns the check interval, in millis. This is the age that an image may have in the cache before it's
@@ -51,5 +52,5 @@ public interface IImageRetriever {
 	 */
 	long getCheckInterval();
 
-	@Nullable IImageReference loadImage(@Nonnull String key) throws Exception;
+	@Nullable IImageReference loadImage(@NonNull String key) throws Exception;
 }

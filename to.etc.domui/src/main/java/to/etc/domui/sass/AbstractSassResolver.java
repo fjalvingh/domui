@@ -1,5 +1,6 @@
 package to.etc.domui.sass;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.parts.ParameterInfoImpl;
@@ -11,7 +12,6 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -190,7 +190,7 @@ abstract public class AbstractSassResolver<O> {
 
 	abstract protected O createInput(String path, String data);
 
-	@Nonnull private O calculateParameterFile() {
+	@NonNull private O calculateParameterFile() {
 		O pf = m_parameterFile;
 		if(null == pf) {
 			try {

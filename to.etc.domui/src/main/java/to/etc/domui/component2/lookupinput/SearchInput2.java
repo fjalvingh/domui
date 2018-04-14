@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component2.lookupinput;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IReturnPressed;
@@ -31,9 +33,6 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.server.IRequestContext;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.
@@ -44,7 +43,7 @@ import javax.annotation.Nullable;
  * Created on 21 Jan 2010
  */
 public class SearchInput2 extends Div implements IForTarget {
-	@Nonnull
+	@NonNull
 	final private Input m_keySearch = new Input();
 
 	@Nullable

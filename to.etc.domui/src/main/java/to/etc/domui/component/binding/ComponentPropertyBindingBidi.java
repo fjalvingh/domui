@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.binding;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.errors.UIMessage;
@@ -34,16 +36,13 @@ import to.etc.domui.util.IValueAccessor;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.CodeException;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
-
 /**
  * This binds the control's VALUE property to some model property (bidirectional binding).
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 13, 2009
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> extends AbstractComponentPropertyBinding<C, CV, M, MV> implements IBinding {
 	@Nullable
 	final private IBidiBindingConverter<CV, MV> m_converter;

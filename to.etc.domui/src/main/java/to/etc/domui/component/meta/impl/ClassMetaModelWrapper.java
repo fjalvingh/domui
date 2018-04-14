@@ -24,14 +24,22 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * This class can be used as a "proxy class" or "delegate class" to another ClassMetaModel
@@ -72,35 +80,35 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public PropertyMetaModel< ? > findProperty(@Nonnull String name) {
+	public PropertyMetaModel< ? > findProperty(@NonNull String name) {
 		return m_parent.findProperty(name);
 	}
 
-	@Nullable @Override public <V> PropertyMetaModel<V> findProperty(@Nonnull QField<?, V> field) {
+	@Nullable @Override public <V> PropertyMetaModel<V> findProperty(@NonNull QField<?, V> field) {
 		return m_parent.findProperty(field);
 	}
 
 	@Override
-	@Nonnull
-	public PropertyMetaModel< ? > getProperty(@Nonnull String name) {
+	@NonNull
+	public PropertyMetaModel< ? > getProperty(@NonNull String name) {
 		return m_parent.getProperty(name);
 	}
 
-	@Nonnull @Override public <V> PropertyMetaModel<V> getProperty(@Nonnull QField<?, V> field) {
+	@NonNull @Override public <V> PropertyMetaModel<V> getProperty(@NonNull QField<?, V> field) {
 		return m_parent.getProperty(field);
 	}
 
 	@Override
-	public PropertyMetaModel< ? > findSimpleProperty(@Nonnull String name) {
+	public PropertyMetaModel< ? > findSimpleProperty(@NonNull String name) {
 		return m_parent.findSimpleProperty(name);
 	}
 
 	@Override
-	public @Nonnull Class< ? > getActualClass() {
+	public @NonNull Class< ? > getActualClass() {
 		return m_parent.getActualClass();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public BundleRef getClassBundle() {
 		return m_parent.getClassBundle();
@@ -112,7 +120,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_parent.getComboDisplayProperties();
 	}
 
@@ -152,12 +160,12 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public @Nonnull List<SearchPropertyMetaModel> getKeyWordSearchProperties() {
+	public @NonNull List<SearchPropertyMetaModel> getKeyWordSearchProperties() {
 		return m_parent.getKeyWordSearchProperties();
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_parent.getLookupSelectedProperties();
 	}
 
@@ -172,17 +180,17 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public @Nonnull List<PropertyMetaModel< ? >> getProperties() {
+	public @NonNull List<PropertyMetaModel< ? >> getProperties() {
 		return m_parent.getProperties();
 	}
 
 	@Override
-	public @Nonnull List<SearchPropertyMetaModel> getSearchProperties() {
+	public @NonNull List<SearchPropertyMetaModel> getSearchProperties() {
 		return m_parent.getSearchProperties();
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
 		return m_parent.getTableDisplayProperties();
 	}
 
@@ -207,7 +215,7 @@ public class ClassMetaModelWrapper implements ClassMetaModel {
 	}
 
 	@Override
-	public @Nonnull QCriteria< ? > createCriteria() throws Exception {
+	public @NonNull QCriteria< ? > createCriteria() throws Exception {
 		return m_parent.createCriteria();
 	}
 }

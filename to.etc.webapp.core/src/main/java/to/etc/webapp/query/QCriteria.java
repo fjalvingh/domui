@@ -24,9 +24,9 @@
  */
 package to.etc.webapp.query;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -41,11 +41,11 @@ import java.util.List;
  * Created on Jun 24, 2008
  */
 public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
-	protected QCriteria(@Nonnull final Class<T> b) {
+	protected QCriteria(@NonNull final Class<T> b) {
 		super(b);
 	}
 
-	private QCriteria(@Nonnull final ICriteriaTableDef<T> td) {
+	private QCriteria(@NonNull final ICriteriaTableDef<T> td) {
 		super(td);
 	}
 
@@ -53,16 +53,16 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 	 * Create a QCriteria to select a set of the specified class. When used on it's own without
 	 * added criteria this selects all possible items.
 	 */
-	@Nonnull
-	static public <U> QCriteria<U> create(@Nonnull final Class<U> clz) {
+	@NonNull
+	static public <U> QCriteria<U> create(@NonNull final Class<U> clz) {
 		return new QCriteria<>(clz);
 	}
 
 	/**
 	 * Create a QCriteria on some metadata structured data.
 	 */
-	@Nonnull
-	static public <U> QCriteria<U> create(@Nonnull final ICriteriaTableDef<U> root) {
+	@NonNull
+	static public <U> QCriteria<U> create(@NonNull final ICriteriaTableDef<U> root) {
 		return new QCriteria<>(root);
 	}
 
@@ -77,45 +77,45 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 	/**
 	 * Visit everything in this QCriteria.
 	 */
-	public void visit(@Nonnull final QNodeVisitor v) throws Exception {
+	public void visit(@NonNull final QNodeVisitor v) throws Exception {
 		v.visitCriteria(this);
 	}
 
-	@Nonnull
-	public QCriteria<T> fetch(@Nonnull @GProperty String property) {
+	@NonNull
+	public QCriteria<T> fetch(@NonNull @GProperty String property) {
 		super.fetch(property, QFetchStrategy.EAGER);
 		return this;
 	}
 
-	@Nonnull
-	public <V> QCriteria<T> fetch(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> QCriteria<T> fetch(@NonNull QField<T, V> property) {
 		super.fetch(property, QFetchStrategy.EAGER);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public <V> QCriteria<T> in(@Nonnull @GProperty String property, List<V> inlist) {
+	public <V> QCriteria<T> in(@NonNull @GProperty String property, List<V> inlist) {
 		super.in(property, inlist);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public <V> QCriteria<T> in(@Nonnull QField<T, V> property, @Nonnull List<V> value) {
+	public <V> QCriteria<T> in(@NonNull QField<T, V> property, @NonNull List<V> value) {
 		super.in(property, value);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
-	public <V> QCriteria<T> in(@Nonnull @GProperty String property, QSelection<?> selection) {
+	public <V> QCriteria<T> in(@NonNull @GProperty String property, QSelection<?> selection) {
 		super.in(property, selection);
 		return this;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String toString() {
 		QQueryRenderer	r	= new QQueryRenderer();
 		try {
@@ -130,7 +130,7 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 	/**
 	 * Set a test ID on the query, so that JUnit tests can easily provide a substituted answer.
 	 */
-	public QCriteria<T> testId(@Nonnull String testId){
+	public QCriteria<T> testId(@NonNull String testId){
 		setTestId(testId);
 		return this;
 	}

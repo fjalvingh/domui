@@ -24,10 +24,15 @@
  */
 package to.etc.dbpool;
 
-import java.sql.*;
-import java.util.logging.*;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLWarning;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *	Encapsulates a java.sql.Statement for NEMA purposes. This class implements

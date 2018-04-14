@@ -1,12 +1,12 @@
 package to.etc.domui.hibgen;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbutil.reverse.Reverser;
 import to.etc.dbutil.reverse.ReverserRegistry;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.util.DbConnectionInfo;
 
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;

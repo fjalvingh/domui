@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.meta.impl;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaComboProperty;
 import to.etc.domui.component.meta.MetaDisplayProperty;
@@ -36,8 +37,6 @@ import to.etc.domui.converter.IConverter;
 import to.etc.domui.util.Constants;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
-
 /**
  * Implementation for a Display Property metamodel. The Display Property data overrides the default
  * metadata for a property in a given display context.
@@ -46,7 +45,7 @@ import javax.annotation.Nonnull;
  * Created on Aug 6, 2009
  */
 public class DisplayPropertyMetaModel {
-	@Nonnull
+	@NonNull
 	final private PropertyMetaModel< ? > m_propertyModel;
 
 	private String m_join;
@@ -69,16 +68,16 @@ public class DisplayPropertyMetaModel {
 
 	private int m_displayLength = -1;
 
-	@Nonnull
+	@NonNull
 	private YesNoType m_noWrap = YesNoType.UNKNOWN;
 
-	public DisplayPropertyMetaModel(@Nonnull PropertyMetaModel< ? > pmm) {
+	public DisplayPropertyMetaModel(@NonNull PropertyMetaModel< ? > pmm) {
 		m_propertyModel = pmm;
 		if(null == m_propertyModel)
 			throw new IllegalArgumentException("Cannot be null");
 	}
 
-	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaDisplayProperty p) {
+	public DisplayPropertyMetaModel(@NonNull ClassMetaModel cmm, @NonNull MetaDisplayProperty p) {
 		m_containedInClass = cmm;
 
 		PropertyMetaModel< ? > pmm = cmm.findProperty(p.name());		// Creates either a PathPropertyModel or gets a normal one
@@ -102,7 +101,7 @@ public class DisplayPropertyMetaModel {
 //		setRenderHint(p.renderHint());	jal 20101220 Removed, unused and seems silly in table display
 	}
 
-	public DisplayPropertyMetaModel(@Nonnull ClassMetaModel cmm, @Nonnull MetaComboProperty p) {
+	public DisplayPropertyMetaModel(@NonNull ClassMetaModel cmm, @NonNull MetaComboProperty p) {
 		m_containedInClass = cmm;
 
 		PropertyMetaModel< ? > pmm = cmm.findProperty(p.name());		// Creates either a PathPropertyModel or gets a normal one
@@ -126,8 +125,8 @@ public class DisplayPropertyMetaModel {
 	 * @param clz
 	 * @return
 	 */
-	@Nonnull
-	static private <T> IConverter<T> createconv(@Nonnull Class< ? > clz) {
+	@NonNull
+	static private <T> IConverter<T> createconv(@NonNull Class< ? > clz) {
 		return ConverterRegistry.getConverterInstance((Class< ? extends IConverter<T>>) clz);
 	}
 
@@ -170,7 +169,7 @@ public class DisplayPropertyMetaModel {
 		return m_containedInClass.getClassBundle().getString(m_labelKey);
 	}
 
-	@Nonnull
+	@NonNull
 	public PropertyMetaModel< ? > getProperty() {
 		return m_propertyModel;
 	}
@@ -236,12 +235,12 @@ public class DisplayPropertyMetaModel {
 		m_sortIndex = sortIndex;
 	}
 
-	@Nonnull
+	@NonNull
 	public YesNoType getNoWrap() {
 		return m_noWrap;
 	}
 
-	public void setNoWrap(@Nonnull YesNoType noWrap) {
+	public void setNoWrap(@NonNull YesNoType noWrap) {
 		m_noWrap = noWrap;
 	}
 }

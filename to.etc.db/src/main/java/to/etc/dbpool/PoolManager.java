@@ -24,13 +24,20 @@
  */
 package to.etc.dbpool;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-import javax.sql.*;
+import javax.sql.DataSource;
+import java.io.File;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Root of the database pool manager code.
@@ -40,15 +47,15 @@ import javax.sql.*;
  */
 final public class PoolManager {
 	/** The table of pools (ConnectionPool), identified by ID */
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	private final Map<String, ConnectionPool> m_poolMap = new HashMap<String, ConnectionPool>();
 
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	private List<IPoolMessageHandler> m_listenerList = new ArrayList<IPoolMessageHandler>();
 
 	static final private Object m_connidlock = new Object();
 
-	@GuardedBy("m_connidlock")
+	//@GuardedBy("m_connidlock")
 	static private int m_nextconnid;
 
 	private volatile boolean m_collectStatistics;
@@ -130,8 +137,8 @@ final public class PoolManager {
 	/**
 	 * Finds the named pool. Throws an exception if not found.
 	 */
-	@Nonnull
-	public ConnectionPool getPool(@Nonnull final String id) throws SQLException {
+	@NonNull
+	public ConnectionPool getPool(@NonNull final String id) throws SQLException {
 		if(id == null)
 			throw new IllegalArgumentException("The pool ID cannot be null");
 		synchronized(this) {
@@ -306,7 +313,7 @@ final public class PoolManager {
 	 *
 	 * @param id
 	 */
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	synchronized boolean internalRemovePool(ConnectionPool cp) {
 		ConnectionPool xp = m_poolMap.get(cp.getID());
 		if(null == xp)
@@ -381,7 +388,7 @@ final public class PoolManager {
 	 * This returns the single per-thread connection event listener. If no
 	 * listener has been set it returns a dummy one that does nothing.
 	 */
-	@Nonnull
+	@NonNull
 	IConnectionEventListener getConnectionEventListener() {
 		IConnectionEventListener ih = m_connectionEventListener.get();
 		if(ih == null) {
@@ -445,7 +452,7 @@ final public class PoolManager {
 	 * @param dbc
 	 * @param el
 	 */
-	static public void addListener(@Nonnull Connection dbc, @Nonnull IDatabaseEventListener el) {
+	static public void addListener(@NonNull Connection dbc, @NonNull IDatabaseEventListener el) {
 		if(!(dbc instanceof ConnectionProxy))
 			throw new IllegalArgumentException("The connection passed MUST have been allocated by this pool manager (it is a " + dbc + ")");
 		((ConnectionProxy) dbc).addCommitListener(el);
@@ -457,7 +464,7 @@ final public class PoolManager {
 	 * @param dbc
 	 * @param el
 	 */
-	static public void removeListener(@Nonnull Connection dbc, @Nonnull IDatabaseEventListener el) {
+	static public void removeListener(@NonNull Connection dbc, @NonNull IDatabaseEventListener el) {
 		if(!(dbc instanceof ConnectionProxy))
 			throw new IllegalArgumentException("The connection passed MUST have been allocated by this pool manager (it is a " + dbc + ")");
 		((ConnectionProxy) dbc).removeCommitListener(el);
@@ -543,13 +550,13 @@ final public class PoolManager {
 	 * @param dbc
 	 * @throws SQLException
 	 */
-	static public void setLongLiving(@Nonnull Connection dbc) throws SQLException {
+	static public void setLongLiving(@NonNull Connection dbc) throws SQLException {
 		ConnectionProxy proxy = dbc.unwrap(ConnectionProxy.class);
 		proxy.setLongliving(true);
 	}
 
 	@Nullable
-	static public ConnectionPool getPoolFrom(@Nonnull DataSource ds) {
+	static public ConnectionPool getPoolFrom(@NonNull DataSource ds) {
 		//-- Try to locate the unpooled data source for this database pool.
 		if(ds instanceof DataSourceImpl) {
 			return ((DataSourceImpl) ds).getPool();
@@ -567,8 +574,8 @@ final public class PoolManager {
 	 * @param ds
 	 * @return
 	 */
-	@Nonnull
-	static public DataSource	getUnpooledFrom(@Nonnull DataSource ds) {
+	@NonNull
+	static public DataSource	getUnpooledFrom(@NonNull DataSource ds) {
 		ConnectionPool cp = getPoolFrom(ds);
 		if(null == cp)
 			return ds;

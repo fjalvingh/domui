@@ -1,14 +1,13 @@
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.dom.html.TR;
-
-import javax.annotation.DefaultNonNull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 7/29/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class DataTableRow<T> extends TR {
 	private final TableRowSet<T> m_rowSet;
 

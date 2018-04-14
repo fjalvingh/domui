@@ -24,7 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Thingy which receives events from a table model. When a model changes it
@@ -44,7 +45,7 @@ public interface ITableModelListener<T> {
 	 * @param value
 	 * @throws Exception
 	 */
-	void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception;
+	void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception;
 
 	/**
 	 * Called after a row has been deleted.
@@ -54,7 +55,7 @@ public interface ITableModelListener<T> {
 	 * @param value	The <b>deleted</b> value.
 	 * @throws Exception
 	 */
-	void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception;
+	void rowDeleted(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception;
 
 	/**
 	 * Called after a row has been changed.
@@ -63,7 +64,7 @@ public interface ITableModelListener<T> {
 	 * @param value
 	 * @throws Exception
 	 */
-	void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception;
+	void rowModified(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception;
 
 	/**
 	 * Called when the entire content of the model changed. This should indicate a complete content

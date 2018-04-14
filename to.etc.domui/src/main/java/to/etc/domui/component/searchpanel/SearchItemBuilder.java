@@ -1,5 +1,7 @@
 package to.etc.domui.component.searchpanel;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.dom.html.IControl;
@@ -8,15 +10,12 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.IExecute;
 import to.etc.webapp.query.QField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 14-12-17.
  */
 final public class SearchItemBuilder<T> {
-	@Nonnull
+	@NonNull
 	final private SearchPanel<T> m_form;
 
 	@Nullable

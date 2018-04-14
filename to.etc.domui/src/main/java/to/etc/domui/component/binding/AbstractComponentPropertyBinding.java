@@ -1,5 +1,8 @@
 package to.etc.domui.component.binding;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.YesNoType;
@@ -9,20 +12,16 @@ import to.etc.domui.util.IReadOnlyModel;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.domui.util.IWriteOnlyModel;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 1-4-18.
  */
-@DefaultNonNull
+@NonNullByDefault
 abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> implements IBinding {
-	@Nonnull
+	@NonNull
 	final protected C m_control;
 
-	@Nonnull
+	@NonNull
 	final protected PropertyMetaModel<CV> m_controlProperty;
 
 	/** The instance bound to */
@@ -69,7 +68,7 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 		return m_bindError;
 	}
 
-	@Nonnull
+	@NonNull
 	public IValueAccessor< ? > getControlProperty() {
 		return m_controlProperty;
 	}

@@ -24,8 +24,13 @@
  */
 package to.etc.dbpool.info;
 
-import javax.annotation.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Base class containing just count and overall time stuff.

@@ -24,7 +24,7 @@
  */
 package to.etc.domui.databinding.observables;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.*;
@@ -37,19 +37,19 @@ import to.etc.domui.databinding.value.*;
  * Created on Apr 23, 2013
  */
 public class ObservablePropertyValue<C, T> extends ListenerList<T, ValueChangeEvent<T>, IValueChangeListener<T>> implements IObservableValue<T>, IPropertyChangeNotifier {
-	@Nonnull
+	@NonNull
 	final private C m_instance;
 
-	@Nonnull
+	@NonNull
 	final private PropertyMetaModel<T> m_property;
 
-	public ObservablePropertyValue(@Nonnull C instance, @Nonnull PropertyMetaModel<T> property) {
+	public ObservablePropertyValue(@NonNull C instance, @NonNull PropertyMetaModel<T> property) {
 		m_instance = instance;
 		m_property = property;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public Class<T> getValueType() {
 		return m_property.getActualType();
 	}

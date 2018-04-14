@@ -24,14 +24,15 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.util.IValueAccessor;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import java.util.List;
 
 /**
  * A special property consisting of a list of joined properties.
@@ -100,7 +101,7 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty<String> imple
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getDefaultLabel() {
 		DisplayPropertyMetaModel dm = m_displayList.get(0);
 		String lbl = dm.getLabel(); // Is the label overridden in the DisplayProperty?

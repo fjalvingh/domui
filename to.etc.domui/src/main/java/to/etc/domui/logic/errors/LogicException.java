@@ -1,9 +1,8 @@
 package to.etc.domui.logic.errors;
 
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
 
 final public class LogicException extends ValidationException {
 	@Nullable

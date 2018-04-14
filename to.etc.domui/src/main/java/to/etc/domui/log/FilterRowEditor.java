@@ -1,5 +1,6 @@
 package to.etc.domui.log;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.tbl.TableModelTableBase;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.IControl;
@@ -8,8 +9,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.log.data.Filter;
 import to.etc.log.handler.LogFilterType;
-
-import javax.annotation.Nonnull;
 
 public class FilterRowEditor extends RowEditorBase<Filter> {
 
@@ -37,7 +36,7 @@ public class FilterRowEditor extends RowEditorBase<Filter> {
 		m_holder = new TextNode(m_keyCtl.getValueSafe());
 		m_typeCtl.setOnValueChanged(new IValueChanged<NodeBase>() {
 			@Override
-			public void onValueChanged(@Nonnull NodeBase component) throws Exception {
+			public void onValueChanged(@NonNull NodeBase component) throws Exception {
 				updateKeyByType(m_typeCtl, m_keyCtl, m_holder);
 			}
 		});

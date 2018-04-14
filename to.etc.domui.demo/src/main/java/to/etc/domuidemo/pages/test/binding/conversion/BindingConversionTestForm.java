@@ -1,5 +1,7 @@
 package to.etc.domuidemo.pages.test.binding.conversion;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.Text;
@@ -10,9 +12,6 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This form contains a binding between a Text&lt;String&gt; and an Integer
@@ -53,21 +52,21 @@ public class BindingConversionTestForm extends UrlPage {
 		fb.property(this, "value", new TestConverter()).label("Integer").control(control);
 
 		DefaultButton db = new DefaultButton("click", new IClicked<DefaultButton>() {
-			@Override public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				checkClickValue();
 			}
 		});
 		add(db);
 
 		db = new DefaultButton("setvalue", new IClicked<DefaultButton>() {
-			@Override public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				setValue(Integer.valueOf(987));
 			}
 		});
 		add(db);
 
 		db = new DefaultButton("setnull", new IClicked<DefaultButton>() {
-			@Override public void clicked(@Nonnull DefaultButton clickednode) throws Exception {
+			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
 				setValue(null);
 			}
 		});

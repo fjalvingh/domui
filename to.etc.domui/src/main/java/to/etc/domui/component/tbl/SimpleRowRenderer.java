@@ -24,12 +24,14 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.component.meta.impl.ExpandedDisplayPropertyList;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
+import java.util.List;
 
 /**
  * Please use {@link BasicRowRenderer} instead.
@@ -49,17 +51,17 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 	 * @param dataClass
 	 * @param cols
 	 */
-	public SimpleRowRenderer(@Nonnull final Class<T> dataClass, final String... cols) {
+	public SimpleRowRenderer(@NonNull final Class<T> dataClass, final String... cols) {
 		super(dataClass);
 		initColumnList(cols);
 	}
 
-	public SimpleRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
+	public SimpleRowRenderer(@NonNull final Class<T> dataClass, @NonNull final ClassMetaModel cmm, final String... cols) {
 		super(dataClass, cmm);
 		initColumnList(cols);
 	}
 
-	private void initColumnList(@Nonnull String[] cols) {
+	private void initColumnList(@NonNull String[] cols) {
 		if(cols.length != 0)
 			initializeExplicitColumns(cols);
 		else
@@ -96,7 +98,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 	 * @param clz
 	 * @param xdpl
 	 */
-	protected void initialize(@Nonnull final List<ExpandedDisplayProperty< ? >> xdpl) {
+	protected void initialize(@NonNull final List<ExpandedDisplayProperty< ? >> xdpl) {
 		//-- For all properties in the list, use metadata to define'm
 		final int[] widths = new int[80];
 		m_totwidth = 0;
@@ -143,8 +145,8 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 		}
 	}
 
-	@Nonnull
-	private <V> SimpleColumnDef<V> createDef(@Nonnull ExpandedDisplayProperty<V> v) {
+	@NonNull
+	private <V> SimpleColumnDef<V> createDef(@NonNull ExpandedDisplayProperty<V> v) {
 		return new SimpleColumnDef<V>(getColumnList(), v);
 	}
 

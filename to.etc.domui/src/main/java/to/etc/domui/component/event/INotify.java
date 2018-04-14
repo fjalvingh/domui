@@ -1,6 +1,6 @@
 package to.etc.domui.component.event;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * General notification event, can be used for definition of general purpose call-backs.
@@ -16,6 +16,6 @@ public interface INotify<T> {
 	 * @param sender
 	 * @throws Exception
 	 */
-	void onNotify(@Nonnull T sender) throws Exception;
+	void onNotify(@NonNull T sender) throws Exception;
 
 }

@@ -24,9 +24,11 @@
  */
 package to.etc.domui.server;
 
-import javax.annotation.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import org.eclipse.jdt.annotation.NonNull;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * How to handle a filter request.
@@ -35,5 +37,5 @@ import javax.servlet.http.*;
  * Created on May 22, 2008
  */
 public interface IContextMaker {
-	void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception;
+	void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception;
 }

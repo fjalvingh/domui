@@ -24,16 +24,18 @@
  */
 package to.etc.domui.component.lookup;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.dom.html.IControl;
 
 @Deprecated
 final class LookupFactoryRelation implements ILookupControlFactory {
 	@Override
-	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		if(pmm.getRelationType() ==  PropertyRelationType.UP) {		// Accept only relations.
 			return 4;
@@ -42,7 +44,7 @@ final class LookupFactoryRelation implements ILookupControlFactory {
 	}
 
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		final PropertyMetaModel< ? > pmm = spm.getProperty();
 		IControl< ? > input = control;
 		if(input == null) {

@@ -24,17 +24,21 @@
  */
 package to.etc.domui.caches.images;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.caches.filecache.FileCacheRef;
+import to.etc.domui.util.images.IImageReference;
+import to.etc.domui.util.images.converters.IImageConversionSpecifier;
+import to.etc.domui.util.images.converters.ImageConverterHelper;
+import to.etc.domui.util.images.converters.ImageSpec;
+import to.etc.domui.util.images.machines.ImageInfo;
+import to.etc.domui.util.images.machines.ImageManipulator;
+import to.etc.util.FileTool;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-
-import to.etc.domui.caches.filecache.*;
-import to.etc.domui.util.images.*;
-import to.etc.domui.util.images.converters.*;
-import to.etc.domui.util.images.machines.*;
-import to.etc.util.*;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents some action being handled within the image cache: the retrieval of some
@@ -43,7 +47,6 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 1, 2009
  */
-@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification = "FindBugs definition is wrong for mkdirs, and delete() may fail in code here")
 public class ImageTask extends CacheChange {
 	private ImageRoot m_root;
 
@@ -53,15 +56,15 @@ public class ImageTask extends CacheChange {
 	private IImageReference m_imageSource;
 
 	/** When T the call to determine the <i>current</i> source image version has been done. */
-	@GuardedBy("getRoot()")
+	//@GuardedBy("getRoot()")
 	private boolean m_currentVersionGotten;
 
 	/** The current versionLong value for the image. */
-	@GuardedBy("getRoot()")
+	//@GuardedBy("getRoot()")
 	private long m_currentVersionLong;
 
 	/** The outdated-versions check has been done once for this imagetask and doesn't have to happen again. */
-	@GuardedBy("getRoot()")
+	//@GuardedBy("getRoot()")
 	private boolean m_outdatedChecked;
 
 	//	private List<File> m_addedFiles;
@@ -177,7 +180,7 @@ public class ImageTask extends CacheChange {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	CachedImageData getOriginalData() throws Exception {
 		removeOutdatedVersions(); // Remove all old thingies from the cache.
 

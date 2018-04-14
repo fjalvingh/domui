@@ -24,8 +24,6 @@
  */
 package to.etc.webapp.eventmanager;
 
-import javax.annotation.concurrent.*;
-
 /**
  * The type of change that is encapsulated in the event; a simple enum
  * of added, deleted or modified. <br/>

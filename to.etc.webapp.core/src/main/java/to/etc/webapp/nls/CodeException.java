@@ -24,10 +24,11 @@
  */
 package to.etc.webapp.nls;
 
-import java.text.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.text.MessageFormat;
+import java.util.Locale;
 
 /**
  * Base class for all code-based exceptions.
@@ -36,16 +37,16 @@ import javax.annotation.*;
  * Created on Mar 31, 2009
  */
 public class CodeException extends RuntimeException {
-	@Nonnull
+	@NonNull
 	private final BundleRef m_bundle;
 
-	@Nonnull
+	@NonNull
 	private final String m_code;
 
-	@Nonnull
+	@NonNull
 	private final Object[] m_parameters;
 
-	public CodeException(@Nonnull final BundleRef bundle, @Nonnull final String code, final Object... parameters) {
+	public CodeException(@NonNull final BundleRef bundle, @NonNull final String code, final Object... parameters) {
 		if(bundle == null || code == null)
 			throw new IllegalArgumentException("Bundle or code cannot be null");
 		m_bundle = bundle;
@@ -53,7 +54,7 @@ public class CodeException extends RuntimeException {
 		m_parameters = parameters;
 	}
 
-	public CodeException(@Nonnull final Throwable t, @Nonnull final BundleRef bundle, @Nonnull final String code, final Object... parameters) {
+	public CodeException(@NonNull final Throwable t, @NonNull final BundleRef bundle, @NonNull final String code, final Object... parameters) {
 		super(t);
 		if(bundle == null || code == null)
 			throw new IllegalArgumentException("Bundle or code cannot be null");
@@ -62,12 +63,12 @@ public class CodeException extends RuntimeException {
 		m_parameters = parameters;
 	}
 
-	@Nonnull
+	@NonNull
 	public BundleRef getBundle() {
 		return m_bundle;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getCode() {
 		return m_code;
 	}

@@ -1,12 +1,12 @@
 package to.etc.domui.component.headers;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 9/21/15.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class GenericHeader extends Div {
 	@Nullable
 	private String m_text;

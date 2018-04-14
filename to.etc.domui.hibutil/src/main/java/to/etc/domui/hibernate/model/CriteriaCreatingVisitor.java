@@ -24,6 +24,7 @@
  */
 package to.etc.domui.hibernate.model;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Hibernate;
@@ -76,7 +77,6 @@ import to.etc.webapp.query.QSubQuery;
 import to.etc.webapp.query.QUnaryNode;
 import to.etc.webapp.query.QUnaryProperty;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -743,7 +743,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+	public void visitPropertyIn(@NonNull QPropertyIn n) throws Exception {
 		QOperatorNode rhs = n.getExpr();
 		String name = n.getProperty();
 		QLiteral lit = null;
@@ -808,7 +808,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @param compoundName
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	private String[] getPropertyColumnNamesFromLousyMetadata(AbstractEntityPersister aep, String compoundName) {
 		String name = compoundName;
 		int dotix = compoundName.lastIndexOf('.');
@@ -950,7 +950,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {
 		if(v.getParameters().length == 0) {
 			m_last = Restrictions.sqlRestriction(v.getSql());
 			return;
@@ -1275,7 +1275,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @see to.etc.webapp.query.QNodeVisitor#visitSubquery(to.etc.webapp.query.QSubQuery)
 	 */
 	@Override
-	public void visitSubquery(@Nonnull final QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull final QSubQuery< ? , ? > n) throws Exception {
 		n.getParent().internalUseQuery(n);
 		visitSelection(n);
 //
@@ -1297,7 +1297,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @see to.etc.webapp.query.QNodeVisitor#visitSelectionSubquery(to.etc.webapp.query.QSelectionSubquery)
 	 */
 	@Override
-	public void visitSelectionSubquery(@Nonnull final QSelectionSubquery n) throws Exception {
+	public void visitSelectionSubquery(@NonNull final QSelectionSubquery n) throws Exception {
 		DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
 		recurseSubquery(dc, n.getSelectionQuery(), new Callable<Void>() {
 			@Override
@@ -1314,7 +1314,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @param n
 	 * @throws Exception
 	 */
-	private void recurseSubquery(@Nonnull DetachedCriteria dc, @Nonnull QSelection< ? > n, Callable<Void> callable) throws Exception {
+	private void recurseSubquery(@NonNull DetachedCriteria dc, @NonNull QSelection< ? > n, Callable<Void> callable) throws Exception {
 		//-- Recursively apply all parts to the detached thingerydoo
 		ProjectionList oldpro = m_proli;
 		m_proli = null;
@@ -1346,7 +1346,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison comparison) throws Exception {
+	public void visitPropertyJoinComparison(@NonNull QPropertyJoinComparison comparison) throws Exception {
 		String alias = m_parentAlias + "." + parseSubcriteria(comparison.getParentProperty());
 		switch(comparison.getOperation()) {
 			default:
@@ -1379,13 +1379,13 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
+	public void visitOrderList(@NonNull List<QOrder> orderlist) throws Exception {
 		for(QOrder o : orderlist)
 			o.visit(this);
 	}
 
-	public void visitSelectionColumns(@Nonnull QSelection< ? > s) throws Exception {
-		for(@Nonnull QSelectionColumn col : s.getColumnList())
+	public void visitSelectionColumns(@NonNull QSelection< ? > s) throws Exception {
+		for(@NonNull QSelectionColumn col : s.getColumnList())
 			col.visit(this);
 	}
 }

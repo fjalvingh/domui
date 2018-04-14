@@ -1,8 +1,8 @@
 package to.etc.domui.component.lookup.filter;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.Date;
 
 /**
  * This is a simple class that only holds two date values

@@ -1,5 +1,6 @@
 package to.etc.domui.util;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.misc.ALink;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.NodeContainer;
@@ -11,8 +12,6 @@ import to.etc.util.WrappedException;
 import to.etc.webapp.mailer.ITextLinkRenderer;
 import to.etc.webapp.mailer.TextLinkInfo;
 import to.etc.webapp.query.IIdentifyable;
-
-import javax.annotation.Nonnull;
 
 /**
  * Helps with rendering a log message as DomUI linked text. Uses TextLinkInfo as factory
@@ -26,12 +25,12 @@ final public class DomUILinkedTextRenderer implements ITextLinkRenderer {
 
 	public DomUILinkedTextRenderer() {}
 
-	public void setContainer(@Nonnull NodeContainer c) {
+	public void setContainer(@NonNull NodeContainer c) {
 		m_c = c;
 	}
 
 	@Override
-	public void appendLink(@Nonnull String rurl, @Nonnull String text) {
+	public void appendLink(@NonNull String rurl, @NonNull String text) {
 		//-- Is this a DomUI url?
 		String page, query;
 		int pos = rurl.indexOf('?');
@@ -76,7 +75,7 @@ final public class DomUILinkedTextRenderer implements ITextLinkRenderer {
 	}
 
 	@Override
-	public void appendText(@Nonnull String text) {
+	public void appendText(@NonNull String text) {
 		int pos = 0;
 		int len = text.length();
 		while(pos < len) {
@@ -93,11 +92,11 @@ final public class DomUILinkedTextRenderer implements ITextLinkRenderer {
 		}
 	}
 
-	static public void register(@Nonnull Class< ? extends IIdentifyable< ? >> dataClass, @Nonnull Class< ? extends UrlPage> page, String paramName) {
+	static public void register(@NonNull Class< ? extends IIdentifyable< ? >> dataClass, @NonNull Class< ? extends UrlPage> page, String paramName) {
 		TextLinkInfo.register(dataClass, DomUtil.createPageRURL(page, null) + "?" + paramName + "={id}");
 	}
 
-	static public void register(@Nonnull String linkName, @Nonnull Class< ? extends UrlPage> page, @Nonnull String paramName) {
+	static public void register(@NonNull String linkName, @NonNull Class< ? extends UrlPage> page, @NonNull String paramName) {
 		TextLinkInfo.register(linkName, DomUtil.createPageRURL(page, null) + "?" + paramName + "={id}");
 	}
 

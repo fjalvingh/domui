@@ -2,18 +2,17 @@ package to.etc.domui.sass;
 
 import com.vaadin.sass.internal.ScssStylesheet;
 import com.vaadin.sass.internal.resolver.ScssStylesheetResolver;
+import org.eclipse.jdt.annotation.NonNull;
 import org.w3c.css.sac.InputSource;
 import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.util.resources.IResourceDependencyList;
-
-import javax.annotation.Nonnull;
 
 /**
  * Resolves sass resources using DomUI's resolution mechanisms, and tracks
  * the resources used for auto recompile.
  */
 final class VaadinSassResolver extends AbstractSassResolver<InputSource> implements ScssStylesheetResolver {
-	public VaadinSassResolver(@Nonnull IResourceDependencyList dependencyList, @Nonnull String basePath, @Nonnull ParameterInfoImpl params) {
+	public VaadinSassResolver(@NonNull IResourceDependencyList dependencyList, @NonNull String basePath, @NonNull ParameterInfoImpl params) {
 		super(params, dependencyList);
 	}
 

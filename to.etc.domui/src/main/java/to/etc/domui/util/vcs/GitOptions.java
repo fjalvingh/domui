@@ -1,6 +1,7 @@
 package to.etc.domui.util.vcs;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.io.InputStream;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +19,7 @@ final public class GitOptions {
 		m_properties = p;
 	}
 
-	@Nonnull
+	@NonNull
 	static public GitOptions get(String name) {
 		GitOptions g = m_map.get(name);
 		if(null == g) {

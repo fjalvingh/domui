@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.layout.ErrorMessageDiv;
@@ -42,8 +44,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IReadOnlyModel;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,13 +55,13 @@ import java.util.List;
  */
 public class ControlBuilder {
 	//	private DomApplication m_app;
-	@Nonnull
+	@NonNull
 	private List<PropertyControlFactory> m_controlFactoryList = new ArrayList<PropertyControlFactory>();
 
-	@Nonnull
+	@NonNull
 	private IControlLabelFactory m_controlLabelFactory = new DefaultControlLabelFactory();
 
-	@Nonnull
+	@NonNull
 	private IControlErrorFragmentFactory m_errorFragmentfactory = new IControlErrorFragmentFactory() {
 		@Override
 		public NodeContainer createErrorFragment() {
@@ -69,7 +69,7 @@ public class ControlBuilder {
 		}
 	};
 
-	public ControlBuilder(@Nonnull DomApplication app) {
+	public ControlBuilder(@NonNull DomApplication app) {
 		//		m_app = app;
 	}
 
@@ -81,12 +81,12 @@ public class ControlBuilder {
 	 *
 	 * @param cf
 	 */
-	public synchronized void registerControlFactory(@Nonnull final PropertyControlFactory cf) {
+	public synchronized void registerControlFactory(@NonNull final PropertyControlFactory cf) {
 		m_controlFactoryList = new ArrayList<PropertyControlFactory>(m_controlFactoryList); // Dup original
 		m_controlFactoryList.add(cf);
 	}
 
-	@Nonnull
+	@NonNull
 	protected synchronized List<PropertyControlFactory> getControlFactoryList() {
 		return m_controlFactoryList;
 	}
@@ -97,7 +97,7 @@ public class ControlBuilder {
 	 * @param editable    When false this is a displayonly control request.
 	 * @return null if no factory is found.
 	 */
-	public PropertyControlFactory findControlFactory(@Nonnull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
+	public PropertyControlFactory findControlFactory(@NonNull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
 		if(pmm.getControlFactory() != null)
 			return pmm.getControlFactory();
 
@@ -118,7 +118,7 @@ public class ControlBuilder {
 	//	 * @param name
 	//	 * @return
 	//	 */
-	//	public synchronized ControlFactory findFactoryByName(@Nonnull String name) {
+	//	public synchronized ControlFactory findFactoryByName(@NonNull String name) {
 	//		//-- 1. Walk the registered factory list
 	//		for(ControlFactory cf : m_controlFactoryList) {
 	//			if(name.equals(cf.getClass().getName()))
@@ -148,8 +148,8 @@ public class ControlBuilder {
 	 * Find the best control factory to use to create a control for the given property and mode, throws
 	 * an Exception if the factory cannot be found.
 	 */
-	@Nonnull
-	public PropertyControlFactory getControlFactory(@Nonnull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
+	@NonNull
+	public PropertyControlFactory getControlFactory(@NonNull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
 		PropertyControlFactory cf = findControlFactory(pmm, editable, controlClass);
 		if(cf == null)
 			throw new IllegalStateException("Cannot get a control factory for " + pmm);
@@ -164,27 +164,27 @@ public class ControlBuilder {
 	 *
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public synchronized IControlLabelFactory getControlLabelFactory() {
 		return m_controlLabelFactory;
 	}
 
-	public synchronized void setControlLabelFactory(@Nonnull final IControlLabelFactory controlLabelFactory) {
+	public synchronized void setControlLabelFactory(@NonNull final IControlLabelFactory controlLabelFactory) {
 		m_controlLabelFactory = controlLabelFactory;
 	}
 
-	@Nonnull
+	@NonNull
 	public synchronized IControlErrorFragmentFactory getErrorFragmentfactory() {
 		return m_errorFragmentfactory;
 	}
 
-	public synchronized void setErrorFragmentfactory(@Nonnull IControlErrorFragmentFactory errorFragmentfactory) {
+	public synchronized void setErrorFragmentfactory(@NonNull IControlErrorFragmentFactory errorFragmentfactory) {
 		if(errorFragmentfactory == null)
 			throw new IllegalArgumentException("Cannot accept null");
 		m_errorFragmentfactory = errorFragmentfactory;
 	}
 
-	public void addErrorFragment(@Nonnull NodeContainer nc) {
+	public void addErrorFragment(@NonNull NodeContainer nc) {
 		NodeContainer lsn = getErrorFragmentfactory().createErrorFragment();
 		nc.add(lsn);
 		DomUtil.getMessageFence(nc).addErrorListener((IErrorMessageListener) lsn);
@@ -198,24 +198,24 @@ public class ControlBuilder {
 	 * Main workhorse which creates input controls for forms, from metadata.
 	 */
 	@Deprecated
-	@Nonnull
-	public ControlFactoryResult createControlFor(@Nonnull final IReadOnlyModel<?> model, @Nonnull final PropertyMetaModel<?> pmm, final boolean editable) {
+	@NonNull
+	public ControlFactoryResult createControlFor(@NonNull final IReadOnlyModel<?> model, @NonNull final PropertyMetaModel<?> pmm, final boolean editable) {
 		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
 		return cf.createControl(pmm, editable, null);
 	}
 
-	@Nonnull
-	public ControlFactoryResult createControlFor(@Nonnull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
+	@NonNull
+	public ControlFactoryResult createControlFor(@NonNull final PropertyMetaModel<?> pmm, final boolean editable, @Nullable Class<?> controlClass) {
 		PropertyControlFactory cf = getControlFactory(pmm, editable, controlClass);
 		return cf.createControl(pmm, editable, controlClass);
 	}
 
-	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull Class<?> dataClass, @Nonnull String propertyName, boolean editable) {
+	public <T> T createControl(@NonNull Class<T> controlClass, @NonNull Class<?> dataClass, @NonNull String propertyName, boolean editable) {
 		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(dataClass, propertyName); // Must exist or throws exception.
 		return createControl(controlClass, pmm, editable);
 	}
 
-	@Nonnull
+	@NonNull
 	static private final IReadOnlyModel<Object> DUMMY_MODEL = new IReadOnlyModel<Object>() {
 		@Override
 		public Object getValue() throws Exception {
@@ -223,7 +223,7 @@ public class ControlBuilder {
 		}
 	};
 
-	public <T> T createControl(@Nonnull Class<T> controlClass, @Nonnull PropertyMetaModel<?> pmm, boolean editable) {
+	public <T> T createControl(@NonNull Class<T> controlClass, @NonNull PropertyMetaModel<?> pmm, boolean editable) {
 		if(controlClass == null)
 			throw new IllegalArgumentException("controlClass cannot be null");
 		PropertyControlFactory cf = getControlFactory(pmm, editable, null);
@@ -273,7 +273,7 @@ public class ControlBuilder {
 	 * domain-valued type (as specified by metadata returning something for getDomainValues()). This version will
 	 * properly use per-property value labels if defined.
 	 */
-	@Nonnull
+	@NonNull
 	public ComboFixed<?> createComboFor(PropertyMetaModel<?> pmm, boolean editable) {
 		if(pmm == null)
 			throw new IllegalArgumentException("propertyMeta cannot be null");

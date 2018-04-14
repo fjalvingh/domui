@@ -1,8 +1,12 @@
 package to.etc.domui.hibernate.beforeimages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 class BeforeImageListProxy<T> implements List<T>, IBeforeImageCollectionProxy<List<T>> {
 	private List<T> m_list;
@@ -12,13 +16,13 @@ class BeforeImageListProxy<T> implements List<T>, IBeforeImageCollectionProxy<Li
 			throw new QBeforeCollectionNotLoadedException("The before image for this collection is not loaded because the original was not.");
 	}
 
-	@Nonnull
+	@NonNull
 	private RuntimeException immutable() {
 		throw new IllegalStateException("Attempt to change an immutable collection");
 	}
 
 	@Override
-	public void initializeFromOriginal(@Nonnull List<T> source) {
+	public void initializeFromOriginal(@NonNull List<T> source) {
 		m_list = new ArrayList<T>(source);
 	}
 

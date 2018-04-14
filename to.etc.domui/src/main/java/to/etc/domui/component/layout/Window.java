@@ -24,11 +24,15 @@
  */
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.css.FloatType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.DomUtil;
 
 /**
  * This is a basic floating window, with a title area, optional fixed content area's
@@ -129,41 +133,41 @@ public class Window extends FloatingDiv {
 	/*--------------------------------------------------------------*/
 
 	@Override
-	@Nonnull
+	@NonNull
 	public Window size(int width, int height) {
 		super.size(width, height);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Window resizable() {
 		super.resizable();
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Window modal(boolean yes) {
 		super.modal(yes);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Window modal() {
 		super.modal();
 		return this;
 	}
 
-	@Nonnull
-	public Window title(@Nonnull String set) {
+	@NonNull
+	public Window title(@NonNull String set) {
 		setWindowTitle(set);
 		return this;
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public Window width(int pxsl) {
 		super.width(pxsl);
 		return this;
@@ -236,7 +240,7 @@ public class Window extends FloatingDiv {
 			m_titleBar.add(m_closeButton);
 			m_closeButton.setClicked(new IClicked<NodeBase>() {
 				@Override
-				public void clicked(@Nonnull NodeBase b) throws Exception {
+				public void clicked(@NonNull NodeBase b) throws Exception {
 					closePressed();
 				}
 			});

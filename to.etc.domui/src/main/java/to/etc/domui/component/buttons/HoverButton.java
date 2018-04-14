@@ -1,14 +1,13 @@
 package to.etc.domui.component.buttons;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.image.Dimension;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.server.DomApplication;
-
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This is a button that has hover functionality to handle the button's
@@ -27,7 +26,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 9/28/15.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class HoverButton extends Button implements IActionControl {
 	public enum Size {
 		/** Standard 16x16 button */
@@ -52,7 +51,7 @@ final public class HoverButton extends Button implements IActionControl {
 	 * theme, or it can be an absolute image path to a web file.
 	 * @param rurl
 	 */
-	public HoverButton(@Nonnull String rurl) {
+	public HoverButton(@NonNull String rurl) {
 		setSrc(rurl);
 	}
 
@@ -61,7 +60,7 @@ final public class HoverButton extends Button implements IActionControl {
 	 * @param rurl
 	 * @param cl
 	 */
-	public HoverButton(@Nonnull String rurl, @Nonnull IClicked<HoverButton> cl) {
+	public HoverButton(@NonNull String rurl, @NonNull IClicked<HoverButton> cl) {
 		this();
 		setClicked(cl);
 		setSrc(rurl);

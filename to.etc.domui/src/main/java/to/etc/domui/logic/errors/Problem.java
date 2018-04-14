@@ -1,11 +1,13 @@
 package to.etc.domui.logic.errors;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.webapp.nls.*;
+import jdk.nashorn.internal.ir.annotations.Immutable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.webapp.nls.BundleRef;
 
 /**
  * EXPERIMENTAL
@@ -23,7 +25,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 7, 2014
  */
-@DefaultNonNull
+@NonNullByDefault
 @Immutable
 public class Problem {
 	final private BundleRef m_bundle;
@@ -91,15 +93,15 @@ public class Problem {
 	 * Switch off this error: remove it from the error(s) list.
 	 * @param errors
 	 */
-	public <T> void off(@Nonnull ProblemModel errors, @Nonnull T instance) {
+	public <T> void off(@NonNull ProblemModel errors, @NonNull T instance) {
 		errors.clear(this, instance, null);
 	}
 
-	public <T, P> void off(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull PropertyMetaModel<P> property) {
+	public <T, P> void off(@NonNull ProblemModel errors, @NonNull T instance, @NonNull PropertyMetaModel<P> property) {
 		errors.clear(this, instance, property);
 	}
 
-	public <T, P> void off(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property) {
+	public <T, P> void off(@NonNull ProblemModel errors, @NonNull T instance, @NonNull String property) {
 		errors.clear(this, instance, MetaManager.findPropertyMeta(instance.getClass(), property));
 	}
 
@@ -109,7 +111,7 @@ public class Problem {
 	 * @param instance
 	 * @return
 	 */
-	public <T> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance) {
+	public <T> ProblemInstance on(@NonNull ProblemModel errors, @NonNull T instance) {
 		//System.out.println("error " + toString());
 		ProblemInstance pi = new ProblemInstance(this, instance);
 		errors.addProblem(pi);
@@ -123,21 +125,21 @@ public class Problem {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public <T, P> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull PropertyMetaModel<P> property) {
+	@NonNull
+	public <T, P> ProblemInstance on(@NonNull ProblemModel errors, @NonNull T instance, @NonNull PropertyMetaModel<P> property) {
 		ProblemInstance pi = new ProblemInstance(this, instance, property);
 		errors.addProblem(pi);
 		return pi;										// Allow specialization using builder pattern.
 	}
 
-	@Nonnull
-	public <T> ProblemInstance on(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property) {
+	@NonNull
+	public <T> ProblemInstance on(@NonNull ProblemModel errors, @NonNull T instance, @NonNull String property) {
 		ProblemInstance pi = new ProblemInstance(this, instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 		errors.addProblem(pi);
 		return pi;										// Allow specialization using builder pattern.
 	}
 
-	public <T> ProblemInstance when(@Nonnull ProblemModel errors, @Nonnull T instance, @Nonnull String property, boolean condition) {
+	public <T> ProblemInstance when(@NonNull ProblemModel errors, @NonNull T instance, @NonNull String property, boolean condition) {
 		if(condition) {
 			return on(errors, instance, property);
 		} else {
@@ -146,7 +148,7 @@ public class Problem {
 		}
 	}
 
-	public <T> ProblemInstance when(@Nonnull ProblemModel errors, @Nonnull T instance, boolean condition) {
+	public <T> ProblemInstance when(@NonNull ProblemModel errors, @NonNull T instance, boolean condition) {
 		if(condition) {
 			return on(errors, instance);
 		} else {

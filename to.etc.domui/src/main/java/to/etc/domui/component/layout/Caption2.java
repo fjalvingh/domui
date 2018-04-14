@@ -1,12 +1,22 @@
 package to.etc.domui.component.layout;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.ImgAlign;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TDAlignType;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A multi-format caption component.
@@ -31,23 +41,23 @@ public class Caption2 extends Div {
 
 	private Div m_ttldiv;
 
-	@Nonnull
+	@NonNull
 	private String m_rootCss = CaptionType.Default.getCssClass();
 
-	public Caption2(@Nonnull CaptionType type) {
+	public Caption2(@NonNull CaptionType type) {
 		m_rootCss = type.getCssClass();
 	}
 
-	public Caption2(@Nonnull CaptionType type, @Nonnull String caption) {
+	public Caption2(@NonNull CaptionType type, @NonNull String caption) {
 		m_rootCss = type.getCssClass();
 		m_caption = caption;
 	}
 
-	public Caption2(@Nonnull String cssClass) {
+	public Caption2(@NonNull String cssClass) {
 		m_rootCss = cssClass;
 	}
 
-	public Caption2(@Nonnull String cssClass, @Nonnull String title) {
+	public Caption2(@NonNull String cssClass, @NonNull String title) {
 		m_rootCss = cssClass;
 		m_caption = title;
 	}
@@ -96,7 +106,7 @@ public class Caption2 extends Div {
 		}
 	}
 
-	public void setIcon(@Nonnull String src) {
+	public void setIcon(@NonNull String src) {
 		Img img = m_icon;
 		if(img == null) {
 			img = m_icon = new Img(src);
@@ -109,19 +119,19 @@ public class Caption2 extends Div {
 		img.setAlign(ImgAlign.RIGHT);
 	}
 
-	public void addButton(@Nonnull String image, @Nullable String hint, @Nonnull IClicked<NodeBase> handler) {
+	public void addButton(@NonNull String image, @Nullable String hint, @NonNull IClicked<NodeBase> handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setClicked(handler);
 		internallyAddButton(ib, hint);
 	}
 
-	public void addButton(@Nonnull String image, @Nullable String hint, @Nonnull String onClickJs) {
+	public void addButton(@NonNull String image, @Nullable String hint, @NonNull String onClickJs) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setOnClickJS(onClickJs);
 		internallyAddButton(ib, hint);
 	}
 
-	private void internallyAddButton(@Nonnull SmallImgButton ib, @Nullable String hint) {
+	private void internallyAddButton(@NonNull SmallImgButton ib, @Nullable String hint) {
 		if(m_btns == Collections.EMPTY_LIST) {
 			m_btns = new ArrayList<SmallImgButton>();
 		}

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tree;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -41,8 +43,6 @@ import to.etc.domui.dom.html.Table;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -212,7 +212,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 				img.setSrc(last ? "THEME/tree-closed-last.png" : "THEME/tree-closed.png");
 				img.setClicked(new IClicked<Img>() {
 					@Override
-					public void clicked(@Nonnull Img bxx) throws Exception {
+					public void clicked(@NonNull Img bxx) throws Exception {
 						expandNode(item);
 					}
 				});
@@ -233,7 +233,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 				img.setClicked(new IClicked<Img>() {
 					@Override
-					public void clicked(@Nonnull Img bxx) throws Exception {
+					public void clicked(@NonNull Img bxx) throws Exception {
 						collapseNode(item);
 					}
 				});
@@ -310,7 +310,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 					img.setCssClass("ui-tr-act");
 					img.setClicked(new IClicked<Img>() {
 						@Override
-						public void clicked(@Nonnull Img bxx) throws Exception {
+						public void clicked(@NonNull Img bxx) throws Exception {
 							collapseNode(o);
 						}
 					});
@@ -332,7 +332,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 					img.setClicked(new IClicked<Img>() {
 						@Override
-						public void clicked(@Nonnull Img bxx) throws Exception {
+						public void clicked(@NonNull Img bxx) throws Exception {
 							collapseNode(o);
 						}
 					});
@@ -370,7 +370,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		img.setCssClass("ui-tr-act");
 		img.setClicked(new IClicked<Img>() {
 			@Override
-			public void clicked(@Nonnull Img bxx) throws Exception {
+			public void clicked(@NonNull Img bxx) throws Exception {
 				expandNode(item);
 			}
 		});
@@ -452,13 +452,13 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 		IRenderInto<Object> rr = (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 		return new IRenderInto<Object>() {
-			@Override public void render(@Nonnull NodeContainer node, @Nullable Object object) throws Exception {
+			@Override public void render(@NonNull NodeContainer node, @Nullable Object object) throws Exception {
 				rr.renderOpt(node, object);
 			}
 		};
 	}
 
-	private void renderContent(@Nonnull TD cell, @Nullable T value) throws Exception {
+	private void renderContent(@NonNull TD cell, @Nullable T value) throws Exception {
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = (IRenderInto<T>) calculateContentRenderer(value);
 		m_actualContentRenderer.renderOpt(cell, value);
@@ -470,7 +470,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 
 			cell.setClicked2(new IClicked2<TD>() {
 				@Override
-				public void clicked(@Nonnull TD node, @Nonnull ClickInfo clinfo) throws Exception {
+				public void clicked(@NonNull TD node, @NonNull ClickInfo clinfo) throws Exception {
 					// FIXME This means null root nodes cannot be clicked
 					if(null != value) {
 						cellClicked(cell, value, clinfo);
@@ -481,7 +481,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		updateSelectable(cell, value);
 	}
 
-	private void updateSelectable(@Nonnull TD cell, @Nullable T value) throws Exception {
+	private void updateSelectable(@NonNull TD cell, @Nullable T value) throws Exception {
 		INodePredicate<T> predicate = m_nodeSelectablePredicate;
 		if(null != predicate) {
 			boolean isSelectable = predicate.predicate(value);
@@ -495,7 +495,7 @@ public class Tree<T> extends Div implements ITreeModelChangedListener<T> {
 		}
 	}
 
-	protected void cellClicked(@Nonnull final TD cell, @Nonnull final T value, @Nonnull ClickInfo clinfo) throws Exception {
+	protected void cellClicked(@NonNull final TD cell, @NonNull final T value, @NonNull ClickInfo clinfo) throws Exception {
 		if(getCellClicked() != null)
 			getCellClicked().cellClicked(value);
 	}

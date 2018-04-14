@@ -24,7 +24,7 @@
  */
 package to.etc.webapp.eventmanager;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A listener for a specific type of event.
@@ -33,5 +33,5 @@ import javax.annotation.*;
  * Created on Sep 12, 2006
  */
 public interface AppEventListener<T extends AppEventBase> {
-	void handleEvent(@Nonnull T obj) throws Exception;
+	void handleEvent(@NonNull T obj) throws Exception;
 }

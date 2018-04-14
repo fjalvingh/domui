@@ -1,6 +1,6 @@
 package to.etc.domui.hibernate.types;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Must be implemented for enum types that need mapping from database column values to
@@ -18,6 +18,6 @@ public interface IDatabaseCodeEnum {
 	 * return the same code).
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	String getCode();
 }

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.delayed;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.css.DisplayType;
@@ -36,11 +38,8 @@ import to.etc.domui.util.Msgs;
 import to.etc.util.Progress;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 final public class AsyncContainer extends Div {
-	@Nonnull
+	@NonNull
 	final private IAsyncRunnable m_runnable;
 
 	@Nullable
@@ -60,11 +59,11 @@ final public class AsyncContainer extends Div {
 	 */
 	private String m_busyMarkerSrc = "THEME/asy-container-busy.gif";
 
-	public AsyncContainer(@Nonnull IAsyncRunnable arunnable) {
+	public AsyncContainer(@NonNull IAsyncRunnable arunnable) {
 		this(arunnable, null);
 	}
 
-	public AsyncContainer(@Nonnull IAsyncRunnable arunnable, @Nullable IAsyncCompletionListener listener) {
+	public AsyncContainer(@NonNull IAsyncRunnable arunnable, @Nullable IAsyncCompletionListener listener) {
 		m_runnable = arunnable;
 		m_resultListener = listener;
 	}
@@ -76,7 +75,7 @@ final public class AsyncContainer extends Div {
 		return this;
 	}
 
-	public AsyncContainer(@Nonnull IActivity activity) {
+	public AsyncContainer(@NonNull IActivity activity) {
 		Div[] resultLocator = new Div[1];
 
 		m_runnable = new IAsyncRunnable() {
@@ -84,7 +83,7 @@ final public class AsyncContainer extends Div {
 			private Div m_result;
 
 			@Override
-			public void run(@Nonnull Progress p) throws Exception {
+			public void run(@NonNull Progress p) throws Exception {
 				setResult(activity.run(p));
 			}
 

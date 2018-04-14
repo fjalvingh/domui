@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component2.lookupinput;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.input.AbstractLookupInputBase;
 import to.etc.domui.component.input.IQueryManipulator;
@@ -50,8 +52,6 @@ import to.etc.domui.util.Msgs;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -101,30 +101,30 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 * Created on Jul 8, 2014
 	 */
 	public interface IPopupOpener {
-		@Nonnull
-		<A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@Nonnull L control, @Nullable ITableModel<B> initialModel, @Nonnull IExecute callOnWindowClose);
+		@NonNull
+		<A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(@NonNull L control, @Nullable ITableModel<B> initialModel, @NonNull IExecute callOnWindowClose);
 	}
 
 	/**
 	 * Lookup a POJO Java bean persistent class.
 	 * @param queryClass
 	 */
-	public LookupInputBase2(@Nonnull ITableModelFactory<QT, OT> modelFactory, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass) {
+	public LookupInputBase2(@NonNull ITableModelFactory<QT, OT> modelFactory, @NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass) {
 		this(modelFactory, queryClass, resultClass, null, null);
 	}
 
-	public LookupInputBase2(@Nonnull ITableModelFactory<QT, OT> modelFactory, @Nonnull QCriteria<QT> rootCriteria, @Nonnull Class<OT> resultClass) {
+	public LookupInputBase2(@NonNull ITableModelFactory<QT, OT> modelFactory, @NonNull QCriteria<QT> rootCriteria, @NonNull Class<OT> resultClass) {
 		this(rootCriteria, modelFactory, DomUtil.nullChecked(rootCriteria.getBaseClass()), resultClass, null, null);
 	}
 
-	public LookupInputBase2(@Nonnull ITableModelFactory<QT, OT> modelFactory, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel,
+	public LookupInputBase2(@NonNull ITableModelFactory<QT, OT> modelFactory, @NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel,
 		@Nullable ClassMetaModel outputMetaModel) {
 		this(null, modelFactory, queryClass, resultClass, queryMetaModel, outputMetaModel);
 		m_modelFactory = modelFactory;
 		setQueryHandler(new PageQueryHandler<QT>(this));
 	}
 
-	public LookupInputBase2(@Nullable QCriteria<QT> rootCriteria, @Nonnull ITableModelFactory<QT, OT> modelFactory, @Nonnull Class<QT> queryClass, @Nonnull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel,
+	public LookupInputBase2(@Nullable QCriteria<QT> rootCriteria, @NonNull ITableModelFactory<QT, OT> modelFactory, @NonNull Class<QT> queryClass, @NonNull Class<OT> resultClass, @Nullable ClassMetaModel queryMetaModel,
 		@Nullable ClassMetaModel outputMetaModel) {
 		super(rootCriteria, queryClass, resultClass, queryMetaModel, outputMetaModel);
 		m_modelFactory = modelFactory;
@@ -170,7 +170,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		ks.setHint(Msgs.BUNDLE.formatMessage(Msgs.UI_KEYWORD_SEARCH_HINT, (hint != null) ? hint : getDefaultKeySearchHint()));
 	}
 
-	private void handleSelection(@Nonnull SearchInput2 node) throws Exception {
+	private void handleSelection(@NonNull SearchInput2 node) throws Exception {
 		SelectOnePanel<OT> sp = m_selectPanel;
 		if(sp != null) {
 			OT value = sp.getValue();                        // Is a value selected?
@@ -219,8 +219,8 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		return createTableModel(searchQuery);
 	}
 
-	@Nonnull
-	private ITableModel<OT> createTableModel(@Nonnull QCriteria<QT> qc) throws Exception {
+	@NonNull
+	private ITableModel<OT> createTableModel(@NonNull QCriteria<QT> qc) throws Exception {
 		ITableModelFactory<QT, OT> factory = m_modelFactory;
 		if(null == factory)
 			throw new IllegalStateException("Table model factory unset");
@@ -278,7 +278,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 			onPopupOpen.onNotify(floater);
 	}
 
-	private void decoratePopup(@Nonnull Dialog floater) {
+	private void decoratePopup(@NonNull Dialog floater) {
 		if (isPopupInitiallyCollapsed() && floater instanceof DefaultLookupInputDialog) {
 			((DefaultLookupInputDialog<?, ?>) floater).setInitiallyCollapsed(true);
 		}
@@ -297,7 +297,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		m_onPopupOpen = onPopupOpen;
 	}
 
-	@Nonnull
+	@NonNull
 	private IPopupOpener createPopupOpener() {
 		return new DefaultPopupOpener();
 	}
@@ -336,7 +336,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		}
 	}
 
-	private void openResultsPopup(@Nonnull ITableModel<OT> model) throws Exception {
+	private void openResultsPopup(@NonNull ITableModel<OT> model) throws Exception {
 		List<OT> list = model.getItems(0, model.getRows());
 		IRenderInto<OT> renderer = new DefaultPopupRowRenderer<OT>(getOutputMetaModel());
 
@@ -355,7 +355,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		});
 	}
 
-	private void openMessagePanel(@Nonnull String cssClass, @Nonnull String code, String... parameters) {
+	private void openMessagePanel(@NonNull String cssClass, @NonNull String code, String... parameters) {
 		String message = Msgs.BUNDLE.formatMessage(code, parameters);
 		Div pnl = m_pnlMessage;
 		if(pnl == null) {
@@ -386,7 +386,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 *
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public String getDefaultTitle() {
 		String popupTitle = m_defaultTitle;
 		if(null != popupTitle)
@@ -424,7 +424,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	}
 
 
-	@Nonnull
+	@NonNull
 	public IStringQueryFactory<QT> getStringQueryFactory() {
 		IStringQueryFactory<QT> factory = m_stringQueryFactory;
 		if(null == factory) {
@@ -433,7 +433,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		return factory;
 	}
 
-	public void setStringQueryFactory(@Nonnull IStringQueryFactory<QT> keyWordSearchManipulator) {
+	public void setStringQueryFactory(@NonNull IStringQueryFactory<QT> keyWordSearchManipulator) {
 		m_stringQueryFactory = keyWordSearchManipulator;
 	}
 
@@ -472,7 +472,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 * Define the full column spec in the format described for {@link BasicRowRenderer} for the dropdown box
 	 * showing quick search results.
 	 */
-//	public void addDropdownColumns(@Nonnull Object... columns) {
+//	public void addDropdownColumns(@NonNull Object... columns) {
 //		getDropdownRowRenderer().addColumns(columns);
 //	}
 
@@ -481,7 +481,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		return m_floater != null;
 	}
 
-	@Nonnull
+	@NonNull
 	public ITableModelFactory<QT, OT> getModelFactory() {
 		ITableModelFactory<QT, OT> modelFactory = m_modelFactory;
 		if(null == modelFactory)
@@ -489,7 +489,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		return modelFactory;
 	}
 
-	public void setModelFactory(@Nonnull ITableModelFactory<QT, OT> modelFactory) {
+	public void setModelFactory(@NonNull ITableModelFactory<QT, OT> modelFactory) {
 		m_modelFactory = modelFactory;
 	}
 

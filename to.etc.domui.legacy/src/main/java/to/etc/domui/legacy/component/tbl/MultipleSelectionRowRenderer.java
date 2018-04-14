@@ -24,14 +24,13 @@
  */
 package to.etc.domui.legacy.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.domui.component.tbl.SimpleColumnDef;
 import to.etc.domui.component.tbl.SimpleRowRenderer;
+
+import java.util.List;
 
 /**
  * Deprecated: the widths calculation is completely unclear (jal 2012/05/11).
@@ -53,7 +52,7 @@ public abstract class MultipleSelectionRowRenderer<T> extends SimpleRowRenderer<
 		super(dataClass);
 	}
 
-	public MultipleSelectionRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final String... cols) {
+	public MultipleSelectionRowRenderer(@NonNull final Class<T> dataClass, @NonNull final ClassMetaModel cmm, final String... cols) {
 		super(dataClass, cmm);
 	}
 
@@ -63,7 +62,7 @@ public abstract class MultipleSelectionRowRenderer<T> extends SimpleRowRenderer<
 	 * @param xdpl
 	 */
 	@Override
-	protected void initialize(@Nonnull final List<ExpandedDisplayProperty< ? >> xdpl) {
+	protected void initialize(@NonNull final List<ExpandedDisplayProperty< ? >> xdpl) {
 		//-- For all properties in the list, use metadata to define'm
 		final int[] widths = new int[80];
 		setTotalWidth(0);

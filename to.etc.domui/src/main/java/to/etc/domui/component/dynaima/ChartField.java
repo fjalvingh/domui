@@ -1,11 +1,10 @@
 package to.etc.domui.component.dynaima;
 
-import java.text.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-
-import to.etc.domui.util.*;
+import java.text.DecimalFormat;
+import java.util.Comparator;
 
 /**
  * ChartField defines value of the field that will be displayed on the chart as well as it's label.
@@ -37,7 +36,7 @@ public final class ChartField {
 
 	private final String m_label;
 	
-	public ChartField(double value, @Nonnull String label) {
+	public ChartField(double value, @NonNull String label) {
 		super();
 		if(label == null) {
 			throw new IllegalArgumentException("ChartField.label cannot be null");
@@ -50,7 +49,7 @@ public final class ChartField {
 		return m_value;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getLabel() {
 		return m_label;
 	}

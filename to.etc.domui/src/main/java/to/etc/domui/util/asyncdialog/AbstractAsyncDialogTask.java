@@ -1,5 +1,7 @@
 package to.etc.domui.util.asyncdialog;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.delayed.IAsyncRunnable;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
@@ -7,9 +9,6 @@ import to.etc.util.FileTool;
 import to.etc.util.Progress;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -24,10 +23,10 @@ abstract public class AbstractAsyncDialogTask implements IAsyncRunnable {
 
 	private volatile boolean m_done;
 
-	abstract protected void execute(@Nonnull Progress p) throws Exception;
+	abstract protected void execute(@NonNull Progress p) throws Exception;
 
 	@Override
-	public final void run(@Nonnull Progress progress) throws Exception {
+	public final void run(@NonNull Progress progress) throws Exception {
 		try {
 			execute(progress);
 		} finally {
@@ -38,7 +37,7 @@ abstract public class AbstractAsyncDialogTask implements IAsyncRunnable {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	protected QDataContext	dc() throws Exception {
 		QDataContext dc = m_dc;
 		if(null == dc) {
@@ -49,7 +48,7 @@ abstract public class AbstractAsyncDialogTask implements IAsyncRunnable {
 		return dc;
 	}
 
-	@Nonnull
+	@NonNull
 	protected ILogicContext lc() throws Exception {
 		ILogicContext lc = m_lc;
 		if(null == lc) {

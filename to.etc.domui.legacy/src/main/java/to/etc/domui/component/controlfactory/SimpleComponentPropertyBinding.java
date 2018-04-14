@@ -24,11 +24,10 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.util.IReadOnlyModel;
-
-import javax.annotation.Nullable;
 
 @Deprecated
 public class SimpleComponentPropertyBinding<T> extends ComponentPropertyBinding<T, T> implements IModelBinding {

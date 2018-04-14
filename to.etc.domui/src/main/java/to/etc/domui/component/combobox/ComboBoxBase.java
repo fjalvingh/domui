@@ -1,17 +1,31 @@
 package to.etc.domui.component.combobox;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.CriteriaComboDataSet;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.IListMaker;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.IValueTransformer;
+import to.etc.domui.util.Msgs;
+import to.etc.util.WrappedException;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 
 public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 	private boolean m_mandatory;
@@ -61,19 +75,19 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 
 	public ComboBoxBase() {}
 
-	public ComboBoxBase(@Nonnull IListMaker<T> maker) {
+	public ComboBoxBase(@NonNull IListMaker<T> maker) {
 		m_listMaker = maker;
 	}
 
-	public ComboBoxBase(@Nonnull IComboDataSet<T> dataSet) {
+	public ComboBoxBase(@NonNull IComboDataSet<T> dataSet) {
 		m_dataSet = dataSet;
 	}
 
-	public ComboBoxBase(@Nonnull QCriteria<T> query) {
+	public ComboBoxBase(@NonNull QCriteria<T> query) {
 		m_dataSet = new CriteriaComboDataSet<T>(query);
 	}
 
-	public ComboBoxBase(@Nonnull List<T> in) {
+	public ComboBoxBase(@NonNull List<T> in) {
 		m_data = in;
 	}
 
@@ -315,7 +329,7 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		return m_valueTransformer.getValue(in);
 	}
 
-	@Nonnull
+	@NonNull
 	private IRenderInto<T> calculateContentRenderer(Object val) {
 		if(m_contentRenderer != null)
 			return m_contentRenderer;
@@ -328,14 +342,14 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		return (IRenderInto<T>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 	}
 
-	protected void renderOptionLabel(@Nonnull ComboOption<T> o) throws Exception {
+	protected void renderOptionLabel(@NonNull ComboOption<T> o) throws Exception {
 		T value = o.getValue();
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(value);
 		m_actualContentRenderer.renderOpt(o, value);
 	}
 
-	protected void renderOptionLabel(@Nonnull NodeContainer into, @Nonnull ComboOption<T> o) throws Exception {
+	protected void renderOptionLabel(@NonNull NodeContainer into, @NonNull ComboOption<T> o) throws Exception {
 		T value = o.getValue();
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(value);
@@ -363,7 +377,7 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	public List<T> getData() throws Exception {
 		List<T> data = m_data;
 		if(data == null)
@@ -377,7 +391,7 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	protected List<T> provideData() throws Exception {
 		if(m_listMaker != null)
 			return DomApplication.get().getCachedList(m_listMaker);
@@ -472,7 +486,7 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		return m_emptyOption;
 	}
 
-	@Nonnull
+	@NonNull
 	private ComboOption<T> getOption(int ix) {
 		if(ix < 0 || ix >= m_popupDiv.getChildCount())
 			throw new ArrayIndexOutOfBoundsException("The option index " + ix + " is invalid, the #options is " + getChildCount());

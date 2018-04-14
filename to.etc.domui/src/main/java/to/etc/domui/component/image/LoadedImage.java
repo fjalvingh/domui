@@ -1,5 +1,7 @@
 package to.etc.domui.component.image;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.trouble.UIException;
 import to.etc.domui.util.images.converters.ImageConverterHelper;
 import to.etc.domui.util.images.converters.ImageSpec;
@@ -10,9 +12,6 @@ import to.etc.sjit.ImaTool;
 import to.etc.util.FileTool;
 import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.WillClose;
 import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -30,23 +29,23 @@ final public class LoadedImage implements IUIImage {
 	@Nullable
 	private Long m_id;
 
-	@Nonnull
+	@NonNull
 	private final File m_source;
 
-	@Nonnull
+	@NonNull
 	private final Dimension m_dimension;
 
-	@Nonnull
+	@NonNull
 	private final String m_mime;
 
-	@Nonnull
+	@NonNull
 	private final Map<Dimension, LoadedImageInstance> m_sizeMap = new HashMap<>();
 
 	@Nullable
 	private final List<Object> m_resourceList;
 
-	@Nonnull
-	static public LoadedImage	create(@WillClose @Nonnull InputStream is, @Nullable Dimension maxSize, @Nullable List<Object> resourceList) throws Exception {
+	@NonNull
+	static public LoadedImage	create(@NonNull InputStream is, @Nullable Dimension maxSize, @Nullable List<Object> resourceList) throws Exception {
 		try {
 			File tmp = FileTool.copyStreamToTmpFile(is);
 			return create(tmp, maxSize, resourceList);
@@ -55,8 +54,8 @@ final public class LoadedImage implements IUIImage {
 		}
 	}
 
-	@Nonnull
-	static public LoadedImage	create(@Nonnull File original, @Nullable Dimension maxSize, @Nullable List<Object> resourceList) throws Exception {
+	@NonNull
+	static public LoadedImage	create(@NonNull File original, @Nullable Dimension maxSize, @Nullable List<Object> resourceList) throws Exception {
 		ImageInfo identify = ImageMagicImageHandler.getInstance().identify(original);
 		if(identify.getPageCount() != 1)
 			throw new UIException(BUNDLE, "image.invalid");
@@ -79,14 +78,14 @@ final public class LoadedImage implements IUIImage {
 		return new LoadedImage(original, page.getMimeType(), new Dimension(page.getWidth(), page.getHeight()), resourceList);
 	}
 
-	private LoadedImage(@Nonnull File source, @Nonnull String mime, @Nonnull Dimension size, @Nullable List<Object> resourceList) {
+	private LoadedImage(@NonNull File source, @NonNull String mime, @NonNull Dimension size, @Nullable List<Object> resourceList) {
 		m_source = source;
 		m_mime = mime;
 		m_dimension = size;
 		m_resourceList = resourceList;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public IUIImageInstance getImage(@Nullable Dimension size, boolean thumbNail) throws Exception {
 		//-- Get size after resize,
@@ -132,16 +131,16 @@ final public class LoadedImage implements IUIImage {
 		m_id = id;
 	}
 
-	@Nonnull
+	@NonNull
 	public File getSource() {
 		return m_source;
 	}
 
-	@Nonnull public String getMime() {
+	@NonNull public String getMime() {
 		return m_mime;
 	}
 
-	@Nonnull public Dimension getDimension() {
+	@NonNull public Dimension getDimension() {
 		return m_dimension;
 	}
 }

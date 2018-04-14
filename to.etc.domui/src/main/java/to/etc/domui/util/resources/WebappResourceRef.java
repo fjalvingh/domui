@@ -24,9 +24,11 @@
  */
 package to.etc.domui.util.resources;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 
 /**
  * A full reference to a web app file (a file somewhere in the webapp's web files or WEB-INF directorty).
@@ -35,10 +37,10 @@ import javax.annotation.*;
  * Created on Oct 19, 2009
  */
 public class WebappResourceRef implements IResourceRef, IModifyableResource {
-	@Nonnull
+	@NonNull
 	private File m_resource;
 
-	public WebappResourceRef(@Nonnull File resource) {
+	public WebappResourceRef(@NonNull File resource) {
 		m_resource = resource;
 	}
 
@@ -55,7 +57,7 @@ public class WebappResourceRef implements IResourceRef, IModifyableResource {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public InputStream getInputStream() throws Exception {
 		return new FileInputStream(m_resource);
 	}

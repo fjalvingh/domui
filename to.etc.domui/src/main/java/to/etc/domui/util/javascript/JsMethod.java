@@ -1,14 +1,14 @@
 package to.etc.domui.util.javascript;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class JsMethod {
-	@Nonnull
+	@NonNull
 	private final JavascriptStmt m_stmt;
 
 	private JsMethod m_currentMethod;
 
-	public JsMethod(@Nonnull JavascriptStmt stmt) {
+	public JsMethod(@NonNull JavascriptStmt stmt) {
 		m_stmt = stmt;
 	}
 
@@ -16,8 +16,8 @@ public class JsMethod {
 		m_stmt.sb().append(")");
 	}
 
-	@Nonnull
-	public JsMethod arg(@Nonnull Object what) throws Exception {
+	@NonNull
+	public JsMethod arg(@NonNull Object what) throws Exception {
 		comma();
 		m_stmt.object(what);
 		return this;
@@ -29,14 +29,14 @@ public class JsMethod {
 			m_stmt.sb().append(',');
 	}
 
-	@Nonnull
-	public JsMethod var(@Nonnull String variableName) {
+	@NonNull
+	public JsMethod var(@NonNull String variableName) {
 		comma();
 		m_stmt.sb().append(variableName);
 		return this;
 	}
 
-//	@Nonnull
+//	@NonNull
 //	private JsMethod endfn() {
 //		JsMethod jm = m_currentMethod;
 //		if(null != jm) {
@@ -46,8 +46,8 @@ public class JsMethod {
 //		return this;
 //	}
 //
-//	@Nonnull
-//	public JsMethod fn(@Nonnull String name) {
+//	@NonNull
+//	public JsMethod fn(@NonNull String name) {
 //		endfn();
 //		StringBuilder sb = m_stmt.sb();
 //		char lc = m_stmt.lastChar();
@@ -59,7 +59,7 @@ public class JsMethod {
 //		return m_currentMethod = new JsMethod(this);
 //	}
 
-	@Nonnull
+	@NonNull
 	public JavascriptStmt end() {
 		m_stmt.endmethod();
 		return m_stmt;

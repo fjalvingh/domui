@@ -24,25 +24,36 @@
  */
 package to.etc.domui.component.tbl;
 
-import to.etc.domui.databinding.list.*;
-import to.etc.domui.databinding.list2.*;
-import to.etc.domui.databinding.observables.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.databinding.list.ListChangeAdd;
+import to.etc.domui.databinding.list.ListChangeAssign;
+import to.etc.domui.databinding.list.ListChangeDelete;
+import to.etc.domui.databinding.list.ListChangeModify;
+import to.etc.domui.databinding.list2.IListChangeListener;
+import to.etc.domui.databinding.list2.IListChangeVisitor;
+import to.etc.domui.databinding.list2.ListChangeEvent;
+import to.etc.domui.databinding.observables.IObservableList;
+import to.etc.domui.databinding.observables.ObservableListModelAdapter;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.util.IShelvedListener;
+import to.etc.domui.util.JavascriptUtil;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T>, IListChangeListener<T> {
 	@Nullable
 	private ITableModel<T> m_model;
 
-	@Nonnull
+	@NonNull
 	private List<IDataTableChangeListener> m_listeners = Collections.EMPTY_LIST;
 
 	private boolean m_disableClipboardSelection;
 
-	protected TableModelTableBase(@Nonnull ITableModel<T> model) {
+	protected TableModelTableBase(@NonNull ITableModel<T> model) {
 		m_model = model;
 		model.addChangeListener(this);
 	}
@@ -55,7 +66,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	/**
 	 * Add a change listener to this model. Don't forget to remove it at destruction time.
 	 */
-	public void addChangeListener(@Nonnull IDataTableChangeListener l) {
+	public void addChangeListener(@NonNull IDataTableChangeListener l) {
 		synchronized(this) {
 			if(m_listeners.contains(l))
 				return;
@@ -68,7 +79,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	 * Remove a change listener from the model.
 	 * @see to.etc.domui.component.tbl.ITableModel#removeChangeListener(to.etc.domui.component.tbl.ITableModelListener)
 	 */
-	public void removeChangeListener(@Nonnull IDataTableChangeListener l) {
+	public void removeChangeListener(@NonNull IDataTableChangeListener l) {
 		synchronized(this) {
 			m_listeners = new ArrayList<>();
 			m_listeners.remove(l);
@@ -115,7 +126,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	/**
 	 * Return the current model being used.
 	 */
-	@Nonnull
+	@NonNull
 	public ITableModel<T> getModel() {
 		if(null != m_model)
 			return m_model;
@@ -126,7 +137,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	 * Set a new model for this table. This discards the entire presentation
 	 * and causes a full build at render time.
 	 */
-	public void setModel(@Nonnull ITableModel<T> model) {
+	public void setModel(@NonNull ITableModel<T> model) {
 		if(model == null)
 			throw new IllegalArgumentException("Cannot set a table model to null");
 
@@ -148,11 +159,11 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	 * This should be overridden when setting a model requires state to be reset, like
 	 * the current page number or selected cell (x, y)
 	 */
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	protected void resetState() {
 	}
 
-	@Nonnull
+	@NonNull
 	protected T getModelItem(int index) throws Exception {
 		List<T> res = getModel().getItems(index, index + 1);
 		if(res.size() == 0)
@@ -259,26 +270,26 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	 * @throws Exception
 	 */
 	@Override
-	public void handleChange(@Nonnull ListChangeEvent<T> event) throws Exception {
+	public void handleChange(@NonNull ListChangeEvent<T> event) throws Exception {
 		if(event.getChanges().size() == 1) {
 			event.visit(new IListChangeVisitor<T>() {
 				@Override
-				public void visitAdd(@Nonnull ListChangeAdd<T> l) throws Exception {
+				public void visitAdd(@NonNull ListChangeAdd<T> l) throws Exception {
 					rowAdded(getModel(), l.getIndex(), l.getValue());
 				}
 
 				@Override
-				public void visitDelete(@Nonnull ListChangeDelete<T> l) throws Exception {
+				public void visitDelete(@NonNull ListChangeDelete<T> l) throws Exception {
 					rowDeleted(getModel(), l.getIndex(), l.getValue());
 				}
 
 				@Override
-				public void visitModify(@Nonnull ListChangeModify<T> l) throws Exception {
+				public void visitModify(@NonNull ListChangeModify<T> l) throws Exception {
 					rowModified(getModel(), l.getIndex(), l.getNewValue());
 				}
 
 				@Override
-				public void visitAssign(@Nonnull ListChangeAssign<T> assign) throws Exception {
+				public void visitAssign(@NonNull ListChangeAssign<T> assign) throws Exception {
 					forceRebuild();
 					fireModelChanged(null, getModel());
 				}

@@ -1,8 +1,9 @@
 package to.etc.util;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Sigh.
@@ -11,12 +12,12 @@ import javax.annotation.*;
  * Created on Oct 18, 2013
  */
 public class ArrayIterator<T> implements Iterator<T> {
-	@Nonnull
+	@NonNull
 	final private T[]	m_array;
 
 	private int			m_index	= 0;
 
-	public ArrayIterator(@Nonnull T anArray[]) {
+	public ArrayIterator(@NonNull T anArray[]) {
 		m_array = anArray;
 	}
 

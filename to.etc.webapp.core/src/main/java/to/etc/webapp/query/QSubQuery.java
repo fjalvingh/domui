@@ -24,10 +24,9 @@
  */
 package to.etc.webapp.query;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.qsql.QQuerySyntaxException;
-
-import javax.annotation.Nonnull;
 
 /**
  * A subquery linked inside a master query, that can be joined to the master query.
@@ -36,10 +35,10 @@ import javax.annotation.Nonnull;
  * Created on Apr 5, 2013
  */
 public class QSubQuery<T, P> extends QSelection<T> {
-	@Nonnull
+	@NonNull
 	final private QRestrictor<P, ?> m_parent;
 
-	public QSubQuery(@Nonnull QRestrictor<P, ?> parent, @Nonnull Class<T> chclazz) {
+	public QSubQuery(@NonNull QRestrictor<P, ?> parent, @NonNull Class<T> chclazz) {
 		super(chclazz);
 		m_parent = parent;
 	}
@@ -49,7 +48,7 @@ public class QSubQuery<T, P> extends QSelection<T> {
 		v.visitSubquery(this);
 	}
 
-	public <A> QJoiner<A, P, T> join(@Nonnull QRestrictor<A, ?> parent) {
+	public <A> QJoiner<A, P, T> join(@NonNull QRestrictor<A, ?> parent) {
 		//-- Make sure parent is in my hierarchy
 		QSubQuery<?, ?> r = this;
 		for(;;) {
@@ -69,12 +68,12 @@ public class QSubQuery<T, P> extends QSelection<T> {
 	/**
 	 * Joins the parent to this subquery on the specified property, provided that the property exists in both entities
 	 */
-	public QSubQuery<T, P> join(@Nonnull @GProperty String property) {
+	public QSubQuery<T, P> join(@NonNull @GProperty String property) {
 		add(new QPropertyJoinComparison(QOperation.EQ, property, property));
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public QRestrictor<P, ?> getParent() {
 		return m_parent;
 	}

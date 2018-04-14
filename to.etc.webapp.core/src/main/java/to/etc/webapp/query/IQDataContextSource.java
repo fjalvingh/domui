@@ -1,6 +1,6 @@
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IQDataContextSource {
 	/**
@@ -8,5 +8,5 @@ public interface IQDataContextSource {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull QDataContext getDataContext() throws Exception;
+	@NonNull QDataContext getDataContext() throws Exception;
 }

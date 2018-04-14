@@ -1,6 +1,6 @@
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.value.*;
 import to.etc.domui.dom.errors.*;
@@ -13,7 +13,7 @@ import to.etc.domui.dom.html.*;
  * Created on Jul 30, 2013
  */
 public class ErrorBinding implements IValueChangeListener<UIMessage> {
-	@Nonnull
+	@NonNull
 	final private BindingContext m_bindingContext;
 
 	@Nullable
@@ -21,13 +21,13 @@ public class ErrorBinding implements IValueChangeListener<UIMessage> {
 
 	private UIMessage m_message;
 
-	public ErrorBinding(@Nonnull BindingContext bindingContext, @Nonnull IObservableValue<UIMessage> observable) {
+	public ErrorBinding(@NonNull BindingContext bindingContext, @NonNull IObservableValue<UIMessage> observable) {
 		m_bindingContext = bindingContext;
 		m_observable = observable;
 		observable.addChangeListener(this);
 	}
 
-	public ErrorBinding(@Nonnull BindingContext bindingContext, @Nonnull UIMessage error) {
+	public ErrorBinding(@NonNull BindingContext bindingContext, @NonNull UIMessage error) {
 		m_bindingContext = bindingContext;
 		m_message = error;
 	}
@@ -37,7 +37,7 @@ public class ErrorBinding implements IValueChangeListener<UIMessage> {
 	 * @see to.etc.domui.databinding.value.IValueChangeListener#handleChange(to.etc.domui.databinding.value.ValueChangeEvent)
 	 */
 	@Override
-	public void handleChange(@Nonnull ValueChangeEvent<UIMessage> event) throws Exception {
+	public void handleChange(@NonNull ValueChangeEvent<UIMessage> event) throws Exception {
 		m_bindingContext.errorBindingChanged(this, event.getDiff().getOld(), event.getDiff().getNew());
 	}
 

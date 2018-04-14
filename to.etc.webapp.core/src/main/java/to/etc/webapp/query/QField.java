@@ -1,7 +1,7 @@
 package to.etc.webapp.query;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Typesafe property base class.
@@ -16,29 +16,29 @@ public class QField<R, P> {
 	@Nullable
 	final private QField<R, ?> m_parent;
 
-	@Nonnull
+	@NonNull
 	final private Class<R> m_rootClass;
 
-	@Nonnull
+	@NonNull
 	final private String m_propertyName;
 
 	//protected QField() {
 	//	m_propertyName = "";
 	//}
 
-	public QField(@Nonnull Class<R> rootClass, @Nonnull String propertyName) {
+	public QField(@NonNull Class<R> rootClass, @NonNull String propertyName) {
 		m_rootClass = rootClass;
 		m_parent = null;
 		m_propertyName = propertyName;
 	}
 
-	public QField(@Nonnull Class<R> rootClass, @Nullable QField<R, ? > parent, @Nonnull String propertyName) {
+	public QField(@NonNull Class<R> rootClass, @Nullable QField<R, ? > parent, @NonNull String propertyName) {
 		m_rootClass = rootClass;
 		m_parent = parent;
 		m_propertyName = propertyName;
 	}
 
-	@Nonnull
+	@NonNull
 	final public String getName() {
 		QField<R, ?> parent = m_parent;
 		if(parent == null)
@@ -46,7 +46,7 @@ public class QField<R, P> {
 		return parent.getName() + "." + m_propertyName;
 	}
 
-	@Nonnull
+	@NonNull
 	String getPropertyName() {
 		return m_propertyName;
 	}
@@ -56,7 +56,7 @@ public class QField<R, P> {
 		return m_parent;
 	}
 
-	@Nonnull public Class<R> getRootClass() {
+	@NonNull public Class<R> getRootClass() {
 		return m_rootClass;
 	}
 

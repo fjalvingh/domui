@@ -1,14 +1,14 @@
 package to.etc.domui.util;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.parts.TempFilePart;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.state.UIContext;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.util.*;
+import java.io.File;
 
 final public class UIDownloadUtil {
 	private UIDownloadUtil() {}

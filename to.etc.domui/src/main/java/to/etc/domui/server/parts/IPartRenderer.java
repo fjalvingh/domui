@@ -24,9 +24,8 @@
  */
 package to.etc.domui.server.parts;
 
-import to.etc.domui.server.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.server.RequestContextImpl;
 
 /**
  * This renders a given part, using whatever context parameters.
@@ -34,7 +33,7 @@ import javax.annotation.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 4, 2008
  */
-@DefaultNonNull
+@NonNullByDefault
 public interface IPartRenderer {
 	void render(RequestContextImpl ctx, String rest) throws Exception;
 }

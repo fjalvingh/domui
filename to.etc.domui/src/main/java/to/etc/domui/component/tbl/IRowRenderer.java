@@ -24,9 +24,9 @@
  */
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.RequestContextImpl;
-
-import javax.annotation.*;
 
 
 /**
@@ -36,9 +36,9 @@ import javax.annotation.*;
  * Created on Jun 1, 2008
  */
 public interface IRowRenderer<T> {
-	void beforeQuery(@Nonnull TableModelTableBase<T> tbl) throws Exception;
+	void beforeQuery(@NonNull TableModelTableBase<T> tbl) throws Exception;
 
-	void renderRow(@Nonnull TableModelTableBase<T> tbl, @Nonnull ColumnContainer<T> cc, int index, @Nonnull T instance) throws Exception;
+	void renderRow(@NonNull TableModelTableBase<T> tbl, @NonNull ColumnContainer<T> cc, int index, @NonNull T instance) throws Exception;
 
 	/**
 	 * Render table header.
@@ -46,7 +46,7 @@ public interface IRowRenderer<T> {
 	 * @param cc
 	 * @throws Exception
 	 */
-	void renderHeader(@Nonnull TableModelTableBase<T> tbl, @Nonnull HeaderContainer<T> cc) throws Exception;
+	void renderHeader(@NonNull TableModelTableBase<T> tbl, @NonNull HeaderContainer<T> cc) throws Exception;
 
 	/**
 	 * Return the row clicked handler to use.
@@ -55,5 +55,5 @@ public interface IRowRenderer<T> {
 	@Nullable
 	ICellClicked<T> getRowClicked();
 
-	default void updateWidths(@Nonnull TableModelTableBase<T> tbl, @Nonnull RequestContextImpl context) throws Exception {}
+	default void updateWidths(@NonNull TableModelTableBase<T> tbl, @NonNull RequestContextImpl context) throws Exception {}
 }

@@ -1,5 +1,8 @@
 package to.etc.domui.webdriver.core;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.openqa.selenium.UnhandledAlertException;
@@ -9,9 +12,6 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 /**
  * Abstract base class for Selenium JUnit tests.
  */
-@DefaultNonNull
+@NonNullByDefault
 abstract public class AbstractWebDriverTest {
 	@Rule
 	public TestName m_testName = new TestName();
@@ -39,7 +39,7 @@ abstract public class AbstractWebDriverTest {
 	 * Get the webdriver to use for tests.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	final protected WebDriverConnector wd() {
 		WebDriverConnector wd = m_wd;
 		if(null == wd) {
@@ -56,7 +56,7 @@ abstract public class AbstractWebDriverTest {
 		return wd().cmd();
 	}
 
-	@Nonnull
+	@NonNull
 	public static String prefix(int len) {
 		return StringTool.getRandomStringWithPrefix(len, "wd_");
 	}
@@ -73,12 +73,12 @@ abstract public class AbstractWebDriverTest {
 		WebDriverConnector.onTestFailure(wd(), failedMethod);
 	}
 
-	//@Nonnull
+	//@NonNull
 	//public File getSnapshotName() {
 	//	return getSnapshotName(Integer.toString(m_screenShotCount++));
 	//}
 
-	@Nonnull
+	@NonNull
 	private File getSnapshotName(String baseName) {
 		File testReportDir = findTestReportDir();
 		String testName = m_testName.getMethodName();

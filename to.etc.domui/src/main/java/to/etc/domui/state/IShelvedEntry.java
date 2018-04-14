@@ -24,9 +24,9 @@
  */
 package to.etc.domui.state;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.RequestContextImpl;
 
 /**
  * A single entry in the breadcrumb trail. This contains the shelved page instance OR something
@@ -37,7 +37,7 @@ import to.etc.domui.server.*;
  */
 public interface IShelvedEntry {
 	/** The name of this entry, for presenting on breadcrumbs */
-	@Nonnull
+	@NonNull
 	String getName();
 
 	/** If this has a title entry return it here. */
@@ -46,7 +46,7 @@ public interface IShelvedEntry {
 
 	void discard();
 
-	void activate(@Nonnull RequestContextImpl ctx, boolean ajax) throws Exception;
+	void activate(@NonNull RequestContextImpl ctx, boolean ajax) throws Exception;
 
 	/**
 	 * Return a full URL to this shelve entry (absolute or host relative).

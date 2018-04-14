@@ -1,14 +1,14 @@
 package to.etc.log.handler;
 
-import java.io.*;
-import java.util.*;
-
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
-import to.etc.log.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.w3c.dom.Node;
+import to.etc.log.EtcLoggerFactory;
 import to.etc.log.EtcLoggerFactory.LoggerConfigException;
+import to.etc.log.Level;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Factory for different log handler types. Contains registry of {@link ILogHandlerFactory}.
@@ -35,17 +35,17 @@ public class LogHandlerRegistry {
 		 * @return
 		 * @throws LoggerConfigException
 		 */
-		@Nonnull
-		ILogHandler createInstance(@Nonnull File logDir, @Nonnull Node handlerNode) throws LoggerConfigException;
+		@NonNull
+		ILogHandler createInstance(@NonNull File logDir, @NonNull Node handlerNode) throws LoggerConfigException;
 	}
 
-	@Nonnull
+	@NonNull
 	private final Map<String, ILogHandlerFactory>	m_makerRegistry	= new HashMap<String, ILogHandlerFactory>();
 
 	/**
 	 * The unique instance of this class.
 	 */
-	@Nonnull
+	@NonNull
 	private static final LogHandlerRegistry		SINGLETON		= new LogHandlerRegistry();
 
 	/**
@@ -53,7 +53,7 @@ public class LogHandlerRegistry {
 	 *
 	 * @return the LogHandlerFactory singleton
 	 */
-	@Nonnull
+	@NonNull
 	public static final LogHandlerRegistry getSingleton() {
 		return SINGLETON;
 	}
@@ -63,20 +63,20 @@ public class LogHandlerRegistry {
 	 * @param type
 	 * @param handlerFactory
 	 */
-	public synchronized void register(@Nonnull String type, @Nonnull ILogHandlerFactory handlerFactory) {
+	public synchronized void register(@NonNull String type, @NonNull ILogHandlerFactory handlerFactory) {
 		m_makerRegistry.put(type, handlerFactory);
 	}
 
 	static {
 		SINGLETON.register("stdout", new ILogHandlerFactory() {
 			@Override
-			public ILogHandler createInstance(@Nonnull File logDir, @Nonnull Node handlerNode) throws LoggerConfigException {
+			public ILogHandler createInstance(@NonNull File logDir, @NonNull Node handlerNode) throws LoggerConfigException {
 				return FileLogHandler.createFromStdoutTypeConfig(logDir, handlerNode);
 			}
 		});
 		SINGLETON.register("file", new ILogHandlerFactory() {
 			@Override
-			public ILogHandler createInstance(@Nonnull File logDir, @Nonnull Node handlerNode) throws LoggerConfigException {
+			public ILogHandler createInstance(@NonNull File logDir, @NonNull Node handlerNode) throws LoggerConfigException {
 				return FileLogHandler.createFromFileTypeConfig(logDir, handlerNode);
 			}
 		});
@@ -91,8 +91,8 @@ public class LogHandlerRegistry {
 	 * @return
 	 * @throws LoggerConfigException
 	 */
-	@Nonnull
-	public synchronized ILogHandler createHandler(@Nonnull String type, @Nonnull File logDir, @Nonnull Node handlerNode) throws LoggerConfigException {
+	@NonNull
+	public synchronized ILogHandler createHandler(@NonNull String type, @NonNull File logDir, @NonNull Node handlerNode) throws LoggerConfigException {
 		ILogHandlerFactory maker = m_makerRegistry.get(type);
 		if(maker != null) {
 			return maker.createInstance(logDir, handlerNode);
@@ -109,8 +109,8 @@ public class LogHandlerRegistry {
 	 * @param level
 	 * @return
 	 */
-	@Nonnull
-	public ILogHandler createDefaultHandler(@Nonnull File rootDir, @Nonnull Level level) {
+	@NonNull
+	public ILogHandler createDefaultHandler(@NonNull File rootDir, @NonNull Level level) {
 		return FileLogHandler.createDefaultHandler(rootDir, level);
 	}
 }

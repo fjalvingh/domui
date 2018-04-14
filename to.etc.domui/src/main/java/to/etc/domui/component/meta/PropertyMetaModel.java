@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.meta;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.controlfactory.PropertyControlFactory;
 import to.etc.domui.component.input.IQueryManipulator;
 import to.etc.domui.component.input.LookupInput;
@@ -34,8 +36,6 @@ import to.etc.domui.util.ILabelStringRenderer;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueAccessor;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Locale;
@@ -55,7 +55,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	/**
 	 * The ClassModel that this property is a property of.
 	 */
-	@Nonnull
+	@NonNull
 	ClassMetaModel getClassModel();
 
 	/**
@@ -69,7 +69,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	/**
 	 * Returns the actual type of the property's value. This is the return type of the getter function.
 	 */
-	@Nonnull
+	@NonNull
 	Class<T> getActualType();
 
 	/**
@@ -88,7 +88,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * to lookup the proper resource file. If there is no label this returns the property's name.
 	 * @return	the label text,
 	 */
-	@Nonnull
+	@NonNull
 	String getDefaultLabel();
 
 	/**
@@ -132,14 +132,14 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	/**
 	 * Returns the name of the property.
 	 */
-	@Nonnull
+	@NonNull
 	String getName();
 
 	/**
 	 * Returns whether the property should be <i>sortable</i> when used in a default table, and defines
 	 * the initial sort direction of the property. This defaults to unsortable.
 	 */
-	@Nonnull
+	@NonNull
 	SortableType getSortable();
 
 	/**
@@ -162,7 +162,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * Tells if this property represents some kind of database relation (a "parent" property referring to the master of this child record, or a property
 	 * representing the list of children).
 	 */
-	@Nonnull
+	@NonNull
 	PropertyRelationType getRelationType();
 
 	/**
@@ -186,14 +186,14 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	/**
 	 * If this is defined as some Date type this further defines the domain (date only, date time etc).
 	 */
-	@Nonnull
+	@NonNull
 	TemporalPresentationType getTemporal();
 
 	/**
 	 * Used for numeric types, this returns how to present the number and defines the number's class, like
 	 * a monetary amount. This gets overridden when a converter is set!
 	 */
-	@Nonnull
+	@NonNull
 	NumericPresentation getNumericPresentation();
 
 	/**
@@ -223,14 +223,14 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * is needed ONLY when the class metadata of the parent record does not specify
 	 * a default display column or columnset.
 	 */
-	@Nonnull
+	@NonNull
 	List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
 	/**
 	 * Reports whether a property is readonly. For Java classes a property is defined as readOnly when it
 	 * has no "setter" method.
 	 */
-	@Nonnull
+	@NonNull
 	YesNoType getReadOnly();
 
 	/** If marked as transient in the persistent class this returns true */
@@ -260,31 +260,31 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * control this describes the properties to use to display the <i>currently selected</i>
 	 * record in the edit page.
 	 */
-	@Nonnull
+	@NonNull
 	List<DisplayPropertyMetaModel> getLookupSelectedProperties();
 
 	/**
 	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.
 	 */
-	@Nonnull
+	@NonNull
 	List<DisplayPropertyMetaModel> getLookupTableProperties();
 
 	/**
 	 * When used in a {@link LookupInput} field, this fields are used to create the search inputs.
 	 */
-	@Nonnull
+	@NonNull
 	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
 
 	/**
 	 * When used in a {@link LookupInput} field, this fields are used to create the keyword search inputs.
 	 */
-	@Nonnull
+	@NonNull
 	List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties();
 
 	/**
 	 * Get all validators to run on this property's input after conversion.
 	 */
-	@Nonnull
+	@NonNull
 	PropertyMetaValidator[] getValidators();
 
 	/**
@@ -310,13 +310,13 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * which can also be some other java class containing data) this returns it.
 	 */
 	@Nullable
-	<A> A getAnnotation(@Nonnull Class<A> annclass);
+	<A> A getAnnotation(@NonNull Class<A> annclass);
 
 	/**
 	 * If the property has some kind of "annotations" (which in here does not need to be a Java annotation, but
 	 * which can also be some other java class containing data) this returns all of them.
 	 */
-	@Nonnull
+	@NonNull
 	List<Object> getAnnotations();
 
 	/**
@@ -331,6 +331,6 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	@Nullable
 	IQueryManipulator<T> getQueryManipulator();
 
-	@Nonnull
+	@NonNull
 	YesNoType getNowrap();
 }

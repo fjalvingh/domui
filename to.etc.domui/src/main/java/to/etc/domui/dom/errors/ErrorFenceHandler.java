@@ -24,12 +24,12 @@
  */
 package to.etc.domui.dom.errors;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -82,7 +82,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	 * Add a new error message listener to the page.
 	 */
 	@Override
-	public void addErrorListener(@Nonnull IErrorMessageListener eml) {
+	public void addErrorListener(@NonNull IErrorMessageListener eml) {
 		if(m_errorListeners == Collections.EMPTY_LIST)
 			m_errorListeners = new ArrayList<IErrorMessageListener>(4);
 		if(!m_errorListeners.contains(eml))
@@ -94,12 +94,12 @@ public class ErrorFenceHandler implements IErrorFence {
 	 * @param eml
 	 */
 	@Override
-	public void removeErrorListener(@Nonnull IErrorMessageListener eml) {
+	public void removeErrorListener(@NonNull IErrorMessageListener eml) {
 		m_errorListeners.remove(eml);
 	}
 
 	@Override
-	public void addMessage(@Nonnull UIMessage uim) {
+	public void addMessage(@NonNull UIMessage uim) {
 		if (!m_messageList.contains(uim)) { ////prevent double adding of same uim
 			if(m_messageList == Collections.EMPTY_LIST)
 				m_messageList = new ArrayList<UIMessage>(15);
@@ -128,7 +128,7 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void removeMessage(@Nonnull UIMessage uim) {
+	public void removeMessage(@NonNull UIMessage uim) {
 		if(!m_messageList.remove(uim)) // Must be known to the page or something's wrong..
 			return;
 

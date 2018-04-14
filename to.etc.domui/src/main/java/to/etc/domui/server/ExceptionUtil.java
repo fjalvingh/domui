@@ -1,22 +1,29 @@
 package to.etc.domui.server;
 
-import java.net.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.login.IUser;
+import to.etc.domui.state.AppSession;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.state.UserLogItem;
+import to.etc.domui.util.DomUtil;
+import to.etc.smtp.Address;
+import to.etc.smtp.MailBuilder;
+import to.etc.smtp.Message;
+import to.etc.util.LineIterator;
+import to.etc.util.StringTool;
+import to.etc.webapp.mailer.BulkMailer;
 
-import javax.annotation.*;
-
-import to.etc.domui.login.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.smtp.*;
-import to.etc.util.*;
-import to.etc.webapp.mailer.*;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class ExceptionUtil {
-	@Nonnull
+	@NonNull
 	final private RequestContextImpl m_ctx;
 
-	public ExceptionUtil(@Nonnull RequestContextImpl ri) {
+	public ExceptionUtil(@NonNull RequestContextImpl ri) {
 		m_ctx = ri;
 	}
 
@@ -53,7 +60,7 @@ public class ExceptionUtil {
 		return sb.toString();
 	}
 
-	@Nonnull
+	@NonNull
 	public List<UserLogItem> getUserLog() {
 		AppSession session = m_ctx.getSession();
 		return session.getLogItems();
@@ -66,7 +73,7 @@ public class ExceptionUtil {
 		return name.substring(name.lastIndexOf('.') + 1);
 	}
 
-	public void renderEmail(@Nonnull Throwable x) {
+	public void renderEmail(@NonNull Throwable x) {
 		String addr = DomApplication.get().getProblemMailAddress();
 		if(null == addr)
 			return;

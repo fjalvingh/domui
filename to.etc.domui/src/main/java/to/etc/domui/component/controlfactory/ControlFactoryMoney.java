@@ -24,12 +24,12 @@
  */
 package to.etc.domui.component.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 
 /**
@@ -42,7 +42,7 @@ import java.math.BigDecimal;
  */
 public class ControlFactoryMoney implements PropertyControlFactory {
 	@Override
-	public int accepts(final @Nonnull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public int accepts(final @NonNull PropertyMetaModel< ? > pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		if(controlClass != null && !controlClass.isAssignableFrom(Text2.class)) // This will create a Text2 class,
 			return -1;
 		Class<?> clz = pmm.getActualType();
@@ -57,7 +57,7 @@ public class ControlFactoryMoney implements PropertyControlFactory {
 	 * Create a Text control with the basic monetary converter, or the proper converter for the specified type.
 	 */
 	@Override
-	public @Nonnull <T> ControlFactoryResult createControl(final @Nonnull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
+	public @NonNull <T> ControlFactoryResult createControl(final @NonNull PropertyMetaModel<T> pmm, final boolean editable, @Nullable Class< ? > controlClass) {
 		Class<T> iclz = pmm.getActualType();
 
 		//if(!editable) {

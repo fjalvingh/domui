@@ -1,6 +1,9 @@
 package to.etc.domui.component.tbl;
 
 import kotlin.reflect.KProperty1;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -29,9 +32,6 @@ import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QField;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,15 +45,15 @@ import java.util.function.Predicate;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 11, 2013
  */
-@DefaultNonNull final public class RowRenderer<T> implements IClickableRowRenderer<T> {
+@NonNullByDefault final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/** Used in DomApplication.setAttribute to set a generic {@link IColumnListener} for all pages. */
 	static public final String COLUMN_LISTENER = RowRenderer.class.getCanonicalName() + ".rowl";
 
 	/** The class whose instances we'll render in this table. */
-	@Nonnull
+	@NonNull
 	private final Class<T> m_dataClass;
 
-	@Nonnull
+	@NonNull
 	final private ClassMetaModel m_metaModel;
 
 	@Nullable
@@ -62,7 +62,7 @@ import java.util.function.Predicate;
 	/** When the definition has completed (the object is used) this is TRUE; it disables all calls that change the definition */
 	private boolean m_completed;
 
-	@Nonnull
+	@NonNull
 	private final ColumnList<T> m_columnList;
 
 	@Nullable
@@ -88,10 +88,10 @@ import java.util.function.Predicate;
 
 	private Map<ColumnDef<T, ?>, TH> m_columnByThIdMap = new HashMap<>();
 
-	@Nonnull
+	@NonNull
 	private List<TableHeader> m_tableHeaderBeforeList = Collections.EMPTY_LIST;
 
-	@Nonnull
+	@NonNull
 	private List<TableHeader> m_tableHeaderAfterList = Collections.EMPTY_LIST;
 
 	private List<IRowRendered<T>> m_renderListener = new ArrayList<>();
@@ -107,14 +107,14 @@ import java.util.function.Predicate;
 	}
 
 	public interface IRowRendered<T> {
-		void rowRendered(@Nonnull TR row, @Nonnull T instance);
+		void rowRendered(@NonNull TR row, @NonNull T instance);
 	}
 
-	public RowRenderer(@Nonnull Class<T> data) {
+	public RowRenderer(@NonNull Class<T> data) {
 		this(data, MetaManager.findClassMeta(data));
 	}
 
-	public RowRenderer(@Nonnull Class<T> data, @Nonnull ClassMetaModel cmm) {
+	public RowRenderer(@NonNull Class<T> data, @NonNull ClassMetaModel cmm) {
 		m_dataClass = data;
 		m_metaModel = cmm;
 		m_columnList = new ColumnList<T>(data, m_metaModel);
@@ -136,7 +136,7 @@ import java.util.function.Predicate;
 	/**
 	 * Complete this object if it is not already complete (internal).
 	 */
-	private void complete(@Nonnull TableModelTableBase<T> tbl) {
+	private void complete(@NonNull TableModelTableBase<T> tbl) {
 		if(isComplete())
 			return;
 		m_tableModelTable = tbl;
@@ -169,7 +169,7 @@ import java.util.function.Predicate;
 	 *
 	 */
 	@Override
-	public void renderHeader(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final HeaderContainer<T> cc) throws Exception {
+	public void renderHeader(@NonNull final TableModelTableBase<T> tbl, @NonNull final HeaderContainer<T> cc) throws Exception {
 		for(TableHeader h : m_tableHeaderBeforeList)
 			cc.addHeader(false, h);
 		for(TableHeader h : m_tableHeaderAfterList)
@@ -266,7 +266,7 @@ import java.util.function.Predicate;
 		return map;
 	}
 
-	private void handleSortClick(@Nonnull final NodeBase nb, @Nonnull final ColumnDef<T, ?> scd) throws Exception {
+	private void handleSortClick(@NonNull final NodeBase nb, @NonNull final ColumnDef<T, ?> scd) throws Exception {
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
 		ColumnDef<T, ?> sortColumn = getSortColumn();
 		if(scd == sortColumn) {
@@ -287,7 +287,7 @@ import java.util.function.Predicate;
 		resort(scd, parent);
 	}
 
-	private boolean hasSortChanged(@Nonnull ColumnDef<T, ?> newColumn, @Nonnull TableModelTableBase<T> tableComponent) {
+	private boolean hasSortChanged(@NonNull ColumnDef<T, ?> newColumn, @NonNull TableModelTableBase<T> tableComponent) {
 		if(newColumn != m_lastSortedColumn)
 			return true;
 		ITableModel<T> newModel = tableComponent.getModel();
@@ -299,7 +299,7 @@ import java.util.function.Predicate;
 		return direction.booleanValue() != isSortDescending();
 	}
 
-	private void resort(@Nonnull ColumnDef<T, ?> scd, TableModelTableBase<T> parent) throws Exception {
+	private void resort(@NonNull ColumnDef<T, ?> scd, TableModelTableBase<T> parent) throws Exception {
 		if(!hasSortChanged(scd, parent))
 			return;
 
@@ -319,7 +319,7 @@ import java.util.function.Predicate;
 		m_lastSortedColumn = scd;
 	}
 
-	private void updateSortImage(@Nonnull final ColumnDef<T, ?> scd, @Nonnull final String img) {
+	private void updateSortImage(@NonNull final ColumnDef<T, ?> scd, @NonNull final String img) {
 		Img[] sortImages = m_sortImages;
 		if(sortImages == null)
 			return;
@@ -337,7 +337,7 @@ import java.util.function.Predicate;
 	 *
 	 */
 	@Override
-	public void beforeQuery(@Nonnull final TableModelTableBase<T> tbl) throws Exception {
+	public void beforeQuery(@NonNull final TableModelTableBase<T> tbl) throws Exception {
 		complete(tbl);
 		if(!(tbl.getModel() instanceof ISortableTableModel)) {
 			return;
@@ -358,7 +358,7 @@ import java.util.function.Predicate;
 	 *
 	 */
 	@Override
-	public void renderRow(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance) throws Exception {
+	public void renderRow(@NonNull final TableModelTableBase<T> tbl, @NonNull final ColumnContainer<T> cc, final int index, @NonNull final T instance) throws Exception {
 		IRowRenderHelper<T> helper = m_helper;
 		if(null != helper)
 			helper.setRow(instance);
@@ -398,7 +398,7 @@ import java.util.function.Predicate;
 	 * @param cd
 	 * @throws Exception
 	 */
-	protected <X> void renderColumn(@Nonnull final TableModelTableBase<T> tbl, @Nonnull final ColumnContainer<T> cc, final int index, @Nonnull final T instance, @Nonnull final ColumnDef<T, X> cd) throws Exception {
+	protected <X> void renderColumn(@NonNull final TableModelTableBase<T> tbl, @NonNull final ColumnContainer<T> cc, final int index, @NonNull final T instance, @NonNull final ColumnDef<T, X> cd) throws Exception {
 		TD cell = cc.add((NodeBase) null);
 		String cssClass = cd.getCssClass();
 		if(cssClass != null)
@@ -456,7 +456,7 @@ import java.util.function.Predicate;
 					 * Wrap the renderer so we can pass the "instance" to it.
 					 */
 					@Override
-					public void render(@Nonnull NodeContainer node, @Nullable X object) throws Exception {
+					public void render(@NonNull NodeContainer node, @Nullable X object) throws Exception {
 						contentRenderer.renderOpt(node, object); //, instance);
 					}
 				});
@@ -500,7 +500,7 @@ import java.util.function.Predicate;
 	 * @param cell
 	 * @param instance
 	 */
-	private <X, C extends NodeBase & IControl<X>> void renderEditable(@Nonnull TableModelTableBase<T> tbl, @Nonnull ColumnDef<T, X> cd, @Nonnull TD cell, @Nonnull T instance) throws Exception {
+	private <X, C extends NodeBase & IControl<X>> void renderEditable(@NonNull TableModelTableBase<T> tbl, @NonNull ColumnDef<T, X> cd, @NonNull TD cell, @NonNull T instance) throws Exception {
 		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
 		if(null == pmm)
 			throw new IllegalStateException("Cannot render edit value for row type");
@@ -558,7 +558,7 @@ import java.util.function.Predicate;
 		getColumnList().addDefaultColumns();
 	}
 
-	@Nonnull
+	@NonNull
 	private ColumnList<T> getColumnList() {
 		return m_columnList;
 	}
@@ -568,7 +568,7 @@ import java.util.function.Predicate;
 	 * @param cd
 	 * @param type
 	 */
-	public void setDefaultSort(@Nonnull ColumnDef<T, ?> cd, @Nonnull SortableType type) {
+	public void setDefaultSort(@NonNull ColumnDef<T, ?> cd, @NonNull SortableType type) {
 		getColumnList().setSortColumn(cd, type);
 	}
 
@@ -576,7 +576,7 @@ import java.util.function.Predicate;
 	 * Returns the metamodel used.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	protected ClassMetaModel model() {
 		return m_metaModel;
 	}
@@ -585,7 +585,7 @@ import java.util.function.Predicate;
 	 * Returns the record type being rendered.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	protected Class<?> getActualClass() {
 		return m_dataClass;
 	}
@@ -620,7 +620,7 @@ import java.util.function.Predicate;
 	 * @param ix
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<T, ?> getColumn(final int ix) {
 		return m_columnList.get(ix);
 	}
@@ -640,7 +640,7 @@ import java.util.function.Predicate;
 	 * @param propertyName
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<T, ?> getColumnByName(String propertyName) {
 		for(ColumnDef<T, ?> scd : m_columnList) {
 			if(propertyName.equals(scd.getPropertyName()))
@@ -742,8 +742,8 @@ import java.util.function.Predicate;
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public <V> ColumnDef<T, V> column(@Nonnull Class<V> type, @Nonnull @GProperty String property) {
+	@NonNull
+	public <V> ColumnDef<T, V> column(@NonNull Class<V> type, @NonNull @GProperty String property) {
 		return getColumnList().column(type, property);
 	}
 
@@ -753,29 +753,29 @@ import java.util.function.Predicate;
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<T, ?> column(@Nonnull String property) {
+	@NonNull
+	public ColumnDef<T, ?> column(@NonNull String property) {
 		return getColumnList().column(property);
 	}
 
-	@Nonnull
+	@NonNull
 	public <V> ColumnDef<T, V> column(QField<?, V> field) {
 		return getColumnList().column(field);
 	}
 
-	public <F> ColumnDef<T, F> column(@Nonnull KProperty1<T, F> property) {
+	public <F> ColumnDef<T, F> column(@NonNull KProperty1<T, F> property) {
 		return getColumnList().column(property);
 	}
 
-	public <A, B> ColumnDef<T, B> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2) {
+	public <A, B> ColumnDef<T, B> column(@NonNull KProperty1<T, A> property1, @NonNull KProperty1<A, B> property2) {
 		return getColumnList().column(property1, property2);
 	}
 
-	public <A, B, C> ColumnDef<T, C> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2, @Nonnull KProperty1<B, C> property3) {
+	public <A, B, C> ColumnDef<T, C> column(@NonNull KProperty1<T, A> property1, @NonNull KProperty1<A, B> property2, @NonNull KProperty1<B, C> property3) {
 		return getColumnList().column(property1, property2, property3);
 	}
 
-	//public ColumnDef<T, ?> column(@Nonnull KProperty1<?, ?> property1, @Nonnull KProperty1<?, ?> property2) {
+	//public ColumnDef<T, ?> column(@NonNull KProperty1<?, ?> property1, @NonNull KProperty1<?, ?> property2) {
 	//	throw new IllegalStateException();
 	//	//return getColumnList().column(property1, property2);
 	//}
@@ -784,23 +784,23 @@ import java.util.function.Predicate;
 	 * Add a column which gets referred the row element instead of a column element. This is normally used together with
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<T, T> column() {
 		return getColumnList().column();
 	}
 
-	public RowRenderer<T> addRenderListener(@Nonnull IRowRendered<T> listener) {
+	public RowRenderer<T> addRenderListener(@NonNull IRowRendered<T> listener) {
 		m_renderListener.add(listener);
 		return this;
 	}
 
-	public void addHeaderBefore(@Nonnull TableHeader header) {
+	public void addHeaderBefore(@NonNull TableHeader header) {
 		if(m_tableHeaderBeforeList.size() == 0)
 			m_tableHeaderBeforeList = new ArrayList<>(2);
 		m_tableHeaderBeforeList.add(header);
 	}
 
-	public void addHeaderAfter(@Nonnull TableHeader header) {
+	public void addHeaderAfter(@NonNull TableHeader header) {
 		if(m_tableHeaderAfterList.size() == 0)
 			m_tableHeaderAfterList = new ArrayList<>(2);
 		m_tableHeaderAfterList.add(header);
@@ -840,7 +840,7 @@ import java.util.function.Predicate;
 	 *
 	 * @param context
 	 */
-	@Override public void updateWidths(@Nonnull TableModelTableBase<T> tbl, @Nonnull RequestContextImpl context) throws Exception {
+	@Override public void updateWidths(@NonNull TableModelTableBase<T> tbl, @NonNull RequestContextImpl context) throws Exception {
 		//-- Get the CSS widths for all heads.
 		List<ColumnWidth<T, ?>> list = new ArrayList<>();
 		int index = 0;

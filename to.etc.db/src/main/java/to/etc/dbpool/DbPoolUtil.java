@@ -24,14 +24,27 @@
  */
 package to.etc.dbpool;
 
-import java.io.*;
-import java.net.*;
-import java.sql.*;
-import java.text.*;
-import java.util.*;
-import java.util.Date;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Properties;
 
 public class DbPoolUtil {
 
@@ -41,10 +54,10 @@ public class DbPoolUtil {
 	public final static class HostAndPort {
 		private final int m_port;
 
-		@Nonnull
+		@NonNull
 		private final String m_host;
 
-		private HostAndPort(@Nonnull String host, int port) {
+		private HostAndPort(@NonNull String host, int port) {
 			m_host = host;
 			m_port = port;
 		}
@@ -55,8 +68,8 @@ public class DbPoolUtil {
 		 * @param hostPort Must be host:port format
 		 * @throws SQLException in case of wrong input format
 		 */
-		@Nonnull
-		public static HostAndPort parse(@Nonnull String hostPort) throws SQLException {
+		@NonNull
+		public static HostAndPort parse(@NonNull String hostPort) throws SQLException {
 			//-- Must be address:port format
 			int pos = hostPort.indexOf(':');
 			if(pos != -1) {
@@ -75,7 +88,7 @@ public class DbPoolUtil {
 			return m_port;
 		}
 
-		@Nonnull
+		@NonNull
 		public String getHost() {
 			return m_host;
 		}
@@ -691,7 +704,7 @@ public class DbPoolUtil {
 	 * @param hostAndPort
 	 * @throws SQLException
 	 */
-	public static void enableRemoteDebug(@Nonnull Connection con, @Nonnull HostAndPort hostAndPort) throws SQLException {
+	public static void enableRemoteDebug(@NonNull Connection con, @NonNull HostAndPort hostAndPort) throws SQLException {
 		final String cmd = "begin dbms_debug_jdwp.connect_tcp('" + hostAndPort.getHost() + "'," + hostAndPort.getPort() + ");end;";
 		PreparedStatement st = con.prepareStatement(cmd);
 		try {

@@ -24,19 +24,19 @@
  */
 package to.etc.domui.component.meta;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public enum SortableType {
-	@Nonnull
+	@NonNull
 	UNKNOWN,
 
-	@Nonnull
+	@NonNull
 	UNSORTABLE,
 
-	@Nonnull
+	@NonNull
 	SORTABLE_ASC,
 
-	@Nonnull
+	@NonNull
 	SORTABLE_DESC;
 
 	public boolean isSortable() {

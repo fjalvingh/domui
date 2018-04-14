@@ -1,19 +1,19 @@
 package to.etc.domui.logic.events;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import java.util.List;
+import java.util.Map;
 
 final public class LogiEvent {
-	@Nonnull
+	@NonNull
 	final private List<LogiEventBase> m_allEvents;
 
-	@Nonnull
+	@NonNull
 	final private Map<Object, LogiEventInstanceChange> m_instanceEventMap;
 
-	public LogiEvent(@Nonnull List<LogiEventBase> allEvents, @Nonnull Map<Object, LogiEventInstanceChange> instanceEventMap) {
+	public LogiEvent(@NonNull List<LogiEventBase> allEvents, @NonNull Map<Object, LogiEventInstanceChange> instanceEventMap) {
 		m_allEvents = allEvents;
 		m_instanceEventMap = instanceEventMap;
 
@@ -25,7 +25,7 @@ final public class LogiEvent {
 	 * @param propertyName
 	 * @return
 	 */
-	public <T> boolean propertyChanged(@Nonnull T base, @Nonnull String propertyName) {
+	public <T> boolean propertyChanged(@NonNull T base, @NonNull String propertyName) {
 		LogiEventInstanceChange ic = m_instanceEventMap.get(base);
 		if(null == ic)
 			return false;
@@ -38,7 +38,7 @@ final public class LogiEvent {
 	 * @param pmm
 	 * @return
 	 */
-	public <T, V> boolean propertyChanged(@Nonnull T base, @Nonnull PropertyMetaModel<T> pmm) {
+	public <T, V> boolean propertyChanged(@NonNull T base, @NonNull PropertyMetaModel<T> pmm) {
 		LogiEventInstanceChange ic = m_instanceEventMap.get(base);
 		if(null == ic)
 			return false;

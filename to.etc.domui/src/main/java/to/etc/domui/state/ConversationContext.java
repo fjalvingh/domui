@@ -24,6 +24,8 @@
  */
 package to.etc.domui.state;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.delayed.AsyncContainer;
@@ -38,8 +40,6 @@ import to.etc.webapp.query.IQContextContainer;
 import to.etc.webapp.query.QContextContainer;
 import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -158,11 +158,11 @@ public class ConversationContext implements IQContextContainer {
 	private String m_fullId;
 
 	/** The pages that are part of this conversation, indexed by [className] */
-	@Nonnull
+	@NonNull
 	private final Map<String, Page> m_pageMap = new HashMap<String, Page>();
 
 	/** The map of all attribute objects added to this conversation. */
-	@Nonnull
+	@NonNull
 	private Map<String, Object> m_map = Collections.EMPTY_MAP;
 
 	@Nullable
@@ -171,13 +171,13 @@ public class ConversationContext implements IQContextContainer {
 	@Nullable
 	private DelayedActivitiesManager m_delayManager;
 
-	@Nonnull
+	@NonNull
 	private ConversationState m_state = ConversationState.DETACHED;
 
-	@Nonnull
+	@NonNull
 	private List<File> m_uploadList = Collections.EMPTY_LIST;
 
-	@Nonnull
+	@NonNull
 	private Map<String, String> m_persistedParameterMap = new HashMap<>();
 
 	/**
@@ -190,7 +190,7 @@ public class ConversationContext implements IQContextContainer {
 		return m_id;
 	}
 
-	final void initialize(@Nonnull final WindowSession m, @Nonnull String id) {
+	final void initialize(@NonNull final WindowSession m, @NonNull String id) {
 		if(m == null)
 			throw new IllegalStateException("Internal: manager cannot be null, dude");
 		if(m_manager != null)
@@ -231,7 +231,7 @@ public class ConversationContext implements IQContextContainer {
 		return m_fullId;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String toString() {
 		return "conversation[" + getFullId() + "]";
@@ -384,12 +384,12 @@ public class ConversationContext implements IQContextContainer {
 		return m_pageMap.get(clz.getName());
 	}
 
-	public void internalRegisterPage(@Nonnull final Page p, @Nonnull final IPageParameters papa) {
+	public void internalRegisterPage(@NonNull final Page p, @NonNull final IPageParameters papa) {
 		m_pageMap.put(p.getBody().getClass().getName(), p);
 		p.internalInitialize(papa, this);
 	}
 
-	void destroyPage(@Nonnull final Page pg) {
+	void destroyPage(@NonNull final Page pg) {
 		//-- Call the page's DESTROY handler while still attached
 		try {
 			pg.getBody().onDestroy();
@@ -404,7 +404,7 @@ public class ConversationContext implements IQContextContainer {
 	 * Experimental interface: get the WindowSession for this page(set).
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public WindowSession getWindowSession() {
 		if(null != m_manager)
 			return m_manager;
@@ -466,7 +466,7 @@ public class ConversationContext implements IQContextContainer {
 	 * @param a
 	 * @return
 	 */
-	public DelayedActivityInfo scheduleDelayed(@Nonnull final AsyncContainer container, @Nonnull final IAsyncRunnable a) throws Exception {
+	public DelayedActivityInfo scheduleDelayed(@NonNull final AsyncContainer container, @NonNull final IAsyncRunnable a) throws Exception {
 		return getDelayedActivitiesManager().schedule(a, container);
 	}
 
@@ -520,7 +520,7 @@ public class ConversationContext implements IQContextContainer {
 	 * Register a file that was uploaded and that needs to be deleted at end of conversation time.
 	 * @param f
 	 */
-	public void registerTempFile(@Nonnull final File f) {
+	public void registerTempFile(@NonNull final File f) {
 		if(m_uploadList == Collections.EMPTY_LIST)
 			m_uploadList = new ArrayList<File>();
 		m_uploadList.add(f);
@@ -581,8 +581,8 @@ public class ConversationContext implements IQContextContainer {
 	/*	CODING:	IQContextContainer implementation.					*/
 	/*--------------------------------------------------------------*/
 	@Override
-	@Nonnull
-	public QContextContainer getContextContainer(@Nonnull String key) {
+	@NonNull
+	public QContextContainer getContextContainer(@NonNull String key) {
 		key = "cc-" + key;
 		QContextContainer cc = (QContextContainer) getAttribute(key);
 		if(null == cc) {
@@ -593,7 +593,7 @@ public class ConversationContext implements IQContextContainer {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public List<QContextContainer> getAllContextContainers() {
 		List<QContextContainer> ccl = new ArrayList<QContextContainer>();
 		for(Object o : m_map.values()) {
@@ -606,28 +606,28 @@ public class ConversationContext implements IQContextContainer {
 
 	static private final class DomUIContextContainer extends QContextContainer implements IConversationStateListener {
 		@Override
-		public void conversationNew(@Nonnull ConversationContext cc) throws Exception {
+		public void conversationNew(@NonNull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationNew(cc);
 		}
 
 		@Override
-		public void conversationAttached(@Nonnull ConversationContext cc) throws Exception {
+		public void conversationAttached(@NonNull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationAttached(cc);
 		}
 
 		@Override
-		public void conversationDetached(@Nonnull ConversationContext cc) throws Exception {
+		public void conversationDetached(@NonNull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationDetached(cc);
 		}
 
 		@Override
-		public void conversationDestroyed(@Nonnull ConversationContext cc) throws Exception {
+		public void conversationDestroyed(@NonNull ConversationContext cc) throws Exception {
 			QDataContext c = internalGetSharedContext();
 			if(c instanceof IConversationStateListener)
 				((IConversationStateListener) c).conversationDestroyed(cc);

@@ -1,13 +1,12 @@
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.misc.MsgBox.Type;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.trouble.UIMsgException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QConcurrentUpdateException;
-
-import javax.annotation.Nonnull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -20,7 +19,7 @@ final public class ExceptionDialog {
 	/**
 	 * Show an exception as an error dialog.
 	 */
-	static public void create(NodeContainer container, @Nonnull String message, @Nonnull Exception x) throws Exception {
+	static public void create(NodeContainer container, @NonNull String message, @NonNull Exception x) throws Exception {
 		if(x instanceof ValidationException)
 			return;
 		if(x instanceof QConcurrentUpdateException) {

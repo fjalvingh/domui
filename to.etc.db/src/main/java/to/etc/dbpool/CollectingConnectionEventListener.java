@@ -24,12 +24,17 @@
  */
 package to.etc.dbpool;
 
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.dbpool.info.BatchEntry;
 
-import javax.annotation.*;
-
-import to.etc.dbpool.info.*;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This class listens for connection events and creates statistic events from
@@ -42,11 +47,11 @@ import to.etc.dbpool.info.*;
 class CollectingConnectionEventListener implements IConnectionEventListener {
 	final private IStatisticsListener m_listener;
 
-	public CollectingConnectionEventListener(@Nonnull IStatisticsListener listener) {
+	public CollectingConnectionEventListener(@NonNull IStatisticsListener listener) {
 		m_listener = listener;
 	}
 
-	@Nonnull
+	@NonNull
 	public IStatisticsListener getListener() {
 		return m_listener;
 	}
@@ -69,7 +74,7 @@ class CollectingConnectionEventListener implements IConnectionEventListener {
 	 * @see IConnectionEventListener#prepareStatement(to.etc.dbpool.StatementProxy)
 	 */
 	@Override
-	public void prepareStatement(@Nonnull StatementProxy sp) {
+	public void prepareStatement(@NonNull StatementProxy sp) {
 		sp.m_tsStart = System.nanoTime();
 	}
 

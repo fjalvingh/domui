@@ -1,12 +1,11 @@
 package to.etc.domui.component.binding;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.function.FunctionEx;
-
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 
 /**
  * An unidirectional binding, which only allow moving from model to control. This
@@ -15,7 +14,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 1-4-18.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class ComponentPropertyBindingUni<C extends NodeBase, CV, M, MV> extends AbstractComponentPropertyBinding<C, CV, M, MV> {
 	@Nullable
 	private FunctionEx<MV, CV> m_converter;

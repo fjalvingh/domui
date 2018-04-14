@@ -1,12 +1,12 @@
 package to.etc.dbutil.reverse;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
@@ -19,32 +19,32 @@ import java.util.Set;
  * Created on Dec 22, 2006
  */
 public interface Reverser {
-	@Nonnull String getIdent();
+	@NonNull String getIdent();
 
-	@Nonnull DbSchema loadSchema(@Nullable String schemaName, boolean lazily) throws Exception;
+	@NonNull DbSchema loadSchema(@Nullable String schemaName, boolean lazily) throws Exception;
 
-	@Nonnull Set<DbSchema> loadSchemaSet(@Nonnull Collection<String> schemaName, boolean lazily) throws Exception;
+	@NonNull Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaName, boolean lazily) throws Exception;
 
-	void lazy(@Nonnull IExec what);
+	void lazy(@NonNull IExec what);
 
-	boolean typeHasPrecision(@Nonnull DbColumn column);
+	boolean typeHasPrecision(@NonNull DbColumn column);
 
-	boolean typeHasScale(@Nonnull DbColumn column);
+	boolean typeHasScale(@NonNull DbColumn column);
 
-	SQLRowSet getData(@Nonnull QCriteria<SQLRow> query, int start, int end) throws Exception;
+	SQLRowSet getData(@NonNull QCriteria<SQLRow> query, int start, int end) throws Exception;
 
-	void addSelectColumnAs(@Nonnull StringBuilder statement, @Nonnull String colname, @Nonnull String alias);
+	void addSelectColumnAs(@NonNull StringBuilder statement, @NonNull String colname, @NonNull String alias);
 
-	String wrapQueryWithRange(@Nonnull List<DbColumn> coll, @Nonnull String sql, int first, int max);
+	String wrapQueryWithRange(@NonNull List<DbColumn> coll, @NonNull String sql, int first, int max);
 
 
-	void reverseColumns(@Nonnull Connection dbc, @Nonnull DbTable t) throws Exception;
+	void reverseColumns(@NonNull Connection dbc, @NonNull DbTable t) throws Exception;
 
-	void reverseIndexes(@Nonnull Connection dbc, @Nonnull DbTable t) throws Exception;
+	void reverseIndexes(@NonNull Connection dbc, @NonNull DbTable t) throws Exception;
 
-	void reversePrimaryKey(@Nonnull Connection dbc, @Nonnull DbTable t) throws Exception;
+	void reversePrimaryKey(@NonNull Connection dbc, @NonNull DbTable t) throws Exception;
 
-	void reverseParentRelation(Connection dbc, @Nonnull DbTable dbTable) throws Exception;
+	void reverseParentRelation(Connection dbc, @NonNull DbTable dbTable) throws Exception;
 
-	void reverseChildRelations(Connection dbc, @Nonnull DbTable dbTable) throws Exception;
+	void reverseChildRelations(Connection dbc, @NonNull DbTable dbTable) throws Exception;
 }

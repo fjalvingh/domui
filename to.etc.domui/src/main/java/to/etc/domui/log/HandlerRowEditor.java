@@ -1,5 +1,6 @@
 package to.etc.domui.log;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.controlfactory.ModelBindings;
 import to.etc.domui.component.input.TextStr;
@@ -34,8 +35,6 @@ import to.etc.log.EtcLoggerFactory;
 import to.etc.log.EtcMDCAdapter;
 import to.etc.log.handler.LogFilterType;
 import to.etc.webapp.nls.BundleRef;
-
-import javax.annotation.Nonnull;
 
 public class HandlerRowEditor extends Div implements IEditor {
 	protected static final BundleRef BUNDLE = Msgs.BUNDLE;
@@ -125,7 +124,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 		container.add(new LinkButton($("add.matcher"), new IClicked<LinkButton>() {
 
 			@Override
-			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+			public void clicked(@NonNull LinkButton clickednode) throws Exception {
 				m_tableMatchers.addNew(new Matcher("", EtcLoggerFactory.getSingleton().getDefaultLevel()));
 			}
 		}));
@@ -140,7 +139,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 		m_tableMatchers.setOnRowChangeCompleted(new IRowEditorEvent<Matcher, RowEditorBase<Matcher>>() {
 
 			@Override
-			public boolean onRowChanged(@Nonnull TableModelTableBase<Matcher> tablecomponent, @Nonnull RowEditorBase<Matcher> editor, @Nonnull Matcher instance, boolean isNew) throws Exception {
+			public boolean onRowChanged(@NonNull TableModelTableBase<Matcher> tablecomponent, @NonNull RowEditorBase<Matcher> editor, @NonNull Matcher instance, boolean isNew) throws Exception {
 				if(MetaManager.hasDuplicates(m_modelMatchers.getItems(0, m_modelMatchers.getRows()), instance, Matcher.pNAME)) {
 					editor.setMessage(UIMessage.error(Matcher.pNAME, Msgs.BUNDLE, Msgs.V_INVALID_NOT_UNIQUE));
 					return false;
@@ -151,8 +150,8 @@ public class HandlerRowEditor extends Div implements IEditor {
 
 		m_tableMatchers.setEditorFactory(new IRowEditorFactory<Matcher, RowEditorBase<Matcher>>() {
 			@Override
-			public @Nonnull
-			RowEditorBase<Matcher> createRowEditor(@Nonnull Matcher instance, boolean isnew, boolean isReadonly) throws Exception {
+			public @NonNull
+			RowEditorBase<Matcher> createRowEditor(@NonNull Matcher instance, boolean isnew, boolean isReadonly) throws Exception {
 				return new RowEditorBase<Matcher>(instance, m_tableMatchers, cols);
 			}
 		});
@@ -164,7 +163,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 		container.add(new LinkButton($("add.filter"), new IClicked<LinkButton>() {
 
 			@Override
-			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+			public void clicked(@NonNull LinkButton clickednode) throws Exception {
 				m_tableFilters.addNew(new Filter(LogFilterType.MDC, EtcMDCAdapter.LOGINID, "USER1"));
 			}
 		}));
@@ -180,7 +179,7 @@ public class HandlerRowEditor extends Div implements IEditor {
 		m_tableFilters.setOnRowChangeCompleted(new IRowEditorEvent<Filter, FilterRowEditor>() {
 
 			@Override
-			public boolean onRowChanged(@Nonnull TableModelTableBase<Filter> tablecomponent, @Nonnull FilterRowEditor editor, @Nonnull Filter instance, boolean isNew) throws Exception {
+			public boolean onRowChanged(@NonNull TableModelTableBase<Filter> tablecomponent, @NonNull FilterRowEditor editor, @NonNull Filter instance, boolean isNew) throws Exception {
 				if(MetaManager.hasDuplicates(m_modelFilters.getItems(0, m_modelFilters.getRows()), instance, Filter.pKEY)) {
 					editor.setMessage(UIMessage.error(Filter.pKEY, Msgs.BUNDLE, Msgs.V_INVALID_NOT_UNIQUE));
 					return false;
@@ -191,8 +190,8 @@ public class HandlerRowEditor extends Div implements IEditor {
 
 		m_tableFilters.setEditorFactory(new IRowEditorFactory<Filter, FilterRowEditor>() {
 			@Override
-			public @Nonnull
-			FilterRowEditor createRowEditor(@Nonnull Filter instance, boolean isnew, boolean isReadonly) throws Exception {
+			public @NonNull
+			FilterRowEditor createRowEditor(@NonNull Filter instance, boolean isnew, boolean isReadonly) throws Exception {
 				return new FilterRowEditor(instance, m_tableFilters, cols);
 			}
 		});

@@ -24,10 +24,10 @@
  */
 package to.etc.domui.server.parts;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.RequestContextImpl;
 
 public interface IUnbufferedPartFactory extends IPartFactory {
-	void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception;
+	void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception;
 }

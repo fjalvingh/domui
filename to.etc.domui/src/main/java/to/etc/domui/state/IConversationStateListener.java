@@ -24,14 +24,14 @@
  */
 package to.etc.domui.state;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IConversationStateListener {
-	void conversationNew(@Nonnull ConversationContext cc) throws Exception;
+	void conversationNew(@NonNull ConversationContext cc) throws Exception;
 
-	void conversationAttached(@Nonnull ConversationContext cc) throws Exception;
+	void conversationAttached(@NonNull ConversationContext cc) throws Exception;
 
-	void conversationDetached(@Nonnull ConversationContext cc) throws Exception;
+	void conversationDetached(@NonNull ConversationContext cc) throws Exception;
 
-	void conversationDestroyed(@Nonnull ConversationContext cc) throws Exception;
+	void conversationDestroyed(@NonNull ConversationContext cc) throws Exception;
 }

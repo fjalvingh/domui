@@ -1,11 +1,11 @@
 package to.etc.domui.webdriver.core;
 
 import com.google.common.collect.ImmutableMap;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.remote.Command;
 import org.openqa.selenium.remote.Response;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -26,10 +26,10 @@ import java.util.Map;
  * Created on 3-9-17.
  */
 public class ChromeExtender {
-	@Nonnull
+	@NonNull
 	private MyChromeDriver m_wd;
 
-	public ChromeExtender(@Nonnull MyChromeDriver wd) {
+	public ChromeExtender(@NonNull MyChromeDriver wd) {
 		m_wd = wd;
 	}
 
@@ -43,7 +43,7 @@ public class ChromeExtender {
 		return ImageIO.read(new ByteArrayInputStream(bytes));
 	}
 
-	public void takeScreenshot(@Nonnull File output) throws Exception {
+	public void takeScreenshot(@NonNull File output) throws Exception {
 		byte[] bytes = getScreenshotBytes();
 
 		try(FileOutputStream fos = new FileOutputStream(output)) {
@@ -78,8 +78,8 @@ public class ChromeExtender {
 		return Base64.getDecoder().decode(image);
 	}
 
-	@Nonnull
-	private Object evaluate(@Nonnull String script) throws IOException {
+	@NonNull
+	private Object evaluate(@NonNull String script) throws IOException {
 		Map<String, Object> param = new HashMap<>();
 		param.put("returnByValue", Boolean.TRUE);
 		param.put("expression", script);
@@ -87,8 +87,8 @@ public class ChromeExtender {
 		return send("Runtime.evaluate", param);
 	}
 
-	@Nonnull
-	private Object send(@Nonnull String cmd, @Nonnull Map<String, Object> params) throws IOException {
+	@NonNull
+	private Object send(@NonNull String cmd, @NonNull Map<String, Object> params) throws IOException {
 		Map<String, Object> exe = ImmutableMap.of("cmd", cmd, "params", params);
 		Command xc = new Command(m_wd.getSessionId(), "sendCommandWithResult", exe);
 		Response response = m_wd.getCommandExecutor().execute(xc);
@@ -105,7 +105,7 @@ public class ChromeExtender {
 	}
 
 	@Nullable
-	static private <T> T jsonValue(@Nonnull Object map, @Nonnull String path, @Nonnull Class<T> type) {
+	static private <T> T jsonValue(@NonNull Object map, @NonNull String path, @NonNull Class<T> type) {
 		String[] segs = path.split("\\.");
 		Object current = map;
 		for(String name: segs) {

@@ -1,16 +1,16 @@
 package to.etc.domui.webdriver.core;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 final public class WebDriverCommandBuilder {
-	@Nonnull
+	@NonNull
 	final private WebDriverConnector m_wd;
 
 	@Nullable
@@ -24,20 +24,20 @@ final public class WebDriverCommandBuilder {
 		NONE, CLICK, TEXT, CHECK, UNCHECK
 	}
 
-	@Nonnull
+	@NonNull
 	private WaitType m_wait = WaitType.NONE;
 
-	@Nonnull
+	@NonNull
 	private ActionType m_action = ActionType.NONE;
 
 	@Nullable
 	private Keys[] m_clickKeys;
 
-	WebDriverCommandBuilder(@Nonnull WebDriverConnector wd) {
+	WebDriverCommandBuilder(@NonNull WebDriverConnector wd) {
 		m_wd = wd;
 	}
 
-	@Nonnull
+	@NonNull
 	protected WebDriver driver() {
 		return m_wd.driver();
 	}
@@ -49,7 +49,7 @@ final public class WebDriverCommandBuilder {
 	 * Wait for the element to become present.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder present() {
 		m_wait = WaitType.PRESENT;
 		return this;
@@ -59,7 +59,7 @@ final public class WebDriverCommandBuilder {
 	 * Wait until the element is clickable.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder clickable() {
 		m_wait = WaitType.CLICKABLE;
 		return this;
@@ -69,7 +69,7 @@ final public class WebDriverCommandBuilder {
 	 * Wait until the element is visible.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder visible() {
 		m_wait = WaitType.VISIBLE;
 		return this;
@@ -79,7 +79,7 @@ final public class WebDriverCommandBuilder {
 	 * Wait until the element is invisible.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder invisible() {
 		m_wait = WaitType.INVISIBLE;
 		return this;
@@ -90,7 +90,7 @@ final public class WebDriverCommandBuilder {
 	 * @param milliseconds
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder timeout(int milliseconds) {
 		m_wd.setNextWaitTimeout(milliseconds);
 		return this;
@@ -101,19 +101,19 @@ final public class WebDriverCommandBuilder {
 	 * @param milliseconds
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder interval(int milliseconds) {
 		m_wd.setNextInterval(milliseconds);
 		return this;
 	}
 
-	private void action(@Nonnull ActionType act) {
+	private void action(@NonNull ActionType act) {
 		if(m_action != ActionType.NONE && m_action != act)
 			throw new IllegalStateException("You already specified an action: " + m_action);
 		m_action = act;
 	}
 
-	private void appendText(@Nonnull CharSequence what) {
+	private void appendText(@NonNull CharSequence what) {
 		List<CharSequence> list = m_text;
 		if(null == list) {
 			list = m_text = new ArrayList<>();
@@ -126,8 +126,8 @@ final public class WebDriverCommandBuilder {
 	 * ext and special keycodes, see {@link Keys}. The \n and \t characters will
 	 * be translated to the ENTER key and the TAB key.
 	 */
-	@Nonnull
-	public WebDriverCommandBuilder type(@Nonnull CharSequence... text) {
+	@NonNull
+	public WebDriverCommandBuilder type(@NonNull CharSequence... text) {
 		action(ActionType.TEXT);
 		for(CharSequence cs : text)
 			appendText(cs);
@@ -139,26 +139,26 @@ final public class WebDriverCommandBuilder {
 	 * @param withKeys
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder click(Keys... withKeys) {
 		action(ActionType.CLICK);
 		m_clickKeys = withKeys;
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder check() {
 		action(ActionType.CHECK);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder check(boolean checked) {
 		action(checked ? ActionType.CHECK : ActionType.UNCHECK);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public WebDriverCommandBuilder uncheck() {
 		action(ActionType.UNCHECK);
 		return this;
@@ -168,15 +168,15 @@ final public class WebDriverCommandBuilder {
 	 * Define the item the actions are do be done on, and executes the actions.
 	 * @param testid
 	 */
-	public void on(@Nonnull String testid) {
+	public void on(@NonNull String testid) {
 		on(m_wd.byId(testid));
 	}
 
-	public void on(@Nonnull String testid, @Nonnull String subCss) {
+	public void on(@NonNull String testid, @NonNull String subCss) {
 		on(m_wd.byId(testid, subCss));
 	}
 
-	public void on(@Nonnull By locator) {
+	public void on(@NonNull By locator) {
 		//-- All WAIT actions.
 		switch(m_wait){
 			default:

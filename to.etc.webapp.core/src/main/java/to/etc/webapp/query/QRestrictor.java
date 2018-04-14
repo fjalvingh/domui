@@ -24,10 +24,10 @@
  */
 package to.etc.webapp.query;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,7 +38,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	private final Class<T> m_baseClass;
 
 	/** The return data type; baseclass for class-based queries and metaTable.getDataClass() for metatable queries. */
-	@Nonnull
+	@NonNull
 	private final Class<T> m_returnClass;
 
 	/** If this is a selector on some metathing this represents the metathing. */
@@ -46,7 +46,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	private final ICriteriaTableDef<T> m_metaTable;
 
 	/** Is either OR or AND, indicating how added items are to be combined. */
-	@Nonnull
+	@NonNull
 	private QOperation m_combinator;
 
 	private final Set<QSubQuery<?, ?>> m_unusedSubquerySet = new HashSet<>();
@@ -56,21 +56,21 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 
 	abstract public void setRestrictions(@Nullable QOperatorNode n);
 
-	protected QRestrictor(@Nonnull Class<T> baseClass, @Nonnull QOperation combinator) {
+	protected QRestrictor(@NonNull Class<T> baseClass, @NonNull QOperation combinator) {
 		m_baseClass = baseClass;
 		m_returnClass = baseClass;
 		m_combinator = combinator;
 		m_metaTable = null;
 	}
 
-	protected QRestrictor(@Nonnull ICriteriaTableDef<T> meta, @Nonnull QOperation combinator) {
+	protected QRestrictor(@NonNull ICriteriaTableDef<T> meta, @NonNull QOperation combinator) {
 		m_metaTable = meta;
 		m_returnClass = meta.getDataClass();
 		m_combinator = combinator;
 		m_baseClass = null;
 	}
 
-	protected QRestrictor(@Nonnull QRestrictor<T, ?> parent, @Nonnull QOperation combinator) {
+	protected QRestrictor(@NonNull QRestrictor<T, ?> parent, @NonNull QOperation combinator) {
 		m_metaTable = parent.getMetaTable();
 		m_baseClass = parent.getBaseClass();
 		m_returnClass = parent.getReturnClass();
@@ -96,7 +96,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Return the datatype returned by a principal query using this criteria.
 	 */
-	@Nonnull
+	@NonNull
 	public Class<T> getReturnClass() {
 		return m_returnClass;
 	}
@@ -112,7 +112,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsing: when the node added is an "and"
 	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
 	 */
-	protected void internalAdd(@Nonnull QOperatorNode r) {
+	protected void internalAdd(@NonNull QOperatorNode r) {
 		QOperatorNode restrictions = getRestrictions();
 		if(restrictions == null) {
 			setRestrictions(r); 						// Just set the single operation,
@@ -131,7 +131,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Return a thingy that constructs nodes combined with "or".
 	 */
-	@Nonnull
+	@NonNull
 	public QRestrictorImpl<T> or() {
 		//if(m_combinator == QOperation.OR) // If I myself am combining with OR return myself
 		//	return (R) this;
@@ -140,7 +140,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 		return new QRestrictorImpl<T>(this, or);
 	}
 
-	@Nonnull
+	@NonNull
 	public QRestrictorImpl<T> and() {
 		//if(m_combinator == QOperation.AND) // If I myself am combining with AND return myself
 		//	return (R) this;
@@ -152,7 +152,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Add NOT restriction.
 	 */
-	@Nonnull
+	@NonNull
 	public QRestrictor<T, QRestrictorImpl<T>> not() {
 		QMultiNode and = new QMultiNode(QOperation.AND);
 		QUnaryNode not = new QUnaryNode(QOperation.NOT, and);
@@ -165,7 +165,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	 * restrictions are merged by using an "and" between both complete sets. Only "this"
 	 * restriction is altered; the original is kept as-is (the nodes are copied).
 	 */
-	public void mergeCriteria(@Nonnull R other) {
+	public void mergeCriteria(@NonNull R other) {
 		QOperatorNode othertree = other.getRestrictions();
 		if(null == othertree)
 			return;
@@ -185,8 +185,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Adding selection restrictions (where clause)		*/
 	/*--------------------------------------------------------------*/
-	@Nonnull
-	public R add(@Nonnull QOperatorNode n) {
+	@NonNull
+	public R add(@NonNull QOperatorNode n) {
 		internalAdd(n);
 		return (R) this;
 	}
@@ -194,24 +194,24 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R eq(@Nonnull @GProperty String property, @Nullable Object value) {
+	@NonNull
+	public R eq(@NonNull @GProperty String property, @Nullable Object value) {
 		return add(QRestriction.eq(property, value));
 	}
 
 	/**
 	 * Compare a property with some value.
 	 */
-	@Nonnull
-	public <V> R eq(@Nonnull QField<T, V> property, @Nonnull V value) {
+	@NonNull
+	public <V> R eq(@NonNull QField<T, V> property, @NonNull V value) {
 		return eq(property.getName(), value);
 	}
 
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R eq(@Nonnull @GProperty String property, long value) {
+	@NonNull
+	public R eq(@NonNull @GProperty String property, long value) {
 		add(QRestriction.eq(property, value));
 		return (R) this;
 	}
@@ -219,8 +219,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R eq(@Nonnull @GProperty String property, double value) {
+	@NonNull
+	public R eq(@NonNull @GProperty String property, double value) {
 		add(QRestriction.eq(property, value));
 		return (R) this;
 	}
@@ -228,8 +228,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R ne(@Nonnull @GProperty String property, @Nullable Object value) {
+	@NonNull
+	public R ne(@NonNull @GProperty String property, @Nullable Object value) {
 		add(QRestriction.ne(property, value));
 		return (R) this;
 	}
@@ -237,16 +237,16 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some value.
 	 */
-	@Nonnull
-	public <V> R ne(@Nonnull QField<T, V> property, @Nonnull V value) {
+	@NonNull
+	public <V> R ne(@NonNull QField<T, V> property, @NonNull V value) {
 		return ne(property.getName(), value);
 	}
 
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R ne(@Nonnull @GProperty String property, long value) {
+	@NonNull
+	public R ne(@NonNull @GProperty String property, long value) {
 		add(QRestriction.ne(property, value));
 		return (R) this;
 	}
@@ -254,8 +254,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R ne(@Nonnull @GProperty String property, double value) {
+	@NonNull
+	public R ne(@NonNull @GProperty String property, double value) {
 		add(QRestriction.ne(property, value));
 		return (R) this;
 	}
@@ -263,20 +263,20 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * A property must be one of a list of values.
 	 */
-	@Nonnull
-	public <V> R in(@Nonnull @GProperty String property, List<V> inlist) {
+	@NonNull
+	public <V> R in(@NonNull @GProperty String property, List<V> inlist) {
 		add(QRestriction.in(property, inlist));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R in(@Nonnull QField<T, V> property, @Nonnull List<V> inlist) {
+	@NonNull
+	public <V> R in(@NonNull QField<T, V> property, @NonNull List<V> inlist) {
 		add(QRestriction.in(property.getName(), inlist));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R in(@Nonnull @GProperty String property, QSelection<?> selection) {
+	@NonNull
+	public <V> R in(@NonNull @GProperty String property, QSelection<?> selection) {
 		add(QRestriction.in(property, selection));
 		return (R) this;
 	}
@@ -284,14 +284,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R gt(@Nonnull @GProperty String property, @Nonnull Object value) {
+	@NonNull
+	public R gt(@NonNull @GProperty String property, @NonNull Object value) {
 		add(QRestriction.gt(property, value));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R gt(@Nonnull QField<T, V> property, @Nonnull V value) {
+	@NonNull
+	public <V> R gt(@NonNull QField<T, V> property, @NonNull V value) {
 		add(QRestriction.gt(property.getName(), value));
 		return (R) this;
 	}
@@ -299,8 +299,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R gt(@Nonnull @GProperty String property, long value) {
+	@NonNull
+	public R gt(@NonNull @GProperty String property, long value) {
 		add(QRestriction.gt(property, value));
 		return (R) this;
 	}
@@ -308,8 +308,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R gt(@Nonnull @GProperty String property, double value) {
+	@NonNull
+	public R gt(@NonNull @GProperty String property, double value) {
 		add(QRestriction.gt(property, value));
 		return (R) this;
 	}
@@ -317,14 +317,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R lt(@Nonnull @GProperty String property, @Nonnull Object value) {
+	@NonNull
+	public R lt(@NonNull @GProperty String property, @NonNull Object value) {
 		add(QRestriction.lt(property, value));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R lt(@Nonnull QField<T, V> property, @Nonnull V value) {
+	@NonNull
+	public <V> R lt(@NonNull QField<T, V> property, @NonNull V value) {
 		add(QRestriction.lt(property.getName(), value));
 		return (R) this;
 	}
@@ -332,8 +332,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R lt(@Nonnull @GProperty String property, long value) {
+	@NonNull
+	public R lt(@NonNull @GProperty String property, long value) {
 		add(QRestriction.lt(property, value));
 		return (R) this;
 	}
@@ -341,8 +341,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R lt(@Nonnull @GProperty String property, double value) {
+	@NonNull
+	public R lt(@NonNull @GProperty String property, double value) {
 		add(QRestriction.lt(property, value));
 		return (R) this;
 	}
@@ -350,14 +350,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R ge(@Nonnull @GProperty String property, @Nonnull Object value) {
+	@NonNull
+	public R ge(@NonNull @GProperty String property, @NonNull Object value) {
 		add(QRestriction.ge(property, value));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R ge(@Nonnull QField<T, V> property, @Nonnull V value) {
+	@NonNull
+	public <V> R ge(@NonNull QField<T, V> property, @NonNull V value) {
 		add(QRestriction.ge(property.getName(), value));
 		return (R) this;
 	}
@@ -365,8 +365,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R ge(@Nonnull @GProperty String property, long value) {
+	@NonNull
+	public R ge(@NonNull @GProperty String property, long value) {
 		add(QRestriction.ge(property, value));
 		return (R) this;
 	}
@@ -374,8 +374,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R ge(@Nonnull @GProperty String property, double value) {
+	@NonNull
+	public R ge(@NonNull @GProperty String property, double value) {
 		add(QRestriction.ge(property, value));
 		return (R) this;
 	}
@@ -383,14 +383,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R le(@Nonnull @GProperty String property, @Nonnull Object value) {
+	@NonNull
+	public R le(@NonNull @GProperty String property, @NonNull Object value) {
 		add(QRestriction.le(property, value));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R le(@Nonnull QField<T, V> property, @Nonnull V value) {
+	@NonNull
+	public <V> R le(@NonNull QField<T, V> property, @NonNull V value) {
 		add(QRestriction.le(property.getName(), value));
 		return (R) this;
 	}
@@ -398,8 +398,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R le(@Nonnull @GProperty String property, long value) {
+	@NonNull
+	public R le(@NonNull @GProperty String property, long value) {
 		add(QRestriction.le(property, value));
 		return (R) this;
 	}
@@ -407,8 +407,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare a property with some literal object value.
 	 */
-	@Nonnull
-	public R le(@Nonnull @GProperty String property, double value) {
+	@NonNull
+	public R le(@NonNull @GProperty String property, double value) {
 		add(QRestriction.le(property, value));
 		return (R) this;
 	}
@@ -417,14 +417,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	 * Do a 'like' comparison. The wildcard marks here are always %; a literal % is to
 	 * be presented as \%. The comparison is case-dependent.
 	 */
-	@Nonnull
-	public R like(@Nonnull @GProperty String property, @Nonnull String value) {
+	@NonNull
+	public R like(@NonNull @GProperty String property, @NonNull String value) {
 		add(QRestriction.like(property, value));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R like(@Nonnull QField<T, V> property, @Nonnull String value) {
+	@NonNull
+	public <V> R like(@NonNull QField<T, V> property, @NonNull String value) {
 		add(QRestriction.like(property.getName(), value));
 		return (R) this;
 	}
@@ -432,14 +432,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Compare the value of a property with two literal bounds.
 	 */
-	@Nonnull
-	public R between(@Nonnull @GProperty String property, @Nonnull Object a, @Nonnull Object b) {
+	@NonNull
+	public R between(@NonNull @GProperty String property, @NonNull Object a, @NonNull Object b) {
 		add(QRestriction.between(property, a, b));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R between(@Nonnull QField<T, V> property, @Nonnull V a, @Nonnull V b) {
+	@NonNull
+	public <V> R between(@NonNull QField<T, V> property, @NonNull V a, @NonNull V b) {
 		add(QRestriction.between(property.getName(), a, b));
 		return (R) this;
 	}
@@ -448,14 +448,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	 * Do a case-independent 'like' comparison. The wildcard marks here are always %; a literal % is to
 	 * be presented as \%. The comparison is case-independent.
 	 */
-	@Nonnull
-	public R ilike(@Nonnull @GProperty String property, @Nonnull String value) {
+	@NonNull
+	public R ilike(@NonNull @GProperty String property, @NonNull String value) {
 		add(QRestriction.ilike(property, value));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R ilike(@Nonnull QField<T, V> property, @Nonnull String value) {
+	@NonNull
+	public <V> R ilike(@NonNull QField<T, V> property, @NonNull String value) {
 		add(QRestriction.ilike(property.getName(), value));
 		return (R) this;
 	}
@@ -463,14 +463,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Add the restriction that the property specified must be null.
 	 */
-	@Nonnull
-	public R isnull(@Nonnull @GProperty String property) {
+	@NonNull
+	public R isnull(@NonNull @GProperty String property) {
 		add(QRestriction.isnull(property));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R isnull(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R isnull(@NonNull QField<T, V> property) {
 		add(QRestriction.isnull(property.getName()));
 		return (R) this;
 	}
@@ -478,14 +478,14 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Add the restriction that the property specified must be not-null.
 	 */
-	@Nonnull
-	public R isnotnull(@Nonnull @GProperty String property) {
+	@NonNull
+	public R isnotnull(@NonNull @GProperty String property) {
 		add(QRestriction.isnotnull(property));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R isnotnull(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R isnotnull(@NonNull QField<T, V> property) {
 		add(QRestriction.isnotnull(property.getName()));
 		return (R) this;
 	}
@@ -493,8 +493,8 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Add a restriction specified in bare SQL. (R) this is implementation-dependent.
 	 */
-	@Nonnull
-	public R sqlCondition(@Nonnull String sql) {
+	@NonNull
+	public R sqlCondition(@NonNull String sql) {
 		add(QRestriction.sqlCondition(sql));
 		return (R) this;
 	}
@@ -502,11 +502,11 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	/**
 	 * Add a restriction in bare SQL, with JDBC parameters inside the string (specified as '?'). (R) this
 	 * is implementation-dependent. The first ? in the string corresponds to params[0]. Parameters are
-	 * not allowed to be null (i.e. the type is @Nonnull Object[@Nonnull] or something).
+	 * not allowed to be null (i.e. the type is @NonNull Object[@NonNull] or something).
 	 * Alternatively parameters can be given as ":nnn" where nnn is the 1-based index in the params array.
 	 */
-	@Nonnull
-	public R sqlCondition(@Nonnull String sql, @Nonnull Object[] params) {
+	@NonNull
+	public R sqlCondition(@NonNull String sql, @NonNull Object[] params) {
 		add(QRestriction.sqlCondition(sql, params));
 		return (R) this;
 	}
@@ -520,16 +520,16 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	 * @param childclass	The class type of the children, because Java Generics is too bloody stupid to find out itself.
 	 * @param childproperty	The name of the property <i>in</i> the parent class <T> that represents the List<U> of child records.
 	 */
-	@Nonnull
-	public <U> ExistsRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull @GProperty("U") String childproperty) {
+	@NonNull
+	public <U> ExistsRestrictor<U> exists(@NonNull Class<U> childclass, @NonNull @GProperty("U") String childproperty) {
 		final QExistsSubquery<U> sq = new QExistsSubquery<U>(this, childclass, childproperty);
 		ExistsRestrictor<U> builder = new ExistsRestrictor<U>(childclass, QOperation.AND, sq);
 		add(sq);
 		return builder;
 	}
 
-	@Nonnull
-	public <P, U> ExistsRestrictor<U> exists(@Nonnull Class<U> childclass, @Nonnull QField<T, P> childproperty) {
+	@NonNull
+	public <P, U> ExistsRestrictor<U> exists(@NonNull Class<U> childclass, @NonNull QField<T, P> childproperty) {
 		final QExistsSubquery<U> sq = new QExistsSubquery<>(this, childclass, childproperty.getName());
 		ExistsRestrictor<U> builder = new ExistsRestrictor<U>(childclass, QOperation.AND, sq);
 		add(sq);
@@ -539,7 +539,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	static public final class ExistsRestrictor<U> extends QRestrictor<U, ExistsRestrictor<U>> {
 		final private QExistsSubquery<U> m_sq;
 
-		public ExistsRestrictor(@Nonnull Class<U> parent, @Nonnull QOperation combinator, QExistsSubquery<U> sq) {
+		public ExistsRestrictor(@NonNull Class<U> parent, @NonNull QOperation combinator, QExistsSubquery<U> sq) {
 			super(parent, combinator);
 			m_sq = sq;
 		}
@@ -555,17 +555,17 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 		}
 	}
 
-	//@Nonnull
-	//public <P extends QField<P, T>, R extends QField<R, U>, U> QRestrictor<U> exists(@Nonnull QList<P, R> listProperty) throws Exception {
+	//@NonNull
+	//public <P extends QField<P, T>, R extends QField<R, U>, U> QRestrictor<U> exists(@NonNull QList<P, R> listProperty) throws Exception {
 	//	return (QRestrictor<U>) exists(listProperty.getRootClass(), listProperty.m_listName);
 	//}
 	//
-	//@Nonnull
-	//public <P extends QField<P, T>, R extends QField<R, U>, U> QRestrictor<U> exists(@Nonnull QList<P, R> listProperty) throws Exception {
+	//@NonNull
+	//public <P extends QField<P, T>, R extends QField<R, U>, U> QRestrictor<U> exists(@NonNull QList<P, R> listProperty) throws Exception {
 	//	return (QRestrictor<U>) exists(listProperty.getRootClass(), listProperty.m_listName);
 	//}
 
-	public <U> QSubQuery<U, T> subquery(@Nonnull Class<U> childClass) throws Exception {
+	public <U> QSubQuery<U, T> subquery(@NonNull Class<U> childClass) throws Exception {
 		QSubQuery<U, T> subQuery = new QSubQuery<>(this, childClass);
 		m_unusedSubquerySet.add(subQuery);
 		return subQuery;

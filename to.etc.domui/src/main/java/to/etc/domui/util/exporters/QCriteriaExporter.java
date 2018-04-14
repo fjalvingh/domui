@@ -1,12 +1,12 @@
 package to.etc.domui.util.exporters;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.util.Progress;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,7 +23,7 @@ public class QCriteriaExporter<T> {
 
 	private final List<IExportColumn<?>> m_columnList;
 
-	public QCriteriaExporter(@Nonnull IExportWriter<T> writer, @Nonnull QDataContext dc, @Nonnull QCriteria<T> query, @Nullable String... columns) {
+	public QCriteriaExporter(@NonNull IExportWriter<T> writer, @NonNull QDataContext dc, @NonNull QCriteria<T> query, @Nullable String... columns) {
 		m_dc = dc;
 		m_query = query;
 		m_exportWriter = writer;

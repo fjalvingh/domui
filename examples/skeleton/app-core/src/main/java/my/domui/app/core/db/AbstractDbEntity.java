@@ -3,7 +3,7 @@ package my.domui.app.core.db;
 import org.hibernate.annotations.GenericGenerator;
 import to.etc.webapp.query.IIdentifyable;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;

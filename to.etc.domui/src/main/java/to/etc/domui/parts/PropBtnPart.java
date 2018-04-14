@@ -24,14 +24,15 @@
  */
 package to.etc.domui.parts;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.server.parts.IBufferedPartFactory;
+import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.resources.IResourceDependencyList;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.resources.*;
+import java.util.Properties;
 
 /**
  * A generated button image from a button definition file. This works like
@@ -50,7 +51,7 @@ public class PropBtnPart implements IBufferedPartFactory<ButtonPartKey> {
 	 * Decode the parameters for this button thingy.
 	 */
 	@Override
-	public @Nonnull ButtonPartKey decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo info) throws Exception {
+	public @NonNull ButtonPartKey decodeKey(DomApplication application, @NonNull IExtendedParameterInfo info) throws Exception {
 		return ButtonPartKey.decode(info);
 	}
 
@@ -58,7 +59,7 @@ public class PropBtnPart implements IBufferedPartFactory<ButtonPartKey> {
 	 * Generate the button data.
 	 */
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull ButtonPartKey k, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull ButtonPartKey k, @NonNull IResourceDependencyList rdl) throws Exception {
 		Properties p = PartUtil.loadProperties(da, k.getPropFile(), rdl);
 //		if(p == null)
 //			throw new ThingyNotFoundException("The button property file '" + k.m_propfile + "' was not found.");

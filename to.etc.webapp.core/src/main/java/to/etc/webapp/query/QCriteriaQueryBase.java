@@ -24,11 +24,11 @@
  */
 package to.etc.webapp.query;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -43,7 +43,7 @@ import java.util.Map;
  */
 public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends QRestrictor<T, R> {
 	/** If (R) this is a selection query instead of an object instance query, (R) this will contain the selected items. */
-	@Nonnull
+	@NonNull
 	private List<QSelectionColumn> m_itemList = Collections.EMPTY_LIST;
 
 	private int m_limit = -1;
@@ -59,7 +59,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	@Nullable
 	private QOperatorNode m_restrictions;
 
-	@Nonnull
+	@NonNull
 	private List<QOrder> m_order = Collections.EMPTY_LIST;
 
 	/** Query options */
@@ -68,11 +68,11 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 
 	private Map<String, QFetchStrategy> m_fetchMap = Collections.EMPTY_MAP;
 
-	protected QCriteriaQueryBase(@Nonnull Class<T> clz) {
+	protected QCriteriaQueryBase(@NonNull Class<T> clz) {
 		super(clz, QOperation.AND);
 	}
 
-	protected QCriteriaQueryBase(@Nonnull ICriteriaTableDef<T> meta) {
+	protected QCriteriaQueryBase(@NonNull ICriteriaTableDef<T> meta) {
 		super(meta, QOperation.AND);
 	}
 
@@ -110,7 +110,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Returns all selected columns.
 	 */
-	@Nonnull
+	@NonNull
 	public List<QSelectionColumn> getColumnList() {
 		return m_itemList;
 	}
@@ -118,7 +118,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Set an option for the query or some of it's listeners.
 	 */
-	public void setOption(@Nonnull String name, @Nullable Object val) {
+	public void setOption(@NonNull String name, @Nullable Object val) {
 		Map<String, Object> optionMap = m_optionMap;
 		if(optionMap == null)
 			optionMap = m_optionMap = new HashMap<String, Object>();
@@ -128,7 +128,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Returns T if the specified option is present.
 	 */
-	public boolean hasOption(@Nonnull String name) {
+	public boolean hasOption(@NonNull String name) {
 		Map<String, Object> optionMap = m_optionMap;
 		return optionMap != null && optionMap.containsKey(name);
 	}
@@ -137,12 +137,12 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Get the value stored for a given option.
 	 */
 	@Nullable
-	public Object getOption(@Nonnull String name) {
+	public Object getOption(@NonNull String name) {
 		Map<String, Object> optionMap = m_optionMap;
 		return optionMap == null ? null : optionMap.get(name);
 	}
 
-	@Nonnull
+	@NonNull
 	public Map<String, QFetchStrategy> getFetchStrategies() {
 		return m_fetchMap;
 	}
@@ -153,7 +153,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Add a column selector to the selection list.
 	 */
-	protected void addColumn(@Nonnull QSelectionItem item, @Nullable String alias) {
+	protected void addColumn(@NonNull QSelectionItem item, @Nullable String alias) {
 		QSelectionColumn col = new QSelectionColumn(item, alias);
 		if(m_itemList.size() == 0) {
 			m_itemList = new ArrayList<QSelectionColumn>();
@@ -164,7 +164,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Add a simple property selector to the list.
 	 */
-	protected void addPropertySelection(@Nonnull QSelectionFunction f, @Nonnull @GProperty String prop, @Nullable String alias) {
+	protected void addPropertySelection(@NonNull QSelectionFunction f, @NonNull @GProperty String prop, @Nullable String alias) {
 		if(prop == null || prop.length() == 0)
 			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
 		QPropertySelection ps = new QPropertySelection(f, prop);
@@ -174,7 +174,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Add a simple property selector to the list.
 	 */
-	protected <V> void addPropertySelection(@Nonnull QSelectionFunction f, @Nonnull QField<T, V> property, @Nullable String alias) {
+	protected <V> void addPropertySelection(@NonNull QSelectionFunction f, @NonNull QField<T, V> property, @Nullable String alias) {
 		String prop = property.getName();
 		if(prop == null || prop.length() == 0)
 			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
@@ -186,14 +186,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Select a property value from the base property in the result set.
 	 * @param property		The property whose literal value is to be selected
 	 */
-	@Nonnull
-	public R selectProperty(@Nonnull @GProperty final String property) {
+	@NonNull
+	public R selectProperty(@NonNull @GProperty final String property) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R selectProperty(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R selectProperty(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, null);
 		return (R) this;
 	}
@@ -203,14 +203,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 */
-	@Nonnull
-	public R selectProperty(@Nonnull @GProperty final String property, @Nullable String alias) {
+	@NonNull
+	public R selectProperty(@NonNull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R selectProperty(@Nonnull QField<T, V> property, @Nullable String alias) {
+	@NonNull
+	public <V> R selectProperty(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.PROPERTY, property, alias);
 		return (R) this;
 	}
@@ -219,14 +219,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Select the max of a property in the set. (R) this will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 */
-	@Nonnull
-	public R max(@Nonnull @GProperty String property) {
+	@NonNull
+	public R max(@NonNull @GProperty String property) {
 		addPropertySelection(QSelectionFunction.MAX, property, null);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R max(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R max(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.MAX, property, null);
 		return (R) this;
 	}
@@ -236,14 +236,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 */
-	@Nonnull
-	public R max(@Nonnull @GProperty String property, @Nullable String alias) {
+	@NonNull
+	public R max(@NonNull @GProperty String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MAX, property, alias);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R max(@Nonnull QField<T, V> property, @Nullable String alias) {
+	@NonNull
+	public <V> R max(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MAX, property, alias);
 		return (R) this;
 	}
@@ -252,14 +252,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Select the minimal value of a property in the set. (R) this will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 */
-	@Nonnull
-	public R min(@Nonnull @GProperty final String property) {
+	@NonNull
+	public R min(@NonNull @GProperty final String property) {
 		addPropertySelection(QSelectionFunction.MIN, property, null);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R min(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R min(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.MIN, property, null);
 		return (R) this;
 	}
@@ -269,14 +269,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 */
-	@Nonnull
-	public R min(@Nonnull @GProperty String property, @Nullable String alias) {
+	@NonNull
+	public R min(@NonNull @GProperty String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MIN, property, alias);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R min(@Nonnull QField<T, V> property, @Nullable String alias) {
+	@NonNull
+	public <V> R min(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.MIN, property, alias);
 		return (R) this;
 	}
@@ -285,14 +285,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Select the average value of a property in the set. (R) this will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 */
-	@Nonnull
-	public R avg(@Nonnull @GProperty String property) {
+	@NonNull
+	public R avg(@NonNull @GProperty String property) {
 		addPropertySelection(QSelectionFunction.AVG, property, null);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R avg(@Nonnull @GProperty QField<T, V> property) {
+	@NonNull
+	public <V> R avg(@NonNull @GProperty QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.AVG, property, null);
 		return (R) this;
 	}
@@ -302,14 +302,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 */
-	@Nonnull
-	public R avg(@Nonnull @GProperty final String property, @Nullable String alias) {
+	@NonNull
+	public R avg(@NonNull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.AVG, property, alias);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R avg(@Nonnull @GProperty QField<T, V> property, @Nullable String alias) {
+	@NonNull
+	public <V> R avg(@NonNull @GProperty QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.AVG, property, alias);
 		return (R) this;
 	}
@@ -318,14 +318,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Select the sum of a property in the set. (R) this will cause a group by.
 	 * @param property		The property whose literal value is to be selected
 	 */
-	@Nonnull
-	public R sum(@Nonnull @GProperty String property) {
+	@NonNull
+	public R sum(@NonNull @GProperty String property) {
 		addPropertySelection(QSelectionFunction.SUM, property, null);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R sum(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R sum(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.SUM, property, null);
 		return (R) this;
 	}
@@ -335,14 +335,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 */
-	@Nonnull
-	public R sum(@Nonnull @GProperty String property, @Nullable String alias) {
+	@NonNull
+	public R sum(@NonNull @GProperty String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.SUM, property, alias);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R sum(@Nonnull QField<T, V> property, @Nullable String alias) {
+	@NonNull
+	public <V> R sum(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.SUM, property, alias);
 		return (R) this;
 	}
@@ -351,14 +351,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Select a count over the result set.
 	 * @param property		The property whose literal value is to be selected
 	 */
-	@Nonnull
-	public R count(@Nonnull @GProperty String property) {
+	@NonNull
+	public R count(@NonNull @GProperty String property) {
 		addPropertySelection(QSelectionFunction.COUNT, property, null);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R count(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R count(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.COUNT, property, null);
 		return (R) this;
 	}
@@ -368,14 +368,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 */
-	@Nonnull
-	public R count(@Nonnull @GProperty String property, @Nullable String alias) {
+	@NonNull
+	public R count(@NonNull @GProperty String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT, property, alias);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R count(@Nonnull QField<T, V> property, @Nullable String alias) {
+	@NonNull
+	public <V> R count(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT, property, alias);
 		return (R) this;
 	}
@@ -384,14 +384,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Select a count of the distinct values over the result set.
 	 * @param property		The property whose literal value is to be selected
 	 */
-	@Nonnull
-	public R countDistinct(@Nonnull @GProperty String property) {
+	@NonNull
+	public R countDistinct(@NonNull @GProperty String property) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R countDistinct(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R countDistinct(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, null);
 		return (R) this;
 	}
@@ -401,14 +401,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * @param property		The property whose literal value is to be selected
 	 * @param alias			The alias for using the property in the restrictions clause.
 	 */
-	@Nonnull
-	public R countDistinct(@Nonnull @GProperty final String property, @Nullable String alias) {
+	@NonNull
+	public R countDistinct(@NonNull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R countDistinct(@Nonnull QField<T, V> property, @Nullable String alias) {
+	@NonNull
+	public <V> R countDistinct(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.COUNT_DISTINCT, property, alias);
 		return (R) this;
 	}
@@ -417,14 +417,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Select of the distinct values over the result set.
 	 * @param property		The property whose literal value is to be selected
 	 */
-	@Nonnull
-	public R distinct(@Nonnull @GProperty String property) {
+	@NonNull
+	public R distinct(@NonNull @GProperty String property) {
 		addPropertySelection(QSelectionFunction.DISTINCT, property, null);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R distinct(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R distinct(@NonNull QField<T, V> property) {
 		addPropertySelection(QSelectionFunction.DISTINCT, property, null);
 		return (R) this;
 	}
@@ -433,14 +433,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Select of the distinct values over the result set.
 	 * @param property		The property whose literal value is to be selected
 	 */
-	@Nonnull
-	public R distinct(@Nonnull @GProperty final String property, @Nullable String alias) {
+	@NonNull
+	public R distinct(@NonNull @GProperty final String property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.DISTINCT, property, alias);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R distinct(@Nonnull QField<T, V> property, @Nullable String alias) {
+	@NonNull
+	public <V> R distinct(@NonNull QField<T, V> property, @Nullable String alias) {
 		addPropertySelection(QSelectionFunction.DISTINCT, property, alias);
 		return (R) this;
 	}
@@ -448,8 +448,8 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Add an order clause to the list of sort items.
 	 */
-	@Nonnull
-	public R add(@Nonnull QOrder r) {
+	@NonNull
+	public R add(@NonNull QOrder r) {
 		if(m_order == Collections.EMPTY_LIST)
 			m_order = new ArrayList<>();
 		m_order.add(r);
@@ -459,14 +459,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Add a property to do an ascending sort on.
 	 */
-	@Nonnull
-	public R ascending(@Nonnull @GProperty String property) {
+	@NonNull
+	public R ascending(@NonNull @GProperty String property) {
 		add(QOrder.ascending(property));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R ascending(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R ascending(@NonNull QField<T, V> property) {
 		add(QOrder.ascending(property.getName()));
 		return (R) this;
 	}
@@ -474,14 +474,14 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Add a property to do a descending sort on.
 	 */
-	@Nonnull
-	public R descending(@Nonnull @GProperty String property) {
+	@NonNull
+	public R descending(@NonNull @GProperty String property) {
 		add(QOrder.descending(property));
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R descending(@Nonnull QField<T, V> property) {
+	@NonNull
+	public <V> R descending(@NonNull QField<T, V> property) {
 		add(QOrder.descending(property.getName()));
 		return (R) this;
 	}
@@ -490,7 +490,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Limit the #of rows to the specified count.
 	 */
-	@Nonnull
+	@NonNull
 	public R limit(int limit) {
 		m_limit = limit;
 		return (R) this;
@@ -499,7 +499,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Start returning rows at the specified index in the result set (0-based).
 	 */
-	@Nonnull
+	@NonNull
 	public R start(int start) {
 		m_start = start;
 		return (R) this;
@@ -522,7 +522,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Returns the order-by list.
 	 */
-	@Nonnull
+	@NonNull
 	final public List<QOrder> getOrder() {
 		return m_order;
 	}
@@ -544,16 +544,16 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	/**
 	 * Set a fetch strategy for a relation.
 	 */
-	@Nonnull
-	public R fetch(@Nonnull @GProperty String property, @Nonnull QFetchStrategy strategy) {
+	@NonNull
+	public R fetch(@NonNull @GProperty String property, @NonNull QFetchStrategy strategy) {
 		if(m_fetchMap.size() == 0)
 			m_fetchMap = new HashMap<>();
 		m_fetchMap.put(property, strategy);
 		return (R) this;
 	}
 
-	@Nonnull
-	public <V> R fetch(@Nonnull QField<T, V> property, @Nonnull QFetchStrategy strategy) {
+	@NonNull
+	public <V> R fetch(@NonNull QField<T, V> property, @NonNull QFetchStrategy strategy) {
 		if(m_fetchMap.size() == 0)
 			m_fetchMap = new HashMap<>();
 		m_fetchMap.put(property.getName(), strategy);

@@ -1,6 +1,6 @@
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Interface used to execute events between pages which are not aware of their surroundings.

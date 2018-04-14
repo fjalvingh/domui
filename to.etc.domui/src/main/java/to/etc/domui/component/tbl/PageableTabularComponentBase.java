@@ -24,8 +24,10 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.List;
 
 abstract public class PageableTabularComponentBase<T> extends SelectableTabularComponent<T> implements ITableModelListener<T> {
 	/** The current page #, starting at 0 */
@@ -71,7 +73,7 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	protected List<T> getPageItems() throws Exception {
 		return getModel().getItems(m_six, m_eix); // Data to show
 	}

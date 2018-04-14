@@ -1,5 +1,7 @@
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.TemporalPresentationType;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
@@ -8,8 +10,6 @@ import to.etc.domui.trouble.Trouble;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.WrappedException;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 import java.util.Collection;
 
@@ -19,9 +19,9 @@ import java.util.Collection;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 3-10-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<DefaultClassMetaModel, DefaultPropertyMetaModel<?>> {
-	@Override public void provide(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel cmm, @Nonnull DefaultPropertyMetaModel<?> pmm) throws Exception {
+	@Override public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm, @NonNull DefaultPropertyMetaModel<?> pmm) throws Exception {
 		Annotation[] annar = pmm.getDescriptor().getGetter().getAnnotations();
 		for(Annotation an : annar) {
 			String ana = an.annotationType().getName();
@@ -84,7 +84,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	 * @param pmm
 	 * @param an
 	 */
-	protected void decodeJpaColumn(@Nonnull DefaultPropertyMetaModel< ? > pmm, @Nonnull final Annotation an) {
+	protected void decodeJpaColumn(@NonNull DefaultPropertyMetaModel< ? > pmm, @NonNull final Annotation an) {
 		try {
 			/*
 			 * Handle the "length" annotation. As usual, someone with a brain the size of a pea f.cked up the standard. The
@@ -123,7 +123,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	 * @param pmm
 	 * @param an
 	 */
-	protected void decodeJpaJoinColumn(@Nonnull DefaultPropertyMetaModel< ? > pmm, @Nonnull final Annotation an) {
+	protected void decodeJpaJoinColumn(@NonNull DefaultPropertyMetaModel< ? > pmm, @NonNull final Annotation an) {
 		try {
 			String name = (String) DomUtil.getClassValue(an, "name");
 			if(null == name) {

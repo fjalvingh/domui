@@ -24,7 +24,8 @@
  */
 package to.etc.webapp.eventmanager;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * A base class for VP based record events. This extends the base
@@ -62,7 +63,7 @@ public class AppEvent extends AppEventBase {
 		return m_type;
 	}
 
-	public void setType(@Nonnull final ChangeType type) {
+	public void setType(@NonNull final ChangeType type) {
 		m_type = type;
 	}
 

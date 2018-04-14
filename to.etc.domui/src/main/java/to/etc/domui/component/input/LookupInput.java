@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.component.tbl.ITableModel;
@@ -32,9 +34,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContextFactory;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 
 /**
@@ -61,35 +60,35 @@ import javax.annotation.Nullable;
  * Created on Jun 1, 2008
  */
 public class LookupInput<T> extends LookupInputBase<T, T> {
-	public LookupInput(@Nonnull Class<T> lookupClass, @Nullable ClassMetaModel metaModel) {
+	public LookupInput(@NonNull Class<T> lookupClass, @Nullable ClassMetaModel metaModel) {
 		super(null, lookupClass, lookupClass, metaModel, metaModel);
 	}
 
-	public LookupInput(@Nonnull Class<T> lookupClass, @Nonnull String... resultColumns) {
+	public LookupInput(@NonNull Class<T> lookupClass, @NonNull String... resultColumns) {
 		super(lookupClass, lookupClass, resultColumns);
 	}
 
-	public LookupInput(@Nonnull Class<T> lookupClass) {
+	public LookupInput(@NonNull Class<T> lookupClass) {
 		super(lookupClass, lookupClass);
 	}
 
-	public LookupInput(@Nonnull QCriteria<T> rootQuery) {
+	public LookupInput(@NonNull QCriteria<T> rootQuery) {
 		super(rootQuery, DomUtil.nullChecked(rootQuery.getBaseClass()));
 	}
 
-	@Nonnull
+	@NonNull
 	public Class<T> getLookupClass() {
 		return getQueryClass();
 	}
 
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getMetaModel() {
 		return getQueryMetaModel();
 	}
 
 	@Override
-	@Nonnull
-	protected ITableModel<T> createTableModel(@Nonnull QCriteria<T> query) throws Exception {
+	@NonNull
+	protected ITableModel<T> createTableModel(@NonNull QCriteria<T> query) throws Exception {
 		IQueryHandler<T> queryHandler = getQueryHandler();
 		if(queryHandler == null) {
 			QDataContextFactory src = QContextManager.getDataContextFactory(QContextManager.DEFAULT, getPage().getConversation());    // FIXME Urgent bad data context handling.

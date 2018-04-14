@@ -1,10 +1,10 @@
 package to.etc.domui.hibernate.beforeimages;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 
 final public class QBeforeCollectionNotLoadedException extends RuntimeException {
-	public QBeforeCollectionNotLoadedException(@Nonnull String message) {
+	public QBeforeCollectionNotLoadedException(@NonNull String message) {
 		super(message);
 	}
 }

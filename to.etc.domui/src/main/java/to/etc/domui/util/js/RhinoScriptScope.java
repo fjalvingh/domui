@@ -24,9 +24,8 @@
  */
 package to.etc.domui.util.js;
 
-import javax.annotation.*;
-
-import org.mozilla.javascript.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.mozilla.javascript.ScriptableObject;
 
 /**
  * A Rhino Javascript scope wrapped to allow easy access for common tasks.
@@ -35,11 +34,11 @@ import org.mozilla.javascript.*;
  * Created on Apr 27, 2011
  */
 public class RhinoScriptScope extends RhinoObjectBase implements IScriptScope {
-	public RhinoScriptScope(@Nonnull ScriptableObject val, boolean writable) {
+	public RhinoScriptScope(@NonNull ScriptableObject val, boolean writable) {
 		super(val, writable);
 	}
 
-	public RhinoScriptScope(@Nonnull ScriptableObject val) {
+	public RhinoScriptScope(@NonNull ScriptableObject val) {
 		this(val, true);
 	}
 }

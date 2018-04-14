@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.controlfactory.ControlBuilder;
 import to.etc.domui.component.event.INotify;
@@ -67,8 +69,6 @@ import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QRestrictor.ExistsRestrictor;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -115,11 +115,11 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	private QCriteria<T> m_rootCriteria;
 
 	/** The data class we're looking for */
-	@Nonnull
+	@NonNull
 	private Class<T> m_lookupClass;
 
 	/** The metamodel for the class. */
-	@Nonnull
+	@NonNull
 	private ClassMetaModel m_metaModel;
 
 	private String m_title;
@@ -143,7 +143,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	@Nullable
 	private DefaultButton m_filterButton;
 
-	@Nonnull
+	@NonNull
 	private List<SavedFilter> m_savedFilters = Collections.EMPTY_LIST;
 
 	private boolean m_searchFilterEnabled;
@@ -553,7 +553,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	/** The list of buttons to show on the button row. */
 	private List<ButtonRowItem> m_buttonItemList = Collections.EMPTY_LIST;
 
-	public LookupForm(@Nonnull final Class<T> lookupClass, @GProperty String... propertyList) {
+	public LookupForm(@NonNull final Class<T> lookupClass, @GProperty String... propertyList) {
 		this(lookupClass, null, propertyList);
 	}
 
@@ -561,7 +561,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Create a LookupForm to find instances of the specified class.
 	 * @param lookupClass
 	 */
-	public LookupForm(@Nonnull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
+	public LookupForm(@NonNull final Class<T> lookupClass, @Nullable final ClassMetaModel cmm, String... propertyList) {
 		m_rootCriteria = null;
 		m_lookupClass = lookupClass;
 		m_metaModel = cmm != null ? cmm : MetaManager.findClassMeta(lookupClass);
@@ -571,7 +571,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		defineDefaultButtons();
 	}
 
-	public LookupForm(@Nonnull QCriteria<T> rootCriteria, String... propertyList) {
+	public LookupForm(@NonNull QCriteria<T> rootCriteria, String... propertyList) {
 		this(DomUtil.nullChecked(rootCriteria.getBaseClass()), null, propertyList);
 		m_rootCriteria = rootCriteria;
 	}
@@ -580,7 +580,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Return the metamodel that this class uses to get its data from.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getMetaModel() {
 		return m_metaModel;
 	}
@@ -589,7 +589,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * Returns the class whose instances we're looking up (a persistent class somehow).
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public Class<T> getLookupClass() {
 		if(null == m_lookupClass)
 			throw new NullPointerException("The LookupForm's 'lookupClass' cannot be null");
@@ -716,7 +716,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		//-- Add a RETURN PRESSED handler to allow pressing RETURN on search fields.
 		setReturnPressed(new IReturnPressed<Div>() {
 			@Override
-			public void returnPressed(final @Nonnull Div node) throws Exception {
+			public void returnPressed(final @NonNull Div node) throws Exception {
 				if(m_clicker != null)
 					m_clicker.clicked(LookupForm.this);
 			}
@@ -729,7 +729,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		LookupFormSavedFilterFragment div = m_lookupFormSavedFilterFragment = new LookupFormSavedFilterFragment(m_savedFilters);
 		div.onFilterClicked(new INotify<SavedFilter>() {
 			@Override
-			public void onNotify(@Nonnull SavedFilter sender) throws Exception {
+			public void onNotify(@NonNull SavedFilter sender) throws Exception {
 				clearInput();
 				fillSearchFields(sender);
 				if(m_clicker != null) {
@@ -739,7 +739,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		});
 		div.onFilterDeleted(new INotify<SavedFilter>() {
 			@Override
-			public void onNotify(@Nonnull SavedFilter sender) throws Exception {
+			public void onNotify(@NonNull SavedFilter sender) throws Exception {
 				deleteSavedFilter(sender);
 			}
 		});
@@ -765,7 +765,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		m_lookupFilterHandler = filterSaver;
 	}
 
-	@Nonnull
+	@NonNull
 	private synchronized static ILookupFilterHandler getLookupFilterHandler() {
 		ILookupFilterHandler lookupFilterHandler = m_lookupFilterHandler;
 		if(lookupFilterHandler == null) {
@@ -1121,7 +1121,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 		AbstractLookupControlImpl thingy = new AbstractLookupControlImpl(lookupInstance.getInputControls()) {
 			@Override
-			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
+			public @NonNull AppendCriteriaResult appendCriteria(@NonNull QCriteria< ? > crit) throws Exception {
 
 				QCriteria< ? > r = QCriteria.create(childPmm.getClassModel().getActualClass());
 				AppendCriteriaResult subRes = lookupInstance.appendCriteria(r);
@@ -1188,7 +1188,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	}
 
-	private void addNonControlItem(@Nonnull Item it) {
+	private void addNonControlItem(@NonNull Item it) {
 		////-- Create left and/or right cells,
 		TR tr = new TR();
 		m_tbody.add(tr);
@@ -1208,7 +1208,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	}
 
 
-	private void updateUI(@Nonnull Item it) {
+	private void updateUI(@NonNull Item it) {
 		//-- jal 20130528 This component quite sucks balls- the interface is not able to add on-the-fly.
 		if(m_tbody != null)
 			internalAddLookupItem(it);
@@ -1324,7 +1324,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		m_itemList.add(item);
 	}
 
-	private void assignCalcTestID(@Nonnull Item item, @Nonnull NodeBase b) {
+	private void assignCalcTestID(@NonNull Item item, @NonNull NodeBase b) {
 		if(b.getTestID() != null)
 			return;
 		String lbl = item.hasProperty() ? item.getProperty().getName() : null;
@@ -1443,7 +1443,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
 				m_newBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(final @Nonnull NodeBase xb) throws Exception {
+					public void clicked(final @NonNull NodeBase xb) throws Exception {
 						if(getOnNew() != null) {
 							getOnNew().clicked(LookupForm.this);
 						}
@@ -1519,7 +1519,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 				m_cancelBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL_TITLE));
 				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
-					public void clicked(final @Nonnull NodeBase xb) throws Exception {
+					public void clicked(final @NonNull NodeBase xb) throws Exception {
 
 						if(getOnCancel() != null) {
 							getOnCancel().clicked(LookupForm.this);
@@ -1701,7 +1701,7 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		return m_keepMetaData;
 	}
 
-	@Nonnull
+	@NonNull
 	public LookupForm<T> setKeepMetaData(boolean keepMetaData) {
 		m_keepMetaData = keepMetaData;
 		return this;
@@ -1716,14 +1716,14 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 	 * @see to.etc.domui.component.layout.IButtonContainer#addButton(to.etc.domui.dom.html.NodeBase, int)
 	 */
 	@Override
-	public void addButton(@Nonnull NodeBase thing, int order) {
+	public void addButton(@NonNull NodeBase thing, int order) {
 		if(order < 0)
 			addButtonItem(thing);
 		else
 			addButtonItem(thing, order);
 	}
 
-	@Nonnull
+	@NonNull
 	public ButtonFactory getButtonFactory() {
 		return m_buttonFactory;
 	}

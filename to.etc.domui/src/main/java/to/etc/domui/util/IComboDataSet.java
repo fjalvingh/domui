@@ -24,11 +24,10 @@
  */
 package to.etc.domui.util;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.UrlPage;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import java.util.List;
 
 /**
  * Factory to create the dataset for a combobox. Instance should create a list of combobox items in display order. Instances must be reentrant.
@@ -37,5 +36,5 @@ import to.etc.domui.dom.html.*;
  * Created on Jul 11, 2008
  */
 public interface IComboDataSet<T> {
-	@Nonnull List<T> getComboDataSet(@Nonnull UrlPage page) throws Exception;
+	@NonNull List<T> getComboDataSet(@NonNull UrlPage page) throws Exception;
 }

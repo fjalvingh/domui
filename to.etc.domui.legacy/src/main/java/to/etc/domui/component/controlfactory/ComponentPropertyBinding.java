@@ -1,12 +1,10 @@
 package to.etc.domui.component.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.util.IReadOnlyModel;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 
 /**
  * This is a base class to bind an input control (an IControl) to some property in a class. The control and
@@ -17,15 +15,15 @@ import javax.annotation.concurrent.Immutable;
  * Created on Jun 15, 2012
  */
 @Deprecated
-@Immutable
+//@Immutable
 abstract public class ComponentPropertyBinding<T, C> implements IModelBinding {
-	@Nonnull
+	@NonNull
 	final IControl<C> m_control;
 
-	@Nonnull
+	@NonNull
 	final private PropertyMetaModel<T> m_propertyMeta;
 
-	@Nonnull
+	@NonNull
 	final private IReadOnlyModel< ? > m_model;
 
 	/**
@@ -45,7 +43,7 @@ abstract public class ComponentPropertyBinding<T, C> implements IModelBinding {
 	 */
 	abstract protected T convertControlToValue(@Nullable C zheValue) throws Exception;
 
-	public ComponentPropertyBinding(@Nonnull IReadOnlyModel< ? > model, @Nonnull PropertyMetaModel<T> propertyMeta, @Nonnull IControl<C> control) {
+	public ComponentPropertyBinding(@NonNull IReadOnlyModel< ? > model, @NonNull PropertyMetaModel<T> propertyMeta, @NonNull IControl<C> control) {
 		m_model = model;
 		m_propertyMeta = propertyMeta;
 		m_control = control;
@@ -72,17 +70,17 @@ abstract public class ComponentPropertyBinding<T, C> implements IModelBinding {
 		m_control.setReadOnly(!on);
 	}
 
-	@Nonnull
+	@NonNull
 	public IControl<C> getControl() {
 		return m_control;
 	}
 
-	@Nonnull
+	@NonNull
 	public PropertyMetaModel<T> getPropertyMeta() {
 		return m_propertyMeta;
 	}
 
-	@Nonnull
+	@NonNull
 	public IReadOnlyModel< ? > getModel() {
 		return m_model;
 	}

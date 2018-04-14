@@ -24,11 +24,15 @@
  */
 package to.etc.smtp;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.Base64OutputStream;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 /**
  * Write MIME messages. Allows embedding MIME bodies.
@@ -47,7 +51,7 @@ public class MimeWriter {
 	@Nullable
 	final private MimeWriter	m_dad;
 
-	@Nonnull
+	@NonNull
 	final private OutputStream	m_os;
 
 	private String			m_currentEncoding	= "UTF-8";
@@ -65,12 +69,12 @@ public class MimeWriter {
 
 	static private long			m_lastOutTime;
 
-	protected MimeWriter(@Nonnull OutputStream os) {
+	protected MimeWriter(@NonNull OutputStream os) {
 		m_os = os;
 		m_dad = null;
 	}
 
-	protected MimeWriter(@Nonnull MimeWriter dad, @Nonnull OutputStream os) {
+	protected MimeWriter(@NonNull MimeWriter dad, @NonNull OutputStream os) {
 		m_os = os;
 		m_dad = dad;
 	}
@@ -183,11 +187,11 @@ public class MimeWriter {
 	//		rawHeader("Content-Type", contenttype + "; boundary=\"" + getBoundaryString() + "\";" + trailer);
 	//	}
 
-	public void writeHeader(@Nonnull String name, @Nonnull String primevalue, String... subheaders) throws IOException {
+	public void writeHeader(@NonNull String name, @NonNull String primevalue, String... subheaders) throws IOException {
 		writeHeader(false, name, primevalue, subheaders);
 	}
 
-	public void writeHeader(boolean includeboundary, @Nonnull String name, @Nonnull String primevalue, String... subheaders) throws IOException {
+	public void writeHeader(boolean includeboundary, @NonNull String name, @NonNull String primevalue, String... subheaders) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		sb.append(primevalue);
 		if(includeboundary) {
@@ -207,8 +211,8 @@ public class MimeWriter {
 		rawHeader(name, sb.toString());
 	}
 
-	@Nonnull
-	private String headerquote(@Nonnull String in) {
+	@NonNull
+	private String headerquote(@NonNull String in) {
 		return "\"" + in + "\"";
 	}
 
@@ -216,7 +220,7 @@ public class MimeWriter {
 	 * Return a valid content ID for a MIME part.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static synchronized public String generateContentID() {
 		long cts = System.currentTimeMillis();
 		if(m_lastOutTime != 0) {
@@ -236,8 +240,8 @@ public class MimeWriter {
 	 * @return
 	 * @throws IOException
 	 */
-	@Nonnull
-	static public MimeWriter createMimeWriter(@Nonnull OutputStream os, @Nonnull String contentType, String... subpairs) throws IOException {
+	@NonNull
+	static public MimeWriter createMimeWriter(@NonNull OutputStream os, @NonNull String contentType, String... subpairs) throws IOException {
 		if(!contentType.startsWith("multipart/"))
 			throw new IllegalStateException("Expecting a 'multipart/' type");
 		MimeWriter w = new MimeWriter(os);

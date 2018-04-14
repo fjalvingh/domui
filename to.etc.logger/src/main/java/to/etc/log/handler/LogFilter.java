@@ -1,13 +1,15 @@
 package to.etc.log.handler;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-import org.w3c.dom.*;
-
-import to.etc.log.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.MDC;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import to.etc.log.EtcLoggerFactory;
 import to.etc.log.EtcLoggerFactory.LoggerConfigException;
-import to.etc.log.event.*;
+import to.etc.log.EtcMDCAdapter;
+import to.etc.log.event.EtcLogEvent;
 
 /**
  * Filter that is applied during log handler processing.
@@ -18,22 +20,22 @@ import to.etc.log.event.*;
  * Created on Oct 31, 2012
  */
 class LogFilter {
-	@Nonnull
+	@NonNull
 	private final LogFilterType	m_type;
 
-	@Nonnull
+	@NonNull
 	private final String		m_key;
 
-	@Nonnull
+	@NonNull
 	private final String		m_value;
 
-	private LogFilter(@Nonnull LogFilterType type, @Nonnull String key, @Nonnull String value) {
+	private LogFilter(@NonNull LogFilterType type, @NonNull String key, @NonNull String value) {
 		m_type = type;
 		m_key = key;
 		m_value = value;
 	}
 
-	@Nonnull
+	@NonNull
 	LogFilterType getType() {
 		return m_type;
 	}
@@ -48,17 +50,17 @@ class LogFilter {
 		return m_value;
 	}
 
-	@Nonnull
-	static LogFilter mdcFilter(@Nonnull String key, @Nonnull String value) {
+	@NonNull
+	static LogFilter mdcFilter(@NonNull String key, @NonNull String value) {
 		return new LogFilter(LogFilterType.MDC, key, value);
 	}
 
-	@Nonnull
-	static LogFilter sessionFilter(@Nonnull String value) {
+	@NonNull
+	static LogFilter sessionFilter(@NonNull String value) {
 		return new LogFilter(LogFilterType.SESSION, "session", value);
 	}
 
-	boolean accept(@Nonnull EtcLogEvent event) {
+	boolean accept(@NonNull EtcLogEvent event) {
 		switch(m_type){
 			case SESSION:
 			case MDC:
@@ -69,8 +71,8 @@ class LogFilter {
 		}
 	}
 
-	@Nonnull
-	static LogFilter createFromXml(@Nonnull Node node) throws LoggerConfigException {
+	@NonNull
+	static LogFilter createFromXml(@NonNull Node node) throws LoggerConfigException {
 		Node typeNode = node.getAttributes().getNamedItem("type");
 		if(typeNode == null) {
 			throw new EtcLoggerFactory.LoggerConfigException("Missing [type] at filter node.");
@@ -98,7 +100,7 @@ class LogFilter {
 		return new LogFilter(type, key, value);
 	}
 
-	void saveToXml(@Nonnull Document doc, @Nonnull Element filterNode) {
+	void saveToXml(@NonNull Document doc, @NonNull Element filterNode) {
 		filterNode.setAttribute("type", m_type.name());
 		filterNode.setAttribute("key", m_key);
 		filterNode.setAttribute("value", m_value);

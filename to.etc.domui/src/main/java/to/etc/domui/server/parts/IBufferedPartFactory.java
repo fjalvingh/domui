@@ -24,10 +24,10 @@
  */
 package to.etc.domui.server.parts;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.util.resources.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.util.resources.IResourceDependencyList;
 
 public interface IBufferedPartFactory<K> extends IPartFactory {
 	/**
@@ -37,8 +37,8 @@ public interface IBufferedPartFactory<K> extends IPartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	K decodeKey(@Nonnull DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception;
+	@NonNull
+	K decodeKey(@NonNull DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception;
 
 	/**
 	 * This must generate the output for the resource. That output will be put into the cache and re-rendered
@@ -54,5 +54,5 @@ public interface IBufferedPartFactory<K> extends IPartFactory {
 	 * @return
 	 * @throws Exception
 	 */
-	void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull K key, @Nonnull IResourceDependencyList rdl) throws Exception;
+	void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull K key, @NonNull IResourceDependencyList rdl) throws Exception;
 }

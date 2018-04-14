@@ -2,7 +2,7 @@ package to.etc.domui.databinding;
 
 import java.util.*;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.component.meta.*;
 import to.etc.domui.databinding.observables.*;
@@ -33,12 +33,12 @@ public class BindingContext {
 	 * @param to
 	 * @return
 	 */
-	public <T> Binding join(@Nonnull IObservableValue<T> source, @Nonnull IObservableValue<T> to) {
+	public <T> Binding join(@NonNull IObservableValue<T> source, @NonNull IObservableValue<T> to) {
 
 		throw new IllegalStateException();
 	}
 
-	void registerBinding(@Nonnull Binding binding) {
+	void registerBinding(@NonNull Binding binding) {
 
 	}
 
@@ -58,15 +58,15 @@ public class BindingContext {
 
 		private int m_recurse;
 
-		public Listener(@Nonnull IObservableValue< ? >[] obsar) {
+		public Listener(@NonNull IObservableValue< ? >[] obsar) {
 			m_observables = obsar;
 		}
 
-		@Nonnull
-		public Listener call(@Nonnull final IBindingListener lsnr) {
+		@NonNull
+		public Listener call(@NonNull final IBindingListener lsnr) {
 			IValueChangeListener<Object> ovs = new IValueChangeListener<Object>() {
 				@Override
-				public void handleChange(@Nonnull ValueChangeEvent<Object> event) throws Exception {
+				public void handleChange(@NonNull ValueChangeEvent<Object> event) throws Exception {
 					if(m_recurse > 0)
 						return;
 					try {
@@ -91,8 +91,8 @@ public class BindingContext {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public <S, T, V> UnidirectionalBinding unibind(@Nonnull S source, @Nonnull String sproperty, @Nonnull final T target, @Nonnull final String tproperty) throws Exception {
+	@NonNull
+	public <S, T, V> UnidirectionalBinding unibind(@NonNull S source, @NonNull String sproperty, @NonNull final T target, @NonNull final String tproperty) throws Exception {
 		if(null == source || null == sproperty)
 			throw new IllegalArgumentException("source/property cannot be null");
 		if(null == target || null == tproperty)
@@ -124,8 +124,8 @@ public class BindingContext {
 	}
 
 
-	//	@Nonnull
-	//	public <T> UnidirectionalBinding from(@Nonnull IObservableValue< ? > sourceo) {
+	//	@NonNull
+	//	public <T> UnidirectionalBinding from(@NonNull IObservableValue< ? > sourceo) {
 	//		return new UnidirectionalBinding(this, sourceo);
 	//	}
 
@@ -136,8 +136,8 @@ public class BindingContext {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public <S, T, V> JoinBinding joinbinding(@Nonnull S source, @Nonnull String sproperty, @Nonnull final T target, @Nonnull final String tproperty) throws Exception {
+	@NonNull
+	public <S, T, V> JoinBinding joinbinding(@NonNull S source, @NonNull String sproperty, @NonNull final T target, @NonNull final String tproperty) throws Exception {
 		if(null == source || null == sproperty)
 			throw new IllegalArgumentException("source/property cannot be null");
 		if(null == target || null == tproperty)
@@ -156,8 +156,8 @@ public class BindingContext {
 		return new JoinBinding(this, sourceo, targeto);
 	}
 
-	@Nonnull
-	public <S, T, V> JoinBinding joinbinding(@Nonnull IObservableValue<S> sourceo, @Nonnull final T target, @Nonnull final String tproperty) throws Exception {
+	@NonNull
+	public <S, T, V> JoinBinding joinbinding(@NonNull IObservableValue<S> sourceo, @NonNull final T target, @NonNull final String tproperty) throws Exception {
 		if(null == target || null == tproperty)
 			throw new IllegalArgumentException("target/property cannot be null");
 
@@ -177,7 +177,7 @@ public class BindingContext {
 	//	/**
 	//	 * Bidirectional binding of a source Observable to some target.
 	//	 */
-	//	public <T> JoinBinding join(@Nonnull IObservableValue< ? > sourceo) {
+	//	public <T> JoinBinding join(@NonNull IObservableValue< ? > sourceo) {
 	//		return new JoinBinding(this, sourceo);
 	//	}
 
@@ -187,8 +187,8 @@ public class BindingContext {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public <T> Listener onchange(@Nonnull T source, @Nonnull String... properties) {
+	@NonNull
+	public <T> Listener onchange(@NonNull T source, @NonNull String... properties) {
 		IObservableValue< ? >[] obsar = new IObservableValue< ? >[properties.length];
 		for(int i = properties.length; --i >= 0;) {
 			obsar[i] = createObservable(source, properties[i]);
@@ -196,8 +196,8 @@ public class BindingContext {
 		return new Listener(obsar);
 	}
 
-	@Nonnull
-	static <T> IObservableValue< ? > createObservable(@Nonnull T source, @Nonnull String property) {
+	@NonNull
+	static <T> IObservableValue< ? > createObservable(@NonNull T source, @NonNull String property) {
 		if(source instanceof IObservableEntity) {
 			IObservableEntity oe = (IObservableEntity) source;
 			IObservableValue< ? > op = oe.observableValue(property);
@@ -218,7 +218,7 @@ public class BindingContext {
 	 * @param property
 	 * @param control
 	 */
-	public <T> void bindMessage(@Nonnull T instance, @Nonnull String property, @Nonnull NodeBase control) {
+	public <T> void bindMessage(@NonNull T instance, @NonNull String property, @NonNull NodeBase control) {
 //		Map<String, ErrorBinding> map = getInstanceErrorMap(instance);
 //		ErrorBinding eb = map.remove(property);
 //		if(null != eb) {
@@ -230,8 +230,8 @@ public class BindingContext {
 //		map.put(property, eb);
 	}
 
-	@Nonnull
-	private <T> Map<String, ErrorBinding> getInstanceErrorMap(@Nonnull T instance) {
+	@NonNull
+	private <T> Map<String, ErrorBinding> getInstanceErrorMap(@NonNull T instance) {
 		Map<String, ErrorBinding> map = m_errorBindingMap.get(instance);
 		if(null == map) {
 			map = new HashMap<String, ErrorBinding>();
@@ -246,7 +246,7 @@ public class BindingContext {
 	 * @param property
 	 * @param error
 	 */
-	public <T> void setProperyError(@Nonnull T instance, @Nonnull String property, @Nullable UIMessage error) throws Exception {
+	public <T> void setProperyError(@NonNull T instance, @NonNull String property, @Nullable UIMessage error) throws Exception {
 		Map<String, ErrorBinding> map = getInstanceErrorMap(instance);
 		ErrorBinding eb = map.get(property);
 		if(null != eb) {
@@ -264,7 +264,7 @@ public class BindingContext {
 	 * @param binding
 	 * @param uiMessage
 	 */
-	void bindingError(@Nonnull Binding binding, @Nullable UIMessage uiMessage) {
+	void bindingError(@NonNull Binding binding, @Nullable UIMessage uiMessage) {
 
 	}
 
@@ -276,7 +276,7 @@ public class BindingContext {
 	 * @param old
 	 * @param new1
 	 */
-	public void errorBindingChanged(@Nonnull ErrorBinding errorBinding, @Nullable UIMessage old, @Nullable UIMessage new1) {
+	public void errorBindingChanged(@NonNull ErrorBinding errorBinding, @Nullable UIMessage old, @Nullable UIMessage new1) {
 		// TODO Auto-generated method stub
 
 	}

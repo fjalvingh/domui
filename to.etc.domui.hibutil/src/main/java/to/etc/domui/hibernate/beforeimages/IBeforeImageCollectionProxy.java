@@ -1,7 +1,7 @@
 package to.etc.domui.hibernate.beforeimages;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IBeforeImageCollectionProxy<T> {
-	void initializeFromOriginal(@Nonnull T source);
+	void initializeFromOriginal(@NonNull T source);
 }

@@ -24,9 +24,18 @@
  */
 package to.etc.util;
 
-import javax.annotation.*;
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import java.io.Writer;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Helper code to spawn processes and capture their output.
@@ -36,10 +45,10 @@ import java.util.*;
  */
 final public class ProcessTools {
 	public interface IFollow {
-		void newData(boolean stderr, @Nonnull char[] data, int length);
+		void newData(boolean stderr, @NonNull char[] data, int length);
 	}
 
-	@Nonnull
+	@NonNull
 	final private ProcessBuilder m_builder;
 
 	private Writer m_stdout;
@@ -54,72 +63,72 @@ final public class ProcessTools {
 		m_builder = new ProcessBuilder();
 	}
 
-	public ProcessTools(@Nonnull ProcessBuilder pb) {
+	public ProcessTools(@NonNull ProcessBuilder pb) {
 		m_builder = pb;
 	}
 
-	@Nonnull
-	public ProcessTools stdout(@Nonnull Writer stdout) {
+	@NonNull
+	public ProcessTools stdout(@NonNull Writer stdout) {
 		m_stdout = stdout;
 		return this;
 	}
 
-	@Nonnull
-	public ProcessTools stderr(@Nonnull Writer stderr) {
+	@NonNull
+	public ProcessTools stderr(@NonNull Writer stderr) {
 		m_stderr = stderr;
 		return this;
 	}
 
-	@Nonnull
-	public ProcessTools add(@Nonnull String cmd) {
+	@NonNull
+	public ProcessTools add(@NonNull String cmd) {
 		m_builder.command().add(cmd);
 		return this;
 	}
 
-	@Nonnull
-	public ProcessTools add(@Nonnull List<String> cmd) {
+	@NonNull
+	public ProcessTools add(@NonNull List<String> cmd) {
 		m_builder.command().addAll(cmd);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public ProcessTools add(String... args) {
 		for(String s: args)
 			m_builder.command().add(s);
 		return this;
 	}
 
-	@Nonnull
-	public ProcessTools setCommand(@Nonnull List<String> cmd) {
+	@NonNull
+	public ProcessTools setCommand(@NonNull List<String> cmd) {
 		m_builder.command(cmd);
 		return this;
 	}
 
-	@Nonnull
-	public ProcessTools directory(@Nonnull File cmd) {
+	@NonNull
+	public ProcessTools directory(@NonNull File cmd) {
 		m_builder.directory(cmd);
 		return this;
 	}
 
-	@Nonnull
-	public ProcessTools follow(@Nonnull IFollow cmd) {
+	@NonNull
+	public ProcessTools follow(@NonNull IFollow cmd) {
 		m_follow = cmd;
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public ProcessTools flush() {
 		m_flush = true;
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public Map<String, String> env() {
 		return m_builder.environment();
 	}
 
-	@Nonnull
-	public ProcessTools envStrip(@Nonnull String... names) {
+	@NonNull
+	public ProcessTools envStrip(@NonNull String... names) {
 		for(String name : names) {
 			env().remove(name);
 		}
@@ -162,7 +171,7 @@ final public class ProcessTools {
 		/** The output writer thing. */
 		private final Writer	m_w;
 
-		@Nonnull
+		@NonNull
 		private final char[]	m_buf;
 
 		/** When T this flushes written output. */
@@ -248,7 +257,7 @@ final public class ProcessTools {
 			//			System.out.println("Reader "+m_name+" terminated.");
 		}
 
-		static private boolean needsFlush(@Nonnull char[] buf, int szrd) {
+		static private boolean needsFlush(@NonNull char[] buf, int szrd) {
 			while(--szrd >= 0) {
 				if(buf[szrd] == '\n')
 					return true;

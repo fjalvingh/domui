@@ -24,6 +24,7 @@
  */
 package to.etc.domui.ajax;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IFilterRequestHandler;
 import to.etc.domui.server.IRequestInterceptor;
@@ -32,7 +33,6 @@ import to.etc.iocular.Container;
 import to.etc.iocular.def.ContainerDefinition;
 import to.etc.iocular.ioccontainer.BasicContainer;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -167,7 +167,7 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
-	public boolean handleRequest(final @Nonnull RequestContextImpl ctx) throws Exception {
+	public boolean handleRequest(final @NonNull RequestContextImpl ctx) throws Exception {
 		if(! ctx.getExtension().equals("xaja"))
 			return false;
 

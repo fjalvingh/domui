@@ -12,8 +12,8 @@ import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.security.SecureRandom;
@@ -157,7 +157,7 @@ public class LoginAuthenticator implements ILoginAuthenticator {
 	/**
 	 * Accepts requests from others, as long as they have the correct _signature request.
 	 */
-	@Override public IUser authenticateByRequest(@Nonnull IRequestContext rx) throws Exception {
+	@Override public IUser authenticateByRequest(@NonNull IRequestContext rx) throws Exception {
 		return null;
 	}
 

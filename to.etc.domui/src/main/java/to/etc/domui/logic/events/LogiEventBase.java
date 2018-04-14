@@ -1,26 +1,26 @@
 package to.etc.domui.logic.events;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.webapp.query.IIdentifyable;
 
 abstract public class LogiEventBase {
-	@Nonnull
+	@NonNull
 	final private String m_path;
 
-	public LogiEventBase(@Nonnull String path) {
+	public LogiEventBase(@NonNull String path) {
 		m_path = path;
 	}
 
-	@Nonnull
+	@NonNull
 	final public String getPath() {
 		return m_path;
 	}
 
-	abstract void dump(@Nonnull Appendable a) throws Exception;
+	abstract void dump(@NonNull Appendable a) throws Exception;
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

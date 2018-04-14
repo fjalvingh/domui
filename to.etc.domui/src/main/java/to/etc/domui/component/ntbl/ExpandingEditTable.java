@@ -24,18 +24,36 @@
  */
 package to.etc.domui.component.ntbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.component.tbl.ColumnContainer;
+import to.etc.domui.component.tbl.HeaderContainer;
+import to.etc.domui.component.tbl.IModifyableTableModel;
+import to.etc.domui.component.tbl.IRowRenderer;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component.tbl.RowButtonContainer;
+import to.etc.domui.component.tbl.TableModelTableBase;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IHasModifiedIndication;
+import to.etc.domui.dom.html.MsgDiv;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.THead;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This component is a table, using a TableModel, which can also edit it's rows
@@ -56,10 +74,10 @@ import to.etc.domui.util.*;
  * Created on Dec 7, 2009
  */
 public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHasModifiedIndication {
-	@Nonnull
+	@NonNull
 	private Table m_table = new Table();
 
-	@Nonnull
+	@NonNull
 	private IRowRenderer<T> m_rowRenderer;
 
 	/** When set this factory is used to create the editor; when null this will create the "default" editor. */
@@ -123,13 +141,13 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 */
 	private boolean m_enableRowEdit = true;
 
-	public ExpandingEditTable(@Nonnull Class<T> actualClass, @Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
+	public ExpandingEditTable(@NonNull Class<T> actualClass, @NonNull ITableModel<T> m, @NonNull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
 		setErrorFence();
 	}
 
-	public ExpandingEditTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
+	public ExpandingEditTable(@NonNull ITableModel<T> m, @NonNull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
 		setErrorFence();
@@ -155,7 +173,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		return false;
 	}
 
-	@Nonnull
+	@NonNull
 	private TBody getDataBody() {
 		if(null != m_dataBody)
 			return m_dataBody;
@@ -222,7 +240,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	protected List<T> getPageItems() throws Exception {
 		return getModel() == null ? Collections.EMPTY_LIST : getModel().getItems(0, getModel().getRows());
 	}
@@ -233,7 +251,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param value
 	 * @throws Exception
 	 */
-	private void renderCollapsedRow(int index, @Nonnull T value) throws Exception {
+	private void renderCollapsedRow(int index, @NonNull T value) throws Exception {
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
 		TR tr = (TR) getDataBody().getChild(index);
 		tr.removeAllChildren(); // Discard current contents.
@@ -242,7 +260,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		renderCollapsedRow(cc, bc, tr, index, value);
 	}
 
-	private void renderCollapsedRow(@Nonnull ColumnContainer<T> cc, @Nonnull RowButtonContainer bc, @Nonnull TR tr, int index, @Nonnull final T value) throws Exception {
+	private void renderCollapsedRow(@NonNull ColumnContainer<T> cc, @NonNull RowButtonContainer bc, @NonNull TR tr, int index, @NonNull final T value) throws Exception {
 		cc.setParent(tr);
 
 		if(! isHideIndex()) {
@@ -266,7 +284,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			//-- Render a default "delete" button.
 			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), "THEME/btnDelete.png", Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
 				@Override
-				public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+				public void clicked(@NonNull LinkButton clickednode) throws Exception {
 					((IModifyableTableModel<T>) getModel()).delete(value);
 					DomUtil.setModifiedFlag(ExpandingEditTable.this);
 				}
@@ -274,7 +292,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		}
 	}
 
-	private void createIndexNode(@Nonnull TD td, final int index, boolean collapsed) {
+	private void createIndexNode(@NonNull TD td, final int index, boolean collapsed) {
 		Div d = new MsgDiv(Integer.toString(index + 1));
 		td.add(d);
 		if(isEnableExpandItems()) {
@@ -282,7 +300,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 			td.setClicked(new IClicked<TD>() {
 				@Override
-				public void clicked(@Nonnull TD clickednode) throws Exception {
+				public void clicked(@NonNull TD clickednode) throws Exception {
 					toggleExpanded(index);
 				}
 			});
@@ -328,7 +346,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param isnew
 	 * @throws Exception
 	 */
-	private NodeContainer createEditor(@Nonnull TD into, @Nonnull RowButtonContainer bc, @Nonnull T instance, boolean isnew) throws Exception {
+	private NodeContainer createEditor(@NonNull TD into, @NonNull RowButtonContainer bc, @NonNull T instance, boolean isnew) throws Exception {
 		if(getEditorFactory() == null)
 			throw new IllegalStateException("Auto editor creation not yet supported");
 
@@ -407,7 +425,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @param index
 	 * @param tr
 	 */
-	private void collapseRow(int index, @Nonnull TR tr) throws Exception {
+	private void collapseRow(int index, @NonNull TR tr) throws Exception {
 		if(tr.getUserObject() == null) // Already collapsed?
 			return;
 		NodeContainer editor = (NodeContainer) tr.getUserObject();
@@ -450,7 +468,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * of the item to the model.
 	 * @param instance
 	 */
-	public void addNew(@Nonnull T instance) throws Exception {
+	public void addNew(@NonNull T instance) throws Exception {
 		if(!(getModel() instanceof IModifyableTableModel< ? >))
 			throw new IllegalStateException("The model is not an IModifyableTableModel: use addNew(T, IClicked) instead");
 		clearNewEditor();
@@ -472,7 +490,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 			td.setClicked(new IClicked<TD>() {
 				@Override
-				public void clicked(@Nonnull TD clickednode) throws Exception {
+				public void clicked(@NonNull TD clickednode) throws Exception {
 					commitNewRow();
 				}
 			});
@@ -492,14 +510,14 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Now add confirm/cancel button in action column
 		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Theme.BTN_CONFIRM, new IClicked<LinkButton>() {
 			@Override
-			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+			public void clicked(@NonNull LinkButton clickednode) throws Exception {
 				commitNewRow();
 			}
 		});
 
 		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Theme.BTN_DELETE, new IClicked<LinkButton>() {
 			@Override
-			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+			public void clicked(@NonNull LinkButton clickednode) throws Exception {
 				cancelNew();
 			}
 		});
@@ -511,7 +529,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		if(DomUtil.isModified(m_newEditor)) {
 			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), new IClicked<MsgBox>() {
 				@Override
-				public void clicked(@Nonnull MsgBox clickednode) throws Exception {
+				public void clicked(@NonNull MsgBox clickednode) throws Exception {
 					cancelNewReally();
 				}
 			});
@@ -591,7 +609,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		if(!isBuilt())
 			return;
 
@@ -615,7 +633,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nullable T value) throws Exception {
+	public void rowDeleted(@NonNull ITableModel<T> model, int index, @Nullable T value) throws Exception {
 		if(!isBuilt())
 			return;
 
@@ -636,7 +654,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowModified(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		if(!isBuilt())
 			return;
 		//-- Sanity
@@ -673,7 +691,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	protected Table getTable() {
 		return m_table;
 	}
@@ -752,7 +770,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 	 * Return the editor factory to use to create the row editor. If null we'll use a default editor.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public IRowEditorFactory<T, ? extends NodeContainer> getEditorFactory() {
 		if(null != m_editorFactory)
 			return m_editorFactory;

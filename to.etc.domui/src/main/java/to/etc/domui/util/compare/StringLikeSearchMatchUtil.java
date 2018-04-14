@@ -1,16 +1,19 @@
 package to.etc.domui.util.compare;
 
-import java.util.*;
-import java.util.regex.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
-import javax.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Encapsulates functionality that simulates 'like' kind of search as in databases.
  *
  * Created by vmijic on 19.8.15..
  */
-@DefaultNonNull
+@NonNullByDefault
 public class StringLikeSearchMatchUtil {
 
 	private Map<String, Matcher> m_likeMatcherCache = new HashMap<>();
@@ -23,7 +26,7 @@ public class StringLikeSearchMatchUtil {
 	 * @param match
 	 * @return
 	 */
-	public boolean compareLike(@Nonnull String val, @Nonnull String match) {
+	public boolean compareLike(@NonNull String val, @NonNull String match) {
 		Matcher m = m_likeMatcherCache.get(match);
 		if(null == m) {
 			//-- Convert to regexp

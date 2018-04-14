@@ -1,12 +1,12 @@
 package to.etc.domui.test.ui.imagehelper;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.junit.Assert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
-import javax.annotation.Nonnull;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -113,7 +113,7 @@ final public class ImageHelper {
 	/**
 	 * Find the TR on the vertical form that contains the element specified by testid.
 	 */
-	public static WebElement getParentTR(@Nonnull WebElement comp, @Nonnull String needClass) {
+	public static WebElement getParentTR(@NonNull WebElement comp, @NonNull String needClass) {
 		WebElement current = comp;
 		for(;;) {
 			if(current == null) {

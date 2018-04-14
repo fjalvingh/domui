@@ -1,5 +1,7 @@
 package to.etc.domui.component.combobox;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -13,8 +15,6 @@ import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.IRenderInto;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -22,7 +22,7 @@ import java.util.Locale;
 public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 	static private final IRenderInto<ValueLabelPair<Object>> STATICRENDERER = new IRenderInto<ValueLabelPair<Object>>() {
 		@Override
-		public void render(@Nonnull NodeContainer node, @Nullable ValueLabelPair<Object> object) throws Exception {
+		public void render(@NonNull NodeContainer node, @Nullable ValueLabelPair<Object> object) throws Exception {
 			if(object != null)
 				node.setText(object.getLabel());
 		}
@@ -137,7 +137,7 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 		return new SelectFixed<T>(l);
 	}
 
-	@Nonnull
+	@NonNull
 	public static <T extends Enum<T>> List<ValueLabelPair<T>> createEnumValueList(T... items) {
 		if(items.length == 0)
 			throw new IllegalArgumentException("Missing parameters");
@@ -186,7 +186,7 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 	/**
 	 * Default tostring converter.
 	 */
-	@Nonnull
+	@NonNull
 	static private final IObjectToStringConverter<Object> TOSTRING_CV = new IObjectToStringConverter<Object>() {
 		@Override
 		public String convertObjectToString(Locale loc, Object in) throws UIException {
@@ -216,7 +216,7 @@ public class SelectFixed<T> extends ComboBoxBase<ValueLabelPair<T>, T> {
 	 * @param items
 	 * @return
 	 */
-	static public <T> SelectFixed<T> createCombo(@Nonnull IObjectToStringConverter<T> converter, T... items) {
+	static public <T> SelectFixed<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) {
 		List<ValueLabelPair<T>> values = new ArrayList<ValueLabelPair<T>>();
 		for(T item : items) {
 			String v = converter.convertObjectToString(NlsContext.getLocale(), item);

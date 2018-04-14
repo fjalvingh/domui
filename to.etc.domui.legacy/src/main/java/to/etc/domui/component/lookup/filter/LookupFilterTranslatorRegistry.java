@@ -1,20 +1,20 @@
 package to.etc.domui.component.lookup.filter;
 
-import java.util.*;
-import java.util.Map.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.w3c.dom.Node;
+import to.etc.webapp.query.QDataContext;
+import to.etc.xml.XmlWriter;
 
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
-import to.etc.webapp.query.*;
-import to.etc.xml.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
  * @since 2/8/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 public final class LookupFilterTranslatorRegistry {
 
 	private static Map<String, ITranslator<?>> m_translators = new HashMap<>();

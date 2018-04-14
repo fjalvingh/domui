@@ -1,17 +1,16 @@
 package to.etc.domui.component.image;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.caches.images.FullImage;
+import to.etc.domui.util.images.machines.OriginalImagePage;
 
-import javax.annotation.*;
-
-import to.etc.domui.caches.images.*;
-import to.etc.domui.util.images.machines.*;
+import java.io.InputStream;
 
 final public class CachedImageInstance implements IUIImageInstance {
-	@Nonnull
+	@NonNull
 	private final FullImage m_image;
 
-	public CachedImageInstance(@Nonnull FullImage image) {
+	public CachedImageInstance(@NonNull FullImage image) {
 		m_image = image;
 	}
 

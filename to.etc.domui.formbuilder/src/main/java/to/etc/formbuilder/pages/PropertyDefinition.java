@@ -1,12 +1,12 @@
 package to.etc.formbuilder.pages;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.dom.css.CssBase;
 import to.etc.domui.dom.html.IControl;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -19,52 +19,52 @@ import java.util.Set;
  * Created on Oct 23, 2013
  */
 final public class PropertyDefinition {
-	@Nonnull
+	@NonNull
 	final private Class< ? > m_actualType;
 
-	@Nonnull
+	@NonNull
 	final private String m_name;
 
-	@Nonnull
+	@NonNull
 	final private String m_category;
 
-	@Nonnull
+	@NonNull
 	final private IPropertyEditorFactory m_editor;
 
-	@Nonnull
+	@NonNull
 	static private final Map<PropertyDefinition, PropertyDefinition> m_map = new HashMap<PropertyDefinition, PropertyDefinition>();
 
 	static private Map<String, String> m_categoryMap = new HashMap<String, String>();
 
-	private PropertyDefinition(@Nonnull Class< ? > actualType, @Nonnull String name, @Nonnull String category, @Nonnull IPropertyEditorFactory editor) {
+	private PropertyDefinition(@NonNull Class< ? > actualType, @NonNull String name, @NonNull String category, @NonNull IPropertyEditorFactory editor) {
 		m_actualType = actualType;
 		m_name = name;
 		m_category = category;
 		m_editor = editor;
 	}
 
-	@Nonnull
+	@NonNull
 	public Class< ? > getActualType() {
 		return m_actualType;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getName() {
 		return m_name;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getCategory() {
 		return m_category;
 	}
 
-	@Nonnull
+	@NonNull
 	public IPropertyEditorFactory getEditor() {
 		return m_editor;
 	}
 
-	@Nonnull
-	static public PropertyDefinition getDefinition(@Nonnull Class< ? > actualType, @Nonnull String name, @Nonnull String category, @Nonnull IPropertyEditorFactory editor) {
+	@NonNull
+	static public PropertyDefinition getDefinition(@NonNull Class< ? > actualType, @NonNull String name, @NonNull String category, @NonNull IPropertyEditorFactory editor) {
 		PropertyDefinition pd = new PropertyDefinition(actualType, name, category, editor);
 		PropertyDefinition rpd = m_map.get(pd);
 		if(rpd != null)
@@ -73,13 +73,13 @@ final public class PropertyDefinition {
 		return pd;
 	}
 
-	static synchronized public void registerCategory(@Nonnull String category, String... properties) {
+	static synchronized public void registerCategory(@NonNull String category, String... properties) {
 		for(String name : properties) {
 			m_categoryMap.put(name, category);
 		}
 	}
 
-	static synchronized public void registerCategories(@Nonnull String category, @Nonnull Class< ? > ifclss) {
+	static synchronized public void registerCategories(@NonNull String category, @NonNull Class< ? > ifclss) {
 		for(PropertyMetaModel< ? > pmm : MetaManager.findClassMeta(ifclss).getProperties()) {
 			if(pmm.getReadOnly() == YesNoType.YES)
 				continue;
@@ -88,19 +88,19 @@ final public class PropertyDefinition {
 		}
 	}
 
-	@Nonnull
-	static synchronized public String getCategory(@Nonnull String propertyName) {
+	@NonNull
+	static synchronized public String getCategory(@NonNull String propertyName) {
 		String cat = m_categoryMap.get(propertyName);
 		return cat == null ? "Miscellaneous" : cat;
 	}
 
 	static private final Set<String> m_ignoreSet = new HashSet<String>();
 
-	public static synchronized void ignore(@Nonnull String property) {
+	public static synchronized void ignore(@NonNull String property) {
 		m_ignoreSet.add(property);
 	}
 
-	public static synchronized boolean isIgnored(@Nonnull String property) {
+	public static synchronized boolean isIgnored(@NonNull String property) {
 		return m_ignoreSet.contains(property);
 	}
 

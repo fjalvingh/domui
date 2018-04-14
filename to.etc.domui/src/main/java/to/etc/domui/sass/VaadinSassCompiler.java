@@ -7,12 +7,12 @@ import com.vaadin.sass.internal.handler.SCSSDocumentHandlerImpl;
 import com.vaadin.sass.internal.parser.LexicalUnitImpl;
 import com.vaadin.sass.internal.parser.Variable;
 import com.vaadin.sass.internal.visitor.ExtendNodeHandler;
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
-import javax.annotation.Nonnull;
 import java.io.File;
 import java.io.Writer;
 
@@ -22,7 +22,7 @@ import java.io.Writer;
  */
 public class VaadinSassCompiler implements ISassCompiler {
 	@Override
-	public void compiler(String rurl, Writer output, @Nonnull ParameterInfoImpl params, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void compiler(String rurl, Writer output, @NonNull ParameterInfoImpl params, @NonNull IResourceDependencyList rdl) throws Exception {
 		SassCapturingErrorHandler errorHandler = new SassCapturingErrorHandler();
 
 		/*

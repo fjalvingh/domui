@@ -24,10 +24,9 @@
  */
 package to.etc.domui.util.resources;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import java.util.List;
 
 /**
  * The immutable dependencies of a resource.
@@ -35,16 +34,15 @@ import javax.annotation.concurrent.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 10, 2011
  */
-@Immutable
 final public class ResourceDependencies implements IIsModified {
-	@Nonnull
+	@NonNull
 	final private IIsModified[] m_deplist;
 
-	public ResourceDependencies(@Nonnull IIsModified[] deplist) {
+	public ResourceDependencies(@NonNull IIsModified[] deplist) {
 		m_deplist = deplist;
 	}
 
-	public ResourceDependencies(@Nonnull List<IIsModified> deplist) {
+	public ResourceDependencies(@NonNull List<IIsModified> deplist) {
 		m_deplist = deplist.toArray(new IIsModified[deplist.size()]);
 	}
 

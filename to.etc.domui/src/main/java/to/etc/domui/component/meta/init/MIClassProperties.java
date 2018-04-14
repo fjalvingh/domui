@@ -1,5 +1,6 @@
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
@@ -7,7 +8,6 @@ import to.etc.domui.component.meta.impl.DefaultPropertyMetaModel;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ import java.util.List;
  * Created on 2-10-17.
  */
 public class MIClassProperties implements IClassMetaProvider<DefaultClassMetaModel> {
-	@Override public void provide(@Nonnull MetaInitContext context, @Nonnull DefaultClassMetaModel cmm) throws Exception {
+	@Override public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm) throws Exception {
 		List<PropertyInfo> pilist = ClassUtil.calculateProperties(cmm.getActualClass(), false);
 		List<PropertyMetaModel< ? >> reslist = new ArrayList<PropertyMetaModel< ? >>(pilist.size());
 		for(PropertyInfo pd : pilist) {

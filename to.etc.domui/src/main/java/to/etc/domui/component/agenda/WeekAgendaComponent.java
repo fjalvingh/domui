@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.agenda;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.css.PositionType;
@@ -42,7 +43,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.util.DateUtil;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
 import java.text.DateFormat;
 import java.text.DateFormatSymbols;
 import java.util.Calendar;
@@ -585,7 +585,7 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 	}
 
 	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if("newappt".equals(action)) {
 			String s = ctx.getParameter("date");
 			if(s == null)

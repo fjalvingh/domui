@@ -1,10 +1,14 @@
 package to.etc.util;
 
-import java.sql.*;
-import java.util.*;
-import java.util.Map.Entry;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * This determines whether an exception is severe or not. The users of this class will most likely use the outcome of this severity to log the exception or not.
@@ -57,13 +61,13 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 	@Nullable
 	private static ExceptionClassifier m_instance;
 
-	@Nonnull
+	@NonNull
 	private final Map<String, Severity> m_knownExceptions = new HashMap<String, Severity>();
 
-	@Nonnull
+	@NonNull
 	private final List<IExceptionClassifier> m_customExceptions = new ArrayList<IExceptionClassifier>();
 
-	@Nonnull
+	@NonNull
 	public static ExceptionClassifier getInstance() {
 		ExceptionClassifier instance = m_instance;
 		if(instance == null) {
@@ -81,7 +85,7 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 	 * @param Boolean severe
 	 * @throws Exception
 	 */
-	public void registerKnownException(@Nonnull String message, @Nonnull Severity severity) throws Exception {
+	public void registerKnownException(@NonNull String message, @NonNull Severity severity) throws Exception {
 		m_knownExceptions.put(message, severity);
 	}
 
@@ -92,13 +96,13 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 	 * By registering your own classifier you can make sure that this ExceptionClassifier will check these exceptions too correctly.
 	 * @param exceptionClassifier
 	 */
-	public void registerClassifier(@Nonnull IExceptionClassifier exceptionClassifier) {
+	public void registerClassifier(@NonNull IExceptionClassifier exceptionClassifier) {
 		m_customExceptions.add(exceptionClassifier);
 	}
 
 	@Override
-	@Nonnull
-	public Severity getExceptionSeverity(@Nonnull Throwable e) {
+	@NonNull
+	public Severity getExceptionSeverity(@NonNull Throwable e) {
 		List<Throwable> thrownExceptions = new ArrayList<Throwable>();
 
 		addExceptionsToList(e, thrownExceptions);
@@ -119,7 +123,7 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		return Severity.UNKNOWN;
 	}
 
-	private void addExceptionsToList(@Nonnull Throwable e, @Nonnull List<Throwable> thrownExceptions) {
+	private void addExceptionsToList(@NonNull Throwable e, @NonNull List<Throwable> thrownExceptions) {
 		thrownExceptions.add(e);
 		if(e instanceof SQLException) {
 			SQLException sqle = ((SQLException) e).getNextException();
@@ -134,8 +138,8 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		}
 	}
 
-	@Nonnull
-	private Severity getSeverityByMessage(@Nonnull String message) {
+	@NonNull
+	private Severity getSeverityByMessage(@NonNull String message) {
 		for(Entry<String, Severity> entry : m_knownExceptions.entrySet()) {
 			if(message.contains(entry.getKey())) {
 				return entry.getValue();
@@ -144,8 +148,8 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 		return Severity.UNKNOWN;
 	}
 
-	@Nonnull
-	private Severity getSeverityForCustomExceptions(@Nonnull Throwable t) {
+	@NonNull
+	private Severity getSeverityForCustomExceptions(@NonNull Throwable t) {
 		for(IExceptionClassifier exceptionClassifier : m_customExceptions) {
 			Severity severity = exceptionClassifier.getExceptionSeverity(t);
 			if(severity != Severity.UNKNOWN) {
@@ -161,7 +165,7 @@ public final class ExceptionClassifier implements IExceptionClassifier {
 	 * @param throwable
 	 * @return
 	 */
-	public boolean isSevereException(@Nonnull Throwable throwable) {
+	public boolean isSevereException(@NonNull Throwable throwable) {
 		return getExceptionSeverity(throwable) != Severity.UNSEVERE;
 	}
 }

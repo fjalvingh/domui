@@ -24,11 +24,10 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.INodeErrorDelegate;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.webapp.query.QField;
-
-import javax.annotation.Nullable;
 
 /**
  * Something to control a control: some input or control comnponent in a generic way. This

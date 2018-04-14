@@ -1,6 +1,6 @@
 package to.etc.event.local;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 
 /**
@@ -12,6 +12,6 @@ import javax.annotation.*;
  */
 public interface ILocalEventListener<T> {
 
-	void eventFired(@Nonnull T event) throws Exception;
+	void eventFired(@NonNull T event) throws Exception;
 
 }
