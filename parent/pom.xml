@@ -35,6 +35,7 @@
         <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
+        <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
         <plexus-compiler-eclipse.version>2.8.4</plexus-compiler-eclipse.version>
         <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
@@ -662,7 +663,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.20</version>
+                <version>${maven-failsafe-plugin.version}</version>
 
                 <!-- jal: pass webdriver.url to JUnit tests needing that -->
                 <configuration>
@@ -745,10 +746,13 @@
                         <!-- Passing arguments is a trainwreck, see https://issues.apache.org/jira/browse/MCOMPILER-123 -->
                         <compilerArguments>
                             <properties>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</properties>
+                            <enableJavadoc></enableJavadoc>
                         </compilerArguments>
-                        <!--<compilerArgs>-->
-                        <!--<arg>-properties .settings/org.eclipse.jdt.core.prefs</arg>-->
-                        <!--</compilerArgs>-->
+                        <compilerArgs>
+                            <arg>--add-modules</arg>
+                            <arg>org.w3c.dom</arg>
+                        </compilerArgs>
+
                         <showWarnings>true</showWarnings>
                         <showDeprecation>true</showDeprecation>
                     </configuration>
