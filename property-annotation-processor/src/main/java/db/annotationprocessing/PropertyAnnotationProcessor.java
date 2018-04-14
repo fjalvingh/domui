@@ -59,6 +59,8 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 
 	private Messager m_messager;
 
+	private SourceVersion m_sourceVersion;
+
 	static public final class Property {
 		private final TypeMirror m_type;
 
@@ -94,6 +96,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 		m_typeUtils = processingEnv.getTypeUtils();
 		m_elementUtils = processingEnv.getElementUtils();
 		m_messager = processingEnv.getMessager();
+		m_sourceVersion = processingEnv.getSourceVersion();
 	}
 
 	public Types getTypeUtils() {
@@ -251,6 +254,26 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 
 			m_result.add(new Property(returnType, propertyName, annotationNames));
 			return super.visitExecutable(m, p);
+		}
+	}
+
+	public SourceVersion getSourceVersion() {
+		return m_sourceVersion;
+	}
+
+	/**
+	 * Pretty dumb to use an enum to represent versions if you want to be backward compatible, so
+	 * convert the fuckup into a number.
+	 */
+	public int getUnfsckedVersionNumber() {
+		String name = getSourceVersion().name();
+		int index = name.lastIndexOf('_');
+		if(index == -1)
+			return 8;
+		try {
+			return Integer.parseInt(name.substring(index + 1));
+		} catch(Exception x) {
+			return 8;
 		}
 	}
 
