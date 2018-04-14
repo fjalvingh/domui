@@ -24,8 +24,6 @@
  */
 package to.etc.xml;
 
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -39,6 +37,7 @@ import javax.annotation.Nullable;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -989,15 +988,23 @@ public class DomTools {
 	}
 
 	static public void saveDocumentFormatted(Writer of, Document doc) throws Exception {
-		DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			OutputFormat format = new OutputFormat(doc);
-		format.setIndenting(true);
-		format.setIndent(2);
-		format.setOmitXMLDeclaration(false);
-		format.setLineWidth(Integer.MAX_VALUE);
-		XMLSerializer serializer = new XMLSerializer(of, format);
-		serializer.serialize(doc);
+		Source s = new DOMSource(doc);
+		Result r = new StreamResult(of);
+		Transformer t = TransformerFactory.newInstance().newTransformer();
+		t.setOutputProperty(OutputKeys.INDENT, "yes");
+		t.transform(s, r);
 	}
+
+//	static public void saveDocumentFormatted(Writer of, Document doc) throws Exception {
+//		DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+//		OutputFormat format = new OutputFormat(doc);
+//		format.setIndenting(true);
+//		format.setIndent(2);
+//		format.setOmitXMLDeclaration(false);
+//		format.setLineWidth(Integer.MAX_VALUE);
+//		XMLSerializer serializer = new XMLSerializer(of, format);
+//		serializer.serialize(doc);
+//	}
 
 	static public void setAttr(final Node elem, final String name, final String value) {
 		Node n = elem.getOwnerDocument().createAttribute(name);
