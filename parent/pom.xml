@@ -92,7 +92,6 @@
 
         <!-- own -->
         <!--<to.etc.logger.version>1.0</to.etc.logger.version>-->
-        <!--<to.etc.jsr305.version>1.0</to.etc.jsr305.version>-->
         <!--<to.etc.alg.version>1.0</to.etc.alg.version>-->
         <!--<to.etc.db.version>1.0</to.etc.db.version>-->
         <!--<to.etc.webapp.core.version>1.0</to.etc.webapp.core.version>-->
@@ -147,16 +146,18 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>${com.google.code.findbugs.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation -->
+            <dependency>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>org.eclipse.jdt.annotation</artifactId>
+                <version>2.1.150</version>
             </dependency>
 
             <dependency>
@@ -401,12 +402,6 @@
                 <artifactId>to.etc.logger</artifactId>
                 <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.logger.version}-SNAPSHOT</version>-->
-            </dependency>
-            <dependency>
-                <groupId>to.etc.domui</groupId>
-                <artifactId>to.etc.jsr305</artifactId>
-                <version>1.2-SNAPSHOT</version>
-                <!--<version>${to.etc.jsr305.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>

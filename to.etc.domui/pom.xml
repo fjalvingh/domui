@@ -47,9 +47,10 @@
             <groupId>to.etc.domui</groupId>
             <artifactId>to.etc.logger</artifactId>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation -->
         <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.jsr305</artifactId>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.annotation</artifactId>
         </dependency>
         <dependency>
             <groupId>to.etc.domui</groupId>

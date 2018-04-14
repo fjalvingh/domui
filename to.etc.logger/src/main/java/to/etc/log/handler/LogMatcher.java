@@ -2,6 +2,7 @@ package to.etc.log.handler;
 
 import javax.annotation.*;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.*;
 
 import to.etc.log.*;
@@ -43,6 +44,7 @@ class LogMatcher {
 		return m_level;
 	}
 
+	@Nullable
 	boolean matches(@Nonnull EtcLogEvent event) {
 		return matchesName(event.getLogger().getName()) && m_level.includes(event.getLevel());
 	}
