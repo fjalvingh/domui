@@ -21,10 +21,9 @@
 
     <properties>
         <!-- JDK properties -->
-        <source.jdk.version>1.8</source.jdk.version>
-        <target.jdk.version>1.8</target.jdk.version>
-        <ecj.version>3.13.101</ecj.version>
-        <kotlin.version>1.1.4</kotlin.version>
+        <jdk.version>9</jdk.version>
+        <ecj.version>3.13.102</ecj.version>
+        <kotlin.version>1.2.31</kotlin.version>
 
         <!-- Plugin versions -->
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
@@ -36,6 +35,7 @@
         <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
+        <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
         <plexus-compiler-eclipse.version>2.8.4</plexus-compiler-eclipse.version>
         <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
@@ -158,6 +158,12 @@
                 <groupId>org.eclipse.jdt</groupId>
                 <artifactId>org.eclipse.jdt.annotation</artifactId>
                 <version>1.1.100</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.api-client</groupId>
+                <artifactId>google-api-client</artifactId>
+                <version>1.23.0</version>
             </dependency>
 
             <dependency>
@@ -547,8 +553,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
                 </configuration>
             </plugin>
 
@@ -652,7 +658,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.20</version>
+                <version>${maven-failsafe-plugin.version}</version>
 
                 <!-- jal: pass webdriver.url to JUnit tests needing that -->
                 <configuration>
@@ -730,15 +736,18 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <compilerId>eclipse</compilerId>
-                        <source>${source.jdk.version}</source>
-                        <target>${target.jdk.version}</target>
+                        <source>${jdk.version}</source>
+                        <target>${jdk.version}</target>
                         <!-- Passing arguments is a trainwreck, see https://issues.apache.org/jira/browse/MCOMPILER-123 -->
                         <compilerArguments>
                             <properties>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</properties>
+                            <enableJavadoc></enableJavadoc>
                         </compilerArguments>
-                        <!--<compilerArgs>-->
-                        <!--<arg>-properties .settings/org.eclipse.jdt.core.prefs</arg>-->
-                        <!--</compilerArgs>-->
+                        <compilerArgs>
+                            <arg>--add-modules</arg>
+                            <arg>org.w3c.dom</arg>
+                        </compilerArgs>
+
                         <showWarnings>true</showWarnings>
                         <showDeprecation>true</showDeprecation>
                     </configuration>
@@ -758,6 +767,22 @@
                     </dependencies>
                 </plugin>
 
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jdeps-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>jdkinternals</goal> <!-- verify main classes -->
+                                <goal>test-jdkinternals</goal> <!-- verify test classes -->
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                    </configuration>
+                </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

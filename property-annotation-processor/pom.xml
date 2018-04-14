@@ -13,6 +13,8 @@
     <artifactId>property-annotations-processor</artifactId>
     <version>1.2-SNAPSHOT</version>
 
+    <name>domui :: property annotations processor</name>
+    <description>Typeful Properties annotation processor</description>
     <packaging>jar</packaging>
 
     <properties>

@@ -33,15 +33,16 @@ import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.IThemeVariant;
-import to.etc.domui.util.Constants;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -59,10 +60,9 @@ public class UrlPage extends Div {
 	@Nullable
 	private String m_pageTitle;
 
-	@Nullable
-	private INotifyPageEvent m_notifyPageEvent;
-
 	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
+
+	final private List<IWebActionListener> m_actionListeners = new ArrayList<>(1);
 
 	public UrlPage() {
 	}
@@ -219,28 +219,22 @@ public class UrlPage extends Div {
 
 	@Override
 	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
-		if(Constants.ACDM_NOTIFY_PAGE.equals(action)) {
-			handleNotifyPageCommand(ctx);
-		} else {
-			super.componentHandleWebAction(ctx, action);
+		//-- is there a listener for this?
+		for(IWebActionListener listener : m_actionListeners) {
+			if(listener.onAction(action, ctx))
+				return;
 		}
+
+		super.componentHandleWebAction(ctx, action);
 	}
 
-	private void handleNotifyPageCommand(@NonNull final IRequestContext ctx) throws Exception {
-		String command = ctx.getParameter(getActualID() + "_command");
-		INotifyPageEvent listener = getNotifyPageEvent();
-		if(null != listener) {
-			listener.execute(command);
-		}
+	public void addListener(IWebActionListener listener) {
+		m_actionListeners.add(listener);
 	}
 
-	@Nullable
-	public INotifyPageEvent getNotifyPageEvent() {
-		return m_notifyPageEvent;
+	public void removeListener(IWebActionListener listener) {
+		m_actionListeners.remove(listener);
 	}
 
-	public void setNotifyPageEvent(@NonNull INotifyPageEvent notifyPageEvent) {
-		m_notifyPageEvent = notifyPageEvent;
-	}
 }
 

@@ -13,7 +13,6 @@ import com.github.javaparser.ast.expr.NameExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.VoidType;
-import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Document;
@@ -26,6 +25,8 @@ import to.etc.util.FileTool;
 import to.etc.xml.DomTools;
 
 import javax.sql.DataSource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -317,7 +318,10 @@ abstract public class AbstractGenerator {
 			m_configDocument = DomTools.getDocument(m_configFile, false);
 			m_configRoot = DomTools.getRootElement(m_configDocument);
 		} else {
-			Document xmlDoc = m_configDocument = new DocumentImpl();
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			Document xmlDoc = docBuilder.newDocument();
+
 			m_configRoot = xmlDoc.createElement("config");
 			xmlDoc.appendChild(m_configRoot);
 		}

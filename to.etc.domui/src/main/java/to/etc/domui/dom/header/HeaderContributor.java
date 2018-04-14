@@ -66,8 +66,8 @@ abstract public class HeaderContributor {
 	abstract public boolean equals(final Object obj);
 
 	@NonNull
-	static synchronized public HeaderContributor loadJavascript(final String name) {
-		HeaderContributor c = m_jsMap.get(name);
+	static synchronized public JavascriptContributor loadJavascript(final String name) {
+		JavascriptContributor c = (JavascriptContributor) m_jsMap.get(name);
 		if(c == null) {
 			c = new JavascriptContributor(name);
 			m_jsMap.put(name, c);

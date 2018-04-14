@@ -15,4 +15,6 @@ public interface IFormLayouter {
 	void addControl(@NonNull NodeBase control, @Nullable NodeContainer lbl, @Nullable String controlCss, @Nullable String labelCss, boolean append);
 
 	void clear();
+
+	void appendAfterControl(NodeBase what);
 }

@@ -220,9 +220,18 @@ final public class UILogin {
 	/**
 	 * Logs in a user. If he was logged in before he is logged out.
 	 */
-	static public boolean login(final String userid, final String password) throws Exception {
+	static public boolean login(String userid, String password) throws Exception {
 		return UILogin.getLoginHandler().login(userid, password) == LoginResult.SUCCESS;
 	}
+
+	/**
+	 * Logs in a user that was authenticated in some other means.
+	 */
+	@Nullable
+	static public IUser login(String userid) throws Exception {
+		return UILogin.getLoginHandler().login(userid);
+	}
+
 
 	/**
 	 * Logs out a user.

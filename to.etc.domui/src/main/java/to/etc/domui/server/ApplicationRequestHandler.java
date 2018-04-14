@@ -251,7 +251,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		 */
 		String action = ctx.getParameter(Constants.PARAM_UIACTION); 			// AJAX action request?
 		String cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
-		CidPair cida = cid == null ? null : CidPair.decode(cid);
+		CidPair cida = cid == null ? null : CidPair.decodeLax(cid);
 
 		if(DomUtil.USERLOG.isDebugEnabled()) {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + cid + "\nAction=" + action + "\n");
@@ -945,8 +945,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
 		ILoginDialogFactory ldf = m_application.getLoginDialogFactory();
 		if(ldf == null)
-			throw new NotLoggedInException(sb.toString()); // Force login exception.
-		String target = ldf.getLoginRURL(sb.toString()); // Create a RURL to move to.
+			throw NotLoggedInException.create(sb.toString());				// Force login exception.
+		String target = ldf.getLoginRURL(sb.toString());				// Create a RURL to move to.
 		if(target == null)
 			throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
 

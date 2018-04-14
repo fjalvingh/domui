@@ -14,5 +14,5 @@ public interface IContributorRenderer {
 
 	void renderLoadCSS(@NonNull String path) throws Exception;
 
-	void renderLoadJavascript(@NonNull String path) throws Exception;
+	void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception;
 }

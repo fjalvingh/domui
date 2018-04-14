@@ -78,4 +78,11 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 		m_lastControlContainer = null;
 		m_lastPair = null;
 	}
+
+	@Override public void appendAfterControl(NodeBase what) {
+		Div container = m_lastControlContainer;
+		if(container == null)
+			throw new IllegalStateException("No last control known");
+		container.add(what);
+	}
 }
