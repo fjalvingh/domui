@@ -22,8 +22,8 @@
     <properties>
         <!-- JDK properties -->
         <jdk.version>1.8</jdk.version>
-        <ecj.version>3.13.101</ecj.version>
-        <kotlin.version>1.1.4</kotlin.version>
+        <ecj.version>3.13.102</ecj.version>
+        <kotlin.version>1.2.31</kotlin.version>
 
         <!-- Plugin versions -->
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
