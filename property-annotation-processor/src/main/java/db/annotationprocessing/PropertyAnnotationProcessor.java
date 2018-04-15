@@ -261,17 +261,12 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 		return m_sourceVersion;
 	}
 
-	/**
-	 * Pretty dumb to use an enum to represent versions if you want to be backward compatible, so
-	 * convert the fuckup into a number.
-	 */
 	public int getUnfsckedVersionNumber() {
-		String name = getSourceVersion().name();
-		int index = name.lastIndexOf('_');
-		if(index == -1)
+		String ver = System.getProperty("java.specification.version");
+		if(ver == null)
 			return 8;
 		try {
-			return Integer.parseInt(name.substring(index + 1));
+			return Integer.parseInt(ver);
 		} catch(Exception x) {
 			return 8;
 		}
