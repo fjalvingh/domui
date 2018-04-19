@@ -288,12 +288,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 
 		// ORDERED!!! Must be kept BELOW the OBITUARY check
-		WindowSession cm = null;
+		WindowSession windowSession = null;
 		if(cida != null) {
-			cm = ctx.getSession().findWindowSession(cida.getWindowId());
+			windowSession = ctx.getSession().findWindowSession(cida.getWindowId());
 		}
 
-		if(cm == null) {
+		if(windowSession == null) {
 			boolean nonReloadableExpiredDetected = false;
 			if(action != null) {
 				if(INotReloadablePage.class.isAssignableFrom(clz)) {
@@ -314,8 +314,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			//-- We explicitly need to create a new Window and need to send a redirect back
-			cm = ctx.getSession().createWindowSession();
-			String newmsg = "$cid: input windowid=" + cid + " not found - created wid=" + cm.getWindowID();
+			windowSession = ctx.getSession().createWindowSession();
+			String newmsg = "$cid: input windowid=" + cid + " not found - created wid=" + windowSession.getWindowID();
 			if(LOG.isDebugEnabled())
 				LOG.debug(newmsg);
 			logUser(ctx, cid, clz.getName(), newmsg);
@@ -332,7 +332,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 					HttpSession hs = srr.getRequest().getSession();
 					if(null != hs) {
-						String newid = cm.internalAttemptReload(hs, clz, PageParameters.createFrom(ctx), cida.getWindowId());
+						String newid = windowSession.internalAttemptReload(hs, clz, PageParameters.createFrom(ctx), cida.getWindowId());
 						if(newid != null)
 							conversationId = newid;
 					}
@@ -340,7 +340,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 
 			if(nonReloadableExpiredDetected) {
-				generateNonReloadableExpired(ctx, cm);
+				generateNonReloadableExpired(ctx, windowSession);
 				return;
 			}
 
@@ -350,7 +350,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
 
 				if("post".equalsIgnoreCase(srr.getRequest().getMethod()) && pp.getDataLength() > 768) {
-					redirectForPost(ctx, cm, pp);
+					redirectForPost(ctx, windowSession, pp);
 					return;
 				}
 			}
@@ -363,7 +363,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			sb.append('?');
 			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 			sb.append('=');
-			sb.append(cm.getWindowID());
+			sb.append(windowSession.getWindowID());
 			sb.append(".").append(conversationId);
 			DomUtil.addUrlParameters(sb, ctx, false);
 			generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
@@ -375,13 +375,14 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 		if(cida == null)
 			throw new IllegalStateException("Cannot happen: cida is null??");
+		String conversationId = cida.getConversationId();
 
 		/*
 		 * Attempt to fix etc.to bugzilla bug# 3183: IE7 sends events out of order. If an action arrives for an earlier-destroyed
 		 * conversation just ignore it, and send an empty response to ie, hopefully causing it to die soon.
 		 */
 		if(action != null) {
-			if(cm.isConversationDestroyed(cida.getConversationId())) {		// This conversation was recently destroyed?
+			if(windowSession.isConversationDestroyed(conversationId)) {		// This conversation was recently destroyed?
 				//-- Render a null response
 				String msg = "Session " + cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back";
 				if(LOG.isDebugEnabled())
@@ -393,8 +394,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 		}
 
-		ctx.internalSetWindowSession(cm);
-		cm.clearGoto();
+		ctx.internalSetWindowSession(windowSession);
+		windowSession.clearGoto();
 
 		/*
 		 * Determine if this is an AJAX request or a normal "URL" request. If it is a non-AJAX
@@ -408,9 +409,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			//-- If this request is a huge post request - get the huge post parameters.
 			String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
 			if(null != hpq) {
-				ConversationContext coco = cm.findConversation(cida.getConversationId());
+				ConversationContext coco = windowSession.findConversation(conversationId);
 				if(null == coco)
-					throw new IllegalStateException("The conversation " + cida.getConversationId() + " containing POST data is missing in windowSession " + cm);
+					throw new IllegalStateException("The conversation " + conversationId + " containing POST data is missing in windowSession " + windowSession);
 
 				papa = (PageParameters) coco.getAttribute("__ORIPP");
 				if(null == papa)
@@ -418,12 +419,12 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			}
 		}
 
-		Page page = cm.tryToMakeOrGetPage(ctx, clz, papa, action);
+		Page page = windowSession.tryToMakeOrGetPage(ctx, conversationId, clz, papa, action);
 		if(page != null) {
 			page.getConversation().mergePersistentParameters(ctx);
 			page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
 			page.internalIncrementRequestCounter();
-			cm.internalSetLastPage(page);
+			windowSession.internalSetLastPage(page);
 			if(DomUtil.USERLOG.isDebugEnabled()) {
 				DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + cid);
 			}
@@ -485,7 +486,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
 		List<NodeBase> pendingChangeList = Collections.emptyList();
-		if(!Constants.ACMD_ASYPOLL.equals(action)) {
+		if(!Constants.ACMD_ASYPOLL.equals(action) && action != null) {
 			long ts = System.nanoTime();
 			pendingChangeList = handleComponentInput(ctx, page); // Move all request parameters to their input field(s)
 			if(LOG.isDebugEnabled()) {
@@ -532,7 +533,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			 * user to check it's rights against the page's required rights.
 			 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
 			 */
-			if(!checkAccess(cm, ctx, page))
+			if(!checkAccess(windowSession, ctx, page))
 				return;
 
 			m_application.internalCallPageFullRender(ctx, page);
@@ -547,7 +548,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			page.internalFullBuild();                            // Cause full build
 
 			//-- EXPERIMENTAL Handle stored messages in session
-			List<UIMessage> ml = (List<UIMessage>) cm.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
+			List<UIMessage> ml = (List<UIMessage>) windowSession.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
 			if(ml != null) {
 				if(ml.size() > 0) {
 					page.getBody().build();
@@ -560,11 +561,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 						mf.setTestID("SingleShotMsg");
 					}
 				}
-				cm.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
+				windowSession.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
 			}
 			page.callRequestStarted();
 
-			List<IGotoAction> al = (List<IGotoAction>) cm.getAttribute(UIGoto.PAGE_ACTION);
+			List<IGotoAction> al = (List<IGotoAction>) windowSession.getAttribute(UIGoto.PAGE_ACTION);
 			if(al != null && al.size() > 0) {
 				page.getBody().build();
 				for(IGotoAction ga : al) {
@@ -572,7 +573,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 						DomUtil.USERLOG.debug(cid + ": page reload action = " + ga);
 					ga.executeAction(page.getBody());
 				}
-				cm.setAttribute(UIGoto.PAGE_ACTION, null);
+				windowSession.setAttribute(UIGoto.PAGE_ACTION, null);
 			}
 
 			m_application.internalCallPageComplete(ctx, page);
@@ -593,7 +594,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			hr.render(ctx, page);
 
 			//-- 20100408 jal If an UIGoto was done in createContent handle that
-			if(cm.handleGoto(ctx, page, false))
+			if(windowSession.handleGoto(ctx, page, false))
 				return;
 		} catch(SessionInvalidException x) {
 			//-- Mid-air collision between logout and some other action..
@@ -638,7 +639,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 			IExceptionListener xl = ctx.getApplication().findExceptionListenerFor(x);
 			if(xl != null && xl.handleException(ctx, page, null, x)) {
-				if(cm.handleExceptionGoto(ctx, page, false)) {
+				if(windowSession.handleExceptionGoto(ctx, page, false)) {
 					AppSession aps = ctx.getSession();
 					if(aps.incrementExceptionCount() > 10) {
 						aps.clearExceptionRetryCount();
