@@ -992,6 +992,9 @@ public class DomTools {
 		Result r = new StreamResult(of);
 		Transformer t = TransformerFactory.newInstance().newTransformer();
 		t.setOutputProperty(OutputKeys.INDENT, "yes");
+		t.setOutputProperty(OutputKeys.METHOD, "xml");
+		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
 		t.transform(s, r);
 	}
 
