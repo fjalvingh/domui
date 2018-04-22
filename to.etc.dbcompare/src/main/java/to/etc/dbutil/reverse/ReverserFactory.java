@@ -1,8 +1,7 @@
 package to.etc.dbutil.reverse;
 
-import java.sql.*;
-
-import javax.sql.*;
+import javax.sql.DataSource;
+import java.sql.DatabaseMetaData;
 
 
 public interface ReverserFactory {

@@ -36,13 +36,12 @@ import java.util.Set;
 public class JDBCReverser implements Reverser {
 	private DataSource m_ds;
 
-	private DatabaseMetaData m_dmd;
+//	private DatabaseMetaData m_dmd;
 
 	private Set<DbSchema> m_schemaSet = new HashSet<>();
 
-	public JDBCReverser(DataSource dbc, DatabaseMetaData dmd) {
+	public JDBCReverser(DataSource dbc) {
 		m_ds = dbc;
-		m_dmd = dmd;
 	}
 
 	@Override
@@ -73,7 +72,6 @@ public class JDBCReverser implements Reverser {
 				throw new IllegalStateException("Schema name not known");
 
 			DbSchema schema = new DbSchema(this, name);
-			m_dmd = dbc.getMetaData();
 			Set<DbSchema> schemaSet = m_schemaSet;
 			schemaSet.clear();
 			schemaSet.add(schema);
@@ -105,9 +103,9 @@ public class JDBCReverser implements Reverser {
 
 	@Override public Set<DbSchema> getSchemas(boolean lazily) throws Exception {
 		try(Connection dbc = m_ds.getConnection()) {
-			m_dmd = dbc.getMetaData();
+			DatabaseMetaData dmd = dbc.getMetaData();
 			List<String> names = new ArrayList<>();
-			try(ResultSet rs = m_dmd.getSchemas()) {
+			try(ResultSet rs = dmd.getSchemas()) {
 				while(rs.next()) {
 					String name = rs.getString("TABLE_SCHEM");
 					names.add(name);
@@ -121,8 +119,6 @@ public class JDBCReverser implements Reverser {
 
 	public Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaNames, boolean lazily) throws Exception {
 		try(Connection dbc = m_ds.getConnection()) {
-			m_dmd = dbc.getMetaData();
-
 			//-- Create the set of schema's
 			Set<DbSchema> schemaSet = m_schemaSet = new HashSet<>();
 			for(String schemaName : schemaNames) {
@@ -234,7 +230,7 @@ public class JDBCReverser implements Reverser {
 	protected void reverseTables(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
 		ResultSet rs = null;
 		try {
-			rs = m_dmd.getTables(null, null, null, new String[]{"TABLE"});
+			rs = dbc.getMetaData().getTables(null, null, null, new String[]{"TABLE"});
 			int count = 0;
 			while(rs.next()) {
 				if(isValidTable(rs)) {
@@ -263,7 +259,7 @@ public class JDBCReverser implements Reverser {
 		Map<String, DbColumn> columnMap = new HashMap<String, DbColumn>();
 
 		try {
-			rs = m_dmd.getColumns(null, t.getSchema().getName(), t.getName(), null); // All columns in the schema.
+			rs = dbc.getMetaData().getColumns(null, t.getSchema().getName(), t.getName(), null); // All columns in the schema.
 			int lastord = -1;
 			while(rs.next()) {
 				String name = rs.getString("COLUMN_NAME");
@@ -329,7 +325,7 @@ public class JDBCReverser implements Reverser {
 		ResultSet rs = null;
 		Map<String, DbIndex> indexMap = new HashMap<String, DbIndex>();
 		try {
-			rs = m_dmd.getIndexInfo(null, t.getSchema().getName(), t.getName(), false, true);
+			rs = dbc.getMetaData().getIndexInfo(null, t.getSchema().getName(), t.getName(), false, true);
 			int lastord = -1;
 			String lastindex = null;
 			DbIndex ix = null;
@@ -385,7 +381,7 @@ public class JDBCReverser implements Reverser {
 		ResultSet rs = null;
 		List<DbColumn> pkl = new ArrayList<DbColumn>(); // Stupid resultset is ordered by NAME instead of ordinal. Dumbfuckers.
 		try {
-			rs = m_dmd.getPrimaryKeys(null, t.getSchema().getName(), t.getName());
+			rs = dbc.getMetaData().getPrimaryKeys(null, t.getSchema().getName(), t.getName());
 			DbPrimaryKey pk = null;
 			String name = null;
 			while(rs.next()) {
@@ -431,7 +427,7 @@ public class JDBCReverser implements Reverser {
 		ResultSet rs = null;
 		try {
 			String name = null;
-			rs = m_dmd.getExportedKeys(null, t.getSchema().getName(), t.getName());
+			rs = dbc.getMetaData().getExportedKeys(null, t.getSchema().getName(), t.getName());
 			int lastord = -1;
 			DbRelation rel = null;
 			while(rs.next()) {
@@ -503,7 +499,7 @@ public class JDBCReverser implements Reverser {
 		ResultSet rs = null;
 		try {
 			String name = null;
-			rs = m_dmd.getExportedKeys(null, t.getSchema().getName(), t.getName());
+			rs = dbc.getMetaData().getExportedKeys(null, t.getSchema().getName(), t.getName());
 			int lastord = -1;
 			DbRelation rel = null;
 			while(rs.next()) {

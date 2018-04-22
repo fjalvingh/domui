@@ -15,25 +15,19 @@ public class ReverserRegistry {
 		m_factories.add(f);
 	}
 
-	static public synchronized Reverser findReverser(DataSource dbc) throws Exception {
-		DatabaseMetaData dmd = getMetaData(dbc);
-		for(ReverserFactory f : m_factories) {
-			try {
-				Reverser r = f.createReverser(dbc, dmd);
-				if(r != null)
-					return r;
-			} catch(Exception x) {}
+	static public synchronized Reverser findReverser(DataSource ds) throws Exception {
+		try(Connection dbc = ds.getConnection()) {
+			DatabaseMetaData dmd = dbc.getMetaData();
+			for(ReverserFactory f : m_factories) {
+				try {
+					Reverser r = f.createReverser(ds, dmd);
+					if(r != null)
+						return r;
+				} catch(Exception x) {
+				}
+			}
 		}
-		return new JDBCReverser(dbc, dmd);
-	}
-
-	static public DatabaseMetaData getMetaData(DataSource ds) throws Exception {
-		Connection dbc = ds.getConnection();
-		try {
-			return dbc.getMetaData();
-		} finally {
-			FileTool.closeAll(dbc);
-		}
+		return new JDBCReverser(ds);
 	}
 
 	static {
@@ -44,7 +38,7 @@ public class ReverserRegistry {
 			@Override
 			public Reverser createReverser(DataSource dbc, DatabaseMetaData dmd) throws Exception {
 				if(dmd.getDatabaseProductName().toLowerCase().contains("oracle"))
-					return new OracleReverser(dbc, dmd);
+					return new OracleReverser(dbc);
 				return null;
 			}
 
@@ -54,7 +48,7 @@ public class ReverserRegistry {
 			@Override
 			public Reverser createReverser(DataSource dbc, DatabaseMetaData dmd) throws Exception {
 				if(dmd.getDatabaseProductName().toLowerCase().contains("postgres"))
-					return new PostgresReverser(dbc, dmd);
+					return new PostgresReverser(dbc);
 				return null;
 			}
 		});
