@@ -244,6 +244,16 @@ public class DbColumn implements Serializable {
 				val = rs.getString(ix);
 				break;
 
+			case Types.CLOB:
+			case Types.BLOB:
+			case Types.LONGNVARCHAR:
+			case Types.LONGVARBINARY:
+			case Types.LONGVARCHAR:
+			case Types.BINARY:
+				val = "(lob)";
+				break;
+
+
 			case Types.DATE:
 			case Types.TIMESTAMP:
 				val = rs.getTimestamp(ix);

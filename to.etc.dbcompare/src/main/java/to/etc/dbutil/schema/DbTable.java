@@ -202,7 +202,7 @@ public class DbTable implements Serializable {
 			PreparedStatement ps = null;
 			ResultSet rs = null;
 			try {
-				ps = db.dbc().prepareStatement("select count(*) from " + m_name);
+				ps = db.dbc().prepareStatement("select count(*) from " + getFullName());
 				rs = ps.executeQuery();
 				if(!rs.next())
 					throw new SQLException("Cannot get table row count");
@@ -222,6 +222,10 @@ public class DbTable implements Serializable {
 		return m_recordCount;
 	}
 
+	private String getFullName() {
+		return "\"" + getSchema().getName() + "\".\"" + getName() + "\"";
+	}
+
 	public long getRecordCount() throws Exception {
 		synchronized(r()) {
 			if(!m_gotRecordCount) {
@@ -231,7 +235,9 @@ public class DbTable implements Serializable {
 						PreparedStatement ps = null;
 						ResultSet rs = null;
 						try {
-							ps = dbc.prepareStatement("select count(*) from " + m_name);
+							String name = getSchema().getName() + "." + m_name;
+
+							ps = dbc.prepareStatement("select count(*) from " + getFullName());
 							rs = ps.executeQuery();
 							if(!rs.next())
 								throw new SQLException("Cannot get table row count");

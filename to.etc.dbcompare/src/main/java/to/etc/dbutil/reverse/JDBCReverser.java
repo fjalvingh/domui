@@ -60,6 +60,10 @@ public class JDBCReverser implements Reverser {
 		}
 	}
 
+	@Override public String getDefaultSchemaName() throws Exception {
+		return "PUBLIC";
+	}
+
 	@Override
 	public DbSchema loadSchema(@Nullable String name, boolean lazily) throws Exception {
 		Connection dbc = m_ds.getConnection();
@@ -96,6 +100,22 @@ public class JDBCReverser implements Reverser {
 			return schema;
 		} finally {
 			FileTool.closeAll(dbc);
+		}
+	}
+
+	@Override public Set<DbSchema> getSchemas(boolean lazily) throws Exception {
+		try(Connection dbc = m_ds.getConnection()) {
+			m_dmd = dbc.getMetaData();
+			List<String> names = new ArrayList<>();
+			try(ResultSet rs = m_dmd.getSchemas()) {
+				while(rs.next()) {
+					String name = rs.getString("TABLE_SCHEM");
+					names.add(name);
+				}
+			}
+
+			//-- Now load the schema sets
+			return loadSchemaSet(names, lazily);
 		}
 	}
 
@@ -634,6 +654,10 @@ public class JDBCReverser implements Reverser {
 
 	public boolean isOracleLimitSyntaxDisaster() {
 		return false;
+	}
+
+	protected DataSource getDataSource() {
+		return m_ds;
 	}
 
 	protected void log(String what) {
