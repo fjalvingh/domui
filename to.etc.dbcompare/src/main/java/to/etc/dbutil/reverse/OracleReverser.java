@@ -100,7 +100,7 @@ public class OracleReverser extends JDBCReverser {
 					+ " where 1=1 "+extrawhere+" order by c.table_name, c.column_id"
 			);
 			if(null != tablename)
-				ps.setString(2, tablename);
+				ps.setString(1, tablename);
 			rs = ps.executeQuery();
 			String last = "";
 			DbTable t = null;
