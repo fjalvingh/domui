@@ -36,6 +36,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.ConversationContext.ConversationState;
+import to.etc.domui.trouble.NotLoggedInException;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
@@ -1104,7 +1105,7 @@ final public class WindowSession {
 			for(SavedPage sp : list) {
 				try {
 					//-- 1. Load the class by name.
-					Class< ? extends UrlPage> clz = m_appSession.getApplication().loadPageClass(sp.getClassName());
+					Class<? extends UrlPage> clz = m_appSession.getApplication().loadPageClass(sp.getClassName());
 
 					//-- 2. Insert @ location [0]
 					Page pg = insertShelveEntryMain(0, clz, sp.getParameters());
@@ -1113,6 +1114,8 @@ final public class WindowSession {
 						if(null != cc)
 							conversationId = cc.getId();
 					}
+				} catch(NotLoggedInException x) {
+					System.err.println("domui: developer page reload failed because a login is needed");
 				} catch(Exception x) {
 					System.err.println("domui: developer page reload failed: " + x);
 					x.printStackTrace();

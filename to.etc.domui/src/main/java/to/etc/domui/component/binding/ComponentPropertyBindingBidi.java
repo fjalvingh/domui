@@ -119,7 +119,7 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 				controlModelValue = converter.controlToModel(controlValue);
 			}
 			m_lastValueFromControlAsModelValue = controlModelValue;
-			System.out.println(this + ": diff - control value = " + controlValue);
+//			System.out.println(this + ": diff - control value = " + controlValue);
 			m_bindError = null;
 		} catch(CodeException cx) {
 			controlModelValue = null;
@@ -130,7 +130,7 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 			if(!newError.equals(control.getMessage())) {
 				m_bindError = newError;
 			}
-			System.out.println(this + ": diff - exception " + cx.toString());
+//			System.out.println(this + ": diff - exception " + cx.toString());
 
 			//System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
 		}
