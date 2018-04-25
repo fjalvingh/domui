@@ -14,5 +14,5 @@ public interface IImportRow {
 	IImportColumn get(int index);
 
 	@Nonnull
-	IImportColumn get(String name) throws IOException;
+	IImportColumn get(@Nonnull String name) throws IOException;
 }
