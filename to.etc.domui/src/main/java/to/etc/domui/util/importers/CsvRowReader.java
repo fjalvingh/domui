@@ -3,6 +3,7 @@ package to.etc.domui.util.importers;
 import org.jetbrains.annotations.NotNull;
 import to.etc.util.WrappedException;
 
+import javax.annotation.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -31,7 +32,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	private List<String> m_columns = new ArrayList<>();
 
-	private List<String> m_headers = new ArrayList<>();
+	@Nullable
+	private IImportRow m_headerRow;
 
 	private int m_fieldSeparator = ',';
 
@@ -102,7 +104,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			m_headerRead = true;
 			if(! readRecordPrimitive())
 				return false;
-			m_headers.addAll(m_columns);
+			m_headerRow = new CsvImportRow(this, m_columns);
 			m_columns.clear();
 		}
 		return readRecordPrimitive();
@@ -243,7 +245,20 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 
 	@Override public IImportRow getHeaderRow() {
-		return null;
+		if(! m_headerRead)
+			throw new RuntimeException("No header row read");
+		return m_headerRow;
+	}
+
+	public int getColumnIndex(String name) {
+		IImportRow row = getHeaderRow();
+		for(int i = row.getColumnCount(); --i >= 0;) {
+			String s = row.get(i).getStringValue();
+			if(name.equalsIgnoreCase(s)) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	@Override public int getSetCount() {
@@ -345,7 +360,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 				try {
 					m_nextAvailable = readRecord();
 					if(m_nextAvailable) {
-						m_row = new CsvImportRow(m_columns);
+						m_row = new CsvImportRow(CsvRowReader.this, m_columns);
 					}
 				} catch(IOException x) {
 					throw new WrappedException(x);					// Morons.
