@@ -989,7 +989,7 @@ final public class MetaManager {
 	@Deprecated
 	@Nonnull
 	static public <X, T extends Collection<X>> List<X> filter(@Nonnull T in, @Nonnull QCriteria<X> query) throws Exception {
-		return filter(in, query);
+		return query(in, query);
 	}
 
 	/**
