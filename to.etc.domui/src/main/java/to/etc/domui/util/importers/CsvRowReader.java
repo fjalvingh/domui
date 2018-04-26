@@ -39,6 +39,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	@Nullable
 	private IImportRow m_headerRow;
 
+	private final List<String> m_headerNames = new ArrayList<>();
+
 	private int m_fieldSeparator = ',';
 
 	private int m_lastChar = -1;
@@ -105,13 +107,23 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	public boolean readRecord() throws IOException {
 		if(m_hasHeaderRow && ! m_headerRead) {
-			m_headerRead = true;
-			if(! readRecordPrimitive())
+			if(!readHeader())
 				return false;
-			m_headerRow = new CsvImportRow(this, m_columns);
-			m_columns.clear();
 		}
 		return readRecordPrimitive();
+	}
+
+	private boolean readHeader() throws IOException {
+		if(! m_hasHeaderRow || m_headerRead)
+			return true;
+
+		m_headerRead = true;
+		if(! readRecordPrimitive())
+			return false;
+		m_headerRow = new CsvImportRow(this, m_columns);
+		m_headerNames.addAll(m_columns);
+		m_columns.clear();
+		return true;
 	}
 
 	public boolean readRecordPrimitive() throws IOException {
@@ -249,21 +261,19 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 
 	@Nullable
-	@Override public IImportRow getHeaderRow() {
+	@Override public IImportRow getHeaderRow() throws IOException {
 		if(! m_hasHeaderRow)
 			return null;
-
-		if(! m_headerRead)
-			throw new RuntimeException("No header row read");
+		if(! readHeader()) {
+			return null;
+		}
 		return m_headerRow;
 	}
 
-	public int getColumnIndex(String name) {
-		IImportRow row = getHeaderRow();
-		if(null == row)
-			return -1;
-		for(int i = row.getColumnCount(); --i >= 0;) {
-			String s = row.get(i).getStringValue();
+	public int getColumnIndex(String name) throws IOException {
+		readHeader();
+		for(int i = m_headerNames.size(); --i >= 0;) {
+			String s = m_headerNames.get(i);
 			if(name.equalsIgnoreCase(s)) {
 				return i;
 			}
@@ -272,13 +282,11 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	}
 
 	@Nullable
-	public String getColumnName(int index) {
-		IImportRow row = getHeaderRow();
-		if(null == row)
+	public String getColumnName(int index) throws IOException {
+		readHeader();
+		if(index <= 0 || index >= m_headerNames.size())
 			return null;
-		if(index <= 0 || index >= row.getColumnCount())
-			return null;
-		return row.get(index).getStringValue();
+		return m_headerNames.get(index);
 	}
 
 	@Override public int getSetCount() {

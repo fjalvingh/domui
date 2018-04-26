@@ -12,7 +12,7 @@ public interface IImportRow {
 	int getColumnCount();
 
 	@NonNull
-	IImportColumn get(int index);
+	IImportColumn get(int index) throws IOException;
 
 	@NonNull
 	IImportColumn get(@NonNull String name) throws IOException;

@@ -8,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.util.exporters.ExcelFormat;
 import to.etc.util.FileTool;
+import to.etc.util.WrappedException;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -59,7 +60,11 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	@NonNull @Override public Iterator<IImportRow> iterator() {
 		checkStart();
 		Sheet sheet = getSheet();
-		return new RowIterator(sheet, sheet.getFirstRowNum() + m_headerRowCount, getCurrentHeaderNames());
+		try {
+			return new RowIterator(sheet, sheet.getFirstRowNum() + m_headerRowCount, getCurrentHeaderNames());
+		} catch(IOException ix) {
+			throw WrappedException.wrap(ix);				// morons
+		}
 	}
 
 	@Override public IImportRow getHeaderRow() {
@@ -115,7 +120,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	 * and returns a list of header names indexed by column index. If no header names are available
 	 * this returns the empty list.
 	 */
-	private List<String> getCurrentHeaderNames() {
+	private List<String> getCurrentHeaderNames() throws IOException {
 		if(m_headerRowCount <= 0) {
 			return Collections.emptyList();
 		}

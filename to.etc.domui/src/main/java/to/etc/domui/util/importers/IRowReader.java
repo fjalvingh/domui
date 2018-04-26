@@ -10,7 +10,7 @@ import java.io.IOException;
  */
 public interface IRowReader extends Iterable<IImportRow>, AutoCloseable {
 	@Nullable
-	IImportRow getHeaderRow();
+	IImportRow getHeaderRow() throws IOException;
 
 	int getSetCount();
 

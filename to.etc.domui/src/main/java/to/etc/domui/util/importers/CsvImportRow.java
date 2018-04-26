@@ -30,7 +30,7 @@ public class CsvImportRow implements IImportRow {
 		return m_columns.size();
 	}
 
-	@Override public IImportColumn get(int index) {
+	@Override public IImportColumn get(int index) throws IOException {
 		if(index < 0 || index >= m_columns.size())
 			throw new IllegalStateException("Column index invalid: must be between 0 and " + m_columns.size());
 		while(index >= m_colWrappers.size()) {
