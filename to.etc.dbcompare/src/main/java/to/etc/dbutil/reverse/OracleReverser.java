@@ -41,8 +41,8 @@ import java.util.Set;
  * Created on Nov 14, 2007
  */
 public class OracleReverser extends JDBCReverser {
-	public OracleReverser(DataSource dbc, DatabaseMetaData dmd) {
-		super(dbc, dmd);
+	public OracleReverser(DataSource dbc) {
+		super(dbc);
 	}
 
 	@Override
@@ -78,6 +78,19 @@ public class OracleReverser extends JDBCReverser {
 	}
 
 	/**
+	 * Use the name of the user as the default schema name.
+	 */
+	@Override public String getDefaultSchemaName() throws Exception {
+		try(Connection dbc = getDataSource().getConnection();
+			PreparedStatement ps = dbc.prepareStatement("select user from dual");
+			ResultSet rs = ps.executeQuery()) {
+			if(rs.next())
+				return rs.getString(1);
+			return "SYSTEM";
+		}
+	}
+
+	/**
 	 * Override column reverser because crap oracle driver does not properly return column lengths.
 	 */
 	@Override
@@ -100,7 +113,7 @@ public class OracleReverser extends JDBCReverser {
 					+ " where 1=1 "+extrawhere+" order by c.table_name, c.column_id"
 			);
 			if(null != tablename)
-				ps.setString(2, tablename);
+				ps.setString(1, tablename);
 			rs = ps.executeQuery();
 			String last = "";
 			DbTable t = null;

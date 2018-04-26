@@ -62,10 +62,11 @@ final public class LookupInput2<T> extends LookupInputBase2<T, T> {
 		super(new SameTypeModelFactory<T>(), lookupClass, lookupClass, metaModel, metaModel);
 	}
 
-//	public LookupInput(@NonNull Class<T> lookupClass, @NonNull String... resultColumns) {
-//		super(lookupClass, lookupClass, resultColumns);
-//	}
-//
+	public LookupInput2(@NonNull Class<T> lookupClass, @NonNull String... resultColumns) {
+		this(lookupClass);
+		setValueColumns(resultColumns);
+	}
+
 	public LookupInput2(@NonNull Class<T> lookupClass) {
 		super(new SameTypeModelFactory<T>(), lookupClass, lookupClass);
 	}

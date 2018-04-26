@@ -1,15 +1,18 @@
 package to.etc.dbutil.reverse;
 
-import java.sql.*;
-import java.util.*;
+import to.etc.dbutil.schema.ColumnType;
+import to.etc.dbutil.schema.DbColumn;
 
-import javax.sql.*;
-
-import to.etc.dbutil.schema.*;
+import javax.sql.DataSource;
+import java.util.List;
 
 public class PostgresReverser extends JDBCReverser {
-	public PostgresReverser(DataSource dbc, DatabaseMetaData dmd) {
-		super(dbc, dmd);
+	public PostgresReverser(DataSource dbc) {
+		super(dbc);
+	}
+
+	@Override public String getDefaultSchemaName() throws Exception {
+		return "public";
 	}
 
 	@Override

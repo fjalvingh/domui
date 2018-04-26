@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Date;
 
 public class DbColumn implements Serializable {
 	private final Boolean m_autoIncrement;
@@ -244,9 +245,20 @@ public class DbColumn implements Serializable {
 				val = rs.getString(ix);
 				break;
 
+			case Types.CLOB:
+			case Types.BLOB:
+			case Types.LONGNVARCHAR:
+			case Types.LONGVARBINARY:
+			case Types.LONGVARCHAR:
+			case Types.BINARY:
+				val = "(lob)";
+				break;
+
+
 			case Types.DATE:
 			case Types.TIMESTAMP:
-				val = rs.getTimestamp(ix);
+				Timestamp ts = rs.getTimestamp(ix);
+				val = ts == null ? null : new Date(ts.getTime());
 				break;
 
 			case Types.BOOLEAN:

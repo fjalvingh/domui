@@ -332,6 +332,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 					HttpSession hs = srr.getRequest().getSession();
 					if(null != hs) {
+						ctx.internalSetWindowSession(windowSession);			// Should prevent issues when reloading
+
 						String newid = windowSession.internalAttemptReload(hs, clz, PageParameters.createFrom(ctx), cida.getWindowId());
 						if(newid != null)
 							conversationId = newid;

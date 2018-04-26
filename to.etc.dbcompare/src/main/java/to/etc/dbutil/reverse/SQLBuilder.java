@@ -260,7 +260,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 		}
 		sb.append(" from ");
 
-		sb.append(m_root.getTable().getSchema().getName()).append(".").append(m_root.getTable().getName());
+		sb.append("\"").append(m_root.getTable().getSchema().getName()).append("\".\"").append(m_root.getTable().getName()).append("\"");
 		sb.append(" ");
 		sb.append(m_root.getAlias());
 

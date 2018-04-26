@@ -21,7 +21,11 @@ import java.util.Set;
 public interface Reverser {
 	@NonNull String getIdent();
 
+	@NonNull String getDefaultSchemaName() throws Exception;
+
 	@NonNull DbSchema loadSchema(@Nullable String schemaName, boolean lazily) throws Exception;
+
+	@NonNull Set<DbSchema> getSchemas(boolean lazily) throws Exception;
 
 	@NonNull Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaName, boolean lazily) throws Exception;
 
