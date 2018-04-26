@@ -252,6 +252,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	@Override
 	public void createContent() throws Exception {
+		if(m_currentBuilder != null)
+			throw new IllegalStateException(this + ": The builder " + m_currentBuilder + " has not yet been finished");
+
 		//if(isSearchFilterEnabled()) {
 		//	addFilterButton();
 		//	loadSearchQueries();

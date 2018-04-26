@@ -34,10 +34,9 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 
 	private Sheet m_currentSheet;
 
-	/** When set the first row read from a dataset is treated as a header row. */
-	private boolean m_hasHeaderRow = true;
-
 	private long m_progressIndicator;
+
+	private int m_headerRowCount;
 
 	public ExcelRowReader(File file) throws Exception {
 		String suffix = FileTool.getFileExtension(file.getName());
@@ -60,17 +59,13 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	@NonNull @Override public Iterator<IImportRow> iterator() {
 		checkStart();
 		Sheet sheet = getSheet();
-		if(m_hasHeaderRow) {
-			return new RowIterator(sheet, sheet.getFirstRowNum() + 1, getCurrentHeaderNames());
-		} else {
-			return new RowIterator(sheet, sheet.getFirstRowNum(), getCurrentHeaderNames());
-		}
+		return new RowIterator(sheet, sheet.getFirstRowNum() + m_headerRowCount, getCurrentHeaderNames());
 	}
 
 	@Override public IImportRow getHeaderRow() {
-		if(! m_hasHeaderRow)
+		if(m_headerRowCount <= 0)
 			throw new IllegalStateException("You cannot ask for a header row when hasHeaderRow is false");
-		return new ExcelImportRow(getSheet().getRow(getSheet().getFirstRowNum()), Collections.emptyList());
+		return new ExcelImportRow(getSheet().getRow(getSheet().getFirstRowNum() + m_headerRowCount - 1), Collections.emptyList());
 	}
 
 	private void checkStart() {
@@ -106,13 +101,22 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		}
 	}
 
+	public List<IDatasetInfo> getSets() {
+		List<IDatasetInfo> res = new ArrayList<>();
+		for(int i = 0; i < getSetCount(); i++) {
+			Sheet sheet = m_workbook.getSheetAt(i);
+			res.add(new ExcelSheet(sheet.getSheetName(), i));
+		}
+		return res;
+	}
+
 	/**
 	 * If the current sheet has a header (as defined with hasHeader) then this reads that 1st row
 	 * and returns a list of header names indexed by column index. If no header names are available
 	 * this returns the empty list.
 	 */
 	private List<String> getCurrentHeaderNames() {
-		if(! m_hasHeaderRow) {
+		if(m_headerRowCount <= 0) {
 			return Collections.emptyList();
 		}
 		IImportRow row = getHeaderRow();
@@ -150,12 +154,16 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		}
 	}
 
-	public boolean isHasHeaderRow() {
-		return m_hasHeaderRow;
+	@Override public void setHasHeaderRow(boolean hasHeaderRow) {
+		setHeaderRowCount(hasHeaderRow ? 1 : 0);
 	}
 
-	@Override public void setHasHeaderRow(boolean hasHeaderRow) {
-		m_hasHeaderRow = hasHeaderRow;
+	public void setHeaderRowCount(int count) {
+		m_headerRowCount = count;
+	}
+
+	public int getHeaderRowCount() {
+		return m_headerRowCount;
 	}
 
 	private class RowIterator implements Iterator<IImportRow> {
@@ -189,7 +197,43 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 				throw new IllegalStateException("Calling next() after hasNext() returned false");
 			Row row = m_sheet.getRow(m_nextRow++);
 			m_progressIndicator++;
+			if(null == row)
+				return new EmptyRow();
 			return new ExcelImportRow(row, m_headerNames);
 		}
 	}
+
+	static private class ExcelSheet implements IDatasetInfo {
+		private final String m_name;
+
+		private final int m_index;
+
+		public ExcelSheet(String name, int index) {
+			m_name = name;
+			m_index = index;
+		}
+
+		@Override public String getName() {
+			return m_name;
+		}
+
+		@Override public int getIndex() {
+			return m_index;
+		}
+	}
+
+	private static class EmptyRow implements IImportRow {
+		@Override public int getColumnCount() {
+			return 0;
+		}
+
+		@NonNull @Override public IImportColumn get(int index) {
+			return new EmptyColumn("Column" + index);
+		}
+
+		@NonNull @Override public IImportColumn get(@NonNull String name) throws IOException {
+			return new EmptyColumn(name);
+		}
+	}
+
 }

@@ -1,7 +1,9 @@
 package to.etc.domui.util.importers;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,8 +17,11 @@ public class CsvImportRow implements IImportRow {
 
 	private final List<IImportColumn> m_colWrappers = new ArrayList<>();
 
-	public CsvImportRow(List<String> columns) {
+	private final CsvRowReader m_reader;
+
+	public CsvImportRow(CsvRowReader reader, List<String> columns) {
 		m_columns = new ArrayList<>(columns);
+		m_reader = reader;
 	}
 
 	@Override public int getColumnCount() {
@@ -30,6 +35,13 @@ public class CsvImportRow implements IImportRow {
 			m_colWrappers.add(new Col(m_colWrappers.size()));
 		}
 		return m_colWrappers.get(index);
+	}
+
+	@NonNull @Override public IImportColumn get(String name) throws IOException {
+		int index = m_reader.getColumnIndex(name);
+		if(index == -1)
+			throw new IOException("The column with the name '" + name + "' does not exist");
+		return get(index);
 	}
 
 	private class Col extends AbstractImportColumn implements IImportColumn {
