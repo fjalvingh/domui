@@ -23,4 +23,8 @@ class EmptyColumn extends AbstractImportColumn implements IImportColumn {
 	@Override public Date asDate() {
 		return null;
 	}
+
+	@Override public String getName() {
+		return m_name;
+	}
 }

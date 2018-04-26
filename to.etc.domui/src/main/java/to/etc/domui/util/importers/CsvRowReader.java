@@ -1,5 +1,6 @@
 package to.etc.domui.util.importers;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import to.etc.util.WrappedException;
@@ -10,14 +11,17 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-12-17.
  */
+@NonNullByDefault
 public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImportRow> {
 	static private int MAXBUF = 10;
 
+	@Nullable
 	private Reader m_r;
 
 	private boolean m_eof;
@@ -87,7 +91,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	private int accept() throws IOException {
 		if(m_eof)
 			return -1;
-		int c = m_r.read();
+		int c = Objects.requireNonNull(m_r).read();
 		if(c == -1) {
 			m_eof = true;
 			m_lastChar = -1;
@@ -244,7 +248,11 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	}
 
 
+	@Nullable
 	@Override public IImportRow getHeaderRow() {
+		if(! m_hasHeaderRow)
+			return null;
+
 		if(! m_headerRead)
 			throw new RuntimeException("No header row read");
 		return m_headerRow;
@@ -252,6 +260,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	public int getColumnIndex(String name) {
 		IImportRow row = getHeaderRow();
+		if(null == row)
+			return -1;
 		for(int i = row.getColumnCount(); --i >= 0;) {
 			String s = row.get(i).getStringValue();
 			if(name.equalsIgnoreCase(s)) {
@@ -259,6 +269,16 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			}
 		}
 		return -1;
+	}
+
+	@Nullable
+	public String getColumnName(int index) {
+		IImportRow row = getHeaderRow();
+		if(null == row)
+			return null;
+		if(index <= 0 || index >= row.getColumnCount())
+			return null;
+		return row.get(index).getStringValue();
 	}
 
 	@Override public int getSetCount() {
@@ -349,6 +369,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 		private boolean m_nextAvailable;
 
+		@Nullable
 		private CsvImportRow m_row;
 
 		public RowIterator() {
@@ -374,10 +395,11 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		}
 
 		@Override public IImportRow next() {
-			if(! m_nextAvailable)
+			CsvImportRow row = m_row;
+			if(! m_nextAvailable || row == null)
 				throw new IllegalStateException("Calling next() after hasNext() returned false / missing call to hasNext()");
 			m_nextRead = false;
-			return m_row;
+			return row;
 		}
 	}
 }

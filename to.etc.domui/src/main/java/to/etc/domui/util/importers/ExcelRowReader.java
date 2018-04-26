@@ -120,6 +120,9 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			return Collections.emptyList();
 		}
 		IImportRow row = getHeaderRow();
+		if(null == row)
+			return Collections.emptyList();
+
 		List<String> res = new ArrayList<>();
 		for(int i = 0; i < row.getColumnCount(); i++) {
 			String name = row.get(i).getStringValue();
