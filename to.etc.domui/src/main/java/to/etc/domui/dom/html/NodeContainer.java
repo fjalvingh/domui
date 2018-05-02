@@ -621,14 +621,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	@Override
-	final protected void internalShelve() throws Exception {
+	protected void internalShelve() throws Exception {
 		onShelve();
 		for(int i = m_children.size(); --i >= 0;)
 			m_children.get(i).internalShelve();
 	}
 
 	@Override
-	final protected void internalUnshelve() throws Exception {
+	protected void internalUnshelve() throws Exception {
 		onUnshelve();
 		for(int i = m_children.size(); --i >= 0;)
 			m_children.get(i).internalUnshelve();
