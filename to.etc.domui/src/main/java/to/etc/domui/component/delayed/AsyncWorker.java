@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 public class AsyncWorker {
 	private long m_idCount = 1;
 
-	@Nullable
 	static private AsyncWorker m_instance = new AsyncWorker();
 
 	private boolean m_initialized;
@@ -40,6 +39,10 @@ public class AsyncWorker {
 	private ThreadPoolExecutor m_executor;
 
 	final private Map<String, Reference<Job>> m_jobMap = new HashMap<>();
+
+	public static AsyncWorker getInstance() {
+		return m_instance;
+	}
 
 	public synchronized void initialize(int maxThreads) {
 		if(m_initialized)
@@ -53,6 +56,7 @@ public class AsyncWorker {
 
 		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(8192, true);
 		m_executor = new ThreadPoolExecutor(maxThreads, maxThreads, 60, TimeUnit.SECONDS, queue, factory);
+		m_initialized = true;
 	}
 
 	public void terminate() {
@@ -68,7 +72,7 @@ public class AsyncWorker {
 	}
 
 	private synchronized String nextID() {
-		return "J" + (m_idCount++);
+		return "J#" + (m_idCount++);
 	}
 
 	public synchronized String schedule(String name, IAsyncRunnable runnable, IAsyncCompletionListener onComplete) {
@@ -134,7 +138,7 @@ public class AsyncWorker {
 		return job;
 	}
 
-	private final class Job implements Runnable {
+	public final class Job implements Runnable {
 		private final AsyncWorker m_asyncWorker;
 
 		private final String m_jobId;
@@ -241,7 +245,7 @@ public class AsyncWorker {
 				if(null != listener) {
 					try {
 						Throwable exception = getException();
-						if(exception instanceof Exception) {
+						if(exception instanceof Exception || exception == null) {
 							listener.onCompleted(cancelled, (Exception) exception);
 						} else {
 							listener.onCompleted(cancelled, new WrappedException(exception));
