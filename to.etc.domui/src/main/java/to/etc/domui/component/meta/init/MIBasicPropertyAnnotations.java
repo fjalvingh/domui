@@ -2,6 +2,7 @@ package to.etc.domui.component.meta.init;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.TemporalPresentationType;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
@@ -44,7 +45,7 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	}
 
 	@Nullable
-	private Field getPropertyField(@Nonnull DefaultPropertyMetaModel<?> pmm) {
+	private Field getPropertyField(@NonNull DefaultPropertyMetaModel<?> pmm) {
 		Class<?> clz = pmm.getClassModel().getActualClass();
 		if(null == clz)
 			throw new IllegalStateException("getActualClass was null on classModel of " + pmm);

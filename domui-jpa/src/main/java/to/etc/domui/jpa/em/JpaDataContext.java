@@ -1,5 +1,7 @@
 package to.etc.domui.jpa.em;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.engine.internal.StatefulPersistenceContext;
@@ -16,8 +18,6 @@ import to.etc.webapp.query.DefaultBeforeImageCache;
 import to.etc.webapp.query.QAbstractDataContext;
 import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.persistence.EntityManager;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
 
     protected EntityManager m_manager;
 
-    @Nonnull
+    @NonNull
     private List<IRunnable> m_commitHandlerList = Collections.EMPTY_LIST;
 
     @Nullable
@@ -201,7 +201,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
         return m_keepOriginals;
     }
 
-    @Nonnull
+    @NonNull
     public DefaultBeforeImageCache getBeforeCache() {
         DefaultBeforeImageCache beforeCache = m_beforeCache;
         if(null == beforeCache) {

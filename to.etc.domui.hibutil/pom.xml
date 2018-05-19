@@ -16,6 +16,11 @@
     <description>DomUI / QCriteria Hibernate interface layer</description>
     <inceptionYear>2017</inceptionYear>
 
+    <properties>
+        <hibernate.core.version>3.6.10.Final</hibernate.core.version>
+        <javassist.version>3.20.0-GA</javassist.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -51,12 +56,19 @@
             <artifactId>hibernate-core</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${hibernate.core.version}</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.javassist/javassist -->
         <dependency>
             <groupId>org.javassist</groupId>
             <artifactId>javassist</artifactId>
+            <version>${javassist.version}</version>
         </dependency>
-
 
         <!-- Test dependencies  -->
         <dependency>

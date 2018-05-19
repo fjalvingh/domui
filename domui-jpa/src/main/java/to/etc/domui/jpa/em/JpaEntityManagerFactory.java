@@ -1,11 +1,11 @@
 package to.etc.domui.jpa.em;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
 import to.etc.webapp.query.QEventListenerSet;
 import to.etc.webapp.query.QQueryExecutorRegistry;
 
-import javax.annotation.Nonnull;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
@@ -28,16 +28,16 @@ public class JpaEntityManagerFactory implements QDataContextFactory {
         m_handlers.register(JpaQueryExecutor.FACTORY);
     }
 
-    @Nonnull @Override public QDataContext getDataContext() throws Exception {
+    @NonNull @Override public QDataContext getDataContext() throws Exception {
         return new JpaDataContext(this);
     }
 
-    @Nonnull @Override public QEventListenerSet getEventListeners() {
+    @NonNull @Override public QEventListenerSet getEventListeners() {
 
         return m_eventSet;
     }
 
-    @Nonnull @Override public QQueryExecutorRegistry getQueryHandlerList() {
+    @NonNull @Override public QQueryExecutorRegistry getQueryHandlerList() {
         return m_handlers;
     }
 

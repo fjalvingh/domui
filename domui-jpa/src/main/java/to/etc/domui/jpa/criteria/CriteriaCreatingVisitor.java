@@ -24,6 +24,7 @@
  */
 package to.etc.domui.jpa.criteria;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
 import org.hibernate.Session;
@@ -77,7 +78,6 @@ import to.etc.webapp.query.QSubQuery;
 import to.etc.webapp.query.QUnaryNode;
 import to.etc.webapp.query.QUnaryProperty;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -172,7 +172,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitRestrictionsBase(QCriteriaQueryBase< ? > n) throws Exception {
+	public void visitRestrictionsBase(QCriteriaQueryBase<?, ?> n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		if(r == null)
 			return;
@@ -197,7 +197,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		checkSubqueriesUsed(n);
 	}
 
-	private void checkSubqueriesUsed(QCriteriaQueryBase<?> n) {
+	private void checkSubqueriesUsed(QCriteriaQueryBase<?, ?> n) {
 		if(n.getUnusedSubquerySet().size() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("There are ").append(n.getUnusedSubquerySet().size()).append(" subqueries that are not linked (used) in the main query!\n");
@@ -235,7 +235,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * Handle fetch selections.
 	 * @param qc
 	 */
-	private void handleFetch(QCriteriaQueryBase< ? > qc) {
+	private void handleFetch(QCriteriaQueryBase<?, ?> qc) {
 		for(Map.Entry<String, QFetchStrategy> ms : qc.getFetchStrategies().entrySet()) {
 			PropertyMetaModel< ? > pmm = MetaManager.findPropertyMeta(m_rootClass, ms.getKey());
 			if(null == pmm)
@@ -745,7 +745,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+	public void visitPropertyIn(@NonNull QPropertyIn n) throws Exception {
 		QOperatorNode rhs = n.getExpr();
 		String name = n.getProperty();
 		QLiteral lit = null;
@@ -810,7 +810,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @param compoundName
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	private String[] getPropertyColumnNamesFromLousyMetadata(AbstractEntityPersister aep, String compoundName) {
 		String name = compoundName;
 		int dotix = compoundName.lastIndexOf('.');
@@ -952,7 +952,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {
 		if(v.getParameters().length == 0) {
 			m_last = Restrictions.sqlRestriction(v.getSql());
 			return;
@@ -1278,7 +1278,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @see QNodeVisitor#visitSubquery(QSubQuery)
 	 */
 	@Override
-	public void visitSubquery(@Nonnull final QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull final QSubQuery< ? , ? > n) throws Exception {
 		n.getParent().internalUseQuery(n);
 		visitSelection(n);
 //
@@ -1300,7 +1300,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @see QNodeVisitor#visitSelectionSubquery(QSelectionSubquery)
 	 */
 	@Override
-	public void visitSelectionSubquery(@Nonnull final QSelectionSubquery n) throws Exception {
+	public void visitSelectionSubquery(@NonNull final QSelectionSubquery n) throws Exception {
 		DetachedCriteria dc = DetachedCriteria.forClass(n.getSelectionQuery().getBaseClass(), nextAlias());
 		recurseSubquery(dc, n.getSelectionQuery(), new Callable<Void>() {
 			@Override
@@ -1317,7 +1317,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	 * @param n
 	 * @throws Exception
 	 */
-	private void recurseSubquery(@Nonnull DetachedCriteria dc, @Nonnull QSelection< ? > n, Callable<Void> callable) throws Exception {
+	private void recurseSubquery(@NonNull DetachedCriteria dc, @NonNull QSelection< ? > n, Callable<Void> callable) throws Exception {
 		//-- Recursively apply all parts to the detached thingerydoo
 		ProjectionList oldpro = m_proli;
 		m_proli = null;
@@ -1349,7 +1349,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison comparison) throws Exception {
+	public void visitPropertyJoinComparison(@NonNull QPropertyJoinComparison comparison) throws Exception {
 		String alias = m_parentAlias + "." + parseSubcriteria(comparison.getParentProperty());
 		switch(comparison.getOperation()) {
 			default:
@@ -1382,13 +1382,13 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	}
 
 	@Override
-	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
+	public void visitOrderList(@NonNull List<QOrder> orderlist) throws Exception {
 		for(QOrder o : orderlist)
 			o.visit(this);
 	}
 
-	public void visitSelectionColumns(@Nonnull QSelection< ? > s) throws Exception {
-		for(@Nonnull QSelectionColumn col : s.getColumnList())
+	public void visitSelectionColumns(@NonNull QSelection< ? > s) throws Exception {
+		for(@NonNull QSelectionColumn col : s.getColumnList())
 			col.visit(this);
 	}
 }
