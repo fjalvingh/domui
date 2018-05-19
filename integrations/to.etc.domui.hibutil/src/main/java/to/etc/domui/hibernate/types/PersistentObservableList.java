@@ -2,7 +2,7 @@ package to.etc.domui.hibernate.types;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.collection.internal.PersistentBag;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import to.etc.domui.databinding.IChangeListener;
 import to.etc.domui.databinding.list2.IListChangeListener;
 import to.etc.domui.databinding.observables.IObservableList;
@@ -32,7 +32,7 @@ public class PersistentObservableList<T> extends PersistentBag implements IObser
 		m_from = "Parameterless constructor called at " + StringTool.getLocation();
 	}
 
-	public PersistentObservableList(SessionImplementor session, List<T> coll) {
+	public PersistentObservableList(SharedSessionContractImplementor session, List<T> coll) {
 		super(session);
 		m_from = "2 param constructor called at " + StringTool.getLocation();
 
@@ -49,7 +49,7 @@ public class PersistentObservableList<T> extends PersistentBag implements IObser
 		setDirectlyAccessible(true);
 	}
 
-	public PersistentObservableList(SessionImplementor session) {
+	public PersistentObservableList(SharedSessionContractImplementor session) {
 		super(session);
 		m_from = "1 param constructor called at " + StringTool.getLocation();
 	}

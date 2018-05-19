@@ -1,6 +1,7 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
@@ -51,8 +52,7 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 		return true;
 	}
 
-	@Override
-	public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner) throws HibernateException, SQLException {
+	@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
 		if(resultSet == null)
 			return null;
 		long v = resultSet.getLong(names[0]);
@@ -61,8 +61,7 @@ final public class BooleanPrimitiveOneZeroType implements UserType {
 		return Boolean.valueOf(v != 0);
 	}
 
-	@Override
-	public void nullSafeSet(PreparedStatement statement, Object value, int index) throws HibernateException, SQLException {
+	@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
 		statement.setLong(index, value == null ? 0 : ((Boolean) value).booleanValue() ? 1 : 0);
 	}
 

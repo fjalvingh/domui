@@ -2,7 +2,7 @@ package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
 import org.hibernate.collection.spi.PersistentCollection;
-import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.usertype.UserCollectionType;
 import to.etc.domui.databinding.observables.ObservableList;
@@ -20,20 +20,17 @@ import java.util.Map;
 public class ObservableListType implements UserCollectionType {
 	/**
 	 * Return the basic wrapped instance.
-	 * @see org.hibernate.usertype.UserCollectionType#instantiate(int)
 	 */
 	@Override
 	public Object instantiate(int anticipatedSize) {
 		return new ObservableList<Object>();
 	}
 
-	@Override
-	public PersistentCollection instantiate(SessionImplementor session, CollectionPersister persister) throws HibernateException {
+	@Override public PersistentCollection instantiate(SharedSessionContractImplementor session, CollectionPersister collectionPersister) throws HibernateException {
 		return new PersistentObservableList(session);
 	}
 
-	@Override
-	public PersistentCollection wrap(SessionImplementor session, Object collection) {
+	@Override public PersistentCollection wrap(SharedSessionContractImplementor session, Object collection) {
 //		if(!(collection instanceof IObservableList))
 //			throw new IllegalStateException("Expecting IObservableList but got a " + collection.getClass());
 //
@@ -64,8 +61,7 @@ public class ObservableListType implements UserCollectionType {
 		return Integer.valueOf(ol.indexOf(entity));
 	}
 
-	@Override
-	public Object replaceElements(Object original, Object target, CollectionPersister persister, Object owner, Map copyCache, SessionImplementor session) throws HibernateException {
+	@Override public Object replaceElements(Object original, Object target, CollectionPersister persister, Object owner, Map copyCache, SharedSessionContractImplementor session) {
 		PersistentObservableList<Object> src = (PersistentObservableList<Object>) original;
 		PersistentObservableList<Object> dst = (PersistentObservableList<Object>) target;
 

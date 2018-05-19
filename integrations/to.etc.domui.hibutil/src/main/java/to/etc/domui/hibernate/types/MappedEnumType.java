@@ -1,13 +1,18 @@
 package to.etc.domui.hibernate.types;
 
-import java.io.*;
-import java.sql.*;
-import java.util.*;
+import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.type.StringType;
+import org.hibernate.usertype.ParameterizedType;
+import org.hibernate.usertype.UserType;
+import to.etc.domui.hibernate.config.HibernateChecker;
 
-import org.hibernate.*;
-import org.hibernate.usertype.*;
-
-import to.etc.domui.hibernate.config.*;
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.Properties;
 
 /**
  * This Hibernate user type allows mapping Java 5 enums onto fields where field values contain
@@ -95,9 +100,8 @@ public class MappedEnumType implements UserType, ParameterizedType {
 		return (Serializable) deepCopy(value);
 	}
 
-	@Override
-	public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
-		String value = Hibernate.STRING.nullSafeGet(rs, names[0]);
+	@Override public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
+		String value = (String) StringType.INSTANCE.nullSafeGet(rs, names[0], sharedSessionContractImplementor, o);
 		if(value == null)
 			return null;
 
@@ -113,8 +117,7 @@ public class MappedEnumType implements UserType, ParameterizedType {
 		throw new HibernateException("The database-column value '" + value + "' cannot be mapped onto a label of " + m_enumClass);
 	}
 
-	@Override
-	public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
+	@Override public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
 		if(value == null)
 			st.setNull(index, Types.VARCHAR);
 		else {
