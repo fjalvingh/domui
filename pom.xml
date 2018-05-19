@@ -103,6 +103,7 @@
         <module>to.etc.dbcompare</module>
         <module>archetypes</module>
         <module>utilities</module>
+        <module>domui-jpa</module>
     </modules>
 
     <build>

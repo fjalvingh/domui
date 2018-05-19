@@ -11,6 +11,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.util.WrappedException;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.util.Collection;
 
 /**
@@ -28,8 +29,38 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 			decodePropertyAnnotationByName(cmm, pmm, an, ana);
 			//decodePropertyAnnotation(colli, pmm, an);
 		}
+
+		//-- If we have a private field with the name it can have annotations too (Java sucks, and the idiots that allow this (hibernate, Spring) suck even more).
+		Field field = getPropertyField(pmm);
+		if(null != field) {
+			for (Annotation an : field.getAnnotations()) {
+				String ana = an.annotationType().getName();
+				decodePropertyAnnotationByName(cmm, pmm, an, ana);
+			}
+		}
+
 		if(pmm.isPrimaryKey())
 			cmm.setPrimaryKey(pmm);
+	}
+
+	@Nullable
+	private Field getPropertyField(@Nonnull DefaultPropertyMetaModel<?> pmm) {
+		Class<?> clz = pmm.getClassModel().getActualClass();
+		if(null == clz)
+			throw new IllegalStateException("getActualClass was null on classModel of " + pmm);
+
+		//-- Walk this class and its parent, and find the 1st private field with this name
+		for(;;) {
+			try {
+				Field field = clz.getDeclaredField(pmm.getName());
+				return field;
+			} catch (NoSuchFieldException x) {
+			}
+
+			clz = clz.getSuperclass();
+			if(clz == Object.class || clz == null)
+				return null;
+		}
 	}
 
 	protected void decodePropertyAnnotationByName(DefaultClassMetaModel cmm, DefaultPropertyMetaModel< ? > pmm, Annotation an, String name) {

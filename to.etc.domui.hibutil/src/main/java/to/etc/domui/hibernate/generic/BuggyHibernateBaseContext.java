@@ -128,6 +128,7 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	 * {@inheritDoc}
 	 * @see to.etc.webapp.query.QDataContext#setIgnoreClose(boolean)
 	 */
+	@Override
 	public void setIgnoreClose(boolean on) {
 		m_ignoreClose = on;
 	}
