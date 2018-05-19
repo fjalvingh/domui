@@ -1,6 +1,7 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 
 import java.io.Serializable;
@@ -51,8 +52,7 @@ final public class BooleanPrimitiveTrueFalseType implements UserType {
 		return true;
 	}
 
-	@Override
-	public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner) throws HibernateException, SQLException {
+	@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
 		if(resultSet == null)
 			return null;
 		String v = resultSet.getString(names[0]);
@@ -61,8 +61,7 @@ final public class BooleanPrimitiveTrueFalseType implements UserType {
 		return parse(v);
 	}
 
-	@Override
-	public void nullSafeSet(PreparedStatement statement, Object value, int index) throws HibernateException, SQLException {
+	@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
 		statement.setString(index, value == null ? "false" : ((Boolean) value).booleanValue() ? "true" : "false");
 	}
 
@@ -84,9 +83,6 @@ final public class BooleanPrimitiveTrueFalseType implements UserType {
 	/**
 	 * Parsing of a String yields the following results: TRUE: if src equals
 	 * y,yes,1 or 'true' (case insensitive) FALSE: in all other cases
-	 *
-	 * @param src
-	 * @return
 	 */
 	public static Boolean parse(String src) {
 		if("1".equals(src) || "t".equalsIgnoreCase(src) || "true".equalsIgnoreCase(src) || "Y".equalsIgnoreCase(src) || "yes".equalsIgnoreCase(src)) {

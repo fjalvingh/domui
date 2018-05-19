@@ -27,7 +27,6 @@ package to.etc.domui.hibernate.model;
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
-import org.hibernate.Hibernate;
 import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaSpecification;
 import org.hibernate.criterion.Criterion;
@@ -38,13 +37,14 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.criterion.Subqueries;
-import org.hibernate.impl.SessionFactoryImpl;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.collection.OneToManyPersister;
 import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.hibernate.persister.entity.SingleTableEntityPersister;
 import org.hibernate.type.CollectionType;
 import org.hibernate.type.ComponentType;
+import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -791,12 +791,12 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		int dotix = name.lastIndexOf('.');
 		if(dotix == -1) {
 			//-- We need Hibernate metadata to find the column name....
-			m_last = Restrictions.sqlRestriction("{alias}." + columnName + " like ?", value, Hibernate.STRING);
+			m_last = Restrictions.sqlRestriction("{alias}." + columnName + " like ?", value, StringType.INSTANCE);
 			return;
 		}
 
 		String sql = "{" + name + "} like ?";
-		m_last = new HibernateAliasedSqlCriterion(sql, value, Hibernate.STRING);
+		m_last = new HibernateAliasedSqlCriterion(sql, value, StringType.INSTANCE);
 	}
 
 	/**

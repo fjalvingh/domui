@@ -27,10 +27,7 @@ package to.etc.domui.hibernate.config;
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.event.InitializeCollectionEventListener;
-import org.hibernate.event.PostLoadEventListener;
 import org.hibernate.event.spi.InitializeCollectionEventListener;
 import org.hibernate.event.spi.PostLoadEventListener;
 import to.etc.dbpool.ConnectionPool;
@@ -80,7 +77,7 @@ final public class HibernateConfigurator {
 	static private QDataContextFactory m_contextSource;
 
 	/** All classes registered as part of the config. */
-	static private List<Class< ? >> m_annotatedClassList = new ArrayList<Class< ? >>();
+	static private List<Class<?>> m_annotatedClassList = new ArrayList<Class<?>>();
 
 	/** When non-null, the user has set the "show sql" option. When unset it defaults to the DeveloperOptions setting. */
 	static private Boolean m_showSQL;
@@ -143,7 +140,6 @@ final public class HibernateConfigurator {
 
 	/**
 	 * Return the Hibernate SessionFactory created by this code. Should not normally be used by common user code.
-	 * @return
 	 */
 	public synchronized static SessionFactory getSessionFactory() {
 		unconfigured();
@@ -152,9 +148,6 @@ final public class HibernateConfigurator {
 
 	/**
 	 * Unwrap the QDataContext and obtain it's Hibernate {@link Session} record.
-	 * @param dc
-	 * @return
-	 * @throws Exception
 	 */
 	public static Session internalGetSession(final QDataContext dc) throws Exception {
 		return ((BuggyHibernateBaseContext) dc).getSession();
@@ -162,7 +155,6 @@ final public class HibernateConfigurator {
 
 	/**
 	 * Returns the data context factory wrapping the hibernate code.
-	 * @return
 	 */
 	public synchronized static QDataContextFactory getDataContextFactory() {
 		unconfigured();
@@ -172,6 +164,7 @@ final public class HibernateConfigurator {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Configuration setters.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Abort if initialize() has already completed.
 	 */
@@ -200,15 +193,14 @@ final public class HibernateConfigurator {
 	 * called. You can call this as many times as needed; all classes are <i>added</i> to
 	 * a list.
 	 */
-	static public void addClasses(Class< ? >... classes) {
+	static public void addClasses(Class<?>... classes) {
 		configured();
-		for(Class< ? > clz : classes)
+		for(Class<?> clz : classes)
 			m_annotatedClassList.add(clz);
 	}
 
 	/**
 	 * Set the "show sql" setting for hibernate. When called it overrides any "developer.properties" setting.
-	 * @param on
 	 */
 	static public void showSQL(boolean on) {
 		configured();
@@ -219,7 +211,6 @@ final public class HibernateConfigurator {
 	 * Set the "schema update" mode for Hibernate (corresponding to hbm2ddl.auto). It defaults to NONE. When
 	 * set to UPDATE Hibernate will do it's best to change the database schema in such a way that it corresponds
 	 * to the annotated classes' definition.
-	 * @param m
 	 */
 	static public void schemaUpdate(@NonNull Mode m) {
 		configured();
@@ -228,7 +219,6 @@ final public class HibernateConfigurator {
 
 	/**
 	 * Register a DomUI {@link IQueryListener} that will be called when DomUI executes {@link QCriteria} queries.
-	 * @param ql
 	 */
 	static public void registerQueryListener(IQueryListener ql) {
 		configured();
@@ -246,7 +236,6 @@ final public class HibernateConfigurator {
 	 * registerQueryListener(HibernateQueryExecutor.FACTORY);
 	 * </pre>
 	 * By ordering your executors with the default ones you can control the order of acceptance for queries.
-	 * @param qexecutor
 	 */
 	static public void registerQueryExecutor(IQueryExecutorFactory qexecutor) {
 		configured();
@@ -271,12 +260,10 @@ final public class HibernateConfigurator {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Main initialization entrypoints.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Main worker to initialize the database layer, using Hibernate, with a user-specified core data source. This
 	 * code also enables SQL logging when .developer.properties option hibernate.sql=true.
-	 *
-	 * @param ds
-	 * @throws Exception
 	 */
 	public synchronized static void initialize(final DataSource ds) throws Exception {
 		if(m_sessionFactory != null)
@@ -289,7 +276,7 @@ final public class HibernateConfigurator {
 
 		//-- Create a Hibernate configuration.
 		Configuration config = new Configuration();
-		for(Class< ? > clz : m_annotatedClassList)
+		for(Class<?> clz : m_annotatedClassList)
 			config.addAnnotatedClass(clz);
 		m_annotatedClassList = null; // Release memory- list is never used.
 
@@ -371,7 +358,7 @@ final public class HibernateConfigurator {
 			InitializeCollectionEventListener[] iel = config.getEventListeners().getInitializeCollectionEventListeners();
 			InitializeCollectionEventListener[] iel2 = new InitializeCollectionEventListener[iel.length + 1];
 			System.arraycopy(iel, 0, iel2, 0, iel.length);
-			iel2[iel.length] = new CopyCollectionEventListener();	// Add the listener that updates collection before-images for lazy-loaded collections
+			iel2[iel.length] = new CopyCollectionEventListener();    // Add the listener that updates collection before-images for lazy-loaded collections
 			config.getEventListeners().setInitializeCollectionEventListeners(iel2);
 		}
 
@@ -409,8 +396,6 @@ final public class HibernateConfigurator {
 
 	/**
 	 * Alternate entrypoint: initialize the layer using a poolID in the default poolfile.
-	 * @param poolname
-	 * @throws Exception
 	 */
 	public static void initialize(final String poolname) throws Exception {
 		ConnectionPool p = PoolManager.getInstance().definePool(poolname);
@@ -419,9 +404,6 @@ final public class HibernateConfigurator {
 
 	/**
 	 * Initialize the layer using a poolid in the specified poolfile.
-	 * @param poolfile
-	 * @param poolname
-	 * @throws Exception
 	 */
 	public static void initialize(final File poolfile, final String poolname) throws Exception {
 		ConnectionPool p = PoolManager.getInstance().definePool(poolfile, poolname);

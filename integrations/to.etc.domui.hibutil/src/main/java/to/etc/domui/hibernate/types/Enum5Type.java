@@ -26,6 +26,7 @@ package to.etc.domui.hibernate.types;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.EnhancedUserType;
 import org.hibernate.usertype.ParameterizedType;
 
@@ -86,8 +87,7 @@ public class Enum5Type implements EnhancedUserType, ParameterizedType {
 		return false;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public Object nullSafeGet(final ResultSet rs, final String[] names, final Object owner) throws HibernateException, SQLException {
+	@Override public Object nullSafeGet(ResultSet rs, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
 		if(m_ordinal) {
 			int ord = rs.getInt(names[0]);
 			if(rs.wasNull())
@@ -100,7 +100,7 @@ public class Enum5Type implements EnhancedUserType, ParameterizedType {
 		}
 	}
 
-	public void nullSafeSet(final PreparedStatement st, final Object value, final int index) throws HibernateException, SQLException {
+	@Override public void nullSafeSet(PreparedStatement st, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
 		if(value == null) {
 			st.setNull(index, Types.VARCHAR);
 		} else {

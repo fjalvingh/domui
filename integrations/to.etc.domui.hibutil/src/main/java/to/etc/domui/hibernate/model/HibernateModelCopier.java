@@ -40,8 +40,6 @@ import to.etc.domui.util.db.QBasicModelCopier;
 import to.etc.domui.util.db.QPersistentObjectState;
 import to.etc.webapp.query.QDataContext;
 
-import java.io.Serializable;
-
 public class HibernateModelCopier extends QBasicModelCopier {
 	@Override
 	public <T> boolean isUnloadedChildList(T source, PropertyMetaModel<?> pmm) throws Exception {
@@ -68,22 +66,22 @@ public class HibernateModelCopier extends QBasicModelCopier {
 		return pc.getEntry(instance) != null;
 	}
 
-	/**
-	 * Sigh. Overridden to force Hibernate to bloody use an existing primary key on NEW object, damnit. See <a href="http://info.etc.to/xwiki/bin/view/Ontwikkeling/HibernateToilet">Here</a>.
-	 */
-	@Override
-	protected void save(CopyInfo ci, Object instance) throws Exception {
-		//-- Do we have an existing PK already?
-		Object pk = MetaManager.getPrimaryKey(instance);
-		if(pk == null) {
-			super.save(ci, instance);        // Just delegate to the usual code.
-			return;
-		}
-
-		//-- We need to force Hibernate to use the existing PK, sigh.
-		SessionImpl ses = (SessionImpl) ((BuggyHibernateBaseContext) ci.getTargetDC()).getSession();
-		ses.save(instance, (Serializable) pk); // Add nonsense cast.
-	}
+	///**
+	// * Sigh. Overridden to force Hibernate to bloody use an existing primary key on NEW object, damnit. See <a href="http://info.etc.to/xwiki/bin/view/Ontwikkeling/HibernateToilet">Here</a>.
+	// */
+	//@Override
+	//protected void save(CopyInfo ci, Object instance) throws Exception {
+	//	//-- Do we have an existing PK already?
+	//	Object pk = MetaManager.getPrimaryKey(instance);
+	//	if(pk == null) {
+	//		super.save(ci, instance);        // Just delegate to the usual code.
+	//		return;
+	//	}
+	//
+	//	//-- We need to force Hibernate to use the existing PK, sigh.
+	//	SessionImpl ses = (SessionImpl) ((BuggyHibernateBaseContext) ci.getTargetDC()).getSession();
+	//	ses.save(instance, (Serializable) pk); // Add nonsense cast.
+	//}
 
 	/**
 	 * Determine the object state using internal Hibernate data structures. Code was mostly stolen from {@link org.hibernate.event.internal.DefaultFlushEntityEventListener#dirtyCheck(FlushEntityEvent)} ()}

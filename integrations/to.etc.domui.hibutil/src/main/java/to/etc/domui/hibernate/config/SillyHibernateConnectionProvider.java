@@ -24,14 +24,11 @@
  */
 package to.etc.domui.hibernate.config;
 
-import java.sql.*;
-import java.util.*;
-
-import javax.sql.*;
-
-import org.hibernate.*;
-import org.hibernate.connection.*;
 import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
 
 /**
  * Only reason for existence is to provide a DataSource to hibernate dynamically. This class
@@ -61,16 +58,15 @@ final public class SillyHibernateConnectionProvider implements ConnectionProvide
     }
 
     @Override
-	public void configure(Properties props) throws HibernateException {
-		//-- Useless.
-    }
-
-    @Override
 	public void closeConnection(Connection conn) throws SQLException {
         conn.close();
     }
 
-    @Override
-	public void close() throws HibernateException {
-    }
+	@Override public boolean isUnwrappableAs(Class aClass) {
+		return false;
+	}
+
+	@Override public <T> T unwrap(Class<T> aClass) {
+		return null;
+	}
 }

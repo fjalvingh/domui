@@ -24,14 +24,14 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import java.util.*;
+import org.hibernate.FlushMode;
+import org.hibernate.Session;
+import org.hibernate.engine.internal.StatefulPersistenceContext;
+import org.hibernate.internal.SessionImpl;
+import to.etc.domui.state.ConversationContext;
+import to.etc.webapp.query.QDataContextFactory;
 
-import org.hibernate.*;
-import org.hibernate.engine.*;
-import org.hibernate.impl.*;
-
-import to.etc.domui.state.*;
-import to.etc.webapp.query.*;
+import java.util.Map;
 
 /**
  * A context that keeps the session alive but in disconnected mode while running. The session
