@@ -1,7 +1,7 @@
 package to.etc.domui.hibernate.idgen;
 
 import org.hibernate.HibernateException;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.id.IdentifierGenerator;
 import to.etc.util.StringTool;
 
@@ -29,7 +29,7 @@ import java.util.UUID;
  * Created on 12-2-18.
  */
 final public class UUIDGenerator23 implements IdentifierGenerator {
-	@Override public Serializable generate(SessionImplementor sessionImplementor, Object o) throws HibernateException {
+	@Override public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
 		UUID uuid = UUID.randomUUID();
 		byte[] data = new byte[16];
 

@@ -24,22 +24,27 @@
  */
 package to.etc.domui.hibernate.model;
 
-import java.io.*;
+import org.hibernate.Hibernate;
+import org.hibernate.ObjectNotFoundException;
+import org.hibernate.Session;
+import org.hibernate.engine.spi.EntityEntry;
+import org.hibernate.engine.spi.PersistenceContext;
+import org.hibernate.engine.spi.Status;
+import org.hibernate.event.spi.FlushEntityEvent;
+import org.hibernate.internal.SessionImpl;
+import org.hibernate.proxy.HibernateProxy;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.hibernate.generic.BuggyHibernateBaseContext;
+import to.etc.domui.util.db.QBasicModelCopier;
+import to.etc.domui.util.db.QPersistentObjectState;
+import to.etc.webapp.query.QDataContext;
 
-import org.hibernate.*;
-import org.hibernate.engine.*;
-import org.hibernate.event.def.*;
-import org.hibernate.impl.*;
-import org.hibernate.proxy.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.hibernate.generic.*;
-import to.etc.domui.util.db.*;
-import to.etc.webapp.query.*;
+import java.io.Serializable;
 
 public class HibernateModelCopier extends QBasicModelCopier {
 	@Override
-	public <T> boolean isUnloadedChildList(T source, PropertyMetaModel< ? > pmm) throws Exception {
+	public <T> boolean isUnloadedChildList(T source, PropertyMetaModel<?> pmm) throws Exception {
 		Object value = pmm.getValue(source);
 		if(value == null)
 			return false;
@@ -47,7 +52,7 @@ public class HibernateModelCopier extends QBasicModelCopier {
 	}
 
 	@Override
-	public <T> boolean isUnloadedParent(T source, PropertyMetaModel< ? > pmm) throws Exception {
+	public <T> boolean isUnloadedParent(T source, PropertyMetaModel<?> pmm) throws Exception {
 		Object value = pmm.getValue(source);
 		if(value == null)
 			return false;
@@ -65,28 +70,23 @@ public class HibernateModelCopier extends QBasicModelCopier {
 
 	/**
 	 * Sigh. Overridden to force Hibernate to bloody use an existing primary key on NEW object, damnit. See <a href="http://info.etc.to/xwiki/bin/view/Ontwikkeling/HibernateToilet">Here</a>.
-	 *
-	 * @see to.etc.domui.util.db.QBasicModelCopier#save(to.etc.domui.util.db.QBasicModelCopier.CopyInfo, java.lang.Object)
 	 */
 	@Override
 	protected void save(CopyInfo ci, Object instance) throws Exception {
 		//-- Do we have an existing PK already?
-		Object	pk = MetaManager.getPrimaryKey(instance);
+		Object pk = MetaManager.getPrimaryKey(instance);
 		if(pk == null) {
-			super.save(ci, instance);		// Just delegate to the usual code.
+			super.save(ci, instance);        // Just delegate to the usual code.
 			return;
 		}
 
 		//-- We need to force Hibernate to use the existing PK, sigh.
-		SessionImpl	ses = (SessionImpl) ((BuggyHibernateBaseContext)ci.getTargetDC()).getSession();
+		SessionImpl ses = (SessionImpl) ((BuggyHibernateBaseContext) ci.getTargetDC()).getSession();
 		ses.save(instance, (Serializable) pk); // Add nonsense cast.
 	}
 
 	/**
-	 * Determine the object state using internal Hibernate data structures. Code was mostly stolen from {@link DefaultFlushEntityEventListener#dirtyCheck()}
-	 * @param dc
-	 * @param instance
-	 * @return
+	 * Determine the object state using internal Hibernate data structures. Code was mostly stolen from {@link org.hibernate.event.internal.DefaultFlushEntityEventListener#dirtyCheck(FlushEntityEvent)} ()}
 	 */
 	@Override
 	protected QPersistentObjectState getObjectState(QDataContext dc, Object instance) throws Exception {
@@ -95,7 +95,7 @@ public class HibernateModelCopier extends QBasicModelCopier {
 		SessionImpl ses = (SessionImpl) ((BuggyHibernateBaseContext) dc).getSession();
 
 		PersistenceContext pc = ses.getPersistenceContext(); // The root of all hibernate persistent data
-		EntityEntry	ee = pc.getEntry(instance);
+		EntityEntry ee = pc.getEntry(instance);
 		if(ee == null) {
 			/*
 			 * Incredible but true: proxies are not stored as entries in the hibernate session - the backing objects
@@ -160,7 +160,7 @@ public class HibernateModelCopier extends QBasicModelCopier {
 		Object[] snapshot = ee.getLoadedState(); // Get snapshot @ load time
 		if(snapshot == null)
 			return QPersistentObjectState.NEW;
-		Object[] values = ee.getPersister().getPropertyValues(instance, ses.getEntityMode()); // Load current instance's values.
+		Object[] values = ee.getPersister().getPropertyValues(instance); // Load current instance's values.
 
 		//-- Delegate to any interceptor.
 		int[] dirtyProperties = ses.getInterceptor().findDirty(instance, ee.getId(), values, snapshot, ee.getPersister().getPropertyNames(), ee.getPersister().getPropertyTypes());
@@ -172,7 +172,7 @@ public class HibernateModelCopier extends QBasicModelCopier {
 	}
 
 	@Override
-	protected QPersistentObjectState getObjectState(QDataContext dc, Class< ? > pclass, Object pk) throws Exception {
+	protected QPersistentObjectState getObjectState(QDataContext dc, Class<?> pclass, Object pk) throws Exception {
 		if(pk == null)
 			return QPersistentObjectState.NEW;
 		Object instance;

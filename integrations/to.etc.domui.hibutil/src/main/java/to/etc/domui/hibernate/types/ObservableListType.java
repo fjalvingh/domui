@@ -1,14 +1,15 @@
 package to.etc.domui.hibernate.types;
 
-import java.util.*;
+import org.hibernate.HibernateException;
+import org.hibernate.collection.spi.PersistentCollection;
+import org.hibernate.engine.spi.SessionImplementor;
+import org.hibernate.persister.collection.CollectionPersister;
+import org.hibernate.usertype.UserCollectionType;
+import to.etc.domui.databinding.observables.ObservableList;
 
-import org.hibernate.*;
-import org.hibernate.collection.*;
-import org.hibernate.engine.*;
-import org.hibernate.persister.collection.*;
-import org.hibernate.usertype.*;
-
-import to.etc.domui.databinding.observables.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A type for List<T> type properties which makes the property a ObservableList.

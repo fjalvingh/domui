@@ -1,8 +1,8 @@
 package to.etc.domui.hibernate.types;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.hibernate.collection.PersistentBag;
-import org.hibernate.engine.SessionImplementor;
+import org.hibernate.collection.internal.PersistentBag;
+import org.hibernate.engine.spi.SessionImplementor;
 import to.etc.domui.databinding.IChangeListener;
 import to.etc.domui.databinding.list2.IListChangeListener;
 import to.etc.domui.databinding.observables.IObservableList;
@@ -65,7 +65,6 @@ public class PersistentObservableList<T> extends PersistentBag implements IObser
 
 	/**
 	 * Add a new listener to the set.
-	 * @param listener
 	 */
 	@Override
 	public void addChangeListener(to.etc.domui.databinding.IChangeListener listener) {
@@ -74,7 +73,6 @@ public class PersistentObservableList<T> extends PersistentBag implements IObser
 
 	/**
 	 * Remove the listener if it exists. This leaves a null hole in the array.
-	 * @param listener
 	 */
 	@Override
 	public void removeChangeListener(IChangeListener listener) {

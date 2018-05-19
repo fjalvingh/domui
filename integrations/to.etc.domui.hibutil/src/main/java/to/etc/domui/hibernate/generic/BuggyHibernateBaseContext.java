@@ -81,7 +81,6 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	/**
 	 * Create a context, using the specified factory to create Hibernate sessions.
-	 * @param sessionMaker
 	 */
 	BuggyHibernateBaseContext(final HibernateSessionMaker sessionMaker, QDataContextFactory src) {
 		super(src);
@@ -90,7 +89,6 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	/**
 	 * Set the Hibernate session maker factory.
-	 * @param sm
 	 */
 	protected void setSessionMaker(final HibernateSessionMaker sm) {
 		m_sessionMaker = sm;
@@ -99,8 +97,6 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	/**
 	 * INTERNAL USE ONLY Get the Hibernate session present in this QDataContext; allocate a new
 	 * Session if no session is currently active. This is not supposed to be called by user code.
-	 * @return
-	 * @throws Exception
 	 */
 	public Session getSession() throws Exception {
 		checkValid();
@@ -124,10 +120,6 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	/*--------------------------------------------------------------*/
 	/*	CODING:	QDataContext implementation.						*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#setIgnoreClose(boolean)
-	 */
 	@Override
 	public void setIgnoreClose(boolean on) {
 		m_ignoreClose = on;
@@ -141,11 +133,6 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	static private final String[] ENDSET = {"to.etc.dbpool.", "to.etc.domui.server.", "org.apache.tomcat"};
 
-	/**
-	 * This version just delegates to the Factory immediately.
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#close()
-	 */
 	public void close() {
 		if(m_session == null || m_ignoreClose)
 			return;
@@ -225,18 +212,10 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 			throw firstx;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#inTransaction()
-	 */
 	public boolean inTransaction() throws Exception {
 		return getSession().getTransaction().isActive();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#rollback()
-	 */
 	public void rollback() throws Exception {
 		if(getSession().getTransaction().isActive())
 			getSession().getTransaction().rollback();
@@ -250,10 +229,6 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		return bc.findBeforeImage(copy);
 	}
 
-	/**
-	 *
-	 * @see to.etc.webapp.query.QDataContext#setKeepOriginals()
-	 */
 	@Override
 	public void setKeepOriginals() {
 		if(m_keepOriginals)
@@ -278,9 +253,6 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 
 	/**
 	 * We explicitly undeprecate here.
-	 *
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContext#getConnection()
 	 */
 	@SuppressWarnings("deprecation")
 	public Connection getConnection() throws Exception {
@@ -311,36 +283,21 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ConversationStateListener impl.						*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * {@inheritDoc}
-	 */
 	public void conversationAttached(final ConversationContext cc) throws Exception {
 		setConversationInvalid(null);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.state.IConversationStateListener#conversationDestroyed(to.etc.domui.state.ConversationContext)
-	 */
 	public void conversationDestroyed(final ConversationContext cc) throws Exception {
 		setIgnoreClose(false); // Disable ignore close - this close should work.
 		close();
 		setConversationInvalid("Conversation was destroyed");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.state.IConversationStateListener#conversationDetached(to.etc.domui.state.ConversationContext)
-	 */
 	public void conversationDetached(final ConversationContext cc) throws Exception {
 		setIgnoreClose(false); // Disable ignore close - this close should work.
 		close();
 		setConversationInvalid("Conversation is detached");
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.state.IConversationStateListener#conversationNew(to.etc.domui.state.ConversationContext)
-	 */
 	public void conversationNew(final ConversationContext cc) throws Exception {}
 }

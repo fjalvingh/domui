@@ -1,6 +1,7 @@
 package to.etc.domui.hibernate.types;
 
 import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 import to.etc.util.DateUtil;
 
@@ -51,8 +52,7 @@ public class DateNonnullType implements UserType {
 		return true;
 	}
 
-	@Override
-	public Object nullSafeGet(ResultSet resultSet, String[] names, Object owner) throws HibernateException, SQLException {
+	@Override public Object nullSafeGet(ResultSet resultSet, String[] names, SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException, SQLException {
 		if(resultSet == null)
 			return null;
 		Date v = resultSet.getDate(names[0]);
@@ -63,8 +63,7 @@ public class DateNonnullType implements UserType {
 		return new java.util.Date(v.getTime());
 	}
 
-	@Override
-	public void nullSafeSet(PreparedStatement statement, Object value, int index) throws HibernateException, SQLException {
+	@Override public void nullSafeSet(PreparedStatement statement, Object value, int index, SharedSessionContractImplementor sharedSessionContractImplementor) throws HibernateException, SQLException {
 		Date dt = (Date) value;
 		if(null == dt) {
 			dt = DateUtil.dateFor(9999, 0, 1);

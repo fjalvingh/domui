@@ -3,9 +3,8 @@ package to.etc.domui.hibernate.beforeimages;
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.EmptyInterceptor;
 import org.hibernate.Hibernate;
-import org.hibernate.collection.PersistentCollection;
-import org.hibernate.event.InitializeCollectionEventListener;
-import org.hibernate.event.PostLoadEvent;
+import org.hibernate.collection.spi.PersistentCollection;
+import org.hibernate.event.spi.PostLoadEvent;
 import org.hibernate.proxy.HibernateProxy;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -31,8 +30,7 @@ import java.util.Set;
  * Created on Jan 13, 2014
  */
 public class BeforeImageInterceptor extends EmptyInterceptor {
-	@NonNull
-	final private IBeforeImageCache m_cache;
+	@NonNull final private IBeforeImageCache m_cache;
 
 	static private final boolean DEBUG = false;
 
@@ -44,11 +42,9 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 */
 	//@Immutable
 	static private class CollectionKey {
-		@NonNull
-		final private String m_role;
+		@NonNull final private String m_role;
 
-		@NonNull
-		final private Serializable m_key;
+		@NonNull final private Serializable m_key;
 
 		public CollectionKey(@NonNull String role, @NonNull Serializable key) {
 			m_role = role;
@@ -95,8 +91,7 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 		}
 	}
 
-	@NonNull
-	final private Map<CollectionKey, IBeforeImageCollectionProxy< ? >> m_mirrorMap = new HashMap<CollectionKey, IBeforeImageCollectionProxy< ? >>();
+	@NonNull final private Map<CollectionKey, IBeforeImageCollectionProxy<?>> m_mirrorMap = new HashMap<CollectionKey, IBeforeImageCollectionProxy<?>>();
 
 	public BeforeImageInterceptor(@NonNull IBeforeImageCache cache) {
 		m_cache = cache;
@@ -111,8 +106,6 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 * Whenever an entity is loaded make sure that a "before" image of it exists.
 	 *
 	 * EXPERIMENTAL This uses a non-hibernate method which is added to Hibernate's source code.
-	 *
-	 * @see org.hibernate.EmptyInterceptor#onAfterLoad(org.hibernate.event.PostLoadEvent)
 	 */
 	public void onAfterLoad(@NonNull PostLoadEvent loadevent) {
 		Object instance = loadevent.getEntity();
@@ -124,7 +117,7 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 			Class real = Hibernate.getClass(instance);
 
 			Object copy = m_cache.createImage(real, instance, true);
-			copyProperties(copy, instance);				// Copy whatever properties we can
+			copyProperties(copy, instance);                // Copy whatever properties we can
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);
 		}
@@ -138,27 +131,25 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	 *		then we must replace the reference to the "before" image for that thing. If the thing is currently unloaded we must make
 	 *		sure we create the before image already, but with a "unloaded" indication.</li>
 	 * </ul>
-	 * @param copy
-	 * @param instance
 	 */
 	private <T> void copyProperties(@NonNull T dst, @NonNull T src) throws Exception {
-		for(PropertyMetaModel< ? > pmm : MetaManager.findClassMeta(src.getClass()).getProperties()) {
+		for(PropertyMetaModel<?> pmm : MetaManager.findClassMeta(src.getClass()).getProperties()) {
 //			System.out.println("   >> copy property " + pmm + " of " + src.getClass());
 			copyProperty(dst, src, pmm);
 		}
 	}
 
 	private <T, V> void copyProperty(@NonNull T dst, @NonNull T src, @NonNull PropertyMetaModel<V> pmm) throws Exception {
-		if(pmm.getReadOnly() == YesNoType.YES)					// Cannot set readonlies
+		if(pmm.getReadOnly() == YesNoType.YES)                    // Cannot set readonlies
 			return;
-		if(pmm.isTransient())									// We don't wanna play with transients.
+		if(pmm.isTransient())                                    // We don't wanna play with transients.
 			return;
 
-		V value = pmm.getValue(src);							// Get the source instance.
+		V value = pmm.getValue(src);                            // Get the source instance.
 
 		switch(pmm.getRelationType()){
 			case NONE:
-				pmm.setValue(dst, value);						// Just copy
+				pmm.setValue(dst, value);                        // Just copy
 				break;
 
 			case DOWN:
@@ -181,12 +172,9 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 
 	/**
 	 * If the instance is a "loaded" one then just get it's before image: it must be found.
-	 *
-	 * @param src
-	 * @return
 	 */
 	private <V> V convertParentRelation(@NonNull V src) throws Exception {
-		if(Hibernate.isInitialized(src)) {						// Loaded?
+		if(Hibernate.isInitialized(src)) {                        // Loaded?
 			//-- Replace the instance with the before image of that instance.
 			V before = m_cache.findBeforeImage(src);
 			if(null != before) {
@@ -209,7 +197,7 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 		if(m_cache.wasNew()) {
 			//-- We need to dup the PK and insert it into the copy. The PK itself can be compound and so also hold data to be copied 8-/
 			ClassMetaModel cmm = MetaManager.findClassMeta(src.getClass());
-			PropertyMetaModel< ? > pkmm = cmm.getPrimaryKey();
+			PropertyMetaModel<?> pkmm = cmm.getPrimaryKey();
 			if(null == pkmm)
 				throw new IllegalStateException("Cannot locate the private key property for class " + cmm);
 			copyProperty(copy, src, pkmm);
@@ -218,24 +206,19 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	}
 
 
-
 	/**
 	 * We cannot just copy collections because they might be lazy-loaded. So for lazy collections we have to do
 	 * the following, conceptually:
 	 * <ul>
 	 *	<li>Create our own "mirror" proxy class as the Collection<> type.</li>
 	 *	<li>Register the "mirror" as belonging to the original</li>
-	 *	<li>We will have added a {@link InitializeCollectionEventListener} to Hibernate. This listener will be called after the collection is initialized.</li>
+	 *	<li>We will have added a {@link org.hibernate.event.spi.InitializeCollectionEventListener} to Hibernate. This listener will be called after the collection is initialized.</li>
 	 *	<li>That listener will lookup the "mirror" collection and copy the just-loaded data in there.</li>
 	 * </ul>
-	 *
-	 * @param src
-	 * @return
-	 * @throws Exception
 	 */
 	private <E, C extends Collection<E>> C convertChildCollection(@NonNull C src) throws Exception {
 		if(Hibernate.isInitialized(src)) {
-			return createMirrorCollection(src);					// Just create an immutable copy.
+			return createMirrorCollection(src);                    // Just create an immutable copy.
 		}
 
 		//-- We need to create the correct mirror proxy.
@@ -250,8 +233,6 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	/**
 	 * This creates the mirrored collection for an already-loaded collection. It just creates a new base
 	 * type of the real collection type expected as an immutable type, then returns it.
-	 * @param source
-	 * @return
 	 */
 	@NonNull
 	static private <T, V extends Collection<T>, R extends IBeforeImageCollectionProxy<V>> R createMirrorCollectionProxy(@NonNull V source) {
@@ -267,8 +248,6 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	/**
 	 * This creates the mirrored collection for an already-loaded collection. It just creates a new base
 	 * type of the real collection type expected as an immutable type, then returns it.
-	 * @param source
-	 * @return
 	 */
 	@NonNull
 	static private <T, V extends Collection<T>> V createMirrorCollection(@NonNull V source) {
@@ -294,7 +273,6 @@ public class BeforeImageInterceptor extends EmptyInterceptor {
 	/**
 	 * Called from {@link CopyCollectionEventListener} when a lazy collection is loaded, this
 	 * initializes the "before" image of that collection.
-	 * @param collection
 	 */
 	public void collectionLoaded(@NonNull PersistentCollection collection) {
 		CollectionKey kk = new CollectionKey(collection.getRole(), collection.getKey());

@@ -1,10 +1,13 @@
 package to.etc.domui.hibernate.model;
 
-import org.hibernate.*;
-import org.hibernate.criterion.*;
-import org.hibernate.engine.*;
-import org.hibernate.type.*;
-import org.hibernate.util.*;
+import org.hibernate.Criteria;
+import org.hibernate.EntityMode;
+import org.hibernate.HibernateException;
+import org.hibernate.criterion.CriteriaQuery;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.engine.spi.TypedValue;
+import org.hibernate.internal.util.collections.ArrayHelper;
+import org.hibernate.type.Type;
 
 /**
  * This alternative implementation of SQLCriteria allows using SQL criteria's with

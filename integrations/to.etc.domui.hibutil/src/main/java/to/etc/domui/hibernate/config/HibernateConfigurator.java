@@ -31,6 +31,8 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.event.InitializeCollectionEventListener;
 import org.hibernate.event.PostLoadEventListener;
+import org.hibernate.event.spi.InitializeCollectionEventListener;
+import org.hibernate.event.spi.PostLoadEventListener;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.domui.hibernate.beforeimages.BeforeImageInterceptor;
@@ -286,7 +288,7 @@ final public class HibernateConfigurator {
 		m_dataSource = ds;
 
 		//-- Create a Hibernate configuration.
-		AnnotationConfiguration config = new AnnotationConfiguration();
+		Configuration config = new Configuration();
 		for(Class< ? > clz : m_annotatedClassList)
 			config.addAnnotatedClass(clz);
 		m_annotatedClassList = null; // Release memory- list is never used.

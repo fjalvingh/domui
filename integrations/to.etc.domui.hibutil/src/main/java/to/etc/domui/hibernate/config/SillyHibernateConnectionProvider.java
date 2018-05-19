@@ -31,6 +31,7 @@ import javax.sql.*;
 
 import org.hibernate.*;
 import org.hibernate.connection.*;
+import org.hibernate.engine.jdbc.connections.spi.ConnectionProvider;
 
 /**
  * Only reason for existence is to provide a DataSource to hibernate dynamically. This class

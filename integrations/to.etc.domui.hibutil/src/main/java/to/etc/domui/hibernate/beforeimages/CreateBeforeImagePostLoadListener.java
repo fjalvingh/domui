@@ -1,7 +1,9 @@
 package to.etc.domui.hibernate.beforeimages;
 
-import org.hibernate.*;
-import org.hibernate.event.*;
+import org.hibernate.Interceptor;
+import org.hibernate.event.spi.EventSource;
+import org.hibernate.event.spi.PostLoadEvent;
+import org.hibernate.event.spi.PostLoadEventListener;
 
 /**
  * Used to create "before" copies of all instances loaded from the database. This listener

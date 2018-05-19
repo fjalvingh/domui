@@ -1,7 +1,10 @@
 package to.etc.domui.hibernate.beforeimages;
 
-import org.hibernate.*;
-import org.hibernate.event.*;
+import org.hibernate.HibernateException;
+import org.hibernate.Interceptor;
+import org.hibernate.event.spi.EventSource;
+import org.hibernate.event.spi.InitializeCollectionEvent;
+import org.hibernate.event.spi.InitializeCollectionEventListener;
 
 /**
  * This listener must be added to Hibernate's listeners to support before-images of loaded collections. The
