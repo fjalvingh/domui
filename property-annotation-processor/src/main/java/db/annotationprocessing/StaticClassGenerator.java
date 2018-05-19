@@ -46,7 +46,13 @@ public class StaticClassGenerator extends ClassGenerator {
 	@Override
 	protected void generateParentProperty(TypeMirror returnType, String propertyName) throws Exception {
 		Element mtype = typeUtils().asElement(returnType);
-		String qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(mtype.getSimpleName().toString());
+		String qtype;
+		if(null == mtype) {
+			//-- non-source class?
+			qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(getSimpleName(returnType.toString()));
+		} else {
+			qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(mtype.getSimpleName().toString());
+		}
 		String mname = replaceReserved(propertyName);
 		m_w.append("\t@NonNull\n\tstatic public final ");
 		m_w.append(qtype);

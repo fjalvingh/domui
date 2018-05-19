@@ -53,9 +53,15 @@ public class LinkClassGenerator extends ClassGenerator {
 
 	@Override
 	protected void generateParentProperty(TypeMirror returnType, String propertyName) throws Exception {
+		System.out.println("ANN: parent type is " + returnType);
 		Element mtype = typeUtils().asElement(returnType);
-		String qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(mtype.getSimpleName().toString());
-
+		String qtype;
+		if(null == mtype) {
+			//-- non-source class?
+			qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(getSimpleName(returnType.toString()));
+		} else {
+			qtype = packName(returnType.toString()) + "." + m_processor.getLinkClass(mtype.getSimpleName().toString());
+		}
 		String mname = replaceReserved(propertyName);
 		m_w.append("\t@NonNull\n");
 		m_w.append("\tpublic final ").append(qtype).append("<R> ").append(mname).append("() {");

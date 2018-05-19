@@ -104,19 +104,26 @@ abstract class ClassGenerator {
 			return;
 
 		//-- Now generate the appropriate types.
-		if(property.getAnnotationNames().contains("Column") || isSimpleType(property.getType())) {
-			generateColumnProperty(property.getType(), property.getName());
-		} else if(isCollection(property.getType())) {
+		TypeMirror type = property.getType();
+		Element mtype = typeUtils().asElement(type);
+		if(property.getAnnotationNames().contains("Column") || isSimpleType(type) || mtype == null) {
+			generateColumnProperty(type, property.getName());
+		} else if(isCollection(type)) {
 			//-- todo
 		} else {
-			Element mtype = typeUtils().asElement(property.getType());
-			//System.out.println("ANN: elementType " + property + " is " + mtype);
+			//System.out.println("ANN: property " + property.getName() + " type is " + type);
+			//System.out.println("ANN: elementType " + property.getName() + " is " + mtype);
 			//getMessager().printMessage(Kind.WARNING, "ANN: elementType " + property + " is " + mtype);
-			if(! hasAnnotation(mtype, PropertyAnnotationProcessor.GENERATED_PROPERTIES_ANNOTATION)
-				&& ! hasAnnotation(mtype, PropertyAnnotationProcessor.PERSISTENCE_ANNOTATION))
-				return;
 
-			generateParentProperty(property.getType(), property.getName());
+			/*
+			 * The element type will be null for something like Object[], so do not check for annotations on that.
+			 */
+			if(null != mtype) {
+				if(!hasAnnotation(mtype, PropertyAnnotationProcessor.GENERATED_PROPERTIES_ANNOTATION)
+					&& !hasAnnotation(mtype, PropertyAnnotationProcessor.PERSISTENCE_ANNOTATION))
+					return;
+			}
+			generateParentProperty(type, property.getName());
 		}
 	}
 
@@ -256,6 +263,12 @@ abstract class ClassGenerator {
 		}
 		return s;
 	}
+
+
+	static protected String getSimpleName(String name) {
+		return name.substring(name.lastIndexOf('.') + 1);
+	}
+
 
 	static final Set<String> m_reserved = new HashSet<String>();
 
