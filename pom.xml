@@ -83,27 +83,17 @@
     </properties>
 
     <modules>
-        <module>property-annotation-processor</module>
         <module>parent</module>
         <module>common</module>
-        <module>to.etc.logger</module>
-        <module>to.etc.alg</module>
-        <module>to.etc.db</module>
-        <module>to.etc.pater</module>
-        <module>to.etc.syntaxer</module>
         <module>to.etc.webapp.core</module>
-        <module>sass-compiler</module>
         <module>to.etc.domui</module>
-        <module>to.etc.domui.hibutil</module>
         <module>to.etc.domui.derbydata</module>
         <module>to.etc.domui.legacy</module>
         <module>to.etc.domui.formbuilder</module>
-        <module>to.etc.domui.selenium</module>
         <module>to.etc.domui.demo</module>
-        <module>to.etc.dbcompare</module>
         <module>archetypes</module>
         <module>utilities</module>
-        <module>domui-jpa</module>
+        <module>integrations</module>
     </modules>
 
     <build>

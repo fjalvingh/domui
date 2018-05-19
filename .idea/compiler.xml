@@ -44,12 +44,14 @@
     <bytecodeTargetLevel>
       <module name="annotations" target="1.8" />
       <module name="common" target="1.5" />
+      <module name="core" target="1.5" />
       <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="1.8" />
       <module name="domui-jpa" target="1.8" />
       <module name="domui-utilities" target="1.5" />
+      <module name="integrations" target="1.5" />
       <module name="property-annotations-processor" target="1.8" />
       <module name="to.etc.alg" target="1.8" />
       <module name="to.etc.db" target="1.8" />

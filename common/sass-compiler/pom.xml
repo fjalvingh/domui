@@ -5,7 +5,7 @@
     <version>1.0.0-SNAPSHOT</version>
     <artifactId>vaadin-sass-compiler</artifactId>
     <packaging>jar</packaging>
-    <name>domui :: sass compiler</name>
+    <name>domui :: common :: sass compiler</name>
     <inceptionYear>2013</inceptionYear>
 
     <organization>
