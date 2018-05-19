@@ -43,6 +43,10 @@ public class StaticClassGenerator extends ClassGenerator {
 		m_w.append("\t}\n\n");
 	}
 
+	@Override protected void generateCollectionProperty(TypeMirror type, String name) throws Exception {
+		generateColumnProperty(type, name);
+	}
+
 	@Override
 	protected void generateParentProperty(TypeMirror returnType, String propertyName) throws Exception {
 		Element mtype = typeUtils().asElement(returnType);

@@ -109,6 +109,7 @@ abstract class ClassGenerator {
 		if(property.getAnnotationNames().contains("Column") || isSimpleType(type) || mtype == null) {
 			generateColumnProperty(type, property.getName());
 		} else if(isCollection(type)) {
+			generateCollectionProperty(type, property.getName());
 			//-- todo
 		} else {
 			//System.out.println("ANN: property " + property.getName() + " type is " + type);
@@ -126,6 +127,8 @@ abstract class ClassGenerator {
 			generateParentProperty(type, property.getName());
 		}
 	}
+
+	protected abstract void generateCollectionProperty(TypeMirror type, String name) throws Exception;
 
 	protected void generateClassExtends() throws IOException {
 	}
