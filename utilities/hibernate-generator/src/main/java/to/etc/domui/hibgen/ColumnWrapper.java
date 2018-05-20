@@ -28,6 +28,7 @@ import com.github.javaparser.ast.type.PrimitiveType.Primitive;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Node;
 import to.etc.dbutil.schema.DbColumn;
@@ -400,6 +401,10 @@ public class ColumnWrapper {
 			case Types.TIME:
 				setPropertyType(new ClassOrInterfaceType("java.sql.Time"));
 				return true;
+
+			case Types.SQLXML:
+				setPropertyType(new ClassOrInterfaceType("java.sql.SQLXML"));
+				return true;
 		}
 	}
 
@@ -652,7 +657,7 @@ public class ColumnWrapper {
 		return s.toLowerCase().startsWith("y");
 	}
 
-	private void assignBooleanType(@Nonnull ExtraType extra) {
+	private void assignBooleanType(@NonNull ExtraType extra) {
 		//-- Make boolean.
 		if(m_column.isNullable()) {
 			String fnn = getConfigProperty("forceNotNull");

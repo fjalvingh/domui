@@ -19,7 +19,6 @@ import to.etc.util.FileTool;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -162,7 +161,7 @@ public class OracleReverser extends JDBCReverser {
 
 				//-- Create this column thingy..
 				int daty = oracleTypeToSQLType(typename);
-				ColumnType ct = decodeColumnType(daty, typename);
+				ColumnType ct = decodeColumnType(schema, daty, typename);
 				if(ct == null)
 					throw new IllegalStateException("Unknown type: SQLType " + daty + " (" + typename + ") in " + t.getName() + "." + cn);
 

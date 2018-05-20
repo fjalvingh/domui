@@ -75,6 +75,7 @@ public class JDBCReverser implements Reverser {
 			Set<DbSchema> schemaSet = m_schemaSet;
 			schemaSet.clear();
 			schemaSet.add(schema);
+			initialize(dbc, schemaSet);
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
@@ -99,6 +100,10 @@ public class JDBCReverser implements Reverser {
 		} finally {
 			FileTool.closeAll(dbc);
 		}
+	}
+
+	protected void initialize(Connection dbc, Set<DbSchema> schema) throws Exception {
+
 	}
 
 	@Override public Set<DbSchema> getSchemas(boolean lazily) throws Exception {
@@ -128,6 +133,7 @@ public class JDBCReverser implements Reverser {
 				DbSchema schema = new DbSchema(this, name);
 				schemaSet.add(schema);
 			}
+			initialize(dbc, schemaSet);
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
@@ -276,33 +282,13 @@ public class JDBCReverser implements Reverser {
 					//						throw new IllegalStateException("JDBC driver trouble: getColumns() does not return cols ordered by position: " + lastord + ", " + ord);
 					lastord = ord;
 				}
-				if(name.equals("BET_MJB"))
-					dumpRow(rs);
-
-				int daty = rs.getInt("DATA_TYPE"); // Types.xxx
-				String typename = rs.getString("TYPE_NAME");
-				int prec = rs.getInt("COLUMN_SIZE");
-				int scale = rs.getInt("DECIMAL_DIGITS");
-				int nulla = rs.getInt("NULLABLE");
-				if(nulla == DatabaseMetaData.columnNullableUnknown)
-					throw new IllegalStateException("JDBC driver does not know nullability of " + t.getName() + "." + name);
-				String autoi = rs.getString("IS_AUTOINCREMENT");
-				Boolean autoIncrement = autoi == null ? null : "yes".equalsIgnoreCase(autoi) ? Boolean.TRUE : Boolean.FALSE;
-
-				ColumnType ct = decodeColumnType(daty, typename);
-				if(ct == null) {
-					log("Unknown type: SQLType " + daty + " (" + typename + ") in " + t.getName() + "." + name);
+				DbColumn c = reverseColumn(t, rs, name);
+				if(c == null)
 					continue;
-				}
 
-				DbColumn c = new DbColumn(t, name, ct, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement);
 				if(null != columnMap.put(name, c))
 					throw new IllegalStateException("Duplicate column name '" + name + "' in table " + t.getName());
 				columnList.add(c);
-
-				c.setComment(rs.getString("REMARKS"));
-				c.setPlatformTypeName(typename);
-				c.setSqlType(daty);
 			}
 			//msg("Loaded " + t.getName() + ": " + columnMap.size() + " columns");
 			t.initializeColumns(columnList, columnMap);
@@ -312,6 +298,41 @@ public class JDBCReverser implements Reverser {
 					rs.close();
 			} catch(Exception x) {}
 		}
+	}
+
+	protected DbColumn reverseColumn(DbTable t, ResultSet rs, String name) throws Exception {
+		if(name.equals("BET_MJB"))
+			dumpRow(rs);
+
+		int daty = rs.getInt("DATA_TYPE"); 							// Types.xxx
+		String typename = rs.getString("TYPE_NAME");
+		int prec = rs.getInt("COLUMN_SIZE");
+		int scale = rs.getInt("DECIMAL_DIGITS");
+		int nulla = rs.getInt("NULLABLE");
+		if(nulla == DatabaseMetaData.columnNullableUnknown)
+			throw new IllegalStateException("JDBC driver does not know nullability of " + t.getName() + "." + name);
+		String autoi = rs.getString("IS_AUTOINCREMENT");
+		Boolean autoIncrement = autoi == null ? null : "yes".equalsIgnoreCase(autoi) ? Boolean.TRUE : Boolean.FALSE;
+
+		ColumnType ct = decodeColumnType(t.getSchema(), daty, typename);
+		DbColumn c;
+		if(ct == null) {
+			c = reverseColumnUnknownType(rs, t, name, daty, typename, prec, scale, nulla, autoIncrement);
+			if(null == c) {
+				return null;
+			}
+		} else {
+			c = new DbColumn(t, name, ct, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement);
+			c.setPlatformTypeName(typename);
+			c.setSqlType(daty);
+		}
+		c.setComment(rs.getString("REMARKS"));
+		return c;
+	}
+
+	protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, int nulla, Boolean autoIncrement) {
+		log("Unknown type: SQLType " + sqlType + " (" + typename + ") in " + t.getName() + "." + name);
+		return null;
 	}
 
 	static private void dumpRow(ResultSet rs) throws Exception {
@@ -544,19 +565,38 @@ public class JDBCReverser implements Reverser {
 	}
 
 	/**
-	 * Very simple and naive impl of mapping the genericized type.
-	 * @param sqltype
-	 * @param typename
-	 * @return
+	 * Very simple and naive impl of mapping the genericised type.
 	 */
-	public ColumnType decodeColumnType(int sqltype, String typename) {
+	public ColumnType decodeColumnType(@Nullable DbSchema schema, int sqltype, @Nullable String typename) {
 		for(ColumnType t : ColumnType.getTypes()) {
 			if(t.getSqlType() == sqltype)
 				return t;
 		}
+		ColumnType x = decodeColumnTypeByCode(schema, sqltype, typename);
+		if(x != null)
+			return x;
+		return decodeColumnTypeByPlatformName(schema, sqltype, typename);
+	}
+
+	protected ColumnType decodeColumnTypeByPlatformName(@Nullable DbSchema schema, int sqltype, @Nullable String typename) {
+		if(null == typename)
+			return null;
+		for(ColumnType t : ColumnType.getTypes()) {
+			for(String pn : t.getPlatformNames()) {
+				if(pn.equalsIgnoreCase(typename)) {
+					return t;
+				}
+			}
+		}
+		return null;
+	}
+
+	protected ColumnType decodeColumnTypeByCode(DbSchema schema, int sqltype, String typename) {
 		switch(sqltype){
 			case Types.BIT:
 				return ColumnType.BOOLEAN;
+			case Types.SMALLINT:
+				return ColumnType.INTEGER2;
 			case Types.BOOLEAN:
 				return ColumnType.BOOLEAN;
 
@@ -573,7 +613,6 @@ public class JDBCReverser implements Reverser {
 				return ColumnType.BLOB;
 		}
 		return null;
-		//        throw new IllegalStateException("Cannot convert SQLTYPE="+sqltype+": "+typename+" to a generic column type");
 	}
 
 	public void reverseViews(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {}

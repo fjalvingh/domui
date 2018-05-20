@@ -1851,6 +1851,9 @@ class ClassWrapper {
 		List<ColumnWrapper> searchlist = new ArrayList<>();
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
+			if(null == cw.getPropertyType())
+				continue;
+
 			//-- Ignore all silly names.
 			DbColumn column = cw.getColumn();
 			if(null != column) {

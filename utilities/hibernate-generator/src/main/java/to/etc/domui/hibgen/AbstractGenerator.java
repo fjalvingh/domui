@@ -322,7 +322,7 @@ abstract public class AbstractGenerator {
 		} else {
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-			Document xmlDoc = docBuilder.newDocument();
+			Document xmlDoc = m_configDocument = docBuilder.newDocument();
 
 			m_configRoot = xmlDoc.createElement("config");
 			xmlDoc.appendChild(m_configRoot);
@@ -1031,8 +1031,6 @@ abstract public class AbstractGenerator {
 
 	/**
 	 * Find the node for the specified table.
-	 * @param table
-	 * @return
 	 */
 	public Node getTableConfig(DbTable table) {
 		String tblname = table.getSchema().getName() + "." + table.getName();

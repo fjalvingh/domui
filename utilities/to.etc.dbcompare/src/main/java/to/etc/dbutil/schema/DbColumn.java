@@ -47,6 +47,19 @@ public class DbColumn implements Serializable {
 		m_autoIncrement = autoIncrement;
 	}
 
+	public DbColumn(DbTable table, String name, ColumnType type, int precision, int scale, boolean nullable, Boolean autoIncrement, int sqlType, String platformTypeName) {
+		m_table = table;
+		m_name = name;
+		m_type = type;
+		m_precision = precision;
+		m_scale = scale;
+		m_nullable = nullable;
+		m_autoIncrement = autoIncrement;
+		m_sqlType = sqlType;
+		m_platformTypeName = platformTypeName;
+	}
+
+
 	@NonNull
 	public Reverser r() {
 		return m_table.r();
