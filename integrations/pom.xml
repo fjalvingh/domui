@@ -19,7 +19,6 @@
     <modules>
         <module>to.etc.domui.selenium</module>
         <module>to.etc.domui.hibutil</module>
-        <module>domui-jpa</module>
     </modules>
 
 </project>
