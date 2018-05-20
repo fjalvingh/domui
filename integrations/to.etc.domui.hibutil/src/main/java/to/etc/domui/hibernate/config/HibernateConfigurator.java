@@ -298,7 +298,8 @@ final public class HibernateConfigurator {
 		 * Set other properties according to config settings made.
 		 */
 		//serviceBuilder.remove("hibernate.connection.datasource");
-		serviceBuilder.applySetting("hibernate.connection.provider_class", SillyHibernateConnectionProvider.class.getName());
+		serviceBuilder.applySetting("hibernate.connection.datasource", ds);
+		//serviceBuilder.applySetting("hibernate.connection.provider_class", SillyHibernateConnectionProvider.class.getName());
 		boolean logsql;
 		if(m_showSQL == null)
 			logsql = DeveloperOptions.getBool("hibernate.sql", false); // Take default from .developer.properties
