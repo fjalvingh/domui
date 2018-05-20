@@ -757,7 +757,8 @@ class ClassWrapper {
 
 	private void renderClassAnnotations() {
 		ClassOrInterfaceDeclaration rootType = getRootType();
-		createOrFindMarkerAnnotation(rootType, "javax.persistence.Entity");
+		if(getType() == ClassWrapperType.tableClass)
+			createOrFindMarkerAnnotation(rootType, "javax.persistence.Entity");
 		DbTable table = m_table;
 		if(null != table) {
 			NormalAnnotationExpr a = createOrFindAnnotation(rootType, "javax.persistence.Table");
