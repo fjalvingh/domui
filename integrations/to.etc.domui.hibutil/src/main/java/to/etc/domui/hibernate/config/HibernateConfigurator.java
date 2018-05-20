@@ -25,6 +25,7 @@
 package to.etc.domui.hibernate.config;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -32,7 +33,6 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.SessionFactoryBuilder;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
-import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
@@ -62,7 +62,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * Helper class to help with configuring Hibernate for DomUI easily. You are not required to
@@ -73,6 +72,7 @@ import java.util.function.Consumer;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 30, 2010
  */
+@NonNullByDefault
 final public class HibernateConfigurator {
 	/** This is the DataSource that will provide all Hibernate connections for us. */
 	static private DataSource m_dataSource;
@@ -95,7 +95,7 @@ final public class HibernateConfigurator {
 	/** The registered query handlers for DomUI */
 	static private QQueryExecutorRegistry m_handlers = new QQueryExecutorRegistry();
 
-	static private List<Consumer<Configuration>> m_onConfigureList = Collections.emptyList();
+	static private List<IHibernateConfigListener> m_onConfigureList = Collections.emptyList();
 
 	private static boolean m_allowHibernateHiloSequences;
 
@@ -188,7 +188,7 @@ final public class HibernateConfigurator {
 			throw new IllegalStateException("This method must be called AFTER one of the 'initialize' methods gets called.");
 	}
 
-	static public synchronized void addConfigListener(Consumer<Configuration> listener) {
+	static public synchronized void addConfigListener(IHibernateConfigListener listener) {
 		m_onConfigureList = new ArrayList<>(m_onConfigureList);
 		m_onConfigureList.add(listener);
 	}
@@ -340,11 +340,22 @@ final public class HibernateConfigurator {
 				break;
 		}
 
+		// change settings
+		for(IHibernateConfigListener listener : m_onConfigureList) {
+			listener.onSettings(serviceBuilder);
+		}
+
 		ServiceRegistry reg = serviceBuilder.build();
 		MetadataSources sources = new MetadataSources(reg);
 
 		for(Class<?> clz : m_annotatedClassList)
 			sources.addAnnotatedClass(clz);
+
+		// add classes
+		for(IHibernateConfigListener listener : m_onConfigureList) {
+			listener.onAddSources(sources);
+		}
+
 		m_annotatedClassList = null; 							// Release memory- list is never used.
 		Metadata metaData = sources.getMetadataBuilder()
 			.applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
@@ -369,11 +380,15 @@ final public class HibernateConfigurator {
 		SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) sessionFactoryBuilder.build();
 		m_sessionFactory = sessionFactory;
 
+		EventListenerRegistry listenerRegistry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
 		if(m_beforeImagesEnabled) {
-			EventListenerRegistry listenerRegistry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
 			listenerRegistry.prependListeners(EventType.POST_LOAD, new CreateBeforeImagePostLoadListener());
 			listenerRegistry.prependListeners(EventType.INIT_COLLECTION, new CopyCollectionEventListener());
 		}
+		for(IHibernateConfigListener listener : m_onConfigureList) {
+			listener.onAddListeners(listenerRegistry);
+		}
+
 
 		//-- Start DomUI/WebApp.core initialization: generalized database layer
 		HibernateSessionMaker hsm;
