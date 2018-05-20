@@ -27,9 +27,16 @@ package to.etc.domui.hibernate.config;
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.Metadata;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.SessionFactoryBuilder;
+import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.event.spi.InitializeCollectionEventListener;
-import org.hibernate.event.spi.PostLoadEventListener;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.event.service.spi.EventListenerRegistry;
+import org.hibernate.event.spi.EventType;
+import org.hibernate.service.ServiceRegistry;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.domui.hibernate.beforeimages.BeforeImageInterceptor;
@@ -252,8 +259,8 @@ final public class HibernateConfigurator {
 		m_observableEnabled = yes;
 	}
 
-	static private void enhanceMappings(@NonNull Configuration config) throws Exception {
-		HibernateChecker hc = new HibernateChecker(config, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled, m_allowHibernateSuckySequences);
+	static private void enhanceMappings(@NonNull Metadata metaData) throws Exception {
+		HibernateChecker hc = new HibernateChecker(metaData, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled, m_allowHibernateSuckySequences);
 		hc.enhanceMappings();
 	}
 
@@ -274,23 +281,7 @@ final public class HibernateConfigurator {
 		long ts = System.nanoTime();
 		m_dataSource = ds;
 
-		//-- Create a Hibernate configuration.
-		Configuration config = new Configuration();
-		for(Class<?> clz : m_annotatedClassList)
-			config.addAnnotatedClass(clz);
-		m_annotatedClassList = null; // Release memory- list is never used.
-
-
-		/*
-		 * Hibernate defaults to completely non-standard hehavior for sequences, using the
-		 * "hilo" sequence generator by default. This irresponsible behavior means that
-		 * by default Hibernate code is incompatible with any code using sequences.
-		 * Since that is irresponsible and downright DUMB this reverts the behavior to
-		 * using sequences in their normal behavior.
-		 * See https://stackoverflow.com/questions/12745751/hibernate-sequencegenerator-and-allocationsize
-		 */
-		config.setProperty("hibernate.id.new_generator_mappings", "true"); // MUST BE BEFORE config.configure
-
+		//-- Create Hibernate's config. See https://docs.jboss.org/hibernate/orm/5.1/userguide/html_single/chapters/bootstrap/Bootstrap.html
 		/*
 		 * Hibernate apparently cannot initialize without the useless hibernate.cfg.xml file. We cannot
 		 * add that file at the root location because that would interfere with applications. To have a
@@ -298,18 +289,16 @@ final public class HibernateConfigurator {
 		 * it hard to reach- we need to calculate the proper name, sigh.
 		 */
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
-		config.configure(resname);
-		enhanceMappings(config);
-
-		for(Consumer<Configuration> listener : m_onConfigureList) {
-			listener.accept(config);
-		}
+		//config.configure(resname);
+		StandardServiceRegistryBuilder serviceBuilder = new StandardServiceRegistryBuilder()
+			.configure(resname)
+			;
 
 		/*
 		 * Set other properties according to config settings made.
 		 */
-		config.getProperties().remove("hibernate.connection.datasource");
-		config.setProperty("hibernate.connection.provider_class", SillyHibernateConnectionProvider.class.getName());
+		//serviceBuilder.remove("hibernate.connection.datasource");
+		serviceBuilder.applySetting("hibernate.connection.provider_class", SillyHibernateConnectionProvider.class.getName());
 		boolean logsql;
 		if(m_showSQL == null)
 			logsql = DeveloperOptions.getBool("hibernate.sql", false); // Take default from .developer.properties
@@ -317,71 +306,88 @@ final public class HibernateConfigurator {
 			logsql = m_showSQL.booleanValue();
 
 		if(logsql) {
-			config.setProperty("show_sql", "true");
-			config.setProperty("hibernate.show_sql", "true");
+			serviceBuilder.applySetting("show_sql", "true");
+			serviceBuilder.applySetting("hibernate.show_sql", "true");
 		}
 
+		/*
+		 * Hibernate defaults to completely non-standard behavior for sequences, using the
+		 * "hilo" sequence generator by default. This irresponsible behavior means that
+		 * by default Hibernate code is incompatible with any code using sequences.
+		 * Since that is irresponsible and downright DUMB this reverts the behavior to
+		 * using sequences in their normal behavior.
+		 * See https://stackoverflow.com/questions/12745751/hibernate-sequencegenerator-and-allocationsize
+		 */
+		serviceBuilder.applySetting("hibernate.id.new_generator_mappings", "true"); // MUST BE BEFORE config.configure
+
 		if(DeveloperOptions.getBool("hibernate.format_sql", true)) {
-			config.setProperty("hibernate.format_sql", "true");
+			serviceBuilder.applySetting("hibernate.format_sql", "true");
 		}
 
 		switch(m_mode){
 			default:
 				throw new IllegalStateException("Mode: " + m_mode);
 			case CREATE:
-				config.setProperty("hbm2ddl.auto", "create");
-				config.setProperty("hibernate.hbm2ddl.auto", "create");
+				serviceBuilder.applySetting("hbm2ddl.auto", "create");
+				serviceBuilder.applySetting("hibernate.hbm2ddl.auto", "create");
 				break;
 			case NONE:
-				config.setProperty("hbm2ddl.auto", "none");
-				config.setProperty("hibernate.hbm2ddl.auto", "none");
+				serviceBuilder.applySetting("hbm2ddl.auto", "none");
+				serviceBuilder.applySetting("hibernate.hbm2ddl.auto", "none");
 				break;
 			case UPDATE:
-				config.setProperty("hbm2ddl.auto", "update");
-				config.setProperty("hibernate.hbm2ddl.auto", "update");
+				serviceBuilder.applySetting("hbm2ddl.auto", "update");
+				serviceBuilder.applySetting("hibernate.hbm2ddl.auto", "update");
 				break;
 		}
 
-		if(m_beforeImagesEnabled) {
-//			/*
-//			 * jal 20140120 Add a collection initialized event listener to support before-images.
-//			 */
-//			if(m_defaultInterceptor != null) {
-//				if(! (m_defaultInterceptor instanceof BeforeImageInterceptor))
-//					throw new IllegalStateException("Using before images means that your Interceptor MUST extend BeforeImageInterceptor");
-//			} else {
-//				m_defaultInterceptor = new BeforeImageInterceptor()
-//			}
+		ServiceRegistry reg = serviceBuilder.build();
+		MetadataSources sources = new MetadataSources(reg);
 
-			config.getEventListeners().setPostLoadEventListeners(new PostLoadEventListener[]{new CreateBeforeImagePostLoadListener()});
+		for(Class<?> clz : m_annotatedClassList)
+			sources.addAnnotatedClass(clz);
+		m_annotatedClassList = null; 							// Release memory- list is never used.
+		Metadata metaData = sources.getMetadataBuilder()
+			.applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
+			.build();
 
-			InitializeCollectionEventListener[] iel = config.getEventListeners().getInitializeCollectionEventListeners();
-			InitializeCollectionEventListener[] iel2 = new InitializeCollectionEventListener[iel.length + 1];
-			System.arraycopy(iel, 0, iel2, 0, iel.length);
-			iel2[iel.length] = new CopyCollectionEventListener();    // Add the listener that updates collection before-images for lazy-loaded collections
-			config.getEventListeners().setInitializeCollectionEventListeners(iel2);
-		}
+		enhanceMappings(metaData);
+
+		//for(Consumer<Configuration> listener : m_onConfigureList) {
+		//	listener.accept(config);
+		//}
 
 		//-- Create the session factory: this completes the Hibernate config part.
-		m_sessionFactory = config.buildSessionFactory();
+		SessionFactoryBuilder sessionFactoryBuilder = metaData.getSessionFactoryBuilder();
+
+//		sessionFactoryBuilder.applyInterceptor( new CustomSessionFactoryInterceptor() );
+
+		//sessionFactoryBuilder.addSessionFactoryObservers( new CustomSessionFactoryObserver() );
+
+		// Apply a CDI BeanManager ( for JPA event listeners )
+		//sessionFactoryBuilder.applyBeanManager( getBeanManager() );
+
+		SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) sessionFactoryBuilder.build();
+		m_sessionFactory = sessionFactory;
+
+		if(m_beforeImagesEnabled) {
+			EventListenerRegistry listenerRegistry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
+			listenerRegistry.prependListeners(EventType.POST_LOAD, new CreateBeforeImagePostLoadListener());
+			listenerRegistry.prependListeners(EventType.INIT_COLLECTION, new CopyCollectionEventListener());
+		}
 
 		//-- Start DomUI/WebApp.core initialization: generalized database layer
 		HibernateSessionMaker hsm;
 		if(m_beforeImagesEnabled) {
 			//-- We need the copy interceptor to handle these.
-			hsm = new HibernateSessionMaker() {
-				@Override
-				public Session makeSession(@NonNull BuggyHibernateBaseContext dc) throws Exception {
-					return m_sessionFactory.openSession(new BeforeImageInterceptor(dc.getBeforeCache()));
-				}
+			hsm = dc -> {
+				return m_sessionFactory.withOptions()
+					.interceptor(new BeforeImageInterceptor(dc.getBeforeCache()))
+					.openSession();
+				//return m_sessionFactory.openSession(new BeforeImageInterceptor(dc.getBeforeCache()));
 			};
 		} else {
-			hsm = new HibernateSessionMaker() {
-				@Override
-				public Session makeSession(@NonNull BuggyHibernateBaseContext dc) throws Exception {
-					return m_sessionFactory.openSession();
-				}
-			};
+			hsm = dc -> m_sessionFactory.openSession();
 		}
 
 		//-- If no handlers are registered: register the default ones.

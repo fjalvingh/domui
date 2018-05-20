@@ -1,12 +1,11 @@
 package to.etc.domui.hibernate.config;
 
 import org.hibernate.annotations.Type;
-import org.hibernate.cfg.Configuration;
+import org.hibernate.boot.Metadata;
 import org.hibernate.mapping.Bag;
 import org.hibernate.mapping.PersistentClass;
 import org.hibernate.mapping.Property;
 import org.hibernate.mapping.SimpleValue;
-import org.hibernate.property.Getter;
 import org.hibernate.property.access.spi.Getter;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -42,7 +41,7 @@ import java.util.Properties;
 final public class HibernateChecker {
 	private final boolean m_allowHibernateSuckySequences;
 
-	private Configuration m_config;
+	private Metadata m_metaData;
 	private int m_dupTables;
 	private int m_badOneToMany;
 	private int m_badChildType;
@@ -81,8 +80,8 @@ final public class HibernateChecker {
 		INFO, WARNING, ERROR, MUSTFIXNOW
 	}
 
-	public HibernateChecker(Configuration config, boolean reportProblems, boolean enableObservableCollections, boolean allowHibernateSuckySequences) {
-		m_config = config;
+	public HibernateChecker(Metadata metaData, boolean reportProblems, boolean enableObservableCollections, boolean allowHibernateSuckySequences) {
+		m_metaData = metaData;
 		m_reportProblems = reportProblems;
 		m_observableCollections = enableObservableCollections;
 		m_allowHibernateSuckySequences = allowHibernateSuckySequences;
@@ -105,7 +104,7 @@ final public class HibernateChecker {
 	}
 
 	public void enhanceMappings() throws Exception {
-		m_config.buildMappings();
+		//m_config.buildMappings();
 
 		/*
 		 * This code completes configuration for some user types, because Hibernate is unable to pass
@@ -118,7 +117,9 @@ final public class HibernateChecker {
 		m_badChildType = 0;
 
 		//-- For some reason the hibernate kids only fill config after the session factory has been created. Very unhygienic.
-		for(Iterator< ? > iter = m_config.getClassMappings(); iter.hasNext();) {
+
+
+		for(Iterator< ? > iter = m_metaData.getEntityBindings().iterator(); iter.hasNext();) {
 			PersistentClass pc = (PersistentClass) iter.next();
 			m_currentClass = pc.getMappedClass();
 			m_currentProperty = null;
