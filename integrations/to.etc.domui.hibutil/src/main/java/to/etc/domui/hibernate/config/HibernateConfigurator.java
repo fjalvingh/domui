@@ -370,6 +370,7 @@ final public class HibernateConfigurator {
 		m_sessionFactory = sessionFactory;
 
 		if(m_beforeImagesEnabled) {
+			// https://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/chapters/events/Events.html
 			EventListenerRegistry listenerRegistry = sessionFactory.getServiceRegistry().getService(EventListenerRegistry.class);
 			listenerRegistry.prependListeners(EventType.POST_LOAD, new CreateBeforeImagePostLoadListener());
 			listenerRegistry.prependListeners(EventType.INIT_COLLECTION, new CopyCollectionEventListener());
