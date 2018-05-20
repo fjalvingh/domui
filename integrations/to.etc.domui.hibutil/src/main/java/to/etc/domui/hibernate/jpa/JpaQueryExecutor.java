@@ -1,9 +1,8 @@
-package to.etc.domui.jpa.em;
+package to.etc.domui.hibernate.jpa;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import to.etc.domui.jpa.JpaConnector;
-import to.etc.domui.jpa.criteria.GenericHibernateHandler;
+import to.etc.domui.hibernate.model.GenericHibernateHandler;
 import to.etc.webapp.query.ICriteriaTableDef;
 import to.etc.webapp.query.IQueryExecutor;
 import to.etc.webapp.query.IQueryExecutorFactory;

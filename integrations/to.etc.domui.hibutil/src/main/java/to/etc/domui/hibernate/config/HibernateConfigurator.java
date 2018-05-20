@@ -78,7 +78,7 @@ final public class HibernateConfigurator {
 	static private DataSource m_dataSource;
 
 	/** The session factory created after initialization. */
-	static SessionFactory m_sessionFactory;
+	static private SessionFactory m_sessionFactory;
 
 	/** The DomUI Context source */
 	static private QDataContextFactory m_contextSource;
@@ -97,7 +97,7 @@ final public class HibernateConfigurator {
 
 	static private List<Consumer<Configuration>> m_onConfigureList = Collections.emptyList();
 
-	private static boolean m_allowHibernateSuckySequences;
+	private static boolean m_allowHibernateHiloSequences;
 
 	/**
 	 * Defines the database update mode (hibernate.hbm2ddl.auto).
@@ -260,7 +260,7 @@ final public class HibernateConfigurator {
 	}
 
 	static private void enhanceMappings(@NonNull Metadata metaData) throws Exception {
-		HibernateChecker hc = new HibernateChecker(metaData, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled, m_allowHibernateSuckySequences);
+		HibernateChecker hc = new HibernateChecker(metaData, DeveloperOptions.isDeveloperWorkstation(), m_observableEnabled, m_allowHibernateHiloSequences);
 		hc.enhanceMappings();
 	}
 
@@ -297,9 +297,7 @@ final public class HibernateConfigurator {
 		/*
 		 * Set other properties according to config settings made.
 		 */
-		//serviceBuilder.remove("hibernate.connection.datasource");
 		serviceBuilder.applySetting("hibernate.connection.datasource", ds);
-		//serviceBuilder.applySetting("hibernate.connection.provider_class", SillyHibernateConnectionProvider.class.getName());
 		boolean logsql;
 		if(m_showSQL == null)
 			logsql = DeveloperOptions.getBool("hibernate.sql", false); // Take default from .developer.properties
@@ -417,7 +415,14 @@ final public class HibernateConfigurator {
 		initialize(p.getPooledDataSource());
 	}
 
-	public static void setAllowHibernateSuckySequences(boolean allowHibernateSuckySequences) {
-		m_allowHibernateSuckySequences = allowHibernateSuckySequences;
+	/**
+	 * The configurator forces hibernate to obey sequence rules proper so that
+	 * interaction with existing application just works. When you are sure that
+	 * no other applications update the database or if all of those also use
+	 * the same hilo mechanism setting this to TRUE will greatly increase insert
+	 * performance.
+	 */
+	public static void setAllowHiloSequences(boolean allowHibernateSuckySequences) {
+		m_allowHibernateHiloSequences = allowHibernateSuckySequences;
 	}
 }

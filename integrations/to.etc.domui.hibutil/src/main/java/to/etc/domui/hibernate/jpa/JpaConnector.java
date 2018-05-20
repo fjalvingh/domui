@@ -1,4 +1,4 @@
-package to.etc.domui.jpa;
+package to.etc.domui.hibernate.jpa;
 
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;

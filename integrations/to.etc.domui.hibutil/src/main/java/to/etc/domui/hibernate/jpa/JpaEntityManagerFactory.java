@@ -1,4 +1,4 @@
-package to.etc.domui.jpa.em;
+package to.etc.domui.hibernate.jpa;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.webapp.query.QDataContext;

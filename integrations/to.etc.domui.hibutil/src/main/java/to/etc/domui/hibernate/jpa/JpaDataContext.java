@@ -1,4 +1,4 @@
-package to.etc.domui.jpa.em;
+package to.etc.domui.hibernate.jpa;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -8,7 +8,6 @@ import org.hibernate.engine.internal.StatefulPersistenceContext;
 import org.hibernate.internal.SessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.jpa.JpaConnector;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.IConversationStateListener;
 import to.etc.util.DeveloperOptions;
