@@ -1,26 +1,33 @@
 package to.etc.domui.component.layout;
 
-import to.etc.domui.component.event.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.event.INotify;
+import to.etc.domui.dom.errors.IErrorMessageListener;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Li;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TextNode;
 import to.etc.webapp.ProgrammerErrorException;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author <a href="mailto:yoeri.nijs@itris.nl">Yoeri Nijs, Vladimir Mijic</a>
  * vmijic 20090923 TabInstance can be registered as ErrorMessageListener in case when TabPanel has m_markErrorTabs set.
  * Created on 18-8-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class TabInstance implements IErrorMessageListener, ITabHandle {
 	private final TabPanelBase m_tabPanel;
 
-	@Nonnull
+	@NonNull
 	private NodeBase m_label;
 
-	@Nonnull
+	@NonNull
 	private NodeBase m_content;
 
 	@Nullable
@@ -218,19 +225,19 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 	}
 
 	@Override
-	public void updateLabel(@Nonnull String name, @Nullable String image) {
+	public void updateLabel(@NonNull String name, @Nullable String image) {
 		m_label = new TextNode(name);
 		m_image = image;
 		m_tabPanel.updateLabel(this);
 	}
 
-	@Override public void updateLabel(@Nonnull NodeBase label, @Nullable String image) {
+	@Override public void updateLabel(@NonNull NodeBase label, @Nullable String image) {
 		m_label = label;
 		m_image = image;
 		m_tabPanel.updateLabel(this);
 	}
 
-	@Override public void updateContent(@Nonnull NodeContainer content) {
+	@Override public void updateContent(@NonNull NodeContainer content) {
 		NodeBase old = m_content;
 		if(content == old)
 			return;

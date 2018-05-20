@@ -24,6 +24,8 @@
  */
 package to.etc.domui.state;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.login.IUser;
 import to.etc.domui.login.UILogin;
@@ -31,8 +33,6 @@ import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.IServerSession;
 import to.etc.domui.trouble.NotLoggedInException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 
 /**
@@ -55,7 +55,7 @@ public class UIContext {
 
 	static private ThreadLocal<Page> m_page = new ThreadLocal<Page>();
 
-	@Nonnull
+	@NonNull
 	static public IRequestContext getRequestContext() {
 		IRequestContext rc = m_current.get();
 		if(rc == null)
@@ -68,7 +68,7 @@ public class UIContext {
 	 * ended.
 	 * @param rc
 	 */
-	static public void internalSet(@Nonnull final IRequestContext rc) throws Exception {
+	static public void internalSet(@NonNull final IRequestContext rc) throws Exception {
 		m_current.set(rc);
 		boolean ok = false;
 		try {
@@ -93,7 +93,7 @@ public class UIContext {
 		m_page.set(pg);
 	}
 
-	@Nonnull
+	@NonNull
 	static public Page getCurrentPage() {
 		Page pg = m_page.get();
 		if(pg == null)
@@ -111,7 +111,7 @@ public class UIContext {
 		return m_current.get();
 	}
 
-	@Nonnull
+	@NonNull
 	static public ConversationContext getCurrentConversation() {
 		return getCurrentPage().getConversation();
 	}
@@ -135,7 +135,7 @@ public class UIContext {
 	 * a login exception which should cause the user to log in.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public IUser getLoggedInUser() {
 		IUser u = getCurrentUser();
 		if(u == null)
@@ -147,7 +147,7 @@ public class UIContext {
 	 * Register a file as a file/directory to be deleted when the conversation terminates.
 	 * @param tmpf
 	 */
-	static public void registerTempFile(@Nonnull File tmpf) {
+	static public void registerTempFile(@NonNull File tmpf) {
 		ConversationContext cc = getCurrentConversation();
 		cc.registerTempFile(tmpf);
 	}

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.upload;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.FaIcon;
@@ -46,8 +48,6 @@ import to.etc.domui.util.Msgs;
 import to.etc.domui.util.upload.FileUploadException;
 import to.etc.domui.util.upload.UploadItem;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -79,7 +79,7 @@ import java.util.stream.Collectors;
  * Created on Nov 14, 2017
  */
 public class FileUpload2 extends Div implements IUploadAcceptingComponent, IControl<UploadItem> /* implements IHasChangeListener */ {
-	@Nonnull
+	@NonNull
 	private List<String> m_allowedExtensions;
 
 	private int m_maxSize;
@@ -115,7 +115,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	/**
 	 * Create an upload item that accepts a max #of files and a set of extensions.
 	 */
-	public FileUpload2(@Nonnull List<String> allowedExtensions) {
+	public FileUpload2(@NonNull List<String> allowedExtensions) {
 		m_allowedExtensions = allowedExtensions;
 	}
 
@@ -136,7 +136,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 			renderSelected(value);
 	}
 
-	private void renderSelected(@Nonnull UploadItem value) {
+	private void renderSelected(@NonNull UploadItem value) {
 		Div valueD = new Div("ui-fup2-value ui-input");
 		add(valueD);
 
@@ -363,7 +363,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	}
 
 	@Override
-	public boolean handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception {
+	public boolean handleUploadRequest(@NonNull RequestContextImpl param, @NonNull ConversationContext conversation) throws Exception {
 		try {
 			if(isDisabled())
 				return true;

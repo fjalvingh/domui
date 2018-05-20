@@ -24,10 +24,9 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
-
-import javax.annotation.Nonnull;
 
 /**
  * Creates the stuff needed to generate a single property lookup control, plus
@@ -44,7 +43,7 @@ public interface ILookupControlFactory {
 	 * @param pmm
 	 * @return
 	 */
-	<T, X extends IControl<T>> int accepts(@Nonnull SearchPropertyMetaModel pmm, X control);
+	<T, X extends IControl<T>> int accepts(@NonNull SearchPropertyMetaModel pmm, X control);
 
-	<T, X extends IControl<T>> ILookupControlInstance<?> createControl(@Nonnull SearchPropertyMetaModel spm, X control);
+	<T, X extends IControl<T>> ILookupControlInstance<?> createControl(@NonNull SearchPropertyMetaModel spm, X control);
 }

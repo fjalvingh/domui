@@ -1,6 +1,7 @@
 package to.etc.domui.component.image;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Base interface to allow image load and display inside control(s).
@@ -16,7 +17,7 @@ public interface IUIImage {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull IUIImageInstance getImage(@Nullable Dimension size, boolean thumbNail) throws Exception;
+	@NonNull IUIImageInstance getImage(@Nullable Dimension size, boolean thumbNail) throws Exception;
 
 	@Nullable Long getId();
 

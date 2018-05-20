@@ -24,12 +24,12 @@
  */
 package to.etc.domui.dom.header;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.IContributorRenderer;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.html.*;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A header contributor can be registered by nodes to cause something to
@@ -57,9 +57,7 @@ abstract public class HeaderContributor {
 
 	static private Map<String, HeaderContributor> m_jsMap = new HashMap<String, HeaderContributor>();
 
-	abstract public void contribute(HtmlFullRenderer r) throws Exception;
-
-	abstract public void contribute(OptimalDeltaRenderer r) throws Exception;
+	abstract public void contribute(IContributorRenderer r) throws Exception;
 
 	@Override
 	abstract public int hashCode();
@@ -67,9 +65,9 @@ abstract public class HeaderContributor {
 	@Override
 	abstract public boolean equals(final Object obj);
 
-	@Nonnull
-	static synchronized public HeaderContributor loadJavascript(final String name) {
-		HeaderContributor c = m_jsMap.get(name);
+	@NonNull
+	static synchronized public JavascriptContributor loadJavascript(final String name) {
+		JavascriptContributor c = (JavascriptContributor) m_jsMap.get(name);
 		if(c == null) {
 			c = new JavascriptContributor(name);
 			m_jsMap.put(name, c);
@@ -77,7 +75,7 @@ abstract public class HeaderContributor {
 		return c;
 	}
 
-	@Nonnull
+	@NonNull
 	static synchronized public HeaderContributor loadJavaScriptlet(final String name) {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {

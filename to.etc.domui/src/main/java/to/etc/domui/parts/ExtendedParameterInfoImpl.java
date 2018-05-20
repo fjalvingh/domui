@@ -1,14 +1,15 @@
 package to.etc.domui.parts;
 
-import to.etc.domui.server.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.IExtendedParameterInfo;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 28-5-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class ExtendedParameterInfoImpl extends ParameterInfoImpl implements IExtendedParameterInfo {
 	private final BrowserVersion m_browser;
 
@@ -32,5 +33,9 @@ public class ExtendedParameterInfoImpl extends ParameterInfoImpl implements IExt
 
 	@Override public BrowserVersion getBrowserVersion() {
 		return m_browser;
+	}
+
+	@Override public String toString() {
+		return getInputPath() + " theme=" + getThemeName() + " " + getParameterNames();
 	}
 }

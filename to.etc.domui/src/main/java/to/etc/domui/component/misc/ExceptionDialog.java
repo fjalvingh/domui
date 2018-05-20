@@ -1,13 +1,12 @@
 package to.etc.domui.component.misc;
 
-import to.etc.domui.component.misc.MsgBox.Type;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.misc.MsgBox2.Type;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.trouble.UIMsgException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QConcurrentUpdateException;
-
-import javax.annotation.Nonnull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -20,7 +19,7 @@ final public class ExceptionDialog {
 	/**
 	 * Show an exception as an error dialog.
 	 */
-	static public void create(NodeContainer container, @Nonnull String message, @Nonnull Exception x) throws Exception {
+	static public void create(NodeContainer container, @NonNull String message, @NonNull Exception x) throws Exception {
 		if(x instanceof ValidationException)
 			return;
 		if(x instanceof QConcurrentUpdateException) {
@@ -36,6 +35,14 @@ final public class ExceptionDialog {
 		x.printStackTrace();
 		StringBuilder sb = new StringBuilder();
 		StringTool.strStacktrace(sb, x);
-		MsgBox.message(container, Type.ERROR, message + "\n" + x.toString() + "\n\n" + sb);
+		MsgBox2.on(container)
+			.title("An error has occurred")
+			.type(Type.ERROR)
+			.text(message + "\n" + x.toString() + "\n\n" + sb)
+			.modal()
+			.size(700, 500)
+		;
+
+			//.message(container, Type.ERROR, message + "\n" + x.toString() + "\n\n" + sb);
 	}
 }

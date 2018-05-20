@@ -1,16 +1,15 @@
 package to.etc.domui.databinding.list;
 
-import javax.annotation.*;
-
-import to.etc.domui.databinding.list2.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.databinding.list2.IListChangeVisitor;
 
 public class ListChangeDelete<E> extends ListChange<E> {
 	final private int m_index;
 
-	@Nonnull
+	@NonNull
 	final private E m_value;
 
-	public ListChangeDelete(int index, @Nonnull E value) {
+	public ListChangeDelete(int index, @NonNull E value) {
 		m_index = index;
 		m_value = value;
 	}
@@ -19,13 +18,13 @@ public class ListChangeDelete<E> extends ListChange<E> {
 		return m_index;
 	}
 
-	@Nonnull
+	@NonNull
 	public E getValue() {
 		return m_value;
 	}
 
 	@Override
-	public void visit(@Nonnull IListChangeVisitor<E> visitor) throws Exception {
+	public void visit(@NonNull IListChangeVisitor<E> visitor) throws Exception {
 		visitor.visitDelete(this);
 	}
 }

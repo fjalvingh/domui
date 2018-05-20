@@ -1,5 +1,8 @@
 package to.etc.domui.test.ui.componenterrors;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Assume;
@@ -11,9 +14,6 @@ import to.etc.domui.webdriver.core.AbstractWebDriverTest;
 import to.etc.domui.webdriver.core.ScreenInspector;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.util.TreeSet;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-9-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 	static private ThreadLocal<ScreenInspector> m_inspector = new ThreadLocal<>();
 
@@ -66,7 +66,7 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 		return si;
 	}
 
-	public void checkBaseLine(@Nonnull String testID, @Nonnull String componentInputCSS) throws Exception {
+	public void checkBaseLine(@NonNull String testID, @NonNull String componentInputCSS) throws Exception {
 		si();											// Make sure screen is open
 		WebDriverConnector wd = wd();
 		WebElement comp = wd.getElement(wd.byId(testID, componentInputCSS));
@@ -151,7 +151,7 @@ abstract public class AbstractLayoutTest extends AbstractWebDriverTest {
 	 * Find the TR on the vertical form that contains the element specified by testid.
 	 */
 	@Nullable
-	public static WebElement getParentTR(@Nonnull WebElement comp, @Nonnull String needClass) {
+	public static WebElement getParentTR(@NonNull WebElement comp, @NonNull String needClass) {
 		WebElement current = comp;
 		for(;;) {
 			if(current == null) {

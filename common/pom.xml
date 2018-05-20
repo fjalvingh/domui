@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+        It will forever be
+        A source of complete amazement to me
+        That a tool, as flexible as a lead door
+        Is loved by developer, architect, and even more
+        While I, the poor sod maintaining this build
+        Just hopes that Maven would get killed.
+
+        Writing XML, in copious amounts
+        Something that even a machine astounds
+        Like spells from the Necronomicon - albeit less sweet
+        And with the same effects, often sh*t...
+
+        Humane people don't let people write XML.
+    -->
+
+    <parent>
+        <groupId>to.etc.domui</groupId>
+        <artifactId>to.etc.domui.parent</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <relativePath>../parent</relativePath>
+    </parent>
+
+    <groupId>to.etc</groupId>
+    <artifactId>common</artifactId>
+    <version>1.2-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>domui :: common</name>
+    <description>Common shared code</description>
+
+    <modules>
+        <module>annotations</module>
+        <module>property-annotation-processor</module>
+        <module>to.etc.logger</module>
+        <module>to.etc.alg</module>
+        <module>to.etc.db</module>
+        <module>to.etc.pater</module>
+        <module>to.etc.syntaxer</module>
+        <module>sass-compiler</module>
+    </modules>
+
+</project>

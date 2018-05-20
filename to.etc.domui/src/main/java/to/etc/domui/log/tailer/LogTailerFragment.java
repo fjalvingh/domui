@@ -1,15 +1,23 @@
 package to.etc.domui.log.tailer;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.delayed.PollingDiv;
+import to.etc.domui.component.input.ComboFixed;
+import to.etc.domui.component.input.Text;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.delayed.*;
-import to.etc.domui.component.input.*;
-import to.etc.domui.dom.html.*;
-import to.etc.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This fragment shows lines from a tailed file as they come in.
@@ -20,7 +28,7 @@ import to.etc.util.*;
  */
 public class LogTailerFragment extends PollingDiv {
 	/** The path of the tailed file on that server. */
-	@Nonnull
+	@NonNull
 	final private String m_logpath;
 
 	private LogTailerTask m_task;
@@ -102,7 +110,7 @@ public class LogTailerFragment extends PollingDiv {
 		btn.setCssClass("ui-tlf-btn");
 		SmallImgButton ib = new SmallImgButton("img/btnFirst.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
+			public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
 				gotoLine(0);
 			}
 		});
@@ -110,7 +118,7 @@ public class LogTailerFragment extends PollingDiv {
 
 		ib = new SmallImgButton("img/btnPrev.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
+			public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
 				int lnr = m_startLine - getLinesPerPage();
 				if(lnr < 0)
 					lnr = 0;
@@ -121,7 +129,7 @@ public class LogTailerFragment extends PollingDiv {
 
 		ib = new SmallImgButton("img/btnNext.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
+			public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
 				int last = m_task.getLastLine();
 				int lnr = m_startLine + getLinesPerPage();
 				if(lnr > last)
@@ -133,7 +141,7 @@ public class LogTailerFragment extends PollingDiv {
 
 		ib = new SmallImgButton("img/btnLast.png", new IClicked<SmallImgButton>() {
 			@Override
-			public void clicked(@Nonnull SmallImgButton clickednode) throws Exception {
+			public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
 				gotoLine(m_task.getLastLine() - getLinesPerPage());
 			}
 		});
@@ -146,7 +154,7 @@ public class LogTailerFragment extends PollingDiv {
 		m_goto.setSize(6);
 		m_goto.setOnValueChanged(new IValueChanged<Text<Integer>>() {
 			@Override
-			public void onValueChanged(@Nonnull Text<Integer> component) throws Exception {
+			public void onValueChanged(@NonNull Text<Integer> component) throws Exception {
 				Integer value = component.getValue();
 				if(value != null)
 					gotoLine(value.intValue());
@@ -161,7 +169,7 @@ public class LogTailerFragment extends PollingDiv {
 		btn.add("Follow ");
 		m_followBox.setOnValueChanged(new IValueChanged<Checkbox>() {
 			@Override
-			public void onValueChanged(@Nonnull Checkbox component) throws Exception {
+			public void onValueChanged(@NonNull Checkbox component) throws Exception {
 				if(component.isChecked())
 					updateLinesPerPage();
 			}
@@ -176,7 +184,7 @@ public class LogTailerFragment extends PollingDiv {
 		m_linesCombo.setMandatory(true);
 		m_linesCombo.setOnValueChanged(new IValueChanged<ComboFixed<Integer>>() {
 			@Override
-			public void onValueChanged(@Nonnull ComboFixed<Integer> component) throws Exception {
+			public void onValueChanged(@NonNull ComboFixed<Integer> component) throws Exception {
 				updateLinesPerPage();
 			}
 		});

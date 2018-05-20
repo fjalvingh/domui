@@ -1,6 +1,6 @@
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 /**
  * Thrown when a list property is observed but it does not contain an observable list.
@@ -9,7 +9,7 @@ import javax.annotation.*;
  * Created on Nov 1, 2013
  */
 public class ListNotObservableException extends RuntimeException {
-	public ListNotObservableException(@Nonnull Class< ? > clz, @Nonnull String property) {
+	public ListNotObservableException(@NonNull Class< ? > clz, @NonNull String property) {
 		super("The property '" + property + "' in class '" + clz + "' does not contain a List that implements IObservableList.");
 	}
 }

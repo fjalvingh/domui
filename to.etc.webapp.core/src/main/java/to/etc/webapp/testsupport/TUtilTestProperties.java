@@ -1,22 +1,30 @@
 package to.etc.webapp.testsupport;
 
-import java.io.*;
-import java.net.*;
-import java.sql.*;
-import java.util.*;
-import java.util.Date;
-
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-import javax.sql.*;
-
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.junit.Assume;
-import org.junit.internal.*;
+import org.junit.internal.AssumptionViolatedException;
+import to.etc.dbpool.ConnectionPool;
+import to.etc.dbpool.PoolConfig;
+import to.etc.dbpool.PoolManager;
+import to.etc.dbutil.DbLockKeeper;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.webapp.eventmanager.VpEventManager;
 
-import to.etc.dbpool.*;
-import to.etc.dbutil.*;
-import to.etc.util.*;
-import to.etc.webapp.eventmanager.*;
+import javax.sql.DataSource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Properties;
 
 public class TUtilTestProperties {
 	/** Will contain a description of the location for the test properties used, after {@link #getTestProperties()}. */
@@ -51,7 +59,7 @@ public class TUtilTestProperties {
 		initLocale();
 	}
 
-	@Nonnull
+	@NonNull
 	static public synchronized TestProperties getTestProperties() {
 		TestProperties tp = m_testProperties;
 		if(null == tp) {
@@ -138,8 +146,8 @@ public class TUtilTestProperties {
 		}
 	}
 
-	@Nonnull
-	private static synchronized Properties loadProperties(@Nonnull String sysProp, @Nonnull String propNamen) throws Exception {
+	@NonNull
+	private static synchronized Properties loadProperties(@NonNull String sysProp, @NonNull String propNamen) throws Exception {
 		File f = new File(sysProp);
 		if(f.exists()) {
 			Properties properties = FileTool.loadProperties(f);
@@ -355,7 +363,7 @@ public class TUtilTestProperties {
 	/*	CODING:	Initialize slf4j logger.							*/
 	/*--------------------------------------------------------------*/
 
-	@GuardedBy("class")
+	//@GuardedBy("class")
 	static private boolean m_loggingInitialized;
 
 	static synchronized public void initLogging() {
@@ -376,7 +384,7 @@ public class TUtilTestProperties {
 
 	static private boolean m_testLogInitialized;
 
-	static private boolean openTestLog(@Nullable String s, @Nonnull String where) {
+	static private boolean openTestLog(@Nullable String s, @NonNull String where) {
 		if(m_testLogFile != null || s == null)
 			return false;
 		File f = new File(s);
@@ -501,7 +509,7 @@ public class TUtilTestProperties {
 	 * @param defaultValue default value returned if property can't be found
 	 * @return stored or default boolean value
 	 */
-	public static boolean getBoolean(@Nonnull final String propertyName, final boolean defaultValue) {
+	public static boolean getBoolean(@NonNull final String propertyName, final boolean defaultValue) {
 		String s = getString(propertyName, defaultValue ? "true" : "false");
 		return ("true".equalsIgnoreCase(s) || "yes".equalsIgnoreCase(s));
 	}
@@ -515,7 +523,7 @@ public class TUtilTestProperties {
 	 * @return stored or default string value
 	 */
 	@Nullable
-	public static String getString(@Nonnull final String propertyName, @Nullable final String defaultValue) {
+	public static String getString(@NonNull final String propertyName, @Nullable final String defaultValue) {
 		TestProperties tp = getTestProperties();
 		return tp.getProperty(propertyName, defaultValue);
 	}

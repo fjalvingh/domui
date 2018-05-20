@@ -24,9 +24,8 @@
  */
 package to.etc.domui.util;
 
-import to.etc.domui.component.input.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.input.SimpleLookupInputRenderer;
 
 /**
  * Use {@link SimpleLookupInputRenderer} instead.
@@ -39,7 +38,7 @@ public class LookupInputPropertyRenderer<T> extends SimpleLookupInputRenderer<T>
 	public LookupInputPropertyRenderer() {
 	}
 
-	public LookupInputPropertyRenderer(@Nonnull Class<T> clz, @Nonnull String... colset) {
+	public LookupInputPropertyRenderer(@NonNull Class<T> clz, @NonNull String... colset) {
 		super(clz, colset);
 	}
 }

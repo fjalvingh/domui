@@ -1,9 +1,8 @@
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.query.QCriteria;
-
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
@@ -11,8 +10,10 @@ import static java.util.Objects.requireNonNull;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 6-12-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class ObjectLookupQueryBuilder<D> implements ILookupQueryBuilder<D> {
+	static private volatile boolean m_lookupWildcardByDefault = true;
+
 	private final String m_propertyName;
 
 	public ObjectLookupQueryBuilder(String propertyName) {
@@ -27,11 +28,20 @@ final public class ObjectLookupQueryBuilder<D> implements ILookupQueryBuilder<D>
 		//-- Put the value into the criteria..
 		if(value instanceof String) {
 			String str = (String) value;
-			str = str.trim().replace("*", "%") + "%";			// FIXME Do not search with wildcard by default 8-(
+
+			if(m_lookupWildcardByDefault) {
+				if(! str.endsWith(".")) {
+					str = str.trim().replace("*", "%") + "%";            // FIXME Do not search with wildcard by default 8-(
+				}
+			}
 			criteria.ilike(m_propertyName, str);
 		} else {
 			criteria.eq(m_propertyName, value);				// property == value
 		}
 		return LookupQueryBuilderResult.VALID;
+	}
+
+	public static void setLookupWildcardByDefault(boolean lookupWildcardByDefault) {
+		m_lookupWildcardByDefault = lookupWildcardByDefault;
 	}
 }

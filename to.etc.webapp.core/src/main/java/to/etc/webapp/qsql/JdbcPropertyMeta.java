@@ -24,11 +24,13 @@
  */
 package to.etc.webapp.qsql;
 
-import java.lang.reflect.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.PropertyInfo;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public class JdbcPropertyMeta {
 	private JdbcClassMeta m_classMeta;
@@ -187,7 +189,7 @@ public class JdbcPropertyMeta {
 	 * @return
 	 */
 	@Nullable
-	public Object getPropertyValue(@Nonnull Object inst) throws Exception {
+	public Object getPropertyValue(@NonNull Object inst) throws Exception {
 		if(inst == null)
 			throw new IllegalArgumentException("Null instance not allowed");
 		try {
@@ -197,7 +199,7 @@ public class JdbcPropertyMeta {
 		}
 	}
 
-	public void setPropertyValue(@Nonnull Object inst, @Nullable Object value) throws Exception {
+	public void setPropertyValue(@NonNull Object inst, @Nullable Object value) throws Exception {
 		if(inst == null)
 			throw new IllegalArgumentException("Null instance not allowed");
 		try {

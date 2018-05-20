@@ -24,9 +24,10 @@
  */
 package to.etc.webapp.qsql;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 /**
  * JDBC to java type converter, used to convert column values to Java objects and v.v.
@@ -49,7 +50,7 @@ interface IJdbcType {
 	 * @return
 	 * @throws Exception
 	 */
-	Object convertToInstance(@Nonnull ResultSet rs, int index, @Nonnull JdbcPropertyMeta pm) throws Exception;
+	Object convertToInstance(@NonNull ResultSet rs, int index, @NonNull JdbcPropertyMeta pm) throws Exception;
 
 	void assignParameter(PreparedStatement ps, int index, JdbcPropertyMeta pm, Object value) throws Exception;
 }

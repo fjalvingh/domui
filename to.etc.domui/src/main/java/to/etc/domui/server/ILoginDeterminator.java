@@ -1,7 +1,9 @@
 package to.etc.domui.server;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
+import javax.servlet.http.HttpServletRequest;
 
 public interface ILoginDeterminator {
 	/**
@@ -11,5 +13,5 @@ public interface ILoginDeterminator {
 	 * @throws Exception
 	 */
 	@Nullable
-	String getLoginData(@Nonnull HttpServletRequest request) throws Exception;
+	String getLoginData(@NonNull HttpServletRequest request) throws Exception;
 }

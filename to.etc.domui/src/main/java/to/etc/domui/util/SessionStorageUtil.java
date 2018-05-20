@@ -1,18 +1,25 @@
 package to.etc.domui.util;
 
-import java.math.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.event.ICheckCallback;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.state.AppSession;
+import to.etc.util.StringTool;
+import to.etc.webapp.query.IIdentifyable;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.event.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Util for storing data into Session scope storage.
@@ -43,7 +50,7 @@ public class SessionStorageUtil {
 		 *
 		 * @return
 		 */
-		@Nonnull
+		@NonNull
 		default String getStorageId(){
 			return this.getClass().getSimpleName();
 		}
@@ -53,7 +60,7 @@ public class SessionStorageUtil {
 		 *
 		 * @return
 		 */
-		@Nonnull
+		@NonNull
 		default NodeContainer getNodeToStore(){
 			if (this instanceof NodeContainer){
 				return (NodeContainer) this;
@@ -66,7 +73,7 @@ public class SessionStorageUtil {
 		 *
 		 * @return
 		 */
-		@Nonnull
+		@NonNull
 		default List<String> getIgnoredControlKeys(){
 			return Collections.EMPTY_LIST;
 		}
@@ -89,23 +96,23 @@ public class SessionStorageUtil {
 	 * Created on Aug 30, 2013
 	 */
 	public static class ControlValuePair {
-		@Nonnull
+		@NonNull
 		private final IControl< ? > m_control;
 
-		@Nonnull
+		@NonNull
 		private final Object m_value;
 
-		ControlValuePair(@Nonnull IControl< ? > control, @Nonnull Object value) {
+		ControlValuePair(@NonNull IControl< ? > control, @NonNull Object value) {
 			m_control = control;
 			m_value = value;
 		}
 
-		public @Nonnull
+		public @NonNull
 		IControl< ? > getControl() {
 			return m_control;
 		}
 
-		public @Nonnull
+		public @NonNull
 		Object getValue() {
 			return m_value;
 		}
@@ -118,7 +125,7 @@ public class SessionStorageUtil {
 	 * @param storableData
 	 * @return
 	 */
-	public static boolean hasStoredData(@Nonnull IRequestContext ctx, @Nonnull ISessionStorage storableData) {
+	public static boolean hasStoredData(@NonNull IRequestContext ctx, @NonNull ISessionStorage storableData) {
 		AppSession ses = ctx.getSession();
 		return null != ses.getAttribute(storableData.getStorageId() + "|" + PART_TIME);
 	}
@@ -129,7 +136,7 @@ public class SessionStorageUtil {
 	 * @param ctx
 	 * @param storableData
 	 */
-	public static void storeData(@Nonnull IRequestContext ctx, @Nonnull ISessionStorage storableData) {
+	public static void storeData(@NonNull IRequestContext ctx, @NonNull ISessionStorage storableData) {
 		AppSession ses = ctx.getSession();
 		ses.setAttribute(storableData.getStorageId() + "|" + PART_TIME, new Date());
 
@@ -161,7 +168,7 @@ public class SessionStorageUtil {
 		}
 	}
 
-	private static boolean isIgnoredControl(@Nonnull String controlKey, @Nonnull List<String> ignoredControlKeys) {
+	private static boolean isIgnoredControl(@NonNull String controlKey, @NonNull List<String> ignoredControlKeys) {
 		return ignoredControlKeys.contains(controlKey);
 	}
 
@@ -173,7 +180,7 @@ public class SessionStorageUtil {
 	 * @param storableData
 	 * @throws Exception
 	 */
-	public static void loadData(@Nonnull QDataContext dc, @Nonnull IRequestContext ctx, @Nonnull ISessionStorage storableData)
+	public static void loadData(@NonNull QDataContext dc, @NonNull IRequestContext ctx, @NonNull ISessionStorage storableData)
 		throws Exception {
 		AppSession ses = ctx.getSession();
 		for(IControl< ? > control : storableData.getNodeToStore().getDeepChildren(IControl.class)) {
@@ -219,7 +226,7 @@ public class SessionStorageUtil {
 		}
 	}
 
-	private static void fireValueChanged(@Nonnull IControl< ? > control) throws Exception {
+	private static void fireValueChanged(@NonNull IControl< ? > control) throws Exception {
 		if(control instanceof NodeBase) {
 			IValueChanged<NodeBase> valueChangedListener = (IValueChanged<NodeBase>) control.getOnValueChanged();
 			if(valueChangedListener != null) {
@@ -230,7 +237,7 @@ public class SessionStorageUtil {
 		}
 	}
 
-	private static boolean setIdentifiableValue(@Nonnull QDataContext dc, @Nonnull IControl< ? > control, @Nonnull Class< ? > type, @Nonnull Object id, @Nullable Object existingValue) throws Exception {
+	private static boolean setIdentifiableValue(@NonNull QDataContext dc, @NonNull IControl< ? > control, @NonNull Class< ? > type, @NonNull Object id, @Nullable Object existingValue) throws Exception {
 		if(id instanceof Long) {
 			Long longId = (Long) id;
 			IIdentifyable<Long> val = (IIdentifyable<Long>) dc.find(type, longId);
@@ -245,7 +252,7 @@ public class SessionStorageUtil {
 		}
 	}
 
-	private static boolean setNonIdentifiableTypeValue(@Nonnull IControl< ? > control, @Nonnull Object value) {
+	private static boolean setNonIdentifiableTypeValue(@NonNull IControl< ? > control, @NonNull Object value) {
 		boolean recognized = true;
 		if(value instanceof Integer) {
 			((IControl<Integer>) control).setValue((Integer) value);

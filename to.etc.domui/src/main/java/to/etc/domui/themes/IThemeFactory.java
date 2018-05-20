@@ -24,9 +24,8 @@
  */
 package to.etc.domui.themes;
 
-import to.etc.domui.server.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
 
 /**
  * Factory which will create a theme instance from it's source files.
@@ -35,19 +34,19 @@ import javax.annotation.*;
  * Created on Jan 11, 2011
  */
 public interface IThemeFactory {
-	@Nonnull String getFactoryName();
+	@NonNull String getFactoryName();
 
 	/**
 	 * Create the theme data for the theme passed. The result is cached by the application, so
 	 * the factory should not do caching itself.
 	 */
-	@Nonnull
-	ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception;
+	@NonNull
+	ITheme getTheme(@NonNull DomApplication da, @NonNull String themeName) throws Exception;
 
 	/**
 	 * Returns this factory's default theme name, INCLUDING the factory name!
 	 */
-	@Nonnull
+	@NonNull
 	String getDefaultThemeName();
 
 	/**

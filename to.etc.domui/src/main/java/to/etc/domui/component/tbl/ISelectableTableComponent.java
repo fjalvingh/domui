@@ -1,13 +1,14 @@
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 public interface ISelectableTableComponent<T> {
 	boolean isMultiSelectionVisible();
 
 	void setShowSelection(boolean on) throws Exception;
 
-	@Nonnull
+	@NonNull
 	ITableModel<T> getModel();
 
 	@Nullable

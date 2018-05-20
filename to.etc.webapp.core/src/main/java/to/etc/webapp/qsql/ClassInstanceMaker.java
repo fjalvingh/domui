@@ -24,11 +24,10 @@
  */
 package to.etc.webapp.qsql;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import java.sql.ResultSet;
 
 class ClassInstanceMaker extends JdbcCompoundType implements IInstanceMaker {
 	private int m_startIndex;
@@ -43,7 +42,7 @@ class ClassInstanceMaker extends JdbcCompoundType implements IInstanceMaker {
 	 * @see to.etc.webapp.qsql.IInstanceMaker#make(java.sql.ResultSet)
 	 */
 	@Override
-	public Object make(@Nonnull QDataContext dc, @Nonnull ResultSet rs) throws Exception {
+	public Object make(@NonNull QDataContext dc, @NonNull ResultSet rs) throws Exception {
 		Object inst = convertToInstance(rs, m_startIndex, new JdbcPropertyMeta());
 		if(inst instanceof IInitializable) {
 			((IInitializable) inst).initializeInstance(dc);

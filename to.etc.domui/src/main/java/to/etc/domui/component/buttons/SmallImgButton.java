@@ -24,6 +24,9 @@
  */
 package to.etc.domui.component.buttons;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
@@ -31,10 +34,6 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
-
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * A Button tag containing a single, usually small, image. The image is a normal image
@@ -44,7 +43,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 17, 2008
  */
-@DefaultNonNull
+@NonNullByDefault
 public class SmallImgButton extends Button {
 	@Nullable
 	private String m_icon;
@@ -80,14 +79,14 @@ public class SmallImgButton extends Button {
 	/**
 	 * Add the specified css class(es) to the button.
 	 */
-	@Nonnull
+	@NonNull
 	@Override
-	public SmallImgButton css(@Nonnull String... classNames) {
+	public SmallImgButton css(@NonNull String... classNames) {
 		super.css(classNames);
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public SmallImgButton icon(String icon) {
 		setSrc(icon);
 		return this;

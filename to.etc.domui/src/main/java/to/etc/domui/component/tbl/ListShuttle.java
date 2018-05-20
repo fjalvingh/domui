@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -39,8 +41,6 @@ import to.etc.domui.dom.html.TableVAlign;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 /**
@@ -395,7 +395,7 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
-	public void rowAdded(final @Nonnull ITableModel<Object> model, final int index, @Nonnull final Object value) throws Exception {
+	public void rowAdded(final @NonNull ITableModel<Object> model, final int index, @NonNull final Object value) throws Exception {
 		boolean issrc = model == m_sourceModel;
 		TBody b = issrc ? m_sourceBody : m_targetBody;
 
@@ -410,14 +410,14 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 	}
 
 	@Override
-	public void rowDeleted(final @Nonnull ITableModel<Object> model, final int index, @Nonnull final Object value) throws Exception {
+	public void rowDeleted(final @NonNull ITableModel<Object> model, final int index, @NonNull final Object value) throws Exception {
 		boolean issrc = model == m_sourceModel;
 		TBody b = issrc ? m_sourceBody : m_targetBody;
 		b.removeChild(index); // Discard this one;
 	}
 
 	@Override
-	public void rowModified(final @Nonnull ITableModel<Object> model, final int index, @Nonnull final Object value) throws Exception {
+	public void rowModified(final @NonNull ITableModel<Object> model, final int index, @NonNull final Object value) throws Exception {
 		boolean issrc = model == m_sourceModel;
 		TBody b = issrc ? m_sourceBody : m_targetBody;
 

@@ -1,8 +1,7 @@
 package to.etc.domui.state;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.util.StringTool;
 
 /**
  * Log item for action logging inside a user's session.
@@ -47,7 +46,7 @@ public class UserLogItem {
 		return m_timestamp;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getRelaTime(long currt) {
 		return StringTool.strDurationMillis(currt - m_timestamp);
 	}

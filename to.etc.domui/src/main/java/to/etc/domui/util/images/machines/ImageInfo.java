@@ -24,10 +24,11 @@
  */
 package to.etc.domui.util.images.machines;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The decoded data for an <i>original</i> image.
@@ -46,10 +47,10 @@ final public class ImageInfo implements Serializable {
 	final private boolean m_convertable;
 
 	/** The decoded list of per-page information, if available. */
-	@Nonnull
+	@NonNull
 	final private List<OriginalImagePage> m_pageList;
 
-	public ImageInfo(String mime, String typeName, boolean convertible, @Nonnull List<OriginalImagePage> pageList) {
+	public ImageInfo(String mime, String typeName, boolean convertible, @NonNull List<OriginalImagePage> pageList) {
 		m_mime = mime;
 		m_pageList = Collections.unmodifiableList(pageList);
 		m_convertable = convertible;
@@ -72,7 +73,7 @@ final public class ImageInfo implements Serializable {
 		return m_convertable;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<OriginalImagePage> getPageList() {
 		return m_pageList;
 	}
@@ -81,7 +82,7 @@ final public class ImageInfo implements Serializable {
 		return m_pageList == null ? -1 : m_pageList.size();
 	}
 
-	@Nonnull
+	@NonNull
 	public OriginalImagePage getPage(int ix) {
 		if(m_pageList == null)
 			throw new IllegalStateException("The page list is null?");

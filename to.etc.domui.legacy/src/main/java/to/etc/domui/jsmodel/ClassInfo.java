@@ -1,10 +1,11 @@
 package to.etc.domui.jsmodel;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Contains rendering data on a Javascript model class.

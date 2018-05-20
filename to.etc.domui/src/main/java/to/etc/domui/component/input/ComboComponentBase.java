@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.input;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -43,8 +45,6 @@ import to.etc.domui.util.Msgs;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 
@@ -321,7 +321,7 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 		return (IRenderInto<T>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
 	}
 
-	protected void renderOptionLabel(@Nonnull SelectOption o, @Nonnull T object) throws Exception {
+	protected void renderOptionLabel(@NonNull SelectOption o, @NonNull T object) throws Exception {
 		if(m_actualContentRenderer == null)
 			m_actualContentRenderer = calculateContentRenderer(object);
 		m_actualContentRenderer.render(o, object);

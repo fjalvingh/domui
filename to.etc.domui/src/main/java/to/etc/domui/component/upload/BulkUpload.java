@@ -1,18 +1,23 @@
 package to.etc.domui.component.upload;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.parts.ComponentPartRenderer;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.util.Msgs;
+import to.etc.domui.util.upload.UploadItem;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.upload.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This component uses <a href="http://code.google.com/p/swfupload/">swfupload</a> to handle selecting multiple
@@ -106,7 +111,7 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 	}
 
 	@Override
-	@OverridingMethodsMustInvokeSuper
+	//@OverridingMethodsMustInvokeSuper
 	public void onAddedToPage(Page p) {
 		//-- Add the required javascript
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/swfupload.js"), 10);
@@ -136,7 +141,7 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 	 * @see to.etc.domui.component.upload.IUploadAcceptingComponent#handleUploadRequest(to.etc.domui.server.RequestContextImpl, to.etc.domui.state.ConversationContext)
 	 */
 	@Override
-	public boolean handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception {
+	public boolean handleUploadRequest(@NonNull RequestContextImpl param, @NonNull ConversationContext conversation) throws Exception {
 		UploadItem[] uiar = param.getFileParameter("filedata");
 		if(uiar != null) {
 			for(UploadItem ui : uiar) {
@@ -148,7 +153,7 @@ public class BulkUpload extends Div implements IUploadAcceptingComponent {
 	}
 
 	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if("uploadDone".equals(action)) {
 			handleUploadDone();
 		} else if("queueComplete".equals(action)) {

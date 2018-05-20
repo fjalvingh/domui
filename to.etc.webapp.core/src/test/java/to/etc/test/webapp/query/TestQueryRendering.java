@@ -24,12 +24,17 @@
  */
 package to.etc.test.webapp.query;
 
-import java.util.*;
+import org.junit.Assert;
+import org.junit.Test;
+import to.etc.test.webapp.qsql.LedgerAccount;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QQueryRenderer;
+import to.etc.webapp.query.QRestriction;
+import to.etc.webapp.query.QRestrictor.ExistsRestrictor;
+import to.etc.webapp.query.QRestrictorImpl;
+import to.etc.webapp.query.QSelection;
 
-import org.junit.*;
-
-import to.etc.test.webapp.qsql.*;
-import to.etc.webapp.query.*;
+import java.util.Arrays;
 
 public class TestQueryRendering {
 	private String	render(QCriteria<?> c) throws Exception {
@@ -64,7 +69,7 @@ public class TestQueryRendering {
 	@Test
 	public void testNewOr1() throws Exception {
 		QCriteria<TestQueryRendering>	q = QCriteria.create(TestQueryRendering.class);
-		QRestrictor<TestQueryRendering> or = q.or();
+		QRestrictorImpl<TestQueryRendering> or = q.or();
 		or.and().eq("lastname", "jalvingh").eq("firstname", "frits");
 		or.and().eq("lastname", "mol").eq("firstname", "marc");
 		Assert.assertEquals("FROM to.etc.test.webapp.query.TestQueryRendering WHERE lastname='jalvingh' and firstname='frits' or lastname='mol' and firstname='marc'", render(q));
@@ -73,7 +78,7 @@ public class TestQueryRendering {
 	@Test
 	public void testNewOr2() throws Exception {
 		QCriteria<TestQueryRendering> q = QCriteria.create(TestQueryRendering.class);
-		QRestrictor<TestQueryRendering> or = q.or();
+		QRestrictorImpl<TestQueryRendering> or = q.or();
 		or.eq("lastname", "jalvingh");
 		or.eq("lastname", "mol");
 
@@ -87,7 +92,7 @@ public class TestQueryRendering {
 	@Test
 	public void testSubSelect1() throws Exception {
 		QCriteria<TestQueryRendering> q = QCriteria.create(TestQueryRendering.class);
-		QRestrictor<LedgerAccount> r = q.exists(LedgerAccount.class, "ledgerList");
+		ExistsRestrictor<LedgerAccount> r = q.exists(LedgerAccount.class, "ledgerList");
 		r.eq("code", "1210012");
 		r.gt("date", 12345);
 

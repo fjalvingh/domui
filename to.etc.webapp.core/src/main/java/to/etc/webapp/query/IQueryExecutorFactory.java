@@ -24,7 +24,8 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 public interface IQueryExecutorFactory {
 	/**
@@ -34,11 +35,11 @@ public interface IQueryExecutorFactory {
 	 * @return
 	 */
 	@Nullable
-	IQueryExecutor< ? > findContextHandler(@Nonnull QDataContext root, @Nonnull Class< ? > clz);
+	IQueryExecutor< ? > findContextHandler(@NonNull QDataContext root, @NonNull Class< ? > clz);
 
 	@Nullable
-	IQueryExecutor< ? > findContextHandler(@Nonnull QDataContext root, @Nonnull Object recordInstance);
+	IQueryExecutor< ? > findContextHandler(@NonNull QDataContext root, @NonNull Object recordInstance);
 
 	@Nullable
-	IQueryExecutor< ? > findContextHandler(@Nonnull QDataContext root, @Nonnull ICriteriaTableDef< ? > tableMeta);
+	IQueryExecutor< ? > findContextHandler(@NonNull QDataContext root, @NonNull ICriteriaTableDef< ? > tableMeta);
 }

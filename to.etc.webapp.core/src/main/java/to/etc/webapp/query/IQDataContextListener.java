@@ -1,6 +1,6 @@
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Listener to keep track of all data saved during a unittest.
@@ -17,5 +17,5 @@ public interface IQDataContextListener {
 	 * @param testDataObject
 	 * @throws Exception
 	 */
-	<T> void instanceSaved(@Nonnull IIdentifyable<T> testDataObject) throws Exception;
+	<T> void instanceSaved(@NonNull IIdentifyable<T> testDataObject) throws Exception;
 }

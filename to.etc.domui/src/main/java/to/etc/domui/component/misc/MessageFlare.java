@@ -1,12 +1,17 @@
 package to.etc.domui.component.misc;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.ImgAlign;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.themes.Theme;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Message flare component. Shows message flare on screen.
@@ -106,7 +111,7 @@ public class MessageFlare extends Flare {
 	 * @param message new message
 	 * @param type flare type
 	 */
-	public void addMessage(@Nonnull String message, @Nonnull MsgType type) {
+	public void addMessage(@NonNull String message, @NonNull MsgType type) {
 		addMessage(message);
 		if(m_type == null || type.getOrder() > m_type.getOrder()) // Set highest severity.
 			setType(type);

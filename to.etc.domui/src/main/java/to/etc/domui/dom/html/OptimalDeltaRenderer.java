@@ -24,10 +24,12 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.HtmlRenderMode;
 import to.etc.domui.dom.HtmlTagRenderer;
 import to.etc.domui.dom.IBrowserOutput;
+import to.etc.domui.dom.IContributorRenderer;
 import to.etc.domui.dom.IHtmlDeltaAttributeRenderer;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.header.HeaderContributorEntry;
@@ -36,7 +38,6 @@ import to.etc.domui.server.IRequestContext;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 6, 2008
  */
-public class OptimalDeltaRenderer {
+public class OptimalDeltaRenderer implements IContributorRenderer {
 	static private final boolean DEBUG = false;
 
 	private IBrowserOutput m_o;
@@ -171,11 +172,13 @@ public class OptimalDeltaRenderer {
 		m_page = page;
 	}
 
-	@Nonnull
+	@Override
+	@NonNull
 	public IBrowserOutput o() {
 		return m_o;
 	}
 
+	@Override
 	public IRequestContext ctx() {
 		return m_ctx;
 	}
@@ -277,13 +280,15 @@ public class OptimalDeltaRenderer {
 		return false;
 	}
 
-	public void renderLoadCSS(@Nonnull String path) throws Exception {
+	@Override
+	public void renderLoadCSS(@NonNull String path) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");
 	}
 
-	public void renderLoadJavascript(@Nonnull String path) throws Exception {
+	@Override
+	public void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadJavascript(" + StringTool.strToJavascriptString(path, false) + ");\n");
@@ -292,7 +297,6 @@ public class OptimalDeltaRenderer {
 	/**
 	 * Do a downward traverse of all nodes and annotate changes, collecting attribute changes and
 	 * tree changes.
-	 * @param page
 	 */
 	private void calc(Page page) throws Exception {
 		//-- Create the BODY node's nodeInfo; this starts the tree of changes.

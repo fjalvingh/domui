@@ -24,9 +24,9 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.Collection;
 
 /**
  * Some kind of selection item which is formed by using multiple sub
@@ -52,7 +52,7 @@ public class QMultiSelection extends QSelectionItem {
 		return m_itemList;
 	}
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitMultiSelection(this);
 	}
 }

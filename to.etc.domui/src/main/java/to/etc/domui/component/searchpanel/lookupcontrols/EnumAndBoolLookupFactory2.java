@@ -24,16 +24,16 @@
  */
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
-import to.etc.domui.component.input.ComboFixed;
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component2.combo.ComboFixed2;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +44,7 @@ import java.util.List;
  * Created on 1 Aug 2009
  */
 final class EnumAndBoolLookupFactory2<T> implements ILookupFactory<T> {
-	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
+	@NonNull @Override public FactoryPair<T> createControl(@NonNull SearchPropertyMetaModel spm) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
 
 		// Create a domainvalued combobox by default.
@@ -65,7 +65,7 @@ final class EnumAndBoolLookupFactory2<T> implements ILookupFactory<T> {
 			vl.add(new ValueLabelPair<>((T) o, label));
 		}
 
-		final ComboFixed<T> c = new ComboFixed<>(vl);
+		final ComboFixed2<T> c = new ComboFixed2<>(vl);
 		String s = pmm.getDefaultHint();
 		if(s != null) {
 			c.setTitle(s);

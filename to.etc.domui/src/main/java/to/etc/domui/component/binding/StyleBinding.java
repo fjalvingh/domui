@@ -1,11 +1,12 @@
 package to.etc.domui.component.binding;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IValueAccessor;
 
 /**
  * This is a binding that "translates" a model property into a css style on the component, using
@@ -15,10 +16,10 @@ import javax.annotation.*;
  * Created on 12/10/14.
  */
 final public class StyleBinding implements IBinding {
-	@Nonnull
+	@NonNull
 	private final StyleBinder m_styleBinder;
 
-	@Nonnull
+	@NonNull
 	private final NodeBase m_component;
 
 	/** The instance bound to */
@@ -32,13 +33,13 @@ final public class StyleBinding implements IBinding {
 	@Nullable
 	private String m_previousStyle;
 
-	StyleBinding(@Nonnull StyleBinder styleBinder, @Nonnull NodeBase component) {
+	StyleBinding(@NonNull StyleBinder styleBinder, @NonNull NodeBase component) {
 		m_styleBinder = styleBinder;
 		m_component = component;
 	}
 
-	@Nonnull
-	public <T, P> StyleBinder to(@Nonnull T instance, @Nonnull IValueAccessor<P> property) throws Exception {
+	@NonNull
+	public <T, P> StyleBinder to(@NonNull T instance, @NonNull IValueAccessor<P> property) throws Exception {
 		m_instance = instance;
 		m_instanceProperty = property;
 		m_component.addBinding(this);
@@ -46,15 +47,14 @@ final public class StyleBinding implements IBinding {
 		return m_styleBinder;
 	}
 
-	@Nonnull
-	public <T> StyleBinder	to(@Nonnull T instance, @Nonnull String property) throws Exception {
+	@NonNull
+	public <T> StyleBinder	to(@NonNull T instance, @NonNull String property) throws Exception {
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 	}
 
 
 	/**
 	 * Update the style according to the model's value.
-	 * @throws Exception
 	 */
 	@Override public void moveModelToControl() throws Exception {
 		Object instance = m_instance;
@@ -75,7 +75,6 @@ final public class StyleBinding implements IBinding {
 
 	/**
 	 * Remove any previous style and add the new one, if applicable.
-	 * @param style
 	 */
 	private void updateStyle(@Nullable String style) {
 		if(DomUtil.isEqual(m_previousStyle, style))
@@ -95,10 +94,9 @@ final public class StyleBinding implements IBinding {
 
 	/**
 	 * A style binding never moves anything back to the model.
-	 * @throws Exception
 	 */
 	@Nullable
-	@Override public BindingValuePair<?, ?> getBindingDifference() throws Exception {
+	@Override public BindingValuePair<?> getBindingDifference() throws Exception {
 		return null;
 	}
 
@@ -108,7 +106,6 @@ final public class StyleBinding implements IBinding {
 
 	/**
 	 * A style binding never has errors.
-	 * @return
 	 */
 	@Nullable @Override public UIMessage getBindError() {
 		return null;

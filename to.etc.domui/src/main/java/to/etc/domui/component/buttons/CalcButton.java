@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.buttons;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Page;
@@ -35,7 +36,6 @@ import to.etc.domui.server.parts.PartService;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nullable;
 import java.awt.*;
 
 /**

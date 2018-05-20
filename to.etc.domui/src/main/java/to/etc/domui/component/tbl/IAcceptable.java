@@ -1,6 +1,6 @@
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * When defined in {@link InstanceSelectionModel}, this can accept or refuse items that are selected.
@@ -14,5 +14,5 @@ public interface IAcceptable<T> {
 	 * @param value
 	 * @return
 	 */
-	boolean acceptable(@Nonnull T value);
+	boolean acceptable(@NonNull T value);
 }

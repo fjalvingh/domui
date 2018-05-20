@@ -24,6 +24,7 @@
  */
 package to.etc.domui.dom;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.misc.LiteralXhtml;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.header.HeaderContributorEntry;
@@ -41,7 +42,6 @@ import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,13 +52,13 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
-public class HtmlFullRenderer extends NodeVisitorBase {
+public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRenderer {
 	//	private BrowserVersion m_browserVersion;
 
 	/** The thingy responsible for rendering the tags, */
 	private HtmlTagRenderer m_tagRenderer;
 
-	@Nonnull
+	@NonNull
 	private IBrowserOutput m_o;
 
 	private IRequestContext m_ctx;
@@ -67,18 +67,18 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 
 	private boolean m_xml;
 
-	@Nonnull
+	@NonNull
 	private StringBuilder m_createJS = new StringBuilder();
 
 	/** Javascript state change calls. */
-	@Nonnull
+	@NonNull
 	private StringBuilder m_stateJS = new StringBuilder();
 
 	/** Builder wrapping the above. */
-	@Nonnull
+	@NonNull
 	private JavascriptStmt m_stateBuilder = new JavascriptStmt(m_stateJS);
 
-	protected HtmlFullRenderer(@Nonnull HtmlTagRenderer tagRenderer, @Nonnull IBrowserOutput o) {
+	protected HtmlFullRenderer(@NonNull HtmlTagRenderer tagRenderer, @NonNull IBrowserOutput o) {
 		//		m_browserVersion = tagRenderer.getBrowser();
 		m_tagRenderer = tagRenderer;
 		m_o = o;
@@ -109,11 +109,13 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		m_xml = xml;
 	}
 
-	@Nonnull
+	@Override
+	@NonNull
 	public IBrowserOutput o() {
 		return m_o;
 	}
 
+	@Override
 	public IRequestContext ctx() {
 		return m_ctx;
 	}
@@ -286,6 +288,7 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		page().internalContributorsRendered(); // Mark as rendered.
 	}
 
+	@Override
 	public void renderLoadCSS(String path) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
@@ -294,13 +297,14 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		o().tag("link");
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
-		o().attr("href", path);
+		o().rawAttr("href", path);
 		o().endtag();
 		o().dec();					// do not close
 		//o().closetag("link");
 	}
 
-	public void renderLoadJavascript(@Nonnull String path) throws Exception {
+	@Override
+	public void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception {
 		if(!path.startsWith("http")) {
 			String rurl = m_page.getBody().getThemedResourceRURL(path);
 			path = ctx().getRelativePath(rurl);
@@ -309,6 +313,10 @@ public class HtmlFullRenderer extends NodeVisitorBase {
 		//-- render an app-relative url
 		o().tag("script");
 		o().attr("src", path);
+		if(async)
+			o().writeRaw(" async");
+		if(defer)
+			o().writeRaw(" defer");
 		o().endtag();
 		o().closetag("script");
 	}

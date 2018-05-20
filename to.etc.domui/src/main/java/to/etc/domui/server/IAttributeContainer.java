@@ -24,7 +24,8 @@
  */
 package to.etc.domui.server;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Define an attribute container.
@@ -33,8 +34,8 @@ import javax.annotation.*;
  * Created on May 19, 2009
  */
 public interface IAttributeContainer {
-	void setAttribute(@Nonnull String name, @Nullable Object value);
+	void setAttribute(@NonNull String name, @Nullable Object value);
 
 	@Nullable
-	Object getAttribute(@Nonnull String name);
+	Object getAttribute(@NonNull String name);
 }

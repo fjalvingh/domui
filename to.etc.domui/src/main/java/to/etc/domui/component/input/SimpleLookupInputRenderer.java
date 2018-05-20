@@ -24,14 +24,21 @@
  */
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.ProgrammerErrorException;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This renderer represents default renderer that is used for {@link LookupInput}. It can also be
@@ -71,14 +78,14 @@ import java.util.*;
 		m_xpl = initRenderingModel(cmm, propertyNames);
 	}
 
-	public SimpleLookupInputRenderer(@Nonnull Class<T> clz, @Nonnull String... colset) {
+	public SimpleLookupInputRenderer(@NonNull Class<T> clz, @NonNull String... colset) {
 		m_actualClass = clz;
 		m_propertyNames = colset;
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		m_xpl = initRenderingModel(cmm, colset);
 	}
 
-	private List<ExpandedDisplayProperty<?>> initRenderingModel(ClassMetaModel cmm, @Nonnull String[] colset) {
+	private List<ExpandedDisplayProperty<?>> initRenderingModel(ClassMetaModel cmm, @NonNull String[] colset) {
 		List<ExpandedDisplayProperty< ? >> xpl;
 		if(colset.length == 0) {
 			//-- Do we have a "selected properties" meta renderer?
@@ -103,7 +110,7 @@ import java.util.*;
 	}
 
 	@Override
-	public void render(@Nonnull NodeContainer node, @Nonnull T object) throws Exception {
+	public void render(@NonNull NodeContainer node, @NonNull T object) throws Exception {
 		TBody tb = node.addTableForLayout("ui-lui-vtab");
 		IRenderInto<T> beforeRenderer = getBeforeRenderer();
 		if(beforeRenderer != null) {
@@ -140,7 +147,7 @@ import java.util.*;
 		}
 	}
 
-	private void renderModelValue(@Nonnull T object, TBody tb, List<ExpandedDisplayProperty< ? >> xpl) throws Exception {
+	private void renderModelValue(@NonNull T object, TBody tb, List<ExpandedDisplayProperty< ? >> xpl) throws Exception {
 		int c = 0;
 		int mw = 0;
 		for(ExpandedDisplayProperty< ? > xp : xpl) {

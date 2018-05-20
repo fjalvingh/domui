@@ -1,9 +1,9 @@
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.JavascriptUtil;
 
 /**
  * A side panel with a top, bottom and variable-size middle area, and optional sizes.
@@ -31,7 +31,7 @@ public class SizedPanel extends Div {
 			setHeight(height + "px");
 	}
 
-	@Nonnull
+	@NonNull
 	public Caption2 caption() {
 		Caption2 cap = m_caption;
 		if(null == cap) {
@@ -41,7 +41,7 @@ public class SizedPanel extends Div {
 		return cap;
 	}
 
-	public void setCaption(@Nonnull String title) {
+	public void setCaption(@NonNull String title) {
 		caption().setCaption(title);
 	}
 
@@ -57,7 +57,7 @@ public class SizedPanel extends Div {
 			JavascriptUtil.setThreePanelHeight(createStatement(), m_top, middle(), m_bottom);
 	}
 
-	@Nonnull
+	@NonNull
 	public Div top() {
 		Div t = m_top;
 		if(null == t) {
@@ -67,7 +67,7 @@ public class SizedPanel extends Div {
 		return t;
 	}
 
-	@Nonnull
+	@NonNull
 	public Div bottom() {
 		Div t = m_bottom;
 		if(null == t) {
@@ -77,7 +77,7 @@ public class SizedPanel extends Div {
 		return t;
 	}
 
-	@Nonnull
+	@NonNull
 	public Div middle() {
 		Div t = m_middle;
 		if(null == t) {

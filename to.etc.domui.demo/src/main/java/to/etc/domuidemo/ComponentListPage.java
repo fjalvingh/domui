@@ -4,9 +4,9 @@ import to.etc.domuidemo.pages.DataTable1Page;
 import to.etc.domuidemo.pages.MenuPage;
 import to.etc.domuidemo.pages.TableMenuPage;
 import to.etc.domuidemo.pages.basic.DemoTextArea;
+import to.etc.domuidemo.pages.binding.editabletable.EditableTablePage;
 import to.etc.domuidemo.pages.binding.tbl.DemoObservableListPage;
 import to.etc.domuidemo.pages.graphs.GraphPage;
-import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
 import to.etc.domuidemo.pages.overview.buttons.DemoDefaultButton;
 import to.etc.domuidemo.pages.overview.buttons.DemoLinkButton;
@@ -25,6 +25,8 @@ import to.etc.domuidemo.pages.overview.input.DemoComboFixed;
 import to.etc.domuidemo.pages.overview.input.DemoDateInput;
 import to.etc.domuidemo.pages.overview.input.DemoFileUpload;
 import to.etc.domuidemo.pages.overview.input.DemoRadioButton;
+import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType1;
+import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType2;
 import to.etc.domuidemo.pages.overview.input.DemoText;
 import to.etc.domuidemo.pages.overview.input.DemoTextStr;
 import to.etc.domuidemo.pages.overview.layout.DemoAppTitle;
@@ -44,6 +46,7 @@ import to.etc.domuidemo.pages.overview.misc.DemoDisplayValue;
 import to.etc.domuidemo.pages.overview.misc.DemoMsgBox;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
 import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
+import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
 import to.etc.domuidemo.pages.special.ace.AcePage;
 import to.etc.formbuilder.pages.FormDesigner;
 
@@ -86,6 +89,10 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
 		addLink(DemoCKEditor.class, "The big HTML editor - CKEditor component");
 
+		addCaption("Search as you type");
+		addLink(DemoSearchAsYouType1.class, "Component to search-as-you-type in a list of possible values");
+		addLink(DemoSearchAsYouType2.class, "Component to search-as-you-type in a list of possible values");
+
 		addCaption("Display-only components");
 		addLink(DemoDisplayValue.class, "The DisplayValue component");
 		addLink(DemoDisplayHtml.class, "The DisplayHtml component");
@@ -125,5 +132,7 @@ public class ComponentListPage extends MenuPage {
 
 		addCaption("Binding");
 		addLink(DemoObservableListPage.class, "Database relation IObservableList binding");
+		addLink(EditableTablePage.class, "Editable table using data binding and a model");
+		//addLink(InvoiceListPage.class, "Editable table using data binding and a model");
 	}
 }

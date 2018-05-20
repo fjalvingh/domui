@@ -24,9 +24,11 @@
  */
 package to.etc.domui.util.images;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * This is a reference to some individual original image as returned by
@@ -54,7 +56,7 @@ public interface IImageReference extends Closeable {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull String getMimeType() throws Exception;
+	@NonNull String getMimeType() throws Exception;
 
 	/**
 	 * Returns the datastream containing this image. This may be called only ONCE for an image and must

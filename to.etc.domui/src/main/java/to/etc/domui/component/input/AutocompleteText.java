@@ -1,8 +1,8 @@
 package to.etc.domui.component.input;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.Select;
 
 
 /**
@@ -25,7 +25,7 @@ class AutocompleteText extends TextStr {
 		appendCreateJS("WebUI.initAutocomplete('" + getActualID() + "','" + getSelect().getActualID() + "')");
 	}
 
-	@Nonnull
+	@NonNull
 	protected Select getSelect() {
 		Select select = m_select;
 		if(select == null) {
@@ -34,7 +34,7 @@ class AutocompleteText extends TextStr {
 		return select;
 	}
 
-	protected void setSelect(@Nonnull Select select) {
+	protected void setSelect(@NonNull Select select) {
 		m_select = select;
 	}
 

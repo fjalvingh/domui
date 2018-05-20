@@ -24,9 +24,10 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.List;
 
 public interface IQueryExecutor<C extends QDataContext> {
 	/**
@@ -38,8 +39,8 @@ public interface IQueryExecutor<C extends QDataContext> {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	<T> List<T> query(@Nonnull C root, @Nonnull QCriteria<T> q) throws Exception;
+	@NonNull
+	<T> List<T> query(@NonNull C root, @NonNull QCriteria<T> q) throws Exception;
 
 	/**
 	 * Issue a selection query, where multiple fields or projections on fields are selected from a base class.
@@ -47,8 +48,8 @@ public interface IQueryExecutor<C extends QDataContext> {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	List<Object[]> query(@Nonnull C root, @Nonnull QSelection< ? > sel) throws Exception;
+	@NonNull
+	List<Object[]> query(@NonNull C root, @NonNull QSelection< ? > sel) throws Exception;
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will
@@ -62,10 +63,10 @@ public interface IQueryExecutor<C extends QDataContext> {
 	 * @throws Exception
 	 */
 	@Nullable
-	<T> T find(@Nonnull C root, @Nonnull Class<T> clz, @Nonnull Object pk) throws Exception;
+	<T> T find(@NonNull C root, @NonNull Class<T> clz, @NonNull Object pk) throws Exception;
 
 	@Nullable
-	<T> T find(@Nonnull C root, @Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception;
+	<T> T find(@NonNull C root, @NonNull ICriteriaTableDef<T> metatable, @NonNull Object pk) throws Exception;
 
 	/**
 	 * Load the persistent object with the specified type and primary key from the database. This will
@@ -81,32 +82,32 @@ public interface IQueryExecutor<C extends QDataContext> {
 	 * @return		Always returns an instance; it can be invalid when it does not really exist on the backing store.
 	 * @throws Exception
 	 */
-	@Nonnull
-	<T> T getInstance(@Nonnull C root, @Nonnull Class<T> clz, @Nonnull Object pk) throws Exception;
+	@NonNull
+	<T> T getInstance(@NonNull C root, @NonNull Class<T> clz, @NonNull Object pk) throws Exception;
 
-	@Nonnull
-	<T> T getInstance(@Nonnull C root, @Nonnull ICriteriaTableDef<T> clz, @Nonnull Object pk) throws Exception;
+	@NonNull
+	<T> T getInstance(@NonNull C root, @NonNull ICriteriaTableDef<T> clz, @NonNull Object pk) throws Exception;
 
 	/**
 	 * Cause the object to be inserted in the database.
 	 * @param o
 	 * @throws Exception
 	 */
-	void save(@Nonnull C root, @Nonnull Object o) throws Exception;
+	void save(@NonNull C root, @NonNull Object o) throws Exception;
 
 	/**
 	 * Refresh with latest content in the database.
 	 * @param o
 	 * @throws Exception
 	 */
-	void refresh(@Nonnull C root, @Nonnull Object o) throws Exception;
+	void refresh(@NonNull C root, @NonNull Object o) throws Exception;
 
 	/**
 	 * Cause the object to be deleted from the database.
 	 * @param o
 	 * @throws Exception
 	 */
-	void delete(@Nonnull C root, @Nonnull Object o) throws Exception;
+	void delete(@NonNull C root, @NonNull Object o) throws Exception;
 
-	void attach(@Nonnull C root, @Nonnull Object o) throws Exception;
+	void attach(@NonNull C root, @NonNull Object o) throws Exception;
 }

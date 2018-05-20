@@ -24,19 +24,35 @@
  */
 package to.etc.domui.component.upload;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.domui.util.upload.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.misc.MessageFlare;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.FileInput;
+import to.etc.domui.dom.html.Form;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.parts.ComponentPartRenderer;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.domui.util.upload.FileUploadException;
+import to.etc.domui.util.upload.UploadItem;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +84,7 @@ import java.util.stream.Collectors;
  */
 @Deprecated
 public class FileUpload extends Div implements IUploadAcceptingComponent, IControl<UploadItem> /* implements IHasChangeListener */ {
-	@Nonnull
+	@NonNull
 	private List<String> m_allowedExtensions;
 
 	private int m_maxSize;
@@ -94,7 +110,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	/**
 	 * Create an upload item that accepts a max #of files and a set of extensions.
 	 */
-	public FileUpload(int maxfiles, @Nonnull List<String> allowedExtensions) {
+	public FileUpload(int maxfiles, @NonNull List<String> allowedExtensions) {
 		m_maxFiles = maxfiles;
 		m_allowedExtensions = allowedExtensions;
 	}
@@ -171,7 +187,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 			if(!isDisabled() && ! isReadOnly()) {
 				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), "THEME/btnDelete.png", new IClicked<DefaultButton>() {
 					@Override
-					public void clicked(@Nonnull DefaultButton bx) throws Exception {
+					public void clicked(@NonNull DefaultButton bx) throws Exception {
 						removeUploadItem(ufi);
 						if(m_onValueChanged != null)
 							((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(FileUpload.this);
@@ -199,7 +215,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	 * or to a BLOB in a database.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public List<UploadItem> getFiles() {
 		return m_files;
 	}
@@ -357,7 +373,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 	}
 
 	@Override
-	public boolean handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception {
+	public boolean handleUploadRequest(@NonNull RequestContextImpl param, @NonNull ConversationContext conversation) throws Exception {
 		try {
 			if(isDisabled())
 				return true;

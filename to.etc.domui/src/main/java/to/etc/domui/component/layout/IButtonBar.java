@@ -1,13 +1,14 @@
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.menu.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.dom.html.IClicked;
 
 public interface IButtonBar {
-//	void addButton(@Nonnull NodeBase b, int order);
+//	void addButton(@NonNull NodeBase b, int order);
 //
 	/**
 	 * Add a normal button.
@@ -16,46 +17,46 @@ public interface IButtonBar {
 	 * @param click
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click, int order);
 
-	@Nonnull
+	@NonNull
 	DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click);
 
-	@Nonnull
-	DefaultButton addButton(@Nonnull IUIAction<Void> action) throws Exception;
+	@NonNull
+	DefaultButton addButton(@NonNull IUIAction<Void> action) throws Exception;
 
-	@Nonnull
-	DefaultButton addButton(@Nonnull IUIAction<Void> action, int order) throws Exception;
+	@NonNull
+	DefaultButton addButton(@NonNull IUIAction<Void> action, int order) throws Exception;
 
-	@Nonnull
+	@NonNull
 	DefaultButton addButton(String txt, IClicked<DefaultButton> click);
 
-	@Nonnull
+	@NonNull
 	DefaultButton addButton(String txt, IClicked<DefaultButton> click, int order);
 
-	@Nonnull
+	@NonNull
 	DefaultButton addBackButton(String txt, String icon);
 
-	@Nonnull
+	@NonNull
 	DefaultButton addBackButton(String txt, String icon, int order);
 
-	@Nonnull
+	@NonNull
 	DefaultButton addBackButton();
 
-	@Nonnull
+	@NonNull
 	DefaultButton addBackButton(int order);
 
-	@Nonnull
-	DefaultButton addCloseButton(@Nonnull String txt, @Nonnull String icon);
+	@NonNull
+	DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon);
 
-	@Nonnull
-	DefaultButton addCloseButton(@Nonnull String txt, @Nonnull String icon, int order);
+	@NonNull
+	DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon, int order);
 
-	@Nonnull
+	@NonNull
 	DefaultButton addCloseButton();
 
-	@Nonnull
+	@NonNull
 	DefaultButton addCloseButton(int order);
 
 	@Nullable
@@ -64,23 +65,23 @@ public interface IButtonBar {
 	@Nullable
 	DefaultButton addBackButtonConditional(int order);
 
-	@Nonnull
+	@NonNull
 	LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click, int order);
 
-	@Nonnull
+	@NonNull
 	LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click);
 
-	@Nonnull
+	@NonNull
 	<T> DefaultButton addAction(T instance, IUIAction<T> action) throws Exception;
 
-	@Nonnull
+	@NonNull
 	<T> DefaultButton addAction(T instance, IUIAction<T> action, int order) throws Exception;
 
-	@Nonnull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click);
+	@NonNull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click);
 
-	@Nonnull DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click);
+	@NonNull DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click);
 
-	@Nonnull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click, int order);
+	@NonNull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click, int order);
 
 	DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click, int order);
 }

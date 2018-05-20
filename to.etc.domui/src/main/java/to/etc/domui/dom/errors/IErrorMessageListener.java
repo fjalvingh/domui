@@ -24,7 +24,7 @@
  */
 package to.etc.domui.dom.errors;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A listener for errors that occur in handling the page. An error message
@@ -36,7 +36,7 @@ import javax.annotation.*;
  * Created on Jun 12, 2008
  */
 public interface IErrorMessageListener {
-	void errorMessageAdded(@Nonnull UIMessage m);
+	void errorMessageAdded(@NonNull UIMessage m);
 
-	void errorMessageRemoved(@Nonnull UIMessage m);
+	void errorMessageRemoved(@NonNull UIMessage m);
 }

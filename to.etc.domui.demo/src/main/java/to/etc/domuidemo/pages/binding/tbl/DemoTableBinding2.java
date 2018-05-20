@@ -1,14 +1,19 @@
 package to.etc.domuidemo.pages.binding.tbl;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.tbl.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.tbl.DataPager;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.IRowControlFactory;
+import to.etc.domui.component.tbl.RowRenderer;
+import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.derbydata.db.Employee;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.domuidemo.pages.*;
-import to.etc.webapp.query.*;
-
-import javax.annotation.*;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domuidemo.pages.WikiExplanationPage;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
 
 public class DemoTableBinding2 extends WikiExplanationPage {
 	@Override
@@ -29,7 +34,7 @@ public class DemoTableBinding2 extends WikiExplanationPage {
 		};
 
 		rr.column(Employee.class, "reportsTo").label("Manager").editable().factory(new IRowControlFactory<Employee>() {
-			@Nonnull @Override public IControl<?> createControl(@Nonnull Employee rowInstance) throws Exception {
+			@NonNull @Override public IControl<?> createControl(@NonNull Employee rowInstance) throws Exception {
 				LookupInput<Employee> li = new LookupInput<Employee>(Employee.class);
 				li.setValueRenderer(contentRenderer);
 				return li;
@@ -55,7 +60,7 @@ public class DemoTableBinding2 extends WikiExplanationPage {
 //		});
 	}
 
-//	private void clickedOne(@Nonnull final Employee a) {
+//	private void clickedOne(@NonNull final Employee a) {
 //		//-- Change the artist's name field.
 //		String name = a.getName();
 //		name = name.substring(1) + name.substring(0, 1);

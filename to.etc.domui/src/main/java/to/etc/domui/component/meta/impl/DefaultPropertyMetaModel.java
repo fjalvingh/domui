@@ -24,19 +24,33 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.ILabelStringRenderer;
+import to.etc.domui.util.IRenderInto;
+import to.etc.util.PropertyInfo;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 
 public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> implements PropertyMetaModel<T> {
-	@Nonnull
+	@NonNull
 	private final DefaultClassMetaModel m_classModel;
 
 	@Nullable
@@ -48,7 +62,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	private boolean m_primaryKey;
 
-	@Nonnull
+	@NonNull
 	private PropertyRelationType m_relationType = PropertyRelationType.NONE;
 
 	private String m_componentTypeHint;
@@ -70,7 +84,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	private Class< ? extends IRenderInto<T>> m_comboNodeRenderer;
 
-	@Nonnull
+	@NonNull
 	private List<DisplayPropertyMetaModel> m_comboDisplayProperties = Collections.EMPTY_LIST;
 
 	private IQueryManipulator<T> m_queryManipulator;
@@ -86,28 +100,28 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	/**
 	 * The default properties to show in a lookup field's instance display.
 	 */
-	@Nonnull
+	@NonNull
 	private List<DisplayPropertyMetaModel> m_lookupFieldDisplayProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * The default properties to show in a {@link LookupInput} field's lookup data table.
 	 */
-	@Nonnull
+	@NonNull
 	private List<DisplayPropertyMetaModel> m_lookupFieldTableProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * The search properties to use in a {@link LookupInput} field.
 	 */
-	@Nonnull
+	@NonNull
 	private List<SearchPropertyMetaModel> m_lookupFieldSearchProperties = Collections.EMPTY_LIST;
 
 	/**
 	 * The keyword search properties to use in a {@link LookupInput} field.
 	 */
-	@Nonnull
+	@NonNull
 	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
 
-	public DefaultPropertyMetaModel(@Nonnull final DefaultClassMetaModel classModel, final PropertyInfo descriptor, ClassMetaModel valueModel) {
+	public DefaultPropertyMetaModel(@NonNull final DefaultClassMetaModel classModel, final PropertyInfo descriptor, ClassMetaModel valueModel) {
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
 		m_valueModel = valueModel;
@@ -119,17 +133,17 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	}
 
 
-	public DefaultPropertyMetaModel(@Nonnull final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
+	public DefaultPropertyMetaModel(@NonNull final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
 		this(classModel, descriptor, null);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public String getName() {
 		return m_descriptor.getName();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Class<T> getActualType() {
 		return (Class<T>) m_descriptor.getActualType();
@@ -209,7 +223,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getDefaultLabel() {
 		return m_classModel.getPropertyLabel(this, NlsContext.getLocale());
 	}
@@ -301,27 +315,27 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		m_comboLabelRenderer = comboLabelRenderer;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_comboDisplayProperties;
 	}
 
-	public void setComboDisplayProperties(@Nonnull final List<DisplayPropertyMetaModel> displayProperties) {
+	public void setComboDisplayProperties(@NonNull final List<DisplayPropertyMetaModel> displayProperties) {
 		m_comboDisplayProperties = displayProperties;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public PropertyRelationType getRelationType() {
 		return m_relationType;
 	}
 
-	public void setRelationType(@Nonnull final PropertyRelationType relationType) {
+	public void setRelationType(@NonNull final PropertyRelationType relationType) {
 		m_relationType = relationType;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public ClassMetaModel getClassModel() {
 		return m_classModel;
@@ -357,13 +371,13 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	/**
 	 * {@inheritDoc}
 	 */
-	@Nonnull
+	@NonNull
 	@Override
 	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_lookupFieldDisplayProperties;
 	}
 
-	public void setLookupSelectedProperties(@Nonnull final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
+	public void setLookupSelectedProperties(@NonNull final List<DisplayPropertyMetaModel> lookupFieldDisplayProperties) {
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
 	}
 
@@ -371,12 +385,12 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
 		return m_lookupFieldTableProperties;
 	}
 
-	public void setLookupTableProperties(@Nonnull List<DisplayPropertyMetaModel> lookupFieldTableProperties) {
+	public void setLookupTableProperties(@NonNull List<DisplayPropertyMetaModel> lookupFieldTableProperties) {
 		m_lookupFieldTableProperties = lookupFieldTableProperties;
 	}
 
@@ -384,12 +398,12 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
 		return m_lookupFieldSearchProperties;
 	}
 
-	public void setLookupFieldSearchProperties(@Nonnull List<SearchPropertyMetaModel> lookupFieldSearchProperties) {
+	public void setLookupFieldSearchProperties(@NonNull List<SearchPropertyMetaModel> lookupFieldSearchProperties) {
 		m_lookupFieldSearchProperties = lookupFieldSearchProperties;
 	}
 
@@ -397,12 +411,12 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
 		return m_lookupFieldKeySearchProperties;
 	}
 
-	public void setLookupFieldKeySearchProperties(@Nonnull List<SearchPropertyMetaModel> lookupFieldKeySearchProperties) {
+	public void setLookupFieldKeySearchProperties(@NonNull List<SearchPropertyMetaModel> lookupFieldKeySearchProperties) {
 		m_lookupFieldKeySearchProperties = lookupFieldKeySearchProperties;
 	}
 
@@ -435,7 +449,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 */
 	@Override
 	@Nullable
-	public <A> A getAnnotation(@Nonnull Class<A> annclass) {
+	public <A> A getAnnotation(@NonNull Class<A> annclass) {
 		if(Annotation.class.isAssignableFrom(annclass) && m_descriptor != null && m_descriptor.getGetter() != null) {
 			Class< ? extends Annotation> aclz = (Class< ? extends Annotation>) annclass;
 
@@ -450,17 +464,17 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotations()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public List<Object> getAnnotations() {
 		if(m_descriptor != null && m_descriptor.getGetter() != null) {
-			@Nonnull
+			@NonNull
 			List<Object> res = Arrays.asList((Object[]) m_descriptor.getGetter().getAnnotations());
 			return res;
 		}
 		return Collections.emptyList();
 	}
 
-	@Nonnull
+	@NonNull
 	public PropertyInfo getDescriptor() {
 		return m_descriptor;
 	}

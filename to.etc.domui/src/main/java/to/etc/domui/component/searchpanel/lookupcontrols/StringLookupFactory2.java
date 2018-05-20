@@ -24,17 +24,15 @@
  */
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 
-import javax.annotation.Nonnull;
-
-@SuppressWarnings("unchecked")
 final class StringLookupFactory2<T> implements ILookupFactory<T> {
-	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
+	@NonNull @Override public FactoryPair<T> createControl(@NonNull SearchPropertyMetaModel spm) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) spm.getProperty();
 		Text2<T> txt = createControl(pmm);
 

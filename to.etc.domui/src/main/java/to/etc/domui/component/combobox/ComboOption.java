@@ -1,8 +1,7 @@
 package to.etc.domui.component.combobox;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.Div;
 
 /**
  * This replaces the select 'option' field for the ComboBox. Unlike the select this

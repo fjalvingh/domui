@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.input.ValueLabelPair;
@@ -41,7 +42,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +59,7 @@ import java.util.List;
 @Deprecated
 final class LookupFactoryNumber implements ILookupControlFactory {
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			throw new IllegalStateException();
 
@@ -95,7 +95,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 
 		return new AbstractLookupControlImpl(relationCombo, numA, numB) {
 			@Override
-			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
+			public @NonNull AppendCriteriaResult appendCriteria(@NonNull QCriteria< ? > crit) throws Exception {
 				NumericRelationType relation;
 				relation = relationCombo.getValue();
 				if(relation == null) {
@@ -169,7 +169,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 	}
 
 	@Override
-	public <T, X extends IControl<T>> int accepts(final @Nonnull SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> int accepts(final @NonNull SearchPropertyMetaModel spm, final X control) {
 		if(control != null)
 			return -1;
 		PropertyMetaModel< ? > pmm = spm.getProperty();

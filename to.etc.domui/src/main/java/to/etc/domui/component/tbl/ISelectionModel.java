@@ -1,6 +1,6 @@
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * A model that stores selections for a table.
@@ -20,7 +20,7 @@ public interface ISelectionModel<T> {
 	 * @param rowinstance
 	 * @return
 	 */
-	boolean isSelected(@Nonnull T rowinstance);
+	boolean isSelected(@NonNull T rowinstance);
 
 	/**
 	 * Return the #of instances currently selected.
@@ -35,7 +35,7 @@ public interface ISelectionModel<T> {
 	 * @param on
 	 * @throws Exception
 	 */
-	void setInstanceSelected(@Nonnull T rowinstance, boolean on) throws Exception;
+	void setInstanceSelected(@NonNull T rowinstance, boolean on) throws Exception;
 
 	/**
 	 * Clear all selections, then call the listeners to report the change.
@@ -56,7 +56,7 @@ public interface ISelectionModel<T> {
 	 * Add a listener that will receive notifications when the selections change.
 	 * @param l
 	 */
-	void addListener(@Nonnull ISelectionListener<T> l);
+	void addListener(@NonNull ISelectionListener<T> l);
 
-	void removeListener(@Nonnull ISelectionListener<T> l);
+	void removeListener(@NonNull ISelectionListener<T> l);
 }

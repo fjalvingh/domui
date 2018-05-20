@@ -24,15 +24,14 @@
  */
 package to.etc.domui.component.htmleditor;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.XmlTextNode;
 import to.etc.domui.util.HtmlUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Mini component to display an HTML section.
@@ -41,7 +40,7 @@ import javax.annotation.Nullable;
  * Created on Mar 16, 2010
  */
 public class DisplayHtml extends Div implements IDisplayControl<String> {
-	@Nonnull
+	@NonNull
 	final private XmlTextNode m_xtn = new XmlTextNode();
 
 	private boolean m_unchecked;

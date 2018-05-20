@@ -1,8 +1,8 @@
 package to.etc.domui.component.layout;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.image.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.image.Dimension;
+import to.etc.domui.component.image.Point;
 
 /**
  * Represents immutable 2d bounds, position (offset) and dimension (size).
@@ -43,14 +43,14 @@ public final class Rect {
 		m_bottom = bottom;
 	}
 
-	public Rect(@Nonnull Point position, @Nonnull Dimension size) {
+	public Rect(@NonNull Point position, @NonNull Dimension size) {
 		m_left = position.getX();
 		m_top = position.getY();
 		m_right = m_left + size.getWidth();
 		m_bottom = m_top + size.getHeight();
 	}
 
-	public Rect(@Nonnull Point pointa, @Nonnull Point pointb) {
+	public Rect(@NonNull Point pointa, @NonNull Point pointb) {
 		m_left = pointa.getX();
 		m_top = pointa.getY();
 		m_right = pointb.getX();
@@ -61,7 +61,7 @@ public final class Rect {
 	 * If needed, return a new rect where size has no negative amounts
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public Rect normalize() {
 		if(m_left <= m_right && m_top <= m_bottom)
 			return this;
@@ -84,12 +84,12 @@ public final class Rect {
 		return new Rect(l, t, r, b);
 	}
 
-	@Nonnull
+	@NonNull
 	public final Point getPosition() {
 		return new Point(m_left, m_top);
 	}
 
-	@Nonnull
+	@NonNull
 	public final Dimension getDimension() {
 		return new Dimension(getWidth(), getHeight());
 	}
@@ -108,7 +108,7 @@ public final class Rect {
 	 * @param shiftY
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public Rect move(int shiftX, int shiftY) {
 		return new Rect(m_left + shiftX, m_top + shiftY, m_right + shiftX, m_bottom + shiftY);
 	}
@@ -123,7 +123,7 @@ public final class Rect {
 	 * @param rect
 	 * @return
 	 */
-	public boolean overlaps(@Nonnull Rect rect) {
+	public boolean overlaps(@NonNull Rect rect) {
 		Rect a = normalize();
 		Rect b = rect.normalize();
 

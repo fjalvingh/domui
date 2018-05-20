@@ -1,23 +1,25 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.ComboFixed;
+import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.dom.html.NodeContainer;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.input.*;
-import to.etc.domui.dom.html.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ComboPropertyEditor implements IPropertyEditor {
-	@Nonnull
+	@NonNull
 	final private PropertyDefinition m_pd;
 
-	@Nonnull
+	@NonNull
 	final private ComboPropertyEditorFactory m_comboPropertyEditorFactory;
 
 	@Nullable
 	private Object m_value;
 
-	public ComboPropertyEditor(@Nonnull PropertyDefinition pd, @Nonnull ComboPropertyEditorFactory comboPropertyEditorFactory) {
+	public ComboPropertyEditor(@NonNull PropertyDefinition pd, @NonNull ComboPropertyEditorFactory comboPropertyEditorFactory) {
 		m_pd = pd;
 		m_comboPropertyEditorFactory = comboPropertyEditorFactory;
 	}

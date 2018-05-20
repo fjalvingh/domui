@@ -24,9 +24,11 @@
  */
 package to.etc.domui.component.controlfactory;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This represents a list of {@link IModelBinding}s. Each binding connects a UI Control
@@ -42,14 +44,14 @@ import javax.annotation.*;
  * Created on Jul 20, 2011
  */
 public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
-	@Nonnull
+	@NonNull
 	final private List<IModelBinding> m_bindings = new ArrayList<IModelBinding>();
 
 	/**
 	 * Add a binding to the list.
 	 * @param b
 	 */
-	public void add(@Nonnull IModelBinding b) {
+	public void add(@NonNull IModelBinding b) {
 		m_bindings.add(b);
 	}
 
@@ -114,7 +116,7 @@ public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public Iterator<IModelBinding> iterator() {
 		return m_bindings.iterator();
 	}
@@ -124,7 +126,7 @@ public class ModelBindings implements IModelBinding, Iterable<IModelBinding> {
 	 * @param ix
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public IModelBinding get(int ix) {
 		return m_bindings.get(ix);
 	}

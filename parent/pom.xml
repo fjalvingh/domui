@@ -21,14 +21,13 @@
 
     <properties>
         <!-- JDK properties -->
-        <source.jdk.version>1.8</source.jdk.version>
-        <target.jdk.version>1.8</target.jdk.version>
-        <ecj.version>3.12.3</ecj.version>
-        <kotlin.version>1.1.4</kotlin.version>
+        <jdk.version>1.8</jdk.version>
+        <ecj.version>3.13.102</ecj.version>
+        <kotlin.version>1.2.31</kotlin.version>
 
         <!-- Plugin versions -->
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
-        <maven-compiler-plugin.version>3.5.1</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
@@ -36,6 +35,8 @@
         <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
+        <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
+        <plexus-compiler-eclipse.version>2.8.5-SNAPSHOT</plexus-compiler-eclipse.version>
         <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
         <jshint-maven-plugin.version>1.6.0</jshint-maven-plugin.version>
@@ -63,8 +64,6 @@
         <jcharts.version>0.7.5</jcharts.version>
         <batik.version>1.7</batik.version>
         <jericho.version>3.4</jericho.version>
-        <hibernate.core.version>3.6.10.Final</hibernate.core.version>
-        <javassist.version>3.20.0-GA</javassist.version>
         <gnu.regexp.version>1.1.4</gnu.regexp.version>
         <jetty.version>9.3.8.v20160314</jetty.version>
         <selenium.version>3.5.3</selenium.version>
@@ -72,7 +71,6 @@
 
         <xml-apis.version>2.0.2</xml-apis.version>
         <com.ibm.icu.version>58.2</com.ibm.icu.version>
-        <com.google.code.findbugs.version>3.0.1</com.google.code.findbugs.version>
 
         <vaadin.sass.compiler.version>1.0.0-SNAPSHOT</vaadin.sass.compiler.version>
 
@@ -91,7 +89,6 @@
 
         <!-- own -->
         <!--<to.etc.logger.version>1.0</to.etc.logger.version>-->
-        <!--<to.etc.jsr305.version>1.0</to.etc.jsr305.version>-->
         <!--<to.etc.alg.version>1.0</to.etc.alg.version>-->
         <!--<to.etc.db.version>1.0</to.etc.db.version>-->
         <!--<to.etc.webapp.core.version>1.0</to.etc.webapp.core.version>-->
@@ -146,16 +143,31 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>com.google.code.findbugs</groupId>
-                <artifactId>jsr305</artifactId>
-                <version>${com.google.code.findbugs.version}</version>
-            </dependency>
 
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk15on</artifactId>
                 <version>${bouncycastle.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation -->
+            <dependency>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>org.eclipse.jdt.annotation</artifactId>
+                <version>1.1.100</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.api-client</groupId>
+                <artifactId>google-api-client</artifactId>
+                <version>1.23.0</version>
+
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>jsr305</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <dependency>
@@ -218,11 +230,6 @@
                 <groupId>xml-apis</groupId>
                 <artifactId>xml-apis</artifactId>
                 <version>${xml-apis.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>${hibernate-validator.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.ibm.icu</groupId>
@@ -360,20 +367,6 @@
                 <version>${gnu.regexp.version}</version>
             </dependency>
 
-            <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
-            <dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-core</artifactId>
-                <version>${hibernate.core.version}</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.javassist/javassist -->
-            <dependency>
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>${javassist.version}</version>
-            </dependency>
-
             <dependency>
                 <groupId>org.seleniumhq.selenium</groupId>
                 <artifactId>selenium-java</artifactId>
@@ -400,12 +393,6 @@
                 <artifactId>to.etc.logger</artifactId>
                 <version>1.2-SNAPSHOT</version>
                 <!--<version>${to.etc.logger.version}-SNAPSHOT</version>-->
-            </dependency>
-            <dependency>
-                <groupId>to.etc.domui</groupId>
-                <artifactId>to.etc.jsr305</artifactId>
-                <version>1.2-SNAPSHOT</version>
-                <!--<version>${to.etc.jsr305.version}-SNAPSHOT</version>-->
             </dependency>
             <dependency>
                 <groupId>to.etc.domui</groupId>
@@ -551,8 +538,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${jdk.version}</source>
+                    <target>${jdk.version}</target>
                 </configuration>
             </plugin>
 
@@ -656,7 +643,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.20</version>
+                <version>${maven-failsafe-plugin.version}</version>
 
                 <!-- jal: pass webdriver.url to JUnit tests needing that -->
                 <configuration>
@@ -734,15 +721,18 @@
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
                         <compilerId>eclipse</compilerId>
-                        <source>${source.jdk.version}</source>
-                        <target>${target.jdk.version}</target>
+                        <source>${jdk.version}</source>
+                        <target>${jdk.version}</target>
                         <!-- Passing arguments is a trainwreck, see https://issues.apache.org/jira/browse/MCOMPILER-123 -->
                         <compilerArguments>
                             <properties>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</properties>
+                            <enableJavadoc></enableJavadoc>
                         </compilerArguments>
-                        <!--<compilerArgs>-->
-                        <!--<arg>-properties .settings/org.eclipse.jdt.core.prefs</arg>-->
-                        <!--</compilerArgs>-->
+                        <compilerArgs>
+                            <arg>--add-modules</arg>
+                            <arg>org.w3c.dom</arg>
+                        </compilerArgs>
+
                         <showWarnings>true</showWarnings>
                         <showDeprecation>true</showDeprecation>
                     </configuration>
@@ -751,7 +741,7 @@
                         <dependency>
                             <groupId>org.codehaus.plexus</groupId>
                             <artifactId>plexus-compiler-eclipse</artifactId>
-                            <version>2.8</version>
+                            <version>${plexus-compiler-eclipse.version}</version>
                         </dependency>
 
                         <dependency>
@@ -762,6 +752,22 @@
                     </dependencies>
                 </plugin>
 
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jdeps-plugin</artifactId>
+                    <version>3.1.1</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>jdkinternals</goal> <!-- verify main classes -->
+                                <goal>test-jdkinternals</goal> <!-- verify test classes -->
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                    </configuration>
+                </plugin>
 
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>

@@ -1,5 +1,7 @@
 package to.etc.domui.util.db;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
@@ -27,8 +29,6 @@ import to.etc.webapp.query.QSelectionSubquery;
 import to.etc.webapp.query.QUnaryNode;
 import to.etc.webapp.query.QUnaryProperty;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -41,10 +41,10 @@ import java.util.List;
  * Created on Mar 4, 2013
  */
 public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
-	@Nonnull
+	@NonNull
 	private T		m_instance;
 
-	@Nonnull
+	@NonNull
 	private ClassMetaModel m_cmm;
 
 	@Nullable
@@ -52,7 +52,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 	private boolean m_lastResult;
 
-	public CriteriaMatchingVisitor(@Nonnull T instance, @Nonnull ClassMetaModel cmm) {
+	public CriteriaMatchingVisitor(@NonNull T instance, @NonNull ClassMetaModel cmm) {
 		m_instance = instance;
 		m_cmm = cmm;
 	}
@@ -61,13 +61,13 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		return m_lastResult;
 	}
 
-	public void setInstance(@Nonnull T instance) {
+	public void setInstance(@NonNull T instance) {
 		m_instance = instance;
 		m_lastResult = true;
 	}
 
 	@Override
-	public void visitPropertyComparison(@Nonnull QPropertyComparison n) throws Exception {
+	public void visitPropertyComparison(@NonNull QPropertyComparison n) throws Exception {
 		QOperatorNode rhs = n.getExpr();
 		String name = n.getProperty();
 		QLiteral l = null;
@@ -150,7 +150,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+	public void visitPropertyIn(@NonNull QPropertyIn n) throws Exception {
 		QOperatorNode rhs = n.getExpr();
 		String name = n.getProperty();
 		List<Object> valueList = null;
@@ -204,7 +204,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	 * @return
 	 */
 	@Nullable
-	private Class< ? > getPromoted(@Nonnull Class< ? > litc, @Nonnull Class< ? > valc) {
+	private Class< ? > getPromoted(@NonNull Class< ? > litc, @NonNull Class< ? > valc) {
 		if(litc == valc)
 			return litc;
 
@@ -237,7 +237,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitUnaryNode(@Nonnull QUnaryNode n) throws Exception {
+	public void visitUnaryNode(@NonNull QUnaryNode n) throws Exception {
 		switch(n.getOperation()){
 			default:
 				break;
@@ -250,7 +250,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {
+	public void visitUnaryProperty(@NonNull QUnaryProperty n) throws Exception {
 		String name = n.getProperty();
 		PropertyMetaModel< ? > pmm = parseSubCriteria(n.getProperty());
 
@@ -268,8 +268,8 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		}
 	}
 
-	@Nonnull
-	private PropertyMetaModel< ? > parseSubCriteria(@Nonnull String property) {
+	@NonNull
+	private PropertyMetaModel< ? > parseSubCriteria(@NonNull String property) {
 		PropertyMetaModel< ? > pmm = m_cmm.getProperty(property);
 		if(pmm instanceof PathPropertyMetaModel) {
 			PathPropertyMetaModel< ? > m = (PathPropertyMetaModel< ? >) pmm;
@@ -283,7 +283,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 
 	@Override
-	public void visitMulti(@Nonnull QMultiNode inn) throws Exception {
+	public void visitMulti(@NonNull QMultiNode inn) throws Exception {
 		//-- Walk all members, create nodes from 'm.
 		boolean result = inn.getOperation() == QOperation.AND;		// For AND we start RESULT with TRUE, OR starts with FALSE.
 		for(QOperatorNode n : inn.getChildren()) {
@@ -315,7 +315,7 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 
 	@Override
-	public void visitBetween(@Nonnull QBetweenNode n) throws Exception {
+	public void visitBetween(@NonNull QBetweenNode n) throws Exception {
 		if(n.getA().getOperation() != QOperation.LITERAL || n.getB().getOperation() != QOperation.LITERAL)
 			throw new IllegalStateException("Expecting literals as 2nd and 3rd between parameter");
 		QLiteral lita = (QLiteral) n.getA();
@@ -376,62 +376,62 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitSelection(@Nonnull QSelection< ? > s) throws Exception {
+	public void visitSelection(@NonNull QSelection< ? > s) throws Exception {
 		m_lastResult = true;
 		throw new IllegalStateException("Selection not implemented");
 	}
 
 	@Override
-	public void visitCriteria(@Nonnull QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@NonNull QCriteria< ? > qc) throws Exception {
 		m_lastResult = true;
 		super.visitCriteria(qc);
 	}
 
 	@Override
-	public void visitSelectionColumns(@Nonnull QSelection< ? > s) throws Exception {
+	public void visitSelectionColumns(@NonNull QSelection< ? > s) throws Exception {
 		throw new IllegalStateException("Selection not implemented");
 	}
 
 	@Override
-	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
+	public void visitOrderList(@NonNull List<QOrder> orderlist) throws Exception {
 	}
 
 	@Override
-	public void visitOrder(@Nonnull QOrder o) throws Exception {
+	public void visitOrder(@NonNull QOrder o) throws Exception {
 		throw new IllegalStateException("Order: not implemented");
 	}
 
 	@Override
-	public void visitPropertySelection(@Nonnull QPropertySelection n) throws Exception {
+	public void visitPropertySelection(@NonNull QPropertySelection n) throws Exception {
 		throw new IllegalStateException("Selection not implemented");
 	}
 
 	@Override
-	public void visitSelectionColumn(@Nonnull QSelectionColumn n) throws Exception {
+	public void visitSelectionColumn(@NonNull QSelectionColumn n) throws Exception {
 		throw new IllegalStateException("Selection not implemented");
 	}
 
 	@Override
-	public void visitSelectionItem(@Nonnull QSelectionItem n) throws Exception {
+	public void visitSelectionItem(@NonNull QSelectionItem n) throws Exception {
 		throw new IllegalStateException("Selection not implemented");
 	}
 
 	@Override
-	public void visitMultiSelection(@Nonnull QMultiSelection n) throws Exception {
+	public void visitMultiSelection(@NonNull QMultiSelection n) throws Exception {
 		throw new IllegalStateException("Selection not implemented");
 	}
 
 	@Override
-	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {
+	public void visitExistsSubquery(@NonNull QExistsSubquery< ? > q) throws Exception {
 		throw new IllegalStateException("'exists' has no meaning here");
 	}
 
 	@Override
-	public void visitSelectionSubquery(@Nonnull QSelectionSubquery n) throws Exception {
+	public void visitSelectionSubquery(@NonNull QSelectionSubquery n) throws Exception {
 		throw new IllegalStateException("'subselection' has no meaning here");
 	}
 
-	@Nonnull
+	@NonNull
 	public StringLikeSearchMatchUtil getLikeCompare() {
 		StringLikeSearchMatchUtil likeCompare = m_likeCompare;
 		if (null == likeCompare){

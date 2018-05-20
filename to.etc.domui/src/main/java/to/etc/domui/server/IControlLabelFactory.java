@@ -24,10 +24,10 @@
  */
 package to.etc.domui.server;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.NodeBase;
 
 /**
  * A silly thing which creates the default visible labels for

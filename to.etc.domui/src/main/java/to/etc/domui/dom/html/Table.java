@@ -24,9 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.util.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.DomUtil;
 
 public class Table extends NodeContainer {
 	private String m_cellPadding;
@@ -48,7 +47,7 @@ public class Table extends NodeContainer {
 		super("table");
 	}
 
-	public Table(@Nonnull String cssClass) {
+	public Table(@NonNull String cssClass) {
 		this();
 		setCssClass(cssClass);
 	}
@@ -131,7 +130,7 @@ public class Table extends NodeContainer {
 	 * @see to.etc.domui.dom.html.NodeContainer#canContain(to.etc.domui.dom.html.NodeBase)
 	 */
 	@Override
-	protected void canContain(@Nonnull NodeBase node) {
+	protected void canContain(@NonNull NodeBase node) {
 		if(node instanceof XmlTextNode)
 			return;
 		if(node instanceof TextNode)

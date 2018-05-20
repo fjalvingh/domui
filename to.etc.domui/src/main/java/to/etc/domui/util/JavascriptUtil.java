@@ -1,9 +1,10 @@
 package to.etc.domui.util;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.javascript.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.domui.util.javascript.JsMethod;
 
 final public class JavascriptUtil {
 	private JavascriptUtil() {}
@@ -31,7 +32,7 @@ final public class JavascriptUtil {
 		//return "$('#" + nb.getActualID() + "').enableSelection();";
 	}
 
-	static public void setThreePanelHeight(@Nonnull JavascriptStmt statement, @Nullable NodeBase top, @Nonnull NodeBase middle, @Nullable NodeBase bottom) throws Exception {
+	static public void setThreePanelHeight(@NonNull JavascriptStmt statement, @Nullable NodeBase top, @NonNull NodeBase middle, @Nullable NodeBase bottom) throws Exception {
 		JsMethod m = statement.method("WebUI.setThreePanelHeight");
 		m.arg(top == null ? Integer.valueOf(0) : top.getActualID());
 		m.arg(middle.getActualID());

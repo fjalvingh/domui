@@ -1,31 +1,32 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ComboPropertyEditorFactory implements IPropertyEditorFactory {
-	@Nonnull
+	@NonNull
 	private Class<?> m_actualClass;
 
-	@Nonnull
+	@NonNull
 	private Object[]	m_values;
 
 	private boolean m_required;
 
-	@Nonnull
+	@NonNull
 	static private final Map<Class< ? >, ComboPropertyEditorFactory> m_identMap = new HashMap<Class< ? >, ComboPropertyEditorFactory>();
 
-	private ComboPropertyEditorFactory(@Nonnull Class< ? > actualClass, @Nonnull Object[] values, boolean required) {
+	private ComboPropertyEditorFactory(@NonNull Class< ? > actualClass, @NonNull Object[] values, boolean required) {
 		m_actualClass = actualClass;
 		m_values = values;
 		m_required = required;
 	}
 
-	@Nonnull
-	static public ComboPropertyEditorFactory createFactory(@Nonnull PropertyMetaModel< ? > pmm) {
+	@NonNull
+	static public ComboPropertyEditorFactory createFactory(@NonNull PropertyMetaModel< ? > pmm) {
 		Class< ? > clz = pmm.getActualType();
 		ComboPropertyEditorFactory ef = m_identMap.get(clz);
 		if(ef == null) {
@@ -36,16 +37,16 @@ public class ComboPropertyEditorFactory implements IPropertyEditorFactory {
 	}
 
 	@Override
-	public IPropertyEditor createEditor(@Nonnull PropertyDefinition pd) {
+	public IPropertyEditor createEditor(@NonNull PropertyDefinition pd) {
 		return new ComboPropertyEditor(pd, this);
 	}
 
-	@Nonnull
+	@NonNull
 	public Class< ? > getActualClass() {
 		return m_actualClass;
 	}
 
-	@Nonnull
+	@NonNull
 	public Object[] getValues() {
 		return m_values;
 	}

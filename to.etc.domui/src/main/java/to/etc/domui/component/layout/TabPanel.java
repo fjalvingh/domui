@@ -69,16 +69,14 @@ public class TabPanel extends TabPanelBase {
 			internalSetCurrentTab(0);
 
 		//-- Create the TAB structure..
-		Div hdr = new Div();
-		add(hdr); // The div containing the tab buttons
-		hdr.setCssClass("ui-tab-hdr");
-		Ul u = new Ul();
-		m_tabul = u;
+		Div hdr = new Div("ui-tab-hdr");
+		add(hdr); 									// The div containing the tab buttons
+		Ul u = m_tabul = new Ul();
 		hdr.add(u);
-		Div bgFill = new Div();
-		bgFill.setCssClass("ui-tab-ibte");
-		hdr.add(bgFill);
-		renderTabPanels(m_tabul, this);
+
+		Div cont = new Div("ui-tab-content");	// The content area showing the tab contents.
+		add(cont);
+		renderTabPanels(m_tabul, cont);
 		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
 	}
 }

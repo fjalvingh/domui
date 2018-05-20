@@ -24,11 +24,14 @@
  */
 package to.etc.domui.state;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.ReloadingContextMaker;
+import to.etc.domui.server.reloader.IReloadedClassesListener;
 
-import to.etc.domui.server.*;
-import to.etc.domui.server.reloader.*;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
 
 /**
  * This is contained in an HttpSession and refers to the AppSession
@@ -40,13 +43,13 @@ import to.etc.domui.server.reloader.*;
 final public class HttpSessionLink implements IReloadedClassesListener, HttpSessionBindingListener {
 	private AppSession m_appSession;
 
-	@Nonnull
+	@NonNull
 	final private ReloadingContextMaker m_reloader;
 
-	@Nonnull
+	@NonNull
 	final private HttpSession m_httpSession;
 
-	public HttpSessionLink(@Nonnull HttpSession sess, @Nonnull ReloadingContextMaker reloader) {
+	public HttpSessionLink(@NonNull HttpSession sess, @NonNull ReloadingContextMaker reloader) {
 		m_reloader = reloader;
 		m_httpSession = sess;
 	}
@@ -89,8 +92,8 @@ final public class HttpSessionLink implements IReloadedClassesListener, HttpSess
 		m_reloader.removeListener(this); 							// Drop me from the class reloader list
 	}
 
-	@Nonnull
-	public AppSession getAppSession(@Nonnull DomApplication app) {
+	@NonNull
+	public AppSession getAppSession(@NonNull DomApplication app) {
 		AppSession s;
 		synchronized(this) {
 			s = m_appSession;

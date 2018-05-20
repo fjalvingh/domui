@@ -1,12 +1,20 @@
 package to.etc.webapp.qsql;
 
-import java.io.*;
-import java.lang.ref.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.LineNumberReader;
+import java.io.StringReader;
+import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.MissingResourceException;
 
 /**
  * Resource bundle of SQL statements that can be easily executed. These must be encoded as utf-8 class resources.
@@ -41,19 +49,19 @@ import to.etc.util.*;
  */
 final public class SQLBundle {
 	/** The resource name. */
-	@Nonnull
+	@NonNull
 	final private String m_name;
 
-	@Nonnull
+	@NonNull
 	final private Map<String, String> m_map;
 
-	@Nonnull
+	@NonNull
 	final private Map<String, BundleStatement> m_stmtMap;
 
-	@Nonnull
+	@NonNull
 	static private final Map<String, Reference<SQLBundle>> m_bundleMap = new HashMap<String, Reference<SQLBundle>>();
 
-	private SQLBundle(@Nonnull String name, @Nonnull Map<String, String> map) {
+	private SQLBundle(@NonNull String name, @NonNull Map<String, String> map) {
 		m_name = name;
 		m_map = map;
 		m_stmtMap = new HashMap<String, BundleStatement>(map.size());
@@ -66,8 +74,8 @@ final public class SQLBundle {
 	 * @param base
 	 * @return
 	 */
-	@Nonnull
-	static public SQLBundle create(@Nonnull Class< ? > base) {
+	@NonNull
+	static public SQLBundle create(@NonNull Class< ? > base) {
 		return create(base, "sqlbundle.sql");
 	}
 
@@ -77,8 +85,8 @@ final public class SQLBundle {
 	 * @param name
 	 * @return
 	 */
-	@Nonnull
-	static synchronized public SQLBundle create(@Nonnull Class< ? > base, @Nonnull String name) {
+	@NonNull
+	static synchronized public SQLBundle create(@NonNull Class< ? > base, @NonNull String name) {
 		//-- Calculate bundle name
 		String bn = (base.getPackage().getName() + "." + name);
 		Reference<SQLBundle>	ref = m_bundleMap.get(bn);			// Do we have it mapped?
@@ -115,8 +123,8 @@ final public class SQLBundle {
 	 * @param data
 	 * @return
 	 */
-	@Nonnull
-	private static Map<String, String> split(@Nonnull String data) throws IOException {
+	@NonNull
+	private static Map<String, String> split(@NonNull String data) throws IOException {
 		LineNumberReader lnr = new LineNumberReader(new StringReader(data));
 		String line;
 
@@ -149,7 +157,7 @@ final public class SQLBundle {
 		return res;
 	}
 
-	private static void addStmt(@Nonnull StringBuilder sb, @Nullable String currname, @Nonnull Map<String, String> res) {
+	private static void addStmt(@NonNull StringBuilder sb, @Nullable String currname, @NonNull Map<String, String> res) {
 		if(null == currname)
 			return;
 		String sql = sb.toString().trim();
@@ -163,16 +171,16 @@ final public class SQLBundle {
 	 * @param name
 	 * @return
 	 */
-	@Nonnull
-	public String getString(@Nonnull String name) {
+	@NonNull
+	public String getString(@NonNull String name) {
 		String sql = m_map.get(name);
 		if(null == sql)
 			throw new MissingResourceException("Missing SQL resource '" + name + "' in SQL bundle " + this, m_name, name);
 		return sql;
 	}
 
-	@Nonnull
-	public synchronized BundleStatement getStatement(@Nonnull String key) {
+	@NonNull
+	public synchronized BundleStatement getStatement(@NonNull String key) {
 		BundleStatement bs = m_stmtMap.get(key);
 		if(null == bs) {
 			String sql = getString(key);

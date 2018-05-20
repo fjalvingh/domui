@@ -24,9 +24,9 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.List;
 
 /**
  * The model for a table. This is the abstract type.
@@ -47,7 +47,7 @@ public interface ITableModel<T> {
 	 */
 	int IN_MEMORY_FILTER_OR_SORT_MAX_SIZE = 8000;
 
-	@Nonnull
+	@NonNull
 	List<T> getItems(int start, int end) throws Exception;
 
 	/**
@@ -56,9 +56,9 @@ public interface ITableModel<T> {
 	 */
 	int getRows() throws Exception;
 
-	void addChangeListener(@Nonnull ITableModelListener<T> l);
+	void addChangeListener(@NonNull ITableModelListener<T> l);
 
-	void removeChangeListener(@Nonnull ITableModelListener<T> l);
+	void removeChangeListener(@NonNull ITableModelListener<T> l);
 
 	void refresh();
 }

@@ -24,7 +24,8 @@
  */
 package to.etc.domui.server;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Abstract thingy to get parameters for a page/request.
@@ -34,12 +35,12 @@ import javax.annotation.*;
  */
 public interface IParameterInfo {
 	@Nullable
-	String getParameter(@Nonnull String name);
+	String getParameter(@NonNull String name);
 
-	@Nonnull
-	String[] getParameters(@Nonnull String name);
+	@NonNull
+	String[] getParameters(@NonNull String name);
 
-	@Nonnull
+	@NonNull
 	String[] getParameterNames();
 
 	/**
@@ -47,6 +48,6 @@ public interface IParameterInfo {
 	 * there's nothing like that.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	String getInputPath();
 }

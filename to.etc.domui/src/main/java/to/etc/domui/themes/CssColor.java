@@ -24,9 +24,7 @@
  */
 package to.etc.domui.themes;
 
-import javax.annotation.concurrent.*;
-
-import to.etc.util.*;
+import to.etc.util.StringTool;
 
 /**
  * A color, with methods to create new colors from it.
@@ -34,7 +32,6 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jan 4, 2011
  */
-@Immutable
 final public class CssColor {
 	final private int m_r;
 

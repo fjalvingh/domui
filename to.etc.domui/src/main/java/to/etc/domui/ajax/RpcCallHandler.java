@@ -24,21 +24,31 @@
  */
 package to.etc.domui.ajax;
 
-import java.io.*;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.annotations.AjaxHandler;
+import to.etc.domui.annotations.AjaxParam;
+import to.etc.domui.annotations.ResponseFormat;
+import to.etc.util.IndentWriter;
+import to.etc.util.StringTool;
+import to.etc.webapp.ajax.renderer.JSONParser;
+import to.etc.webapp.ajax.renderer.StructuredWriter;
+import to.etc.webapp.ajax.renderer.json.JSONRegistry;
+import to.etc.webapp.ajax.renderer.json.JSONRenderer;
+import to.etc.webapp.ajax.renderer.json.JSONStructuredWriter;
+import to.etc.webapp.ajax.renderer.xml.XMLStructuredWriter;
+import to.etc.webapp.ajax.renderer.xml.XmlRegistry;
+import to.etc.webapp.ajax.renderer.xml.XmlRenderer;
+import to.etc.xml.XmlWriter;
 
-import javax.annotation.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.annotations.*;
-import to.etc.util.*;
-import to.etc.webapp.ajax.renderer.*;
-import to.etc.webapp.ajax.renderer.json.*;
-import to.etc.webapp.ajax.renderer.xml.*;
-import to.etc.xml.*;
+import java.io.Writer;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A generic class that allows for Java services (methods on a service class)
@@ -111,7 +121,7 @@ public class RpcCallHandler {
 	 * package list.
 	 * @param name	The dotted package.classname, or a single classname.
 	 */
-	@Nonnull
+	@NonNull
 	RpcClassDefinition resolveHandler(final String name) throws Exception {
 		String basename = name.replace('/', '.'); // Unslash name
 		RpcClassDefinition hi = getServiceClassDefinition(basename);

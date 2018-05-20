@@ -1,8 +1,8 @@
 package to.etc.domui.component.tree;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
-@DefaultNonNull
+@NonNullByDefault
 public interface ITreeEditModel<T> extends ITreeModel<T> {
 	/**
 	 * @param node

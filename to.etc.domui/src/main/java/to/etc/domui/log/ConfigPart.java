@@ -1,5 +1,6 @@
 package to.etc.domui.log;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.layout.ButtonBar;
@@ -20,7 +21,6 @@ import to.etc.log.EtcLoggerFactory;
 import to.etc.log.handler.EtcLogFormat;
 import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 public class ConfigPart extends Div {
@@ -38,7 +38,7 @@ public class ConfigPart extends Div {
 
 	private ButtonBar m_buttonBar;
 
-	public ConfigPart(@Nonnull List<Handler> handlers) {
+	public ConfigPart(@NonNull List<Handler> handlers) {
 		m_handlers = handlers;
 	}
 
@@ -53,11 +53,11 @@ public class ConfigPart extends Div {
 		BasicRowRenderer<Handler> rr = new BasicRowRenderer<Handler>(Handler.class, m_cols);
 		rr.addColumns("", "^follow", "%10", new IRenderInto<Handler>(){
 			@Override
-			public void render(@Nonnull NodeContainer node, @Nonnull final Handler handler) throws Exception {
+			public void render(@NonNull NodeContainer node, @NonNull final Handler handler) throws Exception {
 				if (handler != null && handler.getType() == HandlerType.FILE){
 					node.add(new LinkButton("follow", new IClicked<LinkButton>(){
 						@Override
-						public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+						public void clicked(@NonNull LinkButton clickednode) throws Exception {
 							ServerLogPage.moveSub(constructLogPath(handler.getFile()));
 						}
 					}));
@@ -72,8 +72,8 @@ public class ConfigPart extends Div {
 
 		m_table.setEditorFactory(new IRowEditorFactory<Handler, HandlerRowEditor>() {
 			@Override
-			public @Nonnull
-			HandlerRowEditor createRowEditor(@Nonnull Handler instance, boolean isnew, boolean isReadonly) throws Exception {
+			public @NonNull
+			HandlerRowEditor createRowEditor(@NonNull Handler instance, boolean isnew, boolean isReadonly) throws Exception {
 				return new HandlerRowEditor(instance, m_table);
 			}
 		});
@@ -81,7 +81,7 @@ public class ConfigPart extends Div {
 		add(m_table);
 	}
 
-	protected String constructLogPath(@Nonnull String fileName) {
+	protected String constructLogPath(@NonNull String fileName) {
 		return EtcLoggerFactory.getSingleton().composeFullLogFileName(fileName);
 	}
 
@@ -89,7 +89,7 @@ public class ConfigPart extends Div {
 		add(getButtonBar());
 	}
 
-	public @Nonnull
+	public @NonNull
 	ButtonBar getButtonBar() {
 		if(m_buttonBar == null) {
 			m_buttonBar = new ButtonBar();
@@ -104,13 +104,13 @@ public class ConfigPart extends Div {
 	private void createAddButton() {
 		getButtonBar().addButton(BUNDLE.getString(Msgs.LOOKUP_FORM_NEW), "THEME/btnNew.png", new IClicked<DefaultButton>() {
 			@Override
-			public void clicked(@Nonnull DefaultButton b) throws Exception {
+			public void clicked(@NonNull DefaultButton b) throws Exception {
 				m_table.addNew(initializeNewInstance());
 			}
 		});
 	}
 
-	protected @Nonnull
+	protected @NonNull
 	Handler initializeNewInstance() {
 		Handler handler = new Handler(HandlerType.FILE, "logger1");
 		handler.setFormat(EtcLogFormat.DEFAULT);

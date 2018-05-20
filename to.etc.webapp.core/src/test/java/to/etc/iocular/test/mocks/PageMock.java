@@ -24,18 +24,21 @@
  */
 package to.etc.iocular.test.mocks;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.IQContextContainer;
+import to.etc.webapp.query.QContextContainer;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PageMock implements IQContextContainer {
 	private Map<String, QContextContainer> m_contextContainerMap = new HashMap<String, QContextContainer>();
 
 	@Override
-	@Nonnull
-	public QContextContainer getContextContainer(@Nonnull String key) {
+	@NonNull
+	public QContextContainer getContextContainer(@NonNull String key) {
 		QContextContainer cc = m_contextContainerMap.get(key);
 		if(null == cc) {
 			cc = new QContextContainer();
@@ -45,7 +48,7 @@ public class PageMock implements IQContextContainer {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public List<QContextContainer> getAllContextContainers() {
 		return new ArrayList<QContextContainer>(m_contextContainerMap.values());
 	}

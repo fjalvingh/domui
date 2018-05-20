@@ -24,11 +24,10 @@
  */
 package to.etc.domui.component.meta.impl;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
-
-import javax.annotation.Nonnull;
 
 /**
  * Represents the metadata for a field that can be searched on.
@@ -55,7 +54,7 @@ public class SearchPropertyMetaModelImpl implements SearchPropertyMetaModel {
 
 	private boolean m_popupSearchImmediately;
 
-	public SearchPropertyMetaModelImpl(@Nonnull ClassMetaModel cmm, @Nonnull PropertyMetaModel<?> pmm) {
+	public SearchPropertyMetaModelImpl(@NonNull ClassMetaModel cmm, @NonNull PropertyMetaModel<?> pmm) {
 		m_classModel = cmm;
 		m_property = pmm;
 	}

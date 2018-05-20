@@ -24,13 +24,17 @@
  */
 package to.etc.domui.injector;
 
-import to.etc.domui.annotations.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.IPageParameters;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is the default DomUI page injector. It is responsible for providing (injecting) values into
@@ -43,7 +47,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 23, 2009
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class DefaultPageInjector implements IPageInjector {
 	/**
 	 * Maps UrlPage class names to their PageInjectors. We use names instead of the Class instances
@@ -71,7 +75,7 @@ final public class DefaultPageInjector implements IPageInjector {
 		return new PageInjector(page, new ArrayList<>(propInjectorMap.values()));
 	}
 
-	@DefaultNonNull
+	@NonNullByDefault
 	static final private class InjectorReference {
 		final private int m_priority;
 
@@ -91,10 +95,10 @@ final public class DefaultPageInjector implements IPageInjector {
 		}
 	}
 
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	private List<InjectorReference> m_pageInjectorOrderList = Collections.emptyList();
 
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	private List<IPageInjectorCalculator> m_pageInjectorList = Collections.emptyList();
 
 	public synchronized void registerPageInjector(int urgency, IPageInjectorCalculator injector) {
@@ -108,7 +112,7 @@ final public class DefaultPageInjector implements IPageInjector {
 		m_pageInjectorList = Collections.unmodifiableList(res);
 	}
 
-	@Nonnull
+	@NonNull
 	private synchronized List<IPageInjectorCalculator> getPageInjectorList() {
 		return m_pageInjectorList;
 	}
@@ -123,7 +127,7 @@ final public class DefaultPageInjector implements IPageInjector {
 		PageInjector pij = m_injectorMap.get(cn);
 		if(pij != null) {
 			//-- Hit on name; is the class instance the same? If not this is a reload.
-			if((Class< ? >) pij.getPageClass() == page.getClass()) // Idiotic generics. If the class changed we have a reload of the class and need to recalculate.
+			if((Class< ? >) pij.getPageClass() == page) // Idiotic generics. If the class changed we have a reload of the class and need to recalculate.
 				return pij;
 		}
 

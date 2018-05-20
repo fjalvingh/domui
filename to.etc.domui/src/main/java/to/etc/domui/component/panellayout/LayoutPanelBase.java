@@ -1,8 +1,8 @@
 package to.etc.domui.component.panellayout;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
 
 /**
  * Experimental: a panel that handles component layout for things added to it.
@@ -11,28 +11,28 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 15, 2013
  */
 public class LayoutPanelBase extends Div implements ILayoutPanel {
-	@Nonnull
+	@NonNull
 	private ILayoutManager m_layout;
 
 	public LayoutPanelBase() {
 		this(new XYLayout());
 	}
 
-	public LayoutPanelBase(@Nonnull ILayoutManager layout) {
+	public LayoutPanelBase(@NonNull ILayoutManager layout) {
 		m_layout = layout;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public ILayoutManager getLayout() {
 		return m_layout;
 	}
 
-	public void setLayout(@Nonnull ILayoutManager layout) {
+	public void setLayout(@NonNull ILayoutManager layout) {
 		m_layout = layout;
 	}
 
-	public void add(@Nonnull NodeBase node, @Nonnull Object layoutOptions) {
+	public void add(@NonNull NodeBase node, @NonNull Object layoutOptions) {
 		getLayout().place(this, node, layoutOptions);
 	}
 

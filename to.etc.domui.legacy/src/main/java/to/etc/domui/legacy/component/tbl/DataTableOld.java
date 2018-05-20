@@ -24,6 +24,8 @@
  */
 package to.etc.domui.legacy.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.MiniLogger;
 import to.etc.domui.component.tbl.ColumnContainer;
@@ -55,8 +57,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.JavascriptUtil;
 import to.etc.domui.util.Msgs;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -104,9 +104,9 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	/** When T, rows are not highlighted when table has no selection callbacks on rows. */
 	private boolean m_preventRowHighlight;
 
-	@Nonnull final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
+	@NonNull final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
 		@Override
-		public void clicked(@Nonnull TH clickednode) throws Exception {
+		public void clicked(@NonNull TH clickednode) throws Exception {
 			if(isDisabled()) {
 				return;
 			}
@@ -123,17 +123,17 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	};
 
 
-	public DataTableOld(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
+	public DataTableOld(@NonNull ITableModel<T> m, @NonNull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
 		setWidth("100%");
 	}
 
-	public DataTableOld(@Nonnull IRowRenderer<T> r) {
+	public DataTableOld(@NonNull IRowRenderer<T> r) {
 		m_rowRenderer = r;
 	}
 
-	public DataTableOld(@Nonnull ITableModel<T> m) {
+	public DataTableOld(@NonNull ITableModel<T> m) {
 		super(m);
 		setWidth("100%");
 	}
@@ -146,7 +146,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	protected Table getTable() {
 		if(null == m_table)
 			throw new IllegalStateException("Backing table is still null");
@@ -157,7 +157,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
 	 * @param dataBody
 	 */
-	protected void setDataBody(@Nonnull TBody dataBody) {
+	protected void setDataBody(@NonNull TBody dataBody) {
 		m_dataBody = dataBody;
 		updateBodyClipboardSelection();
 	}
@@ -171,7 +171,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	protected TBody getDataBody() {
 		if(null == m_dataBody)
 			throw new IllegalStateException("dataBody is still null");
@@ -266,7 +266,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * @throws Exception
 	 */
 	@Deprecated
-	void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
+	void renderHeader(@NonNull HeaderContainer<T> hc) throws Exception {
 		//-- Are we rendering a multi-selection?
 		if(m_multiSelectMode) {
 			TH headerCell = hc.add("");
@@ -377,15 +377,14 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
-	private void renderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
+	private void renderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
 		//-- Is a rowclick handler needed?
 		ISelectionModel<T> sm = getSelectionModel();
 		if(m_rowRenderer.getRowClicked() != null || null != sm) {
 			//-- Add a click handler to select or pass the rowclicked event.
 			cc.getTR().setClicked2(new IClicked2<TR>() {
 				@Override
-				@SuppressWarnings({"synthetic-access"})
-				public void clicked(@Nonnull TR b, @Nonnull ClickInfo clinfo) throws Exception {
+				public void clicked(@NonNull TR b, @NonNull ClickInfo clinfo) throws Exception {
 					handleRowClick(b, value, clinfo);
 				}
 			});
@@ -440,7 +439,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * @throws Exception
 	 */
 	@Deprecated
-	void internalRenderRow(@Nonnull final TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull final T value) throws Exception {
+	void internalRenderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
 		m_rowRenderer.renderRow(this, cc, index, value);
 	}
 
@@ -482,7 +481,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * @param clickednode
 	 * @throws Exception
 	 */
-	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @Nonnull Checkbox checkbox) throws Exception {
+	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @NonNull Checkbox checkbox) throws Exception {
 		handleSelectClicky(instance, info, Boolean.valueOf(checked));
 		ISelectionModel<T> sm = getSelectionModel();
 		if(null != sm) {
@@ -512,7 +511,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * @param clinfo
 	 * @param setTo        When null toggle, else set to specific.
 	 */
-	private void handleSelectClicky(@Nonnull T instance, @Nonnull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
+	private void handleSelectClicky(@NonNull T instance, @NonNull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
 		if(null == sm)
 			throw new IllegalStateException("SelectionModel is null??");
@@ -728,7 +727,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(ITableModel, int, Object)
 	 */
 	@Override
-	public void rowAdded(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		try {
 			if(!isBuilt())
 				return;
@@ -792,7 +791,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowDeleted(ITableModel, int, Object)
 	 */
 	@Override
-	public void rowDeleted(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowDeleted(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		try {
 			if(!isBuilt())
 				return;
@@ -859,7 +858,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowModified(ITableModel, int, Object)
 	 */
 	@Override
-	public void rowModified(@Nonnull ITableModel<T> model, int index, @Nonnull T value) throws Exception {
+	public void rowModified(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		if(!isBuilt())
 			return;
 		if(index < m_six || index >= m_eix) // Outside visible bounds
@@ -884,12 +883,12 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 		m_table.setTableWidth(w);
 	}
 
-	@Nonnull
+	@NonNull
 	public IRowRenderer<T> getRowRenderer() {
 		return m_rowRenderer;
 	}
 
-	public void setRowRenderer(@Nonnull IRowRenderer<T> rowRenderer) {
+	public void setRowRenderer(@NonNull IRowRenderer<T> rowRenderer) {
 		if(DomUtil.isEqual(m_rowRenderer, rowRenderer))
 			return;
 		m_rowRenderer = rowRenderer;
@@ -916,7 +915,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	 * @see ISelectionListener#selectionChanged(Object, boolean)
 	 */
 	@Override
-	public void selectionChanged(@Nonnull T row, boolean on) throws Exception {
+	public void selectionChanged(@NonNull T row, boolean on) throws Exception {
 		//-- Is this a visible row?
 		for(int i = 0; i < m_visibleItemList.size(); i++) {
 			if(MetaManager.areObjectsEqual(row, m_visibleItemList.get(i))) {
@@ -947,8 +946,8 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 		}
 	}
 
-	@Nonnull
-	private Checkbox createSelectionCheckbox(@Nonnull final T rowInstance, @Nullable ISelectionModel<T> selectionModel) {
+	@NonNull
+	private Checkbox createSelectionCheckbox(@NonNull final T rowInstance, @Nullable ISelectionModel<T> selectionModel) {
 		Checkbox cb = new Checkbox();
 		boolean selectable = true;
 		if(selectionModel instanceof IAcceptable) {
@@ -957,7 +956,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 		if(selectable) {
 			cb.setClicked2(new IClicked2<Checkbox>() {
 				@Override
-				public void clicked(@Nonnull Checkbox clickednode, @Nonnull ClickInfo info) throws Exception {
+				public void clicked(@NonNull Checkbox clickednode, @NonNull ClickInfo info) throws Exception {
 					selectionCheckboxClicked(rowInstance, clickednode.isChecked(), info, clickednode);
 				}
 			});

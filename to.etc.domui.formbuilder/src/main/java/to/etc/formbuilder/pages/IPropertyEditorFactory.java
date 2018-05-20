@@ -1,7 +1,7 @@
 package to.etc.formbuilder.pages;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IPropertyEditorFactory {
-	@Nonnull IPropertyEditor createEditor(@Nonnull PropertyDefinition pd);
+	@NonNull IPropertyEditor createEditor(@NonNull PropertyDefinition pd);
 }

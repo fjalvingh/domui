@@ -43,7 +43,7 @@ package to.etc.domui.server;
  * Created on Oct 19, 2009
  */
 public class BrowserVersion {
-	//	private String m_agentString;
+	static public final BrowserVersion INSTANCE = parseUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36");
 
 	/** The formal name of the browser (MSIE, Firefox, Opera, Safari) */
 	private String m_browserName;

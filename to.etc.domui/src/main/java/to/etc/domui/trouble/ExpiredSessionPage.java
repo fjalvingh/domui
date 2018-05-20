@@ -24,16 +24,22 @@ package to.etc.domui.trouble;
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-import javax.annotation.*;
-
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.layout.CaptionedPanel;
+import to.etc.domui.component.misc.ALink;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.MsgDiv;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.state.MoveMode;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.Msgs;
 
 public class ExpiredSessionPage extends UrlPage {
 	public static final String PARAM_CLOSE = "close";
@@ -77,7 +83,7 @@ public class ExpiredSessionPage extends UrlPage {
 			LinkButton closeBtn = new LinkButton(closeTxt, new IClicked<LinkButton>() {
 
 				@Override
-				public void clicked(@Nonnull LinkButton clickednode) throws Exception {
+				public void clicked(@NonNull LinkButton clickednode) throws Exception {
 					closeWindow();
 				}
 			});

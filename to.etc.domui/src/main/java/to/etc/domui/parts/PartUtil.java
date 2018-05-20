@@ -28,6 +28,7 @@ import org.apache.batik.transcoder.SVGAbstractTranscoder;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.trouble.ThingyNotFoundException;
@@ -36,7 +37,6 @@ import to.etc.domui.util.resources.IResourceRef;
 import to.etc.sjit.ImaTool;
 import to.etc.util.StringInputStream;
 
-import javax.annotation.Nonnull;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -78,7 +78,7 @@ public class PartUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	static public Properties loadProperties(DomApplication da, String src, IResourceDependencyList rdl) throws Exception {
 		String svg = da.internalGetThemeManager().getThemeReplacedString(rdl, src);
 
@@ -115,7 +115,7 @@ public class PartUtil {
 	/**
 	 * Load an image, either through a resource (when the part starts with RES) or as a webapp file.
 	 */
-	static public BufferedImage loadImage(DomApplication da, String in, @Nonnull IResourceDependencyList rdl) throws Exception {
+	static public BufferedImage loadImage(DomApplication da, String in, @NonNull IResourceDependencyList rdl) throws Exception {
 		//-- Split input in URL and parameters (QD for generic retrieval of resources)
 		String image = getURI(in);
 		IParameterInfo param = getParameters(in);

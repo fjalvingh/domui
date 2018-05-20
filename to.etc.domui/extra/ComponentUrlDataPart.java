@@ -1,6 +1,6 @@
 package to.etc.domui.parts;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.dom.html.*;
 import to.etc.domui.server.*;
@@ -10,7 +10,7 @@ import to.etc.domui.trouble.*;
 
 public class ComponentUrlDataPart implements IUnbufferedPartFactory {
 	@Override
-	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
+	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
 		//-- Bugfix: Tomcat 7 does not properly remove ;jsessionid from the URL. So let's do it here. It's wrong ofc because we're not supposed to know that is the way sessions are passed.
 		int jsid = rurl.toLowerCase().indexOf(";jsessionid=");
 		if(jsid != -1) {

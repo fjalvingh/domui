@@ -1,6 +1,6 @@
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.Nullable;
 
 public class QContextContainer {
 	private QDataContext m_context;

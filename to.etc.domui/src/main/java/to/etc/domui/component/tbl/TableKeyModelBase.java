@@ -1,8 +1,13 @@
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * This model maintains a set of Keys K, and translates those keys to Model items T where needed. This
@@ -15,11 +20,11 @@ import javax.annotation.*;
  */
 abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implements ITableModel<T>, IModifyableTableModel<K> {
 	/** The real collection used. This one will be updated by add and delete calls. */
-	@Nonnull
+	@NonNull
 	final private Collection<K> m_sourceCollection;
 
 	/** The ordered and indexable copy of the real collection. If the real collection is a List itself this will be that instance, else a copy will be made. */
-	@Nonnull
+	@NonNull
 	final private List<K> m_keyList;
 
 	/** When set this becomes an ordered model. Because it needs to sort on K the key might need extra data for the sort to become meaningful. */
@@ -35,7 +40,7 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	abstract protected List<T> getItems(List<K> keys) throws Exception;
 
 	/**
@@ -43,7 +48,7 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	 * one of the {@link IModifyableTableModel} methods is called.
 	 * @param keycoll
 	 */
-	public TableKeyModelBase(@Nonnull Collection<K> keycoll) {
+	public TableKeyModelBase(@NonNull Collection<K> keycoll) {
 		m_sourceCollection = keycoll;
 		m_keyList = keycoll instanceof List< ? > ? (List<K>) keycoll : new ArrayList<K>(keycoll);
 	}
@@ -57,7 +62,7 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	 * @param keycoll
 	 * @param comp
 	 */
-	public TableKeyModelBase(@Nonnull Collection<K> keycoll, @Nonnull Comparator<K> comp) {
+	public TableKeyModelBase(@NonNull Collection<K> keycoll, @NonNull Comparator<K> comp) {
 		m_sourceCollection = keycoll;
 		m_keyList = new ArrayList<K>(keycoll); // We always need a copy of the list, so that we can sort it
 		m_comparator = comp;
@@ -68,7 +73,7 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	 * {@inheritDoc}
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public List<T> getItems(int start, int end) throws Exception {
 		int size = getRows();
 		if(start < 0)
@@ -121,7 +126,7 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	 * @throws IllegalStateException	when the model is sortable.
 	 */
 	@Override
-	public void add(int index, @Nonnull K key) throws Exception {
+	public void add(int index, @NonNull K key) throws Exception {
 		if(m_comparator != null)
 			throw new IllegalStateException("Cannot add by index on a sorted model: the sorting order determines the insert index");
 		m_keyList.add(index, key);
@@ -141,7 +146,7 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	 * @see to.etc.domui.component.tbl.IModifyableTableModel#add(java.lang.Object)
 	 */
 	@Override
-	public void add(@Nonnull K row) throws Exception {
+	public void add(@NonNull K row) throws Exception {
 		int index;
 		if(m_comparator == null) {
 			index = m_keyList.size();
@@ -187,7 +192,7 @@ abstract public class TableKeyModelBase<K, T> extends TableModelBase<T> implemen
 	 * @see to.etc.domui.component.tbl.IModifyableTableModel#delete(java.lang.Object)
 	 */
 	@Override
-	public boolean delete(@Nonnull K val) throws Exception {
+	public boolean delete(@NonNull K val) throws Exception {
 		int ix = m_keyList.indexOf(val);
 		if(ix == -1)
 			return false;

@@ -1,11 +1,11 @@
 package to.etc.domui.component.meta.init;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.impl.DefaultClassMetaModel;
 import to.etc.domui.trouble.Trouble;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
 
-import javax.annotation.Nonnull;
 import java.lang.annotation.Annotation;
 
 /**
@@ -22,7 +22,7 @@ public class MISimpleClassAnnotations extends AbstractClassAnnotationProvider {
 		}
 	}
 
-	private void decodeTableAnnotation(@Nonnull final DefaultClassMetaModel cmm, @Nonnull final Annotation an) {
+	private void decodeTableAnnotation(@NonNull final DefaultClassMetaModel cmm, @NonNull final Annotation an) {
 		//-- Decode fields from the annotation.
 		if(cmm.getTableName() != null)
 			return;

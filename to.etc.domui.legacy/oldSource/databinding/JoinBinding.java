@@ -1,6 +1,6 @@
 package to.etc.domui.databinding;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.value.*;
 import to.etc.domui.trouble.*;
@@ -16,10 +16,10 @@ public class JoinBinding extends Binding {
 	@Nullable
 	private IValueChangeListener< ? > m_toListener;
 
-	@Nonnull
+	@NonNull
 	private IObservableValue< ? > m_target;
 
-	JoinBinding(@Nonnull BindingContext context, @Nonnull IObservableValue< ? > sourceo, @Nonnull IObservableValue< ? > targeto) throws Exception {
+	JoinBinding(@NonNull BindingContext context, @NonNull IObservableValue< ? > sourceo, @NonNull IObservableValue< ? > targeto) throws Exception {
 		super(context, sourceo);
 		m_target = targeto;
 		addSourceListener();
@@ -27,7 +27,7 @@ public class JoinBinding extends Binding {
 		moveSourceToTarget();
 	}
 
-	final public <A, B> JoinBinding converter(@Nonnull IJoinConverter<A, B> jc) {
+	final public <A, B> JoinBinding converter(@NonNull IJoinConverter<A, B> jc) {
 		m_converter = jc;
 		return this;
 	}
@@ -55,7 +55,7 @@ public class JoinBinding extends Binding {
 	protected <V> void addTargetListener() {
 		IValueChangeListener<V> ml = new IValueChangeListener<V>() {
 			@Override
-			public void handleChange(@Nonnull ValueChangeEvent<V> event) throws Exception {
+			public void handleChange(@NonNull ValueChangeEvent<V> event) throws Exception {
 				moveTargetToSource();
 			}
 		};

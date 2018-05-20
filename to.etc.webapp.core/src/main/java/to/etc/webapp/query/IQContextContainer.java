@@ -24,12 +24,12 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.List;
 
 public interface IQContextContainer {
-	@Nonnull QContextContainer getContextContainer(@Nonnull String key);
+	@NonNull QContextContainer getContextContainer(@NonNull String key);
 
-	@Nonnull List<QContextContainer> getAllContextContainers();
+	@NonNull List<QContextContainer> getAllContextContainers();
 }

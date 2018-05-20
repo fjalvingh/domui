@@ -1,12 +1,17 @@
 package to.etc.formbuilder.pages;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.dom.html.UrlPage;
 import to.etc.formbuilder.pages.PaintPanel.ISelectionChanged;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * DomUI form designer.
@@ -23,7 +28,7 @@ public class FormDesigner extends UrlPage {
 
 	private Div m_currentRightContents;
 
-	@Nonnull
+	@NonNull
 	private FormComponentRegistry r() {
 		return m_registry;
 	}
@@ -111,12 +116,12 @@ public class FormDesigner extends UrlPage {
 		appendCreateJS("FormBuilder.create('" + m_paint.getActualID() + "','" + cp.getActualID() + "');");
 	}
 
-	private void setRight(@Nonnull NodeContainer nc) {
+	private void setRight(@NonNull NodeContainer nc) {
 		m_currentRightContents.removeAllChildren();
 		m_currentRightContents.add(nc);
 	}
 
-	private void renderLabel(@Nonnull Div labels, @Nonnull String string, @Nonnull IClicked<NodeBase> iClicked) {
+	private void renderLabel(@NonNull Div labels, @NonNull String string, @NonNull IClicked<NodeBase> iClicked) {
 		Div lab = new Div();
 		labels.add(lab);
 		lab.setCssClass("fb-tab-lbl");

@@ -1,5 +1,7 @@
 package to.etc.domui.util.importers;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import to.etc.util.WrappedException;
 
@@ -9,14 +11,17 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-12-17.
  */
+@NonNullByDefault
 public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImportRow> {
 	static private int MAXBUF = 10;
 
+	@Nullable
 	private Reader m_r;
 
 	private boolean m_eof;
@@ -31,7 +36,10 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	private List<String> m_columns = new ArrayList<>();
 
-	private List<String> m_headers = new ArrayList<>();
+	@Nullable
+	private IImportRow m_headerRow;
+
+	private final List<String> m_headerNames = new ArrayList<>();
 
 	private int m_fieldSeparator = ',';
 
@@ -85,7 +93,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	private int accept() throws IOException {
 		if(m_eof)
 			return -1;
-		int c = m_r.read();
+		int c = Objects.requireNonNull(m_r).read();
 		if(c == -1) {
 			m_eof = true;
 			m_lastChar = -1;
@@ -99,13 +107,23 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	public boolean readRecord() throws IOException {
 		if(m_hasHeaderRow && ! m_headerRead) {
-			m_headerRead = true;
-			if(! readRecordPrimitive())
+			if(!readHeader())
 				return false;
-			m_headers.addAll(m_columns);
-			m_columns.clear();
 		}
 		return readRecordPrimitive();
+	}
+
+	private boolean readHeader() throws IOException {
+		if(! m_hasHeaderRow || m_headerRead)
+			return true;
+
+		m_headerRead = true;
+		if(! readRecordPrimitive())
+			return false;
+		m_headerRow = new CsvImportRow(this, m_columns);
+		m_headerNames.addAll(m_columns);
+		m_columns.clear();
+		return true;
 	}
 
 	public boolean readRecordPrimitive() throws IOException {
@@ -242,8 +260,33 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	}
 
 
-	@Override public IImportRow getHeaderRow() {
-		return null;
+	@Nullable
+	@Override public IImportRow getHeaderRow() throws IOException {
+		if(! m_hasHeaderRow)
+			return null;
+		if(! readHeader()) {
+			return null;
+		}
+		return m_headerRow;
+	}
+
+	public int getColumnIndex(String name) throws IOException {
+		readHeader();
+		for(int i = m_headerNames.size(); --i >= 0;) {
+			String s = m_headerNames.get(i);
+			if(name.equalsIgnoreCase(s)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	@Nullable
+	public String getColumnName(int index) throws IOException {
+		readHeader();
+		if(index <= 0 || index >= m_headerNames.size())
+			return null;
+		return m_headerNames.get(index);
 	}
 
 	@Override public int getSetCount() {
@@ -334,6 +377,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 		private boolean m_nextAvailable;
 
+		@Nullable
 		private CsvImportRow m_row;
 
 		public RowIterator() {
@@ -345,7 +389,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 				try {
 					m_nextAvailable = readRecord();
 					if(m_nextAvailable) {
-						m_row = new CsvImportRow(m_columns);
+						m_row = new CsvImportRow(CsvRowReader.this, m_columns);
 					}
 				} catch(IOException x) {
 					throw new WrappedException(x);					// Morons.
@@ -359,10 +403,11 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		}
 
 		@Override public IImportRow next() {
-			if(! m_nextAvailable)
+			CsvImportRow row = m_row;
+			if(! m_nextAvailable || row == null)
 				throw new IllegalStateException("Calling next() after hasNext() returned false / missing call to hasNext()");
 			m_nextRead = false;
-			return m_row;
+			return row;
 		}
 	}
 }

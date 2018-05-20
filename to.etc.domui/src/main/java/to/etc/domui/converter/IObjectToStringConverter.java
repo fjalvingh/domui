@@ -24,9 +24,9 @@
  */
 package to.etc.domui.converter;
 
-import java.util.*;
+import to.etc.domui.trouble.UIException;
 
-import to.etc.domui.trouble.*;
+import java.util.Locale;
 
 /**
  * Converts any object of type T to a presentation string.

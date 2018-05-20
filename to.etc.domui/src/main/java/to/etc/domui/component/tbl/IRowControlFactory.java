@@ -1,8 +1,7 @@
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.IControl;
 
 /**
  * Create a control, possibly influenced by a PropertyMetaModel for the control's controlling property.
@@ -11,6 +10,6 @@ import to.etc.domui.dom.html.*;
  * Created on Jan 3, 2014
  */
 public interface IRowControlFactory<R> {
-	@Nonnull
-	IControl<?> createControl(@Nonnull R rowInstance) throws Exception;
+	@NonNull
+	IControl<?> createControl(@NonNull R rowInstance) throws Exception;
 }

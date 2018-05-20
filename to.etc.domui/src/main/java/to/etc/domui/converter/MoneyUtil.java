@@ -24,15 +24,19 @@
  */
 package to.etc.domui.converter;
 
-import java.math.*;
-import java.text.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.Currency;
+import java.util.Locale;
 
 /**
  * Utility class to handle all kinds of monetary value presentation and conversion.
@@ -305,8 +309,8 @@ public class MoneyUtil {
 		return roundValue(bdv).doubleValue();
 	}
 
-	@Nonnull
-	public static BigDecimal roundValue(@Nonnull BigDecimal value) {
+	@NonNull
+	public static BigDecimal roundValue(@NonNull BigDecimal value) {
 		return value.setScale(MoneyUtil.getMoneyScale(), getRoundingMode());
 	}
 
@@ -323,7 +327,7 @@ public class MoneyUtil {
 		return (roundValue(value1) == roundValue(value2));
 	}
 
-	public static boolean areRoundedValuesEqual(@Nonnull BigDecimal value1, @Nonnull BigDecimal value2) {
+	public static boolean areRoundedValuesEqual(@NonNull BigDecimal value1, @NonNull BigDecimal value2) {
 		return (roundValue(value1).equals(roundValue(value2)));
 	}
 
@@ -332,11 +336,10 @@ public class MoneyUtil {
 	 * @param value
 	 * @return
 	 */
-	public static boolean isRoundedAsZero(@Nonnull BigDecimal value) {
+	public static boolean isRoundedAsZero(@NonNull BigDecimal value) {
 		return (roundValue(BigDecimal.ZERO).equals(roundValue(value)));
 	}
 
-	@SuppressWarnings({"unchecked"})
 	static public <T> void assignMonetaryConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node) {
 		if(pmm.getConverter() != null)
 			node.setConverter(pmm.getConverter());

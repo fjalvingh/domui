@@ -24,9 +24,8 @@
  */
 package to.etc.domui.caches.images;
 
-import javax.annotation.*;
-
-import to.etc.domui.util.images.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.images.IImageRetriever;
 
 /**
  * Represents the full key to some original image source. It consists of the <i>retriever</i> which is used to
@@ -40,7 +39,7 @@ final public class ImageKey {
 
 	private String m_instanceKey;
 
-	public ImageKey(@Nonnull IImageRetriever retriever, @Nonnull String instanceKey) {
+	public ImageKey(@NonNull IImageRetriever retriever, @NonNull String instanceKey) {
 		if(retriever == null || instanceKey == null)
 			throw new IllegalArgumentException("Parameters cannot be null");
 		m_retriever = retriever;
@@ -54,12 +53,12 @@ final public class ImageKey {
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	public IImageRetriever getRetriever() {
 		return m_retriever;
 	}
 
-	@Nonnull
+	@NonNull
 	public String getInstanceKey() {
 		return m_instanceKey;
 	}

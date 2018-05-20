@@ -1,6 +1,7 @@
 package to.etc.domui.server;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Encapsulates HttpSession functionality required by DomUI. The wrapper is used
@@ -10,11 +11,11 @@ import javax.annotation.*;
  * Created on Oct 9, 2013
  */
 public interface IServerSession {
-	@Nonnull String getId();
+	@NonNull String getId();
 
-	@Nullable Object getAttribute(@Nonnull String name);
+	@Nullable Object getAttribute(@NonNull String name);
 
-	void setAttribute(@Nonnull String name, @Nullable Object value);
+	void setAttribute(@NonNull String name, @Nullable Object value);
 
 	void invalidate();
 

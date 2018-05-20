@@ -1,10 +1,9 @@
 package to.etc.domui.component.image;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.parts.IUnbufferedPartFactory;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.parts.*;
+import java.io.InputStream;
 
 /**
  * A specialization (like a resized version) of a known {@link IUIImage}.
@@ -21,7 +20,7 @@ public interface IUIImageInstance {
 	 * in a separate request (from an {@link IUnbufferedPartFactory}).
 	 * @return
 	 */
-	@Nonnull InputStream getImage() throws Exception;
+	@NonNull InputStream getImage() throws Exception;
 
 	/**
 	 * The size of the image, in bytes, if known; -1 if unknown.
@@ -33,13 +32,13 @@ public interface IUIImageInstance {
 	 * The size of the image, in pixels.
 	 * @return
 	 */
-	@Nonnull Dimension getDimension() throws Exception;
+	@NonNull Dimension getDimension() throws Exception;
 
 	/**
 	 * Return the mime type of the current image, which must be one of the core image mime
 	 * types for png, jpg or gif.
 	 * @return
 	 */
-	@Nonnull String getMimeType() throws Exception;
+	@NonNull String getMimeType() throws Exception;
 
 }

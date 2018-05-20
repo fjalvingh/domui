@@ -1,12 +1,12 @@
 package to.etc.webapp.mailer;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.StringTool;
+import to.etc.webapp.query.IIdentifyable;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
-
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Defines a link "target" for a given generic link in text strings. Instances of this class will be registered
@@ -15,17 +15,17 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 29, 2010
  */
-@Immutable
+//@Immutable
 final public class TextLinkInfo {
 	/** Map internal link names to instances of this class needed to render those links. */
 	static final private Map<String, TextLinkInfo> m_map = new HashMap<String, TextLinkInfo>();
 
 	/** The application-relative URL that this link should defer to. The link must contain a "{id}" at the location where the key needs to be stored. */
-	@Nonnull
+	@NonNull
 	final private String m_rurl;
 
 	/** The name of the link inside the text file (the "local name") */
-	@Nonnull
+	@NonNull
 	final private String m_linkname;
 
 	/**
@@ -35,7 +35,7 @@ final public class TextLinkInfo {
 	@Nullable
 	final private Class< ? > m_targetClass;
 
-	TextLinkInfo(@Nonnull String linkname, @Nonnull String rurl, @Nullable Class< ? > tgtclass) {
+	TextLinkInfo(@NonNull String linkname, @NonNull String rurl, @Nullable Class< ? > tgtclass) {
 		if(!rurl.contains("{id}"))
 			throw new IllegalArgumentException("The RURL must contain a {id} text where the parameter(s) for the link are to be placed.");
 		m_rurl = rurl;
@@ -47,7 +47,7 @@ final public class TextLinkInfo {
 	 * The application-relative URL that this link should defer to. The link will contain a "{id}" at the
 	 * location where the key needs to be stored.
 	 */
-	@Nonnull
+	@NonNull
 	public String getRurl() {
 		return m_rurl;
 	}
@@ -64,7 +64,7 @@ final public class TextLinkInfo {
 	/**
 	 * The name of the link inside the text file (the "local name")
 	 */
-	@Nonnull
+	@NonNull
 	public String getLinkname() {
 		return m_linkname;
 	}
@@ -79,7 +79,7 @@ final public class TextLinkInfo {
 	 * @param clz
 	 * @param paramName
 	 */
-	public static void register(@Nonnull Class< ? extends IIdentifyable< ? >> dataclass, @Nonnull String rurl) {
+	public static void register(@NonNull Class< ? extends IIdentifyable< ? >> dataclass, @NonNull String rurl) {
 		register(dataclass, dataclass.getName(), rurl);
 	}
 
@@ -89,7 +89,7 @@ final public class TextLinkInfo {
 	 * @param linkname
 	 * @param rurl
 	 */
-	public static void register(@Nonnull Class< ? extends IIdentifyable< ? >> dataclass, @Nonnull String linkname, @Nonnull String rurl) {
+	public static void register(@NonNull Class< ? extends IIdentifyable< ? >> dataclass, @NonNull String linkname, @NonNull String rurl) {
 		TextLinkInfo li = new TextLinkInfo(linkname, rurl, dataclass);
 		if(null != m_map.put(linkname, li))
 			throw new IllegalStateException("Duplicate link definition: " + linkname + " class=" + dataclass);
@@ -100,7 +100,7 @@ final public class TextLinkInfo {
 	 * @param linkname
 	 * @param rurl
 	 */
-	public static void register(@Nonnull String linkname, @Nonnull String rurl) {
+	public static void register(@NonNull String linkname, @NonNull String rurl) {
 		TextLinkInfo li = new TextLinkInfo(linkname, rurl, null);
 		if(null != m_map.put(linkname, li))
 			throw new IllegalStateException("Duplicate link definition: " + linkname + " (no data class)");
@@ -156,8 +156,8 @@ final public class TextLinkInfo {
 	 * @param key
 	 * @return
 	 */
-	@Nonnull
-	public String getFullUrl(@Nonnull String key) {
+	@NonNull
+	public String getFullUrl(@NonNull String key) {
 		String repl = StringTool.encodeURLEncoded(key);
 		return m_rurl.replace("{id}", repl);
 	}

@@ -1,6 +1,6 @@
 package to.etc.domui.util.exporters;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Denotes the supported Excel formats.

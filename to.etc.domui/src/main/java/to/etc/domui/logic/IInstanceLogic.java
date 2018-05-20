@@ -1,8 +1,7 @@
 package to.etc.domui.logic;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.IIdentifyable;
 
 /**
  * Marker interface for any logic class wrapping data instance T.
@@ -12,5 +11,5 @@ import to.etc.webapp.query.*;
  */
 public interface IInstanceLogic<T extends IIdentifyable< ? >> extends IClassLogic {
 
-	@Nonnull T getInstance();
+	@NonNull T getInstance();
 }

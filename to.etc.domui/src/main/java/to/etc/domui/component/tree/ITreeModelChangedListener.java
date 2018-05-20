@@ -24,9 +24,10 @@
  */
 package to.etc.domui.component.tree;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 
-@DefaultNonNull
+@NonNullByDefault
 public interface ITreeModelChangedListener<T> {
 
 	/**

@@ -1,9 +1,8 @@
 package to.etc.domui.util.exporters;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This converts a {@link ExpandedDisplayProperty} to a {@link IExportColumn} for exporting data.
@@ -21,11 +20,11 @@ public class ExpandedDisplayPropertyColumnWrapper<T> implements IExportColumn<T>
 		return m_xp.getDefaultLabel();
 	}
 
-	@Nonnull @Override public Class<?> getActualType() {
+	@NonNull @Override public Class<?> getActualType() {
 		return m_xp.getActualType();
 	}
 
-	@Nullable @Override public T getValue(@Nonnull Object in) throws Exception {
+	@Nullable @Override public T getValue(@NonNull Object in) throws Exception {
 		return m_xp.getValue(in);
 	}
 }

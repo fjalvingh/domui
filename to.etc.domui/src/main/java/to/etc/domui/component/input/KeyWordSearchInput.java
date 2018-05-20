@@ -24,13 +24,22 @@
  */
 package to.etc.domui.component.input;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.layout.FloatingWindow;
+import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component.tbl.IRowRenderer;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.css.PositionType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IForTarget;
+import to.etc.domui.dom.html.ILookupTypingListener;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Input;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.util.Msgs;
 
 /**
  * Represents keyword search panel that is used from other components, like LookupInput.
@@ -44,7 +53,7 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 
 	private int m_resultsCount = -1; //-1 states for not visible
 
-	@Nonnull
+	@NonNull
 	final private Input m_keySearch = new Input();
 
 	private Div m_pnlSearchCount;
@@ -85,7 +94,7 @@ public class KeyWordSearchInput<T> extends Div implements IForTarget {
 		m_keySearch.setOnLookupTyping(new ILookupTypingListener<Input>() {
 
 			@Override
-			public void onLookupTyping(@Nonnull Input component, boolean done) throws Exception {
+			public void onLookupTyping(@NonNull Input component, boolean done) throws Exception {
 				if(done) {
 					if(getOnShowResults() != null) {
 						getOnShowResults().onValueChanged(KeyWordSearchInput.this);

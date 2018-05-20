@@ -24,7 +24,8 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Represents a single selected column.
@@ -37,15 +38,15 @@ final public class QSelectionColumn extends QNodeBase {
 	@Nullable
 	final private String m_alias;
 
-	@Nonnull
+	@NonNull
 	final private QSelectionItem m_item;
 
-	protected QSelectionColumn(@Nonnull QSelectionItem item) {
+	protected QSelectionColumn(@NonNull QSelectionItem item) {
 		m_item = item;
 		m_alias = null;
 	}
 
-	protected QSelectionColumn(@Nonnull QSelectionItem item, @Nullable String alias) {
+	protected QSelectionColumn(@NonNull QSelectionItem item, @Nullable String alias) {
 		m_item = item;
 		m_alias = alias;
 	}
@@ -59,13 +60,13 @@ final public class QSelectionColumn extends QNodeBase {
 		return m_alias;
 	}
 
-	@Nonnull
+	@NonNull
 	public QSelectionItem getItem() {
 		return m_item;
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitSelectionColumn(this);
 	}
 }

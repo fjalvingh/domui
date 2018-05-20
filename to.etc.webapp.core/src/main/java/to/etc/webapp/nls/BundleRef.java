@@ -24,10 +24,19 @@
  */
 package to.etc.webapp.nls;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.MissingResourceException;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 
 /**
  * A bundleRef represents a single set of messages in multiple languages. It differs from a ResourceBundle
@@ -69,21 +78,21 @@ final public class BundleRef extends BundleBase implements IBundle {
 	 * Constructor for global BundleRef's.
 	 * @param key
 	 */
-	BundleRef(@Nonnull final String key) {
+	BundleRef(@NonNull final String key) {
 		m_bundleKey = key;
 	}
 
-	private BundleRef(@Nullable final Class< ? > base, @Nonnull final String name) {
+	private BundleRef(@Nullable final Class< ? > base, @NonNull final String name) {
 		m_loader = null == base ? null : base.getClassLoader();
 		m_bundleKey = calcAbsName(base, name);
 	}
 
-	private BundleRef(@Nonnull NlsMessageProvider mp) {
+	private BundleRef(@NonNull NlsMessageProvider mp) {
 		m_bundleKey = null;
 		m_parent = mp;
 	}
 
-	static public BundleRef createWrapper(@Nonnull NlsMessageProvider mp) {
+	static public BundleRef createWrapper(@NonNull NlsMessageProvider mp) {
 		return new BundleRef(mp);
 	}
 
@@ -94,8 +103,8 @@ final public class BundleRef extends BundleBase implements IBundle {
 	 * @param name Name of the bundle file (minus the ".properties" extension). Case is important!!!
 	 * @return
 	 */
-	@Nonnull
-	static public synchronized BundleRef create(@Nonnull final Class< ? > clz, @Nonnull final String name) {
+	@NonNull
+	static public synchronized BundleRef create(@NonNull final Class< ? > clz, @NonNull final String name) {
 		Map<String, BundleRef> refMap = m_cachedMap.get(clz);
 		if(refMap == null) {
 			refMap = new HashMap<String, BundleRef>(3);
@@ -149,7 +158,7 @@ final public class BundleRef extends BundleBase implements IBundle {
 	}
 
 	@Override
-	public String findMessage(final @Nonnull Locale loc, final @Nonnull String code) {
+	public String findMessage(final @NonNull Locale loc, final @NonNull String code) {
 		if(m_parent != null)
 			return m_parent.findMessage(loc, code);
 
@@ -252,7 +261,7 @@ final public class BundleRef extends BundleBase implements IBundle {
 	 * a bundleRef to (to.etc.domui.DomUtil.class, "messages") the name would be "to.etc.domui.messages".
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public String getBundleKey() {
 		String key = m_bundleKey;
 		if(null == key)

@@ -1,10 +1,13 @@
 package to.etc.domui.server;
 
-import to.etc.domui.util.upload.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.util.upload.UploadItem;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-import java.io.*;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpSession;
+import java.io.OutputStream;
+import java.io.Writer;
 
 /**
  *
@@ -19,16 +22,16 @@ public interface IRequestResponse {
 	 * start with a '/'.
 	 * @return
 	 */
-	@Nonnull String getRequestURI();
+	@NonNull String getRequestURI();
 
-	@Nonnull String getQueryString();
+	@NonNull String getQueryString();
 
 	/**
 	 * Called when uploaded files are no longer needed; this can then discard of them.
 	 */
 	void releaseUploads();
 
-	@Nonnull String getUserAgent();
+	@NonNull String getUserAgent();
 
 	/**
 	 * The "remote" user ID from a server request, if present. This does <b>not</b> need to represent the
@@ -52,44 +55,44 @@ public interface IRequestResponse {
 	 * in a slash.
 	 * @return
 	 */
-	@Nonnull String getApplicationURL();
+	@NonNull String getApplicationURL();
 
-	@Nonnull
+	@NonNull
 	String getHostURL();
 
-	@Nonnull
+	@NonNull
 	String getHostName();
 
-	@Nonnull String[] getParameters(@Nonnull String name);
+	@NonNull String[] getParameters(@NonNull String name);
 
-	@Nullable String getParameter(@Nonnull String name);
+	@Nullable String getParameter(@NonNull String name);
 
-	@Nonnull String[] getParameterNames();
+	@NonNull String[] getParameterNames();
 
-	@Nonnull String[] getFileParameters() throws Exception;
+	@NonNull String[] getFileParameters() throws Exception;
 
-	@Nonnull UploadItem[] getFileParameter(@Nonnull String name) throws Exception;
+	@NonNull UploadItem[] getFileParameter(@NonNull String name) throws Exception;
 
 	void setNoCache();
 
 	/*--- Content output ---*/
 
-	void addHeader(@Nonnull String name, @Nonnull String value);
+	void addHeader(@NonNull String name, @NonNull String value);
 
-	@Nonnull Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws Exception;
+	@NonNull Writer getOutputWriter(@NonNull String contentType, @Nullable String encoding) throws Exception;
 
-	@Nonnull OutputStream getOutputStream(@Nonnull String contentType, @Nullable String encoding, int contentLength) throws Exception;
+	@NonNull OutputStream getOutputStream(@NonNull String contentType, @Nullable String encoding, int contentLength) throws Exception;
 
 	/**
 	 * Returns the webapp context as either an empty string for the ROOT context or a string starting without a slash and always ending
 	 * in one, like "viewpoint/".
 	 * @return
 	 */
-	@Nonnull String getWebappContext();
+	@NonNull String getWebappContext();
 
-	void addCookie(@Nonnull Cookie cookie);
+	void addCookie(@NonNull Cookie cookie);
 
-	@Nonnull Cookie[] getCookies();
+	@NonNull Cookie[] getCookies();
 
 	void setExpiry(int cacheTime);
 
@@ -97,12 +100,12 @@ public interface IRequestResponse {
 	 * Send a redirect response to the client.
 	 * @param newUrl
 	 */
-	void redirect(@Nonnull String newUrl) throws Exception;
+	void redirect(@NonNull String newUrl) throws Exception;
 
 	/**
 	 * Send an error back to the client.
 	 * @param httpErrorCode
 	 * @param message
 	 */
-	void sendError(int httpErrorCode, @Nonnull String message) throws Exception;
+	void sendError(int httpErrorCode, @NonNull String message) throws Exception;
 }

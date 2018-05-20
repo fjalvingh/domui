@@ -24,35 +24,40 @@
  */
 package to.etc.domui.state;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.delayed.IAsyncRunnable;
 import to.etc.domui.server.DomApplication;
 import to.etc.util.Progress;
 
-import javax.annotation.Nonnull;
 import java.util.HashMap;
 import java.util.Map;
 
-public class DelayedActivityInfo {
+final public class DelayedActivityInfo {
+	public enum State {
+		WAITING,
+		RUNNING,
+		DONE
+	}
+
 	final private DelayedActivitiesManager m_manager;
 
 	final private AsyncContainer m_container;
 
 	final private IAsyncRunnable m_activity;
 
-	private Progress m_monitor;
+	final private Progress m_monitor = new Progress("");
 
 	private Exception m_exception;
 
-	private int m_pctComplete = -1;
+	@NonNull private State m_state = State.WAITING;
 
-	private String m_statusMessage;
-
-	@Nonnull
+	@NonNull
 	final private Map<IAsyncListener< ? >, Object> m_listenerDataMap = new HashMap<IAsyncListener< ? >, Object>();
 
-	protected DelayedActivityInfo(@Nonnull DelayedActivitiesManager manager, @Nonnull IAsyncRunnable activity, @Nonnull AsyncContainer ac) {
+	protected DelayedActivityInfo(@NonNull DelayedActivitiesManager manager, @NonNull IAsyncRunnable activity, @NonNull AsyncContainer ac) {
 		m_activity = activity;
 		m_manager = manager;
 		m_container = ac;
@@ -62,47 +67,39 @@ public class DelayedActivityInfo {
 		return m_activity;
 	}
 
-	@Nonnull
+	@NonNull
 	public Progress getMonitor() {
-		if(m_monitor == null)
-			throw new IllegalStateException("? Unexpected access to monitor after task completed?");
 		return m_monitor;
 	}
 
-	void setMonitor(Progress monitor) {
-		m_monitor = monitor;
+	public State getState() {
+		synchronized(m_manager) {
+			return m_state;
+		}
 	}
+
+	void setState(State state) {
+		synchronized(m_manager) {
+			m_state = state;
+		}
+	}
+
+	public void finished(@Nullable Exception errorx) {
+		synchronized(m_manager) {
+			m_state = State.DONE;
+			m_exception = errorx;
+		}
+	}
+
 
 	public Exception getException() {
-		return m_exception;
-	}
-
-	void setException(Exception exception) {
-		m_exception = exception;
+		synchronized(m_manager) {
+			return m_exception;
+		}
 	}
 
 	public void cancel() {
 		m_manager.cancelActivity(this);
-	}
-
-	int getPercentageComplete() {
-		synchronized(m_manager) {
-			return m_pctComplete;
-		}
-	}
-
-	void setPercentageComplete(int pct) {
-		m_pctComplete = pct;
-	}
-
-	String getStatusMessage() {
-		synchronized(m_manager) {
-			return m_statusMessage;
-		}
-	}
-
-	void setStatusMessage(String statusMessage) {
-		m_statusMessage = statusMessage;
 	}
 
 	public AsyncContainer getContainer() {

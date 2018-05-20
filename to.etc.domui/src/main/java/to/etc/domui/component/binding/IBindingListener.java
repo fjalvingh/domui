@@ -24,9 +24,8 @@
  */
 package to.etc.domui.component.binding;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeBase;
 
 /**
  * EXPERIMENTAL - DO NOT USE.
@@ -37,7 +36,7 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 13, 2009
  */
 public interface IBindingListener<T extends NodeBase> {
-	void moveControlToModel(@Nonnull T control) throws Exception;
+	void moveControlToModel(@NonNull T control) throws Exception;
 
-	void moveModelToControl(@Nonnull T control) throws Exception;
+	void moveModelToControl(@NonNull T control) throws Exception;
 }

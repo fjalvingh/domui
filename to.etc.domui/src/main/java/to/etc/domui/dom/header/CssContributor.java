@@ -24,15 +24,13 @@
  */
 package to.etc.domui.dom.header;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.IContributorRenderer;
 
 final class CssContributor extends HeaderContributor {
 	private String m_path;
 
-	CssContributor(@Nonnull String path) {
+	CssContributor(@NonNull String path) {
 		if(path == null || path.length() == 0)
 			throw new IllegalArgumentException("Null path not allowed");
 		m_path = path;
@@ -62,12 +60,7 @@ final class CssContributor extends HeaderContributor {
 	}
 
 	@Override
-	public void contribute(HtmlFullRenderer r) throws Exception {
-		r.renderLoadCSS(m_path);
-	}
-
-	@Override
-	public void contribute(OptimalDeltaRenderer r) throws Exception {
+	public void contribute(IContributorRenderer r) throws Exception {
 		r.renderLoadCSS(m_path);
 	}
 }

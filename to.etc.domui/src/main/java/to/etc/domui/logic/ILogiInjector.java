@@ -1,6 +1,6 @@
 package to.etc.domui.logic;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * If an injection framework is used, this should handle the two
@@ -10,7 +10,7 @@ import javax.annotation.*;
  * Created on Feb 28, 2014
  */
 public interface ILogiInjector {
-	@Nonnull <T> T getInstance(@Nonnull Class<T> typeClass);
+	@NonNull <T> T getInstance(@NonNull Class<T> typeClass);
 
-	<T> void injectMembers(@Nonnull T instance);
+	<T> void injectMembers(@NonNull T instance);
 }

@@ -1,5 +1,7 @@
 package to.etc.domui.component.image;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.DefaultButton;
@@ -30,8 +32,6 @@ import to.etc.domui.util.upload.UploadItem;
 import to.etc.util.FileTool;
 import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,10 +54,10 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	@Nullable
 	private String m_emptyIcon;
 
-	@Nonnull
+	@NonNull
 	private Dimension m_displayDimensions = new Dimension(32, 32);
 
-	@Nonnull
+	@NonNull
 	private Dimension m_maxDimensions = new Dimension(1024, 1024);
 
 	@Nullable
@@ -182,7 +182,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		super.componentHandleWebDataRequest(ctx, action);
 	}
 
-	private void renderImage(@Nonnull RequestContextImpl ctx, @Nonnull IUIImage thumbnail) throws Exception {
+	private void renderImage(@NonNull RequestContextImpl ctx, @NonNull IUIImage thumbnail) throws Exception {
 		IUIImageInstance ii = thumbnail.getImage(m_displayDimensions, true);
 		OutputStream os = ctx.getRequestResponse().getOutputStream(ii.getMimeType(), null, ii.getImageSize());
 		InputStream is = ii.getImage();
@@ -223,7 +223,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			((IValueChanged<Object>) m_onValueChanged).onValueChanged(this);
 	}
 
-	private void updateImage(@Nonnull ConversationContext cc, @Nonnull UploadItem ui) throws Exception {
+	private void updateImage(@NonNull ConversationContext cc, @NonNull UploadItem ui) throws Exception {
 		File newUploadedImage = ui.getFile();
 		cc.registerTempFile(newUploadedImage);
 
@@ -235,20 +235,20 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		}
 	}
 
-	@Nonnull public Dimension getDisplayDimensions() {
+	@NonNull public Dimension getDisplayDimensions() {
 		return m_displayDimensions;
 	}
 
-	public void setDisplayDimensions(@Nonnull Dimension displayDimensions) {
+	public void setDisplayDimensions(@NonNull Dimension displayDimensions) {
 		m_displayDimensions = displayDimensions;
 		forceRebuild();
 	}
 
-	@Nonnull public Dimension getMaxDimensions() {
+	@NonNull public Dimension getMaxDimensions() {
 		return m_maxDimensions;
 	}
 
-	public void setMaxDimensions(@Nonnull Dimension maxDimensions) {
+	public void setMaxDimensions(@NonNull Dimension maxDimensions) {
 		m_maxDimensions = maxDimensions;
 	}
 
@@ -332,7 +332,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
-	public void setEmptyIcon(@Nonnull String src) {
+	public void setEmptyIcon(@NonNull String src) {
 		if(!DomUtil.isEqual(src, m_emptyIcon))
 			changed();
 		m_emptyIcon = src;
@@ -343,7 +343,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	 * @param base
 	 * @param resurl
 	 */
-	public void setEmptyIcon(@Nonnull Class< ? > base, @Nonnull String resurl) {
+	public void setEmptyIcon(@NonNull Class< ? > base, @NonNull String resurl) {
 		String s = DomUtil.getJavaResourceRURL(base, resurl);
 		setEmptyIcon(s);
 	}

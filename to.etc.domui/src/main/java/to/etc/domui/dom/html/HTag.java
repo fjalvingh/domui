@@ -24,9 +24,9 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.DefaultNonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 
-@DefaultNonNull
+@NonNullByDefault
 public class HTag extends NodeContainer {
 	public HTag(int level) {
 		super("H" + level);

@@ -24,7 +24,14 @@
  */
 package to.etc.domui.util;
 
-import java.util.*;
+import java.util.AbstractCollection;
+import java.util.AbstractSet;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 /**
  * This is a LRU hashmap which will remove objects automatically when it's size
@@ -33,7 +40,6 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 4, 2008
  */
-@SuppressWarnings("unchecked")
 public class LRUHashMap<K, V> implements Map<K, V> {
 	static final Object NULL = new Object();
 

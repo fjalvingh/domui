@@ -1,10 +1,9 @@
 package to.etc.domui.component.meta;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ObjectDelta.Delta;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +19,7 @@ import java.util.Set;
  * Created on Dec 31, 2013
  */
 final public class ObjectDelta implements Iterable<Delta<?>> {
-	@Nonnull
+	@NonNull
 	final private Map<String, Delta< ? >> m_deltaMap;
 
 	/**
@@ -29,9 +28,9 @@ final public class ObjectDelta implements Iterable<Delta<?>> {
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Dec 31, 2013
 	 */
-	@Immutable
+	//@Immutable
 	static public class Delta<V> {
-		@Nonnull
+		@NonNull
 		final private PropertyMetaModel<V> m_pmm;
 
 		@Nullable
@@ -40,17 +39,17 @@ final public class ObjectDelta implements Iterable<Delta<?>> {
 		@Nullable
 		final private V m_newValue;
 
-		@Nonnull
+		@NonNull
 		final private String m_name;
 
-		public Delta(@Nonnull PropertyMetaModel<V> pmm, @Nullable V oldValue, @Nullable V newValue, @Nonnull String name) {
+		public Delta(@NonNull PropertyMetaModel<V> pmm, @Nullable V oldValue, @Nullable V newValue, @NonNull String name) {
 			m_pmm = pmm;
 			m_oldValue = oldValue;
 			m_newValue = newValue;
 			m_name = name;
 		}
 
-		@Nonnull
+		@NonNull
 		public PropertyMetaModel<V> getPmm() {
 			return m_pmm;
 		}
@@ -65,18 +64,18 @@ final public class ObjectDelta implements Iterable<Delta<?>> {
 			return m_newValue;
 		}
 
-		@Nonnull
+		@NonNull
 		public String getName() {
 			return m_name;
 		}
 	}
 
-	private ObjectDelta(@Nonnull Map<String, Delta< ? >> deltaMap) {
+	private ObjectDelta(@NonNull Map<String, Delta< ? >> deltaMap) {
 		m_deltaMap = deltaMap;
 	}
 
-	@Nonnull
-	static public <T> ObjectDelta compare(@Nonnull T a, @Nonnull T b, Object... ignored) throws Exception {
+	@NonNull
+	static public <T> ObjectDelta compare(@NonNull T a, @NonNull T b, Object... ignored) throws Exception {
 		ClassMetaModel acmm = MetaManager.findClassMeta(a.getClass());
 		ClassMetaModel bcmm = MetaManager.findClassMeta(b.getClass());
 		if(acmm != bcmm)
@@ -100,11 +99,11 @@ final public class ObjectDelta implements Iterable<Delta<?>> {
 		return new ObjectDelta(deltaMap);
 	}
 
-	@Nonnull @Override public Iterator<Delta<?>> iterator() {
+	@NonNull @Override public Iterator<Delta<?>> iterator() {
 		return m_deltaMap.values().iterator();
 	}
 
-	static private <T, V> void compare(@Nonnull Map<String, Delta< ? >> deltaMap, @Nonnull T a, @Nonnull T b, @Nonnull PropertyMetaModel<V> pmm) throws Exception {
+	static private <T, V> void compare(@NonNull Map<String, Delta< ? >> deltaMap, @NonNull T a, @NonNull T b, @NonNull PropertyMetaModel<V> pmm) throws Exception {
 		V aval = pmm.getValue(a);
 		V bval = pmm.getValue(b);
 		if(MetaManager.areObjectsEqual(aval, bval))
@@ -120,8 +119,8 @@ final public class ObjectDelta implements Iterable<Delta<?>> {
 		return m_deltaMap.size();
 	}
 
-	@Nonnull
-	public ObjectDelta remove(@Nonnull Object... things) {
+	@NonNull
+	public ObjectDelta remove(@NonNull Object... things) {
 		Map<String, Delta< ? >> deltaMap = new HashMap<String, Delta< ? >>();
 		for(String name : getPropertyList(things)) {
 			Delta< ? > delta = m_deltaMap.remove(name);
@@ -136,8 +135,8 @@ final public class ObjectDelta implements Iterable<Delta<?>> {
 	 * @param things
 	 * @return
 	 */
-	@Nonnull
-	static private Set<String> getPropertyList(@Nonnull Object... things) {
+	@NonNull
+	static private Set<String> getPropertyList(@NonNull Object... things) {
 		Set<String> res = new HashSet<String>();
 		for(Object v : things) {
 			if(v instanceof String) {

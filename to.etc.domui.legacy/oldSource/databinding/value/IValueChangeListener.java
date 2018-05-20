@@ -24,11 +24,11 @@
  */
 package to.etc.domui.databinding.value;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.*;
 
 public interface IValueChangeListener<T> extends IChangeListener<T, ValueChangeEvent<T>, IValueChangeListener<T>> {
 	@Override
-	public void handleChange(@Nonnull ValueChangeEvent<T> event) throws Exception;
+	public void handleChange(@NonNull ValueChangeEvent<T> event) throws Exception;
 }

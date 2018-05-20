@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
@@ -34,7 +35,6 @@ import to.etc.domui.dom.css.TextAlign;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 
 /**
@@ -52,7 +52,7 @@ import java.math.BigDecimal;
  */
 @Deprecated final class LookupFactoryNumber2 implements ILookupControlFactory {
 	@Override
-	public <T, X extends IControl<T>> int accepts(@Nonnull SearchPropertyMetaModel spm, X control) {
+	public <T, X extends IControl<T>> int accepts(@NonNull SearchPropertyMetaModel spm, X control) {
 		if(control != null) {
 			if(!(control instanceof Text2<?>))
 				return -1;
@@ -70,8 +70,7 @@ import java.math.BigDecimal;
 	 * @see to.etc.domui.component.lookup.ILookupControlFactory#createControl(to.etc.domui.component.meta.SearchPropertyMetaModel, to.etc.domui.dom.html.IControl)
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
-	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(@Nonnull SearchPropertyMetaModel spm, X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(@NonNull SearchPropertyMetaModel spm, X control) {
 		final PropertyMetaModel<?> pmm = spm.getProperty();
 		Text2<String> numText = (Text2<String>) control;
 		if(numText == null) {

@@ -5,37 +5,17 @@
     <excludeFromCompile>
       <directory url="file://$PROJECT_DIR$/archetypes/domui-hello/src/main/resources/archetype-resources" includeSubdirectories="true" />
     </excludeFromCompile>
-    <annotationProcessing>
-      <profile name="Maven default annotation processors profile" enabled="true">
-        <sourceOutputDir name="target/generated-sources/annotations" />
-        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
-        <outputRelativeToContentRoot value="true" />
-        <module name="domui-hello" />
-        <module name="domui-hibernate-generator" />
-        <module name="to.etc.alg" />
-        <module name="to.etc.db" />
-        <module name="to.etc.dbcompare" />
-        <module name="to.etc.domui" />
-        <module name="to.etc.domui.demo" />
-        <module name="to.etc.domui.derbydata" />
-        <module name="to.etc.domui.formbuilder" />
-        <module name="to.etc.domui.hibutil" />
-        <module name="to.etc.domui.legacy" />
-        <module name="to.etc.domui.selenium" />
-        <module name="to.etc.jsr305" />
-        <module name="to.etc.logger" />
-        <module name="to.etc.pater" />
-        <module name="to.etc.syntaxer" />
-        <module name="to.etc.webapp.core" />
-        <module name="vaadin-sass-compiler" />
-      </profile>
-    </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="annotations" target="1.8" />
+      <module name="common" target="1.5" />
+      <module name="core" target="1.5" />
+      <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="1.8" />
+      <module name="domui-jpa" target="1.8" />
       <module name="domui-utilities" target="1.5" />
-      <module name="gendb" target="1.5" />
+      <module name="integrations" target="1.5" />
       <module name="property-annotations-processor" target="1.8" />
       <module name="to.etc.alg" target="1.8" />
       <module name="to.etc.db" target="1.8" />

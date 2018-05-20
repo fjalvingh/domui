@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>domui</artifactId>
+        <groupId>to.etc.domui</groupId>
+        <version>1.2-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>to.etc.domui</groupId>
+    <artifactId>integrations</artifactId>
+    <version>1.2-SNAPSHOT</version>
+
+    <name>domui :: integrations</name>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>to.etc.domui.selenium</module>
+        <module>to.etc.domui.hibutil</module>
+    </modules>
+
+</project>

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.server;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.init.MetaInitializer;
@@ -33,8 +35,6 @@ import to.etc.domui.state.AppSession;
 import to.etc.domui.state.HttpSessionLink;
 import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -61,13 +61,13 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 	static private ReloadingContextMaker m_instance;
 
-	@Nonnull
+	@NonNull
 	static public List<IReloadListener> m_reloadListener = new ArrayList<>();
 
 	static private long m_lastReloadTime;
 
 
-	public ReloadingContextMaker(@Nonnull String applicationClassName, @Nonnull ConfigParameters pp, @Nullable String patterns, @Nullable String patternsWatchOnly) throws Exception {
+	public ReloadingContextMaker(@NonNull String applicationClassName, @NonNull ConfigParameters pp, @Nullable String patterns, @Nullable String patternsWatchOnly) throws Exception {
 		super(pp);
 		m_instance = this;
 		m_applicationClassName = applicationClassName;
@@ -107,7 +107,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 	}
 
 	@Override
-	public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception {
+	public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception {
 		synchronized(this) {
 			if(m_nestCount == 0)
 				checkReload();

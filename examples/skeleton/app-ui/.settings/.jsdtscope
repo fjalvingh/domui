@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="lib" path="src/resources/js/jquery-1.4.1/jquery.js"/>
+	<classpathentry kind="lib" path="src/resources/js/jquery-1.4.1/ui.core.js"/>
+	<classpathentry kind="lib" path="src/resources/js/jquery-1.4.1/ui.draggable.js"/>
+	<classpathentry kind="lib" path="src/resources/js/colorpicker.js"/>
+	<classpathentry kind="lib" path="src/resources/js/domui.js"/>
+	<classpathentry kind="lib" path="src/resources/js/jquery.blockUI.js"/>
+	<classpathentry kind="lib" path="src/resources/js/jquery.browser.js"/>
+	<classpathentry kind="lib" path="src/resources/js/jquery.clientOptionFilter.js"/>
+	<classpathentry kind="lib" path="src/resources/js/jquery.splitter.js"/>
+	<classpathentry kind="lib" path="src/resources/js/jquery.wysiwyg.js"/>
+	<classpathentry kind="lib" path="src/resources/js/schedule.js"/>
+	<classpathentry kind="lib" path="src/resources/js/weekagenda.js"/>
+	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.WebProject">
+		<attributes>
+			<attribute name="hide" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="con" path="org.eclipse.wst.jsdt.launching.baseBrowserLibrary"/>
+	<classpathentry kind="output" path=""/>
+</classpath>

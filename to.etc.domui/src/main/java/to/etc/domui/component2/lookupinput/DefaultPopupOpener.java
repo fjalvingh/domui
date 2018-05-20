@@ -1,12 +1,12 @@
 package to.etc.domui.component2.lookupinput;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.component2.lookupinput.LookupInputBase2.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.layout.Dialog;
+import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.tbl.ITableModel;
+import to.etc.domui.component2.lookupinput.LookupInputBase2.IPopupOpener;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.util.IExecute;
 
 public class DefaultPopupOpener implements IPopupOpener {
 
@@ -33,7 +33,7 @@ public class DefaultPopupOpener implements IPopupOpener {
 		}
 
 		dlg.setOnClose(new IWindowClosed() {
-			@Override public void closed(@Nonnull String closeReason) throws Exception {
+			@Override public void closed(@NonNull String closeReason) throws Exception {
 				callOnWindowClose.execute();
 			}
 		});

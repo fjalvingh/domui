@@ -24,9 +24,12 @@
  */
 package to.etc.domui.component.tree;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Concrete implementation of a tree node model using AbstractTreeNodeBase thingies.
@@ -44,7 +47,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public void addChangeListener(@Nonnull ITreeModelChangedListener<T> l) {
+	public void addChangeListener(@NonNull ITreeModelChangedListener<T> l) {
 		if(m_listeners == Collections.EMPTY_LIST) {
 			m_listeners = new ArrayList<ITreeModelChangedListener<T>>();
 		}
@@ -54,7 +57,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 	}
 
 	@Override
-	public void removeChangeListener(@Nonnull ITreeModelChangedListener<T> l) {
+	public void removeChangeListener(@NonNull ITreeModelChangedListener<T> l) {
 		m_listeners.remove(l);
 	}
 
@@ -62,7 +65,7 @@ public class TreeNodeModelBase<T extends ITreeNode<T>> implements ITreeModel<T> 
 		return m_listeners;
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public T getChild(@Nullable T parent, int index) throws Exception {
 		if(null == parent)

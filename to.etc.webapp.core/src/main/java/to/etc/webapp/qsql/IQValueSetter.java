@@ -1,9 +1,9 @@
 package to.etc.webapp.qsql;
 
-import java.sql.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.sql.PreparedStatement;
 
 public interface IQValueSetter {
-	void assign(@Nonnull PreparedStatement ps) throws Exception;
+	void assign(@NonNull PreparedStatement ps) throws Exception;
 }

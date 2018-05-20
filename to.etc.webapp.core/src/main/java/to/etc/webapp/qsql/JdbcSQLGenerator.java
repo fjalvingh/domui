@@ -24,10 +24,32 @@
  */
 package to.etc.webapp.qsql;
 
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.QBetweenNode;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QExistsSubquery;
+import to.etc.webapp.query.QLiteral;
+import to.etc.webapp.query.QOperation;
+import to.etc.webapp.query.QOperatorNode;
+import to.etc.webapp.query.QOrder;
+import to.etc.webapp.query.QPropertyComparison;
+import to.etc.webapp.query.QPropertyIn;
+import to.etc.webapp.query.QPropertyJoinComparison;
+import to.etc.webapp.query.QPropertySelection;
+import to.etc.webapp.query.QQueryRenderer;
+import to.etc.webapp.query.QRenderingVisitorBase;
+import to.etc.webapp.query.QSelection;
+import to.etc.webapp.query.QSelectionFunction;
+import to.etc.webapp.query.QSelectionItem;
+import to.etc.webapp.query.QSelectionSubquery;
+import to.etc.webapp.query.QSqlRestriction;
+import to.etc.webapp.query.QSubQuery;
+import to.etc.webapp.query.QUnaryProperty;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Generate a SQL query from a QCriteria selection using the poor man's JDBC code.
@@ -67,7 +89,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	private String m_sql;
 
 	@Override
-	public void visitCriteria(@Nonnull QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@NonNull QCriteria< ? > qc) throws Exception {
 		m_root = new PClassRef(qc.getBaseClass(), "this_");
 		m_tblMap.put(m_root.getAlias(), m_root);
 		m_rootMeta = JdbcMetaManager.getMeta(qc.getBaseClass());
@@ -121,7 +143,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitSelection(@Nonnull QSelection< ? > qc) throws Exception {
+	public void visitSelection(@NonNull QSelection< ? > qc) throws Exception {
 		m_root = new PClassRef(qc.getBaseClass(), "this_");
 		m_tblMap.put(m_root.getAlias(), m_root);
 		m_rootMeta = JdbcMetaManager.getMeta(qc.getBaseClass());
@@ -143,7 +165,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 		QQueryRenderer renderer = new QQueryRenderer() {
 
 			@Override
-			public void visitPropertySelection(@Nonnull QPropertySelection n) throws Exception {
+			public void visitPropertySelection(@NonNull QPropertySelection n) throws Exception {
 				int currentColumn = getCurrentColumn();
 				if(currentColumn > 0) {
 					append(",");
@@ -236,7 +258,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitOrder(@Nonnull QOrder o) throws Exception {
+	public void visitOrder(@NonNull QOrder o) throws Exception {
 		if(m_order == null)
 			m_order = new StringBuilder();
 		JdbcPropertyMeta pm = resolveProperty(o.getProperty());
@@ -257,7 +279,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitPropertyComparison(@Nonnull QPropertyComparison n) throws Exception {
+	public void visitPropertyComparison(@NonNull QPropertyComparison n) throws Exception {
 		//-- Lookup the property name. For now it cannot be dotted
 		JdbcPropertyMeta pm = resolveProperty(n.getProperty());
 		if(pm.isCompound()) {
@@ -301,7 +323,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+	public void visitPropertyIn(@NonNull QPropertyIn n) throws Exception {
 		JdbcPropertyMeta pm = resolveProperty(n.getProperty());
 		if(pm.isCompound()) {
 			throw new QQuerySyntaxException("The " + n.getOperation() + " operation is not supported on compound property " + n.getProperty());
@@ -433,7 +455,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {
+	public void visitUnaryProperty(@NonNull QUnaryProperty n) throws Exception {
 		int oldprec = precedenceOpen(n);
 
 		if(n.getOperation() == QOperation.ISNOTNULL || n.getOperation() == QOperation.ISNULL) {
@@ -451,7 +473,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitBetween(@Nonnull QBetweenNode n) throws Exception {
+	public void visitBetween(@NonNull QBetweenNode n) throws Exception {
 		int oldprec = precedenceOpen(n);
 
 		//-- Lookup the property name. For now it cannot be dotted
@@ -474,7 +496,7 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitLiteral(@Nonnull QLiteral n) throws Exception {
+	public void visitLiteral(@NonNull QLiteral n) throws Exception {
 		throw new IllegalStateException("!!! Trying to generate a naked literal!");
 	}
 
@@ -494,12 +516,12 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 	}
 
 	@Override
-	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison qPropertyJoinComparison) {
+	public void visitPropertyJoinComparison(@NonNull QPropertyJoinComparison qPropertyJoinComparison) {
 		throw new IllegalStateException("Correlated subqueries are not supported");
 	}
 
 	@Override
-	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {
 		//-- We do not yet support parameterized ones
 		if(v.getParameters().length != 0)
 			throw new QQuerySyntaxException("Parameterized literal SQL not supported");
@@ -508,26 +530,26 @@ public class JdbcSQLGenerator extends QRenderingVisitorBase {
 
 	@Deprecated
 	@Override
-	public void visitSelectionSubquery(@Nonnull QSelectionSubquery qSelectionSubquery) throws Exception {
+	public void visitSelectionSubquery(@NonNull QSelectionSubquery qSelectionSubquery) throws Exception {
 		throw new IllegalStateException("Subqueries are not supported");
 	}
 
 	@Override
-	public void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull QSubQuery< ? , ? > n) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 
 	@Override
-	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {
+	public void visitExistsSubquery(@NonNull QExistsSubquery< ? > q) throws Exception {
 		throw new UnsupportedOperationException("Subqueries are not supported");
 	}
 
 	@Override
-	public void visitSelectionItem(@Nonnull QSelectionItem n) throws Exception {
+	public void visitSelectionItem(@NonNull QSelectionItem n) throws Exception {
 		//-- jal 20160105 This should throw an IllegalStateException!!
 	}
 	@Override
-	public void visitPropertySelection(@Nonnull QPropertySelection n) throws Exception {
+	public void visitPropertySelection(@NonNull QPropertySelection n) throws Exception {
 		//-- jal 20160105 This should throw an IllegalStateException!!
 	}
 }

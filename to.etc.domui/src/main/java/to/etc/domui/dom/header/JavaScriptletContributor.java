@@ -59,21 +59,19 @@ final public class JavaScriptletContributor extends HeaderContributor {
 
 	/**
 	 * Generate the specified scriptlet as a script tag.
-	 * @see to.etc.domui.dom.header.HeaderContributor#contribute(to.etc.domui.dom.HtmlFullRenderer)
 	 */
 	@Override
-	public void contribute(final HtmlFullRenderer r) throws Exception {
-		r.o().tag("script");
-		r.o().attr("language", "javascript");
-		r.o().endtag();
-		r.o().writeRaw("<!--\n"); // Embed JS in comment IMPORTANT: the \n is required!!!
-		r.o().writeRaw(m_javascript);
-		r.o().writeRaw("\n-->");
-		r.o().closetag("script");
-	}
-
-	@Override
-	public void contribute(OptimalDeltaRenderer r) throws Exception {
-		r.o().writeRaw(m_javascript);
+	public void contribute(IContributorRenderer r) throws Exception {
+		if(r instanceof OptimalDeltaRenderer) {
+			r.o().writeRaw(m_javascript);
+		} else {
+			r.o().tag("script");
+			r.o().attr("language", "javascript");
+			r.o().endtag();
+			r.o().writeRaw("<!--\n"); // Embed JS in comment IMPORTANT: the \n is required!!!
+			r.o().writeRaw(m_javascript);
+			r.o().writeRaw("\n-->");
+			r.o().closetag("script");
+		}
 	}
 }

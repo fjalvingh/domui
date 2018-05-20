@@ -24,31 +24,31 @@
  */
 package to.etc.domui.injector;
 
-import java.lang.reflect.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.IPageParameters;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.state.*;
-import to.etc.util.*;
+import java.lang.reflect.Method;
 
 /**
  * Base for injecting something into a property.
  */
 public abstract class PropertyInjector {
-	@Nonnull
+	@NonNull
 	final private Method m_propertySetter;
 
-	public PropertyInjector(@Nonnull final Method propertySetter) {
+	public PropertyInjector(@NonNull final Method propertySetter) {
 		m_propertySetter = propertySetter;
 	}
 
-	@Nonnull
+	@NonNull
 	protected Method getPropertySetter() {
 		return m_propertySetter;
 	}
 
-	protected void setValue(@Nonnull Object instance, @Nullable Object value) {
+	protected void setValue(@NonNull Object instance, @Nullable Object value) {
 		try {
 			getPropertySetter().invoke(instance, value);
 		} catch(Exception x) {
@@ -56,5 +56,5 @@ public abstract class PropertyInjector {
 		}
 	}
 
-	public abstract void inject(@Nonnull UrlPage page, @Nonnull IPageParameters pp) throws Exception;
+	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp) throws Exception;
 }

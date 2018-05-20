@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.meta;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
@@ -53,11 +55,10 @@ import to.etc.webapp.qsql.JdbcUtil;
 import to.etc.webapp.query.IIdentifyable;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QField;
 import to.etc.webapp.query.QOrder;
 import to.etc.webapp.query.QSortOrderDirection;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -84,23 +85,23 @@ final public class MetaManager {
 	/**
 	 * Used for lazy loaded formula fields as handler
 	 */
-	@Nonnull
+	@NonNull
 	private static final String pFIELDHANDLER = "fieldHandler";
 
 	private MetaManager() {
 	}
 
-	static public void registerModel(@Nonnull IClassMetaModelFactory model) {
+	static public void registerModel(@NonNull IClassMetaModelFactory model) {
 		MetaInitializer.registerModel(model);
 	}
 
-	@Nonnull
+	@NonNull
 	static private synchronized List<IClassMetaModelFactory> getList() {
 		return MetaInitializer.getList();
 	}
 
-	@Nonnull
-	static public ClassMetaModel findClassMeta(@Nonnull Class<?> clz) {
+	@NonNull
+	static public ClassMetaModel findClassMeta(@NonNull Class<?> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("Class<?> parameter cannot be null");
 		if(clz.getName().contains("$$"))
@@ -113,8 +114,8 @@ final public class MetaManager {
 	 * @param mc
 	 * @return
 	 */
-	@Nonnull
-	static public ClassMetaModel findClassMeta(@Nonnull IMetaClass mc) {
+	@NonNull
+	static public ClassMetaModel findClassMeta(@NonNull IMetaClass mc) {
 		//-- If the IMetaClass itself is a model- just use it, without caching.
 		if(mc instanceof ClassMetaModel)
 			return (ClassMetaModel) mc;
@@ -125,21 +126,24 @@ final public class MetaManager {
 
 	/**
 	 * Find a property using the metamodel for a class. Returns null if not found.
-	 * @param clz
-	 * @param name
-	 * @return
 	 */
 	@Nullable
-	static public PropertyMetaModel<?> findPropertyMeta(@Nonnull Class<?> clz, @Nonnull String name) {
+	static public PropertyMetaModel<?> findPropertyMeta(@NonNull Class<?> clz, @NonNull String name) {
+		ClassMetaModel cm = findClassMeta(clz);
+		return cm.findProperty(name);
+	}
+
+	/**
+	 * Find a property using the metamodel for a class. Returns null if not found.
+	 */
+	@Nullable
+	static public <V> PropertyMetaModel<V> findPropertyMeta(@NonNull Class<?> clz, @NonNull QField<?, V> name) {
 		ClassMetaModel cm = findClassMeta(clz);
 		return cm.findProperty(name);
 	}
 
 	/**
 	 * Find a property using some genericized meta definition. Returns null if not found.
-	 * @param mc
-	 * @param name
-	 * @return
 	 */
 	@Nullable
 	static public PropertyMetaModel<?> findPropertyMeta(IMetaClass mc, String name) {
@@ -147,7 +151,7 @@ final public class MetaManager {
 		return cm.findProperty(name);
 	}
 
-	@Nonnull
+	@NonNull
 	static public PropertyMetaModel<?> getPropertyMeta(Class<?> clz, String name) {
 		PropertyMetaModel<?> pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
@@ -155,7 +159,15 @@ final public class MetaManager {
 		return pmm;
 	}
 
-	@Nonnull
+	@NonNull
+	static public <V> PropertyMetaModel<V> getPropertyMeta(Class<?> clz, QField<?, V> name) {
+		PropertyMetaModel<V> pmm = findPropertyMeta(clz, name);
+		if(pmm == null)
+			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
+		return pmm;
+	}
+
+	@NonNull
 	static public PropertyMetaModel<?> getPropertyMeta(IMetaClass clz, String name) {
 		PropertyMetaModel<?> pmm = findPropertyMeta(clz, name);
 		if(pmm == null)
@@ -178,10 +190,6 @@ final public class MetaManager {
 	 * <pre>
 	 * 	"admin" OR "tester" OR ("editroles" AND "user")
 	 * </pre>
-	 *
-	 * @param roleset
-	 * @param ctx
-	 * @return
 	 */
 	static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
 		if(roleset == null)
@@ -209,7 +217,7 @@ final public class MetaManager {
 		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
 		return new IRenderInto<Object>() {
 			@Override
-			public void render(@Nonnull NodeContainer node, @Nonnull Object object) {
+			public void render(@NonNull NodeContainer node, @NonNull Object object) {
 				String text = lr.getLabelFor(object);
 				if(text != null)
 					node.add(text);
@@ -223,7 +231,7 @@ final public class MetaManager {
 
 	static private IRenderInto<?> TOSTRING_RENDERER = new IRenderInto<Object>() {
 		@Override
-		public void render(@Nonnull NodeContainer node, @Nullable Object object) {
+		public void render(@NonNull NodeContainer node, @Nullable Object object) {
 			if(object != null)
 				node.add(object.toString());
 		}
@@ -241,7 +249,7 @@ final public class MetaManager {
 	 * @param cmm
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public IRenderInto<?> createDefaultComboRenderer(@Nullable PropertyMetaModel<?> pmm, @Nullable ClassMetaModel cmm) {
 		//-- Property-level metadata is the 1st choice
 		if(pmm != null) {
@@ -311,7 +319,7 @@ final public class MetaManager {
 
 		//-- Classes must be the same type but we allow for proxying
 		Class<?> acl = a.getClass();
-		@Nonnull
+		@NonNull
 		Class<?> bcl = b.getClass();
 		if(!acl.isAssignableFrom(bcl) && !bcl.isAssignableFrom(acl))
 			return false;
@@ -407,7 +415,7 @@ final public class MetaManager {
 	 * @param compoundName
 	 * @return
 	 */
-	static public List<PropertyMetaModel<?>> parsePropertyPath(@Nonnull ClassMetaModel m, String compoundName) {
+	static public List<PropertyMetaModel<?>> parsePropertyPath(@NonNull ClassMetaModel m, String compoundName) {
 		int ix = 0;
 		int len = compoundName.length();
 		List<PropertyMetaModel<?>> res = new ArrayList<PropertyMetaModel<?>>();
@@ -568,7 +576,7 @@ final public class MetaManager {
 	/**
 	 * Try to calculate some search properties off a data class for debug/test pps, if enabled
 	 */
-	@Nonnull
+	@NonNull
 	public static List<SearchPropertyMetaModel> calculateSearchProperties(ClassMetaModel cm) {
 		if(!DeveloperOptions.getBool("domui.generatemeta", false))
 			return Collections.emptyList();
@@ -604,7 +612,7 @@ final public class MetaManager {
 	 * @param cmm
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public List<DisplayPropertyMetaModel> calculateObjectProperties(ClassMetaModel cm) {
 		if(!DeveloperOptions.getBool("domui.generatemeta", false))
 			return Collections.emptyList();
@@ -703,7 +711,7 @@ final public class MetaManager {
 	}
 
 	/**
-	 * Copy all matching properties from "from" to "to", but ignore the specified list of
+	 * Copy all matching SIMPLE (non collection) properties from "from" to "to", but ignore the specified list of
 	 * properties. Since properties are copied by name the objects can be of different types.
 	 *
 	 * @param to
@@ -739,8 +747,10 @@ final public class MetaManager {
 
 	}
 
-	private static boolean isExcepted(@Nonnull Set<Object> exceptSet, @Nonnull PropertyMetaModel<?> frpmm) {
+	private static boolean isExcepted(@NonNull Set<Object> exceptSet, @NonNull PropertyMetaModel<?> frpmm) {
 		if(exceptSet.contains(frpmm.getName()))
+			return true;
+		if(Collection.class.isAssignableFrom(frpmm.getActualType()))		// !! NEVER COPY LISTS
 			return true;
 		for(Object t : exceptSet) {
 			if(t == Class.class) {
@@ -759,8 +769,8 @@ final public class MetaManager {
 	 * @param pmm
 	 * @return
 	 */
-	@Nonnull
-	static public List<DisplayPropertyMetaModel> getComboProperties(@Nonnull PropertyMetaModel<?> pmm) {
+	@NonNull
+	static public List<DisplayPropertyMetaModel> getComboProperties(@NonNull PropertyMetaModel<?> pmm) {
 		List<DisplayPropertyMetaModel> res = pmm.getComboDisplayProperties();
 		if(res.size() != 0)
 			return res;
@@ -785,7 +795,7 @@ final public class MetaManager {
 	 * Walk the list of properties, and defines the list that should be added as sort properties
 	 * to the QCriteria.
 	 */
-	static public void applyPropertySort(@Nonnull QCriteria<?> q, @Nonnull List<DisplayPropertyMetaModel> properties) {
+	static public void applyPropertySort(@NonNull QCriteria<?> q, @NonNull List<DisplayPropertyMetaModel> properties) {
 		List<DisplayPropertyMetaModel> sl = new ArrayList<DisplayPropertyMetaModel>();
 		boolean hasindex = false;
 		for(DisplayPropertyMetaModel p : properties) {
@@ -820,7 +830,7 @@ final public class MetaManager {
 	 * @param target
 	 * @throws Exception
 	 */
-	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target) {
+	static public <T> void fillCopy(@NonNull T source, @NonNull T target) {
 		fillCopy(source, target, false, false, false);
 	}
 
@@ -833,7 +843,7 @@ final public class MetaManager {
 	 * @param ignoredColumns Specified optional columns that would not be filled with data from source
 	 * @throws Exception
 	 */
-	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, String... ignoredColumns) {
+	static public <T> void fillCopy(@NonNull T source, @NonNull T target, String... ignoredColumns) {
 		fillCopy(source, target, false, false, false, ignoredColumns);
 	}
 
@@ -849,7 +859,7 @@ final public class MetaManager {
 	 * @param ignoredColumns Specified optional columns that would not be filled with data from source
 	 * @throws Exception
 	 */
-	static public <T> void fillCopy(@Nonnull T source, @Nonnull T target, boolean copyPK, boolean copyTCN, boolean copyTransient, String... ignoredColumns) {
+	static public <T> void fillCopy(@NonNull T source, @NonNull T target, boolean copyPK, boolean copyTCN, boolean copyTransient, String... ignoredColumns) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(source.getClass());
 		List<String> ignoreList = new ArrayList<String>(ignoredColumns.length);
 		for(String ignore : ignoredColumns) {
@@ -879,7 +889,7 @@ final public class MetaManager {
 	 * @return
 	 */
 	@Nullable
-	static synchronized public ClassMetaModel findClassByTable(@Nonnull String tableName) {
+	static synchronized public ClassMetaModel findClassByTable(@NonNull String tableName) {
 		for(ClassMetaModel cmm : MetaInitializer.getAllMetaClasses()) {
 			if(tableName.equalsIgnoreCase(cmm.getTableName()))
 				return cmm;
@@ -898,7 +908,7 @@ final public class MetaManager {
 	 * @throws Exception
 	 */
 	@Nullable
-	static public <K, T extends IIdentifyable<K>> String hasChildRecords(QDataContext dc, @Nonnull String schemaName, @Nonnull T instance) throws Exception {
+	static public <K, T extends IIdentifyable<K>> String hasChildRecords(QDataContext dc, @NonNull String schemaName, @NonNull T instance) throws Exception {
 		//-- The thing must be a persistent class.
 		ClassMetaModel cmm = findClassMeta(instance.getClass());
 		if(!cmm.isPersistentClass())
@@ -941,8 +951,8 @@ final public class MetaManager {
 	 * implementation is so nice when we use Metadata it's created here 8-/
 	 *
 	 */
-	@Nonnull
-	static public <X, T extends Collection<X>> List<X> query(@Nonnull T in, @Nonnull QCriteria<X> query) throws Exception {
+	@NonNull
+	static public <X, T extends Collection<X>> List<X> query(@NonNull T in, @NonNull QCriteria<X> query) throws Exception {
 		CriteriaMatchingVisitor<X> v = null;
 		ClassMetaModel cmm = null;
 		List<X> res = new ArrayList<>();
@@ -977,15 +987,15 @@ final public class MetaManager {
 	 *
 	 */
 	@Deprecated
-	@Nonnull
-	static public <X, T extends Collection<X>> List<X> filter(@Nonnull T in, @Nonnull QCriteria<X> query) throws Exception {
+	@NonNull
+	static public <X, T extends Collection<X>> List<X> filter(@NonNull T in, @NonNull QCriteria<X> query) throws Exception {
 		return filter(in, query);
 	}
 
 	/**
 	 * Handles the sort clause of a QCriteria on a list.
 	 */
-	private static <X> void sortBy(@Nonnull ClassMetaModel cmm, @Nonnull List<X> list, @Nonnull List<QOrder> order) {
+	private static <X> void sortBy(@NonNull ClassMetaModel cmm, @NonNull List<X> list, @NonNull List<QOrder> order) {
 		List<Comparator<X>> all = order.stream()
 			.map(item -> (Comparator<X>) PropertyComparator.create(cmm, item.getProperty(), item.getDirection() == QSortOrderDirection.DESC ? SortableType.SORTABLE_DESC : SortableType.SORTABLE_ASC))
 			.collect(Collectors.toList());
@@ -1026,7 +1036,7 @@ final public class MetaManager {
 	 * This adds a validator for the maximal and minimal value for an input, gotten from the property metamodel.
 	 */
 	@Nullable
-	public static IValueValidator<?> calculatePrecisionValidator(@Nonnull PropertyMetaModel< ? > pmm) {
+	public static IValueValidator<?> calculatePrecisionValidator(@NonNull PropertyMetaModel< ? > pmm) {
 		return calculatePrecisionValidator(pmm.getPrecision(), pmm.getScale());
 	}
 

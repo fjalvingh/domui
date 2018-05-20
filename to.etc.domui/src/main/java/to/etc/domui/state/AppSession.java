@@ -24,15 +24,24 @@
  */
 package to.etc.domui.state;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IAttributeContainer;
+import to.etc.domui.util.janitor.Janitor;
+import to.etc.domui.util.janitor.JanitorTask;
 
-import javax.annotation.*;
-import javax.servlet.http.*;
-
-import org.slf4j.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.util.janitor.*;
+import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpSessionBindingEvent;
+import javax.servlet.http.HttpSessionBindingListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Generic session implementation. The session is specific for the application, and the
@@ -54,10 +63,10 @@ import to.etc.domui.util.janitor.*;
 public class AppSession implements HttpSessionBindingListener, IAttributeContainer {
 	static private final Logger LOG = LoggerFactory.getLogger(AppSession.class);
 
-	@Nonnull
+	@NonNull
 	final private DomApplication m_application;
 
-	@Nonnull
+	@NonNull
 	final private Map<String, Object> m_objCache = new HashMap<String, Object>();
 
 	/**
@@ -69,13 +78,13 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	private int m_exceptionRetryCount;
 
-	@Nonnull
+	@NonNull
 	private Map<String, WindowSession> m_windowMap = new HashMap<String, WindowSession>();
 
-	@Nonnull
+	@NonNull
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
-	public AppSession(@Nonnull DomApplication da) {
+	public AppSession(@NonNull DomApplication da) {
 		m_application = da;
 	}
 
@@ -94,7 +103,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Questionable use.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public DomApplication getApplication() {
 		return m_application;
 	}
@@ -239,7 +248,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Create a new WindowSession. The thingy has a new, globally-unique ID.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	final public synchronized WindowSession createWindowSession() {
 		WindowSession cm = new WindowSession(this);
 		m_windowMap.put(cm.getWindowID(), cm);
@@ -256,7 +265,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * @return
 	 */
 	@Nullable
-	final public synchronized WindowSession findWindowSession(@Nonnull final String wid) {
+	final public synchronized WindowSession findWindowSession(@NonNull final String wid) {
 		WindowSession cm = m_windowMap.get(wid);
 		if(cm != null) {
 			cm.internalTouched();
@@ -270,7 +279,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Marks the WindowSession as recently used, and cancels any obituary processing on it.
 	 * @param cm
 	 */
-	private synchronized boolean resurrectWindowSession(@Nonnull final WindowSession cm) {
+	private synchronized boolean resurrectWindowSession(@NonNull final WindowSession cm) {
 		cm.internalTouched();
 		int tm = cm.getObituaryTimer();							// Obituary timer has started?
 		if(tm == -1)											// Nope, nothing wrong
@@ -381,12 +390,12 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 */
 	@Override
 	@Nullable
-	public Object getAttribute(@Nonnull String name) {
+	public Object getAttribute(@NonNull String name) {
 		return m_attributeMap.get(name);
 	}
 
 	@Override
-	public void setAttribute(@Nonnull String name, @Nullable Object value) {
+	public void setAttribute(@NonNull String name, @Nullable Object value) {
 		if(m_attributeMap == Collections.EMPTY_MAP)
 			m_attributeMap = new HashMap<String, Object>();
 		if(value == null) {
@@ -421,7 +430,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 *
 	 * @param httpSession
 	 */
-	synchronized void saveOldState(@Nonnull HttpSession httpSession) {
+	synchronized void saveOldState(@NonNull HttpSession httpSession) {
 		for(WindowSession ws : m_windowMap.values()) {
 			List<SavedPage> wl = ws.getSavedPageList();
 			SavedWindow sw = new SavedWindow(ws.getWindowID(), wl);
@@ -446,14 +455,14 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	/*	CODING:	User events log.									*/
 	/*--------------------------------------------------------------*/
 
-	@Nonnull
+	@NonNull
 	final private LinkedList<UserLogItem> m_itemList = new LinkedList<>();
 
 	/**
 	 * Add a log item to the round-robin list of per user log entries.
 	 * @param uli
 	 */
-	public synchronized void log(@Nonnull UserLogItem uli) {
+	public synchronized void log(@NonNull UserLogItem uli) {
 		while(m_itemList.size() > 400)
 			m_itemList.removeFirst();
 		m_itemList.addLast(uli);
@@ -463,12 +472,12 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * Get a copy of the currently collected log entries.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	synchronized public List<UserLogItem> getLogItems() {
 		return new ArrayList<>(m_itemList);
 	}
 
-	public void logUser(@Nonnull String cid, @Nonnull String message) {
+	public void logUser(@NonNull String cid, @NonNull String message) {
 		log(new UserLogItem(cid, null, null, null, message));
 	}
 }

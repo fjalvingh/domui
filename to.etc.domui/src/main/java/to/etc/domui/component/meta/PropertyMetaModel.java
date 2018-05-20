@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.meta;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.controlfactory.PropertyControlFactory;
 import to.etc.domui.component.input.IQueryManipulator;
 import to.etc.domui.component.input.LookupInput;
@@ -34,8 +36,6 @@ import to.etc.domui.util.ILabelStringRenderer;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueAccessor;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Locale;
@@ -54,15 +54,13 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 
 	/**
 	 * The ClassModel that this property is a property of.
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	ClassMetaModel getClassModel();
 
 	/**
 	 * If applicable, the value type's class model. Can be asked for explicitly to allow
 	 * for non-class-based metamodels. It will return null for all primitive and basic types.
-	 * @return
 	 */
 	@Nullable
 	ClassMetaModel getValueModel();
@@ -70,16 +68,14 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 
 	/**
 	 * Returns the actual type of the property's value. This is the return type of the getter function.
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	Class<T> getActualType();
 
 	/**
 	 * The abomination that is Java Generics requires a separate dysfunctional type system to represent
 	 * generic typing, at the few places it is available. This returns the generic type information that
 	 * is present on whatever type is the return type. This CAN return NULL!!!
-	 * @return
 	 */
 	@Nullable
 	Type getGenericActualType();
@@ -92,7 +88,7 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * to lookup the proper resource file. If there is no label this returns the property's name.
 	 * @return	the label text,
 	 */
-	@Nonnull
+	@NonNull
 	String getDefaultLabel();
 
 	/**
@@ -124,65 +120,55 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 
 	/**
 	 * For numeric types, this returns any defined scale. If undefined this returns -1.
-	 * @return
 	 */
 	int getScale();
 
 	/**
 	 * Returns the #chars to be displayed by default for this item. When present this overrides the length or
 	 * precision as a size indicator.
-	 * @return
 	 */
 	int getDisplayLength();
 
 	/**
 	 * Returns the name of the property.
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	String getName();
 
 	/**
 	 * Returns whether the property should be <i>sortable</i> when used in a default table, and defines
 	 * the initial sort direction of the property. This defaults to unsortable.
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	SortableType getSortable();
 
 	/**
 	 * Returns the user-specified converter to use when converting this property's value to and from string. Can be null.
-	 *
-	 * @return
 	 */
 	@Nullable
 	IConverter<T> getConverter();
 
 	/**
 	 * Whether the property is defined as requiring a value.
-	 * @return
 	 */
 	boolean isRequired();
 
 	/**
 	 * Returns T if we know this property to be the PK.
-	 * @return
 	 */
 	boolean isPrimaryKey();
 
 	/**
 	 * Tells if this property represents some kind of database relation (a "parent" property referring to the master of this child record, or a property
 	 * representing the list of children).
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	PropertyRelationType getRelationType();
 
 	/**
 	 * If the type for this property has a fixed set of domain values (like boolean or enum) this contains
 	 * all possible values for this property. So this will contain the actual enum labels or the constants
 	 * Boolean.TRUE and Boolean.FALSE. It returns null for other domains.
-	 * @return
 	 */
 	@Nullable
 	Object[] getDomainValues();
@@ -193,33 +179,26 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * Boolean.TRUE this could return "yes". The translated value is obtained by first looking up a translation
 	 * in the base class's properties file; if it is undefined there it will be looked up in the enum's property
 	 * file. If a proper representation cannot be found this will return a toString on the value.
-	 *
-	 * @param loc
-	 * @param val
-	 * @return
 	 */
 	@Nullable
 	String getDomainValueLabel(Locale loc, Object val);
 
 	/**
 	 * If this is defined as some Date type this further defines the domain (date only, date time etc).
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	TemporalPresentationType getTemporal();
 
 	/**
 	 * Used for numeric types, this returns how to present the number and defines the number's class, like
 	 * a monetary amount. This gets overridden when a converter is set!
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	NumericPresentation getNumericPresentation();
 
 	/**
 	 * If this should be represented by a combo this can be set to represent the default combo dataset.
 	 * FIXME Must become instance, not class.
-	 * @return
 	 */
 	@Nullable
 	Class< ? extends IComboDataSet< ? >> getComboDataSet();
@@ -228,7 +207,6 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * When this relation-property is presented as a single field this can contain a class to render
 	 * that field as a string.
 	 * FIXME Must become instance, not class.
-	 * @return
 	 */
 	@Nullable
 	Class< ? extends ILabelStringRenderer< ? >> getComboLabelRenderer();
@@ -236,7 +214,6 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	/**
 	 * When set this renderer should be used to render the nodes in the combobox.
 	 * FIXME Must become instance, not class.
-	 * @return
 	 */
 	@Nullable
 	Class< ? extends IRenderInto<T>> getComboNodeRenderer();
@@ -245,17 +222,15 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * For a relation, this is the list of properties that should be shown. This
 	 * is needed ONLY when the class metadata of the parent record does not specify
 	 * a default display column or columnset.
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<DisplayPropertyMetaModel> getComboDisplayProperties();
 
 	/**
 	 * Reports whether a property is readonly. For Java classes a property is defined as readOnly when it
 	 * has no "setter" method.
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	YesNoType getReadOnly();
 
 	/** If marked as transient in the persistent class this returns true */
@@ -266,7 +241,6 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * proper component to <i>select</i> a single record of the type specified by this
 	 * property. This is only used when this property points to a parent in an UP relation,
 	 * and the child needs to add a control to help it select one parent.
-	 * @return
 	 */
 	@Nullable
 	String getComponentTypeHint();
@@ -277,7 +251,6 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * record in the edit page. If empty this will use the lookupFieldDisplayProperties.
 	 *
 	 * FIXME Must become instance, not class.
-	 * @return
 	 */
 	@Nullable
 	Class< ? extends IRenderInto<T>> getLookupSelectedRenderer();
@@ -286,58 +259,48 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	 * When this class is to be selected as a parent in an UP relation using an InputLookup
 	 * control this describes the properties to use to display the <i>currently selected</i>
 	 * record in the edit page.
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<DisplayPropertyMetaModel> getLookupSelectedProperties();
 
 	/**
 	 * When used in a {@link LookupInput} field, this fields are used to show the result of a Search in the DataTable.
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<DisplayPropertyMetaModel> getLookupTableProperties();
 
 	/**
 	 * When used in a {@link LookupInput} field, this fields are used to create the search inputs.
-	 *
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<SearchPropertyMetaModel> getLookupFieldSearchProperties();
 
 	/**
 	 * When used in a {@link LookupInput} field, this fields are used to create the keyword search inputs.
-	 *
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties();
 
 	/**
 	 * Get all validators to run on this property's input after conversion.
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	PropertyMetaValidator[] getValidators();
 
 	/**
 	 * Returns the regexp to use to validate input.
-	 * @return
 	 */
 	@Nullable
 	String getRegexpValidator();
 
 	/**
 	 * Use the string to use as the pattern indicator in regexp-validator error messages.
-	 * @return
 	 */
 	@Nullable
 	String getRegexpUserString();
 
 	/**
 	 * If a specific control factory is to be used to create controls for this item this returns that factory.
-	 * @return
 	 */
 	@Nullable
 	PropertyControlFactory getControlFactory();
@@ -345,20 +308,15 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	/**
 	 * If the property has some kind of "annotation" (which in here does not need to be a Java annotation, but
 	 * which can also be some other java class containing data) this returns it.
-	 * @param <A>
-	 * @param annclass
-	 * @return
 	 */
 	@Nullable
-	<A> A getAnnotation(@Nonnull Class<A> annclass);
+	<A> A getAnnotation(@NonNull Class<A> annclass);
 
 	/**
 	 * If the property has some kind of "annotations" (which in here does not need to be a Java annotation, but
 	 * which can also be some other java class containing data) this returns all of them.
-	 *
-	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	List<Object> getAnnotations();
 
 	/**
@@ -369,11 +327,10 @@ public interface PropertyMetaModel<T> extends IValueAccessor<T> {
 	/**
 	 * For Lookup and Combo fields, this can return a QueryManipulator instance that will alter the base
 	 * query for the thing to show.
-	 * @return
 	 */
 	@Nullable
 	IQueryManipulator<T> getQueryManipulator();
 
-	@Nonnull
+	@NonNull
 	YesNoType getNowrap();
 }

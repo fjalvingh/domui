@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.css.VisibilityType;
 import to.etc.domui.dom.errors.IErrorMessageListener;
 import to.etc.domui.dom.errors.MsgType;
@@ -34,7 +35,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,7 +95,7 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 	 * @see to.etc.domui.dom.errors.IErrorMessageListener#errorMessageAdded(to.etc.domui.dom.errors.UIMessage)
 	 */
 	@Override
-	public void errorMessageAdded(@Nonnull UIMessage m) {
+	public void errorMessageAdded(@NonNull UIMessage m) {
 		if(m_msgList.contains(m))
 			return;
 
@@ -150,7 +150,7 @@ public class ErrorMessageDiv extends Div implements IErrorMessageListener {
 	}
 
 	@Override
-	public void errorMessageRemoved(@Nonnull UIMessage m) {
+	public void errorMessageRemoved(@NonNull UIMessage m) {
 		if(!m_msgList.remove(m))
 			return;
 

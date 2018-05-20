@@ -1,12 +1,13 @@
 package to.etc.domui.derbydata.init;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.util.DeveloperOptions;
 import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.Nullable;
 import javax.sql.DataSource;
 import java.io.File;
 
@@ -22,8 +23,6 @@ final public class TestDB {
 	}
 
 	static public synchronized ConnectionPool getPool() throws Exception {
-		System.getProperties().forEach((k, v) -> System.out.println("  " + k + " = " + v));
-
 		String path = "/tmp/demoDb";
 		if(System.getProperty("maven.home") != null || System.getProperty("failsafe.test.class.path") != null) {
 			File tmp = File.createTempFile("testdb", ".domui");
@@ -74,6 +73,10 @@ final public class TestDB {
 
 		//-- Tell the generic layer how to create default DataContext's.
 		QContextManager.setImplementation(QContextManager.DEFAULT, DbUtil.getContextSource()); // Prime factory with connection source
+	}
+
+	static public QDataContext getDataContext() throws Exception {
+		return QContextManager.getDataContextFactory().getDataContext();
 	}
 
 	static public void main(String[] args) {

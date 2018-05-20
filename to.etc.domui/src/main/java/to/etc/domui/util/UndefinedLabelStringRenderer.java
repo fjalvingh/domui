@@ -24,9 +24,8 @@
  */
 package to.etc.domui.util;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.NodeContainer;
-
-import javax.annotation.Nonnull;
 
 public class UndefinedLabelStringRenderer implements ILabelStringRenderer<Object>, IRenderInto<Object> {
 	@Override
@@ -35,7 +34,7 @@ public class UndefinedLabelStringRenderer implements ILabelStringRenderer<Object
 	}
 
 	@Override
-	public void render(@Nonnull NodeContainer node, @Nonnull Object object) {
+	public void render(@NonNull NodeContainer node, @NonNull Object object) {
 		throw new IllegalStateException();
 	}
 }

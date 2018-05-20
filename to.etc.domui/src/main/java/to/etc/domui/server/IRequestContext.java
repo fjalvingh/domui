@@ -24,13 +24,13 @@
  */
 package to.etc.domui.server;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeVariant;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Writer;
 
@@ -48,31 +48,31 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	/**
 	 * Return the DomApplication instance.
 	 */
-	@Nonnull
+	@NonNull
 	DomApplication getApplication();
 
 	/**
 	 * Get the theme for this user or, if nothing is set specifically the application-default theme.
 	 * @return
 	 */
-	@Nonnull ITheme getCurrentTheme() throws Exception;
+	@NonNull ITheme getCurrentTheme() throws Exception;
 
 	void setThemeName(String userThemeName);
 
-	@Nonnull IThemeVariant getThemeVariant();
+	@NonNull IThemeVariant getThemeVariant();
 
-	void setThemeVariant(@Nonnull IThemeVariant variant);
+	void setThemeVariant(@NonNull IThemeVariant variant);
 
 	/**
 	 * Get the generic server request/response object for this context.
 	 */
-	@Nonnull
+	@NonNull
 	IRequestResponse getRequestResponse();
 
 	/**
 	 * Return this-user's AppSession.
 	 */
-	@Nonnull
+	@NonNull
 	AppSession getSession();
 
 	@Nullable
@@ -83,7 +83,7 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	 * multiple open browser windows. Since each browser window shares a single HttpSession (sigh)
 	 * the WindowSession is used to separate the administration for separate browser windows.
 	 */
-	@Nonnull
+	@NonNull
 	WindowSession getWindowSession();
 
 	/**
@@ -92,7 +92,7 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	 * For example, for the url "/demo/css/style.css" this call will return "css" (no dot). If the page
 	 * has no extension this returns the empty string.
 	 */
-	@Nonnull
+	@NonNull
 	String getExtension();
 
 	/**
@@ -101,7 +101,7 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	 * URL "http://localhost/demo/css/style.css" this will return "css/style.css".
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	String getInputPath();
 
 	/**
@@ -115,12 +115,14 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	 * is "http://localhost/demo/", calling this with "img/button.png" will return the string
 	 * "http://localhost/demo/img/button.png".
 	 */
-	@Nonnull
-	String getRelativePath(@Nonnull String rel);
+	@NonNull
+	String getRelativePath(@NonNull String rel);
+
+	void setPersistedParameter(@NonNull String name, @NonNull String value);
 
 	/**
 	 * Returns the buffered writer to use to generate text-based output to this context.
 	 */
-	@Nonnull
-	Writer getOutputWriter(@Nonnull String contentType, @Nullable String encoding) throws IOException;
+	@NonNull
+	Writer getOutputWriter(@NonNull String contentType, @Nullable String encoding) throws IOException;
 }

@@ -1,10 +1,10 @@
 package to.etc.domui.component2.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.List;
  * Created on Jun 27, 2014
  */
 public class ControlCreatorRegistry {
-	@Nonnull
+	@NonNull
 	private List<IControlCreator> m_controlFactoryList = new ArrayList<>();
 
 	public ControlCreatorRegistry() {
@@ -39,19 +39,19 @@ public class ControlCreatorRegistry {
 	 * Register a new factory.
 	 * @param cf
 	 */
-	public synchronized void register(@Nonnull final IControlCreator cf) {
+	public synchronized void register(@NonNull final IControlCreator cf) {
 		ArrayList<IControlCreator> list = new ArrayList<>(m_controlFactoryList);
 		list.add(cf);
 		m_controlFactoryList = Collections.unmodifiableList(list);
 	}
 
-	@Nonnull
+	@NonNull
 	protected synchronized List<IControlCreator> getControlFactoryList() {
 		return m_controlFactoryList;
 	}
 
-	@Nonnull
-	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+	@NonNull
+	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		IControlCreator bestcc = null;
 		int bestScore = 0;
 		for(IControlCreator cc : getControlFactoryList()) {

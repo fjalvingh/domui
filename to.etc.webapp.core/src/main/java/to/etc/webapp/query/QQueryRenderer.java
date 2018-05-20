@@ -24,11 +24,11 @@
  */
 package to.etc.webapp.query;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.StringTool;
 import to.etc.webapp.qsql.QQuerySyntaxException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
@@ -75,7 +75,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitCriteria(@Nonnull QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(@NonNull QCriteria< ? > qc) throws Exception {
 		renderFrom(qc);
 		if(qc.getRestrictions() != null)
 			append(" WHERE ");
@@ -83,7 +83,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 		visitOrderList(qc.getOrder());
 	}
 
-	private void renderFrom(QCriteriaQueryBase< ? > qc) {
+	private void renderFrom(QCriteriaQueryBase< ?, ? > qc) {
 		append("FROM ");
 		Class< ? > baseClass = qc.getBaseClass();
 		if(baseClass != null)
@@ -100,7 +100,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitSelection(@Nonnull QSelection< ? > s) throws Exception {
+	public void visitSelection(@NonNull QSelection< ? > s) throws Exception {
 		renderFrom(s);
 
 		if(s.getColumnList().size() != 0) {
@@ -116,7 +116,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitSelectionColumn(@Nonnull QSelectionColumn n) throws Exception {
+	public void visitSelectionColumn(@NonNull QSelectionColumn n) throws Exception {
 		n.getItem().visit(this);
 		String alias = n.getAlias();
 		if(null != alias) {
@@ -131,14 +131,14 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitSelectionItem(@Nonnull QSelectionItem n) throws Exception {
+	public void visitSelectionItem(@NonNull QSelectionItem n) throws Exception {
 		if(m_currentColumn++ > 0)
 			append(",");
 		append("[?").append(n.getFunction().name()).append("]");
 	}
 
 	@Override
-	public void visitPropertySelection(@Nonnull QPropertySelection n) throws Exception {
+	public void visitPropertySelection(@NonNull QPropertySelection n) throws Exception {
 		if(m_currentColumn++ > 0)
 			append(",");
 		append(n.getFunction().name().toLowerCase());
@@ -146,7 +146,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitPropertyComparison(@Nonnull QPropertyComparison n) throws Exception {
+	public void visitPropertyComparison(@NonNull QPropertyComparison n) throws Exception {
 		int oldprec = precedenceOpen(n);
 
 		append(n.getProperty());
@@ -157,7 +157,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitPropertyIn(@Nonnull QPropertyIn n) throws Exception {
+	public void visitPropertyIn(@NonNull QPropertyIn n) throws Exception {
 		int oldprec = precedenceOpen(n);
 
 		append(n.getProperty());
@@ -187,7 +187,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitPropertyJoinComparison(@Nonnull QPropertyJoinComparison n) throws Exception {
+	public void visitPropertyJoinComparison(@NonNull QPropertyJoinComparison n) throws Exception {
 		int oldprec = precedenceOpen(n);
 
 		append("[parent].");
@@ -200,7 +200,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 
 
 	@Override
-	public void visitUnaryProperty(@Nonnull QUnaryProperty n) throws Exception {
+	public void visitUnaryProperty(@NonNull QUnaryProperty n) throws Exception {
 		int oldprec = precedenceOpen(n);
 
 		appendOperation(n.getOperation());
@@ -212,7 +212,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitBetween(@Nonnull QBetweenNode n) throws Exception {
+	public void visitBetween(@NonNull QBetweenNode n) throws Exception {
 		int oldprec = precedenceOpen(n);
 
 		append(n.getProp());
@@ -225,7 +225,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitOrder(@Nonnull QOrder o) throws Exception {
+	public void visitOrder(@NonNull QOrder o) throws Exception {
 		if(m_orderIndx++ == 0) {
 			append(" order by ");
 		} else {
@@ -237,7 +237,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitLiteral(@Nonnull QLiteral n) throws Exception {
+	public void visitLiteral(@NonNull QLiteral n) throws Exception {
 		int oldprec = precedenceOpen(n);
 
 		//-- Render the literal type
@@ -293,7 +293,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitSqlRestriction(@Nonnull QSqlRestriction v) throws Exception {
+	public void visitSqlRestriction(@NonNull QSqlRestriction v) throws Exception {
 		append("SQL['");
 		append(v.getSql());
 		append("'");
@@ -310,7 +310,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 
 
 	@Override
-	public void visitExistsSubquery(@Nonnull QExistsSubquery< ? > q) throws Exception {
+	public void visitExistsSubquery(@NonNull QExistsSubquery< ? > q) throws Exception {
 		append("exists (select 1 from $[parent." + q.getParentProperty() + "]");
 
 		if(q.getRestrictions() != null) {
@@ -331,24 +331,24 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	}
 
 	@Override
-	public void visitSubquery(@Nonnull QSubQuery< ? , ? > n) throws Exception {
+	public void visitSubquery(@NonNull QSubQuery< ? , ? > n) throws Exception {
 		visitSelection(n);
 	}
 
 	@Override
-	public void visitMultiSelection(@Nonnull QMultiSelection n) throws Exception {
+	public void visitMultiSelection(@NonNull QMultiSelection n) throws Exception {
 		for(QSelectionItem it : n.getItemList())
 			it.visit(this);
 	}
 
 	@Override
-	public void visitOrderList(@Nonnull List<QOrder> orderlist) throws Exception {
+	public void visitOrderList(@NonNull List<QOrder> orderlist) throws Exception {
 		for(QOrder o : orderlist)
 			o.visit(this);
 	}
 
 	@Override
-	public void visitRestrictionsBase(@Nonnull QCriteriaQueryBase< ? > n) throws Exception {
+	public void visitRestrictionsBase(@NonNull QCriteriaQueryBase< ?, ? > n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
 		QOperatorNode.prune(r);
 		if(r != null)

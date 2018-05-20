@@ -24,7 +24,8 @@
  */
 package to.etc.domui.component.tree;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * The base model for a Tree. This encapsulates the knowledge about a tree, and returns tree-based
@@ -72,7 +73,7 @@ public interface ITreeModel<T> {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	T getChild(@Nullable T parent, int index) throws Exception;
 
 	/**
@@ -89,13 +90,13 @@ public interface ITreeModel<T> {
 	 * Add a listener to be called when nodes on the tree change.
 	 * @param l
 	 */
-	default void addChangeListener(@Nonnull ITreeModelChangedListener<T> l) {}
+	default void addChangeListener(@NonNull ITreeModelChangedListener<T> l) {}
 
 	/**
 	 * Remove a registered change listener. Fails silently when the listener was not registered at all.
 	 * @param l
 	 */
-	default void removeChangeListener(@Nonnull ITreeModelChangedListener<T> l) {}
+	default void removeChangeListener(@NonNull ITreeModelChangedListener<T> l) {}
 
 	/**
 	 * Called when this node is attempted to be expanded. This call can be used to refresh/lazily load the

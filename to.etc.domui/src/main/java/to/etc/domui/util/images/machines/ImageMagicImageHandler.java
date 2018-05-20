@@ -24,14 +24,21 @@
  */
 package to.etc.domui.util.images.machines;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.util.images.converters.ImageConverterHelper;
+import to.etc.domui.util.images.converters.ImageSpec;
+import to.etc.util.ProcessTools;
+import to.etc.util.StringTool;
+import to.etc.webapp.core.ServerTools;
 
-import javax.annotation.*;
-
-import to.etc.domui.util.images.converters.*;
-import to.etc.util.*;
-import to.etc.webapp.core.*;
+import java.io.File;
+import java.io.LineNumberReader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.StringTokenizer;
 
 final public class ImageMagicImageHandler implements ImageHandler {
 	static public final String PNG = "image/png";
@@ -65,7 +72,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	/** The current #of running tasks. */
 	private int m_numTasks;
 
-	private ImageMagicImageHandler(@Nonnull File ident, @Nonnull File convert, File filecommand) {
+	private ImageMagicImageHandler(@NonNull File ident, @NonNull File convert, File filecommand) {
 		m_convert = convert;
 		m_identify = ident;
 		m_fileCommand = filecommand;
@@ -86,7 +93,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		return File.separatorChar == '\\';
 	}
 
-	@Nonnull
+	@NonNull
 	static private String getExt() {
 		return onWindows() ? ".exe" : "";
 	}
@@ -149,7 +156,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 		System.out.println("Error: ImageMagick not found in paths " + pathlist);
 	}
 
-	static private synchronized boolean initMagick(@Nonnull File base, @Nullable File filecommand) {
+	static private synchronized boolean initMagick(@NonNull File base, @Nullable File filecommand) {
 		File convert = new File(base, "convert" + getExt());
 		if(convert.exists()) {
 			File ident = new File(base, "identify" + getExt());

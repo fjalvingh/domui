@@ -1,5 +1,6 @@
 package to.etc.domuidemo.pages.cddb;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.lookup.LookupForm;
 import to.etc.domui.component.tbl.DataPager;
@@ -10,8 +11,6 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.webapp.query.QCriteria;
-
-import javax.annotation.Nonnull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -30,7 +29,7 @@ public class ResultFragment<T> extends Div {
 
 	@Override public void createContent() throws Exception {
 		m_lookup.setClicked(new IClicked<NodeBase>() {
-			@Override public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+			@Override public void clicked(@NonNull NodeBase clickednode) throws Exception {
 				search(m_lookup.getEnteredCriteria());
 			}
 		});

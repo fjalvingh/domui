@@ -24,7 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.component.input.Text;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.INodeErrorDelegate;
 import to.etc.domui.parts.MarkerImagePart;
 import to.etc.domui.server.IRequestContext;
@@ -32,8 +33,6 @@ import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -68,6 +67,8 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	private String m_emptyMarker;
 
 	private String m_type = "text";
+
+	private boolean m_immediate;
 
 	public Input() {
 		super("input");
@@ -196,7 +197,7 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 * @see to.etc.domui.dom.html.NodeBase#acceptRequestParameter(java.lang.String[])
 	 */
 	@Override
-	public boolean acceptRequestParameter(@Nonnull String[] values) {
+	public boolean acceptRequestParameter(@NonNull String[] values) {
 		if(isDisabled()) {
 			return false;
 		}
@@ -217,7 +218,7 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if(Constants.ACMD_LOOKUP_TYPING.equals(action)) {
 			handleLookupTyping(ctx);
 		} else if(Constants.ACMD_LOOKUP_TYPING_DONE.equals(action)) {
@@ -241,8 +242,6 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	/**
 	 * Called when the action is a TYPING DONE event on some Input thingy. This causes the onTyping handler for
 	 * the input to be called with parame done set to true. Occurs when user press return key on input with registered onTyping listener.
-	 *
-	 * @throws Exception
 	 */
 	private void handleLookupTypingDone(final IRequestContext ctx) throws Exception {
 		ILookupTypingListener<NodeBase> tl = (ILookupTypingListener<NodeBase>) getOnLookupTyping();
@@ -251,17 +250,15 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 		}
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
-	 */
 	@Override
 	public IValueChanged< ? > getOnValueChanged() {
-		return m_onValueChanged;
+		IValueChanged< ? > vc = m_onValueChanged;
+		if(null == vc && isImmediate()) {
+			return IValueChanged.DUMMY;
+		}
+		return vc;
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
-	 */
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
@@ -277,7 +274,6 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 
 	/**
 	 * Sets the placeholder attribute.
-	 * @return
 	 */
 	@Nullable public String getPlaceHolder() {
 		return m_placeHolder;
@@ -298,7 +294,6 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	 * This sets a marker image to be used as the background image for an empty text box. It should contain the URL to a fully-constructed
 	 * background image. To create such an image from an icon plus text use one of the setMarkerXxx methods. This method should be used
 	 * only for manually-constructed images.
-	 * @param emptyMarker
 	 */
 	public void setMarkerImage(String emptyMarker) {
 		if(DomUtil.isBlank(emptyMarker)) {
@@ -311,8 +306,6 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 
 	/**
 	 * Returns assigned empty marker.
-	 *
-	 * @see Text#setMarkerImage(String)
 	 */
 	public String getMarkerImage() {
 		return m_emptyMarker;
@@ -321,7 +314,6 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 
 	/**
 	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
-	 * @return
 	 */
 	public void setMarker() {
 		setMarkerImage(MarkerImagePart.getBackgroundIconOnly());
@@ -358,4 +350,16 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 		setMarkerImage(MarkerImagePart.getBackgroundImage(iconUrl, caption));
 	}
 
+
+	public boolean isImmediate() {
+		return m_immediate;
+	}
+
+	public void setImmediate(boolean immediate) {
+		m_immediate = immediate;
+	}
+
+	public void immediate() {
+		m_immediate = true;
+	}
 }

@@ -24,13 +24,13 @@
  */
 package to.etc.domui.converter;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Simple converter that converts date values to long 'time' value, used in internal url param conversion. It is locale agnostic.  
@@ -41,10 +41,10 @@ import to.etc.util.*;
  */
 class DateUrlParamConverter implements IConverter<Date> {
 
-	@Nonnull
+	@NonNull
 	static private final DateUrlParamConverter INSTANCE = new DateUrlParamConverter();
 	
-	@Nonnull
+	@NonNull
 	static public final DateUrlParamConverter getInstance() {
 		return INSTANCE;
 	}

@@ -24,13 +24,15 @@
  */
 package to.etc.domui.component.misc;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.input.ComboFixed;
+import to.etc.domui.component.input.Text;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.BundleRef;
 
-import javax.annotation.*;
-import java.math.*;
+import java.math.BigDecimal;
 
 /**
  * PLEASE LOOK IN THE CONTROL CLASS YOU WANT TO CREATE FOR MORE METHODS!
@@ -171,8 +173,8 @@ final public class UIControlUtil {
 	 * @deprecated Use {@link Text#createDoubleMoneyInput(Class<?>,String,boolean)} instead
 	 */
 	@Deprecated
-	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull Class< ? > clz, @Nonnull String property, boolean editable) {
+	@NonNull
+	static public Text<Double> createDoubleMoneyInput(@NonNull Class< ? > clz, @NonNull String property, boolean editable) {
 		return Text.createDoubleMoneyInput(clz, property, editable);
 	}
 
@@ -196,8 +198,8 @@ final public class UIControlUtil {
 	 * @deprecated Use {@link Text#createDoubleMoneyInput(PropertyMetaModel<?>,boolean)} instead
 	 */
 	@Deprecated
-	@Nonnull
-	static public Text<Double> createDoubleMoneyInput(@Nonnull PropertyMetaModel<Double> pmm, boolean editable) {
+	@NonNull
+	static public Text<Double> createDoubleMoneyInput(@NonNull PropertyMetaModel<Double> pmm, boolean editable) {
 		return Text.createDoubleMoneyInput(pmm, editable);
 	}
 
@@ -315,8 +317,8 @@ final public class UIControlUtil {
 	 * @param key
 	 * @return
 	 */
-	@Nonnull 
-	public static String removeActionKeyStr(@Nonnull BundleRef bundle, @Nonnull String key) {
+	@NonNull
+	public static String removeActionKeyStr(@NonNull BundleRef bundle, @NonNull String key) {
 		return DomUtil.nullChecked(bundle.getString(key).replace("!", ""));
 	}
 

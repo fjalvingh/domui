@@ -24,6 +24,8 @@
  */
 package to.etc.domui.util;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.annotations.UIMenu;
@@ -73,8 +75,6 @@ import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.IIdentifyable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -101,8 +101,6 @@ import java.util.function.Function;
 
 final public class DomUtil {
 	static public final Logger USERLOG = LoggerFactory.getLogger("to.etc.domui.userAction");
-
-	static public final String DOCROOT = "https://etc.to/confluence/";
 
 	static private int m_guidSeed;
 
@@ -131,8 +129,8 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	@Nonnull
-	static public Class<?> getBoxedForPrimitive(@Nonnull Class<?> clz) {
+	@NonNull
+	static public Class<?> getBoxedForPrimitive(@NonNull Class<?> clz) {
 		Class<?> newClass = BOXINGDISASTER.get(clz);
 		return newClass != null ? newClass : clz;
 	}
@@ -148,7 +146,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Deprecated
-	@Nonnull
+	@NonNull
 	static public <T> T nullChecked(@Nullable T in) {
 		if(null == in)
 			throw new IllegalStateException("Unexpected thingy is null: " + in);
@@ -165,8 +163,8 @@ final public class DomUtil {
 	 * @deprecated Use Objects.requireNonNull.
 	 */
 	@Deprecated
-	@Nonnull
-	static public <T> T nullChecked(@Nullable T in, @Nonnull String exceptionMsg) {
+	@NonNull
+	static public <T> T nullChecked(@Nullable T in, @NonNull String exceptionMsg) {
 		if(null == in)
 			throw new IllegalStateException(exceptionMsg);
 		return in;
@@ -181,7 +179,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Deprecated
-	@Nonnull
+	@NonNull
 	static public <T> T badCheck(T in) {
 		return in;
 	}
@@ -192,7 +190,7 @@ final public class DomUtil {
 	 * @param comp
 	 * @throws IOException
 	 */
-	static public final void setPageCompatibility(@Nonnull HttpServletResponse req, @Nullable String comp) throws IOException {
+	static public final void setPageCompatibility(@NonNull HttpServletResponse req, @Nullable String comp) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
 			return;
 		WrappedHttpServetResponse wsr = (WrappedHttpServetResponse) req;
@@ -259,7 +257,7 @@ final public class DomUtil {
 	}
 
 	@Nullable
-	static public <T> T getValueSafe(@Nonnull IControl<T> node) {
+	static public <T> T getValueSafe(@NonNull IControl<T> node) {
 		try {
 			return node.getValue();
 		} catch(ValidationException x) {
@@ -285,7 +283,7 @@ final public class DomUtil {
 		return true;
 	}
 
-	static public final Class<?> findClass(@Nonnull final ClassLoader cl, @Nonnull final String name) {
+	static public final Class<?> findClass(@NonNull final ClassLoader cl, @NonNull final String name) {
 		try {
 			return cl.loadClass(name);
 		} catch(Exception x) {
@@ -330,6 +328,10 @@ final public class DomUtil {
 		return clz == Boolean.class || clz == boolean.class;
 	}
 
+	static public boolean isNumber(Class<?> clz) {
+		return Number.class.isAssignableFrom(getBoxedForPrimitive(clz));
+	}
+
 	/**
 	 * Return T if the class represents a real (double or float) type.
 	 * @param clz
@@ -369,7 +371,7 @@ final public class DomUtil {
 	 * @param name
 	 * @return
 	 */
-	static public final Object getClassValue(@Nonnull final Object inst, @Nonnull final String name) throws Exception {
+	static public final Object getClassValue(@NonNull final Object inst, @NonNull final String name) throws Exception {
 		if(inst == null)
 			throw new IllegalStateException("The input object is null");
 		Class<?> clz = inst.getClass();
@@ -400,7 +402,7 @@ final public class DomUtil {
 	 * @param path
 	 * @return
 	 */
-	static public Object getPropertyValue(@Nonnull final Object base, @Nonnull final String path) {
+	static public Object getPropertyValue(@NonNull final Object base, @NonNull final String path) {
 		int pos = 0;
 		int len = path.length();
 		Object next = base;
@@ -481,8 +483,8 @@ final public class DomUtil {
 		return "#" + StringTool.intToStr(value, 16, 6);
 	}
 
-	@Nonnull
-	static public IErrorFence getMessageFence(@Nonnull NodeBase in) {
+	@NonNull
+	static public IErrorFence getMessageFence(@NonNull NodeBase in) {
 		NodeBase start = in;
 
 		//-- If we're delegated then test the delegate 1st
@@ -536,7 +538,7 @@ final public class DomUtil {
 	 * does not use the known GUID format but shortens the string by encoding into base64-like encoding.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public String generateGUID() {
 		byte[] bin = new byte[18];
 		ByteArrayUtil.setInt(bin, 0, m_guidSeed); // Start with the seed
@@ -589,11 +591,11 @@ final public class DomUtil {
 		}
 	}
 
-	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final IPageParameters ctx, boolean first) {
+	static public void addUrlParameters(@NonNull final StringBuilder sb, @NonNull final IPageParameters ctx, boolean first) {
 		addUrlParameters(sb, ctx, first, Collections.EMPTY_SET);
 	}
 
-	static public void addUrlParameters(@Nonnull final StringBuilder sb, @Nonnull final IPageParameters ctx, boolean first, @Nonnull Set<String> skipset) {
+	static public void addUrlParameters(@NonNull final StringBuilder sb, @NonNull final IPageParameters ctx, boolean first, @NonNull Set<String> skipset) {
 		if(ctx == null)
 			return;
 		for(String name : ctx.getParameterNames()) {
@@ -669,8 +671,8 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
-	@Nonnull
-	static public String createPageRURL(@Nonnull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
+	@NonNull
+	static public String createPageRURL(@NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(clz.getName());
 		sb.append('.');
@@ -689,7 +691,7 @@ final public class DomUtil {
 	 * @param pp
 	 * @return
 	 */
-	static public String createPageURL(@Nonnull String webAppUrl, @Nonnull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
+	static public String createPageURL(@NonNull String webAppUrl, @NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(webAppUrl);
 		sb.append(clz.getName());
@@ -720,16 +722,16 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
-	@Nonnull
-	public static String getAdjustedPageUrl(@Nonnull Page page, @Nullable IPageParameters pp) {
+	@NonNull
+	public static String getAdjustedPageUrl(@NonNull Page page, @Nullable IPageParameters pp) {
 		PageParameters newpp = mergePageParameters(pp);
 		StringBuilder sb = getPageContextURL(page);
 		DomUtil.addUrlParameters(sb, newpp, false);
 		return sb.toString();
 	}
 
-	@Nonnull
-	public static String getAdjustedComponentUrl(@Nonnull NodeBase component, @Nonnull String command, @Nullable IPageParameters pp) {
+	@NonNull
+	public static String getAdjustedComponentUrl(@NonNull NodeBase component, @NonNull String command, @Nullable IPageParameters pp) {
 		PageParameters newpp = mergePageParameters(pp);
 
 		//-- Add the action code.
@@ -741,7 +743,7 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
-	@Nonnull
+	@NonNull
 	private static PageParameters mergePageParameters(@Nullable IPageParameters pp) {
 		PageParameters newpp = PageParameters.createFrom(UIContext.getRequestContext());
 		if(null != pp) {
@@ -753,8 +755,8 @@ final public class DomUtil {
 		return newpp;
 	}
 
-	@Nonnull
-	private static StringBuilder getPageContextURL(@Nonnull Page page) {
+	@NonNull
+	private static StringBuilder getPageContextURL(@NonNull Page page) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(UIContext.getRequestContext().getRelativePath(page.getBody().getClass().getName()));
 		sb.append(".").append(DomApplication.get().getUrlExtension());
@@ -790,8 +792,8 @@ final public class DomUtil {
 		return ci.getRelativePath(rurl);
 	}
 
-//	@Nonnull
-//	static public String[] decodeCID(@Nonnull final String param) {
+//	@NonNull
+//	static public String[] decodeCID(@NonNull final String param) {
 //		if(param == null)
 //			throw new IllegalStateException("$cid cannot be null");
 //		int pos = param.indexOf('.');
@@ -1018,14 +1020,14 @@ final public class DomUtil {
 	 * Based on that outcome it will dump it or not.
 	 * @param x
 	 */
-	static public void dumpExceptionIfSevere(@Nonnull final Exception x) {
+	static public void dumpExceptionIfSevere(@NonNull final Exception x) {
 		if(ExceptionClassifier.getInstance().isSevereException(x)) {
 			dumpException(x);
 		}
 	}
 
 
-	static public void dumpException(@Nonnull StringBuilder sb, final Throwable x) {
+	static public void dumpException(@NonNull StringBuilder sb, final Throwable x) {
 		StringTool.strStacktrace(sb, x);
 
 		Throwable next = null;
@@ -1068,8 +1070,8 @@ final public class DomUtil {
 		return Constants.RESOURCE_PREFIX + rb.substring(0, pos + 1).replace('.', '/') + name;
 	}
 
-	@Nonnull
-	static public String convertToID(@Nonnull String id) {
+	@NonNull
+	static public String convertToID(@NonNull String id) {
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0, len = id.length(); i < len; i++) {
 			char c = id.charAt(i);
@@ -1155,7 +1157,7 @@ final public class DomUtil {
 	 * @param clz
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	static public String calcPageTitle(final Class<?> clz) {
 		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
 		Locale loc = NlsContext.getLocale();
@@ -1456,7 +1458,7 @@ final public class DomUtil {
 			top.add(sb.toString());
 	}
 
-	static public void renderLines(@Nonnull NodeContainer nc, @Nullable String text) {
+	static public void renderLines(@NonNull NodeContainer nc, @Nullable String text) {
 		renderLines(nc, text, null);
 	}
 
@@ -1465,7 +1467,7 @@ final public class DomUtil {
 	 * @param nc
 	 * @param text
 	 */
-	static public void renderLines(@Nonnull NodeContainer nc, @Nullable String text, @Nullable Function<String, String> lineFixer) {
+	static public void renderLines(@NonNull NodeContainer nc, @Nullable String text, @Nullable Function<String, String> lineFixer) {
 		if(text == null)
 			return;
 		text = text.trim();
@@ -1634,7 +1636,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nullable
-	static public Cookie findCookie(@Nonnull String name) {
+	static public Cookie findCookie(@NonNull String name) {
 		IRequestContext rci = UIContext.getRequestContext();
 		Cookie[] car = rci.getRequestResponse().getCookies();
 		if(car == null || car.length == 0)
@@ -1649,7 +1651,7 @@ final public class DomUtil {
 	}
 
 	@Nullable
-	static public String findCookieValue(@Nonnull String name) {
+	static public String findCookieValue(@NonNull String name) {
 		Cookie c = findCookie(name);
 		return c == null ? null : c.getValue();
 	}
@@ -1661,7 +1663,7 @@ final public class DomUtil {
 	 * @param value
 	 * @param maxage	Max age, in seconds.
 	 */
-	static public void setCookie(@Nonnull String name, String value, int maxage) {
+	static public void setCookie(@NonNull String name, String value, int maxage) {
 		IRequestContext rci = UIContext.getRequestContext();
 		Cookie k = new Cookie(name, value);
 		k.setMaxAge(maxage);
@@ -1692,7 +1694,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		Object before(@Nonnull NodeBase n) throws Exception;
+		Object before(@NonNull NodeBase n) throws Exception;
 
 		/**
 		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
@@ -1701,7 +1703,7 @@ final public class DomUtil {
 		 * @return
 		 * @throws Exception
 		 */
-		Object after(@Nonnull NodeBase n) throws Exception;
+		Object after(@NonNull NodeBase n) throws Exception;
 	}
 
 	/**
@@ -1879,8 +1881,8 @@ final public class DomUtil {
 	 * @param newWindowParameters
 	 * @return
 	 */
-	@Nonnull
-	static public String createOpenWindowJS(@Nonnull Class<?> targetClass, @Nullable IPageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
+	@NonNull
+	static public String createOpenWindowJS(@NonNull Class<?> targetClass, @Nullable IPageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
 		//-- We need a NEW window session. Create it,
 		RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
 		WindowSession cm = ctx.getSession().createWindowSession();
@@ -1898,11 +1900,11 @@ final public class DomUtil {
 		return createOpenWindowJS(sb.toString(), newWindowParameters);
 	}
 
-	@Nonnull
+	@NonNull
 	/**
 	 * create a postUrlJS command where all pageparameters are put in a json collection.
 	 */
-	static public String createPostURLJS(@Nonnull String url, @Nonnull IPageParameters pageParameters) {
+	static public String createPostURLJS(@NonNull String url, @NonNull IPageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("DomUI.postURL('");
 		sb.append(url);
@@ -1933,8 +1935,8 @@ final public class DomUtil {
 	 * @param useBlankTarget  When T, we do POST on _blank target, otherwise it navigates the same screen.
 	 * @return
 	 */
-	@Nonnull
-	static public String createPostWithArrayURLJS(@Nonnull String url, @Nonnull IPageParameters pageParameters, @Nonnull String arrayParamName, boolean useSingleQuotes, boolean useBlankTarget) {
+	@NonNull
+	static public String createPostWithArrayURLJS(@NonNull String url, @NonNull IPageParameters pageParameters, @NonNull String arrayParamName, boolean useSingleQuotes, boolean useBlankTarget) {
 		char quotes = useSingleQuotes ? '\'' : '"';
 		StringBuilder sb = new StringBuilder();
 		sb.append("DomUI.postURL(").append(quotes);
@@ -1969,8 +1971,8 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
-	@Nonnull
-	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters, boolean useSingleQuotes) {
+	@NonNull
+	static public String createOpenWindowJS(@NonNull String url, @Nullable WindowParameters newWindowParameters, boolean useSingleQuotes) {
 		char quotes = useSingleQuotes ? '\'' : '"';
 		//-- Send a special JAVASCRIPT open command, containing the stuff.
 		StringBuilder sb = new StringBuilder();
@@ -2020,8 +2022,8 @@ final public class DomUtil {
 		return sb.toString();
 	}
 
-	@Nonnull
-	static public String createOpenWindowJS(@Nonnull String url, @Nullable WindowParameters newWindowParameters) {
+	@NonNull
+	static public String createOpenWindowJS(@NonNull String url, @Nullable WindowParameters newWindowParameters) {
 		return createOpenWindowJS(url, newWindowParameters, true);
 	}
 
@@ -2068,7 +2070,7 @@ final public class DomUtil {
 	 * @param lookingFor
 	 * @return
 	 */
-	public static <V, T extends IIdentifyable<V>> boolean containsLongIdentifyable(@Nonnull Collection<T> set, @Nonnull T lookingFor) {
+	public static <V, T extends IIdentifyable<V>> boolean containsLongIdentifyable(@NonNull Collection<T> set, @NonNull T lookingFor) {
 		V id = lookingFor.getId();
 		if(null == id)
 			throw new IllegalStateException(lookingFor + ": id is null");
@@ -2087,7 +2089,7 @@ final public class DomUtil {
 	 * @param member
 	 * @return -1 if <I>member</I> object Long Id is not found in specified <I>list</I>, otherwise returns found index.
 	 */
-	public static <V, T extends IIdentifyable<V>> int indexOfLongIdentifyable(@Nonnull List<T> list, @Nonnull T lookingFor) {
+	public static <V, T extends IIdentifyable<V>> int indexOfLongIdentifyable(@NonNull List<T> list, @NonNull T lookingFor) {
 		if(list == null)                    // jal 20120424 Bad, should be removed.
 			return -1;
 
@@ -2109,8 +2111,8 @@ final public class DomUtil {
 	 * @param item
 	 * @return (not)appended mergeSource
 	 */
-	@Nonnull
-	public static <V, T extends IIdentifyable<V>> List<T> merge(@Nonnull List<T> mergeSource, @Nonnull T item) {
+	@NonNull
+	public static <V, T extends IIdentifyable<V>> List<T> merge(@NonNull List<T> mergeSource, @NonNull T item) {
 		if(!containsLongIdentifyable(mergeSource, item)) {
 			if(mergeSource == Collections.EMPTY_LIST) {
 				mergeSource = new ArrayList<T>();
@@ -2128,8 +2130,8 @@ final public class DomUtil {
 	 * @param toJoinItems
 	 * @return (not)appended mergeSource
 	 */
-	public static <V, T extends IIdentifyable<V>> List<T> merge(@Nonnull List<T> mergeSource, @Nonnull List<T> toJoinItems) {
-		for(@Nonnull T item : toJoinItems) {
+	public static <V, T extends IIdentifyable<V>> List<T> merge(@NonNull List<T> mergeSource, @NonNull List<T> toJoinItems) {
+		for(@NonNull T item : toJoinItems) {
 			mergeSource = merge(mergeSource, item);
 		}
 		return mergeSource;
@@ -2177,7 +2179,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@Nullable
-	public static Object getSessionAttribute(@Nonnull String attribute, boolean doReset) {
+	public static Object getSessionAttribute(@NonNull String attribute, boolean doReset) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		AppSession ses = ctx.getSession();
 		Object val = ses.getAttribute(attribute);
@@ -2194,7 +2196,7 @@ final public class DomUtil {
 	 * @param attribute
 	 * @param value
 	 */
-	public static void setSessionAttribute(@Nonnull String attribute, @Nullable Object value) {
+	public static void setSessionAttribute(@NonNull String attribute, @Nullable Object value) {
 		IRequestContext ctx = UIContext.getRequestContext();
 		AppSession ses = ctx.getSession();
 		ses.setAttribute(attribute, value);
@@ -2228,7 +2230,7 @@ final public class DomUtil {
 		return null;
 	}
 
-	@Nonnull
+	@NonNull
 	public static String getComponentDetails(NodeBase n) {
 		if(null == n)
 			return "null";
@@ -2241,8 +2243,8 @@ final public class DomUtil {
 		System.out.println("uns=" + uns);
 	}
 
-	public static @Nonnull
-	List<UIMessage> addSingleShotMessage(@Nonnull NodeBase node, @Nonnull UIMessage message) {
+	public static @NonNull
+	List<UIMessage> addSingleShotMessage(@NonNull NodeBase node, @NonNull UIMessage message) {
 		WindowSession ws = node.getPage().getConversation().getWindowSession();
 		List<UIMessage> msgl = null;
 		Object stored = ws.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
@@ -2262,13 +2264,13 @@ final public class DomUtil {
 	 * @param nc
 	 * @return
 	 */
-	public static String calcNodeText(@Nonnull NodeContainer nc) {
+	public static String calcNodeText(@NonNull NodeContainer nc) {
 		StringBuilder sb = new StringBuilder();
 		calcNodeText(sb, nc);
 		return sb.toString();
 	}
 
-	private static void calcNodeText(@Nonnull StringBuilder sb, @Nonnull NodeContainer nc) {
+	private static void calcNodeText(@NonNull StringBuilder sb, @NonNull NodeContainer nc) {
 		for(NodeBase nb : nc) {
 			if(nb instanceof TextNode) {
 				String text = ((TextNode) nb).getText();
@@ -2282,14 +2284,14 @@ final public class DomUtil {
 		}
 	}
 
-	public static void time(@Nonnull String what, @Nonnull IExecute exec) throws Exception {
+	public static void time(@NonNull String what, @NonNull IExecute exec) throws Exception {
 		long ts = System.nanoTime();
 		exec.execute();
 		ts = System.nanoTime() - ts;
 		System.out.println(what + " took " + StringTool.strNanoTime(ts));
 	}
 
-	private static boolean appendPartial(@Nonnull StringBuilder sb, @Nonnull String text) {
+	private static boolean appendPartial(@NonNull StringBuilder sb, @NonNull String text) {
 		int todo = 400 - sb.length();
 		if(todo >= text.length()) {
 			sb.append(text);
@@ -2338,7 +2340,7 @@ final public class DomUtil {
 	 * @return
 	 */
 	@SafeVarargs
-	public static <T, P> int compareNullableOnFunctions(@Nullable T o1, @Nullable T o2, @Nonnull BiFunction<P, P, Integer> compare, @Nonnull Function<T, P>... functions) {
+	public static <T, P> int compareNullableOnFunctions(@Nullable T o1, @Nullable T o2, @NonNull BiFunction<P, P, Integer> compare, @NonNull Function<T, P>... functions) {
 		if(o1 == null) {
 			return o2 == null ? 0 : 1;
 		} else if(o2 == null) {

@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -39,9 +41,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 /**
  * This is a special control which can be used to display all kinds of values as a span without any formatting. It is
  * a "span" containing some value that can be converted, translated and whatnot. It is meant for not too complex values
@@ -52,7 +51,7 @@ import javax.annotation.Nullable;
  * Created on Feb 15, 2010
  */
 public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvertable<T>, ITypedControl<T> {
-	@Nonnull
+	@NonNull
 	private Class<T> m_valueClass;
 
 	@Nullable
@@ -69,7 +68,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	@Nullable
 	private String m_emptyString;
 
-	public DisplaySpan(@Nonnull Class<T> valueClass) {
+	public DisplaySpan(@NonNull Class<T> valueClass) {
 		this(valueClass, null);
 	}
 
@@ -77,17 +76,17 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	 * @param valueClass
 	 * @param value
 	 */
-	public DisplaySpan(@Nonnull Class<T> valueClass, @Nullable T value) {
+	public DisplaySpan(@NonNull Class<T> valueClass, @Nullable T value) {
 		m_valueClass = valueClass;
 		m_value = value;
 	}
 
-	public DisplaySpan(@Nonnull T literal) {
+	public DisplaySpan(@NonNull T literal) {
 		m_valueClass = (Class<T>) literal.getClass();
 		m_value = literal;
 	}
 
-	@Nonnull @Override public Class<T> getActualType() {
+	@NonNull @Override public Class<T> getActualType() {
 		return m_valueClass;
 	}
 
@@ -239,7 +238,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		forceRebuild();
 	}
 
-	public void defineFrom(@Nonnull PropertyMetaModel< ? > pmm) {
+	public void defineFrom(@NonNull PropertyMetaModel< ? > pmm) {
 		String s = pmm.getDefaultHint();
 		if(s != null)
 			setTitle(s);

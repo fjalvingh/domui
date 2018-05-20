@@ -24,13 +24,13 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IValueChanged<T> {
-	@Nonnull IValueChanged<NodeBase> DUMMY = new IValueChanged<NodeBase>() {
+	@NonNull IValueChanged<NodeBase> DUMMY = new IValueChanged<NodeBase>() {
 		@Override
-		public void onValueChanged(@Nonnull NodeBase component) throws Exception {}
+		public void onValueChanged(@NonNull NodeBase component) throws Exception {}
 	};
 
-	void onValueChanged(@Nonnull T component) throws Exception;
+	void onValueChanged(@NonNull T component) throws Exception;
 }

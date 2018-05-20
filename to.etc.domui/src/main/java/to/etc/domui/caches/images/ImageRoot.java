@@ -24,10 +24,11 @@
  */
 package to.etc.domui.caches.images;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
-import javax.annotation.concurrent.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains the data for the ROOT (original) image. It also holds the list of permutations
@@ -38,7 +39,7 @@ import javax.annotation.concurrent.*;
  * Created on Oct 2, 2008
  */
 final class ImageRoot {
-	@Nonnull
+	@NonNull
 	private ImageCache m_cache;
 
 	/**
@@ -46,11 +47,11 @@ final class ImageRoot {
 	 * zero the cache may remove this ImageRoot instance. This gets lazily added to/removed from
 	 * in the "administration" (2nd locking) of cache changes, and during LRU removals.
 	 */
-	@GuardedBy("getCache()")
+	//@GuardedBy("getCache()")
 	int m_cacheUseCount;
 
 	/** The unique key for this image, which includes it's retriever. */
-	@Nonnull
+	@NonNull
 	private ImageKey m_imageKey;
 
 	//	private ImageInfo m_originalData;
@@ -62,30 +63,30 @@ final class ImageRoot {
 	//	private String				m_mimeType;
 	//	private Dimension			m_originalDimension;
 
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	private List<CachedImageData> m_dataList = new ArrayList<CachedImageData>();
 
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	private List<CachedImageInfo> m_infoList = new ArrayList<CachedImageInfo>();
 
-	ImageRoot(@Nonnull ImageCache ic, @Nonnull ImageKey key) {
+	ImageRoot(@NonNull ImageCache ic, @NonNull ImageKey key) {
 		if(ic == null || key == null)
 			throw new IllegalArgumentException("Args cannot be null");
 		m_cache = ic;
 		m_imageKey = key;
 	}
 
-	@Nonnull
+	@NonNull
 	public ImageKey getKey() {
 		return m_imageKey;
 	}
 
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	synchronized long getTSLastCheck() {
 		return m_tsLastCheck;
 	}
 
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	synchronized void setTSLastCheck(long ts) {
 		m_tsLastCheck = ts;
 	}
@@ -152,7 +153,7 @@ final class ImageRoot {
 	 * Get the cache that this is in.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	final ImageCache getCache() {
 		return m_cache;
 	}
@@ -194,7 +195,7 @@ final class ImageRoot {
 	 * currently in the list and returns the original list.
 	 * @return
 	 */
-	@GuardedBy("this")
+	//@GuardedBy("this")
 	synchronized void checkVersionLong(CacheChange cc, long currentversion) {
 		if(m_versionLong == currentversion)
 			return;

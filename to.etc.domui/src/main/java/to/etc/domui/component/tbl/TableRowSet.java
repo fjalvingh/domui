@@ -1,6 +1,7 @@
 package to.etc.domui.component.tbl;
 
-import javax.annotation.DefaultNonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -13,7 +14,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 7/29/16.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class TableRowSet<T> implements Iterable<DataTableRow<T>> {
 	final private DataTable<T> m_dataTable;
 

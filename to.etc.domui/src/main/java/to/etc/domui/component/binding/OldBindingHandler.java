@@ -1,5 +1,7 @@
 package to.etc.domui.component.binding;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.NodeBase;
@@ -7,8 +9,6 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IValueAccessor;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +28,7 @@ final public class OldBindingHandler {
 	 * @param root
 	 * @throws Exception
 	 */
-	static public void controlToModel(@Nonnull NodeBase root) throws Exception {
+	static public void controlToModel(@NonNull NodeBase root) throws Exception {
 		DomApplication.get().getBindingHandler(root).controlToModel();
 	}
 
@@ -37,7 +37,7 @@ final public class OldBindingHandler {
 	 * @param root
 	 * @throws Exception
 	 */
-	static public void modelToControl(@Nonnull NodeBase root) throws Exception {
+	static public void modelToControl(@NonNull NodeBase root) throws Exception {
 		DomApplication.get().getBindingHandler(root).modelToControl();
 	}
 
@@ -48,8 +48,8 @@ final public class OldBindingHandler {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	static public List<UIMessage> getBindingErrors(@Nonnull NodeBase root) throws Exception {
+	@NonNull
+	static public List<UIMessage> getBindingErrors(@NonNull NodeBase root) throws Exception {
 		final List<UIMessage> res = new ArrayList<>();
 		DomUtil.walkTreeUndelegated(root, new DomUtil.IPerNode() {
 			@Override
@@ -80,7 +80,7 @@ final public class OldBindingHandler {
 	 * @return true if errors are present
 	 * @throws Exception
 	 */
-	static public boolean reportBindingErrors(@Nonnull NodeBase root) throws Exception {
+	static public boolean reportBindingErrors(@NonNull NodeBase root) throws Exception {
 		final boolean[] silly = new boolean[1];					// Not having free variables is a joke.
 		DomUtil.walkTreeUndelegated(root, new DomUtil.IPerNode() {
 			@Override
@@ -131,12 +131,12 @@ final public class OldBindingHandler {
 	}
 
 	@Nullable
-	public static ComponentPropertyBinding findBinding(NodeBase nodeBase, String string) {
+	public static ComponentPropertyBindingBidi<?,?,?,?> findBinding(NodeBase nodeBase, String string) {
 		List<IBinding> list = nodeBase.getBindingList();
 		if(list != null) {
 			for(IBinding sb : list) {
-				if(sb instanceof ComponentPropertyBinding) {
-					ComponentPropertyBinding sib = (ComponentPropertyBinding) sb;
+				if(sb instanceof ComponentPropertyBindingBidi) {
+					ComponentPropertyBindingBidi<?, ?, ?, ?> sib = (ComponentPropertyBindingBidi<?, ?, ?, ?>) sb;
 					IValueAccessor<?> property = sib.getControlProperty();
 					if(property instanceof PropertyMetaModel) {
 						if(string.equals(((PropertyMetaModel<?>) property).getName()))

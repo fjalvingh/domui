@@ -24,7 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IClicked2<T extends NodeBase> extends IClickBase<T> {
 	/**
@@ -35,5 +35,5 @@ public interface IClicked2<T extends NodeBase> extends IClickBase<T> {
 	 * @param clinfo
 	 * @throws Exception
 	 */
-	void clicked(@Nonnull T node, @Nonnull ClickInfo clinfo) throws Exception;
+	void clicked(@NonNull T node, @NonNull ClickInfo clinfo) throws Exception;
 }

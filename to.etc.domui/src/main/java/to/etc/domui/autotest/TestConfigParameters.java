@@ -1,32 +1,32 @@
 package to.etc.domui.autotest;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.ConfigParameters;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
+import java.io.File;
+import java.util.Map;
 
 public class TestConfigParameters implements ConfigParameters {
-	@Nonnull
+	@NonNull
 	private final File m_webResources;
 
-	@Nonnull
+	@NonNull
 	private final Map<String, String> m_parameters;
 
-	public TestConfigParameters(@Nonnull File webResources, @Nonnull Map<String, String> parameters) {
+	public TestConfigParameters(@NonNull File webResources, @NonNull Map<String, String> parameters) {
 		m_webResources = webResources;
 		m_parameters = parameters;
 	}
 
 	@Override
 	@Nullable
-	public String getString(@Nonnull String name) {
+	public String getString(@NonNull String name) {
 		return m_parameters.get(name);
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public File getWebFileRoot() {
 		return m_webResources;
 	}

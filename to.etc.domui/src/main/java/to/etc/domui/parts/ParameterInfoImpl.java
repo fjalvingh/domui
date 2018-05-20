@@ -24,17 +24,24 @@
  */
 package to.etc.domui.parts;
 
-import to.etc.domui.server.*;
-import to.etc.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.IParameterInfo;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
  * This represents the parameters for simple web-like requests that would be sufficient to run most Parts.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class ParameterInfoImpl implements IParameterInfo {
 	final private Map<String, List<String>> m_parameterMap = new HashMap<>();
 
@@ -98,7 +105,7 @@ public class ParameterInfoImpl implements IParameterInfo {
 
 	@Nullable
 	@Override
-	public String getParameter(@Nonnull String name) {
+	public String getParameter(@NonNull String name) {
 		List<String> v = m_parameterMap.get(name);
 		if(v == null || v.size() != 1)
 			return null;
@@ -106,19 +113,19 @@ public class ParameterInfoImpl implements IParameterInfo {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
 	@Override
-	@Nonnull
-	public String[] getParameters(@Nonnull String name) {
+	@NonNull
+	public String[] getParameters(@NonNull String name) {
 		List<String> res = m_parameterMap.get(name);
 		return res == null ? new String[0] : res.toArray(new String[res.size()]);
 	}
 
-	@Nonnull @Override public String getInputPath() {
+	@NonNull @Override public String getInputPath() {
 		return m_rurl;
 	}
 

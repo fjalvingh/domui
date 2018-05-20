@@ -1,8 +1,11 @@
 package to.etc.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * EXPERIMENTAL Default implementation of a before-image collecting cache, used for {@link QDataContext#original()}.
@@ -12,17 +15,17 @@ import javax.annotation.*;
  */
 public class DefaultBeforeImageCache implements IBeforeImageCache {
 	/** All copies that are not yet initialized. */
-	@Nonnull
+	@NonNull
 	final private Set<Object> m_uninitializedSet = new HashSet<Object>();
 
-	@Nonnull
+	@NonNull
 	final private Map<Object, Object> m_copyMap = new HashMap<Object, Object>();
 
 	private boolean m_wasNew;
 
-	@Nonnull
+	@NonNull
 	@Override
-	public <T> T createImage(@Nonnull Class<T> realclass, @Nonnull T instance, boolean loaded) throws Exception {
+	public <T> T createImage(@NonNull Class<T> realclass, @NonNull T instance, boolean loaded) throws Exception {
 //		System.out.println("   >> createImage " + realclass.getName() + "@" + System.identityHashCode(instance));
 		T copy = (T) m_copyMap.get(instance);
 		if(null != copy) {
@@ -47,14 +50,14 @@ public class DefaultBeforeImageCache implements IBeforeImageCache {
 	}
 
 	@Override
-	public <T> T findBeforeImage(@Nonnull T source) {
+	public <T> T findBeforeImage(@NonNull T source) {
 		T res = (T) m_copyMap.get(source);
 //		System.out.println("     >> " + source + " maps to " + res);
 		return res;
 	}
 
 	@Override
-	public <T> T getBeforeImage(@Nonnull T instance) {
+	public <T> T getBeforeImage(@NonNull T instance) {
 		T copy = (T) m_copyMap.get(instance);
 		if(null == copy)
 			return null;
@@ -64,7 +67,7 @@ public class DefaultBeforeImageCache implements IBeforeImageCache {
 	}
 
 	@Override
-	public <T> boolean isLoaded(@Nonnull T beforeImage) {
+	public <T> boolean isLoaded(@NonNull T beforeImage) {
 		return !m_uninitializedSet.contains(beforeImage);
 	}
 }

@@ -1,14 +1,19 @@
 package to.etc.domui.injector;
 
-import to.etc.domui.annotations.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.util.ClassUtil;
+import to.etc.util.PropertyInfo;
+import to.etc.util.RuntimeConversions;
+import to.etc.webapp.ProgrammerErrorException;
 
-import javax.annotation.*;
-import java.lang.reflect.*;
-import java.math.*;
-import java.util.*;
+import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Accepts properties that are annotated with URLParameter, and that are simple
@@ -17,7 +22,7 @@ import java.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-2-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class SimplePropertyInjectorFactory implements IPagePropertyFactory {
 	final private Set<String> m_ucs = new HashSet<String>();
 
@@ -60,7 +65,7 @@ final public class SimplePropertyInjectorFactory implements IPagePropertyFactory
 		if(null == setter)
 			throw new ProgrammerErrorException(UIUrlParameter.class.getSimpleName() + " annotation cannot be used on a setterless property (is the setter private?)");
 
-		String name = upp.name() == Constants.NONE ? propertyInfo.getName() : upp.name();
+		String name = upp.name().isEmpty() ? propertyInfo.getName() : upp.name();
 		Class< ? > ent = upp.entity();
 		if(ent == Object.class) {
 			//-- Use getter's type.
@@ -74,7 +79,7 @@ final public class SimplePropertyInjectorFactory implements IPagePropertyFactory
 			return null;
 
 		//-- Can be entity or literal.
-		if(upp.name() == Constants.NONE ||					// If no name is set this is NEVER an entity,
+		if(upp.name().isEmpty() ||					// If no name is set this is NEVER an entity,
 			m_ucs.contains(ent.getName()) ||
 			RuntimeConversions.isSimpleType(propertyInfo.getActualType()) ||
 			RuntimeConversions.isEnumType(propertyInfo.getActualType())) {

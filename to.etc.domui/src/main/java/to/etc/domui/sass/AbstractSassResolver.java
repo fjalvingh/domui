@@ -1,5 +1,8 @@
 package to.etc.domui.sass;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.trouble.ThingyNotFoundException;
@@ -9,16 +12,24 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Common code to resolve a scss file reference in DomUI to an actual resource to load. It
+ * uses DomUI webapp resources to locate the file that is requested. In addition it also
+ * provides the virtual resource "_parameters.scss", which consists of variables that
+ * are initialized from the URL and parameters that are set as style parameters in
+ * the Application. This allows the Application limited control over variables inside
+ * the style sheet.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
 abstract public class AbstractSassResolver<O> {
+	static private final Logger LOG = LoggerFactory.getLogger(AbstractSassResolver.class);
+
 	private final ParameterInfoImpl m_params;
 
 	private final IResourceDependencyList m_dependencyList;
@@ -133,21 +144,6 @@ abstract public class AbstractSassResolver<O> {
 					}
 				}
 			}
-			//
-			//
-			//if(idPath.length() > 0) {            // If a path- try from root
-			//	//-- Try literal name
-			//	O res = tryRef(app, idPath + idName);
-			//	if(null != res)
-			//		return res;
-			//
-			//	//-- Try for a "partial"
-			//	String newName = idPath + "_" + idPath;
-			//	res = tryRef(app, newName);
-			//	if(null != res) {
-			//		return res;
-			//	}
-			//}
 
 			//-- Try to prefix the relative path from its parent
 			String newName = absPath + "/" + "_" + idName;		// Get new path relative to parent
@@ -162,11 +158,11 @@ abstract public class AbstractSassResolver<O> {
 			if(null != ref) {
 				return ref;
 			}
-			System.out.println(original + " - FAILED");
+			System.out.println("SCSS resolve for " + original + " - FAILED");
 			return null;                                // Not found
 		} finally {
 			ts = System.nanoTime() - ts;
-			System.out.println("$$ scss resolve path '" + original + " in " + StringTool.strNanoTime(ts)); // + "', parenturis=" + sourceUris);
+			LOG.info("scss resolve path '" + original + " in " + StringTool.strNanoTime(ts)); // + "', parenturis=" + sourceUris);
 			m_resolveTime += ts;
 		}
 	}
@@ -201,7 +197,7 @@ abstract public class AbstractSassResolver<O> {
 
 	abstract protected O createInput(String path, String data);
 
-	@Nonnull private O calculateParameterFile() {
+	@NonNull private O calculateParameterFile() {
 		O pf = m_parameterFile;
 		if(null == pf) {
 			try {
@@ -215,21 +211,41 @@ abstract public class AbstractSassResolver<O> {
 	}
 
 	public void close() {
-		System.out.println("$$ scss total resolve time " + StringTool.strNanoTime(m_resolveTime));
+		LOG.info("scss total resolve time " + StringTool.strNanoTime(m_resolveTime));
 	}
 
+	/**
+	 * Generate the contents of the _parameters.scss file by getting all URL parameters and rendering them as variables,
+	 * and do the same with any Application level scss variables.
+	 */
 	protected String generateParameterFile() {
 		StringBuilder sb = new StringBuilder();
 		for(String name : m_params.getParameterNames()) {
 			String[] values = m_params.getParameters(name);
 			if(null != values && values.length == 1) {
 				String value = values[0];
-				if(!StringTool.isNumber(value)) {
+				if(isString(value)) {
 					value = StringTool.strToJavascriptString(value, true);
 				}
 				sb.append("$").append(name).append(": ").append(value).append(";\n");
 			}
 		}
+
+		//-- Now do the same for application level things
+		DomApplication.get().getThemeProperties().forEach((name, value) -> {
+			if(isString(value)) {
+				value = StringTool.strToJavascriptString(value, true);
+			}
+			sb.append("$").append(name).append(": ").append(value).append(";\n");
+		});
 		return sb.toString();
+	}
+
+	static private boolean isString(String value) {
+		if(StringTool.isNumber(value))
+			return false;
+		if(value.startsWith("#"))
+			return false;
+		return !"true".equals(value) && !"false".equals(value);
 	}
 }

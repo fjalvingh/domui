@@ -1,6 +1,6 @@
 package to.etc.domui.component.input;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * When present on controls, this should help with determining the actual type
@@ -9,6 +9,6 @@ import javax.annotation.Nonnull;
  *         Created on 20-3-17.
  */
 public interface ITypedControl<T> {
-	@Nonnull
+	@NonNull
 	Class<T> getActualType();
 }

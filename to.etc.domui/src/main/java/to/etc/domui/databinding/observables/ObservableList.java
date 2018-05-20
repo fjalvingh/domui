@@ -1,12 +1,22 @@
 package to.etc.domui.databinding.observables;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.databinding.ListenerList;
+import to.etc.domui.databinding.list.ListChange;
+import to.etc.domui.databinding.list.ListChangeAdd;
+import to.etc.domui.databinding.list.ListChangeDelete;
+import to.etc.domui.databinding.list.ListChangeModify;
+import to.etc.domui.databinding.list2.IListChangeListener;
+import to.etc.domui.databinding.list2.ListChangeEvent;
 
-import javax.annotation.*;
-
-import to.etc.domui.databinding.*;
-import to.etc.domui.databinding.list.*;
-import to.etc.domui.databinding.list2.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 /**
  * A list that generates change events for it's content, and that does <b>not allow null elements</b>. This
@@ -31,7 +41,7 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 		m_list = new ArrayList<T>();
 	}
 
-	public ObservableList(@Nonnull Collection<T> list) {
+	public ObservableList(@NonNull Collection<T> list) {
 		m_list = new ArrayList<>(list);
 	}
 
@@ -78,7 +88,7 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 		return m_list.contains(o);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public Iterator<T> iterator() {
 		return m_list.iterator();
@@ -218,7 +228,7 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 		return m_list.hashCode();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public T get(int index) {
 		return m_list.get(index);
@@ -278,7 +288,7 @@ public class ObservableList<T> extends ListenerList<T, ListChangeEvent<T>, IList
 		return m_list.listIterator(index);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<T> subList(int fromIndex, int toIndex) {
 		return m_list.subList(fromIndex, toIndex);

@@ -24,9 +24,9 @@
  */
 package to.etc.webapp.nls;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import javax.annotation.concurrent.Immutable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -38,16 +38,16 @@ import java.util.Locale;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 31, 2010
  */
-@Immutable
+//@Immutable
 public class BundleStack extends BundleBase implements IBundle {
-	@Nonnull
+	@NonNull
 	final private NlsMessageProvider[] m_bundleStack;
 
-	public BundleStack(@Nonnull NlsMessageProvider[] bundleStack) {
+	public BundleStack(@NonNull NlsMessageProvider[] bundleStack) {
 		m_bundleStack = bundleStack;
 	}
 
-	public BundleStack(@Nonnull List< ? extends NlsMessageProvider> reflist) {
+	public BundleStack(@NonNull List< ? extends NlsMessageProvider> reflist) {
 		m_bundleStack = reflist.toArray(new NlsMessageProvider[reflist.size()]);
 	}
 
@@ -118,7 +118,7 @@ public class BundleStack extends BundleBase implements IBundle {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String findMessage(@Nonnull Locale loc, @Nonnull String code) {
+	public String findMessage(@NonNull Locale loc, @NonNull String code) {
 		for(int i = 0; i < m_bundleStack.length; i++) {
 			String msg = m_bundleStack[i].findMessage(loc, code);
 			if(null != msg)

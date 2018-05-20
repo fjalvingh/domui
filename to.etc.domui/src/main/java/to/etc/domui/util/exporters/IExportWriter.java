@@ -1,13 +1,14 @@
 package to.etc.domui.util.exporters;
 
-import javax.annotation.DefaultNonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public interface IExportWriter<R> extends AutoCloseable {
 	String getMimeType();
 

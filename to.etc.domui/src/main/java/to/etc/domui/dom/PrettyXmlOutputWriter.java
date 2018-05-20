@@ -24,11 +24,11 @@
  */
 package to.etc.domui.dom;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.util.IndentWriter;
 
-import javax.annotation.*;
-
-import to.etc.util.*;
+import java.io.IOException;
+import java.io.Writer;
 
 /**
  * Pretty-printing output renderer. Slower than the non-pretty variant, used for
@@ -40,7 +40,7 @@ import to.etc.util.*;
 public class PrettyXmlOutputWriter extends XmlOutputWriterBase implements IBrowserOutput {
 	private IndentWriter m_w;
 
-	public PrettyXmlOutputWriter(@Nonnull Writer out) {
+	public PrettyXmlOutputWriter(@NonNull Writer out) {
 		super(new IndentWriter(out));
 		m_w = (IndentWriter) getWriter();
 	}

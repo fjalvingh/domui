@@ -24,6 +24,7 @@
  */
 package to.etc.domui.themes.simple;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
@@ -35,7 +36,6 @@ import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencyList;
 
-import javax.annotation.Nonnull;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -71,7 +71,7 @@ public class SimpleThemeFactory {
 		}
 
 		@Override
-		public @Nonnull ITheme getTheme(@Nonnull DomApplication da, @Nonnull String themeName) throws Exception {
+		public @NonNull ITheme getTheme(@NonNull DomApplication da, @NonNull String themeName) throws Exception {
 			SimpleThemeFactory stf = new SimpleThemeFactory(da, themeName);
 			try {
 				return stf.createTheme();
@@ -82,7 +82,7 @@ public class SimpleThemeFactory {
 			}
 		}
 
-		@Nonnull @Override public String getDefaultThemeName() {
+		@NonNull @Override public String getDefaultThemeName() {
 			return getFactoryName() + "-blue-blue-blue";
 		}
 	};
@@ -183,7 +183,7 @@ public class SimpleThemeFactory {
 		}
 	}
 
-	static protected IResourceRef findRef(@Nonnull DomApplication da, @Nonnull String rurl, @Nonnull IResourceDependencyList rdl) throws Exception {
+	static protected IResourceRef findRef(@NonNull DomApplication da, @NonNull String rurl, @NonNull IResourceDependencyList rdl) throws Exception {
 		try {
 			IResourceRef ires = da.getResource(rurl, rdl); // Get the source file, abort if not found
 			return ires;

@@ -24,13 +24,18 @@
  */
 package to.etc.webapp.testsupport;
 
-import java.sql.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.webapp.core.IRunnable;
+import to.etc.webapp.query.ICriteriaTableDef;
+import to.etc.webapp.query.IQDataContextListener;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
+import to.etc.webapp.query.QSelection;
 
-import javax.annotation.*;
-
-import to.etc.webapp.core.*;
-import to.etc.webapp.query.*;
+import java.sql.Connection;
+import java.util.List;
 
 /**
  * Use this as stub for QDataContext, once you want to skip the real database but still need to provide QDataContext instance.
@@ -39,7 +44,7 @@ public class TestDataContextStub implements QDataContext {
 	private int m_alloc = 1;
 
 	@Override
-	public void attach(final @Nonnull Object o) throws Exception {}
+	public void attach(final @NonNull Object o) throws Exception {}
 
 	@Override
 	public void setIgnoreClose(boolean on) {}
@@ -50,25 +55,25 @@ public class TestDataContextStub implements QDataContext {
 	}
 
 	@Override
-	public void delete(final @Nonnull Object o) throws Exception {}
+	public void delete(final @NonNull Object o) throws Exception {}
 
 	@Override
-	public @Nonnull QDataContextFactory getFactory() {
+	public @NonNull QDataContextFactory getFactory() {
 		throw new IllegalStateException("Cannot use this");
 	}
 
 	@Override
-	public <T> T find(final @Nonnull Class<T> clz, final @Nonnull Object pk) throws Exception {
+	public <T> T find(final @NonNull Class<T> clz, final @NonNull Object pk) throws Exception {
 		return null;
 	}
 
 	@Override
-	public @Nonnull	<T> T get(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull	<T> T get(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		return clz.newInstance();
 	}
 
 	@Override
-	public @Nonnull <T> T getInstance(@Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull <T> T getInstance(@NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 
 
 
@@ -77,7 +82,7 @@ public class TestDataContextStub implements QDataContext {
 	}
 
 	@Override
-	public @Nonnull Connection getConnection() throws Exception {
+	public @NonNull Connection getConnection() throws Exception {
 		throw new IllegalStateException("Cannot use this");
 	}
 
@@ -87,57 +92,57 @@ public class TestDataContextStub implements QDataContext {
 	}
 
 	@Override
-	public @Nonnull <T> List<T> query(final @Nonnull QCriteria<T> q) throws Exception {
+	public @NonNull <T> List<T> query(final @NonNull QCriteria<T> q) throws Exception {
 		throw new IllegalStateException("Cannot use this");
 	}
 
 	@Override
-	public <T> T queryOne(final @Nonnull QCriteria<T> q) throws Exception {
+	public <T> T queryOne(final @NonNull QCriteria<T> q) throws Exception {
 		return null;
 	}
 
 	@Override
-	public @Nonnull List<Object[]> query(@Nonnull QSelection< ? > sel) throws Exception {
+	public @NonNull List<Object[]> query(@NonNull QSelection< ? > sel) throws Exception {
 		throw new IllegalStateException("Cannot use this");
 	}
 
 	@Override
-	public Object[] queryOne(@Nonnull QSelection< ? > sel) throws Exception {
+	public Object[] queryOne(@NonNull QSelection< ? > sel) throws Exception {
 		return null;
 	}
 
 	@Override
-	public void refresh(final @Nonnull Object o) throws Exception {}
+	public void refresh(final @NonNull Object o) throws Exception {}
 
 	@Override
 	public void rollback() throws Exception {}
 
 	@Override
-	public void save(final @Nonnull Object o) throws Exception {}
+	public void save(final @NonNull Object o) throws Exception {}
 
 	@Override
 	public void startTransaction() throws Exception {}
 
 
 	@Override
-	public <T> T find(@Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception {
+	public <T> T find(@NonNull ICriteriaTableDef<T> metatable, @NonNull Object pk) throws Exception {
 		return null;
 	}
 
 	@Override
-	public @Nonnull <T> T getInstance(@Nonnull ICriteriaTableDef<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull <T> T getInstance(@NonNull ICriteriaTableDef<T> clz, @NonNull Object pk) throws Exception {
 		throw new IllegalStateException("Cannot use this");
 	}
 
 	@Override
-	@Nonnull
-	public <R> List<R> query(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+	@NonNull
+	public <R> List<R> query(@NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
 		throw new IllegalStateException("Stubbed");
 	}
 
 	@Override
 	@Nullable
-	public <R> R queryOne(@Nonnull Class<R> resultInterface, @Nonnull QSelection< ? > sel) throws Exception {
+	public <R> R queryOne(@NonNull Class<R> resultInterface, @NonNull QSelection< ? > sel) throws Exception {
 		throw new IllegalStateException("Stubbed");
 	}
 
@@ -160,17 +165,17 @@ public class TestDataContextStub implements QDataContext {
 	}
 
 	@Override
-	public void addCommitAction(@Nonnull IRunnable cx) {}
+	public void addCommitAction(@NonNull IRunnable cx) {}
 
 	/**
 	 *
 	 * @see to.etc.webapp.query.QDataContext#addListener(to.etc.webapp.query.IQDataContextListener)
 	 */
 	@Override
-	public void addListener(@Nonnull IQDataContextListener qDataContextListener) {}
+	public void addListener(@NonNull IQDataContextListener qDataContextListener) {}
 
 	@Override
-	public <T> T original(@Nonnull T copy) {
+	public <T> T original(@NonNull T copy) {
 		throw new IllegalStateException("Not implemented");
 	}
 

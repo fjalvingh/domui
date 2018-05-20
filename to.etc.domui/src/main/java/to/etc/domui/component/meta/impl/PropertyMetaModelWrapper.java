@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.meta.impl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.controlfactory.PropertyControlFactory;
 import to.etc.domui.component.input.IQueryManipulator;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -40,8 +42,6 @@ import to.etc.domui.util.IComboDataSet;
 import to.etc.domui.util.ILabelStringRenderer;
 import to.etc.domui.util.IRenderInto;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Locale;
@@ -77,7 +77,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public @Nonnull Class<T> getActualType() {
+	public @NonNull Class<T> getActualType() {
 		return m_parent.getActualType();
 	}
 
@@ -87,7 +87,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	abstract public @Nonnull ClassMetaModel getClassModel();
+	abstract public @NonNull ClassMetaModel getClassModel();
 
 	@Override
 	public Class< ? extends IComboDataSet< ? >> getComboDataSet() {
@@ -95,7 +95,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getComboDisplayProperties() {
 		return m_parent.getComboDisplayProperties();
 	}
 
@@ -130,7 +130,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public @Nonnull String getDefaultLabel() {
+	public @NonNull String getDefaultLabel() {
 		return m_parent.getDefaultLabel();
 	}
 
@@ -160,7 +160,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
 		return m_parent.getLookupSelectedProperties();
 	}
 
@@ -170,12 +170,12 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public @Nonnull String getName() {
+	public @NonNull String getName() {
 		return m_parent.getName();
 	}
 
 	@Override
-	public @Nonnull NumericPresentation getNumericPresentation() {
+	public @NonNull NumericPresentation getNumericPresentation() {
 		return m_parent.getNumericPresentation();
 	}
 
@@ -185,7 +185,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public @Nonnull YesNoType getReadOnly() {
+	public @NonNull YesNoType getReadOnly() {
 		return m_parent.getReadOnly();
 	}
 
@@ -204,7 +204,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public @Nonnull PropertyRelationType getRelationType() {
+	public @NonNull PropertyRelationType getRelationType() {
 		return m_parent.getRelationType();
 	}
 
@@ -214,17 +214,17 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public @Nonnull SortableType getSortable() {
+	public @NonNull SortableType getSortable() {
 		return m_parent.getSortable();
 	}
 
 	@Override
-	public @Nonnull TemporalPresentationType getTemporal() {
+	public @NonNull TemporalPresentationType getTemporal() {
 		return m_parent.getTemporal();
 	}
 
 	@Override
-	public @Nonnull PropertyMetaValidator[] getValidators() {
+	public @NonNull PropertyMetaValidator[] getValidators() {
 		return m_parent.getValidators();
 	}
 
@@ -244,17 +244,17 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 	}
 
 	@Override
-	public @Nonnull List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
+	public @NonNull List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
 		return m_parent.getLookupFieldSearchProperties();
 	}
 
 	@Override
-	public @Nonnull List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
+	public @NonNull List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
 		return m_parent.getLookupFieldSearchProperties();
 	}
 
 	@Override
-	public @Nonnull List<DisplayPropertyMetaModel> getLookupTableProperties() {
+	public @NonNull List<DisplayPropertyMetaModel> getLookupTableProperties() {
 		return m_parent.getLookupTableProperties();
 	}
 
@@ -265,11 +265,11 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 
 	@Nullable
 	@Override
-	public <A> A getAnnotation(@Nonnull Class<A> annclass) {
+	public <A> A getAnnotation(@NonNull Class<A> annclass) {
 		return m_parent.getAnnotation(annclass);
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public List<Object> getAnnotations() {
 		return m_parent.getAnnotations();
@@ -280,7 +280,7 @@ abstract public class PropertyMetaModelWrapper<T> implements PropertyMetaModel<T
 		return m_parent.getColumnNames();
 	}
 
-	@Nonnull
+	@NonNull
 	@Override
 	public YesNoType getNowrap() {
 		return m_parent.getNowrap();

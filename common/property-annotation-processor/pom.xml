@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <!--<parent>-->
+        <!--<artifactId>domui-utilities</artifactId>-->
+        <!--<groupId>to.etc.domui</groupId>-->
+        <!--<version>1.2-SNAPSHOT</version>-->
+    <!--</parent>-->
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>to.etc.domui</groupId>
+    <artifactId>property-annotations-processor</artifactId>
+    <version>1.2-SNAPSHOT</version>
+
+    <name>domui :: common :: property annotations processor</name>
+    <description>Typeful Properties annotation processor</description>
+    <packaging>jar</packaging>
+
+    <properties>
+        <!-- JDK properties -->
+        <source.jdk.version>1.8</source.jdk.version>
+        <target.jdk.version>1.8</target.jdk.version>
+        <ecj.version>3.12.3</ecj.version>
+
+        <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
+
+    </properties>
+
+    <dependencies>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <compilerId>eclipse</compilerId>
+                    <source>${source.jdk.version}</source>
+                    <target>${target.jdk.version}</target>
+                    <!-- Passing arguments is a trainwreck, see https://issues.apache.org/jira/browse/MCOMPILER-123 -->
+                    <compilerArguments>
+                        <properties>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</properties>
+                    </compilerArguments>
+                    <!--<compilerArgs>-->
+                    <!--<arg>-properties .settings/org.eclipse.jdt.core.prefs</arg>-->
+                    <!--</compilerArgs>-->
+                    <showWarnings>true</showWarnings>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.plexus</groupId>
+                        <artifactId>plexus-compiler-eclipse</artifactId>
+                        <version>2.8</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>org.eclipse.jdt</groupId>
+                        <artifactId>ecj</artifactId>
+                        <version>${ecj.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>

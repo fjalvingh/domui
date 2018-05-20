@@ -1,21 +1,21 @@
 package to.etc.domui.component.searchpanel;
 
-import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.IExecute;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import to.etc.webapp.query.QField;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 14-12-17.
  */
 final public class SearchItemBuilder<T> {
-	@Nonnull
+	@NonNull
 	final private SearchPanel<T> m_form;
 
 	@Nullable
@@ -87,6 +87,11 @@ final public class SearchItemBuilder<T> {
 	}
 
 	public SearchItemBuilder<T> property(String property) {
+		m_property = m_form.getMetaModel().getProperty(property);
+		return this;
+	}
+
+	public <V> SearchItemBuilder<T> property(QField<T, V> property) {
 		m_property = m_form.getMetaModel().getProperty(property);
 		return this;
 	}

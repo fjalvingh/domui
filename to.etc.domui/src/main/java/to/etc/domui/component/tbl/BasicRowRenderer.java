@@ -24,9 +24,8 @@
  */
 package to.etc.domui.component.tbl;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.meta.ClassMetaModel;
 
 /**
  * Highly customizable RowRenderer. This has many ways to customize the row output, often using
@@ -67,12 +66,12 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 	 * @param dataClass
 	 * @param cols
 	 */
-	public BasicRowRenderer(@Nonnull final Class<T> dataClass, final Object... cols) throws Exception {
+	public BasicRowRenderer(@NonNull final Class<T> dataClass, final Object... cols) throws Exception {
 		super(dataClass);
 		initColumnSet(cols);
 	}
 
-	public BasicRowRenderer(@Nonnull final Class<T> dataClass, @Nonnull final ClassMetaModel cmm, final Object... cols) {
+	public BasicRowRenderer(@NonNull final Class<T> dataClass, @NonNull final ClassMetaModel cmm, final Object... cols) {
 		super(dataClass, cmm);
 		initColumnSet(cols);
 	}
@@ -106,7 +105,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 	 * @param cols
 	 * <X, C extends IConverter<X>, R extends INodeContentRenderer<X>>
 	 */
-	public <R> BasicRowRenderer<T> addColumns(@Nonnull final Object... cols) {
+	public <R> BasicRowRenderer<T> addColumns(@NonNull final Object... cols) {
 		getColumnList().addColumns(cols);					// Delegate to column list.
 		return this;
 	}
@@ -122,7 +121,7 @@ public class BasicRowRenderer<T> extends AbstractRowRenderer<T> implements IClic
 	 * Complete this object if it is not already complete.
 	 */
 	@Override
-	protected void complete(@Nonnull final TableModelTableBase<T> tbl) {
+	protected void complete(@NonNull final TableModelTableBase<T> tbl) {
 		if(isComplete())
 			return;
 

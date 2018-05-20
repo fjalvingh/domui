@@ -24,11 +24,12 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.Objects;
 
 /**
  * The HTML Button tag.
@@ -58,7 +59,7 @@ public class Button extends NodeContainer implements IActionControl, IForTarget 
 		v.visitButton(this);
 	}
 
-	@Nonnull @Override public Button css(@Nonnull String... classNames) {
+	@NonNull @Override public Button css(@NonNull String... classNames) {
 		super.css(classNames);
 		return this;
 	}
@@ -70,7 +71,7 @@ public class Button extends NodeContainer implements IActionControl, IForTarget 
 	 * @param cli
 	 * @throws Exception
 	 */
-	@Override public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
+	@Override public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		if(isDisabled()) {						// Disabled buttons should never click, even if browser lies about it
 			return;
 		}

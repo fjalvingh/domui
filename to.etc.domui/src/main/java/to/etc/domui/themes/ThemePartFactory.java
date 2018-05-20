@@ -24,6 +24,9 @@
  */
 package to.etc.domui.themes;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
@@ -36,9 +39,6 @@ import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.FileTool;
 import to.etc.webapp.core.ServerTools;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 
@@ -50,14 +50,14 @@ import java.io.PrintWriter;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 1, 2009
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 	/**
 	 * Accept all resources that have a ".theme." string as a suffix in their
 	 * last part, like style.theme.css
 	 */
 	static public final IUrlMatcher	MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@Nonnull IParameterInfo parameters) {
+		@Override public boolean accepts(@NonNull IParameterInfo parameters) {
 			String rurl = parameters.getInputPath();
 			int dot1 = rurl.lastIndexOf('.');
 			if(dot1 == -1)
@@ -137,7 +137,7 @@ final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 	}
 
 	@Override
-	public @Nonnull Key decodeKey(DomApplication application, @Nonnull IExtendedParameterInfo param) throws Exception {
+	public @NonNull Key decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
 		String iv = param.getParameter("iv");
 		int val = 0;
 		if(null != iv)
@@ -146,7 +146,7 @@ final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 	}
 
 	@Override
-	public void generate(@Nonnull PartResponse pr, @Nonnull DomApplication da, @Nonnull Key key, @Nonnull IResourceDependencyList rdl) throws Exception {
+	public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull Key key, @NonNull IResourceDependencyList rdl) throws Exception {
 		if(!da.inDevelopmentMode()) { 					// Not gotten from WebContent or not in DEBUG mode? Then we may cache!
 			pr.setCacheTime(da.getDefaultExpiryTime());
 		}

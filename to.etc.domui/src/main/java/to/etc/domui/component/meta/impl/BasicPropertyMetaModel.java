@@ -24,11 +24,14 @@
  */
 package to.etc.domui.component.meta.impl;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.controlfactory.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.controlfactory.PropertyControlFactory;
+import to.etc.domui.component.meta.NumericPresentation;
+import to.etc.domui.component.meta.PropertyMetaValidator;
+import to.etc.domui.component.meta.SortableType;
+import to.etc.domui.component.meta.TemporalPresentationType;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.converter.IConverter;
 
 public class BasicPropertyMetaModel<T> {
 	static public final String[] NO_NAMES = new String[0];
@@ -37,12 +40,12 @@ public class BasicPropertyMetaModel<T> {
 
 	private IConverter<T> m_converter;
 
-	@Nonnull
+	@NonNull
 	private SortableType m_sortable = SortableType.UNKNOWN;
 
 	private int m_displayLength = -1;
 
-	@Nonnull
+	@NonNull
 	private YesNoType m_nowrap = YesNoType.UNKNOWN;
 
 	private short m_precision = -1;
@@ -51,16 +54,16 @@ public class BasicPropertyMetaModel<T> {
 
 	private boolean m_required;
 
-	@Nonnull
+	@NonNull
 	private YesNoType m_readOnly = YesNoType.UNKNOWN;
 
-	@Nonnull
+	@NonNull
 	private TemporalPresentationType m_temporal = TemporalPresentationType.UNKNOWN;
 
-	@Nonnull
+	@NonNull
 	private NumericPresentation m_numericPresentation = NumericPresentation.UNKNOWN;
 
-	@Nonnull
+	@NonNull
 	private PropertyMetaValidator[] m_validators = NO_VALIDATORS;
 
 	private String m_regexpValidator;
@@ -72,7 +75,7 @@ public class BasicPropertyMetaModel<T> {
 
 	private PropertyControlFactory m_controlFactory;
 
-	@Nonnull
+	@NonNull
 	private String[] m_columnNames = NO_NAMES;
 
 	public IConverter<T> getConverter() {
@@ -83,12 +86,12 @@ public class BasicPropertyMetaModel<T> {
 		m_converter = converter;
 	}
 
-	@Nonnull
+	@NonNull
 	public SortableType getSortable() {
 		return m_sortable;
 	}
 
-	public void setSortable(@Nonnull SortableType sortable) {
+	public void setSortable(@NonNull SortableType sortable) {
 		m_sortable = sortable;
 	}
 
@@ -108,30 +111,30 @@ public class BasicPropertyMetaModel<T> {
 		m_required = required;
 	}
 
-	@Nonnull
+	@NonNull
 	public YesNoType getReadOnly() {
 		return m_readOnly;
 	}
 
-	public void setReadOnly(@Nonnull YesNoType readOnly) {
+	public void setReadOnly(@NonNull YesNoType readOnly) {
 		m_readOnly = readOnly;
 	}
 
-	@Nonnull
+	@NonNull
 	public TemporalPresentationType getTemporal() {
 		return m_temporal;
 	}
 
-	public void setTemporal(@Nonnull TemporalPresentationType temporal) {
+	public void setTemporal(@NonNull TemporalPresentationType temporal) {
 		m_temporal = temporal;
 	}
 
-	@Nonnull
+	@NonNull
 	public NumericPresentation getNumericPresentation() {
 		return m_numericPresentation;
 	}
 
-	public void setNumericPresentation(@Nonnull NumericPresentation numericPresentation) {
+	public void setNumericPresentation(@NonNull NumericPresentation numericPresentation) {
 		m_numericPresentation = numericPresentation;
 	}
 
@@ -155,12 +158,12 @@ public class BasicPropertyMetaModel<T> {
 		m_scale = (byte) scale;
 	}
 
-	@Nonnull
+	@NonNull
 	public PropertyMetaValidator[] getValidators() {
 		return m_validators;
 	}
 
-	public void setValidators(@Nonnull PropertyMetaValidator[] validators) {
+	public void setValidators(@NonNull PropertyMetaValidator[] validators) {
 		m_validators = validators;
 	}
 
@@ -196,23 +199,23 @@ public class BasicPropertyMetaModel<T> {
 		m_controlFactory = controlFactory;
 	}
 
-	@Nonnull
+	@NonNull
 	public String[] getColumnNames() {
 		return m_columnNames;
 	}
 
-	public void setColumnNames(@Nonnull String[] columnNames) {
+	public void setColumnNames(@NonNull String[] columnNames) {
 		if(null == columnNames)
 			throw new IllegalArgumentException("Cannot accept null");
 		m_columnNames = columnNames;
 	}
 
-	@Nonnull
+	@NonNull
 	public YesNoType getNowrap() {
 		return m_nowrap;
 	}
 
-	public void setNowrap(@Nonnull YesNoType nowrap) {
+	public void setNowrap(@NonNull YesNoType nowrap) {
 		m_nowrap = nowrap;
 	}
 }

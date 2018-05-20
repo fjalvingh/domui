@@ -1,6 +1,7 @@
 package to.etc.domui.util.exporters;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,12 +27,12 @@ public class ExportFormatRegistry {
 
 	static {
 		register(new AbstractExportFormat("xls", "Microsoft Office Excel (old)") {
-			@Override public IExportWriter<?> createWriter(@Nonnull File out) {
+			@Override public IExportWriter<?> createWriter(@NonNull File out) {
 				return new ExcelExportWriter<>(ExcelFormat.XLS, out);
 			}
 		});
 		register(new AbstractExportFormat("xlsx", "Microsoft Office Excel") {
-			@Override public IExportWriter<?> createWriter(@Nonnull File out) {
+			@Override public IExportWriter<?> createWriter(@NonNull File out) {
 				return new ExcelExportWriter<>(ExcelFormat.XLSX, out);
 			}
 		});

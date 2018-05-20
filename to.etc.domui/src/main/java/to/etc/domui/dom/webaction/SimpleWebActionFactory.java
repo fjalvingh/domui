@@ -1,12 +1,15 @@
 package to.etc.domui.dom.webaction;
 
-import java.lang.reflect.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.util.ClassUtil;
+import to.etc.util.WrappedException;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.util.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * This recognizes all "webAction"+actionName methods that accept IRequestContext as a parameter.
@@ -17,7 +20,7 @@ import to.etc.util.*;
 public class SimpleWebActionFactory implements WebActionRegistry.IFactory {
 	@Override
 	@Nullable
-	public IWebActionHandler createHandler(@Nonnull Class< ? extends NodeBase> nodeClass, @Nonnull String actionCode) {
+	public IWebActionHandler createHandler(@NonNull Class< ? extends NodeBase> nodeClass, @NonNull String actionCode) {
 		Method method = ClassUtil.findMethod(nodeClass, actionCode, RequestContextImpl.class);
 		if(null == method) {
 			method = ClassUtil.findMethod(nodeClass, actionCode, IRequestContext.class);
@@ -27,7 +30,7 @@ public class SimpleWebActionFactory implements WebActionRegistry.IFactory {
 		final Method theMethod = method;
 		return new IWebActionHandler() {
 			@Override
-			public void handleWebAction(@Nonnull NodeBase nodein, @Nonnull RequestContextImpl context, boolean responseExpected) throws Exception {
+			public void handleWebAction(@NonNull NodeBase nodein, @NonNull RequestContextImpl context, boolean responseExpected) throws Exception {
 				try {
 					Object response = theMethod.invoke(nodein, context);
 					if(responseExpected) {

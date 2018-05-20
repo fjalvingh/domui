@@ -1,6 +1,7 @@
 package to.etc.domui.util.exporters;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.io.File;
 
 /**
@@ -8,7 +9,7 @@ import java.io.File;
  * Created on 31-10-17.
  */
 public interface IExportFile {
-	@Nonnull File getOutputFile();
-	@Nonnull String getOutputName();
-	@Nonnull String getMimeType();
+	@NonNull File getOutputFile();
+	@NonNull String getOutputName();
+	@NonNull String getMimeType();
 }

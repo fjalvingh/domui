@@ -24,7 +24,7 @@
  */
 package to.etc.domui.dom.html;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Interface to listener for lookup typing event.
@@ -33,5 +33,5 @@ import javax.annotation.*;
  * Created on 29 Jan 2010
  */
 public interface ILookupTypingListener<T extends NodeBase> {
-	void onLookupTyping(@Nonnull T component, boolean done) throws Exception;
+	void onLookupTyping(@NonNull T component, boolean done) throws Exception;
 }

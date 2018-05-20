@@ -24,11 +24,14 @@
  */
 package to.etc.domui.util.bugs;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TextNode;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import java.util.Date;
+import java.util.List;
 
 /**
  * A single message reported through the bugs thing.
@@ -39,7 +42,7 @@ import to.etc.domui.dom.html.*;
 final public class BugItem {
 	final private Date m_timestamp = new Date();
 
-	@Nonnull
+	@NonNull
 	private String m_message;
 
 	@Nullable
@@ -57,7 +60,7 @@ final public class BugItem {
 	 * Create a bug item with a simple String message.
 	 * @param message
 	 */
-	public BugItem(@Nonnull String message) {
+	public BugItem(@NonNull String message) {
 		m_message = message;
 		m_exception = null;
 		initLocation();
@@ -81,7 +84,7 @@ final public class BugItem {
 	 * @param message
 	 * @param exception
 	 */
-	public BugItem(@Nonnull String message, @Nullable Throwable exception) {
+	public BugItem(@NonNull String message, @Nullable Throwable exception) {
 		m_message = message;
 		m_exception = exception;
 		initLocation();
@@ -129,7 +132,7 @@ final public class BugItem {
 	 * Return the timestamp the bug occured on.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public Date getTimestamp() {
 		return m_timestamp;
 	}
@@ -138,7 +141,7 @@ final public class BugItem {
 	 * Return the error as a string.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public String getMessage() {
 		return m_message;
 	}
@@ -157,7 +160,7 @@ final public class BugItem {
 	 * FIXME This should return StackTraceElements, not an exception.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public Exception getLocation() {
 		if(m_location != null)
 			return m_location;

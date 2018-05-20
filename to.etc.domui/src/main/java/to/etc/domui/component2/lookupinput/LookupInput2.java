@@ -24,13 +24,13 @@
  */
 package to.etc.domui.component2.lookupinput;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.tbl.ListQueryHandler;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 
 
@@ -58,33 +58,34 @@ import java.util.List;
  * Created on Jun 1, 2008
  */
 final public class LookupInput2<T> extends LookupInputBase2<T, T> {
-	public LookupInput2(@Nonnull Class<T> lookupClass, @Nullable ClassMetaModel metaModel) {
+	public LookupInput2(@NonNull Class<T> lookupClass, @Nullable ClassMetaModel metaModel) {
 		super(new SameTypeModelFactory<T>(), lookupClass, lookupClass, metaModel, metaModel);
 	}
 
-//	public LookupInput(@Nonnull Class<T> lookupClass, @Nonnull String... resultColumns) {
-//		super(lookupClass, lookupClass, resultColumns);
-//	}
-//
-	public LookupInput2(@Nonnull Class<T> lookupClass) {
+	public LookupInput2(@NonNull Class<T> lookupClass, @NonNull String... resultColumns) {
+		this(lookupClass);
+		setValueColumns(resultColumns);
+	}
+
+	public LookupInput2(@NonNull Class<T> lookupClass) {
 		super(new SameTypeModelFactory<T>(), lookupClass, lookupClass);
 	}
 
-	public LookupInput2(@Nonnull QCriteria<T> rootQuery) {
+	public LookupInput2(@NonNull QCriteria<T> rootQuery) {
 		super(new SameTypeModelFactory<T>(), rootQuery, DomUtil.nullChecked(rootQuery.getBaseClass()));
 	}
 
-	public LookupInput2(@Nonnull Class<T> dataClass, @Nonnull List<T> data) {
+	public LookupInput2(@NonNull Class<T> dataClass, @NonNull List<T> data) {
 		super(new SameTypeModelFactory<>(), dataClass, dataClass);
 		setQueryHandler(new ListQueryHandler<>(data));
 	}
 
-	@Nonnull
+	@NonNull
 	public Class<T> getLookupClass() {
 		return getQueryClass();
 	}
 
-	@Nonnull
+	@NonNull
 	public ClassMetaModel getMetaModel() {
 		return getQueryMetaModel();
 	}

@@ -24,9 +24,9 @@
  */
 package to.etc.domui.component2.lookupinput;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.webapp.query.QCriteria;
 
 /**
  * Allows manipulation of generic key word search query based on predefined searchString parameter.
@@ -41,5 +41,5 @@ public interface IStringQueryFactory<T> {
 	 * @param keyCondition
 	 * @return In case that query has to be canceled return null, otherwise return modified query.
 	 */
-	@Nullable QCriteria<T> createQuery(@Nonnull String searchString) throws Exception;
+	@Nullable QCriteria<T> createQuery(@NonNull String searchString) throws Exception;
 }

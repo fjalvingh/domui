@@ -24,22 +24,28 @@
  */
 package to.etc.domui.component.lookup;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.lookup.filter.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.input.DateInput2;
+import to.etc.domui.component.lookup.filter.DateFromTo;
+import to.etc.domui.component.meta.MetaUtils;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.TemporalPresentationType;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.Span;
+import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
+import to.etc.util.DateUtil;
+import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
 
 @Deprecated
 final class LookupFactoryDate implements ILookupControlFactory {
 
 	@Override
-	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(@Nonnull final SearchPropertyMetaModel spm, final X control) {
+	public <T, X extends IControl<T>> ILookupControlInstance<?> createControl(@NonNull final SearchPropertyMetaModel spm, final X control) {
 		if(spm == null)
 			throw new IllegalStateException("? SearchPropertyModel should not be null here.");
 
@@ -70,7 +76,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 		}
 		return new BaseAbstractLookupControlImpl<DateFromTo>(dateFrom, sp, dateTo) {
 			@Override
-			public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
+			public @NonNull AppendCriteriaResult appendCriteria(@NonNull QCriteria< ? > crit) throws Exception {
 				Date from, till;
 				try {
 					from = dateFrom.getValue();
@@ -144,7 +150,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 	}
 
 	@Override
-	public <T, X extends IControl<T>> int accepts(@Nonnull SearchPropertyMetaModel spm, X control) {
+	public <T, X extends IControl<T>> int accepts(@NonNull SearchPropertyMetaModel spm, X control) {
 		PropertyMetaModel< ? > pmm = spm.getProperty();
 		if(Date.class.isAssignableFrom(pmm.getActualType()) && control == null)
 			return 2;

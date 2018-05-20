@@ -1,12 +1,14 @@
 package to.etc.domui.log;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.form.*;
-import to.etc.domui.component.tbl.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.log.data.*;
-import to.etc.log.handler.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.tbl.TableModelTableBase;
+import to.etc.domui.component2.form4.FormBuilder;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.log.data.Filter;
+import to.etc.log.handler.LogFilterType;
 
 public class FilterRowEditor extends RowEditorBase<Filter> {
 
@@ -21,10 +23,10 @@ public class FilterRowEditor extends RowEditorBase<Filter> {
 	}
 
 	@Override
-	protected void addProperties(HorizontalFormBuilder builder) {
-		m_typeCtl = (IControl<LogFilterType>) builder.addProp(Filter.pTYPE);
-		m_keyCtl = (IControl<String>) builder.addProp(Filter.pKEY);
-		builder.addProp(Filter.pVALUE);
+	protected void addProperties(FormBuilder builder) throws Exception {
+		m_typeCtl = (IControl<LogFilterType>) builder.property(getInstance(), Filter.pTYPE).control();
+		m_keyCtl = (IControl<String>) builder.property(getInstance(), Filter.pKEY).control();
+		builder.property(getInstance(), Filter.pVALUE).control();
 	}
 
 	@Override
@@ -34,7 +36,7 @@ public class FilterRowEditor extends RowEditorBase<Filter> {
 		m_holder = new TextNode(m_keyCtl.getValueSafe());
 		m_typeCtl.setOnValueChanged(new IValueChanged<NodeBase>() {
 			@Override
-			public void onValueChanged(@Nonnull NodeBase component) throws Exception {
+			public void onValueChanged(@NonNull NodeBase component) throws Exception {
 				updateKeyByType(m_typeCtl, m_keyCtl, m_holder);
 			}
 		});

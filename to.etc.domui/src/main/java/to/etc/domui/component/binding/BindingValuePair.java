@@ -1,28 +1,28 @@
 package to.etc.domui.component.binding;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 12-3-17.
  */
-final public class BindingValuePair<CV, PV> {
-	@Nonnull
+final public class BindingValuePair<MV> {
+	@NonNull
 	private final IBinding m_binding;
 
 	@Nullable
-	private final CV m_controlValue;
+	private final MV m_controlModelValue;
 
-	public BindingValuePair(@Nonnull IBinding binding, @Nullable CV controlValue) {
+	public BindingValuePair(@NonNull IBinding binding, @Nullable MV controlModelValue) {
 		m_binding = binding;
-		m_controlValue = controlValue;
+		m_controlModelValue = controlModelValue;
 	}
 
 	/**
 	 * Move the "control" value to the "property".
 	 */
 	public void moveControlToModel() {
-		m_binding.setModelValue(m_controlValue);
+		m_binding.setModelValue(m_controlModelValue);
 	}
 }

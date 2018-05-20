@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component2.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.IQueryManipulator;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -34,9 +36,6 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.IRenderInto;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Accepts any UP (parent) relation and scores 3, preferring this above the combobox-based
@@ -68,7 +67,7 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 	 * Create the lookup thingy.
 	 */
 	@Override
-	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		//-- We'll do a lookup thingy for sure.
 		LookupInput2<T> li = new LookupInput2<T>(pmm.getActualType(), pmm.getValueModel());
 

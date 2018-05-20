@@ -1,11 +1,11 @@
 package to.etc.domui.util.resources;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.reloader.Reloader;
 import to.etc.util.FileTool;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -26,7 +26,7 @@ import java.util.zip.ZipInputStream;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-@DefaultNonNull final public class JarFileContainer implements IFileContainer {
+@NonNullByDefault final public class JarFileContainer implements IFileContainer {
 	private final File m_file;
 
 	private long m_tsModified;
@@ -110,8 +110,8 @@ import java.util.zip.ZipInputStream;
 	 * load all other resources in the same directory because it's likely they are
 	 * needed soon too.
 	 */
-	@Nonnull
-	byte[][] loadResource(@Nonnull String name) throws IOException {
+	@NonNull
+	byte[][] loadResource(@NonNull String name) throws IOException {
 		int pos = name.lastIndexOf('/');
 		if(pos == -1) {
 			//-- Root resource - just load that.

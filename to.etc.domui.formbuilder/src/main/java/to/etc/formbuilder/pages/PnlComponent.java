@@ -1,8 +1,8 @@
 package to.etc.formbuilder.pages;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Span;
 
 /**
  * A component on the component panel, for dragging into the ui.
@@ -11,10 +11,10 @@ import to.etc.domui.dom.html.*;
  * Created on Oct 8, 2013
  */
 public class PnlComponent extends Div {
-	@Nonnull
+	@NonNull
 	final private IFbComponent m_component;
 
-	public PnlComponent(@Nonnull IFbComponent comp) {
+	public PnlComponent(@NonNull IFbComponent comp) {
 		m_component = comp;
 	}
 

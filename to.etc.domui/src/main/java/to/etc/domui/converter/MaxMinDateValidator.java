@@ -24,15 +24,16 @@
  */
 package to.etc.domui.converter;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
+import to.etc.util.DateUtil;
+import to.etc.webapp.nls.NlsContext;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
+import java.util.Date;
 
 /**
  * Create a validator comparing minimum and maximum dates to this INCLUSIVE bound.
@@ -40,7 +41,7 @@ import to.etc.webapp.nls.*;
  * @author <a href="mailto:rob.gersteling@itris.nl">Rob Gersteling</a>
  * @since Oct 11, 2016
  */
-@DefaultNonNull
+@NonNullByDefault
 public final class MaxMinDateValidator implements IValueValidator<Date> {
 	@Nullable
 	private final Date m_minDate, m_maxDate;
@@ -60,7 +61,6 @@ public final class MaxMinDateValidator implements IValueValidator<Date> {
 	 *
 	 * @see to.etc.domui.converter.IValueValidator#validate(java.lang.Object)
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void validate(@Nullable Date input) throws Exception {
 		if(input == null)
@@ -75,7 +75,7 @@ public final class MaxMinDateValidator implements IValueValidator<Date> {
 		}
 	}
 
-	private void throwError(@Nonnull String code, @Nonnull Date val, @Nullable UIMessage msg) {
+	private void throwError(@NonNull String code, @NonNull Date val, @Nullable UIMessage msg) {
 		if(msg != null) {
 			throw new ValidationException(msg.getBundle(), msg.getCode(), msg.getParameters());
 		} else {
@@ -99,22 +99,22 @@ public final class MaxMinDateValidator implements IValueValidator<Date> {
 		@Nullable
 		private UIMessage m_minMsg, m_maxMsg;
 
-		public Builder minimumDate(@Nonnull Date minDate) {
+		public Builder minimumDate(@NonNull Date minDate) {
 			m_min = DateUtil.truncateDate(minDate);
 			return this;
 		}
 
-		public Builder maximumDate(@Nonnull Date maxDate) {
+		public Builder maximumDate(@NonNull Date maxDate) {
 			m_max = DateUtil.truncateDate(maxDate);
 			return this;
 		}
 
-		public Builder minimumMessage(@Nonnull UIMessage minMsg) {
+		public Builder minimumMessage(@NonNull UIMessage minMsg) {
 			m_minMsg = minMsg;
 			return this;
 		}
 
-		public Builder maximumMessage(@Nonnull UIMessage maxMsg) {
+		public Builder maximumMessage(@NonNull UIMessage maxMsg) {
 			m_maxMsg = maxMsg;
 			return this;
 		}
@@ -125,7 +125,7 @@ public final class MaxMinDateValidator implements IValueValidator<Date> {
 		 * @return
 		 * @throws Exception
 		 */
-		@Nonnull
+		@NonNull
 		public MaxMinDateValidator build() throws Exception {
 			if(null == m_max && null == m_min) {
 				throw new IllegalArgumentException("MaxDate or MinDate is mandatory");

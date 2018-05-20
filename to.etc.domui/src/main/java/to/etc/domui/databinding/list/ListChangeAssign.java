@@ -1,10 +1,10 @@
 package to.etc.domui.databinding.list;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.databinding.list2.IListChangeVisitor;
 
-import javax.annotation.*;
-
-import to.etc.domui.databinding.list2.*;
+import java.util.List;
 
 /**
  * Registration that a list property was assigned a new list, meaning that all of the content of the model has changed.
@@ -47,7 +47,7 @@ public class ListChangeAssign<E> extends ListChange<E> {
 	 * @see to.etc.domui.databinding.list.ListChange#visit(to.etc.domui.databinding.list2.IListChangeVisitor)
 	 */
 	@Override
-	public void visit(@Nonnull IListChangeVisitor<E> visitor) throws Exception {
+	public void visit(@NonNull IListChangeVisitor<E> visitor) throws Exception {
 		visitor.visitAssign(this);
 	}
 }

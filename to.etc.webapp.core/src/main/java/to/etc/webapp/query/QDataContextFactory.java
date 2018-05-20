@@ -24,7 +24,7 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 
 /**
@@ -41,20 +41,20 @@ public interface QDataContextFactory extends IQDataContextSource {
 	 * @throws Exception
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	QDataContext getDataContext() throws Exception;
 
 	/**
 	 * Returns all event listeners that need to be called for queries executed by contexts generated from here.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	QEventListenerSet		getEventListeners();
 
 	/**
 	 * Returns handlers for all query types.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	QQueryExecutorRegistry getQueryHandlerList();
 }

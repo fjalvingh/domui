@@ -24,7 +24,7 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Represents a subquery.
@@ -33,10 +33,10 @@ import javax.annotation.*;
  * Created on Apr 5, 2013
  */
 public class QSelectionSubquery extends QOperatorNode {
-	@Nonnull
+	@NonNull
 	final private QSelection< ? > m_subQuery;
 
-	public QSelectionSubquery(@Nonnull QSelection< ? > subquery) {
+	public QSelectionSubquery(@NonNull QSelection< ? > subquery) {
 		super(QOperation.SELECTION_SUBQUERY);
 		m_subQuery = subquery;
 	}
@@ -46,13 +46,13 @@ public class QSelectionSubquery extends QOperatorNode {
 		return new QSelectionSubquery(getSelectionQuery());						// FIXME this should actually duplicate the subquery!!!
 	}
 
-	@Nonnull
+	@NonNull
 	public QSelection< ? > getSelectionQuery() {
 		return m_subQuery;
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitSelectionSubquery(this);
 	}
 }

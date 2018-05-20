@@ -24,12 +24,14 @@
  */
 package to.etc.domui.component.layout;
 
-import to.etc.domui.dom.header.*;
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.header.HeaderContributor;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Page;
 
-import javax.annotation.*;
-import java.util.*;
-import java.util.stream.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Splitter control is just wrapper DIV around javascript baset splitter implementation based on
@@ -161,7 +163,7 @@ public class SplitterPanel extends Div {
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("$js/jquery.splitter.js"), 100);
 	}
 
-	@Nonnull
+	@NonNull
 	public String getMakeSplitterJavascriptCall() {
 		Map<String, String> params = new HashMap<String, String>();
 
@@ -186,12 +188,12 @@ public class SplitterPanel extends Div {
 		return "$('#" + getActualID() + "').splitter(" + paramStr + ");";
 	}
 
-	@Nonnull
+	@NonNull
 	public String resizeSplitterJavascriptCall() {
 		return "$('#" + getActualID() + "').trigger(\"resize\");";
 	}
 
-	private void addParamIfPositive(@Nonnull Map<String, String> params, int value, @Nonnull String name) {
+	private void addParamIfPositive(@NonNull Map<String, String> params, int value, @NonNull String name) {
 		if(value > 0) {
 			params.put(name, value + "");
 		}

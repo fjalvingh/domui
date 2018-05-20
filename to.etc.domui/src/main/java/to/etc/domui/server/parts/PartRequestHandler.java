@@ -24,16 +24,16 @@
  */
 package to.etc.domui.server.parts;
 
-import to.etc.domui.server.*;
-import to.etc.domui.trouble.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.server.IFilterRequestHandler;
+import to.etc.domui.server.RequestContextImpl;
 
-import javax.annotation.*;
-
-@DefaultNonNull
+@NonNullByDefault
 final public class PartRequestHandler implements IFilterRequestHandler {
 	final private PartService m_partService;
 
-	public PartRequestHandler(@Nonnull PartService partService) {
+	public PartRequestHandler(@NonNull PartService partService) {
 		m_partService = partService;
 	}
 
@@ -43,7 +43,7 @@ final public class PartRequestHandler implements IFilterRequestHandler {
 	 * @see to.etc.domui.server.IFilterRequestHandler#handleRequest(to.etc.domui.server.RequestContextImpl)
 	 */
 	@Override
-	public boolean handleRequest(@Nonnull final RequestContextImpl ctx) throws Exception {
+	public boolean handleRequest(@NonNull final RequestContextImpl ctx) throws Exception {
 		return m_partService.render(ctx);
 	}
 }

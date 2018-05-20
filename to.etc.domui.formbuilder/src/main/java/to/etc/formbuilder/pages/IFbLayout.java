@@ -1,11 +1,10 @@
 package to.etc.formbuilder.pages;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.NodeContainer;
 
 public interface IFbLayout extends IFbComponent {
 	@Override
-	@Nonnull NodeContainer createNodeInstance() throws Exception;
+	@NonNull NodeContainer createNodeInstance() throws Exception;
 
 }

@@ -24,16 +24,18 @@
  */
 package to.etc.domui.caches;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.parts.CachedImagePart;
+import to.etc.domui.server.IRequestContext;
+import to.etc.domui.state.UIContext;
+import to.etc.domui.util.images.IImageReference;
+import to.etc.domui.util.images.IImageRetriever;
+import to.etc.util.StringTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
-import to.etc.domui.util.images.*;
-import to.etc.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FileImageRetriever implements IImageRetriever {
 	static private final long MIN_LIVE_TIME = 5 * 60 * 1000;
@@ -107,12 +109,12 @@ public class FileImageRetriever implements IImageRetriever {
 	}
 
 	@Override
-	public @Nonnull String getRetrieverKey() {
+	public @NonNull String getRetrieverKey() {
 		return KEY;
 	}
 
 	@Override
-	public IImageReference loadImage(@Nonnull String key) throws Exception {
+	public IImageReference loadImage(@NonNull String key) throws Exception {
 		IRequestContext ctx = UIContext.getRequestContext();
 		Map<String, FileRef> map = (Map<String, FileRef>) ctx.getSession().getAttribute(KEY);
 		if(map == null)

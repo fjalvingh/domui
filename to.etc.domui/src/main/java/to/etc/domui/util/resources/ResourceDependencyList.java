@@ -24,9 +24,11 @@
  */
 package to.etc.domui.util.resources;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Used to build resource dependencies. Dependencies on resources can be
@@ -44,23 +46,23 @@ final public class ResourceDependencyList implements IResourceDependencyList {
 	 */
 	static public final IResourceDependencyList NULL = new IResourceDependencyList() {
 		@Override
-		public void add(@Nonnull IModifyableResource c) {}
+		public void add(@NonNull IModifyableResource c) {}
 
 		@Override
-		public void add(@Nonnull IIsModified m) {}
+		public void add(@NonNull IIsModified m) {}
 
 		@Override
-		public void add(@Nonnull IResourceRef ref) {}
+		public void add(@NonNull IResourceRef ref) {}
 	};
 
-	@Nonnull
+	@NonNull
 	private List<IIsModified> m_deplist = Collections.EMPTY_LIST;
 
 	/**
 	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.IResourceRef)
 	 */
 	@Override
-	public void add(@Nonnull IResourceRef ref) {
+	public void add(@NonNull IResourceRef ref) {
 		if(ref instanceof IIsModified)
 			add((IIsModified) ref);
 		else if(ref instanceof IModifyableResource)
@@ -73,7 +75,7 @@ final public class ResourceDependencyList implements IResourceDependencyList {
 	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.IIsModified)
 	 */
 	@Override
-	public void add(@Nonnull IIsModified m) {
+	public void add(@NonNull IIsModified m) {
 		if(m_deplist == Collections.EMPTY_LIST)
 			m_deplist = new ArrayList<IIsModified>(5);
 		else {
@@ -89,7 +91,7 @@ final public class ResourceDependencyList implements IResourceDependencyList {
 	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.IModifyableResource)
 	 */
 	@Override
-	public void add(@Nonnull IModifyableResource c) {
+	public void add(@NonNull IModifyableResource c) {
 		if(m_deplist == Collections.EMPTY_LIST)
 			m_deplist = new ArrayList<IIsModified>(5);
 		else {
@@ -107,7 +109,7 @@ final public class ResourceDependencyList implements IResourceDependencyList {
 	/**
 	 * @see to.etc.domui.util.resources.IResourceDependencyList#add(to.etc.domui.util.resources.ResourceDependencyList)
 	 */
-	public void add(@Nonnull ResourceDependencyList c) {
+	public void add(@NonNull ResourceDependencyList c) {
 		for(IIsModified mr : c.m_deplist)
 			add(mr);
 	}

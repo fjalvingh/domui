@@ -24,11 +24,11 @@
  */
 package to.etc.domui.util;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.domui.dom.html.NodeContainer;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -57,7 +57,7 @@ public class DisplayPropertyNodeContentRenderer implements IRenderInto<Object> {
 		m_flat = ExpandedDisplayProperty.flatten(m_list);
 	}
 
-	@Override public void render(@Nonnull NodeContainer node, @Nonnull Object object) throws Exception {
+	@Override public void render(@NonNull NodeContainer node, @NonNull Object object) throws Exception {
 		prepare();
 		StringBuilder sb = new StringBuilder();
 

@@ -24,9 +24,10 @@
  */
 package to.etc.domui.util.upload;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
+import java.io.File;
 
 /**
  * An item that was gotten through the multipart/form data code. This
@@ -125,7 +126,7 @@ final public class UploadItem {
 	 * The name of the input field.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public String getName() {
 		return m_fieldName;
 	}
@@ -185,7 +186,6 @@ final public class UploadItem {
 	/**
 	 * When the request finishes and no-one has gotten this parameter the file must be discarded.
 	 */
-	@edu.umd.cs.findbugs.annotations.SuppressWarnings(value = "RV_RETURN_VALUE_IGNORED_BAD_PRACTICE", justification = "FindBugs definition is wrong for mkdirs, and delete() may fail in code here")
 	void discard() {
 		if(m_backingFile == null)
 			return;

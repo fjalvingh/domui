@@ -1,5 +1,7 @@
 package to.etc.domui.util.importers;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.io.IOException;
 
 /**
@@ -7,7 +9,8 @@ import java.io.IOException;
  * Created on 31-10-17.
  */
 public interface IRowReader extends Iterable<IImportRow>, AutoCloseable {
-	IImportRow getHeaderRow();
+	@Nullable
+	IImportRow getHeaderRow() throws IOException;
 
 	int getSetCount();
 

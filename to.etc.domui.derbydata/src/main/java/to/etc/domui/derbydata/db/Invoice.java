@@ -21,7 +21,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "Invoice")
-@SequenceGenerator(name = "sq", sequenceName = "invoice_sq")
+@SequenceGenerator(name = "sq", sequenceName = "invoice_sq", allocationSize = 1)
 @MetaObject(defaultColumns = {								// 20180203 Must have metadata for SearchPanel/LookupForm tests.
 	@MetaDisplayProperty(name = "customer.lastName", displayLength = 20)
 	, @MetaDisplayProperty(name = "customer.firstName", displayLength = 10)
@@ -60,7 +60,7 @@ public class Invoice extends DbRecordBase<Long> {
 
 	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "invoice_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "invoice_sq", allocationSize = 1)
 	@Column(name = "InvoiceId", nullable = false, precision = 20)
 	public Long getId() {
 		return m_id;

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>app-root</artifactId>
+		<groupId>my.domui.app</groupId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<packaging>war</packaging>
+
+	<groupId>my.domui.app</groupId>
+	<artifactId>app-web</artifactId>
+	<version>1.0-SNAPSHOT</version>
+
+	<name>app | Webapp | WAR</name>
+	<description>Web Application (war)</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>my.domui.app</groupId>
+			<artifactId>app-core</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>my.domui.app</groupId>
+			<artifactId>app-ui</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>domui-app</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<configuration>
+					<webResources>
+						<resource>
+							<directory>src/main/webapp</directory>
+							<filtering>true</filtering>
+							<includes>
+								<include>index.html</include>
+							</includes>
+						</resource>
+					</webResources>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<configuration>
+					<scanIntervalSeconds>5</scanIntervalSeconds>
+					<stopPort>8089</stopPort>
+					<stopKey>bricked</stopKey>
+					<webApp>
+						<baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">
+							<!--<resourcesAsCSV>${basedir}/../../shared/web/src/main/webapp,${basedir}/src/main/webapp</resourcesAsCSV>-->
+							<resourcesAsCSV>${basedir}/src/main/webapp</resourcesAsCSV>
+						</baseResource>
+						<webInfIncludeJarPattern>^$</webInfIncludeJarPattern>
+						<containerIncludeJarPattern>^$</containerIncludeJarPattern>
+						<contextPath>/ui</contextPath>
+					</webApp>
+					<httpConnector>
+						<port>${jetty.http.port}</port>
+					</httpConnector>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

@@ -24,9 +24,8 @@
  */
 package to.etc.domui.util;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.DropMode;
 
 /**
  * Nodes that can accept dropped things must have this interface defined via setDropHandler(). The instance
@@ -42,7 +41,7 @@ public interface IDropHandler {
 	 * least one string; if not an exception occurs as soon as this gets used.
 	 * @return	a non-null minimal length=1 String array containing the types that are acceptable for this drop zone.
 	 */
-	@Nonnull String[] getAcceptableTypes();
+	@NonNull String[] getAcceptableTypes();
 
 	/**
 	 * This is an event function which gets called as soon as a Draggable is dropped on the dropTarget
@@ -52,11 +51,11 @@ public interface IDropHandler {
 	 * @param context
 	 * @throws Exception
 	 */
-	void onDropped(@Nonnull DropEvent context) throws Exception;
+	void onDropped(@NonNull DropEvent context) throws Exception;
 
 	/**
 	 * Returns drag&drop mode that is supported by drop handler.
 	 */
-	@Nonnull DropMode getDragMode();
+	@NonNull DropMode getDragMode();
 
 }

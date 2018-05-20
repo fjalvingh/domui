@@ -24,18 +24,23 @@
  */
 package to.etc.domui.legacy.component.tbl;
 
-import java.util.*;
-
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.tbl.ColumnContainer;
-import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.HeaderContainer;
 import to.etc.domui.component.tbl.IRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TR;
+import to.etc.domui.util.Msgs;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 20100323 jal DO NOT USE UNTIL FINISHED.
@@ -48,10 +53,10 @@ import to.etc.domui.util.*;
  */
 @Deprecated
 public class CheckBoxDataTable<T> extends DataTableOld<T> {
-	@Nonnull
+	@NonNull
 	private List<T> m_selectedRows = Collections.EMPTY_LIST;
 
-	@Nonnull
+	@NonNull
 	private List<T> m_disabledRows = Collections.EMPTY_LIST;
 
 	@Nullable
@@ -64,7 +69,7 @@ public class CheckBoxDataTable<T> extends DataTableOld<T> {
 
 	//	public CheckBoxDataTable() {}
 
-	public CheckBoxDataTable(@Nonnull ITableModel<T> m, @Nonnull IRowRenderer<T> r) {
+	public CheckBoxDataTable(@NonNull ITableModel<T> m, @NonNull IRowRenderer<T> r) {
 		super(m, r);
 	}
 
@@ -91,7 +96,7 @@ public class CheckBoxDataTable<T> extends DataTableOld<T> {
 	 * Set a new model for this table. This discards the entire presentation and causes a full build at render time.
 	 */
 	@Override
-	public void setModel(@Nonnull ITableModel<T> model) {
+	public void setModel(@NonNull ITableModel<T> model) {
 		clearSelection();
 		super.setModel(model);
 	}
@@ -222,7 +227,7 @@ public class CheckBoxDataTable<T> extends DataTableOld<T> {
 	 * @see to.etc.domui.component.tbl.DataTable#renderHeader(to.etc.domui.component.tbl.HeaderContainer)
 	 */
 	@Override
-	protected void renderHeader(@Nonnull HeaderContainer<T> hc) throws Exception {
+	protected void renderHeader(@NonNull HeaderContainer<T> hc) throws Exception {
 		hc.add(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
 		getRowRenderer().renderHeader(this, hc);
 	}
@@ -232,7 +237,7 @@ public class CheckBoxDataTable<T> extends DataTableOld<T> {
 	 * @see to.etc.domui.component.tbl.DataTable#renderRow(to.etc.domui.dom.html.TR, to.etc.domui.component.tbl.ColumnContainer, int, java.lang.Object)
 	 */
 	@Override
-	void internalRenderRow(@Nonnull TR tr, @Nonnull ColumnContainer<T> cc, int index, @Nonnull T value) throws Exception {
+	void internalRenderRow(@NonNull TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull T value) throws Exception {
 		TD selectionCell = new TD();
 
 		boolean isDisabled = getDisabledIndexOf(value) > -1;
@@ -241,7 +246,7 @@ public class CheckBoxDataTable<T> extends DataTableOld<T> {
 		if(!isDisabled) {
 			b.setClicked(new IClicked<Checkbox>() {
 				@Override
-				public void clicked(@Nonnull Checkbox ckb) throws Exception {
+				public void clicked(@NonNull Checkbox ckb) throws Exception {
 					//FIXME: must be done as double change of value to cause changed protected field to be set, otherwise is not rendered properly in HTML response.
 					// jal 20091105 Please explain??? The 2nd call is not doing anything right now.... I would understand if the 1st call was ckb.setChecked(ckb.isChecked())...
 					ckb.setChecked(!ckb.isChecked());
@@ -266,7 +271,7 @@ public class CheckBoxDataTable<T> extends DataTableOld<T> {
 				tr.addCssClass("ui-rowsel");
 				tr.setClicked(new IClicked<TR>() {
 					@Override
-					public void clicked(@Nonnull TR row) throws Exception {
+					public void clicked(@NonNull TR row) throws Exception {
 						Object userObject = row.getUserObject();
 						if(userObject instanceof Checkbox) {
 							Checkbox ckb = (Checkbox) userObject;

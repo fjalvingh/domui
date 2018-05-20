@@ -24,7 +24,7 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * Generic interface that defines a class as having a getId() method returning a primary key.

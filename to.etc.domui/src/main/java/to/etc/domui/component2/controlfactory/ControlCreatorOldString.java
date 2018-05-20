@@ -24,13 +24,12 @@
  */
 package to.etc.domui.component2.controlfactory;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.util.DomUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * This is a fallback factory; it accepts anything and shows a String edit component OR a
@@ -41,7 +40,6 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jul 2, 2009
  */
-@SuppressWarnings("unchecked")
 public class ControlCreatorOldString implements IControlCreator {
 	/**
 	 * Accept any type using a string.
@@ -57,7 +55,7 @@ public class ControlCreatorOldString implements IControlCreator {
 	}
 
 	@Override
-	public <T, C extends IControl<T>> C createControl(@Nonnull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
+	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
 		Class<T> type = pmm.getActualType();
 		Text<T> txt;
 		if(Number.class.isAssignableFrom(DomUtil.getBoxedForPrimitive(type))) {

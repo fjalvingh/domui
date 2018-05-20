@@ -24,11 +24,15 @@
  */
 package to.etc.webapp.qsql;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.webapp.query.ICriteriaTableDef;
+import to.etc.webapp.query.IQueryExecutor;
+import to.etc.webapp.query.IQueryExecutorFactory;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QSelection;
 
-import javax.annotation.*;
-
-import to.etc.webapp.query.*;
+import java.util.List;
 
 public class JdbcQueryExecutor implements IQueryExecutor<QDataContext>, IQueryExecutorFactory {
 	static public final JdbcQueryExecutor FACTORY = new JdbcQueryExecutor();
@@ -48,19 +52,19 @@ public class JdbcQueryExecutor implements IQueryExecutor<QDataContext>, IQueryEx
 	/*	CODING:	IQueryHandlerFactory impl.							*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public IQueryExecutor< ? > findContextHandler(@Nonnull QDataContext root, @Nonnull Class< ? > clz) {
+	public IQueryExecutor< ? > findContextHandler(@NonNull QDataContext root, @NonNull Class< ? > clz) {
 		if(clz != null && isJdbcQuery(clz))
 			return this;
 		return null;
 	}
 
 	@Override
-	public IQueryExecutor< ? > findContextHandler(@Nonnull QDataContext root, @Nonnull ICriteriaTableDef< ? > tableMeta) {
+	public IQueryExecutor< ? > findContextHandler(@NonNull QDataContext root, @NonNull ICriteriaTableDef< ? > tableMeta) {
 		return null;
 	}
 
 	@Override
-	public IQueryExecutor< ? > findContextHandler(@Nonnull QDataContext root, @Nonnull Object recordInstance) {
+	public IQueryExecutor< ? > findContextHandler(@NonNull QDataContext root, @NonNull Object recordInstance) {
 		if(recordInstance == null || !isJdbcQuery(recordInstance.getClass()))
 			return null;
 		return this;
@@ -74,52 +78,52 @@ public class JdbcQueryExecutor implements IQueryExecutor<QDataContext>, IQueryEx
 	 * @see to.etc.webapp.query.IQueryExecutor#find(to.etc.webapp.query.QDataContext, java.lang.Class, java.lang.Object)
 	 */
 	@Override
-	public <T> T find(@Nonnull QDataContext root, @Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public <T> T find(@NonNull QDataContext root, @NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		return JdbcQuery.find(root, clz, pk);
 	}
 
 	@Override
-	public @Nonnull <T> T getInstance(@Nonnull QDataContext root, @Nonnull Class<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull <T> T getInstance(@NonNull QDataContext root, @NonNull Class<T> clz, @NonNull Object pk) throws Exception {
 		return JdbcQuery.getInstance(root, clz, pk);
 	}
 
 	@Override
-	public <T> T find(@Nonnull QDataContext root, @Nonnull ICriteriaTableDef<T> metatable, @Nonnull Object pk) throws Exception {
+	public <T> T find(@NonNull QDataContext root, @NonNull ICriteriaTableDef<T> metatable, @NonNull Object pk) throws Exception {
 		throw new IllegalStateException("Inapplicable call for " + getClass().getName());
 	}
 
 	@Override
-	public @Nonnull <T> T getInstance(@Nonnull QDataContext root, @Nonnull ICriteriaTableDef<T> clz, @Nonnull Object pk) throws Exception {
+	public @NonNull <T> T getInstance(@NonNull QDataContext root, @NonNull ICriteriaTableDef<T> clz, @NonNull Object pk) throws Exception {
 		throw new IllegalStateException("Inapplicable call for " + getClass().getName());
 	}
 
 	@Override
-	public @Nonnull <T> List<T> query(@Nonnull QDataContext root, @Nonnull QCriteria<T> q) throws Exception {
+	public @NonNull <T> List<T> query(@NonNull QDataContext root, @NonNull QCriteria<T> q) throws Exception {
 		return JdbcQuery.query(root, q);
 	}
 
 	@Override
-	public @Nonnull List<Object[]> query(@Nonnull QDataContext root, @Nonnull QSelection< ? > sel) throws Exception {
+	public @NonNull List<Object[]> query(@NonNull QDataContext root, @NonNull QSelection< ? > sel) throws Exception {
 		return JdbcQuery.query(root, sel);
 	}
 
 	@Override
-	public void refresh(@Nonnull QDataContext root, @Nonnull Object o) throws Exception {
+	public void refresh(@NonNull QDataContext root, @NonNull Object o) throws Exception {
 	//-- Noop
 	}
 
 	@Override
-	public void save(@Nonnull QDataContext root, @Nonnull Object o) throws Exception {
+	public void save(@NonNull QDataContext root, @NonNull Object o) throws Exception {
 		throw new IllegalStateException("Save operation not implemented for QJdbc classes");
 	}
 
 	@Override
-	public void delete(@Nonnull QDataContext root, @Nonnull Object o) throws Exception {
+	public void delete(@NonNull QDataContext root, @NonNull Object o) throws Exception {
 		throw new IllegalStateException("delete operation not implemented for QJdbc classes");
 	}
 
 	@Override
-	public void attach(@Nonnull QDataContext root, @Nonnull Object o) throws Exception {
+	public void attach(@NonNull QDataContext root, @NonNull Object o) throws Exception {
 		throw new IllegalStateException("attach operation not implemented for QJdbc classes");
 	}
 }

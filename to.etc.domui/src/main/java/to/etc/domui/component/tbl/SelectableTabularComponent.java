@@ -1,10 +1,9 @@
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.util.DomUtil;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 abstract public class SelectableTabularComponent<T> extends TableModelTableBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T>, IActionControl {
 
@@ -13,7 +12,7 @@ abstract public class SelectableTabularComponent<T> extends TableModelTableBase<
 	abstract protected void createSelectionUI() throws Exception;
 
 
-	public SelectableTabularComponent(@Nonnull ITableModel<T> model) {
+	public SelectableTabularComponent(@NonNull ITableModel<T> model) {
 		super(model);
 	}
 

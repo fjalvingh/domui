@@ -24,13 +24,13 @@
  */
 package to.etc.domui.server.reloader;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import to.etc.domui.util.resources.ClasspathInventory;
 import to.etc.domui.util.resources.IModifyableResource;
 import to.etc.domui.util.resources.ResourceTimestamp;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -182,10 +182,10 @@ public class ReloadingClassLoader extends URLClassLoader {
 	/**
 	 * This adds watches for resources in the same directory as the onlywatch class. Those will not be loaded by this classloader.
 	 */
-	@Nonnull
+	@NonNull
 	private final Set<String> m_scannedPackages = new HashSet<String>();
 
-	private void scanForForResourceWatches(@Nonnull Class< ? > loadClass) throws Exception {
+	private void scanForForResourceWatches(@NonNull Class< ? > loadClass) throws Exception {
 		synchronized(m_scannedPackages) {
 			if(m_scannedPackages.contains(loadClass.getPackage().getName())) {
 				return;
@@ -206,14 +206,14 @@ public class ReloadingClassLoader extends URLClassLoader {
 		}
 	}
 
-	public void addResourceWatch(@Nonnull URL resource) {
+	public void addResourceWatch(@NonNull URL resource) {
 		if(resource != null && resource.getFile() != null) {
 			addResourceWatch(new File(resource.getFile()));
 		}
 
 	}
 
-	public void addResourceWatch(@Nonnull final File file) {
+	public void addResourceWatch(@NonNull final File file) {
 		if(file.getName().endsWith(".properties")) {
 			synchronized(m_reloader) {
 				m_dependList.add(new ResourceTimestamp(new IModifyableResource() {

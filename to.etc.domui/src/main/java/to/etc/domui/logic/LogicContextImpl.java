@@ -1,14 +1,22 @@
 package to.etc.domui.logic;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.dom.errors.*;
-import to.etc.domui.logic.errors.*;
-import to.etc.webapp.*;
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.logic.errors.ProblemModel;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.query.IIdentifyable;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.*;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This context class encapsulates instantiated business logic classes, and cache data used by those
@@ -20,39 +28,39 @@ import java.util.*;
  * Created on Oct 15, 2012
  */
 final public class LogicContextImpl implements ILogicContext {
-	@Nonnull
+	@NonNull
 	final private QDataContext m_dc;
 
 	/** If we're using a dependency injection framework this should be that framework's injector for logicontext classes. */
 	@Nullable
 	final ILogiInjector m_injector;
 
-	@Nonnull
+	@NonNull
 	final private Map<String, QDataContext> m_dataContextMap = new HashMap<>();
 
-	@Nonnull
+	@NonNull
 	final private Map<Class< ? >, Map<Object, ILogic>> m_instanceMap = new HashMap<>();
 
-	@Nonnull
+	@NonNull
 	final private Map<Class< ? >, Object> m_classMap = new HashMap<>();
 
-	@Nonnull
+	@NonNull
 	final private List<UIMessage> m_actionMessageList = new ArrayList<>();
 
-	@Nonnull
+	@NonNull
 	final private ProblemModel m_errorModel = new ProblemModel();
 
 	/**
 	 * Create and set the default data context to use.
 	 * @param dataContext
 	 */
-	public LogicContextImpl(@Nonnull QDataContext dataContext) {
+	public LogicContextImpl(@NonNull QDataContext dataContext) {
 		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
 		m_dc = dataContext;
 		m_injector = null;
 	}
 
-	public LogicContextImpl(@Nonnull QDataContext dataContext, @Nonnull ILogiInjector injector) {
+	public LogicContextImpl(@NonNull QDataContext dataContext, @NonNull ILogiInjector injector) {
 		m_dataContextMap.put(QContextManager.DEFAULT, dataContext);
 		m_dc = dataContext;
 		m_injector = injector;
@@ -63,7 +71,7 @@ final public class LogicContextImpl implements ILogicContext {
 	 * @return
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public QDataContext dc() {
 		return m_dc;
 	}
@@ -75,8 +83,8 @@ final public class LogicContextImpl implements ILogicContext {
 	 * @throws Exception
 	 */
 	@Override
-	@Nonnull
-	public <L> L get(@Nonnull Class<L> classClass) throws Exception {
+	@NonNull
+	public <L> L get(@NonNull Class<L> classClass) throws Exception {
 		ILogiInjector ij = m_injector;
 		if(null != ij) {
 			try {
@@ -110,8 +118,8 @@ final public class LogicContextImpl implements ILogicContext {
 	 * @throws Exception
 	 */
 	@Override
-	@Nonnull
-	public <L extends ILogic, K, T extends IIdentifyable<K>> L get(@Nonnull Class<L> clz, @Nonnull T instance) throws Exception {
+	@NonNull
+	public <L extends ILogic, K, T extends IIdentifyable<K>> L get(@NonNull Class<L> clz, @NonNull T instance) throws Exception {
 		if(null == instance)
 			throw new IllegalStateException("Called with a null instance");
 
@@ -162,7 +170,7 @@ final public class LogicContextImpl implements ILogicContext {
 	 * @throws Exception
 	 */
 	@Nullable
-	private <T extends ILogic> T createUsingConstructor(@Nonnull Class<T> clz, @Nonnull Object parameterObject) throws Exception {
+	private <T extends ILogic> T createUsingConstructor(@NonNull Class<T> clz, @NonNull Object parameterObject) throws Exception {
 		for(Constructor< ? > c : clz.getConstructors()) {
 			Class< ? >[] formalar = c.getParameterTypes();						// We only accept constructor(ILogicContext, T)
 			if(formalar.length != 2)
@@ -187,7 +195,7 @@ final public class LogicContextImpl implements ILogicContext {
 	}
 
 	@Nullable
-	private <T extends ILogic> T createUsingStaticFactory(@Nonnull Class<T> clz, @Nonnull Object parameterObject) throws Exception {
+	private <T extends ILogic> T createUsingStaticFactory(@NonNull Class<T> clz, @NonNull Object parameterObject) throws Exception {
 		for(Method method : clz.getMethods()) {
 			if(Modifier.isStatic(method.getModifiers()) && Modifier.isPublic(method.getModifiers())) {
 				if(method.getName().startsWith("create")) {
@@ -220,7 +228,7 @@ final public class LogicContextImpl implements ILogicContext {
 	}
 
 	@Override
-	public <L extends ILogic> L get(@Nonnull Class<L> clz, @Nonnull Object reference) throws Exception {
+	public <L extends ILogic> L get(@NonNull Class<L> clz, @NonNull Object reference) throws Exception {
 		//-- Already exists in this context?
 		Map<Object, ILogic> cmap = m_instanceMap.get(clz);
 		if(null == cmap) {
@@ -295,7 +303,7 @@ final public class LogicContextImpl implements ILogicContext {
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public ProblemModel getErrorModel() {
 		return m_errorModel;
 	}

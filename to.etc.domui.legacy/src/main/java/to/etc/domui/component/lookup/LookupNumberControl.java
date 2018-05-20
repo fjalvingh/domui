@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.converter.MiniScanner;
 import to.etc.domui.converter.MoneyUtil;
@@ -38,7 +39,6 @@ import to.etc.webapp.query.QOperation;
 import to.etc.webapp.query.QPropertyComparison;
 import to.etc.webapp.query.QUnaryProperty;
 
-import javax.annotation.Nonnull;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Set;
@@ -157,7 +157,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 	}
 
 	@Override
-	public @Nonnull AppendCriteriaResult appendCriteria(@Nonnull QCriteria< ? > crit) throws Exception {
+	public @NonNull AppendCriteriaResult appendCriteria(@NonNull QCriteria< ? > crit) throws Exception {
 		try {
 			m_input.clearMessage(); // Remove any earlier validation failure.
 
@@ -252,7 +252,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 		}
 	}
 
-	@Nonnull
+	@NonNull
 	private String scanNumeric(boolean allowpct) {
 		m_s.skipWs();
 		m_s.getStringResult(); // Clear old result

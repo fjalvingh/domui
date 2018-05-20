@@ -24,9 +24,10 @@
  */
 package to.etc.domui.component.controlfactory;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.NodeBase;
 
 /**
  * Represents the result of a call to createControl.
@@ -36,29 +37,29 @@ import to.etc.domui.dom.html.*;
  */
 public class ControlFactoryResult {
 	/** The list of nodes forming the control */
-	@Nonnull
+	@NonNull
 	private final NodeBase[] m_nodeList;
 
 	/** The node to be used as the target for a "label" */
 	private final NodeBase m_labelNode;
 
 	/** The FormControl handle for the created control */
-	@Nonnull
+	@NonNull
 	private IControl< ? > m_handle;
 
-	public <T extends NodeBase & IControl< ? >> ControlFactoryResult(@Nonnull final T fc) {
+	public <T extends NodeBase & IControl< ? >> ControlFactoryResult(@NonNull final T fc) {
 		m_labelNode = fc;
 		m_handle = fc;
 		m_nodeList = new NodeBase[]{fc};
 	}
 
-	public <T extends NodeBase & IControl< ? >> ControlFactoryResult(@Nonnull T fc, @Nullable final NodeBase labelNode) {
+	public <T extends NodeBase & IControl< ? >> ControlFactoryResult(@NonNull T fc, @Nullable final NodeBase labelNode) {
 		m_labelNode = labelNode;
 		m_handle = fc;
 		m_nodeList = new NodeBase[]{labelNode};
 	}
 
-	@Nonnull
+	@NonNull
 	public NodeBase[] getNodeList() {
 		return m_nodeList;
 	}
@@ -68,7 +69,7 @@ public class ControlFactoryResult {
 		return m_labelNode;
 	}
 
-	@Nonnull
+	@NonNull
 	public <T extends NodeBase & IControl< ? >> T getFormControl() {
 		return (T) m_handle;
 	}

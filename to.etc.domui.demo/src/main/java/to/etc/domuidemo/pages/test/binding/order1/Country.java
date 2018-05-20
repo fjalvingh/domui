@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.test.binding.order1;
 
-import javax.annotation.DefaultNonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +9,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  *         Created on 13-3-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public class Country {
 	final private String m_name;
 

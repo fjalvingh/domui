@@ -1,12 +1,12 @@
 package to.etc.domui.component.image;
 
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class Dimension {
-	@Nonnull
+	@NonNull
 	static public final Dimension ICON = new Dimension(16, 16);
 
-	@Nonnull
+	@NonNull
 	static public final Dimension BIGICON = new Dimension(32, 32);
 
 	private final int m_width;
@@ -18,7 +18,7 @@ public class Dimension {
 		m_height = height;
 	}
 
-	public Dimension(@Nonnull java.awt.Dimension oldd) {
+	public Dimension(@NonNull java.awt.Dimension oldd) {
 		m_width = oldd.width;
 		m_height = oldd.height;
 	}
@@ -31,7 +31,7 @@ public class Dimension {
 		return m_width;
 	}
 
-	public boolean contains(@Nonnull Dimension other) {
+	public boolean contains(@NonNull Dimension other) {
 		return other.getWidth() <= m_width && other.getHeight() <= m_height;
 	}
 

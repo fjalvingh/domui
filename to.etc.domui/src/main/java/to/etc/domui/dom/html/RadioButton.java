@@ -24,10 +24,11 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.util.DomUtil;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.Arrays;
 
 /**
  *
@@ -52,13 +53,13 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 		super("input");
 	}
 
-	public RadioButton(@Nonnull RadioGroup<T> g) {
+	public RadioButton(@NonNull RadioGroup<T> g) {
 		super("input");
 		m_radioGroup = g;
 		g.addButton(this);
 	}
 
-	public RadioButton(@Nonnull RadioGroup<T> g, T value) {
+	public RadioButton(@NonNull RadioGroup<T> g, T value) {
 		super("input");
 		m_radioGroup = g;
 		m_buttonValue = value;
@@ -79,7 +80,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 	 * All buttons must be in a group; all buttons in that group expose a single value.
 	 * @param g
 	 */
-	public void setGroup(@Nonnull RadioGroup<T> g) {
+	public void setGroup(@NonNull RadioGroup<T> g) {
 		if(m_radioGroup == g)
 			return;
 		if(m_radioGroup != null)
@@ -164,7 +165,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 	}
 
 	@Override
-	public boolean acceptRequestParameter(@Nonnull String[] values) {
+	public boolean acceptRequestParameter(@NonNull String[] values) {
 		if(isDisabled()) {
 			return false;
 		}
@@ -215,7 +216,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 		if(c2 != null) {
 			return new IClicked<RadioButton<T>>() {
 				@Override
-				public void clicked(@Nonnull RadioButton<T> clickednode) throws Exception {
+				public void clicked(@NonNull RadioButton<T> clickednode) throws Exception {
 					c2.clicked(getGroup());
 				}
 			};

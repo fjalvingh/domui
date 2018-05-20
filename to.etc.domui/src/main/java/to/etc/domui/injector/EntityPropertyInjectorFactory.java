@@ -1,15 +1,18 @@
 package to.etc.domui.injector;
 
-import to.etc.domui.annotations.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.*;
-import to.etc.webapp.qsql.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.util.ClassUtil;
+import to.etc.util.PropertyInfo;
+import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.qsql.QJdbcTable;
 
-import javax.annotation.*;
-import java.lang.annotation.*;
-import java.lang.reflect.*;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 /**
  * If a property has an UIUrlParameter annotation and it's type refers to some JPA/Hibernate/QJdbc entity
@@ -18,7 +21,7 @@ import java.lang.reflect.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-2-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class EntityPropertyInjectorFactory implements IPagePropertyFactory {
 	@Nullable @Override public PropertyInjector calculateInjector(PropertyInfo propertyInfo) {
 		Method getter = propertyInfo.getGetter();
@@ -36,7 +39,7 @@ final public class EntityPropertyInjectorFactory implements IPagePropertyFactory
 		if(null == setter)
 			throw new ProgrammerErrorException(UIUrlParameter.class.getSimpleName() + " annotation cannot be used on a setterless property (is the setter private?)");
 
-		String name = upp.name() == Constants.NONE ? propertyInfo.getName() : upp.name();
+		String name = upp.name().isEmpty() ? propertyInfo.getName() : upp.name();
 		Class< ? > ent = upp.entity();
 		if(ent == Object.class) {
 			//-- Use getter's type.

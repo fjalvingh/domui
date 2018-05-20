@@ -24,12 +24,13 @@
  */
 package to.etc.domui.component.upload;
 
-import javax.annotation.*;
-
-import to.etc.domui.parts.*;
-import to.etc.domui.server.*;
-import to.etc.domui.server.parts.*;
-import to.etc.domui.trouble.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.parts.ComponentPartRenderer;
+import to.etc.domui.server.ApplicationRequestHandler;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.server.parts.IUnbufferedPartFactory;
+import to.etc.domui.trouble.ThingyNotFoundException;
 
 /**
  * This thingy accepts file upload requests for a given control.
@@ -39,7 +40,7 @@ import to.etc.domui.trouble.*;
  */
 public class UploadPart implements IUnbufferedPartFactory {
 	@Override
-	public void generate(@Nonnull DomApplication app, @Nonnull String rurl, @Nonnull RequestContextImpl param) throws Exception {
+	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
 		try {
 			ComponentPartRenderer r = new ComponentPartRenderer();
 			r.initialize(app, param, rurl);

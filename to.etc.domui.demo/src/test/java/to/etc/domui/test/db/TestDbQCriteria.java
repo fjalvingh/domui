@@ -1,17 +1,27 @@
 package to.etc.domui.test.db;
 
-import java.math.*;
-import java.util.*;
-
-import org.junit.*;
-
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.derbydata.db.Customer;
 import to.etc.domui.derbydata.db.Employee;
 import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.derbydata.db.InvoiceLine;
-import to.etc.webapp.query.*;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QFld;
+import to.etc.webapp.query.QRestrictorImpl;
+import to.etc.webapp.query.QSelection;
+import to.etc.webapp.query.QSelectionSubquery;
+import to.etc.webapp.query.QSubQuery;
+
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 public class TestDbQCriteria {
 	/** The dc used for each test. Created and deleted by setup fixure */
@@ -113,7 +123,7 @@ public class TestDbQCriteria {
 	@Test
 	public void testOr1() throws Exception {
 		QCriteria<Customer> q = QCriteria.create(Customer.class);
-		QRestrictor<Customer> or = q.or();
+		QRestrictorImpl<Customer> or = q.or();
 		or.eq("country", "Germany");
 		or.eq("country", "France");
 		List<Customer> res = dc().query(q);
@@ -176,7 +186,7 @@ public class TestDbQCriteria {
 	@Test
 	public void testParentOr1() throws Exception {
 		QCriteria<Customer> q = QCriteria.create(Customer.class);
-		QRestrictor<Customer> or = q.or();
+		QRestrictorImpl<Customer> or = q.or();
 		or.eq("supportRepresentative.firstName", "Margaret");
 		or.eq("supportRepresentative.firstName", "Robert");
 		List<Customer> res = dc().query(q);
@@ -205,7 +215,7 @@ public class TestDbQCriteria {
 	@Test
 	public void testAliases2() throws Exception {
 		QCriteria<InvoiceLine> q = QCriteria.create(InvoiceLine.class);
-		QRestrictor<InvoiceLine> or = q.or();
+		QRestrictorImpl<InvoiceLine> or = q.or();
 		or.eq("invoice.billingCity", "Amsterdam");
 		or.eq("track.name", "So Fine");
 		List<InvoiceLine> res = dc().query(q);

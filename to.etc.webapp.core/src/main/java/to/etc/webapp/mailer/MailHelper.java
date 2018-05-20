@@ -1,15 +1,28 @@
 package to.etc.webapp.mailer;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.smtp.Address;
+import to.etc.smtp.IMailAttachment;
+import to.etc.smtp.Message;
+import to.etc.smtp.MimeWriter;
+import to.etc.smtp.SmtpTransport;
+import to.etc.util.ByteBufferInputStream;
+import to.etc.util.DeveloperOptions;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
+import to.etc.webapp.core.ServerTools;
+import to.etc.webapp.query.IIdentifyable;
+import to.etc.webapp.query.QDataContext;
 
-import javax.annotation.*;
-import javax.naming.*;
-
-import to.etc.smtp.*;
-import to.etc.util.*;
-import to.etc.webapp.core.*;
-import to.etc.webapp.query.*;
+import javax.naming.OperationNotSupportedException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 
 /**
  * This is a simple mail builder class to help with writing nice emails
@@ -45,10 +58,10 @@ public class MailHelper {
 	 * Created on May 7, 2012
 	 */
 	static private class Attachment implements IMailAttachment {
-		@Nonnull
+		@NonNull
 		final public String m_mime;
 
-		@Nonnull
+		@NonNull
 		final public String m_ident;
 
 		@Nullable
@@ -57,27 +70,27 @@ public class MailHelper {
 		@Nullable
 		final private byte[][] m_buffers;
 
-		public Attachment(@Nonnull String mime, @Nonnull String ident, @Nonnull File source) {
+		public Attachment(@NonNull String mime, @NonNull String ident, @NonNull File source) {
 			m_mime = mime;
 			m_ident = ident;
 			m_source = source;
 			m_buffers = null;
 		}
 
-		public Attachment(@Nonnull String mime, @Nonnull String ident, @Nonnull byte[][] data) {
+		public Attachment(@NonNull String mime, @NonNull String ident, @NonNull byte[][] data) {
 			m_mime = mime;
 			m_ident = ident;
 			m_buffers = data;
 			m_source = null;
 		}
 
-		@Nonnull
+		@NonNull
 		@Override
 		public String getIdent() {
 			return m_ident;
 		}
 
-		@Nonnull
+		@NonNull
 		@Override
 		public InputStream getInputStream() throws Exception {
 			if(m_source != null)
@@ -85,7 +98,7 @@ public class MailHelper {
 			return new ByteBufferInputStream(m_buffers);
 		}
 
-		@Nonnull
+		@NonNull
 		@Override
 		public String getMime() {
 			return m_mime;
@@ -93,10 +106,10 @@ public class MailHelper {
 	}
 
 	/** The attachments. */
-	@Nonnull
+	@NonNull
 	final private List<Attachment> m_attachmentList = new ArrayList<Attachment>();
 
-	@Nonnull
+	@NonNull
 	final private List<Address> m_to = new ArrayList<Address>();
 
 	private int m_attindex = 1;
@@ -135,19 +148,19 @@ public class MailHelper {
 		addTo(to);
 	}
 
-	@Nonnull
+	@NonNull
 	private ITextLinkRenderer getLinkRenderer() {
 		ITextLinkRenderer linkRenderer = m_linkRenderer;
 		if(null == linkRenderer) {
 			//-- Create a default link renderer.
 			linkRenderer = m_linkRenderer = new ITextLinkRenderer() {
 				@Override
-				public void appendText(@Nonnull String text) {
+				public void appendText(@NonNull String text) {
 					appendVerbatim(text);
 				}
 
 				@Override
-				public void appendLink(@Nonnull String rurl, @Nonnull String text) {
+				public void appendLink(@NonNull String rurl, @NonNull String text) {
 					String appurl = getApplicationURL();
 					if(null == appurl)
 						throw new IllegalStateException("To render LinkedText-like links you must set applicationURL or linkRenderer.");
@@ -166,7 +179,7 @@ public class MailHelper {
 
 	private static final int MAXLINE = 78;
 
-	private void htmlWrap(@Nonnull String seg) {
+	private void htmlWrap(@NonNull String seg) {
 		int len = seg.length();
 		if(m_htmlLen + len >= MAXLINE) {
 			internalNL();
@@ -265,8 +278,8 @@ public class MailHelper {
 	 * @param s
 	 * @return
 	 */
-	@Nonnull
-	public MailHelper append(@Nonnull String s) {
+	@NonNull
+	public MailHelper append(@NonNull String s) {
 		init();
 		ITextLinkRenderer r = getLinkRenderer();
 		LinkedText.decode(r, s);
@@ -277,15 +290,15 @@ public class MailHelper {
 	 * Append the text without scanning for any kind of embedded links.
 	 * @param s
 	 */
-	public void appendVerbatim(@Nonnull String s) {
+	public void appendVerbatim(@NonNull String s) {
 		init();
 		m_text_sb.append(s);
 		String html = StringTool.htmlStringize(s);
 		htmlText(html);
 	}
 
-	@Nonnull
-	public MailHelper ttl(@Nonnull String s) {
+	@NonNull
+	public MailHelper ttl(@NonNull String s) {
 		init();
 		htmlTag("h2");
 		append(s);
@@ -301,7 +314,7 @@ public class MailHelper {
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MailHelper i(String s) {
 		init();
 		htmlTag("i");
@@ -310,7 +323,7 @@ public class MailHelper {
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MailHelper b(String s) {
 		init();
 		htmlTag("b");
@@ -319,7 +332,7 @@ public class MailHelper {
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MailHelper nl() {
 		init();
 		m_text_sb.append("\r\n");
@@ -328,7 +341,7 @@ public class MailHelper {
 		return this;
 	}
 
-	@Nonnull
+	@NonNull
 	public MailHelper pre(String content) {
 		init();
 		htmlTag("pre");
@@ -347,8 +360,8 @@ public class MailHelper {
 	 * @param text			The link's text.
 	 * @return
 	 */
-	@Nonnull
-	public MailHelper link(@Nonnull String url, @Nonnull String text) {
+	@NonNull
+	public MailHelper link(@NonNull String url, @NonNull String text) {
 		init();
 		m_text_sb.append(text);
 		m_text_sb.append(" (");
@@ -367,8 +380,8 @@ public class MailHelper {
 	 * @param inst
 	 * @return
 	 */
-	@Nonnull
-	public MailHelper link(@Nonnull String text, @Nonnull IIdentifyable< ? > inst) {
+	@NonNull
+	public MailHelper link(@NonNull String text, @NonNull IIdentifyable< ? > inst) {
 		init();
 		TextLinkInfo info = TextLinkInfo.getInfo(inst);
 		if(info == null) {
@@ -385,7 +398,7 @@ public class MailHelper {
 	 * @param text
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public MailHelper linkNoText(String url, String text) {
 		init();
 		m_text_sb.append(url);
@@ -410,7 +423,7 @@ public class MailHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
+	@NonNull
 	public MailHelper image(String name, String mime, File source) throws Exception {
 		String imgkey = name + "-" + (m_attindex++);
 		image(new Attachment(mime, imgkey, source), name);
@@ -424,7 +437,7 @@ public class MailHelper {
 	 * @param resourceName
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public MailHelper image(String name, Class< ? > resourceClass, String resourceName) throws Exception {
 		String ext = FileTool.getFileExtension(resourceName);
 		String mime = ServerTools.getExtMimeType(ext);
@@ -454,8 +467,8 @@ public class MailHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public MailHelper image(@Nonnull String name, @Nonnull String mime, @Nonnull String rurl) throws Exception {
+	@NonNull
+	public MailHelper image(@NonNull String name, @NonNull String mime, @NonNull String rurl) throws Exception {
 		InputStream is;
 		if(m_root != null) {
 			is = new FileInputStream(new File(m_root, rurl));
@@ -483,8 +496,8 @@ public class MailHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public MailHelper image(@Nonnull String name, @Nonnull String rurl) throws Exception {
+	@NonNull
+	public MailHelper image(@NonNull String name, @NonNull String rurl) throws Exception {
 		String ext = FileTool.getFileExtension(rurl);
 		String mime = ServerTools.getExtMimeType(ext);
 		return image(name, mime, rurl);
@@ -497,8 +510,8 @@ public class MailHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	public String addImage(@Nonnull String name, @Nonnull String rurl) throws Exception {
+	@NonNull
+	public String addImage(@NonNull String name, @NonNull String rurl) throws Exception {
 		image(name, rurl);
 		String s = m_lastImgKey;
 		if(s == null)
@@ -513,7 +526,7 @@ public class MailHelper {
 	 * @return
 	 * @throws Exception
 	 */
-	public MailHelper image(@Nonnull Attachment a, @Nonnull String name) throws Exception {
+	public MailHelper image(@NonNull Attachment a, @NonNull String name) throws Exception {
 		init();
 		m_text_sb.append("(see attached image ");
 		m_text_sb.append(a.m_ident);
@@ -545,7 +558,7 @@ public class MailHelper {
 	 * @param transport
 	 * @throws Exception
 	 */
-	public void send(@Nonnull SmtpTransport transport) throws Exception {
+	public void send(@NonNull SmtpTransport transport) throws Exception {
 		sendInternal(transport);
 	}
 
@@ -555,7 +568,7 @@ public class MailHelper {
 	 * @param dc
 	 * @throws Exception
 	 */
-	public void send(@Nonnull QDataContext dc) throws Exception {
+	public void send(@NonNull QDataContext dc) throws Exception {
 		sendInternal(dc);
 	}
 
@@ -625,47 +638,47 @@ public class MailHelper {
 	/*--------------------------------------------------------------*/
 
 
-	@Nonnull
+	@NonNull
 	public StringBuilder getHtmlBuffer() {
 		init();
 		return m_html_sb;
 	}
 
-	@Nonnull
+	@NonNull
 	public StringBuilder getTextBuffer() {
 		init();
 		return m_text_sb;
 	}
 
-	@Nonnull
+	@NonNull
 	public List<Attachment> getAttachmentList() {
 		return Collections.unmodifiableList(m_attachmentList);
 	}
 
-	@Nonnull
+	@NonNull
 	public List<Address> getTo() {
 		return m_to;
 	}
 
-	public MailHelper addTo(@Nonnull Address a) {
+	public MailHelper addTo(@NonNull Address a) {
 		m_to.add(a);
 		return this;
 	}
 
-	@Nonnull
-	public MailHelper addTo(@Nonnull String email) {
+	@NonNull
+	public MailHelper addTo(@NonNull String email) {
 		m_to.add(new Address(email));
 		return this;
 	}
 
-	@Nonnull
-	public MailHelper setFrom(@Nonnull String from) {
+	@NonNull
+	public MailHelper setFrom(@NonNull String from) {
 		m_from = new Address(from, from);
 		return this;
 	}
 
-	@Nonnull
-	public MailHelper setFrom(@Nonnull Address from) {
+	@NonNull
+	public MailHelper setFrom(@NonNull Address from) {
 		m_from = from;
 		return this;
 	}
@@ -675,13 +688,13 @@ public class MailHelper {
 		return m_subject;
 	}
 
-	@Nonnull
-	public MailHelper setSubject(@Nonnull String subject) {
+	@NonNull
+	public MailHelper setSubject(@NonNull String subject) {
 		m_subject = subject;
 		return this;
 	}
 
-	public void setLinkRenderer(@Nonnull ITextLinkRenderer linkRenderer) {
+	public void setLinkRenderer(@NonNull ITextLinkRenderer linkRenderer) {
 		m_linkRenderer = linkRenderer;
 	}
 
@@ -689,7 +702,7 @@ public class MailHelper {
 	 * Set the root application URL. This URL should always end with "/".
 	 * @param applicationURL
 	 */
-	public void setApplicationURL(@Nonnull String applicationURL) {
+	public void setApplicationURL(@NonNull String applicationURL) {
 		if(!applicationURL.endsWith("/"))
 			applicationURL += "/";
 		m_applicationURL = applicationURL;
@@ -710,8 +723,8 @@ public class MailHelper {
 	 */
 	protected void addTrailer() throws Exception {}
 
-	@Nonnull
-	protected InputStream getApplicationResource(@Nonnull String name) throws Exception {
+	@NonNull
+	protected InputStream getApplicationResource(@NonNull String name) throws Exception {
 		throw new OperationNotSupportedException("Override getApplicationResource(String)");
 
 //		//-- Get the appfile represented by that RURL.

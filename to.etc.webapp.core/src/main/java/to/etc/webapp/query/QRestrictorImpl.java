@@ -24,14 +24,15 @@
  */
 package to.etc.webapp.query;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-class QRestrictorImpl<T> extends QRestrictor<T> {
+public class QRestrictorImpl<T> extends QRestrictor<T, QRestrictorImpl<T>> {
 	/** The OR or AND node we're constructing thingerydoos for. */
 	@Nullable
 	private QOperatorNode m_combinatorNode;
 
-	QRestrictorImpl(@Nonnull QRestrictor<T> parent, @Nonnull QMultiNode combinatorNode) {
+	QRestrictorImpl(@NonNull QRestrictor<T, ?> parent, @NonNull QMultiNode combinatorNode) {
 		super(parent, combinatorNode.getOperation());
 		m_combinatorNode = combinatorNode;
 	}

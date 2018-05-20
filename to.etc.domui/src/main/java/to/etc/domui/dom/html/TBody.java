@@ -24,9 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.util.IDropBody;
-
-import javax.annotation.Nonnull;
 
 public class TBody extends NodeContainer implements IDropBody {
 	//	private IDropHandler			m_dropHandler;
@@ -43,7 +42,7 @@ public class TBody extends NodeContainer implements IDropBody {
 	 * Return the table that contains this body.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public Table getTable() {
 		return getParent(Table.class);
 	}
@@ -53,7 +52,7 @@ public class TBody extends NodeContainer implements IDropBody {
 	 * @param ix
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public TR getRow(int ix) {
 		return (TR) getChild(ix);
 	}
@@ -70,21 +69,21 @@ public class TBody extends NodeContainer implements IDropBody {
 	 * Add a new row to the table.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public TR addRow() {
 		m_currentRow = new TR();
 		add(m_currentRow);
 		return m_currentRow;
 	}
 
-	@Nonnull
+	@NonNull
 	public TR addRow(String rowCss) {
 		m_currentRow = new TR(rowCss);
 		add(m_currentRow);
 		return m_currentRow;
 	}
 
-	@Nonnull
+	@NonNull
 	public TD addCell() {
 		m_currentCell = new TD();
 		if(m_currentRow == null)
@@ -93,40 +92,40 @@ public class TBody extends NodeContainer implements IDropBody {
 		return m_currentCell;
 	}
 
-	@Nonnull
+	@NonNull
 	public TD addCell(String css) {
 		addCell();
 		m_currentCell.setCssClass(css);
 		return m_currentCell;
 	}
 
-	@Nonnull
+	@NonNull
 	public TD addRowAndCell() {
 		addRow();
 		return addCell();
 	}
 
-	@Nonnull
-	public TD addRowAndCell(@Nonnull String cellCss) {
+	@NonNull
+	public TD addRowAndCell(@NonNull String cellCss) {
 		addRow();
 		return addCell(cellCss);
 	}
 
-	@Nonnull
+	@NonNull
 	public TD cell() {
 		if(null != m_currentCell)
 			return m_currentCell;
 		return addCell();
 	}
 
-	@Nonnull
+	@NonNull
 	public TR row() {
 		if(m_currentRow != null)
 			return m_currentRow;
 		return addRow();
 	}
 
-	@Nonnull
+	@NonNull
 	public TD nextRowCell() {
 		addRow();
 		return addCell();

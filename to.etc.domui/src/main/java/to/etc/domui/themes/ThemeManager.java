@@ -24,6 +24,8 @@
  */
 package to.etc.domui.themes;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
@@ -37,8 +39,6 @@ import to.etc.domui.util.resources.ResourceDependencies;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -107,8 +107,8 @@ final public class ThemeManager {
 	 * from the resource name which is the part between $THEME/ and the actual filename. This
 	 * code is fast once the theme is loaded after the 1st call.
 	 */
-	@Nonnull
-	public ITheme getTheme(@Nonnull String themeName, @Nonnull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
+	@NonNull
+	public ITheme getTheme(@NonNull String themeName, @NonNull IThemeVariant variant, @Nullable IResourceDependencyList rdl) {
 		IThemeFactory factory = DomApplication.getFactoryFromThemeName(themeName);
 		return getTheme(factory.appendThemeVariant(themeName, variant), rdl);
 	}
@@ -180,7 +180,7 @@ final public class ThemeManager {
 		m_themeNextReapTS = ts + OLD_THEME_TIME;
 	}
 
-	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, String rurl) throws Exception {
+	public String getThemeReplacedString(@NonNull IResourceDependencyList rdl, String rurl) throws Exception {
 		return getThemeReplacedString(rdl, rurl, null);
 	}
 
@@ -193,7 +193,7 @@ final public class ThemeManager {
 	 *
 	 * The result is returned as a string.
 	 */
-	public String getThemeReplacedString(@Nonnull IResourceDependencyList rdl, @Nonnull String resourceURL, @Nullable BrowserVersion bv) throws Exception {
+	public String getThemeReplacedString(@NonNull IResourceDependencyList rdl, @NonNull String resourceURL, @Nullable BrowserVersion bv) throws Exception {
 		long ts = System.nanoTime();
 		IResourceRef ires = m_application.getResource(resourceURL, rdl);			// Get the template source file
 		if(!ires.exists()) {
@@ -246,7 +246,7 @@ final public class ThemeManager {
 	 * for the theme are updated.
 	 */
 	@Deprecated
-	public IScriptScope getThemeMap(String themeName, @Nonnull IThemeVariant variant, IResourceDependencyList rdlin) throws Exception {
+	public IScriptScope getThemeMap(String themeName, @NonNull IThemeVariant variant, IResourceDependencyList rdlin) throws Exception {
 		ITheme ts = getTheme(themeName, variant, rdlin);
 		return ts.getPropertyScope();
 	}
@@ -260,8 +260,8 @@ final public class ThemeManager {
 	 * </pre>
 	 * where [name] is the rest of the path string after THEME/ has been removed from it.
 	 */
-	@Nonnull
-	public String getThemedResourceRURL(@Nonnull IRequestContext context, @Nonnull String path) {
+	@NonNull
+	public String getThemedResourceRURL(@NonNull IRequestContext context, @NonNull String path) {
 		try {
 			ITheme theme = context.getCurrentTheme();
 			return getThemedResourceRURL(theme, path);
@@ -279,8 +279,8 @@ final public class ThemeManager {
 	 * </pre>
 	 * where [name] is the rest of the path string after THEME/ has been removed from it.
 	 */
-	@Nonnull
-	public String getThemedResourceRURL(@Nonnull ITheme theme, @Nonnull String path) {
+	@NonNull
+	public String getThemedResourceRURL(@NonNull ITheme theme, @NonNull String path) {
 		if(path.startsWith("THEME/")) {
 			path = path.substring(6); 							// Strip THEME/
 		} else if(path.startsWith("ICON/")) {

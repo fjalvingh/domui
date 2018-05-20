@@ -24,15 +24,14 @@
  */
 package to.etc.domui.component.tbl;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TH;
 import to.etc.domui.dom.html.THead;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.TextNode;
-
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Temp thingy to create the header for a table.
@@ -41,7 +40,7 @@ import javax.annotation.Nullable;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 2, 2008
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class HeaderContainer<T> {
 	@Nullable
 	private final String m_headerRowCSS;
@@ -65,7 +64,7 @@ final public class HeaderContainer<T> {
 		return m_table;
 	}
 
-	public void addHeader(boolean after, @Nonnull TableHeader header) {
+	public void addHeader(boolean after, @NonNull TableHeader header) {
 		if(after) {
 			row();							// Make sure the label row is there.
 			m_head.add(header);

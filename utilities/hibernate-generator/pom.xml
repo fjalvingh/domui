@@ -13,6 +13,9 @@
     <artifactId>domui-hibernate-generator</artifactId>
     <version>1.2-SNAPSHOT</version>
 
+    <name>domui :: utilities :: hibernate-generator</name>
+    <description>Hibernate POJO generator</description>
+
     <packaging>jar</packaging>
 
     <dependencies>

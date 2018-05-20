@@ -24,7 +24,10 @@
  */
 package to.etc.domui.component.buttons;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IActionControl;
@@ -33,8 +36,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.parts.GrayscalerPart;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
@@ -65,37 +66,40 @@ public class LinkButton extends ATag implements IActionControl {
 		setCssClass("ui-lnkb");
 	}
 
-	public LinkButton(@Nonnull final String txt, @Nonnull final String image, @Nonnull final IClicked< ? extends NodeBase> clk) {
+	public LinkButton(@NonNull final String txt, @NonNull final String image, @NonNull final IClicked< ? extends NodeBase> clk) {
 		setCssClass("ui-lnkb ui-lbtn");
 		setClicked(clk);
 		m_text = txt;
 		setImage(image);
 	}
 
-	public LinkButton(@Nonnull final String txt, @Nonnull final String image) {
-		setCssClass("ui-lnkb ui-lbtn");
+	public LinkButton(@NonNull final String txt, @NonNull final String image) {
+		if(DomUtil.isIconName(image))
+			setCssClass("ui-lnkb ui-lbtn");
+		else
+			setCssClass("ui-lnkb");
 		m_text = txt;
 		setImage(image);
 	}
 
-	public LinkButton(@Nonnull final String txt) {
+	public LinkButton(@NonNull final String txt) {
 		setCssClass("ui-lnkb");
 		m_text = txt;
 	}
 
-	public LinkButton(@Nonnull final String txt, @Nonnull final IClicked< ? extends NodeBase> clk) {
+	public LinkButton(@NonNull final String txt, @NonNull final IClicked< ? extends NodeBase> clk) {
 		setCssClass("ui-lnkb");
 		setClicked(clk);
 		m_text = txt;
 	}
 
-	public LinkButton(@Nonnull IUIAction<Void> action) throws Exception {
+	public LinkButton(@NonNull IUIAction<Void> action) throws Exception {
 		this();
 		m_action = action;
 		actionRefresh();
 	}
 
-	public LinkButton(@Nonnull IUIAction<Void> action, @Nullable Object actionInstance) throws Exception {
+	public LinkButton(@NonNull IUIAction<Void> action, @Nullable Object actionInstance) throws Exception {
 		this();
 		m_action = action;
 		m_actionInstance = actionInstance;
@@ -104,8 +108,31 @@ public class LinkButton extends ATag implements IActionControl {
 
 	@Override
 	public void createContent() throws Exception {
-		updateStyle();
-		setText(m_text);
+		String imageUrl = m_imageUrl;
+		if(imageUrl == null) {
+			setBackgroundImage(null);
+			addCssClass("ui-lnkb");
+			removeCssClass("ui-lbtn");
+			add(m_text);
+		} else if(DomUtil.isIconName(imageUrl)) {
+			//-- Do we have an image already?
+			setBackgroundImage(null);
+			setCssClass("ui-lnkb");
+			removeCssClass("ui-lbtn");
+			add(new FaIcon(imageUrl).css("ui-lnkb-icon"));
+			add(m_text);
+		} else {
+			String image = getThemedResourceRURL(imageUrl);
+			if(isDisabled())
+				image = GrayscalerPart.getURL(image);
+			setBackgroundImage(image);
+			addCssClass("ui-lnkb ui-lbtn");
+			add(m_text);
+		}
+		if(isDisabled())
+			addCssClass("ui-lnkb-dis");
+		else
+			removeCssClass("ui-lnkb-dis");
 	}
 
 	/**
@@ -125,12 +152,7 @@ public class LinkButton extends ATag implements IActionControl {
 		}
 		setText(action.getName(getActionInstance()));
 		setImage(action.getIcon(getActionInstance()));
-		setClicked(new IClicked<LinkButton>() {
-			@Override
-			public void clicked(@Nonnull LinkButton clickednode) throws Exception {
-				action.execute(LinkButton.this, getActionInstance());
-			}
-		});
+		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this, getActionInstance()));
 	}
 
 	public void setImage(@Nullable final String url) {
@@ -144,32 +166,14 @@ public class LinkButton extends ATag implements IActionControl {
 		return m_imageUrl;
 	}
 
-	private void updateStyle() {
-		String imageUrl = m_imageUrl;
-		if(imageUrl == null) {
-			setBackgroundImage(null);
-			setCssClass("ui-lnkb");
-		} else {
-			String image = getThemedResourceRURL(imageUrl);
-			if(isDisabled())
-				image = GrayscalerPart.getURL(image);
-			setBackgroundImage(image);
-			setCssClass("ui-lnkb ui-lbtn");
-		}
-		if(isDisabled())
-			addCssClass("ui-lnkb-dis");
-		else
-			removeCssClass("ui-lnkb-dis");
-	}
-
 	@Override
 	public void setText(final @Nullable String txt) {
 		m_text = txt;
-		super.setText(txt);
+		forceRebuild();
 	}
 
 	@Override
-	@Nonnull
+	@NonNull
 	public String getComponentInfo() {
 		return "LinkButton:" + m_text;
 	}
@@ -184,7 +188,7 @@ public class LinkButton extends ATag implements IActionControl {
 		return m_actionInstance;
 	}
 
-	public void setAction(@Nonnull IUIAction<Void> action) throws Exception {
+	public void setAction(@NonNull IUIAction<Void> action) throws Exception {
 		if(DomUtil.isEqual(m_action, action))
 			return;
 		m_action = action;
@@ -205,7 +209,7 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	@Override
-	public void internalOnClicked(@Nonnull ClickInfo cli) throws Exception {
+	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		if(isDisabled())
 			return;
 		super.internalOnClicked(cli);

@@ -24,10 +24,11 @@
  */
 package to.etc.domui.themes;
 
-import to.etc.domui.util.js.*;
-import to.etc.domui.util.resources.*;
-
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.js.IScriptScope;
+import to.etc.domui.util.resources.IResourceDependencyList;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencies;
 
 /**
  * A theme.
@@ -37,7 +38,7 @@ import javax.annotation.*;
  */
 public interface ITheme {
 	/** The theme name: the part of the URL inside all theme resources that identifies the theme to take the resource from */
-	@Nonnull String getThemeName();
+	@NonNull String getThemeName();
 
 	/**
 	 * The dependencies for this theme instance. This will be used by the engine to check
@@ -45,7 +46,7 @@ public interface ITheme {
 	 * development mode.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	ResourceDependencies getDependencies();
 
 	/**
@@ -55,20 +56,20 @@ public interface ITheme {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nonnull
-	IResourceRef getThemeResource(@Nonnull String name, @Nonnull IResourceDependencyList rdl) throws Exception;
+	@NonNull
+	IResourceRef getThemeResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception;
 
-	@Nonnull
+	@NonNull
 	IScriptScope getPropertyScope();
 
-	@Nonnull
-	String translateResourceName(@Nonnull String name);
+	@NonNull
+	String translateResourceName(@NonNull String name);
 
 	/**
 	 * Returns the name for this theme's stylesheet.
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	String getStyleSheetName() throws Exception;
 
 }

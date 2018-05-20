@@ -1,11 +1,10 @@
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QCriteria;
-
-import javax.annotation.Nonnull;
 
 /**
  * @author <a href="mailto:ben.schoen@itris.nl">Ben Schoen</a>
@@ -17,8 +16,8 @@ public abstract class BaseAbstractLookupControlImpl<T> implements ILookupControl
 	private NodeBase[] m_nodes;
 
 	@Override
-	@Nonnull
-	abstract public AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception;
+	@NonNull
+	abstract public AppendCriteriaResult appendCriteria(@NonNull QCriteria<?> crit) throws Exception;
 
 	public BaseAbstractLookupControlImpl(NodeBase... nodes) {
 		if(nodes.length == 0)

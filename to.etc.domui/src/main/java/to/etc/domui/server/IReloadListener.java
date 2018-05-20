@@ -1,7 +1,7 @@
 package to.etc.domui.server;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public interface IReloadListener {
-	void reloaded(@Nonnull ClassLoader newloader) throws Exception;
+	void reloaded(@NonNull ClassLoader newloader) throws Exception;
 }

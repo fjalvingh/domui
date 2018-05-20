@@ -1,6 +1,7 @@
 package to.etc.domui.util.importers;
 
-import javax.annotation.Nullable;
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.Date;
 
 /**
@@ -8,6 +9,8 @@ import java.util.Date;
  * Created on 31-10-17.
  */
 public interface IImportColumn {
+	@Nullable String getName();
+
 	@Nullable String getStringValue();
 
 	@Nullable Date asDate();

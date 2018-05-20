@@ -1,11 +1,10 @@
 package to.etc.domui.component.upload;
 
-import javax.annotation.*;
-
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.ConversationContext;
 
 public interface IUploadAcceptingComponent {
-	boolean handleUploadRequest(@Nonnull RequestContextImpl param, @Nonnull ConversationContext conversation) throws Exception;
+	boolean handleUploadRequest(@NonNull RequestContextImpl param, @NonNull ConversationContext conversation) throws Exception;
 
 }

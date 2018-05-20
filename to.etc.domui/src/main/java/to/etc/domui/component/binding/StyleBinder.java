@@ -1,9 +1,11 @@
 package to.etc.domui.component.binding;
 
-import to.etc.domui.dom.html.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
 
-import javax.annotation.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * EXPERIMENTAL Alter the style of a DomUI node depending on the value of a property bound to.
@@ -12,17 +14,17 @@ import java.util.*;
  * Created on 12/10/14.
  */
 final public class StyleBinder {
-	@Nonnull
+	@NonNull
 	final private Map<Object, String> m_styleMap = new HashMap<>();
 
-	@Nonnull
-	public StyleBinder define(@Nullable Object value, @Nonnull String style) {
+	@NonNull
+	public StyleBinder define(@Nullable Object value, @NonNull String style) {
 		m_styleMap.put(value, style);
 		return this;
 	}
 
-	@Nonnull
-	public StyleBinding bind(@Nonnull NodeBase component) {
+	@NonNull
+	public StyleBinding bind(@NonNull NodeBase component) {
 		return new StyleBinding(this, component);
 	}
 

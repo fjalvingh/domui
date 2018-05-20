@@ -1,14 +1,15 @@
 package to.etc.domui.log.data;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import to.etc.domui.component.meta.MetaProperty;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.util.DomUtil;
+import to.etc.log.handler.EtcLogFormat;
 
-import javax.annotation.*;
-
-import org.w3c.dom.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.log.handler.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Handler {
 	private HandlerType m_type;
@@ -80,11 +81,11 @@ public class Handler {
 		m_filters = filters;
 	}
 
-	public void addMatcher(@Nonnull Matcher matcher) {
+	public void addMatcher(@NonNull Matcher matcher) {
 		m_matchers.add(matcher);
 	}
 
-	public void addFilter(@Nonnull Filter filter) {
+	public void addFilter(@NonNull Filter filter) {
 		m_filters.add(filter);
 	}
 

@@ -24,16 +24,19 @@
  */
 package to.etc.test.webapp.qsql;
 
-import java.sql.*;
-import java.util.*;
+import org.junit.Assert;
+import org.junit.Test;
+import to.etc.webapp.qsql.JdbcDataContext;
+import to.etc.webapp.qsql.JdbcQuery;
+import to.etc.webapp.qsql.JdbcSQLGenerator;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QRestrictorImpl;
+import to.etc.webapp.testsupport.TUtilTestProperties;
 
-import javax.sql.*;
-
-import org.junit.*;
-
-import to.etc.webapp.qsql.*;
-import to.etc.webapp.query.*;
-import to.etc.webapp.testsupport.*;
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.util.List;
 
 
 public class TestBasic {
@@ -152,8 +155,8 @@ public class TestBasic {
 	@Test
 	public void testSQLGen6() throws Exception {
 		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class);
-		QRestrictor<LedgerAccount> or = qc.or();
-		QRestrictor<LedgerAccount> and = or.and();
+		QRestrictorImpl<LedgerAccount> or = qc.or();
+		QRestrictorImpl<LedgerAccount> and = or.and();
 		and.not().like("code", "%E4%");
 		and.not().like("code", "%E5%"); //other variant of appending operator...
 		
@@ -171,7 +174,7 @@ public class TestBasic {
 	@Test
 	public void testSQLGen7() throws Exception {
 		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class);
-		QRestrictor<LedgerAccount> or = qc.not().or();
+		QRestrictorImpl<LedgerAccount> or = qc.not().or();
 		or.not().like("code", "%E4%");
 		or.not().like("code", "%E5%");
 		or.not().like("code", "%E6%");

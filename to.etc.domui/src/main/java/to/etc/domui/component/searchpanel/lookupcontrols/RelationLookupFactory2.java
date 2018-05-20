@@ -24,19 +24,18 @@
  */
 package to.etc.domui.component.searchpanel.lookupcontrols;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component2.lookupinput.LookupInput2;
-
-import javax.annotation.Nonnull;
 
 /**
  * Creates a {@link to.etc.domui.component2.lookupinput.LookupInput2} which allows lookup of the
  * related data record.
  */
 final class RelationLookupFactory2<T> implements ILookupFactory<T> {
-	@Nonnull @Override public FactoryPair<T> createControl(@Nonnull SearchPropertyMetaModel spm) {
+	@NonNull @Override public FactoryPair<T> createControl(@NonNull SearchPropertyMetaModel spm) {
 		PropertyMetaModel<?> pmm = spm.getProperty();
 		LookupInput2<T> control = new LookupInput2<T>((Class<T>) pmm.getActualType()); // Create a lookup thing for this one
 		String hint = MetaUtils.findHintText(spm);

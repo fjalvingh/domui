@@ -1,14 +1,15 @@
 package to.etc.domui.util.resources;
 
-import java.io.*;
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.image.Dimension;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.server.DomApplication;
+import to.etc.sjit.ImaTool;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.image.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
-import to.etc.sjit.*;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This caches (theme) resource data like the dimensions of images used in buttons where needed.
@@ -16,7 +17,7 @@ import to.etc.sjit.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 11/26/15.
  */
-@DefaultNonNull
+@NonNullByDefault
 final public class ResourceInfoCache {
 	final private DomApplication m_application;
 

@@ -48,7 +48,6 @@ public interface IBrowserOutput {
 
 	/**
 	 * Writes a tag start. It can be followed by attr() calls.
-	 * @param tagname
 	 */
 	void tag(final String tagname) throws IOException;
 
@@ -59,25 +58,17 @@ public interface IBrowserOutput {
 
 	/**
 	 * Ends a tag by adding />.
-	 * @throws IOException
 	 */
 	void endAndCloseXmltag() throws IOException;
 
 	/**
 	 * Write the closing tag (&lt;/name&gt;).
-	 * @param name
-	 * @throws IOException
 	 */
 	void closetag(String name) throws IOException;
 
 	/**
 	 * Appends an attribute to the last tag. The value's characters that are invalid are quoted into
 	 * entities.
-	 *
-	 * @param namespace
-	 * @param name
-	 * @param value
-	 * @throws IOException
 	 */
 	void attr(String name, String value) throws IOException;
 
@@ -85,11 +76,6 @@ public interface IBrowserOutput {
 
 	/**
 	 * Write a simple numeric attribute thingy.
-	 *
-	 * @param namespace
-	 * @param name
-	 * @param value
-	 * @throws IOException
 	 */
 	void attr(String name, long value) throws IOException;
 

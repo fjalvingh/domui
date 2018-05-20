@@ -24,11 +24,15 @@
  */
 package to.etc.domui.server;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
-import javax.annotation.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 
 public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 	/**
@@ -59,7 +63,7 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 
 	final private String m_url;
 
-	public WrappedHttpServetResponse(@Nonnull String url, @Nonnull HttpServletResponse resp, @Nonnull String defaultVersion) {
+	public WrappedHttpServetResponse(@NonNull String url, @NonNull HttpServletResponse resp, @NonNull String defaultVersion) {
 		super(resp);
 		m_url = url;
 		m_blen = 8192;

@@ -24,11 +24,11 @@
  */
 package to.etc.domui.databinding.observables;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.*;
 
 import to.etc.domui.databinding.value.*;
 
 public interface IObservableEntity {
-	@Nonnull
-	public IObservableValue< ? > observableValue(@Nonnull String property);
+	@NonNull
+	public IObservableValue< ? > observableValue(@NonNull String property);
 }

@@ -1,5 +1,6 @@
 package to.etc.domui.component.menu;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.menu.PopupMenu.Item;
 import to.etc.domui.component.menu.PopupMenu.Submenu;
 import to.etc.domui.dom.html.Div;
@@ -9,7 +10,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.server.RequestContextImpl;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,7 +25,7 @@ public class SimplePopupMenu extends Div {
 
 	private String m_menuTitle;
 
-	@Nonnull
+	@NonNull
 	private NodeBase m_relativeTo;
 
 	private Object m_targetObject;
@@ -60,12 +60,12 @@ public class SimplePopupMenu extends Div {
 
 	private List<MenuLevel> m_stack = new ArrayList<>();
 
-	public SimplePopupMenu(@Nonnull NodeBase relativeTo) {
+	public SimplePopupMenu(@NonNull NodeBase relativeTo) {
 		m_actionList = new ArrayList<>();
 		m_relativeTo = relativeTo;
 	}
 
-	SimplePopupMenu(@Nonnull NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
+	SimplePopupMenu(@NonNull NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
 		m_actionList = Collections.unmodifiableList(actionList);
 		m_targetObject = target;
 		m_relativeTo = b;
@@ -174,23 +174,23 @@ public class SimplePopupMenu extends Div {
 	 *
 	 * @param a
 	 */
-	protected void renderSubmenu(@Nonnull NodeContainer into, final Submenu a) {
+	protected void renderSubmenu(@NonNull NodeContainer into, final Submenu a) {
 		final Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
 		Img img = new Img("THEME/pmnu-submenu-open.png");
 		d.add(img);
 		d.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+			public void clicked(@NonNull NodeBase clickednode) throws Exception {
 				submenuClicked(d, a);
 			}
 		});
 	}
 
-	protected void renderItem(@Nonnull NodeContainer into, final Item a) {
+	protected void renderItem(@NonNull NodeContainer into, final Item a) {
 		Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
 		d.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+			public void clicked(@NonNull NodeBase clickednode) throws Exception {
 				closeMenu();
 				if(null != a.getClicked())
 					a.getClicked().clicked(SimplePopupMenu.this);
@@ -198,7 +198,7 @@ public class SimplePopupMenu extends Div {
 		});
 	}
 
-	private Div renderItem(@Nonnull NodeContainer into, String text, String hint, String icon, boolean disabled) {
+	private Div renderItem(@NonNull NodeContainer into, String text, String hint, String icon, boolean disabled) {
 		Div d = new Div();
 		into.add(d);
 		d.setCssClass("ui-pmnu-action " + (disabled ? "ui-pmnu-disabled" : "ui-pmnu-enabled"));
@@ -211,7 +211,7 @@ public class SimplePopupMenu extends Div {
 		return d;
 	}
 
-	protected <T> void renderAction(@Nonnull NodeContainer into, final IUIAction<T> action, final T val) throws Exception {
+	protected <T> void renderAction(@NonNull NodeContainer into, final IUIAction<T> action, final T val) throws Exception {
 		String disa = action.getDisableReason(val);
 		if(null != disa) {
 			renderItem(into, action.getName(val), disa, action.getIcon(val), true);
@@ -221,7 +221,7 @@ public class SimplePopupMenu extends Div {
 		Div d = renderItem(into, action.getName(val), action.getTitle(val), action.getIcon(val), false);
 		d.setClicked(new IClicked<NodeBase>() {
 			@Override
-			public void clicked(@Nonnull NodeBase clickednode) throws Exception {
+			public void clicked(@NonNull NodeBase clickednode) throws Exception {
 				closeMenu();
 				action.execute(getRelativeTo(), val);
 			}
@@ -258,7 +258,7 @@ public class SimplePopupMenu extends Div {
 	}
 
 	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		System.out.println("SimplePopupMenu: received " + action);
 		if("POPINCLOSE?".equals(action)) {
 			closeMenu();

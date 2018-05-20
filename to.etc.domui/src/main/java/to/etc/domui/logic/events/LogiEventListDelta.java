@@ -1,14 +1,14 @@
 package to.etc.domui.logic.events;
 
-import javax.annotation.*;
-
-import to.etc.domui.component.meta.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
 final public class LogiEventListDelta<T, P, I> extends LogiEventBase {
-	@Nonnull
+	@NonNull
 	final private T m_instance;
 
-	@Nonnull
+	@NonNull
 	final private PropertyMetaModel<P> m_property;
 
 	@Nullable
@@ -16,10 +16,10 @@ final public class LogiEventListDelta<T, P, I> extends LogiEventBase {
 
 	final private int m_index;
 
-	@Nonnull
+	@NonNull
 	final private ListDeltaType m_type;
 
-	public LogiEventListDelta(@Nonnull String path, @Nonnull T instance, @Nonnull PropertyMetaModel<P> property, int index, @Nullable I value, @Nonnull ListDeltaType type) {
+	public LogiEventListDelta(@NonNull String path, @NonNull T instance, @NonNull PropertyMetaModel<P> property, int index, @Nullable I value, @NonNull ListDeltaType type) {
 		super(path);
 		m_instance = instance;
 		m_property = property;
@@ -28,17 +28,17 @@ final public class LogiEventListDelta<T, P, I> extends LogiEventBase {
 		m_type = type;
 	}
 
-	@Nonnull
+	@NonNull
 	public ListDeltaType getType() {
 		return m_type;
 	}
 
-	@Nonnull
+	@NonNull
 	public T getInstance() {
 		return m_instance;
 	}
 
-	@Nonnull
+	@NonNull
 	public PropertyMetaModel<P> getProperty() {
 		return m_property;
 	}
@@ -53,7 +53,7 @@ final public class LogiEventListDelta<T, P, I> extends LogiEventBase {
 	}
 
 	@Override
-	void dump(@Nonnull Appendable a) throws Exception {
+	void dump(@NonNull Appendable a) throws Exception {
 		a.append(getPath()).append(" List:").append(m_type.toString()).append(" @index " + m_index + " value=").append(toString(m_value)).append("\n");
 	}
 }

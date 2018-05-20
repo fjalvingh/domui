@@ -24,13 +24,13 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.DomUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -80,7 +80,7 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 	 * @see to.etc.domui.dom.html.NodeContainer#canContain(to.etc.domui.dom.html.NodeBase)
 	 */
 	@Override
-	protected void canContain(@Nonnull NodeBase node) {
+	protected void canContain(@NonNull NodeBase node) {
 		if(!(node instanceof SelectOption))
 			throw new IllegalStateException(getClass().getName() + " cannot contain a " + node + " type, only a SelectOption node type.");
 	}
@@ -157,7 +157,7 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 	}
 
 	@Override
-	final public boolean acceptRequestParameter(@Nonnull String[] values) throws Exception {
+	final public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
 		if(isDisabled()) {                                // Never accept data from request in disabled control.
 			return false;
 		}
@@ -233,7 +233,7 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 		if(click != null) {
 			si.setClicked(new IClicked<SmallImgButton>() {
 				@Override
-				public void clicked(@Nonnull SmallImgButton b) throws Exception {
+				public void clicked(@NonNull SmallImgButton b) throws Exception {
 					click.clicked(Select.this);
 				}
 			});
@@ -304,7 +304,7 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebAction(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override
-	public void componentHandleWebAction(@Nonnull RequestContextImpl ctx, @Nonnull String action) throws Exception {
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if(!"returnpressed".equals(action)) {
 			super.componentHandleWebAction(ctx, action);
 			return;

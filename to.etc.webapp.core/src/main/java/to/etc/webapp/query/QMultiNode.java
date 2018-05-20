@@ -24,9 +24,10 @@
  */
 package to.etc.webapp.query;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
 
-import javax.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A node representing the same operation spanning several
@@ -81,7 +82,7 @@ public class QMultiNode extends QOperatorNode {
 	}
 
 	@Override
-	public void visit(@Nonnull QNodeVisitor v) throws Exception {
+	public void visit(@NonNull QNodeVisitor v) throws Exception {
 		v.visitMulti(this);
 	}
 

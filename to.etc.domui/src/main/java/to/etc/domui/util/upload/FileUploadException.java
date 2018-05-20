@@ -24,21 +24,21 @@
  */
 package to.etc.domui.util.upload;
 
-import javax.annotation.*;
-
-import to.etc.domui.util.*;
-import to.etc.webapp.nls.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.CodeException;
 
 public class FileUploadException extends CodeException {
 	public FileUploadException(String msg) {
 		super(Msgs.BUNDLE, Msgs.UPLOAD_DATA_ERROR, msg);					// Generic data error
 	}
 
-	public FileUploadException(@Nonnull BundleRef bundle, @Nonnull String code, Object... parameters) {
+	public FileUploadException(@NonNull BundleRef bundle, @NonNull String code, Object... parameters) {
 		super(bundle, code, parameters);
 	}
 
-	public FileUploadException(@Nonnull Throwable t, @Nonnull BundleRef bundle, @Nonnull String code, Object... parameters) {
+	public FileUploadException(@NonNull Throwable t, @NonNull BundleRef bundle, @NonNull String code, Object... parameters) {
 		super(t, bundle, code, parameters);
 	}
 }

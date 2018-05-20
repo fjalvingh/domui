@@ -1,10 +1,9 @@
 package to.etc.domui.logic.events;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.errors.UIMessage;
 
-import javax.annotation.*;
-
-import to.etc.domui.dom.errors.*;
+import java.util.List;
 
 /**
  * Called when some kind of message is added.
@@ -13,5 +12,5 @@ import to.etc.domui.dom.errors.*;
  * Created on Feb 12, 2013
  */
 public interface IMessageListener {
-	void actionMessages(@Nonnull List<UIMessage> msgl);
+	void actionMessages(@NonNull List<UIMessage> msgl);
 }

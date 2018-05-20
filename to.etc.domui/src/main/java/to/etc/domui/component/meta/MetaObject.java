@@ -85,7 +85,7 @@ public @interface MetaObject {
 	 * the default sort direction use {@link #defaultSortOrder()}.
 	 * @return
 	 */
-	String defaultSortColumn() default Constants.NONE;
+	String defaultSortColumn() default "";
 
 	/**
 	 * If a {@link #defaultSortColumn()} is defined, this defines the initial sort direction (ascending, descending). It defaults to ascending.

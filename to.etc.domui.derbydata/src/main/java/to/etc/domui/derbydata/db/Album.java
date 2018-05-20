@@ -1,11 +1,11 @@
 package to.etc.domui.derbydata.db;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.MetaDisplayProperty;
 import to.etc.domui.component.meta.MetaObject;
 import to.etc.domui.component.meta.MetaSearch;
 import to.etc.domui.component.meta.SearchPropertyType;
 
-import javax.annotation.Nonnull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -28,12 +28,12 @@ public class Album extends DbRecordBase<Long> {
 
 	private Artist m_artist;
 
-	@Nonnull
+	@NonNull
 	private List<Track> m_trackList = new ArrayList<Track>();
 
 	@Override
 	@Id
-	@SequenceGenerator(name = "sq", sequenceName = "album_sq")
+	@SequenceGenerator(name = "sq", sequenceName = "album_sq", allocationSize = 1)
 	@Column(name = "AlbumId", precision = 20, nullable = false)
 	public Long getId() {
 		return m_id;
@@ -67,13 +67,13 @@ public class Album extends DbRecordBase<Long> {
 		m_artist = primaryArtist;
 	}
 
-	@Nonnull
+	@NonNull
 	@OneToMany(mappedBy = "album", fetch = FetchType.LAZY)
 	public List<Track> getTrackList() {
 		return m_trackList;
 	}
 
-	public void setTrackList(@Nonnull List<Track> trackList) {
+	public void setTrackList(@NonNull List<Track> trackList) {
 		m_trackList = trackList;
 	}
 

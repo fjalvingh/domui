@@ -1,14 +1,15 @@
 package to.etc.domui.util.exporters;
 
-import javax.annotation.DefaultNonNull;
-import javax.annotation.Nonnull;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import java.io.File;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-@DefaultNonNull
+@NonNullByDefault
 public interface IExportFormat {
 	/** The descriptive name for the format */
 	String name();
@@ -17,5 +18,5 @@ public interface IExportFormat {
 	String extension();
 
 	/** The actual exporter */
-	IExportWriter<?> createWriter(@Nonnull File output) throws Exception;
+	IExportWriter<?> createWriter(@NonNull File output) throws Exception;
 }

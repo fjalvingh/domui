@@ -1,13 +1,13 @@
 package to.etc.domuidemo.pages.overview.tree2;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.tree.ITreeModel;
 import to.etc.domui.component.tree.ITreeModelChangedListener;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.webapp.query.QCriteria;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,11 +31,11 @@ final public class Tree2DemoModel implements ITreeModel<DemoNode> {
 		return Objects.requireNonNull(item).hasChildren();
 	}
 
-	@Nonnull @Override public DemoNode getRoot() throws Exception {
+	@NonNull @Override public DemoNode getRoot() throws Exception {
 		return m_root;
 	}
 
-	@Nonnull @Override public DemoNode getChild(@Nullable DemoNode parent, int index) throws Exception {
+	@NonNull @Override public DemoNode getChild(@Nullable DemoNode parent, int index) throws Exception {
 		return Objects.requireNonNull(parent).getChildren().get(index);
 	}
 
@@ -43,10 +43,10 @@ final public class Tree2DemoModel implements ITreeModel<DemoNode> {
 		return Objects.requireNonNull(child).getParent();
 	}
 
-	@Override public void addChangeListener(@Nonnull ITreeModelChangedListener<DemoNode> l) {
+	@Override public void addChangeListener(@NonNull ITreeModelChangedListener<DemoNode> l) {
 	}
 
-	@Override public void removeChangeListener(@Nonnull ITreeModelChangedListener<DemoNode> l) {
+	@Override public void removeChangeListener(@NonNull ITreeModelChangedListener<DemoNode> l) {
 	}
 
 	@Override public void expandChildren(@Nullable DemoNode item) throws Exception {

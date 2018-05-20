@@ -24,14 +24,14 @@
  */
 package to.etc.webapp.pendingoperations;
 
-import javax.annotation.*;
+import org.eclipse.jdt.annotation.NonNull;
 
 public class PendingOperationSerializationException extends RuntimeException {
-	public PendingOperationSerializationException(@Nonnull final String message, final Throwable cause) {
+	public PendingOperationSerializationException(@NonNull final String message, final Throwable cause) {
 		super(message, cause);
 	}
 
-	public PendingOperationSerializationException(@Nonnull String message) {
+	public PendingOperationSerializationException(@NonNull String message) {
 		super(message);
 	}
 

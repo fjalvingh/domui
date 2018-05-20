@@ -24,11 +24,10 @@
  */
 package to.etc.domui.component.lookup;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.webapp.query.QCriteria;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Encapsulates a single created lookup "part" in the lookup form, and
@@ -93,7 +92,7 @@ public interface ILookupControlInstance<T> {
 	 * Evaluate the contents of the input for this lookup line; if the user has
 	 * added data there then add the values to the query.
 	 */
-	AppendCriteriaResult appendCriteria(@Nonnull QCriteria<?> crit) throws Exception;
+	AppendCriteriaResult appendCriteria(@NonNull QCriteria<?> crit) throws Exception;
 
 	/**
 	 * Return the value entered into this control.

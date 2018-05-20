@@ -24,22 +24,24 @@
  */
 package to.etc.domui.server;
 
-import javax.annotation.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.state.AppSession;
 
-import to.etc.domui.state.*;
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 final public class NormalContextMaker extends AbstractContextMaker {
-	@Nonnull
+	@NonNull
 	final private String m_applicationClassName;
 
-//	@Nonnull
+//	@NonNull
 //	final private ConfigParameters m_config;
 //
 	private DomApplication m_application;
 
-	public NormalContextMaker(@Nonnull String applicationClassName, @Nonnull ConfigParameters pp) throws Exception {
+	public NormalContextMaker(@NonNull String applicationClassName, @NonNull ConfigParameters pp) throws Exception {
 		super(pp);
 		m_applicationClassName = applicationClassName;
 //		m_config = pp;
@@ -69,7 +71,7 @@ final public class NormalContextMaker extends AbstractContextMaker {
 	 * @see to.etc.domui.server.IContextMaker#createContext(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
 	 */
 	@Override
-	public void handleRequest(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull FilterChain chain) throws Exception {
+	public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception {
 		//-- Get session,
 		try {
 			HttpSession sess = request.getSession(true);

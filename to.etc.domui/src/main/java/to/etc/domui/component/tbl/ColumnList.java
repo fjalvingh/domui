@@ -1,6 +1,8 @@
 package to.etc.domui.component.tbl;
 
 import kotlin.reflect.KProperty1;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -9,9 +11,8 @@ import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.annotations.GProperty;
+import to.etc.webapp.query.QField;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -24,10 +25,10 @@ import java.util.stream.Stream;
  * Created on Jan 3, 2014
  */
 public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
-	@Nonnull
+	@NonNull
 	final private ClassMetaModel m_metaModel;
 
-	@Nonnull
+	@NonNull
 	final private List<ColumnDef< T, ? >> m_columnList = new ArrayList<ColumnDef< T, ? >>();
 
 	@Nullable
@@ -38,10 +39,10 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	/** The factor to multiply the #of characters with to get the real em width of a column. */
 	private double m_emFactor = 0.65;
 
-	@Nonnull
+	@NonNull
 	final private Class<T> m_actualClass;
 
-	public ColumnList(@Nonnull Class<T> rootClass, @Nonnull ClassMetaModel cmm) {
+	public ColumnList(@NonNull Class<T> rootClass, @NonNull ClassMetaModel cmm) {
 		m_actualClass = rootClass;
 		m_metaModel = cmm;
 		m_sortDescending = cmm.getDefaultSortDirection() == SortableType.SORTABLE_DESC;
@@ -51,18 +52,18 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		return m_columnList.size();
 	}
 
-	public void add(@Nonnull ColumnDef< T, ? > cd) {
+	public void add(@NonNull ColumnDef< T, ? > cd) {
 		if(null == cd)
 			throw new IllegalArgumentException("Cannot be null");
 		m_columnList.add(cd);
 	}
 
-	@Nonnull
+	@NonNull
 	private ClassMetaModel model() {
 		return m_metaModel;
 	}
 
-	@Nonnull
+	@NonNull
 	public ColumnDef< T, ? > get(int ix) {
 		if(ix < 0 || ix >= m_columnList.size())
 			throw new IndexOutOfBoundsException("Column " + ix + " does not exist");
@@ -110,8 +111,8 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		}
 	}
 
-	@Nonnull
-	private <V> ColumnDef<T, V> addExpandedDisplayProp(@Nonnull ExpandedDisplayProperty<V> xdp) {
+	@NonNull
+	private <V> ColumnDef<T, V> addExpandedDisplayProp(@NonNull ExpandedDisplayProperty<V> xdp) {
 		ColumnDef<T, V> scd = new ColumnDef<T, V>(this, xdp);
 		if(scd.getNumericPresentation() != null && scd.getNumericPresentation() != NumericPresentation.UNKNOWN) {
 			scd.css("ui-numeric");
@@ -131,12 +132,12 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
-	@Nonnull
+	@NonNull
 	public Iterator<ColumnDef<T, ? >> iterator() {
 		return m_columnList.iterator();
 	}
 
-	public int indexOf(@Nonnull ColumnDef<T, ? > scd) {
+	public int indexOf(@NonNull ColumnDef<T, ? > scd) {
 		return m_columnList.indexOf(scd);
 	}
 
@@ -145,7 +146,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		return m_sortColumn;
 	}
 
-	protected void updateDefaultSort(@Nonnull ColumnDef<T, ? > scd) {
+	protected void updateDefaultSort(@NonNull ColumnDef<T, ? > scd) {
 		if(m_sortColumn == scd)
 			m_sortDescending = scd.getSortable() == SortableType.SORTABLE_DESC;
 	}
@@ -177,14 +178,14 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public <V> ColumnDef<T, V> column(@Nonnull Class<V> type, @Nonnull @GProperty String property) {
+	@NonNull
+	public <V> ColumnDef<T, V> column(@NonNull Class<V> type, @NonNull @GProperty String property) {
 		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
 		return createColumnDef(pmm);
 	}
 
-	@Nonnull
-	private <V> ColumnDef<T, V> createColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
+	@NonNull
+	private <V> ColumnDef<T, V> createColumnDef(@NonNull PropertyMetaModel<V> pmm) {
 		ColumnDef<T, V> scd = new ColumnDef<T, V>(this, pmm);
 		scd.nowrap();
 		add(scd);
@@ -197,23 +198,28 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	 * @param property
 	 * @return
 	 */
-	@Nonnull
-	public ColumnDef<T, ? > column(@Nonnull @GProperty String property) {
+	@NonNull
+	public ColumnDef<T, ? > column(@NonNull @GProperty String property) {
 		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
 		return createColumnDef(pmm);
 	}
 
-	public <F> ColumnDef<T, F> column(@Nonnull KProperty1<T, F> property) {
+	public <V> ColumnDef<T, V> column(@NonNull QField<?, V> field) {
+		PropertyMetaModel<V> pmm = model().getProperty(field);			// Get the appropriate model
+		return createColumnDef(pmm);
+	}
+
+	public <F> ColumnDef<T, F> column(@NonNull KProperty1<T, F> property) {
 		PropertyMetaModel<F> pmm = (PropertyMetaModel<F>) model().getProperty(property.getName());
 		return createColumnDef(pmm);
 	}
 
-	public <A, B> ColumnDef<T, B> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2) {
+	public <A, B> ColumnDef<T, B> column(@NonNull KProperty1<T, A> property1, @NonNull KProperty1<A, B> property2) {
 		PropertyMetaModel<B> pmm = (PropertyMetaModel<B>) model().getProperty(property1.getName() + "." + property2.getName());
 		return createColumnDef(pmm);
 	}
 
-	public <A, B, C> ColumnDef<T, C> column(@Nonnull KProperty1<T, A> property1, @Nonnull KProperty1<A, B> property2, KProperty1<B, C> property3) {
+	public <A, B, C> ColumnDef<T, C> column(@NonNull KProperty1<T, A> property1, @NonNull KProperty1<A, B> property2, KProperty1<B, C> property3) {
 		PropertyMetaModel<C> pmm = (PropertyMetaModel<C>) model().getProperty(property1.getName()
 			+ "." + property2.getName()
 			+ "." + property3.getName()
@@ -226,7 +232,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	 * Add a column which gets referred the row element instead of a column element. This is normally used together with
 	 * @return
 	 */
-	@Nonnull
+	@NonNull
 	public ColumnDef<T, T> column() {
 		ColumnDef<T, T> scd = new ColumnDef<T, T>(this, m_actualClass);
 		add(scd);
@@ -240,8 +246,8 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 //	 * @param property
 //	 * @return
 //	 */
-//	@Nonnull
-//	public <V> ExpandedColumnDef<V> expand(@Nonnull Class<V> clz, @Nonnull @GProperty String property) {
+//	@NonNull
+//	public <V> ExpandedColumnDef<V> expand(@NonNull Class<V> clz, @NonNull @GProperty String property) {
 //		PropertyMetaModel<V> pmm = (PropertyMetaModel<V>) model().getProperty(property);
 //		return createExpandedColumnDef(pmm);
 //	}
@@ -252,8 +258,8 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 //	 * @param property
 //	 * @return
 //	 */
-//	@Nonnull
-//	public ExpandedColumnDef< ? > expand(@Nonnull @GProperty String property) {
+//	@NonNull
+//	public ExpandedColumnDef< ? > expand(@NonNull @GProperty String property) {
 //		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
 //		return createExpandedColumnDef(pmm);
 //	}
@@ -263,8 +269,8 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 //	 * @param pmm
 //	 * @return
 //	 */
-//	@Nonnull
-//	private <V> ExpandedColumnDef<V> createExpandedColumnDef(@Nonnull PropertyMetaModel<V> pmm) {
+//	@NonNull
+//	private <V> ExpandedColumnDef<V> createExpandedColumnDef(@NonNull PropertyMetaModel<V> pmm) {
 //		//-- Try to see what the column expands to
 //		final ExpandedDisplayProperty< ? > xdpt = ExpandedDisplayProperty.expandProperty(pmm);
 //		final List<ExpandedDisplayProperty< ? >> flat = new ArrayList<ExpandedDisplayProperty< ? >>();
