@@ -123,6 +123,8 @@ public class ColumnWrapper {
 
 	private boolean m_new;
 
+	private boolean m_primaryKey;
+
 	private ColumnWrapper m_parentListProperty;
 
 	@Nullable
@@ -233,9 +235,8 @@ public class ColumnWrapper {
 
 	/**
 	 * Returns T if this is a singular PK field for the object.
-	 * @return
 	 */
-	public boolean isPrimaryKey() {
+	public boolean isColumnAPrimaryKey() {
 		if(null == m_column)
 			return false;
 		DbPrimaryKey primaryKey = m_column.getTable().getPrimaryKey();
@@ -244,6 +245,13 @@ public class ColumnWrapper {
 		return primaryKey.getColumnList().contains(m_column) && primaryKey.getColumnList().size() == 1;
 	}
 
+	public boolean isPrimaryKey() {
+		return m_primaryKey;
+	}
+
+	public void setPrimaryKey(boolean primaryKey) {
+		m_primaryKey = primaryKey;
+	}
 
 	public void calculateColumnType(Connection dbc) throws Exception {
 		DbColumn column = m_column;
@@ -923,7 +931,6 @@ public class ColumnWrapper {
 
 	/**
 	 * Render the id annotation and anything related to it.
-	 * @param getter
 	 */
 	private void renderIdAnnotations(MethodDeclaration getter) throws Exception {
 		if(g().isAddIdentifyable()) {

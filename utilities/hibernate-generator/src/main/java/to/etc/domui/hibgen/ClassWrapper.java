@@ -1176,7 +1176,7 @@ class ClassWrapper {
 
 	public void renamePrimaryKeys(String pkName) {
 		for(ColumnWrapper cw : m_allColumnWrappers) {
-			if(cw.isPrimaryKey()) {
+			if(cw.isColumnAPrimaryKey()) {
 				cw.setPropertyName(pkName);
 			}
 		}
@@ -1616,6 +1616,7 @@ class ClassWrapper {
 						return;
 					}
 					m_primaryKey = column;
+					column.setPrimaryKey(true);
 					return;
 				}
 			}
@@ -1651,6 +1652,7 @@ class ClassWrapper {
 			pkProperty.setNew(true);
 			pkProperty.setPropertyType(new ClassOrInterfaceType(pkWrapper.getClassName()));
 			pkProperty.setType(ColumnType.compoundKey);
+			pkProperty.setPrimaryKey(true);
 			m_primaryKey = pkProperty;
 			m_allColumnWrappers.add(pkProperty);
 		} else {
