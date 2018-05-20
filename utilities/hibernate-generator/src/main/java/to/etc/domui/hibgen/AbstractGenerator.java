@@ -120,6 +120,8 @@ abstract public class AbstractGenerator {
 
 	private Node m_configRoot;
 
+	private List<String> m_onlyTables;
+
 	abstract protected Connection createConnection() throws Exception;
 
 	protected abstract Set<DbSchema> loadSchemas(List<String> schemaSet) throws Exception;
@@ -396,6 +398,9 @@ abstract public class AbstractGenerator {
 
 	private void renderOutput() throws Exception {
 		for(ClassWrapper wrapper : m_wrapperList) {
+			if(! isTableAllowed(wrapper))
+				continue;
+
 			switch(wrapper.getType()){
 				default:
 					break;
@@ -416,6 +421,21 @@ abstract public class AbstractGenerator {
 					break;
 			}
 		}
+	}
+
+	protected boolean isTableAllowed(ClassWrapper wrapper) {
+		if(m_onlyTables == null || m_onlyTables.size() == 0)
+			return true;
+
+		for(String onlyTable : m_onlyTables) {
+			DbTable table = wrapper.getTable();
+			if(null == table)
+				return false;
+			if(table.getName().contains(onlyTable)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private void generateProperties() throws Exception {
@@ -1187,5 +1207,9 @@ abstract public class AbstractGenerator {
 
 	public void setEnumMaxFieldSize(int enumMaxFieldSize) {
 		m_enumMaxFieldSize = enumMaxFieldSize;
+	}
+
+	public void setOnlyTables(List<String> onlyTables) {
+		m_onlyTables = onlyTables;
 	}
 }

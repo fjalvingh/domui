@@ -37,6 +37,7 @@ import to.etc.dbutil.schema.DbTable;
 import to.etc.dbutil.schema.FieldPair;
 import to.etc.xml.DomTools;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -394,7 +395,7 @@ public class ColumnWrapper {
 
 			case Types.BOOLEAN:
 			case Types.BIT:
-				assignBooleanType(null);
+				assignBooleanType(ExtraType.TrueFalse);
 				return true;
 
 			case Types.TIME:
@@ -572,6 +573,8 @@ public class ColumnWrapper {
 						xt = ExtraType.TrueFalse;
 					} else if(ONEZEROSET.contains(res.get(0).toLowerCase()) && ONEZEROSET.contains(res.get(1).toLowerCase())) {
 						xt = ExtraType.OneZero;
+					} else {
+						xt = ExtraType.TrueFalse;
 					}
 					assignBooleanType(xt);
 					setValueSet(res);
@@ -650,7 +653,7 @@ public class ColumnWrapper {
 		return s.toLowerCase().startsWith("y");
 	}
 
-	private void assignBooleanType(ExtraType extra) {
+	private void assignBooleanType(@Nonnull ExtraType extra) {
 		//-- Make boolean.
 		if(m_column.isNullable()) {
 			String fnn = getConfigProperty("forceNotNull");

@@ -39,6 +39,9 @@ public class HibernateGenerator {
 	@Option(name = "-i", aliases = {"-ignore"}, usage = "Ignore a table")
 	private List<String> m_ignoreTableSet = new ArrayList<>();
 
+	@Option(name = "-only", usage = "Regenerate only the specified tables")
+	private List<String> m_onlyTables = new ArrayList<>();
+
 	@Option(name = "-schema-package", usage = "When set, this adds the schema name as the last level to the default package")
 	private boolean m_schemaAsPackage;
 
@@ -149,6 +152,7 @@ public class HibernateGenerator {
 		generator.setDestroyConstructors(m_destroyConstructors);
 		generator.setAltBundles(new HashSet<>(m_altBundles));
 		generator.setEnumMaxFieldSize(m_enumMaxFieldSize);
+		generator.setOnlyTables(m_onlyTables);
 		if(m_forcePKIdentifier.equalsIgnoreCase("none")) {
 			generator.setForcePKIdentifier(null);
 		} else {
