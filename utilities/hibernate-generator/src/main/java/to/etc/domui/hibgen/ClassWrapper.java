@@ -36,8 +36,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Node;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbPrimaryKey;
+import to.etc.dbutil.schema.DbRelation;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
+import to.etc.dbutil.schema.FieldPair;
 import to.etc.domui.hibgen.ColumnWrapper.ColumnType;
 import to.etc.domui.hibgen.ColumnWrapper.RelationType;
 import to.etc.util.FileTool;
@@ -1559,13 +1561,34 @@ class ClassWrapper {
 
 	}
 
+
+	/**
+	 * Returns TRUE if the column passed is part of a relation in which it is
+	 * the FK column to another table, and it is part of the other table's primary
+	 * key. In this case this is an identifying relation.
+	 */
+	private boolean isIdentifyingColumn(DbColumn col) {
+		for(DbRelation rel : col.getTable().getChildRelationList()) {
+			DbPrimaryKey primaryKey = rel.getParent().getPrimaryKey();
+			if(null != primaryKey) {
+				for(FieldPair fieldPair : rel.getPairList()) {
+					if(fieldPair.getChildColumn() == col) {
+						if(primaryKey.getColumnList().contains(fieldPair.getParentColumn()))
+							return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Check to see whether this class requires or has a complex primary key.
 	 */
 	public void checkAssignComplexPK() {
 		if(m_primaryKeyRecalculated)
 			return;
-		if("StgManagementSourceTable".equalsIgnoreCase(getSimpleName())) {
+		if("Salesperson".equalsIgnoreCase(getSimpleName())) {
 			System.out.println("GOTCHA");
 		}
 
@@ -1584,14 +1607,17 @@ class ClassWrapper {
 			}
 		} else {
 			if(primaryKey.getColumnList().size() == 1) {
-				String fieldName = primaryKey.getColumnList().get(0).getName();
-				ColumnWrapper column = findColumnByColumnName(fieldName);
-				if(null == column) {
-					error("Cannot locate property for primary key column " + fieldName);
+				DbColumn dbColumn = primaryKey.getColumnList().get(0);
+				if(! isIdentifyingColumn(dbColumn)) {
+					String fieldName = dbColumn.getName();
+					ColumnWrapper column = findColumnByColumnName(fieldName);
+					if(null == column) {
+						error("Cannot locate property for primary key column " + fieldName);
+						return;
+					}
+					m_primaryKey = column;
 					return;
 				}
-				m_primaryKey = column;
-				return;
 			}
 
 			//-- We need a compound key from all of the columns that are part of the PK
@@ -1740,7 +1766,7 @@ class ClassWrapper {
 			sb.append("\n");
 		}
 		sb.append(";");
-		System.out.println(sb.toString());
+		//System.out.println(sb.toString());
 		block.addStatement(JavaParser.parseStatement(sb.toString()));
 		eq.setBody(block);
 	}
