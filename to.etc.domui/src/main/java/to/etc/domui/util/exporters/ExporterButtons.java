@@ -6,8 +6,11 @@ import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.menu.PopupMenu;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.searchpanel.SearchPanel;
+import to.etc.domui.converter.IObjectToStringConverter;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.parts.TempFilePart;
@@ -17,6 +20,7 @@ import to.etc.domui.util.asyncdialog.AsyncDialog;
 import to.etc.function.ConsumerEx;
 import to.etc.function.SupplierEx;
 import to.etc.util.Progress;
+import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QField;
 
@@ -24,6 +28,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Helper class that creates Export buttons, or handles the actions thereof.
@@ -52,7 +57,14 @@ public class ExporterButtons {
 		pm.show(target);
 	}
 
-	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<String> columns, String fileName) {
+	//public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<String> columns, String fileName) {
+	//	List<ExpandedDisplayProperty<?>> xProps = ExpandedDisplayProperty.expandPropertiesWithDefaults(query.getBaseClass(), columns.toArray(new String[0]));
+	//	List<? extends ExpandedDisplayPropertyColumnWrapper<?>> tlist = xProps.stream().map(a -> new ExpandedDisplayPropertyColumnWrapper<>(a)).collect(Collectors.toList());
+	//
+	//
+	//}
+
+	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<IExportColumn<?>> columns, String fileName) {
 		QueryExporterTask<T> x = new QueryExporterTask<>(xf, query, columns);
 		AsyncDialog.runInDialog(node, x, "Export", true, task -> {
 			File target = Objects.requireNonNull(task.getOutputFile());
@@ -69,7 +81,7 @@ public class ExporterButtons {
 		});
 	}
 
-	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<String> columns, String fileName) {
+	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<IExportColumn<?>> columns, String fileName) {
 		ListExporterTask<T> exporterTask = new ListExporterTask<>(xf, baseClass, list, columns);
 		AsyncDialog.runInDialog(node, exporterTask, "Export", true, task -> {
 			File target = Objects.requireNonNull(task.getOutputFile());
@@ -87,8 +99,8 @@ public class ExporterButtons {
 	}
 
 
-	static public <T> ExportButtonBuilder<T> from(SupplierEx<QCriteria<T>> supplier) {
-		return new ExportButtonBuilder<>(supplier);
+	static public <T> ExportButtonBuilder<T> from(Class<T> baseClass, SupplierEx<QCriteria<T>> supplier) {
+		return new ExportButtonBuilder<>(baseClass, supplier);
 	}
 
 	static public <T> ExportButtonBuilder<T> from(SearchPanel<T> panel) {
@@ -98,9 +110,9 @@ public class ExporterButtons {
 	static private class QueryExporterTask<T> extends AbstractExporter<T> {
 		final private QCriteria<T> m_criteria;
 
-		final private List<String> m_columns;
+		final private List<IExportColumn<?>> m_columns;
 
-		public QueryExporterTask(IExportFormat format, QCriteria<T> criteria, List<String> columns) {
+		public QueryExporterTask(IExportFormat format, QCriteria<T> criteria, List<IExportColumn<?>> columns) {
 			super(format);
 			m_criteria = criteria;
 			m_columns = columns;
@@ -113,13 +125,13 @@ public class ExporterButtons {
 	}
 
 	static private class ListExporterTask<T> extends AbstractExporter<T> {
-		final private List<String> m_columns;
+		final private List<IExportColumn<?>> m_columns;
 
 		private final Class<T> m_baseClass;
 
 		private final List<T> m_list;
 
-		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<String> columns) {
+		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<IExportColumn<?>> columns) {
 			super(format);
 			m_baseClass = baseClass;
 			m_list = list;
@@ -132,49 +144,118 @@ public class ExporterButtons {
 		}
 	}
 
+	public static class ExportColumnBuilder<T, P> implements IExportColumn<P> {
+		private final ExportButtonBuilder<T> m_parent;
+
+		private final PropertyMetaModel<P> m_property;
+
+		@Nullable
+		private String m_label;
+
+		@Nullable
+		private IObjectToStringConverter<P> m_converter;
+
+		public ExportColumnBuilder(ExportButtonBuilder<T> parent, PropertyMetaModel<P> property) {
+			m_parent = parent;
+			m_property = property;
+		}
+
+		public ExportColumnBuilder<T, P> label(String label) {
+			m_label = label;
+			return this;
+		}
+
+		public ExportColumnBuilder<T, P> converter(IObjectToStringConverter<P> c) {
+			m_converter = c;
+			return this;
+		}
+
+		public ExportButtonBuilder<T> build() {
+			m_parent.addColumn(this);
+			return m_parent;
+		}
+
+		@Override public String getLabel() {
+			String label = m_label;
+			return null == label ? m_property.getDefaultLabel() : label;
+		}
+
+		@Override public Class<?> getActualType() {
+			return m_property.getActualType();
+		}
+
+		@Override public IExportCellRenderer<?, ?, ?> getRenderer() {
+			return null;
+		}
+
+		@Override public Object convertValue(Object value) {
+			IObjectToStringConverter<P> converter = m_converter;
+			return converter == null ? value : converter.convertObjectToString(NlsContext.getLocale(), (P) value);
+		}
+
+		@Override public P getValue(Object in) throws Exception {
+			return m_property.getValue(in);
+		}
+	}
+
 	public static final class ExportButtonBuilder<T> {
+		private final ClassMetaModel m_classModel;
+
 		private final SupplierEx<QCriteria<T>> m_criteriaSupplier;
 
 		private final SearchPanel<T> m_searchPanel;
 
 		private ConsumerEx<QCriteria<T>> m_customizer;
 
-		private final List<String> m_columns = new ArrayList<>();
+		private final List<IExportColumn<?>> m_columnList = new ArrayList<>();
 
 		private String m_fileName;
-
 
 		@Nullable
 		private List<T> m_sourceRecords;
 
-		public ExportButtonBuilder(SupplierEx<QCriteria<T>> criteriaSupplier) {
+		public ExportButtonBuilder(Class<T> classModel, SupplierEx<QCriteria<T>> criteriaSupplier) {
+			m_classModel = MetaManager.findClassMeta(classModel);
 			m_criteriaSupplier = criteriaSupplier;
 			m_searchPanel = null;
 		}
 
 		public ExportButtonBuilder(SearchPanel<T> searchPanel) {
+			m_classModel = searchPanel.getMetaModel();
 			m_searchPanel = searchPanel;
 			m_criteriaSupplier = null;
 		}
 
-		public ExportButtonBuilder<T> columns(List<String> list) {
-			m_columns.addAll(list);
-			return this;
+		void addColumn(ExportColumnBuilder<T, ?> c) {
+			m_columnList.add(c);
 		}
 
-		public ExportButtonBuilder<T> columns(String... names) {
-			for(String name : names) {
-				m_columns.add(name);
-			}
-			return this;
-		}
-		public ExportButtonBuilder<T> columns(QField<T, ?>... names) {
-			for(QField<T, ?> name : names) {
-				m_columns.add(name.getName());
-			}
-			return this;
+		//public ExportButtonBuilder<T> columns(List<String> list) {
+		//	m_columns.addAll(list);
+		//	return this;
+		//}
+		//
+		//public ExportButtonBuilder<T> columns(String... names) {
+		//	for(String name : names) {
+		//		m_columns.add(name);
+		//	}
+		//	return this;
+		//}
+		//
+		//public ExportButtonBuilder<T> columns(QField<T, ?>... names) {
+		//	for(QField<T, ?> name : names) {
+		//		m_columns.add(name.getName());
+		//	}
+		//	return this;
+		//}
+
+		public <P> ExportColumnBuilder<T, P> column(QField<T, P> field) {
+			return new ExportColumnBuilder<>(this, m_classModel.getProperty(field));
 		}
 
+		public ExportColumnBuilder<T, Object> column(String name) {
+			return new ExportColumnBuilder<>(this, (PropertyMetaModel<Object>) m_classModel.getProperty(name));
+		}
 
 		public ExportButtonBuilder<T> fileName(String name) {
 			m_fileName = name;
@@ -201,7 +282,7 @@ public class ExporterButtons {
 			if(customizer != null)
 				customizer.accept(criteria);
 
-			ExporterButtons.export(node, format, criteria, m_columns.size() == 0 ? null : m_columns, fileName);
+			ExporterButtons.export(node, format, criteria, m_columnList, fileName);
 		}
 
 		protected void executeExportFromList(NodeContainer targetNode, IExportFormat format) throws Exception {
@@ -218,7 +299,7 @@ public class ExporterButtons {
 				customizer.accept(criteria);
 			List<T> result = MetaManager.query(sourceRecords, criteria);
 
-			ExporterButtons.export(targetNode, criteria.getBaseClass(), result, format, m_columns.size() == 0 ? null : m_columns, fileName);
+			ExporterButtons.export(targetNode, criteria.getBaseClass(), result, format, m_columnList, fileName);
 		}
 
 		private String calculateFileName(QCriteria<T> criteria) {

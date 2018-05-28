@@ -1,8 +1,6 @@
 package to.etc.domui.util.exporters;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.util.Progress;
 
 import java.util.List;
@@ -20,19 +18,11 @@ public class ListExporter<T> extends AbstractObjectExporter<T> {
 
 	private final List<T> m_list;
 
-	public ListExporter(Class<T> baseClass, @NonNull List<T> list, @NonNull IExportWriter<T> writer, @Nullable String... columns) {
+	public ListExporter(Class<T> baseClass, @NonNull List<T> list, @NonNull IExportWriter<T> writer, List<IExportColumn<?>> columns) {
 		m_baseClass = baseClass;
 		m_list = list;
 		m_exportWriter = writer;
-
-		if(null == baseClass)
-			throw new IllegalStateException("Metadata-query not yet supported");
-		List<ExpandedDisplayProperty<?>> xProps = ExpandedDisplayProperty.expandPropertiesWithDefaults(baseClass, columns);
-		m_columnList = convertExpandedToColumn(xProps);
-	}
-
-	public ListExporter(Class<T> baseClass, @NonNull List<T> list, IExportWriter<T> writer, List<String> columns) {
-		this(baseClass, list, writer, columns == null ? null : columns.toArray(new String[columns.size()]));
+		m_columnList = columns;
 	}
 
 	public ExportResult export(Progress p) throws Exception {
