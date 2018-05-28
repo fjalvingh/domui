@@ -1,6 +1,7 @@
 package to.etc.domui.util.exporters;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.menu.PopupMenu;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -17,6 +18,7 @@ import to.etc.function.ConsumerEx;
 import to.etc.function.SupplierEx;
 import to.etc.util.Progress;
 import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -51,7 +53,7 @@ public class ExporterButtons {
 	}
 
 	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<String> columns, String fileName) {
-		Exporter<T> x = new Exporter<>(xf, query, columns);
+		QueryExporterTask<T> x = new QueryExporterTask<>(xf, query, columns);
 		AsyncDialog.runInDialog(node, x, "Export", true, task -> {
 			File target = Objects.requireNonNull(task.getOutputFile());
 			String fn = fileName;
@@ -67,6 +69,24 @@ public class ExporterButtons {
 		});
 	}
 
+	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<String> columns, String fileName) {
+		ListExporterTask<T> exporterTask = new ListExporterTask<>(xf, baseClass, list, columns);
+		AsyncDialog.runInDialog(node, exporterTask, "Export", true, task -> {
+			File target = Objects.requireNonNull(task.getOutputFile());
+			String fn = fileName;
+			if(null == fn) {
+				fn = target.getName();
+			} else {
+				if(fn.lastIndexOf('.') == -1) {
+					fn += "." + xf.extension();
+				}
+			}
+
+			TempFilePart.createDownloadAction(node, target, task.getMimeType(), Disposition.Attachment, fn);
+		});
+	}
+
+
 	static public <T> ExportButtonBuilder<T> from(SupplierEx<QCriteria<T>> supplier) {
 		return new ExportButtonBuilder<>(supplier);
 	}
@@ -75,12 +95,12 @@ public class ExporterButtons {
 		return new ExportButtonBuilder<>(panel);
 	}
 
-	static private class Exporter<T> extends AbstractExporter<T> {
+	static private class QueryExporterTask<T> extends AbstractExporter<T> {
 		final private QCriteria<T> m_criteria;
 
 		final private List<String> m_columns;
 
-		public Exporter(IExportFormat format, QCriteria<T> criteria, List<String> columns) {
+		public QueryExporterTask(IExportFormat format, QCriteria<T> criteria, List<String> columns) {
 			super(format);
 			m_criteria = criteria;
 			m_columns = columns;
@@ -88,6 +108,26 @@ public class ExporterButtons {
 
 		@Override protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
 			QCriteriaExporter<T> qxp = new QCriteriaExporter<>(writer, dc(), m_criteria, m_columns);
+			qxp.export(progress);
+		}
+	}
+
+	static private class ListExporterTask<T> extends AbstractExporter<T> {
+		final private List<String> m_columns;
+
+		private final Class<T> m_baseClass;
+
+		private final List<T> m_list;
+
+		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<String> columns) {
+			super(format);
+			m_baseClass = baseClass;
+			m_list = list;
+			m_columns = columns;
+		}
+
+		@Override protected void export(IExportWriter<T> writer, @NonNull Progress progress) throws Exception {
+			ListExporter<T> qxp = new ListExporter<>(m_baseClass, m_list, writer, m_columns);
 			qxp.export(progress);
 		}
 	}
@@ -102,6 +142,10 @@ public class ExporterButtons {
 		private final List<String> m_columns = new ArrayList<>();
 
 		private String m_fileName;
+
+
+		@Nullable
+		private List<T> m_sourceRecords;
 
 		public ExportButtonBuilder(SupplierEx<QCriteria<T>> criteriaSupplier) {
 			m_criteriaSupplier = criteriaSupplier;
@@ -124,9 +168,21 @@ public class ExporterButtons {
 			}
 			return this;
 		}
+		public ExportButtonBuilder<T> columns(QField<T, ?>... names) {
+			for(QField<T, ?> name : names) {
+				m_columns.add(name.getName());
+			}
+			return this;
+		}
+
 
 		public ExportButtonBuilder<T> fileName(String name) {
 			m_fileName = name;
+			return this;
+		}
+
+		public ExportButtonBuilder<T> source(List<T> source) {
+			m_sourceRecords = source;
 			return this;
 		}
 
@@ -135,22 +191,37 @@ public class ExporterButtons {
 			return this;
 		}
 
-		protected void executeExport(NodeContainer node, IExportFormat format) throws Exception {
-			SupplierEx<QCriteria<T>> criteriaSupplier = m_criteriaSupplier;
-			QCriteria<T> criteria;
-			if(criteriaSupplier != null)
-				criteria = criteriaSupplier.get();
-			else {
-				SearchPanel<T> searchPanel = m_searchPanel;
-				if(null != searchPanel) {
-					criteria = searchPanel.getCriteria();
-				} else {
-					throw new IllegalStateException("No panel nor criteria");
-				}
-			}
+		protected void executeExportByQuery(NodeContainer node, IExportFormat format) throws Exception {
+			QCriteria<T> criteria = getSelectionCriteria();
 			if(null == criteria) {
 				return;
 			}
+			String fileName = calculateFileName(criteria);
+			ConsumerEx<QCriteria<T>> customizer = m_customizer;
+			if(customizer != null)
+				customizer.accept(criteria);
+
+			ExporterButtons.export(node, format, criteria, m_columns.size() == 0 ? null : m_columns, fileName);
+		}
+
+		protected void executeExportFromList(NodeContainer targetNode, IExportFormat format) throws Exception {
+			QCriteria<T> criteria = getSelectionCriteria();
+			if(null == criteria) {
+				return;
+			}
+			List<T> sourceRecords = m_sourceRecords;
+			if(null == sourceRecords)
+				return;
+			String fileName = calculateFileName(criteria);
+			ConsumerEx<QCriteria<T>> customizer = m_customizer;
+			if(customizer != null)
+				customizer.accept(criteria);
+			List<T> result = MetaManager.query(sourceRecords, criteria);
+
+			ExporterButtons.export(targetNode, criteria.getBaseClass(), result, format, m_columns.size() == 0 ? null : m_columns, fileName);
+		}
+
+		private String calculateFileName(QCriteria<T> criteria) {
 			String fileName = m_fileName;
 			if(null == fileName) {
 				//-- Get table name
@@ -170,18 +241,35 @@ public class ExporterButtons {
 					}
 				}
 			}
-			ConsumerEx<QCriteria<T>> customizer = m_customizer;
-			if(customizer != null)
-				customizer.accept(criteria);
+			return fileName;
+		}
 
-			ExporterButtons.export(node, format, criteria, m_columns.size() == 0 ? null : m_columns, fileName);
+		@Nullable
+		private QCriteria<T> getSelectionCriteria() throws Exception {
+			SupplierEx<QCriteria<T>> criteriaSupplier = m_criteriaSupplier;
+			QCriteria<T> criteria;
+			if(criteriaSupplier != null)
+				criteria = criteriaSupplier.get();
+			else {
+				SearchPanel<T> searchPanel = m_searchPanel;
+				if(null != searchPanel) {
+					criteria = searchPanel.getCriteria();
+				} else {
+					throw new IllegalStateException("No panel nor criteria");
+				}
+			}
+			return criteria;
 		}
 
 		public DefaultButton build() {
 			DefaultButton button = new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), FaIcon.faFileExcelO);
 			button.setClicked(ab -> {
 				showFormatPopup(format -> {
-					executeExport(ab.getParent(), format);
+					if(m_sourceRecords != null) {
+						executeExportFromList(ab.getParent(), format);
+					} else {
+						executeExportByQuery(ab.getParent(), format);
+					}
 				}, ab);
 			});
 			return button;
