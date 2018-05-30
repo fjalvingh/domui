@@ -124,13 +124,13 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		 * Render all attached Javascript in an onReady() function. This code will run
 		 * as soon as the body load has completed.
 		 */
-		o().tag("script");
-		o().endtag();
-		o().text("$(document).ready(function() {");
-
-
-		o().text("});");
-		o().closetag("script");
+		//o().tag("script");
+		//o().endtag();
+		//o().text("$(document).ready(function() {");
+		//
+		//
+		//o().text("});");
+		//o().closetag("script");
 		o().closetag("html");
 	}
 
