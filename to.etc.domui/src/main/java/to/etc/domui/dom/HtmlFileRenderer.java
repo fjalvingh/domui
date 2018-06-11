@@ -65,11 +65,43 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	@NonNull
 	private StringBuilder m_stateJS = new StringBuilder();
 
+	private final List<HeaderContributor> m_contributors = new ArrayList<>();
+
 	/**
 	 * Builder wrapping the above.
 	 */
 	@NonNull
 	private JavascriptStmt m_stateBuilder = new JavascriptStmt(m_stateJS);
+
+	public final static class Builder {
+		private final NodeContainer m_root;
+
+		private final List<HeaderContributor> m_contributors = new ArrayList<>();
+
+		public Builder(NodeContainer rootNode) {
+			m_root = rootNode;
+		}
+
+		public Builder add(HeaderContributor hc) {
+			m_contributors.add(hc);
+			return this;
+		}
+
+		public void download(@NonNull String fileName) throws Exception {
+			File tempFile = File.createTempFile("ht-", ".html");
+			try(OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(tempFile), "utf-8")) {
+				HtmlFileRenderer fr = HtmlFileRenderer.create(osw, m_root);
+				fr.addHeaderContributors(m_contributors);
+				fr.render(UIContext.getRequestContext());
+
+				TempFilePart.createDownloadAction(m_root, tempFile, "application/octet-stream", Disposition.Attachment, fileName);
+			}
+		}
+	}
+
+	private void addHeaderContributors(List<HeaderContributor> contributors) {
+		m_contributors.addAll(contributors);
+	}
 
 	static public HtmlFileRenderer create(@NonNull Writer output, @NonNull NodeContainer rootNode) {
 		FastXmlOutputWriter out = new FastXmlOutputWriter(output);
@@ -87,6 +119,10 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 			TempFilePart.createDownloadAction(resultFragment, tempFile, "application/octet-stream", Disposition.Attachment, fileName);
 		}
+	}
+
+	static public Builder on(NodeContainer rootNode) {
+		return new Builder(rootNode);
 	}
 
 	protected HtmlFileRenderer(@NonNull HtmlTagRenderer tagRenderer, @NonNull IBrowserOutput output, NodeContainer rootNode) {
@@ -276,14 +312,15 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
-	 *
-	 * @throws Exception
 	 */
 	public void renderHeadContributors() throws Exception {
 		List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(m_page.getApplication().getHeaderContributorList());
 		Collections.sort(full, HeaderContributor.C_ENTRY);
 		for(HeaderContributorEntry hce : full)
 			hce.getContributor().contribute(this);
+		for(HeaderContributor contributor : m_contributors) {
+			contributor.contribute(this);
+		}
 	}
 
 	@Override
