@@ -34,10 +34,22 @@ import to.etc.domui.dom.IContributorRenderer;
  * Created on Jul 3, 2008
  */
 public class ThemedJavascriptContributor extends HeaderContributor {
+	private final boolean m_offline;
+
 	private String m_path;
 
 	ThemedJavascriptContributor(String path) {
 		m_path = path;
+		m_offline = false;
+	}
+
+	ThemedJavascriptContributor(String path, boolean offline) {
+		m_path = path;
+		m_offline = offline;
+	}
+
+	@Override public boolean isOfflineCapable() {
+		return m_offline;
 	}
 
 	@Override

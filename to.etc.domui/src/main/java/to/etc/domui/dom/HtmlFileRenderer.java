@@ -22,18 +22,23 @@ import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.ThemeResourceFactory;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.domui.util.resources.ResourceDependencyList;
 import to.etc.util.ByteBufferInputStream;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -154,6 +159,13 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		o().endtag();
 
 		m_rootNode.visit(this);
+
+		o().tag("script");
+		o().attr("language", "javascript");
+		o().endtag();
+		o().writeRaw(getCreateJS());
+		o().closetag("script");
+
 		o().closetag("body");
 
 		/*
@@ -217,8 +229,6 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Overridden because this is a NodeBase node which MUST be terminated with a /div, always.
-	 *
-	 * @see to.etc.domui.dom.html.NodeVisitorBase#visitLiteralXhtml(to.etc.domui.component.misc.LiteralXhtml)
 	 */
 	@Override
 	@Deprecated
@@ -274,8 +284,6 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Render the page's doctype.
-	 *
-	 * @throws Exception
 	 */
 	protected void renderPageHeader() throws Exception {
 		o().writeRaw("<!DOCTYPE html>\n");
@@ -310,14 +318,31 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		o().writeRaw("\n</style>\n");
 	}
 
+	protected void renderResourceAsText(String resourceName) throws Exception {
+		IResourceRef resource = DomApplication.get().getResource(resourceName, new ResourceDependencyList());
+		if(! resource.exists()) {
+			System.out.println(resourceName + ": image resource not found");
+			return;
+		}
+		try(InputStream is = requireNonNull(resource.getInputStream())) {
+			try(InputStreamReader isr = new InputStreamReader(is, "utf-8")) {
+				String str = FileTool.readStreamAsString(isr);
+				o().writeRaw(str);
+			}
+		}
+	}
+
 	/**
 	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
 	 */
 	public void renderHeadContributors() throws Exception {
 		List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(m_page.getApplication().getHeaderContributorList());
 		Collections.sort(full, HeaderContributor.C_ENTRY);
-		for(HeaderContributorEntry hce : full)
-			hce.getContributor().contribute(this);
+		for(HeaderContributorEntry hce : full) {
+			HeaderContributor contributor = hce.getContributor();
+			if(contributor.isOfflineCapable())
+				contributor.contribute(this);
+		}
 		for(HeaderContributor contributor : m_contributors) {
 			contributor.contribute(this);
 		}
@@ -357,16 +382,19 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	@Override
 	public void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception {
-		//if(!path.startsWith("http")) {
-		//	String rurl = m_page.getBody().getThemedResourceRURL(path);
-		//	path = ctx().getRelativePath(rurl);
-		//}
-		//
-		////-- render an app-relative url
-		//o().tag("script");
-		//o().attr("src", path);
-		//o().endtag();
-		//o().closetag("script");
+		if(path.startsWith("http")) {
+			o().tag("script");
+			o().attr("src", path);
+			o().endtag();
+			o().closetag("script");
+			return;
+		}
+
+		String rurl = m_page.getBody().getThemedResourceRURL(path);
+		path = ctx().getRelativePath(rurl);
+		o().writeRaw("<script>\n");
+		renderResourceAsText(rurl);
+		o().writeRaw("\n</script>\n");
 	}
 
 	private void genVar(String name, String val) throws Exception {
@@ -375,8 +403,6 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Return all of the Javascript code to create/recreate this page.
-	 *
-	 * @return
 	 */
 	public StringBuilder getCreateJS() {
 		if(m_stateJS.length() > 0) {                            // Stuff present in state buffer too?

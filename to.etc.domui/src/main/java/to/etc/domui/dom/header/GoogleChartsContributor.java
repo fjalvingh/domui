@@ -9,6 +9,9 @@ import to.etc.domui.dom.IContributorRenderer;
  * Created by tinie on 28-10-15.
  */
 final public class GoogleChartsContributor extends HeaderContributor {
+	@Override public boolean isOfflineCapable() {
+		return false;
+	}
 
 	@Override
 	public int hashCode() {
