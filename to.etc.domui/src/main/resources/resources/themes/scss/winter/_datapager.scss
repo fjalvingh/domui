@@ -36,7 +36,7 @@
 	background-position: 0px 0px;
 }
 .ui-dp-btns a.ui-dp-nav-f:HOVER {
-	background-position: 0px -$data_pager_icon_size_y;
+	background-position: 0px -1 * $data_pager_icon_size_y;
 }
 .ui-dp-btns a.ui-dp-nav-f-dis {
 	background-position: 0px -2 * $data_pager_icon_size_y;

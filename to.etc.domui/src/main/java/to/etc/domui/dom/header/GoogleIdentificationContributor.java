@@ -15,6 +15,10 @@ public class GoogleIdentificationContributor extends HeaderContributor {
 		m_key = key;
 	}
 
+	@Override public boolean isOfflineCapable() {
+		return false;
+	}
+
 	@Override public void contribute(IContributorRenderer r) throws Exception {
 		r.renderLoadJavascript("https://apis.google.com/js/platform.js", true, true);
 		r.renderLoadJavascript(r.ctx().getRelativePath("$js/domui.login.js"), true, true);
