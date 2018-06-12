@@ -28,6 +28,9 @@
       <option name="RIGHT_MARGIN" value="72" />
     </MarkdownNavigatorCodeStyleSettings>
     <SqlCodeStyleSettings>
+      <option name="KEYWORD_CASE" value="1" />
+      <option name="IDENTIFIER_CASE" value="1" />
+      <option name="QUOTE_IDENTIFIER" value="1" />
       <option name="NEW_LINE_BEFORE_FROM" value="false" />
       <option name="NEW_LINE_BEFORE_JOIN" value="false" />
       <option name="NEW_LINE_BEFORE_WHERE" value="false" />
@@ -36,9 +39,6 @@
       <option name="NEW_LINE_BEFORE_HAVING" value="false" />
       <option name="NEW_LINE_BEFORE_OTHER_CLAUSES" value="false" />
       <option name="NEW_LINE_AFTER_SELECT_ITEM" value="false" />
-      <option name="QUOTE_IDENTIFIER" value="1" />
-      <option name="KEYWORD_CASE" value="1" />
-      <option name="IDENTIFIER_CASE" value="1" />
     </SqlCodeStyleSettings>
     <TypeScriptCodeStyleSettings>
       <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
