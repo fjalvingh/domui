@@ -143,10 +143,7 @@ public class NumericUtil {
 	 * DEPRECATED: This method wrongly assumes the scale of the number parsed - use {@link #parseNumber(Class, String, int)}.
 	 *
 	 * Parse any supported numeric wrapper type. In case that any specific scale must be used, use other method {@link NumericUtil#parseNumber(Class, String, int, NumericPresentation)}
-	 * @param <T>
 	 * @param type	In case of decimal types, it uses scale defined by DEFAULT_FRACTION_DIGITS.
-	 * @param input
-	 * @return
 	 */
 	@Deprecated
 	@Nullable
@@ -160,10 +157,7 @@ public class NumericUtil {
 
 	/**
 	 * Parse any supported numeric wrapper type. In case that any specific scale must be used, use other method {@link NumericUtil#parseNumber(Class, String, int, NumericPresentation)}
-	 * @param <T>
 	 * @param type	In case of decimal types, it uses scale defined by DEFAULT_FRACTION_DIGITS.
-	 * @param input
-	 * @return
 	 */
 	@Nullable
 	static public <T> T parseNumber(Class<T> type, String input, int scale) {
@@ -178,12 +172,7 @@ public class NumericUtil {
 	/**
 	 * Parse any supported numeric wrapper type.
 	 *
-	 * @param <T>
-	 * @param type
-	 * @param input
 	 * @param scale Integer based types can be used only with scale 0 -> no decimal places allowed here.
-	 * @param np
-	 * @return
 	 */
 	@Nullable
 	static public <T> T parseNumber(Class<T> type, String input, int scale, NumericPresentation np) {
@@ -243,12 +232,14 @@ public class NumericUtil {
 				default:
 					throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 
+				case NUMBER:
 				case NUMBER_SCALED:
 					return v.toString();
+
 				case UNKNOWN:
-				case NUMBER:
 				case NUMBER_FULL:
 					return new DecimalFormat("###,###,###,###,###,###,###,###,###,###,###,###,##0", dfs).format(v);
+
 				case NUMBER_SCIENTIFIC:
 					if(type != BigDecimal.class)
 						v = new BigDecimal(v.longValue());
@@ -266,11 +257,15 @@ public class NumericUtil {
 			default:
 				throw new IllegalArgumentException("Unsupported numeric presentation for numeric type " + v.getClass() + ": " + np);
 
-			case UNKNOWN:
 			case NUMBER:
+				NumberFormat nf = NumberFormat.getInstance(NlsContext.getLocale());
+				nf.setGroupingUsed(false);
+				return nf.format(v);
+
+			case UNKNOWN:
 				//-- If scale is unknown and the number is scaled, just print everything.
 				if(inScale == -1 && DomUtil.isScaledType(v.getClass())) {
-					NumberFormat nf = NumberFormat.getInstance(NlsContext.getLocale());
+					nf = NumberFormat.getInstance(NlsContext.getLocale());
 					nf.setGroupingUsed(true);
 					return nf.format(v);
 				}
