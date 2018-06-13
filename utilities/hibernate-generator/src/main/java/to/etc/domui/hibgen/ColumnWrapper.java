@@ -28,6 +28,7 @@ import com.github.javaparser.ast.type.PrimitiveType.Primitive;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.VoidType;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Node;
 import to.etc.dbutil.schema.DbColumn;
@@ -121,6 +122,8 @@ public class ColumnWrapper {
 	private boolean m_setLengthField;
 
 	private boolean m_new;
+
+	private boolean m_primaryKey;
 
 	private ColumnWrapper m_parentListProperty;
 
@@ -232,9 +235,8 @@ public class ColumnWrapper {
 
 	/**
 	 * Returns T if this is a singular PK field for the object.
-	 * @return
 	 */
-	public boolean isPrimaryKey() {
+	public boolean isColumnAPrimaryKey() {
 		if(null == m_column)
 			return false;
 		DbPrimaryKey primaryKey = m_column.getTable().getPrimaryKey();
@@ -243,6 +245,13 @@ public class ColumnWrapper {
 		return primaryKey.getColumnList().contains(m_column) && primaryKey.getColumnList().size() == 1;
 	}
 
+	public boolean isPrimaryKey() {
+		return m_primaryKey;
+	}
+
+	public void setPrimaryKey(boolean primaryKey) {
+		m_primaryKey = primaryKey;
+	}
 
 	public void calculateColumnType(Connection dbc) throws Exception {
 		DbColumn column = m_column;
@@ -332,6 +341,10 @@ public class ColumnWrapper {
 			default:
 				return false;
 
+			case Types.BINARY:
+				setPropertyType(new ClassOrInterfaceType("java.sql.Blob"));
+				return true;
+
 			case Types.REAL:
 			case Types.DOUBLE:
 			case Types.FLOAT:
@@ -390,7 +403,15 @@ public class ColumnWrapper {
 
 			case Types.BOOLEAN:
 			case Types.BIT:
-				assignBooleanType(null);
+				assignBooleanType(ExtraType.TrueFalse);
+				return true;
+
+			case Types.TIME:
+				setPropertyType(new ClassOrInterfaceType("java.sql.Time"));
+				return true;
+
+			case Types.SQLXML:
+				setPropertyType(new ClassOrInterfaceType("java.sql.SQLXML"));
 				return true;
 		}
 	}
@@ -564,6 +585,8 @@ public class ColumnWrapper {
 						xt = ExtraType.TrueFalse;
 					} else if(ONEZEROSET.contains(res.get(0).toLowerCase()) && ONEZEROSET.contains(res.get(1).toLowerCase())) {
 						xt = ExtraType.OneZero;
+					} else {
+						xt = ExtraType.TrueFalse;
 					}
 					assignBooleanType(xt);
 					setValueSet(res);
@@ -642,7 +665,7 @@ public class ColumnWrapper {
 		return s.toLowerCase().startsWith("y");
 	}
 
-	private void assignBooleanType(ExtraType extra) {
+	private void assignBooleanType(@NonNull ExtraType extra) {
 		//-- Make boolean.
 		if(m_column.isNullable()) {
 			String fnn = getConfigProperty("forceNotNull");
@@ -908,7 +931,6 @@ public class ColumnWrapper {
 
 	/**
 	 * Render the id annotation and anything related to it.
-	 * @param getter
 	 */
 	private void renderIdAnnotations(MethodDeclaration getter) throws Exception {
 		if(g().isAddIdentifyable()) {
@@ -924,6 +946,7 @@ public class ColumnWrapper {
 					NormalAnnotationExpr ca = createOrFindAnnotation(getter, "javax.persistence.SequenceGenerator");
 					addPairIfMissing(ca, "name", "\"sq\"");
 					setPair(ca, "sequenceName", idSequence, true);
+					addPairIfMissing(ca, "allocationSize", "1");
 
 					//-- And its reference: @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq")
 					ca = createOrFindAnnotation(getter, "javax.persistence.GeneratedValue");
@@ -1381,6 +1404,8 @@ public class ColumnWrapper {
 
 	public boolean isNumeric() {
 		Type propertyType = getPropertyType();
+		if(null == propertyType)
+			throw new IllegalStateException(this + ": property type unknown");
 		String s = propertyType.asString();
 		s = s.substring(0, s.lastIndexOf('.') + 1);
 		return s.equals("int")

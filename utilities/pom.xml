@@ -22,5 +22,6 @@
 
     <modules>
         <module>hibernate-generator</module>
+        <module>to.etc.dbcompare</module>
     </modules>
 </project>
