@@ -1,20 +1,17 @@
 package to.etc.domui.util.exporters;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.util.Progress;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-public class QCriteriaExporter<T> {
+public class QCriteriaExporter<T> extends AbstractObjectExporter<T> {
 	private final QDataContext m_dc;
 
 	private final QCriteria<T> m_query;
@@ -23,7 +20,7 @@ public class QCriteriaExporter<T> {
 
 	private final List<IExportColumn<?>> m_columnList;
 
-	public QCriteriaExporter(@NonNull IExportWriter<T> writer, @NonNull QDataContext dc, @NonNull QCriteria<T> query, @Nullable String... columns) {
+	public QCriteriaExporter(@NonNull IExportWriter<T> writer, @NonNull QDataContext dc, @NonNull QCriteria<T> query, List<IExportColumn<?>> columnList) {
 		m_dc = dc;
 		m_query = query;
 		m_exportWriter = writer;
@@ -31,16 +28,9 @@ public class QCriteriaExporter<T> {
 		Class<T> baseClass = query.getBaseClass();
 		if(null == baseClass)
 			throw new IllegalStateException("Metadata-query not yet supported");
-		List<ExpandedDisplayProperty<?>> xProps = ExpandedDisplayProperty.expandPropertiesWithDefaults(baseClass, columns);
-		m_columnList = convertExpandedToColumn(xProps);
-	}
-
-	private List<IExportColumn<?>> convertExpandedToColumn(List<ExpandedDisplayProperty<?>> xProps) {
-		return xProps.stream().map(a -> new ExpandedDisplayPropertyColumnWrapper<>(a)).collect(Collectors.toList());
-	}
-
-	public QCriteriaExporter(IExportWriter<T> writer, QDataContext dc, QCriteria<T> query, List<String> columns) {
-		this(writer, dc, query, columns == null ? null : columns.toArray(new String[columns.size()]));
+		m_columnList = columnList;
+		//List<ExpandedDisplayProperty<?>> xProps = ExpandedDisplayProperty.expandPropertiesWithDefaults(baseClass, columns);
+		//m_columnList = convertExpandedToColumn(xProps);
 	}
 
 	public ExportResult export(Progress p) throws Exception {
