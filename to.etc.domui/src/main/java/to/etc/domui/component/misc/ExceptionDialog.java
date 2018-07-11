@@ -3,6 +3,7 @@ package to.etc.domui.component.misc;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.misc.MsgBox2.Type;
 import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Pre;
 import to.etc.domui.trouble.UIMsgException;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.util.StringTool;
@@ -35,10 +36,14 @@ final public class ExceptionDialog {
 		x.printStackTrace();
 		StringBuilder sb = new StringBuilder();
 		StringTool.strStacktrace(sb, x);
+		Pre pre = new Pre();
+		pre.add(message + "\n" + x.toString() + "\n\n" + sb);
+
 		MsgBox2.on(container)
 			.title("An error has occurred")
 			.type(Type.ERROR)
-			.text(message + "\n" + x.toString() + "\n\n" + sb)
+			.content(pre)
+			//.text(message + "\n" + x.toString() + "\n\n" + sb)
 			.modal()
 			.size(700, 500)
 		;
