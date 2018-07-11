@@ -546,10 +546,12 @@ final public class FormBuilder {
 
 		public void item(@NonNull NodeBase item) throws Exception {
 			addControl(this, item, null);
+			resetBuilder();
 		}
 
 		public void control(@NonNull NodeBase item) throws Exception {
 			addControl(this, item, null);
+			resetBuilder();
 		}
 
 		@NonNull
