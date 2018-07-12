@@ -132,6 +132,7 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 		TD right = m_right;
 		if(null == right) {
 			m_right = right = m_body.addCell();
+			right.addCssClass("ui-bb-right");
 		}
 		return right;
 	}
