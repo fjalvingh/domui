@@ -47,59 +47,18 @@ final public class FormBuilder {
 
 	private boolean m_currentDirection;
 
-	private String m_nextLabel;
-
-	private String m_errorLocation;
-
-	private NodeContainer m_nextLabelControl;
-
-	private PropertyMetaModel< ? > m_propertyMetaModel;
-
-	private Object m_instance;
-
-	private Boolean m_mandatory;
-
-	@Nullable
-	private String m_testid;
-
-	/** ReadOnly as set directly in the Builder */
-	private Boolean m_readOnly;
-
-	/** When set, the next control's readOnly property will be bound to this reference, after which it will be cleared */
-	@Nullable
-	private BindReference<?, Boolean> m_readOnlyOnce;
-
 	/** While set, all controls added will have their readOnly property bound to this reference unless otherwise specified */
 	@Nullable
 	private BindReference<?, Boolean> m_readOnlyGlobal;
 
-	/** When set, disable the next component with the specified message. */
-	@Nullable
-	private String m_disabledMessage;
-
-	@Nullable
-	private BindReference<?, String> m_disabledMessageOnce;
-
 	@Nullable
 	private BindReference<?, String> m_disabledMessageGlobal;
-
-	/** disabled as set directly in the Builder */
-	private Boolean m_disabled;
-
-	@Nullable
-	private BindReference<?, Boolean> m_disabledOnce;
 
 	@Nullable
 	private BindReference<?, Boolean> m_disabledGlobal;
 
 	@Nullable
-	private String m_controlCss;
-
-	@Nullable
-	private String m_labelCss;
-
-	@Nullable
-	private IBidiBindingConverter<?, ?> m_bindingConverter;
+	private BuilderData<?, ?> m_currentBuilder;
 
 	public FormBuilder(@NonNull IAppender appender) {
 		m_appender = appender;
@@ -151,65 +110,14 @@ final public class FormBuilder {
 
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Label control.										*/
-	/*--------------------------------------------------------------*/
-	@NonNull
-	public FormBuilder label(@NonNull String label) {
-		if(null != m_nextLabelControl)
-			throw new IllegalStateException("You already set a Label instance");
-		m_nextLabel = label;
-		return this;
+	static private <I, V> BindReference<I, V> createRef(@NonNull I instance, @NonNull QField<I, V> property) {
+		PropertyMetaModel<V> pmm = MetaManager.getPropertyMeta(instance.getClass(), property);
+		//if(DomUtil.getBoxedForPrimitive(pmm.getActualType()) != DomUtil.getBoxedForPrimitive(property.)) {
+		//	throw new ProgrammerErrorException(pmm + " must be of type " + type.getName());
+		//}
+		return new BindReference<>(instance, pmm);
 	}
 
-	@NonNull
-	public FormBuilder label(@NonNull NodeContainer label) {
-		if(null != m_nextLabel)
-			throw new IllegalStateException("You already set a String label instance");
-		m_nextLabelControl = label;
-		return this;
-	}
-
-	@NonNull
-	public FormBuilder errorLocation(@NonNull String errorLocation) {
-		m_errorLocation = errorLocation;
-		return this;
-	}
-
-
-	@NonNull
-	public FormBuilder unlabeled() {
-		label("");
-		return this;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Readonly, mandatory, disabled.						*/
-	/*--------------------------------------------------------------*/
-	@NonNull
-	public FormBuilder readOnly() {
-		m_readOnly = Boolean.TRUE;
-		return this;
-	}
-
-	/**
-	 * Force the next component to have the specified value for readOnly.
-	 */
-	@NonNull
-	public FormBuilder readOnly(boolean ro) {
-		m_readOnly = Boolean.valueOf(ro);
-		return this;
-	}
-
-
-	/**
-	 * Bind only the next component to the specified boolean property. See
-	 */
-	@NonNull
-	public <I> FormBuilder readOnly(@NonNull I instance, @NonNull String property) {
-		m_readOnlyOnce = createRef(instance, property, Boolean.class);
-		return this;
-	}
 
 	/**
 	 * By default bind all next components' readOnly property to the specified Boolean property. This binding
@@ -228,32 +136,6 @@ final public class FormBuilder {
 	@NonNull
 	public FormBuilder readOnlyAllClear() {
 		m_readOnlyGlobal = null;
-		return this;
-	}
-
-	@NonNull
-	public FormBuilder disabled() {
-		m_disabled = Boolean.TRUE;
-		return this;
-	}
-
-	/**
-	 * Force the next component to have the specified value for disabled.
-	 */
-	@NonNull
-	public FormBuilder disabled(boolean ro) {
-		m_disabled = Boolean.valueOf(ro);
-		return this;
-	}
-	@NonNull
-	public FormBuilder testId(String id) {
-		m_testid = id;
-		return this;
-	}
-
-	@NonNull
-	public <I> FormBuilder disabled(@NonNull I instance, @NonNull String property) {
-		m_disabledOnce = createRef(instance, property, Boolean.class);
 		return this;
 	}
 
@@ -277,21 +159,6 @@ final public class FormBuilder {
 		return this;
 	}
 
-	/**
-	 * Disables the next component with the specified disable message.
-	 */
-	@NonNull
-	public FormBuilder disabledBecause(@Nullable String message) {
-		m_disabledMessage = message;
-		return this;
-	}
-
-	@NonNull
-	public <I> FormBuilder disabledBecause(@NonNull I instance, @NonNull String property) {
-		m_disabledMessageOnce = createRef(instance, property, String.class);
-		return this;
-	}
-
 	@NonNull
 	public <I> FormBuilder disabledBecauseAll(@NonNull I instance, @NonNull String property) {
 		m_disabledMessageGlobal = createRef(instance, property, String.class);
@@ -304,159 +171,107 @@ final public class FormBuilder {
 		return this;
 	}
 
-	@NonNull
-	public FormBuilder mandatory() {
-		m_mandatory = Boolean.TRUE;
-		return this;
-	}
-
-	@NonNull
-	public FormBuilder	mandatory(boolean yes) {
-		m_mandatory = Boolean.valueOf(yes);
-		return this;
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING: defining (manually created) controls.				*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Add the specified control. Since the control is manually created this code assumes that the
-	 * control is <b>properly configured</b> for it's task! This means that this code will not
-	 * make any changes to the control! Specifically: if the form item is marked as "mandatory"
-	 * but the control here is not then the control stays optional.
-	 * The reverse however is not true: if the control passed in is marked as mandatory then the
-	 * form item will be marked as such too.
-	 */
-	public void control(@NonNull IControl< ? > control) throws Exception {
-		if(control.isMandatory()) {
-			m_mandatory = Boolean.TRUE;
-		}
-		addControl((NodeBase) control);
-		resetBuilder();
-	}
 
 	@NonNull
-	public IControl< ? > control() throws Exception {
-		return controlMain(null);
+	public <T> UntypedControlBuilder<T> property(@NonNull T instance, @GProperty String property) {
+		check();
+		UntypedControlBuilder<T> currentBuilder = new UntypedControlBuilder<>(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
+		m_currentBuilder = currentBuilder;
+		return currentBuilder;
 	}
 
-	@NonNull
-	public <T, C extends IControl<T>> C control(@Nullable Class<C> controlClass) throws Exception {
-		return controlMain(controlClass);
+	private void check() {
+		if(null != m_currentBuilder)
+			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
 	}
 
+	//@NonNull
+	//public <T, V, C> ControlBuilder<T, V, C> property(@NonNull T instance, @GProperty String property, IBidiBindingConverter<C, V> converter) {
+	//	if(null != m_currentBuilder)
+	//		throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
+	//	ControlBuilder<T, V, C> builder = new ControlBuilder<>(instance, (PropertyMetaModel<V>) MetaManager.getPropertyMeta(instance.getClass(), property), converter);
+	//	m_currentBuilder = builder;
+	//	return builder;
+	//}
+
 	@NonNull
-	private  <T, C extends IControl<T>> C controlMain(@Nullable Class<C> controlClass) throws Exception {
-		ControlCreatorRegistry builder = DomApplication.get().getControlCreatorRegistry();
-		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) m_propertyMetaModel;
-		if(null == pmm)
-			throw new IllegalStateException("You must have called 'property(...)' before");
-		C control = builder.createControl(pmm, controlClass);
-		addControl((NodeBase) control);
-		resetBuilder();
-		return control;
+	public <T, V> TypedControlBuilder<T, V> property(@NonNull T instance, QField<?, V> property) {
+		check();
+		TypedControlBuilder<T, V> builder = new TypedControlBuilder<>(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
+		m_currentBuilder = builder;
+		return builder;
 	}
 
-	/**
-	 * Adds the specified css class to the control cell.
-	 * @param cssClass
-	 * @return
-	 */
-	@NonNull
-	public FormBuilder cssControl(@NonNull String cssClass) {
-		m_controlCss = cssClass;
-		return this;
+	//@NonNull
+	//public <T, V, C> ControlBuilder<T, V, C> property(@NonNull T instance, QField<?, V> property, IBidiBindingConverter<C, V> converter) {
+	//	if(null != m_currentBuilder)
+	//		throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
+	//	ControlBuilder<T, V, C> builder = new ControlBuilder<>(instance, MetaManager.getPropertyMeta(instance.getClass(), property), converter);
+	//	m_currentBuilder = builder;
+	//	return builder;
+	//}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Propertyless items.											*/
+	/*----------------------------------------------------------------------*/
+
+	public ItemBuilder label(@Nullable String label) {
+		check();
+		ItemBuilder b = new ItemBuilder().label(label);
+		m_currentBuilder = b;
+		return b;
 	}
 
-	/**
-	 * Adds the specified css class to the label cell.
-	 * @param cssClass
-	 * @return
-	 */
-	@NonNull
-	public FormBuilder cssLabel(@NonNull String cssClass) {
-		m_labelCss = cssClass;
-		return this;
+	public ItemBuilder label(@Nullable NodeContainer label) {
+		check();
+		ItemBuilder b = new ItemBuilder().label(label);
+		m_currentBuilder = b;
+		return b;
 	}
 
 	public void item(@NonNull NodeBase item) throws Exception {
-		addControl(item);
+		addControl(new ItemBuilder(), item, null);
 		resetBuilder();
 	}
 
-	@NonNull
-	public <T> FormBuilder property(@NonNull T instance, @GProperty String property) {
-		if(null != m_propertyMetaModel)
-			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
-		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
-		m_instance = instance;
-		return this;
-	}
-
-	@NonNull
-	public <T> FormBuilder property(@NonNull T instance, @GProperty String property, IBidiBindingConverter<?, ?> converter) {
-		if(null != m_propertyMetaModel)
-			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
-		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
-		m_instance = instance;
-		m_bindingConverter = converter;
-		return this;
-	}
-
-	@NonNull
-	public <T, V> FormBuilder property(@NonNull T instance, QField<?, V> property) {
-		if(null != m_propertyMetaModel)
-			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
-		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
-		m_instance = instance;
-		return this;
-	}
-
-	@NonNull
-	public <T, V> FormBuilder property(@NonNull T instance, QField<?, V> property, IBidiBindingConverter<?, V> converter) {
-		if(null != m_propertyMetaModel)
-			throw new IllegalStateException("You need to end the builder pattern with a call to 'control()'");
-		m_propertyMetaModel = MetaManager.getPropertyMeta(instance.getClass(), property);
-		m_instance = instance;
-		m_bindingConverter = converter;
-		return this;
+	public void control(@NonNull NodeBase item) throws Exception {
+		addControl(new ItemBuilder(), item, null);
+		resetBuilder();
 	}
 
 	private void resetBuilder() {
-		m_readOnly = null;
-		m_readOnlyOnce = null;
-		m_disabled = null;
-		m_disabledOnce = null;
-		m_disabledMessage = null;
-		m_disabledMessageOnce = null;
-		m_instance = null;
-		m_propertyMetaModel = null;
 		m_append = false;
-		m_mandatory = null;
-		m_nextLabel = null;
-		m_nextLabelControl = null;
-		m_controlCss = null;
-		m_labelCss = null;
-		m_errorLocation = null;
-		m_bindingConverter = null;
-		m_testid = null;
+		m_currentBuilder = null;
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Form building code.									*/
 	/*--------------------------------------------------------------*/
-	private void addControl(@NonNull NodeBase control) throws Exception {
+	@NonNull
+	private <I, T, UI extends IControl<T>> UI controlMain(BuilderData<I, T> cb, @Nullable Class<UI> controlClass) throws Exception {
+		ControlCreatorRegistry builder = DomApplication.get().getControlCreatorRegistry();
+		PropertyMetaModel<T> pmm = cb.m_propertyMetaModel;
+		UI control = builder.createControl(pmm, controlClass);
+		addControl(cb, (NodeBase) control, null);
+		resetBuilder();
+		return control;
+	}
+
+	private <I, V> void addControl(BuilderData<I, V> builder,@NonNull NodeBase control, @Nullable IBidiBindingConverter<?, ?> conv) throws Exception {
 		if (control.getClass().getSimpleName().contains("TextArea")
-			&& m_labelCss == null) {
-			m_labelCss = "ui-f4-ta";
+			&& builder.m_labelCss == null) {
+			builder.m_labelCss = "ui-f4-ta";
 		}
 
-		NodeContainer lbl = determineLabel();
+		NodeContainer lbl = builder.determineLabel();
 		resetDirection();
-		m_layouter.addControl(control, lbl, m_controlCss, m_labelCss, m_append);
+		m_layouter.addControl(control, lbl, builder.m_controlCss, builder.m_labelCss, m_append);
 
-		String testid = m_testid;
-		PropertyMetaModel<?> pmm = m_propertyMetaModel;
+		String testid = builder.m_testid;
+		PropertyMetaModel<?> pmm = builder.m_propertyMetaModel;
 		if(null != testid)
 			control.setTestID(testid);
 		else if(control.getTestID() == null) {
@@ -467,21 +282,21 @@ final public class FormBuilder {
 		if(control instanceof IControl) {
 			IControl< ? > ctl = (IControl< ? >) control;
 			if(null != pmm) {
-				Object instance = m_instance;
+				Object instance = builder.m_instance;
 				if(null != instance) {
-					IBidiBindingConverter<Object, Object> conv = (IBidiBindingConverter<Object, Object>) m_bindingConverter;
+					//IBidiBindingConverter<Object, Object> conv = (IBidiBindingConverter<Object, Object>) builder.m_converter;
 					if(null == conv) {
 						control.bind().to(instance, pmm);
 					} else {
 						BindingBuilderBidi<?> bind = control.bind();
-						((BindingBuilderBidi<Object>) bind).to(instance, (PropertyMetaModel<Object>)pmm, conv);
+						((BindingBuilderBidi<Object>) bind).to(instance, (PropertyMetaModel<Object>)pmm, (IBidiBindingConverter<Object, Object>) conv);
 					}
 				}
 			}
 
 			//-- Do all the readOnly chores
-			Boolean readOnly = m_readOnly;
-			BindReference<?, Boolean> roOnce = m_readOnlyOnce;
+			Boolean readOnly = builder.m_readOnly;
+			BindReference<?, Boolean> roOnce = builder.m_readOnlyOnce;
 			BindReference<?, Boolean> roGlob = m_readOnlyGlobal;
 			if(null != readOnly) {
 				ctl.setReadOnly(readOnly.booleanValue());
@@ -492,11 +307,11 @@ final public class FormBuilder {
 			}
 
 			//-- Same for disabled - prefer message above the boolean disabled.
-			String diMsg = m_disabledMessage;
-			BindReference<?, String> diMsgOnce = m_disabledMessageOnce;
+			String diMsg = builder.m_disabledMessage;
+			BindReference<?, String> diMsgOnce = builder.m_disabledMessageOnce;
 			BindReference<?, String> diMsgGlob = m_disabledMessageGlobal;
-			Boolean di = m_disabled;
-			BindReference<?, Boolean> diOnce = m_disabledOnce;
+			Boolean di = builder.m_disabled;
+			BindReference<?, Boolean> diOnce = builder.m_disabledOnce;
 			BindReference<?, Boolean> diGlob = m_disabledGlobal;
 
 			if(diMsg != null) {
@@ -514,14 +329,14 @@ final public class FormBuilder {
 				control.bind("disabled").to(diGlob);
 			}
 
-			if(isMandatory()) {
+			if(builder.isMandatory()) {
 				ctl.setMandatory(true);
 			}
 		}
 
-		String label = labelTextCalculated();
-		if (null != m_errorLocation){
-			control.setErrorLocation(m_errorLocation);
+		String label = builder.labelTextCalculated();
+		if (null != builder.m_errorLocation){
+			control.setErrorLocation(builder.m_errorLocation);
 		} else {
 			if(null != label) {
 				control.setErrorLocation(label);
@@ -543,84 +358,604 @@ final public class FormBuilder {
 		m_layouter.appendAfterControl(what);
 	}
 
-	@Nullable
-	private NodeContainer determineLabel() {
-		NodeContainer res = null;
-		String txt = m_nextLabel;
-		if(null != txt) {
-			//m_nextLabel = null;
-			if(txt.length() != 0)					// Not "unlabeled"?
-				res = new Label(txt);
-		} else {
-			res = m_nextLabelControl;
-			if(res == null) {
-				//-- Property known?
-				PropertyMetaModel< ? > pmm = m_propertyMetaModel;
-				if(null != pmm) {
-					txt = pmm.getDefaultLabel();
-					if(txt != null && txt.length() > 0)
-						res = new Label(txt);
-				}
-			}
-		}
-		if(res != null && calculateMandatory() && !isReadOnly()) {
-			res.addCssClass("ui-f4-mandatory");
+	private class BuilderData<I, V> {
+		protected final I m_instance;
+
+		protected final PropertyMetaModel<V> m_propertyMetaModel;
+
+		protected String m_errorLocation;
+
+		protected String m_nextLabel;
+
+		protected NodeContainer m_nextLabelControl;
+
+		protected Boolean m_mandatory;
+
+		@Nullable
+		protected String m_controlCss;
+
+		@Nullable
+		protected String m_labelCss;
+
+		@Nullable
+		protected String m_testid;
+
+		/** ReadOnly as set directly in the Builder */
+		protected Boolean m_readOnly;
+
+		/** When set, the next control's readOnly property will be bound to this reference, after which it will be cleared */
+		@Nullable
+		protected BindReference<?, Boolean> m_readOnlyOnce;
+
+		/** disabled as set directly in the Builder */
+		protected Boolean m_disabled;
+
+		@Nullable
+		protected BindReference<?, Boolean> m_disabledOnce;
+
+		/** When set, disable the next component with the specified message. */
+		@Nullable
+		protected String m_disabledMessage;
+
+		@Nullable
+		protected BindReference<?, String> m_disabledMessageOnce;
+
+		public BuilderData(I instance, PropertyMetaModel<V> propertyMetaModel) {
+			m_instance = instance;
+			m_propertyMetaModel = propertyMetaModel;
 		}
 
-		return res;
-	}
-
-	@Nullable
-	private String labelTextCalculated() {
-		String txt = m_nextLabel;
-		if(null != txt) {
-			if(txt.length() != 0)					// Not "unlabeled"?
-				return txt;
-			return null;
-		} else {
-			NodeContainer res = m_nextLabelControl;
-			if(res != null) {
-				return res.getTextContents();
+		@Nullable public NodeContainer determineLabel() {
+			NodeContainer res = null;
+			String txt = m_nextLabel;
+			if(null != txt) {
+				//m_nextLabel = null;
+				if(txt.length() != 0)					// Not "unlabeled"?
+					res = new Label(txt);
 			} else {
-				//-- Property known?
-				PropertyMetaModel< ? > pmm = m_propertyMetaModel;
-				if(null != pmm) {
-					txt = pmm.getDefaultLabel();
-					if(txt != null && txt.length() > 0)
-						return txt;
+				res = m_nextLabelControl;
+				if(res == null) {
+					//-- Property known?
+					PropertyMetaModel< ? > pmm = m_propertyMetaModel;
+					if(null != pmm) {
+						txt = pmm.getDefaultLabel();
+						if(txt != null && txt.length() > 0)
+							res = new Label(txt);
+					}
 				}
 			}
+			if(res != null && calculateMandatory() && !isReadOnly()) {
+				res.addCssClass("ui-f4-mandatory");
+			}
+
+			return res;
 		}
-		return null;
+
+		private boolean calculateMandatory() {
+			Boolean m = m_mandatory;
+			if(null != m)
+				return m.booleanValue();						// If explicitly set: obey that
+			PropertyMetaModel<?> pmm = m_propertyMetaModel;
+			if(null != pmm) {
+				return pmm.isRequired();
+			}
+			return false;
+		}
+
+		@Nullable
+		private String labelTextCalculated() {
+			String txt = m_nextLabel;
+			if(null != txt) {
+				if(txt.length() != 0)					// Not "unlabeled"?
+					return txt;
+				return null;
+			} else {
+				NodeContainer res = m_nextLabelControl;
+				if(res != null) {
+					return res.getTextContents();
+				} else {
+					//-- Property known?
+					PropertyMetaModel< ? > pmm = m_propertyMetaModel;
+					if(null != pmm) {
+						txt = pmm.getDefaultLabel();
+						if(txt != null && txt.length() > 0)
+							return txt;
+					}
+				}
+			}
+			return null;
+		}
+
+		private boolean isMandatory() {
+			Boolean man = m_mandatory;
+			if(null != man) {
+				return man.booleanValue();
+			}
+			return false;
+		}
+
+		private boolean isReadOnly() {
+			Boolean ro = m_readOnly;
+			if(null != ro) {
+				return ro.booleanValue();
+			}
+			return false;
+		}
+
+		protected void copyFrom(ItemBuilder o) {
+			this.m_controlCss = o.m_controlCss;
+			this.m_disabled = o.m_disabled;
+			this.m_disabledMessage = o.m_disabledMessage;
+			this.m_disabledMessageOnce = o.m_disabledMessageOnce;
+			this.m_disabledOnce = o.m_disabledOnce;
+			this.m_errorLocation = o.m_errorLocation;
+			this.m_labelCss = o.m_labelCss;
+			this.m_mandatory = o.m_mandatory;
+			this.m_nextLabel = o.m_nextLabel;
+			this.m_nextLabelControl = o.m_nextLabelControl;
+			this.m_readOnly = o.m_readOnly;
+			this.m_readOnlyOnce = o.m_readOnlyOnce;
+			this.m_testid = o.m_testid;
+		}
 	}
 
-	private boolean isReadOnly() {
-		Boolean ro = m_readOnly;
-		if(null != ro) {
-			return ro.booleanValue();
+	/**
+	 * This builder is for propertyless items, and hence does not contain type information.
+	 */
+	final public class ItemBuilder extends BuilderData<Void, Void>{
+		public ItemBuilder() {
+			super(null, null);
 		}
-		return false;
+
+		/*--------------------------------------------------------------*/
+		/*	CODING:	Label control.										*/
+		/*--------------------------------------------------------------*/
+		@NonNull
+		public ItemBuilder label(@Nullable String label) {
+			if(null != m_nextLabelControl)
+				throw new IllegalStateException("You already set a Label instance");
+			m_nextLabel = label;
+			return this;
+		}
+
+		@NonNull
+		public ItemBuilder label(@Nullable NodeContainer label) {
+			if(null != m_nextLabel)
+				throw new IllegalStateException("You already set a String label instance");
+			m_nextLabelControl = label;
+			return this;
+		}
+
+		@NonNull
+		public ItemBuilder unlabeled() {
+			label("");
+			return this;
+		}
+
+		@NonNull
+		public ItemBuilder mandatory() {
+			m_mandatory = Boolean.TRUE;
+			return this;
+		}
+
+		@NonNull
+		public ItemBuilder mandatory(boolean yes) {
+			m_mandatory = Boolean.valueOf(yes);
+			return this;
+		}
+
+		public void item(@NonNull NodeBase item) throws Exception {
+			addControl(this, item, null);
+			resetBuilder();
+		}
+
+		public void control(@NonNull NodeBase item) throws Exception {
+			addControl(this, item, null);
+			resetBuilder();
+		}
+
+		@NonNull
+		public <T> UntypedControlBuilder<T> property(@NonNull T instance, @GProperty String property) {
+			UntypedControlBuilder<T> currentBuilder = new UntypedControlBuilder<>(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
+			m_currentBuilder = currentBuilder;				// This is now current
+
+			//-- Copy all fields.
+			currentBuilder.copyFrom(this);
+			return currentBuilder;
+		}
 	}
 
-	private boolean isMandatory() {
-
-		Boolean man = m_mandatory;
-		if(null != man) {
-			return man.booleanValue();
+	/**
+	 * A builder that will end in a control, with full types - used with QFields.
+	 *
+	 * @param <I>	The instance.
+	 * @param <V>	The value type of the property of the instance.
+	 */
+	final public class TypedControlBuilder<I, V> extends BuilderData<I, V> {
+		public TypedControlBuilder(I instance, PropertyMetaModel<V> propertyMeta) {
+			super(instance, propertyMeta);
 		}
-		return false;
+
+
+		/*--------------------------------------------------------------*/
+		/*	CODING:	Label control.										*/
+		/*--------------------------------------------------------------*/
+		@NonNull
+		public TypedControlBuilder<I, V> label(@NonNull String label) {
+			if(null != m_nextLabelControl)
+				throw new IllegalStateException("You already set a Label instance");
+			m_nextLabel = label;
+			return this;
+		}
+
+		@NonNull
+		public TypedControlBuilder<I, V> label(@NonNull NodeContainer label) {
+			if(null != m_nextLabel)
+				throw new IllegalStateException("You already set a String label instance");
+			m_nextLabelControl = label;
+			return this;
+		}
+
+		@NonNull
+		public TypedControlBuilder<I, V> unlabeled() {
+			label("");
+			return this;
+		}
+
+		@NonNull
+		public TypedControlBuilder<I, V> mandatory() {
+			m_mandatory = Boolean.TRUE;
+			return this;
+		}
+
+		@NonNull
+		public TypedControlBuilder<I, V> mandatory(boolean yes) {
+			m_mandatory = Boolean.valueOf(yes);
+			return this;
+		}
+
+		@NonNull
+		public TypedControlBuilder<I, V> errorLocation(@NonNull String errorLocation) {
+			m_errorLocation = errorLocation;
+			return this;
+		}
+
+		/*--------------------------------------------------------------*/
+		/*	CODING:	Readonly, mandatory, disabled.						*/
+		/*--------------------------------------------------------------*/
+		@NonNull
+		public TypedControlBuilder<I, V> readOnly() {
+			m_readOnly = Boolean.TRUE;
+			return this;
+		}
+
+		/**
+		 * Force the next component to have the specified value for readOnly.
+		 */
+		@NonNull
+		public TypedControlBuilder<I, V> readOnly(boolean ro) {
+			m_readOnly = Boolean.valueOf(ro);
+			return this;
+		}
+
+		/**
+		 * Bind only the next component to the specified boolean property. See
+		 */
+		@NonNull
+		public <X> TypedControlBuilder<I, V> readOnly(@NonNull X instance, @NonNull String property) {
+			m_readOnlyOnce = createRef(instance, property, Boolean.class);
+			return this;
+		}
+
+		/**
+		 * Bind only the next component to the specified boolean property. See
+		 */
+		@NonNull
+		public <X> TypedControlBuilder<I, V> readOnly(@NonNull X instance, @NonNull QField<X, Boolean> property) {
+			m_readOnlyOnce = createRef(instance, property);
+			return this;
+		}
+
+		@NonNull
+		public TypedControlBuilder<I, V> disabled() {
+			m_disabled = Boolean.TRUE;
+			return this;
+		}
+
+		/**
+		 * Force the next component to have the specified value for disabled.
+		 */
+		@NonNull
+		public TypedControlBuilder<I, V> disabled(boolean ro) {
+			m_disabled = Boolean.valueOf(ro);
+			return this;
+		}
+		@NonNull
+		public TypedControlBuilder<I, V> testId(String id) {
+			m_testid = id;
+			return this;
+		}
+
+		@NonNull
+		public <X> TypedControlBuilder<I, V> disabled(@NonNull X instance, @NonNull String property) {
+			m_disabledOnce = createRef(instance, property, Boolean.class);
+			return this;
+		}
+
+		@NonNull
+		public <X> TypedControlBuilder<I, V> disabled(@NonNull X instance, @NonNull QField<X, Boolean> property) {
+			m_disabledOnce = createRef(instance, property);
+			return this;
+		}
+
+		/**
+		 * Disables the next component with the specified disable message.
+		 */
+		@NonNull
+		public TypedControlBuilder<I, V> disabledBecause(@Nullable String message) {
+			m_disabledMessage = message;
+			return this;
+		}
+
+		@NonNull
+		public <X> TypedControlBuilder<I, V> disabledBecause(@NonNull X instance, @NonNull String property) {
+			m_disabledMessageOnce = createRef(instance, property, String.class);
+			return this;
+		}
+
+		@NonNull
+		public <X> TypedControlBuilder<I, V> disabledBecause(@NonNull X instance, @NonNull QField<X, String> property) {
+			m_disabledMessageOnce = createRef(instance, property);
+			return this;
+		}
+
+		/**
+		 * Adds the specified css class to the control cell.
+		 */
+		@NonNull
+		public TypedControlBuilder<I, V> cssControl(@NonNull String cssClass) {
+			m_controlCss = cssClass;
+			return this;
+		}
+
+		/**
+		 * Adds the specified css class to the label cell.
+		 */
+		@NonNull
+		public TypedControlBuilder<I, V> cssLabel(@NonNull String cssClass) {
+			m_labelCss = cssClass;
+			return this;
+		}
+
+		/**
+		 * Add the specified control. Since the control is manually created this code assumes that the
+		 * control is <b>properly configured</b> for it's task! This means that this code will not
+		 * make any changes to the control! Specifically: if the form item is marked as "mandatory"
+		 * but the control here is not then the control stays optional.
+		 * The reverse however is not true: if the control passed in is marked as mandatory then the
+		 * form item will be marked as such too.
+		 */
+		public void control(@NonNull IControl<V> control) throws Exception {
+			if(control.isMandatory()) {
+				m_mandatory = Boolean.TRUE;
+			}
+			addControl(this, (NodeBase) control, null);
+			resetBuilder();
+		}
+
+		public <CV> void control(@NonNull IControl<CV> control, IBidiBindingConverter<CV, V> converter) throws Exception {
+			if(control.isMandatory()) {
+				m_mandatory = Boolean.TRUE;
+			}
+			addControl(this, (NodeBase) control, converter);
+			resetBuilder();
+		}
+
+		@NonNull
+		public IControl<V> control() throws Exception {
+			return controlMain(this, null);
+		}
+
+		@NonNull
+		public <C extends IControl<V>> C control(@Nullable Class<C> controlClass) throws Exception {
+			return controlMain(this, controlClass);
+		}
 	}
 
-	private boolean calculateMandatory() {
-		Boolean m = m_mandatory;
-		if(null != m)
-			return m.booleanValue();						// If explicitly set: obey that
-		PropertyMetaModel<?> pmm = m_propertyMetaModel;
-		if(null != pmm) {
-			return pmm.isRequired();
-		}
-		return false;
-	}
 
+	final public class UntypedControlBuilder<I> extends BuilderData<I, Object> {
+		public UntypedControlBuilder(I instance, PropertyMetaModel<?> propertyMeta) {
+			super(instance, (PropertyMetaModel<Object>) propertyMeta);
+		}
+
+		/*--------------------------------------------------------------*/
+		/*	CODING:	Label control.										*/
+		/*--------------------------------------------------------------*/
+		@NonNull
+		public UntypedControlBuilder<I> label(@NonNull String label) {
+			if(null != m_nextLabelControl)
+				throw new IllegalStateException("You already set a Label instance");
+			m_nextLabel = label;
+			return this;
+		}
+
+		@NonNull
+		public UntypedControlBuilder<I> label(@NonNull NodeContainer label) {
+			if(null != m_nextLabel)
+				throw new IllegalStateException("You already set a String label instance");
+			m_nextLabelControl = label;
+			return this;
+		}
+
+		@NonNull
+		public UntypedControlBuilder<I> unlabeled() {
+			label("");
+			return this;
+		}
+
+		@NonNull
+		public UntypedControlBuilder<I> mandatory() {
+			m_mandatory = Boolean.TRUE;
+			return this;
+		}
+
+		@NonNull
+		public UntypedControlBuilder<I> mandatory(boolean yes) {
+			m_mandatory = Boolean.valueOf(yes);
+			return this;
+		}
+
+		@NonNull
+		public UntypedControlBuilder<I> errorLocation(@NonNull String errorLocation) {
+			m_errorLocation = errorLocation;
+			return this;
+		}
+
+		/*--------------------------------------------------------------*/
+		/*	CODING:	Readonly, mandatory, disabled.						*/
+		/*--------------------------------------------------------------*/
+		@NonNull
+		public UntypedControlBuilder<I> readOnly() {
+			m_readOnly = Boolean.TRUE;
+			return this;
+		}
+
+		/**
+		 * Force the next component to have the specified value for readOnly.
+		 */
+		@NonNull
+		public UntypedControlBuilder<I> readOnly(boolean ro) {
+			m_readOnly = Boolean.valueOf(ro);
+			return this;
+		}
+
+		/**
+		 * Bind only the next component to the specified boolean property. See
+		 */
+		@NonNull
+		public <X> UntypedControlBuilder<I> readOnly(@NonNull X instance, @NonNull String property) {
+			m_readOnlyOnce = createRef(instance, property, Boolean.class);
+			return this;
+		}
+
+		/**
+		 * Bind only the next component to the specified boolean property. See
+		 */
+		@NonNull
+		public <X> UntypedControlBuilder<I> readOnly(@NonNull X instance, @NonNull QField<X, Boolean> property) {
+			m_readOnlyOnce = createRef(instance, property);
+			return this;
+		}
+
+		@NonNull
+		public UntypedControlBuilder<I> disabled() {
+			m_disabled = Boolean.TRUE;
+			return this;
+		}
+
+		/**
+		 * Force the next component to have the specified value for disabled.
+		 */
+		@NonNull
+		public UntypedControlBuilder<I> disabled(boolean ro) {
+			m_disabled = Boolean.valueOf(ro);
+			return this;
+		}
+		@NonNull
+		public UntypedControlBuilder<I> testId(String id) {
+			m_testid = id;
+			return this;
+		}
+
+		@NonNull
+		public <X> UntypedControlBuilder<I> disabled(@NonNull X instance, @NonNull String property) {
+			m_disabledOnce = createRef(instance, property, Boolean.class);
+			return this;
+		}
+
+		@NonNull
+		public <X> UntypedControlBuilder<I> disabled(@NonNull X instance, @NonNull QField<X, Boolean> property) {
+			m_disabledOnce = createRef(instance, property);
+			return this;
+		}
+
+		/**
+		 * Disables the next component with the specified disable message.
+		 */
+		@NonNull
+		public UntypedControlBuilder<I> disabledBecause(@Nullable String message) {
+			m_disabledMessage = message;
+			return this;
+		}
+
+		@NonNull
+		public <X> UntypedControlBuilder<I> disabledBecause(@NonNull X instance, @NonNull String property) {
+			m_disabledMessageOnce = createRef(instance, property, String.class);
+			return this;
+		}
+
+		@NonNull
+		public <X> UntypedControlBuilder<I> disabledBecause(@NonNull X instance, @NonNull QField<X, String> property) {
+			m_disabledMessageOnce = createRef(instance, property);
+			return this;
+		}
+
+		/**
+		 * Adds the specified css class to the control cell.
+		 */
+		@NonNull
+		public UntypedControlBuilder<I> cssControl(@NonNull String cssClass) {
+			m_controlCss = cssClass;
+			return this;
+		}
+
+		/**
+		 * Adds the specified css class to the label cell.
+		 */
+		@NonNull
+		public UntypedControlBuilder<I> cssLabel(@NonNull String cssClass) {
+			m_labelCss = cssClass;
+			return this;
+		}
+
+		/**
+		 * Add the specified control. Since the control is manually created this code assumes that the
+		 * control is <b>properly configured</b> for it's task! This means that this code will not
+		 * make any changes to the control! Specifically: if the form item is marked as "mandatory"
+		 * but the control here is not then the control stays optional.
+		 * The reverse however is not true: if the control passed in is marked as mandatory then the
+		 * form item will be marked as such too.
+		 */
+		public void control(@NonNull IControl<?> control) throws Exception {
+			if(control.isMandatory()) {
+				m_mandatory = Boolean.TRUE;
+			}
+			addControl(this, (NodeBase) control, null);
+			resetBuilder();
+		}
+
+		public <CV> void control(@NonNull IControl<?> control, IBidiBindingConverter<?, ?> converter) throws Exception {
+			if(control.isMandatory()) {
+				m_mandatory = Boolean.TRUE;
+			}
+			addControl(this, (NodeBase) control, converter);
+			resetBuilder();
+		}
+
+		@NonNull
+		public IControl<?> control() throws Exception {
+			return controlMain(this, null);
+		}
+
+		@NonNull
+		public <C extends IControl<?>> C control(@Nullable Class<C> controlClass) throws Exception {
+			ControlCreatorRegistry builder = DomApplication.get().getControlCreatorRegistry();
+			PropertyMetaModel<Object> pmm = m_propertyMetaModel;
+			C control = (C) builder.createControl(pmm, (Class<IControl<Object>>) controlClass);
+			addControl(this, (NodeBase) control, null);
+			resetBuilder();
+			return control;
+		}
+	}
 
 }

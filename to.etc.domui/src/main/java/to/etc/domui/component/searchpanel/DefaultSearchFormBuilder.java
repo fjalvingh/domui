@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 
 import static java.util.Objects.requireNonNull;
@@ -29,10 +30,9 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 
 	@Override public void append(SearchControlLine<?> it) throws Exception {
 		NodeContainer label = it.getLabel();
-		if(null != label)
-			fb().label(label);
 		IControl<?> control = it.getControl();
-		fb().control(control);
+		fb().label(label).item((NodeBase) control);
+		//fb().control(control);
 	}
 
 	public void addBreak() {
