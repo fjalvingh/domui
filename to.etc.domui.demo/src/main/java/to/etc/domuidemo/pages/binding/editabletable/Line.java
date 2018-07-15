@@ -37,6 +37,8 @@ public class Line {
 
 	private LineController m_controller;
 
+	private Object[] m_parameters;
+
 	public Line() {
 	}
 
@@ -111,5 +113,13 @@ public class Line {
 
 	public void setController(LineController controller) {
 		m_controller = controller;
+	}
+
+	public Object[] getParameters() {
+		return m_parameters;
+	}
+
+	public void setParameters(Object[] parameters) {
+		m_parameters = parameters;
 	}
 }

@@ -10,9 +10,6 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <processorPath>
-          <entry name="$PROJECT_DIR$/utilities/property-annotation-processor/target/property-annotations-processor-1.2-SNAPSHOT.jar" />
-        </processorPath>
         <module name="annotations" />
         <module name="domui-hello" />
         <module name="domui-hibernate-generator" />
@@ -48,6 +45,7 @@
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="1.8" />
       <module name="domui-utilities" target="1.5" />
+      <module name="integrations" target="1.5" />
       <module name="property-annotations-processor" target="1.8" />
       <module name="to.etc.alg" target="1.8" />
       <module name="to.etc.db" target="1.8" />
@@ -60,7 +58,6 @@
       <module name="to.etc.domui.legacy" target="1.8" />
       <module name="to.etc.domui.parent" target="1.5" />
       <module name="to.etc.domui.selenium" target="1.8" />
-      <module name="to.etc.jsr305" target="1.8" />
       <module name="to.etc.logger" target="1.8" />
       <module name="to.etc.pater" target="1.8" />
       <module name="to.etc.syntaxer" target="1.8" />

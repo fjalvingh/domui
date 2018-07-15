@@ -177,11 +177,6 @@ public class PageMaker {
 
 	/**
 	 * Finds the best constructor to use for the given page and the given conversation context.
-	 *
-	 * @param clz
-	 * @param ccclz
-	 * @param hasparam
-	 * @return
 	 */
 	@NonNull
 	static public <T extends UrlPage> Constructor<T> getPageConstructor(@NonNull final Class<T> clz, @NonNull final Class< ? extends ConversationContext> ccclz, final boolean hasparam) {
@@ -229,9 +224,6 @@ public class PageMaker {
 	/*--------------------------------------------------------------*/
 	/**
 	 * From a page constructor, get the Conversation class to use.
-	 *
-	 * @param clz
-	 * @return
 	 */
 	@NonNull
 	static public Class< ? extends ConversationContext> getConversationType(@NonNull final Constructor< ? extends UrlPage> clz) {

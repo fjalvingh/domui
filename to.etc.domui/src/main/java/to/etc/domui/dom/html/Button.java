@@ -54,6 +54,11 @@ public class Button extends NodeContainer implements IActionControl, IForTarget 
 		super("button");
 	}
 
+	public Button(String cssClass) {
+		super("button");
+		setCssClass(cssClass);
+	}
+
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitButton(this);

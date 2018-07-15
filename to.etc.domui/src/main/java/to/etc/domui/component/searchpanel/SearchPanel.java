@@ -252,6 +252,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	@Override
 	public void createContent() throws Exception {
+		if(m_currentBuilder != null)
+			throw new IllegalStateException(this + ": The builder " + m_currentBuilder + " has not yet been finished");
+
 		//if(isSearchFilterEnabled()) {
 		//	addFilterButton();
 		//	loadSearchQueries();
@@ -267,7 +270,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 		//-- Start populating the lookup form with lookup items.
 		ISearchFormBuilder formBuilder = getFormBuilder();
-		formBuilder.setTarget(this);
+		formBuilder.setTarget(sroot);
 		for(Object o : m_itemList) {
 			if(o instanceof SearchControlLine) {
 				SearchControlLine<?> it = (SearchControlLine<?>) o;
@@ -289,7 +292,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 		//-- The button bar.
 		Div d = m_buttonRow = new Div();
-		add(d);
+		sroot.add(d);
 		d.setCssClass("ui-lf-ebb");
 
 		//20091127 vmijic - since LookupForm can be reused each new rebuild should execute restore if previous state of form was collapsed.
@@ -430,7 +433,6 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * This hides the search panel and adds a small div containing only the (optional) new and restore buttons.
-	 * @throws Exception
 	 */
 	void collapse() throws Exception {
 		if((m_content.getDisplay() == DisplayType.NONE))

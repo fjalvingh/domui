@@ -1810,6 +1810,13 @@ public abstract class DomApplication {
 		return m_themeApplicationProperties.get(name);
 	}
 
+	/**
+	 * Return all registered theme properties.
+	 */
+	public Map<String, String> getThemeProperties() {
+		return Collections.unmodifiableMap(m_themeApplicationProperties);
+	}
+
 	@NonNull
 	public ThemeManager internalGetThemeManager() {
 		return m_themeManager;

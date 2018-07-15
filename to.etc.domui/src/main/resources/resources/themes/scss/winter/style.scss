@@ -1,5 +1,8 @@
 //@import url('https://fonts.googleapis.com/css?family=Fira+Mono|Josefin+Sans:400,400i,600,600i&subset=latin-ext');
 
+@import 'parameters';					// This must be present for all that follows
+@import "_custominit.scss";				// Meant for customers to override stylesheet data.
+
 @import "calendar-theme.css";
 
 //-- Variable and mixing common imports
@@ -7,7 +10,9 @@
 @import 'variables';
 @import "functions";
 @import "derived-variables";
-@import 'parameters';
+
+//-- Let the user override all that is above by overwriting the following file-
+@import "_userstyle";
 
 @import "bulmaish/_core_defs";
 @import "bulmaish/animations";

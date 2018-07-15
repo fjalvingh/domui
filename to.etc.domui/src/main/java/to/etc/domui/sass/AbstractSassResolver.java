@@ -17,6 +17,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Common code to resolve a scss file reference in DomUI to an actual resource to load. It
+ * uses DomUI webapp resources to locate the file that is requested. In addition it also
+ * provides the virtual resource "_parameters.scss", which consists of variables that
+ * are initialized from the URL and parameters that are set as style parameters in
+ * the Application. This allows the Application limited control over variables inside
+ * the style sheet.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 29-10-17.
  */
@@ -207,6 +214,10 @@ abstract public class AbstractSassResolver<O> {
 		LOG.info("scss total resolve time " + StringTool.strNanoTime(m_resolveTime));
 	}
 
+	/**
+	 * Generate the contents of the _parameters.scss file by getting all URL parameters and rendering them as variables,
+	 * and do the same with any Application level scss variables.
+	 */
 	protected String generateParameterFile() {
 		StringBuilder sb = new StringBuilder();
 		for(String name : m_params.getParameterNames()) {
@@ -219,14 +230,22 @@ abstract public class AbstractSassResolver<O> {
 				sb.append("$").append(name).append(": ").append(value).append(";\n");
 			}
 		}
+
+		//-- Now do the same for application level things
+		DomApplication.get().getThemeProperties().forEach((name, value) -> {
+			if(value.startsWith("$")) {
+				value = StringTool.strToJavascriptString(value.substring(1), true);
+			}
+			sb.append("$").append(name).append(": ").append(value).append(";\n");
+		});
 		return sb.toString();
 	}
 
 	static private boolean isString(String value) {
 		if(StringTool.isNumber(value))
 			return false;
-		if("true".equals(value) || "false".equals(value))
-			return false;
-		return true;
+		if(value.startsWith("$"))
+			return true;
+		return !"true".equals(value) && !"false".equals(value);
 	}
 }

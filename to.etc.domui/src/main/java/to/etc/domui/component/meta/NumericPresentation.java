@@ -76,8 +76,6 @@ public enum NumericPresentation {
 
 	/**
 	 * Returns if specified numeric presentation should be rendered without trailing zeros at the end of decimal fraction part.
-	 * @param np
-	 * @return
 	 */
 	static public boolean isStripTrailingZeros(NumericPresentation np) {
 		switch(np){

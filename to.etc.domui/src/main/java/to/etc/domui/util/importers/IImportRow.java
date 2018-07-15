@@ -1,5 +1,9 @@
 package to.etc.domui.util.importers;
 
+import org.eclipse.jdt.annotation.NonNull;
+
+import java.io.IOException;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-10-17.
@@ -7,5 +11,9 @@ package to.etc.domui.util.importers;
 public interface IImportRow {
 	int getColumnCount();
 
-	IImportColumn get(int index);
+	@NonNull
+	IImportColumn get(int index) throws IOException;
+
+	@NonNull
+	IImportColumn get(@NonNull String name) throws IOException;
 }

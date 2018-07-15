@@ -42,6 +42,10 @@ final public class JavaScriptletContributor extends HeaderContributor {
 		return result;
 	}
 
+	@Override public boolean isOfflineCapable() {
+		return true;
+	}
+
 	@Override
 	public boolean equals(final Object obj) {
 		if(obj == null)

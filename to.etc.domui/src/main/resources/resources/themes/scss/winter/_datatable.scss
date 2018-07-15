@@ -92,6 +92,13 @@ tr.ui-rowsel:hover {
 	border-bottom: 1px solid transparent;
 }
 
+.ui-dt.ui-dd-rowsel tbody > tr:hover {
+	outline: 1px solid #c3df8a;
+	outline-offset: -1px;
+	background-color: #f1f9e1 !important;
+	border-bottom: 1px solid transparent;
+}
+
 td.ui-cellsel {
 	cursor: pointer;
 	color: $link_color;

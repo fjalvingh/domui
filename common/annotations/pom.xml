@@ -13,5 +13,6 @@
     <artifactId>annotations</artifactId>
     <version>1.2-SNAPSHOT</version>
 
+    <name>domui :: common :: annotations</name>
 
 </project>

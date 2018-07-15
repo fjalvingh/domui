@@ -127,7 +127,7 @@ final public class DefaultPageInjector implements IPageInjector {
 		PageInjector pij = m_injectorMap.get(cn);
 		if(pij != null) {
 			//-- Hit on name; is the class instance the same? If not this is a reload.
-			if((Class< ? >) pij.getPageClass() == page.getClass()) // Idiotic generics. If the class changed we have a reload of the class and need to recalculate.
+			if((Class< ? >) pij.getPageClass() == page) // Idiotic generics. If the class changed we have a reload of the class and need to recalculate.
 				return pij;
 		}
 

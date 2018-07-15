@@ -28,12 +28,19 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.IContributorRenderer;
 
 final class CssContributor extends HeaderContributor {
+	private final boolean m_offline;
+
 	private String m_path;
 
-	CssContributor(@NonNull String path) {
+	CssContributor(@NonNull String path, boolean offline) {
+		m_offline = offline;
 		if(path == null || path.length() == 0)
 			throw new IllegalArgumentException("Null path not allowed");
 		m_path = path;
+	}
+
+	@Override public boolean isOfflineCapable() {
+		return m_offline;
 	}
 
 	@Override
