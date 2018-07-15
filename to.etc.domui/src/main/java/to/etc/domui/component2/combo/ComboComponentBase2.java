@@ -687,4 +687,8 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		super.setMaxWidth(maxWidth);
 		m_select.setMaxWidth(maxWidth);
 	}
+
+	@Override protected void onForceRebuild() {
+		m_select.forceRebuild();
+	}
 }

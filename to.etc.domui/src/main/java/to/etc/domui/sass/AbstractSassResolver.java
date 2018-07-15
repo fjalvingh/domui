@@ -233,8 +233,8 @@ abstract public class AbstractSassResolver<O> {
 
 		//-- Now do the same for application level things
 		DomApplication.get().getThemeProperties().forEach((name, value) -> {
-			if(isString(value)) {
-				value = StringTool.strToJavascriptString(value, true);
+			if(value.startsWith("$")) {
+				value = StringTool.strToJavascriptString(value.substring(1), true);
 			}
 			sb.append("$").append(name).append(": ").append(value).append(";\n");
 		});
@@ -244,8 +244,8 @@ abstract public class AbstractSassResolver<O> {
 	static private boolean isString(String value) {
 		if(StringTool.isNumber(value))
 			return false;
-		if(value.startsWith("#"))
-			return false;
+		if(value.startsWith("$"))
+			return true;
 		return !"true".equals(value) && !"false".equals(value);
 	}
 }
