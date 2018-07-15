@@ -12,4 +12,12 @@ public interface IBundleCode {
 	default BundleRef getBundle() {
 		return BundleRef.create(getClass(), getClass().getSimpleName());
 	}
+
+	default String getString() {
+		return getBundle().getString(name());
+	}
+
+	default String format(Object... parameters) {
+		return getBundle().formatMessage(name(), parameters);
+	}
 }

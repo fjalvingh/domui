@@ -46,8 +46,6 @@ public class NumericUtil {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Parse an integer using all allowed embellishments.
-	 * @param input
-	 * @return
 	 */
 	static public int parseInt(String input) {
 		return internalParseInt(input);
@@ -310,5 +308,4 @@ public class NumericUtil {
 			node.setConverter(c);
 		}
 	}
-
 }
