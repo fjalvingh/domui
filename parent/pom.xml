@@ -21,14 +21,15 @@
 
     <properties>
         <!-- JDK properties -->
-        <jdk.version>9</jdk.version>
-        <ecj.version>4.8.0.6</ecj.version>
+        <jdk.version>10</jdk.version>
+        <ecj.version>3.14.0</ecj.version>
         <!--<ecj.version>3.13.102</ecj.version>-->
         <kotlin.version>1.2.31</kotlin.version>
 
         <!-- Plugin versions -->
         <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <maven-surefire.version>2.22.0</maven-surefire.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
@@ -36,7 +37,7 @@
         <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
-        <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <plexus-compiler-eclipse.version>2.8.5-SNAPSHOT</plexus-compiler-eclipse.version>
         <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
@@ -66,7 +67,7 @@
         <batik.version>1.7</batik.version>
         <jericho.version>3.4</jericho.version>
         <gnu.regexp.version>1.1.4</gnu.regexp.version>
-        <jetty.version>9.3.8.v20160314</jetty.version>
+        <jetty.version>9.4.11.v20180605</jetty.version>
         <selenium.version>3.5.3</selenium.version>
         <hsqldb.version>2.4.0</hsqldb.version>
 
@@ -79,7 +80,7 @@
         <junit.version>4.12</junit.version>
         <allure.version>1.5.4</allure.version>
         <allure.maven.version>2.6</allure.maven.version>
-        <aspectj.version>1.8.10</aspectj.version>
+        <aspectj.version>1.9.1</aspectj.version>
 
         <!-- Versions needed for dependency convergence-->
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
@@ -489,6 +490,14 @@
                 <version>3.17</version>
             </dependency>
 
+            <!-- Java 9 muck -->
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.0</version>
+            </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 
@@ -610,8 +619,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
+                <version>${maven-surefire.version}</version>
                 <configuration>
+                    <!-- Java 9 trainwreck, see https://stackoverflow.com/questions/50295487/noclassdeffounderror-could-not-initialize-class-com-sun-xml-bind-v2-model-impl -->
+                    <forkMode>always</forkMode>
+                    <argLine>--add-modules java.xml.bind</argLine>
+                    <argLine>--add-modules javax.activation</argLine>
+                    <argLine>--add-modules java.activation</argLine>
+                    <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --illegal-access=deny</argLine>
+
                     <!-- Allure reports -->
                     <argLine>
                         -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
@@ -636,6 +652,11 @@
                         <artifactId>aspectjweaver</artifactId>
                         <version>${aspectj.version}</version>
                     </dependency>
+                    <dependency>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
+                        <version>2.3.0</version>
+                    </dependency>
                 </dependencies>
             </plugin>
 
@@ -652,6 +673,7 @@
                     <argLine>
                         -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
                     </argLine>
+                    <argline>-noverify</argline>
                     <properties>
                         <property>
                             <name>listener</name>

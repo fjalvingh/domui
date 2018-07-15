@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="DEFAULT_COMPILER" value="Eclipse" />
     <excludeFromCompile>
       <directory url="file://$PROJECT_DIR$/archetypes/domui-hello/src/main/resources/archetype-resources" includeSubdirectories="true" />
     </excludeFromCompile>
@@ -38,34 +37,61 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="annotations" target="1.8" />
+      <module name="annotations" target="10" />
       <module name="common" target="1.5" />
       <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
-      <module name="domui-hibernate-generator" target="1.8" />
+      <module name="domui-hibernate-generator" target="10" />
       <module name="domui-utilities" target="1.5" />
       <module name="integrations" target="1.5" />
       <module name="property-annotations-processor" target="1.8" />
-      <module name="to.etc.alg" target="1.8" />
-      <module name="to.etc.db" target="1.8" />
-      <module name="to.etc.dbcompare" target="1.8" />
-      <module name="to.etc.domui" target="1.8" />
-      <module name="to.etc.domui.demo" target="1.8" />
-      <module name="to.etc.domui.derbydata" target="1.8" />
-      <module name="to.etc.domui.formbuilder" target="1.8" />
-      <module name="to.etc.domui.hibutil" target="1.8" />
-      <module name="to.etc.domui.legacy" target="1.8" />
+      <module name="to.etc.alg" target="10" />
+      <module name="to.etc.db" target="10" />
+      <module name="to.etc.dbcompare" target="10" />
+      <module name="to.etc.domui" target="10" />
+      <module name="to.etc.domui.demo" target="10" />
+      <module name="to.etc.domui.derbydata" target="10" />
+      <module name="to.etc.domui.formbuilder" target="10" />
+      <module name="to.etc.domui.hibutil" target="10" />
+      <module name="to.etc.domui.legacy" target="10" />
       <module name="to.etc.domui.parent" target="1.5" />
-      <module name="to.etc.domui.selenium" target="1.8" />
-      <module name="to.etc.logger" target="1.8" />
-      <module name="to.etc.pater" target="1.8" />
-      <module name="to.etc.syntaxer" target="1.8" />
-      <module name="to.etc.webapp.core" target="1.8" />
+      <module name="to.etc.domui.selenium" target="10" />
+      <module name="to.etc.logger" target="10" />
+      <module name="to.etc.pater" target="10" />
+      <module name="to.etc.syntaxer" target="10" />
+      <module name="to.etc.webapp.core" target="10" />
       <module name="vaadin-sass-compiler" target="1.6" />
     </bytecodeTargetLevel>
   </component>
   <component name="EclipseCompilerSettings">
     <option name="ADDITIONAL_OPTIONS_STRING" value="-properties $MODULE_DIR$/.settings/org.eclipse.jdt.core.prefs" />
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="annotations" options="" />
+      <module name="common" options="" />
+      <module name="domui" options="" />
+      <module name="domui-archetypes" options="" />
+      <module name="domui-hello" options="" />
+      <module name="domui-hibernate-generator" options="" />
+      <module name="domui-utilities" options="" />
+      <module name="integrations" options="" />
+      <module name="property-annotations-processor" options="" />
+      <module name="to.etc.alg" options="" />
+      <module name="to.etc.db" options="" />
+      <module name="to.etc.dbcompare" options="" />
+      <module name="to.etc.domui" options="" />
+      <module name="to.etc.domui.demo" options="" />
+      <module name="to.etc.domui.derbydata" options="" />
+      <module name="to.etc.domui.formbuilder" options="" />
+      <module name="to.etc.domui.hibutil" options="" />
+      <module name="to.etc.domui.legacy" options="" />
+      <module name="to.etc.domui.parent" options="" />
+      <module name="to.etc.domui.selenium" options="" />
+      <module name="to.etc.logger" options="" />
+      <module name="to.etc.pater" options="" />
+      <module name="to.etc.syntaxer" options="" />
+      <module name="to.etc.webapp.core" options="" />
+      <module name="vaadin-sass-compiler" options="" />
+    </option>
   </component>
 </project>
