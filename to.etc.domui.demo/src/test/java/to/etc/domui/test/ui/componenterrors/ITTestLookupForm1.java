@@ -1,6 +1,7 @@
 package to.etc.domui.test.ui.componenterrors;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
@@ -30,6 +31,7 @@ public class ITTestLookupForm1 extends AbstractWebDriverTest {
 		Assert.assertFalse("The error class should not be set on the album combolookup2", cssClass.contains("ui-input-err"));
 	}
 
+	@Ignore("JAVA9")
 	@Test
 	public void testMandControlShouldExceptionWhenClickedWithoutClearInput() throws Exception {
 		wd().openScreen(LookupForm2TestPage.class);
