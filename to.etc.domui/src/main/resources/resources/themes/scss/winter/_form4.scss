@@ -102,6 +102,18 @@ label.ui-f4-mandatory {
 	background: url(mandatoryField.png) no-repeat left;
 }
 
+/*** Single-line forms ***/
 .ui-f4-line {
 	line-height: $form-line-height;
+
+	label {
+		display: inline-block;
+		height: 2.25em;
+		padding: 0.40em 0.50em 0 0;
+
+	}
 }
+
+
+
+
