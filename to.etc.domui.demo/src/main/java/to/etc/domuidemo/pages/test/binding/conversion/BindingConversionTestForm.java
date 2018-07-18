@@ -49,7 +49,7 @@ public class BindingConversionTestForm extends UrlPage {
 		FormBuilder fb = new FormBuilder(this);
 		Text<String> control = new Text<>(String.class);
 
-		fb.property(this, "value", new TestConverter()).label("Integer").control(control);
+		fb.property(this, "value").label("Integer").control(control, new TestConverter());
 
 		DefaultButton db = new DefaultButton("click", new IClicked<DefaultButton>() {
 			@Override public void clicked(@NonNull DefaultButton clickednode) throws Exception {
