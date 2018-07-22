@@ -805,6 +805,8 @@ public class StringTool {
 			sb.append(dlt);
 			sb.append("s");
 			sp = true;
+		} else if(millis == 0) {
+			sb.append("0s");
 		}
 		if(millis != 0) {
 			if(sp)

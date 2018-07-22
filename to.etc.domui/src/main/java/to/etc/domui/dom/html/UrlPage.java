@@ -64,6 +64,9 @@ public class UrlPage extends Div {
 
 	final private List<IWebActionListener> m_actionListeners = new ArrayList<>(1);
 
+	/** When set the page will be refreshed when it is being reloaded (unshelved) */
+	private boolean m_refreshOnReload;
+
 	public UrlPage() {
 	}
 
@@ -236,5 +239,16 @@ public class UrlPage extends Div {
 		m_actionListeners.remove(listener);
 	}
 
+	@Override protected void internalUnshelve() throws Exception {
+		super.internalUnshelve();
+		if(m_refreshOnReload) {
+			m_refreshOnReload = false;
+			forceReloadData();
+		}
+	}
+
+	public void refreshOnReload() {
+		m_refreshOnReload = true;
+	}
 }
 

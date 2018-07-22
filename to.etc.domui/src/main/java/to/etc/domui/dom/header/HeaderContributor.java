@@ -57,6 +57,8 @@ abstract public class HeaderContributor {
 
 	static private Map<String, HeaderContributor> m_jsMap = new HashMap<String, HeaderContributor>();
 
+	abstract public boolean isOfflineCapable();
+
 	abstract public void contribute(IContributorRenderer r) throws Exception;
 
 	@Override
@@ -88,7 +90,16 @@ abstract public class HeaderContributor {
 	static synchronized public HeaderContributor loadStylesheet(final String name) {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {
-			c = new CssContributor(name);
+			c = new CssContributor(name, false);
+			m_jsMap.put(name, c);
+		}
+		return c;
+	}
+
+	static synchronized public HeaderContributor loadStylesheet(final String name, boolean offline) {
+		HeaderContributor c = m_jsMap.get(name);
+		if(c == null) {
+			c = new CssContributor(name, offline);
 			m_jsMap.put(name, c);
 		}
 		return c;

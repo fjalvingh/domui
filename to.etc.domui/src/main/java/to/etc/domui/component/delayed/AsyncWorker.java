@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -54,7 +54,12 @@ public class AsyncWorker {
 			return t;
 		};
 
-		BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(8192, true);
+		PriorityBlockingQueue<Runnable> queue = new PriorityBlockingQueue<>(256, (a, b) -> {
+			int pa = (a instanceof Job) ? ((Job) a).getPriority() : 0;
+			int pb = (b instanceof Job) ? ((Job) b).getPriority() : 0;
+			return - Integer.compare(pa, pb);
+		});
+		//BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(8192, true);
 		m_executor = new ThreadPoolExecutor(maxThreads, maxThreads, 60, TimeUnit.SECONDS, queue, factory);
 		m_initialized = true;
 	}
@@ -76,12 +81,16 @@ public class AsyncWorker {
 	}
 
 	public synchronized String schedule(String name, IAsyncRunnable runnable, IAsyncCompletionListener onComplete) {
+		return schedule(name, runnable, onComplete, 0);
+	}
+
+	public synchronized String schedule(String name, IAsyncRunnable runnable, IAsyncCompletionListener onComplete, int priority) {
 		if(! m_initialized)
 			throw new IllegalStateException("Not initialized");
 		if(m_terminated)
 			throw new IllegalStateException("The executor has been terminated - system shutdown in progress");
 		String id = nextID();
-		Job job = new Job(this, id, runnable, onComplete, name);
+		Job job = new Job(this, id, runnable, onComplete, name, priority);
 		ThreadPoolExecutor executor = m_executor;
 		if(null == executor)
 			throw new IllegalStateException();
@@ -153,22 +162,29 @@ public class AsyncWorker {
 
 		private long m_finishTs;
 
+		final private int m_priority;
+
 		@Nullable
 		private Throwable m_exception;
 
 		private final Progress m_progress;
 
-		public Job(AsyncWorker asyncWorker, String jobId, IAsyncRunnable runner, IAsyncCompletionListener listener, String name) {
+		public Job(AsyncWorker asyncWorker, String jobId, IAsyncRunnable runner, IAsyncCompletionListener listener, String name, int priority) {
 			m_asyncWorker = asyncWorker;
 			m_jobId = jobId;
 			m_runner = runner;
 			m_listener = listener;
 			m_submitTs = System.currentTimeMillis();
 			m_progress = new Progress(name);
+			m_priority = priority;
 		}
 
 		public String getJobId() {
 			return m_jobId;
+		}
+
+		public int getPriority() {
+			return m_priority;
 		}
 
 		public IAsyncRunnable getRunner() {

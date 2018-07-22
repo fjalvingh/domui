@@ -39,6 +39,8 @@ public class JavascriptContributor extends HeaderContributor {
 
 	private boolean m_defer;
 
+	private boolean m_offline;
+
 	public JavascriptContributor(String path) {
 		m_path = path;
 	}
@@ -81,4 +83,12 @@ public class JavascriptContributor extends HeaderContributor {
 		return this;
 	}
 
+	public JavascriptContributor offline() {
+		m_offline = true;
+		return this;
+	}
+
+	@Override public boolean isOfflineCapable() {
+		return m_offline;
+	}
 }

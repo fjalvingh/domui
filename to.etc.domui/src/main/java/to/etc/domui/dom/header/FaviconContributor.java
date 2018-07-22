@@ -25,6 +25,10 @@ final public class FaviconContributor extends HeaderContributor {
 		//o.closetag("link");
 	}
 
+	@Override public boolean isOfflineCapable() {
+		return false;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
