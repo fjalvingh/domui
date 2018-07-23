@@ -113,6 +113,9 @@ td.ui-cellsel:hover {
 th.ui-sortable {
 	cursor: pointer;
 }
+th[nowrap="nowrap"] .ui-sortable {
+	white-space: nowrap;
+}
 
 div.ui-sortable {
 	position: relative;
