@@ -559,7 +559,7 @@ import java.util.function.Predicate;
 	}
 
 	@NonNull
-	private ColumnList<T> getColumnList() {
+	public ColumnList<T> getColumnList() {
 		return m_columnList;
 	}
 

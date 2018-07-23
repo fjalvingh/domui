@@ -605,7 +605,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * If this node contains {@link TextNode}'s only this creates the text string represented by those nodes. If
 	 * other nodes are found this returns null.
-	 * @return
 	 */
 	@Nullable
 	public String getTextContents() {
@@ -616,6 +615,24 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 				sb.append(tn.getText());
 			} else
 				return null;
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Like {@link #getTextContents()}, this extracts text contents from the nodes forming this container, but
+	 * this just ignores any node that is not itself a text node.
+	 */
+	@NonNull
+	public String getTextOnly() {
+		StringBuilder sb = new StringBuilder();
+		for(NodeBase nb: this) {
+			if(nb instanceof TextNode) {
+				TextNode tn = (TextNode) nb;
+				sb.append(tn.getText());
+			} else if(nb instanceof NodeContainer) {
+				sb.append(((NodeContainer)nb).getTextOnly());
+			}
 		}
 		return sb.toString();
 	}

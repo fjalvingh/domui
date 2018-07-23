@@ -5,6 +5,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.IValueTransformer;
 
 /**
+ *
+ * @param <T>	The actual type of the column value as returned by the property getter.
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */

@@ -10,6 +10,8 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component.searchpanel.SearchPanel;
+import to.etc.domui.component.tbl.ColumnDef;
+import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.converter.IObjectToStringConverter;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -272,6 +274,26 @@ public class ExporterButtons {
 			return this;
 		}
 
+		/**
+		 * Try to generate the column definitions from a row renderer.
+		 */
+		public ExportButtonBuilder<T> rowRenderer(@Nullable RowRenderer<T> rr) {
+			if(null == rr)
+				return this;
+
+			if(m_columnList.size() > 0)
+				throw new IllegalArgumentException("Columns have been added already, a row renderer can only be used as a definition for all columns");
+			for(ColumnDef<T, ?> rrCol : rr.getColumnList()) {
+				appendColumn(rrCol);
+			}
+			return this;
+		}
+
+		private void appendColumn(ColumnDef<T, ?> c) {
+			RowRendererCellWrapper<Object> w = RowRendererCellWrapper.create(c);
+			if(null != w)
+				m_columnList.add(w);
+		}
 
 		public List<IExportColumn<?>> calculateColumnList() {
 			List<IExportColumn<?>> columnList = m_columnList;
@@ -287,7 +309,6 @@ public class ExporterButtons {
 		protected List<IExportColumn<?>> convertExpandedToColumn(List<ExpandedDisplayProperty<?>> xProps) {
 			return xProps.stream().map(a -> new ExpandedDisplayPropertyColumnWrapper<>(a)).collect(Collectors.toList());
 		}
-
 
 		protected void executeExportByQuery(NodeContainer node, IExportFormat format) throws Exception {
 			QCriteria<T> criteria = getSelectionCriteria();
