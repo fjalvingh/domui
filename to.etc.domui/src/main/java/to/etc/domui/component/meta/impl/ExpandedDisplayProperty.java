@@ -206,6 +206,10 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 	public static <X> List<ExpandedDisplayProperty< ? >> expandPropertiesWithDefaults(@NonNull Class<X> baseClass, @Nullable String[] columns) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(baseClass);
+		return expandPropertiesWithDefaults(cmm, columns);
+	}
+
+	public static List<ExpandedDisplayProperty<?>> expandPropertiesWithDefaults(ClassMetaModel cmm, @Nullable String[] columns) {
 		if(columns != null && columns.length != 0) {
 			//-- Specified: use those
 			return ExpandedDisplayProperty.expandProperties(cmm, columns);

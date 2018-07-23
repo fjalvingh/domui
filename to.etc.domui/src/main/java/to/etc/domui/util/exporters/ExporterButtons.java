@@ -272,6 +272,23 @@ public class ExporterButtons {
 			return this;
 		}
 
+
+		public List<IExportColumn<?>> calculateColumnList() {
+			List<IExportColumn<?>> columnList = m_columnList;
+			if(columnList.size() > 0)
+				return columnList;
+
+			//-- Try to create a column list.
+			List<ExpandedDisplayProperty<?>> xProps = ExpandedDisplayProperty.expandPropertiesWithDefaults(m_classModel, null);
+			columnList = convertExpandedToColumn(xProps);
+			return columnList;
+		}
+
+		protected List<IExportColumn<?>> convertExpandedToColumn(List<ExpandedDisplayProperty<?>> xProps) {
+			return xProps.stream().map(a -> new ExpandedDisplayPropertyColumnWrapper<>(a)).collect(Collectors.toList());
+		}
+
+
 		protected void executeExportByQuery(NodeContainer node, IExportFormat format) throws Exception {
 			QCriteria<T> criteria = getSelectionCriteria();
 			if(null == criteria) {
@@ -282,7 +299,7 @@ public class ExporterButtons {
 			if(customizer != null)
 				customizer.accept(criteria);
 
-			ExporterButtons.export(node, format, criteria, m_columnList, fileName);
+			ExporterButtons.export(node, format, criteria, calculateColumnList(), fileName);
 		}
 
 		protected void executeExportFromList(NodeContainer targetNode, IExportFormat format) throws Exception {
@@ -299,7 +316,7 @@ public class ExporterButtons {
 				customizer.accept(criteria);
 			List<T> result = MetaManager.query(sourceRecords, criteria);
 
-			ExporterButtons.export(targetNode, criteria.getBaseClass(), result, format, m_columnList, fileName);
+			ExporterButtons.export(targetNode, criteria.getBaseClass(), result, format, calculateColumnList(), fileName);
 		}
 
 		private String calculateFileName(QCriteria<T> criteria) {
