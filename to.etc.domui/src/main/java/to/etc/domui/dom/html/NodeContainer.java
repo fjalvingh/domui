@@ -623,16 +623,12 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Like {@link #getTextContents()}, this extracts text contents from the nodes forming this container, but
 	 * this just ignores any node that is not itself a text node.
 	 */
+	@Override
 	@NonNull
 	public String getTextOnly() {
 		StringBuilder sb = new StringBuilder();
 		for(NodeBase nb: this) {
-			if(nb instanceof TextNode) {
-				TextNode tn = (TextNode) nb;
-				sb.append(tn.getText());
-			} else if(nb instanceof NodeContainer) {
-				sb.append(((NodeContainer)nb).getTextOnly());
-			}
+			sb.append(nb.getTextOnly());
 		}
 		return sb.toString();
 	}

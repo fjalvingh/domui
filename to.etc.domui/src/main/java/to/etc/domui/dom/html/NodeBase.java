@@ -472,6 +472,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		onRemoveFromPage(p);
 	}
 
+	public String getTextOnly() {
+		return "";
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Utility functions to work with the 'class' attr.	*/
 	/*--------------------------------------------------------------*/

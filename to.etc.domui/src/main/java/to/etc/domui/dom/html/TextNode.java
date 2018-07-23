@@ -69,4 +69,8 @@ public class TextNode extends NodeBase {
 			getParent().setMustRenderChildrenFully();
 		}
 	}
+
+	@Override public String getTextOnly() {
+		return m_text == null ? "" : m_text;
+	}
 }
