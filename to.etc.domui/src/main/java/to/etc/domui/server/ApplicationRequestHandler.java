@@ -632,7 +632,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			page.getBody().forceRebuild();
 
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
-				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
+				String url = m_application.handleNotLoggedInException(ctx, (NotLoggedInException) x);
 				if(url != null) {
 					generateHttpRedirect(ctx, url, "You need to be logged in");
 					return;
@@ -1184,7 +1184,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			logUser(ctx, page, "Action handler exception: " + ex);
 			Exception x = WrappedException.unwrap(ex);
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
-				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
+				String url = m_application.handleNotLoggedInException(ctx, (NotLoggedInException) x);
 				if(url != null) {
 					generateAjaxRedirect(ctx, url);
 					return;
@@ -1231,7 +1231,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		try {
 			renderOptimalDelta(ctx, page, inhibitlog);
 		} catch(NotLoggedInException x) { 						// FIXME Fugly. Generalize this kind of exception handling somewhere.
-			String url = m_application.handleNotLoggedInException(ctx, page, x);
+			String url = m_application.handleNotLoggedInException(ctx, x);
 			if(url != null) {
 				generateHttpRedirect(ctx, url, "You need to be logged in");
 			}

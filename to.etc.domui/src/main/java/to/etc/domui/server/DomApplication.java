@@ -1632,13 +1632,13 @@ public abstract class DomApplication {
 	 * authenticator is registered this returns null, asking the caller to do normal exception
 	 * handling.
 	 */
-	public String handleNotLoggedInException(RequestContextImpl ci, Page page, NotLoggedInException x) {
+	public String handleNotLoggedInException(RequestContextImpl ci, NotLoggedInException x) {
 		ILoginDialogFactory ldf = ci.getApplication().getLoginDialogFactory();
 		if(ldf == null)
-			return null; // Nothing can be done- I don't know how to log in.
+			return null;											// Nothing can be done- I don't know how to log in.
 
 		//-- Redirect to the LOGIN page, passing the current page to return back to.
-		String target = ldf.getLoginRURL(x.getURL()); // Create a RURL to move to.
+		String target = ldf.getLoginRURL(x.getURL());				// Create a RURL to move to.
 		if(target == null)
 			throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
 
