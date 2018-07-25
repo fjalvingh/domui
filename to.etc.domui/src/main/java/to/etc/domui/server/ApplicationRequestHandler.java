@@ -961,25 +961,27 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 	private boolean checkRightsAnnotation(@NonNull UrlPage body, @NonNull UIRights rann, @NonNull IUser user) throws Exception {
+		if(rann.value().length == 0)						// No rights specified means -> just log in
+			return true;
 		if(StringTool.isBlank(rann.dataPath())) {
 			//-- No special data context - we just check plain general rights
 			for(String right : rann.value()) {
-				if(!user.hasRight(right)) {
-					return false;
+				if(user.hasRight(right)) {
+					return true;
 				}
 			}
-			return true;										// All worked, so we have access.
+			return false;										// All worked, so we have access.
 		}
 
 		//-- We need the object specified in DataPath.
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(body.getClass(), rann.dataPath());
 		Object dataItem = pmm.getValue(body);					// Get the page property.
 		for(String right : rann.value()) {
-			if(!user.hasRight(right, dataItem)) {
-				return false;
+			if(user.hasRight(right, dataItem)) {
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	/**

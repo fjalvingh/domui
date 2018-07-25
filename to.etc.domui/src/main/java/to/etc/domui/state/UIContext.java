@@ -244,11 +244,14 @@ public class UIContext {
 
 	static private boolean checkRightsAnnotation(@NonNull Class<? extends UrlPage> pageClass, @NonNull UIRights rann, @NonNull IUser user) throws Exception {
 		//-- No special data context - we just check plain general rights
+		if(rann.value().length == 0)						// No rights specified means -> just log in
+			return true;
+
 		for(String right : rann.value()) {
-			if(!user.hasRight(right)) {
-				return false;
+			if(user.hasRight(right)) {
+				return true;
 			}
 		}
-		return true;										// All worked, so we have access.
+		return false;										// All worked, so we have access.
 	}
 }
