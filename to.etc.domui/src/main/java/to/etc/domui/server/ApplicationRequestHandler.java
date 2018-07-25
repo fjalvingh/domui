@@ -856,6 +856,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
 	 * user to check it's rights against the page's required rights.
+	 *
+	 * WARNING: Functional duplicate exists in {@link UIContext#hasRightsOn(Class)}.
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Page page) throws Exception {
 		if(ctx.getParameter("webuia") != null)

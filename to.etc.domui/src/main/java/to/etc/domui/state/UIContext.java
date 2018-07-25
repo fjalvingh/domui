@@ -26,12 +26,15 @@ package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.annotations.UIRights;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.login.IUser;
 import to.etc.domui.login.UILogin;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.IServerSession;
 import to.etc.domui.trouble.NotLoggedInException;
+import to.etc.domui.util.IRightsCheckedManually;
 
 import java.io.File;
 
@@ -200,8 +203,6 @@ public class UIContext {
 
 	/**
 	 * Sets session attribute value.
-	 * @param attrName
-	 * @param value
 	 */
 	public static void setSessionAttribute(String attrName, Object value) {
 		IRequestContext ctx = getRequestContext();
@@ -209,5 +210,45 @@ public class UIContext {
 		if(null == hs)
 			return;
 		hs.setAttribute(attrName, value);
+	}
+
+	/**
+	 * Checks whether the currently logged in (or not logged in) user has rights on
+	 * the specified page, based on the class only. This does not implement either
+	 * page-specific rights checking nor datapath based checking.
+	 */
+	public static boolean hasRightsOn(Class<? extends UrlPage> pageClass) {
+		UIRights rann = pageClass.getAnnotation(UIRights.class);// Get class annotation
+		if(rann == null) {										// Any kind of rights checking is required?
+			return true;										// No -> allow access.
+		}
+		if(IRightsCheckedManually.class.isAssignableFrom(pageClass))
+			throw new IllegalArgumentException("This is unsupported for " + pageClass + " as this implements IRightsCheckedManually");
+
+
+		//-- Get user's IUser; if not present we need to log in.
+		IUser user = UIContext.getCurrentUser(); 				// Currently logged in?
+		if(user == null) {
+			return false;										// No -> no access
+		}
+
+		//-- Start access checks, in order. First call the interface, if applicable
+		String failureReason = null;
+		try {
+			return checkRightsAnnotation(pageClass, rann, user);
+		} catch(Exception x) {
+			x.printStackTrace();
+			return false;
+		}
+	}
+
+	static private boolean checkRightsAnnotation(@NonNull Class<? extends UrlPage> pageClass, @NonNull UIRights rann, @NonNull IUser user) throws Exception {
+		//-- No special data context - we just check plain general rights
+		for(String right : rann.value()) {
+			if(!user.hasRight(right)) {
+				return false;
+			}
+		}
+		return true;										// All worked, so we have access.
 	}
 }
