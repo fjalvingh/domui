@@ -123,7 +123,7 @@ public class MenuManager {
 
 	private void buildAuthorization(MenuItem userMenu, MenuItem systemMenu, IUser user) {
 		for(MenuItem sysItem : systemMenu.getChildren()) {
-			if(isNodeAuthorized(systemMenu, user)) {
+			if(isNodeAuthorized(sysItem, user)) {
 				//-- We're allowed to use this, so copy it
 				MenuItem userItem = userMenu.addClone(sysItem);
 
