@@ -154,39 +154,23 @@ public class DefaultBugListener implements IBugListener {
 		}
 	}
 
-	/**
-	 * Should be called from a request interceptor. It clears the bug listener for this
-	 * thread. Since that remains in the conversation it's contents is not lost, except
-	 * when the conversation itself is gone.
-	 * @param rc
-	 */
-	public static void onRequestAfter(IRequestContext rc) {
-		Bug.setListener(null);
-	}
-
-	protected static void onRequestBefore(IRequestContext rc) {
-		Bug.setListener(INSTANCE);
-	}
-
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Registration and initialization.					*/
 	/*--------------------------------------------------------------*/
 	/**
 	 * Call in Application.initialize() to register stuff to use the default bug handler.
-	 * @param da
 	 */
 	public static void registerSessionListener(DomApplication da) {
 		//-- Add interceptor to make sure Bug listerer becomes null after request.
 		da.addInterceptor(new IRequestInterceptor() {
 			@Override
 			public void before(IRequestContext rc) throws Exception {
-				onRequestBefore(rc);
+				Bug.addThreadListener(INSTANCE);
 			}
 
 			@Override
 			public void after(IRequestContext rc, Exception x) throws Exception {
-				onRequestAfter(rc);
+				Bug.removeThreadListener(INSTANCE);
 			}
 		});
 
@@ -300,8 +284,6 @@ public class DefaultBugListener implements IBugListener {
 
 	/**
 	 * Toggles the bug display floater.
-	 * @param pg
-	 * @param info
 	 */
 	protected static void toggleBugDisplay(Page pg, final BugRef ref) {
 		if(ref.getWindow() != null) {
@@ -403,5 +385,4 @@ public class DefaultBugListener implements IBugListener {
 			m_detail.setText(sb.toString());
 		}
 	}
-
 }
