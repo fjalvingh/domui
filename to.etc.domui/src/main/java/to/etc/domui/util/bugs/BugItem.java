@@ -31,6 +31,7 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TextNode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -194,7 +195,10 @@ final public class BugItem {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(getSeverity()).append(": ").append(getMessage());
+		sb
+			.append(new SimpleDateFormat("MMdd HH:mm:ss").format(m_timestamp)).append(" ")
+			.append(getSeverity())
+			.append(": ").append(getMessage());
 		return sb.toString();
 	}
 
@@ -202,7 +206,29 @@ final public class BugItem {
 		return m_severity;
 	}
 
+	public String getThreadName() {
+		return m_threadName;
+	}
+
 	public synchronized void addContribution(IBugContribution item) {
 		m_contributions.add(item);
+	}
+
+	public synchronized List<IBugContribution> getContributions() {
+		return Collections.unmodifiableList(m_contributions);
+	}
+
+	public synchronized List<Object> getContextItems() {
+		return Collections.unmodifiableList(m_contextItems);
+	}
+
+	@Nullable
+	public <T> T findContextItem(Class<T> clazz) {
+		for(Object contextItem : getContextItems()) {
+			if(clazz.isAssignableFrom(contextItem.getClass())) {
+				return (T) contextItem;
+			}
+		}
+		return null;
 	}
 }
