@@ -11,6 +11,7 @@ import to.etc.smtp.Address;
 import to.etc.smtp.MailBuilder;
 import to.etc.smtp.Message;
 import to.etc.util.LineIterator;
+import to.etc.util.SecurityUtils;
 import to.etc.util.StringTool;
 import to.etc.webapp.mailer.BulkMailer;
 
@@ -18,8 +19,10 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class ExceptionUtil {
+final public class ExceptionUtil {
 	@NonNull
 	final private RequestContextImpl m_ctx;
 
@@ -166,4 +169,53 @@ public class ExceptionUtil {
 		}
 
 	}
+
+	/**
+	 * Calculate a hash code for a stacktrace, so that duplicate occurrences can be found.
+	 */
+	@NonNull
+	static public String getExceptionHash(@NonNull Throwable exception) {
+		return getExceptionHash(StringTool.strStacktrace(exception));
+	}
+
+	/**
+	 * Calculate a hash code for a stacktrace, so that duplicate occurrences can be found.
+	 */
+	@NonNull
+	static public String getExceptionHash(@NonNull String exception) {
+		StringBuilder sb = new StringBuilder();
+
+		//-- 1. Add exception name: format is "java.lang.XxxException" optionally followed by ": message".
+		int pos = exception.indexOf('\n');
+		if(pos > 2) {
+			String line = exception.substring(0, pos);
+			pos = line.indexOf(':');
+			if(pos == -1)
+				sb.append(line);						// No colon: Exception name only.
+			else
+				sb.append(line, 0, pos);				// Only upto colon.
+			sb.append("\n");
+		}
+
+		//-- Locate all "at" lines and only add the "classname + function" part.
+		Matcher m = null;
+		for(String line : new LineIterator(exception)) {
+			if(null == m)
+				m = LOCATION_PATTERN.matcher(line);
+			else
+				m.reset(line);
+			if(m.matches()) {
+				String frag = m.group(1);
+				sb.append(frag).append("\n");
+			}
+		}
+
+		String s = sb.toString();
+//		System.out.println("Hash " + s);
+		String md5Hash = SecurityUtils.getMD5Hash(s, "utf-8");
+		return md5Hash;
+	}
+
+	@NonNull
+	static private final Pattern LOCATION_PATTERN = Pattern.compile("\\s+[Aa]t\\s++([a-zA-Z0-9\\.\\$\\_]+)\\([^\\)]+\\).*");
 }

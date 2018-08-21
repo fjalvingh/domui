@@ -30,6 +30,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.server.ExceptionUtil;
+import to.etc.util.SecurityUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -230,5 +232,20 @@ final public class BugItem {
 			}
 		}
 		return null;
+	}
+
+
+	/**
+	 * Try to create a hash for the issue that should more or less uniquely identify it.
+	 */
+	public String getHash() {
+		Throwable exception = getException();
+		if(null != exception) {
+			return ExceptionUtil.getExceptionHash(exception);
+		}
+
+		//-- Use the message
+		String message = getMessage().toLowerCase().replace(" ", "");
+		return SecurityUtils.getMD5Hash(message, "utf-8");
 	}
 }

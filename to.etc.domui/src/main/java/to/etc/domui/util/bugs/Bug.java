@@ -198,7 +198,7 @@ final public class Bug {
 	}
 
 	static public void panic(Throwable t, String message, List<Object> contextItems) {
-		BugItem bug = new BugItem(message, t, contextItems);
+		BugItem bug = new BugItem(BugSeverity.PANIC, message, t, contextItems);
 		postBug(bug);
 	}
 }

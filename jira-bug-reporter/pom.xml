@@ -15,7 +15,7 @@
 	<version>1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>domui :: jira-</name>
+	<name>domui :: jira-bug-reporter</name>
 	<description>The DomUI user interface library :: Jira Bug reporter</description>
 	<inceptionYear>2017</inceptionYear>
 
@@ -37,6 +37,12 @@
 			<groupId>com.atlassian.jira</groupId>
 			<artifactId>jira-rest-java-client-core</artifactId>
 			<version>5.0.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.atlassian.fugue</groupId>
+			<artifactId>fugue</artifactId>
+			<version>2.6.1</version>
 		</dependency>
 	</dependencies>
 
