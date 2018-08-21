@@ -40,6 +40,6 @@ public class JiraReporterImpl extends JiraReporter {
 	}
 
 	@Override protected String getHashCodeFieldname() {
-		return "customfield_10024";
+		return "10024";
 	}
 }

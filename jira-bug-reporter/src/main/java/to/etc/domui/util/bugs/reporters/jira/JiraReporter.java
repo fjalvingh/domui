@@ -1,7 +1,11 @@
 package to.etc.domui.util.bugs.reporters.jira;
 
 import com.atlassian.jira.rest.client.api.JiraRestClient;
+import com.atlassian.jira.rest.client.api.SearchRestClient;
 import com.atlassian.jira.rest.client.api.domain.BasicIssue;
+import com.atlassian.jira.rest.client.api.domain.Comment;
+import com.atlassian.jira.rest.client.api.domain.Issue;
+import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
@@ -45,24 +49,24 @@ abstract public class JiraReporter implements IBugListener {
 
 		try(JiraRestClient client = new AsynchronousJiraRestClientFactory().createWithBasicHttpAuthentication(m_jiraURL, m_userName, m_password)) {
 			String hash = item.getHash();
-			//findBugByHash(client, hash);
-
-			postBug(client, item, hash);
-
-
-
+			if(! updateIssueByHash(client, item, hash)) {
+				//postBug(client, item, hash);
+			}
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
 	}
 
+	/**
+	 * Create a new issue in Jira.
+	 */
 	private void postBug(JiraRestClient client, BugItem item, String hash) {
 		IssueInputBuilder builder = new IssueInputBuilder(getProjectKey(item), getIssueTypeId(item), createSummary(item))
 			.setFieldValue("description", calculateDescription(item))
 			;
 		String hashField = getHashCodeFieldname();
 		if(hashField != null) {
-			builder.setFieldValue(hashField, hash);
+			builder.setFieldValue("customfield_" + hashField, hash);
 		}
 		IssueInput ii = builder.build();
 
@@ -70,6 +74,10 @@ abstract public class JiraReporter implements IBugListener {
 		System.out.println("Issue created as " + issue.getKey());
 	}
 
+	/**
+	 * Calculate the value for the description field, which will contain all of the information
+	 * collected from the issue.
+	 */
 	private String calculateDescription(BugItem item) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Automatic bug report");
@@ -77,7 +85,7 @@ abstract public class JiraReporter implements IBugListener {
 		try {
 			InetAddress host = InetAddress.getLocalHost();
 			String name = host.getCanonicalHostName();
-			sb.append(" from server").append(name);
+			sb.append(" from server ").append(name);
 		} catch(Exception xxx) {}
 
 		sb.append(": ").append(item.getMessage()).append("\n");
@@ -101,11 +109,40 @@ abstract public class JiraReporter implements IBugListener {
 		return sb.toString();
 	}
 
-	private void findBugByHash(JiraRestClient client, String hash) {
+	private boolean updateIssueByHash(JiraRestClient client, BugItem item, String hash) {
+		String hashField = getHashCodeFieldname();
+		if(null == hashField)
+			return false;
 
+		// see https://community.atlassian.com/t5/Jira-questions/Jira-Text-Search-in-Custom-Fields/qaq-p/26757
+		SearchRestClient searchClient = client.getSearchClient();
 
+		StringBuilder sb = new StringBuilder();
+		sb.append("project=\"").append(getProjectKey(null)).append("\"");
+
+		sb.append(" and ").append("cf[").append(hashField).append("]").append("~\"").append(hash).append("\"");
+		SearchResult result = searchClient.searchJql(sb.toString()).claim();
+		int total = result.getTotal();
+		if(0 == total) {
+			System.out.println("jira: no result for hash=" + hash);
+			return false;
+		}
+
+		for(Issue issue : result.getIssues()) {
+			String key = issue.getKey();
+			System.out.println("jira: key=" + key);
+
+			Comment comment = Comment.valueOf(calculateDescription(item));
+			client.getIssueClient().addComment(issue.getCommentsUri(), comment).claim();
+			System.out.println("jira: issue " + key + " updated");
+			return false;
+		}
+		return false;
 	}
 
+	/**
+	 * Create the bug's summary line, using the bug message and a part of the exception string.
+	 */
 	protected String createSummary(BugItem bug) {
 		String message = bug.getMessage();
 		Throwable exception = bug.getException();
@@ -130,6 +167,11 @@ abstract public class JiraReporter implements IBugListener {
 
 	abstract protected long getIssueTypeId(BugItem item);
 
+	/**
+	 * If a hash code field has been added to the Jira instance this should return its
+	 * code as a string, i.e. "10024". If no field has been added all bugs will just add
+	 * a new issue.
+	 */
 	@Nullable
 	abstract protected String getHashCodeFieldname();
 
