@@ -40,9 +40,8 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 21-8-18.
  */
-public class DomUIBugContributor implements IBugInfoContributor {
-
-	public static final int MAX_VALUE_SIZE = 200;
+final public class DomUIBugContributor implements IBugInfoContributor {
+	private static final int MAX_VALUE_SIZE = 200;
 
 	@Override public void onContribute(BugItem bug) throws Exception {
 		RequestContextImpl requestContext = bug.findContextItem(RequestContextImpl.class);

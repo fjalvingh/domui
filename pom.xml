@@ -103,7 +103,8 @@
         <module>to.etc.dbcompare</module>
         <module>archetypes</module>
         <module>utilities</module>
-    </modules>
+		<module>jira-bug-reporter</module>
+	</modules>
 
     <build>
         <plugins>
