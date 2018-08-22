@@ -147,7 +147,7 @@ abstract public class JiraReporter implements IBugListener {
 		SearchRestClient searchClient = client.getSearchClient();
 
 		StringBuilder sb = new StringBuilder();
-		sb.append("project=\"").append(getProjectKey(null)).append("\"");
+		sb.append("project=\"").append(getProjectKey(item)).append("\"");
 
 		sb.append(" and ").append("cf[").append(hashField).append("]").append("~\"").append(hash).append("\"");
 		SearchResult result = searchClient.searchJql(sb.toString()).claim();

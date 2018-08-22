@@ -274,7 +274,7 @@ final public class Bug {
 				if(null == executor) {
 					sweep();
 				} else {
-					m_executor.execute(Bug::sweep);
+					executor.execute(Bug::sweep);
 				}
 			}
 		});
