@@ -1,5 +1,6 @@
 package to.etc.domui.util.bugs.reporters.jira;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.bugs.Bug;
 import to.etc.domui.util.bugs.BugItem;
 import to.etc.util.DeveloperOptions;
@@ -13,9 +14,23 @@ import java.net.URI;
 public class JiraReporterImpl extends JiraReporter {
 	private final String m_projectKey;
 
+	private long m_issueType = 10004;						// Should be "Bug"
+
+	@Nullable
+	private String m_hashFieldName;
+
 	public JiraReporterImpl(URI jiraURL, String userName, String password, String projectKey) {
 		super(jiraURL, userName, password);
 		m_projectKey = projectKey;
+	}
+
+	public JiraReporterImpl issueType(long issueType) {
+		m_issueType = issueType;
+		return this;
+	}
+	public JiraReporterImpl hashFieldName(String name) {
+		m_hashFieldName = name;
+		return this;
 	}
 
 	@Override protected String getProjectKey(BugItem item) {
@@ -23,9 +38,8 @@ public class JiraReporterImpl extends JiraReporter {
 	}
 
 	@Override protected long getIssueTypeId(BugItem item) {
-		return 10004;							// Bug
+		return m_issueType;
 	}
-
 
 	public static void main(String[] args) throws Exception {
 		URI uri = new URI("https://skarpsectorintelligence.atlassian.net/");
@@ -40,8 +54,9 @@ public class JiraReporterImpl extends JiraReporter {
 		}
 	}
 
+	@Nullable
 	@Override protected String getHashCodeFieldname() {
-		return "10024";
+		return m_hashFieldName;
 	}
 }
 

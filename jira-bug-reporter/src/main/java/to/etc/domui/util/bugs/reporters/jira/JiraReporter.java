@@ -20,6 +20,7 @@ import to.etc.util.StringTool;
 import java.net.InetAddress;
 import java.net.URI;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 
 /**
  * This reporter is used to report bugs reported by the Bug framework to a Jira
@@ -92,6 +93,7 @@ abstract public class JiraReporter implements IBugListener {
 		if(hashField != null) {
 			builder.setFieldValue("customfield_" + hashField, hash);
 		}
+		builder.setFieldValue("labels", Arrays.asList("untriaged"));
 		IssueInput ii = builder.build();
 
 		BasicIssue issue = client.getIssueClient().createIssue(ii).claim();
