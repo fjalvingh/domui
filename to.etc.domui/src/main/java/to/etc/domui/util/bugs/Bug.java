@@ -38,9 +38,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.Executor;
 
 /**
- * Accessor to post odd conditions for later review.
+ * Accessor to post odd conditions for later review, either in the UI itself (BUGs) or
+ * by reporting them to some bug tracker or email (PANIC).
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2010
@@ -63,6 +65,10 @@ final public class Bug {
 	static private Map<String, BugOccurrence> m_occurrenceMap = new HashMap<>();
 
 	private static boolean m_initialized;
+
+	/** When set, the executor will be used to run global bug reports in the background. */
+	@Nullable
+	private static Executor m_executor;
 
 	private Bug() {}
 
@@ -98,7 +104,12 @@ final public class Bug {
 		List<IBugListener> threadListeners = getThreadListeners();
 		report(threadListeners, bi);
 		List<IBugListener> gll = getGlobalListeners();
-		report(gll, bi);
+		Executor executor = getExecutor();
+		if(null == executor) {
+			report(gll, bi);
+		} else if(gll.size() > 0) {
+			executor.execute(() -> report(gll, bi));
+		}
 		if(true || (gll.size() == 0 && threadListeners.size() == 0)) {
 			//-- No one listens -> report to console.
 			System.out.println(bi.toString());
@@ -109,6 +120,10 @@ final public class Bug {
 		}
 	}
 
+	/**
+	 * Checks whether this issue is rate-limited, i.e. it occurs too often.
+	 * @return T if the issue should not be reported again.
+	 */
 	private static boolean isRateLimited(BugItem item) {
 		if(item.getSeverity() != BugSeverity.PANIC)				// Only PANICs are rate-limited
 			return false;
@@ -207,7 +222,7 @@ final public class Bug {
 		m_threadListener.set(list);
 	}
 
-	static public synchronized void addConstributor(IBugInfoContributor contributor) {
+	static public synchronized void addContributor(IBugInfoContributor contributor) {
 		List<IBugInfoContributor> contributors = m_contributors;
 		if(contributors.contains(contributor))
 			return;
@@ -216,7 +231,7 @@ final public class Bug {
 		m_contributors = contributors;
 	}
 
-	static public synchronized void removeConstributor(IBugInfoContributor contributor) {
+	static public synchronized void removeContributor(IBugInfoContributor contributor) {
 		List<IBugInfoContributor> contributors = m_contributors;
 		if(! contributors.contains(contributor))
 			return;
@@ -243,18 +258,34 @@ final public class Bug {
 	/*----------------------------------------------------------------------*/
 
 	/**
-	 * Initialize the Bug framework, and schedule a sweep for duplicate bugs every n hours.
+	 * Initialize the Bug framework, and schedule a sweep for duplicate bugs every n hours. An optional
+	 * Executor can be set which will then be used to run sweep and report tasks in the background.
 	 */
-	static public synchronized void initialize(int sweepintervalInHours) throws Exception {
-		if(m_initialized)
+	static public synchronized void initialize(int sweepintervalInHours, @Nullable Executor backgroundExecutor) throws Exception {
+		m_executor = backgroundExecutor;
+		if(m_initialized) {
 			return;
+		}
 		m_initialized = true;
 
 		Janitor.getJanitor().addTask(sweepintervalInHours * 60, sweepintervalInHours * 60, "BugDups", new JanitorTask() {
-			@Override public void run() throws Exception {
-				sweep();
+			@Override public void run() {
+				Executor executor = m_executor;
+				if(null == executor) {
+					sweep();
+				} else {
+					m_executor.execute(Bug::sweep);
+				}
 			}
 		});
+	}
+
+	public static synchronized void setExecutor(Executor executor) {
+		m_executor = executor;
+	}
+
+	private static synchronized Executor getExecutor() {
+		return m_executor;
 	}
 
 	/**
