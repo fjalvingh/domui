@@ -9,6 +9,7 @@ import com.atlassian.jira.rest.client.api.domain.SearchResult;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInput;
 import com.atlassian.jira.rest.client.api.domain.input.IssueInputBuilder;
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.bugs.BugItem;
 import to.etc.domui.util.bugs.BugSeverity;
@@ -18,6 +19,7 @@ import to.etc.util.StringTool;
 
 import java.net.InetAddress;
 import java.net.URI;
+import java.text.SimpleDateFormat;
 
 /**
  * This reporter is used to report bugs reported by the Bug framework to a Jira
@@ -30,6 +32,7 @@ import java.net.URI;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 21-8-18.
  */
+@NonNullByDefault
 abstract public class JiraReporter implements IBugListener {
 	private final URI m_jiraURL;
 
@@ -43,6 +46,27 @@ abstract public class JiraReporter implements IBugListener {
 		m_password = password;
 	}
 
+	/**
+	 * This must return the JIRA project key to use for a specific item, like "PTL". It can use
+	 * the data inside the item to decide what project key to return.
+	 */
+	abstract protected String getProjectKey(BugItem item);
+
+	/**
+	 * This must return the type ID (a number) of the issue type to add. It can be found by
+	 * going to Jira and using Admin -> Issues -> Issue Types, then hover over the "edit" button
+	 * of the type you want. The link shown for that contains the issue type number.
+	 */
+	abstract protected long getIssueTypeId(BugItem item);
+
+	/**
+	 * If a hash code field has been added to the Jira instance this should return its
+	 * code as a string, i.e. "10024". If no field has been added all bugs will just add
+	 * a new issue.
+	 */
+	@Nullable
+	abstract protected String getHashCodeFieldname();
+
 	@Override public void bugSignaled(BugItem item) {
 		if(! accept(item))
 			return;
@@ -50,7 +74,7 @@ abstract public class JiraReporter implements IBugListener {
 		try(JiraRestClient client = new AsynchronousJiraRestClientFactory().createWithBasicHttpAuthentication(m_jiraURL, m_userName, m_password)) {
 			String hash = item.getHash();
 			if(! updateIssueByHash(client, item, hash)) {
-				//postBug(client, item, hash);
+				postBug(client, item, hash);
 			}
 		} catch(Exception x) {
 			x.printStackTrace();
@@ -78,7 +102,7 @@ abstract public class JiraReporter implements IBugListener {
 	 * Calculate the value for the description field, which will contain all of the information
 	 * collected from the issue.
 	 */
-	private String calculateDescription(BugItem item) {
+	protected String calculateDescription(BugItem item) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Automatic bug report");
 
@@ -90,9 +114,12 @@ abstract public class JiraReporter implements IBugListener {
 
 		sb.append(": ").append(item.getMessage()).append("\n");
 
+		sb.append("Occurred on: ").append(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(item.getTimestamp())).append("\n");
+		sb.append("Thread name: ").append(item.getThreadName()).append("\n");
+
 		Throwable exception = item.getException();
 		if(null != exception) {
-			sb.append("Exception was: ");
+			sb.append("Exception details:\n");
 			StringTool.strStacktrace(sb, exception);
 			sb.append("\n");
 		}
@@ -135,7 +162,7 @@ abstract public class JiraReporter implements IBugListener {
 			Comment comment = Comment.valueOf(calculateDescription(item));
 			client.getIssueClient().addComment(issue.getCommentsUri(), comment).claim();
 			System.out.println("jira: issue " + key + " updated");
-			return false;
+			return true;
 		}
 		return false;
 	}
@@ -162,18 +189,6 @@ abstract public class JiraReporter implements IBugListener {
 
 		return message;
 	}
-
-	abstract protected String getProjectKey(BugItem item);
-
-	abstract protected long getIssueTypeId(BugItem item);
-
-	/**
-	 * If a hash code field has been added to the Jira instance this should return its
-	 * code as a string, i.e. "10024". If no field has been added all bugs will just add
-	 * a new issue.
-	 */
-	@Nullable
-	abstract protected String getHashCodeFieldname();
 
 	/**
 	 * By default only report PANIC items.

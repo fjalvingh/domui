@@ -2,6 +2,7 @@ package to.etc.domui.util.bugs.reporters.jira;
 
 import to.etc.domui.util.bugs.Bug;
 import to.etc.domui.util.bugs.BugItem;
+import to.etc.util.DeveloperOptions;
 
 import java.net.URI;
 
@@ -29,7 +30,7 @@ public class JiraReporterImpl extends JiraReporter {
 	public static void main(String[] args) throws Exception {
 		URI uri = new URI("https://skarpsectorintelligence.atlassian.net/");
 
-		JiraReporterImpl ri = new JiraReporterImpl(uri, "fritsjalvingh@skarp.nl", "723B7rhVdT", "PTL");
+		JiraReporterImpl ri = new JiraReporterImpl(uri, DeveloperOptions.getString("test.jira.userid"), DeveloperOptions.getString("test.jira.password"), "PTL");
 		Bug.addGlobalListener(ri);
 
 		try {
@@ -43,3 +44,4 @@ public class JiraReporterImpl extends JiraReporter {
 		return "10024";
 	}
 }
+
