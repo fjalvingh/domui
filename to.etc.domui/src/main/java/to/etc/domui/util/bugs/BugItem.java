@@ -68,6 +68,9 @@ final public class BugItem {
 
 	private final List<IBugContribution> m_contributions = new ArrayList<>();
 
+	@Nullable
+	private String m_hash;
+
 	private int m_number;
 
 	/**
@@ -239,13 +242,17 @@ final public class BugItem {
 	 * Try to create a hash for the issue that should more or less uniquely identify it.
 	 */
 	public String getHash() {
-		Throwable exception = getException();
-		if(null != exception) {
-			return ExceptionUtil.getExceptionHash(exception);
+		String hash = m_hash;
+		if(null == hash) {
+			Throwable exception = getException();
+			if(null == exception) {
+				//-- Use the message
+				String message = getMessage().toLowerCase().replace(" ", "");
+				hash = m_hash = SecurityUtils.getMD5Hash(message, "utf-8");
+			} else {
+				hash = m_hash = ExceptionUtil.getExceptionHash(exception);
+			}
 		}
-
-		//-- Use the message
-		String message = getMessage().toLowerCase().replace(" ", "");
-		return SecurityUtils.getMD5Hash(message, "utf-8");
+		return hash;
 	}
 }

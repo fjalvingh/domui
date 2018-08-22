@@ -27,11 +27,17 @@ package to.etc.domui.util.bugs;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.util.janitor.Janitor;
+import to.etc.domui.util.janitor.JanitorTask;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Accessor to post odd conditions for later review.
@@ -40,11 +46,23 @@ import java.util.List;
  * Created on Jun 18, 2010
  */
 final public class Bug {
+
 	static private final ThreadLocal<List<IBugListener>> m_threadListener = new ThreadLocal<>();
+
+	public static final long ONE_HOUR_IN_MILLIS = 60 * 60 * 1000L;
 
 	static private List<IBugListener> m_listeners = new ArrayList<>();
 
 	static private List<IBugInfoContributor> m_contributors = new ArrayList<>();
+
+	static private volatile int m_maxDuplicates = 2;
+
+	static private long m_lastSweepTime = System.currentTimeMillis();
+
+	/** PANIC Bugs indexed by hash. */
+	static private Map<String, BugOccurrence> m_occurrenceMap = new HashMap<>();
+
+	private static boolean m_initialized;
 
 	private Bug() {}
 
@@ -72,6 +90,9 @@ final public class Bug {
 	}
 
 	private static void postBug(BugItem bi) {
+		if(isRateLimited(bi))										// Ignore if we're receiving too many.
+			return;
+
 		addContributions(bi);										// Let all contributors contribute
 
 		List<IBugListener> threadListeners = getThreadListeners();
@@ -86,6 +107,21 @@ final public class Bug {
 				x.printStackTrace();
 			}
 		}
+	}
+
+	private static boolean isRateLimited(BugItem item) {
+		if(item.getSeverity() != BugSeverity.PANIC)				// Only PANICs are rate-limited
+			return false;
+		if(m_maxDuplicates <= 0)								// Rate-limiting disabled?
+			return false;
+
+		String hash = item.getHash();
+		BugOccurrence occ = m_occurrenceMap.computeIfAbsent(hash, a -> new BugOccurrence());
+		if(occ.m_count++ >= m_maxDuplicates)
+			return true;
+
+		//-- We're still below the rate-> allow this one.
+		return false;
 	}
 
 	private static void addContributions(BugItem bi) {
@@ -116,7 +152,7 @@ final public class Bug {
 
 	/**
 	 * Add a listener which will be called for every Bug reported, regardless of thread. The listener must
-	 * be threadsafe.
+	 * be thread safe.
 	 */
 	static public synchronized void addGlobalListener(IBugListener listener) {
 		List<IBugListener> listeners = m_listeners;
@@ -200,5 +236,104 @@ final public class Bug {
 	static public void panic(Throwable t, String message, List<Object> contextItems) {
 		BugItem bug = new BugItem(BugSeverity.PANIC, message, t, contextItems);
 		postBug(bug);
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Maintenance													*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Initialize the Bug framework, and schedule a sweep for duplicate bugs every n hours.
+	 */
+	static public synchronized void initialize(int sweepintervalInHours) throws Exception {
+		if(m_initialized)
+			return;
+		m_initialized = true;
+
+		Janitor.getJanitor().addTask(sweepintervalInHours * 60, sweepintervalInHours * 60, "BugDups", new JanitorTask() {
+			@Override public void run() throws Exception {
+				sweep();
+			}
+		});
+	}
+
+	/**
+	 * Walk the occurrence table and remove expired items, and report all items that have
+	 * occurred > maxDuplicates times. This must be called on a worker thread as it can
+	 * take a while.
+	 */
+	public static void sweep() {
+		List<TodoItem> todoList = new ArrayList<>();
+		long cts = System.currentTimeMillis();
+		long expire = cts - 2 * 24 * ONE_HOUR_IN_MILLIS;		// Expire everything that did not occur again in 2 days
+		synchronized(Bug.class) {
+			long last = m_lastSweepTime;
+			m_lastSweepTime = cts;
+
+			long delta = cts - m_lastSweepTime;
+			if(delta < ONE_HOUR_IN_MILLIS) {
+				delta = ONE_HOUR_IN_MILLIS;
+			}
+			long fence = cts - delta;
+
+			Iterator<Entry<String, BugOccurrence>> iterator = m_occurrenceMap.entrySet().iterator();
+			while(iterator.hasNext()) {
+				Entry<String, BugOccurrence> next = iterator.next();
+
+				BugOccurrence occ = next.getValue();
+				int inPeriod = occ.m_count - occ.m_lastReportedCount;
+
+				if(occ.m_since < fence && inPeriod > m_maxDuplicates) {
+					//-- report an update on this one.
+					todoList.add(new TodoItem(inPeriod, next.getKey(), occ.m_since));
+					occ.m_since = cts;
+					occ.m_lastReportedCount = occ.m_count;
+				}
+
+				if(occ.m_since < expire)
+					iterator.remove();
+			}
+		}
+
+		//-- Now report all to the reporters, when interested.
+		for(TodoItem item : todoList) {
+			for(IBugListener listener : getGlobalListeners()) {
+				if(listener instanceof IBugListenerEx) {
+					try {
+						((IBugListenerEx) listener).reportRepeats(item.m_hash, item.m_since, item.m_count);
+					} catch(Exception x) {
+						System.err.println("=== Exception in BUG listener ===");
+						System.err.println("Listener class   : " + listener.getClass().getName());
+						System.err.println("Listener toString: " + listener.toString());
+						x.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Counts how many times a bug occurred.
+	 */
+	static private final class BugOccurrence {
+		private int m_count;
+
+		private int m_lastReportedCount;
+
+		private long m_since = System.currentTimeMillis();
+	}
+
+	static private final class TodoItem {
+		private final int m_count;
+
+		private final String m_hash;
+
+		private final long m_since;
+
+		public TodoItem(int count, String hash, long since) {
+			m_count = count;
+			m_hash = hash;
+			m_since = since;
+		}
 	}
 }
