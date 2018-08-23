@@ -185,7 +185,7 @@ final public class ExceptionUtil {
 	static public String getExceptionHash(@NonNull String exception) {
 		StringBuilder sb = new StringBuilder();
 
-		//-- 1. Add exception name: format is "java.lang.XxxException" optionally followed by ": message".
+		//-- 1. Add exception name: format is "java.lang.XxxException". Do not add the message.
 		int pos = exception.indexOf('\n');
 		if(pos > 2) {
 			String line = exception.substring(0, pos);
@@ -211,11 +211,71 @@ final public class ExceptionUtil {
 		}
 
 		String s = sb.toString();
-//		System.out.println("Hash " + s);
+		System.out.println("Hash " + s);
 		String md5Hash = SecurityUtils.getMD5Hash(s, "utf-8");
 		return md5Hash;
 	}
 
 	@NonNull
-	static private final Pattern LOCATION_PATTERN = Pattern.compile("\\s+[Aa]t\\s++([a-zA-Z0-9\\.\\$\\_]+)\\([^\\)]+\\).*");
+	static private final Pattern LOCATION_PATTERN = Pattern.compile("\\s+[Aa]t\\s+([a-zA-Z0-9\\.\\$\\_]+)\\([^\\)]+\\).*");
+
+
+	static private final String S = "org.hibernate.exception.ConstraintViolationException: could not insert: [nl.skarp.portal.core.db.MonServerComponent]\n"
+		+ "        at org.hibernate.exception.SQLStateConverter.convert(SQLStateConverter.java:96)\n"
+		+ "        at org.hibernate.exception.JDBCExceptionHelper.convert(JDBCExceptionHelper.java:66)\n"
+		+ "        at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:2455)\n"
+		+ "        at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:2875)\n"
+		+ "        at org.hibernate.action.EntityInsertAction.execute(EntityInsertAction.java:79)\n"
+		+ "        at org.hibernate.engine.ActionQueue.execute(ActionQueue.java:273)\n"
+		+ "        at org.hibernate.engine.ActionQueue.executeActions(ActionQueue.java:265)\n"
+		+ "        at org.hibernate.engine.ActionQueue.executeActions(ActionQueue.java:184)\n"
+		+ "        at org.hibernate.event.def.AbstractFlushingEventListener.performExecutions(AbstractFlushingEventListener.java:321)\n"
+		+ "        at org.hibernate.event.def.DefaultFlushEventListener.onFlush(DefaultFlushEventListener.java:51)\n"
+		+ "        at org.hibernate.impl.SessionImpl.flush(SessionImpl.java:1216)\n"
+		+ "        at to.etc.domui.hibernate.generic.HibernateLongSessionContext.commit(HibernateLongSessionContext.java:120)\n"
+		+ "        at nl.skarp.monitoring.collectors.CachedServer.getComponent(CachedServer.java:124)\n"
+		+ "        at nl.skarp.monitoring.collectors.CachedComponent.getChild(CachedComponent.java:95)\n"
+		+ "        at nl.skarp.monitoring.collectors.DbSizeReader.getDatabaseSizes(DbSizeReader.java:146)\n"
+		+ "        at nl.skarp.monitoring.collectors.DbSizeReader.run(DbSizeReader.java:76)\n"
+		+ "        at nl.skarp.monitoring.collectors.MonitorThread.runServerDatabaseSizeCheck(MonitorThread.java:167)\n"
+		+ "        at nl.skarp.monitoring.collectors.MonitorThread.runSizeChecks(MonitorThread.java:101)\n"
+		+ "        at nl.skarp.monitoring.collectors.MonitorThread.checkSizes(MonitorThread.java:72)\n"
+		+ "        at nl.skarp.monitoring.collectors.MonitorThread.run(MonitorThread.java:44)\n"
+		+ "Caused by: to.etc.dbpool.BetterSQLException: org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint \"msc_pk\"\n"
+		+ "  Detail: Key (msc_id)=(5975) already exists.\n"
+		+ "\n"
+		+ "SQL: insert into source_mapping.mon_server_component (msc_database_password, msc_database_port, msc_database_type, msc_database_userid, msc_name, parent_msc_id, msr_id, msc_class, msc_id) values (?, ?, ?, ?, ?, ?, ?, ?, ?)\n"
+		+ "Parameters:\n"
+		+ "#1  : [null]           : msc_database_password   = [null]\n"
+		+ "#2  : [null]           : msc_database_port       = [null]\n"
+		+ "#3  : [null]           : msc_database_type       = [null]\n"
+		+ "#4  : [null]           : msc_database_userid     = [null]\n"
+		+ "#5  : java.lang.String : msc_name                = staging_912_prd\n"
+		+ "#6  : java.lang.Long   : parent_msc_id           = 5050\n"
+		+ "#7  : java.lang.Long   : msr_id                  = 1\n"
+		+ "#8  : java.lang.String : msc_class               = DATABASE\n"
+		+ "#9  : java.lang.Long   : msc_id                  = 5975\n"
+		+ "        at to.etc.dbpool.PreparedStatementProxy.wrap(PreparedStatementProxy.java:108)\n"
+		+ "        at to.etc.dbpool.PreparedStatementProxy.executeUpdate(PreparedStatementProxy.java:149)\n"
+		+ "        at org.hibernate.jdbc.NonBatchingBatcher.addToBatch(NonBatchingBatcher.java:46)\n"
+		+ "        at org.hibernate.persister.entity.AbstractEntityPersister.insert(AbstractEntityPersister.java:2435)\n"
+		+ "        ... 17 more\n"
+		+ "Caused by: org.postgresql.util.PSQLException: ERROR: duplicate key value violates unique constraint \"msc_pk\"\n"
+		+ "  Detail: Key (msc_id)=(5975) already exists.\n"
+		+ "        at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2476)\n"
+		+ "        at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2189)\n"
+		+ "        at org.postgresql.core.v3.QueryExecutorImpl.receiveErrorResponse(QueryExecutorImpl.java:2476)\n"
+		+ "        at org.postgresql.core.v3.QueryExecutorImpl.processResults(QueryExecutorImpl.java:2189)\n"
+		+ "        at org.postgresql.core.v3.QueryExecutorImpl.execute(QueryExecutorImpl.java:300)\n"
+		+ "        at org.postgresql.jdbc.PgStatement.executeInternal(PgStatement.java:428)\n"
+		+ "        at org.postgresql.jdbc.PgStatement.execute(PgStatement.java:354)\n"
+		+ "        at org.postgresql.jdbc.PgPreparedStatement.executeWithFlags(PgPreparedStatement.java:169)\n"
+		+ "        at org.postgresql.jdbc.PgPreparedStatement.executeUpdate(PgPreparedStatement.java:136)\n"
+		+ "        at to.etc.dbpool.PreparedStatementProxy.executeUpdate(PreparedStatementProxy.java:146)\n"
+		+ "        ... 19 more\n";
+
+	static public void main(String[] args) {
+		String h = getExceptionHash(S);
+		System.out.println(h);
+	}
 }
