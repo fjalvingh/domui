@@ -88,6 +88,16 @@ namespace WebUI {
 		list.push({id: id, control: control});
 	}
 
+	export function visibilityChanged() {
+		let list = _inputFieldList;
+		for(let i = list.length; --i >= 0;) {
+			let item = list[i];
+			if(item.onVisibityChanged) {
+				item.onVisibilityChanged();
+			}
+		}
+	}
+
 	export function findInputControl(id) {
 		//-- return registered component by id, if not found returns null
 		let list = _inputFieldList;

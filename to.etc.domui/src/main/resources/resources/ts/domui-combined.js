@@ -69,6 +69,16 @@ var WebUI;
         list.push({ id: id, control: control });
     }
     WebUI.registerInputControl = registerInputControl;
+    function visibilityChanged() {
+        var list = _inputFieldList;
+        for (var i = list.length; --i >= 0;) {
+            var item = list[i];
+            if (item.onVisibityChanged) {
+                item.onVisibilityChanged();
+            }
+        }
+    }
+    WebUI.visibilityChanged = visibilityChanged;
     function findInputControl(id) {
         var list = _inputFieldList;
         for (var i = list.length; --i >= 0;) {

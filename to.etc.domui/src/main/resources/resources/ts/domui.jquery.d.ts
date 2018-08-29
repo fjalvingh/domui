@@ -14,7 +14,7 @@ interface JQuery {
 	size() : number;
 
 	ColorPicker: any;
-	draggable: any;
+	// draggable: any;
 
 }
 
