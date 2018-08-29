@@ -36,8 +36,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.w3c.dom.Node;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbPrimaryKey;
+import to.etc.dbutil.schema.DbRelation;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
+import to.etc.dbutil.schema.FieldPair;
 import to.etc.domui.hibgen.ColumnWrapper.ColumnType;
 import to.etc.domui.hibgen.ColumnWrapper.RelationType;
 import to.etc.util.FileTool;
@@ -755,7 +757,8 @@ class ClassWrapper {
 
 	private void renderClassAnnotations() {
 		ClassOrInterfaceDeclaration rootType = getRootType();
-		createOrFindMarkerAnnotation(rootType, "javax.persistence.Entity");
+		if(getType() == ClassWrapperType.tableClass)
+			createOrFindMarkerAnnotation(rootType, "javax.persistence.Entity");
 		DbTable table = m_table;
 		if(null != table) {
 			NormalAnnotationExpr a = createOrFindAnnotation(rootType, "javax.persistence.Table");
@@ -1174,7 +1177,7 @@ class ClassWrapper {
 
 	public void renamePrimaryKeys(String pkName) {
 		for(ColumnWrapper cw : m_allColumnWrappers) {
-			if(cw.isPrimaryKey()) {
+			if(cw.isColumnAPrimaryKey()) {
 				cw.setPropertyName(pkName);
 			}
 		}
@@ -1332,7 +1335,10 @@ class ClassWrapper {
 
 	private void loadPropertyFile(File basePath, String baseName, String ext) throws Exception {
 		String extra = ext.length() == 0 ? "" : "_" + ext;
-		baseName = baseName.substring(0, baseName.lastIndexOf('.'));		// Strip extension
+
+		int dot = baseName.lastIndexOf('.');
+		if(dot != -1)
+			baseName = baseName.substring(0, dot);		// Strip extension
 		File propertyFile = new File(basePath, baseName + extra + ".properties");
 		if(! propertyFile.exists() || ! propertyFile.isFile())
 			return;
@@ -1556,13 +1562,34 @@ class ClassWrapper {
 
 	}
 
+
+	/**
+	 * Returns TRUE if the column passed is part of a relation in which it is
+	 * the FK column to another table, and it is part of the other table's primary
+	 * key. In this case this is an identifying relation.
+	 */
+	private boolean isIdentifyingColumn(DbColumn col) {
+		for(DbRelation rel : col.getTable().getChildRelationList()) {
+			DbPrimaryKey primaryKey = rel.getParent().getPrimaryKey();
+			if(null != primaryKey) {
+				for(FieldPair fieldPair : rel.getPairList()) {
+					if(fieldPair.getChildColumn() == col) {
+						if(primaryKey.getColumnList().contains(fieldPair.getParentColumn()))
+							return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	/**
 	 * Check to see whether this class requires or has a complex primary key.
 	 */
 	public void checkAssignComplexPK() {
 		if(m_primaryKeyRecalculated)
 			return;
-		if("StgManagementSourceTable".equalsIgnoreCase(getSimpleName())) {
+		if("Salesperson".equalsIgnoreCase(getSimpleName())) {
 			System.out.println("GOTCHA");
 		}
 
@@ -1581,14 +1608,18 @@ class ClassWrapper {
 			}
 		} else {
 			if(primaryKey.getColumnList().size() == 1) {
-				String fieldName = primaryKey.getColumnList().get(0).getName();
-				ColumnWrapper column = findColumnByColumnName(fieldName);
-				if(null == column) {
-					error("Cannot locate property for primary key column " + fieldName);
+				DbColumn dbColumn = primaryKey.getColumnList().get(0);
+				if(! isIdentifyingColumn(dbColumn)) {
+					String fieldName = dbColumn.getName();
+					ColumnWrapper column = findColumnByColumnName(fieldName);
+					if(null == column) {
+						error("Cannot locate property for primary key column " + fieldName);
+						return;
+					}
+					m_primaryKey = column;
+					column.setPrimaryKey(true);
 					return;
 				}
-				m_primaryKey = column;
-				return;
 			}
 
 			//-- We need a compound key from all of the columns that are part of the PK
@@ -1622,6 +1653,7 @@ class ClassWrapper {
 			pkProperty.setNew(true);
 			pkProperty.setPropertyType(new ClassOrInterfaceType(pkWrapper.getClassName()));
 			pkProperty.setType(ColumnType.compoundKey);
+			pkProperty.setPrimaryKey(true);
 			m_primaryKey = pkProperty;
 			m_allColumnWrappers.add(pkProperty);
 		} else {
@@ -1737,7 +1769,7 @@ class ClassWrapper {
 			sb.append("\n");
 		}
 		sb.append(";");
-		System.out.println(sb.toString());
+		//System.out.println(sb.toString());
 		block.addStatement(JavaParser.parseStatement(sb.toString()));
 		eq.setBody(block);
 	}
@@ -1848,6 +1880,9 @@ class ClassWrapper {
 		List<ColumnWrapper> searchlist = new ArrayList<>();
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
+			if(null == cw.getPropertyType())
+				continue;
+
 			//-- Ignore all silly names.
 			DbColumn column = cw.getColumn();
 			if(null != column) {
