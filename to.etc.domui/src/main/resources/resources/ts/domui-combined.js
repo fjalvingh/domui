@@ -1113,7 +1113,7 @@ var WebUI;
                 setTimeout(function () {
                     $.get(window.DomUIappURL + "nl.itris.vp.parts.DbPerf.part?requestid=" + sessionid, function (data) {
                         $('#' + id).html(data);
-                        $(".vp-lspf").draggable({ ghosting: false, zIndex: 100, handle: '.vp-lspf-ttl' });
+                        $(".vp-lspf").draggable({ zIndex: 100, handle: '.vp-lspf-ttl' });
                         $(".vp-lspf-close").click(function () {
                             $(".vp-lspf").hide();
                         });
