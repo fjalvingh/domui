@@ -93,8 +93,8 @@ namespace WebUI {
 		let list = _inputFieldList;
 		for(let i = list.length; --i >= 0;) {
 			let item = list[i];
-			if(item.onVisibityChanged) {
-				item.onVisibilityChanged();
+			if(item.control.onVisibilityChanged) {
+				item.control.onVisibilityChanged();
 			}
 		}
 	}

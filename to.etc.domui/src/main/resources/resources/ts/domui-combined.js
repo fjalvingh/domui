@@ -73,8 +73,8 @@ var WebUI;
         var list = _inputFieldList;
         for (var i = list.length; --i >= 0;) {
             var item = list[i];
-            if (item.onVisibityChanged) {
-                item.onVisibilityChanged();
+            if (item.control.onVisibilityChanged) {
+                item.control.onVisibilityChanged();
             }
         }
     }

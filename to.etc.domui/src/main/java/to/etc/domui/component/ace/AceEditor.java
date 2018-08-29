@@ -60,6 +60,8 @@ public class AceEditor extends Div implements IControl<String> {
 		sb.append("},"
 			+ "onVisibilityChanged: function() {"
 			+ "  ed.resize();"
+			//+ "  alert('rezi');"
+			+ "}"
 			+ "});\n");
 
 		//updateTheme();
