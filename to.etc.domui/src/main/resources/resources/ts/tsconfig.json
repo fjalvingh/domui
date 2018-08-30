@@ -42,3 +42,11 @@
     , "domui.main.ts"
     ]
 }
+
+/*
+ * To prepare for the Typescript modules to use do the following:
+ * apt install npm
+ * npm install typescript@2.0
+ * npm install --save @types/jquery --save
+ * npm install --save @types/jquery.ui
+ */

@@ -57,7 +57,12 @@ public class AceEditor extends Div implements IControl<String> {
 		sb.append("window['").append(getActualID()).append("'] = ed;\n");
 		sb.append("WebUI.registerInputControl('").append(getActualID()).append("', {getInputField: function() {");
 		sb.append(" return ed.getValue();\n");
-		sb.append("}});\n");
+		sb.append("},"
+			+ "onVisibilityChanged: function() {"
+			+ "  ed.resize();"
+			//+ "  alert('rezi');"
+			+ "}"
+			+ "});\n");
 
 		//updateTheme();
 		//sb.append("ed.getSession().setMode('ace/mode/javascript');\n");

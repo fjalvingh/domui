@@ -69,6 +69,16 @@ var WebUI;
         list.push({ id: id, control: control });
     }
     WebUI.registerInputControl = registerInputControl;
+    function visibilityChanged() {
+        var list = _inputFieldList;
+        for (var i = list.length; --i >= 0;) {
+            var item = list[i];
+            if (item.control.onVisibilityChanged) {
+                item.control.onVisibilityChanged();
+            }
+        }
+    }
+    WebUI.visibilityChanged = visibilityChanged;
     function findInputControl(id) {
         var list = _inputFieldList;
         for (var i = list.length; --i >= 0;) {
@@ -1103,7 +1113,7 @@ var WebUI;
                 setTimeout(function () {
                     $.get(window.DomUIappURL + "nl.itris.vp.parts.DbPerf.part?requestid=" + sessionid, function (data) {
                         $('#' + id).html(data);
-                        $(".vp-lspf").draggable({ ghosting: false, zIndex: 100, handle: '.vp-lspf-ttl' });
+                        $(".vp-lspf").draggable({ zIndex: 100, handle: '.vp-lspf-ttl' });
                         $(".vp-lspf-close").click(function () {
                             $(".vp-lspf").hide();
                         });

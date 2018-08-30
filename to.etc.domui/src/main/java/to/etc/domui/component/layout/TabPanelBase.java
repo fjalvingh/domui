@@ -409,6 +409,7 @@ public class TabPanelBase extends Div {
 			if(null != onDisplay)
 				onDisplay.onNotify(newti);
 //			appendJavascript("$(window).trigger('resize');");
+			appendJavascript("WebUI.visibilityChanged();");
 		}
 		m_currentTab = index;                                        // ORDERED!!! Must be below the above!!!
 	}

@@ -1,4 +1,6 @@
-/// <reference path="typings/jquery/jquery.d.ts" />
+/// <reference types="jquery" />
+/// <reference types="jqueryui" />
+
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
@@ -563,7 +565,7 @@ namespace WebUI {
 					$.get((window as any).DomUIappURL + "nl.itris.vp.parts.DbPerf.part?requestid=" + sessionid, function(data) {
 						//-- Insert the div as the last in the body
 						$('#' + id).html(data);
-						$(".vp-lspf").draggable({ghosting: false, zIndex: 100, handle: '.vp-lspf-ttl'});
+						$(".vp-lspf").draggable({zIndex: 100, handle: '.vp-lspf-ttl'});
 						$(".vp-lspf-close").click(function() {
 							$(".vp-lspf").hide();
 						});

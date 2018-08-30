@@ -1,4 +1,5 @@
-/// <reference path="typings/jquery/jquery.d.ts" />
+/// <reference types="jquery" />
+/// <reference types="jqueryui" />
 /// <reference path="domui.jquery.d.ts" />
 namespace WebUI {
 	//Returns T if browser is really using IE7 rendering engine (since IE8 compatibility mode presents  browser as version 7 but renders as IE8!)

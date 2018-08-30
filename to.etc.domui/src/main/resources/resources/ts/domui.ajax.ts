@@ -1,4 +1,5 @@
-/// <reference path="typings/jquery/jquery.d.ts" />
+/// <reference types="jquery" />
+/// <reference types="jqueryui" />
 /// <reference path="domui.jquery.d.ts" />
 // <reference path="domui.webui.d.ts" />
 /// <reference path="domui.webui.ts" />
@@ -86,6 +87,16 @@ namespace WebUI {
 			}
 		}
 		list.push({id: id, control: control});
+	}
+
+	export function visibilityChanged() {
+		let list = _inputFieldList;
+		for(let i = list.length; --i >= 0;) {
+			let item = list[i];
+			if(item.control.onVisibilityChanged) {
+				item.control.onVisibilityChanged();
+			}
+		}
 	}
 
 	export function findInputControl(id) {

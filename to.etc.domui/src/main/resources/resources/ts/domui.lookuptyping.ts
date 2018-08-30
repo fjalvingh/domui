@@ -1,4 +1,5 @@
-/// <reference path="typings/jquery/jquery.d.ts" />
+/// <reference types="jquery" />
+/// <reference types="jqueryui" />
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
@@ -116,13 +117,13 @@ namespace WebUI {
 			let selectedIndex = getKeywordPopupSelectedRowIndex(node);
 			if(selectedIndex < 0)
 				selectedIndex = 0;
-			let trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+			let trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0) as HTMLElement;
 			if(trNode) {
 				trNode.className = "ui-keyword-popup-row";
 			}
 			let trNodes = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr");
 			if(trNodes.length > 0) {
-				let divPopup = $(node.parentNode).children("div.ui-lui-keyword-popup").get(0);
+				let divPopup = $(node.parentNode).children("div.ui-lui-keyword-popup").get(0) as HTMLElement;
 				if(divPopup) {
 					$(divPopup).fadeIn(300);
 					//must be set due to IE bug in rendering
@@ -139,7 +140,7 @@ namespace WebUI {
 				if(selectedIndex < 0) {
 					selectedIndex = trNodes.length;
 				}
-				trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+				trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0) as HTMLElement;
 				if(trNode) {
 					trNode.className = "ui-keyword-popop-rowsel";
 				}
@@ -181,7 +182,7 @@ namespace WebUI {
 		let selectedIndex = getKeywordPopupSelectedRowIndex(node);
 		if(selectedIndex < 0)
 			selectedIndex = 0;
-		let trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0);
+		let trNode = $(node.parentNode).children("div.ui-lui-keyword-popup").children("div").children("table").children("tbody").children("tr:nth-child(" + selectedIndex + ")").get(0) as HTMLElement;
 		if(trNode){
 			WebUI.clicked(trNode, trNode.id, null);
 		}
@@ -212,7 +213,7 @@ namespace WebUI {
 		}
 
 		if (oldIndex != newIndex){
-			let deselectRow = $(rowNode.parentNode).children("tr:nth-child(" + oldIndex + ")").get(0);
+			let deselectRow = $(rowNode.parentNode).children("tr:nth-child(" + oldIndex + ")").get(0) as HTMLElement;
 			if (deselectRow){
 				deselectRow.className = "ui-keyword-popop-row";
 			}
@@ -270,7 +271,7 @@ namespace WebUI {
 		let trNods = $(qDivPopup).children("div").children("table").children("tbody").children("tr");
 		if (trNods && trNods.length > 0) {
 			for(let i=0; i < trNods.length; i++) {
-				let trNod = trNods.get(i);
+				let trNod = trNods.get(i) as HTMLElement;
 				//we need this jquery way of attaching events, if we use trNod.setAttribute("onmouseover",...) it does not work in IE7
 				$(trNod).bind("mouseover", {nodeId: id, trId: trNod.id}, function(event) {
 					lookupRowMouseOver(event.data.nodeId, event.data.trId);
