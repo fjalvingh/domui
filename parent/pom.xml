@@ -36,7 +36,7 @@
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
         <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
-        <plexus-compiler-eclipse.version>2.8.4</plexus-compiler-eclipse.version>
+        <plexus-compiler-eclipse.version>2.8.5</plexus-compiler-eclipse.version>
         <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
         <jshint-maven-plugin.version>1.6.0</jshint-maven-plugin.version>
@@ -724,13 +724,10 @@
                         <source>${jdk.version}</source>
                         <target>${jdk.version}</target>
                         <!-- Passing arguments is a trainwreck, see https://issues.apache.org/jira/browse/MCOMPILER-123 -->
-                        <compilerArguments>
-                            <properties>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</properties>
-                            <enableJavadoc></enableJavadoc>
-                        </compilerArguments>
                         <compilerArgs>
-                            <arg>--add-modules</arg>
-                            <arg>org.w3c.dom</arg>
+                            <arg>-properties</arg>
+                            <arg>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</arg>
+                            <arg>-enableJavadoc</arg>
                         </compilerArgs>
 
                         <showWarnings>true</showWarnings>
