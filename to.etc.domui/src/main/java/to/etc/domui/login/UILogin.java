@@ -114,16 +114,16 @@ final public class UILogin {
 				Cookie[] car = srr.getRequest().getCookies();
 				if(car != null) {
 					for(Cookie c : car) {
-						System.out.println("[cookie "
-							+ c.getName()
-							+ ", domain " + c.getDomain()
-							+ ", path " + c.getPath()
-							+ ", value " + c.getValue()
-						);
+						//System.out.println("[cookie "
+						//	+ c.getName()
+						//	+ ", domain " + c.getDomain()
+						//	+ ", path " + c.getPath()
+						//	+ ", value " + c.getValue()
+						//);
 						if(c.getName().equals("domuiLogin")) {
 							String domval = c.getValue();
 							IUser user = UILogin.getLoginHandler().decodeCookie(rci, domval);
-							System.out.println("[ loginid = " + user);
+							//System.out.println("[ loginid = " + user);
 							if(user != null) {
 								//-- Store the user in the HttpSession.
 								hs.setAttribute(LOGIN_KEY, user);
