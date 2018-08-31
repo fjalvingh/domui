@@ -12,7 +12,11 @@ import to.etc.domui.state.UIContext;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpSession;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -294,7 +298,27 @@ final public class UILogin {
 		Cookie k = new Cookie("domuiLogin", value);
 		k.setMaxAge((int) ((l - System.currentTimeMillis()) / 1000)); // #seconds before expiry
 		k.setPath(ci.getRequestResponse().getWebappContext());
-		ci.getRequestResponse().addCookie(k);
+		//ci.getRequestResponse().addCookie(k);
+
+		//-- Manually construct a cookie header
+		k.setDomain(ci.getRequestResponse().getHostName());
+		StringBuilder sb = new StringBuilder();
+
+		sb.append(k.getName());
+		sb.append('=');
+		sb.append('"').append(k.getValue()).append('"');
+		sb.append("; Path=/").append(k.getPath().replace("/", ""));
+		//sb.append("; Domain=");
+		//sb.append(k.getDomain());
+		sb.append("; HttpOnly; Secure; Expires=");
+
+		DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+		df.setTimeZone(TimeZone.getTimeZone("GMT"));
+		long exp = System.currentTimeMillis() + l;
+		sb.append(df.format(new Date(l)));
+
+		System.out.println("LoginCookie: " + sb.toString());
+		ci.getRequestResponse().addHeader("Set-Cookie", sb.toString());
 		return k;
 	}
 
