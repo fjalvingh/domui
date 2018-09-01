@@ -632,7 +632,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			page.getBody().forceRebuild();
 
 			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
-				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
+				String url = m_application.handleNotLoggedInException(ctx, (NotLoggedInException) x);
 				if(url != null) {
 					generateHttpRedirect(ctx, url, "You need to be logged in");
 					return;
@@ -856,6 +856,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
 	 * user to check it's rights against the page's required rights.
+	 *
+	 * WARNING: Functional duplicate exists in {@link UIContext#hasRightsOn(Class)}.
 	 */
 	private boolean checkAccess(final WindowSession cm, final RequestContextImpl ctx, final Page page) throws Exception {
 		if(ctx.getParameter("webuia") != null)
@@ -959,25 +961,27 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	}
 
 	private boolean checkRightsAnnotation(@NonNull UrlPage body, @NonNull UIRights rann, @NonNull IUser user) throws Exception {
+		if(rann.value().length == 0)						// No rights specified means -> just log in
+			return true;
 		if(StringTool.isBlank(rann.dataPath())) {
 			//-- No special data context - we just check plain general rights
 			for(String right : rann.value()) {
-				if(!user.hasRight(right)) {
-					return false;
+				if(user.hasRight(right)) {
+					return true;
 				}
 			}
-			return true;										// All worked, so we have access.
+			return false;										// All worked, so we have access.
 		}
 
 		//-- We need the object specified in DataPath.
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(body.getClass(), rann.dataPath());
 		Object dataItem = pmm.getValue(body);					// Get the page property.
 		for(String right : rann.value()) {
-			if(!user.hasRight(right, dataItem)) {
-				return false;
+			if(user.hasRight(right, dataItem)) {
+				return true;
 			}
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -1184,7 +1188,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			logUser(ctx, page, "Action handler exception: " + ex);
 			Exception x = WrappedException.unwrap(ex);
 			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
-				String url = m_application.handleNotLoggedInException(ctx, page, (NotLoggedInException) x);
+				String url = m_application.handleNotLoggedInException(ctx, (NotLoggedInException) x);
 				if(url != null) {
 					generateAjaxRedirect(ctx, url);
 					return;
@@ -1231,7 +1235,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		try {
 			renderOptimalDelta(ctx, page, inhibitlog);
 		} catch(NotLoggedInException x) { 						// FIXME Fugly. Generalize this kind of exception handling somewhere.
-			String url = m_application.handleNotLoggedInException(ctx, page, x);
+			String url = m_application.handleNotLoggedInException(ctx, x);
 			if(url != null) {
 				generateHttpRedirect(ctx, url, "You need to be logged in");
 			}

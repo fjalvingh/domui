@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -145,6 +146,13 @@ public class AsyncWorker {
 			return null;
 		}
 		return job;
+	}
+
+	public Executor getExecutor() {
+		ThreadPoolExecutor executor = m_executor;
+		if(null == executor)
+			throw new IllegalStateException("You must call initialize() before you can use the executor.");
+		return executor;
 	}
 
 	public final class Job implements Runnable {

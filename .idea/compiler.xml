@@ -12,6 +12,7 @@
         <module name="annotations" />
         <module name="domui-hello" />
         <module name="domui-hibernate-generator" />
+        <module name="jira-bug-reporter" />
         <module name="property-annotations-processor" />
         <module name="to.etc.alg" />
         <module name="to.etc.db" />
@@ -45,6 +46,7 @@
       <module name="domui-hibernate-generator" target="10" />
       <module name="domui-utilities" target="1.5" />
       <module name="integrations" target="1.5" />
+      <module name="jira-bug-reporter" target="10" />
       <module name="property-annotations-processor" target="1.8" />
       <module name="to.etc.alg" target="10" />
       <module name="to.etc.db" target="10" />
@@ -92,6 +94,27 @@
       <module name="to.etc.syntaxer" options="" />
       <module name="to.etc.webapp.core" options="" />
       <module name="vaadin-sass-compiler" options="" />
+    </option>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="annotations" options="-properties $PROJECT_DIR$/common/annotations/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="domui-hibernate-generator" options="-properties $PROJECT_DIR$/utilities/hibernate-generator/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="jira-bug-reporter" options="-properties $PROJECT_DIR$/jira-bug-reporter/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.alg" options="-properties $PROJECT_DIR$/common/to.etc.alg/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.db" options="-properties $PROJECT_DIR$/common/to.etc.db/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.dbcompare" options="-properties $PROJECT_DIR$/utilities/to.etc.dbcompare/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui" options="-properties $PROJECT_DIR$/to.etc.domui/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.demo" options="-properties $PROJECT_DIR$/to.etc.domui.demo/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.derbydata" options="-properties $PROJECT_DIR$/to.etc.domui.derbydata/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.formbuilder" options="-properties $PROJECT_DIR$/to.etc.domui.formbuilder/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.hibutil" options="-properties $PROJECT_DIR$/integrations/to.etc.domui.hibutil/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.legacy" options="-properties $PROJECT_DIR$/to.etc.domui.legacy/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.selenium" options="-properties $PROJECT_DIR$/integrations/to.etc.domui.selenium/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.logger" options="-properties $PROJECT_DIR$/common/to.etc.logger/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.pater" options="-properties $PROJECT_DIR$/common/to.etc.pater/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.syntaxer" options="-properties $PROJECT_DIR$/common/to.etc.syntaxer/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.webapp.core" options="-properties $PROJECT_DIR$/to.etc.webapp.core/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
     </option>
   </component>
 </project>

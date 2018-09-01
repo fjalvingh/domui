@@ -29,8 +29,6 @@ public class QCriteriaExporter<T> extends AbstractObjectExporter<T> {
 		if(null == baseClass)
 			throw new IllegalStateException("Metadata-query not yet supported");
 		m_columnList = columnList;
-		//List<ExpandedDisplayProperty<?>> xProps = ExpandedDisplayProperty.expandPropertiesWithDefaults(baseClass, columns);
-		//m_columnList = convertExpandedToColumn(xProps);
 	}
 
 	public ExportResult export(Progress p) throws Exception {

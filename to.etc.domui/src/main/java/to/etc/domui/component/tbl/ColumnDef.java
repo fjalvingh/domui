@@ -10,6 +10,7 @@ import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.css.TextAlign;
 import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.query.QField;
 
 import java.util.function.Predicate;
 
@@ -473,6 +474,11 @@ final public class ColumnDef<I, T> {
 	@NonNull
 	public ColumnDef<I, T> sort(@NonNull String propertyName) {
 		m_sortProperty = propertyName;
+		return this;
+	}
+
+	public ColumnDef<I, T> sort(@NonNull QField<I, ?> field) {
+		m_sortProperty = field.getName();
 		return this;
 	}
 

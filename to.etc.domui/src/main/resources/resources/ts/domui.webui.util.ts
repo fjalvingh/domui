@@ -1,4 +1,5 @@
-/// <reference path="typings/jquery/jquery.d.ts" />
+/// <reference types="jquery" />
+/// <reference types="jqueryui" />
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.ts" />
 // declare module "domui.webui.util";

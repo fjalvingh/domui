@@ -25,11 +25,17 @@
 package to.etc.domui.util.bugs;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.server.ExceptionUtil;
+import to.etc.util.SecurityUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -39,62 +45,74 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 18, 2010
  */
+@NonNullByDefault
 final public class BugItem {
+	final private BugSeverity m_severity;
+
 	final private Date m_timestamp = new Date();
 
+	final private String m_threadName;
+
 	@NonNull
-	private String m_message;
+	final private String m_message;
 
 	@Nullable
 	final private Throwable m_exception;
 
-	@Nullable
-	private Exception m_location;
+	final private Exception m_location;
 
 	@Nullable
 	private List<NodeBase> m_formattedMsg;
+
+	final private List<Object> m_contextItems = new ArrayList<>();
+
+	private final List<IBugContribution> m_contributions = new ArrayList<>();
+
+	@Nullable
+	private String m_hash;
 
 	private int m_number;
 
 	/**
 	 * Create a bug item with a simple String message.
-	 * @param message
 	 */
-	public BugItem(@NonNull String message) {
-		m_message = message;
-		m_exception = null;
-		initLocation();
+	BugItem(@NonNull String message) {
+		this(BugSeverity.BUG, message, null, Collections.emptyList());
 	}
 
 	/**
 	 * Create a bug item with a set of UI Nodes to show as the message.
-	 * @param msg
 	 */
-	public BugItem(List<NodeBase> msg) {
+	BugItem(List<NodeBase> msg) {
+		this(BugSeverity.BUG, flatten(msg), null, Collections.emptyList());
 		m_formattedMsg = msg;
-		m_exception = null;
-		initLocation();
-		StringBuilder sb = new StringBuilder();
-		flatten(sb, msg);
-		m_message = sb.toString();
 	}
 
-	/**
-	 * Create a bug item from text and exception.
-	 * @param message
-	 * @param exception
-	 */
-	public BugItem(@NonNull String message, @Nullable Throwable exception) {
+	BugItem(@NonNull String message, @Nullable Throwable exception) {
+		this(BugSeverity.BUG, message, exception, Collections.emptyList());
+	}
+
+	BugItem(@NonNull String message, @Nullable Throwable exception, List<Object> contextItems) {
+		this(BugSeverity.BUG, message, exception, contextItems);
+	}
+
+	BugItem(@NonNull BugSeverity severity, @NonNull String message, @Nullable Throwable exception, List<Object> contextItems) {
+		m_severity = severity;
 		m_message = message;
 		m_exception = exception;
-		initLocation();
+		m_threadName = Thread.currentThread().getName();
+		m_location = initLocation();
+		m_contextItems.addAll(contextItems);
+	}
+
+	private static String flatten(List<NodeBase> msg) {
+		StringBuilder sb = new StringBuilder();
+		flatten(sb, msg);
+		return sb.toString();
 	}
 
 	/**
 	 * Flatten all nodes, and extract a text only message by appending all #text nodes.
-	 *
-	 * @param sb
-	 * @param msg
 	 */
 	static private void flatten(StringBuilder sb, List<NodeBase> msg) {
 		for(NodeBase b : msg) {
@@ -104,9 +122,6 @@ final public class BugItem {
 
 	/**
 	 * Flatten all nodes, and extract a text only message by appending all #text nodes.
-	 *
-	 * @param sb
-	 * @param b
 	 */
 	private static void flatten(StringBuilder sb, NodeBase b) {
 		if(b instanceof TextNode)
@@ -120,17 +135,16 @@ final public class BugItem {
 	/**
 	 * Mark the bug's location by creating a stacktrace to it.
 	 */
-	private void initLocation() {
+	private Exception initLocation() {
 		try {
 			throw new Exception("duh");
 		} catch(Exception x) {
-			m_location = x;
+			return x;
 		}
 	}
 
 	/**
 	 * Return the timestamp the bug occured on.
-	 * @return
 	 */
 	@NonNull
 	public Date getTimestamp() {
@@ -139,7 +153,6 @@ final public class BugItem {
 
 	/**
 	 * Return the error as a string.
-	 * @return
 	 */
 	@NonNull
 	public String getMessage() {
@@ -148,7 +161,6 @@ final public class BugItem {
 
 	/**
 	 * Return the exception if the bug has one.
-	 * @return
 	 */
 	@Nullable
 	public Throwable getException() {
@@ -158,7 +170,6 @@ final public class BugItem {
 	/**
 	 * Return an exception which marks the location of the bug.
 	 * FIXME This should return StackTraceElements, not an exception.
-	 * @return
 	 */
 	@NonNull
 	public Exception getLocation() {
@@ -169,7 +180,6 @@ final public class BugItem {
 
 	/**
 	 * Return the #of the bug in this set.
-	 * @return
 	 */
 	public int getNumber() {
 		return m_number;
@@ -181,7 +191,6 @@ final public class BugItem {
 
 	/**
 	 * If the bug was created with a set of nodes to render this returns those nodes.
-	 * @return
 	 */
 	@Nullable
 	public List<NodeBase> getFormattedMsg() {
@@ -191,9 +200,59 @@ final public class BugItem {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("[");
-		sb.append("message=").append(getMessage());
-		sb.append("]");
+		sb
+			.append(new SimpleDateFormat("MMdd HH:mm:ss").format(m_timestamp)).append(" ")
+			.append(getSeverity())
+			.append(": ").append(getMessage());
 		return sb.toString();
+	}
+
+	public BugSeverity getSeverity() {
+		return m_severity;
+	}
+
+	public String getThreadName() {
+		return m_threadName;
+	}
+
+	public synchronized void addContribution(IBugContribution item) {
+		m_contributions.add(item);
+	}
+
+	public synchronized List<IBugContribution> getContributions() {
+		return Collections.unmodifiableList(m_contributions);
+	}
+
+	public synchronized List<Object> getContextItems() {
+		return Collections.unmodifiableList(m_contextItems);
+	}
+
+	@Nullable
+	public <T> T findContextItem(Class<T> clazz) {
+		for(Object contextItem : getContextItems()) {
+			if(clazz.isAssignableFrom(contextItem.getClass())) {
+				return (T) contextItem;
+			}
+		}
+		return null;
+	}
+
+
+	/**
+	 * Try to create a hash for the issue that should more or less uniquely identify it.
+	 */
+	public String getHash() {
+		String hash = m_hash;
+		if(null == hash) {
+			Throwable exception = getException();
+			if(null == exception) {
+				//-- Use the message
+				String message = getMessage().toLowerCase().replace(" ", "");
+				hash = m_hash = SecurityUtils.getMD5Hash(message, "utf-8");
+			} else {
+				hash = m_hash = ExceptionUtil.getExceptionHash(exception);
+			}
+		}
+		return hash;
 	}
 }

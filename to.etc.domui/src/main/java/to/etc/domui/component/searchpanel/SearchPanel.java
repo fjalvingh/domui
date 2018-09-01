@@ -259,14 +259,16 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//	addFilterButton();
 		//	loadSearchQueries();
 		//}
+		//-- ORDERED
+		//-- Ok, we need the items we're going to show now.
+		if(m_itemList.size() == 0)                            // If we don't have an item set yet....
+			internalAddMetadata();
+
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in its own div.
 		Div sroot = m_content = new Div();
 		add(sroot);
 		sroot.setCssClass("ui-lf-mainContent");
-
-		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0)                            // If we don't have an item set yet....
-			internalAddMetadata();
+		//-- END ORDERED
 
 		//-- Start populating the lookup form with lookup items.
 		ISearchFormBuilder formBuilder = getFormBuilder();

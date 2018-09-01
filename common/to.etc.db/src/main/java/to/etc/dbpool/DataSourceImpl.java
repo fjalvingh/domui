@@ -24,11 +24,12 @@
  */
 package to.etc.dbpool;
 
-import java.io.*;
-import java.sql.*;
-import java.util.logging.*;
-
-import javax.sql.*;
+import javax.sql.DataSource;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
+import java.util.logging.Logger;
 
 /**
  * Pooled or unpooled datasource implementation using a connection pool. It

@@ -39,16 +39,16 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UIRights {
 	/**
-	 * The rights that the user must have to access the page. If multiple entries are set it means ALL rights
+	 * The rights that the user must have to access the page. If multiple entries are set it means AT LEAST ONE right
 	 * specified must be present to allow access.
-	 * @return
+	 *
+	 * WARNING: Changed 20180725 to mean "must have at least one", before it was "must have all".
 	 */
 	String[] value() default {};
 
 	/**
 	 * If these rights depend on the data being edited, this must contain a property path expression on the
 	 * <i>annotated class</i> leading to the data item to use for the check.
-	 * @return
 	 */
 	String dataPath() default "";
 }

@@ -32,10 +32,13 @@ import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.SessionFactoryBuilder;
 import org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl;
+import org.hibernate.boot.registry.BootstrapServiceRegistry;
+import org.hibernate.boot.registry.BootstrapServiceRegistryBuilder;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
+import org.hibernate.jpa.event.spi.JpaIntegrator;
 import org.hibernate.service.ServiceRegistry;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
@@ -281,6 +284,8 @@ final public class HibernateConfigurator {
 		long ts = System.nanoTime();
 		m_dataSource = ds;
 
+		// see https://www.boraji.com/hibernate-5-event-listener-example
+
 		//-- Create Hibernate's config. See https://docs.jboss.org/hibernate/orm/5.1/userguide/html_single/chapters/bootstrap/Bootstrap.html
 		/*
 		 * Hibernate apparently cannot initialize without the useless hibernate.cfg.xml file. We cannot
@@ -288,9 +293,13 @@ final public class HibernateConfigurator {
 		 * working model we add it as a resource in this class's package. And of course Hibernate makes
 		 * it hard to reach- we need to calculate the proper name, sigh.
 		 */
+		BootstrapServiceRegistry bootstrapRegistry =
+			new BootstrapServiceRegistryBuilder()
+				.applyIntegrator(new JpaIntegrator())
+				.build();
+
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
-		//config.configure(resname);
-		StandardServiceRegistryBuilder serviceBuilder = new StandardServiceRegistryBuilder()
+		StandardServiceRegistryBuilder serviceBuilder = new StandardServiceRegistryBuilder(bootstrapRegistry)
 			.configure(resname)
 			;
 

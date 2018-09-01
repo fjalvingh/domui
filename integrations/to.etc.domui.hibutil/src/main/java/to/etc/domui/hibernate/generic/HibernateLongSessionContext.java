@@ -93,8 +93,15 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 		Map< ? , ? > flups = spc.getEntitiesByKey();
 		if(LOG.isDebugEnabled())
 			LOG.debug("Hibernate: disconnecting session " + System.identityHashCode(m_session) + " containing " + flups.size() + " persisted instances");
-		if(m_session.getTransaction().isActive())
-			m_session.getTransaction().rollback();
+
+
+		/*
+		 * 20180829 jal Hibernate 5.2 clears its session cache during rollback, so that all
+		 * entities disappear. There is no real way in its code to prevent that. As an experiment
+		 * do not manipulate Hibernate's transaction here; just disconnect the connection.
+		 */
+		//if(m_session.getTransaction().isActive())
+		//	m_session.getTransaction().rollback();
 		m_session.disconnect(); // Disconnect the dude.
 		//		if(m_session.isConnected())
 		//			System.out.println("Session connected after disconnect ;-)");

@@ -24,13 +24,18 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import java.io.*;
-import java.util.*;
+import org.hibernate.Criteria;
+import to.etc.domui.hibernate.model.GenericHibernateHandler;
+import to.etc.webapp.query.ICriteriaTableDef;
+import to.etc.webapp.query.IQueryExecutor;
+import to.etc.webapp.query.IQueryExecutorFactory;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QSelection;
 
-import org.hibernate.*;
-
-import to.etc.domui.hibernate.model.*;
-import to.etc.webapp.query.*;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This handler knows how to execute Hibernate queries using a basic Hibernate context.

@@ -26,8 +26,11 @@ package to.etc.domui.server.parts;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.server.ApplicationRequestHandler;
+import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IFilterRequestHandler;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.trouble.NotLoggedInException;
 
 @NonNullByDefault
 final public class PartRequestHandler implements IFilterRequestHandler {
@@ -44,6 +47,15 @@ final public class PartRequestHandler implements IFilterRequestHandler {
 	 */
 	@Override
 	public boolean handleRequest(@NonNull final RequestContextImpl ctx) throws Exception {
-		return m_partService.render(ctx);
+		try {
+			return m_partService.render(ctx);
+		} catch(NotLoggedInException x) {
+			String url = DomApplication.get().handleNotLoggedInException(ctx, x);
+			if(url != null) {
+				ApplicationRequestHandler.generateHttpRedirect(ctx, url, "You need to be logged in");
+				return true;
+			}
+			throw x;
+		}
 	}
 }

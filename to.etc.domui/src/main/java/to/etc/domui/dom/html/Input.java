@@ -362,4 +362,9 @@ public class Input extends NodeBase implements INativeChangeListener, IHasChange
 	public void immediate() {
 		m_immediate = true;
 	}
+
+	@Override public String getTextOnly() {
+		String rawValue = getRawValue();
+		return rawValue == null ? "" : rawValue;
+	}
 }

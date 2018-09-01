@@ -43,9 +43,9 @@ import java.util.Arrays;
  * a table and adding labels and input controls in separate table cells in a row. If
  * nothing else is done this creates a form in the layout of:
  * <table>
- * 	<tr><td>First name</td><td><input type="text"></td></tr>
- * 	<tr><td>Last name</td><td><input type="text"></td></tr>
- * 	<tr><td>Address</td><td><input type="text"></td></tr>
+ * 	<tr><td>First name</td><td>input type="text"></td></tr>
+ * 	<tr><td>Last name</td><td>input type="text"></td></tr>
+ * 	<tr><td>Address</td><td>input type="text"></td></tr>
  * </table>
  *
  * A form builder is not a component by itself; it is a helper class which <i>creates</i>
