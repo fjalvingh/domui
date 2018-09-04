@@ -1856,6 +1856,12 @@ final public class DomUtil {
 		return !in.startsWith("http:") && !in.startsWith("https:") && !in.startsWith("/");
 	}
 
+	static public boolean isAbsoluteURL(String in) {
+		if(in == null)
+			return false;
+		return in.startsWith("http:") || in.startsWith("https:") || in.startsWith("/");
+	}
+
 	/**
 	 * EXPENSIVE - USE WITH CARE
 	 * Check if first primitive type paramater is equal to some from others.

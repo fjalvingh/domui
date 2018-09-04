@@ -514,8 +514,8 @@ final public class Page implements IQContextContainer {
 	 */
 	final public void addHeaderContributor(@NonNull final HeaderContributor hc, int order) {
 		if(m_headerContributorSet == null) {
-			m_headerContributorSet = new HashSet<HeaderContributor>(30);
-			m_orderedContributorList = new ArrayList<HeaderContributorEntry>(30);
+			m_headerContributorSet = new HashSet<>(30);
+			m_orderedContributorList = new ArrayList<>(30);
 			m_headerContributorSet.add(hc);
 			m_orderedContributorList.add(new HeaderContributorEntry(hc, order));
 			return;
@@ -532,14 +532,14 @@ final public class Page implements IQContextContainer {
 
 	@NonNull
 	public List<HeaderContributorEntry> getHeaderContributorList() {
-		return new ArrayList<HeaderContributorEntry>(m_orderedContributorList);
+		return new ArrayList<>(m_orderedContributorList);
 	}
 
 	@NonNull
 	public List<HeaderContributorEntry> getAddedContributors() {
 		if(m_orderedContributorList == null || m_lastContributorIndex >= m_orderedContributorList.size())
 			return Collections.EMPTY_LIST;
-		return new ArrayList<HeaderContributorEntry>(m_orderedContributorList.subList(m_lastContributorIndex, m_orderedContributorList.size()));
+		return new ArrayList<>(m_orderedContributorList.subList(m_lastContributorIndex, m_orderedContributorList.size()));
 	}
 
 	public void internalContributorsRendered() {
