@@ -317,7 +317,8 @@ final public class UILogin {
 		sb.append("; Path=/").append(k.getPath().replace("/", ""));
 		//sb.append("; Domain=");
 		//sb.append(k.getDomain());
-		sb.append("; HttpOnly; Secure; Expires=");
+		//sb.append("; HttpOnly; Secure; Expires=");
+		sb.append("; HttpOnly; Expires=");
 
 		DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 		df.setTimeZone(TimeZone.getTimeZone("GMT"));
