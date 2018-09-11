@@ -230,6 +230,11 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 				return super.visitExecutable(m, p);
 			}
 
+			//-- It cannot have arguments
+			if(m.getParameters().size() > 0) {
+				return super.visitExecutable(m, p);
+			}
+
 			m_result.add(new Property(returnType, propertyName, annotationNames));
 			return super.visitExecutable(m, p);
 		}
