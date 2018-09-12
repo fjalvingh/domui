@@ -149,6 +149,40 @@ public class InternalParentTree extends Div {
 			td.setCellWidth("97%");
 			td.add(nn);
 
+			td.addCssClass("prnt-strct");
+			td.setClicked(new IClicked<NodeBase>() {
+				@Override public void clicked(NodeBase clickednode) throws Exception {
+					boolean first = true;
+					boolean gotctor = false;
+
+					for (StackTraceElement ste : clicked.getAllocationTracepoint()) {
+						String nn = ste.getClassName();
+						if(nn.startsWith("org.apache.tomcat."))
+							return;
+
+						//-- Skip code when it is inside internal code.
+						if(first) {
+							if(ste.getMethodName().equals("<init>")) {
+								gotctor = true;
+							}
+
+							if(nn.equals(DomUtil.class.getName()) || nn.equals(NodeBase.class.getName()) || nn.equals(NodeContainer.class.getName()))
+								continue;
+							first = false;
+							if(!gotctor)
+								continue;
+							if(ste.getMethodName().equals("<init>"))
+								continue;
+						}
+						if(ste.getMethodName().equals("<init>")){
+							continue;
+						}
+						openSource(ste);
+						break;
+					}
+				}
+			});
+
 			if(!nb.hasParent())
 				break;
 			nb = nb.getParent();
