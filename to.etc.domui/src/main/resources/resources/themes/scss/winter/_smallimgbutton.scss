@@ -2,6 +2,11 @@
 @import "variables";
 @import "derived-variables";
 
+.ui-sib2 {
+	background-color: transparent;
+	border-color: transparent;
+}
+
 .ui-sib {
 	padding: 0px 1px 0px 1px;
 	margin: 0px;
