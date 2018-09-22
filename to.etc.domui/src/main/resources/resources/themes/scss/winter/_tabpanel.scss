@@ -70,6 +70,10 @@ $tabpanel-selected-color: $tabpanel-tab-bg !default;
 	}
 }
 
+.ui-tab-bg {
+	background-color: $tabpanel-header-bg;
+}
+
 /*** Close button ***/
 .ui-tab-close-li span {
 	display: inline-block;

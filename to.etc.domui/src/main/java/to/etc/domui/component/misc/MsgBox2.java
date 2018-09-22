@@ -77,6 +77,11 @@ final public class MsgBox2 extends Window {
 		}
 	}
 
+	@FunctionalInterface
+	public interface IValidate {
+		boolean onValidate(Object button) throws Exception;
+	}
+
 	public enum Type {
 		INFO, WARNING, ERROR, DIALOG, INPUT
 	}
@@ -99,6 +104,9 @@ final public class MsgBox2 extends Window {
 	private static final int HEIGHT = 210;
 
 	private Object m_selectedChoice;
+
+	@Nullable
+	private IValidate m_onValidate;
 
 	private IAnswer m_onAnswer;
 
@@ -498,6 +506,12 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
+	@NonNull
+	public MsgBox2 onValidate(IValidate val) {
+		m_onValidate = val;
+		return this;
+	}
+
 	private void setCloseButton(MsgBoxButton val) {
 		m_closeButtonObject = val;
 	}
@@ -506,6 +520,14 @@ final public class MsgBox2 extends Window {
 		m_selectedChoice = sel;
 
 		try {
+			IValidate onValidate = m_onValidate;
+			if(null != onValidate) {
+				if(!onValidate.onValidate(sel)) {
+					return;
+				}
+			}
+
+
 			if(m_onAnswer != null) {
 				m_onAnswer.onAnswer((MsgBoxButton) m_selectedChoice);
 			}

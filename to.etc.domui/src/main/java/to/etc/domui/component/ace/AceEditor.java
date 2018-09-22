@@ -106,6 +106,7 @@ public class AceEditor extends Div implements IControl<String> {
 			if(null == value)
 				value = "";
 			callStringMethod("setValue", value);
+			callMethod("clearSelection");
 		} else {
 			forceRebuild();
 		}
@@ -179,6 +180,7 @@ public class AceEditor extends Div implements IControl<String> {
 		if(null == value)
 			value = "";
 		callStringMethod("setValue", value);
+		callMethod("clearSelection");
 	}
 
 	private void updateTabSize() {

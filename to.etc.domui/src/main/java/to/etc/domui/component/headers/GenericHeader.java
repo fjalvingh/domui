@@ -52,7 +52,7 @@ public class GenericHeader extends Div {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-generichd ui-generichd-" + m_type.name().toLowerCase().replace('_', '-'));
+		addCssClass("ui-generichd ui-generichd-" + m_type.name().toLowerCase().replace('_', '-'));
 		add(m_text);
 		m_buttonPart = null;
 		renderButtons();

@@ -1872,6 +1872,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	@NonNull
 	final public String getThemedResourceRURL(@NonNull String path) {
+		if(DomUtil.isAbsoluteURL(path))
+			return path;
 		return DomApplication.get().internalGetThemeManager().getThemedResourceRURL(UIContext.getRequestContext(), path);
 	}
 

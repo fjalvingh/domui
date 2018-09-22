@@ -52,7 +52,11 @@ public class SmallImgButton extends Button {
 	 * Create the empty button.
 	 */
 	public SmallImgButton() {
-		setCssClass("ui-button is-text");
+		setCssClass("ui-button ui-sib2");
+
+		// jal 20180914 is-text causes underline under the button image
+		//setCssClass("ui-button is-text");
+
 	}
 
 	/**

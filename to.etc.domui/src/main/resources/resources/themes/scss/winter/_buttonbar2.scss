@@ -1,0 +1,28 @@
+/*** ButtonBar2 ***/
+.ui-bbar2 {
+
+}
+.ui-bbar2-h {
+	display: flex;
+	flex-direction: row;
+
+	.ui-bbar2-l {
+		flex: 2;
+	}
+
+	.ui-bbar2-r {
+		flex: 1;
+	}
+
+	.ui-bbar2-bc {
+		display: inline-block;
+		padding: 5px;
+	}
+
+}
+.ui-bbar2-v {
+
+}
+
+
+

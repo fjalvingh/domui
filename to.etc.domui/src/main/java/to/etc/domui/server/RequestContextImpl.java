@@ -36,6 +36,7 @@ import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeVariant;
 import to.etc.domui.util.Constants;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.upload.UploadItem;
 import to.etc.util.FileTool;
 import to.etc.util.WrappedException;
@@ -362,6 +363,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 */
 	@Override
 	public @NonNull String getRelativePath(@NonNull String rel) {
+		if(DomUtil.isAbsoluteURL(rel))
+			return rel;
 		StringBuilder sb = new StringBuilder(rel.length() + 128);
 		sb.append(m_requestResponse.getApplicationURL());
 		sb.append(rel);
