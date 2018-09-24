@@ -6,6 +6,7 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.impl.PathPropertyMetaModel;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.compare.StringLikeSearchMatchUtil;
 import to.etc.util.RuntimeConversions;
 import to.etc.webapp.qsql.QQuerySyntaxException;
@@ -90,8 +91,8 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 			return;
 
 		//-- We need to do integral promotions on the type if they differ.
-		Class< ? > litc = lit.getClass();
-		Class< ? > valc = val.getClass();					// Types differ?
+		Class< ? > litc = DomUtil.getUnproxiedClass(lit.getClass());
+		Class< ? > valc = DomUtil.getUnproxiedClass(val.getClass());	// Types differ?
 		if(litc != valc) {
 			Class< ? > endtype = getPromoted(litc, valc);	// If classes differ get a promoted thing.
 			if(null == endtype)
