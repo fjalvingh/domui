@@ -544,6 +544,39 @@ final public class FormBuilder {
 			return this;
 		}
 
+		@NonNull
+		public ItemBuilder readOnly() {
+			m_readOnly = Boolean.TRUE;
+			return this;
+		}
+
+		/**
+		 * Force the next component to have the specified value for readOnly.
+		 */
+		@NonNull
+		public ItemBuilder readOnly(boolean ro) {
+			m_readOnly = Boolean.valueOf(ro);
+			return this;
+		}
+
+		/**
+		 * Bind only the next component to the specified boolean property. See
+		 */
+		@NonNull
+		public <X> ItemBuilder readOnly(@NonNull X instance, @NonNull String property) {
+			m_readOnlyOnce = createRef(instance, property, Boolean.class);
+			return this;
+		}
+
+		/**
+		 * Bind only the next component to the specified boolean property. See
+		 */
+		@NonNull
+		public <X> ItemBuilder readOnly(@NonNull X instance, @NonNull QField<X, Boolean> property) {
+			m_readOnlyOnce = createRef(instance, property);
+			return this;
+		}
+
 		public void item(@NonNull NodeBase item) throws Exception {
 			addControl(this, item, null);
 			resetBuilder();
