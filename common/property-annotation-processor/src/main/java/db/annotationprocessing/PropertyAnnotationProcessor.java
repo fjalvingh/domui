@@ -151,7 +151,9 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	}
 
 	private JavaFileObject createFile(String name, TypeElement ann) throws IOException {
-		return processingEnv.getFiler().createSourceFile(name, ann);
+		JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(name, ann);
+		sourceFile.delete();
+		return sourceFile;
 	}
 
 	private void generateStaticClass(String pkgName, String targetClassName, TypeElement ann, List<Property> properties) throws Exception {

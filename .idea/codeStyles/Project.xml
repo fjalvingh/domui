@@ -13,7 +13,7 @@
     <option name="RIGHT_MARGIN" value="200" />
     <option name="ENABLE_JAVADOC_FORMATTING" value="false" />
     <option name="SOFT_MARGINS" value="120" />
-    <JSCodeStyleSettings>
+    <JSCodeStyleSettings version="0">
       <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
     </JSCodeStyleSettings>
     <JavaCodeStyleSettings>
@@ -57,7 +57,7 @@
       <option name="NEW_LINE_BEFORE_OTHER_CLAUSES" value="false" />
       <option name="NEW_LINE_AFTER_SELECT_ITEM" value="false" />
     </SqlCodeStyleSettings>
-    <TypeScriptCodeStyleSettings>
+    <TypeScriptCodeStyleSettings version="0">
       <option name="SPACE_BEFORE_FUNCTION_LEFT_PARENTH" value="false" />
       <option name="USE_CHAINED_CALLS_GROUP_INDENTS" value="true" />
       <option name="SPACE_BEFORE_ASYNC_ARROW_LPAREN" value="false" />
