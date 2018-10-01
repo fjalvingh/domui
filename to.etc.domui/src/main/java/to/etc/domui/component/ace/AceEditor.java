@@ -47,6 +47,9 @@ public class AceEditor extends Div implements IControl<String> {
 
 	private boolean m_mandatory;
 
+	@Nullable
+	private IValueChanged<?> m_valueChanged;
+
 	@Override public void createContent() throws Exception {
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
 
@@ -63,6 +66,22 @@ public class AceEditor extends Div implements IControl<String> {
 			//+ "  alert('rezi');"
 			+ "}"
 			+ "});\n");
+
+		if(null != getOnValueChanged()) {
+			sb.append("ed.getSession().on('change', function() {\n");
+			sb.append(" if(ed.__utimer) {\n");
+			sb.append("  clearTimeout(ed.__utimer);\n");
+			sb.append("  delete ed.__utimer;\n");
+			sb.append("}\n;");
+
+			sb.append("  ed.__utimer = setTimeout(function() {\n");
+			sb.append("    delete ed.__utimer;\n");
+			sb.append("    WebUI.valuechanged('', '").append(getActualID()).append("');\n");
+
+			sb.append("}, 500);\n");
+
+			sb.append("});");
+		}
 
 		//updateTheme();
 		//sb.append("ed.getSession().setMode('ace/mode/javascript');\n");
@@ -308,11 +327,11 @@ public class AceEditor extends Div implements IControl<String> {
 	}
 
 	@Override public IValueChanged<?> getOnValueChanged() {
-		return null;
+		return m_valueChanged;
 	}
 
 	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
-		throw new IllegalStateException("Not supported: use mini events");
+		m_valueChanged = onValueChanged;
 	}
 
 	/**
