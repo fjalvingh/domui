@@ -8,8 +8,13 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.parts.IComponentJsonProvider;
+import to.etc.domui.state.IPageParameters;
+import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -23,7 +28,7 @@ import java.util.Objects;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 23-12-17.
  */
-public class AceEditor extends Div implements IControl<String> {
+public class AceEditor extends Div implements IControl<String>, IComponentJsonProvider {
 	static private String m_version = "1.2.9";
 
 	@Nullable
@@ -49,6 +54,44 @@ public class AceEditor extends Div implements IControl<String> {
 
 	@Nullable
 	private IValueChanged<?> m_valueChanged;
+
+	public static class Completion {
+		private final String m_name;
+		private final String m_value;
+		private final String m_meta;
+		private final int m_score;
+
+		public Completion(String name, String value, String meta, int score) {
+			m_name = name;
+			m_value = value;
+			m_meta = meta;
+			m_score = score;
+		}
+
+		public String getName() {
+			return m_name;
+		}
+
+		public String getValue() {
+			return m_value;
+		}
+
+		public String getMeta() {
+			return m_meta;
+		}
+
+		public int getScore() {
+			return m_score;
+		}
+	}
+
+	public interface ICompletionHandler {
+		@NonNull
+		List<Completion> getCompletions(@NonNull String text, int row, int col, @NonNull String prefix) throws Exception;
+	}
+
+	@Nullable
+	private ICompletionHandler m_completionHandler;
 
 	@Override public void createContent() throws Exception {
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
@@ -83,6 +126,13 @@ public class AceEditor extends Div implements IControl<String> {
 			sb.append("});");
 		}
 
+		//-- Autocomplete?
+		ICompletionHandler ch = getCompletionHandler();
+		if(null != ch) {
+			String js = FileTool.readResourceAsString(getClass(), "/js/acecompletion.js", "utf-8");
+			sb.append(js.replace("$ID$", getActualID()));
+		}
+
 		//updateTheme();
 		//sb.append("ed.getSession().setMode('ace/mode/javascript');\n");
 		//String value = getValue();
@@ -94,6 +144,19 @@ public class AceEditor extends Div implements IControl<String> {
 
 		sb.append("};\n");
 		appendCreateJS(sb);
+	}
+
+	@Override public Object provideJsonData(IPageParameters parameterSource) throws Exception {
+		int col = parameterSource.getInt(getActualID() + "_col");
+		int row = parameterSource.getInt(getActualID() + "_row");
+		String req = parameterSource.getString(getActualID() + "_prefix");
+		ICompletionHandler ch = getCompletionHandler();
+		String value = m_value;
+		if(ch == null || req == null || value == null) {
+			return Collections.emptyList();
+		}
+
+		return ch.getCompletions(value, row, col, req);
 	}
 
 	@Override public void renderJavascriptState(StringBuilder sb) throws Exception {
@@ -108,6 +171,7 @@ public class AceEditor extends Div implements IControl<String> {
 
 	static public void initialize(UrlPage page) {
 		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
+		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
 	}
 
 	@Override
@@ -347,5 +411,13 @@ public class AceEditor extends Div implements IControl<String> {
 		String value = values[0];
 		m_value = value;
 		return true;
+	}
+
+	public ICompletionHandler getCompletionHandler() {
+		return m_completionHandler;
+	}
+
+	public void setCompletionHandler(ICompletionHandler completionHandler) {
+		m_completionHandler = completionHandler;
 	}
 }

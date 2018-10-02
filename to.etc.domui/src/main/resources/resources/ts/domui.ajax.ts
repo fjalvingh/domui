@@ -183,9 +183,12 @@ namespace WebUI {
 		$.ajax(call);
 	}
 
-	export function jsoncall(id, fields) {
+
+	export function jsoncall(id, fields, callback = undefined) {
 		if(!fields)
 			fields = {};
+		WebUI.getInputFields(fields);
+
 		fields["webuia"] = "$pagejson";
 		fields["webuic"] = id;
 		fields["$pt"] = (window as any).DomUIpageTag;
@@ -194,19 +197,25 @@ namespace WebUI {
 		let response = "";
 		$.ajax({
 			url: WebUI.getPostURL(),
-			dataType: "text/xml",
+			dataType: "*",
 			data: fields,
 			cache: false,
-			async: false,
+			async: callback != undefined,
 			type: "POST",
 			success: function(data, state) {
 				response = data;
+				if(callback) {
+					callback(JSON.parse(data));
+				}
 			},
 			error: handleError
 		});
+		if(callback)
+			return;
+		return JSON.parse(response);
 //		console.debug("jsoncall-", response);
 //		try {
-		return eval("(" + response + ")");
+// 		return eval("(" + response + ")");
 //		} catch(x) {
 //			console.debug("json data error", x);
 //		}

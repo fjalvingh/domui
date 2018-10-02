@@ -764,7 +764,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 				throw new ProgrammerErrorException("The component " + wcomp + " must implement " + IComponentJsonProvider.class.getName() + " to be able to accept JSON data requests");
 
 			IComponentJsonProvider dp = (IComponentJsonProvider) wcomp;
-			PageParameters pp = PageParameters.createFrom(ctx);
+			PageParameters pp = PageParameters.createFromAll(ctx);
 			Object value = dp.provideJsonData(pp);							// Let the component return something to render.
 			renderJsonLikeResponse(ctx, value);
 		} finally {

@@ -571,6 +571,25 @@ public class PageParameters implements IPageParameters, Serializable {
 		return pp;
 	}
 
+	static public PageParameters createFromAll(IRequestContext ctx) {
+		PageParameters pp = new PageParameters();
+		for(String name : ctx.getParameterNames()) {
+			if(name.length() > 0) {
+				char c = name.charAt(0);
+				if(!name.startsWith("webui")) {
+					String[] par = ctx.getParameters(name);
+					if(par != null && par.length > 0) {
+						if(par.length == 1)
+							pp.setParameter(name, par[0]); // Add as single string
+						else
+							pp.setParameter(name, par); // Add as string[]0
+					}
+				}
+			}
+		}
+		return pp;
+	}
+
 	/**
 	 * Create this from an string representation of params. This is used as utility for manipulation of data that stores params as strings.
 	 * @param paramsAsString

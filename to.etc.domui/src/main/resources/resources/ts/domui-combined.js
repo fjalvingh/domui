@@ -149,9 +149,11 @@ var WebUI;
         $.ajax(call);
     }
     WebUI.scall = scall;
-    function jsoncall(id, fields) {
+    function jsoncall(id, fields, callback) {
+        if (callback === void 0) { callback = undefined; }
         if (!fields)
             fields = {};
+        WebUI.getInputFields(fields);
         fields["webuia"] = "$pagejson";
         fields["webuic"] = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -159,17 +161,22 @@ var WebUI;
         var response = "";
         $.ajax({
             url: WebUI.getPostURL(),
-            dataType: "text/xml",
+            dataType: "*",
             data: fields,
             cache: false,
-            async: false,
+            async: callback != undefined,
             type: "POST",
             success: function (data, state) {
                 response = data;
+                if (callback) {
+                    callback(JSON.parse(data));
+                }
             },
             error: handleError
         });
-        return eval("(" + response + ")");
+        if (callback)
+            return;
+        return JSON.parse(response);
     }
     WebUI.jsoncall = jsoncall;
     function sendJsonAction(id, action, json) {

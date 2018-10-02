@@ -24,11 +24,13 @@
  */
 package to.etc.webapp.ajax.renderer.json;
 
-import java.io.*;
-import java.util.*;
+import to.etc.util.IndentWriter;
+import to.etc.util.StringTool;
+import to.etc.webapp.ajax.renderer.ObjectRenderer;
 
-import to.etc.util.*;
-import to.etc.webapp.ajax.renderer.*;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * An utility class which renders a Java object as a JSON
@@ -146,9 +148,7 @@ public class JSONRenderer extends ObjectRenderer {
 	@Override
 	protected void renderObjectMember(final Object o, String name, final Class< ? > declaredType) throws Exception {
 		IndentWriter w = getWriter();
-		if(isReservedWord(name))
-			name = "_" + name;
-		w.print(name);
+		w.print(StringTool.strToJavascriptString(name, true));
 		w.print(": ");
 		renderSub(o);
 	}
