@@ -129,7 +129,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		//-- Autocomplete?
 		ICompletionHandler ch = getCompletionHandler();
 		if(null != ch) {
-			String js = FileTool.readResourceAsString(getClass(), "/js/acecompletion.js", "utf-8");
+			String js = FileTool.readResourceAsString(getClass(), "/resources/ace/acecompletion.js", "utf-8");
 			sb.append(js.replace("$ID$", getActualID()));
 		}
 
