@@ -12,6 +12,7 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.state.IPageParameters;
+import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
@@ -64,7 +65,6 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	private Set<Marker> m_markerSet = new HashSet<>();
 
 	private Set<Marker> m_oldMarkerSet = new HashSet<>();
-
 
 	/**
 	 * A completion result for the ICompletionHandler interface.
@@ -155,6 +155,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 				return false;
 			Marker marker = (Marker) o;
 			return m_line == marker.m_line &&
+				m_id == marker.m_id &&
 				m_column == marker.m_column &&
 				m_type == marker.m_type &&
 				m_message.equals(marker.m_message) &&
@@ -162,7 +163,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		}
 
 		@Override public int hashCode() {
-			return Objects.hash(m_type, m_message, m_line, m_column, m_cssClass);
+			return Objects.hash(m_type, m_message, m_line, m_column, m_cssClass, m_id);
 		}
 	}
 
@@ -190,6 +191,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			//+ "  alert('rezi');"
 			+ "}"
 			+ "});\n");
+		sb.append("ed.__markermap = {};\n");
+		sb.append("ed.on(\"change\", ed.$onChangeBackMarker);\n");
 
 		if(null != getOnValueChanged()) {
 			sb.append("ed.getSession().on('change', function() {\n");
@@ -504,16 +507,61 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	public void markerClear() {
 		m_markerSet.clear();
+		changedJavascriptState();
 	}
 
 	public Marker markerAdd(MsgType sev, int line, int col, String message, @Nullable String css) {
-		Marker marker = new Marker(m_nextId++, sev, message, line, col, css);
+		Marker marker = new Marker(m_nextId++, sev, message, line, col + 1, css);
 		if(! m_markerSet.contains(marker))
 			m_markerSet.add(marker);
+		changedJavascriptState();
 		return marker;
 	}
 
 	public void markerRemove(Marker m) {
+		changedJavascriptState();
 		m_markerSet.remove(m);
+	}
+
+	@Override protected void renderJavascriptDelta(JavascriptStmt b) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{\n");
+		sb.append("let ed = ");
+		sb.append("window['").append(getActualID()).append("'];\n");
+		sb.append("let session = ed.getSession();\n");
+		sb.append("let range_ = ace.require(\"ace/range\");\n");
+
+		Set<Marker> set = new HashSet<>(m_oldMarkerSet);
+		set.removeAll(m_markerSet);
+		for(Marker marker : set) {
+			sb.append("try {\n");
+			sb.append("let mid=ed.__markermap['").append(marker.getId()).append("'];\n");
+			sb.append("session.removeMarker(mid);\n");
+			sb.append("delete ed.__markermap[mid];");
+			//sb.append("console.log('del marker ").append(marker.getId()).append(" as ' + mid);\n");
+			sb.append("} catch(x) { alert('Failed ' + x);\n");
+			sb.append("}\n");
+		}
+		//m_oldMarkerSet.removeAll(set);
+
+		set = new HashSet<>(m_markerSet);
+		set.removeAll(m_oldMarkerSet);						// Get all added thingies
+		for(Marker marker : set) {
+			sb.append("{\n");
+			sb.append("let range = new range_.Range(" + marker.getLine() + ", " + marker.getColumn() +"," + marker.getLine() + ", " + (marker.getColumn() + 5) + ");\n");
+			sb.append("range.start = session.doc.createAnchor(range.start);\n"
+				+ "range.end = session.doc.createAnchor(range.end);\n"
+			);
+			sb.append("let id = session.addMarker(range, 'ui-ace-error');\n");
+			sb.append("ed.__markermap['").append(marker.getId()).append("'] = id;\n");
+			//sb.append("console.log('add marker " + marker.getId() + " as ' + id);\n");
+			sb.append("}\n");
+		}
+		m_oldMarkerSet.clear();
+		m_oldMarkerSet.addAll(m_markerSet);
+
+		sb.append("ed.$onChangeBackMarker();\n");
+		sb.append("}");
+		b.append(sb.toString());
 	}
 }
