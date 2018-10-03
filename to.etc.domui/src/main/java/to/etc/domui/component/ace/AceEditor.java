@@ -1,7 +1,9 @@
 package to.etc.domui.component.ace;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
@@ -14,8 +16,10 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * DomUI wrapper for the <a href="https://ace.c9.io/">ACE code editor</a>.
@@ -30,6 +34,8 @@ import java.util.Objects;
  */
 public class AceEditor extends Div implements IControl<String>, IComponentJsonProvider {
 	static private String m_version = "1.2.9";
+
+	private int m_nextId;
 
 	@Nullable
 	private String m_value;
@@ -55,6 +61,14 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	@Nullable
 	private IValueChanged<?> m_valueChanged;
 
+	private Set<Marker> m_markerSet = new HashSet<>();
+
+	private Set<Marker> m_oldMarkerSet = new HashSet<>();
+
+
+	/**
+	 * A completion result for the ICompletionHandler interface.
+	 */
 	public static class Completion {
 		private final String m_name;
 		private final String m_value;
@@ -82,6 +96,73 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 		public int getScore() {
 			return m_score;
+		}
+	}
+
+	@NonNullByDefault
+	public static final class Marker {
+		private final int m_id;
+
+		private final MsgType m_type;
+
+		private final String m_message;
+
+		private final int m_line;
+
+		private final int m_column;
+
+		@Nullable
+		private final String m_cssClass;
+
+		public Marker(int id, MsgType type, String message, int line, int column, @Nullable String cssClass) {
+			m_id = id;
+			m_type = type;
+			m_message = message;
+			m_line = line;
+			m_column = column;
+			m_cssClass = cssClass;
+		}
+
+		public int getId() {
+			return m_id;
+		}
+
+		public MsgType getType() {
+			return m_type;
+		}
+
+		public String getMessage() {
+			return m_message;
+		}
+
+		public int getLine() {
+			return m_line;
+		}
+
+		public int getColumn() {
+			return m_column;
+		}
+
+		@Nullable
+		public String getCssClass() {
+			return m_cssClass;
+		}
+
+		@Override public boolean equals(@Nullable Object o) {
+			if(this == o)
+				return true;
+			if(o == null || getClass() != o.getClass())
+				return false;
+			Marker marker = (Marker) o;
+			return m_line == marker.m_line &&
+				m_column == marker.m_column &&
+				m_type == marker.m_type &&
+				m_message.equals(marker.m_message) &&
+				Objects.equals(m_cssClass, marker.m_cssClass);
+		}
+
+		@Override public int hashCode() {
+			return Objects.hash(m_type, m_message, m_line, m_column, m_cssClass);
 		}
 	}
 
@@ -419,5 +500,20 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	public void setCompletionHandler(ICompletionHandler completionHandler) {
 		m_completionHandler = completionHandler;
+	}
+
+	public void markerClear() {
+		m_markerSet.clear();
+	}
+
+	public Marker markerAdd(MsgType sev, int line, int col, String message, @Nullable String css) {
+		Marker marker = new Marker(m_nextId++, sev, message, line, col, css);
+		if(! m_markerSet.contains(marker))
+			m_markerSet.add(marker);
+		return marker;
+	}
+
+	public void markerRemove(Marker m) {
+		m_markerSet.remove(m);
 	}
 }
