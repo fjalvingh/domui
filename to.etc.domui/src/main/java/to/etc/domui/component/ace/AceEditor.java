@@ -552,7 +552,10 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			sb.append("range.start = session.doc.createAnchor(range.start);\n"
 				+ "range.end = session.doc.createAnchor(range.end);\n"
 			);
-			sb.append("let id = session.addMarker(range, 'ui-ace-error');\n");
+			String css = marker.getCssClass();
+			if(null == css)
+				css = "ui-ace-error";
+			sb.append("let id = session.addMarker(range, '" + css + "');\n");
 			sb.append("ed.__markermap['").append(marker.getId()).append("'] = id;\n");
 			//sb.append("console.log('add marker " + marker.getId() + " as ' + id);\n");
 			sb.append("}\n");
