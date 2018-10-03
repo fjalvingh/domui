@@ -111,15 +111,21 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 		private final int m_column;
 
+		private final int m_endLine;
+
+		private final int m_endColumn;
+
 		@Nullable
 		private final String m_cssClass;
 
-		public Marker(int id, MsgType type, String message, int line, int column, @Nullable String cssClass) {
+		public Marker(int id, MsgType type, String message, int line, int column, int endLine, int endColumn, @Nullable String cssClass) {
 			m_id = id;
 			m_type = type;
 			m_message = message;
 			m_line = line;
 			m_column = column;
+			m_endLine = endLine;
+			m_endColumn = endColumn;
 			m_cssClass = cssClass;
 		}
 
@@ -143,6 +149,14 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			return m_column;
 		}
 
+		public int getEndLine() {
+			return m_endLine;
+		}
+
+		public int getEndColumn() {
+			return m_endColumn;
+		}
+
 		@Nullable
 		public String getCssClass() {
 			return m_cssClass;
@@ -157,13 +171,15 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			return m_line == marker.m_line &&
 				m_id == marker.m_id &&
 				m_column == marker.m_column &&
+				m_endLine == marker.m_endLine &&
+				m_endColumn == marker.m_endColumn &&
 				m_type == marker.m_type &&
 				m_message.equals(marker.m_message) &&
 				Objects.equals(m_cssClass, marker.m_cssClass);
 		}
 
 		@Override public int hashCode() {
-			return Objects.hash(m_type, m_message, m_line, m_column, m_cssClass, m_id);
+			return Objects.hash(m_type, m_message, m_line, m_column, m_endColumn, m_endLine, m_cssClass, m_id);
 		}
 	}
 
@@ -510,8 +526,22 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		changedJavascriptState();
 	}
 
-	public Marker markerAdd(MsgType sev, int line, int col, String message, @Nullable String css) {
-		Marker marker = new Marker(m_nextId++, sev, message, line, col + 1, css);
+	public Marker markerAdd(MsgType sev, int line, int col, int endLine, int endCol, String message) {
+		return markerAdd(sev, line, col, endLine, endCol, message, null);
+	}
+	public Marker markerAdd(MsgType sev, int line, int col, int endLine, int endCol, String message, @Nullable String css) {
+		if(line < 0)
+			line = 0;
+		if(endLine < 0)
+			endLine = 0;
+		if(col < 0)
+			col = 0;
+		if(endCol < 0)
+			endCol = 0;
+		if(line == endLine && endCol <= col)
+			endCol = col + 5;
+
+		Marker marker = new Marker(m_nextId++, sev, message, line, col + 1, endLine, endCol + 1, css);
 		if(! m_markerSet.contains(marker))
 			m_markerSet.add(marker);
 		changedJavascriptState();
@@ -547,8 +577,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		set = new HashSet<>(m_markerSet);
 		set.removeAll(m_oldMarkerSet);						// Get all added thingies
 		for(Marker marker : set) {
-			sb.append("{\n");
-			sb.append("let range = new range_.Range(" + marker.getLine() + ", " + marker.getColumn() +"," + marker.getLine() + ", " + (marker.getColumn() + 5) + ");\n");
+			sb.append("try {\n");
+			sb.append("let range = new range_.Range(" + marker.getLine() + ", " + marker.getColumn() +"," + marker.getEndLine() + ", " + (marker.getEndColumn()+1) + ");\n");
 			sb.append("range.start = session.doc.createAnchor(range.start);\n"
 				+ "range.end = session.doc.createAnchor(range.end);\n"
 			);
@@ -558,7 +588,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			sb.append("let id = session.addMarker(range, '" + css + "');\n");
 			sb.append("ed.__markermap['").append(marker.getId()).append("'] = id;\n");
 			//sb.append("console.log('add marker " + marker.getId() + " as ' + id);\n");
-			sb.append("}\n");
+			sb.append("} catch(x) {alert('error ' + x);}\n");
 		}
 		m_oldMarkerSet.clear();
 		m_oldMarkerSet.addAll(m_markerSet);
