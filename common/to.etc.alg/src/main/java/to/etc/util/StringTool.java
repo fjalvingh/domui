@@ -478,6 +478,21 @@ public class StringTool {
 		return s.substring(0, maxlen);
 	}
 
+	/**
+	 * Get position in a string of a given zero-based line and column. Returns -1 if not located.
+	 */
+	static public int getPositionIn(String text, int line, int column) {
+		int i = 0;
+		while(i < text.length() && line > 0) {
+			char c = text.charAt(i++);
+			if(c == '\n') {
+				line--;
+			}
+		}
+
+		i += column;
+		return i < 0 || i > text.length() ? -1 : i;
+	}
 
 	/**
 	 *	Returns a string with the specified length. If the string is too long
