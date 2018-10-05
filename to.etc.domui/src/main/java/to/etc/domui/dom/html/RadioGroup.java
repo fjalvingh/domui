@@ -1,8 +1,13 @@
 package to.etc.domui.dom.html;
 
-import java.util.*;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
 
-import to.etc.domui.component.meta.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * This is a simple marker which groups radiobuttons together. It can be used as a component too.
@@ -22,6 +27,8 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 	private IValueChanged< ? > m_onValueChanged;
 
 	private boolean m_immediate;
+
+	private boolean m_mandatory;
 
 	public RadioGroup() {
 		m_groupName = "g" + nextID();
@@ -45,7 +52,14 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 	}
 
 	public T getValue() {
-		return m_value;
+		try {
+			validateBindValue();
+			setMessage(null);
+			return m_value;
+		} catch(ValidationException vx) {
+			setMessage(UIMessage.error(vx));
+			throw vx;
+		}
 	}
 
 	public void setValue(T value) {
@@ -61,6 +75,24 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 //		if(m_value != newval)
 //			System.out.println("Changed from " + m_value + " to " + newval);
 		m_value = newval;
+	}
+
+	final public T getBindValue() {
+		validateBindValue();
+		return m_value;
+	}
+
+	final public void setBindValue(T value) {
+		if(MetaManager.areObjectsEqual(m_value, value)) {
+			return;
+		}
+		setValue(value);
+	}
+
+	private void validateBindValue() {
+		if(isMandatory() && m_value == null) {
+			throw new ValidationException(Msgs.MANDATORY);
+		}
 	}
 
 	public List<RadioButton<T>> getButtonList() {
@@ -83,6 +115,14 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 
 	public boolean isImmediate() {
 		return m_immediate;
+	}
+
+	public boolean isMandatory() {
+		return m_mandatory;
+	}
+
+	public void setMandatory(boolean mandatory) {
+		m_mandatory = mandatory;
 	}
 
 	public void immediate(boolean immediate) {
