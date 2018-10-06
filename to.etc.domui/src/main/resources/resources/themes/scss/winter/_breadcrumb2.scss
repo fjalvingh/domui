@@ -1,0 +1,73 @@
+/** Breadcrumb2, see http://cssmenumaker.com/blog/fancy-breadcrumb-navigation-tutorial-example/ **/
+$brcr2-bg: #428EFE !default;						// Item bg color
+$brcr2-color: white !default;						// Item color
+$brcr2-hover: lighten($brcr2-bg, 20%) !default; 	// Hover color
+
+$brcr2-sel-bg: #eef5ff !default;					// selected item's bg
+$brcr2-sel-color: $brcr2-bg !default;
+
+.ui-brcr2 {
+	display: inline-block;
+	position: relative;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	font-family: Helvetica, sans-serif;
+	font-size: 14px;
+	line-height: 1em;
+	border-radius: 2px;
+	overflow: hidden;
+
+	ul {
+		display: flex;
+		flex-direction: row-reverse;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+
+		li {
+			margin: 0;
+
+			a {
+				display: inline-block;
+				font-family: sans-serif;
+				font-size: 0.9em;
+				font-weight: 600;
+				padding: 12px 30px 12px 45px;
+				margin-left: -20px; /* Pull the items to the left, so the rounded right side will get over them */
+				color: $brcr2-color;
+				background-color: $brcr2-bg;
+				text-decoration: none;
+				text-transform: uppercase;
+				border-radius: 0 100px 100px 0; /* Get the right side rounded */
+				box-shadow: 0 0 20px rgba(0, 0, 0, 0.4); /* Apply the shadow */
+			}
+		}
+
+		/* active */
+		li:hover a {
+			background-color: $brcr2-hover;
+		}
+
+		li:first-child a {
+			box-shadow: none;
+		}
+
+		/* Active item is a bit different */
+		li.ui-brcr2-a a {
+			cursor: default;
+			color: $brcr2-sel-color;
+			background-color: $brcr2-sel-bg;
+		}
+
+		/* Remove the shadow for the active's next item, to match the design more accurately */
+		li.ui-brcr2-a + li a {
+			box-shadow: none;
+		}
+	}
+
+	/* icons */
+	i {
+		transform: scale(1.4);
+	}
+}
