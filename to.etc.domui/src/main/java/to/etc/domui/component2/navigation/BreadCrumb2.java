@@ -2,7 +2,8 @@ package to.etc.domui.component2.navigation;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component2.navigation.BreadCrumb2.Item;
+import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component2.navigation.BreadCrumb2.IItem;
 import to.etc.domui.databinding.list2.IListChangeListener;
 import to.etc.domui.databinding.list2.ListChangeEvent;
 import to.etc.domui.databinding.observables.IObservableList;
@@ -11,12 +12,16 @@ import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Li;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.Ul;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.IShelvedEntry;
 import to.etc.domui.state.ShelvedDomUIPage;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.state.WindowSession;
+import to.etc.function.ConsumerEx;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,8 +33,8 @@ import java.util.List;
  * Created on 6-10-18.
  */
 @NonNullByDefault
-public class BreadCrumb2 extends Div implements IListChangeListener<Item> {
-	public interface Item {
+public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
+	public interface IItem {
 		@Nullable
 		NodeBase getIcon();
 
@@ -38,54 +43,92 @@ public class BreadCrumb2 extends Div implements IListChangeListener<Item> {
 		@Nullable
 		String getTitle();
 
-		void clicked(Item item) throws Exception;
+		void clicked(IItem item) throws Exception;
 	}
 
+	public static class Item implements IItem {
+		@Nullable
+		private final NodeBase m_icon;
+
+		private final String m_name;
+
+		@Nullable
+		private final String m_title;
+
+		@Nullable
+		private ConsumerEx<IItem> m_clicked;
+
+		public Item(@Nullable NodeBase icon, String name, @Nullable String title, @Nullable ConsumerEx<IItem> clicked) {
+			m_icon = icon;
+			m_name = name;
+			m_title = title;
+			m_clicked = clicked;
+		}
+
+
+		@Nullable
+		@Override public NodeBase getIcon() {
+			return m_icon;
+		}
+
+		@Override public String getName() {
+			return m_name;
+		}
+
+		@Nullable
+		@Override public String getTitle() {
+			return m_title;
+		}
+
+		@Override public void clicked(IItem item) throws Exception {
+			ConsumerEx<IItem> clicked = m_clicked;
+			if(clicked != null) {
+				clicked.accept(item);
+			}
+		}
+	}
+
+
 	@Nullable
-	private List<Item> m_value;
+	private List<IItem> m_value;
 
 	public BreadCrumb2() {
 	}
 
-	static public BreadCrumb2 createPageCrumb() {
-		List<Item> list = new ArrayList<>();
+	static public BreadCrumb2 createPageCrumb(@Nullable String homeName) {
+		List<IItem> list = new ArrayList<>();
 		WindowSession cm = UIContext.getRequestContext().getWindowSession();
 
-		//-- Get the application's main page as the base;
+		//-- Always use the home page as the 1st link
+		Class<? extends UrlPage> home = DomApplication.get().getRootPage();
+		if(null != home) {
+			list.add(new Item(new FaIcon(FaIcon.faHome), homeName == null ? "" : homeName, null, a -> UIGoto.moveNew(home)));
+		}
+
 		List<IShelvedEntry> stack = cm.getShelvedPageStack();
 		int last = stack.size() - 1;
 		for(int i = 0; i < stack.size(); i++) {
 			IShelvedEntry p = stack.get(i);
+
+			if(p instanceof ShelvedDomUIPage && null != home) {
+				String name = ((ShelvedDomUIPage) p).getPage().getBody().getClass().getName();
+				if(name.equals(home.getName()))
+					continue;
+			}
+
 			boolean noclick = i == last;
 
-			Item it = new Item() {
-				@Nullable
-				@Override public NodeBase getIcon() {
-					return null;
-				}
+			list.add(new Item(null, p.getName(), p.getTitle(), a -> {
+				if(noclick)
+					return;
 
-				@Override public String getName() {
-					return p.getName();
+				if(p instanceof ShelvedDomUIPage) {
+					ShelvedDomUIPage pg = (ShelvedDomUIPage) p;
+					UIGoto.moveSub(pg.getPage().getBody().getClass(), pg.getPage().getPageParameters());
+				} else {
+					UIGoto.redirect(p.getURL());
 				}
-
-				@Nullable
-				@Override public String getTitle() {
-					return p.getTitle();
-				}
-
-				@Override public void clicked(Item item) throws Exception {
-					if(noclick)
-						return;
-
-					if(p instanceof ShelvedDomUIPage) {
-						ShelvedDomUIPage pg = (ShelvedDomUIPage) p;
-						UIGoto.moveSub(pg.getPage().getBody().getClass(), pg.getPage().getPageParameters());
-					} else {
-						UIGoto.redirect(p.getURL());
-					}
-				}
-			};
-			list.add(it);
+			}));
 		}
 		BreadCrumb2 bc = new BreadCrumb2();
 		bc.setValue(list);
@@ -99,16 +142,16 @@ public class BreadCrumb2 extends Div implements IListChangeListener<Item> {
 		add(cont);
 
 		//-- Render the items in reverse order
-		List<Item> value = getValue();
+		List<IItem> value = getValue();
 		if(null != value) {
 			for(int i = value.size() - 1; i >= 0; i--) {
-				Item item = value.get(i);
+				IItem item = value.get(i);
 				renderItem(cont, item, i == value.size() - 1);
 			}
 		}
 	}
 
-	private void renderItem(Ul cont, Item item, boolean active) {
+	private void renderItem(Ul cont, IItem item, boolean active) {
 		Li li = new Li();
 		cont.add(li);
 		if(active)
@@ -118,30 +161,37 @@ public class BreadCrumb2 extends Div implements IListChangeListener<Item> {
 		a.setClicked(v -> {
 			item.clicked(item);
 		});
+		NodeBase icon = item.getIcon();
+		if(null != icon) {
+			Span sp = new Span();
+			a.add(sp);
+			sp.addCssClass("ui-brcr2-i");
+			sp.add(icon);
+		}
 		a.add(item.getName());
 		a.setTitle(item.getTitle());
 	}
 
 	@Nullable
-	public List<Item> getValue() {
+	public List<IItem> getValue() {
 		return m_value;
 	}
 
-	public void setValue(@Nullable List<Item> value) {
-		List<Item> old = m_value;
+	public void setValue(@Nullable List<IItem> value) {
+		List<IItem> old = m_value;
 		if(old instanceof IObservableList) {
-			((ObservableList<Item>) old).removeChangeListener(this);
+			((ObservableList<IItem>) old).removeChangeListener(this);
 		}
 		if(old != m_value) {					// Do not use structural equals because it will be expensive
 			forceRebuild();
 		}
 		m_value = value;
 		if(value instanceof IObservableList) {
-			((IObservableList<Item>) value).addChangeListener(this);
+			((IObservableList<IItem>) value).addChangeListener(this);
 		}
 	}
 
-	@Override public void handleChange(ListChangeEvent<Item> event) throws Exception {
+	@Override public void handleChange(ListChangeEvent<IItem> event) throws Exception {
 		forceRebuild();
 	}
 }

@@ -12,7 +12,7 @@ $brcr2-sel-color: $brcr2-bg !default;
 	left: 50%;
 	top: 50%;
 	transform: translate(-50%, -50%);
-	font-family: Helvetica, sans-serif;
+	//font-family: Helvetica, sans-serif;
 	font-size: 14px;
 	line-height: 1em;
 	border-radius: 2px;
@@ -30,17 +30,25 @@ $brcr2-sel-color: $brcr2-bg !default;
 
 			a {
 				display: inline-block;
-				font-family: sans-serif;
-				font-size: 0.9em;
+				//font-family: sans-serif;
+				//font-size: 0.9em;
 				font-weight: 600;
 				padding: 12px 30px 12px 45px;
 				margin-left: -20px; /* Pull the items to the left, so the rounded right side will get over them */
 				color: $brcr2-color;
 				background-color: $brcr2-bg;
 				text-decoration: none;
-				text-transform: uppercase;
+				font-variant: small-caps;
+				//text-transform: uppercase;
 				border-radius: 0 100px 100px 0; /* Get the right side rounded */
 				box-shadow: 0 0 20px rgba(0, 0, 0, 0.4); /* Apply the shadow */
+
+				.ui-brcr2-i {
+					padding-right: 0.5em;
+					.fa {
+						transform: scale(1.4);
+					}
+				}
 			}
 		}
 
