@@ -1,10 +1,16 @@
 package to.etc.domuidemo.pages.special.ace;
 
 import to.etc.domui.component.ace.AceEditor;
+import to.etc.domui.component.ace.AceEditor.Completion;
 import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.FileTool;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -14,13 +20,18 @@ public class AcePage extends UrlPage {
 	@Override public void createContent() throws Exception {
 		AceEditor.initialize(this);
 
-		String text = FileTool.readResourceAsString(getClass(), "demojs.js", "utf-8");
-
 		AceEditor editor = new AceEditor();
+		editor.setMode("ace/mode/pgsql");
+		editor.setTheme("ace/theme/iplastic");
+		editor.setHeight("200px");
+		editor.setWidth("600px");
 		add(editor);
-		editor.setWidth("auto");
-		editor.setHeight("500px");
+
+		String text = FileTool.readResourceAsString(getClass(), "demojs.js", "utf-8");
 		editor.setValue(text);
+
+		editor.setCompletionHandler(this::completeCode);
+
 
 		ButtonBar bb = new ButtonBar();
 		add(bb);
@@ -34,5 +45,20 @@ public class AcePage extends UrlPage {
 		bb.addButton("Toggle RO", a -> editor.setReadOnly(! editor.isReadOnly()));
 
 		bb.addButton("Show Val", a -> MsgBox.info(this, editor.getValue()));
+	}
+
+	private List<Completion> completeCode(String text, int row, int col, String prefix) {
+		String[] split = text.split("\\W+");				// All words in the document
+		Set<String> set = Arrays.asList(split)
+			.stream()
+			.map(a -> a.toLowerCase())
+			.collect(Collectors.toSet());
+
+		//-- Now find all words starting with prefix
+		return set.stream()
+			.filter(a -> a.toLowerCase().contains(prefix))
+			.map(a -> new Completion(a, a, "Word", 10))
+			.collect(Collectors.toList())
+			;
 	}
 }

@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * DomUI wrapper for the <a href="https://ace.c9.io/">ACE code editor</a>.
@@ -183,6 +184,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		}
 	}
 
+	@FunctionalInterface
 	public interface ICompletionHandler {
 		@NonNull
 		List<Completion> getCompletions(@NonNull String text, int row, int col, @NonNull String prefix) throws Exception;
@@ -519,6 +521,30 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	public void setCompletionHandler(ICompletionHandler completionHandler) {
 		m_completionHandler = completionHandler;
+	}
+
+	/**
+	 * Get a prefix which includes dots.
+	 */
+	@Nullable
+	public String getDottedPrefix(int row, int col, Predicate<Character> validchars) {
+		String value = m_value;
+		if(null == value)
+			return null;
+		int pos = StringTool.getPositionIn(value, row, col);		// position at cursor
+		if(pos <= 1)
+			return null;
+
+		//-- Scan the part before
+		int start = pos;
+		while(start > 0) {
+			char c = value.charAt(start - 1);
+			if(! validchars.test(c)) {
+				break;
+			}
+			start--;
+		}
+		return value.substring(start, pos);
 	}
 
 	public void markerClear() {
