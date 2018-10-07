@@ -101,9 +101,26 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 	}
 
 	static public BreadCrumb2 createPageCrumb(@Nullable String homeName) {
+		return createPageCrumb(homeName, true);
+	}
+	static public BreadCrumb2 createPageCrumb(@Nullable String homeName, boolean withBack) {
 		List<IItem> list = getPageStacktems(homeName);
-		BreadCrumb2 bc = new BreadCrumb2();
-		bc.setValue(list);
+
+		if(withBack) {
+			List<IShelvedEntry> ps = UIContext.getCurrentPage().getConversation().getWindowSession().getShelvedPageStack();
+			if(ps.size() > 1) {                                    // Nothing to go back to (only myself is on page) -> exit
+				IShelvedEntry se = ps.get(ps.size() - 2);        // Get the page before me
+				if(se instanceof ShelvedDomUIPage) {
+					String name = ((ShelvedDomUIPage) se).getPage().getBody().getClass().getName();
+					Class<? extends UrlPage> rootPage = DomApplication.get().getRootPage();
+					if(rootPage == null || !name.equals(rootPage.getName())) {
+						list.add(0, new Item(new FaIcon(FaIcon.faArrowCircleLeft), "", "Back to the previous screen", iItem -> UIGoto.back()));
+					}
+				}
+			}
+		}
+
+		BreadCrumb2 bc = new BreadCrumb2(list);
 		return bc;
 	}
 
