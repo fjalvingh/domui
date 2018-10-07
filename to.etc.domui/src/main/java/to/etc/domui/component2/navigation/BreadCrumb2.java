@@ -2,6 +2,7 @@ package to.etc.domui.component2.navigation;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.misc.FaIcon;
 import to.etc.domui.component2.navigation.BreadCrumb2.IItem;
 import to.etc.domui.databinding.list2.IListChangeListener;
@@ -95,7 +96,18 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 	public BreadCrumb2() {
 	}
 
+	public BreadCrumb2(List<IItem> items) {
+		setValue(items);
+	}
+
 	static public BreadCrumb2 createPageCrumb(@Nullable String homeName) {
+		List<IItem> list = getPageStacktems(homeName);
+		BreadCrumb2 bc = new BreadCrumb2();
+		bc.setValue(list);
+		return bc;
+	}
+
+	@NotNull public static List<IItem> getPageStacktems(@Nullable String homeName) {
 		List<IItem> list = new ArrayList<>();
 		WindowSession cm = UIContext.getRequestContext().getWindowSession();
 
@@ -130,9 +142,7 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 				}
 			}));
 		}
-		BreadCrumb2 bc = new BreadCrumb2();
-		bc.setValue(list);
-		return bc;
+		return list;
 	}
 
 	@Override public void createContent() throws Exception {
