@@ -1,30 +1,30 @@
 .d-sbc {
 	background-color: #24292e;
 	color: rgba(255,255,255,0.75);
-	padding: 4px 8px 4px 8px;
-	height: 58px;
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	justify-content: space-between;
+	height: 60px;
 }
 
 .d-sbc-crumb {
-	position: absolute;
-	top: 16px;
-	left: 200px;
-	height: 20px;
-	right: 0px;
-
+	flex: 2;
 	font-size: 16px;
 }
 
 .d-sbc-logo {
-	position: absolute;
-	top: 4px;
-	left: 10px;
-	height: 40px;
-	width: 190px;
+	flex: none;
+	width: 290px;
 }
 .d-sbc-l {
 	text-decoration: none;
 	color: #E16600;
+}
+.d-sbc-src {
+	color: red;
+	font-size: 2em;
+	padding-left: 20px;
 }
 
 .d-expl {
