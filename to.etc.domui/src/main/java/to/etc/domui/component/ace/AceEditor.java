@@ -17,8 +17,10 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -62,10 +64,6 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	@Nullable
 	private IValueChanged<?> m_valueChanged;
-
-	private Set<Marker> m_markerSet = new HashSet<>();
-
-	private Set<Marker> m_oldMarkerSet = new HashSet<>();
 
 	/**
 	 * A completion result for the ICompletionHandler interface.
@@ -524,7 +522,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	}
 
 	/**
-	 * Get a prefix which includes dots.
+	 * Get a prefix which includes dots (for instance) for code completion.
 	 */
 	@Nullable
 	public String getDottedPrefix(int row, int col, Predicate<Character> validchars) {
@@ -547,15 +545,38 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		return value.substring(start, pos);
 	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Markers.													*/
+	/*----------------------------------------------------------------------*/
+	private Set<Marker> m_markerSet = new HashSet<>();
+
+	private Set<Marker> m_oldMarkerSet = new HashSet<>();
+
+	private Map<Integer, Marker> m_markerByIdMap = new HashMap<>();
+
+	private Map<String, Marker> m_markerByIdentMap = new HashMap<>();
+
+	/**
+	 * Delete all markers.
+	 */
 	public void markerClear() {
 		m_markerSet.clear();
+		m_markerByIdMap.clear();
+		m_markerByIdentMap.clear();
 		changedJavascriptState();
 	}
 
-	public Marker markerAdd(MsgType sev, int line, int col, int endLine, int endCol, String message) {
+	/**
+	 * Adds the sepecified marker and returns the ID, which can be used to remove the marker again.
+	 */
+	public int markerAdd(MsgType sev, int line, int col, int endLine, int endCol, String message) {
 		return markerAdd(sev, line, col, endLine, endCol, message, null);
 	}
-	public Marker markerAdd(MsgType sev, int line, int col, int endLine, int endCol, String message, @Nullable String css) {
+
+	/**
+	 * Adds the sepecified marker and returns the ID, which can be used to remove the marker again.
+	 */
+	public int markerAdd(MsgType sev, int line, int col, int endLine, int endCol, String message, @Nullable String css) {
 		if(line < 0)
 			line = 0;
 		if(endLine < 0)
@@ -567,16 +588,41 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		if(line == endLine && endCol <= col)
 			endCol = col + 5;
 
-		Marker marker = new Marker(m_nextId++, sev, message, line, col + 1, endLine, endCol + 1, css);
-		if(! m_markerSet.contains(marker))
-			m_markerSet.add(marker);
+		//-- let's please Java's idiot architects: variables in their dumbass non-lambda's must be effectively final. Idiots.
+		int uselesscol = col;
+		int uselessEndLine = endLine;
+		int uselessLine = line;
+		int uselessEndCol = endCol;					// Do not repeat yourself my ass.
+
+		String ident = sev.toString() + line + "/" + col + "/" + endLine + "/" + endCol + message;
+		Marker marker = m_markerByIdentMap.computeIfAbsent(ident, a -> new Marker(m_nextId++, sev, message, uselessLine, uselesscol + 1, uselessEndLine, uselessEndCol + 1, css));
+		m_markerSet.add(marker);
+		m_markerByIdMap.put(marker.getId(), marker);
 		changedJavascriptState();
-		return marker;
+		return marker.getId();
 	}
 
-	public void markerRemove(Marker m) {
-		changedJavascriptState();
-		m_markerSet.remove(m);
+	/**
+	 * Remove the marker by id (which was returned by {@link #markerAdd(MsgType, int, int, int, int, String)} before).
+	 */
+	public void markerRemove(int id) {
+		Marker marker = m_markerByIdMap.get(id);
+		if(null != marker) {
+			m_markerSet.remove(marker);
+			changedJavascriptState();
+		}
+	}
+
+	/**
+	 * Remove all markers for the specified location (and message).
+	 */
+	public void markerRemove(MsgType sev, int line, int col, int endLine, int endCol, String message) {
+		String ident = sev.toString() + line + "/" + col + "/" + endLine + "/" + endCol + message;
+		Marker marker = m_markerByIdentMap.get(ident);
+		if(null != marker) {
+			m_markerSet.remove(marker);
+			changedJavascriptState();
+		}
 	}
 
 	@Override protected void renderJavascriptDelta(JavascriptStmt b) throws Exception {

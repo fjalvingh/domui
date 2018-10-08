@@ -60,7 +60,6 @@ public class AcePage extends UrlPage {
 			.collect(Collectors.toList());
 		//res.forEach(a -> System.out.println(a.getName()));
 
-		return res
-			;
+		return res;
 	}
 }
