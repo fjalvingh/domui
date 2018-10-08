@@ -1,5 +1,7 @@
 package to.etc.domui.component.ace;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import java.awt.*;
 
 /**
@@ -9,6 +11,7 @@ import java.awt.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 8-10-18.
  */
+@NonNullByDefault
 public final class PositionCalculator {
 	private final String m_text;
 
@@ -68,5 +71,9 @@ public final class PositionCalculator {
 		}
 		out.y = m_lineOffsets.length;
 		out.x = 0;
+	}
+
+	public String getText() {
+		return m_text;
 	}
 }

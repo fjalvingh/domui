@@ -16,6 +16,7 @@ import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -440,6 +441,9 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	private Map<String, Marker> m_markerByIdentMap = new HashMap<>();
 
+	@Nullable
+	private PositionCalculator m_calculator;
+
 	/**
 	 * Delete all markers.
 	 */
@@ -484,6 +488,26 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		m_markerByIdMap.put(marker.getId(), marker);
 		changedJavascriptState();
 		return marker.getId();
+	}
+
+	public int markerAdd(MsgType sev, int startPosition, int endPosition, String message, @Nullable String css) {
+		String value = getValue();
+		if(null == value || endPosition <= startPosition)
+			return -1;
+		PositionCalculator calculator = m_calculator;
+		if(calculator == null || ! value.equals(calculator.getText())) {
+			calculator = m_calculator = new PositionCalculator(value);
+		}
+		Point sp = new Point();
+		Point ep = new Point();
+		calculator.getXYPosition(sp, startPosition);
+		calculator.getXYPosition(sp, endPosition);
+
+		return markerAdd(sev, sp.y, sp.x, ep.y, ep.x, message, css);
+	}
+
+	public int markerAdd(MsgType sev, int startPosition, int endPosition, String message) {
+		return markerAdd(sev, startPosition, endPosition, message, null);
 	}
 
 	/**
