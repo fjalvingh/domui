@@ -8,6 +8,7 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.FileTool;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,16 +50,17 @@ public class AcePage extends UrlPage {
 
 	private List<Completion> completeCode(String text, int row, int col, String prefix) {
 		String[] split = text.split("\\W+");				// All words in the document
-		Set<String> set = Arrays.asList(split)
-			.stream()
-			.map(a -> a.toLowerCase())
-			.collect(Collectors.toSet());
+		Set<String> set = new HashSet<>(Arrays.asList(split));
 
 		//-- Now find all words starting with prefix
-		return set.stream()
-			.filter(a -> a.toLowerCase().contains(prefix))
+		String prefixLC = prefix.toLowerCase();
+		List<Completion> res = set.stream()
+			.filter(a -> a.toLowerCase().contains(prefixLC))
 			.map(a -> new Completion(a, a, "Word", 10))
-			.collect(Collectors.toList())
+			.collect(Collectors.toList());
+		//res.forEach(a -> System.out.println(a.getName()));
+
+		return res
 			;
 	}
 }
