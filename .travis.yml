@@ -25,7 +25,9 @@ deploy:
     skip_cleanup: true
     script: scripts/demo-deploy $DEPLOY_KEY
     on:
-      branch: master
+      branches:
+        only:
+          - master
   - provider: script
     skip_cleanup: true
     script: scripts/demo-deploy $DEPLOY_KEY
