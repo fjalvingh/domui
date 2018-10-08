@@ -33,15 +33,15 @@ deploy:
     script: scripts/demo-deploy $DEPLOY_KEY
     on:
       branches:
-              only:
-                      - testing
+        only:
+          - testing
   - provider: script
     skip_cleanup: true
     script: scripts/demo-deploy $DEPLOY_KEY
     on:
-            branches:
-                    only:
-                            - demo
+      branches:
+        only:
+          - demo
 
 before_install:
 - scripts/beforeInstall
