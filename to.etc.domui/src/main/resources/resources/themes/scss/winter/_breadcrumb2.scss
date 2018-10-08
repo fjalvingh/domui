@@ -32,6 +32,8 @@ $brcr2-sel-color: $brcr2-bg !default;
 				color: $brcr2-color;
 				background-color: $brcr2-bg;
 				text-decoration: none;
+				text-wrap: none;
+				white-space: nowrap;
 				font-variant: small-caps;
 				border-radius: 0 100px 100px 0; /* Get the right side rounded */
 				box-shadow: 0 0 20px rgba(0, 0, 0, 0.4); /* Apply the shadow */

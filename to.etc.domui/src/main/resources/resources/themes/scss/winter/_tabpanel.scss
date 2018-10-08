@@ -31,6 +31,8 @@ $tabpanel-selected-color: $tabpanel-tab-bg !default;
 			padding: 6px 10px;
 			border-radius: 4px 4px 0 0;
 			text-decoration: none;
+			white-space: nowrap;
+			text-wrap: none;
 			//font-size: 1.2rem;
 
 			&:before, &:after {
