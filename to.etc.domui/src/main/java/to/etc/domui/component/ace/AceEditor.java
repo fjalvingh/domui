@@ -65,123 +65,6 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	@Nullable
 	private IValueChanged<?> m_valueChanged;
 
-	/**
-	 * A completion result for the ICompletionHandler interface.
-	 */
-	public static class Completion {
-		private final String m_name;
-		private final String m_value;
-		private final String m_meta;
-		private final int m_score;
-
-		public Completion(String name, String value, String meta, int score) {
-			m_name = name;
-			m_value = value;
-			m_meta = meta;
-			m_score = score;
-		}
-
-		public String getName() {
-			return m_name;
-		}
-
-		public String getValue() {
-			return m_value;
-		}
-
-		public String getMeta() {
-			return m_meta;
-		}
-
-		public int getScore() {
-			return m_score;
-		}
-	}
-
-	@NonNullByDefault
-	public static final class Marker {
-		private final int m_id;
-
-		private final MsgType m_type;
-
-		private final String m_message;
-
-		private final int m_line;
-
-		private final int m_column;
-
-		private final int m_endLine;
-
-		private final int m_endColumn;
-
-		@Nullable
-		private final String m_cssClass;
-
-		public Marker(int id, MsgType type, String message, int line, int column, int endLine, int endColumn, @Nullable String cssClass) {
-			m_id = id;
-			m_type = type;
-			m_message = message;
-			m_line = line;
-			m_column = column;
-			m_endLine = endLine;
-			m_endColumn = endColumn;
-			m_cssClass = cssClass;
-		}
-
-		public int getId() {
-			return m_id;
-		}
-
-		public MsgType getType() {
-			return m_type;
-		}
-
-		public String getMessage() {
-			return m_message;
-		}
-
-		public int getLine() {
-			return m_line;
-		}
-
-		public int getColumn() {
-			return m_column;
-		}
-
-		public int getEndLine() {
-			return m_endLine;
-		}
-
-		public int getEndColumn() {
-			return m_endColumn;
-		}
-
-		@Nullable
-		public String getCssClass() {
-			return m_cssClass;
-		}
-
-		@Override public boolean equals(@Nullable Object o) {
-			if(this == o)
-				return true;
-			if(o == null || getClass() != o.getClass())
-				return false;
-			Marker marker = (Marker) o;
-			return m_line == marker.m_line &&
-				m_id == marker.m_id &&
-				m_column == marker.m_column &&
-				m_endLine == marker.m_endLine &&
-				m_endColumn == marker.m_endColumn &&
-				m_type == marker.m_type &&
-				m_message.equals(marker.m_message) &&
-				Objects.equals(m_cssClass, marker.m_cssClass);
-		}
-
-		@Override public int hashCode() {
-			return Objects.hash(m_type, m_message, m_line, m_column, m_endColumn, m_endLine, m_cssClass, m_id);
-		}
-	}
-
 	@FunctionalInterface
 	public interface ICompletionHandler {
 		@NonNull
@@ -283,6 +166,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	public void setValue(@Nullable String value) {
 		if(Objects.equals(value, m_value))
 			return;
+		markerClear();
 		m_value = value;
 		if(isBuilt()) {
 			StringBuilder sb = new StringBuilder();
@@ -595,7 +479,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		int uselessEndCol = endCol;					// Do not repeat yourself my ass.
 
 		String ident = sev.toString() + line + "/" + col + "/" + endLine + "/" + endCol + message;
-		Marker marker = m_markerByIdentMap.computeIfAbsent(ident, a -> new Marker(m_nextId++, sev, message, uselessLine, uselesscol + 1, uselessEndLine, uselessEndCol + 1, css));
+		Marker marker = m_markerByIdentMap.computeIfAbsent(ident, a -> new Marker(m_nextId++, sev, message, uselessLine, uselesscol, uselessEndLine, uselessEndCol, css));
 		m_markerSet.add(marker);
 		m_markerByIdMap.put(marker.getId(), marker);
 		changedJavascriptState();
@@ -618,9 +502,10 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	 */
 	public void markerRemove(MsgType sev, int line, int col, int endLine, int endCol, String message) {
 		String ident = sev.toString() + line + "/" + col + "/" + endLine + "/" + endCol + message;
-		Marker marker = m_markerByIdentMap.get(ident);
+		Marker marker = m_markerByIdentMap.remove(ident);
 		if(null != marker) {
 			m_markerSet.remove(marker);
+			m_markerByIdMap.remove(marker.getId());
 			changedJavascriptState();
 		}
 	}
@@ -639,10 +524,11 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			sb.append("try {\n");
 			sb.append("let mid=ed.__markermap['").append(marker.getId()).append("'];\n");
 			sb.append("session.removeMarker(mid);\n");
-			sb.append("delete ed.__markermap[mid];");
+			sb.append("delete ed.__markermap[" + marker.getId() + "];");
 			//sb.append("console.log('del marker ").append(marker.getId()).append(" as ' + mid);\n");
 			sb.append("} catch(x) { alert('Failed ' + x);\n");
 			sb.append("}\n");
+			//System.out.println(" delete marker " + marker);
 		}
 		//m_oldMarkerSet.removeAll(set);
 
@@ -650,7 +536,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		set.removeAll(m_oldMarkerSet);						// Get all added thingies
 		for(Marker marker : set) {
 			sb.append("try {\n");
-			sb.append("let range = new range_.Range(" + marker.getLine() + ", " + marker.getColumn() +"," + marker.getEndLine() + ", " + (marker.getEndColumn()+1) + ");\n");
+			sb.append("let range = new range_.Range(" + marker.getLine() + ", " + marker.getColumn() +"," + marker.getEndLine() + ", " + (marker.getEndColumn()) + ");\n");
 			sb.append("range.start = session.doc.createAnchor(range.start);\n"
 				+ "range.end = session.doc.createAnchor(range.end);\n"
 			);
@@ -661,6 +547,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			sb.append("ed.__markermap['").append(marker.getId()).append("'] = id;\n");
 			//sb.append("console.log('add marker " + marker.getId() + " as ' + id);\n");
 			sb.append("} catch(x) {alert('error ' + x);}\n");
+			//System.out.println(" add marker " + marker);
 		}
 		m_oldMarkerSet.clear();
 		m_oldMarkerSet.addAll(m_markerSet);
@@ -669,4 +556,126 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		sb.append("}");
 		b.append(sb.toString());
 	}
+
+	/**
+	 * A completion result for the ICompletionHandler interface.
+	 */
+	public static final class Completion {
+		private final String m_name;
+		private final String m_value;
+		private final String m_meta;
+		private final int m_score;
+
+		public Completion(String name, String value, String meta, int score) {
+			m_name = name;
+			m_value = value;
+			m_meta = meta;
+			m_score = score;
+		}
+
+		public String getName() {
+			return m_name;
+		}
+
+		public String getValue() {
+			return m_value;
+		}
+
+		public String getMeta() {
+			return m_meta;
+		}
+
+		public int getScore() {
+			return m_score;
+		}
+	}
+
+	@NonNullByDefault
+	private static final class Marker {
+		private final int m_id;
+
+		private final MsgType m_type;
+
+		private final String m_message;
+
+		private final int m_line;
+
+		private final int m_column;
+
+		private final int m_endLine;
+
+		private final int m_endColumn;
+
+		@Nullable
+		private final String m_cssClass;
+
+		public Marker(int id, MsgType type, String message, int line, int column, int endLine, int endColumn, @Nullable String cssClass) {
+			m_id = id;
+			m_type = type;
+			m_message = message;
+			m_line = line;
+			m_column = column;
+			m_endLine = endLine;
+			m_endColumn = endColumn;
+			m_cssClass = cssClass;
+		}
+
+		public int getId() {
+			return m_id;
+		}
+
+		public MsgType getType() {
+			return m_type;
+		}
+
+		public String getMessage() {
+			return m_message;
+		}
+
+		public int getLine() {
+			return m_line;
+		}
+
+		public int getColumn() {
+			return m_column;
+		}
+
+		public int getEndLine() {
+			return m_endLine;
+		}
+
+		public int getEndColumn() {
+			return m_endColumn;
+		}
+
+		@Nullable
+		public String getCssClass() {
+			return m_cssClass;
+		}
+
+		@Override public boolean equals(@Nullable Object o) {
+			if(this == o)
+				return true;
+			if(o == null || getClass() != o.getClass())
+				return false;
+			Marker marker = (Marker) o;
+			return m_line == marker.m_line &&
+				m_id == marker.m_id &&
+				m_column == marker.m_column &&
+				m_endLine == marker.m_endLine &&
+				m_endColumn == marker.m_endColumn &&
+				m_type == marker.m_type &&
+				m_message.equals(marker.m_message) &&
+				Objects.equals(m_cssClass, marker.m_cssClass);
+		}
+
+		@Override public int hashCode() {
+			return Objects.hash(m_type, m_message, m_line, m_column, m_endColumn, m_endLine, m_cssClass, m_id);
+		}
+
+		@Override public String toString() {
+			return "id=" + m_id + "(" + m_line + "," + m_column + ")";
+		}
+	}
+
 }
