@@ -32,12 +32,16 @@ deploy:
     skip_cleanup: true
     script: scripts/demo-deploy $DEPLOY_KEY
     on:
-      branch: testing
+      branches:
+              only:
+                      - testing
   - provider: script
     skip_cleanup: true
     script: scripts/demo-deploy $DEPLOY_KEY
     on:
-      branch: demo
+            branches:
+                    only:
+                            - demo
 
 before_install:
 - scripts/beforeInstall
