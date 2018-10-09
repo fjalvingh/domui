@@ -66,6 +66,9 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	@Nullable
 	private IValueChanged<?> m_valueChanged;
 
+	@Nullable
+	private Predicate<Character> m_prefixValidator;
+
 	@FunctionalInterface
 	public interface ICompletionHandler {
 		@NonNull
@@ -133,14 +136,22 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	@Override public Object provideJsonData(IPageParameters parameterSource) throws Exception {
 		int col = parameterSource.getInt(getActualID() + "_col");
 		int row = parameterSource.getInt(getActualID() + "_row");
-		String req = parameterSource.getString(getActualID() + "_prefix");
+		String prefix = parameterSource.getString(getActualID() + "_prefix");
 		ICompletionHandler ch = getCompletionHandler();
 		String value = m_value;
-		if(ch == null || req == null || value == null) {
+		if(ch == null || prefix == null || value == null) {
 			return Collections.emptyList();
 		}
 
-		return ch.getCompletions(value, row, col, req);
+		//-- Do we need to change the prefix?
+		Predicate<Character> prefixValidator = m_prefixValidator;
+		if(null != prefixValidator) {
+			String dotted = getDottedPrefix(row, col, prefixValidator);
+			if(null != dotted)
+				prefix = dotted;
+
+		}
+		return ch.getCompletions(value, row, col, prefix);
 	}
 
 	@Override public void renderJavascriptState(StringBuilder sb) throws Exception {
@@ -398,12 +409,42 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		return true;
 	}
 
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Code completion handling.									*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * See {@link #setCompletionHandler(ICompletionHandler)}.
+	 */
 	public ICompletionHandler getCompletionHandler() {
 		return m_completionHandler;
 	}
 
+	/**
+	 * Set a completion handler used to handle Code Completion on CTRL+SPACE. The handler
+	 * gets passed a prefix of the word typed so far, and the full data string. It should
+	 * return a set of possible completions for that string that will then be presented to
+	 * the user.
+	 * The prefix, by default, is only scanned to contain identifier characters. This means
+	 * that anything with a dot does not contain the dot nor the part before it. To control
+	 * what characters can be valid as a prefix you need to use setPrefixPredicate(), or
+	 * for basic identifiers you can call setPrefixAllowDotted().
+	 */
 	public void setCompletionHandler(ICompletionHandler completionHandler) {
 		m_completionHandler = completionHandler;
+	}
+
+	/**
+	 * Set a Predicate which defines whether a character of a prefix is valid for that
+	 * prefix, when finding the part of code to complete.
+	 */
+	public void setPrefixPredicate(Predicate<Character> validchars) {
+		m_prefixValidator = validchars;
+	}
+
+	public void setPrefixAllowDotted() {
+		setPrefixPredicate(character -> character == '.' || Character.isJavaIdentifierPart(character));
 	}
 
 	/**
