@@ -15,6 +15,7 @@ import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 
 import java.awt.*;
 import java.util.Collections;
@@ -69,6 +70,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	@Nullable
 	private Predicate<Character> m_prefixValidator;
 
+	private boolean m_completerDefined;
+
 	@FunctionalInterface
 	public interface ICompletionHandler {
 		@NonNull
@@ -118,6 +121,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		if(null != ch) {
 			String js = FileTool.readResourceAsString(getClass(), "/resources/ace/acecompletion.js", "utf-8");
 			sb.append(js.replace("$ID$", getActualID()));
+			m_completerDefined = true;
 		}
 
 		//updateTheme();
@@ -131,6 +135,22 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 		sb.append("};\n");
 		appendCreateJS(sb);
+	}
+
+	private void appendCompleterJS() {
+		if(m_completerDefined)
+			return;
+		try {
+			StringBuilder sb = new StringBuilder();
+			sb.append("{ var ed = window['").append(getActualID()).append("'];");
+			String js = FileTool.readResourceAsString(getClass(), "/resources/ace/acecompletion.js", "utf-8");
+			sb.append(js.replace("$ID$", getActualID()));
+			m_completerDefined = true;
+			sb.append("}\n");
+			appendJavascript(sb);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 	@Override public Object provideJsonData(IPageParameters parameterSource) throws Exception {
@@ -433,6 +453,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	 */
 	public void setCompletionHandler(ICompletionHandler completionHandler) {
 		m_completionHandler = completionHandler;
+		if(! m_completerDefined)
+			appendCompleterJS();
 	}
 
 	/**
