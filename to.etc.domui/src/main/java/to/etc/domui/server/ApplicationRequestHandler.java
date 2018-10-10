@@ -481,9 +481,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		} else if(Constants.ACMD_PAGEDATA.equals(action)) {
 			runPageData(ctx, page);
 			return;
-		} else if(Constants.ACMD_PAGEJSON.equals(action)) {
-			runPageJson(ctx, page);
-			return;
 		}
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
@@ -745,20 +742,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	/**
 	 * Call a component's JSON request handler, and render back the result.
 	 */
-	private void runPageJson(@NonNull RequestContextImpl ctx, @NonNull Page page) throws Exception {
-		m_application.internalCallPageAction(ctx, page);
-		page.callRequestStarted();
-
-		NodeBase wcomp = null;
-		String wid = ctx.getParameter("webuic");
-		if(wid != null) {
-			wcomp = page.findNodeByID(wid);
-		}
-		if(wcomp == null)
-			return;
-
-		page.setTheCurrentNode(wcomp);
-
+	private void runPageJson(@NonNull RequestContextImpl ctx, @NonNull Page page, @Nullable NodeBase wcomp) throws Exception {
 		try {
 			if(!(wcomp instanceof IComponentJsonProvider))
 				throw new ProgrammerErrorException("The component " + wcomp + " must implement " + IComponentJsonProvider.class.getName() + " to be able to accept JSON data requests");
@@ -1124,6 +1108,17 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		boolean inhibitlog = false;
 		page.setTheCurrentNode(wcomp);
+
+		//-- Non-delta actions
+		if(Constants.ACMD_PAGEJSON.equals(action)) {
+			try {
+				runPageJson(ctx, page, wcomp);
+				return;
+			} finally {
+				page.callRequestFinished();
+			}
+		}
+
 		try {
 			/*
 			 * If we have pending changes execute them before executing any actual command. Also: be
