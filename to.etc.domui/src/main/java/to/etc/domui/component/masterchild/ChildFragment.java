@@ -2,6 +2,7 @@ package to.etc.domui.component.masterchild;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
@@ -9,8 +10,10 @@ import to.etc.domui.component.tbl.ColumnDef;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SortableListModel;
+import to.etc.domui.component2.buttons.ButtonBar2;
 import to.etc.domui.databinding.observables.IObservableList;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.themes.Theme;
 import to.etc.function.ConsumerEx;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QField;
@@ -29,13 +32,19 @@ public class ChildFragment<P, C> extends Div {
 
 	private final DataTable<C> m_table = new DataTable<>();
 
+	private final P m_parent;
+
 	@Nullable
 	private RowRenderer<C> m_renderer;
 
 	@Nullable
 	private List<C> m_value;
 
+	@Nullable
+	private ConsumerEx<C> m_onNew;
+
 	public ChildFragment(P parent, QField<P, C> property) throws Exception {
+		m_parent = parent;
 		PropertyMetaModel<C> pmm = MetaManager.getPropertyMeta(parent.getClass(), property);
 		if(pmm.getRelationType() != PropertyRelationType.DOWN)
 			throw new ProgrammerErrorException("The property " + property + " must be a relation property to a child collection (list of children)");
@@ -64,6 +73,32 @@ public class ChildFragment<P, C> extends Div {
 			SortableListModel<C> model = new SortableListModel<>(m_childClass, value);
 			m_table.setModel(model);
 		}
+
+		ConsumerEx<C> onNew = m_onNew;
+		if(onNew != null) {
+			ButtonBar2 bb = new ButtonBar2();
+			add(bb);
+			bb.addButton("Add", Theme.BTN_PLUS, a -> {
+				C c = m_childClass.newInstance();
+				PropertyMetaModel<P> parentProperty = findParentProperty();
+				parentProperty.setValue(c, m_parent);
+				onNew.accept(c);
+			});
+		}
+	}
+
+	/**
+	 * FIXME This belongs in the metamodel, I'll add it once we know whether this is useful.
+	 */
+	private PropertyMetaModel<P> findParentProperty() {
+		ClassMetaModel cmm = MetaManager.findClassMeta(m_childClass);
+		ClassMetaModel parentcmm = MetaManager.findClassMeta(m_parent.getClass());
+		for(PropertyMetaModel<?> property : cmm.getProperties()) {
+			if(property.getActualType() == parentcmm.getActualClass()) {
+				return (PropertyMetaModel<P>) property;
+			}
+		}
+		throw new IllegalStateException("I cannot find the parent property in " + cmm);
 	}
 
 	public RowRenderer<C> getRenderer() {
@@ -107,5 +142,9 @@ public class ChildFragment<P, C> extends Div {
 
 	public void onClick(ConsumerEx<C> listener) {
 		getRenderer().setRowClicked(listener::accept);
+	}
+
+	public void setOnNew(ConsumerEx<C> onNew) {
+		m_onNew = onNew;
 	}
 }
