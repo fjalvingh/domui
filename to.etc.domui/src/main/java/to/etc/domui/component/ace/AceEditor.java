@@ -87,6 +87,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
 		sb.append("let ed = ace.edit('").append(getActualID()).append("');\n");
+		sb.append("ed.__id='").append(getActualID()).append("';\n");
 		sb.append("var Range = require('ace/range').Range;\n");
 		sb.append("window['").append(getActualID()).append("'] = ed;\n");
 		sb.append("WebUI.registerInputControl('").append(getActualID()).append("', {getInputField: function() {");
