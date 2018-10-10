@@ -124,16 +124,6 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			sb.append(js.replace("$ID$", getActualID()));
 			m_completerDefined = true;
 		}
-
-		//updateTheme();
-		//sb.append("ed.getSession().setMode('ace/mode/javascript');\n");
-		//String value = getValue();
-		//if(null != value) {
-		//	sb.append("ed.setValue(");
-		//	StringTool.strToJavascriptString(sb, value, true);
-		//	sb.append(");\n");
-		//}
-
 		sb.append("};\n");
 		appendCreateJS(sb);
 	}
