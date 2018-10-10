@@ -16,14 +16,14 @@ import to.etc.webapp.query.QCriteria;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2-7-17.
  */
-public class ResultFragment<T> extends Div {
+public class TrackResultFragment<T> extends Div {
 	private LookupForm<T> m_lookup;
 
 	private DataTable<T> m_table;
 
 	private INotify<T> m_onClick;
 
-	public ResultFragment(LookupForm<T> lookup) {
+	public TrackResultFragment(LookupForm<T> lookup) {
 		m_lookup = lookup;
 	}
 
