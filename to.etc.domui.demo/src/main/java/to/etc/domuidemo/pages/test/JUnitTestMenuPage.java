@@ -3,12 +3,13 @@ package to.etc.domuidemo.pages.test;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domuidemo.pages.MenuPage;
+import to.etc.domuidemo.pages.overview.allcomponents.AllComponents1Page;
+import to.etc.domuidemo.pages.test.binding.binderrors.TestSearchAsYouTypeBindingPage;
 import to.etc.domuidemo.pages.test.binding.buildorder.BuildOrderPage;
 import to.etc.domuidemo.pages.test.binding.conversion.BindingConversionTestForm;
 import to.etc.domuidemo.pages.test.binding.order1.BindingTypeForm1;
 import to.etc.domuidemo.pages.test.binding.order1.DoNotBindControlDottedTestPage;
 import to.etc.domuidemo.pages.test.binding.order1.TestBindingOrder1;
-import to.etc.domuidemo.pages.overview.allcomponents.AllComponents1Page;
 import to.etc.domuidemo.pages.test.componenterrors.Form4LayoutTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.HtmlEditorTestPage;
 import to.etc.domuidemo.pages.test.componenterrors.LookupForm1TestPage;
@@ -52,6 +53,7 @@ public class JUnitTestMenuPage extends MenuPage {
 		addLink(HtmlEditorTestPage.class, "Test htmleditor");
 		addLink(LookupInput2TestPage.class, "Test LookupInput2");
 		addLink(RowRendererFactoryTest.class, "A factory that is not editable, should be editable by default");
+		addLink(TestSearchAsYouTypeBindingPage.class, "SearchAsYouType binding without exceptions");
 
 		addCaption("Deprecated components' test");
 		addLink(LookupInputTestPage.class, "Test LookupInput (deprecated)");

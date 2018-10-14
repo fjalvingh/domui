@@ -10,7 +10,6 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Input;
-import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
@@ -101,7 +100,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 
 
 	@Override public void createContent() throws Exception {
-		calculateHandler();
+		getActualConverter();
 		super.createContent();
 		updateValue();
 	}
@@ -114,12 +113,12 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 			setState(State.EMPTY);
 		} else {
 			setState(State.SELECTED);
-			IObjectToStringConverter<T> converter = requireNonNull(m_actualConverter);
+			IObjectToStringConverter<T> converter = requireNonNull(getActualConverter());
 			input.setRawValue(converter.convertObjectToString(NlsContext.getLocale(), value));
 		}
 	}
 
-	private void calculateHandler() {
+	private IObjectToStringConverter<T> calculateHandler() {
 		IObjectToStringConverter<T> cv;
 		if(isSimpleType()) {
 			cv = getConverter();
@@ -151,16 +150,21 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 
 		if(cv == null)
 			throw new ProgrammerErrorException("You must specify either a property or a converter to handle search on a complex data class");
-		m_actualConverter = cv;
+		return cv;
 	}
 
-	@Override protected IRenderInto<T> getActualRenderer() throws Exception {
-		IObjectToStringConverter<T> cv = requireNonNull(m_actualConverter);
-		return new IRenderInto<T>() {
-			@Override public void render(@NonNull NodeContainer node, @NonNull T object) throws Exception {
-				node.add(cv.convertObjectToString(NlsContext.getLocale(), object));
-			}
-		};
+	@NonNull
+	private IObjectToStringConverter<T> getActualConverter() {
+		IObjectToStringConverter<T> converter = m_actualConverter;
+		if(null == converter) {
+			converter = m_actualConverter = calculateHandler();
+		}
+		return converter;
+	}
+
+	@Override protected IRenderInto<T> getActualRenderer() {
+		IObjectToStringConverter<T> cv = requireNonNull(getActualConverter());
+		return (node, object) -> node.add(cv.convertObjectToString(NlsContext.getLocale(), object));
 	}
 
 	/**
@@ -254,7 +258,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		if(null == data)
 			return Collections.emptyList();					// No results
 
-		IObjectToStringConverter<T> cv = requireNonNull(m_actualConverter);
+		IObjectToStringConverter<T> cv = requireNonNull(getActualConverter());
 		List<T> result = new ArrayList<>();
 		T exact = null;
 		for(T datum : data) {
