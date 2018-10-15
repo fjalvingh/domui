@@ -7,6 +7,7 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.vcs.GitOptions;
 import to.etc.domuidemo.ComponentListPage;
+import to.etc.domuidemo.TutorialListPage;
 import to.etc.domuidemo.components.SourceIcon;
 import to.etc.domuidemo.pages.cddb.AlbumListPage;
 import to.etc.domuidemo.pages.cddb.CdCollection;
@@ -51,6 +52,7 @@ public class HomePage extends MenuPage {
 
 		addCaption("Detailed examples and wiki page");
 		addLink(ComponentListPage.class, "Component overview page");
+		addLink(TutorialListPage.class, "Tutorial pages");
 
 		Div commits = new Div("d-git-commits");
 		add(commits);

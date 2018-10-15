@@ -55,6 +55,7 @@ final public class AlbumListPage extends UrlPage {
 			});
 
 			table = m_table = new DataTable<>(model, rr);
+			table.setPageSize(20);
 
 			add(new DataPager(table));
 			add(table);
