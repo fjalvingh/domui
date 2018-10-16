@@ -368,13 +368,12 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	protected void canContain(@NonNull final NodeBase node) {}
 
 	/**
-	 * Add the child at the end of the list.
-	 * @param nd
+	 * Add the child at the end of the list, and return the child.
 	 */
 	@NonNull
-	final public NodeContainer add(@NonNull final NodeBase nd) {
+	final public <T extends NodeBase> T add(@NonNull T nd) {
 		add(Integer.MAX_VALUE, nd);
-		return this;
+		return nd;
 	}
 
 	/**
@@ -382,7 +381,8 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * @param index
 	 * @param nd
 	 */
-	final public void add(final int index, @NonNull final NodeBase nd) {
+	@NonNull
+	final public <T extends NodeBase> T add(int index, @NonNull T nd) {
 		/*
 		 * Nodes that *must* be added to the body should delegate there immediately.
 		 */
@@ -391,15 +391,16 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			if(!isAttached())
 				throw new ProgrammerErrorException("The component " + nd.getClass() + " is defined as 'must be added to the body' but the node it is added to " + this + " is not yet added to the page.");
 			getPage().internalAddFloater(this, (FloatingDiv) nd);
-			return;
+			return nd;
 		}
 
 		//-- Is delegation active? Then delegate to wherever.
 		if(m_delegate != null) {
 			m_delegate.add(index, nd);
-			return;
+			return nd;
 		}
 		internalAdd(index, nd);
+		return nd;
 	}
 
 	final public void undelegatedAdd(final int index, @NonNull final NodeBase nd) {

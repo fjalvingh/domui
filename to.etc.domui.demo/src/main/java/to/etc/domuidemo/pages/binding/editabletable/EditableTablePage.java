@@ -133,7 +133,7 @@ public class EditableTablePage extends UrlPage {
 			}
 			LinkButton remove = new LinkButton("Remove", FaIcon.faTimes, clickedNode -> model().delete(object));
 			node.add(remove);
-			remove.setTitle("A completely useless and insultingly stupid explanation, because of course a word like remove is not blindingly obvious. But of course we have some idiots that want to explain the obvious, leaving no time nor any want to explain what SHOULD be explained.");
+			remove.setTitle("A completely useless and insultingly stupid explanation, because of course a word like remove is blindingly obvious.");
 		};
 	}
 
