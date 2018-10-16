@@ -149,8 +149,11 @@ namespace WebUI {
 
 		document.body.appendChild(textArea);
 		textArea.select();
+
 		try {
 			let successful = document.execCommand('copy');
+			if(! successful)
+				alert('The text to copy was too large');
 			var msg = successful ? 'successful' : 'unsuccessful';
 			console.log('Copying text command was ' + msg);
 		} catch (err) {
