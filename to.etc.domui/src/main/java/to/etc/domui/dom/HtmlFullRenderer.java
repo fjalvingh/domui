@@ -289,7 +289,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	}
 
 	@Override
-	public void renderLoadCSS(String path) throws Exception {
+	public void renderLoadCSS(String path, String... options) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
 
@@ -298,6 +298,11 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		o().attr("rel", "stylesheet");
 		o().attr("type", "text/css");
 		o().rawAttr("href", path);
+
+		for(int i = 0; i < options.length; i += 2) {
+			o().rawAttr(options[i], options[i + 1]);
+		}
+
 		o().endtag();
 		o().dec();					// do not close
 		//o().closetag("link");

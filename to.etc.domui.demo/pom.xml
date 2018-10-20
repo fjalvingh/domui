@@ -45,11 +45,18 @@
             <version>1.2-SNAPSHOT</version>
         </dependency>
 
+        <!--<dependency>-->
+            <!--<groupId>to.etc.domui</groupId>-->
+            <!--<artifactId>fontawesome4</artifactId>-->
+            <!--<version>1.2-SNAPSHOT</version>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>to.etc.domui</groupId>
-            <artifactId>fontawesome4</artifactId>
+            <artifactId>fontawesome5free</artifactId>
             <version>1.2-SNAPSHOT</version>
         </dependency>
+
 
         <dependency>
             <groupId>to.etc.domui</groupId>

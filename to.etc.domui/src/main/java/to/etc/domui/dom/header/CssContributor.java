@@ -30,10 +30,13 @@ import to.etc.domui.dom.IContributorRenderer;
 final class CssContributor extends HeaderContributor {
 	private final boolean m_offline;
 
+	private final String[] m_options;
+
 	private String m_path;
 
-	CssContributor(@NonNull String path, boolean offline) {
+	CssContributor(@NonNull String path, boolean offline, String... options) {
 		m_offline = offline;
+		m_options = options;
 		if(path == null || path.length() == 0)
 			throw new IllegalArgumentException("Null path not allowed");
 		m_path = path;
@@ -68,7 +71,7 @@ final class CssContributor extends HeaderContributor {
 
 	@Override
 	public void contribute(IContributorRenderer r) throws Exception {
-		r.renderLoadCSS(m_path);
+		r.renderLoadCSS(m_path, m_options);
 	}
 
 	@Override public String toString() {
