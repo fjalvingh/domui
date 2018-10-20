@@ -694,7 +694,7 @@ public enum Icon implements IFontIcon {
 
 	private String m_key;
 
-	static private final Map<String, String> m_map = new HashMap<>();
+	static private Map<String, String> m_map = new HashMap<>();
 
 	Icon(String key) {
 		m_key = key;
@@ -707,8 +707,6 @@ public enum Icon implements IFontIcon {
 		return key;
 	}
 
-
-
 	public String getKey() {
 		return m_key;
 	}
@@ -717,12 +715,26 @@ public enum Icon implements IFontIcon {
 		return new ImageIcon(path);
 	}
 
+
+	@Override public NodeBase createNode() {
+		return new FontIcon(this);
+	}
+
+	/**
+	 * Adjust the icon map.
+	 */
+	static public void updateIconMap(Map<Icon, IFontIcon> updates) {
+		updates.forEach((key, ico) -> {
+			m_map.put(key.getKey(), ico.getCssClassName());
+		});
+	}
+
+	/**
+	 * Initialize the map with FontAwesome 4 values.
+	 */
 	static {
 		for(Icon value : values()) {
 			m_map.put(value.getKey(), value.getKey());
 		}
 	}
-
-	@Override public NodeBase createNode() {
-		return new FontIcon(this);
-	}}
+}
