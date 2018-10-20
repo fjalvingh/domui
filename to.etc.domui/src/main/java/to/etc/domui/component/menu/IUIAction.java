@@ -2,6 +2,7 @@ package to.etc.domui.component.menu;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.misc.IIcon;
 import to.etc.domui.dom.html.NodeBase;
 
 public interface IUIAction<T> {
@@ -22,7 +23,7 @@ public interface IUIAction<T> {
 	String getTitle(@Nullable T instance) throws Exception;
 
 	@Nullable
-	String getIcon(@Nullable T instance) throws Exception;
+	IIcon getIcon(@Nullable T instance) throws Exception;
 
 	void execute(@NonNull NodeBase component, @Nullable T instance) throws Exception;
 }

@@ -1,6 +1,8 @@
 package to.etc.domui.fontawesome;
 
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.component.misc.IFontIcon;
+import to.etc.domui.dom.html.NodeBase;
 
 /**
  * All of the definitions in the FontAwesome 4.7.0 font distribution.
@@ -696,5 +698,10 @@ public enum FaIcon implements IFontIcon {
 
 	public String getCssClassName() {
 		return m_css;
+	}
+
+
+	public NodeBase createNode() {
+		return new FontIcon(this);
 	}
 }

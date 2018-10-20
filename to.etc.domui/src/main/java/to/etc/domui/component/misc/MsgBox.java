@@ -552,7 +552,7 @@ public class MsgBox extends Window {
 	 * @return
 	 */
 	@NonNull
-	public static DefaultButton areYouSureButton(String text, String icon, final String message, final IClicked<DefaultButton> ch) {
+	public static DefaultButton areYouSureButton(String text, IIcon icon, final String message, final IClicked<DefaultButton> ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
 		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
 			@Override
@@ -747,13 +747,13 @@ public class MsgBox extends Window {
 		if(lbl == null)
 			lbl = mbb.name();
 
-		String icon = null;
+		IIcon icon = null;
 		if(mbb == MsgBoxButton.YES || mbb == MsgBoxButton.CONTINUE)
-			icon = Theme.BTN_CONFIRM;
+			icon = Icon.of(Theme.BTN_CONFIRM);
 		else if(mbb == MsgBoxButton.NO)
-			icon = Theme.BTN_CANCEL;
+			icon = Icon.of(Theme.BTN_CANCEL);
 		else if(mbb == MsgBoxButton.CANCEL)
-			icon = Theme.BTN_CANCEL;
+			icon = Icon.of(Theme.BTN_CANCEL);
 
 		DefaultButton btn = new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
 			@Override

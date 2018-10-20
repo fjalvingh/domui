@@ -5,6 +5,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
@@ -34,12 +36,9 @@ public class ButtonFactory implements IButtonBar {
 		m_container.addButton(button, order);
 	}
 
-	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addButton(java.lang.String, java.lang.String, to.etc.domui.dom.html.IClicked)
-	 */
 	@Override
 	@NonNull
-	public DefaultButton addButton(final String txt, final String icon, final IClicked<DefaultButton> click, int order) {
+	public DefaultButton addButton(final String txt, final IIcon icon, final IClicked<DefaultButton> click, int order) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
 		m_container.addButton(b, order);
 		return b;
@@ -47,7 +46,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public DefaultButton addButton(final String txt, final String icon, final IClicked<DefaultButton> click) {
+	public DefaultButton addButton(final String txt, final IIcon icon, final IClicked<DefaultButton> click) {
 		return addButton(txt, icon, click, -1);
 	}
 
@@ -85,12 +84,9 @@ public class ButtonFactory implements IButtonBar {
 		return addButton(txt, click, -1);
 	}
 
-	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addBackButton(java.lang.String, java.lang.String)
-	 */
 	@Override
 	@NonNull
-	public DefaultButton addBackButton(final String txt, final String icon, int order) {
+	public DefaultButton addBackButton(final String txt, final IIcon icon, int order) {
 		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(final @NonNull DefaultButton bxx) throws Exception {
@@ -103,7 +99,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@Override
 	@NonNull
-	public DefaultButton addBackButton(final String txt, final String icon) {
+	public DefaultButton addBackButton(final String txt, final IIcon icon) {
 		return addBackButton(txt, icon, -1);
 	}
 
@@ -124,7 +120,7 @@ public class ButtonFactory implements IButtonBar {
 		}
 
 		//-- Nothing worked: just add a default back button that will go back to application home if the stack is empty
-		return addBackButton(Msgs.BUNDLE.getString("ui.buttonbar.back"), Theme.BTN_CANCEL, order);
+		return addBackButton(Msgs.BUNDLE.getString("ui.buttonbar.back"), Icon.of(Theme.BTN_CANCEL), order);
 	}
 
 	/**
@@ -136,12 +132,9 @@ public class ButtonFactory implements IButtonBar {
 		return addBackButton(-1);
 	}
 
-	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addCloseButton(java.lang.String, java.lang.String)
-	 */
 	@Override
 	@NonNull
-	public DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon, int order) {
+	public DefaultButton addCloseButton(@NonNull String txt, @NonNull IIcon icon, int order) {
 		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
@@ -154,17 +147,14 @@ public class ButtonFactory implements IButtonBar {
 
 	@Override
 	@NonNull
-	public DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon) {
+	public DefaultButton addCloseButton(@NonNull String txt, @NonNull IIcon icon) {
 		return addCloseButton(txt, icon, -1);
 	}
 
-	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addCloseButton()
-	 */
 	@Override
 	@NonNull
 	public DefaultButton addCloseButton(int order) {
-		return addCloseButton(Msgs.BUNDLE.getString("ui.buttonbar.close"), Theme.BTN_CLOSE, order);
+		return addCloseButton(Msgs.BUNDLE.getString("ui.buttonbar.close"), Icon.of(Theme.BTN_CLOSE), order);
 	}
 
 	@Override
@@ -173,9 +163,6 @@ public class ButtonFactory implements IButtonBar {
 		return addCloseButton(-1);
 	}
 
-	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addBackButtonConditional()
-	 */
 	@Override
 	@Nullable
 	public DefaultButton addBackButtonConditional(int order) {
@@ -212,7 +199,7 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click, int order) {
+	public DefaultButton addConfirmedButton(final String txt, final IIcon icon, final String msg, final IClicked<DefaultButton> click, int order) {
 		DefaultButton b = MsgBox.areYouSureButton(txt, icon, msg, click);
 		m_container.addButton(b, order);
 		return b;
@@ -220,13 +207,10 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(final String txt, final IIcon icon, final String msg, final IClicked<DefaultButton> click) {
 		return addConfirmedButton(txt, icon, msg, click, -1);
 	}
 
-	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addLinkButton(java.lang.String, java.lang.String, to.etc.domui.dom.html.IClicked)
-	 */
 	@NonNull
 	@Override
 	public LinkButton addLinkButton(final String txt, final String img, final IClicked<LinkButton> click, int order) {
@@ -253,9 +237,6 @@ public class ButtonFactory implements IButtonBar {
 		return addConfirmedLinkButton(txt, img, msg, click, -1);
 	}
 
-	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addAction(T, to.etc.domui.component.menu.IUIAction)
-	 */
 	@Override
 	@NonNull
 	public <T> DefaultButton addAction(T instance, IUIAction<T> action, int order) throws Exception {

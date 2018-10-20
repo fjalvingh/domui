@@ -9,6 +9,6 @@ import org.eclipse.jdt.annotation.NonNull;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-10-18.
  */
-public interface IFontIcon {
+public interface IFontIcon extends IIcon {
 	@NonNull String getCssClassName();
 }

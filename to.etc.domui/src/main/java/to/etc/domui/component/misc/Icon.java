@@ -1,5 +1,7 @@
 package to.etc.domui.component.misc;
 
+import to.etc.domui.dom.html.NodeBase;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -705,8 +707,14 @@ public enum Icon implements IFontIcon {
 		return key;
 	}
 
+
+
 	public String getKey() {
 		return m_key;
+	}
+
+	static public IIcon of(String path) {
+		return new ImageIcon(path);
 	}
 
 	static {
@@ -714,4 +722,7 @@ public enum Icon implements IFontIcon {
 			m_map.put(value.getKey(), value.getKey());
 		}
 	}
-}
+
+	@Override public NodeBase createNode() {
+		return new FontIcon(this);
+	}}

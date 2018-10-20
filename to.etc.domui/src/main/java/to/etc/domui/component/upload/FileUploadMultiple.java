@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.FontIcon;
+import to.etc.domui.component.misc.IIcon;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.UIMessage;
@@ -90,7 +91,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	private String m_buttonIcon;
 
 	@Nullable
-	private String m_clearButtonIcon = Icon.faWindowClose;
+	private IIcon m_clearButtonIcon = Icon.faWindowClose;
 
 	public FileUploadMultiple() {
 		m_allowedExtensions = new ArrayList<>();
@@ -127,7 +128,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 			d.add(item.getRemoteFileName());
 		}
 
-		String clearButtonIcon = m_clearButtonIcon;
+		IIcon clearButtonIcon = m_clearButtonIcon;
 		if(clearButtonIcon != null) {
 			add(new DefaultButton("", clearButtonIcon, b -> clear()));
 		} else {

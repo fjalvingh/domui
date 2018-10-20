@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.component.misc.IIcon;
 import to.etc.domui.dom.html.IClicked;
 
 public interface IButtonBar {
@@ -18,10 +19,10 @@ public interface IButtonBar {
 	 * @return
 	 */
 	@NonNull
-	DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click, int order);
+	DefaultButton addButton(String txt, IIcon icon, IClicked<DefaultButton> click, int order);
 
 	@NonNull
-	DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click);
+	DefaultButton addButton(String txt, IIcon icon, IClicked<DefaultButton> click);
 
 	@NonNull
 	DefaultButton addButton(@NonNull IUIAction<Void> action) throws Exception;
@@ -36,10 +37,10 @@ public interface IButtonBar {
 	DefaultButton addButton(String txt, IClicked<DefaultButton> click, int order);
 
 	@NonNull
-	DefaultButton addBackButton(String txt, String icon);
+	DefaultButton addBackButton(String txt, IIcon icon);
 
 	@NonNull
-	DefaultButton addBackButton(String txt, String icon, int order);
+	DefaultButton addBackButton(String txt, IIcon icon, int order);
 
 	@NonNull
 	DefaultButton addBackButton();
@@ -48,10 +49,10 @@ public interface IButtonBar {
 	DefaultButton addBackButton(int order);
 
 	@NonNull
-	DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon);
+	DefaultButton addCloseButton(@NonNull String txt, @NonNull IIcon icon);
 
 	@NonNull
-	DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon, int order);
+	DefaultButton addCloseButton(@NonNull String txt, @NonNull IIcon icon, int order);
 
 	@NonNull
 	DefaultButton addCloseButton();
@@ -79,9 +80,9 @@ public interface IButtonBar {
 
 	@NonNull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click);
 
-	@NonNull DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click);
+	@NonNull DefaultButton addConfirmedButton(final String txt, final IIcon icon, final String msg, final IClicked<DefaultButton> click);
 
 	@NonNull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click, int order);
 
-	DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click, int order);
+	DefaultButton addConfirmedButton(final String txt, final IIcon icon, final String msg, final IClicked<DefaultButton> click, int order);
 }
