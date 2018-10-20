@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.HoverButton;
-import to.etc.domui.component.misc.FontIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.upload.IUploadAcceptingComponent;
 import to.etc.domui.component.upload.UploadPart;
@@ -114,7 +114,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		}
 
 		if(!isDisabled() && ! isReadOnly()) {
-			DefaultButton btn = new DefaultButton("", FontIcon.faWindowClose, a -> {
+			DefaultButton btn = new DefaultButton("", Icon.faWindowClose, a -> {
 				setValue(null);
 				forceRebuild();
 				setImageChanged();

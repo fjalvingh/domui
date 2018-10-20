@@ -2,7 +2,7 @@ package to.etc.domui.util.importers;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.layout.ButtonBar;
-import to.etc.domui.component.misc.FontIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.upload.FileUpload2;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.util.asyncdialog.AsyncDialog;
@@ -26,11 +26,11 @@ public class AbstractImportPage extends UrlPage {
 	}
 
 	protected void addCancelButton(String string) {
-		getButtonBar().addBackButton(string, FontIcon.faCircle);
+		getButtonBar().addBackButton(string, Icon.faCircle);
 	}
 
 	protected <T extends AbstractImportTask> void addUploadButton(String text, T task, ConsumerEx<T> onComplete) throws Exception {
-		DefaultButton b = getButtonBar().addButton(text, FontIcon.faUpload, v -> startUpload(task, onComplete));
+		DefaultButton b = getButtonBar().addButton(text, Icon.faUpload, v -> startUpload(task, onComplete));
 		b.bind("disabled").to(this, "uploadDisabled");
 	}
 

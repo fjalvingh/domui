@@ -28,7 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.misc.FontIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
@@ -106,7 +106,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	private String m_buttonIcon;
 
 	@Nullable
-	private String m_clearButtonIcon = FontIcon.faWindowClose;
+	private String m_clearButtonIcon = Icon.faWindowClose;
 
 	public FileUpload2() {
 		m_allowedExtensions = new ArrayList<>();
