@@ -700,7 +700,7 @@ public abstract class DomApplication {
 		//-- One of the FontAwesome implementations must have been registered - FIXME Find a less ugly means
 		boolean reg = false;
 		for(HeaderContributorEntry hce : getHeaderContributorList()) {
-			if(hce.getContributor().toString().contains("fontawesome")) {
+			if(hce.getContributor().toString().contains("font-awesome") || hce.getContributor().toString().contains("fontawesome")) {
 				reg = true;
 				break;
 			}
@@ -1351,10 +1351,6 @@ public abstract class DomApplication {
 
 	/**
 	 * UNCACHED version to locate a resource, using the registered resource factories.
-	 *
-	 * @param name
-	 * @param rdl
-	 * @return
 	 */
 	@NonNull
 	private IResourceRef internalFindResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {

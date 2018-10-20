@@ -14,6 +14,7 @@ final public class FontAwesome4Initializer implements IApplicationInitializer {
 	}
 
 	public void onEndInitialization(DomApplication da) {
+		System.out.println("domui: FontAwesomne 4.7.0 registered");
 		da.addHeaderContributor(HeaderContributor.loadStylesheet("fonts/font-awesome.min.css"), 10);
 	}
 
