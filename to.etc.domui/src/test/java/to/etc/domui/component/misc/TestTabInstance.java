@@ -32,7 +32,7 @@ public class TestTabInstance {
 		TabPanelBase tabPanelBase = new TabPanel(false);
 
 		// Execute
-		tabPanelBase.add(new Div("Some content"), "Content title", null);
+		tabPanelBase.add(new Div("Some content"), "Content title", Icon.of("icon.png"));
 
 		// Verify
 		TabInstance tabInstance = tabPanelBase.getCurrentTabInstance();
