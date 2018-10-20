@@ -74,13 +74,13 @@ abstract public class ButtonMakerBase {
 		return b;
 	}
 
-	public LinkButton addLinkButton(final String txt, final String img, final IClicked<LinkButton> click) {
+	public LinkButton addLinkButton(String txt, IIcon img, IClicked<LinkButton> click) {
 		LinkButton b = new LinkButton(txt, img, click);
 		addButton(b);
 		return b;
 	}
 
-	public LinkButton addConfirmedLinkButton(final String txt, final String img, String msg, final IClicked<LinkButton> click) {
+	public LinkButton addConfirmedLinkButton(String txt, IIcon img, String msg, final IClicked<LinkButton> click) {
 		LinkButton b = MsgBox.areYouSureLinkButton(txt, img, msg, click);
 		addButton(b);
 		return b;

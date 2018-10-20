@@ -109,9 +109,6 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 		m_center.setCssClass("ui-bb-middle");
 	}
 
-	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addButton(to.etc.domui.dom.html.NodeBase)
-	 */
 	@Override
 	public void addButton(@NonNull NodeBase b, int order) {
 		m_list.add(b);
@@ -120,8 +117,7 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	/**
-	 * Removes all buttons. Intended to be used if ButtonBar dinamically changes set of rendered buttons.
-	 * @param b
+	 * Removes all buttons. Intended to be used if ButtonBar dynamically changes set of rendered buttons.
 	 */
 	public void clearButtons() {
 		m_list.clear();
@@ -245,20 +241,20 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click, int order) {
+	public @NonNull LinkButton addLinkButton(String txt, IIcon img, IClicked<LinkButton> click, int order) {
 		return m_factory.addLinkButton(txt, img, click, order);
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click) {
+	public @NonNull LinkButton addLinkButton(String txt, IIcon img, IClicked<LinkButton> click) {
 		return m_factory.addLinkButton(txt, img, click);
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, String img, String msg, IClicked<LinkButton> click, int order) {
+	public LinkButton addConfirmedLinkButton(String txt, IIcon img, String msg, IClicked<LinkButton> click, int order) {
 		return m_factory.addConfirmedLinkButton(txt, img, msg, click, order);
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, String img, String msg, IClicked<LinkButton> click) {
+	public LinkButton addConfirmedLinkButton(String txt, IIcon img, String msg, IClicked<LinkButton> click) {
 		return m_factory.addConfirmedLinkButton(txt, img, msg, click);
 	}
 

@@ -22,16 +22,16 @@ public class DemoMsgBox extends UrlPage {
 		ButtonBar bb = new ButtonBar();
 		cp.add(bb);
 
-		bb.addButton("Information", "img/btnSmileyQuestion.gif", clickednode -> MsgBox.message(this, MsgBox.Type.INFO, "Information message"));
-		bb.addButton("Warning", "img/btnSmileyTongue.gif", clickednode -> MsgBox.message(this, MsgBox.Type.WARNING, "Warning message"));
-		bb.addButton("Error", "img/btnSmileySad.gif", clickednode -> MsgBox.message(this, MsgBox.Type.ERROR, "Error message"));
+		bb.addButton("Information", Icon.of("img/btnSmileyQuestion.gif"), clickednode -> MsgBox.message(this, MsgBox.Type.INFO, "Information message"));
+		bb.addButton("Warning", Icon.of("img/btnSmileyTongue.gif"), clickednode -> MsgBox.message(this, MsgBox.Type.WARNING, "Warning message"));
+		bb.addButton("Error", Icon.of("img/btnSmileySad.gif"), clickednode -> MsgBox.message(this, MsgBox.Type.ERROR, "Error message"));
 
-		bb.addButton("Continuation", "img/btnSmileyWink.png",
+		bb.addButton("Continuation", Icon.of("img/btnSmileyWink.png"),
 			clickednode -> MsgBox.continueCancel(DemoMsgBox.this, "Click Continuation or Cancel<BR/><BR/>(Cancel has no action)", (IClicked<MsgBox>) clickednode1 -> {
 				MsgBox.info(this, "You chose continue");
 			}));
 
-		bb.addButton("Yes/No", "img/btnReload.gif", clickednode -> MsgBox.yesNo(DemoMsgBox.this, "Click Yes or No<BR/><BR/>(No has no action)", (IClicked<MsgBox>) clickednode1 -> {
+		bb.addButton("Yes/No", Icon.of("img/btnReload.gif"), clickednode -> MsgBox.yesNo(DemoMsgBox.this, "Click Yes or No<BR/><BR/>(No has no action)", (IClicked<MsgBox>) clickednode1 -> {
 			MsgBox.info(this, "You chose YES");
 		}));
 
@@ -41,7 +41,7 @@ public class DemoMsgBox extends UrlPage {
 		cp.add(bb);
 
 
-		bb.addButton("Yes/No", "img/btnSmileyGrin.gif", clickednode -> {
+		bb.addButton("Yes/No", Icon.of("img/btnSmileyGrin.gif"), clickednode -> {
 			MsgBox.IAnswer onDeleteHandler = result -> {
 				if(result == MsgBoxButton.YES) {
 					MsgBox.info(this, "==> You choose Yes");
@@ -52,7 +52,7 @@ public class DemoMsgBox extends UrlPage {
 			MsgBox.yesNo(DemoMsgBox.this, "Answer handling on both<BR/>", onDeleteHandler);
 		});
 
-		bb.addButton("Yes/No/Cancel", "img/btnSmileySing.gif", clickednode -> {
+		bb.addButton("Yes/No/Cancel", Icon.of("img/btnSmileySing.gif"), clickednode -> {
 			MsgBox.IAnswer onSaveConfirmHandler = result -> {
 				if(result == MsgBoxButton.YES) {
 					MsgBox.info(this, "==> You choose Yes");

@@ -1,14 +1,12 @@
 package to.etc.domui.component.lookup;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
@@ -75,29 +73,23 @@ public final class LookupFormSavedFilterFragment extends Div {
 			filterName.setText(filter.getFilterName());
 			final TR row = body.addRow();
 			row.addCell().add(filterName);
-			filterName.setClicked(new IClicked<NodeBase>() {
-				@Override
-				public void clicked(@NonNull NodeBase clickednode) throws Exception {
-					if(m_onFilterClicked != null) {
-						m_onFilterClicked.onNotify(filter);
-					}
+			filterName.setClicked(clickednode -> {
+				if(m_onFilterClicked != null) {
+					m_onFilterClicked.onNotify(filter);
 				}
 			});
-			SmallImgButton delImage = new SmallImgButton(Theme.BTN_DELETE);
+			SmallImgButton delImage = new SmallImgButton(Icon.of(Theme.BTN_DELETE));
 			delImage.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_DELETE_FILTER));
 			body.addCell().add(delImage);
-			delImage.setClicked(new IClicked<NodeBase>() {
-				@Override
-				public void clicked(@NonNull NodeBase clickednode) throws Exception {
-					m_savedFilters.remove(filter);
-					if(m_savedFilters.isEmpty()) {
-						table.remove();
-					} else {
-						row.remove();
-					}
-					if(m_onFilterDeleted != null) {
-						m_onFilterDeleted.onNotify(filter);
-					}
+			delImage.setClicked(clickednode -> {
+				m_savedFilters.remove(filter);
+				if(m_savedFilters.isEmpty()) {
+					table.remove();
+				} else {
+					row.remove();
+				}
+				if(m_onFilterDeleted != null) {
+					m_onFilterDeleted.onNotify(filter);
 				}
 			});
 		}

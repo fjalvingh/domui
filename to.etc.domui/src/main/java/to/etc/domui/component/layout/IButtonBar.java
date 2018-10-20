@@ -67,10 +67,10 @@ public interface IButtonBar {
 	DefaultButton addBackButtonConditional(int order);
 
 	@NonNull
-	LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click, int order);
+	LinkButton addLinkButton(String txt, IIcon img, IClicked<LinkButton> click, int order);
 
 	@NonNull
-	LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click);
+	LinkButton addLinkButton(String txt, IIcon img, IClicked<LinkButton> click);
 
 	@NonNull
 	<T> DefaultButton addAction(T instance, IUIAction<T> action) throws Exception;
@@ -78,11 +78,11 @@ public interface IButtonBar {
 	@NonNull
 	<T> DefaultButton addAction(T instance, IUIAction<T> action, int order) throws Exception;
 
-	@NonNull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click);
+	@NonNull DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click);
 
-	@NonNull DefaultButton addConfirmedButton(final String txt, final IIcon icon, final String msg, final IClicked<DefaultButton> click);
+	@NonNull DefaultButton addConfirmedButton(String txt, IIcon icon, String msg, final IClicked<DefaultButton> click);
 
-	@NonNull DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click, int order);
+	@NonNull DefaultButton addConfirmedButton(String txt, String msg, IClicked<DefaultButton> click, int order);
 
-	DefaultButton addConfirmedButton(final String txt, final IIcon icon, final String msg, final IClicked<DefaultButton> click, int order);
+	DefaultButton addConfirmedButton(String txt, IIcon icon, String msg, IClicked<DefaultButton> click, int order);
 }

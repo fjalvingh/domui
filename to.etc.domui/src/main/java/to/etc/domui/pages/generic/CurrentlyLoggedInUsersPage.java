@@ -1,26 +1,20 @@
 package to.etc.domui.pages.generic;
 
-import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.annotations.UIRights;
-import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
-import to.etc.domui.component.ntbl.IRowButtonFactory;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
-import to.etc.domui.component.tbl.RowButtonContainer;
 import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SortableListModel;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.ServerClientRegistry;
 import to.etc.domui.server.ServerClientRegistry.Client;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IRenderInto;
 import to.etc.util.StringTool;
 
 import java.text.DateFormat;
@@ -50,40 +44,21 @@ public class CurrentlyLoggedInUsersPage extends UrlPage {
 		RowRenderer<Client> rr = new RowRenderer<Client>(Client.class);
 
 		rr.column("remoteUser").width("10%").label("User ID");
-		rr.column().label("IP Address/host").width("1%").renderer(new IRenderInto<Client>() {
-			@Override
-			public void render(@NonNull NodeContainer node, @NonNull Client cl) throws Exception {
-				node.add(cl.getRemoteAddress() + "/" + cl.getRemoteHost());
-			}
-		});
+		rr.column().label("IP Address/host").width("1%").renderer((node, cl) -> node.add(cl.getRemoteAddress() + "/" + cl.getRemoteHost()));
 		rr.column("NRequests").width("1%").label("# requests");
-		rr.column(Long.class, "tsSessionStart").width("1%").label("Logged in since").descending().renderer(new IRenderInto<Long>() {
-			@Override
-			public void render(@NonNull NodeContainer node, @NonNull Long cl) throws Exception {
-				long ts = cl.longValue();
-				node.add(df.format(new Date(ts)) + " (" + StringTool.strDurationMillis(cts - ts) + ")");
-			}
+		rr.column(Long.class, "tsSessionStart").width("1%").label("Logged in since").descending().renderer((node, cl) -> {
+			long ts = cl.longValue();
+			node.add(df.format(new Date(ts)) + " (" + StringTool.strDurationMillis(cts - ts) + ")");
 		});
 
-		rr.column(Long.class, "tsLastRequest").width("1%").label("Last use").sortdefault().descending().renderer(new IRenderInto<Long>() {
-			@Override
-			public void render(@NonNull NodeContainer node, @NonNull Long cl) throws Exception {
-				long ts = cl.longValue();
-				node.add(df.format(new Date(ts)) + " (" + StringTool.strDurationMillis(cts - ts) + ")");
-			}
+		rr.column(Long.class, "tsLastRequest").width("1%").label("Last use").sortdefault().descending().renderer((node, cl) -> {
+			long ts = cl.longValue();
+			node.add(df.format(new Date(ts)) + " (" + StringTool.strDurationMillis(cts - ts) + ")");
 		});
 
-		rr.setRowButtonFactory(new IRowButtonFactory<Client>() {
-			@Override
-			public void addButtonsFor(@NonNull RowButtonContainer c, @NonNull final Client data) throws Exception {
-				c.addLinkButton("Last used pages", "THEME/btnEdit.png", new IClicked<LinkButton>() {
-					@Override
-					public void clicked(@NonNull LinkButton clickednode) throws Exception {
-						showClientData(data);
-					}
-				});
-			}
-		});
+		rr.setRowButtonFactory((c, data) -> c.addLinkButton("Last used pages", Icon.of("THEME/btnEdit.png"), clickednode -> {
+			showClientData(data);
+		}));
 
 		DataTable<Client> dt = new DataTable<>(sm, rr);
 		add(dt);

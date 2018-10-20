@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.tbl.ColumnContainer;
 import to.etc.domui.component.tbl.HeaderContainer;
@@ -282,7 +283,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		if(isEnableDeleteButton() && getModel() instanceof IModifyableTableModel< ? >) {
 			//-- Render a default "delete" button.
-			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), "THEME/btnDelete.png", Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
+			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), Icon.of("THEME/btnDelete.png"), Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
 				@Override
 				public void clicked(@NonNull LinkButton clickednode) throws Exception {
 					((IModifyableTableModel<T>) getModel()).delete(value);
@@ -508,31 +509,16 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newInstance = instance;
 
 		//-- Now add confirm/cancel button in action column
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Theme.BTN_CONFIRM, new IClicked<LinkButton>() {
-			@Override
-			public void clicked(@NonNull LinkButton clickednode) throws Exception {
-				commitNewRow();
-			}
-		});
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Icon.of(Theme.BTN_CONFIRM), clickednode -> commitNewRow());
 
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Theme.BTN_DELETE, new IClicked<LinkButton>() {
-			@Override
-			public void clicked(@NonNull LinkButton clickednode) throws Exception {
-				cancelNew();
-			}
-		});
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Icon.of(Theme.BTN_DELETE), clickednode -> cancelNew());
 	}
 
 	public void cancelNew() {
 		if(m_newEditor == null)
 			return;
 		if(DomUtil.isModified(m_newEditor)) {
-			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), new IClicked<MsgBox>() {
-				@Override
-				public void clicked(@NonNull MsgBox clickednode) throws Exception {
-					cancelNewReally();
-				}
-			});
+			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), (IClicked<MsgBox>) clickednode -> cancelNewReally());
 			return;
 		}
 		cancelNewReally();

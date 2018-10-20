@@ -209,20 +209,20 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click, int order) {
+	public @NonNull LinkButton addLinkButton(String txt, IIcon img, IClicked<LinkButton> click, int order) {
 		return m_factory.addLinkButton(txt, img, click, order);
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click) {
+	public @NonNull LinkButton addLinkButton(String txt, IIcon img, IClicked<LinkButton> click) {
 		return m_factory.addLinkButton(txt, img, click);
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, String img, String msg, IClicked<LinkButton> click, int order) {
+	public LinkButton addConfirmedLinkButton(String txt, IIcon img, String msg, IClicked<LinkButton> click, int order) {
 		return m_factory.addConfirmedLinkButton(txt, img, msg, click, order);
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, String img, String msg, IClicked<LinkButton> click) {
+	public LinkButton addConfirmedLinkButton(String txt, IIcon img, String msg, IClicked<LinkButton> click) {
 		return m_factory.addConfirmedLinkButton(txt, img, msg, click);
 	}
 

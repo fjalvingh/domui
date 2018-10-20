@@ -23,7 +23,7 @@ public class DemoDefaultButton extends UrlPage {
 
 		cp.add(new VerticalSpacer(40));
 		cp.add("You can easily add an icon and an accelerator to a button: ");
-		DefaultButton db2 = new DefaultButton("N!ice", "img/btnSmileyWink.png", n -> MsgBox.message(this, Type.WARNING,
+		DefaultButton db2 = new DefaultButton("N!ice", Icon.of("img/btnSmileyWink.png"), n -> MsgBox.message(this, Type.WARNING,
 			"you can also use the accelerator [I] to activate the button.<br/><br/>"
 			+ "(the Message Box uses also an accelerator, C)"));
 		cp.add(db2);

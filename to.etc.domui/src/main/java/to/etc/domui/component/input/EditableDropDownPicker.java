@@ -2,17 +2,17 @@ package to.etc.domui.component.input;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.event.INotifyEvent;
 import to.etc.domui.component.input.DropDownPicker.HAlign;
+import to.etc.domui.component.misc.IIcon;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IObjectToStringConverter;
 import to.etc.domui.dom.html.IValueChanged;
-import to.etc.domui.util.DomUtil;
 import to.etc.webapp.nls.NlsContext;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Encapsulates AutocompleteText and drop down picker into single component. Input behaves as autocomplete field that does search on select inside select within drop down picker.
@@ -32,7 +32,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	private List<T> m_data = Collections.EMPTY_LIST;
 
 	@Nullable
-	private String m_dropDownIcon;
+	private IIcon m_dropDownIcon;
 
 	@NonNull
 	private HAlign m_halign = DropDownPicker.HAlign.LEFT;
@@ -51,7 +51,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 * Before use, make sure to setup component using:
 	 * <UL>
 	 * <LI> {@link EditableDropDownPicker#setData(List)} </LI>
-	 * <LI> {@link EditableDropDownPicker#setDropDownIcon(String)} </LI>
+	 * <LI> {@link EditableDropDownPicker#setDropDownIcon(IIcon)} </LI>
 	 * <LI> {@link EditableDropDownPicker#setToStringConverter(IObjectToStringConverter)} in case of 'type' is not assignable from String.class</LI>
 	 * </UL>
 	 *
@@ -64,12 +64,9 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 
 	/**
 	 * Factory constructor.
-	 * @param type
-	 * @param data
-	 * @param dropDownIcon
 	 * @param toStringConverter In case of T = String, toStringConverter can be left null, otherwise it needs to be specified.
 	 */
-	public EditableDropDownPicker(@NonNull Class<T> type, @NonNull List<T> data, @NonNull String dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
+	public EditableDropDownPicker(@NonNull Class<T> type, @NonNull List<T> data, @NonNull IIcon dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
 		this(type);
 		m_data = data;
 		m_dropDownIcon = dropDownIcon;
@@ -90,25 +87,18 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		picker.setDisabled(isDisabled());
 		picker.setHalign(m_halign);
 		picker.setAlignmentBase(this);
-		picker.setOnBeforeShow(new INotifyEvent<DropDownPicker<T>, ComboLookup<T>>() {
-			@Override
-			public void onNotify(@NonNull DropDownPicker<T> sender, @Nullable ComboLookup<T> combo) throws Exception {
-				String text = getValueSafe();
-				clearMessage();
-				adjustSelection(combo, text);
-			}
+		picker.setOnBeforeShow((sender, combo) -> {
+			String text = getValueSafe();
+			clearMessage();
+			adjustSelection(combo, text);
 		});
 
-		picker.setOnValueChanged(new IValueChanged<DropDownPicker<T>>() {
-
-			@Override
-			public void onValueChanged(@NonNull DropDownPicker<T> component) throws Exception {
-				T value = m_object = component.getValueSafe();
-				setValue(convertObjectToString(NlsContext.getCurrencyLocale(), value));
-				IValueChanged<EditableDropDownPicker<T>> onValueChanged = (IValueChanged<EditableDropDownPicker<T>>) EditableDropDownPicker.this.getOnValueChanged();
-				if(onValueChanged != null) {
-					onValueChanged.onValueChanged(EditableDropDownPicker.this);
-				}
+		picker.setOnValueChanged((IValueChanged<DropDownPicker<T>>) component -> {
+			T value = m_object = component.getValueSafe();
+			setValue(convertObjectToString(NlsContext.getCurrencyLocale(), value));
+			IValueChanged<EditableDropDownPicker<T>> onValueChanged = (IValueChanged<EditableDropDownPicker<T>>) EditableDropDownPicker.this.getOnValueChanged();
+			if(onValueChanged != null) {
+				onValueChanged.onValueChanged(EditableDropDownPicker.this);
 			}
 		});
 
@@ -128,7 +118,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 
 	private void adjustSelection(ComboLookup<T> combo, String text) throws Exception {
 		boolean found = false;
-		DropDownPicker<T> picker = DomUtil.nullChecked(m_picker);
+		DropDownPicker<T> picker = Objects.requireNonNull(m_picker);
 		for(int i = 0; i < combo.getData().size(); i++) {
 			T val = combo.getData().get(i);
 			String optionText = convertObjectToString(NlsContext.getCurrencyLocale(), val);
@@ -148,8 +138,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	/**
 	 * Gets picker select options.
 	 */
-	public @NonNull
-	List<T> getData() {
+	public @NonNull List<T> getData() {
 		return m_data;
 	}
 
@@ -169,8 +158,6 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	
 	/**
 	 * Update data displayed in picker select options.
-	 * @param data
-	 * @throws Exception 
 	 */
 	public void updateData(@NonNull List<T> data) throws Exception {
 		setData(data);
@@ -198,11 +185,11 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	}
 
 	public @Nullable
-	String getDropDownIcon() {
+	IIcon getDropDownIcon() {
 		return m_dropDownIcon;
 	}
 
-	public void setDropDownIcon(@Nullable String dropDownIcon) {
+	public void setDropDownIcon(@Nullable IIcon dropDownIcon) {
 		m_dropDownIcon = dropDownIcon;
 		if(m_picker != null) {
 			m_picker.setSrc(dropDownIcon);

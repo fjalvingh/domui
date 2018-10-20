@@ -24,11 +24,22 @@
  */
 package to.etc.domui.component.layout;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.ImgAlign;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TDAlignType;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.util.DomUtil;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Caption extends Div {
 
@@ -111,13 +122,13 @@ public class Caption extends Div {
 		m_icon.setAlign(ImgAlign.RIGHT);
 	}
 
-	public void addButton(String image, String hint, IClicked<NodeBase> handler) {
+	public void addButton(IIcon image, String hint, IClicked<NodeBase> handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setClicked(handler);
 		internallyAddButton(ib, hint);
 	}
 
-	public void addButton(String image, String hint, String onClickJs) {
+	public void addButton(IIcon image, String hint, String onClickJs) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setOnClickJS(onClickJs);
 		internallyAddButton(ib, hint);

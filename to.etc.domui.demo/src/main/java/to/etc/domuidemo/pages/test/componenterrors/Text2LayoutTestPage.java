@@ -96,7 +96,7 @@ public class Text2LayoutTestPage extends UrlPage {
 		Text2<String> t4	= new Text2<>(String.class);
 		d.add(new Label(t4,"zzzzzzzzzzz4"));
 		d.add(t4);
-		t4.addButton(Theme.BTN_CLEAR, a -> {});
+		t4.addButton(Icon.of(Theme.BTN_CLEAR), a -> {});
 		t4.setValue("zzzzzzzzzzzzzzzzz");
 
 		add(new VerticalSpacer(20));
@@ -110,7 +110,7 @@ public class Text2LayoutTestPage extends UrlPage {
 
 		Text2<String> t23 = fb.label("string").property(this, "t23").control(Text2.class);
 		t23.addButton(Icon.faFile, a -> {}).css("is-primary");
-		t23.addButton(Theme.BTN_EDIT, a -> {}).css("is-link");
+		t23.addButton(Icon.of(Theme.BTN_EDIT), a -> {}).css("is-link");
 
 		fb.label("bigdecimal empty").property(this, "t30").control();
 		fb.label("bigdecimal 123.45").property(this, "t31").control();

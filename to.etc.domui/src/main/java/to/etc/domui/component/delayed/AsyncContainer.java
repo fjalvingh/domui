@@ -27,6 +27,7 @@ package to.etc.domui.component.delayed;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.Div;
@@ -137,7 +138,7 @@ final public class AsyncContainer extends Div {
 		m_progress = new Div();
 		add(m_progress);
 		if(isAbortable()) {
-			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, b -> {
+			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Icon.of(Theme.BTN_CANCEL), b -> {
 				cancel();
 				b.setDisabled(true);
 			});

@@ -207,13 +207,13 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public DefaultButton addConfirmedButton(final String txt, final IIcon icon, final String msg, final IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(String txt, IIcon icon, String msg, IClicked<DefaultButton> click) {
 		return addConfirmedButton(txt, icon, msg, click, -1);
 	}
 
 	@NonNull
 	@Override
-	public LinkButton addLinkButton(final String txt, final String img, final IClicked<LinkButton> click, int order) {
+	public LinkButton addLinkButton(String txt, IIcon img, IClicked<LinkButton> click, int order) {
 		LinkButton b = new LinkButton(txt, img, click);
 		m_container.addButton(b, order);
 		return b;
@@ -221,19 +221,19 @@ public class ButtonFactory implements IButtonBar {
 
 	@NonNull
 	@Override
-	public LinkButton addLinkButton(final String txt, final String img, final IClicked<LinkButton> click) {
+	public LinkButton addLinkButton(final String txt, final IIcon img, final IClicked<LinkButton> click) {
 		return addLinkButton(txt, img, click, -1);
 	}
 
 	@NonNull
-	public LinkButton addConfirmedLinkButton(final String txt, final String img, String msg, final IClicked<LinkButton> click, int order) {
+	public LinkButton addConfirmedLinkButton(final String txt, final IIcon img, String msg, final IClicked<LinkButton> click, int order) {
 		LinkButton b = MsgBox.areYouSureLinkButton(txt, img, msg, click);
 		m_container.addButton(b, order);
 		return b;
 	}
 
 	@NonNull
-	public LinkButton addConfirmedLinkButton(final String txt, final String img, String msg, final IClicked<LinkButton> click) {
+	public LinkButton addConfirmedLinkButton(final String txt, final IIcon img, String msg, final IClicked<LinkButton> click) {
 		return addConfirmedLinkButton(txt, img, msg, click, -1);
 	}
 

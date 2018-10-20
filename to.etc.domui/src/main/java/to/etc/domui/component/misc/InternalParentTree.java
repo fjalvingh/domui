@@ -157,20 +157,15 @@ public class InternalParentTree extends Div {
 
 	/**
 	 * Show a stacktrace window with the ability to open the source for that element.
-	 * @param clicked
-	 * @param allocationTracepoint
 	 */
 	protected void showCreationTrace(NodeBase clicked, StackTraceElement[] allocationTracepoint) {
 		m_structure.removeAllChildren();
 
 		Div alt = new Div();
 		m_structure.add(alt);
-		LinkButton lb = new LinkButton("Back to structure", "THEME/btnBack.png", new IClicked<LinkButton>() {
-			@Override
-			public void clicked(@NonNull LinkButton clickednode) throws Exception {
-				m_structure.removeAllChildren();
-				renderStructure(m_structure);
-			}
+		LinkButton lb = new LinkButton("Back to structure", Icon.of("THEME/btnBack.png"), (IClicked<LinkButton>) clickednode -> {
+			m_structure.removeAllChildren();
+			renderStructure(m_structure);
 		});
 		alt.add(lb);
 

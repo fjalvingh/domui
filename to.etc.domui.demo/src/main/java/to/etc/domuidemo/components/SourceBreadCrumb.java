@@ -46,7 +46,7 @@ final public class SourceBreadCrumb extends Div {
 		Div right = new Div("d-sbc-r");
 		add(right);
 
-		SmallImgButton refresh = new SmallImgButton("img/reload.png");
+		SmallImgButton refresh = new SmallImgButton(Icon.of("img/reload.png"));
 		right.add(refresh);
 		refresh.setOnClickJS("WebUI.refreshPage();");
 		refresh.setTitle("Reload the page fully");

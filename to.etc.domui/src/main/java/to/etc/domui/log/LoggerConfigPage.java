@@ -1,6 +1,5 @@
 package to.etc.domui.log;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -8,12 +7,12 @@ import org.w3c.dom.NodeList;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.controlfactory.ModelBindings;
 import to.etc.domui.component.layout.ButtonBar;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.css.FontStyle;
 import to.etc.domui.dom.errors.MsgType;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IUserInputModifiedFence;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.UrlPage;
@@ -158,24 +157,14 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	protected void createCommitButton() {
-		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				save();
-			}
-		});
+		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Icon.of(Msgs.BTN_SAVE), b -> save());
 		//hide by default, it would become visible if modifications on page are detected
 		m_saveButton.setDisabled(true);
 		m_saveButton.setTitle("no changes to save");
 	}
 
 	protected void createCancelButton() {
-		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				reloadPageData();
-			}
-		});
+		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Icon.of(Msgs.BTN_CANCEL), b -> reloadPageData());
 		//hide by default, it would become visible if modifications on page are detected
 		m_cancelButton.setDisabled(true);
 	}
