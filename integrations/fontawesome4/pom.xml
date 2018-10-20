@@ -11,7 +11,7 @@
     <artifactId>fontawesome4</artifactId>
     <version>1.2-SNAPSHOT</version>
 
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>domui :: integrations :: fontawesome4</name>
     <description>FontAwesome 4 integration</description>
     <inceptionYear>2017</inceptionYear>
