@@ -29,6 +29,8 @@ import to.etc.domui.annotations.UIMenu;
 import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.layout.ErrorMessageDiv;
+import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.OddCharacters;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.errors.IErrorFence;
@@ -331,7 +333,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		}
 	}
 
-	public void addButton(String image, String hint, IClicked<NodeBase> handler) {
+	public void addButton(IIcon image, String hint, IClicked<NodeBase> handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		getButtonpart().add(ib);
 		ib.setTitle(hint);
@@ -339,7 +341,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	}
 
 	protected void addDefaultButtons(final NodeContainer nc) {
-		SmallImgButton ib = new SmallImgButton("THEME/btnSpecialChar.png");
+		SmallImgButton ib = new SmallImgButton(Icon.of("THEME/btnSpecialChar.png"));
 		nc.add(ib);
 		ib.setTitle("Toon lijst van bijzondere tekens");
 		ib.setClicked(new IClicked<NodeBase>() {

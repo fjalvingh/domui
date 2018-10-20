@@ -32,6 +32,7 @@ import to.etc.domui.component.input.CriteriaComboDataSet;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.misc.IIcon;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
@@ -481,21 +482,13 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/*--------------------------------------------------------------*/
 	/**
 	 * Add a small image button after the combo.
-	 * @param img
-	 * @param title
-	 * @param click
 	 */
-	public void addExtraButton(String img, String title, final IClicked<NodeBase> click) {
+	public void addExtraButton(IIcon img, String title, final IClicked<NodeBase> click) {
 		if(m_buttonList == Collections.EMPTY_LIST)
-			m_buttonList = new ArrayList<SmallImgButton>();
+			m_buttonList = new ArrayList<>();
 		SmallImgButton si = new SmallImgButton(img);
 		if(click != null) {
-			si.setClicked(new IClicked<SmallImgButton>() {
-				@Override
-				public void clicked(@NonNull SmallImgButton b) throws Exception {
-					click.clicked(ComboComponentBase2.this);
-				}
-			});
+			si.setClicked((IClicked<SmallImgButton>) b -> click.clicked(ComboComponentBase2.this));
 		}
 		if(title != null)
 			si.setTitle(title);

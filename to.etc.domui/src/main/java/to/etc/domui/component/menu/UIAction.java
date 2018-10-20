@@ -2,18 +2,19 @@ package to.etc.domui.component.menu;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.misc.IIcon;
 
 abstract public class UIAction<T> implements IUIAction<T> {
 	final private String m_name;
 
 	final private String m_title;
 
-	final private String m_icon;
+	final private IIcon m_icon;
 
 	@Nullable
 	private String m_disableReason;
 
-	public UIAction(String name, String title, String icon) {
+	public UIAction(String name, String title, IIcon icon) {
 		m_name = name;
 		m_title = title;
 		m_icon = icon;
@@ -43,7 +44,7 @@ abstract public class UIAction<T> implements IUIAction<T> {
 
 	@Override
 	@Nullable
-	public String getIcon(@Nullable T instance) throws Exception {
+	public IIcon getIcon(@Nullable T instance) throws Exception {
 		return m_icon;
 	}
 }

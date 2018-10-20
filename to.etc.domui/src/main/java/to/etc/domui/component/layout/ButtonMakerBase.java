@@ -24,9 +24,10 @@
  */
 package to.etc.domui.component.layout;
 
-import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
@@ -38,12 +39,8 @@ abstract public class ButtonMakerBase {
 
 	/**
 	 * Add a normal button.
-	 * @param txt
-	 * @param icon
-	 * @param click
-	 * @return
 	 */
-	public DefaultButton addButton(final String txt, final String icon, final IClicked<DefaultButton> click) {
+	public DefaultButton addButton(final String txt, final IIcon icon, final IClicked<DefaultButton> click) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
 		addButton(b);
 		return b;
@@ -55,19 +52,14 @@ abstract public class ButtonMakerBase {
 		return b;
 	}
 
-	public DefaultButton addBackButton(final String txt, final String icon) {
-		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(final @NonNull DefaultButton bxx) throws Exception {
-				UIGoto.back();
-			}
-		});
+	public DefaultButton addBackButton(final String txt, final IIcon icon) {
+		DefaultButton b = new DefaultButton(txt, icon, bxx -> UIGoto.back());
 		addButton(b);
 		return b;
 	}
 
 	public DefaultButton addBackButton() {
-		return addBackButton("Terug", Theme.BTN_CANCEL);
+		return addBackButton("Terug", Icon.of(Theme.BTN_CANCEL));
 	}
 
 	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {
@@ -76,7 +68,7 @@ abstract public class ButtonMakerBase {
 		return b;
 	}
 
-	public DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(final String txt, final IIcon icon, final String msg, final IClicked<DefaultButton> click) {
 		DefaultButton b = MsgBox.areYouSureButton(txt, icon, msg, click);
 		addButton(b);
 		return b;

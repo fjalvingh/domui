@@ -27,8 +27,9 @@ package to.etc.domui.component.layout;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.Msgs;
@@ -150,7 +151,6 @@ public class Dialog extends Window {
 	/**
 	 * Get the control's button bar. If it does not already exists it will be created and
 	 * added to the top content area.
-	 * @return
 	 */
 	public IButtonBar getButtonBar() {
 		if(m_buttonBar == null)
@@ -163,40 +163,29 @@ public class Dialog extends Window {
 	}
 
 	protected void createCancelButton(@NonNull String text) {
-		createCancelButton(text, Theme.BTN_CANCEL);
+		createCancelButton(text, Icon.of(Theme.BTN_CANCEL));
 	}
 
-	protected void createCancelButton(@NonNull String text, @NonNull String image) {
+	protected void createCancelButton(@NonNull String text, @NonNull IIcon image) {
 		DefaultButton b;
-		b = getButtonBar().addButton(text, image, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
-				buttonCancel();
-			}
-		});
+		b = getButtonBar().addButton(text, image, clickednode -> buttonCancel());
 		b.setTestID("cancelButton");
 	}
 
 	@NonNull
 	protected DefaultButton createSaveButton() {
-		return createSaveButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE);
+		return createSaveButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Icon.of(Msgs.BTN_SAVE));
 	}
 
 	@NonNull
-	protected DefaultButton createSaveButton(String caption, String iconUrl) {
-		DefaultButton b = getButtonBar().addButton(caption, iconUrl, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton clickednode) throws Exception {
-				buttonSave();
-			}
-		});
+	protected DefaultButton createSaveButton(String caption, IIcon iconUrl) {
+		DefaultButton b = getButtonBar().addButton(caption, iconUrl, clickednode -> buttonSave());
 		b.setTestID("saveButton");
 		return b;
 	}
 
 	/**
 	 * Default handler for the cancel button: this will send the "CLOSE pressed" event ({@link FloatingDiv#RSN_CLOSE}).
-	 * @throws Exception
 	 */
 	protected void buttonCancel() throws Exception {
 		closePressed();
@@ -207,7 +196,6 @@ public class Dialog extends Window {
 	 * send a {@link #RSN_SAVE} close event. If the close event itself fails with exception
 	 * the code will ask onCloseException() to see if we need to throw the exception or if
 	 * it gets handled and shown as an error message or something like that.
-	 * @throws Exception
 	 */
 	protected void buttonSave() throws Exception {
 		clearGlobalMessage();

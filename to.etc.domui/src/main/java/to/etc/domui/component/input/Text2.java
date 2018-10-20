@@ -34,6 +34,7 @@ import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyMetaValidator;
 import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
+import to.etc.domui.component.misc.IIcon;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConvertable;
 import to.etc.domui.converter.IConverter;
@@ -630,7 +631,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		}
 	}
 
-	public SmallImgButton addButton(String image, IClicked<NodeBase> clicked) {
+	public SmallImgButton addButton(IIcon image, IClicked<NodeBase> clicked) {
 		SmallImgButton sib = new SmallImgButton(image, clicked);
 		addButton(sib);
 		return sib;

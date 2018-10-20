@@ -27,13 +27,13 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.menu.IUIAction;
-import to.etc.domui.component.misc.FontIcon;
+import to.etc.domui.component.misc.IIcon;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.parts.GrayscalerPart;
+import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
 
 import java.util.Objects;
@@ -49,7 +49,7 @@ public class LinkButton extends ATag implements IActionControl {
 	private String m_text;
 
 	@Nullable
-	private String m_imageUrl;
+	private IIcon m_icon;
 
 	private boolean m_disabled;
 
@@ -66,15 +66,15 @@ public class LinkButton extends ATag implements IActionControl {
 		setCssClass("ui-lnkb");
 	}
 
-	public LinkButton(@NonNull final String txt, @NonNull final String image, @NonNull final IClicked< ? extends NodeBase> clk) {
+	public LinkButton(@NonNull String txt, @NonNull IIcon image, @NonNull IClicked< ? extends NodeBase> clk) {
 		setCssClass("ui-lnkb ui-lbtn");
 		setClicked(clk);
 		m_text = txt;
 		setImage(image);
 	}
 
-	public LinkButton(@NonNull final String txt, @NonNull final String image) {
-		if(DomUtil.isIconName(image))
+	public LinkButton(@NonNull String txt, @NonNull IIcon image) {
+		if(null != image)
 			setCssClass("ui-lnkb ui-lbtn");
 		else
 			setCssClass("ui-lnkb");
@@ -82,12 +82,12 @@ public class LinkButton extends ATag implements IActionControl {
 		setImage(image);
 	}
 
-	public LinkButton(@NonNull final String txt) {
+	public LinkButton(@NonNull String txt) {
 		setCssClass("ui-lnkb");
 		m_text = txt;
 	}
 
-	public LinkButton(@NonNull final String txt, @NonNull final IClicked< ? extends NodeBase> clk) {
+	public LinkButton(@NonNull String txt, @NonNull IClicked< ? extends NodeBase> clk) {
 		setCssClass("ui-lnkb");
 		setClicked(clk);
 		m_text = txt;
@@ -108,31 +108,35 @@ public class LinkButton extends ATag implements IActionControl {
 
 	@Override
 	public void createContent() throws Exception {
-		String imageUrl = m_imageUrl;
-		if(imageUrl == null) {
+		IIcon icon = m_icon;
+		if(icon == null) {
 			setBackgroundImage(null);
 			addCssClass("ui-lnkb");
 			removeCssClass("ui-lbtn");
 			add(m_text);
-		} else if(DomUtil.isIconName(imageUrl)) {
-			//-- Do we have an image already?
-			setBackgroundImage(null);
-			setCssClass("ui-lnkb");
-			removeCssClass("ui-lbtn");
-			add(new FontIcon(imageUrl).css("ui-lnkb-icon"));
-			add(m_text);
+		//} else if(DomUtil.isIconName(icon)) {
+		//	//-- Do we have an image already?
+		//	setBackgroundImage(null);
+		//	setCssClass("ui-lnkb");
+		//	removeCssClass("ui-lbtn");
+		//	add(new FontIcon(icon).css("ui-lnkb-icon"));
+		//	add(m_text);
+		//} else {
+		//	String image = getThemedResourceRURL(icon);
+		//	if(isDisabled())
+		//		image = GrayscalerPart.getURL(image);
+		//	setBackgroundImage(image);
+		//	addCssClass("ui-lnkb ui-lbtn");
+		//	add(m_text);
 		} else {
-			String image = getThemedResourceRURL(imageUrl);
-			if(isDisabled())
-				image = GrayscalerPart.getURL(image);
-			setBackgroundImage(image);
-			addCssClass("ui-lnkb ui-lbtn");
-			add(m_text);
+			NodeBase node = icon.createNode();
+			add(node);
+			add(new Span("ui-lnkb-txt", m_text));
 		}
 		if(isDisabled())
-			addCssClass("ui-lnkb-dis");
+			addCssClass("ui-lnkb-dis ui-disabled");
 		else
-			removeCssClass("ui-lnkb-dis");
+			removeCssClass("ui-lnkb-dis ui-disabled");
 	}
 
 	/**
@@ -155,15 +159,15 @@ public class LinkButton extends ATag implements IActionControl {
 		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this, getActionInstance()));
 	}
 
-	public void setImage(@Nullable final String url) {
-		if(DomUtil.isEqual(url, m_imageUrl))
+	public void setImage(@Nullable IIcon url) {
+		if(DomUtil.isEqual(url, m_icon))
 			return;
-		m_imageUrl = url;
+		m_icon = url;
 		forceRebuild();
 	}
 
-	public String getImage() {
-		return m_imageUrl;
+	public IIcon getImage() {
+		return m_icon;
 	}
 
 	@Override

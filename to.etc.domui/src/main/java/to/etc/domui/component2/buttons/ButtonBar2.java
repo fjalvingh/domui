@@ -32,6 +32,7 @@ import to.etc.domui.component.layout.ButtonFactory;
 import to.etc.domui.component.layout.IButtonBar;
 import to.etc.domui.component.layout.IButtonContainer;
 import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.component.misc.IIcon;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
@@ -108,12 +109,12 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click, int order) {
+	public @NonNull DefaultButton addButton(String txt, IIcon icon, IClicked<DefaultButton> click, int order) {
 		return m_factory.addButton(txt, icon, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addButton(String txt, IIcon icon, IClicked<DefaultButton> click) {
 		return m_factory.addButton(txt, icon, click);
 	}
 
@@ -138,12 +139,12 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addBackButton(String txt, String icon, int order) {
+	public @NonNull DefaultButton addBackButton(String txt, IIcon icon, int order) {
 		return m_factory.addBackButton(txt, icon, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addBackButton(String txt, String icon) {
+	public @NonNull DefaultButton addBackButton(String txt, IIcon icon) {
 		return m_factory.addBackButton(txt, icon);
 	}
 
@@ -158,12 +159,12 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon, int order) {
+	public @NonNull DefaultButton addCloseButton(@NonNull String txt, @NonNull IIcon icon, int order) {
 		return m_factory.addCloseButton(txt, icon, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon) {
+	public @NonNull DefaultButton addCloseButton(@NonNull String txt, @NonNull IIcon icon) {
 		return m_factory.addCloseButton(txt, icon);
 	}
 
@@ -198,12 +199,12 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public DefaultButton addConfirmedButton(String txt, String icon, String msg, IClicked<DefaultButton> click, int order) {
+	public DefaultButton addConfirmedButton(String txt, IIcon icon, String msg, IClicked<DefaultButton> click, int order) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addConfirmedButton(String txt, String icon, String msg, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addConfirmedButton(String txt, IIcon icon, String msg, IClicked<DefaultButton> click) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click);
 	}
 
