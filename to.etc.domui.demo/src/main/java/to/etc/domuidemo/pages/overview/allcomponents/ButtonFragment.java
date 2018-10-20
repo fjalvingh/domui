@@ -1,7 +1,7 @@
 package to.etc.domuidemo.pages.overview.allcomponents;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TH;
@@ -89,15 +89,15 @@ public class ButtonFragment extends Div {
 		addHead("Normal");
 		addSub("Text", () -> new DefaultButton("Click me", a -> {}));
 		addSub("+icon", () -> new DefaultButton("click", Theme.BTN_CHECKMARK, a-> {}));
-		addSub("+FaIcon", () -> new DefaultButton("click", FaIcon.faHeart, a-> {}));
-		addSub("IconOnly", () -> new DefaultButton("", FaIcon.faEye, a-> {}));
+		addSub("+FaIcon", () -> new DefaultButton("click", FontIcon.faHeart, a-> {}));
+		addSub("IconOnly", () -> new DefaultButton("", FontIcon.faEye, a-> {}));
 
 		addHead("Disabled");
 		Consumer<DefaultButton> disabler = b -> b.setDisabled(true);
 		addSub("Text", () -> new DefaultButton("Click me", a -> {}), disabler);
 		addSub("+icon", () -> new DefaultButton("click", Theme.BTN_CHECKMARK, a-> {}), disabler);
-		addSub("+FaIcon", () -> new DefaultButton("click", FaIcon.faHeart, a-> {}), disabler);
-		addSub("IconOnly", () -> new DefaultButton("", FaIcon.faEye, a-> {}),disabler);
+		addSub("+FaIcon", () -> new DefaultButton("click", FontIcon.faHeart, a-> {}), disabler);
+		addSub("IconOnly", () -> new DefaultButton("", FontIcon.faEye, a-> {}),disabler);
 
 	}
 

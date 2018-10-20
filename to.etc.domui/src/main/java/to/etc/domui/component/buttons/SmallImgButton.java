@@ -27,7 +27,7 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
@@ -124,7 +124,7 @@ public class SmallImgButton extends Button {
 			Div d = new Div("ui-icon");
 			add(d);
 			if(DomUtil.isIconName(iconUrl)) {
-				FaIcon icon = new FaIcon(iconUrl);
+				FontIcon icon = new FontIcon(iconUrl);
 				//icon.addCssClass("ui-sib-icon");
 				d.add(icon);
 			} else {

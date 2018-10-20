@@ -27,7 +27,7 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.menu.IUIAction;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IActionControl;
@@ -119,7 +119,7 @@ public class LinkButton extends ATag implements IActionControl {
 			setBackgroundImage(null);
 			setCssClass("ui-lnkb");
 			removeCssClass("ui-lbtn");
-			add(new FaIcon(imageUrl).css("ui-lnkb-icon"));
+			add(new FontIcon(imageUrl).css("ui-lnkb-icon"));
 			add(m_text);
 		} else {
 			String image = getThemedResourceRURL(imageUrl);

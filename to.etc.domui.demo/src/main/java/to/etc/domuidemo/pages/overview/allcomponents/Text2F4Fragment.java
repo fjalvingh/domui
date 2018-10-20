@@ -4,7 +4,7 @@ import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.html.Div;
@@ -58,14 +58,14 @@ public class Text2F4Fragment extends Div {
 		add(new HTag(3, "Text2 allows adding buttons").css("ui-header"));
 
 		Text2<String> t40 = new Text2<>(String.class);
-		t40.addButton(FaIcon.faBell, a -> {});
-		t40.addButton(FaIcon.faFile, a -> {});
+		t40.addButton(FontIcon.faBell, a -> {});
+		t40.addButton(FontIcon.faFile, a -> {});
 		fb = new FormBuilder(this);
 		fb.property(this, "t40").label("default buttons").control(t40);
 
 		Text2<String> t41 = new Text2<>(String.class);
-		t41.addButton(FaIcon.faBell, a -> {}).css("is-primary");
-		t41.addButton(FaIcon.faCloud, a -> {}).css("is-danger");
+		t41.addButton(FontIcon.faBell, a -> {}).css("is-primary");
+		t41.addButton(FontIcon.faCloud, a -> {}).css("is-danger");
 		fb.property(this, "t41").label("is-primary, is-danger").control(t41);
 
 		Text2<String>	t50 = new Text2<>(String.class);

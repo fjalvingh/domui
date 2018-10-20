@@ -27,7 +27,7 @@ package to.etc.domui.component.layout;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.dom.css.ClearType;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
@@ -159,7 +159,7 @@ public class TabPanelBase extends Div {
 		if(null != iconUrl) {
 			//-- Add any icon
 			if(DomUtil.isIconName(iconUrl)) {
-				FaIcon icon = new FaIcon(iconUrl);
+				FontIcon icon = new FontIcon(iconUrl);
 				dt.add(icon);
 			} else {
 				String icon = getThemedResourceRURL(iconUrl);

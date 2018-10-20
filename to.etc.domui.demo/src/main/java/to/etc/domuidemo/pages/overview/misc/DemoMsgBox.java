@@ -4,7 +4,7 @@ import to.etc.domui.component.headers.GenericHeader;
 import to.etc.domui.component.headers.GenericHeader.Type;
 import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.component.layout.ContentPanel;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.misc.MsgBoxButton;
 import to.etc.domui.component.misc.VerticalSpacer;
@@ -71,11 +71,11 @@ public class DemoMsgBox extends UrlPage {
 		bb = new ButtonBar();
 		cp.add(bb);
 
-		bb.addButton("Big content", FaIcon.faHandODown, a -> {
+		bb.addButton("Big content", FontIcon.faHandODown, a -> {
 			MsgBox.info(this, Lorem.getSentences(8192));
 		});
 
-		bb.addButton("Simple markup", FaIcon.faExpand, a -> {
+		bb.addButton("Simple markup", FontIcon.faExpand, a -> {
 			//MsgBox.info(this, "You should not that not <b>all</b> people are good, <ul><li>Not evil ones</li><li>Not even Java's architects</li></ul>");
 			MsgBox.info(this, "You should know that not <b>all</b> people are good");
 		});

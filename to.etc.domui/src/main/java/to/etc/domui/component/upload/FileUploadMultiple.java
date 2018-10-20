@@ -28,7 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Button;
@@ -89,7 +89,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	private String m_buttonIcon;
 
 	@Nullable
-	private String m_clearButtonIcon = FaIcon.faWindowClose;
+	private String m_clearButtonIcon = FontIcon.faWindowClose;
 
 	public FileUploadMultiple() {
 		m_allowedExtensions = new ArrayList<>();
@@ -186,7 +186,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		valueD.add(d);
 		Button btn = new Button().css("ui-fup2-del");
 		d.add(btn);
-		btn.add(new FaIcon(FaIcon.faWindowCloseO));
+		btn.add(new FontIcon(FontIcon.faWindowCloseO));
 		d.add(uploadItem.getRemoteFileName());
 		btn.setClicked(a -> {
 			m_value.remove(uploadItem);

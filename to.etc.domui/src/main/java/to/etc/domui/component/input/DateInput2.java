@@ -30,7 +30,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyMetaValidator;
 import to.etc.domui.component.meta.TemporalPresentationType;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.DateConverter;
 import to.etc.domui.converter.DateTimeConverter;
@@ -98,13 +98,13 @@ public class DateInput2 extends Text2<Date> {
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		SmallImgButton sib = addButton(FaIcon.faCalendar, a -> { });
+		SmallImgButton sib = addButton(FontIcon.faCalendar, a -> { });
 		m_showCalendarButton = sib;
 		sib.setClicked(null);
 		sib.setOnClickJS("WebUI.showCalendar('" + internalGetInput().getActualID() + "'," + isWithTime() + ")");
 		internalGetInput().setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 		if(! m_hideTodayButton) {
-			SmallImgButton todayBtn = addButton(FaIcon.faCalendarCheckO, c -> {
+			SmallImgButton todayBtn = addButton(FontIcon.faCalendarCheckO, c -> {
 				Date currentDate = new Date();
 				if(!m_withTime) {
 					currentDate = DateUtil.truncateDate(currentDate);

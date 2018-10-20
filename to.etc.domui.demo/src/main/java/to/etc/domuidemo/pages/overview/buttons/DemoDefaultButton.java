@@ -1,7 +1,7 @@
 package to.etc.domuidemo.pages.overview.buttons;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.misc.MsgBox.Type;
 import to.etc.domui.component.misc.VerticalSpacer;
@@ -30,7 +30,7 @@ public class DemoDefaultButton extends UrlPage {
 
 		cp.add(new VerticalSpacer(40));
 		cp.add("FontAwesome is supported (as is any other font based icon set): ");
-		cp.add(new DefaultButton("FontAwesome", FaIcon.faHeart, n -> MsgBox.message(this, Type.WARNING,
+		cp.add(new DefaultButton("FontAwesome", FontIcon.faHeart, n -> MsgBox.message(this, Type.WARNING,
 			"you can also use the accelerator [I] to activate the button.<br/><br/>"
 				+ "(the Message Box uses also an accelerator, C)")));
 

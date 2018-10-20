@@ -27,7 +27,7 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.menu.IUIAction;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IClicked;
@@ -165,7 +165,7 @@ public class DefaultButton extends Button implements IActionControl {
 			add(iconSpan);
 			iconSpan.setCssClass("ui-icon");
 			if(DomUtil.isIconName(iconUrl)) {
-				FaIcon icon = new FaIcon(iconUrl);
+				FontIcon icon = new FontIcon(iconUrl);
 				//icon.addCssClass("xxui-sdbtn-icon ui-icon");
 				iconSpan.add(icon);
 			} else {

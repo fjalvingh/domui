@@ -14,16 +14,16 @@ import java.util.Objects;
  * Created on 4-8-17.
  */
 @NonNullByDefault
-final public class FaIcon extends Span {
+final public class FontIcon extends Span {
 	@Nullable
 	private String m_iconName;
 
-	public FaIcon(@Nullable String name) {
+	public FontIcon(@Nullable String name) {
 		m_iconName = name;
 	}
 
 	@Override
-	public FaIcon css(String... classNames) {
+	public FontIcon css(String... classNames) {
 		super.css(classNames);
 		return this;
 	}

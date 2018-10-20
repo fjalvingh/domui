@@ -1,7 +1,7 @@
 package to.etc.domuidemo.pages.overview.tree2;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.component.tree2.Tree2;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
@@ -19,7 +19,7 @@ public class Tree2DemoPage extends UrlPage {
 
 		tree.setContentRenderer(new IRenderInto<DemoNode>() {
 			@Override public void render(@NonNull NodeContainer node, @NonNull DemoNode object) throws Exception {
-				FaIcon icon = new FaIcon(object.getIcon());
+				FontIcon icon = new FontIcon(object.getIcon());
 				node.add(icon);
 				icon.addCssClass("dm-tree2-icon");
 				node.add(object.getText());
