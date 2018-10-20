@@ -16,9 +16,9 @@ import java.util.Objects;
 @NonNullByDefault
 final public class FontIcon extends Span {
 	@Nullable
-	private String m_iconName;
+	private IFontIcon m_iconName;
 
-	public FontIcon(@Nullable String name) {
+	public FontIcon(@Nullable IFontIcon name) {
 		m_iconName = name;
 	}
 
@@ -31,8 +31,9 @@ final public class FontIcon extends Span {
 	@Override public void createContent() throws Exception {
 		//removeFaClasses();
 		addCssClass("fa");
-		if(null != m_iconName)
-			addCssClass(m_iconName);
+		IFontIcon iconName = m_iconName;
+		if(null != iconName)
+			addCssClass(iconName.getCssClassName());
 	}
 
 	private void removeFaClasses() {
@@ -48,14 +49,14 @@ final public class FontIcon extends Span {
 		}
 	}
 
-	public void setIconName(String iconName) {
+	public void setIconName(IFontIcon iconName) {
 		if(Objects.equals(iconName, m_iconName))
 			return;
-		String oldName = m_iconName;
+		IFontIcon oldName = m_iconName;
 		if(null != oldName)
-			removeCssClass(oldName);
+			removeCssClass(oldName.getCssClassName());
 		if(null != iconName)
-			addCssClass(iconName);
+			addCssClass(iconName.getCssClassName());
 		m_iconName = iconName;
 	}
 }
