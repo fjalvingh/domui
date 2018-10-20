@@ -6,6 +6,7 @@ import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.misc.MsgBox.Type;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.themes.Theme;
 import to.etc.domuidemo.components.CenterPanel;
 
 public class DemoDefaultButton extends UrlPage {
@@ -37,7 +38,7 @@ public class DemoDefaultButton extends UrlPage {
 
 		cp.add(new VerticalSpacer(40));
 		cp.add("Like all Action Items, buttons can be disabled: ");
-		DefaultButton di = new DefaultButton("click me to disable me", b -> b.setDisabled(true));
+		DefaultButton di = new DefaultButton("click me to disable me", Icon.of(Theme.BTN_CONFIRM), b -> b.setDisabled(true));
 		cp.add(di);
 	}
 }
