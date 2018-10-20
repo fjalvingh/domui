@@ -63,32 +63,24 @@ public class LinkButton extends ATag implements IActionControl {
 	private String m_disabledBecause;
 
 	public LinkButton() {
-		setCssClass("ui-lnkb");
 	}
 
 	public LinkButton(@NonNull String txt, @NonNull IIcon image, @NonNull IClicked< ? extends NodeBase> clk) {
-		setCssClass("ui-lnkb ui-lbtn");
 		setClicked(clk);
 		m_text = txt;
 		setImage(image);
 	}
 
 	public LinkButton(@NonNull String txt, @NonNull IIcon image) {
-		if(null != image)
-			setCssClass("ui-lnkb ui-lbtn");
-		else
-			setCssClass("ui-lnkb");
 		m_text = txt;
 		setImage(image);
 	}
 
 	public LinkButton(@NonNull String txt) {
-		setCssClass("ui-lnkb");
 		m_text = txt;
 	}
 
 	public LinkButton(@NonNull String txt, @NonNull IClicked< ? extends NodeBase> clk) {
-		setCssClass("ui-lnkb");
 		setClicked(clk);
 		m_text = txt;
 	}
@@ -108,35 +100,25 @@ public class LinkButton extends ATag implements IActionControl {
 
 	@Override
 	public void createContent() throws Exception {
+		addCssClass("ui-lbtn");
 		IIcon icon = m_icon;
 		if(icon == null) {
 			setBackgroundImage(null);
-			addCssClass("ui-lnkb");
-			removeCssClass("ui-lbtn");
-			add(m_text);
-		//} else if(DomUtil.isIconName(icon)) {
-		//	//-- Do we have an image already?
-		//	setBackgroundImage(null);
-		//	setCssClass("ui-lnkb");
-		//	removeCssClass("ui-lbtn");
-		//	add(new FontIcon(icon).css("ui-lnkb-icon"));
-		//	add(m_text);
-		//} else {
-		//	String image = getThemedResourceRURL(icon);
-		//	if(isDisabled())
-		//		image = GrayscalerPart.getURL(image);
-		//	setBackgroundImage(image);
-		//	addCssClass("ui-lnkb ui-lbtn");
-		//	add(m_text);
+			addCssClass("ui-lbtn-noi");
+			removeCssClass("ui-lbtn-i");
+			add(new Span("ui-lbtn-txt", m_text));
 		} else {
+			addCssClass("ui-lbtn-i");
+			removeCssClass("ui-lbtn-noi");
 			NodeBase node = icon.createNode();
 			add(node);
-			add(new Span("ui-lnkb-txt", m_text));
+			node.addCssClass("ui-lbtn-icon");
+			add(new Span("ui-lbtn-txt", m_text));
 		}
 		if(isDisabled())
-			addCssClass("ui-lnkb-dis ui-disabled");
+			addCssClass("ui-disabled");
 		else
-			removeCssClass("ui-lnkb-dis ui-disabled");
+			removeCssClass("ui-disabled");
 	}
 
 	/**
