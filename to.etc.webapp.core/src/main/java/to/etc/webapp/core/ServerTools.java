@@ -24,14 +24,23 @@
  */
 package to.etc.webapp.core;
 
-import java.io.*;
-import java.net.*;
-import java.util.*;
+import to.etc.util.FileTool;
+import to.etc.util.StringTool;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-import to.etc.util.*;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  *
@@ -250,6 +259,8 @@ final public class ServerTools {
 			"zip", "application/zip", "z", "application/octet-stream",
 			"js.map", "application/json"
 			, "ts", "text/x-typescript"
+			, "woff", "font/woff"
+			, "woff2", "font/woff2"
 		};
 
 		m_mimemap_p = new Properties();
