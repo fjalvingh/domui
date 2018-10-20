@@ -6,4 +6,7 @@
 
     <name>fontawesome4fragment</name>
     <distributable/>
+    <welcome-file-list>
+        <welcome-file>horror.text</welcome-file>
+    </welcome-file-list>
 </web-fragment>

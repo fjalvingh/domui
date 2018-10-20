@@ -263,23 +263,45 @@
                             <value>true</value>
                         </systemProperty>
                     </systemProperties>
-
                     <scanIntervalSeconds>5</scanIntervalSeconds>
                     <stopPort>8089</stopPort>
                     <stopKey>furkelheim</stopKey>
-                    <webApp>
-                        <baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">
-                            <!--<resourcesAsCSV>${basedir}/../../shared/web/src/main/webapp,${basedir}/src/main/webapp</resourcesAsCSV>-->
-                            <resourcesAsCSV>${basedir}/src/main/webapp</resourcesAsCSV>
-                        </baseResource>
-                        <webInfIncludeJarPattern>^$</webInfIncludeJarPattern>
-                        <containerIncludeJarPattern>^$</containerIncludeJarPattern>
-                        <contextPath>/demo</contextPath>
-                    </webApp>
                     <httpConnector>
                         <port>${jetty.http.port}</port>
                     </httpConnector>
+
+                    <webAppConfig>
+                        <contextPath>/demo</contextPath>
+                    </webAppConfig>
+
                 </configuration>
+
+
+                <!--<configuration>-->
+                    <!--&lt;!&ndash; Enable TestUI mode on the server to make Selenium tests run. &ndash;&gt;-->
+                    <!--<systemProperties>-->
+                        <!--<systemProperty>-->
+                            <!--<name>domui.testui</name>-->
+                            <!--<value>true</value>-->
+                        <!--</systemProperty>-->
+                    <!--</systemProperties>-->
+
+                    <!--<scanIntervalSeconds>5</scanIntervalSeconds>-->
+                    <!--<stopPort>8089</stopPort>-->
+                    <!--<stopKey>furkelheim</stopKey>-->
+                    <!--<webApp>-->
+                        <!--<baseResource implementation="org.eclipse.jetty.util.resource.ResourceCollection">-->
+                            <!--&lt;!&ndash;<resourcesAsCSV>${basedir}/../../shared/web/src/main/webapp,${basedir}/src/main/webapp</resourcesAsCSV>&ndash;&gt;-->
+                            <!--<resourcesAsCSV>${basedir}/src/main/webapp</resourcesAsCSV>-->
+                        <!--</baseResource>-->
+                        <!--<webInfIncludeJarPattern>^$</webInfIncludeJarPattern>-->
+                        <!--<containerIncludeJarPattern>^$</containerIncludeJarPattern>-->
+                        <!--<contextPath>/demo</contextPath>-->
+                    <!--</webApp>-->
+                    <!--<httpConnector>-->
+                        <!--<port>${jetty.http.port}</port>-->
+                    <!--</httpConnector>-->
+                <!--</configuration>-->
 
                 <!-- Want to use this for integration tests. -->
                 <!-- See http://maven.apache.org/surefire/maven-failsafe-plugin/usage.html -->
