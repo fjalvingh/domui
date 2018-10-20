@@ -1,685 +1,717 @@
 package to.etc.domui.component.misc;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
+ * Generic icons that can be used, and that should be implemented by at least one font
+ * pack.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-10-18.
  */
-final public class Icon {
-	public static final String fa500px = "fa-500px";
-	public static final String faChain = "fa-chain";
-	public static final String faFlash = "fa-flash";
-	public static final String faAddressBook = "fa-address-book";
-	public static final String faAddressBookO = "fa-address-book-o";
-	public static final String faAddressCard = "fa-address-card";
-	public static final String faAddressCardO = "fa-address-card-o";
-	public static final String faAdjust = "fa-adjust";
-	public static final String faAdn = "fa-adn";
-	public static final String faAlignCenter = "fa-align-center";
-	public static final String faAlignJustify = "fa-align-justify";
-	public static final String faAlignLeft = "fa-align-left";
-	public static final String faAlignRight = "fa-align-right";
-	public static final String faAmazon = "fa-amazon";
-	public static final String faAmbulance = "fa-ambulance";
-	public static final String faAmericanSignLanguageInterpreting = "fa-american-sign-language-interpreting";
-	public static final String faAnchor = "fa-anchor";
-	public static final String faAndroid = "fa-android";
-	public static final String faAngellist = "fa-angellist";
-	public static final String faAngleDoubleDown = "fa-angle-double-down";
-	public static final String faAngleDoubleLeft = "fa-angle-double-left";
-	public static final String faAngleDoubleRight = "fa-angle-double-right";
-	public static final String faAngleDoubleUp = "fa-angle-double-up";
-	public static final String faAngleDown = "fa-angle-down";
-	public static final String faAngleLeft = "fa-angle-left";
-	public static final String faAngleRight = "fa-angle-right";
-	public static final String faAngleUp = "fa-angle-up";
-	public static final String faApple = "fa-apple";
-	public static final String faArchive = "fa-archive";
-	public static final String faAreaChart = "fa-area-chart";
-	public static final String faArrowCircleDown = "fa-arrow-circle-down";
-	public static final String faArrowCircleLeft = "fa-arrow-circle-left";
-	public static final String faArrowCircleODown = "fa-arrow-circle-o-down";
-	public static final String faArrowCircleOLeft = "fa-arrow-circle-o-left";
-	public static final String faArrowCircleORight = "fa-arrow-circle-o-right";
-	public static final String faArrowCircleOUp = "fa-arrow-circle-o-up";
-	public static final String faArrowCircleRight = "fa-arrow-circle-right";
-	public static final String faArrowCircleUp = "fa-arrow-circle-up";
-	public static final String faArrowDown = "fa-arrow-down";
-	public static final String faArrowLeft = "fa-arrow-left";
-	public static final String faArrowRight = "fa-arrow-right";
-	public static final String faArrowUp = "fa-arrow-up";
-	public static final String faArrows = "fa-arrows";
-	public static final String faArrowsAlt = "fa-arrows-alt";
-	public static final String faArrowsH = "fa-arrows-h";
-	public static final String faArrowsV = "fa-arrows-v";
-	public static final String faAssistiveListeningSystems = "fa-assistive-listening-systems";
-	public static final String faAsterisk = "fa-asterisk";
-	public static final String faAt = "fa-at";
-	public static final String faAudioDescription = "fa-audio-description";
-	public static final String faBackward = "fa-backward";
-	public static final String faBalanceScale = "fa-balance-scale";
-	public static final String faBan = "fa-ban";
-	public static final String faBandcamp = "fa-bandcamp";
-	public static final String faBarChart = "fa-bar-chart";
-	public static final String faBarcode = "fa-barcode";
-	public static final String faBars = "fa-bars";
-	public static final String faBath = "fa-bath";
-	public static final String faBatteryEmpty = "fa-battery-empty";
-	public static final String faBatteryFull = "fa-battery-full";
-	public static final String faBatteryHalf = "fa-battery-half";
-	public static final String faBatteryQuarter = "fa-battery-quarter";
-	public static final String faBatteryThreeQuarters = "fa-battery-three-quarters";
-	public static final String faBed = "fa-bed";
-	public static final String faBeer = "fa-beer";
-	public static final String faBehance = "fa-behance";
-	public static final String faBehanceSquare = "fa-behance-square";
-	public static final String faBell = "fa-bell";
-	public static final String faBellO = "fa-bell-o";
-	public static final String faBellSlash = "fa-bell-slash";
-	public static final String faBellSlashO = "fa-bell-slash-o";
-	public static final String faBicycle = "fa-bicycle";
-	public static final String faBinoculars = "fa-binoculars";
-	public static final String faBirthdayCake = "fa-birthday-cake";
-	public static final String faBitbucket = "fa-bitbucket";
-	public static final String faBitbucketSquare = "fa-bitbucket-square";
-	public static final String faBlackTie = "fa-black-tie";
-	public static final String faBlind = "fa-blind";
-	public static final String faBluetooth = "fa-bluetooth";
-	public static final String faBluetoothB = "fa-bluetooth-b";
-	public static final String faBold = "fa-bold";
-	public static final String faBolt = "fa-bolt";
-	public static final String faBomb = "fa-bomb";
-	public static final String faBook = "fa-book";
-	public static final String faBookmark = "fa-bookmark";
-	public static final String faBookmarkO = "fa-bookmark-o";
-	public static final String faBraille = "fa-braille";
-	public static final String faBriefcase = "fa-briefcase";
-	public static final String faBtc = "fa-btc";
-	public static final String faBug = "fa-bug";
-	public static final String faBuilding = "fa-building";
-	public static final String faBuildingO = "fa-building-o";
-	public static final String faBullhorn = "fa-bullhorn";
-	public static final String faBullseye = "fa-bullseye";
-	public static final String faBus = "fa-bus";
-	public static final String faBuysellads = "fa-buysellads";
-	public static final String faCalculator = "fa-calculator";
-	public static final String faCalendar = "fa-calendar";
-	public static final String faCalendarCheckO = "fa-calendar-check-o";
-	public static final String faCalendarMinusO = "fa-calendar-minus-o";
-	public static final String faCalendarO = "fa-calendar-o";
-	public static final String faCalendarPlusO = "fa-calendar-plus-o";
-	public static final String faCalendarTimesO = "fa-calendar-times-o";
-	public static final String faCamera = "fa-camera";
-	public static final String faCameraRetro = "fa-camera-retro";
-	public static final String faCar = "fa-car";
-	public static final String faCaretDown = "fa-caret-down";
-	public static final String faCaretLeft = "fa-caret-left";
-	public static final String faCaretRight = "fa-caret-right";
-	public static final String faCaretSquareODown = "fa-caret-square-o-down";
-	public static final String faCaretSquareOLeft = "fa-caret-square-o-left";
-	public static final String faCaretSquareORight = "fa-caret-square-o-right";
-	public static final String faCaretSquareOUp = "fa-caret-square-o-up";
-	public static final String faCaretUp = "fa-caret-up";
-	public static final String faCartArrowDown = "fa-cart-arrow-down";
-	public static final String faCartPlus = "fa-cart-plus";
-	public static final String faCc = "fa-cc";
-	public static final String faCcAmex = "fa-cc-amex";
-	public static final String faCcDinersClub = "fa-cc-diners-club";
-	public static final String faCcDiscover = "fa-cc-discover";
-	public static final String faCcJcb = "fa-cc-jcb";
-	public static final String faCcMastercard = "fa-cc-mastercard";
-	public static final String faCcPaypal = "fa-cc-paypal";
-	public static final String faCcStripe = "fa-cc-stripe";
-	public static final String faCcVisa = "fa-cc-visa";
-	public static final String faCertificate = "fa-certificate";
-	public static final String faChainBroken = "fa-chain-broken";
-	public static final String faCheck = "fa-check";
-	public static final String faCheckCircle = "fa-check-circle";
-	public static final String faCheckCircleO = "fa-check-circle-o";
-	public static final String faCheckSquare = "fa-check-square";
-	public static final String faCheckSquareO = "fa-check-square-o";
-	public static final String faChevronCircleDown = "fa-chevron-circle-down";
-	public static final String faChevronCircleLeft = "fa-chevron-circle-left";
-	public static final String faChevronCircleRight = "fa-chevron-circle-right";
-	public static final String faChevronCircleUp = "fa-chevron-circle-up";
-	public static final String faChevronDown = "fa-chevron-down";
-	public static final String faChevronLeft = "fa-chevron-left";
-	public static final String faChevronRight = "fa-chevron-right";
-	public static final String faChevronUp = "fa-chevron-up";
-	public static final String faChild = "fa-child";
-	public static final String faChrome = "fa-chrome";
-	public static final String faCircle = "fa-circle";
-	public static final String faCircleO = "fa-circle-o";
-	public static final String faCircleONotch = "fa-circle-o-notch";
-	public static final String faCircleThin = "fa-circle-thin";
-	public static final String faClipboard = "fa-clipboard";
-	public static final String faClockO = "fa-clock-o";
-	public static final String faClone = "fa-clone";
-	public static final String faCloud = "fa-cloud";
-	public static final String faCloudDownload = "fa-cloud-download";
-	public static final String faCloudUpload = "fa-cloud-upload";
-	public static final String faCode = "fa-code";
-	public static final String faCodeFork = "fa-code-fork";
-	public static final String faCodepen = "fa-codepen";
-	public static final String faCodiepie = "fa-codiepie";
-	public static final String faCoffee = "fa-coffee";
-	public static final String faCog = "fa-cog";
-	public static final String faCogs = "fa-cogs";
-	public static final String faColumns = "fa-columns";
-	public static final String faComment = "fa-comment";
-	public static final String faCommentO = "fa-comment-o";
-	public static final String faCommenting = "fa-commenting";
-	public static final String faCommentingO = "fa-commenting-o";
-	public static final String faComments = "fa-comments";
-	public static final String faCommentsO = "fa-comments-o";
-	public static final String faCompass = "fa-compass";
-	public static final String faCompress = "fa-compress";
-	public static final String faConnectdevelop = "fa-connectdevelop";
-	public static final String faContao = "fa-contao";
-	public static final String faCopyright = "fa-copyright";
-	public static final String faCreativeCommons = "fa-creative-commons";
-	public static final String faCreditCard = "fa-credit-card";
-	public static final String faCreditCardAlt = "fa-credit-card-alt";
-	public static final String faCrop = "fa-crop";
-	public static final String faCrosshairs = "fa-crosshairs";
-	public static final String faCss3 = "fa-css3";
-	public static final String faCube = "fa-cube";
-	public static final String faCubes = "fa-cubes";
-	public static final String faCutlery = "fa-cutlery";
-	public static final String faDashcube = "fa-dashcube";
-	public static final String faDatabase = "fa-database";
-	public static final String faDeaf = "fa-deaf";
-	public static final String faDelicious = "fa-delicious";
-	public static final String faDesktop = "fa-desktop";
-	public static final String faDeviantart = "fa-deviantart";
-	public static final String faDiamond = "fa-diamond";
-	public static final String faDigg = "fa-digg";
-	public static final String faDotCircleO = "fa-dot-circle-o";
-	public static final String faDownload = "fa-download";
-	public static final String faDribbble = "fa-dribbble";
-	public static final String faDropbox = "fa-dropbox";
-	public static final String faDrupal = "fa-drupal";
-	public static final String faEdge = "fa-edge";
-	public static final String faEercast = "fa-eercast";
-	public static final String faEject = "fa-eject";
-	public static final String faEllipsisH = "fa-ellipsis-h";
-	public static final String faEllipsisV = "fa-ellipsis-v";
-	public static final String faEmpire = "fa-empire";
-	public static final String faEnvelope = "fa-envelope";
-	public static final String faEnvelopeO = "fa-envelope-o";
-	public static final String faEnvelopeOpen = "fa-envelope-open";
-	public static final String faEnvelopeOpenO = "fa-envelope-open-o";
-	public static final String faEnvelopeSquare = "fa-envelope-square";
-	public static final String faEnvira = "fa-envira";
-	public static final String faEraser = "fa-eraser";
-	public static final String faEtsy = "fa-etsy";
-	public static final String faEur = "fa-eur";
-	public static final String faExchange = "fa-exchange";
-	public static final String faExclamation = "fa-exclamation";
-	public static final String faExclamationCircle = "fa-exclamation-circle";
-	public static final String faExclamationTriangle = "fa-exclamation-triangle";
-	public static final String faExpand = "fa-expand";
-	public static final String faExpeditedssl = "fa-expeditedssl";
-	public static final String faExternalLink = "fa-external-link";
-	public static final String faExternalLinkSquare = "fa-external-link-square";
-	public static final String faEye = "fa-eye";
-	public static final String faEyeSlash = "fa-eye-slash";
-	public static final String faEyedropper = "fa-eyedropper";
-	public static final String faFacebook = "fa-facebook";
-	public static final String faFacebookOfficial = "fa-facebook-official";
-	public static final String faFacebookSquare = "fa-facebook-square";
-	public static final String faFastBackward = "fa-fast-backward";
-	public static final String faFastForward = "fa-fast-forward";
-	public static final String faFax = "fa-fax";
-	public static final String faFemale = "fa-female";
-	public static final String faFighterJet = "fa-fighter-jet";
-	public static final String faFile = "fa-file";
-	public static final String faFileArchiveO = "fa-file-archive-o";
-	public static final String faFileAudioO = "fa-file-audio-o";
-	public static final String faFileCodeO = "fa-file-code-o";
-	public static final String faFileExcelO = "fa-file-excel-o";
-	public static final String faFileImageO = "fa-file-image-o";
-	public static final String faFileO = "fa-file-o";
-	public static final String faFilePdfO = "fa-file-pdf-o";
-	public static final String faFilePowerpointO = "fa-file-powerpoint-o";
-	public static final String faFileText = "fa-file-text";
-	public static final String faFileTextO = "fa-file-text-o";
-	public static final String faFileVideoO = "fa-file-video-o";
-	public static final String faFileWordO = "fa-file-word-o";
-	public static final String faFilesO = "fa-files-o";
-	public static final String faFilm = "fa-film";
-	public static final String faFilter = "fa-filter";
-	public static final String faFire = "fa-fire";
-	public static final String faFireExtinguisher = "fa-fire-extinguisher";
-	public static final String faFirefox = "fa-firefox";
-	public static final String faFirstOrder = "fa-first-order";
-	public static final String faFlag = "fa-flag";
-	public static final String faFlagCheckered = "fa-flag-checkered";
-	public static final String faFlagO = "fa-flag-o";
-	public static final String faFlask = "fa-flask";
-	public static final String faFlickr = "fa-flickr";
-	public static final String faFloppyO = "fa-floppy-o";
-	public static final String faFolder = "fa-folder";
-	public static final String faFolderO = "fa-folder-o";
-	public static final String faFolderOpen = "fa-folder-open";
-	public static final String faFolderOpenO = "fa-folder-open-o";
-	public static final String faFont = "fa-font";
-	public static final String faFontAwesome = "fa-font-awesome";
-	public static final String faFonticons = "fa-fonticons";
-	public static final String faFortAwesome = "fa-fort-awesome";
-	public static final String faForumbee = "fa-forumbee";
-	public static final String faForward = "fa-forward";
-	public static final String faFoursquare = "fa-foursquare";
-	public static final String faFreeCodeCamp = "fa-free-code-camp";
-	public static final String faFrownO = "fa-frown-o";
-	public static final String faFutbolO = "fa-futbol-o";
-	public static final String faGamepad = "fa-gamepad";
-	public static final String faGavel = "fa-gavel";
-	public static final String faGbp = "fa-gbp";
-	public static final String faGenderless = "fa-genderless";
-	public static final String faGetPocket = "fa-get-pocket";
-	public static final String faGg = "fa-gg";
-	public static final String faGgCircle = "fa-gg-circle";
-	public static final String faGift = "fa-gift";
-	public static final String faGit = "fa-git";
-	public static final String faGitSquare = "fa-git-square";
-	public static final String faGithub = "fa-github";
-	public static final String faGithubAlt = "fa-github-alt";
-	public static final String faGithubSquare = "fa-github-square";
-	public static final String faGitlab = "fa-gitlab";
-	public static final String faGlass = "fa-glass";
-	public static final String faGlide = "fa-glide";
-	public static final String faGlideG = "fa-glide-g";
-	public static final String faGlobe = "fa-globe";
-	public static final String faGoogle = "fa-google";
-	public static final String faGooglePlus = "fa-google-plus";
-	public static final String faGooglePlusOfficial = "fa-google-plus-official";
-	public static final String faGooglePlusSquare = "fa-google-plus-square";
-	public static final String faGoogleWallet = "fa-google-wallet";
-	public static final String faGraduationCap = "fa-graduation-cap";
-	public static final String faGratipay = "fa-gratipay";
-	public static final String faGrav = "fa-grav";
-	public static final String faHSquare = "fa-h-square";
-	public static final String faHackerNews = "fa-hacker-news";
-	public static final String faHandLizardO = "fa-hand-lizard-o";
-	public static final String faHandODown = "fa-hand-o-down";
-	public static final String faHandOLeft = "fa-hand-o-left";
-	public static final String faHandORight = "fa-hand-o-right";
-	public static final String faHandOUp = "fa-hand-o-up";
-	public static final String faHandPaperO = "fa-hand-paper-o";
-	public static final String faHandPeaceO = "fa-hand-peace-o";
-	public static final String faHandPointerO = "fa-hand-pointer-o";
-	public static final String faHandRockO = "fa-hand-rock-o";
-	public static final String faHandScissorsO = "fa-hand-scissors-o";
-	public static final String faHandSpockO = "fa-hand-spock-o";
-	public static final String faHandshakeO = "fa-handshake-o";
-	public static final String faHashtag = "fa-hashtag";
-	public static final String faHddO = "fa-hdd-o";
-	public static final String faHeader = "fa-header";
-	public static final String faHeadphones = "fa-headphones";
-	public static final String faHeart = "fa-heart";
-	public static final String faHeartO = "fa-heart-o";
-	public static final String faHeartbeat = "fa-heartbeat";
-	public static final String faHistory = "fa-history";
-	public static final String faHome = "fa-home";
-	public static final String faHospitalO = "fa-hospital-o";
-	public static final String faHourglass = "fa-hourglass";
-	public static final String faHourglassEnd = "fa-hourglass-end";
-	public static final String faHourglassHalf = "fa-hourglass-half";
-	public static final String faHourglassO = "fa-hourglass-o";
-	public static final String faHourglassStart = "fa-hourglass-start";
-	public static final String faHouzz = "fa-houzz";
-	public static final String faHtml5 = "fa-html5";
-	public static final String faICursor = "fa-i-cursor";
-	public static final String faIdBadge = "fa-id-badge";
-	public static final String faIdCard = "fa-id-card";
-	public static final String faIdCardO = "fa-id-card-o";
-	public static final String faIls = "fa-ils";
-	public static final String faImdb = "fa-imdb";
-	public static final String faInbox = "fa-inbox";
-	public static final String faIndent = "fa-indent";
-	public static final String faIndustry = "fa-industry";
-	public static final String faInfo = "fa-info";
-	public static final String faInfoCircle = "fa-info-circle";
-	public static final String faInr = "fa-inr";
-	public static final String faInstagram = "fa-instagram";
-	public static final String faInternetExplorer = "fa-internet-explorer";
-	public static final String faIoxhost = "fa-ioxhost";
-	public static final String faItalic = "fa-italic";
-	public static final String faJoomla = "fa-joomla";
-	public static final String faJpy = "fa-jpy";
-	public static final String faJsfiddle = "fa-jsfiddle";
-	public static final String faKey = "fa-key";
-	public static final String faKeyboardO = "fa-keyboard-o";
-	public static final String faKrw = "fa-krw";
-	public static final String faLanguage = "fa-language";
-	public static final String faLaptop = "fa-laptop";
-	public static final String faLastfm = "fa-lastfm";
-	public static final String faLastfmSquare = "fa-lastfm-square";
-	public static final String faLeaf = "fa-leaf";
-	public static final String faLeanpub = "fa-leanpub";
-	public static final String faLemonO = "fa-lemon-o";
-	public static final String faLevelDown = "fa-level-down";
-	public static final String faLevelUp = "fa-level-up";
-	public static final String faLifeRing = "fa-life-ring";
-	public static final String faLightbulbO = "fa-lightbulb-o";
-	public static final String faLineChart = "fa-line-chart";
-	public static final String faLink = "fa-link";
-	public static final String faLinkedin = "fa-linkedin";
-	public static final String faLinkedinSquare = "fa-linkedin-square";
-	public static final String faLinode = "fa-linode";
-	public static final String faLinux = "fa-linux";
-	public static final String faList = "fa-list";
-	public static final String faListAlt = "fa-list-alt";
-	public static final String faListOl = "fa-list-ol";
-	public static final String faListUl = "fa-list-ul";
-	public static final String faLocationArrow = "fa-location-arrow";
-	public static final String faLock = "fa-lock";
-	public static final String faLongArrowDown = "fa-long-arrow-down";
-	public static final String faLongArrowLeft = "fa-long-arrow-left";
-	public static final String faLongArrowRight = "fa-long-arrow-right";
-	public static final String faLongArrowUp = "fa-long-arrow-up";
-	public static final String faLowVision = "fa-low-vision";
-	public static final String faMagic = "fa-magic";
-	public static final String faMagnet = "fa-magnet";
-	public static final String faMale = "fa-male";
-	public static final String faMap = "fa-map";
-	public static final String faMapMarker = "fa-map-marker";
-	public static final String faMapO = "fa-map-o";
-	public static final String faMapPin = "fa-map-pin";
-	public static final String faMapSigns = "fa-map-signs";
-	public static final String faMars = "fa-mars";
-	public static final String faMarsDouble = "fa-mars-double";
-	public static final String faMarsStroke = "fa-mars-stroke";
-	public static final String faMarsStrokeH = "fa-mars-stroke-h";
-	public static final String faMarsStrokeV = "fa-mars-stroke-v";
-	public static final String faMaxcdn = "fa-maxcdn";
-	public static final String faMeanpath = "fa-meanpath";
-	public static final String faMedium = "fa-medium";
-	public static final String faMedkit = "fa-medkit";
-	public static final String faMeetup = "fa-meetup";
-	public static final String faMehO = "fa-meh-o";
-	public static final String faMercury = "fa-mercury";
-	public static final String faMicrochip = "fa-microchip";
-	public static final String faMicrophone = "fa-microphone";
-	public static final String faMicrophoneSlash = "fa-microphone-slash";
-	public static final String faMinus = "fa-minus";
-	public static final String faMinusCircle = "fa-minus-circle";
-	public static final String faMinusSquare = "fa-minus-square";
-	public static final String faMinusSquareO = "fa-minus-square-o";
-	public static final String faMixcloud = "fa-mixcloud";
-	public static final String faMobile = "fa-mobile";
-	public static final String faModx = "fa-modx";
-	public static final String faMoney = "fa-money";
-	public static final String faMoonO = "fa-moon-o";
-	public static final String faMotorcycle = "fa-motorcycle";
-	public static final String faMousePointer = "fa-mouse-pointer";
-	public static final String faMusic = "fa-music";
-	public static final String faNeuter = "fa-neuter";
-	public static final String faNewspaperO = "fa-newspaper-o";
-	public static final String faObjectGroup = "fa-object-group";
-	public static final String faObjectUngroup = "fa-object-ungroup";
-	public static final String faOdnoklassniki = "fa-odnoklassniki";
-	public static final String faOdnoklassnikiSquare = "fa-odnoklassniki-square";
-	public static final String faOpencart = "fa-opencart";
-	public static final String faOpenid = "fa-openid";
-	public static final String faOpera = "fa-opera";
-	public static final String faOptinMonster = "fa-optin-monster";
-	public static final String faOutdent = "fa-outdent";
-	public static final String faPagelines = "fa-pagelines";
-	public static final String faPaintBrush = "fa-paint-brush";
-	public static final String faPaperPlane = "fa-paper-plane";
-	public static final String faPaperPlaneO = "fa-paper-plane-o";
-	public static final String faPaperclip = "fa-paperclip";
-	public static final String faParagraph = "fa-paragraph";
-	public static final String faPause = "fa-pause";
-	public static final String faPauseCircle = "fa-pause-circle";
-	public static final String faPauseCircleO = "fa-pause-circle-o";
-	public static final String faPaw = "fa-paw";
-	public static final String faPaypal = "fa-paypal";
-	public static final String faPencil = "fa-pencil";
-	public static final String faPencilSquare = "fa-pencil-square";
-	public static final String faPencilSquareO = "fa-pencil-square-o";
-	public static final String faPercent = "fa-percent";
-	public static final String faPhone = "fa-phone";
-	public static final String faPhoneSquare = "fa-phone-square";
-	public static final String faPictureO = "fa-picture-o";
-	public static final String faPieChart = "fa-pie-chart";
-	public static final String faPiedPiper = "fa-pied-piper";
-	public static final String faPiedPiperAlt = "fa-pied-piper-alt";
-	public static final String faPiedPiperPp = "fa-pied-piper-pp";
-	public static final String faPinterest = "fa-pinterest";
-	public static final String faPinterestP = "fa-pinterest-p";
-	public static final String faPinterestSquare = "fa-pinterest-square";
-	public static final String faPlane = "fa-plane";
-	public static final String faPlay = "fa-play";
-	public static final String faPlayCircle = "fa-play-circle";
-	public static final String faPlayCircleO = "fa-play-circle-o";
-	public static final String faPlug = "fa-plug";
-	public static final String faPlus = "fa-plus";
-	public static final String faPlusCircle = "fa-plus-circle";
-	public static final String faPlusSquare = "fa-plus-square";
-	public static final String faPlusSquareO = "fa-plus-square-o";
-	public static final String faPodcast = "fa-podcast";
-	public static final String faPowerOff = "fa-power-off";
-	public static final String faPrint = "fa-print";
-	public static final String faProductHunt = "fa-product-hunt";
-	public static final String faPuzzlePiece = "fa-puzzle-piece";
-	public static final String faQq = "fa-qq";
-	public static final String faQrcode = "fa-qrcode";
-	public static final String faQuestion = "fa-question";
-	public static final String faQuestionCircle = "fa-question-circle";
-	public static final String faQuestionCircleO = "fa-question-circle-o";
-	public static final String faQuora = "fa-quora";
-	public static final String faQuoteLeft = "fa-quote-left";
-	public static final String faQuoteRight = "fa-quote-right";
-	public static final String faRandom = "fa-random";
-	public static final String faRavelry = "fa-ravelry";
-	public static final String faRebel = "fa-rebel";
-	public static final String faRecycle = "fa-recycle";
-	public static final String faReddit = "fa-reddit";
-	public static final String faRedditAlien = "fa-reddit-alien";
-	public static final String faRedditSquare = "fa-reddit-square";
-	public static final String faRefresh = "fa-refresh";
-	public static final String faRegistered = "fa-registered";
-	public static final String faRenren = "fa-renren";
-	public static final String faRepeat = "fa-repeat";
-	public static final String faReply = "fa-reply";
-	public static final String faReplyAll = "fa-reply-all";
-	public static final String faRetweet = "fa-retweet";
-	public static final String faRoad = "fa-road";
-	public static final String faRocket = "fa-rocket";
-	public static final String faRss = "fa-rss";
-	public static final String faRssSquare = "fa-rss-square";
-	public static final String faRub = "fa-rub";
-	public static final String faSafari = "fa-safari";
-	public static final String faScissors = "fa-scissors";
-	public static final String faScribd = "fa-scribd";
-	public static final String faSearch = "fa-search";
-	public static final String faSearchMinus = "fa-search-minus";
-	public static final String faSearchPlus = "fa-search-plus";
-	public static final String faSellsy = "fa-sellsy";
-	public static final String faServer = "fa-server";
-	public static final String faShare = "fa-share";
-	public static final String faShareAlt = "fa-share-alt";
-	public static final String faShareAltSquare = "fa-share-alt-square";
-	public static final String faShareSquare = "fa-share-square";
-	public static final String faShareSquareO = "fa-share-square-o";
-	public static final String faShield = "fa-shield";
-	public static final String faShip = "fa-ship";
-	public static final String faShirtsinbulk = "fa-shirtsinbulk";
-	public static final String faShoppingBag = "fa-shopping-bag";
-	public static final String faShoppingBasket = "fa-shopping-basket";
-	public static final String faShoppingCart = "fa-shopping-cart";
-	public static final String faShower = "fa-shower";
-	public static final String faSignIn = "fa-sign-in";
-	public static final String faSignLanguage = "fa-sign-language";
-	public static final String faSignOut = "fa-sign-out";
-	public static final String faSignal = "fa-signal";
-	public static final String faSimplybuilt = "fa-simplybuilt";
-	public static final String faSitemap = "fa-sitemap";
-	public static final String faSkyatlas = "fa-skyatlas";
-	public static final String faSkype = "fa-skype";
-	public static final String faSlack = "fa-slack";
-	public static final String faSliders = "fa-sliders";
-	public static final String faSlideshare = "fa-slideshare";
-	public static final String faSmileO = "fa-smile-o";
-	public static final String faSnapchat = "fa-snapchat";
-	public static final String faSnapchatGhost = "fa-snapchat-ghost";
-	public static final String faSnapchatSquare = "fa-snapchat-square";
-	public static final String faSnowflakeO = "fa-snowflake-o";
-	public static final String faSort = "fa-sort";
-	public static final String faSortAlphaAsc = "fa-sort-alpha-asc";
-	public static final String faSortAlphaDesc = "fa-sort-alpha-desc";
-	public static final String faSortAmountAsc = "fa-sort-amount-asc";
-	public static final String faSortAmountDesc = "fa-sort-amount-desc";
-	public static final String faSortAsc = "fa-sort-asc";
-	public static final String faSortDesc = "fa-sort-desc";
-	public static final String faSortNumericAsc = "fa-sort-numeric-asc";
-	public static final String faSortNumericDesc = "fa-sort-numeric-desc";
-	public static final String faSoundcloud = "fa-soundcloud";
-	public static final String faSpaceShuttle = "fa-space-shuttle";
-	public static final String faSpinner = "fa-spinner";
-	public static final String faSpoon = "fa-spoon";
-	public static final String faSpotify = "fa-spotify";
-	public static final String faSquare = "fa-square";
-	public static final String faSquareO = "fa-square-o";
-	public static final String faStackExchange = "fa-stack-exchange";
-	public static final String faStackOverflow = "fa-stack-overflow";
-	public static final String faStar = "fa-star";
-	public static final String faStarHalf = "fa-star-half";
-	public static final String faStarHalfO = "fa-star-half-o";
-	public static final String faStarO = "fa-star-o";
-	public static final String faSteam = "fa-steam";
-	public static final String faSteamSquare = "fa-steam-square";
-	public static final String faStepBackward = "fa-step-backward";
-	public static final String faStepForward = "fa-step-forward";
-	public static final String faStethoscope = "fa-stethoscope";
-	public static final String faStickyNote = "fa-sticky-note";
-	public static final String faStickyNoteO = "fa-sticky-note-o";
-	public static final String faStop = "fa-stop";
-	public static final String faStopCircle = "fa-stop-circle";
-	public static final String faStopCircleO = "fa-stop-circle-o";
-	public static final String faStreetView = "fa-street-view";
-	public static final String faStrikethrough = "fa-strikethrough";
-	public static final String faStumbleupon = "fa-stumbleupon";
-	public static final String faStumbleuponCircle = "fa-stumbleupon-circle";
-	public static final String faSubscript = "fa-subscript";
-	public static final String faSubway = "fa-subway";
-	public static final String faSuitcase = "fa-suitcase";
-	public static final String faSunO = "fa-sun-o";
-	public static final String faSuperpowers = "fa-superpowers";
-	public static final String faSuperscript = "fa-superscript";
-	public static final String faTable = "fa-table";
-	public static final String faTablet = "fa-tablet";
-	public static final String faTachometer = "fa-tachometer";
-	public static final String faTag = "fa-tag";
-	public static final String faTags = "fa-tags";
-	public static final String faTasks = "fa-tasks";
-	public static final String faTaxi = "fa-taxi";
-	public static final String faTelegram = "fa-telegram";
-	public static final String faTelevision = "fa-television";
-	public static final String faTencentWeibo = "fa-tencent-weibo";
-	public static final String faTerminal = "fa-terminal";
-	public static final String faTextHeight = "fa-text-height";
-	public static final String faTextWidth = "fa-text-width";
-	public static final String faTh = "fa-th";
-	public static final String faThLarge = "fa-th-large";
-	public static final String faThList = "fa-th-list";
-	public static final String faThemeisle = "fa-themeisle";
-	public static final String faThermometerEmpty = "fa-thermometer-empty";
-	public static final String faThermometerFull = "fa-thermometer-full";
-	public static final String faThermometerHalf = "fa-thermometer-half";
-	public static final String faThermometerQuarter = "fa-thermometer-quarter";
-	public static final String faThermometerThreeQuarters = "fa-thermometer-three-quarters";
-	public static final String faThumbTack = "fa-thumb-tack";
-	public static final String faThumbsDown = "fa-thumbs-down";
-	public static final String faThumbsODown = "fa-thumbs-o-down";
-	public static final String faThumbsOUp = "fa-thumbs-o-up";
-	public static final String faThumbsUp = "fa-thumbs-up";
-	public static final String faTicket = "fa-ticket";
-	public static final String faTimes = "fa-times";
-	public static final String faTimesCircle = "fa-times-circle";
-	public static final String faTimesCircleO = "fa-times-circle-o";
-	public static final String faTint = "fa-tint";
-	public static final String faToggleOff = "fa-toggle-off";
-	public static final String faToggleOn = "fa-toggle-on";
-	public static final String faTrademark = "fa-trademark";
-	public static final String faTrain = "fa-train";
-	public static final String faTransgender = "fa-transgender";
-	public static final String faTransgenderAlt = "fa-transgender-alt";
-	public static final String faTrash = "fa-trash";
-	public static final String faTrashO = "fa-trash-o";
-	public static final String faTree = "fa-tree";
-	public static final String faTrello = "fa-trello";
-	public static final String faTripadvisor = "fa-tripadvisor";
-	public static final String faTrophy = "fa-trophy";
-	public static final String faTruck = "fa-truck";
-	public static final String faTry = "fa-try";
-	public static final String faTty = "fa-tty";
-	public static final String faTumblr = "fa-tumblr";
-	public static final String faTumblrSquare = "fa-tumblr-square";
-	public static final String faTwitch = "fa-twitch";
-	public static final String faTwitter = "fa-twitter";
-	public static final String faTwitterSquare = "fa-twitter-square";
-	public static final String faUmbrella = "fa-umbrella";
-	public static final String faUnderline = "fa-underline";
-	public static final String faUndo = "fa-undo";
-	public static final String faUniversalAccess = "fa-universal-access";
-	public static final String faUniversity = "fa-university";
-	public static final String faUnlock = "fa-unlock";
-	public static final String faUnlockAlt = "fa-unlock-alt";
-	public static final String faUpload = "fa-upload";
-	public static final String faUsb = "fa-usb";
-	public static final String faUsd = "fa-usd";
-	public static final String faUser = "fa-user";
-	public static final String faUserCircle = "fa-user-circle";
-	public static final String faUserCircleO = "fa-user-circle-o";
-	public static final String faUserMd = "fa-user-md";
-	public static final String faUserO = "fa-user-o";
-	public static final String faUserPlus = "fa-user-plus";
-	public static final String faUserSecret = "fa-user-secret";
-	public static final String faUserTimes = "fa-user-times";
-	public static final String faUsers = "fa-users";
-	public static final String faVenus = "fa-venus";
-	public static final String faVenusDouble = "fa-venus-double";
-	public static final String faVenusMars = "fa-venus-mars";
-	public static final String faViacoin = "fa-viacoin";
-	public static final String faViadeo = "fa-viadeo";
-	public static final String faViadeoSquare = "fa-viadeo-square";
-	public static final String faVideoCamera = "fa-video-camera";
-	public static final String faVimeo = "fa-vimeo";
-	public static final String faVimeoSquare = "fa-vimeo-square";
-	public static final String faVine = "fa-vine";
-	public static final String faVk = "fa-vk";
-	public static final String faVolumeControlPhone = "fa-volume-control-phone";
-	public static final String faVolumeDown = "fa-volume-down";
-	public static final String faVolumeOff = "fa-volume-off";
-	public static final String faVolumeUp = "fa-volume-up";
-	public static final String faWeibo = "fa-weibo";
-	public static final String faWeixin = "fa-weixin";
-	public static final String faWhatsapp = "fa-whatsapp";
-	public static final String faWheelchair = "fa-wheelchair";
-	public static final String faWheelchairAlt = "fa-wheelchair-alt";
-	public static final String faWifi = "fa-wifi";
-	public static final String faWikipediaW = "fa-wikipedia-w";
-	public static final String faWindowClose = "fa-window-close";
-	public static final String faWindowCloseO = "fa-window-close-o";
-	public static final String faWindowMaximize = "fa-window-maximize";
-	public static final String faWindowMinimize = "fa-window-minimize";
-	public static final String faWindowRestore = "fa-window-restore";
-	public static final String faWindows = "fa-windows";
-	public static final String faWordpress = "fa-wordpress";
-	public static final String faWpbeginner = "fa-wpbeginner";
-	public static final String faWpexplorer = "fa-wpexplorer";
-	public static final String faWpforms = "fa-wpforms";
-	public static final String faWrench = "fa-wrench";
-	public static final String faXing = "fa-xing";
-	public static final String faXingSquare = "fa-xing-square";
-	public static final String faYCombinator = "fa-y-combinator";
-	public static final String faYahoo = "fa-yahoo";
-	public static final String faYelp = "fa-yelp";
-	public static final String faYoast = "fa-yoast";
-	public static final String faYoutube = "fa-youtube";
-	public static final String faYoutubePlay = "fa-youtube-play";
-	public static final String faYoutubeSquare = "fa-youtube-square";
+public enum Icon implements IFontIcon {
+	fa500px("fa-500px"),
+	faAddressBook("fa-address-book"),
+	faAddressBookO("fa-address-book-o"),
+	faAddressCard("fa-address-card"),
+	faAddressCardO("fa-address-card-o"),
+	faAdjust("fa-adjust"),
+	faAdn("fa-adn"),
+	faAlignCenter("fa-align-center"),
+	faAlignJustify("fa-align-justify"),
+	faAlignLeft("fa-align-left"),
+	faAlignRight("fa-align-right"),
+	faAmazon("fa-amazon"),
+	faAmbulance("fa-ambulance"),
+	faAmericanSignLanguageInterpreting("fa-american-sign-language-interpreting"),
+	faAnchor("fa-anchor"),
+	faAndroid("fa-android"),
+	faAngellist("fa-angellist"),
+	faAngleDoubleDown("fa-angle-double-down"),
+	faAngleDoubleLeft("fa-angle-double-left"),
+	faAngleDoubleRight("fa-angle-double-right"),
+	faAngleDoubleUp("fa-angle-double-up"),
+	faAngleDown("fa-angle-down"),
+	faAngleLeft("fa-angle-left"),
+	faAngleRight("fa-angle-right"),
+	faAngleUp("fa-angle-up"),
+	faApple("fa-apple"),
+	faArchive("fa-archive"),
+	faAreaChart("fa-area-chart"),
+	faArrowCircleDown("fa-arrow-circle-down"),
+	faArrowCircleLeft("fa-arrow-circle-left"),
+	faArrowCircleODown("fa-arrow-circle-o-down"),
+	faArrowCircleOLeft("fa-arrow-circle-o-left"),
+	faArrowCircleORight("fa-arrow-circle-o-right"),
+	faArrowCircleOUp("fa-arrow-circle-o-up"),
+	faArrowCircleRight("fa-arrow-circle-right"),
+	faArrowCircleUp("fa-arrow-circle-up"),
+	faArrowDown("fa-arrow-down"),
+	faArrowLeft("fa-arrow-left"),
+	faArrowRight("fa-arrow-right"),
+	faArrowUp("fa-arrow-up"),
+	faArrows("fa-arrows"),
+	faArrowsAlt("fa-arrows-alt"),
+	faArrowsH("fa-arrows-h"),
+	faArrowsV("fa-arrows-v"),
+	faAssistiveListeningSystems("fa-assistive-listening-systems"),
+	faAsterisk("fa-asterisk"),
+	faAt("fa-at"),
+	faAudioDescription("fa-audio-description"),
+	faBackward("fa-backward"),
+	faBalanceScale("fa-balance-scale"),
+	faBan("fa-ban"),
+	faBandcamp("fa-bandcamp"),
+	faBarChart("fa-bar-chart"),
+	faBarcode("fa-barcode"),
+	faBars("fa-bars"),
+	faBath("fa-bath"),
+	faBatteryEmpty("fa-battery-empty"),
+	faBatteryFull("fa-battery-full"),
+	faBatteryHalf("fa-battery-half"),
+	faBatteryQuarter("fa-battery-quarter"),
+	faBatteryThreeQuarters("fa-battery-three-quarters"),
+	faBed("fa-bed"),
+	faBeer("fa-beer"),
+	faBehance("fa-behance"),
+	faBehanceSquare("fa-behance-square"),
+	faBell("fa-bell"),
+	faBellO("fa-bell-o"),
+	faBellSlash("fa-bell-slash"),
+	faBellSlashO("fa-bell-slash-o"),
+	faBicycle("fa-bicycle"),
+	faBinoculars("fa-binoculars"),
+	faBirthdayCake("fa-birthday-cake"),
+	faBitbucket("fa-bitbucket"),
+	faBitbucketSquare("fa-bitbucket-square"),
+	faBlackTie("fa-black-tie"),
+	faBlind("fa-blind"),
+	faBluetooth("fa-bluetooth"),
+	faBluetoothB("fa-bluetooth-b"),
+	faBold("fa-bold"),
+	faBolt("fa-bolt"),
+	faBomb("fa-bomb"),
+	faBook("fa-book"),
+	faBookmark("fa-bookmark"),
+	faBookmarkO("fa-bookmark-o"),
+	faBraille("fa-braille"),
+	faBriefcase("fa-briefcase"),
+	faBtc("fa-btc"),
+	faBug("fa-bug"),
+	faBuilding("fa-building"),
+	faBuildingO("fa-building-o"),
+	faBullhorn("fa-bullhorn"),
+	faBullseye("fa-bullseye"),
+	faBus("fa-bus"),
+	faBuysellads("fa-buysellads"),
+	faCalculator("fa-calculator"),
+	faCalendar("fa-calendar"),
+	faCalendarCheckO("fa-calendar-check-o"),
+	faCalendarMinusO("fa-calendar-minus-o"),
+	faCalendarO("fa-calendar-o"),
+	faCalendarPlusO("fa-calendar-plus-o"),
+	faCalendarTimesO("fa-calendar-times-o"),
+	faCamera("fa-camera"),
+	faCameraRetro("fa-camera-retro"),
+	faCar("fa-car"),
+	faCaretDown("fa-caret-down"),
+	faCaretLeft("fa-caret-left"),
+	faCaretRight("fa-caret-right"),
+	faCaretSquareODown("fa-caret-square-o-down"),
+	faCaretSquareOLeft("fa-caret-square-o-left"),
+	faCaretSquareORight("fa-caret-square-o-right"),
+	faCaretSquareOUp("fa-caret-square-o-up"),
+	faCaretUp("fa-caret-up"),
+	faCartArrowDown("fa-cart-arrow-down"),
+	faCartPlus("fa-cart-plus"),
+	faCc("fa-cc"),
+	faCcAmex("fa-cc-amex"),
+	faCcDinersClub("fa-cc-diners-club"),
+	faCcDiscover("fa-cc-discover"),
+	faCcJcb("fa-cc-jcb"),
+	faCcMastercard("fa-cc-mastercard"),
+	faCcPaypal("fa-cc-paypal"),
+	faCcStripe("fa-cc-stripe"),
+	faCcVisa("fa-cc-visa"),
+	faCertificate("fa-certificate"),
+	faChain("fa-chain"),
+	faChainBroken("fa-chain-broken"),
+	faCheck("fa-check"),
+	faCheckCircle("fa-check-circle"),
+	faCheckCircleO("fa-check-circle-o"),
+	faCheckSquare("fa-check-square"),
+	faCheckSquareO("fa-check-square-o"),
+	faChevronCircleDown("fa-chevron-circle-down"),
+	faChevronCircleLeft("fa-chevron-circle-left"),
+	faChevronCircleRight("fa-chevron-circle-right"),
+	faChevronCircleUp("fa-chevron-circle-up"),
+	faChevronDown("fa-chevron-down"),
+	faChevronLeft("fa-chevron-left"),
+	faChevronRight("fa-chevron-right"),
+	faChevronUp("fa-chevron-up"),
+	faChild("fa-child"),
+	faChrome("fa-chrome"),
+	faCircle("fa-circle"),
+	faCircleO("fa-circle-o"),
+	faCircleONotch("fa-circle-o-notch"),
+	faCircleThin("fa-circle-thin"),
+	faClipboard("fa-clipboard"),
+	faClockO("fa-clock-o"),
+	faClone("fa-clone"),
+	faCloud("fa-cloud"),
+	faCloudDownload("fa-cloud-download"),
+	faCloudUpload("fa-cloud-upload"),
+	faCode("fa-code"),
+	faCodeFork("fa-code-fork"),
+	faCodepen("fa-codepen"),
+	faCodiepie("fa-codiepie"),
+	faCoffee("fa-coffee"),
+	faCog("fa-cog"),
+	faCogs("fa-cogs"),
+	faColumns("fa-columns"),
+	faComment("fa-comment"),
+	faCommentO("fa-comment-o"),
+	faCommenting("fa-commenting"),
+	faCommentingO("fa-commenting-o"),
+	faComments("fa-comments"),
+	faCommentsO("fa-comments-o"),
+	faCompass("fa-compass"),
+	faCompress("fa-compress"),
+	faConnectdevelop("fa-connectdevelop"),
+	faContao("fa-contao"),
+	faCopyright("fa-copyright"),
+	faCreativeCommons("fa-creative-commons"),
+	faCreditCard("fa-credit-card"),
+	faCreditCardAlt("fa-credit-card-alt"),
+	faCrop("fa-crop"),
+	faCrosshairs("fa-crosshairs"),
+	faCss3("fa-css3"),
+	faCube("fa-cube"),
+	faCubes("fa-cubes"),
+	faCutlery("fa-cutlery"),
+	faDashcube("fa-dashcube"),
+	faDatabase("fa-database"),
+	faDeaf("fa-deaf"),
+	faDelicious("fa-delicious"),
+	faDesktop("fa-desktop"),
+	faDeviantart("fa-deviantart"),
+	faDiamond("fa-diamond"),
+	faDigg("fa-digg"),
+	faDotCircleO("fa-dot-circle-o"),
+	faDownload("fa-download"),
+	faDribbble("fa-dribbble"),
+	faDropbox("fa-dropbox"),
+	faDrupal("fa-drupal"),
+	faEdge("fa-edge"),
+	faEercast("fa-eercast"),
+	faEject("fa-eject"),
+	faEllipsisH("fa-ellipsis-h"),
+	faEllipsisV("fa-ellipsis-v"),
+	faEmpire("fa-empire"),
+	faEnvelope("fa-envelope"),
+	faEnvelopeO("fa-envelope-o"),
+	faEnvelopeOpen("fa-envelope-open"),
+	faEnvelopeOpenO("fa-envelope-open-o"),
+	faEnvelopeSquare("fa-envelope-square"),
+	faEnvira("fa-envira"),
+	faEraser("fa-eraser"),
+	faEtsy("fa-etsy"),
+	faEur("fa-eur"),
+	faExchange("fa-exchange"),
+	faExclamation("fa-exclamation"),
+	faExclamationCircle("fa-exclamation-circle"),
+	faExclamationTriangle("fa-exclamation-triangle"),
+	faExpand("fa-expand"),
+	faExpeditedssl("fa-expeditedssl"),
+	faExternalLink("fa-external-link"),
+	faExternalLinkSquare("fa-external-link-square"),
+	faEye("fa-eye"),
+	faEyeSlash("fa-eye-slash"),
+	faEyedropper("fa-eyedropper"),
+	faFacebook("fa-facebook"),
+	faFacebookOfficial("fa-facebook-official"),
+	faFacebookSquare("fa-facebook-square"),
+	faFastBackward("fa-fast-backward"),
+	faFastForward("fa-fast-forward"),
+	faFax("fa-fax"),
+	faFemale("fa-female"),
+	faFighterJet("fa-fighter-jet"),
+	faFile("fa-file"),
+	faFileArchiveO("fa-file-archive-o"),
+	faFileAudioO("fa-file-audio-o"),
+	faFileCodeO("fa-file-code-o"),
+	faFileExcelO("fa-file-excel-o"),
+	faFileImageO("fa-file-image-o"),
+	faFileO("fa-file-o"),
+	faFilePdfO("fa-file-pdf-o"),
+	faFilePowerpointO("fa-file-powerpoint-o"),
+	faFileText("fa-file-text"),
+	faFileTextO("fa-file-text-o"),
+	faFileVideoO("fa-file-video-o"),
+	faFileWordO("fa-file-word-o"),
+	faFilesO("fa-files-o"),
+	faFilm("fa-film"),
+	faFilter("fa-filter"),
+	faFire("fa-fire"),
+	faFireExtinguisher("fa-fire-extinguisher"),
+	faFirefox("fa-firefox"),
+	faFirstOrder("fa-first-order"),
+	faFlag("fa-flag"),
+	faFlagCheckered("fa-flag-checkered"),
+	faFlagO("fa-flag-o"),
+	faFlash("fa-flash"),
+	faFlask("fa-flask"),
+	faFlickr("fa-flickr"),
+	faFloppyO("fa-floppy-o"),
+	faFolder("fa-folder"),
+	faFolderO("fa-folder-o"),
+	faFolderOpen("fa-folder-open"),
+	faFolderOpenO("fa-folder-open-o"),
+	faFont("fa-font"),
+	faFontAwesome("fa-font-awesome"),
+	faFonticons("fa-fonticons"),
+	faFortAwesome("fa-fort-awesome"),
+	faForumbee("fa-forumbee"),
+	faForward("fa-forward"),
+	faFoursquare("fa-foursquare"),
+	faFreeCodeCamp("fa-free-code-camp"),
+	faFrownO("fa-frown-o"),
+	faFutbolO("fa-futbol-o"),
+	faGamepad("fa-gamepad"),
+	faGavel("fa-gavel"),
+	faGbp("fa-gbp"),
+	faGenderless("fa-genderless"),
+	faGetPocket("fa-get-pocket"),
+	faGg("fa-gg"),
+	faGgCircle("fa-gg-circle"),
+	faGift("fa-gift"),
+	faGit("fa-git"),
+	faGitSquare("fa-git-square"),
+	faGithub("fa-github"),
+	faGithubAlt("fa-github-alt"),
+	faGithubSquare("fa-github-square"),
+	faGitlab("fa-gitlab"),
+	faGlass("fa-glass"),
+	faGlide("fa-glide"),
+	faGlideG("fa-glide-g"),
+	faGlobe("fa-globe"),
+	faGoogle("fa-google"),
+	faGooglePlus("fa-google-plus"),
+	faGooglePlusOfficial("fa-google-plus-official"),
+	faGooglePlusSquare("fa-google-plus-square"),
+	faGoogleWallet("fa-google-wallet"),
+	faGraduationCap("fa-graduation-cap"),
+	faGratipay("fa-gratipay"),
+	faGrav("fa-grav"),
+	faHSquare("fa-h-square"),
+	faHackerNews("fa-hacker-news"),
+	faHandLizardO("fa-hand-lizard-o"),
+	faHandODown("fa-hand-o-down"),
+	faHandOLeft("fa-hand-o-left"),
+	faHandORight("fa-hand-o-right"),
+	faHandOUp("fa-hand-o-up"),
+	faHandPaperO("fa-hand-paper-o"),
+	faHandPeaceO("fa-hand-peace-o"),
+	faHandPointerO("fa-hand-pointer-o"),
+	faHandRockO("fa-hand-rock-o"),
+	faHandScissorsO("fa-hand-scissors-o"),
+	faHandSpockO("fa-hand-spock-o"),
+	faHandshakeO("fa-handshake-o"),
+	faHashtag("fa-hashtag"),
+	faHddO("fa-hdd-o"),
+	faHeader("fa-header"),
+	faHeadphones("fa-headphones"),
+	faHeart("fa-heart"),
+	faHeartO("fa-heart-o"),
+	faHeartbeat("fa-heartbeat"),
+	faHistory("fa-history"),
+	faHome("fa-home"),
+	faHospitalO("fa-hospital-o"),
+	faHourglass("fa-hourglass"),
+	faHourglassEnd("fa-hourglass-end"),
+	faHourglassHalf("fa-hourglass-half"),
+	faHourglassO("fa-hourglass-o"),
+	faHourglassStart("fa-hourglass-start"),
+	faHouzz("fa-houzz"),
+	faHtml5("fa-html5"),
+	faICursor("fa-i-cursor"),
+	faIdBadge("fa-id-badge"),
+	faIdCard("fa-id-card"),
+	faIdCardO("fa-id-card-o"),
+	faIls("fa-ils"),
+	faImdb("fa-imdb"),
+	faInbox("fa-inbox"),
+	faIndent("fa-indent"),
+	faIndustry("fa-industry"),
+	faInfo("fa-info"),
+	faInfoCircle("fa-info-circle"),
+	faInr("fa-inr"),
+	faInstagram("fa-instagram"),
+	faInternetExplorer("fa-internet-explorer"),
+	faIoxhost("fa-ioxhost"),
+	faItalic("fa-italic"),
+	faJoomla("fa-joomla"),
+	faJpy("fa-jpy"),
+	faJsfiddle("fa-jsfiddle"),
+	faKey("fa-key"),
+	faKeyboardO("fa-keyboard-o"),
+	faKrw("fa-krw"),
+	faLanguage("fa-language"),
+	faLaptop("fa-laptop"),
+	faLastfm("fa-lastfm"),
+	faLastfmSquare("fa-lastfm-square"),
+	faLeaf("fa-leaf"),
+	faLeanpub("fa-leanpub"),
+	faLemonO("fa-lemon-o"),
+	faLevelDown("fa-level-down"),
+	faLevelUp("fa-level-up"),
+	faLifeRing("fa-life-ring"),
+	faLightbulbO("fa-lightbulb-o"),
+	faLineChart("fa-line-chart"),
+	faLink("fa-link"),
+	faLinkedin("fa-linkedin"),
+	faLinkedinSquare("fa-linkedin-square"),
+	faLinode("fa-linode"),
+	faLinux("fa-linux"),
+	faList("fa-list"),
+	faListAlt("fa-list-alt"),
+	faListOl("fa-list-ol"),
+	faListUl("fa-list-ul"),
+	faLocationArrow("fa-location-arrow"),
+	faLock("fa-lock"),
+	faLongArrowDown("fa-long-arrow-down"),
+	faLongArrowLeft("fa-long-arrow-left"),
+	faLongArrowRight("fa-long-arrow-right"),
+	faLongArrowUp("fa-long-arrow-up"),
+	faLowVision("fa-low-vision"),
+	faMagic("fa-magic"),
+	faMagnet("fa-magnet"),
+	faMale("fa-male"),
+	faMap("fa-map"),
+	faMapMarker("fa-map-marker"),
+	faMapO("fa-map-o"),
+	faMapPin("fa-map-pin"),
+	faMapSigns("fa-map-signs"),
+	faMars("fa-mars"),
+	faMarsDouble("fa-mars-double"),
+	faMarsStroke("fa-mars-stroke"),
+	faMarsStrokeH("fa-mars-stroke-h"),
+	faMarsStrokeV("fa-mars-stroke-v"),
+	faMaxcdn("fa-maxcdn"),
+	faMeanpath("fa-meanpath"),
+	faMedium("fa-medium"),
+	faMedkit("fa-medkit"),
+	faMeetup("fa-meetup"),
+	faMehO("fa-meh-o"),
+	faMercury("fa-mercury"),
+	faMicrochip("fa-microchip"),
+	faMicrophone("fa-microphone"),
+	faMicrophoneSlash("fa-microphone-slash"),
+	faMinus("fa-minus"),
+	faMinusCircle("fa-minus-circle"),
+	faMinusSquare("fa-minus-square"),
+	faMinusSquareO("fa-minus-square-o"),
+	faMixcloud("fa-mixcloud"),
+	faMobile("fa-mobile"),
+	faModx("fa-modx"),
+	faMoney("fa-money"),
+	faMoonO("fa-moon-o"),
+	faMotorcycle("fa-motorcycle"),
+	faMousePointer("fa-mouse-pointer"),
+	faMusic("fa-music"),
+	faNeuter("fa-neuter"),
+	faNewspaperO("fa-newspaper-o"),
+	faObjectGroup("fa-object-group"),
+	faObjectUngroup("fa-object-ungroup"),
+	faOdnoklassniki("fa-odnoklassniki"),
+	faOdnoklassnikiSquare("fa-odnoklassniki-square"),
+	faOpencart("fa-opencart"),
+	faOpenid("fa-openid"),
+	faOpera("fa-opera"),
+	faOptinMonster("fa-optin-monster"),
+	faOutdent("fa-outdent"),
+	faPagelines("fa-pagelines"),
+	faPaintBrush("fa-paint-brush"),
+	faPaperPlane("fa-paper-plane"),
+	faPaperPlaneO("fa-paper-plane-o"),
+	faPaperclip("fa-paperclip"),
+	faParagraph("fa-paragraph"),
+	faPause("fa-pause"),
+	faPauseCircle("fa-pause-circle"),
+	faPauseCircleO("fa-pause-circle-o"),
+	faPaw("fa-paw"),
+	faPaypal("fa-paypal"),
+	faPencil("fa-pencil"),
+	faPencilSquare("fa-pencil-square"),
+	faPencilSquareO("fa-pencil-square-o"),
+	faPercent("fa-percent"),
+	faPhone("fa-phone"),
+	faPhoneSquare("fa-phone-square"),
+	faPictureO("fa-picture-o"),
+	faPieChart("fa-pie-chart"),
+	faPiedPiper("fa-pied-piper"),
+	faPiedPiperAlt("fa-pied-piper-alt"),
+	faPiedPiperPp("fa-pied-piper-pp"),
+	faPinterest("fa-pinterest"),
+	faPinterestP("fa-pinterest-p"),
+	faPinterestSquare("fa-pinterest-square"),
+	faPlane("fa-plane"),
+	faPlay("fa-play"),
+	faPlayCircle("fa-play-circle"),
+	faPlayCircleO("fa-play-circle-o"),
+	faPlug("fa-plug"),
+	faPlus("fa-plus"),
+	faPlusCircle("fa-plus-circle"),
+	faPlusSquare("fa-plus-square"),
+	faPlusSquareO("fa-plus-square-o"),
+	faPodcast("fa-podcast"),
+	faPowerOff("fa-power-off"),
+	faPrint("fa-print"),
+	faProductHunt("fa-product-hunt"),
+	faPuzzlePiece("fa-puzzle-piece"),
+	faQq("fa-qq"),
+	faQrcode("fa-qrcode"),
+	faQuestion("fa-question"),
+	faQuestionCircle("fa-question-circle"),
+	faQuestionCircleO("fa-question-circle-o"),
+	faQuora("fa-quora"),
+	faQuoteLeft("fa-quote-left"),
+	faQuoteRight("fa-quote-right"),
+	faRandom("fa-random"),
+	faRavelry("fa-ravelry"),
+	faRebel("fa-rebel"),
+	faRecycle("fa-recycle"),
+	faReddit("fa-reddit"),
+	faRedditAlien("fa-reddit-alien"),
+	faRedditSquare("fa-reddit-square"),
+	faRefresh("fa-refresh"),
+	faRegistered("fa-registered"),
+	faRenren("fa-renren"),
+	faRepeat("fa-repeat"),
+	faReply("fa-reply"),
+	faReplyAll("fa-reply-all"),
+	faRetweet("fa-retweet"),
+	faRoad("fa-road"),
+	faRocket("fa-rocket"),
+	faRss("fa-rss"),
+	faRssSquare("fa-rss-square"),
+	faRub("fa-rub"),
+	faSafari("fa-safari"),
+	faScissors("fa-scissors"),
+	faScribd("fa-scribd"),
+	faSearch("fa-search"),
+	faSearchMinus("fa-search-minus"),
+	faSearchPlus("fa-search-plus"),
+	faSellsy("fa-sellsy"),
+	faServer("fa-server"),
+	faShare("fa-share"),
+	faShareAlt("fa-share-alt"),
+	faShareAltSquare("fa-share-alt-square"),
+	faShareSquare("fa-share-square"),
+	faShareSquareO("fa-share-square-o"),
+	faShield("fa-shield"),
+	faShip("fa-ship"),
+	faShirtsinbulk("fa-shirtsinbulk"),
+	faShoppingBag("fa-shopping-bag"),
+	faShoppingBasket("fa-shopping-basket"),
+	faShoppingCart("fa-shopping-cart"),
+	faShower("fa-shower"),
+	faSignIn("fa-sign-in"),
+	faSignLanguage("fa-sign-language"),
+	faSignOut("fa-sign-out"),
+	faSignal("fa-signal"),
+	faSimplybuilt("fa-simplybuilt"),
+	faSitemap("fa-sitemap"),
+	faSkyatlas("fa-skyatlas"),
+	faSkype("fa-skype"),
+	faSlack("fa-slack"),
+	faSliders("fa-sliders"),
+	faSlideshare("fa-slideshare"),
+	faSmileO("fa-smile-o"),
+	faSnapchat("fa-snapchat"),
+	faSnapchatGhost("fa-snapchat-ghost"),
+	faSnapchatSquare("fa-snapchat-square"),
+	faSnowflakeO("fa-snowflake-o"),
+	faSort("fa-sort"),
+	faSortAlphaAsc("fa-sort-alpha-asc"),
+	faSortAlphaDesc("fa-sort-alpha-desc"),
+	faSortAmountAsc("fa-sort-amount-asc"),
+	faSortAmountDesc("fa-sort-amount-desc"),
+	faSortAsc("fa-sort-asc"),
+	faSortDesc("fa-sort-desc"),
+	faSortNumericAsc("fa-sort-numeric-asc"),
+	faSortNumericDesc("fa-sort-numeric-desc"),
+	faSoundcloud("fa-soundcloud"),
+	faSpaceShuttle("fa-space-shuttle"),
+	faSpinner("fa-spinner"),
+	faSpoon("fa-spoon"),
+	faSpotify("fa-spotify"),
+	faSquare("fa-square"),
+	faSquareO("fa-square-o"),
+	faStackExchange("fa-stack-exchange"),
+	faStackOverflow("fa-stack-overflow"),
+	faStar("fa-star"),
+	faStarHalf("fa-star-half"),
+	faStarHalfO("fa-star-half-o"),
+	faStarO("fa-star-o"),
+	faSteam("fa-steam"),
+	faSteamSquare("fa-steam-square"),
+	faStepBackward("fa-step-backward"),
+	faStepForward("fa-step-forward"),
+	faStethoscope("fa-stethoscope"),
+	faStickyNote("fa-sticky-note"),
+	faStickyNoteO("fa-sticky-note-o"),
+	faStop("fa-stop"),
+	faStopCircle("fa-stop-circle"),
+	faStopCircleO("fa-stop-circle-o"),
+	faStreetView("fa-street-view"),
+	faStrikethrough("fa-strikethrough"),
+	faStumbleupon("fa-stumbleupon"),
+	faStumbleuponCircle("fa-stumbleupon-circle"),
+	faSubscript("fa-subscript"),
+	faSubway("fa-subway"),
+	faSuitcase("fa-suitcase"),
+	faSunO("fa-sun-o"),
+	faSuperpowers("fa-superpowers"),
+	faSuperscript("fa-superscript"),
+	faTable("fa-table"),
+	faTablet("fa-tablet"),
+	faTachometer("fa-tachometer"),
+	faTag("fa-tag"),
+	faTags("fa-tags"),
+	faTasks("fa-tasks"),
+	faTaxi("fa-taxi"),
+	faTelegram("fa-telegram"),
+	faTelevision("fa-television"),
+	faTencentWeibo("fa-tencent-weibo"),
+	faTerminal("fa-terminal"),
+	faTextHeight("fa-text-height"),
+	faTextWidth("fa-text-width"),
+	faTh("fa-th"),
+	faThLarge("fa-th-large"),
+	faThList("fa-th-list"),
+	faThemeisle("fa-themeisle"),
+	faThermometerEmpty("fa-thermometer-empty"),
+	faThermometerFull("fa-thermometer-full"),
+	faThermometerHalf("fa-thermometer-half"),
+	faThermometerQuarter("fa-thermometer-quarter"),
+	faThermometerThreeQuarters("fa-thermometer-three-quarters"),
+	faThumbTack("fa-thumb-tack"),
+	faThumbsDown("fa-thumbs-down"),
+	faThumbsODown("fa-thumbs-o-down"),
+	faThumbsOUp("fa-thumbs-o-up"),
+	faThumbsUp("fa-thumbs-up"),
+	faTicket("fa-ticket"),
+	faTimes("fa-times"),
+	faTimesCircle("fa-times-circle"),
+	faTimesCircleO("fa-times-circle-o"),
+	faTint("fa-tint"),
+	faToggleOff("fa-toggle-off"),
+	faToggleOn("fa-toggle-on"),
+	faTrademark("fa-trademark"),
+	faTrain("fa-train"),
+	faTransgender("fa-transgender"),
+	faTransgenderAlt("fa-transgender-alt"),
+	faTrash("fa-trash"),
+	faTrashO("fa-trash-o"),
+	faTree("fa-tree"),
+	faTrello("fa-trello"),
+	faTripadvisor("fa-tripadvisor"),
+	faTrophy("fa-trophy"),
+	faTruck("fa-truck"),
+	faTry("fa-try"),
+	faTty("fa-tty"),
+	faTumblr("fa-tumblr"),
+	faTumblrSquare("fa-tumblr-square"),
+	faTwitch("fa-twitch"),
+	faTwitter("fa-twitter"),
+	faTwitterSquare("fa-twitter-square"),
+	faUmbrella("fa-umbrella"),
+	faUnderline("fa-underline"),
+	faUndo("fa-undo"),
+	faUniversalAccess("fa-universal-access"),
+	faUniversity("fa-university"),
+	faUnlock("fa-unlock"),
+	faUnlockAlt("fa-unlock-alt"),
+	faUpload("fa-upload"),
+	faUsb("fa-usb"),
+	faUsd("fa-usd"),
+	faUser("fa-user"),
+	faUserCircle("fa-user-circle"),
+	faUserCircleO("fa-user-circle-o"),
+	faUserMd("fa-user-md"),
+	faUserO("fa-user-o"),
+	faUserPlus("fa-user-plus"),
+	faUserSecret("fa-user-secret"),
+	faUserTimes("fa-user-times"),
+	faUsers("fa-users"),
+	faVenus("fa-venus"),
+	faVenusDouble("fa-venus-double"),
+	faVenusMars("fa-venus-mars"),
+	faViacoin("fa-viacoin"),
+	faViadeo("fa-viadeo"),
+	faViadeoSquare("fa-viadeo-square"),
+	faVideoCamera("fa-video-camera"),
+	faVimeo("fa-vimeo"),
+	faVimeoSquare("fa-vimeo-square"),
+	faVine("fa-vine"),
+	faVk("fa-vk"),
+	faVolumeControlPhone("fa-volume-control-phone"),
+	faVolumeDown("fa-volume-down"),
+	faVolumeOff("fa-volume-off"),
+	faVolumeUp("fa-volume-up"),
+	faWeibo("fa-weibo"),
+	faWeixin("fa-weixin"),
+	faWhatsapp("fa-whatsapp"),
+	faWheelchair("fa-wheelchair"),
+	faWheelchairAlt("fa-wheelchair-alt"),
+	faWifi("fa-wifi"),
+	faWikipediaW("fa-wikipedia-w"),
+	faWindowClose("fa-window-close"),
+	faWindowCloseO("fa-window-close-o"),
+	faWindowMaximize("fa-window-maximize"),
+	faWindowMinimize("fa-window-minimize"),
+	faWindowRestore("fa-window-restore"),
+	faWindows("fa-windows"),
+	faWordpress("fa-wordpress"),
+	faWpbeginner("fa-wpbeginner"),
+	faWpexplorer("fa-wpexplorer"),
+	faWpforms("fa-wpforms"),
+	faWrench("fa-wrench"),
+	faXing("fa-xing"),
+	faXingSquare("fa-xing-square"),
+	faYCombinator("fa-y-combinator"),
+	faYahoo("fa-yahoo"),
+	faYelp("fa-yelp"),
+	faYoast("fa-yoast"),
+	faYoutube("fa-youtube"),
+	faYoutubePlay("fa-youtube-play"),
+	faYoutubeSquare("fa-youtube-square"),
+	;
+
+	private String m_key;
+
+	static private final Map<String, String> m_map = new HashMap<>();
+
+	Icon(String key) {
+		m_key = key;
+	}
+
+	@Override public String getCssClassName() {
+		String key = m_map.get(m_key);
+		if(null == key)
+			throw new IllegalStateException("No icon key for " + m_key);
+		return key;
+	}
+
+	public String getKey() {
+		return m_key;
+	}
+
+	static {
+		for(Icon value : values()) {
+			m_map.put(value.getKey(), value.getKey());
+		}
+	}
 }
