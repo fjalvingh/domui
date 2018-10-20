@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<web-fragment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="http://java.sun.com/xml/ns/javaee"
+              id="WebAppFragment_ID" version="3.0">
+    <name>fontawesome-4-fragment</name>
+
+</web-fragment>
