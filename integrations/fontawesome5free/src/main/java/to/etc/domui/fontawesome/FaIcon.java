@@ -11,6 +11,7 @@ import to.etc.domui.dom.html.NodeBase;
  * Created on 20-10-18.
  */
 public enum FaIcon implements IFontIcon {
+	///--- BEGIN ICONS
 	faFaAccessibleIcon("fa-accessible-icon"),
 	faFaAccusoft("fa-accusoft"),
 	faFaAcquisitionsIncorporated("fa-acquisitions-incorporated"),
@@ -1249,6 +1250,7 @@ public enum FaIcon implements IFontIcon {
 	faFaYoutube("fa-youtube"),
 	faFaYoutubeSquare("fa-youtube-square"),
 	faFaZhihu("fa-zhihu"),
+	///--- END ICONS
 	;
 
 	private final String m_css;
