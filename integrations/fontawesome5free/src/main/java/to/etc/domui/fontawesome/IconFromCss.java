@@ -1,5 +1,7 @@
 package to.etc.domui.fontawesome;
 
+import to.etc.util.StringTool;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -74,6 +76,7 @@ final public class IconFromCss {
 								renderIcons(of, names, map);
 							} else if(s.contains(MAP_START)) {
 								section = InSection.MAP;
+								renderMap(of, names, map);
 							}
 							break;
 
@@ -98,6 +101,28 @@ final public class IconFromCss {
 				}
 			}
 		}
+	}
+
+	private static void renderMap(OutputStreamWriter of, List<String> names, Map<String, Ren> map) throws Exception {
+		of.write("\tstatic private String[] RENAMES = {\n");
+
+		int count = 0;
+		for(Ren value : map.values()) {
+			if(value.m_old.equals(value.m_new))
+				continue;
+
+			if(count++ == 0) {
+				of.write("\t\t");
+			} else {
+				of.write("\t,\t");
+			}
+			of.write(StringTool.strToJavascriptString(value.m_old, true));
+			of.write(", ");
+			of.write(StringTool.strToJavascriptString(value.m_new, true));
+			of.write("\n");
+
+		}
+		of.write("\t};\n");
 	}
 
 	private static void renderIcons(OutputStreamWriter of, List<String> names, Map<String, Ren> map) throws Exception {
