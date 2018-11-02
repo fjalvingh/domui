@@ -41,9 +41,9 @@ final public class SvgIcon extends Span {
 			svg = loadSvg(svg);
 
 			StringBuilder sb = new StringBuilder();
-			sb.append("<svg aria-hidden='true'>");
+			//sb.append("<svg aria-hidden='true'>");
 			sb.append(svg);
-			sb.append("</svg>");
+			//sb.append("</svg>");
 			XmlTextNode xn = new XmlTextNode(sb.toString());
 			add(xn);
 		}
