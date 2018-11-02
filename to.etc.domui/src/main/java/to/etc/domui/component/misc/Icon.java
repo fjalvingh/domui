@@ -12,7 +12,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-10-18.
  */
-public enum Icon implements IFontIcon {
+public enum Icon implements IIcon {
 	fa500px("fa-500px"),
 	faAddressBook("fa-address-book"),
 	faAddressBookO("fa-address-book-o"),
@@ -694,18 +694,18 @@ public enum Icon implements IFontIcon {
 
 	private String m_key;
 
-	static private Map<String, String> m_map = new HashMap<>();
+	static private Map<Icon, IIcon> m_map = new HashMap<>();
 
 	Icon(String key) {
 		m_key = key;
 	}
 
-	@Override public String getCssClassName() {
-		String key = m_map.get(m_key);
-		if(null == key)
-			throw new IllegalStateException("No icon key for " + m_key);
-		return key;
-	}
+	//@Override public String getCssClassName() {
+	//	String key = m_map.get(m_key);
+	//	if(null == key)
+	//		throw new IllegalStateException("No icon key for " + m_key);
+	//	return key;
+	//}
 
 	public String getKey() {
 		return m_key;
@@ -717,24 +717,35 @@ public enum Icon implements IFontIcon {
 
 
 	@Override public NodeBase createNode() {
-		return new FontIcon(this);
+		IIcon icon = m_map.get(this);
+		if(null == icon)
+			throw new IllegalStateException("Missing icon implementation for Icon." + this.name());
+		return icon.createNode();
 	}
 
 	/**
 	 * Adjust the icon map.
 	 */
-	static public void updateIconMap(Map<Icon, IFontIcon> updates) {
-		updates.forEach((key, ico) -> {
-			m_map.put(key.getKey(), ico.getCssClassName());
-		});
+	static public void updateIconMap(Map<Icon, IIcon> updates) {
+		m_map.putAll(updates);
+	}
+
+	static public void setIcon(Icon icon, IIcon impl) {
+		m_map.put(icon, impl);
 	}
 
 	/**
-	 * Initialize the map with FontAwesome 4 values.
+	 * Checks that all possible values have an implementation in the map.
 	 */
-	static {
+	public static void initialize() {
+		StringBuilder sb = new StringBuilder();
 		for(Icon value : values()) {
-			m_map.put(value.getKey(), value.getKey());
+			if(! m_map.containsKey(value))
+				sb.append(value.name()).append(" ");
 		}
+		if(sb.length() > 0)
+			throw new IllegalStateException("Missing values for Icon constants. Have you added one of the font packs to "
+				+ "your projects, i.e. fontawesome5free or fontawesome4? Or did you forget to map?\n\nMissing are: " + sb);
 	}
+
 }

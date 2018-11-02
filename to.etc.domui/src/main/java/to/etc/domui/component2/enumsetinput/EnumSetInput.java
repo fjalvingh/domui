@@ -8,7 +8,6 @@ import to.etc.domui.component.input.SearchAsYouType;
 import to.etc.domui.component.input.SearchAsYouTypeBase;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
@@ -137,7 +136,7 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 		//-- Add the "remove" button to the label
 		Button delBtn = new Button().css("ui-esic-del");
 		label.add(delBtn);
-		delBtn.add(new FontIcon(Icon.faTimes));
+		delBtn.add(Icon.faTimes.createNode());
 		delBtn.setClicked(a -> {
 			removeItem(value);
 			SearchAsYouType<T> input = m_input;

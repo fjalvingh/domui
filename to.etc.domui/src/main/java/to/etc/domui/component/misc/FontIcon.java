@@ -8,7 +8,8 @@ import java.util.Objects;
 
 /**
  * Generic set of font-based icons which must be implemented by at least one of the
- * font sets used.
+ * font sets used. This is merely a span with one or more css classes provided by
+ * the font library.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4-8-17.

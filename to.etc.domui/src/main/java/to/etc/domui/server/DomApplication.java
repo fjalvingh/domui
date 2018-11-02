@@ -39,6 +39,7 @@ import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.component.layout.title.BasePageTitleBar;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.HtmlTagRenderer;
@@ -712,6 +713,7 @@ public abstract class DomApplication {
 				+ " it with a call to it"
 			);
 		}
+		Icon.initialize();									// Make sure all default icons have an impl
 	}
 
 	/**

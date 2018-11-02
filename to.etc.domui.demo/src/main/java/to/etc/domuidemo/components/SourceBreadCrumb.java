@@ -3,7 +3,6 @@ package to.etc.domuidemo.components;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.misc.ALink;
-import to.etc.domui.component.misc.FontIcon;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.WindowParameters;
 import to.etc.domui.component2.navigation.BreadCrumb2;
@@ -39,7 +38,7 @@ final public class SourceBreadCrumb extends Div {
 		ALink l = new ALink(SourcePage.class, new PageParameters("name", getPage().getBody().getClass().getName().replace('.', '/') + ".java"));
 		d.add(l);
 		l.setNewWindowParameters(WindowParameters.createFixed(1024, 768, "src"));
-		l.add(new FontIcon(Icon.faCode));
+		l.add(Icon.faCode.createNode());
 		l.addCssClass("d-sbc-src");
 		l.setTitle("Show the source file");
 

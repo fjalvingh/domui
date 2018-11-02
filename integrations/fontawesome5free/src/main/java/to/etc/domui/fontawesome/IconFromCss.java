@@ -1,6 +1,6 @@
 package to.etc.domui.fontawesome;
 
-import to.etc.util.StringTool;
+import to.etc.domui.component.misc.Icon;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -104,25 +106,33 @@ final public class IconFromCss {
 	}
 
 	private static void renderMap(OutputStreamWriter of, List<String> names, Map<String, Ren> map) throws Exception {
-		of.write("\tstatic private String[] RENAMES = {\n");
+		of.write("\tstatic public void initializeIcons() {\n");
 
-		int count = 0;
-		for(Ren value : map.values()) {
-			if(value.m_old.equals(value.m_new))
-				continue;
+		//-- Get a set of Java names from names
+		Set<String> nameSet = names.stream()
+			.map(a -> alterName(a))
+			.collect(Collectors.toSet());
 
-			if(count++ == 0) {
-				of.write("\t\t");
+		//-- Now create a map of (java oldname, ren)
+		Map<String, Ren> oldMap = map.values().stream()
+			.collect(Collectors.toMap(a -> alterName(a.m_old), a -> a));
+
+		for(Icon icon : Icon.values()) {
+			String newName = icon.name();
+			Ren ren = oldMap.get(icon.name());
+			if(null != ren) {
+				newName = alterName(ren.m_new);
 			} else {
-				of.write("\t,\t");
+				if(! nameSet.contains(newName))
+					throw new IllegalStateException("Missing icon " + icon.name());
 			}
-			of.write(StringTool.strToJavascriptString(value.m_old, true));
-			of.write(", ");
-			of.write(StringTool.strToJavascriptString(value.m_new, true));
-			of.write("\n");
-
+			of.write("\t\tIcon.setIcon(Icon.");
+			of.write(icon.name());
+			of.write(", FaIcon.");
+			of.write(newName);
+			of.write(");\n");
 		}
-		of.write("\t};\n");
+		of.write("\t}\n");
 	}
 
 	private static void renderIcons(OutputStreamWriter of, List<String> names, Map<String, Ren> map) throws Exception {
@@ -130,12 +140,12 @@ final public class IconFromCss {
 		map.forEach((key, ren) -> by.put(ren.m_new, ren));
 
 		for(String name : names) {
-			String key = name.startsWith("fa-") ? name.substring(3) : name;
+			String key = name;
 
 			String mainClass = "fa";
 			Ren ren = by.get(key);
 			if(null != ren) {
-				System.out.println("Got name");
+				//System.out.println("Got name");
 				if(! ren.m_prefix.equals("fa") && !ren.m_prefix.equals("fas"))
 					mainClass = ren.m_prefix;
 			}
@@ -190,9 +200,14 @@ final public class IconFromCss {
 					break;
 
 				case scanName:
-					if(t == '{' || t == ':') {
+					if(t == ':') {
 						m_state = State.waitBody;
 						name = sb.toString();
+						sb.setLength(0);
+					} else if(t == '}') {
+						sb.setLength(0);
+						m_state = State.findDot;
+					} else if(t == '.') {
 						sb.setLength(0);
 					} else if(! Character.isWhitespace(t)){
 						sb.append((char) t);
@@ -202,6 +217,9 @@ final public class IconFromCss {
 				case waitBody:
 					if(t == '{') {
 						m_state = State.waitContent;
+					} else if(t == '}') {
+						sb.setLength(0);
+						m_state = State.findDot;
 					}
 					break;
 
@@ -213,6 +231,9 @@ final public class IconFromCss {
 						m_state = State.findDot;
 						sb.setLength(0);
 						name = null;
+					} else if(t == '}') {
+						sb.setLength(0);
+						m_state = State.findDot;
 					} else if(! Character.isWhitespace(t)) {
 						sb.append((char) t);
 					}
@@ -222,13 +243,16 @@ final public class IconFromCss {
 
 		Collections.sort(names);
 		System.out.println("Got " + names.size() + " names");
+		for(String s : names) {
+			System.out.println(alterName(s) + "(\"" + s + "\"),");
+		}
 		return names;
-		//for(String s : names) {
-		//	System.out.println(alterName(s) + "(\"" + s + "\"),");
-		//}
 	}
 
 	static String alterName(String faname) {
+		if(! faname.startsWith("fa-"))
+			faname = "fa-" + faname;
+
 		StringBuilder sb = new StringBuilder();
 		boolean uc = false;
 		for(int i = 0; i < faname.length(); i++) {
@@ -269,7 +293,7 @@ final public class IconFromCss {
 		String[] frag = s.split("\\s+");
 		if(frag.length != 4)
 			throw new IllegalStateException("Bad fragment in line: " + s + " - must have 4 columns");
-		Ren ren = new Ren(frag[0], frag[1], frag[2]);
+		Ren ren = new Ren("fa-" + frag[0], "fa-" + frag[1], frag[2]);
 		map.put(frag[0], ren);
 	}
 
