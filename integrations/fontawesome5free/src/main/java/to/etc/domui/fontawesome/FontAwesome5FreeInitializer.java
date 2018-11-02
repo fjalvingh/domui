@@ -13,9 +13,9 @@ final public class FontAwesome5FreeInitializer implements IApplicationInitialize
 	}
 
 	public void onEndInitialization(DomApplication da) {
-		System.out.println("domui: FontAwesomne 5 FREE registered");
+		System.out.println("domui: FontAwesome 5 FREE registered");
 		da.addHeaderContributor(HeaderContributor.loadStylesheet("https://use.fontawesome.com/releases/v5.4.1/css/all.css", "integrity", "sha384-5sAR7xN1Nv6T6+dT2mhtzEpVJvfS3NScPQTrOxhwjIuvcA67KV2R5Jz6kr4abQsz", "crossorigin", "anonymous"), 10);
-		//FaIcon.initializeIcons();
+		FaIcon.initializeIcons();
 	}
 
 	public void onAfterDestroy(DomApplication da) {
