@@ -24,8 +24,7 @@
  */
 package to.etc.domui.util;
 
-import to.etc.domui.themes.*;
-import to.etc.webapp.nls.*;
+import to.etc.webapp.nls.BundleRef;
 
 /**
  * Constants for errors within the framework.
@@ -337,69 +336,6 @@ public interface Msgs {
 	/*** ImageSelectControl ***/
 	String ISCT_EMPTY_TITLE = "isct.empty.title";
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Available icons within the framework theme set.		*/
-	/*--------------------------------------------------------------*/
-	String ICON_ADD_TO_SELECTION = "THEME/addToSelection.png";
-
-	String ICON_BIG_INFO = "THEME/big-info.png";
-
-	String BTN_SHOW_CALENDAR = "THEME/btn-datein.png";
-
-	String BTN_LOOKUP = Theme.BTN_POPUPLOOKUP;
-
-	String BTN_CANCEL = Theme.BTN_CANCEL;
-
-	String ICON_CHECKMARK = Theme.BTN_CHECKMARK;
-
-	String BTN_CLEAR = Theme.BTN_CLEAR;
-
-	String BTN_CLEAR_LOOKUP = Theme.BTN_CLEARLOOKUP;
-
-	String BTN_CLOCK = "THEME/btnClock.png";
-
-	String BTN_CONFIRM = "THEME/btnConfirm.png";
-
-	String BTN_DELETE = "THEME/btnDelete.png";
-
-	String BTN_EDIT = "THEME/btnEdit.png";
-
-	String BTN_FIND = "THEME/btnFind.png";
-
-	String BTN_HIDE_DETAILS = "THEME/btnHideDetails.png";
-
-	String BTN_HIDE_LOOKUP = "THEME/btnHideLookup.png";
-
-	String BTN_NEW = "THEME/btnNew.png";
-
-	String ICON_RED_CROSS = "THEME/btnRedCross.png";
-
-	String BTN_SAVE = "THEME/btnSave.png";
-
-	String BTN_SHOW_DETAILS = "THEME/btnShowDetails.png";
-
-	String BTN_SPECIAL_CHARS = "THEME/btnSpecialChar.png";
-
-	String BTN_TODAY = "THEME/btnToday.png";
-
-	String ICON_CLOSE = "THEME/close.png";
-
-	String ICON_BIG_WARNING = "THEME/mbx-warning.png";
-
-	String ICON_BIG_ERROR = Theme.ICON_MBX_ERROR;
-
-	String ICON_BIG_QUESTION = "THEME/mbx-question.png";
-
-	String ICON_MINI_ERROR = "THEME/mini-error.png";
-
-	String ICON_MINI_WARNING = "THEME/mini-warning.png";
-
-	String ICON_MINI_INFO = "THEME/mini-info.png";
-
-	String ICON_PROGRESSBAR = "THEME/progressbar.gif";
-
-	String ICON_RESIZE = "THEME/resize.png";
-
 	String UPLOAD_TOO_LARGE = "upload.too.large";
 
 	String UPLOAD_DATA_ERROR = "upload.data.error";
@@ -413,7 +349,9 @@ public interface Msgs {
 	String E_BINDING_DEFINITION = "e.binding.definition";
 
 	String UI_UPLOAD_TEXT = "ui.upload.button";
+
 	String UI_UPLOADMULTI_TEXT = "ui.uploadmulti.button";
+
 	static public final String EXPORT_BUTTON = "ui.btn.export";
 
 

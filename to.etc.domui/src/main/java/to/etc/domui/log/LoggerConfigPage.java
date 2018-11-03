@@ -22,6 +22,7 @@ import to.etc.domui.log.data.HandlerType;
 import to.etc.domui.log.data.LoggerRootDef;
 import to.etc.domui.log.data.Matcher;
 import to.etc.domui.state.UIGoto;
+import to.etc.domui.themes.Theme;
 import to.etc.domui.util.Msgs;
 import to.etc.log.EtcLoggerFactory;
 import to.etc.log.Level;
@@ -157,14 +158,14 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	protected void createCommitButton() {
-		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Icon.of(Msgs.BTN_SAVE), b -> save());
+		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Icon.of(Theme.BTN_SAVE), b -> save());
 		//hide by default, it would become visible if modifications on page are detected
 		m_saveButton.setDisabled(true);
 		m_saveButton.setTitle("no changes to save");
 	}
 
 	protected void createCancelButton() {
-		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Icon.of(Msgs.BTN_CANCEL), b -> reloadPageData());
+		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Icon.of(Theme.BTN_CANCEL), b -> reloadPageData());
 		//hide by default, it would become visible if modifications on page are detected
 		m_cancelButton.setDisabled(true);
 	}

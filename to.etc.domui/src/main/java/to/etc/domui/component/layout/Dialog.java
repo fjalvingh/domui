@@ -174,7 +174,7 @@ public class Dialog extends Window {
 
 	@NonNull
 	protected DefaultButton createSaveButton() {
-		return createSaveButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Icon.of(Msgs.BTN_SAVE));
+		return createSaveButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Icon.of(Theme.BTN_SAVE));
 	}
 
 	@NonNull

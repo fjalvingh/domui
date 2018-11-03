@@ -15,8 +15,8 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Select;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.Msgs;
 
 import java.util.List;
 
@@ -95,7 +95,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	public void createContent() throws Exception {
 		super.createContent();
 		if(getSrc() == null) {
-			setSrc(Icon.of(Msgs.BTN_FIND));
+			setSrc(Icon.of(Theme.BTN_FIND));
 		}
 		m_picker.setDisplay(DisplayType.NONE);
 		m_picker.setPosition(PositionType.ABSOLUTE);
