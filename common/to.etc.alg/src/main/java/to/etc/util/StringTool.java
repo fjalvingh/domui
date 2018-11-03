@@ -1082,10 +1082,11 @@ public class StringTool {
 
 
 	/**
-	 *	Returns the extension of a file. The extension includes the . If no
-	 *  extension is present then the empty string is returned ("").
+	 * Deprecated: use {@link FileTool#getFileExtension(String)}.
+	 *
+	 * Returns the extension of a file. The extension includes the . If no
+	 * extension is present then the empty string is returned ("").
 	 * @deprecated
-	 * @see FileTool.getFileExtension(String)
 	 */
 	@Deprecated
 	static public String getFileExtension(final String fn) {

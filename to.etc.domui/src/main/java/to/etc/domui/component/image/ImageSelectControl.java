@@ -6,7 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.HoverButton;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.upload.IUploadAcceptingComponent;
 import to.etc.domui.component.upload.UploadPart;
@@ -52,7 +53,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	static private final BundleRef BUNDLE = BundleRef.create(ImageSelectControl.class, "messages");
 
 	@Nullable
-	private String m_emptyIcon;
+	private IIconRef m_emptyIcon;
 
 	@NonNull
 	private Dimension m_displayDimensions = new Dimension(32, 32);
@@ -94,16 +95,16 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		container.setHeight((m_displayDimensions.getHeight() + 2) + "px");
 
 		if(m_value == null) {
-			Img img = new Img();
-			container.add(img);
-			img.setImgWidth(Integer.toString(m_displayDimensions.getWidth()));
-			img.setImgHeight(Integer.toString(m_displayDimensions.getHeight()));
-			img.setAlign(ImgAlign.LEFT);
-			String emptyIcon = getEmptyIcon();
+			//Img img = new Img();
+			//container.add(img);
+			//img.setImgWidth(Integer.toString(m_displayDimensions.getWidth()));
+			//img.setImgHeight(Integer.toString(m_displayDimensions.getHeight()));
+			//img.setAlign(ImgAlign.LEFT);
+			IIconRef emptyIcon = getEmptyIcon();
 			if(null == emptyIcon) {
-				img.setSrc(Theme.ISCT_EMPTY);
+				container.add(Theme.ISCT_EMPTY.createNode());
 			} else {
-				img.setSrc(emptyIcon);
+				container.add(emptyIcon.createNode());
 			}
 		} else {
 			String url = getComponentDataURL("THUMB", new PageParameters("datx", System.currentTimeMillis() + ""));
@@ -114,7 +115,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		}
 
 		if(!isDisabled() && ! isReadOnly()) {
-			DefaultButton btn = new DefaultButton("", FaIcon.faWindowClose, a -> {
+			DefaultButton btn = new DefaultButton("", Icon.faWindowClose, a -> {
 				setValue(null);
 				forceRebuild();
 				setImageChanged();
@@ -319,20 +320,17 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	/**
 	 * If you want to show another image then the "empty.png" image that is default shown when no image is available.
-	 *
-	 * @return
 	 */
 	@Nullable
-	public String getEmptyIcon() {
+	public IIconRef getEmptyIcon() {
 		return m_emptyIcon;
 	}
 
 	/**
 	 * Set the source for the image to show, if no image is given, as an absolute web app path. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
-	 * @param src
 	 */
-	public void setEmptyIcon(@NonNull String src) {
+	public void setEmptyIcon(@NonNull IIconRef src) {
 		if(!DomUtil.isEqual(src, m_emptyIcon))
 			changed();
 		m_emptyIcon = src;
@@ -340,11 +338,9 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 
 	/**
 	 * Set the source as a Java resource based off the given class.
-	 * @param base
-	 * @param resurl
 	 */
 	public void setEmptyIcon(@NonNull Class< ? > base, @NonNull String resurl) {
-		String s = DomUtil.getJavaResourceRURL(base, resurl);
+		IIconRef s = Icon.of(DomUtil.getJavaResourceRURL(base, resurl));
 		setEmptyIcon(s);
 	}
 }

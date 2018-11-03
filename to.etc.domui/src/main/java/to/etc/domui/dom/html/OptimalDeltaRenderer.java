@@ -281,7 +281,7 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 	}
 
 	@Override
-	public void renderLoadCSS(@NonNull String path) throws Exception {
+	public void renderLoadCSS(@NonNull String path, String... options) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");

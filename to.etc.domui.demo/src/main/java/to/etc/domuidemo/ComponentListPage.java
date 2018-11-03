@@ -44,6 +44,7 @@ import to.etc.domuidemo.pages.overview.misc.DemoALink;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayCheckbox;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayValue;
 import to.etc.domuidemo.pages.overview.misc.DemoMsgBox;
+import to.etc.domuidemo.pages.overview.misc.SvgIconPage;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
 import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
 import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
@@ -75,6 +76,7 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoDefaultButton.class, "The DefaultButton");
 		addLink(DemoLinkButton.class, "The LinkButton");
 		addLink(DemoALink.class, "The ALink and ATag components: several kinds of links");
+		addLink(SvgIconPage.class, "Renders components with SVG icons");
 
 		addCaption("Input components");
 		addLink(DemoCheckbox.class, "The checkbox component");

@@ -1,15 +1,15 @@
 package to.etc.domui.component.headers;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.CloseOnClickPanel;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
-import to.etc.domui.parts.GrayscalerPart;
 
 import java.util.List;
 
@@ -49,24 +49,21 @@ public class HamburgerMenu extends CloseOnClickPanel {
 		Div sel = new Div();
 		add(sel);
 		sel.setCssClass("ui-hmbrg-item" + (hasicon ? " ui-hmbrg-icon" : ""));
-		String icon = action.getIcon(null);
+		IIconRef icon = action.getIcon(null);
+
 		String disable = action.getDisableReason(null);
 		if(null != icon) {
-			icon = getThemedResourceRURL(icon);
-			sel.setBackgroundImage(disable == null ? icon : GrayscalerPart.getURL(icon));
+			NodeBase node = icon.createNode();
+			node.addCssClass("ui-hmbrg-icon");
+			sel.add(node);
 		}
 		Span sp = new Span("ui-hmbrg-txt", action.getName(null));
 		sel.add(sp);
 		if(null != disable) {
-			sel.addCssClass("ui-hmbrg-disabled");
+			sel.addCssClass("ui-hmbrg-disabled ui-disabled");
 			sel.setTitle(disable);
 		} else {
-			sel.setClicked(new IClicked<Div>() {
-				@Override
-				public void clicked(@NonNull Div clickednode) throws Exception {
-					handleSelection(action);
-				}
-			});
+			sel.setClicked((IClicked<Div>) clickednode -> handleSelection(action));
 		}
 	}
 

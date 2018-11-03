@@ -4,7 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.Text2;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.IRowControlFactory;
@@ -61,7 +61,7 @@ public class EditableTablePage extends UrlPage {
 		addTotalsRow();
 
 		add(new VerticalSpacer(10));
-		add(new LinkButton("Add Row", FaIcon.faPlus, a -> model().addEditRow()));
+		add(new LinkButton("Add Row", Icon.faPlus, a -> model().addEditRow()));
 	}
 
 	private RowRenderer<Line> createRowRenderer() {
@@ -131,9 +131,9 @@ public class EditableTablePage extends UrlPage {
 			if(null == object) {
 				return;
 			}
-			LinkButton remove = new LinkButton("Remove", FaIcon.faTimes, clickedNode -> model().delete(object));
+			LinkButton remove = new LinkButton("Remove", Icon.faTimes, clickedNode -> model().delete(object));
 			node.add(remove);
-			remove.setTitle("A completely useless and insultingly stupid explanation, because of course a word like remove is not blindingly obvious. But of course we have some idiots that want to explain the obvious, leaving no time nor any want to explain what SHOULD be explained.");
+			remove.setTitle("A completely useless and insultingly stupid explanation, because of course a word like remove is blindingly obvious.");
 		};
 	}
 

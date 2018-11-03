@@ -6,6 +6,7 @@ import to.etc.domui.component.delayed.PollingDiv;
 import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.ValueLabelPair;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Div;
@@ -108,43 +109,27 @@ public class LogTailerFragment extends PollingDiv {
 		Div btn = new Div();
 		ttl.add(btn);
 		btn.setCssClass("ui-tlf-btn");
-		SmallImgButton ib = new SmallImgButton("img/btnFirst.png", new IClicked<SmallImgButton>() {
-			@Override
-			public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
-				gotoLine(0);
-			}
+		SmallImgButton ib = new SmallImgButton(Icon.of("img/btnFirst.png"), (IClicked<SmallImgButton>) clickednode -> gotoLine(0));
+		btn.add(ib);
+
+		ib = new SmallImgButton(Icon.of("img/btnPrev.png"), (IClicked<SmallImgButton>) clickednode -> {
+			int lnr = m_startLine - getLinesPerPage();
+			if(lnr < 0)
+				lnr = 0;
+			gotoLine(lnr);
 		});
 		btn.add(ib);
 
-		ib = new SmallImgButton("img/btnPrev.png", new IClicked<SmallImgButton>() {
-			@Override
-			public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
-				int lnr = m_startLine - getLinesPerPage();
-				if(lnr < 0)
-					lnr = 0;
-				gotoLine(lnr);
-			}
+		ib = new SmallImgButton(Icon.of("img/btnNext.png"), (IClicked<SmallImgButton>) clickednode -> {
+			int last = m_task.getLastLine();
+			int lnr = m_startLine + getLinesPerPage();
+			if(lnr > last)
+				lnr = last - getLinesPerPage();
+			gotoLine(lnr);
 		});
 		btn.add(ib);
 
-		ib = new SmallImgButton("img/btnNext.png", new IClicked<SmallImgButton>() {
-			@Override
-			public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
-				int last = m_task.getLastLine();
-				int lnr = m_startLine + getLinesPerPage();
-				if(lnr > last)
-					lnr = last - getLinesPerPage();
-				gotoLine(lnr);
-			}
-		});
-		btn.add(ib);
-
-		ib = new SmallImgButton("img/btnLast.png", new IClicked<SmallImgButton>() {
-			@Override
-			public void clicked(@NonNull SmallImgButton clickednode) throws Exception {
-				gotoLine(m_task.getLastLine() - getLinesPerPage());
-			}
-		});
+		ib = new SmallImgButton(Icon.of("img/btnLast.png"), (IClicked<SmallImgButton>) clickednode -> gotoLine(m_task.getLastLine() - getLinesPerPage()));
 		btn.add(ib);
 
 		btn.add(" Goto ");
@@ -152,13 +137,10 @@ public class LogTailerFragment extends PollingDiv {
 		btn.add(m_goto);
 		m_goto.setMaxLength(10);
 		m_goto.setSize(6);
-		m_goto.setOnValueChanged(new IValueChanged<Text<Integer>>() {
-			@Override
-			public void onValueChanged(@NonNull Text<Integer> component) throws Exception {
-				Integer value = component.getValue();
-				if(value != null)
-					gotoLine(value.intValue());
-			}
+		m_goto.setOnValueChanged((IValueChanged<Text<Integer>>) component -> {
+			Integer value = component.getValue();
+			if(value != null)
+				gotoLine(value.intValue());
 		});
 
 		btn.add(" ");
@@ -167,27 +149,19 @@ public class LogTailerFragment extends PollingDiv {
 		btn.add(" ");
 		btn.add(m_followBox);
 		btn.add("Follow ");
-		m_followBox.setOnValueChanged(new IValueChanged<Checkbox>() {
-			@Override
-			public void onValueChanged(@NonNull Checkbox component) throws Exception {
-				if(component.isChecked())
-					updateLinesPerPage();
-			}
+		m_followBox.setOnValueChanged((IValueChanged<Checkbox>) component -> {
+			if(component.isChecked())
+				updateLinesPerPage();
 		});
 
 		List<ValueLabelPair<Integer>> szl = new ArrayList<ValueLabelPair<Integer>>();
 		for(int size : SIZES) {
-			szl.add(new ValueLabelPair<Integer>(Integer.valueOf(size), Integer.toString(size)));
+			szl.add(new ValueLabelPair<>(Integer.valueOf(size), Integer.toString(size)));
 		}
-		m_linesCombo = new ComboFixed<Integer>(szl);
+		m_linesCombo = new ComboFixed<>(szl);
 		m_linesCombo.setValue(Integer.valueOf(32));
 		m_linesCombo.setMandatory(true);
-		m_linesCombo.setOnValueChanged(new IValueChanged<ComboFixed<Integer>>() {
-			@Override
-			public void onValueChanged(@NonNull ComboFixed<Integer> component) throws Exception {
-				updateLinesPerPage();
-			}
-		});
+		m_linesCombo.setOnValueChanged((IValueChanged<ComboFixed<Integer>>) component -> updateLinesPerPage());
 		btn.add(m_linesCombo);
 		btn.add(" lines/page");
 

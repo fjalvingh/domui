@@ -39,6 +39,7 @@ import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.component.layout.title.BasePageTitleBar;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.HtmlTagRenderer;
@@ -111,6 +112,7 @@ import to.etc.domui.util.resources.VersionedJsResourceFactory;
 import to.etc.domui.util.resources.WebappResourceRef;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.WrappedException;
+import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QNotFoundException;
@@ -127,6 +129,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -607,6 +610,15 @@ public abstract class DomApplication {
 		} catch(Throwable x) {
 			AppFilter.LOG.error("Exception when destroying Application", x);
 		}
+
+		ServiceLoader<IApplicationInitializer> initLoader = ServiceLoader.load(IApplicationInitializer.class);
+		for(IApplicationInitializer ai : initLoader) {
+			try {
+				ai.onAfterDestroy(this);
+			} catch(Exception x) {
+				AppFilter.LOG.error("Exception when destroying Application", x);
+			}
+		}
 	}
 
 	/**
@@ -618,9 +630,6 @@ public abstract class DomApplication {
 	/**
 	 * Override to initialize the application, called as soon as the webabb starts by the
 	 * filter's initialization code.
-	 *
-	 * @param pp
-	 * @throws Exception
 	 */
 	protected void initialize(@NonNull final ConfigParameters pp) throws Exception {
 	}
@@ -663,7 +672,17 @@ public abstract class DomApplication {
 			setUiTestMode();
 		}
 
+		ServiceLoader<IApplicationInitializer> initLoader = ServiceLoader.load(IApplicationInitializer.class);
+		for(IApplicationInitializer ai : initLoader) {
+			ai.onStartInitialization(this);
+		}
+
 		initialize(pp);
+
+		initLoader = ServiceLoader.load(IApplicationInitializer.class);
+		for(IApplicationInitializer ai : initLoader) {
+			ai.onEndInitialization(this);
+		}
 
 		/*
 		 * If we're running in development mode then we auto-reload changed pages when the developer changes
@@ -678,6 +697,23 @@ public abstract class DomApplication {
 			}
 			setAutoRefreshPollInterval(refreshinterval);
 		}
+
+		//-- One of the FontAwesome implementations must have been registered - FIXME Find a less ugly means
+		boolean reg = false;
+		for(HeaderContributorEntry hce : getHeaderContributorList()) {
+			if(hce.getContributor().toString().contains("font-awesome") || hce.getContributor().toString().contains("fontawesome")) {
+				reg = true;
+				break;
+			}
+		}
+		if(! reg) {
+			throw new ProgrammerErrorException("FATAL: No FontAwesome version registered\n"
+				+ "DomUI uses FontAwesome for some of its standard icons. You need to include the version of FontAwesome you"
+				+ " want to use by including one of domui's fontawesome (Maven) modules in your project, and then register "
+				+ " it with a call to it"
+			);
+		}
+		Icon.initialize();									// Make sure all default icons have an impl
 	}
 
 	/**
@@ -1038,11 +1074,6 @@ public abstract class DomApplication {
 		 * FIXME Same as above, this is for loading the CKEditor.
 		 */
 		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
-		addFontAwesomeContributor();
-	}
-
-	protected void addFontAwesomeContributor() {
-		addHeaderContributor(HeaderContributor.loadStylesheet("$fontawesome-470/fonts/font-awesome.min.css"), 10);
 	}
 
 	/**
@@ -1322,10 +1353,6 @@ public abstract class DomApplication {
 
 	/**
 	 * UNCACHED version to locate a resource, using the registered resource factories.
-	 *
-	 * @param name
-	 * @param rdl
-	 * @return
 	 */
 	@NonNull
 	private IResourceRef internalFindResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
@@ -1344,13 +1371,9 @@ public abstract class DomApplication {
 	 * This returns the name of an <i>existing</i> resource for the given name/suffix and locale. It uses the
 	 * default DomUI/webapp.core resource resolution pattern.
 	 *
-	 * @see BundleRef#loadBundleList(Locale)
-	 *
 	 * @param basename        The base name: the part before the locale info
 	 * @param suffix        The suffix: the part after the locale info. This usually includes a ., like .js
 	 * @param loc            The locale to get the resource for.
-	 * @return
-	 * @throws Exception
 	 */
 	public String findLocalizedResourceName(final String basename, final String suffix, final Locale loc) throws Exception {
 		StringBuilder sb = new StringBuilder(128);

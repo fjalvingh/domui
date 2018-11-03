@@ -27,6 +27,8 @@ package to.etc.domui.component.tbl;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
@@ -273,7 +275,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 
 		if(isNeedSelectionButton()) {
 			if(m_showSelectionBtn == null) {
-				m_showSelectionBtn = new SmallImgButton("THEME/dpr-select-on.png");
+				m_showSelectionBtn = new SmallImgButton(Icon.of("THEME/dpr-select-on.png"));
 				m_buttonDiv.add(4, m_showSelectionBtn); // Always after last navigation button
 				m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
 					@Override
@@ -297,13 +299,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		return m_buttonDiv;
 	}
 
-	public void addButton(final String image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
-		SmallImgButton i = new SmallImgButton(image, new IClicked<SmallImgButton>() {
-			@Override
-			public void clicked(final @NonNull SmallImgButton b) throws Exception {
-				click.clicked(DataPager.this);
-			}
-		});
+	public void addButton(IIconRef image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
+		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager.this));
 		if(bundle != null)
 			i.setTitle(bundle.getString(ttlkey));
 		else if(ttlkey != null)
@@ -342,7 +339,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		forceRebuild();
 	}
 
-	public void addButton(@NonNull String img, @NonNull IClicked<SmallImgButton> clicked) {
+	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
 		m_extraButtonList.add(new SmallImgButton(img, clicked));
 	}
 }

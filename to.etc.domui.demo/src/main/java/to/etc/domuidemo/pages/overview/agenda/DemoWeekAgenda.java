@@ -17,6 +17,7 @@ import to.etc.domui.component.input.DateInput;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.layout.FloatingWindow;
 import to.etc.domui.component.layout.SplitPanel;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.converter.SecondDurationConverter;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
@@ -227,19 +228,15 @@ public class DemoWeekAgenda extends UrlPage {
 		floater.add(f.finish());
 
 		//-- Buttons
-		DefaultButton b = new DefaultButton("Opslaan", "img/btnSave.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(DefaultButton bx) throws Exception {
-				Calendar cal = Calendar.getInstance();
-				cal.setTime(di.getValue());
-				Long value = dc.getValue();
-				if(null != value)
-					cal.add(Calendar.SECOND, value.intValue());
-				m_model.addItem(new BasicScheduleItem(newID(), di.getValue(), cal.getTime(), "Prive", sub.getValue(), null, "img/cal/exercise.png"));
-				floater.close();
-			}
+		DefaultButton b = new DefaultButton("Opslaan", Icon.of("img/btnSave.png"), bx -> {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(di.getValue());
+			Long value = dc.getValue();
+			if(null != value)
+				cal.add(Calendar.SECOND, value.intValue());
+			m_model.addItem(new BasicScheduleItem(newID(), di.getValue(), cal.getTime(), "Prive", sub.getValue(), null, "img/cal/exercise.png"));
+			floater.close();
 		});
 		floater.add(b);
 	}
-
 }

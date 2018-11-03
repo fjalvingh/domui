@@ -5,9 +5,11 @@ import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.Para;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
-import to.etc.domuidemo.ComponentListPage;
 import to.etc.domui.util.vcs.GitOptions;
+import to.etc.domuidemo.ComponentListPage;
+import to.etc.domuidemo.TutorialListPage;
 import to.etc.domuidemo.components.SourceIcon;
+import to.etc.domuidemo.pages.cddb.AlbumListPage;
 import to.etc.domuidemo.pages.cddb.CdCollection;
 import to.etc.domuidemo.pages.test.JUnitTestMenuPage;
 
@@ -42,6 +44,7 @@ public class HomePage extends MenuPage {
 		d.add(" to get a window showing the Java source code for the screen in question. In this window you can click the underlined class names to go to their sources too.");
 
 		addCaption("Demo apps");
+		addLink(AlbumListPage.class, "Find albums");
 		addLink(CdCollection.class, "Tracks for sale");
 
 		addCaption("JUnit/Selenium Test pages");
@@ -49,6 +52,7 @@ public class HomePage extends MenuPage {
 
 		addCaption("Detailed examples and wiki page");
 		addLink(ComponentListPage.class, "Component overview page");
+		addLink(TutorialListPage.class, "Tutorial pages");
 
 		Div commits = new Div("d-git-commits");
 		add(commits);

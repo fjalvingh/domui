@@ -36,6 +36,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.searchpanel.lookupcontrols.FactoryPair;
 import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.searchpanel.lookupcontrols.LookupControlRegistry2;
@@ -386,7 +387,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	protected void defineDefaultButtons() {
 		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
-		b.setIcon("THEME/btnFind.png");
+		b.setIcon(Icon.of("THEME/btnFind.png"));
 		b.setTestID("searchButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
 		b.css("is-primary");
@@ -397,7 +398,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		addButtonItem(b, 100, ButtonMode.NORMAL);
 
 		m_clearButton = b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
-		b.setIcon("THEME/btnClear.png");
+		b.setIcon(Icon.of("THEME/btnClear.png"));
 		b.setTestID("clearButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR_TITLE));
 		b.setClicked(xb -> {
@@ -408,7 +409,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		addButtonItem(b, 200, ButtonMode.NORMAL);
 
 		//-- Collapse button thingy
-		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", bx -> collapse());
+		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), Icon.of("THEME/btnHideLookup.png"), bx -> collapse());
 		m_collapseButton.setTestID("hideButton");
 		m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
 		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
@@ -452,7 +453,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
-		m_collapseButton.setIcon("THEME/btnShowLookup.png");
+		m_collapseButton.setIcon(Icon.of("THEME/btnShowLookup.png"));
 		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> restore());
 		createButtonRow(m_collapsedPanel, true);
 		//trigger after collapse event is set
@@ -469,7 +470,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		createButtonRow(m_buttonRow, false);
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
-		m_collapseButton.setIcon("THEME/btnHideLookup.png");
+		m_collapseButton.setIcon(Icon.of("THEME/btnHideLookup.png"));
 		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> collapse());
 
 		m_content.setDisplay(DisplayType.BLOCK);
@@ -588,12 +589,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_newBtn.setIcon(Theme.BTN_NEW);
 				m_newBtn.setTestID("newButton");
 				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
-				m_newBtn.setClicked(new IClicked<NodeBase>() {
-					@Override
-					public void clicked(final @NonNull NodeBase xb) throws Exception {
-						if(getOnNew() != null) {
-							getOnNew().clicked(SearchPanel.this);
-						}
+				m_newBtn.setClicked(xb -> {
+					if(getOnNew() != null) {
+						getOnNew().clicked(SearchPanel.this);
 					}
 				});
 				m_newBtn.setDisabled(m_newBtnDisableReason);
@@ -648,13 +646,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_cancelBtn.setIcon(Theme.BTN_CANCEL);
 				m_cancelBtn.setTestID("cancelButton");
 				m_cancelBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL_TITLE));
-				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
-					@Override
-					public void clicked(final @NonNull NodeBase xb) throws Exception {
+				m_cancelBtn.setClicked(xb -> {
 
-						if(getOnCancel() != null) {
-							getOnCancel().clicked(SearchPanel.this);
-						}
+					if(getOnCancel() != null) {
+						getOnCancel().clicked(SearchPanel.this);
 					}
 				});
 				addButtonItem(m_cancelBtn, 400, ButtonMode.BOTH);

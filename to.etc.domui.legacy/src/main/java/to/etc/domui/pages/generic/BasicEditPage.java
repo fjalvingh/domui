@@ -25,7 +25,6 @@
 package to.etc.domui.pages.generic;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.controlfactory.ModelBindings;
 import to.etc.domui.component.form.TabularFormBuilder;
 import to.etc.domui.component.layout.ButtonBar;
@@ -33,7 +32,7 @@ import to.etc.domui.component.layout.IButtonBar;
 import to.etc.domui.component.layout.Panel;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.themes.Theme;
@@ -144,35 +143,19 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void createCommitButton() {
-		getButtonBar().addButton("C!ommit", "THEME/btnSave.png", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				save();
-			}
-		});
+		getButtonBar().addButton("C!ommit", Icon.of("THEME/btnSave.png"), b -> save());
 	}
 
 	protected void createCancelButton() {
-		getButtonBar().addButton("!Cancel", Theme.BTN_CANCEL, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				cancel();
-			}
-		});
+		getButtonBar().addButton("!Cancel", Theme.BTN_CANCEL, b -> cancel());
 	}
 
 	protected void createDeleteButton() {
-		getButtonBar().addConfirmedButton("!Delete", "THEME/btnDelete.png", "Delete: are you sure?", new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				delete();
-			}
-		});
+		getButtonBar().addConfirmedButton("!Delete", Icon.of("THEME/btnDelete.png"), "Delete: are you sure?", b -> delete());
 	}
 
 	/**
 	 * By default this returns a valid "editing" [entity Meta name] text.
-	 * @see to.etc.bugduster.pages.BasicPage#getPageTitle()
 	 */
 	@Override
 	public String getPageTitle() {

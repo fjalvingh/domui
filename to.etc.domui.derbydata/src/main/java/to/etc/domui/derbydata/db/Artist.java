@@ -61,4 +61,8 @@ public class Artist extends DbRecordBase<Long> {
 	public void setAlbumList(List<Album> albumList) {
 		m_albumList = albumList;
 	}
+
+	@Override public String toString() {
+		return getName();
+	}
 }

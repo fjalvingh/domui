@@ -349,7 +349,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	}
 
 	@Override
-	public void renderLoadCSS(String path) throws Exception {
+	public void renderLoadCSS(String path, String... options) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		//path = ctx().getRelativePath(rurl);
 

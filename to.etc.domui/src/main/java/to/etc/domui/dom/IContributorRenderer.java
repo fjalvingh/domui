@@ -12,7 +12,7 @@ public interface IContributorRenderer {
 
 	@NonNull IRequestContext ctx();
 
-	void renderLoadCSS(@NonNull String path) throws Exception;
+	void renderLoadCSS(@NonNull String path,String... options) throws Exception;
 
 	void renderLoadJavascript(@NonNull String path, boolean async, boolean defer) throws Exception;
 }

@@ -24,9 +24,9 @@
  */
 package to.etc.domui.component.layout;
 
-import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
@@ -38,12 +38,8 @@ abstract public class ButtonMakerBase {
 
 	/**
 	 * Add a normal button.
-	 * @param txt
-	 * @param icon
-	 * @param click
-	 * @return
 	 */
-	public DefaultButton addButton(final String txt, final String icon, final IClicked<DefaultButton> click) {
+	public DefaultButton addButton(final String txt, final IIconRef icon, final IClicked<DefaultButton> click) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
 		addButton(b);
 		return b;
@@ -55,13 +51,8 @@ abstract public class ButtonMakerBase {
 		return b;
 	}
 
-	public DefaultButton addBackButton(final String txt, final String icon) {
-		DefaultButton b = new DefaultButton(txt, icon, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(final @NonNull DefaultButton bxx) throws Exception {
-				UIGoto.back();
-			}
-		});
+	public DefaultButton addBackButton(final String txt, final IIconRef icon) {
+		DefaultButton b = new DefaultButton(txt, icon, bxx -> UIGoto.back());
 		addButton(b);
 		return b;
 	}
@@ -76,19 +67,19 @@ abstract public class ButtonMakerBase {
 		return b;
 	}
 
-	public DefaultButton addConfirmedButton(final String txt, final String icon, final String msg, final IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(final String txt, final IIconRef icon, final String msg, final IClicked<DefaultButton> click) {
 		DefaultButton b = MsgBox.areYouSureButton(txt, icon, msg, click);
 		addButton(b);
 		return b;
 	}
 
-	public LinkButton addLinkButton(final String txt, final String img, final IClicked<LinkButton> click) {
+	public LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click) {
 		LinkButton b = new LinkButton(txt, img, click);
 		addButton(b);
 		return b;
 	}
 
-	public LinkButton addConfirmedLinkButton(final String txt, final String img, String msg, final IClicked<LinkButton> click) {
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, final IClicked<LinkButton> click) {
 		LinkButton b = MsgBox.areYouSureLinkButton(txt, img, msg, click);
 		addButton(b);
 		return b;

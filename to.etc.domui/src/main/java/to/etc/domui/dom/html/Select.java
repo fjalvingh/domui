@@ -27,6 +27,7 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.DomUtil;
@@ -222,11 +223,8 @@ public class Select extends InputNodeContainer implements INativeChangeListener,
 	/*--------------------------------------------------------------*/
 	/**
 	 * Add a small image button after the combo.
-	 * @param img
-	 * @param title
-	 * @param click
 	 */
-	public void addExtraButton(String img, String title, final IClicked<NodeBase> click) {
+	public void addExtraButton(IIconRef img, String title, final IClicked<NodeBase> click) {
 		if(m_buttonList == Collections.EMPTY_LIST)
 			m_buttonList = new ArrayList<SmallImgButton>();
 		SmallImgButton si = new SmallImgButton(img);

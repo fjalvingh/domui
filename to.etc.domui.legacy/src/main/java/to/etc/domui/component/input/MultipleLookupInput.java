@@ -11,6 +11,7 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.DefaultSelectAllHandler;
@@ -21,7 +22,6 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -193,15 +193,11 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 			public void initialize(@NonNull SearchPanel<T> lf) throws Exception {
 				if(!initialized) {
 					DefaultButton confirm = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
-					confirm.setIcon("THEME/btnConfirm.png");
+					confirm.setIcon(Icon.of("THEME/btnConfirm.png"));
 					confirm.setTestID("confirmButton");
-					confirm.setClicked(new IClicked<NodeBase>() {
-
-						@Override
-						public void clicked(@NonNull NodeBase clickednode) throws Exception {
-							m_lookupInput.closePopup();
-							addSelection();
-						}
+					confirm.setClicked(clickednode -> {
+						m_lookupInput.closePopup();
+						addSelection();
 					});
 					lf.addButtonItem(confirm, 800);
 					initialized = true;
@@ -209,12 +205,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 			}
 		});
 		m_renderColumns = renderColumns;
-		m_clearButton = new HoverButton(Theme.BTN_HOVERMULTILOOKUKPCLEAR, new IClicked<HoverButton>() {
-			@Override
-			public void clicked(@NonNull HoverButton b) throws Exception {
-				clearSelection(null);
-			}
-		});
+		m_clearButton = new HoverButton("THEME/btn-hover-ClearMultipleLookup.png", b -> clearSelection(null));
 		m_clearButton.setTestID("clearButtonInputLookup");
 		m_clearButton.setDisplay(DisplayType.NONE);
 		m_clearButton.addCssClass("ui-lui-clear-mul-btn");
@@ -374,20 +365,12 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		} else {
 			itemNode.setCssClass("ui-mli-itm");
 		}
-		Img imgClose = new Img(Theme.BTN_CLOSE);
 		itemNode.add(itemText);
+		NodeBase imgClose = Theme.BTN_CLOSE.createNode();
 		itemNode.add(imgClose);
 
-		final IClicked<NodeBase> removeHandler = new IClicked<NodeBase>() {
-
-			@Override
-			public void clicked(@NonNull NodeBase clickednode) throws Exception {
-				removeItem(item);
-			}
-
-		};
+		final IClicked<NodeBase> removeHandler = clickednode -> removeItem(item);
 		imgClose.setClicked(removeHandler);
-
 
 		//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
 		IRenderInto<T> r = getSelectedItemContentRenderer();

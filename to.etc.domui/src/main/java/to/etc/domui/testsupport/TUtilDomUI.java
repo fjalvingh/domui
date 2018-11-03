@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
+import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.UrlPage;
@@ -63,6 +64,7 @@ public class TUtilDomUI {
 				return new File("/tmp"); // FIXME Howto?
 			}
 		};
+		application.addHeaderContributor(HeaderContributor.loadStylesheet("font-awesome"), 11);
 		application.internalInitialize(cp, false);
 		m_application = application;
 	}
@@ -89,6 +91,7 @@ public class TUtilDomUI {
 				}
 			};
 
+			m_application.addHeaderContributor(HeaderContributor.loadStylesheet("font-awesome"), 11);
 			m_application.internalInitialize(cp, false);
 		}
 		return m_application;

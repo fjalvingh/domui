@@ -16,6 +16,16 @@
 	cursor: pointer;
 
 	@include ui-focus-border;
+
+	@each $name, $pair in $colors {
+		$color: nth($pair, 1);
+		$color-invert: nth($pair, 2);
+		&.is-#{$name} {
+			background-color: $color;
+			border-color: $color;
+			color: $color-invert;
+		}
+	}
 }
 
 .ui-sib img {
@@ -39,12 +49,3 @@
 	background: none !important;
 }
 
-@each $name, $pair in $colors {
-	$color: nth($pair, 1);
-	$color-invert: nth($pair, 2);
-	&.is-#{$name} {
-		background-color: $color;
-		border-color: $color;
-		color: $color-invert;
-	}
-}

@@ -39,9 +39,7 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 	@Override public void createContent() throws Exception {
 		if(getValueSafe() == null) {
 			if(m_displayEmpty) {
-				Img img = new Img();
-				add(img);
-				img.setSrc(Theme.ISCT_EMPTY);
+				add(Theme.ISCT_EMPTY.createNode());
 			}
 		} else {
 			Img img = new Img();

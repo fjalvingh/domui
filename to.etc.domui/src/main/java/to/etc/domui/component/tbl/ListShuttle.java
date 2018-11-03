@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
@@ -135,10 +136,10 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TBody b = new TBody();
 		t.add(b);
 
-		DefaultButton ib = new DefaultButton("", "THEME/sh-up.png", xb -> moveUp());
+		DefaultButton ib = new DefaultButton("", Icon.of("THEME/sh-up.png"), xb -> moveUp());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", "THEME/sh-down.png", xb -> moveDown());
+		ib = new DefaultButton("", Icon.of("THEME/sh-down.png"), xb -> moveDown());
 		b.addRowAndCell().add(ib);
 	}
 
@@ -152,16 +153,16 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		TBody b = new TBody();
 		t.add(b);
 
-		DefaultButton ib = new DefaultButton("", "THEME/sh-2ar-right.png", clickednode -> moveRight());
+		DefaultButton ib = new DefaultButton("", Icon.of("THEME/sh-2ar-right.png"), clickednode -> moveRight());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", "THEME/sh-1ar-right.png", xb -> moveRight());
+		ib = new DefaultButton("", Icon.of("THEME/sh-1ar-right.png"), xb -> moveRight());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", "THEME/sh-1ar-left.png", xb -> moveLeft());
+		ib = new DefaultButton("", Icon.of("THEME/sh-1ar-left.png"), xb -> moveLeft());
 		b.addRowAndCell().add(ib);
 
-		ib = new DefaultButton("", "THEME/sh-2ar-left.png", clickednode -> moveLeft());
+		ib = new DefaultButton("", Icon.of("THEME/sh-2ar-left.png"), clickednode -> moveLeft());
 		b.addRowAndCell().add(ib);
 
 	}

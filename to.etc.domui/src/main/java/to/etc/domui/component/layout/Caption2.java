@@ -3,6 +3,7 @@ package to.etc.domui.component.layout;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
@@ -119,13 +120,13 @@ public class Caption2 extends Div {
 		img.setAlign(ImgAlign.RIGHT);
 	}
 
-	public void addButton(@NonNull String image, @Nullable String hint, @NonNull IClicked<NodeBase> handler) {
+	public void addButton(@NonNull IIconRef image, @Nullable String hint, @NonNull IClicked<NodeBase> handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setClicked(handler);
 		internallyAddButton(ib, hint);
 	}
 
-	public void addButton(@NonNull String image, @Nullable String hint, @NonNull String onClickJs) {
+	public void addButton(@NonNull IIconRef image, @Nullable String hint, @NonNull String onClickJs) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setOnClickJS(onClickJs);
 		internallyAddButton(ib, hint);

@@ -1,0 +1,24 @@
+.ui-svgi {
+	display: inline;
+	align-self: center;
+
+	svg {
+		width: 1em;
+		height: 1em;
+		top: .125em;
+		position: relative;
+	}
+
+	@each $name, $size in $sizes-map {
+		&.is-#{$name} {
+			font-size: $size;
+		}
+	}
+	@each $name, $pair in $colors {
+		&.is-#{$name} svg path {
+			stroke: nth($pair, 1);
+			fill: nth($pair, 1);
+			color: nth($pair, 1);
+		}
+	}
+}

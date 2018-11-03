@@ -1,9 +1,11 @@
 package to.etc.domui.component.misc;
 
-import org.junit.*;
-
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.html.*;
+import org.junit.Assert;
+import org.junit.Test;
+import to.etc.domui.component.layout.TabInstance;
+import to.etc.domui.component.layout.TabPanel;
+import to.etc.domui.component.layout.TabPanelBase;
+import to.etc.domui.dom.html.Div;
 
 /**
  * @author <a href="mailto:yoeri.nijs@itris.nl">Yoeri Nijs</a>
@@ -17,7 +19,7 @@ public class TestTabInstance {
 		TabPanelBase tabPanelBase = new TabPanel(false);
 
 		// Execute
-		tabPanelBase.add(new Div("Some content"), "Content title", "");
+		tabPanelBase.add(new Div("Some content"), "Content title", null);
 
 		// Verify
 		TabInstance tabInstance = tabPanelBase.getCurrentTabInstance();
@@ -30,7 +32,7 @@ public class TestTabInstance {
 		TabPanelBase tabPanelBase = new TabPanel(false);
 
 		// Execute
-		tabPanelBase.add(new Div("Some content"), "Content title", "iconString");
+		tabPanelBase.add(new Div("Some content"), "Content title", Icon.of("icon.png"));
 
 		// Verify
 		TabInstance tabInstance = tabPanelBase.getCurrentTabInstance();

@@ -27,11 +27,12 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.menu.IUIAction;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.Img;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.Underline;
 import to.etc.domui.util.DomUtil;
@@ -59,7 +60,7 @@ public class DefaultButton extends Button implements IActionControl {
 	private String m_text;
 
 	@Nullable
-	private String m_icon;
+	private IIconRef m_icon;
 
 	/** If this is an action-based button this contains the action. */
 	private IUIAction<?> m_action;
@@ -70,7 +71,7 @@ public class DefaultButton extends Button implements IActionControl {
 	 * Create an empty button.
 	 */
 	public DefaultButton() {
-		addCssClass("xxui-sdbtn");
+		//addCssClass("xxui-sdbtn");
 		addCssClass("ui-button");
 		addCssClass("ui-control");
 	}
@@ -78,7 +79,7 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Create a button with a text.
 	 */
-	public DefaultButton(final String txt) {
+	public DefaultButton(String txt) {
 		this();
 		setText(txt);
 	}
@@ -86,7 +87,7 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Create a {@link IUIAction} based button.
 	 */
-	public DefaultButton(final IUIAction<?> action) throws Exception {
+	public DefaultButton(IUIAction<?> action) throws Exception {
 		this();
 		m_action = action;
 		actionRefresh();
@@ -95,7 +96,7 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Create a {@link IUIAction} based button.
 	 */
-	public <T> DefaultButton(final T instance, final IUIAction<T> action) throws Exception {
+	public <T> DefaultButton(T instance, IUIAction<T> action) throws Exception {
 		this();
 		m_action = action;
 		m_actionInstance = instance;
@@ -106,19 +107,19 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Create a button with a text and an icon.
 	 */
-	public DefaultButton(final String txt, final String icon) {
+	public DefaultButton(String txt, IIconRef icon) {
 		this();
 		setText(txt);
 		setIcon(icon);
 	}
 
-	public DefaultButton(final String txt, final IClicked<DefaultButton> clicked) {
+	public DefaultButton(String txt, IClicked<DefaultButton> clicked) {
 		this();
 		setText(txt);
 		setClicked(clicked);
 	}
 
-	public DefaultButton(final String txt, final String icon, final IClicked<DefaultButton> clicked) {
+	public DefaultButton(String txt, IIconRef icon, final IClicked<DefaultButton> clicked) {
 		this();
 		setText(txt);
 		setIcon(icon);
@@ -145,7 +146,7 @@ public class DefaultButton extends Button implements IActionControl {
 	}
 
 	@NonNull
-	public DefaultButton icon(String icon) {
+	public DefaultButton icon(IIconRef icon) {
 		setIcon(icon);
 		return this;
 	}
@@ -158,23 +159,24 @@ public class DefaultButton extends Button implements IActionControl {
 
 	@Override
 	public void createContent() throws Exception {
-		String iconUrl = m_icon;
+		IIconRef iconUrl = m_icon;
 		if(null != iconUrl) {
-			//-- Does the URL contain a dot? That indicates a resource somehow.
 			Span iconSpan = new Span();
 			add(iconSpan);
 			iconSpan.setCssClass("ui-icon");
-			if(DomUtil.isIconName(iconUrl)) {
-				FaIcon icon = new FaIcon(iconUrl);
-				//icon.addCssClass("xxui-sdbtn-icon ui-icon");
-				iconSpan.add(icon);
-			} else {
-				String icon = getThemedResourceRURL(iconUrl);
-				Img img = new Img(icon);
-				iconSpan.add(img);
-				img.setImgBorder(0);
-				img.setDisabled(isDisabled());
-			}
+			NodeBase node = iconUrl.createNode();
+			iconSpan.add(node);
+			//if(DomUtil.isIconName(iconUrl)) {
+			//	FontIcon icon = new FontIcon(iconUrl);
+			//	//icon.addCssClass("xxui-sdbtn-icon ui-icon");
+			//	iconSpan.add(icon);
+			//} else {
+			//	String icon = getThemedResourceRURL(iconUrl);
+			//	Img img = new Img(icon);
+			//	iconSpan.add(img);
+			//	img.setImgBorder(0);
+			//	img.setDisabled(isDisabled());
+			//}
 		}
 		if(! StringTool.isBlank(getText())) {
 			Span txt = new Span();
@@ -187,7 +189,6 @@ public class DefaultButton extends Button implements IActionControl {
 
 	/**
 	 * Define this as a "mini" button, usable to be added inside a table row.
-	 * @return
 	 */
 	public DefaultButton mini() {
 		setCssClass("ui-sdbtn-mini");
@@ -200,20 +201,19 @@ public class DefaultButton extends Button implements IActionControl {
 	 * @param name                The resource's name relative to the class.
 	 */
 	public void setIconImage(final Class<?> resourceBase, final String name) {
-		setIcon(DomUtil.getJavaResourceRURL(resourceBase, name));
+		setIcon(Icon.of(DomUtil.getJavaResourceRURL(resourceBase, name)));
 	}
 
 	/**
 	 * Sets a (new) icon on this button. This requires an absolute image path.
-	 * @param name
 	 */
-	public void setIcon(@Nullable final String name) {
+	public void setIcon(@Nullable IIconRef name) {
 		m_icon = name;
 		forceRebuild();
 	}
 
 	@Nullable
-	public String getIcon() {
+	public IIconRef getIcon() {
 		return m_icon;
 	}
 

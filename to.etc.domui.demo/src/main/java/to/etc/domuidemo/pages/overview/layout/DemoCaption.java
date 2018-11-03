@@ -1,8 +1,10 @@
 package to.etc.domuidemo.pages.overview.layout;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
+import to.etc.domui.component.layout.Caption;
+import to.etc.domui.component.misc.Icon;
+import to.etc.domui.component.misc.MsgBox;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.dom.html.UrlPage;
 
 public class DemoCaption extends UrlPage {
 	@Override
@@ -14,11 +16,6 @@ public class DemoCaption extends UrlPage {
 		//-- It can have buttons too
 		Caption ch = new Caption("With buttons");
 		add(ch);
-		ch.addButton("img/btnSmileyWink.png", "Press me to smile", new IClicked<NodeBase>() {
-			@Override
-			public void clicked(NodeBase clickednode) throws Exception {
-				MsgBox.message(DemoCaption.this, MsgBox.Type.INFO, "Button pressed");
-			}
-		});
+		ch.addButton(Icon.of("img/btnSmileyWink.png"), "Press me to smile", clickednode -> MsgBox.message(DemoCaption.this, MsgBox.Type.INFO, "Button pressed"));
 	}
 }

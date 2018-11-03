@@ -179,7 +179,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			m_result = new DataTable<T>(model, renderer);
 
 			add(m_result);
-			m_result.setPageSize(35);
+			m_result.setPageSize(15);
 			m_result.setTableWidth("100%");
 			m_result.setTestID("resultBasicVpListPage");
 

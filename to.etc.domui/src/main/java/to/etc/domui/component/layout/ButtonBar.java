@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.menu.IUIAction;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TBody;
@@ -108,9 +109,6 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 		m_center.setCssClass("ui-bb-middle");
 	}
 
-	/**
-	 * @see to.etc.domui.component.layout.IButtonBar#addButton(to.etc.domui.dom.html.NodeBase)
-	 */
 	@Override
 	public void addButton(@NonNull NodeBase b, int order) {
 		m_list.add(b);
@@ -119,8 +117,7 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	/**
-	 * Removes all buttons. Intended to be used if ButtonBar dinamically changes set of rendered buttons.
-	 * @param b
+	 * Removes all buttons. Intended to be used if ButtonBar dynamically changes set of rendered buttons.
 	 */
 	public void clearButtons() {
 		m_list.clear();
@@ -144,12 +141,12 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click, int order) {
+	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IClicked<DefaultButton> click, int order) {
 		return m_factory.addButton(txt, icon, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addButton(String txt, String icon, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addButton(String txt, IIconRef icon, IClicked<DefaultButton> click) {
 		return m_factory.addButton(txt, icon, click);
 	}
 
@@ -174,12 +171,12 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addBackButton(String txt, String icon, int order) {
+	public @NonNull DefaultButton addBackButton(String txt, IIconRef icon, int order) {
 		return m_factory.addBackButton(txt, icon, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addBackButton(String txt, String icon) {
+	public @NonNull DefaultButton addBackButton(String txt, IIconRef icon) {
 		return m_factory.addBackButton(txt, icon);
 	}
 
@@ -194,12 +191,12 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public @NonNull DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon, int order) {
+	public @NonNull DefaultButton addCloseButton(@NonNull String txt, @NonNull IIconRef icon, int order) {
 		return m_factory.addCloseButton(txt, icon, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addCloseButton(@NonNull String txt, @NonNull String icon) {
+	public @NonNull DefaultButton addCloseButton(@NonNull String txt, @NonNull IIconRef icon) {
 		return m_factory.addCloseButton(txt, icon);
 	}
 
@@ -234,30 +231,30 @@ public class ButtonBar extends Table implements IButtonBar, IButtonContainer {
 	}
 
 	@Override
-	public DefaultButton addConfirmedButton(String txt, String icon, String msg, IClicked<DefaultButton> click, int order) {
+	public DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IClicked<DefaultButton> click, int order) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click, order);
 	}
 
 	@Override
-	public @NonNull DefaultButton addConfirmedButton(String txt, String icon, String msg, IClicked<DefaultButton> click) {
+	public @NonNull DefaultButton addConfirmedButton(String txt, IIconRef icon, String msg, IClicked<DefaultButton> click) {
 		return m_factory.addConfirmedButton(txt, icon, msg, click);
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click, int order) {
+	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click, int order) {
 		return m_factory.addLinkButton(txt, img, click, order);
 	}
 
 	@Override
-	public @NonNull LinkButton addLinkButton(String txt, String img, IClicked<LinkButton> click) {
+	public @NonNull LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click) {
 		return m_factory.addLinkButton(txt, img, click);
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, String img, String msg, IClicked<LinkButton> click, int order) {
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IClicked<LinkButton> click, int order) {
 		return m_factory.addConfirmedLinkButton(txt, img, msg, click, order);
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, String img, String msg, IClicked<LinkButton> click) {
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, IClicked<LinkButton> click) {
 		return m_factory.addConfirmedLinkButton(txt, img, msg, click);
 	}
 

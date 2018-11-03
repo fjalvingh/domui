@@ -33,6 +33,7 @@ import to.etc.domui.component.lookup.IMultiSelectionResult;
 import to.etc.domui.component.lookup.LookupForm;
 import to.etc.domui.component.lookup.LookupForm.ButtonMode;
 import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.ICellClicked;
 import to.etc.domui.component.tbl.IQueryHandler;
@@ -115,14 +116,11 @@ public class MultipleSelectionLookup<T> extends AbstractFloatingLookup<T> {
 		if(m_onReceiveResult != null) {
 			//-- Add a "confirm" button to the lookup form
 			DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CONFIRM));
-			b.setIcon("THEME/btnConfirm.png");
+			b.setIcon(Icon.of("THEME/btnConfirm.png"));
 			b.setTestID("confirmButton");
-			b.setClicked(new IClicked<NodeBase>() {
-				@Override
-				public void clicked(final @NonNull NodeBase xb) throws Exception {
-					close();
-					m_onReceiveResult.onReturnResult((m_queryResultTable != null) ? m_queryResultTable.getAccumulatedResults() : Collections.EMPTY_LIST);
-				}
+			b.setClicked(xb -> {
+				close();
+				m_onReceiveResult.onReturnResult((m_queryResultTable != null) ? m_queryResultTable.getAccumulatedResults() : Collections.EMPTY_LIST);
 			});
 			lf.addButtonItem(b, 600, ButtonMode.BOTH);
 		}

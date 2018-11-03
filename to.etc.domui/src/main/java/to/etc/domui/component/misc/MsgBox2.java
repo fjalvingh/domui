@@ -12,7 +12,6 @@ import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -89,7 +88,8 @@ final public class MsgBox2 extends Window {
 	/** Autoclose behavior. */
 	private Boolean m_autoClose;
 
-	private Img m_theImage = new Img();
+	@Nullable
+	private NodeBase m_theImage;
 
 	private boolean m_typeSet;
 
@@ -315,7 +315,7 @@ final public class MsgBox2 extends Window {
 	@NonNull
 	public MsgBox2 type(@NonNull Type type) {
 		String ttl;
-		String icon;
+		IIconRef icon;
 		switch(type){
 			default:
 				throw new IllegalStateException(type + " ??");
@@ -340,7 +340,7 @@ final public class MsgBox2 extends Window {
 				icon = Theme.ICON_MBX_DIALOG;
 				break;
 		}
-		m_theImage.setSrc(icon);
+		m_theImage = icon.createNode();
 		if(getWindowTitle() == null)
 			setWindowTitle(ttl);
 		setTestID("msgBox");
@@ -467,7 +467,7 @@ final public class MsgBox2 extends Window {
 	}
 
 	@NonNull
-	public MsgBox2 button(final String lbl, final String icon, final Object selval) {
+	public MsgBox2 button(String lbl, IIconRef icon, final Object selval) {
 		m_theButtons.add(new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@NonNull DefaultButton b) throws Exception {
@@ -622,8 +622,8 @@ final public class MsgBox2 extends Window {
 		return this;
 	}
 
-	public <T> MsgBox2 icon(@NonNull String icon){
-		m_theImage.setSrc(icon);
+	public <T> MsgBox2 icon(@NonNull IIconRef icon){
+		m_theImage = icon.createNode();
 		return this;
 	}
 }

@@ -2,6 +2,7 @@ package to.etc.domui.component.menu;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 public class PopupMenu {
 	public static class Item {
-		private String m_icon;
+		private IIconRef m_icon;
 
 		private String m_title;
 
@@ -31,7 +32,7 @@ public class PopupMenu {
 
 		private Submenu m_parent;
 
-		public Item(String icon, @NonNull String title, String hint, boolean disabled, IClicked<NodeBase> clicked, Submenu parent) {
+		public Item(IIconRef icon, @NonNull String title, String hint, boolean disabled, IClicked<NodeBase> clicked, Submenu parent) {
 			m_icon = icon;
 			m_title = title;
 			m_hint = hint;
@@ -44,7 +45,7 @@ public class PopupMenu {
 			m_action = action;
 		}
 
-		public String getIcon() {
+		public IIconRef getIcon() {
 			return m_icon;
 		}
 
@@ -81,7 +82,7 @@ public class PopupMenu {
 		@Nullable
 		final private Object m_target;
 
-		public Submenu(String icon, @NonNull String title, String hint, boolean disabled, Object target, Submenu parent) {
+		public Submenu(IIconRef icon, @NonNull String title, String hint, boolean disabled, Object target, Submenu parent) {
 			super(icon, title, hint, disabled, null, parent);
 			m_target = target;
 		}
@@ -90,15 +91,15 @@ public class PopupMenu {
 			m_itemList.add(new Item(action));
 		}
 
-		public void addItem(@NonNull String caption, String icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+		public void addItem(@NonNull String caption, IIconRef icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
 			m_itemList.add(new Item(icon, caption, hint, disabled, clk, this));
 		}
 
-		public void addItem(@NonNull String caption, String icon, IClicked<NodeBase> clk) {
+		public void addItem(@NonNull String caption, IIconRef icon, IClicked<NodeBase> clk) {
 			m_itemList.add(new Item(icon, caption, null, false, clk, this));
 		}
 
-		public void addMenu(@NonNull String caption, String icon, String hint, boolean disabled, Object target) {
+		public void addMenu(@NonNull String caption, IIconRef icon, String hint, boolean disabled, Object target) {
 			m_itemList.add(new Submenu(icon, caption, hint, disabled, target, this));
 		}
 
@@ -119,26 +120,21 @@ public class PopupMenu {
 		m_actionList.add(new Item(action));
 	}
 
-	public void addItem(@NonNull String caption, String icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+	public void addItem(@NonNull String caption, IIconRef icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
 		m_actionList.add(new Item(icon, caption, hint, disabled, clk, null));
 	}
 
-	public void addItem(@NonNull String caption, String icon, IClicked<NodeBase> clk) {
+	public void addItem(@NonNull String caption, IIconRef icon, IClicked<NodeBase> clk) {
 		m_actionList.add(new Item(icon, caption, null, false, clk, null));
 	}
 
 	@NonNull
-	public Submenu addMenu(@NonNull String caption, String icon, String hint, boolean disabled, Object target) {
+	public Submenu addMenu(@NonNull String caption, IIconRef icon, String hint, boolean disabled, Object target) {
 		Submenu submenu = new Submenu(icon, caption, hint, disabled, target, null);
 		m_actionList.add(submenu);
 		return submenu;
 	}
 
-	/**
-	 *
-	 * @param ref
-	 * @param target
-	 */
 	public <T> void show(NodeBase ref, T target) {
 		NodeContainer nc = ref.getPage().getPopIn();
 		if(nc instanceof SimplePopupMenu) {

@@ -21,7 +21,7 @@ public class CdCollection extends UrlPage {
 		LookupForm<Track> lookup = new LookupForm<>(Track.class);
 		cp.add(lookup);
 
-		ResultFragment<Track> resultFragment = new ResultFragment<>(lookup);
+		TrackResultFragment<Track> resultFragment = new TrackResultFragment<>(lookup);
 		cp.add(resultFragment);
 
 		resultFragment.setOnClick(row -> UIGoto.moveSub(TrackDetails.class, row));
