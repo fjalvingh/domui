@@ -14,4 +14,11 @@
 			font-size: $size;
 		}
 	}
+	@each $name, $pair in $colors {
+		&.is-#{$name} svg path {
+			stroke: nth($pair, 1);
+			fill: nth($pair, 1);
+			color: nth($pair, 1);
+		}
+	}
 }

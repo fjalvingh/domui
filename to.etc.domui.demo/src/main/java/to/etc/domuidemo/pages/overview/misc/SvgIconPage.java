@@ -65,16 +65,28 @@ public class SvgIconPage extends UrlPage {
 			.append(new EmbeddedCode("add(new SvgIcon(\"img/xmas-tree-2.svg\"))"));
 
 		d = cp.add(new Div());
-		d.append("You can size these using size classes too, for example ");
+		d.append("Like Font icons, you can add css classes to change the icon's behavior. for example change size using is-size-1: ");
 		d.append(new SvgIcon("img/xmas-tree-2.svg").css("is-size-1"))
 			.append(" which is done using")
 			.append(new EmbeddedCode("add(new SvgIcon(\"img/xmas-tree-2.svg\").css(\"is-size-1\"))"))
 		;
 
+		d = cp.add(new Div());
+		d.append("Or even changing the color (for single-color SVG's only). For example change ")
+			.append(new SvgIcon("img/checkmark.svg"))
+			.append(" into ")
+			.append(new SvgIcon("img/checkmark.svg").css("is-size-1", "is-danger"))
+			.append(" using ")
+			.append(new EmbeddedCode("new SvgIcon(\"img/checkmark.svg\").css(\"is-size-1\", \"is-danger\")"))
+		;
+
 		//-- Button
 		cp.add(new HTag(3, "Embedding into a DefaultButton"));
+		d = cp.add(new Div());
 		DefaultButton button = new DefaultButton("Click me", Icon.of("img/checkmark.svg"), a -> MsgBox.info(this, "Clicked"));
-		cp.add(button);
+		d.append(button).append(" is created using ").append(new EmbeddedCode("new DefaultButton(\"Click me\", Icon.of(\"img/checkmark.svg\"), ....)"));
+
+
 
 		//-- LinkButton
 		cp.add(new HTag(3, "Inside a LinkButton"));
