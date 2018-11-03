@@ -59,7 +59,7 @@ public class MenuGenerator2 {
 		p(pw, "id", m.getId());
 		p(pw, "desc", m.getDescription());
 		p(pw, "label", m.getLabel());
-		p(pw, "icon", m.getImage());
+		p(pw, "icon", String.valueOf(m.getImage()));
 		p(pw, "kw", m.getSearchString());
 		//		p(pw, "para", m.getPa());
 		p(pw, "path", m.getPageClass() == null ? "" : m.getPageClass().getName() + ".ui");
