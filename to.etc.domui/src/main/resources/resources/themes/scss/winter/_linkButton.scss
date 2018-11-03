@@ -5,7 +5,13 @@
 	color: inherit;
 	display: inline-block;
 	cursor: pointer;
+	white-space: nowrap;
 	text-decoration: none;
+
+	.ui-lnkb-icon {
+		padding-right: 5px;
+		color: black;
+	}
 
 	&.ui-disabled {
 		&, & .ui-lbtn-txt {
