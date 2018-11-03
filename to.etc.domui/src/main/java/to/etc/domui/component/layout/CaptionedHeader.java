@@ -25,7 +25,7 @@
 package to.etc.domui.component.layout;
 
 import to.etc.domui.component.buttons.SmallImgButton;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
@@ -52,7 +52,7 @@ public class CaptionedHeader extends Table {
 
 	private List<SmallImgButton> m_btns = Collections.EMPTY_LIST;
 
-	private IIcon m_icon;
+	private IIconRef m_icon;
 
 	public CaptionedHeader() {}
 
@@ -60,7 +60,7 @@ public class CaptionedHeader extends Table {
 		m_caption = ttl;
 	}
 
-	public CaptionedHeader(String ttl, IIcon icon) {
+	public CaptionedHeader(String ttl, IIconRef icon) {
 		m_caption = ttl;
 		m_icon = icon;
 	}
@@ -92,7 +92,7 @@ public class CaptionedHeader extends Table {
 		Div ttl = new Div();
 		ttltd.add(ttl);
 		ttl.setCssClass("ui-chdr-ttl");
-		IIcon icon = m_icon;
+		IIconRef icon = m_icon;
 		if(icon != null) {
 			ttl.add(icon.createNode());
 			//
@@ -110,13 +110,13 @@ public class CaptionedHeader extends Table {
 		}
 	}
 
-	public void addButton(IIcon image, String hint, IClicked<NodeBase> handler) {
+	public void addButton(IIconRef image, String hint, IClicked<NodeBase> handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setClicked(handler);
 		internallyAddButton(ib, hint);
 	}
 
-	public void addButton(IIcon image, String hint, String onClickJs) {
+	public void addButton(IIconRef image, String hint, String onClickJs) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setOnClickJS(onClickJs);
 		internallyAddButton(ib, hint);
@@ -133,11 +133,11 @@ public class CaptionedHeader extends Table {
 		}
 	}
 
-	public IIcon getIcon() {
+	public IIconRef getIcon() {
 		return m_icon;
 	}
 
-	public void setIcon(IIcon icon) {
+	public void setIcon(IIconRef icon) {
 		if(DomUtil.isEqual(icon, m_icon))
 			return;
 		m_icon = icon;

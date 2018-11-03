@@ -2,7 +2,7 @@ package to.etc.domui.component.layout;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 
@@ -19,9 +19,9 @@ public interface ITabHandle {
 	/** Set this tab as selected */
 	void select() throws Exception;
 
-	void updateLabel(@NonNull String label, @Nullable IIcon image);
+	void updateLabel(@NonNull String label, @Nullable IIconRef image);
 
-	void updateLabel(@NonNull NodeBase label, @Nullable IIcon image);
+	void updateLabel(@NonNull NodeBase label, @Nullable IIconRef image);
 
 	void updateContent(@NonNull NodeContainer content);
 }

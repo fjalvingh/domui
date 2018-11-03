@@ -27,7 +27,7 @@ package to.etc.domui.component.tbl;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
@@ -299,7 +299,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		return m_buttonDiv;
 	}
 
-	public void addButton(IIcon image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
+	public void addButton(IIconRef image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
 		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager.this));
 		if(bundle != null)
 			i.setTitle(bundle.getString(ttlkey));
@@ -339,7 +339,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		forceRebuild();
 	}
 
-	public void addButton(@NonNull IIcon img, @NonNull IClicked<SmallImgButton> clicked) {
+	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
 		m_extraButtonList.add(new SmallImgButton(img, clicked));
 	}
 }

@@ -3,7 +3,7 @@ package to.etc.domui.component.input;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.DropDownPicker.HAlign;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IObjectToStringConverter;
 import to.etc.domui.dom.html.IValueChanged;
@@ -32,7 +32,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	private List<T> m_data = Collections.EMPTY_LIST;
 
 	@Nullable
-	private IIcon m_dropDownIcon;
+	private IIconRef m_dropDownIcon;
 
 	@NonNull
 	private HAlign m_halign = DropDownPicker.HAlign.LEFT;
@@ -51,7 +51,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 * Before use, make sure to setup component using:
 	 * <UL>
 	 * <LI> {@link EditableDropDownPicker#setData(List)} </LI>
-	 * <LI> {@link EditableDropDownPicker#setDropDownIcon(IIcon)} </LI>
+	 * <LI> {@link EditableDropDownPicker#setDropDownIcon(IIconRef)} </LI>
 	 * <LI> {@link EditableDropDownPicker#setToStringConverter(IObjectToStringConverter)} in case of 'type' is not assignable from String.class</LI>
 	 * </UL>
 	 *
@@ -66,7 +66,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 * Factory constructor.
 	 * @param toStringConverter In case of T = String, toStringConverter can be left null, otherwise it needs to be specified.
 	 */
-	public EditableDropDownPicker(@NonNull Class<T> type, @NonNull List<T> data, @NonNull IIcon dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
+	public EditableDropDownPicker(@NonNull Class<T> type, @NonNull List<T> data, @NonNull IIconRef dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
 		this(type);
 		m_data = data;
 		m_dropDownIcon = dropDownIcon;
@@ -185,11 +185,11 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	}
 
 	public @Nullable
-	IIcon getDropDownIcon() {
+	IIconRef getDropDownIcon() {
 		return m_dropDownIcon;
 	}
 
-	public void setDropDownIcon(@Nullable IIcon dropDownIcon) {
+	public void setDropDownIcon(@Nullable IIconRef dropDownIcon) {
 		m_dropDownIcon = dropDownIcon;
 		if(m_picker != null) {
 			m_picker.setSrc(dropDownIcon);

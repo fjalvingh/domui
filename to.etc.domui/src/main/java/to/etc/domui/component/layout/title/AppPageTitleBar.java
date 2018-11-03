@@ -29,7 +29,7 @@ import to.etc.domui.annotations.UIMenu;
 import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.layout.ErrorMessageDiv;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.OddCharacters;
 import to.etc.domui.dom.css.DisplayType;
@@ -333,7 +333,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		}
 	}
 
-	public void addButton(IIcon image, String hint, IClicked<NodeBase> handler) {
+	public void addButton(IIconRef image, String hint, IClicked<NodeBase> handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		getButtonpart().add(ib);
 		ib.setTitle(hint);

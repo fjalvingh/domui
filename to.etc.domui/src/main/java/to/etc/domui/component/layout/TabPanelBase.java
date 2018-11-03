@@ -27,7 +27,7 @@ package to.etc.domui.component.layout;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.css.ClearType;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
@@ -153,7 +153,7 @@ public class TabPanelBase extends Div {
 		Span dt = new Span();
 		d.add(dt);
 
-		IIcon iconUrl = ti.getImage();
+		IIconRef iconUrl = ti.getImage();
 		if(null != iconUrl) {
 			dt.add(iconUrl.createNode());
 
@@ -298,11 +298,11 @@ public class TabPanelBase extends Div {
 		return tab().content(content).label(label).lazy(lazy).build();
 	}
 
-	public ITabHandle add(NodeBase content, String label, IIcon icon) {
+	public ITabHandle add(NodeBase content, String label, IIconRef icon) {
 		return tab().content(content).label(label).image(icon).build();
 	}
 
-	public ITabHandle add(NodeBase content, String label, IIcon icon, boolean lazy) {
+	public ITabHandle add(NodeBase content, String label, IIconRef icon, boolean lazy) {
 		return tab().content(content).label(label).image(icon).lazy(lazy).build();
 	}
 
@@ -320,11 +320,11 @@ public class TabPanelBase extends Div {
 		return tab().content(content).label(tablabel).lazy(lazy).build();
 	}
 
-	public ITabHandle add(NodeBase content, NodeBase tablabel, IIcon icon) {
+	public ITabHandle add(NodeBase content, NodeBase tablabel, IIconRef icon) {
 		return tab().content(content).label(tablabel).image(icon).build();
 	}
 
-	public ITabHandle add(NodeBase content, NodeBase tablabel, IIcon icon, boolean lazy) {
+	public ITabHandle add(NodeBase content, NodeBase tablabel, IIconRef icon, boolean lazy) {
 		return tab().content(content).label(tablabel).image(icon).lazy(lazy).build();
 	}
 

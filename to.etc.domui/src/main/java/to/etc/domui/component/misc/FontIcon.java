@@ -17,10 +17,14 @@ import java.util.Objects;
 @NonNullByDefault
 final public class FontIcon extends Span {
 	@Nullable
-	private IFontIcon m_iconName;
+	private String m_iconCssClass;
 
-	public FontIcon(@Nullable IFontIcon name) {
-		m_iconName = name;
+	public FontIcon(@Nullable IFontIconRef name) {
+		m_iconCssClass = name == null ? null : name.getCssClassName();
+	}
+
+	public FontIcon(@Nullable String name) {
+		m_iconCssClass = name;
 	}
 
 	@Override
@@ -31,10 +35,11 @@ final public class FontIcon extends Span {
 
 	@Override public void createContent() throws Exception {
 		//removeFaClasses();
-		addCssClass("fa");
-		IFontIcon iconName = m_iconName;
+		//addCssClass("fa");
+		addCssClass("ui-fnti");
+		String iconName = m_iconCssClass;
 		if(null != iconName)
-			addCssClass(iconName.getCssClassName());
+			addCssClass(iconName);
 	}
 
 	private void removeFaClasses() {
@@ -50,14 +55,18 @@ final public class FontIcon extends Span {
 		}
 	}
 
-	public void setIconName(IFontIcon iconName) {
-		if(Objects.equals(iconName, m_iconName))
+	public void setIconName(@Nullable String name) {
+		if(Objects.equals(name, m_iconCssClass))
 			return;
-		IFontIcon oldName = m_iconName;
+		String oldName = m_iconCssClass;
 		if(null != oldName)
-			removeCssClass(oldName.getCssClassName());
-		if(null != iconName)
-			addCssClass(iconName.getCssClassName());
-		m_iconName = iconName;
+			removeCssClass(oldName);
+		if(null != name)
+			addCssClass(name);
+		m_iconCssClass = name;
+	}
+
+	public void setIconName(@Nullable IFontIconRef iconName) {
+		setIconName(iconName == null ? null : iconName.getCssClassName());
 	}
 }

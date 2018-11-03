@@ -5,7 +5,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.CloseOnClickPanel;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
@@ -49,7 +49,7 @@ public class HamburgerMenu extends CloseOnClickPanel {
 		Div sel = new Div();
 		add(sel);
 		sel.setCssClass("ui-hmbrg-item" + (hasicon ? " ui-hmbrg-icon" : ""));
-		IIcon icon = action.getIcon(null);
+		IIconRef icon = action.getIcon(null);
 
 		String disable = action.getDisableReason(null);
 		if(null != icon) {

@@ -88,7 +88,7 @@ public class MsgBox extends Window {
 	//private Img m_theImage = new Img();
 
 	@Nullable
-	private IIcon m_icon;
+	private IIconRef m_icon;
 
 	private String m_theText;
 
@@ -160,7 +160,7 @@ public class MsgBox extends Window {
 
 	protected void setType(Type type) {
 		String ttl;
-		IIcon icon;
+		IIconRef icon;
 		switch(type){
 			default:
 				throw new IllegalStateException(type + " ??");
@@ -233,14 +233,14 @@ public class MsgBox extends Window {
 	/**
 	 * Provides interface to create INFO type messages with custom icon.
 	 */
-	public static void message(NodeBase dad, IIcon iconSrc, String string) {
+	public static void message(NodeBase dad, IIconRef iconSrc, String string) {
 		message(dad, iconSrc, string, null);
 	}
 
 	/**
 	 * Provides interface to create INFO type messages with custom icon.
 	 */
-	public static void message(NodeBase dad, IIcon iconSrc, String string, IAnswer onAnswer) {
+	public static void message(NodeBase dad, IIconRef iconSrc, String string, IAnswer onAnswer) {
 		MsgBox box = create(dad);
 		box.setType(Type.INFO);
 		box.m_icon = iconSrc;
@@ -254,7 +254,7 @@ public class MsgBox extends Window {
 	/**
 	 * Provides interface to create INFO type messages with custom title, icon, data section and optional callback.
 	 */
-	public static void message(NodeBase dad, IIcon iconSrc, String title, IAnswer onAnswer, IRenderInto<String> msgRenderer) {
+	public static void message(NodeBase dad, IIconRef iconSrc, String title, IAnswer onAnswer, IRenderInto<String> msgRenderer) {
 		MsgBox box = create(dad);
 		box.setType(Type.INFO);
 		box.m_icon = iconSrc;
@@ -539,7 +539,7 @@ public class MsgBox extends Window {
 	 * @return
 	 */
 	@NonNull
-	public static DefaultButton areYouSureButton(String text, IIcon icon, final String message, final IClicked<DefaultButton> ch) {
+	public static DefaultButton areYouSureButton(String text, IIconRef icon, final String message, final IClicked<DefaultButton> ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
 		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
 			@Override
@@ -580,7 +580,7 @@ public class MsgBox extends Window {
 	 * @return
 	 */
 	@NonNull
-	public static LinkButton areYouSureLinkButton(String text, IIcon icon, final String message, final IClicked<LinkButton> ch) {
+	public static LinkButton areYouSureLinkButton(String text, IIconRef icon, final String message, final IClicked<LinkButton> ch) {
 		final LinkButton btn = new LinkButton(text, icon);
 		IClicked<LinkButton> bch = new IClicked<LinkButton>() {
 			@Override
@@ -634,7 +634,7 @@ public class MsgBox extends Window {
 		row.setVerticalAlign(VerticalAlignType.TOP);
 		TD td = row.addCell();
 		td.setVerticalAlign(VerticalAlignType.TOP);
-		IIcon icon = m_icon;
+		IIconRef icon = m_icon;
 		if(null != icon)
 			td.add(icon.createNode());
 		td.setNowrap(true);
@@ -736,7 +736,7 @@ public class MsgBox extends Window {
 		if(lbl == null)
 			lbl = mbb.name();
 
-		IIcon icon = null;
+		IIconRef icon = null;
 		if(mbb == MsgBoxButton.YES || mbb == MsgBoxButton.CONTINUE)
 			icon = Icon.of(Theme.BTN_CONFIRM);
 		else if(mbb == MsgBoxButton.NO)

@@ -1,5 +1,6 @@
 package to.etc.domui.component.misc;
 
+import org.jetbrains.annotations.NotNull;
 import to.etc.domui.dom.html.NodeBase;
 
 import java.util.HashMap;
@@ -12,7 +13,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-10-18.
  */
-public enum Icon implements IIcon {
+public enum Icon implements IIconRef {
 	fa500px("fa-500px"),
 	faAddressBook("fa-address-book"),
 	faAddressBookO("fa-address-book-o"),
@@ -694,7 +695,7 @@ public enum Icon implements IIcon {
 
 	private String m_key;
 
-	static private Map<Icon, IIcon> m_map = new HashMap<>();
+	static private Map<Icon, IIconRef> m_map = new HashMap<>();
 
 	Icon(String key) {
 		m_key = key;
@@ -711,26 +712,44 @@ public enum Icon implements IIcon {
 		return m_key;
 	}
 
-	static public IIcon of(String path) {
-		return new ImageIcon(path);
+	/**
+	 * Return a reference to a specific icon type depending on the path. It uses
+	 * the path's extension to determine whether to return the proper type of
+	 * icon once the icon needs to be created:
+	 * <ul>
+	 *	<li>an {@link ImageIconRef} when the extension is png, jpg, jpeg, gif</li>
+	 * 	<li>A {@link SvgIcon} when the extension is svg</li>
+	 *	<li>A {@link FontIcon} if the text contains no path and no extension; this assumes the icon is registered</li>
+	 * </ul>
+	 */
+	static public IIconRef of(String path) {
+		return new ImageIconRef(path);
 	}
 
-
 	@Override public NodeBase createNode() {
-		IIcon icon = m_map.get(this);
+		IIconRef icon = getRealIcon();
+		return icon.createNode();
+	}
+
+	@NotNull private IIconRef getRealIcon() {
+		IIconRef icon = m_map.get(this);
 		if(null == icon)
 			throw new IllegalStateException("Missing icon implementation for Icon." + this.name());
-		return icon.createNode();
+		return icon;
+	}
+
+	@Override public IIconRef css(String... classes) {
+		return getRealIcon().css(classes);
 	}
 
 	/**
 	 * Adjust the icon map.
 	 */
-	static public void updateIconMap(Map<Icon, IIcon> updates) {
+	static public void updateIconMap(Map<Icon, IIconRef> updates) {
 		m_map.putAll(updates);
 	}
 
-	static public void setIcon(Icon icon, IIcon impl) {
+	static public void setIcon(Icon icon, IIconRef impl) {
 		m_map.put(icon, impl);
 	}
 
@@ -747,5 +766,7 @@ public enum Icon implements IIcon {
 			throw new IllegalStateException("Missing values for Icon constants. Have you added one of the font packs to "
 				+ "your projects, i.e. fontawesome5free or fontawesome4? Or did you forget to map?\n\nMissing are: " + sb);
 	}
+
+
 
 }

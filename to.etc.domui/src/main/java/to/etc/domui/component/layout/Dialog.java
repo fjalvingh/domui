@@ -27,7 +27,7 @@ package to.etc.domui.component.layout;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.themes.Theme;
@@ -166,7 +166,7 @@ public class Dialog extends Window {
 		createCancelButton(text, Icon.of(Theme.BTN_CANCEL));
 	}
 
-	protected void createCancelButton(@NonNull String text, @NonNull IIcon image) {
+	protected void createCancelButton(@NonNull String text, @NonNull IIconRef image) {
 		DefaultButton b;
 		b = getButtonBar().addButton(text, image, clickednode -> buttonCancel());
 		b.setTestID("cancelButton");
@@ -178,7 +178,7 @@ public class Dialog extends Window {
 	}
 
 	@NonNull
-	protected DefaultButton createSaveButton(String caption, IIcon iconUrl) {
+	protected DefaultButton createSaveButton(String caption, IIconRef iconUrl) {
 		DefaultButton b = getButtonBar().addButton(caption, iconUrl, clickednode -> buttonSave());
 		b.setTestID("saveButton");
 		return b;

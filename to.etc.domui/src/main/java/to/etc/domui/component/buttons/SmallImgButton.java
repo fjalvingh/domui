@@ -27,7 +27,7 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
@@ -44,7 +44,7 @@ import to.etc.domui.dom.html.NodeBase;
 @NonNullByDefault
 public class SmallImgButton extends Button {
 	@Nullable
-	private IIcon m_icon;
+	private IIconRef m_icon;
 
 	/**
 	 * Create the empty button.
@@ -62,7 +62,7 @@ public class SmallImgButton extends Button {
 	 * theme, or it can be an absolute image path to a web file.
 	 * @param rurl
 	 */
-	public SmallImgButton(IIcon rurl) {
+	public SmallImgButton(IIconRef rurl) {
 		this();
 		setSrc(rurl);
 	}
@@ -72,7 +72,7 @@ public class SmallImgButton extends Button {
 	 * @param rurl
 	 * @param cl
 	 */
-	public SmallImgButton(IIcon rurl, IClicked<? extends NodeBase> cl) {
+	public SmallImgButton(IIconRef rurl, IClicked<? extends NodeBase> cl) {
 		this();
 		setClicked(cl);
 		setSrc(rurl);
@@ -89,7 +89,7 @@ public class SmallImgButton extends Button {
 	}
 
 	@NonNull
-	public SmallImgButton icon(IIcon icon) {
+	public SmallImgButton icon(IIconRef icon) {
 		setSrc(icon);
 		return this;
 	}
@@ -99,13 +99,13 @@ public class SmallImgButton extends Button {
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
-	public void setSrc(@Nullable IIcon src) {
+	public void setSrc(@Nullable IIconRef src) {
 		m_icon = src;
 		forceRebuild();
 	}
 
 	@Nullable
-	public IIcon getSrc() {
+	public IIconRef getSrc() {
 		return m_icon;
 	}
 
@@ -116,7 +116,7 @@ public class SmallImgButton extends Button {
 
 	@Override
 	public void createContent() throws Exception {
-		IIcon iconUrl = m_icon;
+		IIconRef iconUrl = m_icon;
 		if(null != iconUrl) {
 			//-- Does the URL contain a dot? That indicates a resource somehow.
 			Div d = new Div("ui-icon");

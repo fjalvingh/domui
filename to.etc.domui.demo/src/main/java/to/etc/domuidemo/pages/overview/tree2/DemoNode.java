@@ -1,6 +1,6 @@
 package to.etc.domuidemo.pages.overview.tree2;
 
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
@@ -104,7 +104,7 @@ public class DemoNode {
 		return m_parent;
 	}
 
-	public IIcon getIcon() {
+	public IIconRef getIcon() {
 		if(m_album != null) {
 			return Icon.faThList;
 		} else if(m_artist != null) {

@@ -26,7 +26,7 @@ final public class SvgIcon extends Span {
 	public SvgIcon() {
 	}
 
-	public SvgIcon(ISvgIcon icon) {
+	public SvgIcon(ISvgIconRef icon) {
 		m_src = icon == null ? null : icon.getSvg();
 	}
 
@@ -80,7 +80,7 @@ final public class SvgIcon extends Span {
 		return this;
 	}
 
-	public void setIcon(ISvgIcon icon) {
+	public void setIcon(ISvgIconRef icon) {
 		setSrc(null == icon ? null : icon.getSvg());
 	}
 }

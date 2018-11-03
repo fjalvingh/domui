@@ -1,0 +1,8 @@
+/*** FontIcon and variants ***/
+.ui-fnti {
+	@each $name, $size in $sizes-map {
+		&.is-#{$name} {
+			font-size: $size;
+		}
+	}
+}

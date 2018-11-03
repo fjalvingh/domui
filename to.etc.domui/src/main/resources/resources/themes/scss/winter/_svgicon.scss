@@ -1,10 +1,17 @@
 .ui-svgi {
-	display: inline-block;
-	width: 16px;
-	height: 16px;
+	display: inline;
+	align-self: center;
 
-	//svg {
-	//	width: 16px;
-	//	height: 16px;
-	//}
+	svg {
+		width: 1em;
+		height: 1em;
+		top: .125em;
+		position: relative;
+	}
+
+	@each $name, $size in $sizes-map {
+		&.is-#{$name} {
+			font-size: $size;
+		}
+	}
 }

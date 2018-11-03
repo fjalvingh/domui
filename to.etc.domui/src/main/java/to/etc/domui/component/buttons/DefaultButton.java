@@ -27,7 +27,7 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.menu.IUIAction;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IActionControl;
@@ -60,7 +60,7 @@ public class DefaultButton extends Button implements IActionControl {
 	private String m_text;
 
 	@Nullable
-	private IIcon m_icon;
+	private IIconRef m_icon;
 
 	/** If this is an action-based button this contains the action. */
 	private IUIAction<?> m_action;
@@ -107,7 +107,7 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Create a button with a text and an icon.
 	 */
-	public DefaultButton(String txt, IIcon icon) {
+	public DefaultButton(String txt, IIconRef icon) {
 		this();
 		setText(txt);
 		setIcon(icon);
@@ -119,7 +119,7 @@ public class DefaultButton extends Button implements IActionControl {
 		setClicked(clicked);
 	}
 
-	public DefaultButton(String txt, IIcon icon, final IClicked<DefaultButton> clicked) {
+	public DefaultButton(String txt, IIconRef icon, final IClicked<DefaultButton> clicked) {
 		this();
 		setText(txt);
 		setIcon(icon);
@@ -146,7 +146,7 @@ public class DefaultButton extends Button implements IActionControl {
 	}
 
 	@NonNull
-	public DefaultButton icon(IIcon icon) {
+	public DefaultButton icon(IIconRef icon) {
 		setIcon(icon);
 		return this;
 	}
@@ -159,7 +159,7 @@ public class DefaultButton extends Button implements IActionControl {
 
 	@Override
 	public void createContent() throws Exception {
-		IIcon iconUrl = m_icon;
+		IIconRef iconUrl = m_icon;
 		if(null != iconUrl) {
 			Span iconSpan = new Span();
 			add(iconSpan);
@@ -207,13 +207,13 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Sets a (new) icon on this button. This requires an absolute image path.
 	 */
-	public void setIcon(@Nullable IIcon name) {
+	public void setIcon(@Nullable IIconRef name) {
 		m_icon = name;
 		forceRebuild();
 	}
 
 	@Nullable
-	public IIcon getIcon() {
+	public IIconRef getIcon() {
 		return m_icon;
 	}
 

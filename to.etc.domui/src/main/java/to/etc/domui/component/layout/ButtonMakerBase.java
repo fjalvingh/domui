@@ -26,7 +26,7 @@ package to.etc.domui.component.layout;
 
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.IClicked;
@@ -40,7 +40,7 @@ abstract public class ButtonMakerBase {
 	/**
 	 * Add a normal button.
 	 */
-	public DefaultButton addButton(final String txt, final IIcon icon, final IClicked<DefaultButton> click) {
+	public DefaultButton addButton(final String txt, final IIconRef icon, final IClicked<DefaultButton> click) {
 		DefaultButton b = new DefaultButton(txt, icon, click);
 		addButton(b);
 		return b;
@@ -52,7 +52,7 @@ abstract public class ButtonMakerBase {
 		return b;
 	}
 
-	public DefaultButton addBackButton(final String txt, final IIcon icon) {
+	public DefaultButton addBackButton(final String txt, final IIconRef icon) {
 		DefaultButton b = new DefaultButton(txt, icon, bxx -> UIGoto.back());
 		addButton(b);
 		return b;
@@ -68,19 +68,19 @@ abstract public class ButtonMakerBase {
 		return b;
 	}
 
-	public DefaultButton addConfirmedButton(final String txt, final IIcon icon, final String msg, final IClicked<DefaultButton> click) {
+	public DefaultButton addConfirmedButton(final String txt, final IIconRef icon, final String msg, final IClicked<DefaultButton> click) {
 		DefaultButton b = MsgBox.areYouSureButton(txt, icon, msg, click);
 		addButton(b);
 		return b;
 	}
 
-	public LinkButton addLinkButton(String txt, IIcon img, IClicked<LinkButton> click) {
+	public LinkButton addLinkButton(String txt, IIconRef img, IClicked<LinkButton> click) {
 		LinkButton b = new LinkButton(txt, img, click);
 		addButton(b);
 		return b;
 	}
 
-	public LinkButton addConfirmedLinkButton(String txt, IIcon img, String msg, final IClicked<LinkButton> click) {
+	public LinkButton addConfirmedLinkButton(String txt, IIconRef img, String msg, final IClicked<LinkButton> click) {
 		LinkButton b = MsgBox.areYouSureLinkButton(txt, img, msg, click);
 		addButton(b);
 		return b;

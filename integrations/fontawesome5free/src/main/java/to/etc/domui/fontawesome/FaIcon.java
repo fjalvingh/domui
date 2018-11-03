@@ -1,7 +1,9 @@
 package to.etc.domui.fontawesome;
 
 import to.etc.domui.component.misc.FontIcon;
-import to.etc.domui.component.misc.IFontIcon;
+import to.etc.domui.component.misc.FontIconRef;
+import to.etc.domui.component.misc.IFontIconRef;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.NodeBase;
 
@@ -11,7 +13,7 @@ import to.etc.domui.dom.html.NodeBase;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-10-18.
  */
-public enum FaIcon implements IFontIcon {
+public enum FaIcon implements IFontIconRef {
 	///--- BEGIN ICONS
 	fa500px("fa-500px","fab"),
 	faAccessibleIcon("fa-accessible-icon","fab"),
@@ -1951,5 +1953,9 @@ public enum FaIcon implements IFontIcon {
 
 	public NodeBase createNode() {
 		return new FontIcon(this);
+	}
+
+	public IIconRef css(String... classes) {
+		return new FontIconRef(getCssClassName(), classes);
 	}
 }

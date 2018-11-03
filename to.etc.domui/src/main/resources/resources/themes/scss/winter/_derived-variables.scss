@@ -97,6 +97,8 @@ $shades: ("black-bis": $black-bis, "black-ter": $black-ter, "grey-darker": $grey
 
 $sizes: $size-1 $size-2 $size-3 $size-4 $size-5 $size-6 $size-7 !default;
 
+$sizes-map: ("size-1" : $size-1, "size-2" : $size-2, "size-3" : $size-3, "size-4" : $size-4, "size-5" : $size-5, "size-6" : $size-6, "size-7" : $size-7, "size-small": $size-small, "size-normal": $size-normal, "size-medium": $size-medium, "size-large": $size-large) !default;
+
 // Form
 $input-color: $grey-darker !default;
 $input-background-color: $white !default;

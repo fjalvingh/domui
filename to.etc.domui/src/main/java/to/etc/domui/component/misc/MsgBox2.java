@@ -467,7 +467,7 @@ final public class MsgBox2 extends Window {
 	}
 
 	@NonNull
-	public MsgBox2 button(String lbl, IIcon icon, final Object selval) {
+	public MsgBox2 button(String lbl, IIconRef icon, final Object selval) {
 		m_theButtons.add(new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@NonNull DefaultButton b) throws Exception {

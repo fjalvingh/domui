@@ -27,7 +27,7 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.menu.IUIAction;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IActionControl;
@@ -49,7 +49,7 @@ public class LinkButton extends ATag implements IActionControl {
 	private String m_text;
 
 	@Nullable
-	private IIcon m_icon;
+	private IIconRef m_icon;
 
 	private boolean m_disabled;
 
@@ -65,13 +65,13 @@ public class LinkButton extends ATag implements IActionControl {
 	public LinkButton() {
 	}
 
-	public LinkButton(@NonNull String txt, @NonNull IIcon image, @NonNull IClicked< ? extends NodeBase> clk) {
+	public LinkButton(@NonNull String txt, @NonNull IIconRef image, @NonNull IClicked< ? extends NodeBase> clk) {
 		setClicked(clk);
 		m_text = txt;
 		setImage(image);
 	}
 
-	public LinkButton(@NonNull String txt, @NonNull IIcon image) {
+	public LinkButton(@NonNull String txt, @NonNull IIconRef image) {
 		m_text = txt;
 		setImage(image);
 	}
@@ -101,7 +101,7 @@ public class LinkButton extends ATag implements IActionControl {
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-lbtn");
-		IIcon icon = m_icon;
+		IIconRef icon = m_icon;
 		if(icon == null) {
 			setBackgroundImage(null);
 			addCssClass("ui-lbtn-noi");
@@ -141,14 +141,14 @@ public class LinkButton extends ATag implements IActionControl {
 		setClicked((IClicked<LinkButton>) clickednode -> action.execute(LinkButton.this, getActionInstance()));
 	}
 
-	public void setImage(@Nullable IIcon url) {
+	public void setImage(@Nullable IIconRef url) {
 		if(DomUtil.isEqual(url, m_icon))
 			return;
 		m_icon = url;
 		forceRebuild();
 	}
 
-	public IIcon getImage() {
+	public IIconRef getImage() {
 		return m_icon;
 	}
 

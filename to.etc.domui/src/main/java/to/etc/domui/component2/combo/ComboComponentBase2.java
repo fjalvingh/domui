@@ -32,7 +32,7 @@ import to.etc.domui.component.input.CriteriaComboDataSet;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
@@ -483,7 +483,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/**
 	 * Add a small image button after the combo.
 	 */
-	public void addExtraButton(IIcon img, String title, final IClicked<NodeBase> click) {
+	public void addExtraButton(IIconRef img, String title, final IClicked<NodeBase> click) {
 		if(m_buttonList == Collections.EMPTY_LIST)
 			m_buttonList = new ArrayList<>();
 		SmallImgButton si = new SmallImgButton(img);

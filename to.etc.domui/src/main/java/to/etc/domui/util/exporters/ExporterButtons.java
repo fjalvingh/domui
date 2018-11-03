@@ -8,7 +8,7 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.ColumnDef;
@@ -47,7 +47,7 @@ public class ExporterButtons {
 		return new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO, a -> showFormatPopup(onExport, a));
 	}
 
-	static public DefaultButton	createExportButton(String name, IIcon icon, to.etc.function.ConsumerEx<IExportFormat> onExport) {
+	static public DefaultButton	createExportButton(String name, IIconRef icon, to.etc.function.ConsumerEx<IExportFormat> onExport) {
 		return new DefaultButton(name, icon, a -> showFormatPopup(onExport, a));
 	}
 

@@ -3,7 +3,7 @@ package to.etc.domui.component.menu;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.menu.PopupMenu.Item;
 import to.etc.domui.component.menu.PopupMenu.Submenu;
-import to.etc.domui.component.misc.IIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
@@ -192,7 +192,7 @@ public class SimplePopupMenu extends Div {
 		});
 	}
 
-	private Div renderItem(@NonNull NodeContainer into, String text, String hint, IIcon icon, boolean disabled) {
+	private Div renderItem(@NonNull NodeContainer into, String text, String hint, IIconRef icon, boolean disabled) {
 		Div d = new Div();
 		into.add(d);
 		d.setCssClass("ui-pmnu-action " + (disabled ? "ui-pmnu-disabled" : "ui-pmnu-enabled"));
@@ -242,11 +242,11 @@ public class SimplePopupMenu extends Div {
 		getActionList().add(new Item(action));
 	}
 
-	public void addItem(String caption, IIcon icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+	public void addItem(String caption, IIconRef icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
 		getActionList().add(new Item(icon, caption, hint, disabled, clk, null));
 	}
 
-	public void addItem(String caption, IIcon icon, IClicked<NodeBase> clk) {
+	public void addItem(String caption, IIconRef icon, IClicked<NodeBase> clk) {
 		getActionList().add(new Item(icon, caption, null, false, clk, null));
 	}
 
