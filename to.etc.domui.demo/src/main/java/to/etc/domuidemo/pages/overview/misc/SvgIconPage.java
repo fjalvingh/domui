@@ -44,7 +44,11 @@ public class SvgIconPage extends UrlPage {
 			.append("This ").append(FaIcon.faWind.css("is-size-large").createNode()).append(" is large, for instance, done like ")
 			.append(new EmbeddedCode("add(FaIcon.faWind.css(\"is-size-large\").createNode())"));
 
-
+		d = add(new Div());
+		d.append("Font icons can be colored by using the default set of is-xxxx color names, like ")
+			.append(FaIcon.faSkullCrossbones.css("is-danger").createNode())
+			.append(", done like ")
+			.append(new EmbeddedCode("FaIcon.faSkullCrossbones.css(\"is-danger\").createNode()"));
 
 	}
 

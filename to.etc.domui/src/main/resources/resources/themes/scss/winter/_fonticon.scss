@@ -5,4 +5,10 @@
 			font-size: $size;
 		}
 	}
+
+	@each $name, $pair in $colors {
+		&.is-#{$name} {
+			color: nth($pair, 1);
+		}
+	}
 }
