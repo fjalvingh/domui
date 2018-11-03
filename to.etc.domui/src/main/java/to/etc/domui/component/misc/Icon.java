@@ -1,5 +1,6 @@
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.NotNull;
 import to.etc.domui.dom.html.NodeBase;
 
@@ -13,6 +14,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-10-18.
  */
+@NonNullByDefault
 public enum Icon implements IIconRef {
 	fa500px("fa-500px"),
 	faAddressBook("fa-address-book"),
@@ -726,20 +728,24 @@ public enum Icon implements IIconRef {
 		return new ImageIconRef(path);
 	}
 
-	@Override public NodeBase createNode() {
-		IIconRef icon = getRealIcon();
-		return icon.createNode();
+	@Override public NodeBase createNode(String cssClasses) {
+		IIconRef icon = getRef();
+		return icon.createNode(cssClasses);
 	}
 
-	@NotNull private IIconRef getRealIcon() {
+	@NotNull private IIconRef getRef() {
 		IIconRef icon = m_map.get(this);
 		if(null == icon)
 			throw new IllegalStateException("Missing icon implementation for Icon." + this.name());
 		return icon;
 	}
 
+	@Override public String getClasses() {
+		return getRef().getClasses();
+	}
+
 	@Override public IIconRef css(String... classes) {
-		return getRealIcon().css(classes);
+		return getRef().css(classes);
 	}
 
 	/**

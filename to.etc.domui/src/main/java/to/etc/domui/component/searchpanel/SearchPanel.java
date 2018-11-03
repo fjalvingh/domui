@@ -417,7 +417,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	public void addFilterButton() {
 		if(m_filterButton == null) { // Only add the button if it doesn't exist already
-			m_filterButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SAVE_SEARCH), Icon.of(Theme.BTN_SAVE), clickednode -> saveSearchQuery());
+			m_filterButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SAVE_SEARCH), Theme.BTN_SAVE, clickednode -> saveSearchQuery());
 			addButtonItem(m_filterButton, 400, ButtonMode.NORMAL);
 		}
 	}
@@ -586,7 +586,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 			m_onNew = onNew;
 			if(m_onNew != null && m_newBtn == null) {
 				m_newBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW));
-				m_newBtn.setIcon(Icon.of(Theme.BTN_NEW));
+				m_newBtn.setIcon(Theme.BTN_NEW);
 				m_newBtn.setTestID("newButton");
 				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
 				m_newBtn.setClicked(xb -> {
@@ -643,7 +643,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 			m_onCancel = onCancel;
 			if(m_onCancel != null && m_cancelBtn == null) {
 				m_cancelBtn = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL));
-				m_cancelBtn.setIcon(Icon.of(Theme.BTN_CANCEL));
+				m_cancelBtn.setIcon(Theme.BTN_CANCEL);
 				m_cancelBtn.setTestID("cancelButton");
 				m_cancelBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL_TITLE));
 				m_cancelBtn.setClicked(xb -> {

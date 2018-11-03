@@ -5,7 +5,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.event.INotifyEvent;
 import to.etc.domui.component.layout.Window;
-import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.PositionType;
 import to.etc.domui.dom.html.IClicked;
@@ -95,7 +94,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 	public void createContent() throws Exception {
 		super.createContent();
 		if(getSrc() == null) {
-			setSrc(Icon.of(Theme.BTN_FIND));
+			setSrc(Theme.BTN_FIND);
 		}
 		m_picker.setDisplay(DisplayType.NONE);
 		m_picker.setPosition(PositionType.ABSOLUTE);

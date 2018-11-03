@@ -30,7 +30,6 @@ import to.etc.domui.component.layout.CaptionedPanel;
 import to.etc.domui.component.misc.ALink;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.MsgDiv;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
@@ -54,8 +53,7 @@ public class ExpiredSessionPage extends UrlPage {
 		t.setWidth("100%");
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
-		Img img = new Img(Theme.DATA_EXPIRED);
-		td.add(img);
+		td.add(Theme.DATA_EXPIRED.createNode());
 		td.setWidth("1%");
 
 		boolean close = getPage().getPageParameters().getBoolean(PARAM_CLOSE, true);

@@ -4,7 +4,6 @@ import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.masterchild.ChildFragment;
 import to.etc.domui.component.misc.ExceptionDialog;
-import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component2.buttons.ButtonBar2;
 import to.etc.domui.component2.form4.FormBuilder;
@@ -38,7 +37,7 @@ public class AlbumEditPage extends UrlPage {
 
 		ButtonBar2 bb = new ButtonBar2();
 		add(bb);
-		bb.addButton("Save", Icon.of(Theme.BTN_SAVE), a -> save());
+		bb.addButton("Save", Theme.BTN_SAVE, a -> save());
 	}
 
 	@UIUrlParameter(name = "id")

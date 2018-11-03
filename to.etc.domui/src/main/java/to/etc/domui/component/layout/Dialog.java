@@ -28,7 +28,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.misc.IIconRef;
-import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.IExecute;
@@ -163,7 +162,7 @@ public class Dialog extends Window {
 	}
 
 	protected void createCancelButton(@NonNull String text) {
-		createCancelButton(text, Icon.of(Theme.BTN_CANCEL));
+		createCancelButton(text, Theme.BTN_CANCEL);
 	}
 
 	protected void createCancelButton(@NonNull String text, @NonNull IIconRef image) {
@@ -174,7 +173,7 @@ public class Dialog extends Window {
 
 	@NonNull
 	protected DefaultButton createSaveButton() {
-		return createSaveButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Icon.of(Theme.BTN_SAVE));
+		return createSaveButton(Msgs.BUNDLE.getString(Msgs.EDLG_OKAY), Theme.BTN_SAVE);
 	}
 
 	@NonNull

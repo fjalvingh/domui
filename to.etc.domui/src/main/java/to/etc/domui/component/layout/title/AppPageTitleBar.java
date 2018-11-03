@@ -47,7 +47,6 @@ import to.etc.domui.dom.html.Table;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IShelvedEntry;
 import to.etc.domui.state.UIGoto;
-import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 
 import java.util.List;
@@ -204,22 +203,12 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	}
 
 	private void addBackButton(@NonNull TD td) {
-		HoverButton backButton = new HoverButton(Theme.APPBAR_BACK_ICON, new IClicked<HoverButton>() {
-			@Override
-			public void clicked(@NonNull HoverButton clickednode) throws Exception {
-				UIGoto.back();
-			}
-		});
+		HoverButton backButton = new HoverButton("THEME/72x24_back.png", clickednode -> UIGoto.back());
 		td.add(backButton);
 	}
 
 	private void addCloseButton(@NonNull TD td) {
-		HoverButton button = new HoverButton(Theme.APPBAR_CLOSE_ICON, new IClicked<HoverButton>() {
-			@Override
-			public void clicked(@NonNull HoverButton clickednode) throws Exception {
-				getPage().getBody().closeWindow();
-			}
-		});
+		HoverButton button = new HoverButton("THEME/72x24_close.png", clickednode -> getPage().getBody().closeWindow());
 		td.add(button);
 	}
 

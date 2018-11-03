@@ -1,10 +1,10 @@
 package to.etc.domui.fontawesome;
 
 import to.etc.domui.component.misc.FontIcon;
-import to.etc.domui.component.misc.FontIconRef;
 import to.etc.domui.component.misc.IFontIconRef;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
+import to.etc.domui.component.misc.WrappedIconRef;
 import to.etc.domui.dom.html.NodeBase;
 
 /**
@@ -1951,11 +1951,16 @@ public enum FaIcon implements IFontIconRef {
 		return m_prefix + " " + m_css;
 	}
 
-	public NodeBase createNode() {
-		return new FontIcon(this);
+	@Override
+	public String getClasses() {
+		return m_prefix + " " + m_css;
+	}
+
+	@Override public NodeBase createNode(String cssClasses) {
+		return new FontIcon(this).css(cssClasses);
 	}
 
 	public IIconRef css(String... classes) {
-		return new FontIconRef(getCssClassName(), classes);
+		return new WrappedIconRef(this, classes);
 	}
 }

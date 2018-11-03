@@ -14,11 +14,11 @@ public class DemoLinkButton extends UrlPage {
 		addCssClass("ui-content");
 
 		add("Without an icon", new LinkButton("this link", clickednode -> tell()));
-		add("With an image icon", new LinkButton("with image", Icon.of(Theme.BTN_SAVE), clickednode -> tell()));
+		add("With an image icon", new LinkButton("with image", Theme.BTN_SAVE, clickednode -> tell()));
 		add("With a FontIcon", new LinkButton("fontIcon", Icon.faFile, a -> tell()));
 
 		addDisabled("Without an icon", new LinkButton("this link", clickednode -> tell()));
-		addDisabled("With an image icon", new LinkButton("with image", Icon.of(Theme.BTN_SAVE), clickednode -> tell()));
+		addDisabled("With an image icon", new LinkButton("with image", Theme.BTN_SAVE, clickednode -> tell()));
 		addDisabled("With a FontIcon", new LinkButton("fontIcon", Icon.faFile, a -> tell()));
 	}
 

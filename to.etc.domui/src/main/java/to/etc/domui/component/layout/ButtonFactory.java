@@ -6,7 +6,6 @@ import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.IIconRef;
-import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
@@ -120,7 +119,7 @@ public class ButtonFactory implements IButtonBar {
 		}
 
 		//-- Nothing worked: just add a default back button that will go back to application home if the stack is empty
-		return addBackButton(Msgs.BUNDLE.getString("ui.buttonbar.back"), Icon.of(Theme.BTN_CANCEL), order);
+		return addBackButton(Msgs.BUNDLE.getString("ui.buttonbar.back"), Theme.BTN_CANCEL, order);
 	}
 
 	/**
@@ -154,7 +153,7 @@ public class ButtonFactory implements IButtonBar {
 	@Override
 	@NonNull
 	public DefaultButton addCloseButton(int order) {
-		return addCloseButton(Msgs.BUNDLE.getString("ui.buttonbar.close"), Icon.of(Theme.BTN_CLOSE), order);
+		return addCloseButton(Msgs.BUNDLE.getString("ui.buttonbar.close"), Theme.BTN_CLOSE, order);
 	}
 
 	@Override

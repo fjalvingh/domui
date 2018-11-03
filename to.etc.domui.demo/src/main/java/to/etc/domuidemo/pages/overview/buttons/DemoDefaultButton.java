@@ -38,7 +38,7 @@ public class DemoDefaultButton extends UrlPage {
 
 		cp.add(new VerticalSpacer(40));
 		cp.add("Like all Action Items, buttons can be disabled: ");
-		DefaultButton di = new DefaultButton("click me to disable me", Icon.of(Theme.BTN_CONFIRM), b -> b.setDisabled(true));
+		DefaultButton di = new DefaultButton("click me to disable me", Theme.BTN_CONFIRM, b -> b.setDisabled(true));
 		cp.add(di);
 	}
 }

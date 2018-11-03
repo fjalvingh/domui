@@ -18,36 +18,44 @@ final public class ImageIconRef implements IIconRef {
 	private final String m_path;
 
 	@NonNull
-	private final String[] m_cssClasses;
+	private final String m_cssClasses;
 
 	public ImageIconRef(String path) {
 		m_path = path;
-		m_cssClasses = new String[0];
+		m_cssClasses = "";
 	}
 
 	public ImageIconRef(String path, String[] cssClasses) {
 		m_path = path;
-		m_cssClasses = cssClasses;
+		StringBuilder sb = new StringBuilder();
+		for(String cssClass : cssClasses) {
+			sb.append(" ").append(cssClass);
+		}
+		m_cssClasses = sb.toString();
+	}
+
+	public String getClasses() {
+		return m_cssClasses;
 	}
 
 	public String getPath() {
 		return m_path;
 	}
 
-	@Override public NodeBase createNode() {
+	@Override public NodeBase createNode(String cssClasses) {
 		String path = getPath();
 		if(null == path) {
-			return new Span("ui-icon-empty", "");
+			return new Span("ui-icon-empty " + cssClasses, "");
 		}
 		String ext = FileTool.getFileExtension(path).toLowerCase();
 		if("svg".equals(ext))
-			return new SvgIcon(path).css(m_cssClasses);
+			return new SvgIcon(path).css(cssClasses);
 		else if(ext.isEmpty()) {
-			return new FontIcon(path).css(m_cssClasses);
+			return new FontIcon(path).css(cssClasses);
 		} else {
 			Img img = new Img(path);
 			img.setImgBorder(0);
-			img.css(m_cssClasses);
+			img.css(cssClasses);
 			return img;
 		}
 	}

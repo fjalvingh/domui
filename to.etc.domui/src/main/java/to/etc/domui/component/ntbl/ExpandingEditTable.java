@@ -509,9 +509,9 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newInstance = instance;
 
 		//-- Now add confirm/cancel button in action column
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Icon.of(Theme.BTN_CONFIRM), clickednode -> commitNewRow());
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Theme.BTN_CONFIRM, clickednode -> commitNewRow());
 
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Icon.of(Theme.BTN_DELETE), clickednode -> cancelNew());
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Theme.BTN_DELETE, clickednode -> cancelNew());
 	}
 
 	public void cancelNew() {

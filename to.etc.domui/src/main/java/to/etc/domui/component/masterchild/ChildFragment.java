@@ -6,7 +6,6 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
-import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.tbl.ColumnDef;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component.tbl.RowRenderer;
@@ -79,7 +78,7 @@ public class ChildFragment<P, C> extends Div {
 		if(onNew != null) {
 			ButtonBar2 bb = new ButtonBar2();
 			add(bb);
-			bb.addButton("Add", Icon.of(Theme.BTN_PLUS), a -> {
+			bb.addButton("Add", Theme.BTN_PLUS, a -> {
 				C c = m_childClass.newInstance();
 				PropertyMetaModel<P> parentProperty = findParentProperty();
 				parentProperty.setValue(c, m_parent);

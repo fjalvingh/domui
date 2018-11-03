@@ -30,11 +30,13 @@ import to.etc.domui.server.DomApplication;
 final public class HoverButton extends Button implements IActionControl {
 	public enum Size {
 		/** Standard 16x16 button */
-		SMALL
+		SMALL,
+
 		/** Medium size 24x24 button */
-		, MEDIUM
+		MEDIUM,
+
 		/** Large 32x32 button */
-		, LARGE
+		LARGE
 	}
 
 	@Nullable
@@ -49,7 +51,6 @@ final public class HoverButton extends Button implements IActionControl {
 	/**
 	 * Create a small image button from the specified resource. The resource can come from the current
 	 * theme, or it can be an absolute image path to a web file.
-	 * @param rurl
 	 */
 	public HoverButton(@NonNull String rurl) {
 		setSrc(rurl);
@@ -57,8 +58,6 @@ final public class HoverButton extends Button implements IActionControl {
 
 	/**
 	 * If the rurl is prefixed with THEME/ it specifies an image from the current THEME's directory.
-	 * @param rurl
-	 * @param cl
 	 */
 	public HoverButton(@NonNull String rurl, @NonNull IClicked<HoverButton> cl) {
 		this();
@@ -84,7 +83,6 @@ final public class HoverButton extends Button implements IActionControl {
 	/**
 	 * Set a new image using a web resource's absolute path. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
-	 * @param src
 	 */
 	public void setSrc(String src) {
 		m_url = src;

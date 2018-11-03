@@ -166,23 +166,23 @@ public class MsgBox extends Window {
 				throw new IllegalStateException(type + " ??");
 			case ERROR:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_ERROR);
-				icon = Icon.of(Theme.ICON_MBX_ERROR);
+				icon = Theme.ICON_MBX_ERROR;
 				break;
 			case WARNING:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_WARNING);
-				icon = Icon.of(Theme.ICON_MBX_WARNING);
+				icon = Theme.ICON_MBX_WARNING;
 				break;
 			case INFO:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_INFO);
-				icon = Icon.of(Theme.ICON_MBX_INFO);
+				icon = Theme.ICON_MBX_INFO;
 				break;
 			case DIALOG:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_DIALOG);
-				icon = Icon.of(Theme.ICON_MBX_DIALOG);
+				icon = Theme.ICON_MBX_DIALOG;
 				break;
 			case INPUT:
 				ttl = Msgs.BUNDLE.getString(Msgs.UI_MBX_INPUT);
-				icon = Icon.of(Theme.ICON_MBX_DIALOG);
+				icon = Theme.ICON_MBX_DIALOG;
 				break;
 		}
 		m_icon = icon;
@@ -738,29 +738,19 @@ public class MsgBox extends Window {
 
 		IIconRef icon = null;
 		if(mbb == MsgBoxButton.YES || mbb == MsgBoxButton.CONTINUE)
-			icon = Icon.of(Theme.BTN_CONFIRM);
+			icon = Theme.BTN_CONFIRM;
 		else if(mbb == MsgBoxButton.NO)
-			icon = Icon.of(Theme.BTN_CANCEL);
+			icon = Theme.BTN_CANCEL;
 		else if(mbb == MsgBoxButton.CANCEL)
-			icon = Icon.of(Theme.BTN_CANCEL);
+			icon = Theme.BTN_CANCEL;
 
-		DefaultButton btn = new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				answer(mbb);
-			}
-		});
+		DefaultButton btn = new DefaultButton(lbl, icon, b -> answer(mbb));
 		btn.setTestID(mbb.name());
 		m_theButtons.add(btn);
 	}
 
 	protected void addButton(final String lbl, final Object selval) {
-		m_theButtons.add(new DefaultButton(lbl, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				answer(selval);
-			}
-		}));
+		m_theButtons.add(new DefaultButton(lbl, b -> answer(selval)));
 	}
 
 	protected IAnswer getOnAnswer() {

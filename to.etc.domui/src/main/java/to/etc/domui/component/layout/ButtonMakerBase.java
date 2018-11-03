@@ -27,7 +27,6 @@ package to.etc.domui.component.layout;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.misc.IIconRef;
-import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.NodeBase;
@@ -59,7 +58,7 @@ abstract public class ButtonMakerBase {
 	}
 
 	public DefaultButton addBackButton() {
-		return addBackButton("Terug", Icon.of(Theme.BTN_CANCEL));
+		return addBackButton("Terug", Theme.BTN_CANCEL);
 	}
 
 	public DefaultButton addConfirmedButton(final String txt, final String msg, final IClicked<DefaultButton> click) {

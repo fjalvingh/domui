@@ -147,7 +147,7 @@ public abstract class BasicEditPage<T> extends BasicPage<T> {
 	}
 
 	protected void createCancelButton() {
-		getButtonBar().addButton("!Cancel", Icon.of(Theme.BTN_CANCEL), b -> cancel());
+		getButtonBar().addButton("!Cancel", Theme.BTN_CANCEL, b -> cancel());
 	}
 
 	protected void createDeleteButton() {

@@ -88,14 +88,14 @@ public class ButtonFragment extends Div {
 
 		addHead("Normal");
 		addSub("Text", () -> new DefaultButton("Click me", a -> {}));
-		addSub("+icon", () -> new DefaultButton("click", Icon.of(Theme.BTN_CHECKMARK), a-> {}));
+		addSub("+icon", () -> new DefaultButton("click", Theme.BTN_CHECKMARK, a-> {}));
 		addSub("+FaIcon", () -> new DefaultButton("click", Icon.faHeart, a-> {}));
 		addSub("IconOnly", () -> new DefaultButton("", Icon.faEye, a-> {}));
 
 		addHead("Disabled");
 		Consumer<DefaultButton> disabler = b -> b.setDisabled(true);
 		addSub("Text", () -> new DefaultButton("Click me", a -> {}), disabler);
-		addSub("+icon", () -> new DefaultButton("click", Icon.of(Theme.BTN_CHECKMARK), a-> {}), disabler);
+		addSub("+icon", () -> new DefaultButton("click", Theme.BTN_CHECKMARK, a-> {}), disabler);
 		addSub("+FaIcon", () -> new DefaultButton("click", Icon.faHeart, a-> {}), disabler);
 		addSub("IconOnly", () -> new DefaultButton("", Icon.faEye, a-> {}),disabler);
 

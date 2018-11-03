@@ -1,6 +1,7 @@
 package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
 
 /**
@@ -10,13 +11,21 @@ import to.etc.domui.dom.html.NodeBase;
  * Created on 20-10-18.
  */
 public interface IIconRef {
+	@Nullable String getClasses();
+
+	@NonNull NodeBase createNode(String cssClasses);
+
 	/**
 	 * Create the appropriate icon node for the reference, depending on the reference's type.
 	 */
-	@NonNull NodeBase createNode();
+	@NonNull default NodeBase createNode() {
+		return createNode(getClasses());
+	}
 
 	/**
-	 * Add css to the icon at creation time.
+	 * Create a new icon ref that adds the specified css classes.
 	 */
-	@NonNull IIconRef css(@NonNull String... classes);
+	@NonNull default IIconRef css(@NonNull String... classes) {
+		return new WrappedIconRef(this, classes);
+	}
 }
