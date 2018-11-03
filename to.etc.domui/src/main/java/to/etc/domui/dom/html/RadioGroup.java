@@ -108,6 +108,15 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 		return vc;
 	}
 
+	public RadioButton<T> addButton(String text, T value) {
+		Div d = new Div();
+		add(d);
+		RadioButton<T> rb = new RadioButton<>(value);
+		d.add(rb);
+		d.add(new Label(rb, text));
+		return rb;
+	}
+
 	@Override
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_onValueChanged = onValueChanged;
