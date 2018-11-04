@@ -1,9 +1,12 @@
 package to.etc.domui.server;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
 import to.etc.domui.login.ILoginDialogFactory;
+import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.trouble.NotLoggedInException;
 import to.etc.domui.util.Constants;
@@ -81,4 +84,34 @@ public class ResponseCommandWriter {
 		target = ctx.getRelativePath(target);
 		ApplicationRequestHandler.generateHttpRedirect(ctx, target, "You need to login before accessing this function");
 	}
+
+	/**
+	 * Fix for huge POST requests being resent as a get.
+	 */
+	public void redirectForPost(RequestContextImpl ctx, WindowSession cm, @NonNull PageParameters pp) throws Exception {
+		//-- Create conversation
+		ConversationContext cc = cm.createConversation(ConversationContext.class);
+		cm.acceptNewConversation(cc);
+
+		//-- Now: store the original PageParameters inside this conversation.
+		cc.setAttribute("__ORIPP", pp);
+
+		//-- Create an unique hash for the page parameters
+		String hashString = pp.calculateHashString();			// The unique hash of a page with these parameters
+
+		StringBuilder sb = new StringBuilder(256);
+
+		//			sb.append('/');
+		sb.append(ctx.getRelativePath(ctx.getInputPath()));
+		sb.append('?');
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(cm.getWindowID());
+		sb.append(".");
+		sb.append(cc.getId());
+		sb.append("&");
+		sb.append(Constants.PARAM_POST_CONVERSATION_KEY).append("=").append(hashString);
+		ApplicationRequestHandler.generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
+	}
+
 }

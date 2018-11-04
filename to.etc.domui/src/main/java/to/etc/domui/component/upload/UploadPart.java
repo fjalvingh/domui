@@ -27,7 +27,7 @@ package to.etc.domui.component.upload;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.parts.ComponentPartRenderer;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.PageRequestHandler;
+import to.etc.domui.server.PageUtil;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.server.parts.IUnbufferedPartFactory;
 import to.etc.domui.trouble.ThingyNotFoundException;
@@ -53,7 +53,7 @@ public class UploadPart implements IUnbufferedPartFactory {
 			//-- Render an optimal delta as the response,
 			if(render) {
 				param.getRequestResponse().setNoCache();
-				PageRequestHandler.renderOptimalDelta(param, r.getPage());
+				PageUtil.renderOptimalDelta(param, r.getPage());
 			}
 		} catch(ThingyNotFoundException x) {
 			//-- Page seems to have gone in the meanwhile

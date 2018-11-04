@@ -15,7 +15,6 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IHasChangeListener;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.OptimalDeltaRenderer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
 import to.etc.domui.dom.html.UrlPage;
@@ -44,7 +43,6 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.IRebuildOnRefresh;
 import to.etc.domui.util.Msgs;
-import to.etc.util.DeveloperOptions;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -72,8 +70,6 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 @NonNullByDefault
 final public class PageRequestHandler {
 	static final public Logger LOG = ApplicationRequestHandler.LOG;
-
-	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
 
 	private final DomApplication m_application;
 
@@ -241,7 +237,7 @@ final public class PageRequestHandler {
 				HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
 
 				if("post".equalsIgnoreCase(srr.getRequest().getMethod()) && pp.getDataLength() > 768) {
-					redirectForPost(m_ctx, windowSession, pp);
+					m_commandWriter.redirectForPost(m_ctx, windowSession, pp);
 					return;
 				}
 			}
@@ -547,7 +543,7 @@ final public class PageRequestHandler {
 		page.setFullRenderCompleted(true);
 		page.setPageExceptionCount(0);
 		m_ctx.getSession().clearExceptionRetryCount();
-		if(m_logPerf) {
+		if(PageUtil.m_logPerf) {
 			ts = System.nanoTime() - ts;
 			System.out.println("domui: full render took " + StringTool.strNanoTime(ts));
 		}
@@ -696,35 +692,6 @@ final public class PageRequestHandler {
 		sb.append(cm.getWindowID());
 		sb.append(".x"); // Dummy conversation ID
 		ApplicationRequestHandler.generateAjaxRedirect(m_ctx, sb.toString());
-	}
-
-	/**
-	 * Fix for huge POST requests being resent as a get.
-	 */
-	private void redirectForPost(RequestContextImpl ctx, WindowSession cm, @NonNull PageParameters pp) throws Exception {
-		//-- Create conversation
-		ConversationContext cc = cm.createConversation(ConversationContext.class);
-		cm.acceptNewConversation(cc);
-
-		//-- Now: store the original PageParameters inside this conversation.
-		cc.setAttribute("__ORIPP", pp);
-
-		//-- Create an unique hash for the page parameters
-		String hashString = pp.calculateHashString();			// The unique hash of a page with these parameters
-
-		StringBuilder sb = new StringBuilder(256);
-
-		//			sb.append('/');
-		sb.append(ctx.getRelativePath(ctx.getInputPath()));
-		sb.append('?');
-		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-		sb.append('=');
-		sb.append(cm.getWindowID());
-		sb.append(".");
-		sb.append(cc.getId());
-		sb.append("&");
-		sb.append(Constants.PARAM_POST_CONVERSATION_KEY).append("=").append(hashString);
-		ApplicationRequestHandler.generateHttpRedirect(ctx, sb.toString(), "Your session has expired. Starting a new session.");
 	}
 
 	/**
@@ -912,7 +879,7 @@ final public class PageRequestHandler {
 		}
 		page.callRequestFinished();
 
-		if(m_logPerf && !inhibitlog) {
+		if(PageUtil.m_logPerf && !inhibitlog) {
 			ts = System.nanoTime() - ts;
 			System.out.println("domui: Action handling took " + StringTool.strNanoTime(ts));
 		}
@@ -929,7 +896,7 @@ final public class PageRequestHandler {
 
 		//-- We stay on the same page. Render tree delta as response
 		try {
-			renderOptimalDelta(m_ctx, page, inhibitlog);
+			PageUtil.renderOptimalDelta(m_ctx, page, inhibitlog);
 		} catch(NotLoggedInException x) { 						// FIXME Fugly. Generalize this kind of exception handling somewhere.
 			String url = m_application.handleNotLoggedInException(m_ctx, x);
 			if(url != null) {
@@ -964,35 +931,6 @@ final public class PageRequestHandler {
 			return;
 		InternalParentTree ipt = new InternalParentTree(wcomp);
 		page.getBody().add(0, ipt);
-	}
-
-	// FIXME MOVE
-	static public void renderOptimalDelta(RequestContextImpl ctx, Page page) throws Exception {
-		renderOptimalDelta(ctx, page, false);
-	}
-
-	// FIXME MOVE
-	static private void renderOptimalDelta(RequestContextImpl ctx, Page page, boolean inhibitlog) throws Exception {
-		// ORDERED
-		//-- 20100519 jal Force full rebuild before rendering, always. See bug 688.
-		page.getBody().internalOnBeforeRender();
-		page.internalDeltaBuild();
-		ctx.getApplication().internalCallPageComplete(ctx, page);
-		page.internalDeltaBuild();
-		// /ORDERED
-
-		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
-
-		long ts = System.nanoTime();
-		//		String	usag = ctx.getUserAgent();
-		HtmlFullRenderer fullr = ctx.getApplication().findRendererFor(ctx.getBrowserVersion(), out);
-		OptimalDeltaRenderer dr = new OptimalDeltaRenderer(fullr, ctx, page);
-		dr.render();
-		if(m_logPerf && !inhibitlog) {
-			ts = System.nanoTime() - ts;
-			System.out.println("domui: Optimal Delta rendering using " + fullr + " took " + StringTool.strNanoTime(ts));
-		}
-		page.getConversation().startDelayedExecution();
 	}
 
 	/**
