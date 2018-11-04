@@ -52,6 +52,12 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	@NonNull
 	private OopsFrameRenderer m_oopsRenderer = new OopsFrameRenderer();
 
+	@NonNull
+	private ResponseCommandWriter m_commandWriter = new ResponseCommandWriter();
+
+	@NonNull
+	private PageAccessChecker m_accessChecker = new PageAccessChecker();
+
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
 
 	ApplicationRequestHandler(@NonNull final DomApplication application) {
@@ -70,7 +76,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(! accepts(ctx))
 			return false;
 
-		PageRequestHandler ph = new PageRequestHandler(m_application, this, ctx);
+		PageRequestHandler ph = new PageRequestHandler(m_application, this, m_commandWriter, m_accessChecker, ctx);
 		ph.executeRequest();
 		return true;
 	}

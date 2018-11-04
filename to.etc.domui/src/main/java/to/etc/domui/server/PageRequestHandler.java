@@ -4,9 +4,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
-import to.etc.domui.annotations.UIRights;
-import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.misc.InternalParentTree;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.misc.MsgBox;
@@ -22,9 +19,6 @@ import to.etc.domui.dom.html.OptimalDeltaRenderer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.domui.login.AccessDeniedPage;
-import to.etc.domui.login.ILoginDialogFactory;
-import to.etc.domui.login.IUser;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.parts.IComponentUrlDataProvider;
 import to.etc.domui.state.AppSession;
@@ -49,7 +43,6 @@ import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.IRebuildOnRefresh;
-import to.etc.domui.util.IRightsCheckedManually;
 import to.etc.domui.util.Msgs;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.IndentWriter;
@@ -58,7 +51,6 @@ import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.ajax.renderer.json.JSONRegistry;
 import to.etc.webapp.ajax.renderer.json.JSONRenderer;
-import to.etc.webapp.nls.CodeException;
 import to.etc.webapp.query.QContextManager;
 
 import javax.servlet.http.HttpSession;
@@ -87,11 +79,17 @@ final public class PageRequestHandler {
 
 	private final ApplicationRequestHandler m_applicationRequestHandler;
 
+	private final ResponseCommandWriter m_commandWriter;
+
+	private final PageAccessChecker m_accessChecker;
+
 	private final RequestContextImpl m_ctx;
 
-	public PageRequestHandler(DomApplication application, ApplicationRequestHandler applicationRequestHandler, RequestContextImpl ctx) {
+	public PageRequestHandler(DomApplication application, ApplicationRequestHandler applicationRequestHandler, ResponseCommandWriter commandWriter, PageAccessChecker checker, RequestContextImpl ctx) {
 		m_application = application;
 		m_applicationRequestHandler = applicationRequestHandler;
+		m_accessChecker = checker;
+		m_commandWriter = commandWriter;
 		m_ctx = ctx;
 	}
 
@@ -193,7 +191,7 @@ final public class PageRequestHandler {
 					// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 					if(m_application.getAutoRefreshPollInterval() <= 0) {
 						String msg = Msgs.BUNDLE.getString(Msgs.S_EXPIRED);
-						generateExpired(msg);
+						m_commandWriter.generateExpired(m_ctx, msg);
 						logUser(cid, clz.getName(), msg);
 					} else {
 						String msg = "Not sending expired message because autorefresh is ON for " + cid;
@@ -282,7 +280,7 @@ final public class PageRequestHandler {
 					LOG.debug(msg);
 				logUser(cid, clz.getName(), msg);
 				System.out.println(msg);
-				generateEmptyDelta();
+				m_commandWriter.generateEmptyDelta(m_ctx);
 				return;											// jal 20121122 Must return after sending that delta or the document is invalid!!
 			}
 		}
@@ -335,7 +333,7 @@ final public class PageRequestHandler {
 					 * The page tag differs-> session has expired.
 					 */
 					if(Constants.ACMD_ASYPOLL.equals(action)) {
-						generateExpiredPollasy();
+						m_commandWriter.generateExpiredPollasy(m_ctx);
 					} else {
 						String msg = "Session " + cid + " expired, page will be reloaded (page tag difference) on action=" + action;
 						if(DomUtil.USERLOG.isDebugEnabled())
@@ -344,7 +342,7 @@ final public class PageRequestHandler {
 
 						// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 						if(m_application.getAutoRefreshPollInterval() <= 0) {
-							generateExpired(Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+							m_commandWriter.generateExpired(m_ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
 						} else {
 							msg = "Not sending expired message because autorefresh is ON for " + cid;
 							LOG.info(msg);
@@ -558,6 +556,23 @@ final public class PageRequestHandler {
 		page.getConversation().startDelayedExecution();
 	}
 
+	private boolean checkAccess(WindowSession windowSession, Page page) throws Exception {
+		PageAccessCheckResult result = m_accessChecker.checkAccess(m_ctx, windowSession, page, a -> logUser(windowSession.getWindowID(), page.getBody().getClass().getName(), a));
+		switch(result) {
+			default:
+				throw new IllegalArgumentException(result + "?");
+			case NeedLogin:
+				m_commandWriter.redirectToLoginPage(m_ctx, windowSession);
+				return false;
+
+			case Accepted:
+				return true;
+
+			case Refused:
+				return false;
+		}
+	}
+
 	/**
 	 * Try to render a terse error to the user.
 	 */
@@ -728,174 +743,6 @@ final public class PageRequestHandler {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle existing page events.						*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
-	 * user to check it's rights against the page's required rights.
-	 *
-	 * WARNING: Functional duplicate exists in {@link UIContext#hasRightsOn(Class)}.
-	 */
-	private boolean checkAccess(WindowSession cm, Page page) throws Exception {
-		if(m_ctx.getParameter("webuia") != null)
-			throw new IllegalStateException("Cannot be called for an AJAX request");
-		UrlPage body = page.getBody();							// The actual, instantiated and injected class - which is unbuilt, though
-		UIRights rann = body.getClass().getAnnotation(UIRights.class);		// Get class annotation
-		IRightsCheckedManually rcm = body instanceof IRightsCheckedManually ? (IRightsCheckedManually) body : null;
-
-		if(rann == null && rcm == null) {						// Any kind of rights checking is required?
-			return true;										// No -> allow access.
-		}
-
-		//-- Get user's IUser; if not present we need to log in.
-		IUser user = UIContext.getCurrentUser(); 				// Currently logged in?
-		if(user == null) {
-			redirectToLoginPage(cm);
-			return false;
-		}
-
-		//-- Start access checks, in order. First call the interface, if applicable
-		String failureReason = null;
-		try {
-			if(null != rcm) {
-				boolean allowed = rcm.isAccessAllowedBy(user);	// Call interface: it explicitly allows
-				if(allowed)
-					return true;
-
-				//-- False indicates "I do not give access, but I do not deny it either". So move on to the next check.
-			}
-
-			if(null != rann) {
-				if(checkRightsAnnotation(body, rann, user)) { // Check annotation rights
-					return true;
-				}
-
-				//-- Just exit with a null failureReason - this indicates that a list of rights will be rendered.
-			} else
-				throw new CodeException(Msgs.BUNDLE, Msgs.RIGHTS_NOT_ALLOWED);	// Insufficient rights - details unknown.
-		} catch(CodeException cx) {
-			failureReason = cx.getMessage();
-		} catch(Exception x) {
-			failureReason = x.toString();
-		}
-
-		/*
-		 * Access not allowed: redirect to error page.
-		 */
-		ILoginDialogFactory ldf = m_application.getLoginDialogFactory();
-		String rurl = ldf == null ? null : ldf.getAccessDeniedURL();
-		if(rurl == null) {
-			rurl = DomApplication.get().getAccessDeniedPageClass().getName() + "." + m_application.getUrlExtension();
-		}
-
-		//-- Add info about the failed thingy.
-		StringBuilder sb = new StringBuilder(128);
-		sb.append(rurl);
-		DomUtil.addUrlParameters(sb, new PageParameters(AccessDeniedPage.PARAM_TARGET_PAGE, body.getClass().getName()), true);
-
-		//-- If we have a message use it
-		if(null != failureReason || rann == null) {
-			if(failureReason == null)
-				failureReason = "Empty reason - this should not happen!";
-			sb.append("&").append(AccessDeniedPage.PARAM_REFUSAL_MSG).append("=");
-			StringTool.encodeURLEncoded(sb, failureReason);
-		} else {
-			//-- All required rights
-			int ix = 0;
-			for(String r : rann.value()) {
-				sb.append("&r").append(ix).append("=");
-				ix++;
-				StringTool.encodeURLEncoded(sb, r);
-			}
-		}
-		ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Access denied");
-		logUser(cm.getWindowID(), page.getBody().getClass().getName(), sb.toString());
-		return false;
-	}
-
-	private void redirectToLoginPage(WindowSession cm) throws Exception {
-		//-- Create the after-login target URL.
-		StringBuilder sb = new StringBuilder(256);
-		sb.append(m_ctx.getRelativePath(m_ctx.getInputPath()));
-		sb.append('?');
-		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-		sb.append('=');
-		sb.append(cm.getWindowID());
-		sb.append(".x"); 												// Dummy conversation ID
-		DomUtil.addUrlParameters(sb, m_ctx, false);
-
-		//-- Obtain the URL to redirect to from a thingy factory (should this happen here?)
-		ILoginDialogFactory ldf = m_application.getLoginDialogFactory();
-		if(ldf == null)
-			throw NotLoggedInException.create(sb.toString());				// Force login exception.
-		String target = ldf.getLoginRURL(sb.toString());				// Create a RURL to move to.
-		if(target == null)
-			throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
-
-		//-- Make this an absolute URL by appending the webapp path
-		target = m_ctx.getRelativePath(target);
-		ApplicationRequestHandler.generateHttpRedirect(m_ctx, target, "You need to login before accessing this function");
-	}
-
-	private boolean checkRightsAnnotation(@NonNull UrlPage body, @NonNull UIRights rann, @NonNull IUser user) throws Exception {
-		if(rann.value().length == 0)						// No rights specified means -> just log in
-			return true;
-		if(StringTool.isBlank(rann.dataPath())) {
-			//-- No special data context - we just check plain general rights
-			for(String right : rann.value()) {
-				if(user.hasRight(right)) {
-					return true;
-				}
-			}
-			return false;										// All worked, so we have access.
-		}
-
-		//-- We need the object specified in DataPath.
-		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(body.getClass(), rann.dataPath());
-		Object dataItem = pmm.getValue(body);					// Get the page property.
-		for(String right : rann.value()) {
-			if(user.hasRight(right, dataItem)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Generates an EXPIRED message when the page here does not correspond with
-	 * the page currently in the browser. This causes the browser to do a reload.
-	 */
-	private void generateExpired(String message) throws Exception {
-		//-- We stay on the same page. Render tree delta as response
-		IBrowserOutput out = new PrettyXmlOutputWriter(m_ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
-		out.tag("expired");
-		out.endtag();
-
-		out.tag("msg");
-		out.endtag();
-		out.text(message);
-		out.closetag("msg");
-		out.closetag("expired");
-	}
-
-	private void generateEmptyDelta() throws Exception {
-		//-- We stay on the same page. Render tree delta as response
-		IBrowserOutput out = new PrettyXmlOutputWriter(m_ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
-		out.tag("delta");
-		out.endtag();
-		out.closetag("delta");
-	}
-
-	/**
-	 * Generates an 'expiredOnPollasy' message when server receives pollasy call from expired page.
-	 * Since pollasy calls are frequent, expired here means that user has navigated to some other page in meanwhile, and that response should be ignored by browser.
-	 */
-	private void generateExpiredPollasy() throws Exception {
-		//-- We stay on the same page. Render tree delta as response
-		IBrowserOutput out = new PrettyXmlOutputWriter(m_ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
-		out.tag("expiredOnPollasy");
-		out.endtag();
-		out.closetag("expiredOnPollasy");
-	}
-
 	/**
 	 * Walk the request parameter list and bind all values that came from an input thingy
 	 * to the appropriate Node. Nodes whose value change will leave a trail in the pending
