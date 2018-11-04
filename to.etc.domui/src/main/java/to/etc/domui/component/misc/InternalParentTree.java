@@ -46,6 +46,8 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This popup floater shows all parent nodes from a given node up, and selects one. It is part
@@ -75,12 +77,8 @@ public class InternalParentTree extends Div {
 		Img img = new Img("THEME/close.png");
 		img.setAlign(ImgAlign.RIGHT);
 		ttl.add(img);
-		img.setClicked(new IClicked<Img>() {
-			@Override
-			public void clicked(@NonNull Img clickednode) throws Exception {
-				//-- Remove this.
-				InternalParentTree.this.remove();
-			}
+		img.setClicked((IClicked<Img>) clickednode -> {
+			InternalParentTree.this.remove();
 		});
 		Div list = new Div();
 		m_structure = list;
@@ -95,93 +93,7 @@ public class InternalParentTree extends Div {
 		TBody b = list.addTable();
 
 		for(NodeBase nb = m_touched; nb != null;) {
-			final NodeBase clicked = nb;
-			TR row = b.addRow();
-			row.setCssClass("ui-ipt-item");
-
-			//-- Type icon
-			TD td = b.addCell();
-			td.setCellWidth("1%");
-			String icon = "";
-			String nn = nb.getClass().getName();
-			if(nn.startsWith("to.etc.domui.dom.")) {
-				icon = "iptHtml.png";
-				td.setTitle("HTML Node");
-			} else if(nb instanceof UrlPage) {
-				icon = "iptPage.png";
-				td.setTitle("DomUI Page");
-			} else {
-				td.setTitle("DomUI Component");
-				icon = "iptComponent.png";
-			}
-			td.add(new Img("THEME/" + icon));
-
-			//-- Show component source code button.
-			td = b.addCell();
-			td.setCssClass("ui-ipt-btn");
-			td.setCellWidth("1%");
-			td.setClicked(new IClicked<NodeBase>() {
-				@Override
-				public void clicked(@NonNull NodeBase clickednode) throws Exception {
-					openSource(clicked);
-				}
-			});
-			td.setTitle("Open the component's source code");
-			td.add(new Img("THEME/iptSourceCode.png"));
-
-			//-- If applicable: component creation location
-			if(null != nb.getAllocationTracepoint()) {
-				td = b.addCell();
-				td.setCssClass("ui-ipt-btn");
-				td.setCellWidth("1%");
-				td.setClicked(new IClicked<NodeBase>() {
-					@Override
-					public void clicked(@NonNull NodeBase clickednode) throws Exception {
-						showCreationTrace(clicked, clicked.getAllocationTracepoint());
-					}
-				});
-				td.setTitle("Open the location where the component was created");
-				td.add(new Img("THEME/iptLocation.png"));
-			}
-
-			//-- The name
-			td = b.addCell();
-			td.setCellWidth("97%");
-			td.add(nn);
-
-			td.addCssClass("prnt-strct");
-			td.setClicked(new IClicked<NodeBase>() {
-				@Override public void clicked(NodeBase clickednode) throws Exception {
-					boolean first = true;
-					boolean gotctor = false;
-
-					for (StackTraceElement ste : clicked.getAllocationTracepoint()) {
-						String nn = ste.getClassName();
-						if(nn.startsWith("org.apache.tomcat."))
-							return;
-
-						//-- Skip code when it is inside internal code.
-						if(first) {
-							if(ste.getMethodName().equals("<init>")) {
-								gotctor = true;
-							}
-
-							if(nn.equals(DomUtil.class.getName()) || nn.equals(NodeBase.class.getName()) || nn.equals(NodeContainer.class.getName()))
-								continue;
-							first = false;
-							if(!gotctor)
-								continue;
-							if(ste.getMethodName().equals("<init>"))
-								continue;
-						}
-						if(ste.getMethodName().equals("<init>")){
-							continue;
-						}
-						openSource(ste);
-						break;
-					}
-				}
-			});
+			renderComponentLine(b, nb);
 
 			if(!nb.hasParent())
 				break;
@@ -189,10 +101,114 @@ public class InternalParentTree extends Div {
 		}
 	}
 
+	private void renderComponentLine(TBody body, NodeBase node) {
+		final NodeBase clicked = node;
+		TR row = body.addRow();
+		row.setCssClass("ui-ipt-item");
+
+		//-- Type icon
+		TD td = body.addCell();
+		td.setCellWidth("1%");
+		td.css("ui-ipt-icon");
+		String icon = "";
+		String nn = node.getClass().getName();
+		if(nn.startsWith("to.etc.domui.dom.")) {
+			icon = "iptHtml.png";
+			td.setTitle("HTML Node");
+		} else if(node instanceof UrlPage) {
+			icon = "iptPage.png";
+			td.setTitle("DomUI Page");
+		} else {
+			td.setTitle("DomUI Component");
+			icon = "iptComponent.png";
+		}
+		td.add(new Img("THEME/" + icon));
+
+
+		//-- If applicable: component creation location
+		StackTraceElement[] allocSt = node.getAllocationTracepoint();
+		StackTraceElement created = null;
+
+		if(null != allocSt && node.hasParent()) {
+			List<StackTraceElement> stack = findStack(allocSt);
+			if(stack.size() > 0) {
+				created = stack.get(0);
+			}
+		}
+
+		td = body.addCell();
+		td.setCellWidth("97%");
+
+		td.add(nn);
+		if(null != created) {
+			StackTraceElement morons = created;			// Pathetic.
+			td.addCssClass("ui-ipt-link");
+			td.setTitle("Open the location where the component is created");
+			td.setClicked(clickednode -> openSource(morons));
+		}
+
+		//-- Show component source code button.
+		td = body.addCell();
+		td.setCssClass("ui-ipt-btn");
+		td.setCellWidth("1%");
+		td.setClicked(clickednode -> openSource(clicked));
+		td.setTitle("Open the component's source code");
+		//td.add(new Img("THEME/iptSourceCode.png"));
+		td.add(Icon.faCode.css("is-size-small is-info").createNode());
+
+		//-- Button to open the component source code.
+		td = body.addCell();
+		td.setCellWidth("1%");
+
+		if(null != allocSt && node.hasParent()) {
+			List<StackTraceElement> stack = findStack(allocSt);
+			if(stack.size() > 0) {
+				td.setCssClass("ui-ipt-btn");
+				td.setClicked(clickednode -> showCreationTrace(clicked, stack));
+				td.setTitle("Show the stacktrace where the component was created");
+				td.add(Icon.faBars.css("is-danger is-size-small").createNode());
+				//td.add(new Img("THEME/iptLocation.png"));
+			}
+		}
+	}
+
+	private List<StackTraceElement> findStack(StackTraceElement[] list) {
+		boolean first = true;
+		boolean gotctor = false;
+
+		List<StackTraceElement> res = new ArrayList<>();
+		for(StackTraceElement ste : list) {
+			String nn1 = ste.getClassName();
+			if(nn1.startsWith("org.apache.tomcat."))
+				return res;
+
+			//-- Skip code when it is inside internal code.
+			if(first) {
+				if(ste.getMethodName().equals("<init>")) {
+					gotctor = true;
+				}
+
+				if(nn1.equals(DomUtil.class.getName()) || nn1.equals(NodeBase.class.getName()) || nn1.equals(NodeContainer.class.getName()))
+					continue;
+				first = false;
+				if(!gotctor)
+					continue;
+				if(ste.getMethodName().equals("<init>"))
+					continue;
+			}
+			if(ste.getMethodName().equals("<init>")){
+				continue;
+			}
+			res.add(ste);
+		}
+		return res;
+	}
+
+
 	/**
 	 * Show a stacktrace window with the ability to open the source for that element.
 	 */
-	protected void showCreationTrace(NodeBase clicked, StackTraceElement[] allocationTracepoint) {
+	protected void showCreationTrace(NodeBase clicked, List<StackTraceElement> list) {
 		m_structure.removeAllChildren();
 
 		Div alt = new Div();
@@ -209,30 +225,9 @@ public class InternalParentTree extends Div {
 		/*
 		 * We need to find the 1st constructor in the stack trace, because that w
 		 */
-		boolean first = true;
-		boolean gotctor = false;
 		TBody b = stk.addTable();
-		for(StackTraceElement ste : allocationTracepoint) {
+		for(StackTraceElement ste : list) {
 			String nn = ste.getClassName();
-			if(nn.startsWith("org.apache.tomcat."))
-				return;
-
-			//-- Skip code when it is inside internal code.
-			if(first) {
-				if(ste.getMethodName().equals("<init>")) {
-					gotctor = true;
-				}
-
-				if(nn.equals(DomUtil.class.getName()) || nn.equals(NodeBase.class.getName()) || nn.equals(NodeContainer.class.getName()))
-					continue;
-				first = false;
-				if(!gotctor)
-					continue;
-				if(ste.getMethodName().equals("<init>"))
-					continue;
-			}
-
-			first = false;
 			TR row = b.addRow();
 			row.setCssClass("ui-ipt-item");
 
