@@ -43,11 +43,11 @@ public class ExporterButtons {
 	private ExporterButtons() {
 	}
 
-	static public DefaultButton createExportButton(to.etc.function.ConsumerEx<IExportFormat> onExport) {
+	static public DefaultButton createExportButton(ConsumerEx<IExportFormat> onExport) {
 		return new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO, a -> showFormatPopup(onExport, a));
 	}
 
-	static public DefaultButton	createExportButton(String name, IIconRef icon, to.etc.function.ConsumerEx<IExportFormat> onExport) {
+	static public DefaultButton	createExportButton(String name, IIconRef icon, ConsumerEx<IExportFormat> onExport) {
 		return new DefaultButton(name, icon, a -> showFormatPopup(onExport, a));
 	}
 

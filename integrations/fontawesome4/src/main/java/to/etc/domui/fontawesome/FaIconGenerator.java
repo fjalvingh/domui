@@ -8,7 +8,9 @@ import java.util.Arrays;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-10-18.
  */
-public class FaIconGenerator {
+final public class FaIconGenerator {
+	private FaIconGenerator() {}
+
 	public static final void main(String[] args) {
 		Arrays.sort(FANAMES);
 		for(String faname : FANAMES) {

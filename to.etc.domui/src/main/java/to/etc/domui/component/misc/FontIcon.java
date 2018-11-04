@@ -15,7 +15,7 @@ import java.util.Objects;
  * Created on 4-8-17.
  */
 @NonNullByDefault
-final public class FontIcon extends Span {
+public class FontIcon extends Span {
 	@Nullable
 	private String m_iconCssClass;
 
@@ -34,25 +34,10 @@ final public class FontIcon extends Span {
 	}
 
 	@Override public void createContent() throws Exception {
-		//removeFaClasses();
-		//addCssClass("fa");
 		addCssClass("ui-fnti");
 		String iconName = m_iconCssClass;
 		if(null != iconName)
 			addCssClass(iconName);
-	}
-
-	private void removeFaClasses() {
-		String cssClass = getCssClass();
-		if(null == cssClass)
-			return;
-
-		String[] split = cssClass.split("\\s+");
-		for(String s : split) {
-			if(s.equals("fa") || s.startsWith("fa-")) {
-				removeCssClass(s);
-			}
-		}
 	}
 
 	public void setIconName(@Nullable String name) {

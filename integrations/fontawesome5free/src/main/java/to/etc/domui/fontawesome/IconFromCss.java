@@ -146,7 +146,7 @@ final public class IconFromCss {
 			Ren ren = by.get(key);
 			if(null != ren) {
 				//System.out.println("Got name");
-				if(! ren.m_prefix.equals("fa") && !ren.m_prefix.equals("fas"))
+				if(!"fa".equals(ren.m_prefix) && !"fas".equals(ren.m_prefix))
 					mainClass = ren.m_prefix;
 			}
 
@@ -163,14 +163,6 @@ final public class IconFromCss {
 	private int next() throws Exception {
 		m_t = m_r.read();
 		return m_t;
-	}
-
-	private int LA() {
-		return m_t;
-	}
-
-	private void accept() throws Exception {
-		next();
 	}
 
 	enum State {
