@@ -25,20 +25,13 @@
 package to.etc.domui.server;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
-import to.etc.template.JSTemplate;
-import to.etc.template.JSTemplateCompiler;
 import to.etc.util.DeveloperOptions;
-import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.Reader;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -46,7 +39,6 @@ import java.util.Set;
 /**
  * Main handler for DomUI page requests. This handles all requests that target or come
  * from a DomUI page.
- * FIXME Needs to be split up badly.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 22, 2008
@@ -57,8 +49,8 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	@NonNull
 	private final DomApplication m_application;
 
-	@Nullable
-	private JSTemplate m_exceptionTemplate;
+	@NonNull
+	private OopsFrameRenderer m_oopsRenderer = new OopsFrameRenderer();
 
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
 
@@ -128,26 +120,10 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		return sb.toString();
 	}
 
-	@NonNull
-	public JSTemplate getExceptionTemplate() throws Exception {
-		JSTemplate xt = m_exceptionTemplate;
-		if(xt == null) {
-			JSTemplateCompiler jtc = new JSTemplateCompiler();
-			File src = new File(getClass().getResource("exceptionTemplate.html").getFile());
-			if(src.exists() && src.isFile()) {
-				Reader r = new FileReader(src);
-				try {
-					xt = jtc.compile(r, src.getAbsolutePath());
-				} finally {
-					FileTool.closeAll(r);
-				}
-			} else {
-				xt = jtc.compile(ApplicationRequestHandler.class, "exceptionTemplate.html", "utf-8");
-			}
-			m_exceptionTemplate = xt;
-		}
-		return xt;
+	/**
+	 * Return the page renderer to use to render an Oops (Exception) page.
+	 */
+	public OopsFrameRenderer getOopsRenderer() {
+		return m_oopsRenderer;
 	}
-
-
 }
