@@ -91,7 +91,7 @@ public class TUtilDomUI {
 				}
 			};
 
-			m_application.addHeaderContributor(HeaderContributor.loadStylesheet("font-awesome"), 11);
+			m_application.addHeaderContributor(HeaderContributor.loadStylesheet("font-awesome-test"), 11);
 			m_application.internalInitialize(cp, false);
 		}
 		return m_application;

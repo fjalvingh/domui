@@ -700,10 +700,12 @@ public abstract class DomApplication {
 
 		//-- One of the FontAwesome implementations must have been registered - FIXME Find a less ugly means
 		boolean reg = false;
+		boolean test = false;							// FIXME Horrible
 		for(HeaderContributorEntry hce : getHeaderContributorList()) {
 			if(hce.getContributor().toString().contains("font-awesome") || hce.getContributor().toString().contains("fontawesome")) {
+				if(hce.getContributor().toString().contains("font-awesome-test"))
+					test = true;
 				reg = true;
-				break;
 			}
 		}
 		if(! reg) {
@@ -713,7 +715,8 @@ public abstract class DomApplication {
 				+ " it with a call to it"
 			);
 		}
-		Icon.initialize();									// Make sure all default icons have an impl
+		if(! test)
+			Icon.initialize();									// Make sure all default icons have an impl
 	}
 
 	/**
