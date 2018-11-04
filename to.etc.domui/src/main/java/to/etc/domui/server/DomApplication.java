@@ -111,6 +111,7 @@ import to.etc.domui.util.resources.SimpleResourceFactory;
 import to.etc.domui.util.resources.VersionedJsResourceFactory;
 import to.etc.domui.util.resources.WebappResourceRef;
 import to.etc.util.DeveloperOptions;
+import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleRef;
@@ -640,65 +641,18 @@ public abstract class DomApplication {
 
 		//		m_myClassLoader = appClassLoader;
 		m_webFilePath = pp.getWebFileRoot();
-
-		//-- Get the page extension to use.
-		String ext = pp.getString("extension");
-		if(ext == null || ext.trim().length() == 0)
-			m_urlExtension = "ui";
-		else {
-			ext = ext.trim();
-			if(ext.startsWith("."))
-				ext = ext.substring(1);
-			if(ext.indexOf('.') != -1)
-				throw new IllegalArgumentException("The 'extension' parameter contains too many dots...");
-			m_urlExtension = ext;
-		}
-
-		m_developmentMode = development;
-		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
-			NodeBase.internalSetLogAllocations(true);
-		String haso = DeveloperOptions.getString("domui.testui");
-		boolean uiTestMode = false;
-		if(m_developmentMode && haso == null)
-			uiTestMode = true;
-		if("true".equals(haso))
-			uiTestMode = true;
-		haso = System.getProperty("domui.testui");
-		System.out.println("TEST TEST: domui.testui = " + haso);
-		if("true".equals(haso))
-			uiTestMode = true;
-
-		if(uiTestMode) {
-			setUiTestMode();
-		}
-
-		ServiceLoader<IApplicationInitializer> initLoader = ServiceLoader.load(IApplicationInitializer.class);
-		for(IApplicationInitializer ai : initLoader) {
-			ai.onStartInitialization(this);
-		}
-
+		calculateWebPageExtension(pp);
+		calculateUiTestMode(development);
+		runListenersStartInitialization();
 		initialize(pp);
-
-		initLoader = ServiceLoader.load(IApplicationInitializer.class);
-		for(IApplicationInitializer ai : initLoader) {
-			ai.onEndInitialization(this);
-		}
-
-		/*
-		 * If we're running in development mode then we auto-reload changed pages when the developer changes
-		 * them. It can be reset by using a developer.properties option. If output logging is on then by
-		 * default autorefresh will be disabled, to prevent output every second from the poll.
-		 */
-		int refreshinterval = 0;
-		if(development) {
-			if(DeveloperOptions.getBool("domui.autorefresh", !DeveloperOptions.getBool("domui.log", false))) {
-				//-- Auto-refresh pages is on.... Get the poll interval for it,
-				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);        // Initialize "auto refresh" interval to 2 seconds
-			}
-			setAutoRefreshPollInterval(refreshinterval);
-		}
+		runListenersEndInitialization();
+		calculateRefreshInterval(development);
 
 		//-- One of the FontAwesome implementations must have been registered - FIXME Find a less ugly means
+		checkIconPackInitialization();
+	}
+
+	private void checkIconPackInitialization() {
 		boolean reg = false;
 		boolean test = false;							// FIXME Horrible
 		for(HeaderContributorEntry hce : getHeaderContributorList()) {
@@ -717,6 +671,72 @@ public abstract class DomApplication {
 		}
 		if(! test)
 			Icon.initialize();									// Make sure all default icons have an impl
+	}
+
+	/**
+	 * If we're running in development mode then we auto-reload changed pages when the developer changes
+	 * them. It can be reset by using a developer.properties option. If output logging is on then by
+	 * default autorefresh will be disabled, to prevent output every second from the poll.
+	 */
+	private void calculateRefreshInterval(boolean development) {
+		int refreshinterval = 0;
+		if(development) {
+			if(DeveloperOptions.getBool("domui.autorefresh", !DeveloperOptions.getBool("domui.log", false))) {
+				//-- Auto-refresh pages is on.... Get the poll interval for it,
+				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);        // Initialize "auto refresh" interval to 2 seconds
+			}
+			setAutoRefreshPollInterval(refreshinterval);
+		}
+	}
+
+	private void runListenersEndInitialization() {
+		ServiceLoader<IApplicationInitializer> initLoader;
+		initLoader = ServiceLoader.load(IApplicationInitializer.class);
+		for(IApplicationInitializer ai : initLoader) {
+			ai.onEndInitialization(this);
+		}
+	}
+
+	private void runListenersStartInitialization() {
+		ServiceLoader<IApplicationInitializer> initLoader = ServiceLoader.load(IApplicationInitializer.class);
+		for(IApplicationInitializer ai : initLoader) {
+			ai.onStartInitialization(this);
+		}
+	}
+
+	private void calculateUiTestMode(boolean development) {
+		m_developmentMode = development;
+		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
+			NodeBase.internalSetLogAllocations(true);
+		String haso = DeveloperOptions.getString("domui.testui");
+		boolean uiTestMode = false;
+		if(m_developmentMode && haso == null)
+			uiTestMode = true;
+		if("true".equals(haso))
+			uiTestMode = true;
+		haso = System.getProperty("domui.testui");
+		System.out.println("TEST TEST: domui.testui = " + haso);
+		if("true".equals(haso))
+			uiTestMode = true;
+
+		if(uiTestMode) {
+			setUiTestMode();
+		}
+	}
+
+	private void calculateWebPageExtension(@NonNull ConfigParameters pp) {
+		//-- Get the page extension to use.
+		String ext = pp.getString("extension");
+		if(StringTool.isBlank(ext) || ext == null)
+			m_urlExtension = "ui";
+		else {
+			ext = ext.trim();
+			if(ext.startsWith("."))
+				ext = ext.substring(1);
+			if(ext.indexOf('.') != -1)
+				throw new IllegalArgumentException("The 'extension' parameter contains too many dots...");
+			m_urlExtension = ext;
+		}
 	}
 
 	/**
@@ -749,7 +769,7 @@ public abstract class DomApplication {
 			rest = "";
 		} else {
 			hostPart = s.substring(0, ix);        // Only hostname and port number.
-			rest = s.substring(ix + 1);            // Should be appcontext, if present
+			rest = s.substring(ix + 1);           // Should be appcontext, if present
 		}
 		ix = hostPart.indexOf(':');
 		int portNumber;
@@ -769,6 +789,7 @@ public abstract class DomApplication {
 			url += "/";
 		m_applicationURL = url;
 		m_hostName = hostPart;
+		m_applicationPortNumber = portNumber;
 		m_applicationContext = rest;
 	}
 
@@ -1411,22 +1432,10 @@ public abstract class DomApplication {
 	private String tryKey(final StringBuilder sb, final String basename, final String suffix, final String lang, final String country, final String variant, final String dialect) throws Exception {
 		sb.setLength(0);
 		sb.append(basename);
-		if(dialect != null && dialect.length() > 0) {
-			sb.append('_');
-			sb.append(dialect);
-		}
-		if(lang != null && lang.length() > 0) {
-			sb.append('_');
-			sb.append(lang);
-		}
-		if(country != null && country.length() > 0) {
-			sb.append('_');
-			sb.append(country);
-		}
-		if(variant != null && variant.length() > 0) {
-			sb.append('_');
-			sb.append(variant);
-		}
+		optionallyAdd(sb, dialect);
+		optionallyAdd(sb, lang);
+		optionallyAdd(sb, country);
+		optionallyAdd(sb, variant);
 		if(suffix != null && suffix.length() > 0)
 			sb.append(suffix);
 		String res = sb.toString();
@@ -1435,7 +1444,11 @@ public abstract class DomApplication {
 		return null;
 	}
 
-
+	private static void optionallyAdd(StringBuilder sb, @Nullable String thing) {
+		if(null != thing && thing.length() > 0) {
+			sb.append(' ').append(thing);
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Code table cache.									*/
@@ -2069,11 +2082,11 @@ public abstract class DomApplication {
 	@NonNull public static IThemeFactory getFactoryFromThemeName(String name) {
 		int pos = name.indexOf('-');
 		if(pos == -1)
-			throw new RuntimeException("Missing - in theme name '" + name + "'");
+			throw new IllegalArgumentException("Missing - in theme name '" + name + "'");
 		String fn = name.substring(0, pos);
 		IThemeFactory factory = THEME_FACTORIES.get(fn);
 		if(null == factory)
-			throw new RuntimeException("Undefined theme factory '" + fn + "'");
+			throw new IllegalArgumentException("Undefined theme factory '" + fn + "'");
 		return factory;
 	}
 

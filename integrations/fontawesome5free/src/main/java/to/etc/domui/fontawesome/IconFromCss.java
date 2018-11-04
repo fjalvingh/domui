@@ -24,8 +24,6 @@ import java.util.stream.Collectors;
 final public class IconFromCss {
 	private final Reader m_r;
 
-	private int m_t;
-
 	public IconFromCss(Reader r) {
 		m_r = r;
 	}
@@ -161,8 +159,8 @@ final public class IconFromCss {
 	}
 
 	private int next() throws Exception {
-		m_t = m_r.read();
-		return m_t;
+		int t = m_r.read();
+		return t;
 	}
 
 	enum State {
