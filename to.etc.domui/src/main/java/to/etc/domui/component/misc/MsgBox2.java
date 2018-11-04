@@ -206,7 +206,9 @@ final public class MsgBox2 extends Window {
 		row.setVerticalAlign(VerticalAlignType.TOP);
 		TD td = row.addCell();
 		td.setVerticalAlign(VerticalAlignType.TOP);
-		td.add(m_theImage);
+		NodeBase theImage = m_theImage;
+		if(null != theImage)
+			td.add(theImage);
 		td.setNowrap(true);
 		td.setWidth("50px");
 
