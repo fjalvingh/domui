@@ -133,9 +133,8 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	/**
 	 * Accept .obit, the defined DomUI extension (.ui by default) and the empty URL if a home page is set in {@link DomApplication}.
-	 * @see to.etc.domui.server.IFilterRequestHandler#accepts(to.etc.domui.server.IRequestContext)
 	 */
-	private boolean accepts(@NonNull IRequestContext ctx) throws Exception {
+	private boolean accepts(@NonNull IRequestContext ctx) {
 		return m_application.getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (m_application.getRootPage() != null && ctx.getInputPath().length() == 0);
 	}
 
@@ -177,6 +176,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		}
 	}
 
+	/**
+	 * In case of a (non compile) exception, check to see if mail must be sent and if yes do so.
+	 */
 	private void renderApplicationMail(@NonNull final RequestContextImpl ctx, @NonNull Throwable x) {
 		String s = x.getMessage();
 		if(s != null && s.contains("compilation") && s.contains("problem")) {
@@ -186,6 +188,9 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 		util.renderEmail(x);
 	}
 
+	/**
+	 * Render the exception details screen.
+	 */
 	private void tryRenderOopsFrame(@NonNull final RequestContextImpl ctx, @NonNull Throwable x) throws Exception {
 		try {
 			renderOopsFrame(ctx, x);
@@ -220,11 +225,11 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		//-- Try to resolve as a class name,
 		String s = ctx.getInputPath();
-		int pos = s.lastIndexOf('.'); // Always strip whatever extension
+		int pos = s.lastIndexOf('.');							// Always strip whatever extension
 		if(pos != -1) {
-			int spos = s.lastIndexOf('/') + 1; // Try to locate path component
+			int spos = s.lastIndexOf('/') + 1;					// Try to locate path component
 			if(pos > spos) {
-				s = s.substring(spos, pos); // Last component, ex / and last extension.
+				s = s.substring(spos, pos); 						// Last component, ex / and last extension.
 
 				//-- This should be a classname now
 				return m_application.loadPageClass(s);
@@ -242,10 +247,6 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * to use.
 	 */
 	private void runClass(@NonNull final RequestContextImpl ctx, @NonNull final Class< ? extends UrlPage> clz) throws Exception {
-		//		if(! UrlPage.class.isAssignableFrom(clz))
-		//			throw new IllegalStateException("Class "+clz+" is not a valid page class (does not extend "+UrlPage.class.getName()+")");
-		//		System.out.println("runClass="+clz);
-
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
@@ -284,7 +285,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 //			ctx.getResponse().setContentType("text/html");
 //			/*Writer w = */ctx.getResponse().getWriter();
-			return; // Obituaries get a zero response.
+			return; 										// Obituaries get a zero response.
 		}
 
 		// ORDERED!!! Must be kept BELOW the OBITUARY check
@@ -1383,6 +1384,7 @@ public class ApplicationRequestHandler implements IFilterRequestHandler {
 			} else {
 				xt = jtc.compile(ApplicationRequestHandler.class, "exceptionTemplate.html", "utf-8");
 			}
+			m_exceptionTemplate = xt;
 		}
 		return xt;
 	}

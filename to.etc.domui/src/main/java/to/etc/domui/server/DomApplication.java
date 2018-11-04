@@ -39,6 +39,7 @@ import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.component.layout.title.BasePageTitleBar;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.HtmlTagRenderer;
@@ -110,7 +111,9 @@ import to.etc.domui.util.resources.SimpleResourceFactory;
 import to.etc.domui.util.resources.VersionedJsResourceFactory;
 import to.etc.domui.util.resources.WebappResourceRef;
 import to.etc.util.DeveloperOptions;
+import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
+import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QNotFoundException;
@@ -127,6 +130,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -607,6 +611,15 @@ public abstract class DomApplication {
 		} catch(Throwable x) {
 			AppFilter.LOG.error("Exception when destroying Application", x);
 		}
+
+		ServiceLoader<IApplicationInitializer> initLoader = ServiceLoader.load(IApplicationInitializer.class);
+		for(IApplicationInitializer ai : initLoader) {
+			try {
+				ai.onAfterDestroy(this);
+			} catch(Exception x) {
+				AppFilter.LOG.error("Exception when destroying Application", x);
+			}
+		}
 	}
 
 	/**
@@ -618,9 +631,6 @@ public abstract class DomApplication {
 	/**
 	 * Override to initialize the application, called as soon as the webabb starts by the
 	 * filter's initialization code.
-	 *
-	 * @param pp
-	 * @throws Exception
 	 */
 	protected void initialize(@NonNull final ConfigParameters pp) throws Exception {
 	}
@@ -631,20 +641,70 @@ public abstract class DomApplication {
 
 		//		m_myClassLoader = appClassLoader;
 		m_webFilePath = pp.getWebFileRoot();
+		calculateWebPageExtension(pp);
+		calculateUiTestMode(development);
+		runListenersStartInitialization();
+		initialize(pp);
+		runListenersEndInitialization();
+		calculateRefreshInterval(development);
 
-		//-- Get the page extension to use.
-		String ext = pp.getString("extension");
-		if(ext == null || ext.trim().length() == 0)
-			m_urlExtension = "ui";
-		else {
-			ext = ext.trim();
-			if(ext.startsWith("."))
-				ext = ext.substring(1);
-			if(ext.indexOf('.') != -1)
-				throw new IllegalArgumentException("The 'extension' parameter contains too many dots...");
-			m_urlExtension = ext;
+		//-- One of the FontAwesome implementations must have been registered - FIXME Find a less ugly means
+		checkIconPackInitialization();
+	}
+
+	private void checkIconPackInitialization() {
+		boolean reg = false;
+		boolean test = false;							// FIXME Horrible
+		for(HeaderContributorEntry hce : getHeaderContributorList()) {
+			if(hce.getContributor().toString().contains("font-awesome") || hce.getContributor().toString().contains("fontawesome")) {
+				if(hce.getContributor().toString().contains("font-awesome-test"))
+					test = true;
+				reg = true;
+			}
 		}
+		if(! reg) {
+			throw new ProgrammerErrorException("FATAL: No FontAwesome version registered\n"
+				+ "DomUI uses FontAwesome for some of its standard icons. You need to include the version of FontAwesome you"
+				+ " want to use by including one of domui's fontawesome (Maven) modules in your project, and then register "
+				+ " it with a call to it"
+			);
+		}
+		if(! test)
+			Icon.initialize();									// Make sure all default icons have an impl
+	}
 
+	/**
+	 * If we're running in development mode then we auto-reload changed pages when the developer changes
+	 * them. It can be reset by using a developer.properties option. If output logging is on then by
+	 * default autorefresh will be disabled, to prevent output every second from the poll.
+	 */
+	private void calculateRefreshInterval(boolean development) {
+		int refreshinterval = 0;
+		if(development) {
+			if(DeveloperOptions.getBool("domui.autorefresh", !DeveloperOptions.getBool("domui.log", false))) {
+				//-- Auto-refresh pages is on.... Get the poll interval for it,
+				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);        // Initialize "auto refresh" interval to 2 seconds
+			}
+			setAutoRefreshPollInterval(refreshinterval);
+		}
+	}
+
+	private void runListenersEndInitialization() {
+		ServiceLoader<IApplicationInitializer> initLoader;
+		initLoader = ServiceLoader.load(IApplicationInitializer.class);
+		for(IApplicationInitializer ai : initLoader) {
+			ai.onEndInitialization(this);
+		}
+	}
+
+	private void runListenersStartInitialization() {
+		ServiceLoader<IApplicationInitializer> initLoader = ServiceLoader.load(IApplicationInitializer.class);
+		for(IApplicationInitializer ai : initLoader) {
+			ai.onStartInitialization(this);
+		}
+	}
+
+	private void calculateUiTestMode(boolean development) {
 		m_developmentMode = development;
 		if(m_developmentMode && DeveloperOptions.getBool("domui.traceallocations", true))
 			NodeBase.internalSetLogAllocations(true);
@@ -662,21 +722,20 @@ public abstract class DomApplication {
 		if(uiTestMode) {
 			setUiTestMode();
 		}
+	}
 
-		initialize(pp);
-
-		/*
-		 * If we're running in development mode then we auto-reload changed pages when the developer changes
-		 * them. It can be reset by using a developer.properties option. If output logging is on then by
-		 * default autorefresh will be disabled, to prevent output every second from the poll.
-		 */
-		int refreshinterval = 0;
-		if(development) {
-			if(DeveloperOptions.getBool("domui.autorefresh", !DeveloperOptions.getBool("domui.log", false))) {
-				//-- Auto-refresh pages is on.... Get the poll interval for it,
-				refreshinterval = DeveloperOptions.getInt("domui.refreshinterval", 2500);        // Initialize "auto refresh" interval to 2 seconds
-			}
-			setAutoRefreshPollInterval(refreshinterval);
+	private void calculateWebPageExtension(@NonNull ConfigParameters pp) {
+		//-- Get the page extension to use.
+		String ext = pp.getString("extension");
+		if(StringTool.isBlank(ext) || ext == null)
+			m_urlExtension = "ui";
+		else {
+			ext = ext.trim();
+			if(ext.startsWith("."))
+				ext = ext.substring(1);
+			if(ext.indexOf('.') != -1)
+				throw new IllegalArgumentException("The 'extension' parameter contains too many dots...");
+			m_urlExtension = ext;
 		}
 	}
 
@@ -710,7 +769,7 @@ public abstract class DomApplication {
 			rest = "";
 		} else {
 			hostPart = s.substring(0, ix);        // Only hostname and port number.
-			rest = s.substring(ix + 1);            // Should be appcontext, if present
+			rest = s.substring(ix + 1);           // Should be appcontext, if present
 		}
 		ix = hostPart.indexOf(':');
 		int portNumber;
@@ -730,6 +789,7 @@ public abstract class DomApplication {
 			url += "/";
 		m_applicationURL = url;
 		m_hostName = hostPart;
+		m_applicationPortNumber = portNumber;
 		m_applicationContext = rest;
 	}
 
@@ -1038,11 +1098,6 @@ public abstract class DomApplication {
 		 * FIXME Same as above, this is for loading the CKEditor.
 		 */
 		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
-		addFontAwesomeContributor();
-	}
-
-	protected void addFontAwesomeContributor() {
-		addHeaderContributor(HeaderContributor.loadStylesheet("$fontawesome-470/fonts/font-awesome.min.css"), 10);
 	}
 
 	/**
@@ -1322,10 +1377,6 @@ public abstract class DomApplication {
 
 	/**
 	 * UNCACHED version to locate a resource, using the registered resource factories.
-	 *
-	 * @param name
-	 * @param rdl
-	 * @return
 	 */
 	@NonNull
 	private IResourceRef internalFindResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
@@ -1344,13 +1395,9 @@ public abstract class DomApplication {
 	 * This returns the name of an <i>existing</i> resource for the given name/suffix and locale. It uses the
 	 * default DomUI/webapp.core resource resolution pattern.
 	 *
-	 * @see BundleRef#loadBundleList(Locale)
-	 *
 	 * @param basename        The base name: the part before the locale info
 	 * @param suffix        The suffix: the part after the locale info. This usually includes a ., like .js
 	 * @param loc            The locale to get the resource for.
-	 * @return
-	 * @throws Exception
 	 */
 	public String findLocalizedResourceName(final String basename, final String suffix, final Locale loc) throws Exception {
 		StringBuilder sb = new StringBuilder(128);
@@ -1385,22 +1432,10 @@ public abstract class DomApplication {
 	private String tryKey(final StringBuilder sb, final String basename, final String suffix, final String lang, final String country, final String variant, final String dialect) throws Exception {
 		sb.setLength(0);
 		sb.append(basename);
-		if(dialect != null && dialect.length() > 0) {
-			sb.append('_');
-			sb.append(dialect);
-		}
-		if(lang != null && lang.length() > 0) {
-			sb.append('_');
-			sb.append(lang);
-		}
-		if(country != null && country.length() > 0) {
-			sb.append('_');
-			sb.append(country);
-		}
-		if(variant != null && variant.length() > 0) {
-			sb.append('_');
-			sb.append(variant);
-		}
+		optionallyAdd(sb, dialect);
+		optionallyAdd(sb, lang);
+		optionallyAdd(sb, country);
+		optionallyAdd(sb, variant);
 		if(suffix != null && suffix.length() > 0)
 			sb.append(suffix);
 		String res = sb.toString();
@@ -1409,7 +1444,11 @@ public abstract class DomApplication {
 		return null;
 	}
 
-
+	private static void optionallyAdd(StringBuilder sb, @Nullable String thing) {
+		if(null != thing && thing.length() > 0) {
+			sb.append(' ').append(thing);
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Code table cache.									*/
@@ -2043,11 +2082,11 @@ public abstract class DomApplication {
 	@NonNull public static IThemeFactory getFactoryFromThemeName(String name) {
 		int pos = name.indexOf('-');
 		if(pos == -1)
-			throw new RuntimeException("Missing - in theme name '" + name + "'");
+			throw new IllegalArgumentException("Missing - in theme name '" + name + "'");
 		String fn = name.substring(0, pos);
 		IThemeFactory factory = THEME_FACTORIES.get(fn);
 		if(null == factory)
-			throw new RuntimeException("Undefined theme factory '" + fn + "'");
+			throw new IllegalArgumentException("Undefined theme factory '" + fn + "'");
 		return factory;
 	}
 

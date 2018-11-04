@@ -10,7 +10,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.tbl.IQueryHandler;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
@@ -162,10 +162,10 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		m_outputMetaModel = outputMetaModel != null ? outputMetaModel : MetaManager.findClassMeta(resultClass);
 		setCssClass("ui-lui ctl-has-addons ui-control");
 
-		m_selButton = new DefaultButton("", FaIcon.faSearch, b12 -> openPopupWithClick());
+		m_selButton = new DefaultButton("", Icon.faSearch, b12 -> openPopupWithClick());
 		//b.addCssClass("ui-lui-sel-btn");
 
-		m_clearButton = new DefaultButton("", FaIcon.faWindowCloseO, b1 -> handleSetValue(null));
+		m_clearButton = new DefaultButton("", Icon.faWindowCloseO, b1 -> handleSetValue(null));
 		//b.addCssClass("ui-lui-clear-btn");
 	}
 

@@ -4,9 +4,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TextNode;
-import to.etc.util.StringTool;
 
 /**
  * TabBuilder used for building tabs.
@@ -25,7 +25,7 @@ final public class TabBuilder {
 	private NodeBase m_label;
 
 	@Nullable
-	private String m_image;
+	private IIconRef m_image;
 
 	@Nullable
 	private NodeBase m_content;
@@ -62,9 +62,8 @@ final public class TabBuilder {
 		return this;
 	}
 
-	public TabBuilder image(@NonNull String image) {
-		if(! StringTool.isBlank(image))
-			m_image = image;
+	public TabBuilder image(@NonNull IIconRef image) {
+		m_image = image;
 		return this;
 	}
 
@@ -133,7 +132,7 @@ final public class TabBuilder {
 		return m_label;
 	}
 
-	@Nullable public String getImage() {
+	@Nullable public IIconRef getImage() {
 		return m_image;
 	}
 

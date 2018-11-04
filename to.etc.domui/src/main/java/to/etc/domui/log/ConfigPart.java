@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.layout.ButtonBar;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.ntbl.ExpandingEditTable;
 import to.etc.domui.component.ntbl.IRowEditorEvent;
 import to.etc.domui.component.ntbl.IRowEditorFactory;
@@ -102,7 +103,7 @@ public class ConfigPart extends Div {
 	}
 
 	private void createAddButton() {
-		getButtonBar().addButton(BUNDLE.getString(Msgs.LOOKUP_FORM_NEW), "THEME/btnNew.png", new IClicked<DefaultButton>() {
+		getButtonBar().addButton(BUNDLE.getString(Msgs.LOOKUP_FORM_NEW), Icon.of("THEME/btnNew.png"), new IClicked<DefaultButton>() {
 			@Override
 			public void clicked(@NonNull DefaultButton b) throws Exception {
 				m_table.addNew(initializeNewInstance());

@@ -3,7 +3,7 @@ package to.etc.domui.component2.navigation;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component2.navigation.BreadCrumb2.IItem;
 import to.etc.domui.databinding.list2.IListChangeListener;
 import to.etc.domui.databinding.list2.ListChangeEvent;
@@ -114,7 +114,7 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 					String name = ((ShelvedDomUIPage) se).getPage().getBody().getClass().getName();
 					Class<? extends UrlPage> rootPage = DomApplication.get().getRootPage();
 					if(rootPage == null || !name.equals(rootPage.getName())) {
-						list.add(0, new Item(new FaIcon(FaIcon.faArrowCircleLeft), "", "Back to the previous screen", iItem -> UIGoto.back()));
+						list.add(0, new Item(Icon.faArrowCircleLeft.createNode(), "", "Back to the previous screen", iItem -> UIGoto.back()));
 					}
 				}
 			}
@@ -131,7 +131,7 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 		//-- Always use the home page as the 1st link
 		Class<? extends UrlPage> home = DomApplication.get().getRootPage();
 		if(null != home) {
-			list.add(new Item(new FaIcon(FaIcon.faHome), homeName == null ? "" : homeName, null, a -> UIGoto.moveNew(home)));
+			list.add(new Item(Icon.faHome.createNode(), homeName == null ? "" : homeName, null, a -> UIGoto.moveNew(home)));
 		}
 
 		List<IShelvedEntry> stack = cm.getShelvedPageStack();

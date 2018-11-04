@@ -2,40 +2,48 @@
 @import "variables";
 
 .ui-lbtn {
+	color: inherit;
 	display: inline-block;
-	background: no-repeat left;
-	padding-left: 18px;
-	font-size: $font_size;
-	height: 16px;
-}
-.ui-lnkb {
-}
-
-a.ui-lnkb {
 	cursor: pointer;
 	white-space: nowrap;
+	text-decoration: none;
 
 	.ui-lnkb-icon {
 		padding-right: 5px;
 		color: black;
+	}
 
-		.ui-lnkb-dis {
-			color: grey;
+	&.ui-disabled {
+		&, & .ui-lbtn-txt {
+			text-decoration: none !important;
+			font-style: italic;
+			cursor: default;
+			color: gray;
+		}
+		& .ui-lbtn-icon {
+			color: gray;
+		}
+
+		& img {
+			filter: grayscale(1);
 		}
 	}
-}
 
-a:hover.ui-lnkb {
-	text-decoration: underline !important;
-}
+	img {
+		vertical-align: middle;
+	}
+	.ui-lbtn-icon {
+		padding-right: 5px;
+		color: black;
+	}
 
-a.ui-lnkb-dis {
-	text-decoration: none !important;
-	font-style: italic;
-	cursor: default;
-	color: gray; 
-}
+	.ui-lbtn-txt {
+		color: $link-color;
 
-a:hover.ui-lnkb-dis {
-	text-decoration: none !important;
+		&:hover {
+			text-decoration: underline;
+		}
+		font-size: $font_size;
+		height: 16px;
+	}
 }

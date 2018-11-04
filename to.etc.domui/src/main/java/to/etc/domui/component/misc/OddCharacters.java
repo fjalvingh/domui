@@ -24,14 +24,21 @@
  */
 package to.etc.domui.component.misc;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
+import to.etc.domui.component.layout.FloatingWindow;
+import to.etc.domui.component.layout.TabPanel;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.Table;
+import to.etc.util.StringTool;
+import to.etc.webapp.nls.NlsContext;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.html.*;
-import to.etc.util.*;
-import to.etc.webapp.nls.*;
+import java.io.IOException;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class OddCharacters extends FloatingWindow {
 	final String[] fchars = {"&euro;", "é", "í", "ó", "ë", "ï", "ö", "è"};
@@ -51,8 +58,8 @@ public class OddCharacters extends FloatingWindow {
 		super.createContent();
 		TabPanel tp = new TabPanel();
 		add(tp);
-		tp.add(createTekens(), "Tekens", "THEME/btnSpecialChar.png");
-		tp.add(createDates(), "Datum/tijd", "THEME/btnClock.png");
+		tp.add(createTekens(), "Tekens", Icon.of("THEME/btnSpecialChar.png"));
+		tp.add(createDates(), "Datum/tijd", Icon.of("THEME/btnClock.png"));
 	}
 
 	private NodeBase createTekens() throws IOException {

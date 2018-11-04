@@ -51,18 +51,6 @@ public class Application extends DomApplication {
 		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
 
 		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
-		//
-		//
-		//String newtheme = DeveloperOptions.getString("domuidemo.simpletheme");
-		//if(null != newtheme) {
-		//	//-- Set the SIMPLE theme provider with the specified theme set.
-		//	setDefaultThemeFactory(SimpleThemeFactory.INSTANCE);
-		//	setDefaultTheme(newtheme);
-		//} else {
-		//	setDefaultThemeFactory(FragmentedThemeFactory.getInstance());
-		//	String stylename = DeveloperOptions.getString("domuidemo.theme", "domui/domui/orange");        // Default to DomUI's native fragmented theme
-		//	setDefaultTheme(stylename);
-		//}
 
 		//-- Append the default style sheet.
 		addHeaderContributor(HeaderContributor.loadStylesheet("css/demostyle.scss"), 1000);	// Add default stylesheet for the app

@@ -8,7 +8,8 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.ColumnDef;
 import to.etc.domui.component.tbl.RowRenderer;
@@ -42,11 +43,11 @@ public class ExporterButtons {
 	private ExporterButtons() {
 	}
 
-	static public DefaultButton createExportButton(to.etc.function.ConsumerEx<IExportFormat> onExport) {
-		return new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), FaIcon.faFileExcelO, a -> showFormatPopup(onExport, a));
+	static public DefaultButton createExportButton(ConsumerEx<IExportFormat> onExport) {
+		return new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO, a -> showFormatPopup(onExport, a));
 	}
 
-	static public DefaultButton	createExportButton(String name, String icon, to.etc.function.ConsumerEx<IExportFormat> onExport) {
+	static public DefaultButton	createExportButton(String name, IIconRef icon, ConsumerEx<IExportFormat> onExport) {
 		return new DefaultButton(name, icon, a -> showFormatPopup(onExport, a));
 	}
 
@@ -54,7 +55,7 @@ public class ExporterButtons {
 		List<IExportFormat> exportFormats = ExportFormatRegistry.getExportFormats();
 		PopupMenu pm = new PopupMenu();
 		for(IExportFormat xf : exportFormats) {
-			pm.addItem(xf.extension(), FaIcon.faFile, xf.name(), false, s -> onExport.accept(xf));
+			pm.addItem(xf.extension(), Icon.faFile, xf.name(), false, s -> onExport.accept(xf));
 		}
 		pm.show(target);
 	}
@@ -381,7 +382,7 @@ public class ExporterButtons {
 		}
 
 		public DefaultButton build() {
-			DefaultButton button = new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), FaIcon.faFileExcelO);
+			DefaultButton button = new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO);
 			button.setClicked(ab -> {
 				showFormatPopup(format -> {
 					if(m_sourceRecords != null) {

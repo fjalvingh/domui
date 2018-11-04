@@ -27,12 +27,12 @@ package to.etc.domui.component.upload;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
@@ -185,13 +185,10 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 			td.setText(ufi.getRemoteFileName() + " (" + ufi.getContentType() + ")");
 			td = b.addCell();
 			if(!isDisabled() && ! isReadOnly()) {
-				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), "THEME/btnDelete.png", new IClicked<DefaultButton>() {
-					@Override
-					public void clicked(@NonNull DefaultButton bx) throws Exception {
-						removeUploadItem(ufi);
-						if(m_onValueChanged != null)
-							((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(FileUpload.this);
-					}
+				td.add(new DefaultButton(Msgs.BUNDLE.getString("upld.delete"), Icon.of("THEME/btnDelete.png"), bx -> {
+					removeUploadItem(ufi);
+					if(m_onValueChanged != null)
+						((IValueChanged<FileUpload>) m_onValueChanged).onValueChanged(FileUpload.this);
 				}));
 			}
 		}
@@ -199,7 +196,6 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 
 	/**
 	 * Internal: get the input type="file" thingy.
-	 * @return
 	 */
 	FileInput getInput() {
 		return m_input;

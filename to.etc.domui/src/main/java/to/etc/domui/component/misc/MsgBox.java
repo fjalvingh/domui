@@ -25,11 +25,11 @@
 package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
-import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.layout.Window;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.css.Overflow;
@@ -40,7 +40,6 @@ import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TBody;
@@ -86,7 +85,10 @@ public class MsgBox extends Window {
 		}
 	}
 
-	private Img m_theImage = new Img();
+	//private Img m_theImage = new Img();
+
+	@Nullable
+	private IIconRef m_icon;
 
 	private String m_theText;
 
@@ -119,29 +121,26 @@ public class MsgBox extends Window {
 		super(true, false, WIDTH, -1, "");
 		setErrorFence(null); // Do not accept handling errors!!
 		m_theButtons.addCssClass("ui-mbx-btns");
-		setOnClose(new IWindowClosed() {
-			@Override
-			public void closed(@NonNull String closeReason) throws Exception {
-				if(null != m_onAnswer) {
-					m_selectedChoice = m_closeButtonObject;
-					try {
-						m_onAnswer.onAnswer(m_closeButtonObject);
-					} catch(ValidationException ex) {
-						//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
-						close();
-						throw ex;
-					}
+		setOnClose(closeReason -> {
+			if(null != m_onAnswer) {
+				m_selectedChoice = m_closeButtonObject;
+				try {
+					m_onAnswer.onAnswer(m_closeButtonObject);
+				} catch(ValidationException ex) {
+					//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
+					close();
+					throw ex;
 				}
+			}
 
-				if(null != m_onAnswer2) {
-					m_selectedChoice = m_closeButtonObject;
-					try {
-						m_onAnswer2.onAnswer(m_closeButtonObject);
-					} catch(ValidationException ex) {
-						//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
-						close();
-						throw ex;
-					}
+			if(null != m_onAnswer2) {
+				m_selectedChoice = m_closeButtonObject;
+				try {
+					m_onAnswer2.onAnswer(m_closeButtonObject);
+				} catch(ValidationException ex) {
+					//close message box in case of validation exception is thrown as result of answer. Other exceptions do not close.
+					close();
+					throw ex;
 				}
 			}
 		});
@@ -161,7 +160,7 @@ public class MsgBox extends Window {
 
 	protected void setType(Type type) {
 		String ttl;
-		String icon;
+		IIconRef icon;
 		switch(type){
 			default:
 				throw new IllegalStateException(type + " ??");
@@ -186,7 +185,7 @@ public class MsgBox extends Window {
 				icon = Theme.ICON_MBX_DIALOG;
 				break;
 		}
-		m_theImage.setSrc(icon);
+		m_icon = icon;
 		setWindowTitle(ttl);
 		setTestID("msgBox");
 	}
@@ -233,25 +232,18 @@ public class MsgBox extends Window {
 
 	/**
 	 * Provides interface to create INFO type messages with custom icon.
-	 * @param dad
-	 * @param iconSrc
-	 * @param string
 	 */
-	public static void message(NodeBase dad, String iconSrc, String string) {
+	public static void message(NodeBase dad, IIconRef iconSrc, String string) {
 		message(dad, iconSrc, string, null);
 	}
 
 	/**
 	 * Provides interface to create INFO type messages with custom icon.
-	 * @param dad
-	 * @param iconSrc
-	 * @param string
-	 * @param onAnswer
 	 */
-	public static void message(NodeBase dad, String iconSrc, String string, IAnswer onAnswer) {
+	public static void message(NodeBase dad, IIconRef iconSrc, String string, IAnswer onAnswer) {
 		MsgBox box = create(dad);
 		box.setType(Type.INFO);
-		box.m_theImage.setSrc(iconSrc);
+		box.m_icon = iconSrc;
 		box.setMessage(string);
 		box.addButton(MsgBoxButton.CONTINUE);
 		box.setCloseButton(MsgBoxButton.CONTINUE);
@@ -261,16 +253,11 @@ public class MsgBox extends Window {
 
 	/**
 	 * Provides interface to create INFO type messages with custom title, icon, data section and optional callback.
-	 * @param dad
-	 * @param iconSrc
-	 * @param title
-	 * @param onAnswer
-	 * @param msgRenderer
 	 */
-	public static void message(NodeBase dad, String iconSrc, String title, IAnswer onAnswer, IRenderInto<String> msgRenderer) {
+	public static void message(NodeBase dad, IIconRef iconSrc, String title, IAnswer onAnswer, IRenderInto<String> msgRenderer) {
 		MsgBox box = create(dad);
 		box.setType(Type.INFO);
-		box.m_theImage.setSrc(iconSrc);
+		box.m_icon = iconSrc;
 		box.setWindowTitle(title);
 		box.addButton(MsgBoxButton.CONTINUE);
 		if(onAnswer != null) {
@@ -552,7 +539,7 @@ public class MsgBox extends Window {
 	 * @return
 	 */
 	@NonNull
-	public static DefaultButton areYouSureButton(String text, String icon, final String message, final IClicked<DefaultButton> ch) {
+	public static DefaultButton areYouSureButton(String text, IIconRef icon, final String message, final IClicked<DefaultButton> ch) {
 		final DefaultButton btn = new DefaultButton(text, icon);
 		IClicked<DefaultButton> bch = new IClicked<DefaultButton>() {
 			@Override
@@ -593,7 +580,7 @@ public class MsgBox extends Window {
 	 * @return
 	 */
 	@NonNull
-	public static LinkButton areYouSureLinkButton(String text, String icon, final String message, final IClicked<LinkButton> ch) {
+	public static LinkButton areYouSureLinkButton(String text, IIconRef icon, final String message, final IClicked<LinkButton> ch) {
 		final LinkButton btn = new LinkButton(text, icon);
 		IClicked<LinkButton> bch = new IClicked<LinkButton>() {
 			@Override
@@ -647,7 +634,9 @@ public class MsgBox extends Window {
 		row.setVerticalAlign(VerticalAlignType.TOP);
 		TD td = row.addCell();
 		td.setVerticalAlign(VerticalAlignType.TOP);
-		td.add(m_theImage);
+		IIconRef icon = m_icon;
+		if(null != icon)
+			td.add(icon.createNode());
 		td.setNowrap(true);
 		td.setWidth("50px");
 
@@ -747,7 +736,7 @@ public class MsgBox extends Window {
 		if(lbl == null)
 			lbl = mbb.name();
 
-		String icon = null;
+		IIconRef icon = null;
 		if(mbb == MsgBoxButton.YES || mbb == MsgBoxButton.CONTINUE)
 			icon = Theme.BTN_CONFIRM;
 		else if(mbb == MsgBoxButton.NO)
@@ -755,23 +744,13 @@ public class MsgBox extends Window {
 		else if(mbb == MsgBoxButton.CANCEL)
 			icon = Theme.BTN_CANCEL;
 
-		DefaultButton btn = new DefaultButton(lbl, icon, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				answer(mbb);
-			}
-		});
+		DefaultButton btn = new DefaultButton(lbl, icon, b -> answer(mbb));
 		btn.setTestID(mbb.name());
 		m_theButtons.add(btn);
 	}
 
 	protected void addButton(final String lbl, final Object selval) {
-		m_theButtons.add(new DefaultButton(lbl, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				answer(selval);
-			}
-		}));
+		m_theButtons.add(new DefaultButton(lbl, b -> answer(selval)));
 	}
 
 	protected IAnswer getOnAnswer() {

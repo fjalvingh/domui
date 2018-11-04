@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>integrations</artifactId>
+        <groupId>to.etc.domui</groupId>
+        <version>1.2-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>fontawesome4</artifactId>
+    <version>1.2-SNAPSHOT</version>
+
+    <packaging>jar</packaging>
+    <name>domui :: integrations :: fontawesome4</name>
+    <description>FontAwesome 4 integration</description>
+    <inceptionYear>2018</inceptionYear>
+
+    <dependencies>
+        <dependency>
+            <groupId>to.etc.domui</groupId>
+            <artifactId>to.etc.domui</artifactId>
+            <version>1.2-SNAPSHOT</version>
+        </dependency>
+    </dependencies>
+
+</project>

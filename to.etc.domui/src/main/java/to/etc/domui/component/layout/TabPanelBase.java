@@ -27,18 +27,16 @@ package to.etc.domui.component.layout;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.css.ClearType;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Li;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
-import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
 
 import java.util.ArrayList;
@@ -155,18 +153,20 @@ public class TabPanelBase extends Div {
 		Span dt = new Span();
 		d.add(dt);
 
-		String iconUrl = ti.getImage();
+		IIconRef iconUrl = ti.getImage();
 		if(null != iconUrl) {
-			//-- Add any icon
-			if(DomUtil.isIconName(iconUrl)) {
-				FaIcon icon = new FaIcon(iconUrl);
-				dt.add(icon);
-			} else {
-				String icon = getThemedResourceRURL(iconUrl);
-				Img img = new Img(icon);
-				dt.add(img);
-				img.setImgBorder(0);
-			}
+			dt.add(iconUrl.createNode());
+
+			////-- Add any icon
+			//if(DomUtil.isIconName(iconUrl)) {
+			//	FontIcon icon = new FontIcon(iconUrl);
+			//	dt.add(icon);
+			//} else {
+			//	String icon = getThemedResourceRURL(iconUrl);
+			//	Img img = new Img(icon);
+			//	dt.add(img);
+			//	img.setImgBorder(0);
+			//}
 		}
 
 		NodeBase label = ti.getLabel();
@@ -298,11 +298,11 @@ public class TabPanelBase extends Div {
 		return tab().content(content).label(label).lazy(lazy).build();
 	}
 
-	public ITabHandle add(NodeBase content, String label, String icon) {
+	public ITabHandle add(NodeBase content, String label, IIconRef icon) {
 		return tab().content(content).label(label).image(icon).build();
 	}
 
-	public ITabHandle add(NodeBase content, String label, String icon, boolean lazy) {
+	public ITabHandle add(NodeBase content, String label, IIconRef icon, boolean lazy) {
 		return tab().content(content).label(label).image(icon).lazy(lazy).build();
 	}
 
@@ -320,11 +320,11 @@ public class TabPanelBase extends Div {
 		return tab().content(content).label(tablabel).lazy(lazy).build();
 	}
 
-	public ITabHandle add(NodeBase content, NodeBase tablabel, String icon) {
+	public ITabHandle add(NodeBase content, NodeBase tablabel, IIconRef icon) {
 		return tab().content(content).label(tablabel).image(icon).build();
 	}
 
-	public ITabHandle add(NodeBase content, NodeBase tablabel, String icon, boolean lazy) {
+	public ITabHandle add(NodeBase content, NodeBase tablabel, IIconRef icon, boolean lazy) {
 		return tab().content(content).label(tablabel).image(icon).lazy(lazy).build();
 	}
 

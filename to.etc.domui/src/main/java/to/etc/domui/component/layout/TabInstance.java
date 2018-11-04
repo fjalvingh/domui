@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.event.INotify;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.errors.IErrorMessageListener;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Li;
@@ -31,7 +32,7 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 	private NodeBase m_content;
 
 	@Nullable
-	private String m_image;
+	private IIconRef m_image;
 
 	@Nullable
 	private Li m_tab;
@@ -100,7 +101,7 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 		m_separator = separator;
 	}
 
-	@Nullable public String getImage() {
+	@Nullable public IIconRef getImage() {
 		return m_image;
 	}
 
@@ -225,13 +226,13 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 	}
 
 	@Override
-	public void updateLabel(@NonNull String name, @Nullable String image) {
+	public void updateLabel(@NonNull String name, @Nullable IIconRef image) {
 		m_label = new TextNode(name);
 		m_image = image;
 		m_tabPanel.updateLabel(this);
 	}
 
-	@Override public void updateLabel(@NonNull NodeBase label, @Nullable String image) {
+	@Override public void updateLabel(@NonNull NodeBase label, @Nullable IIconRef image) {
 		m_label = label;
 		m_image = image;
 		m_tabPanel.updateLabel(this);

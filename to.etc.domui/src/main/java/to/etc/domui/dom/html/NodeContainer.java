@@ -377,9 +377,25 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	/**
+	 * Appends a node, and returns this for call chaining.
+	 */
+	@NonNull
+	final public NodeContainer append(@NonNull NodeBase nd) {
+		add(nd);
+		return this;
+	}
+
+	/**
+	 * Appends a node, and returns this for call chaining.
+	 */
+	@NonNull
+	final public NodeContainer append(@Nullable String text) {
+		add(text);
+		return this;
+	}
+
+	/**
 	 * Add the child at the specified index in the child list.
-	 * @param index
-	 * @param nd
 	 */
 	@NonNull
 	final public <T extends NodeBase> T add(int index, @NonNull T nd) {
