@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <option name="DEFAULT_COMPILER" value="Eclipse" />
     <excludeFromCompile>
       <directory url="file://$PROJECT_DIR$/archetypes/domui-hello/src/main/resources/archetype-resources" includeSubdirectories="true" />
     </excludeFromCompile>
@@ -42,7 +43,6 @@
     <bytecodeTargetLevel>
       <module name="annotations" target="1.8" />
       <module name="common" target="1.5" />
-      <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="1.8" />
