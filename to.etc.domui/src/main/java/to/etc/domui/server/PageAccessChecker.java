@@ -11,7 +11,6 @@ import to.etc.domui.login.ILoginDialogFactory;
 import to.etc.domui.login.IUser;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
-import to.etc.domui.state.WindowSession;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRightsCheckedManually;
 import to.etc.domui.util.Msgs;
@@ -32,7 +31,7 @@ public class PageAccessChecker {
 	 *
 	 * WARNING: Functional duplicate exists in {@link UIContext#hasRightsOn(Class)}.
 	 */
-	public PageAccessCheckResult checkAccess(RequestContextImpl ctx, WindowSession cm, Page page, ConsumerEx<String> logerror) throws Exception {
+	public PageAccessCheckResult checkAccess(RequestContextImpl ctx, Page page, ConsumerEx<String> logerror) throws Exception {
 		if(ctx.getParameter("webuia") != null)
 			throw new IllegalStateException("Cannot be called for an AJAX request");
 		UrlPage body = page.getBody();							// The actual, instantiated and injected class - which is unbuilt, though

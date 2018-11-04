@@ -556,11 +556,20 @@ final public class PageRequestHandler {
 		page.getConversation().startDelayedExecution();
 	}
 
+	/**
+	 * Check whether we have access to the page or not. If we have access this returns true; if
+	 * we do not it returns false, and it has already done whatever is needed:
+	 * <ul>
+	 *	<li>If we have no access because we need to be logged in the code will have redirected us to the login screen</li>
+	 	<li>If we really have no permission the handler will have re</li>
+	 * </ul>
+	 */
 	private boolean checkAccess(WindowSession windowSession, Page page) throws Exception {
-		PageAccessCheckResult result = m_accessChecker.checkAccess(m_ctx, windowSession, page, a -> logUser(windowSession.getWindowID(), page.getBody().getClass().getName(), a));
+		PageAccessCheckResult result = m_accessChecker.checkAccess(m_ctx, page, a -> logUser(windowSession.getWindowID(), page.getBody().getClass().getName(), a));
 		switch(result) {
 			default:
 				throw new IllegalArgumentException(result + "?");
+
 			case NeedLogin:
 				m_commandWriter.redirectToLoginPage(m_ctx, windowSession);
 				return false;
