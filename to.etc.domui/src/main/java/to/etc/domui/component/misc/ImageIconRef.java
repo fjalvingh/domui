@@ -34,6 +34,7 @@ final public class ImageIconRef implements IIconRef {
 		m_cssClasses = sb.toString();
 	}
 
+	@Override
 	public String getClasses() {
 		return m_cssClasses;
 	}
