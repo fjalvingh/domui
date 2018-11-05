@@ -259,17 +259,18 @@ final public class PageRequestHandler {
 
 		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
 		List<NodeBase> pendingChangeList = Collections.emptyList();
-		if(!Constants.ACMD_ASYPOLL.equals(m_action) && m_action != null) {
-			long ts = System.nanoTime();
-			pendingChangeList = handleComponentInput(page); // Move all request parameters to their input field(s)
-			if(LOG.isDebugEnabled()) {
-				ts = System.nanoTime() - ts;
-				LOG.debug("rq: input handling took " + StringTool.strNanoTime(ts));
+		String action = m_action;
+		if(null != action) {
+			if(!Constants.ACMD_ASYPOLL.equals(action)) {
+				long ts = System.nanoTime();
+				pendingChangeList = handleComponentInput(page); // Move all request parameters to their input field(s)
+				if(LOG.isDebugEnabled()) {
+					ts = System.nanoTime() - ts;
+					LOG.debug("rq: input handling took " + StringTool.strNanoTime(ts));
+				}
 			}
-		}
 
-		if(m_action != null) {
-			runAction(page, m_action, pendingChangeList);
+			runAction(page, action, pendingChangeList);
 			return;
 		}
 
