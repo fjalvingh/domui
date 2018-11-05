@@ -81,6 +81,7 @@ final public class PageRequestHandler {
 
 	private final RequestContextImpl m_ctx;
 
+	@Nullable
 	private final CidPair m_cida;
 
 	@Nullable
@@ -158,45 +159,24 @@ final public class PageRequestHandler {
 
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
 		if(Constants.ACMD_OBITUARY.equals(m_action)) {
-			/*
-			 * Warning: do NOT access the WindowSession by findWindowSession: that updates the window touched
-			 * timestamp and causes obituary timeout handling to fail.
-			 */
-			int pageTag;
-			try {
-				pageTag = Integer.parseInt(m_ctx.getParameter(Constants.PARAM_PAGE_TAG));
-			} catch(Exception x) {
-				throw new IllegalStateException("Missing or invalid $pt PageTAG in OBITUARY request");
-			}
-			if(m_cida == null)
-				throw new IllegalStateException("Missing $cid in OBITUARY request");
-
-			if(LOG.isDebugEnabled())
-				LOG.debug("OBITUARY received for " + m_cid + ": pageTag=" + pageTag);
-			m_ctx.getSession().internalObituaryReceived(m_cida.getWindowId(), pageTag);
-
-			//-- Send a silly response.
-			m_ctx.getOutputWriter("text/html", "utf-8");
-
-//			m_ctx.getResponse().setContentType("text/html");
-//			/*Writer w = */m_ctx.getResponse().getWriter();
-			return; 										// Obituaries get a zero response.
+			handleObituary();
+			return;
 		}
 
 		// ORDERED!!! Must be kept BELOW the OBITUARY check
 		WindowSession windowSession = null;
-		if(m_cida != null) {
-			windowSession = m_ctx.getSession().findWindowSession(m_cida.getWindowId());
+		CidPair cida = m_cida;
+		if(cida != null) {
+			windowSession = m_ctx.getSession().findWindowSession(cida.getWindowId());
 		}
-
 		if(windowSession == null) {
 			//-- no session yet: create one and redirect to a new URL that contains it.
 			createSessionAndReload();
 			return;
 		}
-		if(m_cida == null)
+		if(cida == null)
 			throw new IllegalStateException("Cannot happen: cida is null??");
-		String conversationId = m_cida.getConversationId();
+		String conversationId = cida.getConversationId();
 
 		/*
 		 * Attempt to fix etc.to bugzilla bug# 3183: IE7 sends events out of order. If an action arrives for an earlier-destroyed
@@ -255,33 +235,8 @@ final public class PageRequestHandler {
 		 * If this is an AJAX request make sure the page is still the same instance (session lost trouble)
 		 */
 		if(m_action != null) {
-			String s = m_ctx.getParameter(Constants.PARAM_PAGE_TAG);
-			if(s != null) {
-				int pt = Integer.parseInt(s);
-				if(page == null || pt != page.getPageTag()) {
-					/*
-					 * The page tag differs-> session has expired.
-					 */
-					if(Constants.ACMD_ASYPOLL.equals(m_action)) {
-						m_commandWriter.generateExpiredPollasy(m_ctx);
-					} else {
-						String msg = "Session " + m_cid + " expired, page will be reloaded (page tag difference) on action=" + m_action;
-						if(DomUtil.USERLOG.isDebugEnabled())
-							DomUtil.USERLOG.debug(msg);
-						logUser(msg);
-
-						// In auto refresh: do not send the "expired" message, but let the refresh handle this.
-						if(m_application.getAutoRefreshPollInterval() <= 0) {
-							m_commandWriter.generateExpired(m_ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
-						} else {
-							msg = "Not sending expired message because autorefresh is ON for " + m_cid;
-							LOG.info(msg);
-							logUser(msg);
-						}
-					}
-					return;
-				}
-			}
+			if(! checkIsPageTagStillValid(page))
+				return;
 		}
 
 		if(page == null) {
@@ -486,6 +441,68 @@ final public class PageRequestHandler {
 		page.getConversation().startDelayedExecution();
 	}
 
+	private boolean checkIsPageTagStillValid(@Nullable Page page) throws Exception {
+		String s = m_ctx.getParameter(Constants.PARAM_PAGE_TAG);
+		if(s != null) {
+			int pt = Integer.parseInt(s);
+			if(page == null || pt != page.getPageTag()) {
+				/*
+				 * The page tag differs-> session has expired.
+				 */
+				if(Constants.ACMD_ASYPOLL.equals(m_action)) {
+					m_commandWriter.generateExpiredPollasy(m_ctx);
+				} else {
+					String msg = "Session " + m_cid + " expired, page will be reloaded (page tag difference) on action=" + m_action;
+					if(DomUtil.USERLOG.isDebugEnabled())
+						DomUtil.USERLOG.debug(msg);
+					logUser(msg);
+
+					// In auto refresh: do not send the "expired" message, but let the refresh handle this.
+					if(m_application.getAutoRefreshPollInterval() <= 0) {
+						m_commandWriter.generateExpired(m_ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+					} else {
+						msg = "Not sending expired message because autorefresh is ON for " + m_cid;
+						LOG.info(msg);
+						logUser(msg);
+					}
+				}
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Handles a received OBITUARY. If the obit is for a live page register a call
+	 * to expire the page after a short time.
+	 */
+	private void handleObituary() throws Exception {
+		/*
+		 * Warning: do NOT access the WindowSession by findWindowSession: that updates the window touched
+		 * timestamp and causes obituary timeout handling to fail.
+		 */
+		int pageTag;
+		try {
+			pageTag = Integer.parseInt(m_ctx.getParameter(Constants.PARAM_PAGE_TAG));
+		} catch(Exception x) {
+			throw new IllegalStateException("Missing or invalid $pt PageTAG in OBITUARY request");
+		}
+		CidPair cida = m_cida;
+		if(cida == null)
+			throw new IllegalStateException("Missing $cid in OBITUARY request");
+
+		if(LOG.isDebugEnabled())
+			LOG.debug("OBITUARY received for " + m_cid + ": pageTag=" + pageTag);
+		m_ctx.getSession().internalObituaryReceived(cida.getWindowId(), pageTag);
+
+		//-- Send an empty response because IE will actually act on it sometimes.
+		m_ctx.getOutputWriter("text/html", "utf-8");
+	}
+
+	/**
+	 * There is no session yet, so create one and redirect to an URL that contains
+	 * a session ID so that the page can get loaded there.
+	 */
 	private void createSessionAndReload() throws Exception {
 		WindowSession windowSession;
 		boolean nonReloadableExpiredDetected = false;
@@ -515,7 +532,8 @@ final public class PageRequestHandler {
 		logUser(newmsg);
 
 		String conversationId = "x";							// If not reloading a saved set- use x as the default conversation id
-		if(m_application.inDevelopmentMode() && m_cida != null) {
+		CidPair cida = m_cida;
+		if(m_application.inDevelopmentMode() && cida != null) {
 			/*
 			 * 20130227 jal The WindowSession we did not find could have been destroyed due to a
 			 * reloader event. In that case it's page shelve will be stored in the HttpSession or
@@ -528,7 +546,7 @@ final public class PageRequestHandler {
 				if(null != hs) {
 					m_ctx.internalSetWindowSession(windowSession);			// Should prevent issues when reloading
 
-					String newid = windowSession.internalAttemptReload(hs, m_runclass, PageParameters.createFrom(m_ctx), m_cida.getWindowId());
+					String newid = windowSession.internalAttemptReload(hs, m_runclass, PageParameters.createFrom(m_ctx), cida.getWindowId());
 					if(newid != null)
 						conversationId = newid;
 				}
@@ -540,7 +558,7 @@ final public class PageRequestHandler {
 			return;
 		}
 
-		//-- EXPERIMENTAL 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
+		//-- 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
 		PageParameters pp = PageParameters.createFrom(m_ctx);
 		if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
@@ -550,7 +568,7 @@ final public class PageRequestHandler {
 				return;
 			}
 		}
-		//-- END EXPERIMENTAL
+		//-- END POST handling
 
 		StringBuilder sb = new StringBuilder(256);
 
@@ -567,7 +585,6 @@ final public class PageRequestHandler {
 		logUser(expmsg);
 		if(DomUtil.USERLOG.isDebugEnabled())
 			DomUtil.USERLOG.debug(expmsg);
-		return;
 	}
 
 	private void runAction(Page page, String action, List<NodeBase> pendingChangeList) throws Exception {
