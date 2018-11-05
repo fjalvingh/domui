@@ -86,6 +86,7 @@ final public class PageRequestHandler {
 	@Nullable
 	private final String m_action;
 
+	@Nullable
 	private final String m_cid;
 
 	private final Class<? extends UrlPage> m_runclass;
@@ -189,85 +190,8 @@ final public class PageRequestHandler {
 		}
 
 		if(windowSession == null) {
-			boolean nonReloadableExpiredDetected = false;
-			if(m_action != null) {
-				if(INotReloadablePage.class.isAssignableFrom(m_runclass)) {
-					nonReloadableExpiredDetected = true;
-				} else {
-					// In auto refresh: do not send the "expired" message, but let the refresh handle this.
-					if(m_application.getAutoRefreshPollInterval() <= 0) {
-						String msg = Msgs.BUNDLE.getString(Msgs.S_EXPIRED);
-						m_commandWriter.generateExpired(m_ctx, msg);
-						logUser(msg);
-					} else {
-						String msg = "Not sending expired message because autorefresh is ON for " + m_cid;
-						LOG.info(msg);
-						logUser(msg);
-					}
-					return;
-				}
-			}
-
-			//-- We explicitly need to create a new Window and need to send a redirect back
-			windowSession = m_ctx.getSession().createWindowSession();
-			String newmsg = "$cid: input windowid=" + m_cid + " not found - created wid=" + windowSession.getWindowID();
-			if(LOG.isDebugEnabled())
-				LOG.debug(newmsg);
-			logUser(newmsg);
-
-			String conversationId = "x";							// If not reloading a saved set- use x as the default conversation id
-			if(m_application.inDevelopmentMode() && m_cida != null) {
-				/*
-				 * 20130227 jal The WindowSession we did not find could have been destroyed due to a
-				 * reloader event. In that case it's page shelve will be stored in the HttpSession or
-				 * perhaps in a state file. Try to resurrect that page shelve as to not lose the navigation history.
-				 */
-				if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
-					HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
-
-					HttpSession hs = srr.getRequest().getSession();
-					if(null != hs) {
-						m_ctx.internalSetWindowSession(windowSession);			// Should prevent issues when reloading
-
-						String newid = windowSession.internalAttemptReload(hs, m_runclass, PageParameters.createFrom(m_ctx), m_cida.getWindowId());
-						if(newid != null)
-							conversationId = newid;
-					}
-				}
-			}
-
-			if(nonReloadableExpiredDetected) {
-				generateNonReloadableExpired(windowSession);
-				return;
-			}
-
-			//-- EXPERIMENTAL 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
-			PageParameters pp = PageParameters.createFrom(m_ctx);
-			if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
-				HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
-
-				if("post".equalsIgnoreCase(srr.getRequest().getMethod()) && pp.getDataLength() > 768) {
-					m_commandWriter.redirectForPost(m_ctx, windowSession, pp);
-					return;
-				}
-			}
-			//-- END EXPERIMENTAL
-
-			StringBuilder sb = new StringBuilder(256);
-
-			//			sb.append('/');
-			sb.append(m_ctx.getRelativePath(m_ctx.getInputPath()));
-			sb.append('?');
-			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-			sb.append('=');
-			sb.append(windowSession.getWindowID());
-			sb.append(".").append(conversationId);
-			DomUtil.addUrlParameters(sb, m_ctx, false);
-			ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.");
-			String expmsg = "Session " + m_cid + " has expired - starting a new session by redirecting to " + sb.toString();
-			logUser(expmsg);
-			if(DomUtil.USERLOG.isDebugEnabled())
-				DomUtil.USERLOG.debug(expmsg);
+			//-- no session yet: create one and redirect to a new URL that contains it.
+			createSessionAndReload();
 			return;
 		}
 		if(m_cida == null)
@@ -562,6 +486,245 @@ final public class PageRequestHandler {
 		page.getConversation().startDelayedExecution();
 	}
 
+	private void createSessionAndReload() throws Exception {
+		WindowSession windowSession;
+		boolean nonReloadableExpiredDetected = false;
+		if(m_action != null) {
+			if(INotReloadablePage.class.isAssignableFrom(m_runclass)) {
+				nonReloadableExpiredDetected = true;
+			} else {
+				// In auto refresh: do not send the "expired" message, but let the refresh handle this.
+				if(m_application.getAutoRefreshPollInterval() <= 0) {
+					String msg = Msgs.BUNDLE.getString(Msgs.S_EXPIRED);
+					m_commandWriter.generateExpired(m_ctx, msg);
+					logUser(msg);
+				} else {
+					String msg = "Not sending expired message because autorefresh is ON for " + m_cid;
+					LOG.info(msg);
+					logUser(msg);
+				}
+				return;
+			}
+		}
+
+		//-- We explicitly need to create a new Window and need to send a redirect back
+		windowSession = m_ctx.getSession().createWindowSession();
+		String newmsg = "$cid: input windowid=" + m_cid + " not found - created wid=" + windowSession.getWindowID();
+		if(LOG.isDebugEnabled())
+			LOG.debug(newmsg);
+		logUser(newmsg);
+
+		String conversationId = "x";							// If not reloading a saved set- use x as the default conversation id
+		if(m_application.inDevelopmentMode() && m_cida != null) {
+			/*
+			 * 20130227 jal The WindowSession we did not find could have been destroyed due to a
+			 * reloader event. In that case it's page shelve will be stored in the HttpSession or
+			 * perhaps in a state file. Try to resurrect that page shelve as to not lose the navigation history.
+			 */
+			if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
+				HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
+
+				HttpSession hs = srr.getRequest().getSession();
+				if(null != hs) {
+					m_ctx.internalSetWindowSession(windowSession);			// Should prevent issues when reloading
+
+					String newid = windowSession.internalAttemptReload(hs, m_runclass, PageParameters.createFrom(m_ctx), m_cida.getWindowId());
+					if(newid != null)
+						conversationId = newid;
+				}
+			}
+		}
+
+		if(nonReloadableExpiredDetected) {
+			generateNonReloadableExpired(windowSession);
+			return;
+		}
+
+		//-- EXPERIMENTAL 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
+		PageParameters pp = PageParameters.createFrom(m_ctx);
+		if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
+			HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
+
+			if("post".equalsIgnoreCase(srr.getRequest().getMethod()) && pp.getDataLength() > 768) {
+				m_commandWriter.redirectForPost(m_ctx, windowSession, pp);
+				return;
+			}
+		}
+		//-- END EXPERIMENTAL
+
+		StringBuilder sb = new StringBuilder(256);
+
+		//			sb.append('/');
+		sb.append(m_ctx.getRelativePath(m_ctx.getInputPath()));
+		sb.append('?');
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(windowSession.getWindowID());
+		sb.append(".").append(conversationId);
+		DomUtil.addUrlParameters(sb, m_ctx, false);
+		ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.");
+		String expmsg = "Session " + m_cid + " has expired - starting a new session by redirecting to " + sb.toString();
+		logUser(expmsg);
+		if(DomUtil.USERLOG.isDebugEnabled())
+			DomUtil.USERLOG.debug(expmsg);
+		return;
+	}
+
+	private void runAction(Page page, String action, List<NodeBase> pendingChangeList) throws Exception {
+		//		System.out.println("# action="+action);
+		long ts = System.nanoTime();
+
+		m_application.internalCallPageAction(m_ctx, page);
+		page.callRequestStarted();
+
+		if(!Constants.ACMD_ASYPOLL.equals(action))
+			page.controlToModel();
+
+		NodeBase wcomp = null;
+		String wid = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
+		if(wid != null) {
+			wcomp = page.findNodeByID(wid);
+			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
+			//			if(wcomp == null) {
+			//				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
+			//				//				throw new IllegalStateException("Unknown node '"+wid+"'");
+			//			}
+		}
+
+		boolean inhibitlog = false;
+		page.setTheCurrentNode(wcomp);
+
+		//-- Non-delta actions
+		if(Constants.ACMD_PAGEJSON.equals(action)) {
+			try {
+				runPageJson(page, wcomp);
+				return;
+			} finally {
+				page.callRequestFinished();
+			}
+		}
+
+		try {
+			/*
+			 * If we have pending changes execute them before executing any actual command. Also: be
+			 * very sure the changed component is part of that list!! Fix for bug# 664.
+			 */
+			//-- If we are a vchange command *and* the node that changed still exists make sure it is part of the changed list.
+			if((Constants.ACMD_VALUE_CHANGED.equals(action) || Constants.ACMD_CLICKANDCHANGE.equals(action)) && wcomp != null) {
+				if(!pendingChangeList.contains(wcomp))
+					pendingChangeList.add(wcomp);
+			}
+
+			//-- Call all "changed" handlers.
+			for(NodeBase n : pendingChangeList) {
+				if(DomUtil.USERLOG.isDebugEnabled()) {
+					DomUtil.USERLOG.debug("valueChanged on " + DomUtil.getComponentDetails(n));
+					logUser(page, "valueChanged on " + DomUtil.getComponentDetails(n));
+				}
+
+				n.internalOnValueChanged();
+			}
+
+			// FIXME 20100331 jal Odd wcomp==null logic. Generalize.
+			if(Constants.ACMD_CLICKED.equals(action)) {
+				handleClicked(page, wcomp);
+			} else if(Constants.ACMD_CLICKANDCHANGE.equals(action)) {
+				if(wcomp != null && wcomp.getClicked() != null)
+					handleClicked(page, wcomp);
+			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
+				//-- Don't do anything at all - everything is done beforehand (bug #664).
+			} else if(Constants.ACMD_DEVTREE.equals(action)) {
+				handleDevelopmentShowCode(page, wcomp);
+			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
+				inhibitlog = true;
+				//-- Async poll request..
+				//			} else if("WEBUIDROP".equals(action)) {
+				//				handleDrop(ctx, page, wcomp);
+			} else if(wcomp == null && isSafeToIgnoreUnknownNodeOnAction(action)) {
+				//-- Don't do anything at all - it is safe to ignore late and obsoleted events
+				inhibitlog = true;
+			} else if(wcomp == null) {
+				if(!action.endsWith("?"))
+					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
+			} else {
+				wcomp.componentHandleWebAction(m_ctx, action);
+			}
+			ConversationContext conversation = page.internalGetConversation();
+			if(null != conversation && conversation.isValid())
+				page.modelToControl();
+		} catch(ValidationException x) {
+			/*
+			 * When an action handler failed because it accessed a component which has a validation error
+			 * we just continue - the failed validation will have posted an error message.
+			 */
+			if(LOG.isDebugEnabled())
+				LOG.debug("rq: ignoring validation exception " + x);
+			page.modelToControl();
+		} catch(MsgException msg) {
+			MsgBox.error(page.getBody(), msg.getMessage());
+			logUser(page, "error message: " + msg.getMessage());
+			page.modelToControl();
+		} catch(Exception ex) {
+			logUser(page, "Action handler exception: " + ex);
+			Exception x = WrappedException.unwrap(ex);
+			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
+				String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
+				if(url != null) {
+					ApplicationRequestHandler.generateAjaxRedirect(m_ctx, url);
+					return;
+				}
+			}
+			try {
+				page.modelToControl();
+			} catch(Exception xxx) {
+				System.out.println("Double exception on modelToControl: " + xxx);
+				xxx.printStackTrace();
+			}
+
+			IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
+			if(xl == null) // No handler?
+				throw x; // Move on, nothing to see here,
+			if(wcomp != null && !wcomp.isAttached()) {
+				wcomp = page.getTheCurrentControl();
+				System.out.println("DEBUG: Report exception on a " + (wcomp == null ? "unknown control/node" : wcomp.getClass()));
+			}
+			if(wcomp == null || !wcomp.isAttached())
+				throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
+
+			if(!xl.handleException(m_ctx, page, wcomp, x))
+				throw x;
+		}
+		page.callRequestFinished();
+
+		if(PageUtil.m_logPerf && !inhibitlog) {
+			ts = System.nanoTime() - ts;
+			System.out.println("domui: Action handling took " + StringTool.strNanoTime(ts));
+		}
+		if(!page.isDestroyed()) 								// jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
+			page.getConversation().processDelayedResults(page);
+
+		//-- Determine the response class to render; exit if we have a redirect,
+		WindowSession cm = m_ctx.getWindowSession();
+		if(cm.handleGoto(m_ctx, page, true))
+			return;
+
+		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
+		callNewPageBuiltListeners(page);
+
+		//-- We stay on the same page. Render tree delta as response
+		try {
+			PageUtil.renderOptimalDelta(m_ctx, page, inhibitlog);
+		} catch(NotLoggedInException x) { 						// FIXME Fugly. Generalize this kind of exception handling somewhere.
+			String url = m_application.handleNotLoggedInException(m_ctx, x);
+			if(url != null) {
+				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to be logged in");
+			}
+		} catch(Exception x) {
+			logUser(page, "Delta render failed: " + x);
+			throw x;
+		}
+	}
+
 	/**
 	 * Check whether we have access to the page or not. If we have access this returns true; if
 	 * we do not it returns false, and it has already done whatever is needed:
@@ -762,161 +925,6 @@ final public class PageRequestHandler {
 		return changed;
 	}
 
-
-	private void runAction(Page page, String action, List<NodeBase> pendingChangeList) throws Exception {
-		//		System.out.println("# action="+action);
-		long ts = System.nanoTime();
-
-		m_application.internalCallPageAction(m_ctx, page);
-		page.callRequestStarted();
-
-		if(!Constants.ACMD_ASYPOLL.equals(action))
-			page.controlToModel();
-
-		NodeBase wcomp = null;
-		String wid = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
-		if(wid != null) {
-			wcomp = page.findNodeByID(wid);
-			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
-			//			if(wcomp == null) {
-			//				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
-			//				//				throw new IllegalStateException("Unknown node '"+wid+"'");
-			//			}
-		}
-
-		boolean inhibitlog = false;
-		page.setTheCurrentNode(wcomp);
-
-		//-- Non-delta actions
-		if(Constants.ACMD_PAGEJSON.equals(action)) {
-			try {
-				runPageJson(page, wcomp);
-				return;
-			} finally {
-				page.callRequestFinished();
-			}
-		}
-
-		try {
-			/*
-			 * If we have pending changes execute them before executing any actual command. Also: be
-			 * very sure the changed component is part of that list!! Fix for bug# 664.
-			 */
-			//-- If we are a vchange command *and* the node that changed still exists make sure it is part of the changed list.
-			if((Constants.ACMD_VALUE_CHANGED.equals(action) || Constants.ACMD_CLICKANDCHANGE.equals(action)) && wcomp != null) {
-				if(!pendingChangeList.contains(wcomp))
-					pendingChangeList.add(wcomp);
-			}
-
-			//-- Call all "changed" handlers.
-			for(NodeBase n : pendingChangeList) {
-				if(DomUtil.USERLOG.isDebugEnabled()) {
-					DomUtil.USERLOG.debug("valueChanged on " + DomUtil.getComponentDetails(n));
-					logUser(page, "valueChanged on " + DomUtil.getComponentDetails(n));
-				}
-
-				n.internalOnValueChanged();
-			}
-
-			// FIXME 20100331 jal Odd wcomp==null logic. Generalize.
-			if(Constants.ACMD_CLICKED.equals(action)) {
-				handleClicked(page, wcomp);
-			} else if(Constants.ACMD_CLICKANDCHANGE.equals(action)) {
-				if(wcomp != null && wcomp.getClicked() != null)
-					handleClicked(page, wcomp);
-			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
-				//-- Don't do anything at all - everything is done beforehand (bug #664).
-			} else if(Constants.ACMD_DEVTREE.equals(action)) {
-				handleDevelopmentShowCode(page, wcomp);
-			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
-				inhibitlog = true;
-				//-- Async poll request..
-				//			} else if("WEBUIDROP".equals(action)) {
-				//				handleDrop(ctx, page, wcomp);
-			} else if(wcomp == null && isSafeToIgnoreUnknownNodeOnAction(action)) {
-				//-- Don't do anything at all - it is safe to ignore late and obsoleted events
-				inhibitlog = true;
-			} else if(wcomp == null) {
-				if(!action.endsWith("?"))
-					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
-			} else {
-				wcomp.componentHandleWebAction(m_ctx, action);
-			}
-			ConversationContext conversation = page.internalGetConversation();
-			if(null != conversation && conversation.isValid())
-				page.modelToControl();
-		} catch(ValidationException x) {
-			/*
-			 * When an action handler failed because it accessed a component which has a validation error
-			 * we just continue - the failed validation will have posted an error message.
-			 */
-			if(LOG.isDebugEnabled())
-				LOG.debug("rq: ignoring validation exception " + x);
-			page.modelToControl();
-		} catch(MsgException msg) {
-			MsgBox.error(page.getBody(), msg.getMessage());
-			logUser(page, "error message: " + msg.getMessage());
-			page.modelToControl();
-		} catch(Exception ex) {
-			logUser(page, "Action handler exception: " + ex);
-			Exception x = WrappedException.unwrap(ex);
-			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
-				String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
-				if(url != null) {
-					ApplicationRequestHandler.generateAjaxRedirect(m_ctx, url);
-					return;
-				}
-			}
-			try {
-				page.modelToControl();
-			} catch(Exception xxx) {
-				System.out.println("Double exception on modelToControl: " + xxx);
-				xxx.printStackTrace();
-			}
-
-			IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
-			if(xl == null) // No handler?
-				throw x; // Move on, nothing to see here,
-			if(wcomp != null && !wcomp.isAttached()) {
-				wcomp = page.getTheCurrentControl();
-				System.out.println("DEBUG: Report exception on a " + (wcomp == null ? "unknown control/node" : wcomp.getClass()));
-			}
-			if(wcomp == null || !wcomp.isAttached())
-				throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
-
-			if(!xl.handleException(m_ctx, page, wcomp, x))
-				throw x;
-		}
-		page.callRequestFinished();
-
-		if(PageUtil.m_logPerf && !inhibitlog) {
-			ts = System.nanoTime() - ts;
-			System.out.println("domui: Action handling took " + StringTool.strNanoTime(ts));
-		}
-		if(!page.isDestroyed()) 								// jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
-			page.getConversation().processDelayedResults(page);
-
-		//-- Determine the response class to render; exit if we have a redirect,
-		WindowSession cm = m_ctx.getWindowSession();
-		if(cm.handleGoto(m_ctx, page, true))
-			return;
-
-		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
-		callNewPageBuiltListeners(page);
-
-		//-- We stay on the same page. Render tree delta as response
-		try {
-			PageUtil.renderOptimalDelta(m_ctx, page, inhibitlog);
-		} catch(NotLoggedInException x) { 						// FIXME Fugly. Generalize this kind of exception handling somewhere.
-			String url = m_application.handleNotLoggedInException(m_ctx, x);
-			if(url != null) {
-				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to be logged in");
-			}
-		} catch(Exception x) {
-			logUser(page, "Delta render failed: " + x);
-			throw x;
-		}
-	}
 
 	/**
 	 * Defines the actions that could arrive too late due to race conditions in client javascript, when target elements are already removed from DOM at server side.
