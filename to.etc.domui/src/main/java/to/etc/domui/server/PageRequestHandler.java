@@ -174,7 +174,7 @@ final public class PageRequestHandler {
 			createSessionAndReload();
 			return;
 		}
-		if(cida == null)
+		if(cida == null)										// Cannot happen, but make sure.
 			throw new IllegalStateException("Cannot happen: cida is null??");
 		String conversationId = cida.getConversationId();
 
@@ -195,7 +195,7 @@ final public class PageRequestHandler {
 			}
 		}
 
-		m_ctx.internalSetWindowSession(windowSession);
+		m_ctx.internalSetWindowSession(windowSession);			// FIXME Unprotected unset
 		windowSession.clearGoto();
 
 		/*
@@ -220,21 +220,12 @@ final public class PageRequestHandler {
 			}
 		}
 
-		Page page = windowSession.tryToMakeOrGetPage(m_ctx, conversationId, m_runclass, papa, m_action);
-		if(page != null) {
-			page.getConversation().mergePersistentParameters(m_ctx);
-			page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
-			page.internalIncrementRequestCounter();
-			windowSession.internalSetLastPage(page);
-			if(DomUtil.USERLOG.isDebugEnabled()) {
-				DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + m_cid);
-			}
-		}
+		Page page = findOrCreatePage(windowSession, conversationId, papa);
 
 		/*
 		 * If this is an AJAX request make sure the page is still the same instance (session lost trouble)
 		 */
-		if(m_action != null) {
+		if(m_action != null) {							// FIXME This and the method below implement messy logic; merge with the findOrCreate page call?
 			if(! checkIsPageTagStillValid(page))
 				return;
 		}
@@ -243,23 +234,20 @@ final public class PageRequestHandler {
 			throw new IllegalStateException("Page can not be null here. Null is already handled inside expired AJAX request handling.");
 		}
 
-		UIContext.internalSet(page);
+		UIContext.internalSet(page);					// FIXME Unprotected unset
 
 		/*
 		 * Handle all out-of-bound actions: those that do not manipulate UI state.
 		 */
-		if(m_action != null && m_action.startsWith("#")) {
-			runComponentAction(page, m_action.substring(1));
+		String action = m_action;
+		if(action != null && action.startsWith("#")) {
+			runComponentAction(page, action.substring(1));
 			return;
 			//-- If this is a PAGEDATA request - handle that
-		} else if(Constants.ACMD_PAGEDATA.equals(m_action)) {
+		} else if(Constants.ACMD_PAGEDATA.equals(action)) {
 			runPageData(page);
 			return;
-		}
-
-		//-- All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
-		String action = m_action;
-		if(null != action) {
+		} else if(null != action) {
 			runAction(page, action);
 			return;
 		}
@@ -309,24 +297,9 @@ final public class PageRequestHandler {
 
 			//-- Call the 'new page added' listeners for this page, if it is still unbuilt. Fixes bug# 605
 			callNewPageBuiltListeners(page);
-			page.internalFullBuild();                            // Cause full build
+			page.internalFullBuild();							// Cause full build
 
-			//-- EXPERIMENTAL Handle stored messages in session
-			List<UIMessage> ml = (List<UIMessage>) windowSession.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
-			if(ml != null) {
-				if(ml.size() > 0) {
-					page.getBody().build();
-					for(UIMessage m : ml) {
-						if(DomUtil.USERLOG.isDebugEnabled())
-							DomUtil.USERLOG.debug(m_cid + ": page reload message = " + m.getMessage());
-
-						//page.getBody().addGlobalMessage(m);
-						MessageFlare mf = MessageFlare.display(page.getBody(), m);
-						mf.setTestID("SingleShotMsg");
-					}
-				}
-				windowSession.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
-			}
+			handleSessionUIMessages(windowSession, page);		//  Handle stored messages in session
 			page.callRequestStarted();
 
 			List<IGotoAction> al = (List<IGotoAction>) windowSession.getAttribute(UIGoto.PAGE_ACTION);
@@ -430,6 +403,38 @@ final public class PageRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	@Nullable private Page findOrCreatePage(WindowSession windowSession, String conversationId, @Nullable PageParameters papa) throws Exception {
+		Page page = windowSession.tryToMakeOrGetPage(m_ctx, conversationId, m_runclass, papa, m_action);
+		if(page != null) {
+			page.getConversation().mergePersistentParameters(m_ctx);
+			page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
+			page.internalIncrementRequestCounter();
+			windowSession.internalSetLastPage(page);
+			if(DomUtil.USERLOG.isDebugEnabled()) {
+				DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + m_cid);
+			}
+		}
+		return page;
+	}
+
+	private void handleSessionUIMessages(WindowSession windowSession, Page page) throws Exception {
+		List<UIMessage> ml = (List<UIMessage>) windowSession.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
+		if(ml != null) {
+			if(ml.size() > 0) {
+				page.getBody().build();
+				for(UIMessage m : ml) {
+					if(DomUtil.USERLOG.isDebugEnabled())
+						DomUtil.USERLOG.debug(m_cid + ": page reload message = " + m.getMessage());
+
+					//page.getBody().addGlobalMessage(m);
+					MessageFlare mf = MessageFlare.display(page.getBody(), m);
+					mf.setTestID("SingleShotMsg");
+				}
+			}
+			windowSession.setAttribute(UIGoto.SINGLESHOT_MESSAGE, null);
+		}
 	}
 
 	private boolean checkIsPageTagStillValid(@Nullable Page page) throws Exception {
@@ -579,6 +584,7 @@ final public class PageRequestHandler {
 	}
 
 	private void runAction(Page page, String action) throws Exception {
+		//-- BINDING: All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
 		List<NodeBase> pendingChangeList = Collections.emptyList();
 		if(!Constants.ACMD_ASYPOLL.equals(action)) {
 			long ts = System.nanoTime();
