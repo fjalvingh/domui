@@ -1281,6 +1281,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		throw new IllegalStateException("The component " + this + " does not accept the web data request #" + action);
 	}
 
+	/**
+	 * Get the proper value for the component from the parameters
+	 * in the post request. If the result is that the component has
+	 * changed then return TRUE; this will cause the component's
+	 * onValueChange handler to be called.
+	 */
 	public boolean acceptRequestParameter(@NonNull final String[] values) throws Exception {
 		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
 	}
