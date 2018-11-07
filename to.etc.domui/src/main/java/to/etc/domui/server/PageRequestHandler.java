@@ -3,6 +3,7 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import to.etc.domui.component.misc.InternalParentTree;
 import to.etc.domui.component.misc.MessageFlare;
@@ -182,7 +183,8 @@ final public class PageRequestHandler {
 		 * Attempt to fix etc.to bugzilla bug# 3183: IE7 sends events out of order. If an action arrives for an earlier-destroyed
 		 * conversation just ignore it, and send an empty response to ie, hopefully causing it to die soon.
 		 */
-		if(m_action != null) {
+		String action = m_action;
+		if(action != null) {
 			if(windowSession.isConversationDestroyed(conversationId)) {		// This conversation was recently destroyed?
 				//-- Render a null response
 				String msg = "Session " + m_cid + " was destroyed earlier- assuming this is an out-of-order event and sending empty delta back";
@@ -195,7 +197,7 @@ final public class PageRequestHandler {
 			}
 		}
 
-		m_ctx.internalSetWindowSession(windowSession);			// FIXME Unprotected unset
+		m_ctx.internalSetWindowSession(windowSession);
 		windowSession.clearGoto();
 
 		/*
@@ -203,24 +205,13 @@ final public class PageRequestHandler {
 		 * request we'll always respond with a full page re-render, but we must check to see if
 		 * the page has been requested with different parameters this time.
 		 */
+		ConversationContext conversation = windowSession.findConversation(conversationId);
 		PageParameters papa = null;								// Null means: ajax request, not a full page.
-		if(m_action == null) {
-			papa = PageParameters.createFrom(m_ctx);
-
-			//-- If this request is a huge post request - get the huge post parameters.
-			String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
-			if(null != hpq) {
-				ConversationContext coco = windowSession.findConversation(conversationId);
-				if(null == coco)
-					throw new IllegalStateException("The conversation " + conversationId + " containing POST data is missing in windowSession " + windowSession);
-
-				papa = (PageParameters) coco.getAttribute("__ORIPP");
-				if(null == papa)
-					throw new IllegalStateException("The conversation " + m_cid + " no (longer) has the post data??");
-			}
+		if(action == null) {
+			papa = getPageParameters(conversation);
 		}
 
-		Page page = findOrCreatePage(windowSession, conversationId, papa);
+		Page page = windowSession.tryToMakeOrGetPage(m_ctx, conversationId, m_runclass, papa, m_action);
 		if(page == null || ! isPageTagStillValid(page)) {
 			sendSessionExpired();
 			return;
@@ -230,24 +221,50 @@ final public class PageRequestHandler {
 			throw new IllegalStateException("Page can not be null here. Null is already handled inside expired AJAX request handling.");
 		}
 
-		UIContext.internalSet(page);					// FIXME Unprotected unset
+		page.getConversation().mergePersistentParameters(m_ctx);
+		page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
+		page.internalIncrementRequestCounter();
+		windowSession.internalSetLastPage(page);
+		if(DomUtil.USERLOG.isDebugEnabled()) {
+			DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + m_cid);
+		}
+		UIContext.internalSet(page);					// Get cleared in AbstractContext using UIContext,internalClear()
 
 		/*
 		 * Handle all out-of-bound actions: those that do not manipulate UI state.
 		 */
-		String action = m_action;
 		if(action != null && action.startsWith("#")) {
 			runComponentAction(page, action.substring(1));
-			return;
-			//-- If this is a PAGEDATA request - handle that
 		} else if(Constants.ACMD_PAGEDATA.equals(action)) {
+			//-- If this is a PAGEDATA request - handle that
 			runPageData(page);
-			return;
 		} else if(null != action) {
 			runAction(page, action);
-			return;
+		} else if(papa != null) {
+			runFullRender(windowSession, page, papa);
+		} else {
+			throw new IllegalStateException("Page parameters are null in full render");
 		}
+	}
 
+	@NotNull private PageParameters getPageParameters(@Nullable ConversationContext conversation) {
+		PageParameters papa;
+		papa = PageParameters.createFrom(m_ctx);
+
+		//-- If this request is a huge post request - get the huge post parameters.
+		String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
+		if(null != hpq) {
+			if(null == conversation)
+				throw new IllegalStateException("The conversation " + m_cida +  " containing POST data does not exist (anymore) the WindowSession");
+
+			papa = (PageParameters) conversation.getAttribute("__ORIPP");
+			if(null == papa)
+				throw new IllegalStateException("The conversation " + m_cid + " no (longer) has the post data??");
+		}
+		return papa;
+	}
+
+	private void runFullRender(WindowSession windowSession, Page page, @NonNull PageParameters papa) throws Exception {
 		/*
 		 * We are doing a full refresh/rebuild of a page.
 		 */
@@ -399,20 +416,6 @@ final public class PageRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
-	}
-
-	@Nullable private Page findOrCreatePage(WindowSession windowSession, String conversationId, @Nullable PageParameters papa) throws Exception {
-		Page page = windowSession.tryToMakeOrGetPage(m_ctx, conversationId, m_runclass, papa, m_action);
-		if(page != null) {
-			page.getConversation().mergePersistentParameters(m_ctx);
-			page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
-			page.internalIncrementRequestCounter();
-			windowSession.internalSetLastPage(page);
-			if(DomUtil.USERLOG.isDebugEnabled()) {
-				DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + m_cid);
-			}
-		}
-		return page;
 	}
 
 	private void handleSessionUIMessages(WindowSession windowSession, Page page) throws Exception {
