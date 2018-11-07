@@ -93,6 +93,8 @@ final public class PageRequestHandler {
 
 	private final Class<? extends UrlPage> m_runclass;
 
+	private boolean m_inhibitlog;
+
 	public PageRequestHandler(DomApplication application, ApplicationRequestHandler applicationRequestHandler, ResponseCommandWriter commandWriter, PageAccessChecker checker, RequestContextImpl ctx) {
 		m_application = application;
 		m_applicationRequestHandler = applicationRequestHandler;
@@ -264,29 +266,16 @@ final public class PageRequestHandler {
 		return papa;
 	}
 
+	/**
+	 * We are doing a full refresh/rebuild of a page.
+	 */
 	private void runFullRender(WindowSession windowSession, Page page, @NonNull PageParameters papa) throws Exception {
-		/*
-		 * We are doing a full refresh/rebuild of a page.
-		 */
 		long ts = System.nanoTime();
 		try {
 			if(DomUtil.USERLOG.isDebugEnabled())
 				DomUtil.USERLOG.debug(m_cid + ": Full render of page " + page);
 
-			if(page.getBody() instanceof IRebuildOnRefresh) {                // Must fully refresh?
-				page.getBody().forceRebuild();                                // Cleanout state
-				page.setInjected(false);
-				QContextManager.closeSharedContexts(page.getConversation());
-				if(DomUtil.USERLOG.isDebugEnabled())
-					DomUtil.USERLOG.debug(m_cid + ": IForceRefresh, cleared page data for " + page);
-				logUser("Full page render with forced refresh");
-			} else {
-				logUser("Full page render");
-			}
-			if(!page.isInjected()) {
-				m_ctx.getApplication().getInjector().injectPageValues(page.getBody(), nullChecked(papa));
-				page.setInjected(true);
-			}
+			injectPageProperties(page, papa);
 
 			/*
 			 * This is a (new) page request. We need to check rights on the page before
@@ -301,7 +290,7 @@ final public class PageRequestHandler {
 			if(!checkAccess(windowSession, page))
 				return;
 
-			m_application.internalCallPageFullRender(m_ctx, page);
+			m_application.callUIStateListeners(sl -> sl.onBeforeFullRender(m_ctx, page));
 
 			page.getBody().onReload();
 
@@ -326,7 +315,7 @@ final public class PageRequestHandler {
 				windowSession.setAttribute(UIGoto.PAGE_ACTION, null);
 			}
 
-			m_application.internalCallPageComplete(m_ctx, page);
+			m_application.callUIStateListeners(sl -> sl.onAfterPage(m_ctx, page));
 			page.getBody().internalOnBeforeRender();
 			page.internalDeltaBuild(); 							// If listeners changed the page-> rebuild those parts
 			// END ORDERED
@@ -350,56 +339,22 @@ final public class PageRequestHandler {
 			//-- Mid-air collision between logout and some other action..
 			logUser("Session exception: " + x);
 			renderUserError("The session has been invalidated; perhaps you are logged out");
-			//System.err.println("domui debug: session invalidation exception");
 		} catch(ConversationDestroyedException x) {
 			logUser("Conversation exception: " + x);
 			renderUserError("Your conversation with the server has been destroyed. Please refresh the page.");
 		} catch(Exception ex) {
 			Exception x = WrappedException.unwrap(ex);
+			logException(page, x);
 
-			if(!(x instanceof ValidationException)) {
-				logUser("Page exception: " + x);
-			}
-
-			//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
-			try {
-				page.getBody().forceRebuild();
-			} catch(ConversationDestroyedException xx) {
-				logUser("Conversation exception: " + xx);
-				renderUserError("Your conversation with the server has been destroyed. Please refresh the page.");
-			} catch(SessionInvalidException xx) {
-				logUser("Session exception: " + x);
-				renderUserError("The session has been invalidated; perhaps you have logged out in another window?");
-			} catch(Exception xxx) {
-				System.err.println("Double exception in handling full page build exception");
-				System.err.println("Original exception: " + x);
-				System.err.println("Second one on forceRebuild: " + xxx);
-				x.printStackTrace();
-				xxx.printStackTrace();
-			}
 			page.getBody().forceRebuild();
 
-			if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
-				String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
-				if(url != null) {
-					ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to be logged in");
-					return;
-				}
-			}
+			if(handleLoginException(x))
+				return;
 
-			IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
-			if(xl != null && xl.handleException(m_ctx, page, null, x)) {
-				if(windowSession.handleExceptionGoto(m_ctx, page, false)) {
-					AppSession aps = m_ctx.getSession();
-					if(aps.incrementExceptionCount() > 10) {
-						aps.clearExceptionRetryCount();
-						throw new IllegalStateException("Loop in exception handling in a full page (new page) render", x);
-					}
-					return;
-				}
-			}
+			if(tryToHandleWithRegisteredExceptionHandler(windowSession, page, x))
+				return;
 
-			checkFullExceptionCount(page, x); // Rethrow, but clear state if page throws up too much.
+			checkFullExceptionCount(page, x); 					// Rethrow, but clear state if page throws up too much.
 		} finally {
 			page.callAfterRenderListeners();
 			page.internalClearDeltaFully();
@@ -416,6 +371,78 @@ final public class PageRequestHandler {
 
 		//-- Start any delayed actions now.
 		page.getConversation().startDelayedExecution();
+	}
+
+	/**
+	 * See if one of the registered exception handlers accepts the exception, and if so use it.
+	 */
+	private boolean tryToHandleWithRegisteredExceptionHandler(WindowSession windowSession, Page page, Exception x) throws Exception {
+		IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
+		if(xl != null && xl.handleException(m_ctx, page, null, x)) {
+			if(windowSession.handleExceptionGoto(m_ctx, page, false)) {
+				AppSession aps = m_ctx.getSession();
+				if(aps.incrementExceptionCount() > 10) {
+					aps.clearExceptionRetryCount();
+					throw new IllegalStateException("Loop in exception handling in a full page (new page) render", x);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * If this is a login exception and there is no specific handler for it => redirect to the login URL.
+	 */
+	private boolean handleLoginException(Exception x) throws Exception {
+		if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
+			String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
+			if(url != null) {
+				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to be logged in");
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void logException(Page page, Exception x) {
+		if(!(x instanceof ValidationException)) {
+			logUser("Page exception: " + x);
+		}
+
+		//-- 20100504 jal Exception in page means it's content is invalid, so force a full rebuild
+		try {
+			page.getBody().forceRebuild();
+		} catch(ConversationDestroyedException xx) {
+			logUser("Conversation exception: " + xx);
+			renderUserError("Your conversation with the server has been destroyed. Please refresh the page.");
+		} catch(SessionInvalidException xx) {
+			logUser("Session exception: " + x);
+			renderUserError("The session has been invalidated; perhaps you have logged out in another window?");
+		} catch(Exception xxx) {
+			System.err.println("Double exception in handling full page build exception");
+			System.err.println("Original exception: " + x);
+			System.err.println("Second one on forceRebuild: " + xxx);
+			x.printStackTrace();
+			xxx.printStackTrace();
+		}
+	}
+
+	private void injectPageProperties(Page page, @NonNull PageParameters papa) throws Exception {
+		if(page.getBody() instanceof IRebuildOnRefresh) {                // Must fully refresh?
+			page.getBody().forceRebuild();                                // Cleanout state
+			page.setInjected(false);
+			QContextManager.closeSharedContexts(page.getConversation());
+			if(DomUtil.USERLOG.isDebugEnabled())
+				DomUtil.USERLOG.debug(m_cid + ": IForceRefresh, cleared page data for " + page);
+			logUser("Full page render with forced refresh");
+		} else {
+			logUser("Full page render");
+		}
+		if(!page.isInjected()) {
+			m_ctx.getApplication().getInjector().injectPageValues(page.getBody(), nullChecked(papa));
+			page.setInjected(true);
+		}
 	}
 
 	private void handleSessionUIMessages(WindowSession windowSession, Page page) throws Exception {
@@ -586,15 +613,7 @@ final public class PageRequestHandler {
 
 	private void runAction(Page page, String action) throws Exception {
 		//-- BINDING: All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
-		List<NodeBase> pendingChangeList = Collections.emptyList();
-		if(!Constants.ACMD_ASYPOLL.equals(action)) {
-			long ts = System.nanoTime();
-			pendingChangeList = handleComponentInput(page); // Move all request parameters to their input field(s)
-			if(LOG.isDebugEnabled()) {
-				ts = System.nanoTime() - ts;
-				LOG.debug("rq: input handling took " + StringTool.strNanoTime(ts));
-			}
-		}
+		List<NodeBase> pendingChangeList = handleComponentInput(page); // Move all request parameters to their input field(s)
 
 		//		System.out.println("# action="+action);
 		long ts = System.nanoTime();
@@ -605,10 +624,10 @@ final public class PageRequestHandler {
 		if(!Constants.ACMD_ASYPOLL.equals(action))
 			page.controlToModel();
 
-		NodeBase wcomp = null;
-		String wid = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
-		if(wid != null) {
-			wcomp = page.findNodeByID(wid);
+		NodeBase targetComponent = null;
+		String targetComponentID = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
+		if(targetComponentID != null) {
+			targetComponent = page.findNodeByID(targetComponentID);
 			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
 			//			if(wcomp == null) {
 			//				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
@@ -616,13 +635,13 @@ final public class PageRequestHandler {
 			//			}
 		}
 
-		boolean inhibitlog = false;
-		page.setTheCurrentNode(wcomp);
+		m_inhibitlog = false;
+		page.setTheCurrentNode(targetComponent);
 
 		//-- Non-delta actions
 		if(Constants.ACMD_PAGEJSON.equals(action)) {
 			try {
-				runPageJson(page, wcomp);
+				runPageJson(page, targetComponent);
 				return;
 			} finally {
 				page.callRequestFinished();
@@ -634,45 +653,27 @@ final public class PageRequestHandler {
 			 * If we have pending changes execute them before executing any actual command. Also: be
 			 * very sure the changed component is part of that list!! Fix for bug# 664.
 			 */
-			//-- If we are a vchange command *and* the node that changed still exists make sure it is part of the changed list.
-			if((Constants.ACMD_VALUE_CHANGED.equals(action) || Constants.ACMD_CLICKANDCHANGE.equals(action)) && wcomp != null) {
-				if(!pendingChangeList.contains(wcomp))
-					pendingChangeList.add(wcomp);
-			}
+			callComponentChangedHandlers(page, action, pendingChangeList, targetComponent);
 
-			//-- Call all "changed" handlers.
-			for(NodeBase n : pendingChangeList) {
-				if(DomUtil.USERLOG.isDebugEnabled()) {
-					DomUtil.USERLOG.debug("valueChanged on " + DomUtil.getComponentDetails(n));
-					logUser(page, "valueChanged on " + DomUtil.getComponentDetails(n));
-				}
+			if(Constants.ACMD_ASYPOLL.equals(action)) {
+				m_inhibitlog = true;
+			} else if(targetComponent == null) {
+				if(! isSafeToIgnoreUnknownNodeOnAction(action))
+					throw new IllegalStateException("Unknown node '" + targetComponentID + "' for action='" + action + "'");
 
-				n.internalOnValueChanged();
-			}
-
-			// FIXME 20100331 jal Odd wcomp==null logic. Generalize.
-			if(Constants.ACMD_CLICKED.equals(action)) {
-				handleClicked(page, wcomp);
+				logUser(page, "Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
+				System.out.println("Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
+				m_inhibitlog = true;
+			} else if(Constants.ACMD_CLICKED.equals(action)) {
+				handleClicked(page, targetComponent);
 			} else if(Constants.ACMD_CLICKANDCHANGE.equals(action)) {
-				if(wcomp != null && wcomp.getClicked() != null)
-					handleClicked(page, wcomp);
+				handleClicked(page, targetComponent);
 			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
 				//-- Don't do anything at all - everything is done beforehand (bug #664).
 			} else if(Constants.ACMD_DEVTREE.equals(action)) {
-				handleDevelopmentShowCode(page, wcomp);
-			} else if(Constants.ACMD_ASYPOLL.equals(action)) {
-				inhibitlog = true;
-				//-- Async poll request..
-				//			} else if("WEBUIDROP".equals(action)) {
-				//				handleDrop(ctx, page, wcomp);
-			} else if(wcomp == null && isSafeToIgnoreUnknownNodeOnAction(action)) {
-				//-- Don't do anything at all - it is safe to ignore late and obsoleted events
-				inhibitlog = true;
-			} else if(wcomp == null) {
-				if(!action.endsWith("?"))
-					throw new IllegalStateException("Unknown node '" + wid + "' for action='" + action + "'");
+				handleDevelopmentShowCode(page, targetComponent);
 			} else {
-				wcomp.componentHandleWebAction(m_ctx, action);
+				targetComponent.componentHandleWebAction(m_ctx, action);
 			}
 			ConversationContext conversation = page.internalGetConversation();
 			if(null != conversation && conversation.isValid())
@@ -709,19 +710,19 @@ final public class PageRequestHandler {
 			IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
 			if(xl == null) // No handler?
 				throw x; // Move on, nothing to see here,
-			if(wcomp != null && !wcomp.isAttached()) {
-				wcomp = page.getTheCurrentControl();
-				System.out.println("DEBUG: Report exception on a " + (wcomp == null ? "unknown control/node" : wcomp.getClass()));
+			if(targetComponent != null && !targetComponent.isAttached()) {
+				targetComponent = page.getTheCurrentControl();
+				System.out.println("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
 			}
-			if(wcomp == null || !wcomp.isAttached())
+			if(targetComponent == null || !targetComponent.isAttached())
 				throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
 
-			if(!xl.handleException(m_ctx, page, wcomp, x))
+			if(!xl.handleException(m_ctx, page, targetComponent, x))
 				throw x;
 		}
 		page.callRequestFinished();
 
-		if(PageUtil.m_logPerf && !inhibitlog) {
+		if(PageUtil.m_logPerf && !m_inhibitlog) {
 			ts = System.nanoTime() - ts;
 			System.out.println("domui: Action handling took " + StringTool.strNanoTime(ts));
 		}
@@ -735,7 +736,10 @@ final public class PageRequestHandler {
 
 		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
 		callNewPageBuiltListeners(page);
+		renderDeltaResponse(page, m_inhibitlog);
+	}
 
+	private void renderDeltaResponse(Page page, boolean inhibitlog) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
 		try {
 			PageUtil.renderOptimalDelta(m_ctx, page, inhibitlog);
@@ -747,6 +751,24 @@ final public class PageRequestHandler {
 		} catch(Exception x) {
 			logUser(page, "Delta render failed: " + x);
 			throw x;
+		}
+	}
+
+	private void callComponentChangedHandlers(Page page, String action, List<NodeBase> pendingChangeList, @Nullable NodeBase targetComponent) throws Exception {
+		//-- If we are a vchange command *and* the node that changed still exists make sure it is part of the changed list.
+		if((Constants.ACMD_VALUE_CHANGED.equals(action) || Constants.ACMD_CLICKANDCHANGE.equals(action)) && targetComponent != null) {
+			if(!pendingChangeList.contains(targetComponent))
+				pendingChangeList.add(targetComponent);
+		}
+
+		//-- Call all "changed" handlers.
+		for(NodeBase n : pendingChangeList) {
+			if(DomUtil.USERLOG.isDebugEnabled()) {
+				DomUtil.USERLOG.debug("valueChanged on " + DomUtil.getComponentDetails(n));
+				logUser(page, "valueChanged on " + DomUtil.getComponentDetails(n));
+			}
+
+			n.internalOnValueChanged();
 		}
 	}
 
@@ -926,10 +948,16 @@ final public class PageRequestHandler {
 	 * on all these nodes (bug# 664).
 	 */
 	private List<NodeBase> handleComponentInput(@NonNull Page page) throws Exception {
-		//-- Just walk all parameters in the input request.
+		//-- BINDING: All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
+		if(!Constants.ACMD_ASYPOLL.equals(m_action))
+			return Collections.emptyList();
+
+			//-- Just walk all parameters in the input request.
+		long ts = System.nanoTime();
+
 		List<NodeBase> changed = new ArrayList<>();
 		for(String name : m_ctx.getParameterNames()) {
-			String[] values = m_ctx.getParameters(name); 				// Get the value;
+			String[] values = m_ctx.getParameters(name); 			// Get the value;
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
 				NodeBase nb = page.findNodeByID(name); 				// Can we find this literally?
@@ -937,7 +965,7 @@ final public class PageRequestHandler {
 					//-- Try to bind this value to the component.
 					if(nb.acceptRequestParameter(values)) { 		// Make the thingy accept the parameter(s)
 						//-- This thing has changed.
-						if(nb instanceof IHasChangeListener) { 			// Can have a value changed thingy?
+						if(nb instanceof IHasChangeListener) { 		// Can have a value changed thingy?
 							IHasChangeListener ch = (IHasChangeListener) nb;
 							if(ch.getOnValueChanged() != null) {
 								changed.add(nb);
@@ -947,6 +975,11 @@ final public class PageRequestHandler {
 				}
 			}
 		}
+		if(LOG.isDebugEnabled()) {
+			ts = System.nanoTime() - ts;
+			LOG.debug("rq: input handling took " + StringTool.strNanoTime(ts));
+		}
+
 		return changed;
 	}
 
@@ -956,7 +989,11 @@ final public class PageRequestHandler {
 	 * It is safe to just ignore such obsoleted events, rather than giving error response.
 	 */
 	private boolean isSafeToIgnoreUnknownNodeOnAction(@NonNull String action) {
-		return (Constants.ACMD_LOOKUP_TYPING.equals(action) || Constants.ACMD_LOOKUP_TYPING_DONE.equals(action) || Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action));
+		return Constants.ACMD_LOOKUP_TYPING.equals(action)
+			|| Constants.ACMD_LOOKUP_TYPING_DONE.equals(action)
+			|| Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action)
+			|| action.endsWith("?")
+			;
 	}
 
 	/**
@@ -964,15 +1001,12 @@ final public class PageRequestHandler {
 	 * the nodes from the entered one upto the topmost one, and when selected tries to open the source code
 	 * by sending a command to the local Eclipse.
 	 */
-	private void handleDevelopmentShowCode(Page page, @Nullable NodeBase wcomp) {
-		if(null == wcomp)
-			return;
-
+	private void handleDevelopmentShowCode(Page page, NodeBase targetComponent) {
 		//-- If a tree is already present ignore the click.
 		List<InternalParentTree> res = page.getBody().getDeepChildren(InternalParentTree.class);
 		if(res.size() > 0)
 			return;
-		InternalParentTree ipt = new InternalParentTree(wcomp);
+		InternalParentTree ipt = new InternalParentTree(targetComponent);
 		page.getBody().add(0, ipt);
 	}
 
@@ -991,20 +1025,15 @@ final public class PageRequestHandler {
 	 * Called when the action is a CLICK event on some thingy. This causes the click handler for
 	 * the object to be called.
 	 */
-	private void handleClicked(Page page, @Nullable NodeBase b) throws Exception {
-		if(b == null) {
-			logUser(page, "User clicked to fast - node has disappeared");
-			System.out.println("User clicked too fast? Node not found. Ignoring.");
-			return;
-		}
-		String msg = "Clicked on " + DomUtil.getComponentDetails(b);
+	private void handleClicked(Page page, @NonNull NodeBase targetComponent) throws Exception {
+		String msg = "Clicked on " + DomUtil.getComponentDetails(targetComponent);
 		logUser(page, msg);
 		if(DomUtil.USERLOG.isDebugEnabled()) {
 			DomUtil.USERLOG.debug(msg);
 		}
 
 		ClickInfo cli = new ClickInfo(m_ctx);
-		b.internalOnClicked(cli);
+		targetComponent.internalOnClicked(cli);
 	}
 
 

@@ -275,7 +275,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Internal, do the proper run sequence for a clicked event.
-	 * @throws Exception
 	 */
 	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		IClickBase<NodeBase> c = (IClickBase<NodeBase>) getClicked();
@@ -283,8 +282,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			((IClicked<NodeBase>) c).clicked(this);
 		} else if(c instanceof IClicked2< ? >) {
 			((IClicked2<NodeBase>) c).clicked(this, cli);
-		} else
+		} else if(c != null) {
 			throw new IllegalStateException("? Node " + this.getActualID() + " does not have a (valid) click handler??");
+		}
 	}
 
 	/**
