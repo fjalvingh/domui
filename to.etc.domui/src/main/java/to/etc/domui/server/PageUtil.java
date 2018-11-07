@@ -7,6 +7,7 @@ import to.etc.domui.dom.PrettyXmlOutputWriter;
 import to.etc.domui.dom.html.OptimalDeltaRenderer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.util.Constants;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
@@ -85,6 +86,18 @@ final public class PageUtil {
 			System.out.println("domui: Optimal Delta rendering using " + fullr + " took " + StringTool.strNanoTime(ts));
 		}
 		page.getConversation().startDelayedExecution();
+	}
+
+	/**
+	 * Defines the actions that could arrive too late due to race conditions in client javascript, when target elements are already removed from DOM at server side.
+	 * It is safe to just ignore such obsoleted events, rather than giving error response.
+	 */
+	static boolean isSafeToIgnoreUnknownNodeOnAction(@NonNull String action) {
+		return Constants.ACMD_LOOKUP_TYPING.equals(action)
+			|| Constants.ACMD_LOOKUP_TYPING_DONE.equals(action)
+			|| Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action)
+			|| action.endsWith("?")
+			;
 	}
 }
 

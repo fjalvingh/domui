@@ -44,6 +44,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.IRebuildOnRefresh;
 import to.etc.domui.util.Msgs;
+import to.etc.function.ConsumerEx;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -236,10 +237,10 @@ final public class PageRequestHandler {
 		 * Handle all out-of-bound actions: those that do not manipulate UI state.
 		 */
 		if(action != null && action.startsWith("#")) {
-			runComponentAction(page, action.substring(1));
+			runOutOfBoundAction(page, wcomp -> wcomp.componentHandleWebDataRequest(m_ctx, action.substring(1)));
 		} else if(Constants.ACMD_PAGEDATA.equals(action)) {
 			//-- If this is a PAGEDATA request - handle that
-			runPageData(page);
+			runOutOfBoundAction(page, wcomp -> ((IComponentUrlDataProvider) wcomp).provideUrlData(m_ctx));
 		} else if(null != action) {
 			runAction(page, action);
 		} else if(papa != null) {
@@ -338,10 +339,10 @@ final public class PageRequestHandler {
 		} catch(SessionInvalidException x) {
 			//-- Mid-air collision between logout and some other action..
 			logUser("Session exception: " + x);
-			renderUserError("The session has been invalidated; perhaps you are logged out");
+			sendUnexpectedLogoutMessageToUser("The session has been invalidated; perhaps you are logged out");
 		} catch(ConversationDestroyedException x) {
 			logUser("Conversation exception: " + x);
-			renderUserError("Your conversation with the server has been destroyed. Please refresh the page.");
+			sendUnexpectedLogoutMessageToUser("Your conversation with the server has been destroyed. Please refresh the page.");
 		} catch(Exception ex) {
 			Exception x = WrappedException.unwrap(ex);
 			logException(page, x);
@@ -415,10 +416,10 @@ final public class PageRequestHandler {
 			page.getBody().forceRebuild();
 		} catch(ConversationDestroyedException xx) {
 			logUser("Conversation exception: " + xx);
-			renderUserError("Your conversation with the server has been destroyed. Please refresh the page.");
+			sendUnexpectedLogoutMessageToUser("Your conversation with the server has been destroyed. Please refresh the page.");
 		} catch(SessionInvalidException xx) {
 			logUser("Session exception: " + x);
-			renderUserError("The session has been invalidated; perhaps you have logged out in another window?");
+			sendUnexpectedLogoutMessageToUser("The session has been invalidated; perhaps you have logged out in another window?");
 		} catch(Exception xxx) {
 			System.err.println("Double exception in handling full page build exception");
 			System.err.println("Original exception: " + x);
@@ -624,17 +625,7 @@ final public class PageRequestHandler {
 		if(!Constants.ACMD_ASYPOLL.equals(action))
 			page.controlToModel();
 
-		NodeBase targetComponent = null;
-		String targetComponentID = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
-		if(targetComponentID != null) {
-			targetComponent = page.findNodeByID(targetComponentID);
-			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
-			//			if(wcomp == null) {
-			//				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
-			//				//				throw new IllegalStateException("Unknown node '"+wid+"'");
-			//			}
-		}
-
+		NodeBase targetComponent = getTargetComponent(page);
 		m_inhibitlog = false;
 		page.setTheCurrentNode(targetComponent);
 
@@ -654,7 +645,7 @@ final public class PageRequestHandler {
 			 * very sure the changed component is part of that list!! Fix for bug# 664.
 			 */
 			callComponentOnValueChangedHandlers(page, action, pendingChangeList, targetComponent);
-			executeAction(page, action, targetComponent, targetComponentID);
+			executeAction(page, action, targetComponent);
 			ConversationContext conversation = page.internalGetConversation();
 			if(null != conversation && conversation.isValid())
 				page.modelToControl();
@@ -671,34 +662,8 @@ final public class PageRequestHandler {
 			logUser(page, "error message: " + msg.getMessage());
 			page.modelToControl();
 		} catch(Exception ex) {
-			logUser(page, "Action handler exception: " + ex);
-			Exception x = WrappedException.unwrap(ex);
-			if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
-				String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
-				if(url != null) {
-					ApplicationRequestHandler.generateAjaxRedirect(m_ctx, url);
-					return;
-				}
-			}
-			try {
-				page.modelToControl();
-			} catch(Exception xxx) {
-				System.out.println("Double exception on modelToControl: " + xxx);
-				xxx.printStackTrace();
-			}
-
-			IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
-			if(xl == null) // No handler?
-				throw x; // Move on, nothing to see here,
-			if(targetComponent != null && !targetComponent.isAttached()) {
-				targetComponent = page.getTheCurrentControl();
-				System.out.println("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
-			}
-			if(targetComponent == null || !targetComponent.isAttached())
-				throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
-
-			if(!xl.handleException(m_ctx, page, targetComponent, x))
-				throw x;
+			if(handleActionException(page, targetComponent, ex))
+				return;
 		}
 		page.callRequestFinished();
 
@@ -719,11 +684,44 @@ final public class PageRequestHandler {
 		renderDeltaResponse(page, m_inhibitlog);
 	}
 
-	private void executeAction(Page page, String action, @Nullable NodeBase targetComponent, @Nullable String targetComponentID) throws Exception {
+	private boolean handleActionException(Page page, @Nullable NodeBase targetComponent, Exception ex) throws Exception {
+		logUser(page, "Action handler exception: " + ex);
+		Exception x = WrappedException.unwrap(ex);
+		if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
+			String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
+			if(url != null) {
+				ApplicationRequestHandler.generateAjaxRedirect(m_ctx, url);
+				return true;
+			}
+		}
+		try {
+			page.modelToControl();
+		} catch(Exception xxx) {
+			System.out.println("Double exception on modelToControl: " + xxx);
+			xxx.printStackTrace();
+		}
+
+		IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
+		if(xl == null) // No handler?
+			throw x; // Move on, nothing to see here,
+		if(targetComponent != null && !targetComponent.isAttached()) {
+			targetComponent = page.getTheCurrentControl();
+			System.out.println("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
+		}
+		if(targetComponent == null || !targetComponent.isAttached())
+			throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
+
+		if(!xl.handleException(m_ctx, page, targetComponent, x))
+			throw x;
+		return false;
+	}
+
+	private void executeAction(Page page, String action, @Nullable NodeBase targetComponent) throws Exception {
 		if(Constants.ACMD_ASYPOLL.equals(action)) {
 			m_inhibitlog = true;
 		} else if(targetComponent == null) {
-			if(! isSafeToIgnoreUnknownNodeOnAction(action))
+			String targetComponentID = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
+			if(! PageUtil.isSafeToIgnoreUnknownNodeOnAction(action))
 				throw new IllegalStateException("Unknown node '" + targetComponentID + "' for action='" + action + "'");
 
 			logUser(page, "Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
@@ -804,7 +802,7 @@ final public class PageRequestHandler {
 	/**
 	 * Try to render a terse error to the user.
 	 */
-	private void renderUserError(String s) {
+	private void sendUnexpectedLogoutMessageToUser(String s) {
 		try {
 			m_ctx.sendError(503, "It appears this session was logged out in mid-flight (" + s + ")");
 		} catch(Exception x) {
@@ -823,45 +821,30 @@ final public class PageRequestHandler {
 	}
 
 	/**
+	 * Get the target component from the WEBUIC parameter, or null if it cannot be found.
+	 */
+	@Nullable
+	private NodeBase getTargetComponent(Page page) {
+		String targetComponentID = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
+		if(null == targetComponentID)
+			return null;
+
+		return page.findNodeByID(targetComponentID);
+	}
+
+	/**
 	 * Handle out-of-bound component requests. These are not allowed to change the tree but must return a result
 	 * by themselves.
 	 */
-	private void runComponentAction(Page page, @NonNull String action) throws Exception {
-		m_application.internalCallPageAction(m_ctx, page);
-		page.callRequestStarted();
-		try {
-			NodeBase wcomp = null;
-			String wid = m_ctx.getParameter("webuic");
-			if(wid != null) {
-				wcomp = page.findNodeByID(wid);
-			}
-			if(wcomp == null)
-				return;
-			page.setTheCurrentNode(wcomp);
-			wcomp.componentHandleWebDataRequest(m_ctx, action);
-		} finally {
-			page.callRequestFinished();
-			page.setTheCurrentNode(null);
-		}
-	}
-
-	private void runPageData(Page page) throws Exception {
-		m_application.internalCallPageAction(m_ctx, page);
-		page.callRequestStarted();
-
-		NodeBase wcomp = null;
-		String wid = m_ctx.getParameter("webuic");
-		if(wid != null) {
-			wcomp = page.findNodeByID(wid);
-		}
-		if(wcomp == null)
+	private void runOutOfBoundAction(Page page, ConsumerEx<NodeBase> what) throws Exception {
+		NodeBase wcomp = getTargetComponent(page);
+		if(null == wcomp)
 			return;
-
-		page.setTheCurrentNode(wcomp);
-
+		m_application.callUIStateListeners(a -> a.onBeforePageAction(m_ctx, page));
+		page.callRequestStarted();
 		try {
-			IComponentUrlDataProvider dp = (IComponentUrlDataProvider) wcomp;
-			dp.provideUrlData(m_ctx);
+			page.setTheCurrentNode(wcomp);
+			what.accept(wcomp);
 		} finally {
 			page.callRequestFinished();
 			page.setTheCurrentNode(null);
@@ -979,19 +962,6 @@ final public class PageRequestHandler {
 		}
 
 		return changed;
-	}
-
-
-	/**
-	 * Defines the actions that could arrive too late due to race conditions in client javascript, when target elements are already removed from DOM at server side.
-	 * It is safe to just ignore such obsoleted events, rather than giving error response.
-	 */
-	private boolean isSafeToIgnoreUnknownNodeOnAction(@NonNull String action) {
-		return Constants.ACMD_LOOKUP_TYPING.equals(action)
-			|| Constants.ACMD_LOOKUP_TYPING_DONE.equals(action)
-			|| Constants.ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE.equals(action)
-			|| action.endsWith("?")
-			;
 	}
 
 	/**
