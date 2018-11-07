@@ -653,28 +653,8 @@ final public class PageRequestHandler {
 			 * If we have pending changes execute them before executing any actual command. Also: be
 			 * very sure the changed component is part of that list!! Fix for bug# 664.
 			 */
-			callComponentChangedHandlers(page, action, pendingChangeList, targetComponent);
-
-			if(Constants.ACMD_ASYPOLL.equals(action)) {
-				m_inhibitlog = true;
-			} else if(targetComponent == null) {
-				if(! isSafeToIgnoreUnknownNodeOnAction(action))
-					throw new IllegalStateException("Unknown node '" + targetComponentID + "' for action='" + action + "'");
-
-				logUser(page, "Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
-				System.out.println("Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
-				m_inhibitlog = true;
-			} else if(Constants.ACMD_CLICKED.equals(action)) {
-				handleClicked(page, targetComponent);
-			} else if(Constants.ACMD_CLICKANDCHANGE.equals(action)) {
-				handleClicked(page, targetComponent);
-			} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
-				//-- Don't do anything at all - everything is done beforehand (bug #664).
-			} else if(Constants.ACMD_DEVTREE.equals(action)) {
-				handleDevelopmentShowCode(page, targetComponent);
-			} else {
-				targetComponent.componentHandleWebAction(m_ctx, action);
-			}
+			callComponentOnValueChangedHandlers(page, action, pendingChangeList, targetComponent);
+			executeAction(page, action, targetComponent, targetComponentID);
 			ConversationContext conversation = page.internalGetConversation();
 			if(null != conversation && conversation.isValid())
 				page.modelToControl();
@@ -739,6 +719,29 @@ final public class PageRequestHandler {
 		renderDeltaResponse(page, m_inhibitlog);
 	}
 
+	private void executeAction(Page page, String action, @Nullable NodeBase targetComponent, @Nullable String targetComponentID) throws Exception {
+		if(Constants.ACMD_ASYPOLL.equals(action)) {
+			m_inhibitlog = true;
+		} else if(targetComponent == null) {
+			if(! isSafeToIgnoreUnknownNodeOnAction(action))
+				throw new IllegalStateException("Unknown node '" + targetComponentID + "' for action='" + action + "'");
+
+			logUser(page, "Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
+			System.out.println("Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
+			m_inhibitlog = true;
+		} else if(Constants.ACMD_CLICKED.equals(action)) {
+			handleClicked(page, targetComponent);
+		} else if(Constants.ACMD_CLICKANDCHANGE.equals(action)) {
+			handleClicked(page, targetComponent);
+		} else if(Constants.ACMD_VALUE_CHANGED.equals(action)) {
+			//-- Don't do anything at all - everything is done beforehand (bug #664).
+		} else if(Constants.ACMD_DEVTREE.equals(action)) {
+			handleDevelopmentShowCode(page, targetComponent);
+		} else {
+			targetComponent.componentHandleWebAction(m_ctx, action);
+		}
+	}
+
 	private void renderDeltaResponse(Page page, boolean inhibitlog) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
 		try {
@@ -754,7 +757,7 @@ final public class PageRequestHandler {
 		}
 	}
 
-	private void callComponentChangedHandlers(Page page, String action, List<NodeBase> pendingChangeList, @Nullable NodeBase targetComponent) throws Exception {
+	private void callComponentOnValueChangedHandlers(Page page, String action, List<NodeBase> pendingChangeList, @Nullable NodeBase targetComponent) throws Exception {
 		//-- If we are a vchange command *and* the node that changed still exists make sure it is part of the changed list.
 		if((Constants.ACMD_VALUE_CHANGED.equals(action) || Constants.ACMD_CLICKANDCHANGE.equals(action)) && targetComponent != null) {
 			if(!pendingChangeList.contains(targetComponent))
@@ -850,11 +853,6 @@ final public class PageRequestHandler {
 		String wid = m_ctx.getParameter("webuic");
 		if(wid != null) {
 			wcomp = page.findNodeByID(wid);
-			// jal 20091120 The code below was active but is nonsense because we do not return after generateExpired!?
-			//			if(wcomp == null) {
-			//				generateExpired(ctx, NlsContext.getGlobalMessage(Msgs.S_BADNODE, wid));
-			//				//				throw new IllegalStateException("Unknown node '"+wid+"'");
-			//			}
 		}
 		if(wcomp == null)
 			return;
