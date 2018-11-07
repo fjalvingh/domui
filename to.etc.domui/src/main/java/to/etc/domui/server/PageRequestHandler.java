@@ -221,13 +221,9 @@ final public class PageRequestHandler {
 		}
 
 		Page page = findOrCreatePage(windowSession, conversationId, papa);
-
-		/*
-		 * If this is an AJAX request make sure the page is still the same instance (session lost trouble)
-		 */
-		if(m_action != null) {							// FIXME This and the method below implement messy logic; merge with the findOrCreate page call?
-			if(! checkIsPageTagStillValid(page))
-				return;
+		if(page == null || ! isPageTagStillValid(page)) {
+			sendSessionExpired();
+			return;
 		}
 
 		if(page == null) {
@@ -437,35 +433,37 @@ final public class PageRequestHandler {
 		}
 	}
 
-	private boolean checkIsPageTagStillValid(@Nullable Page page) throws Exception {
+	private boolean isPageTagStillValid(@NonNull Page page) throws Exception {
 		String s = m_ctx.getParameter(Constants.PARAM_PAGE_TAG);
-		if(s != null) {
-			int pt = Integer.parseInt(s);
-			if(page == null || pt != page.getPageTag()) {
-				/*
-				 * The page tag differs-> session has expired.
-				 */
-				if(Constants.ACMD_ASYPOLL.equals(m_action)) {
-					m_commandWriter.generateExpiredPollasy(m_ctx);
-				} else {
-					String msg = "Session " + m_cid + " expired, page will be reloaded (page tag difference) on action=" + m_action;
-					if(DomUtil.USERLOG.isDebugEnabled())
-						DomUtil.USERLOG.debug(msg);
-					logUser(msg);
+		if(s == null)
+			return true;							// No page tag -> assume OK!?
 
-					// In auto refresh: do not send the "expired" message, but let the refresh handle this.
-					if(m_application.getAutoRefreshPollInterval() <= 0) {
-						m_commandWriter.generateExpired(m_ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
-					} else {
-						msg = "Not sending expired message because autorefresh is ON for " + m_cid;
-						LOG.info(msg);
-						logUser(msg);
-					}
-				}
-				return false;
+		int pt = Integer.parseInt(s);
+		return page.getPageTag() == pt;
+	}
+
+	private boolean sendSessionExpired() throws Exception {
+		/*
+		 * The page tag differs-> session has expired.
+		 */
+		if(Constants.ACMD_ASYPOLL.equals(m_action)) {
+			m_commandWriter.generateExpiredPollasy(m_ctx);
+		} else {
+			String msg = "Session " + m_cid + " expired, page will be reloaded (page tag difference) on action=" + m_action;
+			if(DomUtil.USERLOG.isDebugEnabled())
+				DomUtil.USERLOG.debug(msg);
+			logUser(msg);
+
+			// In auto refresh: do not send the "expired" message, but let the refresh handle this.
+			if(m_application.getAutoRefreshPollInterval() <= 0) {
+				m_commandWriter.generateExpired(m_ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+			} else {
+				msg = "Not sending expired message because autorefresh is ON for " + m_cid;
+				LOG.info(msg);
+				logUser(msg);
 			}
 		}
-		return true;
+		return false;
 	}
 
 	/**
@@ -906,7 +904,7 @@ final public class PageRequestHandler {
 		if(page.getPageExceptionCount() >= 2) {
 			//-- Just destroy the stuff - it keeps dying on you.
 			page.getConversation().destroy();
-			throw new RuntimeException("The page keeps dying on you.. The page has been destroyed so that a new one will be allocated on the next refresh.", x);
+			throw new ProgrammerErrorException("The page keeps dying on you.. The page has been destroyed so that a new one will be allocated on the next refresh.", x);
 		}
 
 		//-- Just throw it now.
