@@ -56,7 +56,6 @@ import to.etc.webapp.query.QContextManager;
 import javax.servlet.http.HttpSession;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static to.etc.domui.util.DomUtil.nullChecked;
@@ -684,6 +683,7 @@ final public class PageRequestHandler {
 		renderDeltaResponse(page, m_inhibitlog);
 	}
 
+
 	private boolean handleActionException(Page page, @Nullable NodeBase targetComponent, Exception ex) throws Exception {
 		logUser(page, "Action handler exception: " + ex);
 		Exception x = WrappedException.unwrap(ex);
@@ -930,8 +930,8 @@ final public class PageRequestHandler {
 	 */
 	private List<NodeBase> handleComponentInput(@NonNull Page page) throws Exception {
 		//-- BINDING: All commands EXCEPT ASYPOLL have all fields, so bind them to the current component data,
-		if(!Constants.ACMD_ASYPOLL.equals(m_action))
-			return Collections.emptyList();
+		if(Constants.ACMD_ASYPOLL.equals(m_action))
+			return new ArrayList<>();								// Must be modifyable!
 
 			//-- Just walk all parameters in the input request.
 		long ts = System.nanoTime();
