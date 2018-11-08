@@ -114,6 +114,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener {
 		RadioButton<T> rb = new RadioButton<>(value);
 		d.add(rb);
 		d.add(new Label(rb, text));
+		m_buttonList.add(rb);
 		return rb;
 	}
 
