@@ -70,7 +70,7 @@ public class PageAccessChecker {
 		return PageAccessCheckResult.Refused;
 	}
 
-	private boolean isAccessAllowed(UrlPage body, UIRights rann, IRightsCheckedManually rcm, IUser user) throws Exception {
+	private boolean isAccessAllowed(UrlPage body, @Nullable UIRights rann, @Nullable IRightsCheckedManually rcm, IUser user) throws Exception {
 		if(null != rcm) {
 			boolean allowed = rcm.isAccessAllowedBy(user);	// Call interface: it explicitly allows
 			if(allowed)
@@ -90,7 +90,7 @@ public class PageAccessChecker {
 		return false;
 	}
 
-	private void renderAccessFailure(RequestContextImpl ctx, ConsumerEx<String> logerror, UrlPage body, UIRights rann, @Nullable String failureReason) throws Exception {
+	private void renderAccessFailure(RequestContextImpl ctx, ConsumerEx<String> logerror, UrlPage body, @Nullable UIRights rann, @Nullable String failureReason) throws Exception {
 		ILoginDialogFactory ldf = ctx.getApplication().getLoginDialogFactory();
 		String rurl = ldf == null ? null : ldf.getAccessDeniedURL();
 		if(rurl == null) {
@@ -112,14 +112,16 @@ public class PageAccessChecker {
 
 		//-- All required rights
 		int ix = 0;
-		for(String r : rann.value()) {
-			sb.append("&r").append(ix).append("=");
-			ix++;
-			StringTool.encodeURLEncoded(sb, r);
+		if(null != rann) {
+			for(String r : rann.value()) {
+				sb.append("&r").append(ix).append("=");
+				ix++;
+				StringTool.encodeURLEncoded(sb, r);
+			}
+			String redirect = sb.toString();
+			ApplicationRequestHandler.generateHttpRedirect(ctx, redirect, "Access denied");
+			logerror.accept(redirect);
 		}
-		String redirect = sb.toString();
-		ApplicationRequestHandler.generateHttpRedirect(ctx, redirect, "Access denied");
-		logerror.accept(redirect);
 	}
 
 	private boolean checkRightsAnnotation(@NonNull UrlPage body, @NonNull UIRights rann, @NonNull IUser user) throws Exception {

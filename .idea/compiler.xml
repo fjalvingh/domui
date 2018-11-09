@@ -29,7 +29,6 @@
         <module name="to.etc.pater" />
         <module name="to.etc.syntaxer" />
         <module name="to.etc.webapp.core" />
-        <module name="vaadin-sass-compiler" />
       </profile>
       <profile name="Annotation profile for domui" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
