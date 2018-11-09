@@ -40,7 +40,6 @@
         <module>to.etc.db</module>
         <module>to.etc.pater</module>
         <module>to.etc.syntaxer</module>
-        <module>sass-compiler</module>
     </modules>
 
 </project>
