@@ -143,7 +143,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	private boolean m_collapsed;
 
 	/**
-	 * Calculated by entered search criteria, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
+	 * This is T if after calculating the criteria at least one field was not empty.
 	 */
 	private boolean m_hasUserDefinedCriteria;
 
@@ -521,6 +521,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	@Nullable
 	public QCriteria<T> getCriteria() throws Exception {
+		if(! isBuilt())
+			build();
 		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root;
 		IQueryFactory<T> queryFactory = getQueryFactory();
@@ -883,7 +885,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Set the default form factory to use when forms are generated. This is a global parameter
-	 * and should only be set from {@link to.etc.domui.server.DomApplication#initialize(ConfigParameters)}
+	 * and should only be set from DomApplication.initialize.
 	 */
 	static public void setDefaultSearchFormBuilder(Supplier<ISearchFormBuilder> factory) {
 		m_defaultFormBuilderFactory = factory;
