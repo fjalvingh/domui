@@ -414,6 +414,10 @@ public class TabPanelBase extends Div {
 		m_currentTab = index;                                        // ORDERED!!! Must be below the above!!!
 	}
 
+	public List<ITabHandle> getTabList() {
+		return new ArrayList<>(m_tablist);
+	}
+
 	public int getTabCount() {
 		return m_tablist.size();
 	}
