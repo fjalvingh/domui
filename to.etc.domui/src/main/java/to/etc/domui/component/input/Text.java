@@ -448,8 +448,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 * values to be trimmed before being returned to the converter code.
 	 * @param untrimmed
 	 */
-	public void setUntrimmed(boolean untrimmed) {
+	public Text<T> setUntrimmed(boolean untrimmed) {
 		m_untrimmed = untrimmed;
+		return this;
 	}
 
 	/**
