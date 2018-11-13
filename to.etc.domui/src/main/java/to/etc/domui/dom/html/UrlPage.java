@@ -158,25 +158,25 @@ public class UrlPage extends Div {
 		appendCreateJS("$(document).ready(function() {$('html').height('100%');$('body').height('100%');" + getCustomUpdatesCallJS() + "});");
 	}
 
-	/**
-	 * This is the root implementation to get the "shared context" for database access. Override this to get
-	 * a different "default".
-	 * @see to.etc.domui.dom.html.NodeBase#getSharedContext()
-	 */
-	@Override
-	@NonNull
-	public QDataContext getSharedContext() throws Exception {
-		return getSharedContext(QContextManager.DEFAULT);
-	}
+	///**
+	// * This is the root implementation to get the "shared context" for database access. Override this to get
+	// * a different "default".
+	// * @see to.etc.domui.dom.html.NodeBase#getSharedContext()
+	// */
+	//@Override
+	//@NonNull
+	//public QDataContext getSharedContext() throws Exception {
+	//	return getSharedContext(QContextManager.DEFAULT);
+	//}
 
 	@NonNull
-	public QDataContext getSharedContext(@NonNull String key) throws Exception {
-		return QContextManager.getContext(key, getPage().getContextContainer(key));
+	final public QDataContext getSharedContext(@NonNull String key) throws Exception {
+		return getSharedContextFactory(key).getDataContext();
 	}
 
 	@Override
 	@NonNull
-	public QDataContextFactory getSharedContextFactory() {
+	final public QDataContextFactory getSharedContextFactory() {
 		return getSharedContextFactory(QContextManager.DEFAULT);
 	}
 

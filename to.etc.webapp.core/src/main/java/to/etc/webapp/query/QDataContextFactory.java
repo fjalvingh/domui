@@ -37,8 +37,6 @@ import org.eclipse.jdt.annotation.NonNull;
 public interface QDataContextFactory extends IQDataContextSource {
 	/**
 	 * Get the current Session to use for querying.
-	 * @return
-	 * @throws Exception
 	 */
 	@Override
 	@NonNull
@@ -46,14 +44,12 @@ public interface QDataContextFactory extends IQDataContextSource {
 
 	/**
 	 * Returns all event listeners that need to be called for queries executed by contexts generated from here.
-	 * @return
 	 */
 	@NonNull
 	QEventListenerSet		getEventListeners();
 
 	/**
 	 * Returns handlers for all query types.
-	 * @return
 	 */
 	@NonNull
 	QQueryExecutorRegistry getQueryHandlerList();
