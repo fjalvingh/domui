@@ -250,6 +250,7 @@
                     <dateFormatTimeZone>${user.timezone}</dateFormatTimeZone>
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/domui.git.properties</generateGitPropertiesFilename>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
                 </configuration>
             </plugin>
 
