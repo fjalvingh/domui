@@ -67,8 +67,8 @@ import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
+import to.etc.webapp.query.IQDataContextSource;
 import to.etc.webapp.query.QDataContext;
-import to.etc.webapp.query.QDataContextFactory;
 import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
@@ -275,7 +275,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Internal, do the proper run sequence for a clicked event.
-	 * @throws Exception
 	 */
 	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		IClickBase<NodeBase> c = (IClickBase<NodeBase>) getClicked();
@@ -283,8 +282,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			((IClicked<NodeBase>) c).clicked(this);
 		} else if(c instanceof IClicked2< ? >) {
 			((IClicked2<NodeBase>) c).clicked(this, cli);
-		} else
+		} else if(c != null) {
 			throw new IllegalStateException("? Node " + this.getActualID() + " does not have a (valid) click handler??");
+		}
 	}
 
 	/**
@@ -1727,22 +1727,20 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/**
 	 * This returns the default "shared context" for database access.
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
-	public QDataContext getSharedContext() throws Exception {
-		return getParent().getSharedContext();								// Delegate getting the "default context" to the parent node.
+	final public QDataContext getSharedContext() throws Exception {
+		return getSharedContextFactory().getDataContext();
+		//return getParent().getSharedContext();								// Delegate getting the "default context" to the parent node.
 	}
 
 	@NonNull
-	public QDataContextFactory getSharedContextFactory() {
+	public IQDataContextSource getSharedContextFactory() {
 		return getParent().getSharedContextFactory();
 	}
 
 	/**
 	 * Get the context.
-	 * @return
 	 */
 	@NonNull
 	public ILogicContext lc() throws Exception {
@@ -1752,7 +1750,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Claim the focus for this component. Only reasonable for input type and action
 	 * components (links, buttons). For now this can only be called for components that
-	 * are already attached to a page. If this is a proble I'll fix it. Only one component
+	 * are already attached to a page. If this is a problem I'll fix it. Only one component
 	 * in a page can claim focus for itself.
 	 */
 	public void setFocus() {
@@ -1765,7 +1763,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Returns T if this control has requested the focus.
-	 * @return
 	 */
 	final public boolean isFocusRequested() {
 		return (m_flags & F_FOCUSREQUESTED) != 0;

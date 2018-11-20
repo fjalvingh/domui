@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
+import to.etc.domui.dom.css.CssBase;
 import to.etc.domui.dom.errors.ErrorFenceHandler;
 import to.etc.domui.dom.errors.IErrorFence;
 import to.etc.domui.dom.errors.UIMessage;
@@ -927,6 +928,20 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	}
 
 	protected void validateComponents(ProblemModel pm) throws Exception {
+	}
+
+	static private void printsize(Object v) {
+		System.out.println(v.getClass().getCanonicalName() + " size " + InstrumentationAgent.getObjectSize(v));
+	}
+
+	/**
+	 * Start this with: java -javaagent:xxxxx/instrument.jar to calculate object sizes.
+	 */
+	static public void main(String[] args) {
+		printsize(new Div());
+		printsize(new TextNode());
+		printsize(new UrlPage());
+		printsize(new CssBase());
 	}
 }
 

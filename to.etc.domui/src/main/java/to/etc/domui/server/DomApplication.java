@@ -110,6 +110,7 @@ import to.etc.domui.util.resources.ResourceInfoCache;
 import to.etc.domui.util.resources.SimpleResourceFactory;
 import to.etc.domui.util.resources.VersionedJsResourceFactory;
 import to.etc.domui.util.resources.WebappResourceRef;
+import to.etc.function.ConsumerEx;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -2019,6 +2020,16 @@ public abstract class DomApplication {
 		for(IDomUIStateListener sl : getUIStateListeners()) {
 			try {
 				sl.onAfterPage(ctx, ws);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+	}
+
+	public final void callUIStateListeners(ConsumerEx<IDomUIStateListener> it) {
+		for(IDomUIStateListener sl : getUIStateListeners()) {
+			try {
+				it.accept(sl);
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
