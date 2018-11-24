@@ -27,7 +27,7 @@ package to.etc.webapp.query;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.webapp.annotations.GProperty;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Represents the selection of a list of persistent entity classes from the database. A QCriteria
@@ -95,14 +95,14 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 
 	@NonNull
 	@Override
-	public <V> QCriteria<T> in(@NonNull @GProperty String property, List<V> inlist) {
+	public <V> QCriteria<T> in(@NonNull @GProperty String property, Collection<V> inlist) {
 		super.in(property, inlist);
 		return this;
 	}
 
 	@NonNull
 	@Override
-	public <V> QCriteria<T> in(@NonNull QField<T, V> property, @NonNull List<V> value) {
+	public <V> QCriteria<T> in(@NonNull QField<T, V> property, @NonNull Collection<V> value) {
 		super.in(property, value);
 		return this;
 	}

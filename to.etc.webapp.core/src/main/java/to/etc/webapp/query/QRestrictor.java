@@ -28,8 +28,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.annotations.GProperty;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
@@ -264,13 +264,13 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	 * A property must be one of a list of values.
 	 */
 	@NonNull
-	public <V> R in(@NonNull @GProperty String property, List<V> inlist) {
+	public <V> R in(@NonNull @GProperty String property, Collection<V> inlist) {
 		add(QRestriction.in(property, inlist));
 		return (R) this;
 	}
 
 	@NonNull
-	public <V> R in(@NonNull QField<T, V> property, @NonNull List<V> inlist) {
+	public <V> R in(@NonNull QField<T, V> property, @NonNull Collection<V> inlist) {
 		add(QRestriction.in(property.getName(), inlist));
 		return (R) this;
 	}
