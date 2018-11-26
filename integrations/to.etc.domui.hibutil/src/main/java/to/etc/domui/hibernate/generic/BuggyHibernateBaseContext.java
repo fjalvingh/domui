@@ -287,7 +287,10 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 		PropertyMetaModel<?> pk = MetaManager.findClassMeta(source.getClass()).getPrimaryKey();
 		if(null == pk)
 			throw new IllegalArgumentException(source.getClass().getCanonicalName() + ": Can't find the primary key for this class");
-		return (T) getInstance(source.getClass(), pk.getValue(source));
+		Object value = pk.getValue(source);
+		if(null == value)
+			return source;
+		return (T) getInstance(source.getClass(), value);
 	}
 
 	/*--------------------------------------------------------------*/
