@@ -57,6 +57,8 @@ public class DbColumn implements Serializable {
 		m_autoIncrement = autoIncrement;
 		m_sqlType = sqlType;
 		m_platformTypeName = platformTypeName;
+		if("bpchar".equals(platformTypeName))
+			System.out.println();
 	}
 
 
