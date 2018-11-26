@@ -64,7 +64,9 @@ import javax.sql.DataSource;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Helper class to help with configuring Hibernate for DomUI easily. You are not required to
@@ -101,6 +103,8 @@ final public class HibernateConfigurator {
 	static private List<IHibernateConfigListener> m_onConfigureList = Collections.emptyList();
 
 	private static boolean m_allowHibernateHiloSequences;
+
+	private final static Map<String, String> m_hibernateOptions = new HashMap<>();
 
 	/**
 	 * Defines the database update mode (hibernate.hbm2ddl.auto).
@@ -142,6 +146,11 @@ final public class HibernateConfigurator {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Accessing the completed configuration's data.		*/
 	/*--------------------------------------------------------------*/
+
+	static public void setHibernateOption(String option, String value) {
+		configured();
+		m_hibernateOptions.put(option, value);
+	}
 
 	/**
 	 * Return the datasource, as configured.
@@ -332,6 +341,8 @@ final public class HibernateConfigurator {
 		 * See https://stackoverflow.com/questions/12745751/hibernate-sequencegenerator-and-allocationsize
 		 */
 		serviceBuilder.applySetting("hibernate.id.new_generator_mappings", "true"); // MUST BE BEFORE config.configure
+
+		m_hibernateOptions.forEach((option, value) -> serviceBuilder.applySetting(option, value));
 
 		if(DeveloperOptions.getBool("hibernate.format_sql", true)) {
 			serviceBuilder.applySetting("hibernate.format_sql", "true");
