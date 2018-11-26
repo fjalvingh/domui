@@ -458,11 +458,11 @@ public class JDBCReverser implements Reverser {
 				DbSchema fkSchema = findSchema(fkSchemaName);
 				DbSchema pkSchema = findSchema(pkSchemaName);
 				if(null == pkSchema) {
-					log("Missing schema '" + pkSchemaName + " for table " + t);
+					log("Missing schema '" + pkSchemaName + "' for table " + t);
 					continue;
 				}
 				if(null == fkSchema) {
-					log("Missing schema '" + fkSchemaName + " for table " + t);
+					log("Missing schema '" + fkSchemaName + "' for table " + t);
 					continue;
 				}
 
