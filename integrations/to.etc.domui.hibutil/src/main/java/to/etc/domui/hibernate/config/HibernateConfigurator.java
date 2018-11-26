@@ -87,7 +87,7 @@ final public class HibernateConfigurator {
 	static private QDataContextFactory m_contextSource;
 
 	/** All classes registered as part of the config. */
-	static private List<Class<?>> m_annotatedClassList = new ArrayList<Class<?>>();
+	static final private List<Class<?>> m_annotatedClassList = new ArrayList<Class<?>>();
 
 	/** When non-null, the user has set the "show sql" option. When unset it defaults to the DeveloperOptions setting. */
 	static private Boolean m_showSQL;
@@ -133,6 +133,11 @@ final public class HibernateConfigurator {
 	static private boolean m_observableEnabled;
 
 	static private boolean m_beforeImagesEnabled;
+
+	public static List<Class<?>> getAnnotatedClassList() {
+		return m_annotatedClassList;
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Accessing the completed configuration's data.		*/
@@ -365,7 +370,6 @@ final public class HibernateConfigurator {
 			listener.onAddSources(sources);
 		}
 
-		m_annotatedClassList = null; 							// Release memory- list is never used.
 		Metadata metaData = sources.getMetadataBuilder()
 			.applyImplicitNamingStrategy(ImplicitNamingStrategyJpaCompliantImpl.INSTANCE)
 			.build();
