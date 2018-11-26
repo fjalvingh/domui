@@ -43,34 +43,22 @@ abstract public class AbstractGenerator {
 		m_mapmap.put(t, new SimpleMapping(name));
 	}
 
-	/**
-	 * Returns T if the name passed can be used without identifier quoting.
-	 * @param name
-	 * @return
-	 */
-	public boolean isUnquotableName(String name) {
-		if(name == null || name.length() == 0)
-			return false;
-		char c = name.charAt(0);
-		if(!Character.isLetter(c) || !Character.isUpperCase(c))
-			return false;
-
-		for(int i = name.length(); --i > 0;) {
-			c = name.charAt(i);
-			if(c != '_' && !Character.isDigit(c) && !(Character.isLetter(c) && Character.isUpperCase(c)))
-				return false;
+	public boolean isQuotingNeeded(String name) {
+		for(int i = 0; i < name.length(); i++) {
+			char c = name.charAt(i);
+			if(! Character.isLetterOrDigit(c) && c != '_' && c != '$')
+				return true;
 		}
-		return true;
+		return ! (name.toLowerCase().equals(name) || name.toUpperCase().equals(name));
 	}
+
 
 	/**
 	 * Basic name renderer. Renders the name literally except when it
 	 * contains lowercase or bad chars.
-	 * @param a
-	 * @param name
 	 */
 	public void renderName(Appendable a, String name) throws Exception {
-		if(isUnquotableName(name)) {
+		if(!isQuotingNeeded(name)) {
 			a.append(name);
 			return;
 		}
@@ -266,6 +254,12 @@ abstract public class AbstractGenerator {
 			columnList.remove(ignorec);
 			sb.append("\t");
 			renderCreateColumn(sb, ignorec);
+
+			String name = pk.getName();
+			if(null != name) {
+				sb.append(" constraint ");
+				renderName(sb, name);
+			}
 			sb.append(" primary key\n");
 			needcomma = true;
 		}

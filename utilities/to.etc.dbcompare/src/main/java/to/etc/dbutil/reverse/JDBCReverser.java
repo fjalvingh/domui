@@ -260,12 +260,11 @@ public class JDBCReverser implements Reverser {
 	}
 
 	public void reverseColumns(@NonNull Connection dbc, DbTable t) throws Exception {
-		ResultSet rs = null;
+
 		List<DbColumn> columnList = new ArrayList<DbColumn>();
 		Map<String, DbColumn> columnMap = new HashMap<String, DbColumn>();
-
-		try {
-			rs = dbc.getMetaData().getColumns(null, t.getSchema().getName(), t.getName(), null); // All columns in the schema.
+		try(ResultSet rs = dbc.getMetaData().getColumns(null, t.getSchema().getName(), t.getName(), null)) {
+			// All columns in the schema.
 			int lastord = -1;
 			while(rs.next()) {
 				String name = rs.getString("COLUMN_NAME");
@@ -292,11 +291,6 @@ public class JDBCReverser implements Reverser {
 			}
 			//msg("Loaded " + t.getName() + ": " + columnMap.size() + " columns");
 			t.initializeColumns(columnList, columnMap);
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -317,20 +311,26 @@ public class JDBCReverser implements Reverser {
 		ColumnType ct = decodeColumnType(t.getSchema(), daty, typename);
 		DbColumn c;
 		if(ct == null) {
-			c = reverseColumnUnknownType(rs, t, name, daty, typename, prec, scale, nulla, autoIncrement);
+			c = reverseColumnUnknownType(rs, t, name, daty, typename, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement);
 			if(null == c) {
 				return null;
 			}
 		} else {
-			c = new DbColumn(t, name, ct, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement);
-			c.setPlatformTypeName(typename);
-			c.setSqlType(daty);
+			c = createDbColumn(t, name, daty, typename, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement, ct);
 		}
 		c.setComment(rs.getString("REMARKS"));
 		return c;
 	}
 
-	protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, int nulla, Boolean autoIncrement) {
+	@NonNull protected DbColumn createDbColumn(DbTable t, String name, int daty, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
+		DbColumn c;
+		c = new DbColumn(t, name, ct, prec, scale, nulla, autoIncrement);
+		c.setPlatformTypeName(typename);
+		c.setSqlType(daty);
+		return c;
+	}
+
+	protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement) {
 		log("Unknown type: SQLType " + sqlType + " (" + typename + ") in " + t.getName() + "." + name);
 		return null;
 	}
@@ -399,11 +399,9 @@ public class JDBCReverser implements Reverser {
 
 	@Override
 	public void reversePrimaryKey(@NonNull Connection dbc, DbTable t) throws Exception {
-		ResultSet rs = null;
 		List<DbColumn> pkl = new ArrayList<DbColumn>(); // Stupid resultset is ordered by NAME instead of ordinal. Dumbfuckers.
-		try {
-			rs = dbc.getMetaData().getPrimaryKeys(null, t.getSchema().getName(), t.getName());
-			DbPrimaryKey pk = null;
+		try(ResultSet rs = dbc.getMetaData().getPrimaryKeys(null, t.getSchema().getName(), t.getName())) {
+			DbPrimaryKey pk;
 			String name = null;
 			while(rs.next()) {
 				name = rs.getString("PK_NAME");
@@ -427,11 +425,6 @@ public class JDBCReverser implements Reverser {
 			} else {
 				t.setPrimaryKey(null);
 			}
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
 		}
 	}
 

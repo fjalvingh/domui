@@ -1,5 +1,6 @@
 package to.etc.dbutil.reverse;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbutil.schema.ColumnType;
 import to.etc.dbutil.schema.DbColumn;
@@ -14,6 +15,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,17 +87,105 @@ public class PostgresReverser extends JDBCReverser {
 		}
 	}
 
+	static private final String COLFLD = "select column_name, ordinal_position, column_default, is_nullable, data_type"
+		+ ", character_maximum_length, character_octet_length, numeric_precision, numeric_scale";
+
+	static private final String COLSQL =
+		" from information_schema.columns co\n"
+			+ "inner join pg_catalog.pg_namespace sch\n"
+			+ "    on co.table_schema = sch.nspname\n"
+			+ "inner join pg_catalog.pg_class cl\n"
+			+ "    on cl.relname = co.table_name\n"
+			+ "    and cl.relnamespace = sch.oid\n"
+			+ "left join pg_catalog.pg_description pd\n"
+			+ "\ton pd.objoid = cl.oid\n"
+			+ "\tand pd.objsubid = co.ordinal_position\n"
+			+ " where co.table_schema=? and co.table_name = ?"
+			+ " order by ordinal_position";
+
+	/**
+	 * Reverse all cols for a table.
+	 */
+	@Override public void reverseColumns(@NonNull Connection dbc, DbTable t) throws Exception {
+		Map<String, Integer> datymap = new HashMap<>();
+		try(ResultSet rs = dbc.getMetaData().getColumns(null, t.getSchema().getName(), t.getName(), null)) {
+			// All columns in the schema.
+			int lastord = -1;
+			while(rs.next()) {
+				String name = rs.getString("COLUMN_NAME");
+				int daty = rs.getInt("DATA_TYPE");                            // Types.xxx
+				datymap.put(name, daty);
+			}
+		}
+
+		try(PreparedStatement ps = dbc.prepareStatement(COLFLD + COLSQL)) {
+			ps.setString(1, t.getSchema().getName());
+			ps.setString(2, t.getName());
+
+			List<DbColumn> columnList = new ArrayList<>();
+			Map<String, DbColumn> columnMap = new HashMap<>();
+			try(ResultSet rs = ps.executeQuery()) {
+				while(rs.next()) {
+					String colName = rs.getString(1);
+					Integer daty = datymap.get(colName);
+
+					DbColumn c = decodePostgresColumn(dbc, t, rs, daty == null ? Integer.MAX_VALUE : daty.intValue());
+					if(null != columnMap.put(c.getName(), c))
+						throw new IllegalStateException("Duplicate column name '" + c.getName() + "' in table " + t.getName());
+					columnList.add(c);
+				}
+			}
+			t.initializeColumns(columnList, columnMap);
+		}
+	}
+
+	private DbColumn decodePostgresColumn(Connection dbc, DbTable t, ResultSet rs, int daty) throws Exception {
+		int i = 1;
+		String name = rs.getString(i++);
+		int pos = rs.getInt(i++);
+		String deflt = rs.getString(i++);
+		boolean nullable = "YES".equalsIgnoreCase(rs.getString(i++));
+		String typename = rs.getString(i++);
+		int charLen = rs.getInt(i++);
+		int octets = rs.getInt(i++);
+		int prec = rs.getInt(i++);
+		int scale = rs.getInt(i++);
+
+		ColumnType ct = decodeColumnType(t.getSchema(), daty, typename);
+		DbColumn c;
+		if(ct == null) {
+			c = reverseColumnUnknownType(rs, t, name, daty, typename, prec, scale, nullable, false);
+			if(null == c) {
+				return null;
+			}
+		} else {
+			c = createDbColumn(t, name, daty, typename, prec, scale, nullable, false, ct);
+		}
+		c.setComment(rs.getString("REMARKS"));
+
+
+
+
+	}
+
+	@NonNull @Override protected DbColumn createDbColumn(DbTable t, String name, int daty, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
+		if("bpchar".equals(typename))								// 8-(
+			typename = "char";
+
+		return super.createDbColumn(t, name, daty, typename, prec, scale, nulla, autoIncrement, ct);
+	}
+
 	/**
 	 * Can be a domain type- check.
 	 */
-	@Override protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, int nulla, Boolean autoIncrement) {
+	@Override protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement) {
 		if(sqlType == Types.OTHER || sqlType == Types.DISTINCT) {
 			String fullName = t.getSchema().getName() + "." + typename;
 			DbDomain domain = findDomain(fullName);
 			if(null == domain) {
 				domain = findDomain(typename);
 				if(null != domain) {
-					DbColumn c = new DbColumn(t, name, domain.getType(), domain.getPrecision(), domain.getScale(), nulla == DatabaseMetaData.columnNullable, autoIncrement, domain.getSqlType(), domain.getPlatformTypeName());
+					DbColumn c = new DbColumn(t, name, domain.getType(), domain.getPrecision(), domain.getScale(), nulla, autoIncrement, domain.getSqlType(), domain.getPlatformTypeName());
 					return c;
 				}
 			}
@@ -103,7 +194,7 @@ public class PostgresReverser extends JDBCReverser {
 		if(sqlType == Types.OTHER) {
 			if("uuid".equals(typename)) {
 				ColumnType ct = ColumnType.VARCHAR;
-				return new DbColumn(t, name, ct, prec, 0, nulla == DatabaseMetaData.columnNullable, autoIncrement, ct.getSqlType(), ct.getName());
+				return new DbColumn(t, name, ct, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
 			}
 		}
 
