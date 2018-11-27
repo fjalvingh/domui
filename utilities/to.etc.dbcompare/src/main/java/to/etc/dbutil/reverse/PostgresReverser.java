@@ -114,6 +114,9 @@ public class PostgresReverser extends JDBCReverser {
 		long cacheSize = rs.getLong(i++);
 		long lastValue = rs.getLong(i);
 
+		if(maxValue == Long.MAX_VALUE)
+			maxValue = Long.MIN_VALUE;
+
 		ColumnType columnType = decodeColumnTypeByExplicitCode(schema, Integer.MAX_VALUE, type);
 		DbSequence seq = new DbSequence(schema, name, columnType, type, startValue, minValue, maxValue, increment, cacheSize, lastValue);
 		schema.addSequence(seq);
@@ -289,7 +292,7 @@ public class PostgresReverser extends JDBCReverser {
 				ColumnType ct = ColumnType.VARCHAR;
 				return new DbColumn(t, name, ct, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
 			}
-			if("json".equals(sqlType)) {
+			if("json".equals(typename)) {
 				ColumnType ct = ColumnType.JSON;
 				return new DbColumn(t, name, ct, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
 			}

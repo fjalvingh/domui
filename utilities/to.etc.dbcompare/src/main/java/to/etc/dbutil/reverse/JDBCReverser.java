@@ -237,8 +237,9 @@ public class JDBCReverser implements Reverser {
 		return first.isPresent() ? first.get() : null;
 	}
 
+	@Override
 	@Nullable
-	protected DbSchema findSchema(String name) {
+	public DbSchema findSchema(String name) {
 		return findSchema(m_schemaSet, name);
 	}
 

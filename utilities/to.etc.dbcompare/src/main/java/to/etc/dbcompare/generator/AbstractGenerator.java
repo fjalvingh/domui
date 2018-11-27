@@ -150,7 +150,7 @@ abstract public class AbstractGenerator {
 		}
 	}
 
-	private void renderColumnDefault(StringBuilder sb, DbColumn c, String dflt) {
+	protected void renderColumnDefault(StringBuilder sb, DbColumn c, String dflt) {
 		sb.append(" default ");
 		sb.append(dflt);
 	}
@@ -304,6 +304,10 @@ abstract public class AbstractGenerator {
 			renderColumnComment(l, newc);
 	}
 
+	protected boolean isAllowEmbeddedPK() {
+		return true;
+	}
+
 	public void addTable(List<String> l, DbTable st) {
 		StringBuilder sb = new StringBuilder(512);
 		sb.append("create table ");
@@ -314,27 +318,22 @@ abstract public class AbstractGenerator {
 		boolean needcomma = false;
 		List<DbColumn> columnList = st.getColumnList();
 		DbPrimaryKey pk = st.getPrimaryKey();
-		if(pk != null && pk.getColumnList().size() == 1) {
+		boolean pkrendered = false;
+		if(pk != null && pk.getColumnList().size() == 1 && isAllowEmbeddedPK()) {
 			//-- Dump PK column,
 			DbColumn ignorec = pk.getColumnList().get(0);
-			columnList.remove(ignorec);
-			sb.append("\t");
-			renderCreateColumn(sb, ignorec);
-
-			String name = pk.getName();
-			if(null != name) {
-				sb.append(" constraint ");
-				renderName(sb, name);
-			}
-			sb.append(" primary key\n");
+			columnList.remove(ignorec);				// Do not render it after
+			renderPkColumn(sb, pk);
 			needcomma = true;
+			pkrendered = true;
 		}
 
 		//-- Render all other columns,
 		needcomma = renderAllColumns(sb, needcomma, columnList);
 
 		//-- If a compound PK is present add that,
-		renderCompoundPK(sb, needcomma, pk);
+		if(! pkrendered)
+			renderCompoundPK(sb, needcomma, pk);
 
 		sb.append(")");
 		l.add(sb.toString());
@@ -344,34 +343,46 @@ abstract public class AbstractGenerator {
 		renderColumnComments(l, st);
 	}
 
+	protected void renderPkColumn(StringBuilder sb, DbPrimaryKey pk) {
+		DbColumn ignorec = pk.getColumnList().get(0);
+		sb.append("\t");
+		renderInTableColumn(sb, ignorec);
+		String name = pk.getName();
+		if(null != name) {
+			sb.append(" constraint ");
+			renderName(sb, name);
+		}
+		sb.append(" primary key\n");
+	}
+
 	private void renderColumnComments(List<String> l, DbTable st) {
 		for(DbColumn sc : st.getColumnList()) {
 			renderColumnComment(l, sc);
 		}
 	}
 
-	private void renderCompoundPK(StringBuilder sb, boolean needcomma, DbPrimaryKey pk) {
-		if(pk != null && pk.getColumnList().size() > 1) {
-			if(needcomma)
-				sb.append(',');
-			sb.append("\t");
-			if(pk.getName() != null) {
-				sb.append("constraint ");
-				sb.append(pk.getName());
-				sb.append(' ');
-			}
-			sb.append("primary key(");
-			boolean fst = true;
-			for(DbColumn c : pk.getColumnList()) {
-				if(!fst)
-					sb.append(',');
-				else
-					fst = false;
-				sb.append(c.getName());
-			}
-			sb.append(")");
-			needcomma = true;
+	protected void renderCompoundPK(StringBuilder sb, boolean needcomma, DbPrimaryKey pk) {
+		if(pk == null) {
+			return;
 		}
+		if(needcomma)
+			sb.append(',');
+		sb.append("\t");
+		if(pk.getName() != null) {
+			sb.append("constraint ");
+			sb.append(pk.getName());
+			sb.append(' ');
+		}
+		sb.append("primary key(");
+		boolean fst = true;
+		for(DbColumn c : pk.getColumnList()) {
+			if(!fst)
+				sb.append(',');
+			else
+				fst = false;
+			sb.append(c.getName());
+		}
+		sb.append(")");
 	}
 
 	private boolean renderAllColumns(StringBuilder sb, boolean needcomma, List<DbColumn> columnList) {
@@ -379,18 +390,22 @@ abstract public class AbstractGenerator {
 			if(needcomma)
 				sb.append(',');
 			sb.append("\t");
-			renderCreateColumn(sb, c);
+			renderInTableColumn(sb, c);
 			sb.append("\n");
 			needcomma = true;
 		}
 		return needcomma;
 	}
 
-	private void renderCreateColumn(StringBuilder sb, DbColumn c) {
+	protected void renderInTableColumn(StringBuilder sb, DbColumn c) {
+		renderCreateColumnNameAndType(sb, c);
+		renderDefault(sb, c);
+	}
+
+	protected void renderCreateColumnNameAndType(StringBuilder sb, DbColumn c) {
 		sb.append(c.getName());
 		sb.append(" ");
 		renderColumnType(sb, c, true);
-		renderDefault(sb, c);
 	}
 
 	public void renderDropTable(List<String> l, DbTable dt) {
