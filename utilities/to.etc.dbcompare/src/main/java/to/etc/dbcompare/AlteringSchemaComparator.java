@@ -55,7 +55,7 @@ public class AlteringSchemaComparator extends AbstractSchemaComparator {
 		System.out.println("delta: " + s);
 	}
 
-	public void renderFieldName(Appendable a, String name) throws Exception {
+	public void renderFieldName(StringBuilder a, String name) throws Exception {
 		m_g.renderFieldName(a, name);
 	}
 

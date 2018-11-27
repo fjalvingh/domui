@@ -16,7 +16,6 @@ import to.etc.dbutil.schema.IndexColumn;
 import to.etc.dbutil.schema.Package;
 import to.etc.dbutil.schema.Trigger;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,7 @@ abstract public class AbstractGenerator {
 	 * Basic name renderer. Renders the name literally except when it
 	 * contains lowercase or bad chars.
 	 */
-	public void renderName(Appendable a, String name) throws Exception {
+	public void renderName(StringBuilder a, String name) {
 		if(!isQuotingNeeded(name)) {
 			a.append(name);
 			return;
@@ -74,7 +73,7 @@ abstract public class AbstractGenerator {
 		a.append('"');
 	}
 
-	protected void renderQualifiedName(Appendable sb, DbSchema schema, String name) throws Exception {
+	protected void renderQualifiedName(StringBuilder sb, DbSchema schema, String name) {
 		if(m_appendSchemaNames && schema != null) {
 			renderName(sb, schema.getName());
 			sb.append('.');
@@ -82,7 +81,7 @@ abstract public class AbstractGenerator {
 		renderName(sb, name);
 	}
 
-	public void renderFieldName(Appendable a, String name) throws Exception {
+	public void renderFieldName(StringBuilder a, String name) {
 		a.append(name);
 	}
 
@@ -103,32 +102,29 @@ abstract public class AbstractGenerator {
 		return ";";
 	}
 
-	final public String renderColumnType(DbColumn c, boolean rest) throws Exception {
+	final public String renderColumnType(DbColumn c, boolean rest) {
 		StringBuilder sb = new StringBuilder();
 		renderColumnType(sb, c, rest);
 		return sb.toString();
 	}
 
-	static private final TypeMapping BASE = new TypeMapping() {
-		@Override
-		public void renderType(Appendable sb, DbColumn c) throws Exception {
-			ColumnType ct = c.getType();
-			sb.append(ct.getName());
+	static private final TypeMapping BASE = (sb, c) -> {
+		ColumnType ct = c.getType();
+		sb.append(ct.getName());
 
-			//if(c.getPlatformTypeName() != null)
-			//	sb.append(c.getPlatformTypeName());
-			//else {
-			//	sb.append(ct.getName());
-			//}
-			if(ct.isPrecision() && c.getPrecision() >= 0) {
-				sb.append("(");
-				sb.append(Integer.toString(c.getPrecision()));
-				if(ct.isScale() && c.getScale() >= 0) {
-					sb.append(',');
-					sb.append(Integer.toString(c.getScale()));
-				}
-				sb.append(')');
+		//if(c.getPlatformTypeName() != null)
+		//	sb.append(c.getPlatformTypeName());
+		//else {
+		//	sb.append(ct.getName());
+		//}
+		if(ct.isPrecision() && c.getPrecision() >= 0) {
+			sb.append("(");
+			sb.append(Integer.toString(c.getPrecision()));
+			if(ct.isScale() && c.getScale() >= 0) {
+				sb.append(',');
+				sb.append(Integer.toString(c.getScale()));
 			}
+			sb.append(')');
 		}
 	};
 
@@ -137,14 +133,14 @@ abstract public class AbstractGenerator {
 		return m == null ? BASE : m;
 	}
 
-	public void renderColumnType(Appendable sb, DbColumn c, boolean rest) throws Exception {
+	public void renderColumnType(StringBuilder sb, DbColumn c, boolean rest) {
 		TypeMapping m = getTypeMapping(c);
 		m.renderType(sb, c);
 		if(!c.isNullable() && rest)
 			sb.append(" not null");
 	}
 
-	public void renderDefault(Appendable sb, DbColumn c) throws Exception {
+	public void renderDefault(StringBuilder sb, DbColumn c) {
 		DbSequence usedSequence = c.getUsedSequence();
 		String dflt = c.getDefault();
 		if(null != usedSequence) {
@@ -154,12 +150,12 @@ abstract public class AbstractGenerator {
 		}
 	}
 
-	private void renderColumnDefault(Appendable sb, DbColumn c, String dflt) throws IOException {
+	private void renderColumnDefault(StringBuilder sb, DbColumn c, String dflt) {
 		sb.append(" default ");
 		sb.append(dflt);
 	}
 
-	public void renderDefaultSequence(Appendable sb, @NonNull DbColumn c, @NonNull DbSequence usedSequence) throws Exception {
+	public void renderDefaultSequence(StringBuilder sb, @NonNull DbColumn c, @NonNull DbSequence usedSequence) {
 		sb.append(" default ");
 		sb.append("nextval('");
 		renderQualifiedName(sb, usedSequence.getSchema(), usedSequence.getName());
@@ -174,7 +170,7 @@ abstract public class AbstractGenerator {
 		useCurrent
 	}
 
-	public void addSequence(List<String> out, DbSequence sq, GenSequenceType type) throws Exception {
+	public void addSequence(List<String> out, DbSequence sq, GenSequenceType type) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("create sequence ");
 		renderQualifiedName(sb, sq.getSchema(), sq.getName());
@@ -200,7 +196,7 @@ abstract public class AbstractGenerator {
 		out.add(sb.toString());
 	}
 
-	public void renderAddColumn(Appendable sb, DbTable dt, DbColumn sc) throws Exception {
+	public void renderAddColumn(StringBuilder sb, DbTable dt, DbColumn sc) {
 		sb.append("alter table ");
 		renderTableName(sb, dt);
 		sb.append("\n\tadd ");
@@ -211,16 +207,16 @@ abstract public class AbstractGenerator {
 		sb.append(getStatementDelimiter() + "\n");
 	}
 
-	private void renderTableName(Appendable sb, DbTable dt) throws Exception {
+	private void renderTableName(StringBuilder sb, DbTable dt) {
 		renderQualifiedName(sb, dt.getSchema(), dt.getName());
 	}
 
-	public void renderColumnDrop(List<String> l, DbTable dt, DbColumn dc) throws Exception {
+	public void renderColumnDrop(List<String> l, DbTable dt, DbColumn dc) {
 		//-- Create "drop"
 		l.add("alter table " + dt.getName() + "\n\tdrop column " + dc.getName() + getStatementDelimiter() + "\n");
 	}
 
-	public void renderColumnComment(List<String> sl, DbColumn sc) throws Exception {
+	public void renderColumnComment(List<String> sl, DbColumn sc) {
 		if(sc.getComment() != null && sc.getComment().length() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on column ");
@@ -233,7 +229,7 @@ abstract public class AbstractGenerator {
 		}
 	}
 
-	public void renderTableComment(List<String> sl, DbTable sc) throws Exception {
+	public void renderTableComment(List<String> sl, DbTable sc) {
 		if(sc.getComments() != null && sc.getComments().length() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on table ");
@@ -245,7 +241,7 @@ abstract public class AbstractGenerator {
 		}
 	}
 
-	public void columnChanged(List<String> l, DbTable dt, DbColumn newc, DbColumn oldc, int flag) throws Exception {
+	public void columnChanged(List<String> l, DbTable dt, DbColumn newc, DbColumn oldc, int flag) {
 		StringBuilder sb = new StringBuilder();
 
 		//-- What changes can I support?
@@ -308,7 +304,7 @@ abstract public class AbstractGenerator {
 			renderColumnComment(l, newc);
 	}
 
-	public void addTable(List<String> l, DbTable st) throws Exception {
+	public void addTable(List<String> l, DbTable st) {
 		StringBuilder sb = new StringBuilder(512);
 		sb.append("create table ");
 		renderQualifiedName(sb, st.getSchema(), st.getName());
@@ -348,7 +344,7 @@ abstract public class AbstractGenerator {
 		renderColumnComments(l, st);
 	}
 
-	private void renderColumnComments(List<String> l, DbTable st) throws Exception {
+	private void renderColumnComments(List<String> l, DbTable st) {
 		for(DbColumn sc : st.getColumnList()) {
 			renderColumnComment(l, sc);
 		}
@@ -378,7 +374,7 @@ abstract public class AbstractGenerator {
 		}
 	}
 
-	private boolean renderAllColumns(StringBuilder sb, boolean needcomma, List<DbColumn> columnList) throws Exception {
+	private boolean renderAllColumns(StringBuilder sb, boolean needcomma, List<DbColumn> columnList) {
 		for(DbColumn c : columnList) {
 			if(needcomma)
 				sb.append(',');
@@ -390,7 +386,7 @@ abstract public class AbstractGenerator {
 		return needcomma;
 	}
 
-	private void renderCreateColumn(StringBuilder sb, DbColumn c) throws Exception {
+	private void renderCreateColumn(StringBuilder sb, DbColumn c) {
 		sb.append(c.getName());
 		sb.append(" ");
 		renderColumnType(sb, c, true);
@@ -406,7 +402,7 @@ abstract public class AbstractGenerator {
 
 	}
 
-	public void renderCreatePK(List<String> l, DbPrimaryKey pk) throws Exception {
+	public void renderCreatePK(List<String> l, DbPrimaryKey pk) {
 		StringBuilder a = new StringBuilder();
 		a.append("alter table ");
 		renderTableName(a, pk.getTable());
@@ -429,7 +425,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderDropPK(List<String> l, DbPrimaryKey pk) throws Exception {
+	public void renderDropPK(List<String> l, DbPrimaryKey pk) {
 		StringBuilder a = new StringBuilder();
 		a.append("alter table ");
 		renderTableName(a, pk.getTable());
@@ -448,7 +444,7 @@ abstract public class AbstractGenerator {
 	/*	CODING:	Relation delta.										*/
 	/*--------------------------------------------------------------*/
 
-	public void renderDropRelation(List<String> l, DbTable dt, DbRelation sr) throws Exception {
+	public void renderDropRelation(List<String> l, DbTable dt, DbRelation sr) {
 		StringBuilder a = new StringBuilder(512);
 		a.append("alter table ");
 		renderTableName(a, dt);
@@ -457,7 +453,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderAddRelation(List<String> l, DbTable dt, DbRelation dr) throws Exception {
+	public void renderAddRelation(List<String> l, DbTable dt, DbRelation dr) {
 		StringBuilder a = new StringBuilder(512);
 		a.append("alter table ");
 		renderTableName(a, dt);
@@ -524,7 +520,7 @@ abstract public class AbstractGenerator {
 	/*	CODING:	Views.												*/
 	/*--------------------------------------------------------------*/
 
-	public void renderCreateView(List<String> l, DbView v) throws Exception {
+	public void renderCreateView(List<String> l, DbView v) {
 		StringBuilder a = new StringBuilder();
 		a.append("create or replace view ");
 		a.append(v.getName());
@@ -534,14 +530,14 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderDropView(List<String> l, DbView v) throws Exception {
+	public void renderDropView(List<String> l, DbView v) {
 		StringBuilder a = new StringBuilder();
 		a.append("drop view ");
 		a.append(v.getName());
 		l.add(a.toString());
 	}
 
-	public void renderCreatePackageDefinition(List<String> l, Package p) throws Exception {
+	public void renderCreatePackageDefinition(List<String> l, Package p) {
 		StringBuilder a = new StringBuilder();
 		a.append("create or replace package ");
 		a.append(p.getName());
@@ -551,7 +547,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderCreatePackageBody(List<String> l, Package p) throws Exception {
+	public void renderCreatePackageBody(List<String> l, Package p) {
 		StringBuilder a = new StringBuilder();
 		a.append("create or replace package body ");
 		a.append(p.getName());
@@ -561,7 +557,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderDropPackage(List<String> l, Package p) throws Exception {
+	public void renderDropPackage(List<String> l, Package p) {
 		StringBuilder a = new StringBuilder();
 		a.append("drop package body ");
 		a.append(p.getName());
@@ -572,7 +568,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderAddTrigger(List<String> l, Trigger t) throws Exception {
+	public void renderAddTrigger(List<String> l, Trigger t) {
 		StringBuilder a = new StringBuilder();
 		a.append("create or replace trigger ");
 		a.append(t.getName());
@@ -582,7 +578,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderDropTrigger(List<String> l, Trigger t) throws Exception {
+	public void renderDropTrigger(List<String> l, Trigger t) {
 		StringBuilder a = new StringBuilder();
 		a.append("drop trigger ");
 		a.append(t.getName());
@@ -590,7 +586,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderDropIndex(List<String> l, DbIndex ix) throws Exception {
+	public void renderDropIndex(List<String> l, DbIndex ix) {
 		StringBuilder a = new StringBuilder();
 		a.append("drop index ");
 		a.append(ix.getName());
@@ -598,7 +594,7 @@ abstract public class AbstractGenerator {
 		l.add(a.toString());
 	}
 
-	public void renderCreateIndex(List<String> l, DbIndex ix) throws Exception {
+	public void renderCreateIndex(List<String> l, DbIndex ix) {
 		StringBuilder a = new StringBuilder();
 		a.append("create ");
 		if(ix.isUnique())
