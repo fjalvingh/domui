@@ -477,8 +477,10 @@ public class JDBCReverser implements Reverser {
 				String fkcname = rs.getString("FKCOLUMN_NAME");
 				String pkcname = rs.getString("PKCOLUMN_NAME");
 				String fkname = rs.getString("FK_NAME");
-				if(fkname != null && fkname.length() > 0 && name == null)
+
+				if(fkname != null && fkname.length() > 0)
 					name = fkname;
+
 				int ord = rs.getInt("KEY_SEQ");
 				if(!pktname.equals(t.getName()))
 					throw new IllegalStateException("JDBC driver trouble: getExportedKeys returned key from table " + pktname + " while asking for table " + t.getName());
@@ -559,7 +561,7 @@ public class JDBCReverser implements Reverser {
 				String fkcname = rs.getString("FKCOLUMN_NAME");
 				String pkcname = rs.getString("PKCOLUMN_NAME");
 				String fkname = rs.getString("FK_NAME");
-				if(fkname != null && fkname.length() > 0 && name == null)
+				if(fkname != null && fkname.length() > 0)
 					name = fkname;
 				int ord = rs.getInt("KEY_SEQ");
 				if(!pktname.equals(t.getName()))
