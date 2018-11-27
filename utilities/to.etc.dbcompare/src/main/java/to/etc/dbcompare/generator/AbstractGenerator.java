@@ -1,5 +1,6 @@
 package to.etc.dbcompare.generator;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.dbutil.schema.ColumnType;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbIndex;
@@ -14,6 +15,7 @@ import to.etc.dbutil.schema.IndexColumn;
 import to.etc.dbutil.schema.Package;
 import to.etc.dbutil.schema.Trigger;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,11 +108,13 @@ abstract public class AbstractGenerator {
 		@Override
 		public void renderType(Appendable sb, DbColumn c) throws Exception {
 			ColumnType ct = c.getType();
-			if(c.getPlatformTypeName() != null)
-				sb.append(c.getPlatformTypeName());
-			else {
-				sb.append(ct.getName());
-			}
+			sb.append(ct.getName());
+
+			//if(c.getPlatformTypeName() != null)
+			//	sb.append(c.getPlatformTypeName());
+			//else {
+			//	sb.append(ct.getName());
+			//}
 			if(ct.isPrecision() && c.getPrecision() >= 0) {
 				sb.append("(");
 				sb.append(Integer.toString(c.getPrecision()));
@@ -133,6 +137,28 @@ abstract public class AbstractGenerator {
 		m.renderType(sb, c);
 		if(!c.isNullable() && rest)
 			sb.append(" not null");
+	}
+
+	public void renderDefault(Appendable sb, DbColumn c) throws Exception {
+		DbSequence usedSequence = c.getUsedSequence();
+		String dflt = c.getDefault();
+		if(null != usedSequence) {
+			renderDefaultSequence(sb, c, usedSequence);
+		} else if(null != dflt) {
+			renderColumnDefault(sb, c, dflt);
+		}
+	}
+
+	private void renderColumnDefault(Appendable sb, DbColumn c, String dflt) throws IOException {
+		sb.append(" default ");
+		sb.append(dflt);
+	}
+
+	public void renderDefaultSequence(Appendable sb, @NonNull DbColumn c, @NonNull DbSequence usedSequence) throws Exception {
+		sb.append(" default ");
+		sb.append("nextval('");
+		renderQualifiedName(sb, usedSequence.getSchema(), usedSequence.getName());
+		sb.append("')");
 	}
 
 	public enum GenSequenceType {
@@ -158,7 +184,10 @@ abstract public class AbstractGenerator {
 			sb.append(" maxvalue ").append(sq.getMaxValue());
 		}
 		if(sq.getLastValue() != Long.MIN_VALUE && type == GenSequenceType.useCurrent) {
-			sb.append(" start with ").append(sq.getLastValue());
+			long val = sq.getLastValue();
+			if(sq.getMinValue() != Long.MIN_VALUE && val >= sq.getMinValue()) {
+				sb.append(" start with ").append(sq.getLastValue());
+			}
 		}
 		if(sq.getCacheSize() != Long.MIN_VALUE) {
 			sb.append(" cache ").append(sq.getCacheSize());
@@ -166,7 +195,7 @@ abstract public class AbstractGenerator {
 		out.add(sb.toString());
 	}
 
-	protected void renderQualifiedName(StringBuilder sb, DbSchema schema, String name) throws Exception {
+	protected void renderQualifiedName(Appendable sb, DbSchema schema, String name) throws Exception {
 		if(m_appendSchemaNames && schema != null) {
 			renderName(sb, schema.getName());
 			sb.append('.');
@@ -181,6 +210,7 @@ abstract public class AbstractGenerator {
 		sb.append(sc.getName());
 		sb.append(' ');
 		renderColumnType(sb, sc, true);
+		renderDefault(sb, sc);
 		sb.append(getStatementDelimiter() + "\n");
 	}
 
@@ -198,23 +228,21 @@ abstract public class AbstractGenerator {
 			renderName(sb, sc.getName());
 			sb.append(" is ");
 			sb.append(quoted(sc.getComment()));
-			sb.append(";\n");
 			sl.add(sb.toString());
 		}
 	}
 
-	public void renderTableComment(List<String> sl, DbTable sc) {
+	public void renderTableComment(List<String> sl, DbTable sc) throws Exception {
 		if(sc.getComments() != null && sc.getComments().length() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on table ");
-			sb.append(sc.getName());
+			renderQualifiedName(sb, sc.getSchema(), sc.getName());
 			sb.append(" is ");
 			sb.append(quoted(sc.getComments()));
 			sb.append(";\n");
 			sl.add(sb.toString());
 		}
 	}
-
 
 	public void columnChanged(List<String> l, DbTable dt, DbColumn newc, DbColumn oldc, int flag) throws Exception {
 		StringBuilder sb = new StringBuilder();
@@ -237,7 +265,6 @@ abstract public class AbstractGenerator {
 			sb.setLength(0);
 			sb.append("-- Change from old type= ");
 			renderColumnType(sb, oldc, true);
-			sb.append(";");
 			l.add(sb.toString());
 
 			sb.setLength(0);
@@ -312,7 +339,7 @@ abstract public class AbstractGenerator {
 		//-- If a compound PK is present add that,
 		renderCompoundPK(sb, needcomma, pk);
 
-		sb.append(");\n");
+		sb.append(")");
 		l.add(sb.toString());
 
 		//-- Table comments,
@@ -366,6 +393,7 @@ abstract public class AbstractGenerator {
 		sb.append(c.getName());
 		sb.append(" ");
 		renderColumnType(sb, c, true);
+		renderDefault(sb, c);
 	}
 
 	public void renderDropTable(List<String> l, DbTable dt) {
@@ -425,7 +453,6 @@ abstract public class AbstractGenerator {
 		renderTableName(a, dt.getName());
 		a.append("\n\tdrop constraint ");
 		renderName(a, sr.getName());
-		a.append(";");
 		l.add(a.toString());
 	}
 
@@ -451,7 +478,7 @@ abstract public class AbstractGenerator {
 				a.append(',');
 			renderName(a, p.getParentColumn().getName());
 		}
-		a.append(");");
+		a.append(")");
 		l.add(a.toString());
 	}
 
@@ -473,7 +500,6 @@ abstract public class AbstractGenerator {
 		StringBuilder a = new StringBuilder();
 		a.append("drop view ");
 		a.append(v.getName());
-		a.append(";");
 		l.add(a.toString());
 	}
 
@@ -501,12 +527,10 @@ abstract public class AbstractGenerator {
 		StringBuilder a = new StringBuilder();
 		a.append("drop package body ");
 		a.append(p.getName());
-		a.append(";");
 		l.add(a.toString());
 		a.setLength(0);
 		a.append("drop package ");
 		a.append(p.getName());
-		a.append(";");
 		l.add(a.toString());
 	}
 

@@ -43,6 +43,10 @@ public class PostgresGenerator extends AbstractGenerator {
 		registerMapping(ColumnType.NUMBER, NUMBER);
 		registerMapping(ColumnType.VARCHAR, VARCHAR);
 		registerMapping(ColumnType.BOOLEAN, (a, c) -> a.append("boolean"));
+		registerMapping(ColumnType.INTEGER, (a, c) -> a.append("integer"));
+		registerMapping(ColumnType.BIGINT, (a, c) -> a.append("bigint"));
+		registerMapping(ColumnType.BLOB, (a, c) -> a.append("oid"));
+
 	}
 
 

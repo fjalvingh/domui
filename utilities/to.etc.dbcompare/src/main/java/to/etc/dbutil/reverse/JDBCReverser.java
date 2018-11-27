@@ -573,15 +573,32 @@ public class JDBCReverser implements Reverser {
 	/**
 	 * Very simple and naive impl of mapping the genericised type.
 	 */
+	@Nullable
 	public ColumnType decodeColumnType(@Nullable DbSchema schema, int sqltype, @Nullable String typename) {
+		if("text".equals(typename))
+			System.out.println();
+		ColumnType columnType = decodeColumnTypeByPlatformName(schema, sqltype, typename);
+		if(null != columnType)
+			return columnType;
+
+		columnType = decodeColumnTypeByExplicitCode(schema, sqltype, typename);
+		if(null != columnType)
+			return columnType;
+
+		columnType = decodeColumnTypeByCodeTypeCodes(sqltype);
+		if(null != columnType)
+			return columnType;
+
+		return null;
+	}
+
+	@Nullable
+	protected ColumnType decodeColumnTypeByCodeTypeCodes(int sqltype) {
 		for(ColumnType t : ColumnType.getTypes()) {
 			if(t.getSqlType() == sqltype)
 				return t;
 		}
-		ColumnType x = decodeColumnTypeByCode(schema, sqltype, typename);
-		if(x != null)
-			return x;
-		return decodeColumnTypeByPlatformName(schema, sqltype, typename);
+		return null;
 	}
 
 	protected ColumnType decodeColumnTypeByPlatformName(@Nullable DbSchema schema, int sqltype, @Nullable String typename) {
@@ -597,7 +614,7 @@ public class JDBCReverser implements Reverser {
 		return null;
 	}
 
-	protected ColumnType decodeColumnTypeByCode(DbSchema schema, int sqltype, String typename) {
+	protected ColumnType decodeColumnTypeByExplicitCode(DbSchema schema, int sqltype, String typename) {
 		switch(sqltype){
 			case Types.BIT:
 				return ColumnType.BOOLEAN;

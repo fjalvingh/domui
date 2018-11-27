@@ -114,7 +114,7 @@ public class PostgresReverser extends JDBCReverser {
 		long cacheSize = rs.getLong(i++);
 		long lastValue = rs.getLong(i);
 
-		ColumnType columnType = decodeColumnTypeByCode(schema, Integer.MAX_VALUE, type);
+		ColumnType columnType = decodeColumnTypeByExplicitCode(schema, Integer.MAX_VALUE, type);
 		DbSequence seq = new DbSequence(schema, name, columnType, type, startValue, minValue, maxValue, increment, cacheSize, lastValue);
 		schema.addSequence(seq);
 	}
@@ -292,7 +292,6 @@ public class PostgresReverser extends JDBCReverser {
 			if("json".equals(sqlType)) {
 				ColumnType ct = ColumnType.JSON;
 				return new DbColumn(t, name, ct, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
-
 			}
 		}
 
@@ -301,7 +300,7 @@ public class PostgresReverser extends JDBCReverser {
 	}
 
 	@Override
-	public ColumnType decodeColumnTypeByCode(@Nullable DbSchema schema, int sqltype, @Nullable String typename) {
+	public ColumnType decodeColumnTypeByExplicitCode(@Nullable DbSchema schema, int sqltype, @Nullable String typename) {
 		if("oid".equalsIgnoreCase(typename))
 			return ColumnType.BLOB;
 		if("bytea".equalsIgnoreCase(typename))
@@ -309,7 +308,7 @@ public class PostgresReverser extends JDBCReverser {
 		if("text".equalsIgnoreCase(typename))
 			return ColumnType.CLOB;
 
-		return super.decodeColumnTypeByCode(schema, sqltype, typename);
+		return super.decodeColumnTypeByExplicitCode(schema, sqltype, typename);
 	}
 
 	//@Override protected ColumnType decodeColumnTypeByPlatformName(DbSchema schema, int sqltype, String typename) {
