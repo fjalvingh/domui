@@ -51,7 +51,7 @@ public class HSQLDBGenerator extends AbstractGenerator {
 		registerMapping(ColumnType.INTEGER, (a, c) -> a.append("integer"));
 		registerMapping(ColumnType.BIGINT, (a, c) -> a.append("bigint"));
 		//registerMapping(ColumnType.BLOB, (a, c) -> a.append("oid"));
-		registerMapping(ColumnType.JSON, (a, c) -> a.append("varchar(4096)"));
+		registerMapping(ColumnType.JSON, (a, c) -> a.append("text"));
 
 	}
 
