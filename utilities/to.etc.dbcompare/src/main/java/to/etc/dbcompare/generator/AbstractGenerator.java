@@ -73,8 +73,12 @@ abstract public class AbstractGenerator {
 		a.append('"');
 	}
 
-	public void renderTableName(Appendable a, String name) throws Exception {
-		a.append(name);
+	protected void renderQualifiedName(Appendable sb, DbSchema schema, String name) throws Exception {
+		if(m_appendSchemaNames && schema != null) {
+			renderName(sb, schema.getName());
+			sb.append('.');
+		}
+		renderName(sb, name);
 	}
 
 	public void renderFieldName(Appendable a, String name) throws Exception {
@@ -195,23 +199,19 @@ abstract public class AbstractGenerator {
 		out.add(sb.toString());
 	}
 
-	protected void renderQualifiedName(Appendable sb, DbSchema schema, String name) throws Exception {
-		if(m_appendSchemaNames && schema != null) {
-			renderName(sb, schema.getName());
-			sb.append('.');
-		}
-		renderName(sb, name);
-	}
-
 	public void renderAddColumn(Appendable sb, DbTable dt, DbColumn sc) throws Exception {
 		sb.append("alter table ");
-		renderTableName(sb, dt.getName());
+		renderTableName(sb, dt);
 		sb.append("\n\tadd ");
 		sb.append(sc.getName());
 		sb.append(' ');
 		renderColumnType(sb, sc, true);
 		renderDefault(sb, sc);
 		sb.append(getStatementDelimiter() + "\n");
+	}
+
+	private void renderTableName(Appendable sb, DbTable dt) throws Exception {
+		renderQualifiedName(sb, dt.getSchema(), dt.getName());
 	}
 
 	public void renderColumnDrop(List<String> l, DbTable dt, DbColumn dc) throws Exception {
@@ -408,7 +408,7 @@ abstract public class AbstractGenerator {
 	public void renderCreatePK(List<String> l, DbPrimaryKey pk) throws Exception {
 		StringBuilder a = new StringBuilder();
 		a.append("alter table ");
-		renderTableName(a, pk.getTable().getName());
+		renderTableName(a, pk.getTable());
 		a.append("\n\tadd ");
 		if(pk.getName() != null) {
 			a.append("constraint ");
@@ -431,7 +431,7 @@ abstract public class AbstractGenerator {
 	public void renderDropPK(List<String> l, DbPrimaryKey pk) throws Exception {
 		StringBuilder a = new StringBuilder();
 		a.append("alter table ");
-		renderTableName(a, pk.getTable().getName());
+		renderTableName(a, pk.getTable());
 		a.append("\n\tdrop ");
 		if(pk.getName() != null) {
 			a.append("constraint ");
@@ -450,7 +450,7 @@ abstract public class AbstractGenerator {
 	public void renderDropRelation(List<String> l, DbTable dt, DbRelation sr) throws Exception {
 		StringBuilder a = new StringBuilder(512);
 		a.append("alter table ");
-		renderTableName(a, dt.getName());
+		renderTableName(a, dt);
 		a.append("\n\tdrop constraint ");
 		renderName(a, sr.getName());
 		l.add(a.toString());
@@ -459,7 +459,7 @@ abstract public class AbstractGenerator {
 	public void renderAddRelation(List<String> l, DbTable dt, DbRelation dr) throws Exception {
 		StringBuilder a = new StringBuilder(512);
 		a.append("alter table ");
-		renderTableName(a, dt.getName());
+		renderTableName(a, dt);
 		a.append("\n\tadd constraint ");
 		renderName(a, dr.getName());
 		a.append(" foreign key(");
@@ -470,7 +470,7 @@ abstract public class AbstractGenerator {
 			renderName(a, p.getChildColumn().getName());
 		}
 		a.append(")\n\t\treferences ");
-		renderTableName(a, dr.getParent().getName());
+		renderTableName(a, dr.getParent());
 		a.append("(");
 		i = 0;
 		for(FieldPair p : dr.getPairList()) {
@@ -568,7 +568,7 @@ abstract public class AbstractGenerator {
 		a.append("index ");
 		renderName(a, ix.getName());
 		a.append(" on ");
-		renderTableName(a, ix.getTable().getName());
+		renderTableName(a, ix.getTable());
 		a.append('(');
 		int i = 0;
 		for(IndexColumn c : ix.getColumnList()) {

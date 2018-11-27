@@ -1,11 +1,21 @@
 package to.etc.dbcompare;
 
-import java.io.*;
-import java.util.*;
-
-import to.etc.dbcompare.generator.*;
-import to.etc.dbutil.schema.*;
+import to.etc.dbcompare.generator.AbstractGenerator;
+import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbIndex;
+import to.etc.dbutil.schema.DbPrimaryKey;
+import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbSchema;
+import to.etc.dbutil.schema.DbTable;
+import to.etc.dbutil.schema.DbView;
 import to.etc.dbutil.schema.Package;
+import to.etc.dbutil.schema.Trigger;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class AlteringSchemaComparator extends AbstractSchemaComparator {
 	private AbstractGenerator m_g;
@@ -43,10 +53,6 @@ public class AlteringSchemaComparator extends AbstractSchemaComparator {
 
 	private void d(String s) {
 		System.out.println("delta: " + s);
-	}
-
-	public void renderTableName(Appendable a, String name) throws Exception {
-		m_g.renderTableName(a, name);
 	}
 
 	public void renderFieldName(Appendable a, String name) throws Exception {
