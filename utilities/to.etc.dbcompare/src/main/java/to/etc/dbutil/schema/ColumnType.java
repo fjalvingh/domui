@@ -47,6 +47,8 @@ public class ColumnType implements Serializable {
 
 	static public final ColumnType XML = new ColumnType("SQLXML", Types.SQLXML, false, false, "xml");
 
+	static public final ColumnType JSON = new ColumnType("json", 1111, false, false, "json");
+
 	private int m_sqlType;
 
 	private String m_name;

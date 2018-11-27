@@ -6,23 +6,25 @@ import to.etc.dbutil.schema.ColumnType;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbDomain;
 import to.etc.dbutil.schema.DbSchema;
+import to.etc.dbutil.schema.DbSequence;
 import to.etc.dbutil.schema.DbTable;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class PostgresReverser extends JDBCReverser {
+
+	public static final String NEXTVAL = "nextval('";
+
 	private Map<String, DbDomain> m_domainMap = new HashMap<>();
 
 	public PostgresReverser(DataSource dbc) {
@@ -87,8 +89,38 @@ public class PostgresReverser extends JDBCReverser {
 		}
 	}
 
+	static private final String SEQSQL =
+		"select sequencename,data_type,start_value,min_value,max_value,increment_by,cache_size,last_value from pg_catalog.pg_sequences where schemaname=?";
+
+	@Override protected void reverseSequences(Connection dbc, DbSchema schema) throws Exception {
+		try(PreparedStatement ps = dbc.prepareStatement(SEQSQL)) {
+			ps.setString(1, schema.getName());
+			try(ResultSet rs = ps.executeQuery()) {
+				while(rs.next()) {
+					reverseSequence(schema, rs);
+				}
+			}
+		}
+	}
+
+	private void reverseSequence(DbSchema schema, ResultSet rs) throws SQLException {
+		int i = 1;
+		String name = rs.getString(i++);
+		String type = rs.getString(i++);
+		long startValue = rs.getLong(i++);
+		long minValue = rs.getLong(i++);
+		long maxValue = rs.getLong(i++);
+		long increment = rs.getLong(i++);
+		long cacheSize = rs.getLong(i++);
+		long lastValue = rs.getLong(i);
+
+		ColumnType columnType = decodeColumnTypeByCode(schema, Integer.MAX_VALUE, type);
+		DbSequence seq = new DbSequence(schema, name, columnType, type, startValue, minValue, maxValue, increment, cacheSize, lastValue);
+		schema.addSequence(seq);
+	}
+
 	static private final String COLFLD = "select column_name, ordinal_position, column_default, is_nullable, data_type"
-		+ ", character_maximum_length, character_octet_length, numeric_precision, numeric_scale";
+		+ ", character_maximum_length, character_octet_length, numeric_precision, numeric_scale, description";
 
 	static private final String COLSQL =
 		" from information_schema.columns co\n"
@@ -147,9 +179,20 @@ public class PostgresReverser extends JDBCReverser {
 		boolean nullable = "YES".equalsIgnoreCase(rs.getString(i++));
 		String typename = rs.getString(i++);
 		int charLen = rs.getInt(i++);
+		if(rs.wasNull())
+			charLen = -1;
 		int octets = rs.getInt(i++);
+		if(rs.wasNull())
+			octets = -1;
 		int prec = rs.getInt(i++);
+		if(rs.wasNull())
+			prec = -1;
 		int scale = rs.getInt(i++);
+		if(rs.wasNull())
+			scale = -1;
+		if(prec == -1)
+			prec = charLen;
+		String comment = rs.getString(i++);
 
 		ColumnType ct = decodeColumnType(t.getSchema(), daty, typename);
 		DbColumn c;
@@ -161,11 +204,61 @@ public class PostgresReverser extends JDBCReverser {
 		} else {
 			c = createDbColumn(t, name, daty, typename, prec, scale, nullable, false, ct);
 		}
-		c.setComment(rs.getString("REMARKS"));
+		c.setComment(comment);
+		c.setDefault(deflt);
 
+		DbSequence dbs = scanSequenceName(t.getSchema(), deflt);
+		c.setUsedSequence(dbs);
+		return c;
+	}
 
+	/**
+	 * Extract sequence from "nextval('sectormodel.e_refdata_enum_id_seq'::regclass)"
+	 */
+	@Nullable
+	private DbSequence scanSequenceName(DbSchema schema, @Nullable String deflt) {
+		if(null == deflt)
+			return null;
 
+		deflt = deflt.trim();
+		if(deflt.toLowerCase().startsWith(NEXTVAL)) {
+			String sub = deflt.substring(NEXTVAL.length());
 
+			//-- Do we have a cast?
+			int pos = sub.indexOf("::");
+			if(pos > 0) {
+				sub = sub.substring(0, pos);					// Remove cast
+			}
+
+			while(sub.endsWith(")") || sub.endsWith("'"))
+				sub = sub.substring(0, sub.length() - 1);
+
+			//-- We should now have a sequence name. Does it have a schema?
+			pos = sub.indexOf('.');
+			if(pos == -1) {
+				DbSequence seq = schema.findSequence(sub);
+				if(null == seq) {
+					log("Sequence '" + sub + "' not found in column default '" + deflt + "'");
+				}
+				return seq;
+			}
+
+			//-- Find the schema
+			DbSchema subSchemaName = findSchema(sub.substring(0, pos));
+			DbSchema s = subSchemaName;
+			if(null == s) {
+				log("Schema '" + subSchemaName + "' not found in column default '" + deflt + "'");
+				return null;
+			}
+			String seqName = sub.substring(pos + 1).trim();
+			DbSequence seq = schema.findSequence(seqName);
+			if(null == seq) {
+				log("Sequence '" + sub + "' not found in column default '" + deflt + "'");
+			}
+			return seq;
+		}
+
+		return null;
 	}
 
 	@NonNull @Override protected DbColumn createDbColumn(DbTable t, String name, int daty, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
@@ -195,6 +288,11 @@ public class PostgresReverser extends JDBCReverser {
 			if("uuid".equals(typename)) {
 				ColumnType ct = ColumnType.VARCHAR;
 				return new DbColumn(t, name, ct, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
+			}
+			if("json".equals(sqlType)) {
+				ColumnType ct = ColumnType.JSON;
+				return new DbColumn(t, name, ct, prec, 0, nulla, autoIncrement, ct.getSqlType(), ct.getName());
+
 			}
 		}
 

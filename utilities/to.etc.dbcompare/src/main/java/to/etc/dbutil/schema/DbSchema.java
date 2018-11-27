@@ -1,6 +1,7 @@
 package to.etc.dbutil.schema;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbutil.reverse.Reverser;
 
 import java.io.Serializable;
@@ -34,6 +35,8 @@ public class DbSchema implements Serializable {
 	private Map<String, Trigger> m_triggerMap = new HashMap<String, Trigger>();
 
 	private Map<String, SpecialIndex> m_specialIndexMap = new HashMap<String, SpecialIndex>();
+
+	private Map<String, DbSequence> m_sequenceMap = new HashMap<>();
 
 	public DbSchema(Reverser r, String name) {
 		m_name = name;
@@ -148,4 +151,17 @@ public class DbSchema implements Serializable {
 		return m_specialIndexMap.get(name);
 	}
 
+	public void addSequence(DbSequence seq) {
+		m_sequenceMap.put(seq.getName(), seq);
+	}
+
+	@NonNull
+	public Map<String, DbSequence> getSequenceMap() {
+		return m_sequenceMap;
+	}
+
+	@Nullable
+	public DbSequence findSequence(String name) {
+		return m_sequenceMap.get(name);
+	}
 }

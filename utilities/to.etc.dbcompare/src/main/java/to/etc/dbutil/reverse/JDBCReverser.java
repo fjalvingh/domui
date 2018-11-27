@@ -79,6 +79,7 @@ public class JDBCReverser implements Reverser {
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
+				reverseSequences(dbc, schemaSet);
 				reverseColumns(dbc, schemaSet);
 				int ncols = 0;
 				for(DbTable t : schema.getTables()) {
@@ -137,6 +138,7 @@ public class JDBCReverser implements Reverser {
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
+				reverseSequences(dbc, schemaSet);
 				reverseColumns(dbc, schemaSet);
 				int ncols = 0;
 				for(DbSchema schema : schemaSet) {
@@ -171,6 +173,12 @@ public class JDBCReverser implements Reverser {
 	protected void afterLoad(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+
+	private void reverseSequences(Connection dbc, Set<DbSchema> schemaSet) throws Exception {
+		for(DbSchema dbSchema : schemaSet) {
+			reverseSequences(dbc, dbSchema);
+		}
 	}
 
 	public void reverseIndexes(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
@@ -232,6 +240,11 @@ public class JDBCReverser implements Reverser {
 	protected DbSchema findSchema(String name) {
 		return findSchema(m_schemaSet, name);
 	}
+
+	protected void reverseSequences(Connection dbc, DbSchema schema) throws Exception {
+	}
+
+
 
 	protected void reverseTables(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
 		ResultSet rs = null;

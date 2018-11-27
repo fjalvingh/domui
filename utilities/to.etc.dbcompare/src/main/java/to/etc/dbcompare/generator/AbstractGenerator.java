@@ -5,6 +5,8 @@ import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbIndex;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbSchema;
+import to.etc.dbutil.schema.DbSequence;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.dbutil.schema.DbView;
 import to.etc.dbutil.schema.FieldPair;
@@ -31,6 +33,8 @@ import static to.etc.dbcompare.AbstractSchemaComparator.csSQLTYPE;
  * Created on Aug 6, 2007
  */
 abstract public class AbstractGenerator {
+	protected boolean m_appendSchemaNames = true;
+
 	abstract public String getIdent();
 
 	private Map<ColumnType, TypeMapping> m_mapmap = new HashMap<ColumnType, TypeMapping>();
@@ -131,6 +135,44 @@ abstract public class AbstractGenerator {
 			sb.append(" not null");
 	}
 
+	public enum GenSequenceType {
+		/** Generate the sequence with its initial value */
+		useInitial,
+
+		/** Generate the sequence with its current value */
+		useCurrent
+	}
+
+	public void addSequence(List<String> out, DbSequence sq, GenSequenceType type) throws Exception {
+		StringBuilder sb = new StringBuilder();
+		sb.append("create sequence ");
+		renderQualifiedName(sb, sq.getSchema(), sq.getName());
+
+		if(sq.getIncrement() != Long.MIN_VALUE) {
+			sb.append(" increment by ").append(sq.getIncrement());
+		}
+		if(sq.getMinValue() != Long.MIN_VALUE) {
+			sb.append(" minvalue ").append(sq.getMinValue());
+		}
+		if(sq.getMaxValue() != Long.MIN_VALUE) {
+			sb.append(" maxvalue ").append(sq.getMaxValue());
+		}
+		if(sq.getLastValue() != Long.MIN_VALUE && type == GenSequenceType.useCurrent) {
+			sb.append(" start with ").append(sq.getLastValue());
+		}
+		if(sq.getCacheSize() != Long.MIN_VALUE) {
+			sb.append(" cache ").append(sq.getCacheSize());
+		}
+		out.add(sb.toString());
+	}
+
+	protected void renderQualifiedName(StringBuilder sb, DbSchema schema, String name) throws Exception {
+		if(m_appendSchemaNames && schema != null) {
+			renderName(sb, schema.getName());
+			sb.append('.');
+		}
+		renderName(sb, name);
+	}
 
 	public void renderAddColumn(Appendable sb, DbTable dt, DbColumn sc) throws Exception {
 		sb.append("alter table ");
@@ -147,13 +189,13 @@ abstract public class AbstractGenerator {
 		l.add("alter table " + dt.getName() + "\n\tdrop column " + dc.getName() + getStatementDelimiter() + "\n");
 	}
 
-	public void renderColumnComment(List<String> sl, DbColumn sc) {
+	public void renderColumnComment(List<String> sl, DbColumn sc) throws Exception {
 		if(sc.getComment() != null && sc.getComment().length() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on column ");
-			sb.append(sc.getTable().getName());
+			renderQualifiedName(sb, sc.getTable().getSchema(), sc.getTable().getName());
 			sb.append('.');
-			sb.append(sc.getName());
+			renderName(sb, sc.getName());
 			sb.append(" is ");
 			sb.append(quoted(sc.getComment()));
 			sb.append(";\n");
@@ -241,7 +283,7 @@ abstract public class AbstractGenerator {
 	public void addTable(List<String> l, DbTable st) throws Exception {
 		StringBuilder sb = new StringBuilder(512);
 		sb.append("create table ");
-		sb.append(st.getName());
+		renderQualifiedName(sb, st.getSchema(), st.getName());
 		sb.append(" (\n");
 
 		//-- Create the PK field 1st *if* the table has a single PK.
@@ -275,10 +317,10 @@ abstract public class AbstractGenerator {
 
 		//-- Table comments,
 		renderTableComment(l, st);
-		rendferColumnComments(l, st);
+		renderColumnComments(l, st);
 	}
 
-	private void rendferColumnComments(List<String> l, DbTable st) {
+	private void renderColumnComments(List<String> l, DbTable st) throws Exception {
 		for(DbColumn sc : st.getColumnList()) {
 			renderColumnComment(l, sc);
 		}
@@ -514,5 +556,13 @@ abstract public class AbstractGenerator {
 		}
 		a.append(");\n/");
 		l.add(a.toString());
+	}
+
+	public boolean isAppendSchemaNames() {
+		return m_appendSchemaNames;
+	}
+
+	public void setAppendSchemaNames(boolean appendSchemaNames) {
+		m_appendSchemaNames = appendSchemaNames;
 	}
 }

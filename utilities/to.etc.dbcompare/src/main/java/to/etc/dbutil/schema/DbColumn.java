@@ -1,6 +1,7 @@
 package to.etc.dbutil.schema;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbutil.reverse.Reverser;
 
 import java.io.ByteArrayInputStream;
@@ -36,6 +37,11 @@ public class DbColumn implements Serializable {
 	private int m_sqlType;
 
 	private String m_platformTypeName;
+
+	private String m_default;
+
+	@Nullable
+	private DbSequence m_usedSequence;
 
 	public DbColumn(DbTable table, String name, ColumnType type, int precision, int scale, boolean nullable, Boolean autoIncrement) {
 		m_table = table;
@@ -343,4 +349,20 @@ public class DbColumn implements Serializable {
 		return m_table.getSchema().getName() + "." + m_table.getName() + "." + getName();
 	}
 
+	@Nullable
+	public String getDefault() {
+		return m_default;
+	}
+
+	public void setDefault(String aDefault) {
+		m_default = aDefault;
+	}
+
+	@Nullable public DbSequence getUsedSequence() {
+		return m_usedSequence;
+	}
+
+	public void setUsedSequence(@Nullable DbSequence usedSequence) {
+		m_usedSequence = usedSequence;
+	}
 }
