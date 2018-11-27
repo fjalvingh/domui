@@ -16,6 +16,7 @@ import to.etc.dbutil.schema.IndexColumn;
 import to.etc.dbutil.schema.Package;
 import to.etc.dbutil.schema.Trigger;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -316,7 +317,7 @@ abstract public class AbstractGenerator {
 
 		//-- Create the PK field 1st *if* the table has a single PK.
 		boolean needcomma = false;
-		List<DbColumn> columnList = st.getColumnList();
+		List<DbColumn> columnList = new ArrayList<>(st.getColumnList());
 		DbPrimaryKey pk = st.getPrimaryKey();
 		boolean pkrendered = false;
 		if(pk != null && pk.getColumnList().size() == 1 && isAllowEmbeddedPK()) {

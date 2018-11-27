@@ -138,4 +138,7 @@ public class ColumnType implements Serializable {
 		return m_sqlType == other.m_sqlType;
 	}
 
+	@Override public String toString() {
+		return getName() + " (" + m_platformNames + ")";
+	}
 }
