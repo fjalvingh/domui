@@ -6,6 +6,7 @@ import to.etc.dbutil.reverse.Reverser;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -163,5 +164,11 @@ public class DbSchema implements Serializable {
 	@Nullable
 	public DbSequence findSequence(String name) {
 		return m_sequenceMap.get(name);
+	}
+
+	public List<DbSequence> getSequences() {
+		ArrayList<DbSequence> list = new ArrayList<>(m_sequenceMap.values());
+		list.sort(Comparator.comparing(DbSequence::getName));
+		return list;
 	}
 }

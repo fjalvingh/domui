@@ -74,7 +74,7 @@ public class HSQLDBGenerator extends AbstractGenerator {
 		if(sq.getLastValue() != Long.MIN_VALUE && type == GenSequenceType.useCurrent) {
 			long val = sq.getLastValue();
 			if(sq.getMinValue() != Long.MIN_VALUE && val >= sq.getMinValue()) {
-				sb.append(" start with ").append(sq.getLastValue());
+				sb.append(" start with ").append(sq.getLastValue() + 20);
 			}
 		}
 		out.add(sb.toString());
