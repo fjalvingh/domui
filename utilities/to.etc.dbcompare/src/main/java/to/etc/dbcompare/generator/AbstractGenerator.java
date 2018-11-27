@@ -6,6 +6,7 @@ import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbIndex;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbRelation.RelationUpdateAction;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbSequence;
 import to.etc.dbutil.schema.DbTable;
@@ -479,7 +480,44 @@ abstract public class AbstractGenerator {
 			renderName(a, p.getParentColumn().getName());
 		}
 		a.append(")");
+
+		renderUpdateRule(a, dr, dr.getUpdateAction());
+		renderDeleteRule(a, dr, dr.getUpdateAction());
 		l.add(a.toString());
+	}
+
+	private void renderUpdateRule(StringBuilder sb, DbRelation dr, RelationUpdateAction action) {
+		if(action == RelationUpdateAction.None)
+			return;
+
+		sb.append(" on update ");
+		renderUpdateAction(sb, action);
+	}
+
+	private void renderDeleteRule(StringBuilder sb, DbRelation dr, RelationUpdateAction action) {
+		if(action == RelationUpdateAction.None)
+			return;
+
+		sb.append(" on delete ");
+		renderUpdateAction(sb, action);
+	}
+
+	private void renderUpdateAction(StringBuilder sb, RelationUpdateAction action) {
+		switch(action) {
+			default:
+				throw new IllegalStateException(action + "??");
+			case Cascade:
+				sb.append("cascade");
+				break;
+
+			case SetDefault:
+				sb.append("set default");
+				break;
+
+			case SetNull:
+				sb.append("set null");
+				break;
+		}
 	}
 
 	/*--------------------------------------------------------------*/

@@ -7,6 +7,7 @@ import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbIndex;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbRelation.RelationUpdateAction;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.util.FileTool;
@@ -448,7 +449,6 @@ public class JDBCReverser implements Reverser {
 
 	/**
 	 * Reverse-engineer all PK -> FK relations.
-	 * @throws Exception
 	 */
 	protected void reverseRelations(@NonNull Connection dbc, DbTable t, boolean appendalways) throws Exception {
 		ResultSet rs = null;
@@ -483,6 +483,9 @@ public class JDBCReverser implements Reverser {
 				if(!pktname.equals(t.getName()))
 					throw new IllegalStateException("JDBC driver trouble: getExportedKeys returned key from table " + pktname + " while asking for table " + t.getName());
 
+				int updr = rs.getInt("UPDATE_RULE");
+				int delr = rs.getInt("DELETE_RULE");
+
 				//-- Find FK table and column and PK column referred to
 				DbTable fkt = fkSchema.getTable(fktname);
 				DbColumn fkc = fkt.getColumn(fkcname);
@@ -491,7 +494,7 @@ public class JDBCReverser implements Reverser {
 				//-- If this is a new sequence start a new relation else add to current,
 				if(lastord == -1 || ord <= lastord) {
 					//-- New relation.
-					rel = new DbRelation(t, fkt);
+					rel = new DbRelation(t, fkt, decodeUpdateInt(updr), decodeUpdateInt(delr));
 					lastord = ord;
 					if(appendalways || !t.internalGetParentRelationList().contains(rel)) {
 						t.internalGetParentRelationList().add(rel);
@@ -509,6 +512,27 @@ public class JDBCReverser implements Reverser {
 				if(rs != null)
 					rs.close();
 			} catch(Exception x) {}
+		}
+	}
+
+	protected RelationUpdateAction decodeUpdateInt(int code) {
+		switch(code) {
+			default:
+				log("Unknown action code for constraint: " + code);
+				return RelationUpdateAction.None;
+
+			case DatabaseMetaData.importedKeyNoAction:
+			case DatabaseMetaData.importedKeyRestrict:
+				return RelationUpdateAction.None;
+
+			case DatabaseMetaData.importedKeyCascade:
+				return RelationUpdateAction.Cascade;
+
+			case DatabaseMetaData.importedKeySetNull:
+				return RelationUpdateAction.SetNull;
+
+			case DatabaseMetaData.importedKeySetDefault:
+				return RelationUpdateAction.SetDefault;
 		}
 	}
 
@@ -541,6 +565,9 @@ public class JDBCReverser implements Reverser {
 				if(!pktname.equals(t.getName()))
 					throw new IllegalStateException("JDBC driver trouble: getExportedKeys returned key from table " + pktname + " while asking for table " + t.getName());
 
+				int updr = rs.getInt("UPDATE_RULE");
+				int delr = rs.getInt("DELETE_RULE");
+
 				//-- Find FK table and column and PK column referred to
 				DbTable fkt = t.getSchema().getTable(fktname);
 				DbColumn fkc = fkt.getColumn(fkcname);
@@ -549,7 +576,7 @@ public class JDBCReverser implements Reverser {
 				//-- If this is a new sequence start a new relation else add to current,
 				if(lastord == -1 || ord <= lastord) {
 					//-- New relation.
-					rel = new DbRelation(t, fkt);
+					rel = new DbRelation(t, fkt, decodeUpdateInt(updr), decodeUpdateInt(delr));
 					lastord = ord;
 					if(!t.internalGetParentRelationList().contains(rel)) {
 						t.internalGetParentRelationList().add(rel);

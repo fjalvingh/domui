@@ -25,9 +25,24 @@ public class DbRelation implements Serializable {
 
 	private String m_name;
 
-	public DbRelation(@NonNull DbTable parent, @NonNull DbTable child) {
+	public enum RelationUpdateAction {
+		None,
+		Cascade,
+		SetNull,
+		SetDefault
+	}
+
+	@NonNull
+	private RelationUpdateAction m_updateAction = RelationUpdateAction.None;
+
+	@NonNull
+	private RelationUpdateAction m_deleteAction = RelationUpdateAction.None;
+
+	public DbRelation(@NonNull DbTable parent, @NonNull DbTable child, RelationUpdateAction updAction, RelationUpdateAction delAction) {
 		m_parent = parent;
 		m_child = child;
+		m_updateAction = updAction;
+		m_deleteAction = delAction;
 	}
 
 	public String getName() {
@@ -90,5 +105,21 @@ public class DbRelation implements Serializable {
 				return false;
 		}
 		return true;
+	}
+
+	@NonNull public RelationUpdateAction getUpdateAction() {
+		return m_updateAction;
+	}
+
+	public void setUpdateAction(@NonNull RelationUpdateAction updateAction) {
+		m_updateAction = updateAction;
+	}
+
+	@NonNull public RelationUpdateAction getDeleteAction() {
+		return m_deleteAction;
+	}
+
+	public void setDeleteAction(@NonNull RelationUpdateAction deleteAction) {
+		m_deleteAction = deleteAction;
 	}
 }
