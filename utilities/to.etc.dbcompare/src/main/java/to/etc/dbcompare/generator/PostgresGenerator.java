@@ -12,7 +12,7 @@ public class PostgresGenerator extends AbstractGenerator {
 
 	static private final TypeMapping NUMBER = new TypeMapping() {
 		@Override
-		public void renderType(Appendable a, DbColumn c) throws Exception {
+		public void renderType(StringBuilder a, DbColumn c) {
 			int p = c.getPrecision();
 			int s = c.getScale();
 			if(s != 0) {
@@ -29,7 +29,7 @@ public class PostgresGenerator extends AbstractGenerator {
 
 	static private final TypeMapping VARCHAR = new TypeMapping() {
 		@Override
-		public void renderType(Appendable a, DbColumn c) throws Exception {
+		public void renderType(StringBuilder a, DbColumn c) {
 			int p = c.getPrecision();
 			if(p <= 4000) {
 				a.append("varchar(" + p + ")");
@@ -42,6 +42,11 @@ public class PostgresGenerator extends AbstractGenerator {
 	public PostgresGenerator() {
 		registerMapping(ColumnType.NUMBER, NUMBER);
 		registerMapping(ColumnType.VARCHAR, VARCHAR);
+		registerMapping(ColumnType.BOOLEAN, (a, c) -> a.append("boolean"));
+		registerMapping(ColumnType.INTEGER, (a, c) -> a.append("integer"));
+		registerMapping(ColumnType.BIGINT, (a, c) -> a.append("bigint"));
+		registerMapping(ColumnType.BLOB, (a, c) -> a.append("oid"));
+
 	}
 
 

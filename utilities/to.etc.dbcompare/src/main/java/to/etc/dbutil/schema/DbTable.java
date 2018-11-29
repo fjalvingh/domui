@@ -415,7 +415,7 @@ public class DbTable implements Serializable {
 	}
 
 	public void initializeColumns(@NonNull List<DbColumn> columnList, @NonNull Map<String, DbColumn> columnMap) {
-		m_columnList = columnList;
-		m_columnMap = columnMap;
+		m_columnList = Collections.unmodifiableList(columnList);
+		m_columnMap = Collections.unmodifiableMap(columnMap);
 	}
 }

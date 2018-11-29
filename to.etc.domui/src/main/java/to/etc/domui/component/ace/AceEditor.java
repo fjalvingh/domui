@@ -416,10 +416,12 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		if(values.length != 1)
 			throw new IllegalStateException("? Expecting but one value?");
 		String value = values[0];
+		if(Objects.equals(m_value, value))
+			return false;
+
 		m_value = value;
 		return true;
 	}
-
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Code completion handling.									*/

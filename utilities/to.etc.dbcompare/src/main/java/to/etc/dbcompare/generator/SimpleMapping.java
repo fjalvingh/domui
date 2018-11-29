@@ -14,7 +14,7 @@ public class SimpleMapping implements TypeMapping {
 	}
 
 	@Override
-	public void renderType(Appendable sb, DbColumn c) throws Exception {
+	public void renderType(StringBuilder sb, DbColumn c) {
 		sb.append(getTypeName(c));
 		ColumnType ct = c.getType();
 		if(ct.isPrecision()) {

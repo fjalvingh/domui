@@ -2002,6 +2002,12 @@ public class StringTool {
 		return current.substring(0, lix + 1) + tpl; // Make relative to old URL.
 	}
 
+	/**
+	 * Do a case-insensitive replace.
+	 */
+	static public String strReplaceCI(String input, String old, String nw) {
+		return input.replaceAll("(?i)" + Pattern.quote(old), nw);
+	}
 
 	/**
 	 * Takes an input URL and handles all '.' and '..' replacements. Any '.'
@@ -2630,33 +2636,33 @@ public class StringTool {
 		return ns + "ns";
 	}
 
-	/**
-	 * Case-sensitive replace of all occurrences of [old] with [new].
-	 */
-	static public String strReplace(final String src, final String old, final String nw) {
-		if(src == null || old == null || nw == null || src.length() < old.length() || old.length() == 0)
-			return src;
-		int pos = src.indexOf(old); // Try to find quickly,
-		if(pos == -1)
-			return src; // Not found -> return original
-		int len = src.length();
-		StringBuilder sb = new StringBuilder(len + 20);
-		int ix = 0;
-		while(ix < len) {
-			if(pos > ix) {
-				sb.append(src, ix, pos); // Copy up to pos
-				ix = pos;
-			}
-			sb.append(nw); // Replace occurence,
-			ix += old.length(); // Past source occurence
-			pos = src.indexOf(old, ix);
-			if(pos == -1) {
-				sb.append(src, ix, len);
-				break;
-			}
-		}
-		return sb.toString();
-	}
+	///**
+	// * Case-sensitive replace of all occurrences of [old] with [new].
+	// */
+	//static public String strReplace(final String src, final String old, final String nw) {
+	//	if(src == null || old == null || nw == null || src.length() < old.length() || old.length() == 0)
+	//		return src;
+	//	int pos = src.indexOf(old); // Try to find quickly,
+	//	if(pos == -1)
+	//		return src; // Not found -> return original
+	//	int len = src.length();
+	//	StringBuilder sb = new StringBuilder(len + 20);
+	//	int ix = 0;
+	//	while(ix < len) {
+	//		if(pos > ix) {
+	//			sb.append(src, ix, pos); // Copy up to pos
+	//			ix = pos;
+	//		}
+	//		sb.append(nw); // Replace occurence,
+	//		ix += old.length(); // Past source occurence
+	//		pos = src.indexOf(old, ix);
+	//		if(pos == -1) {
+	//			sb.append(src, ix, len);
+	//			break;
+	//		}
+	//	}
+	//	return sb.toString();
+	//}
 
 	/**
 	 * If the throwable passed as a message then return it verbatim, else

@@ -8,6 +8,8 @@ import org.hibernate.engine.internal.StatefulPersistenceContext;
 import org.hibernate.internal.SessionImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.IConversationStateListener;
 import to.etc.util.DeveloperOptions;
@@ -234,6 +236,12 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
         return super.getInstance(clz, pk);
     }
 
+    @NonNull @Override public <T> T reload(@NonNull T source) throws Exception {
+        PropertyMetaModel<?> pk = MetaManager.findClassMeta(source.getClass()).getPrimaryKey();
+        if(null == pk)
+            throw new IllegalArgumentException(source.getClass().getCanonicalName() + ": Can't find the primary key for this class");
+        return (T) getInstance(source.getClass(), pk.getValue(source));
+    }
 
     /*--------------------------------------------------------------*/
     /*	CODING:	Long-running requirements.                          */
