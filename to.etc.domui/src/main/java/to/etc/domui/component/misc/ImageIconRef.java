@@ -2,7 +2,6 @@ package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Span;
 import to.etc.util.FileTool;
@@ -54,10 +53,7 @@ final public class ImageIconRef implements IIconRef {
 		else if(ext.isEmpty()) {
 			return new FontIcon(path).css(cssClasses);
 		} else {
-			Img img = new Img(path);
-			img.setImgBorder(0);
-			img.css(cssClasses);
-			return img;
+			return new ImgIcon(path);
 		}
 	}
 

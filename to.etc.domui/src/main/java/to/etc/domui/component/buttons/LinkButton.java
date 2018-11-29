@@ -65,7 +65,7 @@ public class LinkButton extends ATag implements IActionControl {
 	public LinkButton() {
 	}
 
-	public LinkButton(@NonNull String txt, @NonNull IIconRef image, @NonNull IClicked< ? extends NodeBase> clk) {
+	public LinkButton(@NonNull String txt, @NonNull IIconRef image, @NonNull IClicked<LinkButton> clk) {
 		setClicked(clk);
 		m_text = txt;
 		setImage(image);
@@ -80,7 +80,7 @@ public class LinkButton extends ATag implements IActionControl {
 		m_text = txt;
 	}
 
-	public LinkButton(@NonNull String txt, @NonNull IClicked< ? extends NodeBase> clk) {
+	public LinkButton(@NonNull String txt, @NonNull IClicked<LinkButton> clk) {
 		setClicked(clk);
 		m_text = txt;
 	}
