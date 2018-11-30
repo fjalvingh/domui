@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.IConversationStateListener;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
@@ -247,7 +247,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
     /*	CODING:	Long-running requirements.                          */
     /*--------------------------------------------------------------*/
     @Override
-    public void conversationDestroyed(final ConversationContext cc) throws Exception {
+    public void conversationDestroyed(AbstractConversationContext cc) throws Exception {
         if(m_manager == null)
             return;
         Session session = JpaConnector.getHibernateSession(m_manager);
@@ -270,7 +270,7 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
     }
 
     @Override
-    public void conversationDetached(final ConversationContext cc) throws Exception {
+    public void conversationDetached(AbstractConversationContext cc) throws Exception {
         if(m_manager == null)
             return;
         Session session = JpaConnector.getHibernateSession(m_manager);
@@ -293,12 +293,12 @@ public class JpaDataContext extends QAbstractDataContext implements QDataContext
     }
 
     @Override
-    public void conversationAttached(ConversationContext cc) {
+    public void conversationAttached(AbstractConversationContext cc) {
         setConversationInvalid(null);
     }
 
     @Override
-    public void conversationNew(ConversationContext cc) {
+    public void conversationNew(AbstractConversationContext cc) {
         setConversationInvalid(null);
     }
 

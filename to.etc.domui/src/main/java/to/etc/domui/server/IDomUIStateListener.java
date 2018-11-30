@@ -38,9 +38,9 @@ public interface IDomUIStateListener {
 
 	void windowSessionDestroyed(WindowSession ws) throws Exception;
 
-	void conversationCreated(ConversationContext cc) throws Exception;
+	void conversationCreated(AbstractConversationContext cc) throws Exception;
 
-	void conversationDestroyed(ConversationContext cc) throws Exception;
+	void conversationDestroyed(AbstractConversationContext cc) throws Exception;
 
 //	void pageCreated(Page pg) throws Exception;
 //
@@ -48,14 +48,11 @@ public interface IDomUIStateListener {
 
 	/**
 	 * Called just before the page is rendered fully.
-	 * @param ctx
 	 */
 	void onBeforeFullRender(RequestContextImpl ctx, Page pg);
 
 	/**
 	 * Called just before page actions are executed (AJAX requests)
-	 * @param ctx
-	 * @param pg
 	 */
 	void onBeforePageAction(RequestContextImpl ctx, Page pg);
 

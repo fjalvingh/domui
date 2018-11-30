@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.IConversationStateListener;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
@@ -296,21 +296,21 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ConversationStateListener impl.						*/
 	/*--------------------------------------------------------------*/
-	public void conversationAttached(final ConversationContext cc) throws Exception {
+	public void conversationAttached(AbstractConversationContext cc) throws Exception {
 		setConversationInvalid(null);
 	}
 
-	public void conversationDestroyed(final ConversationContext cc) throws Exception {
-		setIgnoreClose(false); // Disable ignore close - this close should work.
+	public void conversationDestroyed(AbstractConversationContext cc) throws Exception {
+		setIgnoreClose(false);								// Disable ignore close - this close should work.
 		close();
 		setConversationInvalid("Conversation was destroyed");
 	}
 
-	public void conversationDetached(final ConversationContext cc) throws Exception {
-		setIgnoreClose(false); // Disable ignore close - this close should work.
+	public void conversationDetached(AbstractConversationContext cc) throws Exception {
+		setIgnoreClose(false);								// Disable ignore close - this close should work.
 		close();
 		setConversationInvalid("Conversation is detached");
 	}
 
-	public void conversationNew(final ConversationContext cc) throws Exception {}
+	public void conversationNew(AbstractConversationContext cc) throws Exception {}
 }

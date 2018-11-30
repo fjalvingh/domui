@@ -70,6 +70,7 @@ import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.InternalResourcePart;
 import to.etc.domui.server.parts.PartRequestHandler;
 import to.etc.domui.server.parts.PartService;
+import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.DelayedActivitiesManager;
@@ -1986,7 +1987,7 @@ public abstract class DomApplication {
 		}
 	}
 
-	public final void internalCallConversationDestroyed(ConversationContext ws) {
+	public final void internalCallConversationDestroyed(AbstractConversationContext ws) {
 		for(IDomUIStateListener sl : getUIStateListeners()) {
 			try {
 				sl.conversationDestroyed(ws);

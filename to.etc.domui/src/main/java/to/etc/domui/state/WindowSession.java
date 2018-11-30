@@ -35,7 +35,6 @@ import to.etc.domui.server.ApplicationRequestHandler;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
-import to.etc.domui.state.ConversationContext.ConversationState;
 import to.etc.domui.trouble.NotLoggedInException;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
