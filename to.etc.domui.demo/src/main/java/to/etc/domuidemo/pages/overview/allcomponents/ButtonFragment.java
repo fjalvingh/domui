@@ -104,6 +104,11 @@ public class ButtonFragment extends Div {
 		RadioGroup<TestEnum> rg = RadioGroup.createFromEnum(TestEnum.class);
 		add(rg);
 		rg.addCssClass("ui-rbb-buttons");
+
+		rg = RadioGroup.createFromEnum(TestEnum.class);
+		add(rg);
+		rg.addCssClass("ui-rbb-buttons");
+		rg.setDisabled(true);
 	}
 
 	private void addAction(String name, Consumer<DefaultButton> c) {
