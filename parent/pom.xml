@@ -527,24 +527,24 @@
                 <version>${allure.maven.version}</version>
             </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven-javadoc-plugin.version}</version>
-                <reportSets>
-                    <reportSet>
-                        <id>javadoc</id>
-                        <reports>
-                            <report>javadoc</report>
-                        </reports>
-                        <configuration>
-                            <quiet>true</quiet>
-                            <additionalparam>-Xdoclint:none</additionalparam>
-                            <stylesheetfile>javadoc/stylesheet.css</stylesheetfile>
-                        </configuration>
-                    </reportSet>
-                </reportSets>
-            </plugin>
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-javadoc-plugin</artifactId>-->
+                <!--<version>${maven-javadoc-plugin.version}</version>-->
+                <!--<reportSets>-->
+                    <!--<reportSet>-->
+                        <!--<id>javadoc</id>-->
+                        <!--<reports>-->
+                            <!--<report>javadoc</report>-->
+                        <!--</reports>-->
+                        <!--<configuration>-->
+                            <!--<quiet>true</quiet>-->
+                            <!--<additionalparam>-Xdoclint:none</additionalparam>-->
+                            <!--<stylesheetfile>javadoc/stylesheet.css</stylesheetfile>-->
+                        <!--</configuration>-->
+                    <!--</reportSet>-->
+                <!--</reportSets>-->
+            <!--</plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

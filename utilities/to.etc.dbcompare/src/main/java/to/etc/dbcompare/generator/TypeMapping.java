@@ -1,7 +1,8 @@
 package to.etc.dbcompare.generator;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.dbutil.schema.*;
 
 public interface TypeMapping {
-	void renderType(Appendable a, DbColumn c) throws Exception;
+	void renderType(@NonNull StringBuilder sb, @NonNull DbColumn c);
 }

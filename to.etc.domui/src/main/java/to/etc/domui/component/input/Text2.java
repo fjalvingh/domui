@@ -631,7 +631,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		}
 	}
 
-	public SmallImgButton addButton(IIconRef image, IClicked<NodeBase> clicked) {
+	public SmallImgButton addButton(IIconRef image, IClicked<SmallImgButton> clicked) {
 		SmallImgButton sib = new SmallImgButton(image, clicked);
 		addButton(sib);
 		return sib;

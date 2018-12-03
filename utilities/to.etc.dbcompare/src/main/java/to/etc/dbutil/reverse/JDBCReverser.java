@@ -7,6 +7,7 @@ import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbIndex;
 import to.etc.dbutil.schema.DbPrimaryKey;
 import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbRelation.RelationUpdateAction;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.util.FileTool;
@@ -79,6 +80,7 @@ public class JDBCReverser implements Reverser {
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
+				reverseSequences(dbc, schemaSet);
 				reverseColumns(dbc, schemaSet);
 				int ncols = 0;
 				for(DbTable t : schema.getTables()) {
@@ -137,6 +139,7 @@ public class JDBCReverser implements Reverser {
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
+				reverseSequences(dbc, schemaSet);
 				reverseColumns(dbc, schemaSet);
 				int ncols = 0;
 				for(DbSchema schema : schemaSet) {
@@ -171,6 +174,12 @@ public class JDBCReverser implements Reverser {
 	protected void afterLoad(@NonNull Connection dbc, @NonNull DbSchema schema) throws Exception {
 		// TODO Auto-generated method stub
 
+	}
+
+	private void reverseSequences(Connection dbc, Set<DbSchema> schemaSet) throws Exception {
+		for(DbSchema dbSchema : schemaSet) {
+			reverseSequences(dbc, dbSchema);
+		}
 	}
 
 	public void reverseIndexes(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
@@ -228,10 +237,16 @@ public class JDBCReverser implements Reverser {
 		return first.isPresent() ? first.get() : null;
 	}
 
+	@Override
 	@Nullable
-	protected DbSchema findSchema(String name) {
+	public DbSchema findSchema(String name) {
 		return findSchema(m_schemaSet, name);
 	}
+
+	protected void reverseSequences(Connection dbc, DbSchema schema) throws Exception {
+	}
+
+
 
 	protected void reverseTables(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
 		ResultSet rs = null;
@@ -260,12 +275,11 @@ public class JDBCReverser implements Reverser {
 	}
 
 	public void reverseColumns(@NonNull Connection dbc, DbTable t) throws Exception {
-		ResultSet rs = null;
+
 		List<DbColumn> columnList = new ArrayList<DbColumn>();
 		Map<String, DbColumn> columnMap = new HashMap<String, DbColumn>();
-
-		try {
-			rs = dbc.getMetaData().getColumns(null, t.getSchema().getName(), t.getName(), null); // All columns in the schema.
+		try(ResultSet rs = dbc.getMetaData().getColumns(null, t.getSchema().getName(), t.getName(), null)) {
+			// All columns in the schema.
 			int lastord = -1;
 			while(rs.next()) {
 				String name = rs.getString("COLUMN_NAME");
@@ -292,11 +306,6 @@ public class JDBCReverser implements Reverser {
 			}
 			//msg("Loaded " + t.getName() + ": " + columnMap.size() + " columns");
 			t.initializeColumns(columnList, columnMap);
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -317,20 +326,26 @@ public class JDBCReverser implements Reverser {
 		ColumnType ct = decodeColumnType(t.getSchema(), daty, typename);
 		DbColumn c;
 		if(ct == null) {
-			c = reverseColumnUnknownType(rs, t, name, daty, typename, prec, scale, nulla, autoIncrement);
+			c = reverseColumnUnknownType(rs, t, name, daty, typename, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement);
 			if(null == c) {
 				return null;
 			}
 		} else {
-			c = new DbColumn(t, name, ct, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement);
-			c.setPlatformTypeName(typename);
-			c.setSqlType(daty);
+			c = createDbColumn(t, name, daty, typename, prec, scale, nulla == DatabaseMetaData.columnNullable, autoIncrement, ct);
 		}
 		c.setComment(rs.getString("REMARKS"));
 		return c;
 	}
 
-	protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, int nulla, Boolean autoIncrement) {
+	@NonNull protected DbColumn createDbColumn(DbTable t, String name, int daty, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement, ColumnType ct) {
+		DbColumn c;
+		c = new DbColumn(t, name, ct, prec, scale, nulla, autoIncrement);
+		c.setPlatformTypeName(typename);
+		c.setSqlType(daty);
+		return c;
+	}
+
+	protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement) {
 		log("Unknown type: SQLType " + sqlType + " (" + typename + ") in " + t.getName() + "." + name);
 		return null;
 	}
@@ -399,11 +414,9 @@ public class JDBCReverser implements Reverser {
 
 	@Override
 	public void reversePrimaryKey(@NonNull Connection dbc, DbTable t) throws Exception {
-		ResultSet rs = null;
 		List<DbColumn> pkl = new ArrayList<DbColumn>(); // Stupid resultset is ordered by NAME instead of ordinal. Dumbfuckers.
-		try {
-			rs = dbc.getMetaData().getPrimaryKeys(null, t.getSchema().getName(), t.getName());
-			DbPrimaryKey pk = null;
+		try(ResultSet rs = dbc.getMetaData().getPrimaryKeys(null, t.getSchema().getName(), t.getName())) {
+			DbPrimaryKey pk;
 			String name = null;
 			while(rs.next()) {
 				name = rs.getString("PK_NAME");
@@ -427,11 +440,6 @@ public class JDBCReverser implements Reverser {
 			} else {
 				t.setPrimaryKey(null);
 			}
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -442,7 +450,6 @@ public class JDBCReverser implements Reverser {
 
 	/**
 	 * Reverse-engineer all PK -> FK relations.
-	 * @throws Exception
 	 */
 	protected void reverseRelations(@NonNull Connection dbc, DbTable t, boolean appendalways) throws Exception {
 		ResultSet rs = null;
@@ -458,11 +465,11 @@ public class JDBCReverser implements Reverser {
 				DbSchema fkSchema = findSchema(fkSchemaName);
 				DbSchema pkSchema = findSchema(pkSchemaName);
 				if(null == pkSchema) {
-					log("Missing schema '" + pkSchemaName + " for table " + t);
+					log("Missing schema '" + pkSchemaName + "' for table " + t);
 					continue;
 				}
 				if(null == fkSchema) {
-					log("Missing schema '" + fkSchemaName + " for table " + t);
+					log("Missing schema '" + fkSchemaName + "' for table " + t);
 					continue;
 				}
 
@@ -471,11 +478,16 @@ public class JDBCReverser implements Reverser {
 				String fkcname = rs.getString("FKCOLUMN_NAME");
 				String pkcname = rs.getString("PKCOLUMN_NAME");
 				String fkname = rs.getString("FK_NAME");
-				if(fkname != null && fkname.length() > 0 && name == null)
+
+				if(fkname != null && fkname.length() > 0)
 					name = fkname;
+
 				int ord = rs.getInt("KEY_SEQ");
 				if(!pktname.equals(t.getName()))
 					throw new IllegalStateException("JDBC driver trouble: getExportedKeys returned key from table " + pktname + " while asking for table " + t.getName());
+
+				int updr = rs.getInt("UPDATE_RULE");
+				int delr = rs.getInt("DELETE_RULE");
 
 				//-- Find FK table and column and PK column referred to
 				DbTable fkt = fkSchema.getTable(fktname);
@@ -485,7 +497,7 @@ public class JDBCReverser implements Reverser {
 				//-- If this is a new sequence start a new relation else add to current,
 				if(lastord == -1 || ord <= lastord) {
 					//-- New relation.
-					rel = new DbRelation(t, fkt);
+					rel = new DbRelation(t, fkt, decodeUpdateInt(updr), decodeUpdateInt(delr));
 					lastord = ord;
 					if(appendalways || !t.internalGetParentRelationList().contains(rel)) {
 						t.internalGetParentRelationList().add(rel);
@@ -503,6 +515,27 @@ public class JDBCReverser implements Reverser {
 				if(rs != null)
 					rs.close();
 			} catch(Exception x) {}
+		}
+	}
+
+	protected RelationUpdateAction decodeUpdateInt(int code) {
+		switch(code) {
+			default:
+				log("Unknown action code for constraint: " + code);
+				return RelationUpdateAction.None;
+
+			case DatabaseMetaData.importedKeyNoAction:
+			case DatabaseMetaData.importedKeyRestrict:
+				return RelationUpdateAction.None;
+
+			case DatabaseMetaData.importedKeyCascade:
+				return RelationUpdateAction.Cascade;
+
+			case DatabaseMetaData.importedKeySetNull:
+				return RelationUpdateAction.SetNull;
+
+			case DatabaseMetaData.importedKeySetDefault:
+				return RelationUpdateAction.SetDefault;
 		}
 	}
 
@@ -529,11 +562,14 @@ public class JDBCReverser implements Reverser {
 				String fkcname = rs.getString("FKCOLUMN_NAME");
 				String pkcname = rs.getString("PKCOLUMN_NAME");
 				String fkname = rs.getString("FK_NAME");
-				if(fkname != null && fkname.length() > 0 && name == null)
+				if(fkname != null && fkname.length() > 0)
 					name = fkname;
 				int ord = rs.getInt("KEY_SEQ");
 				if(!pktname.equals(t.getName()))
 					throw new IllegalStateException("JDBC driver trouble: getExportedKeys returned key from table " + pktname + " while asking for table " + t.getName());
+
+				int updr = rs.getInt("UPDATE_RULE");
+				int delr = rs.getInt("DELETE_RULE");
 
 				//-- Find FK table and column and PK column referred to
 				DbTable fkt = t.getSchema().getTable(fktname);
@@ -543,7 +579,7 @@ public class JDBCReverser implements Reverser {
 				//-- If this is a new sequence start a new relation else add to current,
 				if(lastord == -1 || ord <= lastord) {
 					//-- New relation.
-					rel = new DbRelation(t, fkt);
+					rel = new DbRelation(t, fkt, decodeUpdateInt(updr), decodeUpdateInt(delr));
 					lastord = ord;
 					if(!t.internalGetParentRelationList().contains(rel)) {
 						t.internalGetParentRelationList().add(rel);
@@ -567,15 +603,32 @@ public class JDBCReverser implements Reverser {
 	/**
 	 * Very simple and naive impl of mapping the genericised type.
 	 */
+	@Nullable
 	public ColumnType decodeColumnType(@Nullable DbSchema schema, int sqltype, @Nullable String typename) {
+		if("text".equals(typename))
+			System.out.println();
+		ColumnType columnType = decodeColumnTypeByPlatformName(schema, sqltype, typename);
+		if(null != columnType)
+			return columnType;
+
+		columnType = decodeColumnTypeByExplicitCode(schema, sqltype, typename);
+		if(null != columnType)
+			return columnType;
+
+		columnType = decodeColumnTypeByCodeTypeCodes(sqltype);
+		if(null != columnType)
+			return columnType;
+
+		return null;
+	}
+
+	@Nullable
+	protected ColumnType decodeColumnTypeByCodeTypeCodes(int sqltype) {
 		for(ColumnType t : ColumnType.getTypes()) {
 			if(t.getSqlType() == sqltype)
 				return t;
 		}
-		ColumnType x = decodeColumnTypeByCode(schema, sqltype, typename);
-		if(x != null)
-			return x;
-		return decodeColumnTypeByPlatformName(schema, sqltype, typename);
+		return null;
 	}
 
 	protected ColumnType decodeColumnTypeByPlatformName(@Nullable DbSchema schema, int sqltype, @Nullable String typename) {
@@ -591,7 +644,7 @@ public class JDBCReverser implements Reverser {
 		return null;
 	}
 
-	protected ColumnType decodeColumnTypeByCode(DbSchema schema, int sqltype, String typename) {
+	protected ColumnType decodeColumnTypeByExplicitCode(DbSchema schema, int sqltype, String typename) {
 		switch(sqltype){
 			case Types.BIT:
 				return ColumnType.BOOLEAN;

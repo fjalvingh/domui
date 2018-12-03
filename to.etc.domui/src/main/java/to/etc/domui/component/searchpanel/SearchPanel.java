@@ -61,7 +61,6 @@ import to.etc.webapp.query.QCriteria;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -144,7 +143,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	private boolean m_collapsed;
 
 	/**
-	 * Calculated by entered search criteria, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
+	 * This is T if after calculating the criteria at least one field was not empty.
 	 */
 	private boolean m_hasUserDefinedCriteria;
 
@@ -162,6 +161,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	@Nullable
 	private UIMessage m_newBtnDisableReason;
+
+	private boolean m_hasBeenUsed;
 
 	public enum ButtonMode {
 		/** Show this button only when the lookup form is expanded */
@@ -277,8 +278,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		for(Object o : m_itemList) {
 			if(o instanceof SearchControlLine) {
 				SearchControlLine<?> it = (SearchControlLine<?>) o;
-				it.clear();
-				formBuilder.append(it);
+				appendControlLine(formBuilder, it);
 			} else if(o instanceof  IExecute) {
 				((IExecute) o).execute();
 			}
@@ -319,6 +319,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 			if(m_clicker != null)
 				m_clicker.clicked(SearchPanel.this);
 		});
+		m_hasBeenUsed = true;							// Indicate that we need to use defaultValue instead of initialValue next time.
+	}
+
+	private <P> void appendControlLine(ISearchFormBuilder formBuilder, SearchControlLine<P> it) throws Exception {
+		P initialValue = it.getInitialValue();
+		P value = m_hasBeenUsed || initialValue == null ? it.getDefaultValue() : initialValue;
+		it.getControl().setValue(value);
+		formBuilder.append(it);
 	}
 
 	//private void addFilterFragment(NodeContainer searchContainer) {
@@ -513,6 +521,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	@Nullable
 	public QCriteria<T> getCriteria() throws Exception {
+		if(! isBuilt())
+			build();
 		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root;
 		IQueryFactory<T> queryFactory = getQueryFactory();
@@ -699,6 +709,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		if(m_buttonItemList == Collections.EMPTY_LIST)
 			m_buttonItemList = new ArrayList<>(10);
 		m_buttonItemList.add(new ButtonRowItem(order, both, b));
+		forceRebuild();
 	}
 
 	/**
@@ -707,12 +718,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * @param iscollapsed
 	 */
 	private void createButtonRow(NodeContainer c, boolean iscollapsed) {
-		Collections.sort(m_buttonItemList, new Comparator<ButtonRowItem>() { // Sort in ascending order,
-			@Override
-			public int compare(ButtonRowItem o1, ButtonRowItem o2) {
-				return o1.getOrder() - o2.getOrder();
-			}
-		});
+		// Sort in ascending order,
+		Collections.sort(m_buttonItemList, (o1, o2) -> o1.getOrder() - o2.getOrder());
 
 		for(ButtonRowItem bi : m_buttonItemList) {
 			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
@@ -878,7 +885,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Set the default form factory to use when forms are generated. This is a global parameter
-	 * and should only be set from {@link to.etc.domui.server.DomApplication#initialize(ConfigParameters)}
+	 * and should only be set from DomApplication.initialize.
 	 */
 	static public void setDefaultSearchFormBuilder(Supplier<ISearchFormBuilder> factory) {
 		m_defaultFormBuilderFactory = factory;
@@ -994,7 +1001,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//	FIXME cannot set hint here because setHint is not part of IControl
 		//}
 
-		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, builder.getDefaultValue(), labelNode, false);
+		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, builder.getDefaultValue(), builder.getInitialValue(), labelNode, false);
 		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;
@@ -1084,7 +1091,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//	FIXME cannot set hint here because setHint is not part of IControl
 		//}
 
-		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, null, labelNode, fromMetadata);
+		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, null, null, labelNode, fromMetadata);
 		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;

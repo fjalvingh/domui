@@ -11,8 +11,8 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.IRenderInto;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -132,7 +132,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 	public Set<V> getValue() {
 		Set<V> value = super.getValue();
 		if(null == value)
-			value = Collections.EMPTY_SET;
+			value = new HashSet<>();
 		updateValue(value);
 		return value;
 	}

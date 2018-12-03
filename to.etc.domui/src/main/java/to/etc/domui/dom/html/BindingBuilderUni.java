@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.BindReference;
 import to.etc.domui.component.binding.BindingDefinitionException;
+import to.etc.domui.component.binding.CalculatedBinding;
 import to.etc.domui.component.binding.ComponentPropertyBindingUni;
 import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.MetaManager;
@@ -12,6 +13,7 @@ import to.etc.domui.util.Documentation;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.function.FunctionEx;
+import to.etc.function.SupplierEx;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QField;
 
@@ -131,6 +133,12 @@ final public class BindingBuilderUni<CV> {
 		binding.moveModelToControl();
 		m_control.finishBinding(binding);
 		return binding;
+	}
+
+	public CalculatedBinding<CV> to(SupplierEx<Object> acceptor) {
+		CalculatedBinding<CV> calculatedBinding = new CalculatedBinding<>(m_control, m_controlProperty, acceptor);
+		m_control.finishBinding(calculatedBinding);
+		return calculatedBinding;
 	}
 
 	@Override public String toString() {

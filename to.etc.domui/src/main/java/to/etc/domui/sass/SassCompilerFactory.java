@@ -37,6 +37,5 @@ final public class SassCompilerFactory {
 
 	static {
 		register(new JSassCompiler());
-		register(new VaadinSassCompiler());
 	}
 }

@@ -13,6 +13,7 @@ import to.etc.domui.dom.html.Input;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
+import to.etc.function.FunctionEx;
 import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.NlsContext;
@@ -50,6 +51,9 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 
 	@Nullable
 	private IObjectToStringConverter<T> m_actualConverter;
+
+	@Nullable
+	private FunctionEx<String, T> m_onEnter;
 
 	private boolean m_mandatory;
 
@@ -292,8 +296,18 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 			return result;
 		}
 
-		changeSelectionValue(null);				// Make sure no value is selected
+		FunctionEx<String, T> onEnter = getOnEnter();
+		if(done && onEnter != null) {
+			T newValue = onEnter.apply(input);
+			if(null != newValue) {
+				selected(newValue);
+				return null;
+			}
+		}
+
+		changeSelectionValue(null);                // Make sure no value is selected
 		setState(State.ERROR);
+
 		return result;
 	}
 
@@ -412,5 +426,14 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 		m_searchProperty = searchProperty;
 		forceRebuild();
 		return this;
+	}
+
+	@Nullable
+	public FunctionEx<String, T> getOnEnter() {
+		return m_onEnter;
+	}
+
+	public void setOnEnter(@Nullable FunctionEx<String, T> onEnter) {
+		m_onEnter = onEnter;
 	}
 }

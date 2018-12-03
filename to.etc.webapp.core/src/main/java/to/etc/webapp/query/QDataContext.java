@@ -249,4 +249,12 @@ public interface QDataContext extends AutoCloseable {
 	 * @param testDataListener
 	 */
 	void addListener(@NonNull IQDataContextListener qDataContextListener);
+
+	/**
+	 * Loads a copy of the specified data class in the session represented by this
+	 * data context. It leaves the original copy unaltered and returns a new instance
+	 * of the same record in this data context.
+	 */
+	@NonNull
+	<T> T reload(@NonNull T source) throws Exception;
 }

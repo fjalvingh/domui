@@ -1,7 +1,8 @@
 package to.etc.domui.state;
 
-import jdk.nashorn.internal.ir.annotations.*;
-import org.eclipse.jdt.annotation.*;
+import jdk.nashorn.internal.ir.annotations.Immutable;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 @Immutable
 final public class CidPair {
@@ -44,5 +45,9 @@ final public class CidPair {
 		if(pos == -1)
 			return null;
 		return new CidPair(param.substring(0, pos), param.substring(pos + 1));
+	}
+
+	@Override public String toString() {
+		return m_windowId + "." + m_conversationId;
 	}
 }

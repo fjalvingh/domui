@@ -7,6 +7,7 @@ import to.etc.dbutil.schema.DbCheckConstraint;
 import to.etc.dbutil.schema.DbColumn;
 import to.etc.dbutil.schema.DbIndex;
 import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbRelation.RelationUpdateAction;
 import to.etc.dbutil.schema.DbSchema;
 import to.etc.dbutil.schema.DbTable;
 import to.etc.dbutil.schema.DbUniqueConstraint;
@@ -410,7 +411,7 @@ public class OracleReverser extends JDBCReverser {
 			throw new IllegalStateException("No children in constraint " + owner + "." + name);
 		DbTable pt = parentColumns.get(0).getTable();
 		DbTable ct = childColumns.get(0).getTable();
-		DbRelation rel = new DbRelation(pt, ct);
+		DbRelation rel = new DbRelation(pt, ct, RelationUpdateAction.None, RelationUpdateAction.None);		// FIXME Need to find cascade rules
 		rel.setName(name);
 
 		for(int i = 0; i < parentColumns.size(); i++) {
@@ -421,8 +422,6 @@ public class OracleReverser extends JDBCReverser {
 
 	/**
 	 * Override because the stupid Oracle driver does not report a constraint name.
-	 *
-	 * @see to.etc.dbutil.reverse.JDBCReverser#reverseRelations(to.etc.dbutil.schema.DbTable)
 	 */
 	@Override
 	protected void reverseRelations(@NonNull Connection dbc, DbTable t) throws Exception {
@@ -471,7 +470,7 @@ public class OracleReverser extends JDBCReverser {
 							throw new IllegalStateException("Can't find table for PK " + pktn + " in PK table for foreign key constraint " + sp.name);
 
 						//-- Create the relation too.
-						rel = new DbRelation(pt, t);
+						rel = new DbRelation(pt, t, RelationUpdateAction.None, RelationUpdateAction.None);		// FIXME Need to find cascade rule
 						rel.setName(sp.name);
 						pt.getParentRelationList().add(rel);
 						t.getChildRelationList().add(rel);
