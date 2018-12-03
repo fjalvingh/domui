@@ -267,13 +267,6 @@
                 <version>${ch.qos.logback.version}</version>
             </dependency>
 
-            <!-- EXPERIMENTAL: sass support -->
-            <dependency>
-                <groupId>com.vaadin</groupId>
-                <artifactId>vaadin-sass-compiler</artifactId>
-                <version>${vaadin.sass.compiler.version}</version>
-            </dependency>
-
             <!-- Test dependencies -->
             <dependency>
                 <groupId>junit</groupId>
