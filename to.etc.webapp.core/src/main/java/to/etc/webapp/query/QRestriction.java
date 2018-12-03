@@ -27,7 +27,7 @@ package to.etc.webapp.query;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Factory for creating syntax tree nodes.
@@ -181,7 +181,7 @@ public class QRestriction {
 	}
 
 	@NonNull
-	static public final <V> QPropertyIn in(String property, List<V> list) {
+	static public final <V> QPropertyIn in(String property, Collection<V> list) {
 		return new QPropertyIn(QOperation.IN, property, createValueNode(list));
 	}
 	@NonNull
@@ -201,8 +201,6 @@ public class QRestriction {
 
 	/**
 	 * This will recognize values or subcriteria
-	 * @param value
-	 * @return
 	 */
 	@NonNull
 	static public QOperatorNode createValueNode(@Nullable Object value) {

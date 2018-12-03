@@ -31,7 +31,6 @@ import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.NodeBase;
 
 /**
  * A Button tag containing a single, usually small, image. The image is a normal image
@@ -72,7 +71,7 @@ public class SmallImgButton extends Button {
 	 * @param rurl
 	 * @param cl
 	 */
-	public SmallImgButton(IIconRef rurl, IClicked<? extends NodeBase> cl) {
+	public SmallImgButton(IIconRef rurl, IClicked<SmallImgButton> cl) {
 		this();
 		setClicked(cl);
 		setSrc(rurl);

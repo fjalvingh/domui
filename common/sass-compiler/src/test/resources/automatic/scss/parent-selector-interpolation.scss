@@ -1,9 +1,0 @@
-@mixin base-nativebutton($primaryStyleName : v-nativebutton) {
-  .v-ie & .#{$primaryStyleName} {
-    overflow: visible;
-  }
-}
-
-.base {
-  @include base-nativebutton;
-}

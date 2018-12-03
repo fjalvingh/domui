@@ -29,7 +29,6 @@
         <module name="to.etc.pater" />
         <module name="to.etc.syntaxer" />
         <module name="to.etc.webapp.core" />
-        <module name="vaadin-sass-compiler" />
       </profile>
       <profile name="Annotation profile for domui" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -43,6 +42,7 @@
     <bytecodeTargetLevel>
       <module name="annotations" target="1.8" />
       <module name="common" target="1.5" />
+      <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="1.8" />
@@ -68,7 +68,6 @@
       <module name="to.etc.pater" target="1.8" />
       <module name="to.etc.syntaxer" target="1.8" />
       <module name="to.etc.webapp.core" target="1.8" />
-      <module name="vaadin-sass-compiler" target="1.6" />
     </bytecodeTargetLevel>
   </component>
   <component name="EclipseCompilerSettings">
@@ -84,7 +83,6 @@
       <module name="fontawesome5free" options="-properties /home/jal/git/domui/master/integrations/fontawesome5free/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
       <module name="integrations" options="" />
       <module name="jira-bug-reporter" options="-properties /home/jal/git/domui/master/jira-bug-reporter/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="master" options="" />
       <module name="property-annotations-processor" options="-properties /home/jal/git/domui/master/common/property-annotation-processor/.settings/org.eclipse.jdt.core.prefs" />
       <module name="to.etc.alg" options="-properties /home/jal/git/domui/master/common/to.etc.alg/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
       <module name="to.etc.db" options="-properties /home/jal/git/domui/master/common/to.etc.db/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
@@ -101,7 +99,6 @@
       <module name="to.etc.pater" options="-properties /home/jal/git/domui/master/common/to.etc.pater/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
       <module name="to.etc.syntaxer" options="-properties /home/jal/git/domui/master/common/to.etc.syntaxer/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
       <module name="to.etc.webapp.core" options="-properties /home/jal/git/domui/master/to.etc.webapp.core/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="vaadin-sass-compiler" options="" />
     </option>
   </component>
 </project>
