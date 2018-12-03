@@ -192,7 +192,6 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		markerClear();
 		m_value = value;
 		if(isBuilt()) {
-			StringBuilder sb = new StringBuilder();
 			if(null == value)
 				value = "";
 			callStringMethod("setValue", value);

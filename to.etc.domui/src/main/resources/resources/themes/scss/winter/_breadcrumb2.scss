@@ -1,5 +1,5 @@
 /** Breadcrumb2, see http://cssmenumaker.com/blog/fancy-breadcrumb-navigation-tutorial-example/ **/
-$brcr2-bg: #428EFE !default;						// Item bg color
+$brcr2-bg: $alt-button-color !default;						// Item bg color
 $brcr2-color: white !default;						// Item color
 $brcr2-hover: lighten($brcr2-bg, 20%) !default; 	// Hover color
 

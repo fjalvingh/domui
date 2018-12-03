@@ -78,6 +78,7 @@ import to.etc.webapp.query.QUnaryNode;
 import to.etc.webapp.query.QUnaryProperty;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -749,13 +750,13 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		QLiteral lit = null;
 		if(rhs.getOperation() == QOperation.LITERAL) {
 			Object litval = ((QLiteral) rhs).getValue();
-			if(litval instanceof List) {
+			if(litval instanceof Collection) {
 				//-- If prop refers to some relation (dotted pair):
 				name = parseSubcriteria(name);
-				m_last = Restrictions.in(name, (List<Object>) litval);
+				m_last = Restrictions.in(name, (Collection<Object>) litval);
 				return;
 			} else {
-				throw new QQuerySyntaxException("Unexpected value for 'in' operation: " + litval+", should be List or subquery");
+				throw new QQuerySyntaxException("Unexpected value for 'in' operation: " + litval+", should be Collection or subquery");
 			}
 		} else if(rhs.getOperation() == QOperation.SELECTION_SUBQUERY) {
 			QSelectionSubquery qsq = (QSelectionSubquery) n.getExpr();
