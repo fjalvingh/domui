@@ -78,8 +78,6 @@ final public class PageRequestHandler {
 
 	private final ResponseCommandWriter m_commandWriter;
 
-	private final PageAccessChecker m_accessChecker;
-
 	private final RequestContextImpl m_ctx;
 
 	@Nullable
@@ -95,10 +93,9 @@ final public class PageRequestHandler {
 
 	private boolean m_inhibitlog;
 
-	public PageRequestHandler(DomApplication application, ApplicationRequestHandler applicationRequestHandler, ResponseCommandWriter commandWriter, PageAccessChecker checker, RequestContextImpl ctx) {
+	public PageRequestHandler(DomApplication application, ApplicationRequestHandler applicationRequestHandler, ResponseCommandWriter commandWriter, RequestContextImpl ctx) {
 		m_application = application;
 		m_applicationRequestHandler = applicationRequestHandler;
-		m_accessChecker = checker;
 		m_commandWriter = commandWriter;
 		m_ctx = ctx;
 
@@ -782,7 +779,7 @@ final public class PageRequestHandler {
 	 * </ul>
 	 */
 	private boolean checkAccess(WindowSession windowSession, Page page) throws Exception {
-		PageAccessCheckResult result = m_accessChecker.checkAccess(m_ctx, page, a -> logUser(a));
+		PageAccessCheckResult result = m_application.getPageAccessChecker().checkAccess(m_ctx, page, a -> logUser(a));
 		switch(result) {
 			default:
 				throw new IllegalArgumentException(result + "?");

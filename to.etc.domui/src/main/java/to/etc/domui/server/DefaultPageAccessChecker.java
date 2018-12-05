@@ -27,13 +27,14 @@ import to.etc.webapp.nls.CodeException;
  * Created on 4-11-18.
  */
 @NonNullByDefault
-public class PageAccessChecker {
+public class DefaultPageAccessChecker implements IPageAccessChecker {
 	/**
 	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
 	 * user to check it's rights against the page's required rights.
 	 *
 	 * WARNING: Functional duplicate exists in {@link UIContext#hasRightsOn(Class)}.
 	 */
+	@Override
 	public PageAccessCheckResult checkAccess(RequestContextImpl ctx, Page page, ConsumerEx<String> logerror) throws Exception {
 		if(ctx.getParameter("webuia") != null)
 			throw new IllegalStateException("Cannot be called for an AJAX request");

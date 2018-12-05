@@ -274,6 +274,9 @@ public abstract class DomApplication {
 	@Nullable
 	abstract public Class<? extends UrlPage> getRootPage();
 
+	@NonNull
+	private IPageAccessChecker m_pageAccessChecker = new DefaultPageAccessChecker();
+
 	/**
 	 * Used to handle soft binding: moving data from controls -> model and vice versa.
 	 */
@@ -1645,6 +1648,15 @@ public abstract class DomApplication {
 
 	public synchronized List<ILoginListener> getLoginListenerList() {
 		return m_loginListenerList;
+	}
+
+	@NonNull
+	public IPageAccessChecker getPageAccessChecker() {
+		return m_pageAccessChecker;
+	}
+
+	public void setPageAccessChecker(@NonNull IPageAccessChecker pageAccessChecker) {
+		m_pageAccessChecker = pageAccessChecker;
 	}
 
 	/**
