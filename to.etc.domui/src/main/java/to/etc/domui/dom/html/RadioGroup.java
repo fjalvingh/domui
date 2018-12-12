@@ -116,7 +116,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	public RadioButton<T> addButton(String text, T value) {
-		Div d = new Div();
+		Div d = new Div("ui-rbb-item");
 		add(d);
 		RadioButton<T> rb = new RadioButton<>(value);
 		d.add(rb);
