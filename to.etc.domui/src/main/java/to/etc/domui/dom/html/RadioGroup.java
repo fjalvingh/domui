@@ -1,12 +1,15 @@
 package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
+import to.etc.webapp.nls.NlsContext;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -116,7 +119,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	public RadioButton<T> addButton(String text, T value) {
-		Div d = new Div();
+		Div d = new Div("ui-rbb-item");
 		add(d);
 		RadioButton<T> rb = new RadioButton<>(value);
 		d.add(rb);
@@ -191,6 +194,24 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 			rb.setDisabled(d);
 		}
 		m_disabled = d;
+	}
+
+	public static <T extends Enum<T>> RadioGroup<T> createFromEnum(Class<T> enumClass, T... ignored) {
+		List<T> list = new ArrayList<>(Arrays.asList(enumClass.getEnumConstants()));
+		for(T t : ignored) {
+			list.remove(t);
+		}
+
+		ClassMetaModel cmm = MetaManager.findClassMeta(enumClass);
+		RadioGroup<T> rg = new RadioGroup<>();
+		for(T t : list) {
+			String label = cmm.getDomainLabel(NlsContext.getLocale(), t);
+			if(null == label)
+				label = t.name();
+			rg.addButton(label, t);
+		}
+
+		return rg;
 	}
 
 }

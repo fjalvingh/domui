@@ -10,6 +10,7 @@ import to.etc.domuidemo.pages.graphs.GraphPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
 import to.etc.domuidemo.pages.overview.buttons.DemoDefaultButton;
 import to.etc.domuidemo.pages.overview.buttons.DemoLinkButton;
+import to.etc.domuidemo.pages.overview.buttons.RadioButtonPage;
 import to.etc.domuidemo.pages.overview.delayed.DemoAsyncContainer;
 import to.etc.domuidemo.pages.overview.delayed.DemoPollingDiv;
 import to.etc.domuidemo.pages.overview.dnd.DemoDragDrop;
@@ -75,6 +76,7 @@ public class ComponentListPage extends MenuPage {
 		addCaption("Simple components");
 		addLink(DemoDefaultButton.class, "The DefaultButton");
 		addLink(DemoLinkButton.class, "The LinkButton");
+		addLink(RadioButtonPage.class, "Radio buttons");
 		addLink(DemoALink.class, "The ALink and ATag components: several kinds of links");
 		addLink(SvgIconPage.class, "Renders components with SVG icons");
 
