@@ -95,6 +95,12 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		@Override public String getInputType() {
 			return m_password ? "password" : "text";
 		}
+
+		@Override public boolean isFocusable() {
+			if(m_disableFocus)
+				return false;
+			return super.isFocusable();
+		}
 	};
 
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
@@ -150,6 +156,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	@Nullable
 	private List<NodeBase> m_buttonList;
+
+	private boolean m_disableFocus;
 
 	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
@@ -974,4 +982,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return this;
 	}
 
+	public void setDisableFocus(boolean disableFocus) {
+		m_disableFocus = disableFocus;
+	}
 }
