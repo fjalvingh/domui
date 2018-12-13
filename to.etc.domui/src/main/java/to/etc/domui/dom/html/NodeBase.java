@@ -67,8 +67,9 @@ import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
-import to.etc.webapp.query.IQDataContextSource;
+import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
 import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
@@ -1741,8 +1742,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	@NonNull
-	public IQDataContextSource getSharedContextFactory() {
-		return getParent().getSharedContextFactory();
+	final public QDataContextFactory getSharedContextFactory() {
+		return getSharedContextFactory(QContextManager.DEFAULT);
+	}
+
+	@NonNull
+	public QDataContextFactory getSharedContextFactory(@NonNull String key) {
+		return getParent().getSharedContextFactory(key);
 	}
 
 	/**
@@ -1888,10 +1894,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Send a self-defined event through the whole page. All nodes that registered
 	 * for that event using {@link #addNotificationListener(Class, INotificationListener)} will
 	 * receive the event in their listeners.
-	 *
-	 * @param eventClass
-	 * @param <T>
-	 * @throws Exception
 	 */
 	public final <T> void notify(T eventClass) throws Exception {
 		getPage().notifyPage(eventClass);

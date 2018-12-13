@@ -28,7 +28,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.ApplicationRequestHandler;
@@ -150,7 +149,6 @@ final public class WindowSession {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Return a new, unique ID for a conversation in this user's session.
-	 * @return
 	 */
 	synchronized int nextCID() {
 		return ++m_nextCid;
@@ -158,8 +156,6 @@ final public class WindowSession {
 
 	/**
 	 * Locate a conversation by ID. Returns null if the conversation is not found.
-	 * @param cid
-	 * @return
 	 */
 	@Nullable
 	public ConversationContext findConversation(@NonNull final String cid) throws Exception {
@@ -170,25 +166,7 @@ final public class WindowSession {
 	}
 
 	/**
-	 * Return all conversations that contain the specified page class.
-	 * @param clz
-	 * @return
-	 */
-	@NonNull
-	List<ConversationContext> findConversationsFor(@NonNull final Class< ? extends NodeBase> clz) throws Exception {
-		List<ConversationContext> res = new ArrayList<ConversationContext>();
-		for(ConversationContext cc : m_conversationMap.values()) {
-			if(cc.findPage(clz) != null)
-				res.add(cc);
-		}
-		if(res.size() > 0)
-			internalAttachConversations();
-		return res;
-	}
-
-	/**
 	 * Add a new conversation to the conversation context.
-	 * @param cc
 	 */
 	void registerConversation(@NonNull final ConversationContext cc, @Nullable String cid) {
 		if(cid == null)
@@ -200,7 +178,6 @@ final public class WindowSession {
 	/**
 	 * Call the "attach" method for all conversations, indicating that a new request
 	 * is going to be handled.
-	 * @throws Exception
 	 */
 	public void internalAttachConversations() throws Exception {
 		if(m_attached)
@@ -302,8 +279,6 @@ final public class WindowSession {
 
 	/**
 	 * Quickly check if a conversation is (recently) destroyed, this should prevent "event reordering problems" like in etc.to bugzilla bug#3138.
-	 * @param ccid
-	 * @return
 	 */
 	public boolean isConversationDestroyed(@NonNull String ccid) {
 		boolean isdestroyed = m_destroyedConversationMap.containsKey(ccid);
@@ -332,7 +307,7 @@ final public class WindowSession {
 	public void acceptNewConversation(@NonNull final ConversationContext cc) throws Exception {
 		//-- Drop all "old" conversations, then add the new one
 //		destroyConversations();							// ORDERED 1
-		registerConversation(cc, null); 				// ORDERED 2
+		registerConversation(cc, null); 			// ORDERED 2
 		cc.internalAttach(); 							// ORDERED 3
 		m_attached = true; 								// jal 20090108 "Pages were kept ATTACHED, causing exception on re-entry"
 	}
@@ -342,7 +317,6 @@ final public class WindowSession {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Shelve the current page, then move to the new one.
-	 * @param shelved
 	 */
 	private void shelvePage(@NonNull final Page shelved) {
 		if(shelved == null)
@@ -352,7 +326,6 @@ final public class WindowSession {
 
 	/**
 	 * Get the current contents of the shelved page stack.
-	 * @return
 	 */
 	@NonNull
 	public List<IShelvedEntry> getShelvedPageStack() {
@@ -361,10 +334,6 @@ final public class WindowSession {
 
 	/**
 	 * Goto handling in EXCEPTION handling mode: only Redirect is allowed here.
-	 * @param ctx
-	 * @param currentpg
-	 * @param ajax
-	 * @return
 	 */
 	public boolean handleExceptionGoto(@NonNull final RequestContextImpl ctx, @NonNull final Page currentpg, boolean ajax) throws Exception {
 		MoveMode targetMode = getTargetMode();
@@ -543,8 +512,6 @@ final public class WindowSession {
 	/**
 	 * Returns TRUE if the target page is a page which can only be on top of the shelve. For now
 	 * it checks if the page == the index page.
-	 * @param clz
-	 * @return
 	 */
 	private boolean mustResetShelve(@NonNull final Class< ? extends UrlPage> clz) {
 		Class<?> ac = m_appSession.getApplication().getRootPage();
@@ -595,7 +562,6 @@ final public class WindowSession {
 
 	/**
 	 * Moves one shelve entry back. If there's no shelve entry current moves back to the application's index.
-	 * @param currentpg
 	 */
 	private void handleMoveBack(@NonNull final RequestContextImpl ctx, @NonNull Page currentpg, boolean ajax) throws Exception {
 		int ix = m_shelvedPageStack.size() - 2;
@@ -711,9 +677,8 @@ final public class WindowSession {
 	}
 
 	/**
-	 * Discards this page from the page shelf. It discards it's conversation if that is no
+	 * Discards this page from the page shelf. It discards it's conversation(s) if that is no
 	 * longer present on the shelf.
-	 * @param pg
 	 */
 	void discardPage(@NonNull final Page pg) {
 		boolean destroyc = true;
@@ -822,9 +787,6 @@ final public class WindowSession {
 
 	/**
 	 * Call all "new page" listeners when a page is unbuilt or new at this time.
-	 *
-	 * @param pg
-	 * @throws Exception
 	 */
 	private void callNewPageCreatedListeners(@NonNull final Page pg) throws Exception {
 		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners()) {
@@ -845,11 +807,6 @@ final public class WindowSession {
 
 	/**
 	 * Check to see if we can use a page stack entry.
-	 *
-	 * @param cc
-	 * @param clz
-	 * @param papa	Nonnull for a "new page" request, null for an AJAX request to an existing page.
-	 * @return
 	 */
 	private int findInPageStack(@Nullable final ConversationContext cc, @NonNull final Class< ? extends UrlPage> clz, @Nullable final IPageParameters papa) throws Exception {
 		//		if(cc == null) FIXME jal 20090824 Revisit: this is questionable; why can it be null? Has code path from UIGoto-> handleGoto.
@@ -929,8 +886,6 @@ final public class WindowSession {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Set a window attribute.
-	 * @param name
-	 * @param val
 	 */
 	public void setAttribute(@NonNull final String name, @Nullable final Object val) {
 		if(m_map == Collections.EMPTY_MAP)
@@ -944,8 +899,6 @@ final public class WindowSession {
 
 	/**
 	 * Get a window attribute.
-	 * @param name
-	 * @return
 	 */
 	@Nullable
 	public Object getAttribute(@NonNull final String name) {
@@ -957,8 +910,6 @@ final public class WindowSession {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Add or insert a page to the shelve stack. Used to shelve non DomUI stack entries.
-	 * @param depth
-	 * @param entry
 	 */
 	public void addShelveEntry(int depth, @NonNull IShelvedEntry entry) {
 		if(depth > 0)
@@ -972,9 +923,6 @@ final public class WindowSession {
 	/**
 	 * This inserts a (possibly new) entry in the page stack. If the same page is already there
 	 * nothing happens and this returns false (stack not modified).
-	 * @param depth
-	 * @param clz
-	 * @param parameters
 	 */
 	public boolean insertShelveEntry(int depth, @NonNull Class< ? extends UrlPage> clz, @NonNull IPageParameters parameters) throws Exception {
 		boolean res = null != insertShelveEntryMain(depth, clz, parameters);
@@ -985,9 +933,6 @@ final public class WindowSession {
 	/**
 	 * This inserts a (possibly new) entry in the page stack. If the same page is already there
 	 * nothing happens and this returns false (stack not modified).
-	 * @param depth
-	 * @param clz
-	 * @param parameters
 	 */
 	@Nullable
 	private Page insertShelveEntryMain(int depth, @NonNull Class< ? extends UrlPage> clz, @NonNull IPageParameters parameters) throws Exception {
@@ -1050,7 +995,6 @@ final public class WindowSession {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Get all of the pages from the shelve stack, and return them as a string based structure for later reload.
-	 * @return
 	 */
 	@NonNull
 	List<SavedPage> getSavedPageList() {
@@ -1130,8 +1074,6 @@ final public class WindowSession {
 
 	/**
 	 * Get the name for the window state file of a given session ID.
-	 * @param sessionID
-	 * @return
 	 */
 	@NonNull
 	static private File getStateFile(@NonNull String sessionID) {
@@ -1160,7 +1102,4 @@ final public class WindowSession {
 		if(sf.exists())
 			sf.delete();
 	}
-
-
-
 }

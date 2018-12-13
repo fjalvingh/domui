@@ -77,9 +77,6 @@ public class DefaultPageInjectorFactory implements IPageInjectorCalculator {
 
 	/**
 	 * Tries to find an injector to inject a value for the specified property.
-	 *
-	 * @param pi
-	 * @return
 	 */
 	@Nullable
 	protected PropertyInjector calculateInjector(final PropertyInfo pi) {

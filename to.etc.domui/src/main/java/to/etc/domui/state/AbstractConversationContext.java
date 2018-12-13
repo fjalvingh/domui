@@ -39,15 +39,26 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 	@NonNull
 	private List<File> m_uploadList = Collections.EMPTY_LIST;
 
-	final void initialize(@NonNull final WindowSession m) {
+	final void initialize(@NonNull WindowSession m) {
 		if(m == null)
 			throw new IllegalStateException("Internal: manager cannot be null, dude");
 		if(m_manager != null)
 			throw new IllegalStateException("Internal: manager is ALREADY set, dude");
+		m_manager = m;
 	}
+
 
 	protected void destroy() {
 		m_manager = null;
+	}
+
+	@NonNull
+	ConversationState getState() {
+		return m_state;
+	}
+
+	public boolean isValid() {
+		return getState() == ConversationState.ATTACHED;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -203,7 +214,7 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 	 */
 	public void registerTempFile(@NonNull final File f) {
 		if(m_uploadList == Collections.EMPTY_LIST)
-			m_uploadList = new ArrayList<File>();
+			m_uploadList = new ArrayList<>();
 		m_uploadList.add(f);
 	}
 

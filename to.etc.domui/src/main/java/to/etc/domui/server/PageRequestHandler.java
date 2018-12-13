@@ -223,29 +223,33 @@ final public class PageRequestHandler {
 			throw new IllegalStateException("Page can not be null here. Null is already handled inside expired AJAX request handling.");
 		}
 
-		page.getConversation().mergePersistentParameters(m_ctx);
-		page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
-		page.internalIncrementRequestCounter();
-		windowSession.internalSetLastPage(page);
-		if(DomUtil.USERLOG.isDebugEnabled()) {
-			DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + m_cid);
-		}
-		UIContext.internalSet(page);					// Get cleared in AbstractContext using UIContext,internalClear()
+		try {
+			page.getConversation().mergePersistentParameters(m_ctx);
+			page.internalSetPhase(PagePhase.BUILD);                // Tree can change at will
+			page.internalIncrementRequestCounter();
+			windowSession.internalSetLastPage(page);
+			if(DomUtil.USERLOG.isDebugEnabled()) {
+				DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + m_cid);
+			}
+			UIContext.internalSet(page);                    // Get cleared in AbstractContext using UIContext,internalClear()
 
-		/*
-		 * Handle all out-of-bound actions: those that do not manipulate UI state.
-		 */
-		if(action != null && action.startsWith("#")) {
-			runOutOfBoundAction(page, wcomp -> wcomp.componentHandleWebDataRequest(m_ctx, action.substring(1)));
-		} else if(Constants.ACMD_PAGEDATA.equals(action)) {
-			//-- If this is a PAGEDATA request - handle that
-			runOutOfBoundAction(page, wcomp -> ((IComponentUrlDataProvider) wcomp).provideUrlData(m_ctx));
-		} else if(null != action) {
-			runAction(page, action);
-		} else if(papa != null) {
-			runFullRender(windowSession, page, papa);
-		} else {
-			throw new IllegalStateException("Page parameters are null in full render");
+			/*
+			 * Handle all out-of-bound actions: those that do not manipulate UI state.
+			 */
+			if(action != null && action.startsWith("#")) {
+				runOutOfBoundAction(page, wcomp -> wcomp.componentHandleWebDataRequest(m_ctx, action.substring(1)));
+			} else if(Constants.ACMD_PAGEDATA.equals(action)) {
+				//-- If this is a PAGEDATA request - handle that
+				runOutOfBoundAction(page, wcomp -> ((IComponentUrlDataProvider) wcomp).provideUrlData(m_ctx));
+			} else if(null != action) {
+				runAction(page, action);
+			} else if(papa != null) {
+				runFullRender(windowSession, page, papa);
+			} else {
+				throw new IllegalStateException("Page parameters are null in full render");
+			}
+		} finally {
+			page.discardRemovedSubPages();
 		}
 	}
 

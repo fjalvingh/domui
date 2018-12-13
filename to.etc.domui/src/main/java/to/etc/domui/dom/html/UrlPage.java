@@ -172,11 +172,6 @@ public class UrlPage extends Div {
 
 	@Override
 	@NonNull
-	final public QDataContextFactory getSharedContextFactory() {
-		return getSharedContextFactory(QContextManager.DEFAULT);
-	}
-
-	@NonNull
 	public QDataContextFactory getSharedContextFactory(@NonNull String key) {
 		return QContextManager.getDataContextFactory(key, getPage().getContextContainer(key));
 	}

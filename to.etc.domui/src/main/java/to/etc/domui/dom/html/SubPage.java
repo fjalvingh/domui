@@ -1,6 +1,7 @@
 package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.state.SubConversationContext;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContextFactory;
 
@@ -15,6 +16,8 @@ import to.etc.webapp.query.QDataContextFactory;
  * Created on 30-11-18.
  */
 abstract public class SubPage extends Div {
+	private final SubConversationContext m_pageContext = new SubConversationContext();
+
 	@Override
 	abstract public void createContent() throws Exception;
 
@@ -22,10 +25,14 @@ abstract public class SubPage extends Div {
 	/**
 	 * Allocate the data context specifically for *this* subpage.
 	 */
+	@Override
 	@NonNull
 	public QDataContextFactory getSharedContextFactory(@NonNull String key) {
-		return QContextManager.getDataContextFactory(key, getPage().getContextContainer(key));
+		return QContextManager.getDataContextFactory(key, getConversation());
 	}
 
-
+	@NonNull
+	public final SubConversationContext getConversation() {
+		return m_pageContext;
+	}
 }

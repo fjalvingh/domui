@@ -53,9 +53,15 @@ final public class DefaultPageInjector implements IPageInjector {
 	 * Maps UrlPage class names to their PageInjectors. We use names instead of the Class instances
 	 * to allow for class reloading.
 	 */
-	private Map<String, PageInjector> m_injectorMap = new HashMap<String, PageInjector>();
+	private Map<String, PageInjector> m_injectorMap = new HashMap<>();
 
 	private final DefaultPageInjectorFactory m_defaultPageInjectorFactory;
+
+	//@GuardedBy("this")
+	private List<InjectorReference> m_pageInjectorOrderList = Collections.emptyList();
+
+	//@GuardedBy("this")
+	private List<IPageInjectorCalculator> m_pageInjectorList = Collections.emptyList();
 
 	public DefaultPageInjector() {
 		m_defaultPageInjectorFactory = new DefaultPageInjectorFactory();
@@ -75,32 +81,6 @@ final public class DefaultPageInjector implements IPageInjector {
 		return new PageInjector(page, new ArrayList<>(propInjectorMap.values()));
 	}
 
-	@NonNullByDefault
-	static final private class InjectorReference {
-		final private int m_priority;
-
-		final private IPageInjectorCalculator m_pageInjector;
-
-		public InjectorReference(int priority, IPageInjectorCalculator pageInjector) {
-			m_priority = priority;
-			m_pageInjector = pageInjector;
-		}
-
-		public int getPriority() {
-			return m_priority;
-		}
-
-		public IPageInjectorCalculator getPageInjector() {
-			return m_pageInjector;
-		}
-	}
-
-	//@GuardedBy("this")
-	private List<InjectorReference> m_pageInjectorOrderList = Collections.emptyList();
-
-	//@GuardedBy("this")
-	private List<IPageInjectorCalculator> m_pageInjectorList = Collections.emptyList();
-
 	public synchronized void registerPageInjector(int urgency, IPageInjectorCalculator injector) {
 		ArrayList<InjectorReference> list = new ArrayList<>(m_pageInjectorOrderList);
 		list.add(new InjectorReference(urgency, injector));
@@ -119,10 +99,8 @@ final public class DefaultPageInjector implements IPageInjector {
 
 	/**
 	 * Find the page injectors to use for the page. This uses the cache.
-	 * @param page
-	 * @return
 	 */
-	private synchronized PageInjector findPageInjector(final Class< ? extends UrlPage> page) {
+	private synchronized PageInjector findPageInjector(Class< ? extends UrlPage> page) {
 		String cn = page.getClass().getCanonicalName();
 		PageInjector pij = m_injectorMap.get(cn);
 		if(pij != null) {
@@ -145,4 +123,25 @@ final public class DefaultPageInjector implements IPageInjector {
 		PageInjector pij = findPageInjector(page.getClass());
 		pij.inject(page, papa);
 	}
+
+	@NonNullByDefault
+	static final private class InjectorReference {
+		final private int m_priority;
+
+		final private IPageInjectorCalculator m_pageInjector;
+
+		public InjectorReference(int priority, IPageInjectorCalculator pageInjector) {
+			m_priority = priority;
+			m_pageInjector = pageInjector;
+		}
+
+		public int getPriority() {
+			return m_priority;
+		}
+
+		public IPageInjectorCalculator getPageInjector() {
+			return m_pageInjector;
+		}
+	}
+
 }

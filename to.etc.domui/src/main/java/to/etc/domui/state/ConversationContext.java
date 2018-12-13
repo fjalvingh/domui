@@ -33,9 +33,11 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.util.WrappedException;
 import to.etc.webapp.query.IQContextContainer;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -143,13 +145,19 @@ public class ConversationContext extends AbstractConversationContext implements 
 
 	/** The pages that are part of this conversation, indexed by [className] */
 	@NonNull
-	private final Map<String, Page> m_pageMap = new HashMap<String, Page>();
+	private final Map<String, Page> m_pageMap = new HashMap<>();
 
 	@Nullable
 	private DelayedActivitiesManager m_delayManager;
 
 	@NonNull
 	private Map<String, String> m_persistedParameterMap = new HashMap<>();
+
+	/**
+	 * The contexts of all (live) subPages in the conversation.
+	 */
+	@NonNull
+	private Set<SubConversationContext> m_subConversationSet = new HashSet<>();
 
 	/**
 	 * Return the ID for this conversation.
@@ -212,9 +220,9 @@ public class ConversationContext extends AbstractConversationContext implements 
 	@Override
 	void internalDestroy(boolean sessionDestroyed) throws Exception {
 		LOG.info("Destroying " + this);
-		if(m_state == ConversationState.DESTROYED) {
+		if(getState() == ConversationState.DESTROYED) {
 			if(!sessionDestroyed)
-				throw new IllegalStateException("Wrong state for DESTROY: " + m_state);
+				throw new IllegalStateException("Wrong state for DESTROY: " + getState());
 			return;
 		}
 
@@ -231,11 +239,35 @@ public class ConversationContext extends AbstractConversationContext implements 
 		}
 		m_pageMap.clear();
 
+		// Destroy all subconversations
+		for(SubConversationContext subContext : m_subConversationSet) {
+			try {
+				destroySubConversation(subContext);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+		m_subConversationSet.clear();
+
 		if(m_delayManager != null) {
 			m_delayManager.terminate();
 			m_delayManager = null;
 		}
 		super.internalDestroy(sessionDestroyed);
+	}
+
+	@Override void internalAttach() throws Exception {
+		super.internalAttach();
+		for(SubConversationContext sc : m_subConversationSet) {
+			sc.internalAttach();
+		}
+	}
+
+	@Override void internalDetach() throws Exception {
+		super.internalDetach();
+		for(SubConversationContext sc : m_subConversationSet) {
+			sc.internalDetach();
+		}
 	}
 
 	/**
@@ -271,6 +303,46 @@ public class ConversationContext extends AbstractConversationContext implements 
 			x.printStackTrace();
 		}
 		m_pageMap.remove(pg.getBody().getClass().getName());
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	SubConversation management									*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Register and activate a subconversation context.
+	 */
+	public void addSubConversation(SubConversationContext suc) {
+		if(m_subConversationSet.add(suc)) {
+			if(suc.getState() == ConversationState.DETACHED) {
+				suc.initialize(getWindowSession());
+				try {
+					suc.internalAttach();
+				} catch(Exception x) {
+					throw WrappedException.wrap(x);			// Really great those checked exceptions 8-(
+				}
+			}
+		}
+	}
+
+	/**
+	 * Detaches and discards a subconversation.
+	 */
+	public void removeAndDestroySubConversation(SubConversationContext suc) throws Exception {
+		if(! m_subConversationSet.remove(suc))
+			return;
+		destroySubConversation(suc);
+	}
+
+	private void destroySubConversation(SubConversationContext suc) throws Exception {
+
+		//-- Detach and destroy
+		if(suc.getState() == ConversationState.ATTACHED) {
+			suc.internalDetach();
+		}
+		if(suc.getState() == ConversationState.DETACHED) {
+			suc.internalDestroy(false);
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -333,7 +405,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 
 	@Override
 	public void dump() {
-		System.out.println("    Conversation: " + getId() + " in state " + m_state);
+		System.out.println("    Conversation: " + getId() + " in state " + getState());
 		if(m_delayManager == null)
 			System.out.println("      No delayed actions pending");
 		else {
@@ -359,13 +431,4 @@ public class ConversationContext extends AbstractConversationContext implements 
 		}
 		super.dump();
 	}
-
-	ConversationState getState() {
-		return m_state;
-	}
-
-	public boolean isValid() {
-		return m_state == ConversationState.ATTACHED;
-	}
-
 }
