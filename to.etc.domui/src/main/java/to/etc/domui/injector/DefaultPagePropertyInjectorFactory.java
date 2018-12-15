@@ -15,7 +15,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-2-17.
  */
-public class DefaultPageInjectorFactory implements IPageInjectorCalculator {
+public class DefaultPagePropertyInjectorFactory implements IPageInjectorCalculator {
 	static final private class PropFactoryRef {
 		private final int m_priority;
 
@@ -39,9 +39,10 @@ public class DefaultPageInjectorFactory implements IPageInjectorCalculator {
 
 	private List<IPagePropertyFactory> m_list = Collections.emptyList();
 
-	public DefaultPageInjectorFactory() {
+	public DefaultPagePropertyInjectorFactory() {
 		registerFactory(0, new SimplePropertyInjectorFactory());
 		registerFactory(100, new EntityPropertyInjectorFactory());
+		registerFactory(120, new UrlContextPropertyInjector());
 	}
 
 	public synchronized void registerFactory(int urgency, IPagePropertyFactory injector) {

@@ -33,6 +33,7 @@ import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QNotFoundException;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * This property injector takes the named URL parameter as a string. It does a lookup of the entity specified
@@ -118,7 +119,7 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 	}
 
 	@Override
-	public void inject(@NonNull final UrlPage page, @NonNull final IPageParameters papa) throws Exception {
+	public void inject(@NonNull final UrlPage page, @NonNull final IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = getParameterValue(page, papa);
 		if(pv == null)

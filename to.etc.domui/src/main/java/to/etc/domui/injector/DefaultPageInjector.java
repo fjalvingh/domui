@@ -55,7 +55,7 @@ final public class DefaultPageInjector implements IPageInjector {
 	 */
 	private Map<String, PageInjectionList> m_injectorMap = new HashMap<>();
 
-	private final DefaultPageInjectorFactory m_defaultPageInjectorFactory;
+	private final DefaultPagePropertyInjectorFactory m_defaultPageInjectorFactory;
 
 	//@GuardedBy("this")
 	private List<InjectorReference> m_pageInjectorOrderList = Collections.emptyList();
@@ -64,7 +64,7 @@ final public class DefaultPageInjector implements IPageInjector {
 	private List<IPageInjectorCalculator> m_pageInjectorList = Collections.emptyList();
 
 	public DefaultPageInjector() {
-		m_defaultPageInjectorFactory = new DefaultPageInjectorFactory();
+		m_defaultPageInjectorFactory = new DefaultPagePropertyInjectorFactory();
 		registerPageInjector(0, m_defaultPageInjectorFactory);
 	}
 
@@ -121,7 +121,8 @@ final public class DefaultPageInjector implements IPageInjector {
 	@Override
 	public void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception {
 		PageInjectionList pij = findPageInjector(page.getClass());
-		pij.inject(page, papa);
+		Map<String, Object> attributeMap = new HashMap<>();
+		pij.inject(page, papa, attributeMap);
 	}
 
 	@NonNullByDefault

@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Encapsulates parameters for a page. All parameters must be presentable in URL form,
@@ -75,6 +76,9 @@ public class PageParameters implements IPageParameters, Serializable {
 
 	/** The approximate length of this parameters instance when rendered on an URL. */
 	private int m_dataLength;
+
+	@Nullable
+	private String m_urlContextString;
 
 	/**
 	 * Create an empty PageParameters.
@@ -467,7 +471,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		return deflt;
 	}
 
-
 	/**
 	 * Gets the value for the specified parameter name as untyped value.
 	 * It is used internally for generic copying of params form one PageParameter to another.
@@ -482,6 +485,15 @@ public class PageParameters implements IPageParameters, Serializable {
 			m_map.remove(name);
 		else
 			m_map.put(name, value);
+	}
+
+	@Nullable
+	@Override public String getUrlContextString() {
+		return m_urlContextString;
+	}
+
+	public void setUrlContextString(@Nullable String urlContextString) {
+		m_urlContextString = urlContextString;
 	}
 
 	/**
@@ -504,6 +516,7 @@ public class PageParameters implements IPageParameters, Serializable {
 				}
 			}
 		}
+		pp.setUrlContextString(ctx.getUrlContextString());
 		return pp;
 	}
 
@@ -523,6 +536,7 @@ public class PageParameters implements IPageParameters, Serializable {
 				}
 			}
 		}
+		pp.setUrlContextString(ctx.getUrlContextString());
 		return pp;
 	}
 
@@ -606,7 +620,7 @@ public class PageParameters implements IPageParameters, Serializable {
 			if(!compValues(oval, val))
 				return false;
 		}
-		return true;
+		return Objects.equals(getUrlContextString(), a.getUrlContextString());
 	}
 
 	private boolean compValues(Object oval, Object val) {
@@ -686,6 +700,9 @@ public class PageParameters implements IPageParameters, Serializable {
 					}
 				}
 			}
+			String cxs = getUrlContextString();
+			if(null != cxs)
+				md.update(cxs.getBytes("utf-8"));
 		} catch(UnsupportedEncodingException x) {
 			throw WrappedException.wrap(x);									// Cannot happen.
 		}
@@ -710,7 +727,7 @@ public class PageParameters implements IPageParameters, Serializable {
 		if(null == query)
 			return new PageParameters();
 		String[] indiar = query.split("&");
-		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		Map<String, List<String>> map = new HashMap<>();
 		for(String frag : indiar) {
 			int pos = frag.indexOf('=');
 			if(pos >= 0) {
@@ -718,13 +735,8 @@ public class PageParameters implements IPageParameters, Serializable {
 				String value = frag.substring(pos + 1);
 				name = StringTool.decodeURLEncoded(name);
 				value = StringTool.decodeURLEncoded(value);
-	
-				List<String>	l = map.get(name);
-				if(null == l) {
-					l = new ArrayList<String>();
-					map.put(name, l);
-				}
-				l.add(value);
+
+				map.computeIfAbsent(name, k -> new ArrayList<>()).add(value);
 			}
 		}
 	

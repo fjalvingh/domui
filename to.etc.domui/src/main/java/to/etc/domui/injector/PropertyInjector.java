@@ -25,16 +25,19 @@
 package to.etc.domui.injector;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
 import to.etc.util.WrappedException;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * Base for injecting something into a property.
  */
+@NonNullByDefault
 public abstract class PropertyInjector {
 	@NonNull
 	final private Method m_propertySetter;
@@ -56,5 +59,5 @@ public abstract class PropertyInjector {
 		}
 	}
 
-	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp) throws Exception;
+	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp, @NonNull Map<String, Object> attributeMap) throws Exception;
 }

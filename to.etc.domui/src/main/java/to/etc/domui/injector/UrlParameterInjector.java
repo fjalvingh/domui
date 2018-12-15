@@ -30,6 +30,7 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * This property injector contains the name of an URL parameter plus the property to set from it. At
@@ -55,7 +56,7 @@ final public class UrlParameterInjector extends PropertyInjector {
 	 * Effects the actual injection of an URL parameter to a value.
 	 */
 	@Override
-	public void inject(@NonNull final UrlPage page, final @NonNull IPageParameters papa) throws Exception {
+	public void inject(@NonNull final UrlPage page, final @NonNull IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = papa.getString(m_name, null);
 		if(pv == null) {
