@@ -89,10 +89,7 @@ final public class PageRequestHandler {
 	@Nullable
 	private final String m_cid;
 
-	@NonNull
-	private final String m_contextPath;
-
-	private final Class<? extends UrlPage> m_runclass;
+	private final Class<? extends UrlPage> m_runClass;
 
 	private boolean m_inhibitlog;
 
@@ -110,36 +107,39 @@ final public class PageRequestHandler {
 		String cid = m_cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		m_cida = cid == null ? null : CidPair.decodeLax(cid);
 
-		//-- Split the paths into the contextPath and the page class.
-		String inputPath = ctx.getInputPath();
-
-		String pageName;
-
-		if(inputPath.length() == 0) {						// Nothing at all -> no context, no page: use the home page
-			m_contextPath = "";
+//		//-- Split the paths into the contextPath and the page class.
+//		String inputPath = ctx.getInputPath();
+//
+//		String pageName;
+//
+//		if(inputPath.length() == 0) {						// Nothing at all -> no context, no page: use the home page
+//			m_contextPath = "";
+//			pageName = getRootPageName();
+//		} else {
+//			int dpos = inputPath.lastIndexOf('.');		// Last dot.
+//			int slpos = inputPath.lastIndexOf('/');		// Last slash
+//			if(dpos < slpos)								// Dot before slash -> dot in context
+//				dpos = -1;
+//			if(dpos == -1) {
+//				//-- No page, but all context -> root page with context
+//				pageName = getRootPageName();
+//				if(! inputPath.endsWith("/"))				// Always end context in slash
+//					inputPath += "/";
+//				m_contextPath = inputPath;
+//			} else if(slpos == -1) {
+//				//-- No context, all page
+//				pageName = inputPath.substring(0, dpos);
+//				m_contextPath = "";
+//			} else {
+//				slpos++;
+//				m_contextPath = inputPath.substring(0, slpos);			// Set context path, including last /
+//				pageName = inputPath.substring(slpos, dpos);
+//			}
+//		}
+		String pageName = ctx.getPageName();
+		if(null == pageName)
 			pageName = getRootPageName();
-		} else {
-			int dpos = inputPath.lastIndexOf('.');		// Last dot.
-			int slpos = inputPath.lastIndexOf('/');		// Last slash
-			if(dpos < slpos)								// Dot before slash -> dot in context
-				dpos = -1;
-			if(dpos == -1) {
-				//-- No page, but all context -> root page with context
-				pageName = getRootPageName();
-				if(! inputPath.endsWith("/"))				// Always end context in slash
-					inputPath += "/";
-				m_contextPath = inputPath;
-			} else if(slpos == -1) {
-				//-- No context, all page
-				pageName = inputPath.substring(0, dpos);
-				m_contextPath = "";
-			} else {
-				slpos++;
-				m_contextPath = inputPath.substring(0, slpos);			// Set context path, including last /
-				pageName = inputPath.substring(slpos, dpos);
-			}
-		}
-		m_runclass = application.loadPageClass(pageName);
+		m_runClass = application.loadPageClass(pageName);
 	}
 
 	private String getRootPageName() {
@@ -250,7 +250,7 @@ final public class PageRequestHandler {
 			papa = getPageParameters(conversation);
 		}
 
-		Page page = windowSession.tryToMakeOrGetPage(m_ctx, conversationId, m_runclass, papa, m_action);
+		Page page = windowSession.tryToMakeOrGetPage(m_ctx, conversationId, m_runClass, papa, m_action);
 		if(page == null || ! isPageTagStillValid(page)) {
 			sendSessionExpired();
 			return;
@@ -568,7 +568,7 @@ final public class PageRequestHandler {
 		WindowSession windowSession;
 		boolean nonReloadableExpiredDetected = false;
 		if(m_action != null) {
-			if(INotReloadablePage.class.isAssignableFrom(m_runclass)) {
+			if(INotReloadablePage.class.isAssignableFrom(m_runClass)) {
 				nonReloadableExpiredDetected = true;
 			} else {
 				// In auto refresh: do not send the "expired" message, but let the refresh handle this.
@@ -607,7 +607,7 @@ final public class PageRequestHandler {
 				if(null != hs) {
 					m_ctx.internalSetWindowSession(windowSession);			// Should prevent issues when reloading
 
-					String newid = windowSession.internalAttemptReload(hs, m_runclass, PageParameters.createFrom(m_ctx), cida.getWindowId());
+					String newid = windowSession.internalAttemptReload(hs, m_runClass, PageParameters.createFrom(m_ctx), cida.getWindowId());
 					if(newid != null)
 						conversationId = newid;
 				}
@@ -848,7 +848,7 @@ final public class PageRequestHandler {
 	}
 
 	private void logUser(String string) {
-		m_ctx.getSession().log(new UserLogItem(m_cid, m_runclass.getName(), null, null, string));
+		m_ctx.getSession().log(new UserLogItem(m_cid, m_runClass.getName(), null, null, string));
 	}
 
 	private void logUser(Page page, String string) {

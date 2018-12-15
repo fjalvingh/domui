@@ -113,6 +113,10 @@ final public class WindowSession {
 	@Nullable
 	private String m_targetURL;
 
+	/** If set then change the URL context part of the page */
+	@Nullable
+	private String m_urlContext;
+
 	/** Timestamp of the last time this WindowSession was used by a request. This is used to determine if a WindowSession has expired */
 	private long m_lastUsed;
 
@@ -544,8 +548,6 @@ final public class WindowSession {
 	/**
 	 * Returns TRUE if the target page is a page which can only be on top of the shelve. For now
 	 * it checks if the page == the index page.
-	 * @param clz
-	 * @return
 	 */
 	private boolean mustResetShelve(@NonNull final Class< ? extends UrlPage> clz) {
 		Class<?> ac = m_appSession.getApplication().getRootPage();
@@ -555,12 +557,16 @@ final public class WindowSession {
 		return clz.getName().equals(ac.getName());
 	}
 
-	void generateRedirect(@NonNull final RequestContextImpl ctx, @NonNull final Page to, boolean ajax) throws Exception {
+	void generateRedirect(@NonNull RequestContextImpl ctx, @NonNull Page to, boolean ajax) throws Exception {
 		//-- Send a "redirect" to the new page;
 		StringBuilder sb = new StringBuilder();
-		sb.append(ctx.getRelativePath(to.getBody().getClass().getName()));
-		sb.append('.');
-		sb.append(ctx.getApplication().getUrlExtension());
+
+		//-- Create the path URL
+		String urlContext = m_urlContext == null ? ctx.getUrlContextString() : m_urlContext;
+		sb.append(urlContext).append(to.getBody().getClass().getName()).append('.').append(ctx.getApplication().getUrlExtension());
+		String pagePath = ctx.getRelativePath(sb.toString());			// Convert to app URL
+		sb.setLength(0);
+		sb.append(pagePath);
 		sb.append('?');
 		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 		sb.append('=');
@@ -596,7 +602,6 @@ final public class WindowSession {
 
 	/**
 	 * Moves one shelve entry back. If there's no shelve entry current moves back to the application's index.
-	 * @param currentpg
 	 */
 	private void handleMoveBack(@NonNull final RequestContextImpl ctx, @NonNull Page currentpg, boolean ajax) throws Exception {
 		int ix = m_shelvedPageStack.size() - 2;

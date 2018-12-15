@@ -71,10 +71,23 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	private Map<String, Object> m_attributeMap = Collections.EMPTY_MAP;
 
 	@NonNull
-	final private String m_urlin;
+	final private String m_inputPath;
 
+	/** The extension used in the page name, INCLUDING the dot. If no extension is present this is "". */
 	@NonNull
 	final private String m_extension;
+
+	/** The extension used in the page name, EXCLUDING the dot. If no extension is present this is "". */
+	@NonNull
+	final private String m_extensionWithoutDot;
+
+	/** The name part of the URL, which is the last segment which contained the extension. Only filled if the last part HAS an extension. */
+	@Nullable
+	final private String m_pageName;
+
+	/** The URL part befoer the pageName, if present. This never contains a leading / but, if present, always ends with a /. */
+	@NonNull
+	final private String m_urlContextString;
 
 	private boolean m_amLockingSession;
 
@@ -110,10 +123,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		while(urlin.startsWith("/"))
 			urlin = urlin.substring(1);
 
-		int pos = urlin.lastIndexOf('.');
-		m_extension = pos < 0 ? "" : urlin.substring(pos + 1).toLowerCase();
-
-		//-- Strip webapp name from url.
+		//-- Strip webapp name from url if it is there.
 		String webapp = rr.getWebappContext();						// Get "viewpoint/" like webapp context
 		if(webapp.length() > 0) {
 			if(!urlin.startsWith(webapp)) {
@@ -123,7 +133,42 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			while(urlin.startsWith("/"))
 				urlin = urlin.substring(1);
 		}
-		m_urlin = urlin;
+		m_inputPath = urlin;
+
+		/*
+		 * Split the url into separate parts. If the URL has an extension then the last part
+		 * is treated as the pageName, and it gets stored into pageName, without the extension.
+		 * The part before the pageName is the contextString, which - if present - is the
+		 * items/separated/by/slashes/ part which always ends in a / if actually present.
+		 */
+
+		//-- Extension and context
+		int pos = urlin.lastIndexOf('.');
+		int slpos = urlin.lastIndexOf('/');
+		if(pos < slpos)									// Dot before the slash means it's inside the context, leave that
+			pos = -1;
+
+		if(pos == -1) {
+			//-- No extension, treat the whole as the urlContextString
+			m_pageName = null;
+			m_extension = "";
+			m_extensionWithoutDot = "";
+			if(urlin.length() > 0 && !urlin.endsWith("/"))
+				urlin += "/";
+			m_urlContextString = urlin;
+		} else {
+			//-- No slash but an extension.
+			m_extension = urlin.substring(pos);			// Extension INCLUDING dot
+			m_extensionWithoutDot = urlin.substring(pos + 1);
+			if(slpos == -1) {
+				m_urlContextString = "";				// No URL context string
+				m_pageName = urlin.substring(0, pos);	// page name without extension
+			} else {
+				slpos++;								// past /
+				m_urlContextString = urlin.substring(0, slpos);
+				m_pageName = urlin.substring(slpos, pos);
+			}
+		}
 
 		Set<String> nameSet = app.getPersistentParameterSet();
 		for(String name : nameSet) {
@@ -184,7 +229,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * QUESTIONABLE.
-	 * @param cm
 	 */
 	final public void internalSetWindowSession(WindowSession cm) {
 		m_windowSession = cm;
@@ -246,23 +290,54 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		internalUnlockSession(); // Unlock any session access.
 	}
 
-
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getExtension()
-	 */
 	@Override
 	@NonNull
 	public String getExtension() {
+		return m_extensionWithoutDot;
+	}
+
+	@NonNull
+	public String getExtensionWithDot() {
 		return m_extension;
 	}
 
 	/**
-	 * @see to.etc.domui.server.IRequestContext#getInputPath()
+	 * The complete input URL without the JSDK context part and the query part. Specifically:
+	 * <ul>
+	 *	<li>The JSDK webapp context is always removed from the start, i.e. this is always the webapp-relative path</li>
+	 *	<li>The context NEVER starts with a slash</li>
+	 * </ul>
 	 */
 	@Override
 	@NonNull
 	public final String getInputPath() {
-		return m_urlin;
+		return m_inputPath;
+	}
+
+	/**
+	 * Returns the URL context string, defined as the part inside the input URL that is before the name in the URL.
+	 * Specifically:
+	 * <ul>
+	 *	<li>This uses the {@link #getInputPath()} URL as the basis, so the path never starts with the webapp context</li>
+	 *	<li>If the URL's last part has a suffix then the last part is assumed to be the pageName, and everything
+	 *		before this pageName is the urlContextString</li>
+	 *	<li>If an urlContextString is present then it always ends in a /</li>
+	 *	<li>If the URL is just a pageName then this returns the empty string</li>
+	 * </ul>
+	 *
+	 * The following always holds: {@link #getUrlContextString()} + {@link #getPageName()} + m_extension = {@link #getInputPath()}.
+	 */
+	@NonNull
+	public String getUrlContextString() {
+		return m_urlContextString;
+	}
+
+	/**
+	 * Returns the last part of the URL, provided that part has an extension. If not there is no page name.
+	 */
+	@Nullable
+	public String getPageName() {
+		return m_pageName;
 	}
 
 	/**
