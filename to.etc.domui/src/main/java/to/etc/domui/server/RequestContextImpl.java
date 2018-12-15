@@ -327,6 +327,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 *
 	 * The following always holds: {@link #getUrlContextString()} + {@link #getPageName()} + m_extension = {@link #getInputPath()}.
 	 */
+	@Override
 	@NonNull
 	public String getUrlContextString() {
 		return m_urlContextString;
@@ -335,6 +336,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	/**
 	 * Returns the last part of the URL, provided that part has an extension. If not there is no page name.
 	 */
+	@Override
 	@Nullable
 	public String getPageName() {
 		return m_pageName;

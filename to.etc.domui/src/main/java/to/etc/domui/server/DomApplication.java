@@ -555,8 +555,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Ask all request handlers to try to execute the request. If none managed this returns false.
-	 * @param ctx
-	 * @return
 	 */
 	public boolean callRequestHandler(@NonNull final RequestContextImpl ctx) throws Exception {
 		for(FilterRef h : getRequestHandlerList()) {

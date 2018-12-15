@@ -65,7 +65,10 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Accept .obit, the defined DomUI extension (.ui by default) and the empty URL if a home page is set in {@link DomApplication}.
 	 */
 	private boolean accepts(@NonNull IRequestContext ctx) {
-		return m_application.getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (m_application.getRootPage() != null && ctx.getInputPath().length() == 0);
+		return m_application.getUrlExtension().equals(ctx.getExtension())
+				|| ctx.getExtension().equals("obit")
+				|| (m_application.getRootPage() != null && ctx.getPageName() == null)
+				;
 	}
 
 	@Override
