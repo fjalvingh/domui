@@ -224,7 +224,8 @@ abstract public class AbstractSassResolver<O> {
 			String[] values = m_params.getParameters(name);
 			if(null != values && values.length == 1) {
 				String value = values[0];
-				if(isString(value)) {
+				if(name.endsWith("$")) {
+					name = name.substring(0, name.length() - 1);		// Strip $ from name
 					value = StringTool.strToJavascriptString(value, true);
 				}
 				sb.append("$").append(name).append(": ").append(value).append(";\n");
@@ -239,13 +240,5 @@ abstract public class AbstractSassResolver<O> {
 			sb.append("$").append(name).append(": ").append(value).append(";\n");
 		});
 		return sb.toString();
-	}
-
-	static private boolean isString(String value) {
-		if(StringTool.isNumber(value))
-			return false;
-		if(value.startsWith("$"))
-			return true;
-		return !"true".equals(value) && !"false".equals(value);
 	}
 }
