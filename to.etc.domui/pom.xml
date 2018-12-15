@@ -112,22 +112,6 @@
             <artifactId>jsass</artifactId>
         </dependency>
 
-        <!-- EXPERIMENTAL: sass support -->
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-sass-compiler</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>rhino</groupId>
-                    <artifactId>js</artifactId>
-                </exclusion>
-                <!--<exclusion>-->
-                    <!--<groupId>com.yahoo.platform.yui</groupId>-->
-                    <!--<artifactId>yuicompressor</artifactId>-->
-                <!--</exclusion>-->
-            </exclusions>
-        </dependency>
-
         <!-- Batik -->
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
