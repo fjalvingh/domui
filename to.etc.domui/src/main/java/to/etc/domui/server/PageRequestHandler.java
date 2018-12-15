@@ -89,6 +89,9 @@ final public class PageRequestHandler {
 	@Nullable
 	private final String m_cid;
 
+	@NonNull
+	private final String m_contextPath;
+
 	private final Class<? extends UrlPage> m_runclass;
 
 	private boolean m_inhibitlog;
@@ -106,7 +109,44 @@ final public class PageRequestHandler {
 		m_action = ctx.getParameter(Constants.PARAM_UIACTION);			// AJAX action request?
 		String cid = m_cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		m_cida = cid == null ? null : CidPair.decodeLax(cid);
-		m_runclass = PageUtil.decodeRunClass(m_ctx);
+
+		//-- Split the paths into the contextPath and the page class.
+		String inputPath = ctx.getInputPath();
+
+		String pageName;
+
+		if(inputPath.length() == 0) {						// Nothing at all -> no context, no page: use the home page
+			m_contextPath = "";
+			pageName = getRootPageName();
+		} else {
+			int dpos = inputPath.lastIndexOf('.');		// Last dot.
+			int slpos = inputPath.lastIndexOf('/');		// Last slash
+			if(dpos < slpos)								// Dot before slash -> dot in context
+				dpos = -1;
+			if(dpos == -1) {
+				//-- No page, but all context -> root page with context
+				pageName = getRootPageName();
+				if(! inputPath.endsWith("/"))				// Always end context in slash
+					inputPath += "/";
+				m_contextPath = inputPath;
+			} else if(slpos == -1) {
+				//-- No context, all page
+				pageName = inputPath.substring(0, dpos);
+				m_contextPath = "";
+			} else {
+				slpos++;
+				m_contextPath = inputPath.substring(0, slpos);			// Set context path, including last /
+				pageName = inputPath.substring(slpos, dpos);
+			}
+		}
+		m_runclass = application.loadPageClass(pageName);
+	}
+
+	private String getRootPageName() {
+		Class< ? extends UrlPage> rootPage = m_application.getRootPage();
+		if(null == rootPage)
+			throw new ProgrammerErrorException("The DomApplication's 'getRootPage()' method returns null, and there is a request for the root of the web app... Override that method or make sure the root is handled differently.");
+		return rootPage.getCanonicalName();
 	}
 
 	public void executeRequest() throws Exception {
