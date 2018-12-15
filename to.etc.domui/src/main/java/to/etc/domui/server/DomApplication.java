@@ -254,6 +254,9 @@ public abstract class DomApplication {
 	private IPageInjector m_injector = new DefaultPageInjector();
 
 	@NonNull
+	private IUrlContextDecoder m_urlContextDecoder = ctx -> null;
+
+	@NonNull
 	private ResourceInfoCache m_resourceInfoCache = new ResourceInfoCache(this);
 
 	/** The theme manager where theme calls are delegated to. */
@@ -1706,6 +1709,15 @@ public abstract class DomApplication {
 
 	public synchronized void setInjector(IPageInjector injector) {
 		m_injector = injector;
+	}
+
+	@NonNull
+	public IUrlContextDecoder getUrlContextDecoder() {
+		return m_urlContextDecoder;
+	}
+
+	public void setUrlContextDecoder(@NonNull IUrlContextDecoder urlContextDecoder) {
+		m_urlContextDecoder = urlContextDecoder;
 	}
 
 	/*--------------------------------------------------------------*/

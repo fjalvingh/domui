@@ -107,35 +107,6 @@ final public class PageRequestHandler {
 		String cid = m_cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		m_cida = cid == null ? null : CidPair.decodeLax(cid);
 
-//		//-- Split the paths into the contextPath and the page class.
-//		String inputPath = ctx.getInputPath();
-//
-//		String pageName;
-//
-//		if(inputPath.length() == 0) {						// Nothing at all -> no context, no page: use the home page
-//			m_contextPath = "";
-//			pageName = getRootPageName();
-//		} else {
-//			int dpos = inputPath.lastIndexOf('.');		// Last dot.
-//			int slpos = inputPath.lastIndexOf('/');		// Last slash
-//			if(dpos < slpos)								// Dot before slash -> dot in context
-//				dpos = -1;
-//			if(dpos == -1) {
-//				//-- No page, but all context -> root page with context
-//				pageName = getRootPageName();
-//				if(! inputPath.endsWith("/"))				// Always end context in slash
-//					inputPath += "/";
-//				m_contextPath = inputPath;
-//			} else if(slpos == -1) {
-//				//-- No context, all page
-//				pageName = inputPath.substring(0, dpos);
-//				m_contextPath = "";
-//			} else {
-//				slpos++;
-//				m_contextPath = inputPath.substring(0, slpos);			// Set context path, including last /
-//				pageName = inputPath.substring(slpos, dpos);
-//			}
-//		}
 		String pageName = ctx.getPageName();
 		if(null == pageName)
 			pageName = getRootPageName();

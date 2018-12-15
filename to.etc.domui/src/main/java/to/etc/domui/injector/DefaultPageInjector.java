@@ -53,7 +53,7 @@ final public class DefaultPageInjector implements IPageInjector {
 	 * Maps UrlPage class names to their PageInjectors. We use names instead of the Class instances
 	 * to allow for class reloading.
 	 */
-	private Map<String, PageInjector> m_injectorMap = new HashMap<String, PageInjector>();
+	private Map<String, PageInjectionList> m_injectorMap = new HashMap<String, PageInjectionList>();
 
 	private final DefaultPageInjectorFactory m_defaultPageInjectorFactory;
 
@@ -67,12 +67,12 @@ final public class DefaultPageInjector implements IPageInjector {
 		m_defaultPageInjectorFactory.registerFactory(urgency, injector);
 	}
 
-	final public PageInjector calculateInjectors(Class<? extends UrlPage> page) {
+	final public PageInjectionList calculateInjectors(Class<? extends UrlPage> page) {
 		Map<String, PropertyInjector> propInjectorMap = new HashMap<>();
 		for(IPageInjectorCalculator injector : getPageInjectorList()) {
 			injector.calculatePageInjectors(propInjectorMap, page);
 		}
-		return new PageInjector(page, new ArrayList<>(propInjectorMap.values()));
+		return new PageInjectionList(page, new ArrayList<>(propInjectorMap.values()));
 	}
 
 	@NonNullByDefault
@@ -122,9 +122,9 @@ final public class DefaultPageInjector implements IPageInjector {
 	 * @param page
 	 * @return
 	 */
-	private synchronized PageInjector findPageInjector(final Class< ? extends UrlPage> page) {
+	private synchronized PageInjectionList findPageInjector(final Class< ? extends UrlPage> page) {
 		String cn = page.getClass().getCanonicalName();
-		PageInjector pij = m_injectorMap.get(cn);
+		PageInjectionList pij = m_injectorMap.get(cn);
 		if(pij != null) {
 			//-- Hit on name; is the class instance the same? If not this is a reload.
 			if((Class< ? >) pij.getPageClass() == page) // Idiotic generics. If the class changed we have a reload of the class and need to recalculate.
@@ -142,7 +142,7 @@ final public class DefaultPageInjector implements IPageInjector {
 	 */
 	@Override
 	public void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception {
-		PageInjector pij = findPageInjector(page.getClass());
+		PageInjectionList pij = findPageInjector(page.getClass());
 		pij.inject(page, papa);
 	}
 }
