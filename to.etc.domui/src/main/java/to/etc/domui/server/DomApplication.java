@@ -70,12 +70,15 @@ import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.InternalResourcePart;
 import to.etc.domui.server.parts.PartRequestHandler;
 import to.etc.domui.server.parts.PartService;
+import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.DelayedActivitiesManager;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.state.WindowSession;
+import to.etc.domui.subinjector.ISubPageInjector;
+import to.etc.domui.subinjector.SubPageInjector;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
@@ -255,6 +258,9 @@ public abstract class DomApplication {
 
 	@NonNull
 	private IUrlContextDecoder m_urlContextDecoder = ctx -> null;
+
+	@NonNull
+	private ISubPageInjector m_subPageInjector = new SubPageInjector();
 
 	@NonNull
 	private ResourceInfoCache m_resourceInfoCache = new ResourceInfoCache(this);
@@ -1720,6 +1726,15 @@ public abstract class DomApplication {
 		m_urlContextDecoder = urlContextDecoder;
 	}
 
+	public void setSubPageInjector(@NonNull ISubPageInjector injector) {
+		m_subPageInjector = injector;
+	}
+
+	@NonNull
+	public ISubPageInjector getSubPageInjector() {
+		return m_subPageInjector;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Rights registry.									*/
 	/*--------------------------------------------------------------*/
@@ -2008,7 +2023,7 @@ public abstract class DomApplication {
 		}
 	}
 
-	public final void internalCallConversationDestroyed(ConversationContext ws) {
+	public final void internalCallConversationDestroyed(AbstractConversationContext ws) {
 		for(IDomUIStateListener sl : getUIStateListeners()) {
 			try {
 				sl.conversationDestroyed(ws);

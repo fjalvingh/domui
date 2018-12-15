@@ -8,7 +8,6 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.AbstractContextMaker;
-import to.etc.domui.server.AppFilter;
 import to.etc.domui.server.ConfigParameters;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.HttpServerRequestResponse;
@@ -84,7 +83,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 
 
 	static synchronized public void initApplication(@NonNull Class< ? extends DomApplication> applicationClass, @NonNull File webappFiles) throws Exception {
-		AppFilter.initLogConfig(null, null);
+		//AppFilter.initLogConfig(null, null);
 
 		DomApplication da = m_appInstance;
 		if(da != null) {

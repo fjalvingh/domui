@@ -53,9 +53,15 @@ final public class DefaultPageInjector implements IPageInjector {
 	 * Maps UrlPage class names to their PageInjectors. We use names instead of the Class instances
 	 * to allow for class reloading.
 	 */
-	private Map<String, PageInjectionList> m_injectorMap = new HashMap<String, PageInjectionList>();
+	private Map<String, PageInjectionList> m_injectorMap = new HashMap<>();
 
 	private final DefaultPageInjectorFactory m_defaultPageInjectorFactory;
+
+	//@GuardedBy("this")
+	private List<InjectorReference> m_pageInjectorOrderList = Collections.emptyList();
+
+	//@GuardedBy("this")
+	private List<IPageInjectorCalculator> m_pageInjectorList = Collections.emptyList();
 
 	public DefaultPageInjector() {
 		m_defaultPageInjectorFactory = new DefaultPageInjectorFactory();
@@ -73,6 +79,49 @@ final public class DefaultPageInjector implements IPageInjector {
 			injector.calculatePageInjectors(propInjectorMap, page);
 		}
 		return new PageInjectionList(page, new ArrayList<>(propInjectorMap.values()));
+	}
+
+	public synchronized void registerPageInjector(int urgency, IPageInjectorCalculator injector) {
+		ArrayList<InjectorReference> list = new ArrayList<>(m_pageInjectorOrderList);
+		list.add(new InjectorReference(urgency, injector));
+		Collections.sort(list, (a, b) -> b.getPriority() - a.getPriority());
+		m_pageInjectorOrderList = list;
+
+		List<IPageInjectorCalculator> res = new ArrayList<>(list.size());
+		list.forEach(item -> res.add(item.getPageInjector()));
+		m_pageInjectorList = Collections.unmodifiableList(res);
+	}
+
+	@NonNull
+	private synchronized List<IPageInjectorCalculator> getPageInjectorList() {
+		return m_pageInjectorList;
+	}
+
+	/**
+	 * Find the page injectors to use for the page. This uses the cache.
+	 */
+	private synchronized PageInjectionList findPageInjector(Class< ? extends UrlPage> page) {
+		String cn = page.getClass().getCanonicalName();
+		PageInjectionList pij = m_injectorMap.get(cn);
+		if(pij != null) {
+			//-- Hit on name; is the class instance the same? If not this is a reload.
+			if(pij.getPageClass() == page) // Idiotic generics. If the class changed we have a reload of the class and need to recalculate.
+				return pij;
+		}
+
+		pij = calculateInjectors(page);
+		m_injectorMap.put(cn, pij);
+		return pij;
+	}
+
+	/**
+	 * This scans the page for properties that are to be injected. It scans for properties on the Page's UrlPage class
+	 * and injects any stuff it finds. This version only handles the @UIUrlParameter annotation.
+	 */
+	@Override
+	public void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception {
+		PageInjectionList pij = findPageInjector(page.getClass());
+		pij.inject(page, papa);
 	}
 
 	@NonNullByDefault
@@ -95,54 +144,4 @@ final public class DefaultPageInjector implements IPageInjector {
 		}
 	}
 
-	//@GuardedBy("this")
-	private List<InjectorReference> m_pageInjectorOrderList = Collections.emptyList();
-
-	//@GuardedBy("this")
-	private List<IPageInjectorCalculator> m_pageInjectorList = Collections.emptyList();
-
-	public synchronized void registerPageInjector(int urgency, IPageInjectorCalculator injector) {
-		ArrayList<InjectorReference> list = new ArrayList<>(m_pageInjectorOrderList);
-		list.add(new InjectorReference(urgency, injector));
-		Collections.sort(list, (a, b) -> b.getPriority() - a.getPriority());
-		m_pageInjectorOrderList = list;
-
-		List<IPageInjectorCalculator> res = new ArrayList<>(list.size());
-		list.forEach(item -> res.add(item.getPageInjector()));
-		m_pageInjectorList = Collections.unmodifiableList(res);
-	}
-
-	@NonNull
-	private synchronized List<IPageInjectorCalculator> getPageInjectorList() {
-		return m_pageInjectorList;
-	}
-
-	/**
-	 * Find the page injectors to use for the page. This uses the cache.
-	 * @param page
-	 * @return
-	 */
-	private synchronized PageInjectionList findPageInjector(final Class< ? extends UrlPage> page) {
-		String cn = page.getClass().getCanonicalName();
-		PageInjectionList pij = m_injectorMap.get(cn);
-		if(pij != null) {
-			//-- Hit on name; is the class instance the same? If not this is a reload.
-			if((Class< ? >) pij.getPageClass() == page) // Idiotic generics. If the class changed we have a reload of the class and need to recalculate.
-				return pij;
-		}
-
-		pij = calculateInjectors(page);
-		m_injectorMap.put(cn, pij);
-		return pij;
-	}
-
-	/**
-	 * This scans the page for properties that are to be injected. It scans for properties on the Page's UrlPage class
-	 * and injects any stuff it finds. This version only handles the @UIUrlParameter annotation.
-	 */
-	@Override
-	public void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception {
-		PageInjectionList pij = findPageInjector(page.getClass());
-		pij.inject(page, papa);
-	}
 }
