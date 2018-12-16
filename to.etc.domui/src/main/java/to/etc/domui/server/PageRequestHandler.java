@@ -388,8 +388,8 @@ final public class PageRequestHandler {
 	/**
 	 * See if one of the registered exception handlers accepts the exception, and if so use it.
 	 */
-	private boolean tryToHandleWithRegisteredExceptionHandler(WindowSession windowSession, Page page, Exception x) throws Exception {
-		IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
+	private <E extends Exception> boolean tryToHandleWithRegisteredExceptionHandler(WindowSession windowSession, Page page, E x) throws Exception {
+		IExceptionListener<E> xl = m_ctx.getApplication().findExceptionListenerFor(x);
 		if(xl != null && xl.handleException(m_ctx, page, null, x)) {
 			if(windowSession.handleExceptionGoto(m_ctx, page, false)) {
 				AppSession aps = m_ctx.getSession();
@@ -696,7 +696,7 @@ final public class PageRequestHandler {
 	}
 
 
-	private boolean handleActionException(Page page, @Nullable NodeBase targetComponent, Exception ex) throws Exception {
+	private <E extends Exception> boolean handleActionException(Page page, @Nullable NodeBase targetComponent, Exception ex) throws Exception {
 		logUser(page, "Action handler exception: " + ex);
 		Exception x = WrappedException.unwrap(ex);
 		if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
@@ -713,9 +713,10 @@ final public class PageRequestHandler {
 			xxx.printStackTrace();
 		}
 
-		IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
-		if(xl == null) // No handler?
-			throw x; // Move on, nothing to see here,
+		E nx = (E) ex;
+		IExceptionListener<E> xl = m_ctx.getApplication().findExceptionListenerFor(nx);
+		if(xl == null)										// No handler?
+			throw x; 										// Move on, nothing to see here,
 		if(targetComponent != null && !targetComponent.isAttached()) {
 			targetComponent = page.getTheCurrentControl();
 			System.out.println("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
@@ -723,7 +724,7 @@ final public class PageRequestHandler {
 		if(targetComponent == null || !targetComponent.isAttached())
 			throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
 
-		if(!xl.handleException(m_ctx, page, targetComponent, x))
+		if(!xl.handleException(m_ctx, page, targetComponent, nx))
 			throw x;
 		return false;
 	}

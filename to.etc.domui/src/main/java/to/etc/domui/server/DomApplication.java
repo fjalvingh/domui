@@ -328,7 +328,7 @@ public abstract class DomApplication {
 	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
 
 	/** The ORDERED list of [exception.class, handler] pairs. Exception SUPERCLASSES are ordered AFTER their subclasses. */
-	private List<ExceptionEntry> m_exceptionListeners = new ArrayList<ExceptionEntry>();
+	private List<ExceptionEntry<?>> m_exceptionListeners = new ArrayList<>();
 
 	/** A set of parameter names that will be kept in URLs if present */
 	@NonNull
@@ -401,29 +401,20 @@ public abstract class DomApplication {
 		initHeaderContributors();
 		initializeWebActions();
 		addRenderFactory(new MsCrapwareRenderFactory());                        // Add html renderers for IE <= 8
-		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
-			@Override
-			public boolean handleException(final @NonNull IRequestContext ctx, final @NonNull Page page, final @Nullable NodeBase source, final @NonNull Throwable x) throws Exception {
-				if(!(x instanceof QNotFoundException))
-					throw new IllegalStateException("??");
-
-				// data has removed in meanwhile: redirect to error page.
-				String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters(ExpiredDataPage.PARAM_ERRMSG, x.getLocalizedMessage()));
-				UIGoto.redirect(rurl);
-				return true;
-			}
+		addExceptionListener(QNotFoundException.class, (ctx, page, source, x) -> {
+			// data has removed in meanwhile: redirect to error page.
+			String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters(ExpiredDataPage.PARAM_ERRMSG, x.getLocalizedMessage()));
+			UIGoto.redirect(rurl);
+			return true;
 		});
-		addExceptionListener(DataAccessViolationException.class, new IExceptionListener() {
-			@Override
-			public boolean handleException(final @NonNull IRequestContext ctx, final @NonNull Page page, final @Nullable NodeBase source, final @NonNull Throwable x) throws Exception {
-				if(!(x instanceof DataAccessViolationException))
-					throw new IllegalStateException("??");
+		addExceptionListener(DataAccessViolationException.class, (ctx, page, source, x) -> {
+			if(!(x instanceof DataAccessViolationException))
+				throw new IllegalStateException("??");
 
-				// data has removed in meanwhile: redirect to error page.
-				String rurl = DomUtil.createPageURL(DataAccessViolationPage.class, new PageParameters(DataAccessViolationPage.PARAM_ERRMSG, x.getLocalizedMessage()));
-				UIGoto.redirect(rurl);
-				return true;
-			}
+			// data has removed in meanwhile: redirect to error page.
+			String rurl = DomUtil.createPageURL(DataAccessViolationPage.class, new PageParameters(DataAccessViolationPage.PARAM_ERRMSG, x.getLocalizedMessage()));
+			UIGoto.redirect(rurl);
+			return true;
 		});
 		setDefaultThemeName("blue/domui/blue");
 		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
@@ -1547,30 +1538,29 @@ public abstract class DomApplication {
 	/**
 	 * An entry in the exception table.
 	 */
-	static public class ExceptionEntry {
-		private final Class<? extends Exception> m_exceptionClass;
+	static public class ExceptionEntry<E extends Throwable> {
+		private final Class<E> m_exceptionClass;
 
-		private final IExceptionListener m_listener;
+		private final IExceptionListener<E> m_listener;
 
-		public ExceptionEntry(final Class<? extends Exception> exceptionClass, final IExceptionListener listener) {
+		public ExceptionEntry(final Class<E> exceptionClass, final IExceptionListener<E> listener) {
 			m_exceptionClass = exceptionClass;
 			m_listener = listener;
 		}
 
-		public Class<? extends Exception> getExceptionClass() {
+		public Class<E> getExceptionClass() {
 			return m_exceptionClass;
 		}
 
-		public IExceptionListener getListener() {
+		public IExceptionListener<E> getListener() {
 			return m_listener;
 		}
 	}
 
 	/**
 	 * Return the current, immutable, threadsafe copy of the list-of-listeners.
-	 * @return
 	 */
-	private synchronized List<ExceptionEntry> getExceptionListeners() {
+	private synchronized List<ExceptionEntry<?>> getExceptionListeners() {
 		return m_exceptionListeners;
 	}
 
@@ -1579,50 +1569,48 @@ public abstract class DomApplication {
 	 * exceptions that are a superclass of other exceptions in the list are sorted AFTER their
 	 * subclass (this prevents the handler for the superclass from being called all the time).
 	 * Any given exception type may occur in this list only once or an exception occurs.
-	 *
-	 * @param l
 	 */
-	public synchronized void addExceptionListener(final Class<? extends Exception> xclass, final IExceptionListener l) {
-		m_exceptionListeners = new ArrayList<ExceptionEntry>(m_exceptionListeners);
+	public synchronized <E extends Throwable, T extends Class<E>> void addExceptionListener(final T xclass, final IExceptionListener<E> l) {
+		m_exceptionListeners = new ArrayList<>(m_exceptionListeners);
 
 		//-- Do a sortish insert.
 		for(int i = 0; i < m_exceptionListeners.size(); i++) {
-			ExceptionEntry ee = m_exceptionListeners.get(i);
+			ExceptionEntry<?> ee = m_exceptionListeners.get(i);
 			if(ee.getExceptionClass() == xclass) {
 				//-- Same class-> replace the handler with the new one.
-				m_exceptionListeners.set(i, new ExceptionEntry(xclass, l));
+				m_exceptionListeners.set(i, new ExceptionEntry<>(xclass, l));
 				return;
 			} else if(ee.getExceptionClass().isAssignableFrom(xclass)) {
 				//-- Class [ee] is a SUPERCLASS of [xclass]; you can do [ee] = [xclass]. We need to add this handler BEFORE this superclass!
-				m_exceptionListeners.add(i, new ExceptionEntry(xclass, l));
+				m_exceptionListeners.add(i, new ExceptionEntry<>(xclass, l));
 				return;
 			}
 		}
-		m_exceptionListeners.add(new ExceptionEntry(xclass, l));
+		m_exceptionListeners.add(new ExceptionEntry<>(xclass, l));
 	}
 
 	/**
 	 * This locates the handler for the specfied exception type, if it has been registered. It
 	 * currently uses a loop to locate the appropriate handler.
-	 * @param x
 	 * @return null if the handler was not registered.
 	 */
-	public IExceptionListener findExceptionListenerFor(final Exception x) {
+	@Nullable
+	public <E extends Throwable> IExceptionListener<E> findExceptionListenerFor(Exception x) {
 		Class<? extends Exception> xclass = x.getClass();
-		for(ExceptionEntry ee : getExceptionListeners()) {
+		for(ExceptionEntry<?> ee : getExceptionListeners()) {
 			if(ee.getExceptionClass().isAssignableFrom(xclass))
-				return ee.getListener();
+				return (IExceptionListener<E>) ee.getListener();
 		}
 		return null;
 	}
 
 	public synchronized void addNewPageInstantiatedListener(final INewPageInstantiated l) {
-		m_newPageInstListeners = new ArrayList<INewPageInstantiated>(m_newPageInstListeners);
+		m_newPageInstListeners = new ArrayList<>(m_newPageInstListeners);
 		m_newPageInstListeners.add(l);
 	}
 
 	public synchronized void removeNewPageInstantiatedListener(final INewPageInstantiated l) {
-		m_newPageInstListeners = new ArrayList<INewPageInstantiated>(m_newPageInstListeners);
+		m_newPageInstListeners = new ArrayList<>(m_newPageInstListeners);
 		m_newPageInstListeners.remove(l);
 	}
 
@@ -1649,7 +1637,7 @@ public abstract class DomApplication {
 	public synchronized void addLoginListener(final ILoginListener l) {
 		if(m_loginListenerList.contains(l))
 			return;
-		m_loginListenerList = new ArrayList<ILoginListener>(m_loginListenerList);
+		m_loginListenerList = new ArrayList<>(m_loginListenerList);
 		m_loginListenerList.add(l);
 	}
 
@@ -1671,12 +1659,12 @@ public abstract class DomApplication {
 	 * @param l
 	 */
 	public synchronized <T> void addAsyncListener(@NonNull IAsyncListener<T> l) {
-		m_asyncListenerList = new ArrayList<IAsyncListener<?>>(m_asyncListenerList);
+		m_asyncListenerList = new ArrayList<>(m_asyncListenerList);
 		m_asyncListenerList.add(l);
 	}
 
 	public synchronized <T> void removeAsyncListener(@NonNull IAsyncListener<T> l) {
-		m_asyncListenerList = new ArrayList<IAsyncListener<?>>(m_asyncListenerList);
+		m_asyncListenerList = new ArrayList<>(m_asyncListenerList);
 		m_asyncListenerList.remove(l);
 	}
 

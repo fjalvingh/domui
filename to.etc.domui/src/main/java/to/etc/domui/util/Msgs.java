@@ -32,7 +32,7 @@ public enum Msgs implements IBundleCode {
 	uiErrorHeader,
 
 
-	;
+	pageWithoutUrlContext, noUrlContextValueFor;
 
 	@Override public BundleRef getBundle() {
 		return BUNDLE;

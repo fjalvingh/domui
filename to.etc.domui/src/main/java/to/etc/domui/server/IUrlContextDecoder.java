@@ -1,5 +1,6 @@
 package to.etc.domui.server;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Map;
@@ -13,5 +14,5 @@ import java.util.Map;
  */
 public interface IUrlContextDecoder {
 	@Nullable
-	Map<String, Object> getContextValues(String urlContextString);
+	Map<String, Object> getContextValues(@NonNull String urlContextString);
 }

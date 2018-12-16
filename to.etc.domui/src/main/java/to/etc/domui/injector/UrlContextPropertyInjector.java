@@ -5,8 +5,9 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IUrlContextDecoder;
 import to.etc.domui.state.IPageParameters;
-import to.etc.domui.trouble.ThingyNotFoundException;
+import to.etc.domui.util.Msgs;
 import to.etc.util.PropertyInfo;
+import to.etc.webapp.ProgrammerErrorException;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -27,27 +28,35 @@ final public class UrlContextPropertyInjector implements IPagePropertyFactory {
 
 		IUrlContextDecoder decoder = DomApplication.get().getUrlContextDecoder();
 		if(decoder == null)
-			throw new IllegalStateException("Property " + propertyInfo + " annotated with @UIUrlContext, but no context decoder registered with DomApplication.setUrlContextDecoder()");
+			throw new ProgrammerErrorException("Property " + propertyInfo + " annotated with @UIUrlContext, but no context decoder registered with DomApplication.setUrlContextDecoder()");
 		Method setter = propertyInfo.getSetter();
 		if(null == setter)
-			throw new IllegalStateException("Property " + propertyInfo + " annotated with @UIUrlContext but has no setter");
+			throw new ProgrammerErrorException("Property " + propertyInfo + " annotated with @UIUrlContext but it has no setter");
 		Class<?> actualType = propertyInfo.getActualType();
 		return new PropertyInjector(setter) {
 			@Override public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
-				Map<String, Object> map = (Map<String, Object>) attributeMap.computeIfAbsent(UrlContextPropertyInjector.class.getName(), a -> decoder.getContextValues(pp.getUrlContextString()));
-				if(null == map) {
-					throw new ThingyNotFoundException("The page is not found because its context URL is not set");
-				}
-				for(Object value : map.values()) {
-					if(value != null) {
-						if(actualType.isAssignableFrom(value.getClass())) {
-							setValue(page, value);
-							return;
+				Map<String, Object> map = (Map<String, Object>) attributeMap.computeIfAbsent(UrlContextPropertyInjector.class.getName(), a -> {
+					String urlContextString = pp.getUrlContextString();
+					if(null == urlContextString) {
+						if(ann.optional())
+							return null;
+						throw new UrlContextUnknownException(Msgs.pageWithoutUrlContext, setter.toString());
+					}
+					return decoder.getContextValues(urlContextString);
+				});
+
+				if(null != map) {
+					for(Object value : map.values()) {
+						if(value != null) {
+							if(actualType.isAssignableFrom(value.getClass())) {
+								setValue(page, value);
+								return;
+							}
 						}
 					}
 				}
-
-				throw new ThingyNotFoundException("The page is not found because no context value was found for " + getPropertySetter());
+				if(! ann.optional())
+					throw new UrlContextUnknownException(Msgs.noUrlContextValueFor, setter.toString());
 			}
 		};
 	}

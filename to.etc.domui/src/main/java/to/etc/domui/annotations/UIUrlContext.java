@@ -12,4 +12,9 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UIUrlContext {
+	/**
+	 * When not optional, any property marked with this for which no
+	 * value is found will throw an exception.
+	 */
+	boolean optional() default false;
 }
