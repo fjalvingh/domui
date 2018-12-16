@@ -56,7 +56,7 @@ final public class UrlContextPropertyInjector implements IPagePropertyFactory {
 					}
 				}
 				if(! ann.optional())
-					throw new UrlContextUnknownException(Msgs.noUrlContextValueFor, setter.toString());
+					throw new UrlContextUnknownException(Msgs.noUrlContextValueFor, page.getClass().getName(), setter.toString());
 			}
 		};
 	}
