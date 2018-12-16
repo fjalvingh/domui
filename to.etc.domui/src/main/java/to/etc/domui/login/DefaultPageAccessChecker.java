@@ -9,12 +9,8 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.domui.server.ApplicationRequestHandler;
-import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
-import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
-import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRightsCheckedManually;
 import to.etc.domui.util.Msgs;
 import to.etc.function.ConsumerEx;
@@ -95,40 +91,6 @@ public class DefaultPageAccessChecker implements IPageAccessChecker {
 		} else
 			throw new CodeException(Msgs.BUNDLE, Msgs.RIGHTS_NOT_ALLOWED);	// Insufficient rights - details unknown.
 		return false;
-	}
-
-	private void renderAccessFailure(RequestContextImpl ctx, ConsumerEx<String> logerror, UrlPage body, @Nullable UIRights rann, @Nullable String failureReason) throws Exception {
-		ILoginDialogFactory ldf = ctx.getApplication().getLoginDialogFactory();
-		String rurl = ldf == null ? null : ldf.getAccessDeniedURL();
-		if(rurl == null) {
-			rurl = DomApplication.get().getAccessDeniedPageClass().getName() + "." + ctx.getApplication().getUrlExtension();
-		}
-
-		//-- Add info about the failed thingy.
-		StringBuilder sb = new StringBuilder(128);
-		sb.append(rurl);
-		DomUtil.addUrlParameters(sb, new PageParameters(AccessDeniedPage.PARAM_TARGET_PAGE, body.getClass().getName()), true);
-
-		//-- If we have a message use it
-		if(null == failureReason) {
-			if(rann != null)
-				failureReason = "Empty reason - this should not happen!";
-		}
-		sb.append("&").append(AccessDeniedPage.PARAM_REFUSAL_MSG).append("=");
-		StringTool.encodeURLEncoded(sb, failureReason);
-
-		//-- All required rights
-		int ix = 0;
-		if(null != rann) {
-			for(String r : rann.value()) {
-				sb.append("&r").append(ix).append("=");
-				ix++;
-				StringTool.encodeURLEncoded(sb, r);
-			}
-			String redirect = sb.toString();
-			ApplicationRequestHandler.generateHttpRedirect(ctx, redirect, "Access denied");
-			logerror.accept(redirect);
-		}
 	}
 
 	private boolean checkRightsAnnotation(@NonNull UrlPage body, @NonNull UIRights rann, @NonNull IUser user) throws Exception {
