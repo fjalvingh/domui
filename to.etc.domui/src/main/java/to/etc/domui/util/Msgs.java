@@ -30,6 +30,8 @@ public enum Msgs implements IBundleCode {
 	uiDatatableEmpty,
 	uiLookupDateTill,
 	uiErrorHeader,
+
+
 	;
 
 	@Override public BundleRef getBundle() {
