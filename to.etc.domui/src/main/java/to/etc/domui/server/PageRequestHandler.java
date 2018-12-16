@@ -19,6 +19,8 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.AccessCheckResult;
+import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.parts.IComponentUrlDataProvider;
 import to.etc.domui.state.AppSession;
@@ -795,8 +797,8 @@ final public class PageRequestHandler {
 	 * </ul>
 	 */
 	private boolean checkAccess(WindowSession windowSession, Page page) throws Exception {
-		PageAccessCheckResult result = m_application.getPageAccessChecker().checkAccess(m_ctx, page, a -> logUser(a));
-		switch(result) {
+		AccessCheckResult result = m_application.getPageAccessChecker().checkAccess(m_ctx, page, a -> logUser(a));
+		switch(result.getResult()) {
 			default:
 				throw new IllegalArgumentException(result + "?");
 
@@ -808,6 +810,8 @@ final public class PageRequestHandler {
 				return true;
 
 			case Refused:
+				IAccessDeniedHandler handler = m_application.getAccessDeniedHandler();
+				handler.handleAccessDenied(m_ctx, result, a -> logUser(a));
 				return false;
 		}
 	}

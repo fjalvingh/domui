@@ -61,8 +61,13 @@ import to.etc.domui.dom.webaction.WebActionRegistry;
 import to.etc.domui.injector.DefaultPageInjector;
 import to.etc.domui.injector.IPageInjector;
 import to.etc.domui.login.AccessDeniedPage;
+import to.etc.domui.login.DefaultAccessDeniedHandler;
+import to.etc.domui.login.DefaultPageAccessChecker;
+import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.login.ILoginAuthenticator;
 import to.etc.domui.login.ILoginDialogFactory;
+import to.etc.domui.login.ILoginListener;
+import to.etc.domui.login.IPageAccessChecker;
 import to.etc.domui.parts.SvgPartFactory;
 import to.etc.domui.sass.SassPartFactory;
 import to.etc.domui.server.parts.IPartFactory;
@@ -285,6 +290,9 @@ public abstract class DomApplication {
 
 	@NonNull
 	private IPageAccessChecker m_pageAccessChecker = new DefaultPageAccessChecker();
+
+	@NonNull
+	private IAccessDeniedHandler m_accessDeniedHandler = new DefaultAccessDeniedHandler();
 
 	/**
 	 * Used to handle soft binding: moving data from controls -> model and vice versa.
@@ -1652,6 +1660,14 @@ public abstract class DomApplication {
 
 	public void setPageAccessChecker(@NonNull IPageAccessChecker pageAccessChecker) {
 		m_pageAccessChecker = pageAccessChecker;
+	}
+
+	@NonNull public IAccessDeniedHandler getAccessDeniedHandler() {
+		return m_accessDeniedHandler;
+	}
+
+	public void setAccessDeniedHandler(@NonNull IAccessDeniedHandler accessDeniedHandler) {
+		m_accessDeniedHandler = accessDeniedHandler;
 	}
 
 	/**

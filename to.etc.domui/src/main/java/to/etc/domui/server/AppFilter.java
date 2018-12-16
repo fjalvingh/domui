@@ -29,6 +29,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import to.etc.domui.login.DefaultLoginDeterminator;
+import to.etc.domui.login.ILoginDeterminator;
 import to.etc.domui.util.DomUtil;
 import to.etc.log.EtcLoggerFactory;
 import to.etc.util.ClassUtil;

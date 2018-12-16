@@ -1,7 +1,8 @@
-package to.etc.domui.server;
+package to.etc.domui.login;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.server.RequestContextImpl;
 import to.etc.function.ConsumerEx;
 
 /**
@@ -13,5 +14,5 @@ public interface IPageAccessChecker {
 	/**
 	 * Checks the page's access rights against whatever is the currently logged in user.
 	 */
-	PageAccessCheckResult checkAccess(RequestContextImpl ctx, Page page, ConsumerEx<String> logerror) throws Exception;
+	AccessCheckResult checkAccess(RequestContextImpl ctx, Page page, ConsumerEx<String> logerror) throws Exception;
 }

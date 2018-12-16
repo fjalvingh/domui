@@ -55,7 +55,7 @@ import java.util.List;
  * Created on Sep 1, 2008
  */
 @NonNullByDefault
-public class UrlPage extends Div {
+public class UrlPage extends AbstractPage {
 	/** The title for the page in the head's TITLE tag. */
 	@Nullable
 	private String m_pageTitle;

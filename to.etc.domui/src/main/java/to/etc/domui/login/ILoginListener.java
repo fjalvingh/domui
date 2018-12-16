@@ -22,9 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.server;
-
-import to.etc.domui.login.*;
+package to.etc.domui.login;
 
 public interface ILoginListener {
 	void userLogin(IUser user);

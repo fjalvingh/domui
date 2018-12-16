@@ -15,7 +15,7 @@ import to.etc.webapp.query.QDataContextFactory;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 30-11-18.
  */
-abstract public class SubPage extends Div {
+abstract public class SubPage extends AbstractPage {
 	private final SubConversationContext m_pageContext = new SubConversationContext();
 
 	@Override

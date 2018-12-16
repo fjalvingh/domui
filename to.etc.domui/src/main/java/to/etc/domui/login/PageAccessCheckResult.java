@@ -1,4 +1,4 @@
-package to.etc.domui.server;
+package to.etc.domui.login;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
