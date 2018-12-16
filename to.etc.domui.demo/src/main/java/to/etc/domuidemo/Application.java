@@ -22,7 +22,6 @@ import to.etc.domui.server.ConfigParameters;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.themes.sass.SassThemeFactory;
-import to.etc.domui.trouble.UIException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.Msgs;
@@ -70,12 +69,12 @@ public class Application extends DomApplication {
 		addExceptionListener(Exception.class, new IExceptionListener() {
 			@Override
 			public boolean handleException(final IRequestContext ctx, final Page pg, final NodeBase source, final Throwable x) throws Exception {
-				if(x instanceof RuntimeException || x instanceof UIException)
+				if(x instanceof RuntimeException)
 					return false;
 
 				x.printStackTrace();
 				if(null != source)
-					source.addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x.toString()));
+					source.addGlobalMessage(UIMessage.error(Msgs.unexpectedException, x.toString()));
 				return true;
 			}
 		});

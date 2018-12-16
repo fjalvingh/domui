@@ -8,6 +8,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.IBundleCode;
 
 /**
  * EXPERIMENTAL
@@ -40,12 +41,31 @@ public class Problem {
 	/** When set, this same problem can be reported multiple times on a single target. */
 	final private boolean m_repeatable;
 
+	public Problem(IBundleCode code) {
+		this(code, MsgType.ERROR, false);
+	}
+
+	@Deprecated
 	public Problem(Class< ? > anchor, String code) {
 		this(anchor, code, MsgType.ERROR, false);
 	}
 
+	protected Problem(IBundleCode code, MsgType type, boolean repeatable) {
+		this(code.getBundle(), code.name(), type, repeatable);
+	}
+
+	@Deprecated
 	protected Problem(Class<?> anchor, String code, MsgType type, boolean repeatable) {
 		m_bundle = BundleRef.create(anchor, "messages");				// All problem messages must be in a bundle called messages.
+		m_key = m_bundle.getBundleKey() + "#" + code;
+		m_code = code;
+		m_severity = type;
+		m_repeatable = repeatable;
+	}
+
+	@Deprecated
+	protected Problem(BundleRef bundle, String code, MsgType type, boolean repeatable) {
+		m_bundle = bundle;
 		m_key = m_bundle.getBundleKey() + "#" + code;
 		m_code = code;
 		m_severity = type;

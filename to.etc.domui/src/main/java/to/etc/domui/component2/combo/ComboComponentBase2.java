@@ -277,7 +277,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	private void validateBindValue() {
 		if(isMandatory() && m_currentValue == null) {
-			throw new ValidationException(Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 	}
 

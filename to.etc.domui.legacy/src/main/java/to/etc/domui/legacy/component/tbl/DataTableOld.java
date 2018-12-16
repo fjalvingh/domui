@@ -326,7 +326,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 
 		NodeBase emptyMessage = m_emptyMessage;
 		if(null == emptyMessage) {
-			m_errorDiv.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
+			m_errorDiv.setText(Msgs.uiDatatableEmpty.getString());
 		} else {
 			m_errorDiv.add(emptyMessage);
 		}

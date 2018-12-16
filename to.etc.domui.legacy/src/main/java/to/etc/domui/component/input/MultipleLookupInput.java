@@ -534,7 +534,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 	public List<T> getBindValue() {
 		List<T> val = getValue();
 		if((val == null || val.isEmpty()) && isMandatory()) {
-			throw new ValidationException(Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 		return val;
 	}

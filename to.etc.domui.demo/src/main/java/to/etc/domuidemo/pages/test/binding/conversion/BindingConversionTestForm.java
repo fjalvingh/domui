@@ -40,7 +40,7 @@ public class BindingConversionTestForm extends UrlPage {
 			try {
 				return Integer.decode(value.trim());
 			} catch(Exception x) {
-				throw new ValidationException(Msgs.BUNDLE, Msgs.NOT_VALID, value);
+				throw new ValidationException(Msgs.notValid, value);
 			}
 		}
 	}

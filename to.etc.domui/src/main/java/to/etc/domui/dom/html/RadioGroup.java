@@ -101,7 +101,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	private void validateBindValue() {
 		if(isMandatory() && m_value == null) {
-			throw new ValidationException(Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 	}
 

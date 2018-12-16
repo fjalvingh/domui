@@ -163,7 +163,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			Div d = new Div();
 			m_emptyDiv = d;
 			d.setCssClass("ui-xdt-nores");
-			d.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
+			d.setText(Msgs.uiDatatableEmpty.getString());
 			add(d);
 			return true;
 		}

@@ -241,7 +241,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 
 	private void validate() {
 		if(m_value == null && isMandatory()) {
-			throw new ValidationException(Msgs.BUNDLE, Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 	}
 

@@ -40,7 +40,7 @@ public class DateLookupControl extends Div implements IControl<DatePeriod> {
 	@Override public void createContent() throws Exception {
 		add(m_dateFrom);
 		m_dateFrom.setWithTime(m_withTime);
-		Span sp = new Span(" " + Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
+		Span sp = new Span(" " + Msgs.uiLookupDateTill.getString() + " ");
 		add(sp);
 		sp.setCssClass("ui-lfd-datetill");
 		add(m_dateTo);

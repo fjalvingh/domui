@@ -13,7 +13,8 @@ import java.util.Map;
 
 /**
  * Properties annotated with @UIUrlContext will be annotated with the appropriate context
- * thing.
+ * thing. This uses the {@link IUrlContextDecoder} set on DomApplication to calculate the
+ * context values as needed by the application, and uses those to
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 15-12-18.

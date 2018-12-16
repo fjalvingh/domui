@@ -1,11 +1,13 @@
 package to.etc.domui.converter;
 
-import java.util.*;
-import java.util.regex.*;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.Msgs;
+import to.etc.util.WrappedException;
 
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Converts time in a format [hh:]mm into an integer holding the number of seconds.
@@ -54,7 +56,7 @@ public class TimeToSecondsConverter implements IConverter<Integer> {
 			return null;
 		Matcher matcher = m_pattern.matcher(in);
 		if(!matcher.matches()) {
-			throw new ValidationException(Msgs.NOT_VALID, in);
+			throw new ValidationException(Msgs.notValid, in);
 		}
 
 		//-- Format is hh[:]mm
