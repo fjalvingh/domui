@@ -434,9 +434,9 @@ public abstract class DomApplication {
 		registerResourceFactory(new ThemeResourceFactory());
 
 		//-- Register default request handlers.
-		addRequestHandler(new ApplicationRequestHandler(this), 100);            // .ui and related
-		addRequestHandler(new AjaxRequestHandler(this), 20);                    // .xaja ajax calls.
 		addRequestHandler(m_partHandler, 80);
+		addRequestHandler(new ApplicationRequestHandler(this), 50);			// .ui and related
+		addRequestHandler(new AjaxRequestHandler(this), 20);		// .xaja ajax calls.
 	}
 
 	protected void registerControlFactories() {
