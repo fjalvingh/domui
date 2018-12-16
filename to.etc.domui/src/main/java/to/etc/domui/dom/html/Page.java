@@ -1062,7 +1062,7 @@ final public class Page implements IQContextContainer {
 		m_renderAsXHTML = renderAsXHTML;
 	}
 
-	public void calculateDefaultFocus(NodeBase node) {
+	public void setDefaultFocusSource(@Nullable NodeBase node) {
 		m_defaultFocusSource = node;
 	}
 

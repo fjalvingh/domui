@@ -241,7 +241,7 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 		if(m_page.getDefaultFocusSource() != null && focusComponent == null) {
 			recurseCheckFocus(m_page.getDefaultFocusSource());
 		}
-		m_page.calculateDefaultFocus(null);
+		m_page.setDefaultFocusSource(null);
 
 		//-- If a component has requested focus - do it.
 		focusComponent = m_page.getFocusComponent();

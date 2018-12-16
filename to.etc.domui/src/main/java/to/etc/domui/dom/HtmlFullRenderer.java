@@ -332,16 +332,13 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Main entrypoint: render the whole page.
-	 * @param ctx
-	 * @param page
-	 * @throws Exception
 	 */
 	public void render(IRequestContext ctx, Page page) throws Exception {
 		m_ctx = ctx;
 		m_page = page;
 		page.internalSetPhase(PagePhase.FULLRENDER);
 
-		page.calculateDefaultFocus(null);							// Full page's do not use the default focus calculation from a start point.
+		page.setDefaultFocusSource(null);							// Full page's do not use the default focus calculation from a start point.
 
 		if(page.isRenderAsXHTML()) {
 			setXml(true);
