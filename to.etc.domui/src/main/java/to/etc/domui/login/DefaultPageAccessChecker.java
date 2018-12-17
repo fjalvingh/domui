@@ -28,11 +28,12 @@ import java.util.List;
  */
 @NonNullByDefault
 public class DefaultPageAccessChecker implements IPageAccessChecker {
+	@NonNull
+	private IUserRightChecker<IUser> m_userRightChecker = new User2RightsChecker();
+
 	/**
 	 * Authentication checks: if the page has a "UIRights" annotation we need a logged-in
 	 * user to check it's rights against the page's required rights.
-	 *
-	 * WARNING: Functional duplicate exists in {@link UIContext#hasRightsOn(Class)}.
 	 */
 	@Override
 	public AccessCheckResult checkAccess(RequestContextImpl ctx, Page page, ConsumerEx<String> logerror) throws Exception {
@@ -67,10 +68,6 @@ public class DefaultPageAccessChecker implements IPageAccessChecker {
 		 * Access not allowed: redirect to error page.
 		 */
 		return AccessCheckResult.refused(page.getBody(), rann, errors);
-//
-//
-//		renderAccessFailure(ctx, logerror, body, rann, failureReason);
-//		return PageAccessCheckResult.Refused;
 	}
 
 	private boolean isAccessAllowed(UrlPage body, @Nullable UIRights rann, @Nullable IRightsCheckedManually rcm, IUser user) throws Exception {
@@ -99,7 +96,7 @@ public class DefaultPageAccessChecker implements IPageAccessChecker {
 		if(StringTool.isBlank(rann.dataPath())) {
 			//-- No special data context - we just check plain general rights
 			for(String right : rann.value()) {
-				if(user.hasRight(right)) {
+				if(m_userRightChecker.hasRight(user, right)) {
 					return true;
 				}
 			}
@@ -110,7 +107,7 @@ public class DefaultPageAccessChecker implements IPageAccessChecker {
 		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(body.getClass(), rann.dataPath());
 		Object dataItem = pmm.getValue(body);					// Get the page property.
 		for(String right : rann.value()) {
-			if(user.hasRight(right, dataItem)) {
+			if(m_userRightChecker.hasRight(user, right, dataItem)) {
 				return true;
 			}
 		}

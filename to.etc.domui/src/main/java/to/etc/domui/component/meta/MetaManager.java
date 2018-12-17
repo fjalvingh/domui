@@ -37,11 +37,7 @@ import to.etc.domui.converter.CompoundComparator;
 import to.etc.domui.converter.IValueValidator;
 import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.PropertyComparator;
-import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.login.IUser;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IRequestContext;
-import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DisplayPropertyNodeContentRenderer;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.ILabelStringRenderer;
@@ -173,53 +169,50 @@ final public class MetaManager {
 		return pmm;
 	}
 
-	/**
-	 * Handles the permission sets like "viewpermission" and "editpermission". If
-	 * the array contains null the field can be seen by all users. If it has a value
-	 * the first-level array is a set of ORs; the second level are ANDs. Meaning that
-	 * an array in the format:
-	 * <pre>
-	 * { {"admin"}
-	 * , {"editroles", "user"}
-	 * , {"tester"}
-	 * };
-	 * </pre>
-	 * this means that the field is visible for a user with the roles:
-	 * <pre>
-	 * 	"admin" OR "tester" OR ("editroles" AND "user")
-	 * </pre>
-	 */
-	static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
-		if(roleset == null)
-			return true; // No restrictions
-
-		IUser user = UIContext.getCurrentUser();
-		if(null == user)
-			return false;
-		for(String[] orset : roleset) {
-			boolean ok = true;
-			for(String perm : orset) {
-				if(!user.hasRight(perm)) {
-					ok = false;
-					break;
-				}
-			}
-			//-- Were all "AND" conditions true then accept
-			if(ok)
-				return true;
-		}
-		return false;
-	}
+	///**
+	// * Handles the permission sets like "viewpermission" and "editpermission". If
+	// * the array contains null the field can be seen by all users. If it has a value
+	// * the first-level array is a set of ORs; the second level are ANDs. Meaning that
+	// * an array in the format:
+	// * <pre>
+	// * { {"admin"}
+	// * , {"editroles", "user"}
+	// * , {"tester"}
+	// * };
+	// * </pre>
+	// * this means that the field is visible for a user with the roles:
+	// * <pre>
+	// * 	"admin" OR "tester" OR ("editroles" AND "user")
+	// * </pre>
+	// */
+	//static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
+	//	if(roleset == null)
+	//		return true; // No restrictions
+	//
+	//	IUser user = UIContext.getCurrentUser();
+	//	if(null == user)
+	//		return false;
+	//	for(String[] orset : roleset) {
+	//		boolean ok = true;
+	//		for(String perm : orset) {
+	//			if(!user.hasRight(perm)) {
+	//				ok = false;
+	//				break;
+	//			}
+	//		}
+	//		//-- Were all "AND" conditions true then accept
+	//		if(ok)
+	//			return true;
+	//	}
+	//	return false;
+	//}
 
 	static private IRenderInto<?> createComboLabelRenderer(Class<? extends ILabelStringRenderer<?>> lsr) {
 		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
-		return new IRenderInto<Object>() {
-			@Override
-			public void render(@NonNull NodeContainer node, @NonNull Object object) {
-				String text = lr.getLabelFor(object);
-				if(text != null)
-					node.add(text);
-			}
+		return (IRenderInto<Object>) (node, object) -> {
+			String text = lr.getLabelFor(object);
+			if(text != null)
+				node.add(text);
 		};
 	}
 
@@ -227,12 +220,9 @@ final public class MetaManager {
 		return list != null && list.size() > 0;
 	}
 
-	static private IRenderInto<?> TOSTRING_RENDERER = new IRenderInto<Object>() {
-		@Override
-		public void render(@NonNull NodeContainer node, @Nullable Object object) {
-			if(object != null)
-				node.add(object.toString());
-		}
+	static private IRenderInto<?> TOSTRING_RENDERER = (IRenderInto<Object>) (node, object) -> {
+		if(object != null)
+			node.add(object.toString());
 	};
 
 
@@ -244,8 +234,6 @@ final public class MetaManager {
 	 * 				be equal to the combo's list item type, and the renderer expects items of that
 	 * 				type.
 	 *
-	 * @param cmm
-	 * @return
 	 */
 	@NonNull
 	static public IRenderInto<?> createDefaultComboRenderer(@Nullable PropertyMetaModel<?> pmm, @Nullable ClassMetaModel cmm) {
