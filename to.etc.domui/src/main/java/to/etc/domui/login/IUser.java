@@ -37,14 +37,14 @@ import org.eclipse.jdt.annotation.Nullable;
 public interface IUser {
 	/**
 	 * The user's login ID.
-	 * @return
 	 */
+	@NonNull
 	String getLoginID();
 
 	/**
 	 * Return a display name for the user; this usually is the full formal name.
-	 * @return
 	 */
+	@NonNull
 	String getDisplayName();
 
 	boolean hasRight(@NonNull String r);
@@ -55,10 +55,6 @@ public interface IUser {
 	 * assigned on, or it can be something that can be linked to such a "priomary element". In the latter case it is the
 	 * implementation's responsibility to obtain the primary element from the data passed and apply the rights check there.
 	 * If data-bound permissions are not implemented this MUST return getRight(r).
-	 *
-	 * @param r
-	 * @param dataElement
-	 * @return
 	 */
 	<T> boolean hasRight(@NonNull String r, @Nullable T dataElement);
 
