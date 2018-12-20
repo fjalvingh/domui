@@ -59,6 +59,7 @@ import to.etc.domui.dom.webaction.JsonWebActionFactory;
 import to.etc.domui.dom.webaction.SimpleWebActionFactory;
 import to.etc.domui.dom.webaction.WebActionRegistry;
 import to.etc.domui.injector.DefaultPageInjector;
+import to.etc.domui.injector.IInjectedPropertyAccessChecker;
 import to.etc.domui.injector.IPageInjector;
 import to.etc.domui.login.AccessDeniedPage;
 import to.etc.domui.login.DefaultAccessDeniedHandler;
@@ -258,6 +259,7 @@ public abstract class DomApplication {
 	@NonNull
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
+
 	@NonNull
 	private IPageInjector m_injector = new DefaultPageInjector();
 
@@ -266,6 +268,9 @@ public abstract class DomApplication {
 
 	@NonNull
 	private ISubPageInjector m_subPageInjector = new SubPageInjector();
+
+	@NonNull
+	private List<IInjectedPropertyAccessChecker> m_injectedPropertyAccessCheckerList = new ArrayList<>();
 
 	@NonNull
 	private ResourceInfoCache m_resourceInfoCache = new ResourceInfoCache(this);
@@ -1711,7 +1716,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Get the page injector.
-	 * @return
 	 */
 	public synchronized IPageInjector getInjector() {
 		return m_injector;
@@ -1719,6 +1723,16 @@ public abstract class DomApplication {
 
 	public synchronized void setInjector(IPageInjector injector) {
 		m_injector = injector;
+	}
+
+	public synchronized <T> void registerInjectedPropertyAccessChecker(IInjectedPropertyAccessChecker checker) {
+		m_injectedPropertyAccessCheckerList = new ArrayList<>(m_injectedPropertyAccessCheckerList);
+		m_injectedPropertyAccessCheckerList.add(checker);
+		m_injectedPropertyAccessCheckerList = Collections.unmodifiableList(m_injectedPropertyAccessCheckerList);
+	}
+
+	@NonNull public synchronized List<IInjectedPropertyAccessChecker> getInjectedPropertyAccessCheckerList() {
+		return m_injectedPropertyAccessCheckerList;
 	}
 
 	@NonNull
@@ -1746,9 +1760,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Registers a set of possible rights and their names/translation bundle.
-	 *
-	 * @param bundle
-	 * @param rights
 	 */
 	public void registerRight(final BundleRef bundle, final String... rights) {
 		synchronized(m_rightsBundleMap) {
@@ -1763,9 +1774,6 @@ public abstract class DomApplication {
 	 * Takes a class (or interface) and scans all static public final String fields therein. For
 	 * each field it's literal string value is used as a rights name and associated with the bundle.
 	 * If a right already exists it is skipped, meaning the first ever definition of a right wins.
-	 *
-	 * @param bundle
-	 * @param constantsclass
 	 */
 	public void registerRights(final BundleRef bundle, final Class<?> constantsclass) {
 		//-- Find all class fields.

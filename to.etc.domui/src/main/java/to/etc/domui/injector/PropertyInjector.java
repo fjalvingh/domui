@@ -27,7 +27,9 @@ package to.etc.domui.injector;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.IPageParameters;
 import to.etc.util.PropertyInfo;
 import to.etc.util.WrappedException;
@@ -61,11 +63,23 @@ public abstract class PropertyInjector {
 	 * Once the value is determined this injects it, after a check whether the value is allowed
 	 * according to the rights checkers registered.
 	 */
-	protected void setValue(@NonNull Object instance, @Nullable Object value) {
+	protected void setValue(@NonNull AbstractPage instance, @Nullable Object value) throws Exception {
+		if(! isValueAllowed(instance, value))
+			throw new IllegalDataValueException(m_propertyInfo);
+
 		try {
 			getPropertySetter().invoke(instance, value);
 		} catch(Exception x) {
 			throw new WrappedException("Cannot SET the entity '" + value + "' for property=" + m_propertyInfo.getName() + " of page=" + instance.getClass() + ": " + x, x);
 		}
+	}
+
+	private boolean isValueAllowed(AbstractPage instance, @Nullable Object value) throws Exception {
+		for(IInjectedPropertyAccessChecker checker : DomApplication.get().getInjectedPropertyAccessCheckerList()) {
+			if(! checker.isAccessAllowed(m_propertyInfo, instance, value)) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
