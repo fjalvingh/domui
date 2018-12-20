@@ -83,7 +83,6 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 
 	/**
 	 * Create a new instance.
-	 * @return
 	 */
 	protected Object createNew(final UrlPage page) {
 		try {
@@ -95,10 +94,6 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 
 	/**
 	 * Returns T if the request is to create a new instance.
-	 * @param page
-	 * @param papa
-	 * @param value
-	 * @return
 	 */
 	protected boolean isNew(final UrlPage page, final IPageParameters papa, String value) throws Exception {
 		return "NEW".equals(value);

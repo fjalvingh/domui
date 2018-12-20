@@ -12,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Scans all properties of a page class, and tries to find a way to inject a value
+ * in them by using {@link IPagePropertyFactory} instances registered with
+ * this class.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-2-17.
  */

@@ -42,7 +42,9 @@ public abstract class PropertyInjector {
 	@NonNull
 	final private Method m_propertySetter;
 
-	public PropertyInjector(@NonNull final Method propertySetter) {
+	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp, @NonNull Map<String, Object> attributeMap) throws Exception;
+
+	public PropertyInjector(@NonNull Method propertySetter) {
 		m_propertySetter = propertySetter;
 	}
 
@@ -51,6 +53,10 @@ public abstract class PropertyInjector {
 		return m_propertySetter;
 	}
 
+	/**
+	 * Once the value is determined this injects it, after a check whether the value is allowed
+	 * according to the rights checkers registered.
+	 */
 	protected void setValue(@NonNull Object instance, @Nullable Object value) {
 		try {
 			getPropertySetter().invoke(instance, value);
@@ -58,6 +64,4 @@ public abstract class PropertyInjector {
 			throw new WrappedException("Cannot SET the entity '" + value + "' for property=" + m_propertySetter.getName() + " of page=" + instance.getClass() + ": " + x, x);
 		}
 	}
-
-	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp, @NonNull Map<String, Object> attributeMap) throws Exception;
 }
