@@ -1,6 +1,6 @@
 package to.etc.domui.injector;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.AbstractPage;
 import to.etc.util.PropertyInfo;
 
@@ -9,5 +9,5 @@ import to.etc.util.PropertyInfo;
  * Created on 20-12-18.
  */
 public interface ITypedValueAccessChecker<T> {
-	boolean isAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable T value) throws Exception;
+	boolean isAccessAllowed(PropertyInfo info, AbstractPage page, @NonNull T value) throws Exception;
 }
