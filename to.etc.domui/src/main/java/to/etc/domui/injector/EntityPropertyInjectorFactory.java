@@ -55,7 +55,7 @@ final public class EntityPropertyInjectorFactory implements IPagePropertyFactory
 		if(pmm == null)
 			return null;
 
-		return new UrlFindEntityByPkInjector(propertyInfo.getSetter(), name, upp.mandatory(), ent, pmm);
+		return new UrlFindEntityByPkInjector(propertyInfo, name, upp.mandatory(), ent, pmm);
 	}
 
 	private boolean isValidEntity(Class<?> clz) {

@@ -29,10 +29,10 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.CompoundKeyConverter;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
+import to.etc.util.PropertyInfo;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QNotFoundException;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -54,8 +54,8 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 
 	private final PropertyMetaModel<?> m_pkMetaPmm;
 
-	public UrlFindEntityByPkInjector(final Method propertySetter, final String name, final boolean mandatory, final Class<?> enityClass, PropertyMetaModel<?> pkMetaPmm) {
-		super(propertySetter);
+	public UrlFindEntityByPkInjector(PropertyInfo info, final String name, final boolean mandatory, final Class<?> enityClass, PropertyMetaModel<?> pkMetaPmm) {
+		super(info);
 		m_name = name;
 		m_mandatory = mandatory;
 		m_entityClass = enityClass;

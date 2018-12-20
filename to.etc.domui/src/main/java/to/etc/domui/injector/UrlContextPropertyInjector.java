@@ -33,7 +33,7 @@ final public class UrlContextPropertyInjector implements IPagePropertyFactory {
 		if(null == setter)
 			throw new ProgrammerErrorException("Property " + propertyInfo + " annotated with @UIUrlContext but it has no setter");
 		Class<?> actualType = propertyInfo.getActualType();
-		return new PropertyInjector(setter) {
+		return new PropertyInjector(propertyInfo) {
 			@Override public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
 				Map<String, Object> map = (Map<String, Object>) attributeMap.computeIfAbsent(UrlContextPropertyInjector.class.getName(), a -> {
 					String urlContextString = pp.getUrlContextString();

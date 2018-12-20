@@ -29,28 +29,32 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
+import to.etc.util.PropertyInfo;
 import to.etc.util.WrappedException;
 
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Base for injecting something into a property.
  */
 @NonNullByDefault
 public abstract class PropertyInjector {
-	@NonNull
-	final private Method m_propertySetter;
+	private final PropertyInfo m_propertyInfo;
 
 	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp, @NonNull Map<String, Object> attributeMap) throws Exception;
 
-	public PropertyInjector(@NonNull Method propertySetter) {
-		m_propertySetter = propertySetter;
+	public PropertyInjector(@NonNull PropertyInfo info) {
+		m_propertyInfo = info;
 	}
 
-	@NonNull
+	protected PropertyInfo getPropertyInfo() {
+		return m_propertyInfo;
+	}
+
 	protected Method getPropertySetter() {
-		return m_propertySetter;
+		return Objects.requireNonNull(m_propertyInfo.getSetter());
 	}
 
 	/**
@@ -61,7 +65,7 @@ public abstract class PropertyInjector {
 		try {
 			getPropertySetter().invoke(instance, value);
 		} catch(Exception x) {
-			throw new WrappedException("Cannot SET the entity '" + value + "' for property=" + m_propertySetter.getName() + " of page=" + instance.getClass() + ": " + x, x);
+			throw new WrappedException("Cannot SET the entity '" + value + "' for property=" + m_propertyInfo.getName() + " of page=" + instance.getClass() + ": " + x, x);
 		}
 	}
 }

@@ -28,8 +28,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
+import to.etc.util.PropertyInfo;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 /**
@@ -46,8 +46,8 @@ final public class UrlParameterInjector extends PropertyInjector {
 
 	final private boolean m_mandatory;
 
-	public UrlParameterInjector(final Method propertySetter, final String name, final boolean mandatory) {
-		super(propertySetter);
+	public UrlParameterInjector(@NonNull PropertyInfo info, final String name, final boolean mandatory) {
+		super(info);
 		m_name = name;
 		m_mandatory = mandatory;
 	}
