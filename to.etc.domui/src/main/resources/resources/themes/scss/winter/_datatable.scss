@@ -112,12 +112,6 @@ div.ui-sortable {
 	position: relative;
 }
 
-//.ui-sortable img {
-//	top: -3px;
-//	position: absolute;
-//	border: 0px;
-//}
-
 .ui-dt-th.ui-sortable div {
 	display: flex;
 	flex-direction: row;
@@ -129,14 +123,19 @@ div.ui-sortable {
 .ui-dt-sorticon {
 	width: 16px;
 	height: 16px;
+	background-position: center right;
+	background-repeat: no-repeat;
 	&.ui-sort-n {
-		background: url(sort-none.png) no-repeat;
+		background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==);
+		//background: url(sort-none.png) no-repeat;
 	}
 	&.ui-sort-a {
-		background: url(sort-asc.png) no-repeat;
+		background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7);
+		//background: url(sort-asc.png) no-repeat;
 	}
 	&.ui-sort-d {
-		background: url(sort-desc.png) no-repeat;
+		background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7);
+		//background: url(sort-desc.png) no-repeat;
 	}
 
 }
@@ -152,9 +151,9 @@ div.ui-sortable {
 	margin-left: 10px;
 }
 
-.ui-dt-row > td > span {
-	padding: 0 4px;
-}
+//.ui-dt-row > td > span {
+//	padding: 0 4px;
+//}
 .ui-dt-row > td {
 	padding: 0 4px;
 }
