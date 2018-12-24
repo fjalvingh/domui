@@ -3,6 +3,21 @@
 @import "_variables";
 @import "_color";
 
+$data_tbl_selected_bg: #bed6f8 !default;	// blue
+$data_tbl_even_row_bg: #E5E5E5 !default; //greyish
+$data_tbl_cell_highlight_bg: #67267f !default;	// cell select: purple
+$data_tbl_cell_highlight_link_color_bg: #ffffff !default;	// link color of cell select: white
+$data_tbl_font_size: 12px !default;
+$data_tbl_expanding_row_bg: lighten($main_color, 20%) !default;
+
+$data_tbl_header_bg: #99bfe6 !default;
+$data_tbl_header_text_color: black !default;
+$data_tbl_header_bg_img: "" !default; //-- Table header doesn't have background image
+$data_tbl_header_btm_border: undefined !default;
+
+$data_tbl_border_color: $data_tbl_header_bg;
+$data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
+
 div.ui-dt {
 	overflow: auto;
 	position: relative;
@@ -23,23 +38,19 @@ div.ui-dt > table {
 	border-collapse: collapse;
 	border-spacing: 2px;
 	//width: 100%; jal 20171023 Let table default to 100% in Java, so that we can easily override it
-	border: 1px solid #bdbdbd;
+	border: 1px solid $data_tbl_border_color;
 
 	margin: 0;
 	padding: 0;
 }
 .ui-dt tbody tr {
 	height: 30px;
-	border-bottom: 1px solid #ebebeb;
+	border-bottom: 1px solid $data_tbl_lines_color;
 }
 
-.ui-dt th, .ui-dt-hdr {
-	padding: 0px 3px;
-	color: white;
+.ui-dt-hdr {
 	text-align: left;
-	height: 22px;
-	vertical-align: middle;
-	font-weight: normal;
+	//height: calc(2.25em + 4px);
 
 	background: $data_tbl_header_bg;
 	border-left: none !important;
@@ -47,6 +58,23 @@ div.ui-dt > table {
 	border-bottom: none;
 	border-right: none;
 }
+.ui-dt-hdr th {
+	//line-height: 1.5em;
+	padding: calc(0.375em + 1px) 4px;
+	color: $data_tbl_header_text_color;
+	text-align: left;
+	height: 2.25em;
+	vertical-align: middle;
+	font-weight: bold;
+	//font-size: 1rem;
+
+	//background: $data_tbl_header_bg;
+	border-left: none !important;
+	border-right: none;
+	border-bottom: none;
+	border-right: none;
+}
+
 
 .ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
 	border-left: 1px solid $data_tbl_header_btm_border !important;

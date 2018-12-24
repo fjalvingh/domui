@@ -47,6 +47,7 @@ import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.JavascriptUtil;
 import to.etc.domui.util.Msgs;
+import to.etc.util.DeveloperOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,9 @@ import java.util.List;
 /**
  * DataTable which allows rendering of multiple rows per data element. Originally created
  * from OldDataTable (in legacy) which it later replaced.
+ *
+ * <h1>Todo</h1>
+ * https://mottie.github.io/tablesorter/docs/example-widget-resizable.html
  *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -155,12 +159,9 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	@Override
 	public void createContent() throws Exception {
-		/*
-		 * Switch off the column resizing because this plugin is just One Big Problem.
-		 */
-//		if(DeveloperOptions.getBool("domui.colresizable", true) && m_resizeMode != DataTableResize.NONE) {
-//			m_table.appendCreateJS("WebUI.dataTableResults('" + m_table.getActualID() + "','" + getActualID() + "','"+ m_resizeMode.name() + "');");
-//		}
+		if(DeveloperOptions.getBool("domui.colresizable", true) && m_resizeMode != DataTableResize.NONE) {
+			m_table.appendCreateJS("WebUI.dataTableResults('" + m_table.getActualID() + "','" + getActualID() + "','"+ m_resizeMode.name() + "');");
+		}
 		m_dataBody = null;
 		m_errorDiv = null;
 		addCssClass("ui-dt");
