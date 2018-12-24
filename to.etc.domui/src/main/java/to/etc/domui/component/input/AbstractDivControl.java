@@ -55,6 +55,49 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	@Override
 	abstract public void createContent() throws Exception;
 
+	/**
+	 * Get the current value without any checking.
+	 */
+	@Nullable
+	protected T internalGetValue() {
+		return m_value;
+	}
+
+	/**
+	 * Set the internal value without causing any by-effect.
+	 */
+	protected void internalSetValue(@Nullable T value) {
+		m_value = value;
+	}
+
+	public T getBindValue() {
+		validateBindValue();
+		return internalGetValue();
+	}
+
+	protected void validateBindValue() {}
+
+	public void setBindValue(T value) {
+		if(MetaManager.areObjectsEqual(internalGetValue(), value)) {
+			return;
+		}
+		setValue(value);
+	}
+
+	@Override
+	public T getValue() {
+		validate();
+		return internalGetValue();
+	}
+
+	@Override
+	public void setValue(@Nullable T v) {
+		if(MetaManager.areObjectsEqual(v, internalGetValue()))
+			return;
+		internalSetValue(v);
+		onValueSet(v);
+	}
+
 	@Override
 	public T getValueSafe() {
 		try {
@@ -98,30 +141,7 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 		forceRebuild();
 	}
 
-	@Override
-	public T getValue() {
-		validate();
-		return m_value;
-	}
-
-	@Nullable
-	protected T internalGetValue() {
-		return m_value;
-	}
-
-	protected void internalSetValue(@Nullable T value) {
-		m_value = value;
-	}
-
 	protected void validate() {
-	}
-
-	@Override
-	public void setValue(@Nullable T v) {
-		if(MetaManager.areObjectsEqual(v, m_value))
-			return;
-		m_value = v;
-		onValueSet(v);
 	}
 
 	protected void onValueSet(@Nullable T value) {
@@ -143,7 +163,6 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 
 	/**
 	 * Disables a button and set a hover text as the reason for being disabled.
-	 * @return
 	 */
 	@Nullable
 	final public String getDisabledBecause() {

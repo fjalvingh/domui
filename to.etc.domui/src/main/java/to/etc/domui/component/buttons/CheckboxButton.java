@@ -26,6 +26,12 @@ public class CheckboxButton extends AbstractDivControl<Boolean> {
 
 	@Override public void createContent() throws Exception {
 		addCssClass("ui-chkbb");
+		if(isMandatory())
+			addCssClass("ui-mandatory");
+		if(isReadOnly())
+			addCssClass("ui-ro");
+		if(isDisabled())
+			addCssClass("ui-disabled");
 		add(m_cb);
 		Label l = new Label();
 		add(l);
@@ -63,5 +69,13 @@ public class CheckboxButton extends AbstractDivControl<Boolean> {
 
 	public void setOffLabel(@Nullable String offLabel) {
 		m_offLabel = offLabel;
+	}
+
+	@Override protected void internalSetValue(@Nullable Boolean value) {
+		m_cb.setValue(value);
+	}
+
+	@Nullable @Override protected Boolean internalGetValue() {
+		return m_cb.getValue();
 	}
 }
