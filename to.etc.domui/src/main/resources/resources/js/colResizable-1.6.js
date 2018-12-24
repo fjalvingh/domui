@@ -39,6 +39,7 @@
 	
 	//append required CSS rules  
     h.append("<style type='text/css'>  .JColResizer{table-layout:fixed;} .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th{overflow:hidden;}  .JCLRgrips{ height:0px; position:relative;} .JCLRgrip{margin-left:-5px; position:absolute; z-index:5; } .JCLRgrip .JColResizer{position:absolute;background-color:red;filter:alpha(opacity=1);opacity:0;width:10px;height:100%;cursor: e-resize;top:0px} .JCLRLastGrip{position:absolute; width:1px; } .JCLRgripDrag{ border-left:1px dotted black;	} .JCLRFlex{width:auto!important;} .JCLRgrip.JCLRdisabledGrip .JColResizer{cursor:default; display:none;}</style>");
+	// h.append("<style type='text/css'>  .JColResizer{table-layout:fixed;} .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th{overflow:hidden;padding-left:0!important; padding-right:0!important;}  .JCLRgrips{ height:0px; position:relative;} .JCLRgrip{margin-left:-5px; position:absolute; z-index:5; } .JCLRgrip .JColResizer{position:absolute;background-color:red;filter:alpha(opacity=1);opacity:0;width:10px;height:100%;cursor: e-resize;top:0px} .JCLRLastGrip{position:absolute; width:1px; } .JCLRgripDrag{ border-left:1px dotted black;	} .JCLRFlex{width:auto!important;} .JCLRgrip.JCLRdisabledGrip .JColResizer{cursor:default; display:none;}</style>");
 
 	
 	/**
@@ -99,7 +100,7 @@
             var dc = t.dc.indexOf(i)!=-1;           //is this a disabled column?
 			var g = $(t.gc.append('<div class="JCLRgrip"></div>')[0].lastChild); //add the visual node to be used as grip
             g.append(dc ? "": t.opt.gripInnerHtml).append('<div class="'+SIGNATURE+'"></div>');
-            if(i == t.ln-1){                        //if the current grip is the las one 
+            if(i === t.ln-1){                        //if the current grip is the las one
                 g.addClass("JCLRLastGrip");         //add a different css class to stlye it in a different way if needed
                 if(t.f) g.html("");                 //if the table resizing mode is set to fixed, the last grip is removed since table with can not change
             }
@@ -112,8 +113,11 @@
                 g.addClass('JCLRdisabledGrip'); 
             }
 
-			g.t = t; g.i = i; g.c = c;	c.w =c.width();		//some values are stored in the grip's node data as shortcut
-            c.mw = c.innerWidth() - c.width();  //FIX issue 45 don't go below total added padding width otherwise skewed results
+			g.t = t; g.i = i; g.c = c;
+			c.w =c.width();									//some values are stored in the grip's node data as shortcut
+			if(i === t.ln-1)								// 20181224 jal fix vertical scrollbar because last grip is past width.
+				c.w -= 5;
+            c.mw = c.innerWidth() - c.width();  			//FIX issue 45 don't go below total added padding width otherwise skewed results
 			t.g.push(g); t.c.push(c);						//the current grip and column are added to its table object
 			c.width(c.w).removeAttr("width");				//the width of the column is converted into pixel-based measurements
 			g.data(SIGNATURE, {i:i, t:t.attr(ID), last: i == t.ln-1});	 //grip index and its table name are stored in the HTML 												
@@ -178,7 +182,7 @@
 	 * @param {jQuery ref} t - table object
 	 */
 	var syncGrips = function (t){	
-		t.gc.width(t.w);			//the grip's container width is updated				
+		t.gc.width(t.w);			//the grip's container width is updated
 		for(var i=0; i<t.ln; i++){	//for each column
 			var c = t.c[i]; 			
 			t.g[i].css({			//height and position of the grip is updated according to the table layout
