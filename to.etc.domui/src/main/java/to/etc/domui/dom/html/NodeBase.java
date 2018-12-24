@@ -781,6 +781,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	final private void clearBuilt() {
 		m_built = false;
+		m_createJS = null;
+		m_createStmt = null;
 		if(m_page != null)
 			m_page.internalAddPendingBuild(this);
 	}
