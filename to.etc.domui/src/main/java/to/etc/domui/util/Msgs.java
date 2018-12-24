@@ -32,6 +32,10 @@ public enum Msgs implements IBundleCode {
 	uiErrorHeader,
 
 
+	/** CheckBoxButton **/
+	uiChkbbOn,
+	uiChkbbOff,
+
 	pageWithoutUrlContext, noUrlContextValueFor,
 	dataValueAccessDenied
 	;
