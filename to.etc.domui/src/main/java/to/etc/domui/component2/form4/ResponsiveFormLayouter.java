@@ -3,6 +3,7 @@ package to.etc.domui.component2.form4;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 
@@ -65,6 +66,9 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 		pair.add(lc);
 		if(null != lbl) {
 			lc.add(lbl);
+		} else {
+			//-- For horizontal forms an empty label will cause the div to have 0 size, so add something to align.
+			lc.add(new Label("\u00a0"));
 		}
 
 		Div cc = m_lastControlContainer = new Div("ui-f5-ctl ui-f5-ctl" + fix);
