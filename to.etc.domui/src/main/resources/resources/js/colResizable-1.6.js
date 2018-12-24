@@ -25,7 +25,7 @@
 	var	count = 0;				//internal count to create unique IDs when needed.	
 	
 	//common strings for packing
-	var ID = "id";	
+	var ID = "id";
 	var PX = "px";
 	var SIGNATURE ="JColResizer";
     var FLEX = "JCLRFlex";
@@ -37,9 +37,15 @@
 	var S;
 	try{S = sessionStorage;}catch(e){}	//Firefox crashes when executed as local file system
 	
-	//append required CSS rules  
-    h.append("<style type='text/css'>  .JColResizer{table-layout:fixed;} .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th{overflow:hidden;}  .JCLRgrips{ height:0px; position:relative;} .JCLRgrip{margin-left:-5px; position:absolute; z-index:5; } .JCLRgrip .JColResizer{position:absolute;background-color:red;filter:alpha(opacity=1);opacity:0;width:10px;height:100%;cursor: e-resize;top:0px} .JCLRLastGrip{position:absolute; width:1px; } .JCLRgripDrag{ border-left:1px dotted black;	} .JCLRFlex{width:auto!important;} .JCLRgrip.JCLRdisabledGrip .JColResizer{cursor:default; display:none;}</style>");
-	// h.append("<style type='text/css'>  .JColResizer{table-layout:fixed;} .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th{overflow:hidden;padding-left:0!important; padding-right:0!important;}  .JCLRgrips{ height:0px; position:relative;} .JCLRgrip{margin-left:-5px; position:absolute; z-index:5; } .JCLRgrip .JColResizer{position:absolute;background-color:red;filter:alpha(opacity=1);opacity:0;width:10px;height:100%;cursor: e-resize;top:0px} .JCLRLastGrip{position:absolute; width:1px; } .JCLRgripDrag{ border-left:1px dotted black;	} .JCLRFlex{width:auto!important;} .JCLRgrip.JCLRdisabledGrip .JColResizer{cursor:default; display:none;}</style>");
+	//append required CSS rules
+	/*
+	 * 20181224 removed .JCLRFlex{width:auto!important;} from here to allow cells to get smaller than their content.
+	 */
+    h.append("<style type='text/css'>  .JColResizer{table-layout:fixed;} .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th{overflow:hidden;}  .JCLRgrips{ height:0px; position:relative;} .JCLRgrip{margin-left:-5px; position:absolute; z-index:5; } .JCLRgrip .JColResizer{position:absolute;background-color:red;filter:alpha(opacity=1);opacity:0;width:10px;height:100%;cursor: e-resize;top:0px} .JCLRLastGrip{position:absolute; width:1px; } .JCLRgripDrag{ border-left:1px dotted black;	} .JCLRgrip.JCLRdisabledGrip .JColResizer{cursor:default; display:none;}</style>");
+
+	// below: replaced to allow cells to get smaller than their content in overflow or flex mode.
+	//h.append("<style type='text/css'>  .JColResizer{table-layout:fixed;} .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th{overflow:hidden;}  .JCLRgrips{ height:0px; position:relative;} .JCLRgrip{margin-left:-5px; position:absolute; z-index:5; } .JCLRgrip .JColResizer{position:absolute;background-color:red;filter:alpha(opacity=1);opacity:0;width:10px;height:100%;cursor: e-resize;top:0px} .JCLRLastGrip{position:absolute; width:1px; } .JCLRgripDrag{ border-left:1px dotted black;	} .JCLRFlex{width:auto!important;} .JCLRgrip.JCLRdisabledGrip .JColResizer{cursor:default; display:none;}</style>");
+	// replaced h.append("<style type='text/css'>  .JColResizer{table-layout:fixed;} .JColResizer > tbody > tr > td, .JColResizer > tbody > tr > th{overflow:hidden;padding-left:0!important; padding-right:0!important;}  .JCLRgrips{ height:0px; position:relative;} .JCLRgrip{margin-left:-5px; position:absolute; z-index:5; } .JCLRgrip .JColResizer{position:absolute;background-color:red;filter:alpha(opacity=1);opacity:0;width:10px;height:100%;cursor: e-resize;top:0px} .JCLRLastGrip{position:absolute; width:1px; } .JCLRgripDrag{ border-left:1px dotted black;	} .JCLRFlex{width:auto!important;} .JCLRgrip.JCLRdisabledGrip .JColResizer{cursor:default; display:none;}</style>");
 
 	
 	/**
@@ -115,8 +121,8 @@
 
 			g.t = t; g.i = i; g.c = c;
 			c.w =c.width();									//some values are stored in the grip's node data as shortcut
-			if(i === t.ln-1)								// 20181224 jal fix vertical scrollbar because last grip is past width.
-				c.w -= 5;
+			// if(i === t.ln-1)								// 20181224 jal fix vertical scrollbar because last grip is past width.
+			// 	c.w -= 5;
             c.mw = c.innerWidth() - c.width();  			//FIX issue 45 don't go below total added padding width otherwise skewed results
 			t.g.push(g); t.c.push(c);						//the current grip and column are added to its table object
 			c.width(c.w).removeAttr("width");				//the width of the column is converted into pixel-based measurements
@@ -204,7 +210,7 @@
 		var inc = drag.x-drag.l, c = t.c[i], c2 = t.c[i+1]; 			
 		var w = c.w + inc;	var w2= c2.w- inc;	//their new width is obtained
 
-        //FIX issue 45
+        // FIX issue 45
         if (w < c.mw) {
             // don't go below total padding width
             w2 -= c.mw - w;
@@ -215,7 +221,7 @@
             w -= c2.mw - w2;
             w2 += c2.mw - w2;
         }
-        //FIX
+        // FIX
 
 		c.width( w + PX);
 		t.cg.eq(i).width( w + PX); 
@@ -264,7 +270,7 @@
 		var l = t.cs*1.5 + mw + t.b;
         var last = i == t.ln-1;                 			//check if it is the last column's grip (usually hidden)
         var min = i? t.g[i-1].position().left+t.cs+mw: l;	//min position according to the contiguous cells
-		var max = t.f ? 	//fixed mode?
+		var max = t.f ? 						//fixed mode?
 			i == t.ln-1? 
 				t.w-l: 
 				t.g[i+1].position().left-t.cs-mw:
