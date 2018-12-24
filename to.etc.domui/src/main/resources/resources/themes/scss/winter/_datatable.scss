@@ -23,6 +23,19 @@ div.ui-dt {
 	position: relative;
 }
 
+.ui-dt {
+	font-size: $data_tbl_font_size;
+	/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
+}
+
+.ui-dt-separator {
+	//background: url('hr-blue.png') no-repeat;
+	padding: 1px;
+}
+
+.ui-dt .mselected, .ui-dt .selected {
+	background-color: $highlight2_bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+}
 div.ui-dt > table > tr > td {
 	border: 0;
 	margin: 0;
@@ -43,10 +56,13 @@ div.ui-dt > table {
 	margin: 0;
 	padding: 0;
 }
-.ui-dt tbody tr {
-	height: 30px;
-	border-bottom: 1px solid $data_tbl_lines_color;
+
+.ui-dt-nores {
+	padding: 0px 0px 10px 0px;
+	font-style: italic;
 }
+
+/*** Header ***/
 
 .ui-dt-hdr {
 	text-align: left;
@@ -59,6 +75,7 @@ div.ui-dt > table {
 	border-right: none;
 }
 .ui-dt-hdr th {
+	white-space: nowrap;
 	//line-height: 1.5em;
 	padding: calc(0.375em + 1px) 4px;
 	color: $data_tbl_header_text_color;
@@ -75,7 +92,6 @@ div.ui-dt > table {
 	border-right: none;
 }
 
-
 .ui-dt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
 	border-left: 1px solid $data_tbl_header_btm_border !important;
 	border-top: 1px solid $data_tbl_header_btm_border !important;
@@ -83,6 +99,52 @@ div.ui-dt > table {
 
 .ui-dt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
 	border-right: 1px solid $data_tbl_header_btm_border;
+}
+
+th.ui-sortable {
+	cursor: pointer;
+}
+th[nowrap="nowrap"] .ui-sortable {
+	white-space: nowrap;
+}
+
+div.ui-sortable {
+	position: relative;
+}
+
+//.ui-sortable img {
+//	top: -3px;
+//	position: absolute;
+//	border: 0px;
+//}
+
+.ui-dt-th.ui-sortable div {
+	display: flex;
+	flex-direction: row;
+}
+
+.ui-sortable span {
+	//margin-left: 10px;
+}
+.ui-dt-sorticon {
+	width: 16px;
+	height: 16px;
+	&.ui-sort-n {
+		background: url(sort-none.png) no-repeat;
+	}
+	&.ui-sort-a {
+		background: url(sort-asc.png) no-repeat;
+	}
+	&.ui-sort-d {
+		background: url(sort-desc.png) no-repeat;
+	}
+
+}
+
+/*** Rows and columns ***/
+.ui-dt tbody tr {
+	height: 30px;
+	border-bottom: 1px solid $data_tbl_lines_color;
 }
 
 .ui-dt tbody tr > td.ui-f-lbl:first-child {
@@ -95,11 +157,6 @@ div.ui-dt > table {
 }
 .ui-dt-row > td {
 	padding: 0 4px;
-}
-
-.ui-dt-nores {
-	padding: 0px 0px 10px 0px;
-	font-style: italic;
 }
 
 .ui-odd {
@@ -136,39 +193,4 @@ td.ui-cellsel:hover {
 	text-decoration: underline;
 	background-color: $data_tbl_cell_highlight_bg !important;
 	color: $data_tbl_cell_highlight_link_color_bg;
-}
-
-th.ui-sortable {
-	cursor: pointer;
-}
-th[nowrap="nowrap"] .ui-sortable {
-	white-space: nowrap;
-}
-
-div.ui-sortable {
-	position: relative;
-}
-
-.ui-sortable img {
-	top: -3px;
-	position: absolute;
-	border: 0px;
-}
-
-.ui-sortable span {
-	margin-left: 10px;
-}
-
-.ui-dt {
-	font-size: $data_tbl_font_size;
-	/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
-}
-
-.ui-dt-separator {
-	background: url('hr-blue.png') no-repeat;
-	padding: 1px;
-}
-
-.ui-dt .mselected, .ui-dt .selected {
-	background-color: $highlight2_bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }

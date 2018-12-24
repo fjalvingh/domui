@@ -503,18 +503,20 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Removes the specified CSS class. This looks in the space delimited list and removes all 'words' there
 	 * that match this name. Returns T if the class was actually present.
-	 * @param name
+	 * @param nameList
 	 * @return
 	 */
-	final public boolean removeCssClass(@NonNull final String name) {
+	final public boolean removeCssClass(@NonNull final String nameList) {
 		String cssClass = getCssClass();
 		if(cssClass == null)
 			return false;
 		String[] split = cssClass.split("\\s+");
+		String[] names = nameList.split("\\s+");
+
 		StringBuilder sb = new StringBuilder(cssClass.length());
 		boolean fnd = false;
 		for(String s: split) {
-			if(name.equals(s)) {
+			if(hasName(names, s)) {
 				fnd = true;
 			} else {
 				if(sb.length() > 0)
@@ -526,6 +528,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			return false;
 		setCssClass(sb.toString());
 		return true;
+	}
+
+	static private boolean hasName(String[] items, String name) {
+		for(int i = items.length; --i >= 0;) {
+			if(name.equals(items[i]))
+				return true;
+		}
+		return false;
 	}
 
 	/**
