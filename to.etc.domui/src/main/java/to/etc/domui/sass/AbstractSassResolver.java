@@ -225,10 +225,14 @@ abstract public class AbstractSassResolver<O> {
 			if(null != values && values.length == 1) {
 				String value = values[0];
 				if(name.endsWith("$")) {
-					name = name.substring(0, name.length() - 1);		// Strip $ from name
-					value = StringTool.strToJavascriptString(value, true);
+					if(value != null && !StringTool.isBlank(value)) {
+						name = name.substring(0, name.length() - 1);        // Strip $ from name
+						value = StringTool.strToJavascriptString(value, true);
+						sb.append("$").append(name).append(": ").append(value).append(";\n");
+					}
+				} else {
+					sb.append("$").append(name).append(": ").append(value).append(";\n");
 				}
-				sb.append("$").append(name).append(": ").append(value).append(";\n");
 			}
 		}
 
