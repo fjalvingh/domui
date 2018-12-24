@@ -90,6 +90,7 @@
 
 	label {
 		font-size: $can-toggle-label-font-size;
+		width: $can-toggle-width + 10px;
 
 		.ui-chkbb-sw {
 			height: $can-toggle-height;

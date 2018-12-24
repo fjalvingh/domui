@@ -59,16 +59,18 @@ public class CheckboxButton extends AbstractDivControl<Boolean> {
 		return m_onLabel;
 	}
 
-	public void setOnLabel(@Nullable String onLabel) {
+	public CheckboxButton setOnLabel(@Nullable String onLabel) {
 		m_onLabel = onLabel;
+		return this;
 	}
 
 	@Nullable public String getOffLabel() {
 		return m_offLabel;
 	}
 
-	public void setOffLabel(@Nullable String offLabel) {
+	public CheckboxButton setOffLabel(@Nullable String offLabel) {
 		m_offLabel = offLabel;
+		return this;
 	}
 
 	@Override protected void internalSetValue(@Nullable Boolean value) {
@@ -77,5 +79,14 @@ public class CheckboxButton extends AbstractDivControl<Boolean> {
 
 	@Nullable @Override protected Boolean internalGetValue() {
 		return m_cb.getValue();
+	}
+
+	public CheckboxButton setChecked(boolean on) {
+		setValue(on);
+		return this;
+	}
+
+	public boolean isChecked() {
+		return Boolean.TRUE.equals(getBindValue());
 	}
 }
