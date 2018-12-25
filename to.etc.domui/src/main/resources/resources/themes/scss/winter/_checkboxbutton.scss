@@ -1,6 +1,7 @@
 @mixin can-toggle-branding (
 	$can-toggle-off-color: #777,
-	$can-toggle-on-color: #5fc054,
+	//$can-toggle-on-color: #5fc054,
+	$can-toggle-on-color: $alt-button-color,
 	$can-toggle-inactive-text: rgba(white, 0.5),
 	$can-toggle-transition: cubic-bezier(0,1,0.5,1)
 ) {
