@@ -156,6 +156,7 @@ div.ui-sortable {
 //}
 .ui-dt-row > td {
 	padding: 0 4px;
+	@include overflow-ellipsis();
 }
 
 .ui-odd {
