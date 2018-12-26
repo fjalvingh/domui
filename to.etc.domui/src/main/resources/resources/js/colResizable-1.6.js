@@ -72,7 +72,9 @@
 		t._columns = [];
 		t._width = t.width();
 		t._gripContainer = t.prev();
-		t._isFixed = t.opt.fixed;	//t._columns and t._grips are arrays of columns and grips respectively
+		t._isFixed = t.opt.fixed;
+		t._isFlex = t.opt.flex;
+		t._isOverflow = t.opt.overflow;
 		if(options.marginLeft) t._gripContainer.css("marginLeft", options.marginLeft);  	//if the table contains margins, it must be specified
 		if(options.marginRight) t._gripContainer.css("marginRight", options.marginRight);  	//since there is no (direct) way to obtain margin values in its original units (%, em, ...)
 		t._cellSpacing = I(ie ? tb.cellSpacing || tb.currentStyle.borderSpacing : t.css('border-spacing')) || 2;	//table cellspacing (not even jQuery is fully cross-browser)
@@ -101,7 +103,6 @@
 	 * @param {jQuery ref} t - table object
 	 */
 	var createGrips = function(t) {
-
 		var th = t.find(">thead>tr:first>th,>thead>tr:first>td"); //table headers are obtained
 		if(!th.length) th = t.find(">tbody>tr:first>th,>tr:first>th,>tbody>tr:first>td, >tr:first>td");	 //but headers can also be included in different ways
 		th = th.filter(":visible");					//filter invisible columns
@@ -223,8 +224,8 @@
 		var inc = drag._prevLeft - drag._left;
 		var c = t._columns[i];
 		var c2 = t._columns[i + 1];
-		var w = c._width + inc;
-		var w2 = c2._width - inc;		//their new width is obtained
+		var w = c._width + inc;			// proposed with of dragged cell
+		var w2 = c2._width - inc;		// proposed width of cell after, when fixed
 
 		// FIX issue 45
 		if(w < c._minWidth) {
@@ -232,7 +233,7 @@
 			w2 -= c._minWidth - w;
 			w += c._minWidth - w;
 		}
-		if(w2 < c2._minWidth) {
+		if(w2 < c2._minWidth && t._isFixed) {
 			// don't go below total padding width
 			w -= c2._minWidth - w2;
 			w2 += c2._minWidth - w2;
@@ -320,7 +321,7 @@
 					t._width = t.width();
 				}
 			} else {
-				syncCols(t, i); 			//columns are synchronized
+				syncCols(t, i, false); 		//columns are synchronized
 			}
 			syncGrips(t);
 			t.width(t._width);						//jal force new width for table
@@ -470,9 +471,11 @@
 			//calling it 'resizeMode' but also to remove the "fixed" attribute which was confusing for many people
 			options.fixed = true;
 			options.overflow = false;
+			options.flex = false;
 			switch(options.resizeMode) {
 				case 'flex':
 					options.fixed = false;
+					options.flex = true;
 					break;
 				case 'overflow':
 					options.fixed = false;
