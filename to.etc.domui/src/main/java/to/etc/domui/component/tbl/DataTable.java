@@ -105,7 +105,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	private TBody m_footerBody;
 
 	@NonNull
-	private DataTableResize m_resizeMode = DataTableResize.FLEX;
+	private DataTableResize m_resizeMode = DataTableResize.OVERFLOW;
 
 	@NonNull
 	final private IClicked<TH> m_headerSelectClickHandler = clickednode -> {

@@ -145,7 +145,9 @@
 			$(this).removeAttr('width');	//the width attribute is removed from all table cells which are not nested in other tables and dont belong to the header
 		});
 		if(!t._isFixed) {
-			t.removeAttr('width').addClass(FLEX); //if not fixed, let the table grow as needed
+			t.removeAttr('width');
+			if(t._isFlex)
+				t.addClass(FLEX); //if not fixed, let the table grow as needed
 		}
 		syncGrips(t); 				//the grips are positioned according to the current table layout
 		//there is a small problem, some cells in the table could contain dimension values interfering with the
@@ -223,41 +225,67 @@
 	var syncCols = function(t, i, isOver) {
 		var inc = drag._prevLeft - drag._left;
 		var c = t._columns[i];
-		var c2 = t._columns[i + 1];
+		var isLast = i >= t._columnCount - 1;
 		var w = c._width + inc;			// proposed with of dragged cell
-		var w2 = c2._width - inc;		// proposed width of cell after, when fixed
 
-		// FIX issue 45
-		if(w < c._minWidth) {
-			// don't go below total padding width
-			w2 -= c._minWidth - w;
-			w += c._minWidth - w;
-		}
-		if(w2 < c2._minWidth && t._isFixed) {
-			// don't go below total padding width
-			w -= c2._minWidth - w2;
-			w2 += c2._minWidth - w2;
-		}
-		// FIX
+		if(t._isFixed) {
+			/*
+			 * Fixed mode: change col's size by changing the next col's size.
+			 */
+			if(isLast)
+				return;
 
-		var delta = w - c.width();				// Calculated change in width
-		console.log("dw = " + delta);
-		c.width(w + PX);
-		t._columnGroups.eq(i).width(w + PX);
-		t._width += delta;
-		t.width(t._width);
-		if(t._isFixed) { //if fixed mode
+			var c2 = t._columns[i + 1];		// Column just after
+			var w2 = c2._width - inc;		// proposed width of cell after, when fixed
+
+			// FIX issue 45
+			if(w < c._minWidth) {
+				// don't go below total padding width
+				w2 -= c._minWidth - w;
+				w += c._minWidth - w;
+			}
+			if(w2 < c2._minWidth && t._isFixed) {
+				// don't go below total padding width
+				w -= c2._minWidth - w2;
+				w2 += c2._minWidth - w2;
+			}
+			// FIX
+
+			var delta = w - c.width();		// Calculated change in width
+			console.log("dw = " + delta);
+			c.width(w + PX);
+			t._columnGroups.eq(i).width(w + PX);
+			t.width(t._width);				// Table width does not change
 			c2.width(w2 + PX);
 			t._columnGroups.eq(i + 1).width(w2 + PX);
-		} else if(t.opt.overflow) {				//if overflow is set, increment min-width to force overflow
-			t.css('min-width', t._width + inc);
-		}
-		if(isOver) {
-			c._width = w;
-			c2._width = t._isFixed ? w2 : c2._width;
+			if(isOver) {
+				c._width = w;
+				c2._width = t._isFixed ? w2 : c2._width;
+			}
+		} else {
+			/*
+			 * Overflow mode: resize the current column only, increase the size of the table and the start
+			 * position of the next column by the delta. This only takes "min-size" constraints into account.
+			 */
+			if(w < c._minWidth) {
+				// don't go below total padding width
+				w =c._minWidth;
+			}
+
+			var delta = w - c.width();				// Calculated change in width
+			console.log("dw = " + delta);
+			c.width(w + PX);
+			t._columnGroups.eq(i).width(w + PX);
+
+			t._width += delta;						// Increase table width with delta
+			t.width(t._width);
+			t.css('min-width', t._width + inc);		//if overflow is set, increment min-width to force overflow (?)
+			if(isOver) {
+				console.log("isover not fixed w=" + w);
+				c._width = w;
+			}
 		}
 	};
-
 
 	/**
 	 * This function updates all columns width according to its real width. It must be taken into account that the
@@ -275,7 +303,8 @@
 		// $.each(t._columns, function(i,c){
 		//     c.width(w[i])._width = w[i];				//set column widths applying bounds (table's max-width)
 		// });
-		t.addClass(FLEX);						//allow table width changes
+		if(t._isFlex)
+			t.addClass(FLEX);						//allow table width changes
 	};
 
 
@@ -295,31 +324,32 @@
 
 		var mw = t.opt.minWidth, i = drag._index;	//cell's min width
 		var l = t._cellSpacing * 1.5 + mw + t._borderWidth;
-		var last = i == t._columnCount - 1;                 			//check if it is the last column's grip (usually hidden)
+		var last = i === t._columnCount - 1;                 			//check if it is the last column's grip (usually hidden)
 		var min = i ? t._grips[i - 1].position().left + t._cellSpacing + mw : l;	//min position according to the contiguous cells
-		var max = t._isFixed ? 						//fixed mode?
-			i == t._columnCount - 1 ?
-				t._width - l :
-				t._grips[i + 1].position().left - t._cellSpacing - mw :
-			Infinity; 								//max position according to the contiguous cells
+		var max = t._isFixed
+			? i === t._columnCount - 1
+				? t._width - l
+				: t._grips[i + 1].position().left - t._cellSpacing - mw
+			: Infinity; 							//max position according to the contiguous cells
 		x = M.max(min, M.min(max, x));				//apply bounding
 		drag._prevLeft = x;
 		drag._prevDragX = eventX;
 		drag.css("left", x + PX); 					//apply position increment
 
-		if(last) {									//if it is the last grip
-			var c = t._columns[drag._index];		//width of the last column is obtained
-			drag._width = c._width + x - drag._left;
-		}
+		var c = t._columns[drag._index];			//Dragged column
+		// if(last) {									//if it is the last grip
+		// 	var c = t._columns[drag._index];		//width of the last column is obtained
+		// 	drag._width = c._width + x - drag._left;
+		// }
 
 		// t._width += dx;
 		// console.log("dragx " + drag._prevLeft + ", drag._dragStartX=" + drag._dragStartX + ", ox=" + eventX + ", ox-dragix" + (eventX - drag._dragStartX) + ", dx " + dx + ", t._width " + t._width);
 		// console.log("eventX " + eventX + ", d._left=" + drag._left + ", d._startX" + drag._dragStartX + ", tdx " + tdx + ", ddx " + ddx + ", t._width " + t._width);
 
-		if(t.opt.liveDrag) { 			//if liveDrag is enabled
-			if(last) {
+		if(t.opt.liveDrag) {
+			if(last && false) {
 				c.width(drag._width);
-				if(!t._isFixed && t.opt.overflow) {			//if overflow is set, incriment min-width to force overflow
+				if(t._isOverflow) {					//if overflow is set, increment min-width to force overflow
 					t.css('min-width', t._width + x - drag._left);
 				} else {
 					t._width = t.width();
@@ -346,18 +376,19 @@
 	 */
 	var onGripDragOver = function(e) {
 		d.unbind('touchend.' + SIGNATURE + ' mouseup.' + SIGNATURE).unbind('touchmove.' + SIGNATURE + ' mousemove.' + SIGNATURE);
-		$("head :last-child").remove(); 				//remove the dragging cursor style
+		$("head :last-child").remove(); 					//remove the dragging cursor style
 		if(!drag) return;
-		drag.removeClass(drag._table.opt.draggingClass);		//remove the grip's dragging css-class
-		if(!(drag._prevLeft - drag._left == 0)) {		// if we actually moved
+		drag.removeClass(drag._table.opt.draggingClass);	//remove the grip's dragging css-class
+		if(!(drag._prevLeft - drag._left == 0)) {			// if we actually moved
 			var t = drag._table;
-			var cb = t.opt.onResize; 	    //get some values
-			var i = drag._index;                 //column index
-			var last = i == t._columnCount - 1;         //check if it is the last column's grip (usually hidden)
-			var c = t._grips[i]._column;               //the column being dragged
+			var cb = t.opt.onResize; 	    				//get some values
+			var i = drag._index;                 			//column index
+			var last = i == t._columnCount - 1;         	//check if it is the last column's grip (usually hidden)
+			var c = t._grips[i]._column;               		//the column being dragged
 			if(last) {
-				c.width(drag._width);
-				c._width = drag._width;
+				syncCols(t, i, true);					//the columns are updated
+				// c.width(drag._width);
+				// c._width = drag._width;
 			} else {
 				syncCols(t, i, true);	//the columns are updated
 			}
