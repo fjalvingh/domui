@@ -131,9 +131,9 @@
 			grip._index = i;
 			grip._column = column;
 			column._width = column.width();									//some values are stored in the grip's node data as shortcut
-			// if(i === t._columnCount-1)								// 20181224 jal fix vertical scrollbar because last grip is past width.
-			// 	c.w -= 5;
-			column._minWidth = column.innerWidth() - column.width();  			//FIX issue 45 don't go below total added padding width otherwise skewed results
+			// if(i === t._columnCount-1)										// 20181224 jal fix vertical scrollbar because last grip is past width.
+			// 	column._width -= 5;
+			column._minWidth = column.innerWidth() - column.width();		//FIX issue 45 don't go below total added padding width otherwise skewed results
 			t._grips.push(grip);
 			t._columns.push(column);						//the current grip and column are added to its table object
 			column.width(column._width).removeAttr("width");				//the width of the column is converted into pixel-based measurements
@@ -174,25 +174,25 @@
 			tw = w[t._columnCount + 1];
 			if(!t._isFixed && tw) {							//if not fixed and table width data available its size is restored
 				t.width(tw *= 1);
-				if(t.opt.overflow) {				//if overfolw flag is set, restore table width also as table min-width
+				if(t.opt.overflow) {						//in overflow mode, restore table width also as table min-width
 					t.css('min-width', tw + PX);
 					t._width = tw;
 				}
 			}
-			for(; i < t._columnCount; i++) {						//for each column
+			for(; i < t._columnCount; i++) {				//for each column
 				aux.push(100 * w[i] / w[t._columnCount] + "%"); 	//width is stored in an array since it will be required again a couple of lines ahead
 				th.eq(i).css("width", aux[i]); 	//each column width in % is restored
 			}
 			for(i = 0; i < t._columnCount; i++)
 				t._columnGroups.eq(i).css("width", aux[i]);	//this code is required in order to create an inline CSS rule with higher precedence than an existing CSS class in the "col" elements
-		} else {							//in serialization mode (after resizing a column)
-			S[t.id] = "";				//clean up previous data
-			for(; i < t._columns.length; i++) {	//iterate through columns
-				w = t._columns[i].width();		//width is obtained
-				S[t.id] += w + ";";		//width is appended to the sessionStorage object using ID as key
-				m += w;					//carriage is updated to obtain the full size used by columns
+		} else {											//in serialization mode (after resizing a column)
+			S[t.id] = "";									//clean up previous data
+			for(; i < t._columns.length; i++) {				//iterate through columns
+				w = t._columns[i].width();					//width is obtained
+				S[t.id] += w + ";";							//width is appended to the sessionStorage object using ID as key
+				m += w;										//carriage is updated to obtain the full size used by columns
 			}
-			S[t.id] += m;							//the last item of the serialized string is the table's active area (width),
+			S[t.id] += m;									//the last item of the serialized string is the table's active area (width),
 			//to be able to obtain % width value of each columns while deserializing
 			if(!t._isFixed) S[t.id] += ";" + t.width(); 	//if not fixed, table width is stored
 		}
@@ -205,10 +205,19 @@
 	 */
 	var syncGrips = function(t) {
 		// t._gripContainer.width(t._width);			//the grip's container width is updated
-		for(var i = 0; i < t._columnCount; i++) {	//for each column
+		for(var i = 0; i < t._columnCount; i++) {		//for each column
 			var column = t._columns[i];
+			// var left = column.offset().left - t.offset().left + column.outerWidth(false) + t._cellSpacing / 2 + PX;
+			var left = column.offset().left - t.offset().left;
+			if(i < t._columnCount - 1) {
+				left += column.outerWidth(false) + t._cellSpacing / 2;
+			} else {
+				left += column.outerWidth(false) - 5;
+			}
+			console.log("left=" + left + PX);
+
 			t._grips[i].css({			//height and position of the grip is updated according to the table layout
-				left: column.offset().left - t.offset().left + column.outerWidth(false) + t._cellSpacing / 2 + PX,
+				left: left,
 				height: t.opt.headerOnly ? t._columns[0].outerHeight(false) : t.outerHeight(false)
 			});
 		}

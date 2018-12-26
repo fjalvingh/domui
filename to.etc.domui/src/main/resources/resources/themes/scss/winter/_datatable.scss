@@ -85,6 +85,8 @@ div.ui-dt > table {
 	font-weight: bold;
 	//font-size: 1rem;
 
+	@include overflow-ellipsis();
+
 	//background: $data_tbl_header_bg;
 	border-left: none !important;
 	border-right: none;
