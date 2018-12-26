@@ -240,12 +240,16 @@
 		}
 		// FIX
 
+		var delta = w - c.width();				// Calculated change in width
+		console.log("dw = " + delta);
 		c.width(w + PX);
 		t._columnGroups.eq(i).width(w + PX);
+		t._width += delta;
+		t.width(t._width);
 		if(t._isFixed) { //if fixed mode
 			c2.width(w2 + PX);
 			t._columnGroups.eq(i + 1).width(w2 + PX);
-		} else if(t.opt.overflow) {				//if overflow is set, incriment min-width to force overflow
+		} else if(t.opt.overflow) {				//if overflow is set, increment min-width to force overflow
 			t.css('min-width', t._width + inc);
 		}
 		if(isOver) {
@@ -310,7 +314,7 @@
 
 		// t._width += dx;
 		// console.log("dragx " + drag._prevLeft + ", drag._dragStartX=" + drag._dragStartX + ", ox=" + eventX + ", ox-dragix" + (eventX - drag._dragStartX) + ", dx " + dx + ", t._width " + t._width);
-		console.log("eventX " + eventX + ", d._left=" + drag._left + ", d._startX" + drag._dragStartX + ", tdx " + tdx + ", ddx " + ddx + ", t._width " + t._width);
+		// console.log("eventX " + eventX + ", d._left=" + drag._left + ", d._startX" + drag._dragStartX + ", tdx " + tdx + ", ddx " + ddx + ", t._width " + t._width);
 
 		if(t.opt.liveDrag) { 			//if liveDrag is enabled
 			if(last) {
