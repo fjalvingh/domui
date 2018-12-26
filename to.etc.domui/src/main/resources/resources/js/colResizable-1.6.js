@@ -282,8 +282,12 @@
 		if(!drag) return;
 		var t = drag._table;		//table object reference
 		var oe = e.originalEvent.touches;
-		var ox = oe ? oe[0].pageX : e.pageX;    //original position (touch or mouse)
-		var x = ox - drag._dragStartX + drag._left;	        //next position according to horizontal mouse position increment
+		var eventX = oe ? oe[0].pageX : e.pageX;    //original position (touch or mouse)
+		var x = eventX - drag._dragStartX + drag._left;	        //next position according to horizontal mouse position increment
+
+		var tdx = eventX - drag._dragStartX;		// Total delta
+		var ddx = eventX - drag._prevDragX;			// This-drag's delta
+
 		var mw = t.opt.minWidth, i = drag._index;	//cell's min width
 		var l = t._cellSpacing * 1.5 + mw + t._borderWidth;
 		var last = i == t._columnCount - 1;                 			//check if it is the last column's grip (usually hidden)
@@ -295,7 +299,7 @@
 			Infinity; 								//max position according to the contiguous cells
 		x = M.max(min, M.min(max, x));				//apply bounding
 		drag._prevLeft = x;
-		var dx = x - drag.position().left;
+		drag._prevDragX = eventX;
 		drag.css("left", x + PX); 					//apply position increment
 
 		if(last) {									//if it is the last grip
@@ -303,8 +307,9 @@
 			drag._width = c._width + x - drag._left;
 		}
 
-		t._width += dx;
-		console.log("dragx " + drag._prevLeft + ", drag._dragStartX=" + drag._dragStartX + ", ox=" + ox + ", ox-dragix" + (ox - drag._dragStartX) + ", dx " + dx + ", t._width " + t._width);
+		// t._width += dx;
+		// console.log("dragx " + drag._prevLeft + ", drag._dragStartX=" + drag._dragStartX + ", ox=" + eventX + ", ox-dragix" + (eventX - drag._dragStartX) + ", dx " + dx + ", t._width " + t._width);
+		console.log("eventX " + eventX + ", d._left=" + drag._left + ", d._startX" + drag._dragStartX + ", tdx " + tdx + ", ddx " + ddx + ", t._width " + t._width);
 
 		if(t.opt.liveDrag) { 			//if liveDrag is enabled
 			if(last) {
@@ -376,6 +381,7 @@
 		t._originalTableWidth = t._width;
 		g._left = g.position().left;
 		g._prevLeft = g._left;						// The last position calculated at the previous drag event
+		g._prevDragX = g._dragStartX;
 
 		d
 			.bind('touchmove.' + SIGNATURE + ' mousemove.' + SIGNATURE, onGripDrag)
