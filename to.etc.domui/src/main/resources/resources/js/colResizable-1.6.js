@@ -201,7 +201,7 @@
 	 * @param {jQuery ref} t - table object
 	 */
 	var syncGrips = function(t) {
-		t._gripContainer.width(t._width);			//the grip's container width is updated
+		// t._gripContainer.width(t._width);			//the grip's container width is updated
 		for(var i = 0; i < t._columnCount; i++) {	//for each column
 			var column = t._columns[i];
 			t._grips[i].css({			//height and position of the grip is updated according to the table layout
@@ -220,7 +220,9 @@
 	 * @param {bool} isOver - to identify when the function is being called from the onGripDragOver event
 	 */
 	var syncCols = function(t, i, isOver) {
-		var inc = drag.x - drag._left, c = t._columns[i], c2 = t._columns[i + 1];
+		var inc = drag._prevLeft - drag._left;
+		var c = t._columns[i];
+		var c2 = t._columns[i + 1];
 		var w = c._width + inc;
 		var w2 = c2._width - inc;		//their new width is obtained
 
@@ -281,7 +283,7 @@
 		var t = drag._table;		//table object reference
 		var oe = e.originalEvent.touches;
 		var ox = oe ? oe[0].pageX : e.pageX;    //original position (touch or mouse)
-		var x = ox - drag.ox + drag._left;	        //next position according to horizontal mouse position increment
+		var x = ox - drag._dragStartX + drag._left;	        //next position according to horizontal mouse position increment
 		var mw = t.opt.minWidth, i = drag._index;	//cell's min width
 		var l = t._cellSpacing * 1.5 + mw + t._borderWidth;
 		var last = i == t._columnCount - 1;                 			//check if it is the last column's grip (usually hidden)
@@ -292,7 +294,7 @@
 				t._grips[i + 1].position().left - t._cellSpacing - mw :
 			Infinity; 								//max position according to the contiguous cells
 		x = M.max(min, M.min(max, x));				//apply bounding
-		drag.x = x;
+		drag._prevLeft = x;
 		var dx = x - drag.position().left;
 		drag.css("left", x + PX); 					//apply position increment
 
@@ -302,7 +304,7 @@
 		}
 
 		t._width += dx;
-		console.log("dragx " + drag.x + ", drag.ox=" + drag.ox + ", ox=" + ox + ", ox-dragix" + (ox - drag.ox) + ", dx " + dx + ", t._width " + t._width);
+		console.log("dragx " + drag._prevLeft + ", drag._dragStartX=" + drag._dragStartX + ", ox=" + ox + ", ox-dragix" + (ox - drag._dragStartX) + ", dx " + dx + ", t._width " + t._width);
 
 		if(t.opt.liveDrag) { 			//if liveDrag is enabled
 			if(last) {
@@ -333,12 +335,11 @@
 	 * @param {event} e - grip's drag over event
 	 */
 	var onGripDragOver = function(e) {
-
 		d.unbind('touchend.' + SIGNATURE + ' mouseup.' + SIGNATURE).unbind('touchmove.' + SIGNATURE + ' mousemove.' + SIGNATURE);
 		$("head :last-child").remove(); 				//remove the dragging cursor style
 		if(!drag) return;
 		drag.removeClass(drag._table.opt.draggingClass);		//remove the grip's dragging css-class
-		if(!(drag.x - drag._left == 0)) {
+		if(!(drag._prevLeft - drag._left == 0)) {		// if we actually moved
 			var t = drag._table;
 			var cb = t.opt.onResize; 	    //get some values
 			var i = drag._index;                 //column index
@@ -361,7 +362,6 @@
 		drag = null;   //since the grip's dragging is over
 	};
 
-
 	/**
 	 * Event handler fired when the grip's dragging is about to start. Its main goal is to set up events
 	 * and store some values used while dragging.
@@ -372,9 +372,10 @@
 		var t = tables[o.tableId];
 		var g = t._grips[o.index];			        //shortcuts for the table and grip objects
 		var oe = e.originalEvent.touches;           //touch or mouse event?
-		g.ox = oe ? oe[0].pageX : e.pageX;            //the initial position is kept
+		g._dragStartX = oe ? oe[0].pageX : e.pageX;            //the initial position is kept
+		t._originalTableWidth = t._width;
 		g._left = g.position().left;
-		g.x = g._left;
+		g._prevLeft = g._left;						// The last position calculated at the previous drag event
 
 		d
 			.bind('touchmove.' + SIGNATURE + ' mousemove.' + SIGNATURE, onGripDrag)
