@@ -105,15 +105,15 @@
         var th = t.find(">thead>tr:first>th,>thead>tr:first>td"); //table headers are obtained
         if (!th.length) th = t.find(">tbody>tr:first>th,>tr:first>th,>tbody>tr:first>td, >tr:first>td");	 //but headers can also be included in different ways
         th = th.filter(":visible");					//filter invisible columns
-        t.cg = t.find("col"); 						//a table can also contain a colgroup with col elements
-        t.ln = th.length;							//table length is stored
+        t._columnGroups = t.find("col"); 						//a table can also contain a colgroup with col elements
+        t._columnCount = th.length;							//table length is stored
         if (t._isPostbackSafe && S && S[t.id]) memento(t, th);		//if 'postbackSafe' is enabled and there is data for the current table, its coloumn layout is restored
         th.each(function (i) {						//iterate through the table column headers
             var c = $(this); 						//jquery wrap for the current column
             var dc = t._disabledColumns.indexOf(i) != -1;           //is this a disabled column?
             var g = $(t._gripContainer.append('<div class="JCLRgrip"></div>')[0].lastChild); //add the visual node to be used as grip
             g.append(dc ? "" : t.opt.gripInnerHtml).append('<div class="' + SIGNATURE + '"></div>');
-            if (i === t.ln - 1) {                        //if the current grip is the las one
+            if (i === t._columnCount - 1) {                        //if the current grip is the las one
                 g.addClass("JCLRLastGrip");         //add a different css class to stlye it in a different way if needed
                 if (t._isFixed) g.html("");                 //if the table resizing mode is set to fixed, the last grip is removed since table with can not change
             }
@@ -130,15 +130,15 @@
             g.i = i;
             g.c = c;
             c.w = c.width();									//some values are stored in the grip's node data as shortcut
-            // if(i === t.ln-1)								// 20181224 jal fix vertical scrollbar because last grip is past width.
+            // if(i === t._columnCount-1)								// 20181224 jal fix vertical scrollbar because last grip is past width.
             // 	c.w -= 5;
             c.mw = c.innerWidth() - c.width();  			//FIX issue 45 don't go below total added padding width otherwise skewed results
             t._grips.push(g);
             t._columns.push(c);						//the current grip and column are added to its table object
             c.width(c.w).removeAttr("width");				//the width of the column is converted into pixel-based measurements
-            g.data(SIGNATURE, {i: i, t: t.attr(ID), last: i == t.ln - 1});	 //grip index and its table name are stored in the HTML
+            g.data(SIGNATURE, {i: i, t: t.attr(ID), last: i == t._columnCount - 1});	 //grip index and its table name are stored in the HTML
         });
-        t.cg.removeAttr("width");	//remove the width attribute from elements in the colgroup
+        t._columnGroups.removeAttr("width");	//remove the width attribute from elements in the colgroup
 
         t.find('td, th').not(th).not('table th, table td').each(function () {
             $(this).removeAttr('width');	//the width attribute is removed from all table cells which are not nested in other tables and dont belong to the header
@@ -162,13 +162,13 @@
     var memento = function (t, th) {
         var w, m = 0, i = 0, aux = [], tw;
         if (th) {										//in deserialization mode (after a postback)
-            t.cg.removeAttr("width");
+            t._columnGroups.removeAttr("width");
             if (t.opt.flush) {
                 S[t.id] = "";
                 return;
             } 	//if flush is activated, stored data is removed
             w = S[t.id].split(";");					//column widths is obtained
-            tw = w[t.ln + 1];
+            tw = w[t._columnCount + 1];
             if (!t._isFixed && tw) {							//if not fixed and table width data available its size is restored
                 t.width(tw *= 1);
                 if (t.opt.overflow) {				//if overfolw flag is set, restore table width also as table min-width
@@ -176,12 +176,12 @@
                     t._width = tw;
                 }
             }
-            for (; i < t.ln; i++) {						//for each column
-                aux.push(100 * w[i] / w[t.ln] + "%"); 	//width is stored in an array since it will be required again a couple of lines ahead
+            for (; i < t._columnCount; i++) {						//for each column
+                aux.push(100 * w[i] / w[t._columnCount] + "%"); 	//width is stored in an array since it will be required again a couple of lines ahead
                 th.eq(i).css("width", aux[i]); 	//each column width in % is restored
             }
-            for (i = 0; i < t.ln; i++)
-                t.cg.eq(i).css("width", aux[i]);	//this code is required in order to create an inline CSS rule with higher precedence than an existing CSS class in the "col" elements
+            for (i = 0; i < t._columnCount; i++)
+                t._columnGroups.eq(i).css("width", aux[i]);	//this code is required in order to create an inline CSS rule with higher precedence than an existing CSS class in the "col" elements
         } else {							//in serialization mode (after resizing a column)
             S[t.id] = "";				//clean up previous data
             for (; i < t._columns.length; i++) {	//iterate through columns
@@ -202,7 +202,7 @@
      */
     var syncGrips = function (t) {
         t._gripContainer.width(t._width);			//the grip's container width is updated
-        for (var i = 0; i < t.ln; i++) {	//for each column
+        for (var i = 0; i < t._columnCount; i++) {	//for each column
             var c = t._columns[i];
             t._grips[i].css({			//height and position of the grip is updated according to the table layout
                 left: c.offset().left - t.offset().left + c.outerWidth(false) + t._cellSpacing / 2 + PX,
@@ -238,10 +238,10 @@
         // FIX
 
         c.width(w + PX);
-        t.cg.eq(i).width(w + PX);
+        t._columnGroups.eq(i).width(w + PX);
         if (t._isFixed) { //if fixed mode
             c2.width(w2 + PX);
-            t.cg.eq(i + 1).width(w2 + PX);
+            t._columnGroups.eq(i + 1).width(w2 + PX);
         } else if (t.opt.overflow) {				//if overflow is set, incriment min-width to force overflow
             t.css('min-width', t._width + inc);
         }
@@ -284,10 +284,10 @@
         var x = ox - drag.ox + drag.l;	        //next position according to horizontal mouse position increment
         var mw = t.opt.minWidth, i = drag.i;	//cell's min width
         var l = t._cellSpacing * 1.5 + mw + t._borderWidth;
-        var last = i == t.ln - 1;                 			//check if it is the last column's grip (usually hidden)
+        var last = i == t._columnCount - 1;                 			//check if it is the last column's grip (usually hidden)
         var min = i ? t._grips[i - 1].position().left + t._cellSpacing + mw : l;	//min position according to the contiguous cells
         var max = t._isFixed ? 						//fixed mode?
-            i == t.ln - 1 ?
+            i == t._columnCount - 1 ?
                 t._width - l :
                 t._grips[i + 1].position().left - t._cellSpacing - mw :
             Infinity; 								//max position according to the contiguous cells
@@ -342,7 +342,7 @@
             var t = drag.t;
             var cb = t.opt.onResize; 	    //get some values	
             var i = drag.i;                 //column index
-            var last = i == t.ln - 1;         //check if it is the last column's grip (usually hidden)
+            var last = i == t._columnCount - 1;         //check if it is the last column's grip (usually hidden)
             var c = t._grips[i].c;               //the column being dragged
             if (last) {
                 c.width(drag.w);
@@ -381,7 +381,7 @@
         h.append("<style type='text/css'>*{cursor:" + t.opt.dragCursor + "!important}</style>"); 	//change the mouse cursor
         g.addClass(t.opt.draggingClass); 	//add the dragging class (to allow some visual feedback)
         drag = g;							//the current grip is stored as the current dragging object
-        if (t._columns[o.i].l) for (var i = 0, c; i < t.ln; i++) {
+        if (t._columns[o.i].l) for (var i = 0, c; i < t._columnCount; i++) {
             c = t._columns[i];
             c.l = false;
             c.w = c.width();
@@ -402,12 +402,12 @@
                 t.removeClass(SIGNATURE);   //firefox doesn't like layout-fixed in some cases
                 if (t._isFixed) {                  //in fixed mode
                     t._width = t.width();        //its new width is kept
-                    for (i = 0; i < t.ln; i++) mw += t._columns[i].w;
+                    for (i = 0; i < t._columnCount; i++) mw += t._columns[i].w;
                     //cell rendering is not as trivial as it might seem, and it is slightly different for
                     //each browser. In the beginning i had a big switch for each browser, but since the code
                     //was extremely ugly now I use a different approach with several re-flows. This works 
                     //pretty well but it's a bit slower. For now, lets keep things simple...   
-                    for (i = 0; i < t.ln; i++) t._columns[i].css("width", M.round(1000 * t._columns[i].w / mw) / 10 + "%").l = true;
+                    for (i = 0; i < t._columnCount; i++) t._columns[i].css("width", M.round(1000 * t._columns[i].w / mw) / 10 + "%").l = true;
                     //c.l locks the column, telling us that its c.w is outdated									
                 } else {     //in non fixed-sized tables
                     applyBounds(t);         //apply the new bounds 
