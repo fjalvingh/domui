@@ -109,34 +109,34 @@
         t._columnCount = th.length;							//table length is stored
         if (t._isPostbackSafe && S && S[t.id]) memento(t, th);		//if 'postbackSafe' is enabled and there is data for the current table, its coloumn layout is restored
         th.each(function (i) {						//iterate through the table column headers
-            var c = $(this); 						//jquery wrap for the current column
-            var dc = t._disabledColumns.indexOf(i) != -1;           //is this a disabled column?
-            var g = $(t._gripContainer.append('<div class="JCLRgrip"></div>')[0].lastChild); //add the visual node to be used as grip
-            g.append(dc ? "" : t.opt.gripInnerHtml).append('<div class="' + SIGNATURE + '"></div>');
+            var column = $(this); 						//jquery wrap for the current column
+            var isDisabledColumn = t._disabledColumns.indexOf(i) != -1;           //is this a disabled column?
+            var grip = $(t._gripContainer.append('<div class="JCLRgrip"></div>')[0].lastChild); //add the visual node to be used as grip
+            grip.append(isDisabledColumn ? "" : t.opt.gripInnerHtml).append('<div class="' + SIGNATURE + '"></div>');
             if (i === t._columnCount - 1) {                        //if the current grip is the las one
-                g.addClass("JCLRLastGrip");         //add a different css class to stlye it in a different way if needed
-                if (t._isFixed) g.html("");                 //if the table resizing mode is set to fixed, the last grip is removed since table with can not change
+                grip.addClass("JCLRLastGrip");         //add a different css class to stlye it in a different way if needed
+                if (t._isFixed) grip.html("");                 //if the table resizing mode is set to fixed, the last grip is removed since table with can not change
             }
-            g.bind('touchstart mousedown', onGripMouseDown); //bind the mousedown event to start dragging 
+            grip.bind('touchstart mousedown', onGripMouseDown); //bind the mousedown event to start dragging
 
-            if (!dc) {
+            if (!isDisabledColumn) {
                 //if normal column bind the mousedown event to start dragging, if disabled then apply its css class
-                g.removeClass('JCLRdisabledGrip').bind('touchstart mousedown', onGripMouseDown);
+                grip.removeClass('JCLRdisabledGrip').bind('touchstart mousedown', onGripMouseDown);
             } else {
-                g.addClass('JCLRdisabledGrip');
+                grip.addClass('JCLRdisabledGrip');
             }
 
-            g.t = t;
-            g.i = i;
-            g.c = c;
-            c.w = c.width();									//some values are stored in the grip's node data as shortcut
+            grip._table = t;
+            grip._index = i;
+            grip._column = column;
+            column._width = column.width();									//some values are stored in the grip's node data as shortcut
             // if(i === t._columnCount-1)								// 20181224 jal fix vertical scrollbar because last grip is past width.
             // 	c.w -= 5;
-            c.mw = c.innerWidth() - c.width();  			//FIX issue 45 don't go below total added padding width otherwise skewed results
-            t._grips.push(g);
-            t._columns.push(c);						//the current grip and column are added to its table object
-            c.width(c.w).removeAttr("width");				//the width of the column is converted into pixel-based measurements
-            g.data(SIGNATURE, {i: i, t: t.attr(ID), last: i == t._columnCount - 1});	 //grip index and its table name are stored in the HTML
+            column._minWidth = column.innerWidth() - column.width();  			//FIX issue 45 don't go below total added padding width otherwise skewed results
+            t._grips.push(grip);
+            t._columns.push(column);						//the current grip and column are added to its table object
+            column.width(column._width).removeAttr("width");				//the width of the column is converted into pixel-based measurements
+            grip.data(SIGNATURE, {index: i, tableId: t.attr(ID), last: i == t._columnCount - 1});	 //grip index and its table name are stored in the HTML
         });
         t._columnGroups.removeAttr("width");	//remove the width attribute from elements in the colgroup
 
@@ -203,9 +203,9 @@
     var syncGrips = function (t) {
         t._gripContainer.width(t._width);			//the grip's container width is updated
         for (var i = 0; i < t._columnCount; i++) {	//for each column
-            var c = t._columns[i];
+            var column = t._columns[i];
             t._grips[i].css({			//height and position of the grip is updated according to the table layout
-                left: c.offset().left - t.offset().left + c.outerWidth(false) + t._cellSpacing / 2 + PX,
+                left: column.offset().left - t.offset().left + column.outerWidth(false) + t._cellSpacing / 2 + PX,
                 height: t.opt.headerOnly ? t._columns[0].outerHeight(false) : t.outerHeight(false)
             });
         }
@@ -220,20 +220,20 @@
      * @param {bool} isOver - to identify when the function is being called from the onGripDragOver event
      */
     var syncCols = function (t, i, isOver) {
-        var inc = drag.x - drag.l, c = t._columns[i], c2 = t._columns[i + 1];
-        var w = c.w + inc;
-        var w2 = c2.w - inc;		//their new width is obtained
+        var inc = drag.x - drag._left, c = t._columns[i], c2 = t._columns[i + 1];
+        var w = c._width + inc;
+        var w2 = c2._width - inc;		//their new width is obtained
 
         // FIX issue 45
-        if (w < c.mw) {
+        if (w < c._minWidth) {
             // don't go below total padding width
-            w2 -= c.mw - w;
-            w += c.mw - w;
+            w2 -= c._minWidth - w;
+            w += c._minWidth - w;
         }
-        if (w2 < c2.mw) {
+        if (w2 < c2._minWidth) {
             // don't go below total padding width
-            w -= c2.mw - w2;
-            w2 += c2.mw - w2;
+            w -= c2._minWidth - w2;
+            w2 += c2._minWidth - w2;
         }
         // FIX
 
@@ -246,8 +246,8 @@
             t.css('min-width', t._width + inc);
         }
         if (isOver) {
-            c.w = w;
-            c2.w = t._isFixed ? w2 : c2.w;
+            c._width = w;
+            c2._width = t._isFixed ? w2 : c2._width;
         }
     };
 
@@ -266,7 +266,7 @@
         // t.width(t._width).removeClass(FLEX);			//force new width for table
         console.log("tw=" + t._width);
         // $.each(t._columns, function(i,c){
-        //     c.width(w[i]).w = w[i];				//set column widths applying bounds (table's max-width)
+        //     c.width(w[i])._width = w[i];				//set column widths applying bounds (table's max-width)
         // });
         t.addClass(FLEX);						//allow table width changes
     };
@@ -278,11 +278,11 @@
      */
     var onGripDrag = function (e) {
         if (!drag) return;
-        var t = drag.t;		//table object reference 
+        var t = drag._table;		//table object reference
         var oe = e.originalEvent.touches;
         var ox = oe ? oe[0].pageX : e.pageX;    //original position (touch or mouse)
-        var x = ox - drag.ox + drag.l;	        //next position according to horizontal mouse position increment
-        var mw = t.opt.minWidth, i = drag.i;	//cell's min width
+        var x = ox - drag.ox + drag._left;	        //next position according to horizontal mouse position increment
+        var mw = t.opt.minWidth, i = drag._index;	//cell's min width
         var l = t._cellSpacing * 1.5 + mw + t._borderWidth;
         var last = i == t._columnCount - 1;                 			//check if it is the last column's grip (usually hidden)
         var min = i ? t._grips[i - 1].position().left + t._cellSpacing + mw : l;	//min position according to the contiguous cells
@@ -297,8 +297,8 @@
         drag.css("left", x + PX); 					//apply position increment
 
         if (last) {									//if it is the last grip
-            var c = t._columns[drag.i];					//width of the last column is obtained
-            drag.w = c.w + x - drag.l;
+            var c = t._columns[drag._index];		//width of the last column is obtained
+            drag._width = c._width + x - drag._left;
         }
 
         t._width += dx;
@@ -306,9 +306,9 @@
 
         if (t.opt.liveDrag) { 			//if liveDrag is enabled
             if (last) {
-                c.width(drag.w);
+                c.width(drag._width);
                 if (!t._isFixed && t.opt.overflow) {			//if overflow is set, incriment min-width to force overflow
-                    t.css('min-width', t._width + x - drag.l);
+                    t.css('min-width', t._width + x - drag._left);
                 } else {
                     t._width = t.width();
                 }
@@ -337,16 +337,16 @@
         d.unbind('touchend.' + SIGNATURE + ' mouseup.' + SIGNATURE).unbind('touchmove.' + SIGNATURE + ' mousemove.' + SIGNATURE);
         $("head :last-child").remove(); 				//remove the dragging cursor style
         if (!drag) return;
-        drag.removeClass(drag.t.opt.draggingClass);		//remove the grip's dragging css-class
-        if (!(drag.x - drag.l == 0)) {
-            var t = drag.t;
+        drag.removeClass(drag._table.opt.draggingClass);		//remove the grip's dragging css-class
+        if (!(drag.x - drag._left == 0)) {
+            var t = drag._table;
             var cb = t.opt.onResize; 	    //get some values	
-            var i = drag.i;                 //column index
+            var i = drag._index;                 //column index
             var last = i == t._columnCount - 1;         //check if it is the last column's grip (usually hidden)
-            var c = t._grips[i].c;               //the column being dragged
+            var c = t._grips[i]._column;               //the column being dragged
             if (last) {
-                c.width(drag.w);
-                c.w = drag.w;
+                c.width(drag._width);
+                c._width = drag._width;
             } else {
                 syncCols(t, i, true);	//the columns are updated
             }
@@ -369,11 +369,12 @@
      */
     var onGripMouseDown = function (e) {
         var o = $(this).data(SIGNATURE);			//retrieve grip's data
-        var t = tables[o.t], g = t._grips[o.i];			//shortcuts for the table and grip objects
+        var t = tables[o.tableId];
+        var g = t._grips[o.index];			        //shortcuts for the table and grip objects
         var oe = e.originalEvent.touches;           //touch or mouse event?
         g.ox = oe ? oe[0].pageX : e.pageX;            //the initial position is kept
-        g.l = g.position().left;
-        g.x = g.l;
+        g._left = g.position().left;
+        g.x = g._left;
 
         d
             .bind('touchmove.' + SIGNATURE + ' mousemove.' + SIGNATURE, onGripDrag)
@@ -381,10 +382,10 @@
         h.append("<style type='text/css'>*{cursor:" + t.opt.dragCursor + "!important}</style>"); 	//change the mouse cursor
         g.addClass(t.opt.draggingClass); 	//add the dragging class (to allow some visual feedback)
         drag = g;							//the current grip is stored as the current dragging object
-        if (t._columns[o.i].l) for (var i = 0, c; i < t._columnCount; i++) {
+        if (t._columns[o.index]._locked) for (var i = 0, c; i < t._columnCount; i++) {
             c = t._columns[i];
-            c.l = false;
-            c.w = c.width();
+            c._locked = false;
+            c._width = c.width();
         } 	//if the colum is locked (after browser resize), then c.w must be updated
         return false; 	//prevent text selection
     };
@@ -402,16 +403,16 @@
                 t.removeClass(SIGNATURE);   //firefox doesn't like layout-fixed in some cases
                 if (t._isFixed) {                  //in fixed mode
                     t._width = t.width();        //its new width is kept
-                    for (i = 0; i < t._columnCount; i++) mw += t._columns[i].w;
+                    for (i = 0; i < t._columnCount; i++) mw += t._columns[i]._width;
                     //cell rendering is not as trivial as it might seem, and it is slightly different for
                     //each browser. In the beginning i had a big switch for each browser, but since the code
                     //was extremely ugly now I use a different approach with several re-flows. This works 
                     //pretty well but it's a bit slower. For now, lets keep things simple...   
-                    for (i = 0; i < t._columnCount; i++) t._columns[i].css("width", M.round(1000 * t._columns[i].w / mw) / 10 + "%").l = true;
-                    //c.l locks the column, telling us that its c.w is outdated									
+                    for (i = 0; i < t._columnCount; i++) t._columns[i].css("width", M.round(1000 * t._columns[i]._width / mw) / 10 + "%")._locked = true;
+                    //c.l locks the column, telling us that its c.w is outdated
                 } else {     //in non fixed-sized tables
                     applyBounds(t);         //apply the new bounds 
-                    if (t.mode == 'flex' && t._isPostbackSafe && S) {   //if postbackSafe is enabled and there is sessionStorage support,
+                    if (t.mode === 'flex' && t._isPostbackSafe && S) {   //if postbackSafe is enabled and there is sessionStorage support,
                         memento(t);                     //the new layout is serialized and stored for 'flex' tables
                     }
                 }
