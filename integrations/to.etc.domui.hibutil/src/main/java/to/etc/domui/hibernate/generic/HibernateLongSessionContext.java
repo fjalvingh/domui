@@ -28,7 +28,7 @@ import org.hibernate.FlushMode;
 import org.hibernate.Session;
 import org.hibernate.engine.internal.StatefulPersistenceContext;
 import org.hibernate.internal.SessionImpl;
-import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.AbstractConversationContext;
 import to.etc.webapp.query.QDataContextFactory;
 
 import java.util.Map;
@@ -64,7 +64,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	}
 
 	@Override
-	public void conversationDestroyed(final ConversationContext cc) throws Exception {
+	public void conversationDestroyed(AbstractConversationContext cc) throws Exception {
 		if(m_session == null || !m_session.isConnected())
 			return;
 		try {
@@ -84,7 +84,7 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	}
 
 	@Override
-	public void conversationDetached(final ConversationContext cc) throws Exception {
+	public void conversationDetached(AbstractConversationContext cc) throws Exception {
 		if(m_session == null || !m_session.isConnected())
 			return;
 		setConversationInvalid("Conversation is detached");
@@ -108,12 +108,12 @@ public class HibernateLongSessionContext extends BuggyHibernateBaseContext {
 	}
 
 	@Override
-	public void conversationAttached(ConversationContext cc) throws Exception {
+	public void conversationAttached(AbstractConversationContext cc) throws Exception {
 		setConversationInvalid(null);
 	}
 
 	@Override
-	public void conversationNew(ConversationContext cc) throws Exception {
+	public void conversationNew(AbstractConversationContext cc) throws Exception {
 		setConversationInvalid(null);
 	}
 

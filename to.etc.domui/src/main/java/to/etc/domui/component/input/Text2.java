@@ -280,7 +280,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		if(raw == null || raw.length() == 0) {
 			//-- Field is empty.
 			if(isMandatory()) {
-				throw new ValidationException(Msgs.MANDATORY);
+				throw new ValidationException(Msgs.mandatory);
 			}
 
 			//-- Empty field always results in null object.
@@ -317,10 +317,10 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		} catch(UIException x) {
 			throw new ValidationException(x.getBundle(), x.getCode(), x.getParameters());
 		} catch(RuntimeConversionException x) {
-			throw new ValidationException(Msgs.NOT_VALID, raw);
+			throw new ValidationException(Msgs.notValid, raw);
 		} catch(Exception x) {
 			x.printStackTrace();
-			throw new ValidationException(Msgs.UNEXPECTED_EXCEPTION, x);
+			throw new ValidationException(Msgs.unexpectedException, x);
 		}
 	}
 
@@ -467,7 +467,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			return;
 		} catch(Exception x) {
 			x.printStackTrace();
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
+			setMessage(UIMessage.error(Msgs.unexpectedException, x));
 			return;
 		}
 		m_input.setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string

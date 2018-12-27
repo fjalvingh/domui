@@ -749,11 +749,23 @@ var WebUI;
         }
     }
     WebUI.popinKeyClose = popinKeyClose;
-    function dataTableResults(id, compId) {
+    function dataTableResults(id, compId, resizeMode) {
+        var mode = 'flex';
+        switch (resizeMode) {
+            case 'FIXED':
+                mode = 'fit';
+                break;
+            case 'FLEX':
+                mode = 'flex';
+                break;
+            case 'OVERFLOW':
+                mode = 'overflow';
+                break;
+        }
         setTimeout(function (a) {
             $('#' + id).colResizable({
                 postbackSafe: false,
-                resizeMode: 'flex',
+                resizeMode: mode,
                 onResize: function (tbl) {
                     WebUI.dataTableUpdateWidths(tbl, compId);
                 }

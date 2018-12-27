@@ -424,7 +424,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	@Nullable
 	public OT getBindValue() {
 		if(m_value == null && isMandatory()) {
-			throw new ValidationException(Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 		return m_value;
 	}
@@ -440,8 +440,8 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	@Override
 	public OT getValue() {
 		if(m_value == null && isMandatory()) {
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-			throw new ValidationException(Msgs.MANDATORY);
+			setMessage(UIMessage.error(Msgs.mandatory));
+			throw new ValidationException(Msgs.mandatory);
 		}
 		return m_value;
 	}

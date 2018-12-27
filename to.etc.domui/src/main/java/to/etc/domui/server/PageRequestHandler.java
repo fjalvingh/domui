@@ -19,6 +19,8 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.AccessCheckResult;
+import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.parts.IComponentUrlDataProvider;
 import to.etc.domui.state.AppSession;
@@ -78,8 +80,6 @@ final public class PageRequestHandler {
 
 	private final ResponseCommandWriter m_commandWriter;
 
-	private final PageAccessChecker m_accessChecker;
-
 	private final RequestContextImpl m_ctx;
 
 	@Nullable
@@ -91,14 +91,13 @@ final public class PageRequestHandler {
 	@Nullable
 	private final String m_cid;
 
-	private final Class<? extends UrlPage> m_runclass;
+	private final Class<? extends UrlPage> m_runClass;
 
 	private boolean m_inhibitlog;
 
-	public PageRequestHandler(DomApplication application, ApplicationRequestHandler applicationRequestHandler, ResponseCommandWriter commandWriter, PageAccessChecker checker, RequestContextImpl ctx) {
+	public PageRequestHandler(DomApplication application, ApplicationRequestHandler applicationRequestHandler, ResponseCommandWriter commandWriter, RequestContextImpl ctx) {
 		m_application = application;
 		m_applicationRequestHandler = applicationRequestHandler;
-		m_accessChecker = checker;
 		m_commandWriter = commandWriter;
 		m_ctx = ctx;
 
@@ -109,7 +108,18 @@ final public class PageRequestHandler {
 		m_action = ctx.getParameter(Constants.PARAM_UIACTION);			// AJAX action request?
 		String cid = m_cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
 		m_cida = cid == null ? null : CidPair.decodeLax(cid);
-		m_runclass = PageUtil.decodeRunClass(m_ctx);
+
+		String pageName = ctx.getPageName();
+		if(null == pageName)
+			pageName = getRootPageName();
+		m_runClass = application.loadPageClass(pageName);
+	}
+
+	private String getRootPageName() {
+		Class< ? extends UrlPage> rootPage = m_application.getRootPage();
+		if(null == rootPage)
+			throw new ProgrammerErrorException("The DomApplication's 'getRootPage()' method returns null, and there is a request for the root of the web app... Override that method or make sure the root is handled differently.");
+		return rootPage.getCanonicalName();
 	}
 
 	public void executeRequest() throws Exception {
@@ -213,7 +223,7 @@ final public class PageRequestHandler {
 			papa = getPageParameters(conversation);
 		}
 
-		Page page = windowSession.tryToMakeOrGetPage(m_ctx, conversationId, m_runclass, papa, m_action);
+		Page page = windowSession.tryToMakeOrGetPage(m_ctx, conversationId, m_runClass, papa, m_action);
 		if(page == null || ! isPageTagStillValid(page)) {
 			sendSessionExpired();
 			return;
@@ -223,29 +233,33 @@ final public class PageRequestHandler {
 			throw new IllegalStateException("Page can not be null here. Null is already handled inside expired AJAX request handling.");
 		}
 
-		page.getConversation().mergePersistentParameters(m_ctx);
-		page.internalSetPhase(PagePhase.BUILD);				// Tree can change at will
-		page.internalIncrementRequestCounter();
-		windowSession.internalSetLastPage(page);
-		if(DomUtil.USERLOG.isDebugEnabled()) {
-			DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + m_cid);
-		}
-		UIContext.internalSet(page);					// Get cleared in AbstractContext using UIContext,internalClear()
+		try {
+			page.getConversation().mergePersistentParameters(m_ctx);
+			page.internalSetPhase(PagePhase.BUILD);                // Tree can change at will
+			page.internalIncrementRequestCounter();
+			windowSession.internalSetLastPage(page);
+			if(DomUtil.USERLOG.isDebugEnabled()) {
+				DomUtil.USERLOG.debug("Request for page " + page + " in conversation " + m_cid);
+			}
+			UIContext.internalSet(page);                    // Get cleared in AbstractContext using UIContext,internalClear()
 
-		/*
-		 * Handle all out-of-bound actions: those that do not manipulate UI state.
-		 */
-		if(action != null && action.startsWith("#")) {
-			runOutOfBoundAction(page, wcomp -> wcomp.componentHandleWebDataRequest(m_ctx, action.substring(1)));
-		} else if(Constants.ACMD_PAGEDATA.equals(action)) {
-			//-- If this is a PAGEDATA request - handle that
-			runOutOfBoundAction(page, wcomp -> ((IComponentUrlDataProvider) wcomp).provideUrlData(m_ctx));
-		} else if(null != action) {
-			runAction(page, action);
-		} else if(papa != null) {
-			runFullRender(windowSession, page, papa);
-		} else {
-			throw new IllegalStateException("Page parameters are null in full render");
+			/*
+			 * Handle all out-of-bound actions: those that do not manipulate UI state.
+			 */
+			if(action != null && action.startsWith("#")) {
+				runOutOfBoundAction(page, wcomp -> wcomp.componentHandleWebDataRequest(m_ctx, action.substring(1)));
+			} else if(Constants.ACMD_PAGEDATA.equals(action)) {
+				//-- If this is a PAGEDATA request - handle that
+				runOutOfBoundAction(page, wcomp -> ((IComponentUrlDataProvider) wcomp).provideUrlData(m_ctx));
+			} else if(null != action) {
+				runAction(page, action);
+			} else if(papa != null) {
+				runFullRender(windowSession, page, papa);
+			} else {
+				throw new IllegalStateException("Page parameters are null in full render");
+			}
+		} finally {
+			page.discardRemovedSubPages();
 		}
 	}
 
@@ -376,8 +390,8 @@ final public class PageRequestHandler {
 	/**
 	 * See if one of the registered exception handlers accepts the exception, and if so use it.
 	 */
-	private boolean tryToHandleWithRegisteredExceptionHandler(WindowSession windowSession, Page page, Exception x) throws Exception {
-		IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
+	private <E extends Exception> boolean tryToHandleWithRegisteredExceptionHandler(WindowSession windowSession, Page page, E x) throws Exception {
+		IExceptionListener<E> xl = m_ctx.getApplication().findExceptionListenerFor(x);
 		if(xl != null && xl.handleException(m_ctx, page, null, x)) {
 			if(windowSession.handleExceptionGoto(m_ctx, page, false)) {
 				AppSession aps = m_ctx.getSession();
@@ -531,7 +545,7 @@ final public class PageRequestHandler {
 		WindowSession windowSession;
 		boolean nonReloadableExpiredDetected = false;
 		if(m_action != null) {
-			if(INotReloadablePage.class.isAssignableFrom(m_runclass)) {
+			if(INotReloadablePage.class.isAssignableFrom(m_runClass)) {
 				nonReloadableExpiredDetected = true;
 			} else {
 				// In auto refresh: do not send the "expired" message, but let the refresh handle this.
@@ -570,7 +584,7 @@ final public class PageRequestHandler {
 				if(null != hs) {
 					m_ctx.internalSetWindowSession(windowSession);			// Should prevent issues when reloading
 
-					String newid = windowSession.internalAttemptReload(hs, m_runclass, PageParameters.createFrom(m_ctx), cida.getWindowId());
+					String newid = windowSession.internalAttemptReload(hs, m_runClass, PageParameters.createFrom(m_ctx), cida.getWindowId());
 					if(newid != null)
 						conversationId = newid;
 				}
@@ -684,7 +698,7 @@ final public class PageRequestHandler {
 	}
 
 
-	private boolean handleActionException(Page page, @Nullable NodeBase targetComponent, Exception ex) throws Exception {
+	private <E extends Exception> boolean handleActionException(Page page, @Nullable NodeBase targetComponent, Exception ex) throws Exception {
 		logUser(page, "Action handler exception: " + ex);
 		Exception x = WrappedException.unwrap(ex);
 		if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
@@ -701,9 +715,10 @@ final public class PageRequestHandler {
 			xxx.printStackTrace();
 		}
 
-		IExceptionListener xl = m_ctx.getApplication().findExceptionListenerFor(x);
-		if(xl == null) // No handler?
-			throw x; // Move on, nothing to see here,
+		E nx = (E) ex;
+		IExceptionListener<E> xl = m_ctx.getApplication().findExceptionListenerFor(nx);
+		if(xl == null)										// No handler?
+			throw x; 										// Move on, nothing to see here,
 		if(targetComponent != null && !targetComponent.isAttached()) {
 			targetComponent = page.getTheCurrentControl();
 			System.out.println("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
@@ -711,7 +726,7 @@ final public class PageRequestHandler {
 		if(targetComponent == null || !targetComponent.isAttached())
 			throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
 
-		if(!xl.handleException(m_ctx, page, targetComponent, x))
+		if(!xl.handleException(m_ctx, page, targetComponent, nx))
 			throw x;
 		return false;
 	}
@@ -782,8 +797,8 @@ final public class PageRequestHandler {
 	 * </ul>
 	 */
 	private boolean checkAccess(WindowSession windowSession, Page page) throws Exception {
-		PageAccessCheckResult result = m_accessChecker.checkAccess(m_ctx, page, a -> logUser(a));
-		switch(result) {
+		AccessCheckResult result = m_application.getPageAccessChecker().checkAccess(m_ctx, page, a -> logUser(a));
+		switch(result.getResult()) {
 			default:
 				throw new IllegalArgumentException(result + "?");
 
@@ -795,6 +810,8 @@ final public class PageRequestHandler {
 				return true;
 
 			case Refused:
+				IAccessDeniedHandler handler = m_application.getAccessDeniedHandler();
+				handler.handleAccessDenied(m_ctx, result, a -> logUser(a));
 				return false;
 		}
 	}
@@ -811,7 +828,7 @@ final public class PageRequestHandler {
 	}
 
 	private void logUser(String string) {
-		m_ctx.getSession().log(new UserLogItem(m_cid, m_runclass.getName(), null, null, string));
+		m_ctx.getSession().log(new UserLogItem(m_cid, m_runClass.getName(), null, null, string));
 	}
 
 	private void logUser(Page page, String string) {

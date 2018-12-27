@@ -76,7 +76,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Create a container with the specified tag name.
-	 * @param tag
 	 */
 	public NodeContainer(@NonNull final String tag) {
 		super(tag);
@@ -85,10 +84,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Internal state & delta indicators.					*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @return
-	 */
 	final boolean mustRenderChildrenFully() {
 		return m_mustRenderChildrenFully;
 	}
@@ -156,7 +151,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * DO NOT USE.
 	 * Internal: clear all delta information.
-	 * @see to.etc.domui.dom.html.NodeBase#internalClearDelta()
 	 */
 	@Override
 	final public void internalClearDelta() {
@@ -169,7 +163,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * DO NOT USE.
 	 * Internal: clear delta including children's delta.
-	 * @see to.etc.domui.dom.html.NodeBase#internalClearDeltaFully()
 	 */
 	@Override
 	final public void internalClearDeltaFully() {
@@ -180,7 +173,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Internal: delta renderer old children set if this node changed. Null if this node has not seen changes.
-	 * @return
 	 */
 	final public NodeBase[] internalGetOldChildren() {
 		return m_oldChildren;
@@ -188,7 +180,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Count the #of nodes in this tree, recursively until the given depth.
-	 * @see to.etc.domui.dom.html.NodeBase#internalGetNodeCount(int)
 	 */
 	@Override
 	protected int internalGetNodeCount(int depth) {
@@ -207,7 +198,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/*--------------------------------------------------------------*/
 	/**
 	 * Return an iterator that iterates over all children, in order.
-	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
 	@NonNull
@@ -220,7 +210,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Return the #of children of this container.
-	 * @return
 	 */
 	final public int getChildCount() {
 		if(m_delegate != null)
@@ -231,8 +220,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Return the index of the specified child, if present. Returns -1 if not found.
-	 * @param b
-	 * @return
 	 */
 	final public int findChildIndex(@NonNull final NodeBase b) {
 		if(m_delegate != null) {
@@ -250,8 +237,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Get the nth child.
-	 * @param i
-	 * @return
 	 */
 	@NonNull
 	final public NodeBase getChild(final int i) {
@@ -316,7 +301,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * used to call the onAddedToPage() handler <i>after</i> all nodes have been added, to
 	 * prevent concurrent modification exceptions.
 	 * --]
-	 * @param child
 	 */
 	final private void registerWithPage(@NonNull final NodeBase child) {
 		if(!isAttached()) // No page-> cannot register
@@ -327,8 +311,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * Internal use only: register with a page, causing IDs to be assigned and mapped
 	 * if possible.
-	 *
-	 * @see to.etc.domui.dom.html.NodeBase#registerWithPage(to.etc.domui.dom.html.Page)
 	 */
 	@Override
 	final void registerWithPage(@NonNull final Page p) {
@@ -362,8 +344,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/*--------------------------------------------------------------*/
 	/**
 	 * Override to check if special node types can be contained in this.
-	 * @param node
-	 * @return
 	 */
 	//@OverridingMethodsMustInvokeSuper
 	protected void canContain(@NonNull final NodeBase node) {}
@@ -459,7 +439,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Add a #text node.
-	 * @param txt
 	 */
 	@NonNull
 	final public NodeContainer add(@Nullable final String txt) {
@@ -470,7 +449,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Remove a child node from me. This also removes ALL descendants from the current page's view.
-	 * @param child
 	 */
 	final public void removeChild(@NonNull final NodeBase child) {
 		//child can be direct child or child of delegate
@@ -497,8 +475,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Remove the nth child. The removed child is returned and can be reused (added) somewhere else.
-	 * @param index
-	 * @return
 	 */
 	@NonNull
 	final public NodeBase removeChild(final int index) {
@@ -518,9 +494,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * Swap two children: the "child" (1st) parameter gets removed, and the "nw" (2nd) parameter
 	 * is put in it's place, at it's position.
-	 *
-	 * @param child
-	 * @param nw
 	 */
 	final public void replaceChild(@NonNull final NodeBase child, @NonNull final NodeBase nw) {
 		//child can be direct child or child of delegate
@@ -591,8 +564,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * node's contents without a {@link TextNode} being added.
 	 *
 	 * FIXME This must be renamed and made final.
-	 *
-	 * @param txt
 	 */
 	public void setText(@Nullable final String txt) {
 		if(m_delegate != null) {
@@ -671,7 +642,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * Utility method to add a table; it returns the TBody.
 	 * @param headers	When not null this is set as the css class for the TABLE tag.
-	 * @return
 	 */
 	public TBody addTable(String... headers) {
 		Table t = new Table();
@@ -706,9 +676,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Locate all <i>direct</i> children of this container that are instancesof [ofClass].
-	 * @param <T>
-	 * @param ofClass
-	 * @return
 	 */
 	final public <T> List<T> getChildren(@NonNull Class<T> ofClass) {
 		if(m_delegate != null)
@@ -727,9 +694,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Get a list of all children in the <i>entire subtree</i> that are an instance of the specified class.
-	 * @param <T>
-	 * @param ofClass
-	 * @return
 	 */
 	@NonNull
 	final public <T> List<T> getDeepChildren(@NonNull Class<T> ofClass) {
@@ -756,10 +720,11 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * Default onRefresh for a container will call refresh on all children.
+	 * Use {@link #notify(Object)} and ilk.
 	 *
-	 * @see to.etc.domui.dom.html.NodeBase#onRefresh()
+	 * Default onRefresh for a container will call refresh on all children.
 	 */
+	@Deprecated
 	@Override
 	protected void onRefresh() throws Exception {
 		if(m_delegate != null) {
@@ -773,11 +738,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 
 	/**
 	 * Put a converted value in this cell's text.
-	 * @param <T>
-	 * @param <C>
-	 * @param conv
-	 * @param value
-	 * @throws Exception
 	 */
 	public <T, C extends IConverter<T>> void setValue(@NonNull Class<C> conv, @Nullable T value) throws Exception {
 		setText(ConverterRegistry.convertValueToString(conv, value));
@@ -824,8 +784,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * EXPERIMENTAL Set delegation to another node. This causes all "child" operations to delegate to the "to" node,
 	 * it means that all nodes added to this node will actually be added to the "to" node. This is used to "delegate"
 	 * content rendering for framed controls, so the content model of the control can be treated as the control itself.
-	 *
-	 * @param c
 	 */
 	final public void delegateTo(@Nullable NodeContainer c) {
 		if(c == this)
@@ -846,7 +804,6 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	/**
 	 * If this node delegates it's stuff to another, this returns that other node. See {@link #delegateTo(NodeContainer)} for
 	 * details.
-	 * @return
 	 */
 	public NodeContainer getDelegate() {
 		return m_delegate;

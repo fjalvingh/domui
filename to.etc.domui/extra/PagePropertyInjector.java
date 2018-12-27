@@ -9,6 +9,7 @@ import to.etc.util.PropertyInfo;
 import to.etc.webapp.ProgrammerErrorException;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -65,7 +66,7 @@ public class PagePropertyInjector implements IPagePropertyFactory {
 			m_mandatory = mandatory;
 		}
 
-		@Override public void inject(UrlPage page, IPageParameters pp) throws Exception {
+		@Override public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
 			String value = pp.getString(m_name, null);
 			if(null == value) {
 				if(m_mandatory)

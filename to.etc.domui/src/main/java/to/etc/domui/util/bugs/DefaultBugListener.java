@@ -44,6 +44,7 @@ import to.etc.domui.server.IDomUIStateListener;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.IRequestInterceptor;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
@@ -197,11 +198,11 @@ public class DefaultBugListener implements IBugListener {
 			}
 
 			@Override
-			public void conversationDestroyed(ConversationContext cc) throws Exception {
+			public void conversationDestroyed(AbstractConversationContext cc) throws Exception {
 			}
 
 			@Override
-			public void conversationCreated(ConversationContext cc) throws Exception {
+			public void conversationCreated(AbstractConversationContext cc) throws Exception {
 			}
 		});
 	}

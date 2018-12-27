@@ -25,36 +25,61 @@
 package to.etc.domui.injector;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.IPageParameters;
+import to.etc.util.PropertyInfo;
 import to.etc.util.WrappedException;
 
 import java.lang.reflect.Method;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Base for injecting something into a property.
  */
+@NonNullByDefault
 public abstract class PropertyInjector {
-	@NonNull
-	final private Method m_propertySetter;
+	private final PropertyInfo m_propertyInfo;
 
-	public PropertyInjector(@NonNull final Method propertySetter) {
-		m_propertySetter = propertySetter;
+	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp, @NonNull Map<String, Object> attributeMap) throws Exception;
+
+	public PropertyInjector(@NonNull PropertyInfo info) {
+		m_propertyInfo = info;
 	}
 
-	@NonNull
+	protected PropertyInfo getPropertyInfo() {
+		return m_propertyInfo;
+	}
+
 	protected Method getPropertySetter() {
-		return m_propertySetter;
+		return Objects.requireNonNull(m_propertyInfo.getSetter());
 	}
 
-	protected void setValue(@NonNull Object instance, @Nullable Object value) {
+	/**
+	 * Once the value is determined this injects it, after a check whether the value is allowed
+	 * according to the rights checkers registered.
+	 */
+	protected void setValue(@NonNull AbstractPage instance, @Nullable Object value) throws Exception {
+		if(! isValueAllowed(instance, value))
+			throw new IllegalDataValueException(m_propertyInfo);
+
 		try {
 			getPropertySetter().invoke(instance, value);
 		} catch(Exception x) {
-			throw new WrappedException("Cannot SET the entity '" + value + "' for property=" + m_propertySetter.getName() + " of page=" + instance.getClass() + ": " + x, x);
+			throw new WrappedException("Cannot SET the entity '" + value + "' for property=" + m_propertyInfo.getName() + " of page=" + instance.getClass() + ": " + x, x);
 		}
 	}
 
-	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp) throws Exception;
+	private boolean isValueAllowed(AbstractPage instance, @Nullable Object value) throws Exception {
+		for(IInjectedPropertyAccessChecker checker : DomApplication.get().getInjectedPropertyAccessCheckerList()) {
+			if(! checker.isAccessAllowed(m_propertyInfo, instance, value)) {
+				return false;
+			}
+		}
+		return true;
+	}
 }

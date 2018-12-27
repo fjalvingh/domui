@@ -273,7 +273,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	private void validate() {
 		if(m_value == null && isMandatory()) {
-			throw new ValidationException(Msgs.BUNDLE, Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 	}
 

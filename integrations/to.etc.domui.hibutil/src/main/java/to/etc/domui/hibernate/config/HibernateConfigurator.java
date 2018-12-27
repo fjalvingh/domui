@@ -290,6 +290,7 @@ final public class HibernateConfigurator {
 	 * code also enables SQL logging when .developer.properties option hibernate.sql=true.
 	 */
 	public synchronized static void initialize(final DataSource ds) throws Exception {
+		System.setProperty("org.jboss.logging.provider", "slf4j");		// Thanks to https://stackoverflow.com/questions/11639997/how-do-you-configure-logging-in-hibernate-4-to-use-slf4j
 		if(m_sessionFactory != null)
 			throw new IllegalStateException("HibernateConfigurator has already been initialized!");
 		if(m_annotatedClassList.size() == 0)

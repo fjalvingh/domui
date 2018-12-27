@@ -1,6 +1,5 @@
 package to.etc.domui.log;
 
-import to.etc.domui.component.controlfactory.ModelBindings;
 import to.etc.domui.component.layout.ErrorMessageDiv;
 import to.etc.domui.component.ntbl.IEditor;
 import to.etc.domui.component.tbl.TableModelTableBase;
@@ -12,13 +11,10 @@ public class RowEditorBase<T> extends Div implements IEditor {
 
 	private final TableModelTableBase<T> m_model;
 
-	private ModelBindings m_bindings;
-	
 	private final String[] m_cols;
 	
 	@Override
 	public boolean validate(boolean isnew) throws Exception {
-		m_bindings.moveControlToModel();
 		return true;
 	}
 

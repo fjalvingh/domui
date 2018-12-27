@@ -67,8 +67,9 @@ import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
-import to.etc.webapp.query.IQDataContextSource;
+import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
 import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
@@ -176,6 +177,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	static private final byte F_BUNDLEFOUND = 0x02;
 
 	static private final byte F_BUNDLEUSED = 0x04;
+
+	/**
+	 * When set this prevents the OptimalDeltaRenderer from replacing this node. It prevents the optimization that
+	 * replaces an upper node with a new render if that is more efficient than a set of (delete, add) deltas. The
+	 * flag is useful when Javascript is attached to nodes which would be destroyed when the nodes are rewritten.
+	 */
+	static private final byte F_NOREPLACE = 0x08;
 
 	private byte m_flags;
 
@@ -342,8 +350,25 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
+	 * Tell the Optimal Delta Renderer that this node should be kept if possible. This disables the optimization
+	 * where the ODR decides that a single delete and an add of a whole structure is more efficient than a lot of
+	 * (delete, add) operations. Use this method when the node in question has Javascript attached to it which is
+	 * to remain intact.
+	 */
+	public void setKeepNode(boolean keepNode) {
+		if(keepNode) {
+			m_flags |= F_NOREPLACE;
+		} else {
+			m_flags &= ~ F_NOREPLACE;
+		}
+	}
+
+	public boolean isKeepNode() {
+		return (m_flags & F_NOREPLACE) != 0;
+	}
+
+	/**
 	 * Calculates a new ID for a node.
-	 * @return
 	 */
 	@NonNull
 	final String nextUniqID() {
@@ -502,18 +527,20 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Removes the specified CSS class. This looks in the space delimited list and removes all 'words' there
 	 * that match this name. Returns T if the class was actually present.
-	 * @param name
+	 * @param nameList
 	 * @return
 	 */
-	final public boolean removeCssClass(@NonNull final String name) {
+	final public boolean removeCssClass(@NonNull final String nameList) {
 		String cssClass = getCssClass();
 		if(cssClass == null)
 			return false;
 		String[] split = cssClass.split("\\s+");
+		String[] names = nameList.split("\\s+");
+
 		StringBuilder sb = new StringBuilder(cssClass.length());
 		boolean fnd = false;
 		for(String s: split) {
-			if(name.equals(s)) {
+			if(hasName(names, s)) {
 				fnd = true;
 			} else {
 				if(sb.length() > 0)
@@ -525,6 +552,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			return false;
 		setCssClass(sb.toString());
 		return true;
+	}
+
+	static private boolean hasName(String[] items, String name) {
+		for(int i = items.length; --i >= 0;) {
+			if(name.equals(items[i]))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -780,6 +815,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	final private void clearBuilt() {
 		m_built = false;
+		m_createJS = null;
+		m_createStmt = null;
 		if(m_page != null)
 			m_page.internalAddPendingBuild(this);
 	}
@@ -1741,8 +1778,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	@NonNull
-	public IQDataContextSource getSharedContextFactory() {
-		return getParent().getSharedContextFactory();
+	final public QDataContextFactory getSharedContextFactory() {
+		return getSharedContextFactory(QContextManager.DEFAULT);
+	}
+
+	@NonNull
+	public QDataContextFactory getSharedContextFactory(@NonNull String key) {
+		return getParent().getSharedContextFactory(key);
 	}
 
 	/**
@@ -1888,10 +1930,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Send a self-defined event through the whole page. All nodes that registered
 	 * for that event using {@link #addNotificationListener(Class, INotificationListener)} will
 	 * receive the event in their listeners.
-	 *
-	 * @param eventClass
-	 * @param <T>
-	 * @throws Exception
 	 */
 	public final <T> void notify(T eventClass) throws Exception {
 		getPage().notifyPage(eventClass);

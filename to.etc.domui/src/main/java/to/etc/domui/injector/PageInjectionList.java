@@ -29,15 +29,16 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @NonNullByDefault
-final class PageInjector {
+final class PageInjectionList {
 	final private List<PropertyInjector> m_propInjectorList;
 
 	final private Class< ? extends UrlPage> m_pageClass;
 
-	public PageInjector(final Class< ? extends UrlPage> pageClass, final List<PropertyInjector> propInjectorList) {
+	public PageInjectionList(Class< ? extends UrlPage> pageClass, List<PropertyInjector> propInjectorList) {
 		m_pageClass = Objects.requireNonNull(pageClass);
 		m_propInjectorList = Objects.requireNonNull(propInjectorList);
 	}
@@ -48,12 +49,10 @@ final class PageInjector {
 
 	/**
 	 * Inject into all page properties.
-	 * @param page
-	 * @param pp
-	 * @throws Exception
+	 * @param attributeMap A map that can be used to store things while injecting.
 	 */
-	public void inject(final UrlPage page, final IPageParameters pp) throws Exception {
+	public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
 		for(PropertyInjector pi : m_propInjectorList)
-			pi.inject(page, pp);
+			pi.inject(page, pp, attributeMap);
 	}
 }

@@ -59,10 +59,16 @@ import to.etc.domui.dom.webaction.JsonWebActionFactory;
 import to.etc.domui.dom.webaction.SimpleWebActionFactory;
 import to.etc.domui.dom.webaction.WebActionRegistry;
 import to.etc.domui.injector.DefaultPageInjector;
+import to.etc.domui.injector.IInjectedPropertyAccessChecker;
 import to.etc.domui.injector.IPageInjector;
 import to.etc.domui.login.AccessDeniedPage;
+import to.etc.domui.login.DefaultAccessDeniedHandler;
+import to.etc.domui.login.DefaultPageAccessChecker;
+import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.login.ILoginAuthenticator;
 import to.etc.domui.login.ILoginDialogFactory;
+import to.etc.domui.login.ILoginListener;
+import to.etc.domui.login.IPageAccessChecker;
 import to.etc.domui.parts.SvgPartFactory;
 import to.etc.domui.sass.SassPartFactory;
 import to.etc.domui.server.parts.IPartFactory;
@@ -70,12 +76,15 @@ import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.InternalResourcePart;
 import to.etc.domui.server.parts.PartRequestHandler;
 import to.etc.domui.server.parts.PartService;
+import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.DelayedActivitiesManager;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIGoto;
 import to.etc.domui.state.WindowSession;
+import to.etc.domui.subinjector.ISubPageInjector;
+import to.etc.domui.subinjector.SubPageInjector;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeFactory;
@@ -250,8 +259,18 @@ public abstract class DomApplication {
 	@NonNull
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
+
 	@NonNull
 	private IPageInjector m_injector = new DefaultPageInjector();
+
+	@NonNull
+	private IUrlContextDecoder m_urlContextDecoder = ctx -> null;
+
+	@NonNull
+	private ISubPageInjector m_subPageInjector = new SubPageInjector();
+
+	@NonNull
+	private List<IInjectedPropertyAccessChecker> m_injectedPropertyAccessCheckerList = new ArrayList<>();
 
 	@NonNull
 	private ResourceInfoCache m_resourceInfoCache = new ResourceInfoCache(this);
@@ -273,6 +292,12 @@ public abstract class DomApplication {
 	 */
 	@Nullable
 	abstract public Class<? extends UrlPage> getRootPage();
+
+	@NonNull
+	private IPageAccessChecker m_pageAccessChecker = new DefaultPageAccessChecker();
+
+	@NonNull
+	private IAccessDeniedHandler m_accessDeniedHandler = new DefaultAccessDeniedHandler();
 
 	/**
 	 * Used to handle soft binding: moving data from controls -> model and vice versa.
@@ -316,7 +341,7 @@ public abstract class DomApplication {
 	private final WebActionRegistry m_webActionRegistry = new WebActionRegistry();
 
 	/** The ORDERED list of [exception.class, handler] pairs. Exception SUPERCLASSES are ordered AFTER their subclasses. */
-	private List<ExceptionEntry> m_exceptionListeners = new ArrayList<ExceptionEntry>();
+	private List<ExceptionEntry<?>> m_exceptionListeners = new ArrayList<>();
 
 	/** A set of parameter names that will be kept in URLs if present */
 	@NonNull
@@ -389,29 +414,20 @@ public abstract class DomApplication {
 		initHeaderContributors();
 		initializeWebActions();
 		addRenderFactory(new MsCrapwareRenderFactory());                        // Add html renderers for IE <= 8
-		addExceptionListener(QNotFoundException.class, new IExceptionListener() {
-			@Override
-			public boolean handleException(final @NonNull IRequestContext ctx, final @NonNull Page page, final @Nullable NodeBase source, final @NonNull Throwable x) throws Exception {
-				if(!(x instanceof QNotFoundException))
-					throw new IllegalStateException("??");
-
-				// data has removed in meanwhile: redirect to error page.
-				String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters(ExpiredDataPage.PARAM_ERRMSG, x.getLocalizedMessage()));
-				UIGoto.redirect(rurl);
-				return true;
-			}
+		addExceptionListener(QNotFoundException.class, (ctx, page, source, x) -> {
+			// data has removed in meanwhile: redirect to error page.
+			String rurl = DomUtil.createPageURL(ExpiredDataPage.class, new PageParameters(ExpiredDataPage.PARAM_ERRMSG, x.getLocalizedMessage()));
+			UIGoto.redirect(rurl);
+			return true;
 		});
-		addExceptionListener(DataAccessViolationException.class, new IExceptionListener() {
-			@Override
-			public boolean handleException(final @NonNull IRequestContext ctx, final @NonNull Page page, final @Nullable NodeBase source, final @NonNull Throwable x) throws Exception {
-				if(!(x instanceof DataAccessViolationException))
-					throw new IllegalStateException("??");
+		addExceptionListener(DataAccessViolationException.class, (ctx, page, source, x) -> {
+			if(!(x instanceof DataAccessViolationException))
+				throw new IllegalStateException("??");
 
-				// data has removed in meanwhile: redirect to error page.
-				String rurl = DomUtil.createPageURL(DataAccessViolationPage.class, new PageParameters(DataAccessViolationPage.PARAM_ERRMSG, x.getLocalizedMessage()));
-				UIGoto.redirect(rurl);
-				return true;
-			}
+			// data has removed in meanwhile: redirect to error page.
+			String rurl = DomUtil.createPageURL(DataAccessViolationPage.class, new PageParameters(DataAccessViolationPage.PARAM_ERRMSG, x.getLocalizedMessage()));
+			UIGoto.redirect(rurl);
+			return true;
 		});
 		setDefaultThemeName("blue/domui/blue");
 		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
@@ -422,9 +438,9 @@ public abstract class DomApplication {
 		registerResourceFactory(new ThemeResourceFactory());
 
 		//-- Register default request handlers.
-		addRequestHandler(new ApplicationRequestHandler(this), 100);            // .ui and related
-		addRequestHandler(new AjaxRequestHandler(this), 20);                    // .xaja ajax calls.
 		addRequestHandler(m_partHandler, 80);
+		addRequestHandler(new ApplicationRequestHandler(this), 50);			// .ui and related
+		addRequestHandler(new AjaxRequestHandler(this), 20);		// .xaja ajax calls.
 	}
 
 	protected void registerControlFactories() {
@@ -552,8 +568,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Ask all request handlers to try to execute the request. If none managed this returns false.
-	 * @param ctx
-	 * @return
 	 */
 	public boolean callRequestHandler(@NonNull final RequestContextImpl ctx) throws Exception {
 		for(FilterRef h : getRequestHandlerList()) {
@@ -1537,30 +1551,29 @@ public abstract class DomApplication {
 	/**
 	 * An entry in the exception table.
 	 */
-	static public class ExceptionEntry {
-		private final Class<? extends Exception> m_exceptionClass;
+	static public class ExceptionEntry<E extends Throwable> {
+		private final Class<E> m_exceptionClass;
 
-		private final IExceptionListener m_listener;
+		private final IExceptionListener<E> m_listener;
 
-		public ExceptionEntry(final Class<? extends Exception> exceptionClass, final IExceptionListener listener) {
+		public ExceptionEntry(final Class<E> exceptionClass, final IExceptionListener<E> listener) {
 			m_exceptionClass = exceptionClass;
 			m_listener = listener;
 		}
 
-		public Class<? extends Exception> getExceptionClass() {
+		public Class<E> getExceptionClass() {
 			return m_exceptionClass;
 		}
 
-		public IExceptionListener getListener() {
+		public IExceptionListener<E> getListener() {
 			return m_listener;
 		}
 	}
 
 	/**
 	 * Return the current, immutable, threadsafe copy of the list-of-listeners.
-	 * @return
 	 */
-	private synchronized List<ExceptionEntry> getExceptionListeners() {
+	private synchronized List<ExceptionEntry<?>> getExceptionListeners() {
 		return m_exceptionListeners;
 	}
 
@@ -1569,50 +1582,48 @@ public abstract class DomApplication {
 	 * exceptions that are a superclass of other exceptions in the list are sorted AFTER their
 	 * subclass (this prevents the handler for the superclass from being called all the time).
 	 * Any given exception type may occur in this list only once or an exception occurs.
-	 *
-	 * @param l
 	 */
-	public synchronized void addExceptionListener(final Class<? extends Exception> xclass, final IExceptionListener l) {
-		m_exceptionListeners = new ArrayList<ExceptionEntry>(m_exceptionListeners);
+	public synchronized <E extends Throwable, T extends Class<E>> void addExceptionListener(final T xclass, final IExceptionListener<E> l) {
+		m_exceptionListeners = new ArrayList<>(m_exceptionListeners);
 
 		//-- Do a sortish insert.
 		for(int i = 0; i < m_exceptionListeners.size(); i++) {
-			ExceptionEntry ee = m_exceptionListeners.get(i);
+			ExceptionEntry<?> ee = m_exceptionListeners.get(i);
 			if(ee.getExceptionClass() == xclass) {
 				//-- Same class-> replace the handler with the new one.
-				m_exceptionListeners.set(i, new ExceptionEntry(xclass, l));
+				m_exceptionListeners.set(i, new ExceptionEntry<>(xclass, l));
 				return;
 			} else if(ee.getExceptionClass().isAssignableFrom(xclass)) {
 				//-- Class [ee] is a SUPERCLASS of [xclass]; you can do [ee] = [xclass]. We need to add this handler BEFORE this superclass!
-				m_exceptionListeners.add(i, new ExceptionEntry(xclass, l));
+				m_exceptionListeners.add(i, new ExceptionEntry<>(xclass, l));
 				return;
 			}
 		}
-		m_exceptionListeners.add(new ExceptionEntry(xclass, l));
+		m_exceptionListeners.add(new ExceptionEntry<>(xclass, l));
 	}
 
 	/**
 	 * This locates the handler for the specfied exception type, if it has been registered. It
 	 * currently uses a loop to locate the appropriate handler.
-	 * @param x
 	 * @return null if the handler was not registered.
 	 */
-	public IExceptionListener findExceptionListenerFor(final Exception x) {
+	@Nullable
+	public <E extends Throwable> IExceptionListener<E> findExceptionListenerFor(Exception x) {
 		Class<? extends Exception> xclass = x.getClass();
-		for(ExceptionEntry ee : getExceptionListeners()) {
+		for(ExceptionEntry<?> ee : getExceptionListeners()) {
 			if(ee.getExceptionClass().isAssignableFrom(xclass))
-				return ee.getListener();
+				return (IExceptionListener<E>) ee.getListener();
 		}
 		return null;
 	}
 
 	public synchronized void addNewPageInstantiatedListener(final INewPageInstantiated l) {
-		m_newPageInstListeners = new ArrayList<INewPageInstantiated>(m_newPageInstListeners);
+		m_newPageInstListeners = new ArrayList<>(m_newPageInstListeners);
 		m_newPageInstListeners.add(l);
 	}
 
 	public synchronized void removeNewPageInstantiatedListener(final INewPageInstantiated l) {
-		m_newPageInstListeners = new ArrayList<INewPageInstantiated>(m_newPageInstListeners);
+		m_newPageInstListeners = new ArrayList<>(m_newPageInstListeners);
 		m_newPageInstListeners.remove(l);
 	}
 
@@ -1639,7 +1650,7 @@ public abstract class DomApplication {
 	public synchronized void addLoginListener(final ILoginListener l) {
 		if(m_loginListenerList.contains(l))
 			return;
-		m_loginListenerList = new ArrayList<ILoginListener>(m_loginListenerList);
+		m_loginListenerList = new ArrayList<>(m_loginListenerList);
 		m_loginListenerList.add(l);
 	}
 
@@ -1647,17 +1658,34 @@ public abstract class DomApplication {
 		return m_loginListenerList;
 	}
 
+	@NonNull
+	public IPageAccessChecker getPageAccessChecker() {
+		return m_pageAccessChecker;
+	}
+
+	public void setPageAccessChecker(@NonNull IPageAccessChecker pageAccessChecker) {
+		m_pageAccessChecker = pageAccessChecker;
+	}
+
+	@NonNull public IAccessDeniedHandler getAccessDeniedHandler() {
+		return m_accessDeniedHandler;
+	}
+
+	public void setAccessDeniedHandler(@NonNull IAccessDeniedHandler accessDeniedHandler) {
+		m_accessDeniedHandler = accessDeniedHandler;
+	}
+
 	/**
 	 * Add a new listener for asynchronous job events.
 	 * @param l
 	 */
 	public synchronized <T> void addAsyncListener(@NonNull IAsyncListener<T> l) {
-		m_asyncListenerList = new ArrayList<IAsyncListener<?>>(m_asyncListenerList);
+		m_asyncListenerList = new ArrayList<>(m_asyncListenerList);
 		m_asyncListenerList.add(l);
 	}
 
 	public synchronized <T> void removeAsyncListener(@NonNull IAsyncListener<T> l) {
-		m_asyncListenerList = new ArrayList<IAsyncListener<?>>(m_asyncListenerList);
+		m_asyncListenerList = new ArrayList<>(m_asyncListenerList);
 		m_asyncListenerList.remove(l);
 	}
 
@@ -1688,7 +1716,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Get the page injector.
-	 * @return
 	 */
 	public synchronized IPageInjector getInjector() {
 		return m_injector;
@@ -1698,6 +1725,34 @@ public abstract class DomApplication {
 		m_injector = injector;
 	}
 
+	public synchronized <T> void registerInjectedPropertyAccessChecker(IInjectedPropertyAccessChecker checker) {
+		m_injectedPropertyAccessCheckerList = new ArrayList<>(m_injectedPropertyAccessCheckerList);
+		m_injectedPropertyAccessCheckerList.add(checker);
+		m_injectedPropertyAccessCheckerList = Collections.unmodifiableList(m_injectedPropertyAccessCheckerList);
+	}
+
+	@NonNull public synchronized List<IInjectedPropertyAccessChecker> getInjectedPropertyAccessCheckerList() {
+		return m_injectedPropertyAccessCheckerList;
+	}
+
+	@NonNull
+	public IUrlContextDecoder getUrlContextDecoder() {
+		return m_urlContextDecoder;
+	}
+
+	public void setUrlContextDecoder(@NonNull IUrlContextDecoder urlContextDecoder) {
+		m_urlContextDecoder = urlContextDecoder;
+	}
+
+	public void setSubPageInjector(@NonNull ISubPageInjector injector) {
+		m_subPageInjector = injector;
+	}
+
+	@NonNull
+	public ISubPageInjector getSubPageInjector() {
+		return m_subPageInjector;
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Rights registry.									*/
 	/*--------------------------------------------------------------*/
@@ -1705,9 +1760,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Registers a set of possible rights and their names/translation bundle.
-	 *
-	 * @param bundle
-	 * @param rights
 	 */
 	public void registerRight(final BundleRef bundle, final String... rights) {
 		synchronized(m_rightsBundleMap) {
@@ -1722,9 +1774,6 @@ public abstract class DomApplication {
 	 * Takes a class (or interface) and scans all static public final String fields therein. For
 	 * each field it's literal string value is used as a rights name and associated with the bundle.
 	 * If a right already exists it is skipped, meaning the first ever definition of a right wins.
-	 *
-	 * @param bundle
-	 * @param constantsclass
 	 */
 	public void registerRights(final BundleRef bundle, final Class<?> constantsclass) {
 		//-- Find all class fields.
@@ -1986,7 +2035,7 @@ public abstract class DomApplication {
 		}
 	}
 
-	public final void internalCallConversationDestroyed(ConversationContext ws) {
+	public final void internalCallConversationDestroyed(AbstractConversationContext ws) {
 		for(IDomUIStateListener sl : getUIStateListeners()) {
 			try {
 				sl.conversationDestroyed(ws);

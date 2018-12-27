@@ -108,8 +108,7 @@ class FileLogHandler implements ILogHandler {
 				System.out.println(line);
 			} else {
 				BufferedWriter w = null;
-				String fileName = null;
-				fileName = EtcLoggerFactory.getSingleton().composeFullLogFileName(m_logRoot.getAbsolutePath(), m_out);
+				String fileName = EtcLoggerFactory.getSingleton().composeFullLogFileName(m_logRoot.getAbsolutePath(), m_out);
 
 				File outFile = new File(fileName);
 				outFile.getParentFile().mkdirs();

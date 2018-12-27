@@ -2,7 +2,6 @@ package to.etc.domui.log;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.LinkButton;
-import to.etc.domui.component.controlfactory.ModelBindings;
 import to.etc.domui.component.input.TextStr;
 import to.etc.domui.component.layout.ErrorMessageDiv;
 import to.etc.domui.component.meta.MetaManager;
@@ -43,8 +42,6 @@ public class HandlerRowEditor extends Div implements IEditor {
 
 	private final TableModelTableBase<Handler> m_model;
 
-	private ModelBindings m_bindings;
-
 	private ExpandingEditTable<Matcher> m_tableMatchers;
 
 	private SimpleListModel<Matcher> m_modelMatchers;
@@ -57,7 +54,6 @@ public class HandlerRowEditor extends Div implements IEditor {
 
 	@Override
 	public boolean validate(boolean isnew) throws Exception {
-		m_bindings.moveControlToModel();
 		return true;
 	}
 

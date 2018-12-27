@@ -10,19 +10,15 @@ import to.etc.domui.component.tbl.RowRenderer.IColumnListener;
 import to.etc.domui.component.tbl.TableModelTableBase;
 import to.etc.domui.derbydata.init.DbUtil;
 import to.etc.domui.derbydata.init.TestDB;
-import to.etc.domui.dom.errors.IExceptionListener;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.header.FaviconContributor;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.ConfigParameters;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IRequestContext;
 import to.etc.domui.themes.sass.SassThemeFactory;
-import to.etc.domui.trouble.UIException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.Msgs;
@@ -67,17 +63,14 @@ public class Application extends DomApplication {
 		/*
 		 * Registreer een paar default exception handlers.
 		 */
-		addExceptionListener(Exception.class, new IExceptionListener() {
-			@Override
-			public boolean handleException(final IRequestContext ctx, final Page pg, final NodeBase source, final Throwable x) throws Exception {
-				if(x instanceof RuntimeException || x instanceof UIException)
-					return false;
+		addExceptionListener(Exception.class, (ctx, pg, source, x) -> {
+			if(x instanceof RuntimeException)
+				return false;
 
-				x.printStackTrace();
-				if(null != source)
-					source.addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x.toString()));
-				return true;
-			}
+			x.printStackTrace();
+			if(null != source)
+				source.addGlobalMessage(UIMessage.error(Msgs.unexpectedException, x.toString()));
+			return true;
 		});
 
 		/*
@@ -97,11 +90,7 @@ public class Application extends DomApplication {
 		/*
 		 * Add a generic listener for column width changed events.
 		 */
-		setAttribute(RowRenderer.COLUMN_LISTENER, new IColumnListener<Object>() {
-			@Override public void columnsChanged(TableModelTableBase<Object> tbl, List<ColumnWidth<Object, ?>> newWidths) throws Exception {
-				saveColumnWidths(tbl, newWidths);
-			}
-		});
+		setAttribute(RowRenderer.COLUMN_LISTENER, (IColumnListener<Object>) (tbl, newWidths) -> saveColumnWidths(tbl, newWidths));
 
 
 	}

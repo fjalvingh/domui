@@ -25,7 +25,6 @@ import to.etc.domuidemo.pages.overview.input.DemoCheckbox;
 import to.etc.domuidemo.pages.overview.input.DemoComboFixed;
 import to.etc.domuidemo.pages.overview.input.DemoDateInput;
 import to.etc.domuidemo.pages.overview.input.DemoFileUpload;
-import to.etc.domuidemo.pages.overview.input.DemoRadioButton;
 import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType1;
 import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType2;
 import to.etc.domuidemo.pages.overview.input.DemoText;
@@ -74,15 +73,17 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoMsgBox.class, "The Message Box");
 
 		addCaption("Simple components");
-		addLink(DemoDefaultButton.class, "The DefaultButton");
-		addLink(DemoLinkButton.class, "The LinkButton");
-		addLink(RadioButtonPage.class, "Radio buttons");
 		addLink(DemoALink.class, "The ALink and ATag components: several kinds of links");
 		addLink(SvgIconPage.class, "Renders components with SVG icons");
 
-		addCaption("Input components");
+		addCaption("Buttons");
+		addLink(DemoDefaultButton.class, "The DefaultButton");
+		addLink(DemoLinkButton.class, "The LinkButton");
+		addLink(RadioButtonPage.class, "The Radio button and ButtonGroup");
 		addLink(DemoCheckbox.class, "The checkbox component");
-		addLink(DemoRadioButton.class, "The RadioButton components");
+
+
+		addCaption("Input components");
 		addLink(DemoText.class, "The Text<T> component");
 		addLink(DemoTextStr.class, "The TextStr component (shortcut for Text<String>)");
 		addLink(DemoDateInput.class, "The DateInput component for date and datetime input");

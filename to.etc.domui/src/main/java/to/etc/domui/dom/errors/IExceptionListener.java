@@ -30,6 +30,6 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.IRequestContext;
 
-public interface IExceptionListener {
-	boolean handleException(@NonNull IRequestContext ctx, @NonNull Page pg, @Nullable NodeBase source, @NonNull Throwable t) throws Exception;
+public interface IExceptionListener<E extends Throwable> {
+	boolean handleException(@NonNull IRequestContext ctx, @NonNull Page pg, @Nullable NodeBase source, @NonNull E t) throws Exception;
 }

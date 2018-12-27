@@ -263,11 +263,13 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		}
 	}
 
+	@Override
 	final public V getBindValue() {
 		validateBindValue();
 		return m_currentValue;
 	}
 
+	@Override
 	final public void setBindValue(V value) {
 		if(MetaManager.areObjectsEqual(m_currentValue, value)) {
 			return;
@@ -275,9 +277,10 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		setValue(value);
 	}
 
-	private void validateBindValue() {
+	@Override
+	protected void validateBindValue() {
 		if(isMandatory() && m_currentValue == null) {
-			throw new ValidationException(Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 	}
 

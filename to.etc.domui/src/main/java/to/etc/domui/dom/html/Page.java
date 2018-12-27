@@ -38,10 +38,12 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.SubConversationContext;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.IQContextContainer;
@@ -65,6 +67,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 18, 2007
  */
+@NonNullByDefault
 final public class Page implements IQContextContainer {
 	/** Next ID# for unidded nodes. */
 	private int m_nextID = 1;
@@ -79,8 +82,10 @@ final public class Page implements IQContextContainer {
 	/**
 	 * The set of parameters that was used at page creation time.
 	 */
+	@Nullable
 	private IPageParameters m_pageParameters;
 
+	@Nullable
 	private ConversationContext m_cc;
 
 	//	private boolean					m_built;
@@ -108,9 +113,25 @@ final public class Page implements IQContextContainer {
 	/**
 	 * Set containing the same header contributors, but in a fast-lookup format.
 	 */
+	@Nullable
 	private Set<HeaderContributor> m_headerContributorSet;
 
+	@Nullable
 	private StringBuilder m_appendJS;
+
+	/** Temp for checking shelve order. */
+	private boolean m_shelved;
+
+	@Nullable
+	private NodeBase m_defaultFocusSource;
+
+	/** When a (sub)tree validation has started this holds the validation's start point, so that the validation can be repeated. */
+	@Nullable
+	private NodeBase m_validationSource;
+
+	/** When a (sub)tree validation has started this holds the action to run at the end of successful validation. */
+	@Nullable
+	private IRunnable m_validationAction;
 
 	/** Number of exceptions in-a-row on a full render of this page. */
 	private int m_pageExceptionCount;
@@ -122,11 +143,13 @@ final public class Page implements IQContextContainer {
 	private final UrlPage m_rootContent;
 
 	/** The component that needs to be focused. This is null if no explicit focus request was done. */
+	@Nullable
 	private NodeBase m_focusComponent;
 
 	/**
 	 * If a "pop-in" is present this contains the reference to it.
 	 */
+	@Nullable
 	private NodeContainer m_currentPopIn;
 
 	private Map<String, Object> m_pageData = Collections.EMPTY_MAP;
@@ -140,11 +163,27 @@ final public class Page implements IQContextContainer {
 	 */
 	private Set<NodeBase> m_pendingBuildSet = new HashSet<NodeBase>();
 
+	///**
+	// * All subpages that were added to the tree this request.
+	// */
+	//private Set<SubPage> m_addedSubPages = new HashSet<>();
+	//
+	///**
+	// * All SubPages currently present on the page.
+	// */
+	//private Set<SubPage> m_subPageSet = new HashSet<>();
+
+	/**
+	 * All subpages that have been deleted during this request.
+	 */
+	private Set<SubPage> m_removedSubPages = new HashSet<>();
+
 	/**
 	 * When calling user handlers on nodes this will keep track of the node the handler was
 	 * called on. If that node becomes somehow removed it will move upward to it's parent,
 	 * so that it points to an on-screen node always. This is needed for error handling.
 	 */
+	@Nullable
 	private NodeBase m_theCurrentNode;
 
 	/**
@@ -163,6 +202,7 @@ final public class Page implements IQContextContainer {
 	/**
 	 * The stack of floating windows on top of the main canvas, in ZIndex order.
 	 */
+	@Nullable
 	private List<FloatingDiv> m_floatingWindowStack;
 
 	/**
@@ -189,6 +229,8 @@ final public class Page implements IQContextContainer {
 
 	@NonNull
 	private List<IExecute> m_afterRenderList = Collections.EMPTY_LIST;
+
+
 
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -242,8 +284,6 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Assign required data to the page.
-	 * @param pp
-	 * @param cc
 	 */
 	final public void internalInitialize(@NonNull IPageParameters pp, @NonNull final ConversationContext cc) {
 		if(pp == null)
@@ -279,7 +319,6 @@ final public class Page implements IQContextContainer {
 	/**
 	 * This tries to locate the control that the "theCurrentNode" is associated with. If no control
 	 * can be found it returns the node verbatim.
-	 * @return
 	 */
 	@Nullable
 	public NodeBase getTheCurrentControl() {
@@ -313,7 +352,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Return the <b>readonly</b> copy of the parameters for this page.
-	 * @return
 	 */
 	@NonNull
 	public IPageParameters getPageParameters() {
@@ -336,7 +374,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Calculates a new ID for a node.
-	 * @return
 	 */
 	@NonNull
 	final String nextID() {
@@ -358,7 +395,6 @@ final public class Page implements IQContextContainer {
 	/**
 	 * Registers the node with this page. If the node has no ID or the ID is invalid then
 	 * a new ID is assigned.
-	 * @param n
 	 */
 	final void registerNode(@NonNull final NodeBase n) {
 		if(n.isAttached())
@@ -384,13 +420,25 @@ final public class Page implements IQContextContainer {
 		if(null != m_nodeMap.put(id, n))
 			throw new IllegalStateException("Duplicate node ID '" + id + "'!?!?");
 		n.setPage(this);
-		n.onHeaderContributors(this);					// Ask the node for it's header contributors.
+		n.onHeaderContributors(this);				// Ask the node for it's header contributors.
 		n.internalOnAddedToPage(this);
 		if(n.isFocusRequested()) {
 			setFocusComponent(n);
 			n.clearFocusRequested();
 		}
 		internalAddPendingBuild(n);
+
+		if(n instanceof SubPage) {
+			SubPage sp = (SubPage) n;					// This is not dumb at all, sigh.
+			getConversation().addSubConversation(sp.getConversation());
+			m_removedSubPages.remove(sp);				// If we removed it earlier- unremove it (keeping its conversation state)
+
+			try {
+				DomApplication.get().getSubPageInjector().inject(sp);
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
+		}
 
 		//-- Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
 		UIMessage message = n.getMessage();
@@ -402,7 +450,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Removes this node from the IDmap.
-	 * @param n
 	 */
 	final void unregisterNode(@NonNull final NodeBase n) {
 		if(n.getPage() != this)
@@ -415,7 +462,13 @@ final public class Page implements IQContextContainer {
 		n.setPage(null);
 		if(m_nodeMap.remove(n.getActualID()) == null)
 			throw new IllegalStateException("The node with ID=" + n.getActualID() + " was not found!?");
-		m_pendingBuildSet.remove(n); // ?? Needed?
+		m_pendingBuildSet.remove(n);
+
+		if(n instanceof SubPage) {
+			SubPage sp = (SubPage) n;					// Sigh
+			m_removedSubPages.add(sp);
+			//m_addedSubPages.remove(sp);					// If it was added before but removed again -> nothing happened...
+		}
 	}
 
 	@Nullable
@@ -448,7 +501,7 @@ final public class Page implements IQContextContainer {
 	final protected void copyIdMap() {
 		if(m_beforeMap != null)
 			return;
-		m_beforeMap = new HashMap<String, NodeBase>(m_nodeMap);
+		m_beforeMap = new HashMap<>(m_nodeMap);
 	}
 
 	@Nullable
@@ -470,7 +523,7 @@ final public class Page implements IQContextContainer {
 
 	public void addRemoveAfterRenderNode(@NonNull NodeBase node) {
 		if(m_removeAfterRenderList == Collections.EMPTY_LIST) {
-			m_removeAfterRenderList = new ArrayList<NodeBase>();
+			m_removeAfterRenderList = new ArrayList<>();
 		}
 		m_removeAfterRenderList.add(node);
 	}
@@ -510,20 +563,17 @@ final public class Page implements IQContextContainer {
 	/**
 	 * Call from within the onHeaderContributor call on a node to register any header
 	 * contributors needed by a node.
-	 * @param hc
 	 */
 	final public void addHeaderContributor(@NonNull final HeaderContributor hc, int order) {
-		if(m_headerContributorSet == null) {
-			m_headerContributorSet = new HashSet<>(30);
-			m_orderedContributorList = new ArrayList<>(30);
-			m_headerContributorSet.add(hc);
-			m_orderedContributorList.add(new HeaderContributorEntry(hc, order));
+		Set<HeaderContributor> set = m_headerContributorSet;
+		List<HeaderContributorEntry> list = m_orderedContributorList;
+		if(set == null || list == null) {
+			m_headerContributorSet = set = new HashSet<>(30);
+			list = m_orderedContributorList = new ArrayList<>(30);
+		} else if(set.contains(hc)) 							// Already registered?
 			return;
-		}
-		if(m_headerContributorSet.contains(hc)) // Already registered?
-			return;
-		m_headerContributorSet.add(hc);
-		m_orderedContributorList.add(new HeaderContributorEntry(hc, order));
+		set.add(hc);
+		list.add(new HeaderContributorEntry(hc, order));
 	}
 
 	public synchronized void internalAddContributors(@NonNull List<HeaderContributorEntry> full) {
@@ -548,7 +598,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Return the BODY component for this page.
-	 * @return
 	 */
 	@NonNull
 	public UrlPage getBody() {
@@ -596,8 +645,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Add a floating thing to the floater stack.
-	 * @param originalParent
-	 * @param in
 	 */
 	void internalAddFloater(@NonNull NodeContainer originalParent, @NonNull FloatingDiv in) {
 		//-- Sanity checks.
@@ -647,7 +694,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Callback called by a floating window when it is removed from the page.
-	 * @param floater
 	 */
 	public void internalRemoveFloater(@NonNull FloatingDiv floater) {
 		if(!getFloatingStack().remove(floater)) // If already removed exit
@@ -661,21 +707,15 @@ final public class Page implements IQContextContainer {
 
 	@NonNull
 	private List<FloatingDiv> getFloatingStack() {
-		if(m_floatingWindowStack == null)
-			m_floatingWindowStack = new ArrayList<FloatingDiv>();
-		return m_floatingWindowStack;
+		List<FloatingDiv> ws = m_floatingWindowStack;
+		if(ws == null)
+			m_floatingWindowStack = ws = new ArrayList<FloatingDiv>();
+		return ws;
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	BUILD phase coding (see bug 688).					*/
 	/*--------------------------------------------------------------*/
-//	/**
-//	 * @throws Exception
-//	 */
-//	public void build() throws Exception {
-//		getBody().build();
-//	}
 
 	void internalAddPendingBuild(@NonNull NodeBase n) {
 		m_pendingBuildSet.add(n);
@@ -683,7 +723,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * This handles the BUILD phase for a FULL page render.
-	 * @throws Exception
 	 */
 	public void internalFullBuild() throws Exception {
 		m_phase = PagePhase.BUILD;
@@ -695,8 +734,6 @@ final public class Page implements IQContextContainer {
 	/**
 	 * This handles the BUILD phase for the DELTA build. It walks only the nodes that
 	 * are marked as changed initially and does not descend subtrees that are unchanged.
-	 *
-	 * @throws Exception
 	 */
 	public void internalDeltaBuild() throws Exception {
 		m_phase = PagePhase.BUILD;
@@ -707,7 +744,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Loop over the changed-nodeset until it stays empty.
-	 * @throws Exception
 	 */
 	private void rebuildLoop() throws Exception {
 		int tries = 0;
@@ -726,8 +762,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Call 'build' on all subtree nodes and reset all rebuild markers in the set code.
-	 * @param nd
-	 * @throws Exception
 	 */
 	private void buildSubTree(@NonNull NodeBase nd) throws Exception {
 		nd.build();
@@ -802,7 +836,6 @@ final public class Page implements IQContextContainer {
 	 *
 	 * @param windowURL	The url to open. If this is a relative path it will get the webapp
 	 * 					context appended to it.
-	 * @param wp
 	 */
 	public void openWindow(@NonNull String windowURL, @Nullable WindowParameters wp) {
 		if(windowURL == null || windowURL.length() == 0)
@@ -812,13 +845,9 @@ final public class Page implements IQContextContainer {
 	}
 
 	/**
-	 * DEPRECATED: Should use {@link DomUtil#createOpenWindowJS(Class, PageParameters, WindowParameters)}.
+	 * DEPRECATED: Should use DomUtil#createOpenWindowJS(Class, PageParameters, WindowParameters).
 	 * Open a DomUI page in a separate browser popup window. This window will create it's own WindowSession.
 	 * FIXME URGENT This code needs to CREATE the window session BEFORE referring to it!!!!
-	 *
-	 * @param clz
-	 * @param pp
-	 * @param wp
 	 */
 	@Deprecated
 	public void openWindow(@NonNull Class< ? extends UrlPage> clz, @Nullable IPageParameters pp, @Nullable WindowParameters wp) {
@@ -832,7 +861,6 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Return the component that currently has a focus request.
-	 * @return
 	 */
 	@Nullable
 	public NodeBase getFocusComponent() {
@@ -876,20 +904,8 @@ final public class Page implements IQContextContainer {
 		m_fullRenderCompleted = fullRenderCompleted;
 	}
 
-	/** Temp for checking shelve order. */
-	private boolean m_shelved;
-
-	private NodeBase m_defaultFocusSource;
-
-	/** When a (sub)tree validation has started this holds the validation's start point, so that the validation can be repeated. */
-	private NodeBase m_validationSource;
-
-	/** When a (sub)tree validation has started this holds the action to run at the end of succesful validation. */
-	private IRunnable m_validationAction;
-
 	/**
 	 * Call all onShelve() handlers on all attached components.
-	 * @throws Exception
 	 */
 	public void internalShelve() throws Exception {
 		if(m_shelved)
@@ -900,8 +916,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Call all unshelve handlers on all attached components.
-	 *
-	 * @throws Exception
 	 */
 	public void internalUnshelve() throws Exception {
 		if(!m_shelved)
@@ -971,8 +985,6 @@ final public class Page implements IQContextContainer {
 	/**
 	 * This sets a new pop-in. This does NOT add the popin to the tree, that
 	 * must be done manually.
-	 *
-	 * @param pin
 	 */
 	public void setPopIn(@Nullable final NodeContainer pin) {
 		if(m_currentPopIn != null && m_currentPopIn != pin) {
@@ -1050,7 +1062,7 @@ final public class Page implements IQContextContainer {
 		m_renderAsXHTML = renderAsXHTML;
 	}
 
-	public void calculateDefaultFocus(NodeBase node) {
+	public void setDefaultFocusSource(@Nullable NodeBase node) {
 		m_defaultFocusSource = node;
 	}
 
@@ -1062,10 +1074,6 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Page action events.									*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param x
-	 */
 	public void addAfterRequestListener(@NonNull IExecute x) {
 		if(m_afterRequestListenerList.size() == 0)
 			m_afterRequestListenerList = new ArrayList<IExecute>();
@@ -1104,6 +1112,22 @@ final public class Page implements IQContextContainer {
 		for(IExecute listener : new ArrayList<>(m_afterRenderList)) {
 			listener.execute();
 		}
+	}
+
+	public Set<SubPage> getRemovedSubPages() {
+		return m_removedSubPages;
+	}
+
+	public void discardRemovedSubPages() {
+		for(SubPage subPage : getRemovedSubPages()) {
+			SubConversationContext scs = subPage.getConversation();
+			try {
+				getConversation().removeAndDestroySubConversation(scs);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+		getRemovedSubPages().clear();
 	}
 
 	/*----------------------------------------------------------------------*/

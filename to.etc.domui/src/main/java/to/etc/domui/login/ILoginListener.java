@@ -22,8 +22,10 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.state;
+package to.etc.domui.login;
 
-public class SimpleConversationContext extends ConversationContext {
+public interface ILoginListener {
+	void userLogin(IUser user);
 
+	void userLogout(IUser user);
 }

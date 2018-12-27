@@ -223,8 +223,8 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 			throw new IllegalStateException("Can only be called for max files = 1");
 		if(m_files.size() == 0) {
 			if(isMandatory()) {
-				setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-				throw new ValidationException(Msgs.BUNDLE, Msgs.MANDATORY);
+				setMessage(UIMessage.error(Msgs.mandatory));
+				throw new ValidationException(Msgs.mandatory);
 			}
 			clearMessage();
 			return null;

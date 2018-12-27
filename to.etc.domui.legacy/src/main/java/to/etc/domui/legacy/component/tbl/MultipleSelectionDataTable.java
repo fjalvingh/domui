@@ -158,7 +158,7 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 		if(list.size() == 0) {
 			Div error = new Div();
 			error.setCssClass("ui-dt-nores");
-			error.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
+			error.setText(Msgs.uiDatatableEmpty.getString());
 			add(error);
 		}
 	}

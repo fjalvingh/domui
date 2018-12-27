@@ -56,6 +56,9 @@ import java.util.List;
  * DataTable which allows rendering of multiple rows per data element. Originally created
  * from OldDataTable (in legacy) which it later replaced.
  *
+ * <h1>Todo</h1>
+ * https://mottie.github.io/tablesorter/docs/example-widget-resizable.html
+ *
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 7/29/16.
@@ -102,6 +105,9 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	private TBody m_footerBody;
 
 	@NonNull
+	private DataTableResize m_resizeMode = DataTableResize.OVERFLOW;
+
+	@NonNull
 	final private IClicked<TH> m_headerSelectClickHandler = clickednode -> {
 		if(isDisabled()) {
 			return;
@@ -139,10 +145,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	}
 
 	private void cInit() {
-		if(DeveloperOptions.getBool("domui.colresizable", true)) {
-			m_table.appendCreateJS("WebUI.dataTableResults('" + m_table.getActualID() + "','" + getActualID() + "');");
-		}
-		setWidth("100%");
+//		setWidth("100%");
 	}
 
 	protected void updateBodyClipboardSelection() {
@@ -156,6 +159,9 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	@Override
 	public void createContent() throws Exception {
+		if(DeveloperOptions.getBool("domui.colresizable", true) && m_resizeMode != DataTableResize.NONE) {
+			m_table.appendCreateJS("WebUI.dataTableResults('" + m_table.getActualID() + "','" + getActualID() + "','"+ m_resizeMode.name() + "');");
+		}
 		m_dataBody = null;
 		m_errorDiv = null;
 		addCssClass("ui-dt");
@@ -216,12 +222,11 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 		m_table.removeAllChildren();
 		add(m_table);
-		//appendJavascript("$('#" + m_table.getActualID() + "').colResizable({postbackSafe: false, onResize: function(tbl) {WebUI.dataTableUpdateWidths(tbl, '" + getActualID() + "');}});");
-		//m_table.appendCreateJS("WebUI.dataTableResults('"+ m_table.getActualID() + "','" + getActualID() + "');");
 
 		//-- Render the header.
 		THead hd = new THead();
 		m_table.add(hd);
+		hd.setKeepNode(true);
 		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
@@ -260,7 +265,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * renderer in use.
 	 *
 	 * @param hc specified header container
-	 * @throws Exception
 	 */
 	@Deprecated
 	void renderHeader(@NonNull HeaderContainer<T> hc) throws Exception {
@@ -303,6 +307,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		if(!m_table.isAttached())
 			add(m_table);
 		THead hd = new THead();
+		hd.setKeepNode(true);
 		m_table.add(hd);
 		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
 
@@ -323,7 +328,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 		NodeBase emptyMessage = m_emptyMessage;
 		if(null == emptyMessage) {
-			m_errorDiv.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
+			m_errorDiv.setText(Msgs.uiDatatableEmpty.getString());
 		} else {
 			m_errorDiv.add(emptyMessage);
 		}
@@ -1090,6 +1095,14 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	void appendExtraRowBefore(TableRowSet<T> rowSet, DataTableRow<T> newRow, DataTableRow<T> row) {
 		checkVisible(rowSet);
 		row.appendBeforeMe(newRow);
+	}
+
+	@NonNull public DataTableResize getResizeMode() {
+		return m_resizeMode;
+	}
+
+	public void setResizeMode(@NonNull DataTableResize resize) {
+		m_resizeMode = resize;
 	}
 
 	/**

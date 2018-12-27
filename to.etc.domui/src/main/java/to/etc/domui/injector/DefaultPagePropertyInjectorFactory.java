@@ -12,10 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Scans all properties of a page class, and tries to find a way to inject a value
+ * in them by using {@link IPagePropertyFactory} instances registered with
+ * this class.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-2-17.
  */
-public class DefaultPageInjectorFactory implements IPageInjectorCalculator {
+public class DefaultPagePropertyInjectorFactory implements IPageInjectorCalculator {
 	static final private class PropFactoryRef {
 		private final int m_priority;
 
@@ -39,9 +43,10 @@ public class DefaultPageInjectorFactory implements IPageInjectorCalculator {
 
 	private List<IPagePropertyFactory> m_list = Collections.emptyList();
 
-	public DefaultPageInjectorFactory() {
+	public DefaultPagePropertyInjectorFactory() {
 		registerFactory(0, new SimplePropertyInjectorFactory());
 		registerFactory(100, new EntityPropertyInjectorFactory());
+		registerFactory(120, new UrlContextPropertyInjector());
 	}
 
 	public synchronized void registerFactory(int urgency, IPagePropertyFactory injector) {
@@ -77,9 +82,6 @@ public class DefaultPageInjectorFactory implements IPageInjectorCalculator {
 
 	/**
 	 * Tries to find an injector to inject a value for the specified property.
-	 *
-	 * @param pi
-	 * @return
 	 */
 	@Nullable
 	protected PropertyInjector calculateInjector(final PropertyInfo pi) {

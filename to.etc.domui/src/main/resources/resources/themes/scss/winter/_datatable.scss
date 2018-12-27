@@ -3,11 +3,39 @@
 @import "_variables";
 @import "_color";
 
+$data_tbl_selected_bg: #bed6f8 !default;	// blue
+$data_tbl_even_row_bg: #E5E5E5 !default; //greyish
+$data_tbl_cell_highlight_bg: #67267f !default;	// cell select: purple
+$data_tbl_cell_highlight_link_color_bg: #ffffff !default;	// link color of cell select: white
+$data_tbl_font_size: 12px !default;
+$data_tbl_expanding_row_bg: lighten($main_color, 20%) !default;
+
+$data_tbl_header_bg: #99bfe6 !default;
+$data_tbl_header_text_color: black !default;
+$data_tbl_header_bg_img: "" !default; //-- Table header doesn't have background image
+$data_tbl_header_btm_border: undefined !default;
+
+$data_tbl_border_color: $data_tbl_header_bg;
+$data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
+
 div.ui-dt {
 	overflow: auto;
 	position: relative;
 }
 
+.ui-dt {
+	font-size: $data_tbl_font_size;
+	/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
+}
+
+.ui-dt-separator {
+	//background: url('hr-blue.png') no-repeat;
+	padding: 1px;
+}
+
+.ui-dt .mselected, .ui-dt .selected {
+	background-color: $highlight2_bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+}
 div.ui-dt > table > tr > td {
 	border: 0;
 	margin: 0;
@@ -23,25 +51,43 @@ div.ui-dt > table {
 	border-collapse: collapse;
 	border-spacing: 2px;
 	//width: 100%; jal 20171023 Let table default to 100% in Java, so that we can easily override it
-	border: 1px solid #bdbdbd;
+	border: 1px solid $data_tbl_border_color;
 
 	margin: 0;
 	padding: 0;
 }
-.ui-dt tbody tr {
-	height: 30px;
-	border-bottom: 1px solid #ebebeb;
+
+.ui-dt-nores {
+	padding: 0px 0px 10px 0px;
+	font-style: italic;
 }
 
-.ui-dt th, .ui-dt-hdr {
-	padding: 0px 3px;
-	color: white;
+/*** Header ***/
+
+.ui-dt-hdr {
 	text-align: left;
-	height: 22px;
-	vertical-align: middle;
-	font-weight: normal;
+	//height: calc(2.25em + 4px);
 
 	background: $data_tbl_header_bg;
+	border-left: none !important;
+	border-right: none;
+	border-bottom: none;
+	border-right: none;
+}
+.ui-dt-hdr th {
+	white-space: nowrap;
+	//line-height: 1.5em;
+	padding: calc(0.375em + 1px) 4px;
+	color: $data_tbl_header_text_color;
+	text-align: left;
+	height: 2.25em;
+	vertical-align: middle;
+	font-weight: bold;
+	//font-size: 1rem;
+
+	@include overflow-ellipsis();
+
+	//background: $data_tbl_header_bg;
 	border-left: none !important;
 	border-right: none;
 	border-bottom: none;
@@ -57,21 +103,62 @@ div.ui-dt > table {
 	border-right: 1px solid $data_tbl_header_btm_border;
 }
 
+th.ui-sortable {
+	cursor: pointer;
+}
+th[nowrap="nowrap"] .ui-sortable {
+	white-space: nowrap;
+}
+
+div.ui-sortable {
+	position: relative;
+}
+
+.ui-dt-th.ui-sortable div {
+	display: flex;
+	flex-direction: row;
+}
+
+.ui-sortable span {
+	//margin-left: 10px;
+}
+.ui-dt-sorticon {
+	width: 16px;
+	height: 16px;
+	background-position: center right;
+	background-repeat: no-repeat;
+	&.ui-sort-n {
+		background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==);
+		//background: url(sort-none.png) no-repeat;
+	}
+	&.ui-sort-a {
+		background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7);
+		//background: url(sort-asc.png) no-repeat;
+	}
+	&.ui-sort-d {
+		background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7);
+		//background: url(sort-desc.png) no-repeat;
+	}
+
+}
+
+/*** Rows and columns ***/
+.ui-dt tbody tr {
+	height: 30px;
+	border-bottom: 1px solid $data_tbl_lines_color;
+}
+
 .ui-dt tbody tr > td.ui-f-lbl:first-child {
 	min-width: 150px;
 	margin-left: 10px;
 }
 
-.ui-dt-row > td > span {
-	padding: 0 4px;
-}
+//.ui-dt-row > td > span {
+//	padding: 0 4px;
+//}
 .ui-dt-row > td {
 	padding: 0 4px;
-}
-
-.ui-dt-nores {
-	padding: 0px 0px 10px 0px;
-	font-style: italic;
+	@include overflow-ellipsis();
 }
 
 .ui-odd {
@@ -108,39 +195,4 @@ td.ui-cellsel:hover {
 	text-decoration: underline;
 	background-color: $data_tbl_cell_highlight_bg !important;
 	color: $data_tbl_cell_highlight_link_color_bg;
-}
-
-th.ui-sortable {
-	cursor: pointer;
-}
-th[nowrap="nowrap"] .ui-sortable {
-	white-space: nowrap;
-}
-
-div.ui-sortable {
-	position: relative;
-}
-
-.ui-sortable img {
-	top: -3px;
-	position: absolute;
-	border: 0px;
-}
-
-.ui-sortable span {
-	margin-left: 10px;
-}
-
-.ui-dt {
-	font-size: $data_tbl_font_size;
-	/*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
-}
-
-.ui-dt-separator {
-	background: url('hr-blue.png') no-repeat;
-	padding: 1px;
-}
-
-.ui-dt .mselected, .ui-dt .selected {
-	background-color: $highlight2_bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
 }

@@ -80,7 +80,6 @@ final public class PropertyInfo implements IPropertyAccessor {
 
 	/**
 	 * Returns T if this is either a collection or an array.
-	 * @return
 	 */
 	public boolean isCollectionOrArrayType() {
 		return getActualType().isArray() || Collection.class.isAssignableFrom(getActualType());

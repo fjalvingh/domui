@@ -1,9 +1,7 @@
-package to.etc.domui.server;
+package to.etc.domui.login;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.login.IUser;
-import to.etc.domui.login.UILogin;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

@@ -38,6 +38,7 @@ import to.etc.domui.util.IComboDataSet;
 import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.IRenderInto;
 import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,10 +118,6 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	/**
 	 * Create a combo for all members of an enum, except for specified exceptions. It uses the enums labels as description. Since this has no known property it cannot
 	 * use per-property translations!!
-	 * @param <T>
-	 * @param clz
-	 * @param exceptions
-	 * @return
 	 */
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class<T> clz, T... exceptions) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
@@ -139,11 +136,8 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 
 	/**
 	 * Returns a combo for all of the list-of-value items for the specified property.
-	 *
-	 * @param <T>
 	 * @param base		The class
 	 * @param property	The property on the class.
-	 * @return
 	 */
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class< ? > base, String property) {
 		return createEnumCombo(MetaManager.getPropertyMeta(base, property));
@@ -151,9 +145,6 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 
 	/**
 	 * Returns a combo for all of the list-of-value items for the specified property.
-	 * @param <T>
-	 * @param pmm
-	 * @return
 	 */
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm) {
 		T[] var = (T[]) pmm.getDomainValues();
@@ -169,9 +160,6 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 
 	/**
 	 * Create a combobox having only the specified enum labels.
-	 * @param <T>
-	 * @param items
-	 * @return
 	 */
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(T... items) {
 		List<ValueLabelPair<T>> l = createEnumValueList(items);
@@ -196,11 +184,6 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 
 	/**
 	 * Create a combobox having only the specified enum labels.
-	 * @param <T>
-	 * @param base
-	 * @param property
-	 * @param domainvalues
-	 * @return
 	 */
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class< ? > base, String property, T... domainvalues) {
 		return createEnumCombo(MetaManager.getPropertyMeta(base, property), domainvalues);
@@ -208,10 +191,6 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 
 	/**
 	 * Create a combobox having only the specified enum labels.
-	 * @param <T>
-	 * @param pmm
-	 * @param domainvalues
-	 * @return
 	 */
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm, T... domainvalues) {
 		if(domainvalues.length == 0)
@@ -240,9 +219,6 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	/**
 	 * Create a combo for a manually specified list of objects. It calls toString on them to
 	 * get a String value.
-	 * @param <T>
-	 * @param items
-	 * @return
 	 */
 	static public <T> ComboFixed<T>	createCombo(T... items) {
 		return createCombo((IObjectToStringConverter<T>) TOSTRING_CV, items);
@@ -251,11 +227,6 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 	/**
 	 * Create a combo for a manually specified list of objects. Use the specified converter
 	 * to convert to a string.
-	 *
-	 * @param <T>
-	 * @param converter
-	 * @param items
-	 * @return
 	 */
 	static public <T> ComboFixed<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) {
 		List<ValueLabelPair<T>> values = new ArrayList<ValueLabelPair<T>>();
@@ -266,5 +237,21 @@ public class ComboFixed<T> extends ComboComponentBase<ValueLabelPair<T>, T> {
 			values.add(new ValueLabelPair<T>(item, v));
 		}
 		return new ComboFixed<T>(values);
+	}
+
+	/**
+	 * Create a combo for a list of objects. It calls Qfield on them to
+	 * get a String value.
+	 */
+	static public <T> ComboFixed<T>	createCombo(List<T> items , QField<T,?> labelField) throws Exception {
+		List<ValueLabelPair<T>> values = new ArrayList<ValueLabelPair<T>>();
+		for(T item : items) {
+			PropertyMetaModel<?> meta = MetaManager.findPropertyMeta(item.getClass(), labelField);
+			Object v = meta == null ? null : meta.getValue(item);
+			if(null == v)
+				v = "";
+			values.add(new ValueLabelPair<T>(item, v.toString()));
+		}
+		return new ComboFixed<>(values);
 	}
 }

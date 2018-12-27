@@ -24,7 +24,9 @@
  */
 package to.etc.domui.trouble;
 
-import to.etc.webapp.nls.*;
+import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.CodeException;
+import to.etc.webapp.nls.IBundleCode;
 
 /**
  * Base of the exception class for user interface trouble.
@@ -33,10 +35,20 @@ import to.etc.webapp.nls.*;
  * Created on Jun 12, 2008
  */
 public class UIException extends CodeException {
+	public UIException(IBundleCode code, Object... parameters) {
+		super(code, parameters);
+	}
+
+	public UIException(Throwable t, IBundleCode code, Object... parameters) {
+		super(t, code, parameters);
+	}
+
+	@Deprecated
 	public UIException(final BundleRef bundle, final String code, final Object... parameters) {
 		super(bundle, code, parameters);
 	}
 
+	@Deprecated
 	public UIException(final Throwable t, final BundleRef bundle, final String code, final Object... parameters) {
 		super(t, bundle, code, parameters);
 	}

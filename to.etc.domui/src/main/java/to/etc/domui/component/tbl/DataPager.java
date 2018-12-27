@@ -227,7 +227,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			setDisplay(DisplayType.NONE);
 		} else {
 			int rows = rowsAsked = m_table.getModel().getRows();
-			m_txt.setText(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_TEXT, Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(rows)));
+			m_txt.setText(Msgs.uiPagerText.format(Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(rows)));
 			setDisplay(DisplayType.BLOCK);
 		}
 
@@ -251,7 +251,7 @@ public class DataPager extends Div implements IDataTableChangeListener {
 			if(m_truncated == null) {
 				m_truncated = new Img();
 				m_truncated.setSrc("THEME/nav-overflow.png");
-				m_truncated.setTitle(Msgs.BUNDLE.formatMessage(Msgs.UI_PAGER_OVER, Integer.valueOf(tc)));
+				m_truncated.setTitle(Msgs.uiPagerOverflow.format(Integer.valueOf(tc)));
 				m_truncated.setCssClass("ui-dp-nav-pgr-ovf");
 				m_textDiv.add(m_truncated);
 			}

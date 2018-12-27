@@ -5,7 +5,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.controlfactory.ModelBindings;
 import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.misc.UIControlUtil;
@@ -53,8 +52,6 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	private ConfigPart m_configPart;
 
 	private LoggerRootDef m_rootDef;
-
-	private ModelBindings m_rootDefBindings;
 
 	@Override
 	public void createContent() throws Exception {
@@ -144,7 +141,8 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private void addRootConfigPart() throws Exception {
-		m_rootDef = new LoggerRootDef(EtcLoggerFactory.getSingleton().getLogDir(), EtcLoggerFactory.getSingleton().logDirOriginalAsConfigured(), EtcLoggerFactory.getSingleton().getLogDir());
+		EtcLoggerFactory singleton = EtcLoggerFactory.getSingleton();
+		m_rootDef = new LoggerRootDef(singleton.getLogDir().toString(), singleton.logDirOriginalAsConfigured(), singleton.getLogDir().toString());
 		FormBuilder fb = new FormBuilder(this);
 
 		fb.property(m_rootDef, LoggerRootDef.pROOTDIR).control();
@@ -182,7 +180,6 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private boolean validateData() throws Exception {
-		m_rootDefBindings.moveControlToModel();
 		return m_configPart.validateData();
 	}
 

@@ -16,7 +16,6 @@ import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
@@ -65,8 +64,11 @@ import java.util.function.Predicate;
 	@NonNull
 	private final ColumnList<T> m_columnList;
 
+//	@Nullable
+//	private Img[] m_sortImages;
+
 	@Nullable
-	private Img[] m_sortImages;
+	private Div[] m_sortSpans;
 
 	@Nullable
 	private ICellClicked<T> m_rowClicked;
@@ -169,13 +171,14 @@ import java.util.function.Predicate;
 	 *
 	 */
 	@Override
-	public void renderHeader(@NonNull final TableModelTableBase<T> tbl, @NonNull final HeaderContainer<T> cc) throws Exception {
+	public void renderHeader(@NonNull TableModelTableBase<T> tbl, @NonNull HeaderContainer<T> cc) throws Exception {
 		for(TableHeader h : m_tableHeaderBeforeList)
 			cc.addHeader(false, h);
 		for(TableHeader h : m_tableHeaderAfterList)
 			cc.addHeader(true, h);
 
-		Img[] sortImages = m_sortImages = new Img[m_columnList.size()];
+//		Img[] sortImages = m_sortImages = new Img[m_columnList.size()];
+		Div[] sortSpans = m_sortSpans = new Div[m_columnList.size()];
 		int ix = 0;
 		final boolean sortablemodel = tbl.getModel() instanceof ISortableTableModel;
 		StringBuilder sb = new StringBuilder();
@@ -190,28 +193,41 @@ import java.util.function.Predicate;
 				//-- Just add the span with label, if present. Span is needed to allow styling.
 				th = cc.add(new Span(label));
 			} else {
-				//in order to apply correct positioning, we need to wrap Span around sort indicator image and label
-				final Div cellSpan = new Div();
-				cellSpan.setCssClass("ui-sortable");
+				Div cellSpan = new Div();
+//				cellSpan.setCssClass("ui-sortable");
 				th = cc.add(cellSpan);
 				th.addCssClass("ui-sortable");
-
-				//-- Add the sort order indicator: a single image containing either ^, v or both.
-				final Img img = new Img();
-				cellSpan.add(img);
-
-				if(cd == getSortColumn()) {
-					img.setSrc(m_columnList.isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
-				} else {
-					img.setSrc("THEME/sort-none.png");
-				}
-				sortImages[ix] = img;
 
 				// Add the label;
 				if(!StringTool.isBlank(label))
 					cellSpan.add(new Span(label));
 				final ColumnDef<T, ?> scd = cd;
 				th.setClicked((IClicked<TH>) b -> handleSortClick(b, scd));
+
+				//in order to apply correct positioning, we need to wrap Span around sort indicator image and label
+
+
+				String sortCss;
+				if(cd == getSortColumn()) {
+					sortCss = m_columnList.isSortDescending() ? "ui-sort-d" : "ui-sort-a";
+				} else {
+					sortCss = "ui-sort-n";
+				}
+
+				Div sp = new Div("ui-dt-sorticon " + sortCss);
+				cellSpan.add(sp);
+				sortSpans[ix] = sp;
+
+//				//-- Add the sort order indicator: a single image containing either ^, v or both.
+//				final Img img = new Img();
+//				cellSpan.add(img);
+//
+//				if(cd == getSortColumn()) {
+//					img.setSrc(m_columnList.isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
+//				} else {
+//					img.setSrc("THEME/sort-none.png");
+//				}
+//				sortImages[ix] = img;
 			}
 
 			String cssClass = cd.getCssClass();
@@ -270,14 +286,13 @@ import java.util.function.Predicate;
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
 		ColumnDef<T, ?> sortColumn = getSortColumn();
 		if(scd == sortColumn) {
-			setSortDescending(!isSortDescending());
+			setSortDescending(!isSortDescending());			// Toggle
 		} else {
 			if(sortColumn != null)
-				updateSortImage(sortColumn, "THEME/sort-none.png");
-
+				updateSortImage(sortColumn, SortableType.UNKNOWN);
 			m_columnList.setSortColumn(scd, scd.getSortable());             // Set the new sort column
 		}
-		updateSortImage(scd, isSortDescending() ? "THEME/sort-desc.png" : "THEME/sort-asc.png");
+		updateSortImage(scd, isSortDescending() ? SortableType.SORTABLE_DESC : SortableType.SORTABLE_ASC);
 
 		//-- Tell the model to sort.
 		TableModelTableBase<T> parent = m_tableModelTable;
@@ -319,14 +334,38 @@ import java.util.function.Predicate;
 		m_lastSortedColumn = scd;
 	}
 
-	private void updateSortImage(@NonNull final ColumnDef<T, ?> scd, @NonNull final String img) {
-		Img[] sortImages = m_sortImages;
-		if(sortImages == null)
+	private void updateSortImage(@NonNull final ColumnDef<T, ?> scd, @NonNull SortableType sortOrder) {
+		Div[] sortSpans = m_sortSpans;
+		if(sortSpans == null)
 			return;
 		final int index = m_columnList.indexOf(scd);
 		if(index == -1)
 			throw new IllegalStateException("?? Cannot find sort column!?");
-		sortImages[index].setSrc(img);
+		Div sp = sortSpans[index];
+		switch(sortOrder) {
+			default:
+				sp.removeCssClass("ui-sort-a ui-sort-d");
+				sp.addCssClass("ui-sort-n");
+				break;
+
+			case SORTABLE_ASC:
+				sp.removeCssClass("ui-sort-d ui-sort-n");
+				sp.addCssClass("ui-sort-a");
+				break;
+
+			case SORTABLE_DESC:
+				sp.removeCssClass("ui-sort-a ui-sort-n");
+				sp.addCssClass("ui-sort-d");
+				break;
+		}
+
+//		Img[] sortImages = m_sortImages;
+//		if(sortImages == null)
+//			return;
+//		final int index = m_columnList.indexOf(scd);
+//		if(index == -1)
+//			throw new IllegalStateException("?? Cannot find sort column!?");
+//		sortImages[index].setSrc(img);
 	}
 
 	/**

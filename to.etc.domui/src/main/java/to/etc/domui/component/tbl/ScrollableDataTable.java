@@ -284,7 +284,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 		m_errorDiv = new Div();
 		m_errorDiv.setCssClass("ui-dt-nores");
-		m_errorDiv.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
+		m_errorDiv.setText(Msgs.uiDatatableEmpty.getString());
 		add(m_errorDiv);
 		return;
 	}

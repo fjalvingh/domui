@@ -355,7 +355,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 
 	private void validateBindValue() {
 		if(isMandatory() && m_value == null) {
-			throw new ValidationException(Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 	}
 

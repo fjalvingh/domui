@@ -32,6 +32,7 @@ import to.etc.domui.trouble.UIException;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.CodeException;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Arrays;
 
@@ -90,6 +91,10 @@ public class UIMessage {
 	 */
 	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull BundleRef br, @NonNull String code, @Nullable Object[] parameters) {
 		this(errorNode, errorLocation, type, br, code, parameters, null);
+	}
+
+	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull IBundleCode code, @Nullable Object[] parameters) {
+		this(errorNode, errorLocation, type, code.getBundle(), code.name(), parameters, null);
 	}
 
 	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull BundleRef br, @NonNull String code, @Nullable Object[] parameters,
@@ -223,6 +228,11 @@ public class UIMessage {
 	}
 
 	@NonNull
+	static public UIMessage error(String errorLocation, @NonNull IBundleCode code, Object... param) {
+		return new UIMessage(null, errorLocation, MsgType.ERROR, code.getBundle(), code.name(), param);
+	}
+
+	@NonNull
 	static public UIMessage error(NodeBase node, @NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(node, node.getErrorLocation(), MsgType.ERROR, ref, code, param);
 	}
@@ -230,6 +240,9 @@ public class UIMessage {
 	@NonNull
 	static public UIMessage error(@NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(null, null, MsgType.ERROR, ref, code, param);
+	}
+	static public UIMessage error(@NonNull IBundleCode code, Object... param) {
+		return new UIMessage(null, null, MsgType.ERROR, code, param);
 	}
 
 	@NonNull

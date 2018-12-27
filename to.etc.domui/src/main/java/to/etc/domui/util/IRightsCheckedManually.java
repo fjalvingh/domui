@@ -22,10 +22,6 @@ public interface IRightsCheckedManually {
 	 * If this method throws an Exception it explicitly forbids access to the page; the exception message
 	 * will be shown to the user as the reason. This exception can be a {@link CodeException} or anything
 	 * else.
-	 *
-	 * @param user
-	 * @return
-	 * @throws Exception
 	 */
 	boolean isAccessAllowedBy(@NonNull IUser user) throws Exception;
 }

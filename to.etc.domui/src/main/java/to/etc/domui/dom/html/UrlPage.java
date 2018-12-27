@@ -55,7 +55,7 @@ import java.util.List;
  * Created on Sep 1, 2008
  */
 @NonNullByDefault
-public class UrlPage extends Div {
+public class UrlPage extends AbstractPage {
 	/** The title for the page in the head's TITLE tag. */
 	@Nullable
 	private String m_pageTitle;
@@ -73,7 +73,6 @@ public class UrlPage extends Div {
 	/**
 	 * Set the style of the theme to use for the entire page. The normal style is "default", represented
 	 * by {@link DefaultThemeVariant#INSTANCE}.
-	 * @param themeVariant
 	 */
 	public final void setThemeVariant(@NonNull IThemeVariant themeVariant) {
 		UIContext.getRequestContext().setThemeVariant(themeVariant);
@@ -108,7 +107,6 @@ public class UrlPage extends Div {
 	/**
 	 * Get the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
 	 * "title" property.
-	 * @return
 	 */
 	@Nullable
 	public String getPageTitle() {
@@ -124,8 +122,6 @@ public class UrlPage extends Div {
 	/**
 	 * Set the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
 	 * "title" property.
-	 *
-	 * @param pageTitle
 	 */
 	public void setPageTitle(@Nullable String pageTitle) {
 		m_pageTitle = pageTitle;
@@ -176,11 +172,6 @@ public class UrlPage extends Div {
 
 	@Override
 	@NonNull
-	final public QDataContextFactory getSharedContextFactory() {
-		return getSharedContextFactory(QContextManager.DEFAULT);
-	}
-
-	@NonNull
 	public QDataContextFactory getSharedContextFactory(@NonNull String key) {
 		return QContextManager.getDataContextFactory(key, getPage().getContextContainer(key));
 	}
@@ -193,7 +184,6 @@ public class UrlPage extends Div {
 
 	/**
 	 * EXPERIMENTAL Returns the business logic context for the current form.
-	 * @see to.etc.domui.dom.html.NodeBase#lc()
 	 */
 	@Override
 	@NonNull

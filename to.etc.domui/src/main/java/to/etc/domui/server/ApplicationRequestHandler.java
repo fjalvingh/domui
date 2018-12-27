@@ -55,9 +55,6 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	@NonNull
 	private ResponseCommandWriter m_commandWriter = new ResponseCommandWriter();
 
-	@NonNull
-	private PageAccessChecker m_accessChecker = new PageAccessChecker();
-
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
 
 	ApplicationRequestHandler(@NonNull final DomApplication application) {
@@ -68,7 +65,10 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Accept .obit, the defined DomUI extension (.ui by default) and the empty URL if a home page is set in {@link DomApplication}.
 	 */
 	private boolean accepts(@NonNull IRequestContext ctx) {
-		return m_application.getUrlExtension().equals(ctx.getExtension()) || ctx.getExtension().equals("obit") || (m_application.getRootPage() != null && ctx.getInputPath().length() == 0);
+		return m_application.getUrlExtension().equals(ctx.getExtension())
+				|| ctx.getExtension().equals("obit")
+				|| (m_application.getRootPage() != null && ctx.getPageName() == null)
+				;
 	}
 
 	@Override
@@ -76,7 +76,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(! accepts(ctx))
 			return false;
 
-		PageRequestHandler ph = new PageRequestHandler(m_application, this, m_commandWriter, m_accessChecker, ctx);
+		PageRequestHandler ph = new PageRequestHandler(m_application, this, m_commandWriter, ctx);
 		ph.executeRequest();
 		return true;
 	}

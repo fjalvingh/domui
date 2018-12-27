@@ -29,10 +29,11 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.CompoundKeyConverter;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
+import to.etc.util.PropertyInfo;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QNotFoundException;
 
-import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * This property injector takes the named URL parameter as a string. It does a lookup of the entity specified
@@ -53,8 +54,8 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 
 	private final PropertyMetaModel<?> m_pkMetaPmm;
 
-	public UrlFindEntityByPkInjector(final Method propertySetter, final String name, final boolean mandatory, final Class<?> enityClass, PropertyMetaModel<?> pkMetaPmm) {
-		super(propertySetter);
+	public UrlFindEntityByPkInjector(PropertyInfo info, final String name, final boolean mandatory, final Class<?> enityClass, PropertyMetaModel<?> pkMetaPmm) {
+		super(info);
 		m_name = name;
 		m_mandatory = mandatory;
 		m_entityClass = enityClass;
@@ -82,7 +83,6 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 
 	/**
 	 * Create a new instance.
-	 * @return
 	 */
 	protected Object createNew(final UrlPage page) {
 		try {
@@ -94,10 +94,6 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 
 	/**
 	 * Returns T if the request is to create a new instance.
-	 * @param page
-	 * @param papa
-	 * @param value
-	 * @return
 	 */
 	protected boolean isNew(final UrlPage page, final IPageParameters papa, String value) throws Exception {
 		return "NEW".equals(value);
@@ -118,7 +114,7 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 	}
 
 	@Override
-	public void inject(@NonNull final UrlPage page, @NonNull final IPageParameters papa) throws Exception {
+	public void inject(@NonNull final UrlPage page, @NonNull final IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = getParameterValue(page, papa);
 		if(pv == null)

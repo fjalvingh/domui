@@ -57,7 +57,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 	 * Create a default error panel.
 	 */
 	public ErrorPanel() {
-		super(Msgs.BUNDLE.getString(Msgs.UI_ERROR_HEADER), new Div());
+		super(Msgs.uiErrorHeader.getString(), new Div());
 		setDisplay(DisplayType.NONE);
 		getTitleContainer().setCssClass("ui-err-caption");
 		getContent().setCssClass("ui-err-cont");
@@ -126,7 +126,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 				break;
 
 			case ERROR:
-				setTitle(Msgs.BUNDLE.getString(Msgs.UI_ERROR_HEADER));
+				setTitle(Msgs.uiErrorHeader.getString());
 				break;
 		}
 	}
