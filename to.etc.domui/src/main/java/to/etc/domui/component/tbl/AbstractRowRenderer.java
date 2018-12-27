@@ -32,6 +32,7 @@ import to.etc.domui.component.meta.SortableType;
 import to.etc.domui.component.ntbl.IRowButtonFactory;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.converter.IObjectToStringConverter;
+import to.etc.domui.dom.html.Col;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
@@ -322,15 +323,20 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 
 		for(final SimpleColumnDef< ? > cd : m_columnList) {
 			TH th;
+			Col col;
 			String label = cd.getColumnLabel();
 			if(!cd.getSortable().isSortable() || !sortablemodel) {
 				//-- Just add the label, if present,
-				th = cc.add(label);
+				HeaderContainer.HeaderContainerCell cell = cc.add(label);
+				th = cell.getTh();
+				col= cell.getCol();
 			} else {
 				//in order to apply correct positioning, we need to wrap Span around sort indicator image and label
 				final Div cellSpan = new Div();
 				cellSpan.setCssClass("ui-sortable");
-				th = cc.add(cellSpan);
+				HeaderContainer.HeaderContainerCell cell = cc.add(cellSpan);
+				th = cell.getTh();
+				col = cell.getCol();
 				th.setCssClass("ui-sortable");
 
 				//-- Add the sort order indicator: a single image containing either ^, v or both.
@@ -349,12 +355,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 					label = getUnknownColumnCaption();
 				cellSpan.add(new Span(label));
 				final SimpleColumnDef< ? > scd = cd;
-				th.setClicked(new IClicked<TH>() {
-					@Override
-					public void clicked(final @NonNull TH b) throws Exception {
-						handleSortClick(b, scd);
-					}
-				});
+				th.setClicked((IClicked<TH>) b -> handleSortClick(b, scd));
 
 				//-- Experimental: set a calculated test ID
 				String lbl = cd.getPropertyName();
@@ -374,7 +375,7 @@ public class AbstractRowRenderer<T> implements IClickableRowRenderer<T> {
 				th.setCssClass(sb.toString());
 			}
 
-			th.setWidth(cd.getWidth());
+			col.setWidth(cd.getWidth());
 			ix++;
 		}
 

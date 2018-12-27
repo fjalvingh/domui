@@ -30,6 +30,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.MiniLogger;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClickBase;
 import to.etc.domui.dom.html.IClicked;
@@ -224,11 +225,12 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		add(m_table);
 
 		//-- Render the header.
-
+		ColGroup colGroup = new ColGroup();
+		m_table.add(colGroup);
 		THead hd = new THead();
 		m_table.add(hd);
 		hd.setKeepNode(true);
-		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
+		HeaderContainer<T> hc = new HeaderContainer<>(this, colGroup, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
@@ -271,12 +273,14 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	void renderHeader(@NonNull HeaderContainer<T> hc) throws Exception {
 		//-- Are we rendering a multi-selection?
 		if(m_multiSelectMode) {
-			TH headerCell = hc.add("");
+			HeaderContainer.HeaderContainerCell cell = hc.add("");
+			TH headerCell = cell.getTh();
 			headerCell.add(new Img("THEME/dspcb-on.png"));
 			headerCell.setTestID("dt_select_all");
-			headerCell.setWidth("1%"); //keep selection column with minimal width
 			headerCell.setClicked(m_headerSelectClickHandler);
 			headerCell.setCssClass("ui-clickable");
+//			headerCell.setWidth("1%"); //keep selection column with minimal width
+			cell.getCol().setWidth("1%");
 		}
 		m_rowRenderer.renderHeader(this, hc);
 	}
@@ -307,10 +311,13 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		//-- Render the header.
 		if(!m_table.isAttached())
 			add(m_table);
+
+		ColGroup colGroup = new ColGroup();
+		m_table.add(colGroup);
 		THead hd = new THead();
-		hd.setKeepNode(true);
 		m_table.add(hd);
-		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
+		hd.setKeepNode(true);
+		HeaderContainer<T> hc = new HeaderContainer<>(this, colGroup, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {

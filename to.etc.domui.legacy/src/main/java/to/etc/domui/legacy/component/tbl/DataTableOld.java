@@ -40,6 +40,7 @@ import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component.tbl.PageableTabularComponentBase;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClickBase;
 import to.etc.domui.dom.html.IClicked;
@@ -241,9 +242,11 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 		add(m_table);
 
 		//-- Render the header.
+		ColGroup cg = new ColGroup();
+		m_table.add(cg);
 		THead hd = new THead();
 		m_table.add(hd);
-		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
+		HeaderContainer<T> hc = new HeaderContainer<>(this, cg, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
@@ -269,10 +272,11 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	void renderHeader(@NonNull HeaderContainer<T> hc) throws Exception {
 		//-- Are we rendering a multi-selection?
 		if(m_multiSelectMode) {
-			TH headerCell = hc.add("");
+			HeaderContainer.HeaderContainerCell cell = hc.add("");
+			TH headerCell = cell.getTh();
 			headerCell.add(new Img("THEME/dspcb-on.png"));
 			headerCell.setTestID("dt_select_all");
-			headerCell.setWidth("1%"); //keep selection column with minimal width
+			cell.getCol().setWidth("1%"); //keep selection column with minimal width
 			headerCell.setClicked(m_headerSelectClickHandler);
 			headerCell.setCssClass("ui-clickable");
 		}
@@ -305,9 +309,11 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 		//-- Render the header.
 		if(!m_table.isAttached())
 			add(m_table);
+		ColGroup cg = new ColGroup();
+		m_table.add(cg);
 		THead hd = new THead();
 		m_table.add(hd);
-		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
+		HeaderContainer<T> hc = new HeaderContainer<>(this, cg, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
