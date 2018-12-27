@@ -749,7 +749,12 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 				// Bug# 1101: get a quick indication of how big the subtree is by traversing only the 1st subtree in the nodes;
 				int xcount = 0;
 				for(NodeBase n : newl) {
-					xcount += n.internalGetNodeCount(2);
+					int nodeCt = n.internalGetNodeCount(2);
+					if(nodeCt == -1) {
+						xcount = -1;
+						break;
+					}
+					xcount += nodeCt;
 				}
 				if(xcount > ncmd * 2) {
 					//-- end bug# 1101 fix

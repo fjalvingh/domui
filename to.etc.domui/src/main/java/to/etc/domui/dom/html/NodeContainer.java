@@ -185,10 +185,15 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	protected int internalGetNodeCount(int depth) {
 		if(depth <= 0)
 			return 0;
+		if(isKeepNode())
+			return -1;
 		depth--;
 		int count = 0;
 		for(NodeBase b : m_children) {
-			count += b.internalGetNodeCount(depth);
+			int ct = b.internalGetNodeCount(depth);
+			if(ct == -1)
+				return -1;
+			count += ct;
 		}
 		return count;
 	}
