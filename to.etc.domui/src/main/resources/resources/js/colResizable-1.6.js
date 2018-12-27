@@ -131,15 +131,17 @@
 			grip._index = i;
 			grip._column = column;
 			column._width = column.width();									//some values are stored in the grip's node data as shortcut
-			// if(i === t._columnCount-1)										// 20181224 jal fix vertical scrollbar because last grip is past width.
-			// 	column._width -= 5;
 			column._minWidth = column.innerWidth() - column.width();		//FIX issue 45 don't go below total added padding width otherwise skewed results
 			t._grips.push(grip);
-			t._columns.push(column);						//the current grip and column are added to its table object
-			column.width(column._width).removeAttr("width");				//the width of the column is converted into pixel-based measurements
-			grip.data(SIGNATURE, {index: i, tableId: t.attr(ID), last: i == t._columnCount - 1});	 //grip index and its table name are stored in the HTML
+			t._columns.push(column);										//the current grip and column are added to its table object
+			// column.width(column._width).removeAttr("width");				//the width of the column is converted into pixel-based measurements
+			column.removeAttr("width");										//the width of the column is converted into pixel-based measurements
+			t._columnGroups.eq(i).width(column._width);
+			grip.data(SIGNATURE, {index: i, tableId: t.attr(ID), last: i === t._columnCount - 1});	 //grip index and its table name are stored in the HTML
 		});
-		t._columnGroups.removeAttr("width");	//remove the width attribute from elements in the colgroup
+		t._columnGroups
+			.removeAttr("width")
+		;	//remove the width attribute from elements in the colgroup
 
 		t.find('td, th').not(th).not('table th, table td').each(function() {
 			$(this).removeAttr('width');	//the width attribute is removed from all table cells which are not nested in other tables and dont belong to the header
@@ -163,6 +165,7 @@
 	 * @param {jQuery ref} th - reference to the first row elements (only set in deserialization)
 	 */
 	var memento = function(t, th) {
+		console.log("Memento called");
 		var w, m = 0, i = 0, aux = [], tw;
 		if(th) {										//in deserialization mode (after a postback)
 			t._columnGroups.removeAttr("width");
@@ -232,6 +235,7 @@
 	 * @param {bool} isOver - to identify when the function is being called from the onGripDragOver event
 	 */
 	var syncCols = function(t, i, isOver) {
+		console.log("syncCols called");
 		var inc = drag._prevLeft - drag._left;
 		var c = t._columns[i];
 		var isLast = i >= t._columnCount - 1;
@@ -261,7 +265,7 @@
 			// FIX
 
 			var delta = w - c.width();		// Calculated change in width
-			console.log("dw = " + delta);
+			// console.log("dw = " + delta);
 			c.width(w + PX);
 			t._columnGroups.eq(i).width(w + PX);
 			t.width(t._width);				// Table width does not change
@@ -282,7 +286,7 @@
 			}
 
 			var delta = w - c.width();				// Calculated change in width
-			console.log("dw = " + delta);
+			// console.log("dw = " + delta);
 			c.width(w + PX);
 			t._columnGroups.eq(i).width(w + PX);
 
@@ -290,7 +294,7 @@
 			t.width(t._width);
 			t.css('min-width', t._width + inc);		//if overflow is set, increment min-width to force overflow (?)
 			if(isOver) {
-				console.log("isover not fixed w=" + w);
+				// console.log("isover not fixed w=" + w);
 				c._width = w;
 			}
 		}
@@ -308,7 +312,7 @@
 		});
 		// t.width(t._width = t.width()).removeClass(FLEX);	//prevent table width changes
 		// t.width(t._width).removeClass(FLEX);			//force new width for table
-		console.log("tw=" + t._width);
+		// console.log("tw=" + t._width);
 		// $.each(t._columns, function(i,c){
 		//     c.width(w[i])._width = w[i];				//set column widths applying bounds (table's max-width)
 		// });
@@ -319,7 +323,7 @@
 
 	/**
 	 * Event handler used while dragging a grip. It checks if the next grip's position is valid and updates it.
-	 * @param {event} e - mousemove event binded to the window object
+	 * @param {event} e - mousemove event bound to the window object
 	 */
 	var onGripDrag = function(e) {
 		if(!drag) return;
@@ -438,7 +442,7 @@
 			c = t._columns[i];
 			c._locked = false;
 			c._width = c.width();
-		} 	//if the colum is locked (after browser resize), then c.w must be updated
+		} 	//if the column is locked (after browser resize), then c.w must be updated
 		return false; 	//prevent text selection
 	};
 
@@ -448,6 +452,7 @@
 	 * table layout according to the browser's size synchronizing related grips
 	 */
 	var onResize = function() {
+		console.log("resize called");
 		for(var t in tables) {
 			if(tables.hasOwnProperty(t)) {
 				t = tables[t];
