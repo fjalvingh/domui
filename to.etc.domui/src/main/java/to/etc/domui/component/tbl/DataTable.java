@@ -224,6 +224,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		add(m_table);
 
 		//-- Render the header.
+
 		THead hd = new THead();
 		m_table.add(hd);
 		hd.setKeepNode(true);

@@ -30,7 +30,6 @@ import to.etc.domui.component.misc.LiteralXhtml;
 import java.util.List;
 
 public class NodeVisitorBase implements INodeVisitor {
-
 	@Override
 	public void visitDiv(Div n) throws Exception {
 		sub(n);
@@ -177,6 +176,14 @@ public class NodeVisitorBase implements INodeVisitor {
 	@Override
 	public void visitH(HTag n) throws Exception {
 		sub(n);
+	}
+
+	@Override public void visitColGroup(ColGroup n) throws Exception {
+		sub(n);
+	}
+
+	@Override public void visitCol(Col n) throws Exception {
+		visitNodeBase(n);
 	}
 
 	public void visitNodeBase(NodeBase n) throws Exception {}

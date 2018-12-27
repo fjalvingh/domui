@@ -24,7 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.component.misc.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.component.misc.LiteralXhtml;
 
 /**
  * Thingy for visitin gnodes.
@@ -32,6 +33,7 @@ import to.etc.domui.component.misc.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Aug 17, 2007
  */
+@NonNullByDefault
 public interface INodeVisitor {
 	void visitTextNode(TextNode n) throws Exception;
 
@@ -94,4 +96,8 @@ public interface INodeVisitor {
 	void visitIFrame(IFrame n) throws Exception;
 
 	void visitP(Para n) throws Exception;
+
+	void visitColGroup(ColGroup n) throws Exception;
+
+	void visitCol(Col n) throws Exception;
 }
