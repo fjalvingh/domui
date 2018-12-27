@@ -1,59 +1,59 @@
-$body-image: "";
-$bg_color: #ffffff;
+$body-image: "" !default;
+$bg_color: #ffffff !default;
 
-$font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
-//$font-family: 'Arial', 'Helvetica', sans-serif;
-//$font-family: 'Lato', 'Arial', 'Helvetica', sans-serif;
-$font-size: 14px;
-$fixed_font_family: 'Courier New, Courier, monospace';
-$fixed_font_size: 11px;
-$hdr_font_size: 14px;
+$font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif !default;
+//$font-family: 'Arial', 'Helvetica', sans-serif !default;
+//$font-family: 'Lato', 'Arial', 'Helvetica', sans-serif !default;
+$font-size: 14px !default;
+$fixed_font_family: 'Courier New, Courier, monospace' !default;
+$fixed_font_size: 11px !default;
+$hdr_font_size: 14px !default;
 
 // Core padding
-$horizontal-padding: 10px;
-$vertical-padding: 10px;
+$horizontal-padding: 10px !default;
+$vertical-padding: 10px !default;
 
 /** colors **/
-$link_color: #2200cc;	// dark blue
+$link_color: #2200cc !default;	// dark blue
 
-$bevel_up: #ABADB3;
-$bevel_down: #BFCDD9;
-$bevel_hover_up: #5794BF;
-$bevel_hover_down: #D7E8F8;
+$bevel_up: #ABADB3 !default;
+$bevel_down: #BFCDD9 !default;
+$bevel_hover_up: #5794BF !default;
+$bevel_hover_down: #D7E8F8 !default;
 
-$readonly_bg: transparent;
-$readonly_border: #EEEEEF;        // bit darker grey
+$readonly_bg: transparent !default;
+$readonly_border: #EEEEEF !default;        // bit darker grey
 
-$bg_ttl_gradient: "bg-ttl-domui.png";
-$bg_ttl_end:  #7c7c7c;
-$bg_ttl_text: #ffffff;
+$bg_ttl_gradient: "bg-ttl-domui.png" !default;
+$bg_ttl_end:  #7c7c7c !default;
+$bg_ttl_text: #ffffff !default;
 
-$selected_bg: #ff9436;
+$selected_bg: #ff9436 !default;
 
-$highlight_bg: #ffbb43; 	// row select: hard orange
-$highlight2_bg: lighten($highlight_bg, 20%);
+$highlight_bg: #ffbb43 !default; 	// row select: hard orange
+$highlight2_bg: lighten($highlight_bg, 20%) !default;
 
 /** Error, warning, info colors **/
-$errors_background: #a9c5f1;
-$errors_border: #ff0000; 			// red
-$errors_foreground: #ff0000;		// red
+$errors_background: #a9c5f1 !default;
+$errors_border: #ff0000 !default; 			// red
+$errors_foreground: #ff0000 !default;		// red
 
-$errors_input_background: #ffe5e5;	// error bg for input component
+$errors_input_background: #ffe5e5 !default;	// error bg for input component
 
-$warnings_background: #fffeee; // light yellow
-$warnings_foreground: yellow;
-$warnings_border: #fffeee;
+$warnings_background: #fffeee !default; // light yellow
+$warnings_foreground: yellow !default;
+$warnings_border: #fffeee !default;
 
-$info_bg: #e4eeff;		// blueish light
-$info_fg: #4075db;
-$info_border: #4075db;
+$info_bg: #e4eeff !default;		// blueish light
+$info_fg: #4075db !default;
+$info_border: #4075db !default;
 
-$header_bg: #7c7c7c;
-$main_color: #43b761; 				//Main green
+$header_bg: #7c7c7c !default;
+$main_color: #43b761 !default; 				//Main green
 
-$succesful-color: #84C000;			// Green for checkmark
+$succesful-color: #84C000 !default;			// Green for checkmark
 
-$common-hdr-color-1: #aeaeae;
+$common-hdr-color-1: #aeaeae !default;
 
 /** data table? **/
 //$data_tbl_selected_bg: #bed6f8;	// blue
@@ -69,60 +69,59 @@ $common-hdr-color-1: #aeaeae;
 //$data_tbl_header_btm_border: undefined;
 
 /** LookupInput and LookupInput2 **/
-$lui-warning-color: #ff4f27;				// Popup that shows 'no results'
-$lui-warning-color-border: #ff8d60;			// Border of that popup
-$lui-result-color: #d4ee9f;					// Popup showing "xxxx records"
-$lui-result-color-border: #a5c663;			// Border of that
+$lui-warning-color: #ff4f27 !default;				// Popup that shows 'no results'
+$lui-warning-color-border: #ff8d60 !default;			// Border of that popup
+$lui-result-color: #d4ee9f !default;					// Popup showing "xxxx records"
+$lui-result-color-border: #a5c663 !default;			// Border of that
 
 /** Misc **/
 $io_blk_wait: "io-blk-wait.gif";			/* Icon definition for DomUI icons */
 
 
 //multiple lookup labels
-$multiple_lookup_label_color: #ffa21e;
-$multiple_lookup_label_border: #fff2ab;
+$multiple_lookup_label_color: #ffa21e !default;
+$multiple_lookup_label_border: #fff2ab !default;
 
 //-- ScrollableTabPanel FIXME REMOVE
-$tab_pnl_inactive_col: #ffffff;
-$tab_pnl_hover_inactive_col: #ffffff;
-$tab_pnl_active_col: #67267f;
-$tab_pnl_btm_border: 0px;
-$tab_pnl_img: "tab-all-domui.png";
-$tab_pnl_close: "tab-pnl-close.png";
-$tab_pnl_close_hover: "tab-pnl-close-hover.png";
-$tab_pnl_sep_bg: #7c7c7c;
-$tab_pnl_arrows: url(tab-scrl-icon.png);
+$tab_pnl_inactive_col: #ffffff !default;
+$tab_pnl_hover_inactive_col: #ffffff !default;
+$tab_pnl_active_col: #67267f !default;
+$tab_pnl_btm_border: 0px !default;
+$tab_pnl_img: "tab-all-domui.png" !default;
+$tab_pnl_close: "tab-pnl-close.png" !default;
+$tab_pnl_close_hover: "tab-pnl-close-hover.png" !default;
+$tab_pnl_sep_bg: #7c7c7c !default;
+$tab_pnl_arrows: url(tab-scrl-icon.png) !default;
 
 // TabPanel
-$tabpanel-header-bg: #7c7c7c;					// The header part containing the tabs
-$tabpanel-tab-bg: #aaa;
-$tabpanel-tab-border: #555;
-$tabpanel-content-bg: white;
-$tabpanel-selected-color: #444;
+//$tabpanel-header-bg: #7c7c7c !default;					// The header part containing the tabs
+//$tabpanel-tab-bg: #aaa !default;
+//$tabpanel-tab-border: #555 !default;
+//$tabpanel-content-bg: white !default;
+//$tabpanel-selected-color: #444 !default;
 
 //-- Buttons
-$button-top-color: #f69231;
-$button-bottom-color: #f6ac3d;
-$button-focus-top-color: #f6c381;
-$button-focus-bot-color: #f69231;
-$button-focus-glow-color: rgba($button-focus-top-color, .7);
-$button-disabled-color: #999999;
-$button_height: 24px;
-$button-font-size: 15px;
-$button-icon-fontsize: 15px;
+$button-top-color: #f69231 !default;
+$button-bottom-color: #f6ac3d !default;
+$button-focus-top-color: #f6c381 !default;
+$button-focus-bot-color: #f69231 !default;
+$button-focus-glow-color: rgba($button-focus-top-color, .7) !default;
+$button-disabled-color: #999999 !default;
+$button_height: 24px !default;
+$button-font-size: 15px !default;
+$button-icon-fontsize: 15px !default;
 
 /*** Data Pager buttons ***/
-$data_pager_icons: "data-pager-icons.png";
-$data_pager_icon_size_x: 32px;
-$data_pager_icon_size_y: 19px;
+$data_pager_icons: "data-pager-icons.png" !default;
+$data_pager_icon_size_x: 32px !default;
+$data_pager_icon_size_y: 19px !default;
 
 /*** Forms ***/
-$form-line-height:	1.5em;
-$input-line-height: $form-line-height;
-$form-label-color: #363636;
-$form-label-weight: 600;
-$form-label-width: 150px;
-
+$form-line-height:	1.5em !default;
+$input-line-height: $form-line-height !default;
+$form-label-color: #363636 !default;
+$form-label-weight: 600 !default;
+$form-label-width: 150px !default;
 
 /***----------------- Bulma like -------------------------***/
 
@@ -175,9 +174,9 @@ $speed: 86ms !default;
 $control-padding-vertical: calc(0.375em - 1px) !default;
 $control-padding-horizontal: calc(0.625em - 1px) !default;
 
-$input-border-color: #dbdbdb;
+$input-border-color: #dbdbdb !default;
 
 //-- enumsetinput label colors
-$esic-label-color: #d4f94e;
-$esic-label-border: darken($esic-label-color, 20%);
-$esic-text-color: findColorInvert($esic-label-color);
+$esic-label-color: #d4f94e !default;
+$esic-label-border: darken($esic-label-color, 20%) !default;
+$esic-text-color: findColorInvert($esic-label-color) !default;
