@@ -589,6 +589,10 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newInstance = null;
 	}
 
+	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+		modelChanged(model);
+	}
+
 	/**
 	 * A record is added. Add a collapsed row at the required position.
 	 *

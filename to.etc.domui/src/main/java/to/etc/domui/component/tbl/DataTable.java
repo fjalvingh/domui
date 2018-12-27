@@ -371,11 +371,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * DO NOT OVERRIDE - DEPRECATED FOR EXTERNAL USE!!
 	 * Renders row content into specified row.
-	 *
-	 * @param cc
-	 * @param index
-	 * @param value
-	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
 	private void renderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
@@ -434,11 +429,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * Must exist for CheckBoxDataTable; remove asap AND DO NOT USE AGAIN - internal interfaces should remain hidden.
-	 * @param tr
-	 * @param cc
-	 * @param index
-	 * @param value
-	 * @throws Exception
 	 */
 	@Deprecated
 	void internalRenderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
@@ -710,6 +700,34 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		fireModelChanged(null, model);
 	}
 
+	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+		if(! isBuilt())
+			return;
+		List<T> list = getPageItems(); 						// Data to show
+		if(list.size() == 0) {
+			setNoResults();
+			return;
+		}
+
+		m_dataBody.removeAllChildren();
+
+		//-- Render the rows.
+		ColumnContainer<T> cc = new ColumnContainer<>(this);
+		m_visibleItemList.clear();
+		int ix = m_six;
+		for(T o : list) {
+			TableRowSet<T> rowSet = new TableRowSet<>(this, o);
+			m_visibleItemList.add(rowSet);
+			TR tr = rowSet.getPrimaryRow();
+			m_dataBody.add(tr);
+			tr.setTestRepeatID("r" + ix);
+			cc.setParent(tr);
+			renderRow(tr, cc, ix, o);
+			ix++;
+		}
+		ml("createContent rebuilt visibleList after rowsSorted");
+	}
+
 	/**
 	 * Row add. Determine if the row is within the paged-in indexes. If not we ignore the
 	 * request. If it IS within the paged content we insert the new TR. Since this adds a
@@ -784,9 +802,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * This calculates the starting index position inside the TBody for the data row with
 	 * the specified rowIndex. It walks all visibleItems up till the rowIndex, and adds
 	 * their rowSize to get the next index.
-	 *
-	 * @param rowIndex
-	 * @return
 	 */
 	private int calculateBodyPosition(int rowIndex) {
 		int position = 0;

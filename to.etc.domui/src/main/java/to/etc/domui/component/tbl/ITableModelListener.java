@@ -39,37 +39,24 @@ import org.eclipse.jdt.annotation.Nullable;
 public interface ITableModelListener<T> {
 	/**
 	 * Called after a row is added to the model.
-	 *
-	 * @param model
-	 * @param index
-	 * @param value
-	 * @throws Exception
 	 */
 	void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception;
 
 	/**
 	 * Called after a row has been deleted.
-	 *
-	 * @param model
-	 * @param index	The index of the deleted row in the table.
-	 * @param value	The <b>deleted</b> value.
-	 * @throws Exception
 	 */
 	void rowDeleted(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception;
 
 	/**
 	 * Called after a row has been changed.
-	 * @param model
-	 * @param index
-	 * @param value
-	 * @throws Exception
 	 */
 	void rowModified(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception;
+
+	void rowsSorted(@NonNull ITableModel<T> model) throws Exception;
 
 	/**
 	 * Called when the entire content of the model changed. This should indicate a complete content
 	 * redraw usually.
-	 * @param model
 	 */
 	void modelChanged(@Nullable ITableModel<T> model) throws Exception;
 }

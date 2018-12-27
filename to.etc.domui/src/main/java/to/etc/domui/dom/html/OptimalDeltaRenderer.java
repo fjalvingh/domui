@@ -299,9 +299,9 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 	 */
 	private void calc(Page page) throws Exception {
 		//-- Create the BODY node's nodeInfo; this starts the tree of changes.
-		NodeInfo root = new NodeInfo(null); // jal 20081111 Body is not the PARENT - it is the 1st node to evaluate.
+		NodeInfo root = new NodeInfo(null);			// jal 20081111 Body is not the PARENT - it is the 1st node to evaluate.
 		//		m_infoMap.put(page.getBody(), root);
-		doContainer(root, page.getBody()); // Pass 1: annotation
+		doContainer(root, page.getBody());				// Pass 1: annotation
 
 		if(DEBUG)
 			dump(root);

@@ -270,12 +270,12 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	/*--------------------------------------------------------------*/
 	/*	CODING:	TableModelListener interface implementation.		*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @see to.etc.domui.component.tbl.ITableModelListener#modelChanged(to.etc.domui.component.tbl.ITableModel)
-	 */
 	@Override
 	public void modelChanged(@Nullable ITableModel<T> model) {
+		rebuild();
+	}
+
+	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
 		rebuild();
 	}
 

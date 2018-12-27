@@ -716,6 +716,10 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 		fireModelChanged(null, model);
 	}
 
+	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+		modelChanged(model);
+	}
+
 	/**
 	 * Row add. Determine if the row is within the paged-in indexes. If not we ignore the
 	 * request. If it IS within the paged content we insert the new TR. Since this adds a
