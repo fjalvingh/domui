@@ -222,12 +222,11 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 		m_table.removeAllChildren();
 		add(m_table);
-		//appendJavascript("$('#" + m_table.getActualID() + "').colResizable({postbackSafe: false, onResize: function(tbl) {WebUI.dataTableUpdateWidths(tbl, '" + getActualID() + "');}});");
-		//m_table.appendCreateJS("WebUI.dataTableResults('"+ m_table.getActualID() + "','" + getActualID() + "');");
 
 		//-- Render the header.
 		THead hd = new THead();
 		m_table.add(hd);
+		hd.setKeepNode(true);
 		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
@@ -266,7 +265,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * renderer in use.
 	 *
 	 * @param hc specified header container
-	 * @throws Exception
 	 */
 	@Deprecated
 	void renderHeader(@NonNull HeaderContainer<T> hc) throws Exception {
@@ -309,6 +307,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		if(!m_table.isAttached())
 			add(m_table);
 		THead hd = new THead();
+		hd.setKeepNode(true);
 		m_table.add(hd);
 		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
 

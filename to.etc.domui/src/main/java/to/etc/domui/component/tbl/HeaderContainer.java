@@ -81,7 +81,6 @@ final public class HeaderContainer<T> {
 
 	/**
 	 * Return the main header row. Create it if it does not yet exist.
-	 * @return
 	 */
 	final public TR row() {
 		m_finished = true;
@@ -89,6 +88,7 @@ final public class HeaderContainer<T> {
 		if(null == tr) {
 			m_tr = tr = new TR();
 			tr.setCssClass(m_headerRowCSS);
+			tr.setKeepNode(true);
 			m_head.add(tr);
 		}
 		return tr;
@@ -96,15 +96,16 @@ final public class HeaderContainer<T> {
 
 	/**
 	 * Adds a column header to the table.
-	 * @param columnContent
 	 */
 	public TH add(@Nullable NodeBase columnContent) {
-		TH td = new TH();
-		row().add(td);
-		td.addCssClass("ui-dt-th");
+		TH th = new TH();
+		th.setKeepNode(true);
+
+		row().add(th);
+		th.addCssClass("ui-dt-th");
 		if(columnContent != null)
-			td.add(columnContent);
-		return td;
+			th.add(columnContent);
+		return th;
 	}
 
 	public TH add(@Nullable String txt) {
@@ -121,7 +122,6 @@ final public class HeaderContainer<T> {
 
 	/**
 	 * Use to check whether there is some content rendered to it or not.
-	 * @return
 	 */
 	public boolean hasContent() {
 		TR tr = m_tr;

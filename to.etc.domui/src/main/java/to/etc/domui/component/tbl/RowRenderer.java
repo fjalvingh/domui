@@ -171,7 +171,7 @@ import java.util.function.Predicate;
 	 *
 	 */
 	@Override
-	public void renderHeader(@NonNull final TableModelTableBase<T> tbl, @NonNull final HeaderContainer<T> cc) throws Exception {
+	public void renderHeader(@NonNull TableModelTableBase<T> tbl, @NonNull HeaderContainer<T> cc) throws Exception {
 		for(TableHeader h : m_tableHeaderBeforeList)
 			cc.addHeader(false, h);
 		for(TableHeader h : m_tableHeaderAfterList)

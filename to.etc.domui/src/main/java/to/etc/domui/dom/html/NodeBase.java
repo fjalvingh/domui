@@ -178,6 +178,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	static private final byte F_BUNDLEUSED = 0x04;
 
+	/**
+	 * When set this prevents the OptimalDeltaRenderer from replacing this node. It prevents the optimization that
+	 * replaces an upper node with a new render if that is more efficient than a set of (delete, add) deltas. The
+	 * flag is useful when Javascript is attached to nodes which would be destroyed when the nodes are rewritten.
+	 */
+	static private final byte F_NOREPLACE = 0x08;
+
 	private byte m_flags;
 
 	private StackTraceElement[] m_allocationTracepoint;
@@ -343,8 +350,25 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
+	 * Tell the Optimal Delta Renderer that this node should be kept if possible. This disables the optimization
+	 * where the ODR decides that a single delete and an add of a whole structure is more efficient than a lot of
+	 * (delete, add) operations. Use this method when the node in question has Javascript attached to it which is
+	 * to remain intact.
+	 */
+	public void setKeepNode(boolean keepNode) {
+		if(keepNode) {
+			m_flags |= F_NOREPLACE;
+		} else {
+			m_flags &= ~ F_NOREPLACE;
+		}
+	}
+
+	public boolean isKeepNode() {
+		return (m_flags & F_NOREPLACE) != 0;
+	}
+
+	/**
 	 * Calculates a new ID for a node.
-	 * @return
 	 */
 	@NonNull
 	final String nextUniqID() {
