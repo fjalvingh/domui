@@ -77,8 +77,8 @@ public class PageParameters implements IPageParameters, Serializable {
 	/** The approximate length of this parameters instance when rendered on an URL. */
 	private int m_dataLength;
 
-	@Nullable
-	private String m_urlContextString;
+	@NonNull
+	private String m_urlContextString = "";
 
 	/**
 	 * Create an empty PageParameters.
@@ -112,6 +112,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	@Override
 	public PageParameters getUnlockedCopy() {
 		PageParameters clone = new PageParameters();
+		clone.m_urlContextString = m_urlContextString;
 		for(Map.Entry<String, Object> entry : m_map.entrySet()) {
 			clone.addParameter(entry.getKey(), entry.getValue());
 		}
@@ -487,13 +488,13 @@ public class PageParameters implements IPageParameters, Serializable {
 			m_map.put(name, value);
 	}
 
-	@Nullable
+	@NonNull
 	@Override public String getUrlContextString() {
 		return m_urlContextString;
 	}
 
-	public void setUrlContextString(@Nullable String urlContextString) {
-		m_urlContextString = urlContextString;
+	public void setUrlContextString(@NonNull String urlContextString) {
+		m_urlContextString = urlContextString == null ? "" : urlContextString;
 	}
 
 	/**
