@@ -762,13 +762,16 @@ var WebUI;
                 mode = 'overflow';
                 break;
         }
-        $('#' + id).colResizable({
-            postbackSafe: false,
-            resizeMode: mode,
-            onResize: function (tbl) {
-                WebUI.dataTableUpdateWidths(tbl, compId);
-            }
-        });
+        setTimeout(function (a) {
+            $('#' + id).colResizable({
+                postbackSafe: false,
+                resizeMode: mode,
+                partialRefresh: true,
+                onResize: function (tbl) {
+                    WebUI.dataTableUpdateWidths(tbl, compId);
+                }
+            });
+        }, 500);
     }
     WebUI.dataTableResults = dataTableResults;
     function dataTableUpdateWidths(evt, compId) {

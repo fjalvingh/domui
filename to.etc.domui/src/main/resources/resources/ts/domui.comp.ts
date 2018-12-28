@@ -138,15 +138,16 @@ namespace WebUI {
 			case 'FLEX':	mode = 'flex'; break;
 			case 'OVERFLOW':mode = 'overflow'; break;
 		}
-		// setTimeout(a => {
+		setTimeout(a => {
             $('#' +id).colResizable({
                 postbackSafe: false,
 				resizeMode: mode,
+				partialRefresh: true,
                 onResize: function(tbl) {
                     WebUI.dataTableUpdateWidths(tbl, compId);
                 }
             });
-		// }, 500);
+		}, 500);
 	}
 
     /**
