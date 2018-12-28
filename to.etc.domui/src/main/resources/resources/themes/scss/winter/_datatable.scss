@@ -46,6 +46,7 @@ div.ui-dt > table > tr > td {
 }
 
 div.ui-dt > table {
+	table-layout: fixed;
 	overflow: auto;
 	position: relative;
 	border-collapse: collapse;
