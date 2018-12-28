@@ -194,19 +194,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		setResults();
 
 		//-- Render the rows.
-		ColumnContainer<T> cc = new ColumnContainer<>(this);
-		m_visibleItemList.clear();
-		int ix = m_six;
-		for(T o : list) {
-			TableRowSet<T> rowSet = new TableRowSet<>(this, o);
-			m_visibleItemList.add(rowSet);
-			TR tr = rowSet.getPrimaryRow();
-			m_dataBody.add(tr);
-			tr.setTestRepeatID("r" + ix);
-			cc.setParent(tr);
-			renderRow(tr, cc, ix, o);
-			ix++;
-		}
+		renderRowList(list);
 		ml("createContent rebuilt visibleList after render");
 		//if(isDisableClipboardSelection())
 		//	appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
@@ -708,20 +696,28 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		fireModelChanged(null, model);
 	}
 
-	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+	@Override
+	protected void updateAllRows() throws Exception {
 		if(! isBuilt())
 			return;
+		calcIndices();
 		List<T> list = getPageItems(); 						// Data to show
 		if(list.size() == 0) {
 			setNoResults();
 			return;
 		}
 
-		m_dataBody.removeAllChildren();
-
 		//-- Render the rows.
+		renderRowList(list);
+		ml("createContent rebuilt visibleList updateAllRows");
+	}
+
+	private void renderRowList(List<T> list) throws Exception {
+		if(m_dataBody == null)
+			return;
 		ColumnContainer<T> cc = new ColumnContainer<>(this);
 		m_visibleItemList.clear();
+		m_dataBody.removeAllChildren();
 		int ix = m_six;
 		for(T o : list) {
 			TableRowSet<T> rowSet = new TableRowSet<>(this, o);
@@ -733,7 +729,10 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			renderRow(tr, cc, ix, o);
 			ix++;
 		}
-		ml("createContent rebuilt visibleList after rowsSorted");
+	}
+
+	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+		updateAllRows();
 	}
 
 	/**

@@ -80,6 +80,9 @@
 		t._cellSpacing = I(ie ? tb.cellSpacing || tb.currentStyle.borderSpacing : t.css('border-spacing')) || 2;	//table cellspacing (not even jQuery is fully cross-browser)
 		t._borderWidth = I(ie ? tb.border || tb.currentStyle.borderLeftWidth : t.css('border-left-width')) || 1;	//outer border width (again cross-browser issues)
 		// if(!(tb.style.width || tb.width)) t.width(t.width()); //I am not an IE fan at all, but it is a pity that only IE has the currentStyle attribute working as expected. For this reason I can not check easily if the table has an explicit width or if it is rendered as "auto"
+		console.log("before table width=" + t.width());
+		t.width(t.width());
+		console.log("after table width=" + t.width());
 		tables[id] = t; 	//the table object is stored using its id as key
 		createGrips(t);		//grips are created
 		t.addClass(SIGNATURE);
@@ -97,7 +100,6 @@
 		delete tables[id];						//clean up data
 	};
 
-
 	/**
 	 * Function to create all the grips associated with the table given by parameters
 	 * @param {jQuery ref} t - table object
@@ -109,6 +111,7 @@
 		t._columnGroups = t.find("col"); 						//a table can also contain a colgroup with col elements
 		t._columnCount = th.length;							//table length is stored
 		if(t._isPostbackSafe && S && S[t.id]) memento(t, th);		//if 'postbackSafe' is enabled and there is data for the current table, its coloumn layout is restored
+		var totw = 0;
 		th.each(function(i) {						//iterate through the table column headers
 			var column = $(this); 						//jquery wrap for the current column
 			var isDisabledColumn = t._disabledColumns.indexOf(i) != -1;           //is this a disabled column?
@@ -130,7 +133,10 @@
 			grip._table = t;
 			grip._index = i;
 			grip._column = column;
-			column._width = column.width();									//some values are stored in the grip's node data as shortcut
+			column._width = column.width();								//some values are stored in the grip's node data as shortcut
+			console.log('w = ' + column._width);
+			totw += column._width;
+
 			column._minWidth = column.innerWidth() - column.width();		//FIX issue 45 don't go below total added padding width otherwise skewed results
 			t._grips.push(grip);
 			t._columns.push(column);										//the current grip and column are added to its table object
@@ -139,6 +145,7 @@
 			t._columnGroups.eq(i).width(column._width);
 			grip.data(SIGNATURE, {index: i, tableId: t.attr(ID), last: i === t._columnCount - 1});	 //grip index and its table name are stored in the HTML
 		});
+		console.log("Total width = " + totw + ", table width = " + t.width());
 		t._columnGroups
 			.removeAttr("width")
 		;	//remove the width attribute from elements in the colgroup
@@ -217,7 +224,7 @@
 			} else {
 				left += column.outerWidth(false) - 5;
 			}
-			console.log("left=" + left + PX);
+			// console.log("left=" + left + PX);
 
 			t._grips[i].css({			//height and position of the grip is updated according to the table layout
 				left: left,

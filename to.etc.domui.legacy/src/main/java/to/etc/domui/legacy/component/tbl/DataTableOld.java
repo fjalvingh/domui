@@ -723,7 +723,40 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 	}
 
 	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
-		modelChanged(model);
+		updateAllRows();
+	}
+
+	@Override
+	protected void updateAllRows() throws Exception {
+		if(! isBuilt())
+			return;
+		calcIndices();
+		List<T> list = getPageItems(); 						// Data to show
+		if(list.size() == 0) {
+			setNoResults();
+			return;
+		}
+
+		//-- Render the rows.
+		renderRowList(list);
+		ml("createContent rebuilt visibleList updateAllRows");
+	}
+
+	private void renderRowList(List<T> list) throws Exception {
+		if(m_dataBody == null)
+			return;
+		ColumnContainer<T> cc = new ColumnContainer<T>(this);
+		m_visibleItemList.clear();
+		int ix = m_six;
+		for(T o : list) {
+			m_visibleItemList.add(o);
+			TR tr = new TR();
+			m_dataBody.add(tr);
+			tr.setTestRepeatID("r" + ix);
+			cc.setParent(tr);
+			renderRow(tr, cc, ix, o);
+			ix++;
+		}
 	}
 
 	/**

@@ -279,6 +279,10 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 		rebuild();
 	}
 
+	@Override protected void updateAllRows() throws Exception {
+		rebuild();
+	}
+
 	@Override
 	public void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 	}
