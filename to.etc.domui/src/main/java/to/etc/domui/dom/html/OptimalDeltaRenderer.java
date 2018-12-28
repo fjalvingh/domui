@@ -299,9 +299,9 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 	 */
 	private void calc(Page page) throws Exception {
 		//-- Create the BODY node's nodeInfo; this starts the tree of changes.
-		NodeInfo root = new NodeInfo(null); // jal 20081111 Body is not the PARENT - it is the 1st node to evaluate.
+		NodeInfo root = new NodeInfo(null);			// jal 20081111 Body is not the PARENT - it is the 1st node to evaluate.
 		//		m_infoMap.put(page.getBody(), root);
-		doContainer(root, page.getBody()); // Pass 1: annotation
+		doContainer(root, page.getBody());				// Pass 1: annotation
 
 		if(DEBUG)
 			dump(root);
@@ -749,7 +749,12 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 				// Bug# 1101: get a quick indication of how big the subtree is by traversing only the 1st subtree in the nodes;
 				int xcount = 0;
 				for(NodeBase n : newl) {
-					xcount += n.internalGetNodeCount(2);
+					int nodeCt = n.internalGetNodeCount(2);
+					if(nodeCt == -1) {
+						xcount = -1;
+						break;
+					}
+					xcount += nodeCt;
 				}
 				if(xcount > ncmd * 2) {
 					//-- end bug# 1101 fix

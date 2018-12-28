@@ -37,6 +37,8 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 
 	abstract protected int getPageSize();
 
+	abstract protected void updateAllRows() throws Exception;
+
 	public PageableTabularComponentBase(ITableModel<T> model) {
 		super(model);
 	}
@@ -82,13 +84,13 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 		return m_currentPage;
 	}
 
-	public void setCurrentPage(int currentPage) {
+	public void setCurrentPage(int currentPage) throws Exception {
 		if(m_currentPage < 0 || (currentPage != 0 && getPageSize() <= 0))
 			throw new IllegalStateException("Cannot set current page to " + currentPage);
 		if(m_currentPage == currentPage)
 			return;
 		m_currentPage = currentPage;
-		forceRebuild();
+		updateAllRows();
 		firePageChanged();
 	}
 
@@ -101,8 +103,6 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 
 	/**
 	 * FIXME jal 20160125 Remove and replace with isTruncated property.
-	 * @return
-	 * @throws Exception
 	 */
 	public int getTruncatedCount() throws Exception {
 		ITableModel<T> tm = getModel();

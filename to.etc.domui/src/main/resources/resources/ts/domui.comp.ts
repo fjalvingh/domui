@@ -138,7 +138,7 @@ namespace WebUI {
 			case 'FLEX':	mode = 'flex'; break;
 			case 'OVERFLOW':mode = 'overflow'; break;
 		}
-		setTimeout(a => {
+		// setTimeout(a => {
             $('#' +id).colResizable({
                 postbackSafe: false,
 				resizeMode: mode,
@@ -146,7 +146,7 @@ namespace WebUI {
                     WebUI.dataTableUpdateWidths(tbl, compId);
                 }
             });
-		}, 500);
+		// }, 500);
 	}
 
     /**

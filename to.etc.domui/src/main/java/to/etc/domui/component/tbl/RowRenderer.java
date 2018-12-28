@@ -13,6 +13,7 @@ import to.etc.domui.component.ntbl.IRowButtonFactory;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
+import to.etc.domui.dom.html.Col;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
@@ -188,14 +189,19 @@ import java.util.function.Predicate;
 		m_columnByThIdMap.clear();
 		for(final ColumnDef<T, ?> cd : m_columnList) {
 			TH th;
+			Col col;
 			String label = cd.getColumnLabel();
 			if(!cd.getSortable().isSortable() || !sortablemodel) {
 				//-- Just add the span with label, if present. Span is needed to allow styling.
-				th = cc.add(new Span(label));
+				HeaderContainer.HeaderContainerCell cell = cc.add(new Span(label));
+				th = cell.getTh();
+				col = cell.getCol();
 			} else {
 				Div cellSpan = new Div();
 //				cellSpan.setCssClass("ui-sortable");
-				th = cc.add(cellSpan);
+				HeaderContainer.HeaderContainerCell cell = cc.add(cellSpan);
+				th = cell.getTh();
+				col = cell.getCol();
 				th.addCssClass("ui-sortable");
 
 				// Add the label;
@@ -235,7 +241,7 @@ import java.util.function.Predicate;
 				th.addCssClass(cssClass);
 			applyNumericCssClass(th, cd);
 
-			th.setWidth(widthMap.get(cd));
+			col.setWidth(widthMap.get(cd));
 			if(cd.isNowrap())
 				th.setNowrap(true);
 

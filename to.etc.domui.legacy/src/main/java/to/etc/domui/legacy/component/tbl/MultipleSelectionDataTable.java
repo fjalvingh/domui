@@ -33,6 +33,7 @@ import to.etc.domui.component.tbl.IRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IClicked2;
@@ -91,9 +92,11 @@ public class MultipleSelectionDataTable<T> extends DataTableOld<T> {
 			add(t);
 
 			//-- Render the header.
+			ColGroup cg = new ColGroup();
+			getTable().add(cg);
 			THead hd = new THead();
 			getTable().add(hd);
-			HeaderContainer<T> hc = new HeaderContainer<T>(this, hd, "ui-dt-hdr");
+			HeaderContainer<T> hc = new HeaderContainer<>(this, cg, hd, "ui-dt-hdr");
 			Img selImg = new Img("THEME/dspcb-on.png");
 			selImg.setTitle(getSelectionColTitle() == null ? Msgs.BUNDLE.getString(Msgs.UI_MLUI_COL_TTL) : getSelectionColTitle());
 			selImg.setTestID("msdt_select_all");

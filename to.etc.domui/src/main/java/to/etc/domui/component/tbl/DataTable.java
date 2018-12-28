@@ -30,6 +30,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.MiniLogger;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClickBase;
 import to.etc.domui.dom.html.IClicked;
@@ -193,19 +194,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		setResults();
 
 		//-- Render the rows.
-		ColumnContainer<T> cc = new ColumnContainer<>(this);
-		m_visibleItemList.clear();
-		int ix = m_six;
-		for(T o : list) {
-			TableRowSet<T> rowSet = new TableRowSet<>(this, o);
-			m_visibleItemList.add(rowSet);
-			TR tr = rowSet.getPrimaryRow();
-			m_dataBody.add(tr);
-			tr.setTestRepeatID("r" + ix);
-			cc.setParent(tr);
-			renderRow(tr, cc, ix, o);
-			ix++;
-		}
+		renderRowList(list);
 		ml("createContent rebuilt visibleList after render");
 		//if(isDisableClipboardSelection())
 		//	appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
@@ -224,10 +213,12 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		add(m_table);
 
 		//-- Render the header.
+		ColGroup colGroup = new ColGroup();
+		m_table.add(colGroup);
 		THead hd = new THead();
 		m_table.add(hd);
 		hd.setKeepNode(true);
-		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
+		HeaderContainer<T> hc = new HeaderContainer<>(this, colGroup, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
@@ -270,12 +261,14 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	void renderHeader(@NonNull HeaderContainer<T> hc) throws Exception {
 		//-- Are we rendering a multi-selection?
 		if(m_multiSelectMode) {
-			TH headerCell = hc.add("");
+			HeaderContainer.HeaderContainerCell cell = hc.add("");
+			TH headerCell = cell.getTh();
 			headerCell.add(new Img("THEME/dspcb-on.png"));
 			headerCell.setTestID("dt_select_all");
-			headerCell.setWidth("1%"); //keep selection column with minimal width
 			headerCell.setClicked(m_headerSelectClickHandler);
 			headerCell.setCssClass("ui-clickable");
+//			headerCell.setWidth("1%"); //keep selection column with minimal width
+			cell.getCol().setWidth("1%");
 		}
 		m_rowRenderer.renderHeader(this, hc);
 	}
@@ -306,10 +299,13 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		//-- Render the header.
 		if(!m_table.isAttached())
 			add(m_table);
+
+		ColGroup colGroup = new ColGroup();
+		m_table.add(colGroup);
 		THead hd = new THead();
-		hd.setKeepNode(true);
 		m_table.add(hd);
-		HeaderContainer<T> hc = new HeaderContainer<>(this, hd, "ui-dt-hdr");
+		hd.setKeepNode(true);
+		HeaderContainer<T> hc = new HeaderContainer<>(this, colGroup, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
@@ -371,11 +367,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * DO NOT OVERRIDE - DEPRECATED FOR EXTERNAL USE!!
 	 * Renders row content into specified row.
-	 *
-	 * @param cc
-	 * @param index
-	 * @param value
-	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
 	private void renderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
@@ -434,11 +425,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * Must exist for CheckBoxDataTable; remove asap AND DO NOT USE AGAIN - internal interfaces should remain hidden.
-	 * @param tr
-	 * @param cc
-	 * @param index
-	 * @param value
-	 * @throws Exception
 	 */
 	@Deprecated
 	void internalRenderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
@@ -710,6 +696,45 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		fireModelChanged(null, model);
 	}
 
+	@Override
+	protected void updateAllRows() throws Exception {
+		if(! isBuilt())
+			return;
+		calcIndices();
+		List<T> list = getPageItems(); 						// Data to show
+		if(list.size() == 0) {
+			setNoResults();
+			return;
+		}
+
+		//-- Render the rows.
+		renderRowList(list);
+		ml("createContent rebuilt visibleList updateAllRows");
+	}
+
+	private void renderRowList(List<T> list) throws Exception {
+		if(m_dataBody == null)
+			return;
+		ColumnContainer<T> cc = new ColumnContainer<>(this);
+		m_visibleItemList.clear();
+		m_dataBody.removeAllChildren();
+		int ix = m_six;
+		for(T o : list) {
+			TableRowSet<T> rowSet = new TableRowSet<>(this, o);
+			m_visibleItemList.add(rowSet);
+			TR tr = rowSet.getPrimaryRow();
+			m_dataBody.add(tr);
+			tr.setTestRepeatID("r" + ix);
+			cc.setParent(tr);
+			renderRow(tr, cc, ix, o);
+			ix++;
+		}
+	}
+
+	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+		updateAllRows();
+	}
+
 	/**
 	 * Row add. Determine if the row is within the paged-in indexes. If not we ignore the
 	 * request. If it IS within the paged content we insert the new TR. Since this adds a
@@ -784,9 +809,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * This calculates the starting index position inside the TBody for the data row with
 	 * the specified rowIndex. It walks all visibleItems up till the rowIndex, and adds
 	 * their rowSize to get the next index.
-	 *
-	 * @param rowIndex
-	 * @return
 	 */
 	private int calculateBodyPosition(int rowIndex) {
 		int position = 0;

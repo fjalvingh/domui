@@ -391,6 +391,11 @@ public class ListShuttle extends Div implements ITableModelListener<Object> {
 		forceRebuild();
 	}
 
+	@Override
+	public void rowsSorted(@NonNull ITableModel<Object> model) throws Exception {
+		forceRebuild();
+	}
+
 	/**
 	 * A row was moved (back) to the source model: change it.
 	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)

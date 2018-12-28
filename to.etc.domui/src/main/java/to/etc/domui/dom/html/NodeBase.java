@@ -345,6 +345,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		internalClearDelta();
 	}
 
+	/**
+	 * Counts the #of nodes that would need to be rendered if this tree is rendered. It returns -1
+	 * if any node has the isKeepNode() flag set, thereby preventing re-rendering of that part.
+	 */
 	protected int internalGetNodeCount(int depth) {
 		return 1;
 	}

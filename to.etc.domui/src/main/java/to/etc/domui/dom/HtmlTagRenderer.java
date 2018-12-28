@@ -32,6 +32,8 @@ import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.Col;
+import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
@@ -790,6 +792,21 @@ public class HtmlTagRenderer implements INodeVisitor {
 	public void visitSpan(final Span n) throws Exception {
 		o().setIndentEnabled(false);
 		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
+	@Override public void visitCol(Col n) throws Exception {
+		o().setIndentEnabled(false);
+		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
+	@Override public void visitColGroup(ColGroup n) throws Exception {
+		o().setIndentEnabled(false);
+		basicNodeRender(n, m_o);
+		if(n.getSpan() > 0) {
+			o().attr("span", Integer.toString(n.getSpan()));
+		}
 		renderTagend(n, m_o);
 	}
 

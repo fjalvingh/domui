@@ -77,6 +77,11 @@ abstract public class TableModelBase<T> implements ITableModel<T> {
 			l.modelChanged(this);
 	}
 
+	public void fireModelSorted() throws Exception {
+		for(ITableModelListener<T> l : getListeners())
+			l.rowsSorted(this);
+	}
+
 	@Override
 	public void refresh() {}
 }

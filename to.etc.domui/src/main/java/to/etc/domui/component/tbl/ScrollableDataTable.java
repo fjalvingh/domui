@@ -6,6 +6,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.ClickInfo;
+import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IClicked2;
@@ -228,9 +229,12 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		dataTable.setCssClass("ui-dt-ovflw-tbl");
 
 		//-- Render the header.
+		ColGroup cg = new ColGroup();
+		dataTable.add(cg);
+
 		THead hd = new THead();
 		dataTable.add(hd);
-		HeaderContainer<T> hc = new HeaderContainer<T>(this, hd, "ui-dt-hdr");
+		HeaderContainer<T> hc = new HeaderContainer<T>(this, cg, hd, "ui-dt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
@@ -255,10 +259,11 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	private void renderHeader(@NonNull HeaderContainer<T> hc) throws Exception {
 		//-- Are we rendering a multi-selection?
 		if(m_multiSelectMode) {
-			TH headerCell = hc.add("");
+			HeaderContainer.HeaderContainerCell cell = hc.add("");
+			TH headerCell = cell.getTh();
 			headerCell.add(new Img("THEME/dspcb-on.png"));
 			headerCell.setTestID("dt_select_all");
-			headerCell.setWidth("1%"); //keep selection column with minimal width
+			cell.getCol().setWidth("1%");
 			headerCell.setClicked(m_headerSelectClickHandler);
 			headerCell.setCssClass("ui-clickable");
 		}
@@ -575,6 +580,10 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	public void modelChanged(@Nullable ITableModel<T> model) throws Exception {
 		rerender();
 		fireModelChanged(null, model);
+	}
+
+	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+		modelChanged(model);
 	}
 
 	/**
