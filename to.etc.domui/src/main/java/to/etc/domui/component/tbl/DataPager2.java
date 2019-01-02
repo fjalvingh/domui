@@ -60,7 +60,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 19, 2008
  */
-public class DataPager extends Div implements IDataTableChangeListener {
+public class DataPager2 extends Div implements IDataTableChangeListener {
 	private ATag m_firstBtn;
 
 	private ATag m_prevBtn;
@@ -87,9 +87,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	@NonNull
 	private List<SmallImgButton> m_extraButtonList = new ArrayList<SmallImgButton>();
 
-	public DataPager() {}
+	public DataPager2() {}
 
-	public DataPager(final PageableTabularComponentBase< ? > tbl) {
+	public DataPager2(final PageableTabularComponentBase< ? > tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
 	}
@@ -302,8 +302,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		return m_buttonDiv;
 	}
 
-	public void addButton(IIconRef image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
-		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager.this));
+	public void addButton(IIconRef image, final IClicked<DataPager2> click, final BundleRef bundle, final String ttlkey) {
+		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager2.this));
 		if(bundle != null)
 			i.setTitle(bundle.getString(ttlkey));
 		else if(ttlkey != null)

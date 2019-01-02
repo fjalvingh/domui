@@ -45,9 +45,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * New datapager using the
- *
- *
  * A pager component for a DataTable-based table. This gets attached
  * to a table, and then controls the table's paging. This pager has
  * a fixed L&F.
@@ -60,7 +57,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 19, 2008
  */
-public class DataPager extends Div implements IDataTableChangeListener {
+public class DataPager1 extends Div implements IDataTableChangeListener {
 	private ATag m_firstBtn;
 
 	private ATag m_prevBtn;
@@ -87,9 +84,9 @@ public class DataPager extends Div implements IDataTableChangeListener {
 	@NonNull
 	private List<SmallImgButton> m_extraButtonList = new ArrayList<SmallImgButton>();
 
-	public DataPager() {}
+	public DataPager1() {}
 
-	public DataPager(final PageableTabularComponentBase< ? > tbl) {
+	public DataPager1(final PageableTabularComponentBase< ? > tbl) {
 		m_table = tbl;
 		tbl.addChangeListener(this);
 	}
@@ -302,8 +299,8 @@ public class DataPager extends Div implements IDataTableChangeListener {
 		return m_buttonDiv;
 	}
 
-	public void addButton(IIconRef image, final IClicked<DataPager> click, final BundleRef bundle, final String ttlkey) {
-		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager.this));
+	public void addButton(IIconRef image, final IClicked<DataPager1> click, final BundleRef bundle, final String ttlkey) {
+		SmallImgButton i = new SmallImgButton(image, (IClicked<SmallImgButton>) b -> click.clicked(DataPager1.this));
 		if(bundle != null)
 			i.setTitle(bundle.getString(ttlkey));
 		else if(ttlkey != null)
