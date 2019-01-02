@@ -30,16 +30,14 @@ import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.DisplayType;
-import to.etc.domui.dom.html.ATag;
+import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.dom.html.Span;
-import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.util.IExecute;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,28 +59,22 @@ import java.util.List;
  * Created on Jun 19, 2008
  */
 public class DataPager2 extends Div implements IDataTableChangeListener {
-	private ATag m_firstBtn;
+	private Button m_firstBtn;
 
-	private ATag m_prevBtn;
+	private Button m_prevBtn;
 
-	private ATag m_nextBtn;
+	private Button m_nextBtn;
 
-	private ATag m_lastBtn;
-
-	private SmallImgButton m_showSelectionBtn;
-
-	private Img m_truncated;
+	private Button m_lastBtn;
 
 	private PageableTabularComponentBase< ? > m_table;
 
-	private TextNode m_txt;
-
-	private NodeContainer m_textDiv;
+	private List<Button> m_pageButtonList = new ArrayList<>();
 
 	/** When set (default) this shows selection details when a table has a selectable model. */
 	private boolean m_showSelection = true;
 
-	private Div m_buttonDiv;
+	private Div m_buttonDiv = new Div();
 
 	@NonNull
 	private List<SmallImgButton> m_extraButtonList = new ArrayList<SmallImgButton>();
@@ -96,83 +88,42 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-dp");
+		addCssClass("ui-dp2");
+		Div bd = m_buttonDiv = new Div("ui-dp2-buttons");
+		add(bd);
 
-		//-- The text part: message
-		Div textPartRight = new Div();
-		m_textDiv = textPartRight;
-		add(textPartRight);
-		textPartRight.setCssClass("ui-dp-txt");
+		m_firstBtn = appendButton(bd, Msgs.uiPagerFirst, () -> m_table.setCurrentPage(0));
+		m_prevBtn = appendButton(bd, Msgs.uiPagerPrev, () -> {
+			int cp = m_table.getCurrentPage();
+			if(cp <= 0)
+				return;
+			m_table.setCurrentPage(cp - 1);
+		});
 
-		Span txtPnl = new Span();
-		txtPnl.setTestID("pager results label");
-		txtPnl.setCssClass("ui-dp-nav-pgr");
 
-		//textPartRight.add(new VerticalSpacer(10));
-		m_txt = new TextNode();
-		txtPnl.add(m_txt);
-		textPartRight.add(txtPnl);
-
-		m_buttonDiv = new Div();
-		add(m_buttonDiv);
-
-		m_buttonDiv.setCssClass("ui-dp-btns");
-		m_firstBtn = new ATag();
-		m_firstBtn.setTestID("firstBtn");
-		m_buttonDiv.add(m_firstBtn);
-		m_prevBtn = new ATag();
-		m_prevBtn.setTestID("prevBtn");
-		m_buttonDiv.add(m_prevBtn);
-		m_nextBtn = new ATag();
-		m_nextBtn.setTestID("nextBtn");
-		m_buttonDiv.add(m_nextBtn);
-		m_lastBtn = new ATag();
-		m_lastBtn.setTestID("lastBtn");
-		m_buttonDiv.add(m_lastBtn);
-
-		m_buttonDiv.add("\u00a0\u00a0");
-		for(@NonNull SmallImgButton sib : m_extraButtonList) {
-			m_buttonDiv.add(sib);
-		}
-
+		//-- Last part
+		m_nextBtn = appendButton(bd, Msgs.uiPagerNext, () -> {
+			int cp = m_table.getCurrentPage();
+			int mx = m_table.getPageCount();
+			cp++;
+			if(cp >= mx)
+				return;
+			m_table.setCurrentPage(cp);
+		});
+		m_lastBtn = appendButton(bd, Msgs.uiPagerLast, () -> {
+			int pg = m_table.getPageCount();
+			if(pg == 0)
+				return;
+			m_table.setCurrentPage(pg - 1);
+		});
 		redraw();
+	}
 
-		//-- Click handlers for paging.
-		m_firstBtn.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(final @NonNull NodeBase b) throws Exception {
-				m_table.setCurrentPage(0);
-			}
-		});
-		m_lastBtn.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(final @NonNull NodeBase b) throws Exception {
-				int pg = m_table.getPageCount();
-				if(pg == 0)
-					return;
-				m_table.setCurrentPage(pg - 1);
-			}
-		});
-		m_prevBtn.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(final @NonNull NodeBase b) throws Exception {
-				int cp = m_table.getCurrentPage();
-				if(cp <= 0)
-					return;
-				m_table.setCurrentPage(cp - 1);
-			}
-		});
-		m_nextBtn.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(final @NonNull NodeBase b) throws Exception {
-				int cp = m_table.getCurrentPage();
-				int mx = m_table.getPageCount();
-				cp++;
-				if(cp >= mx)
-					return;
-				m_table.setCurrentPage(cp);
-			}
-		});
+	private Button appendButton(Div bd, IBundleCode code, IExecute x) {
+		Button b = new Button("ui-dp2-btn");
+		b.setClicked(clickednode -> x.execute());
+		bd.add(b);
+		return b;
 	}
 
 	@Nullable
@@ -192,8 +143,6 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 
 	/**
 	 * Return T if the "show selection UI" button should be visible.
-	 * @return
-	 * @throws Exception
 	 */
 	private boolean isNeedSelectionButton() throws Exception {
 		ISelectionModel< ? > sm = getSelectionModel();
@@ -219,55 +168,70 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 	/*--------------------------------------------------------------*/
 
 	private void redraw() throws Exception {
-		if(m_buttonDiv == null)
+		Div bd = m_buttonDiv;
+		if(bd == null)
 			return;
 
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
 		int rowsAsked = -1;
 		if(np == 0) {
-			m_txt.setText("");
 			setDisplay(DisplayType.NONE);
-		} else {
-			int rows = rowsAsked = m_table.getModel().getRows();
-			m_txt.setText(Msgs.uiPagerText.format(Integer.valueOf(cp + 1), Integer.valueOf(np), Integer.valueOf(rows)));
-			setDisplay(DisplayType.BLOCK);
+			return;
 		}
 
+		int rows = rowsAsked = m_table.getModel().getRows();
+		setDisplay(DisplayType.BLOCK);
+
 		if(cp <= 0) {
-			m_firstBtn.setCssClass("ui-dp-nav-f-dis");
-			m_prevBtn.setCssClass("ui-dp-nav-p-dis");
+			m_firstBtn.setDisabled(true);
+			m_prevBtn.setDisabled(true);
 		} else {
-			m_firstBtn.setCssClass("ui-dp-nav-f");
-			m_prevBtn.setCssClass("ui-dp-nav-p");
+			m_firstBtn.setDisabled(false);
+			m_prevBtn.setDisabled(false);
 		}
 
 		if(cp + 1 >= np) {
-			m_lastBtn.setCssClass("ui-dp-nav-l-dis");
-			m_nextBtn.setCssClass("ui-dp-nav-n-dis");
+			m_lastBtn.setDisabled(true);
+			m_nextBtn.setDisabled(true);
 		} else {
-			m_lastBtn.setCssClass("ui-dp-nav-l");
-			m_nextBtn.setCssClass("ui-dp-nav-n");
+			m_lastBtn.setDisabled(false);
+			m_nextBtn.setDisabled(false);
 		}
-		int tc = m_table.getTruncatedCount();						// FIXME jal 20160125 Should be an isTruncated property, as the count is just model.size.
-		if(tc > 0) {
-			if(m_truncated == null) {
-				m_truncated = new Img();
-				m_truncated.setSrc("THEME/nav-overflow.png");
-				m_truncated.setTitle(Msgs.uiPagerOverflow.format(Integer.valueOf(tc)));
-				m_truncated.setCssClass("ui-dp-nav-pgr-ovf");
-				m_textDiv.add(m_truncated);
-			}
-		} else {
-			if(m_truncated != null) {
-				m_truncated.remove();
-				m_truncated = null;
-			}
+
+		bd.removeAllChildren();
+		bd.add(m_firstBtn);
+		bd.add(m_prevBtn);
+
+
+
+		bd.add(m_nextBtn);
+		bd.add(m_lastBtn);
+
+		bd.add("\u00a0\u00a0");
+		for(@NonNull SmallImgButton sib : m_extraButtonList) {
+			bd.add(sib);
 		}
-		//System.err.println("DataPager: redraw() called, currentPage=" + cp + ", pageCount=" + np + ", rowsAsked=" + rowsAsked);
-		if(isShowSelection() && getSelectableTable() != null) {
-			redrawSelectionButtons();
-		}
+//
+//		int tc = m_table.getTruncatedCount();						// FIXME jal 20160125 Should be an isTruncated property, as the count is just model.size.
+//		if(tc > 0) {
+//			if(m_truncated == null) {
+//				m_truncated = new Img();
+//				m_truncated.setSrc("THEME/nav-overflow.png");
+//				m_truncated.setTitle(Msgs.uiPagerOverflow.format(Integer.valueOf(tc)));
+//				m_truncated.setCssClass("ui-dp-nav-pgr-ovf");
+//				m_textDiv.add(m_truncated);
+//			}
+//		} else {
+//			if(m_truncated != null) {
+//				m_truncated.remove();
+//				m_truncated = null;
+//			}
+//		}
+//		//System.err.println("DataPager: redraw() called, currentPage=" + cp + ", pageCount=" + np + ", rowsAsked=" + rowsAsked);
+//		if(isShowSelection() && getSelectableTable() != null) {
+//			redrawSelectionButtons();
+//		}
 	}
 
 	private void redrawSelectionButtons() throws Exception {
