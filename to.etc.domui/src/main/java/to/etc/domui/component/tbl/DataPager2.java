@@ -63,17 +63,13 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 
 	private PageableTabularComponentBase< ? > m_table;
 
-	private List<Button> m_pageButtonList = new ArrayList<>();
-
 	/** When set (default) this shows selection details when a table has a selectable model. */
 	private boolean m_showSelection = true;
 
 	private Div m_buttonDiv = new Div();
 
 	@NonNull
-	private List<SmallImgButton> m_extraButtonList = new ArrayList<SmallImgButton>();
-
-	public DataPager2() {}
+	private List<SmallImgButton> m_extraButtonList = new ArrayList<>();
 
 	public DataPager2(final PageableTabularComponentBase< ? > tbl) {
 		m_table = tbl;
@@ -162,13 +158,11 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
-		int rowsAsked = -1;
 		if(np == 0) {
 			setDisplay(DisplayType.NONE);
 			return;
 		}
 
-		int rows = rowsAsked = m_table.getModel().getRows();
 		setDisplay(DisplayType.BLOCK);
 
 		if(cp <= 0) {

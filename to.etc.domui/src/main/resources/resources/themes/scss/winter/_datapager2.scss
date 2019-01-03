@@ -5,16 +5,16 @@ $pager2-button-bg: $alt-button-bg !default
 .ui-dp2 {
 	.ui-dp2-btn, .ui-dp2-pn {
 		margin-right: 10px;
-
 	}
 
-	button {
+	button, button.ui-sib2 {
 		@include button-reset;
 
 		display: inline-block;
 		text-align: center;
 		text-decoration: none;
 		margin: 2px 0;
+		height: auto;
 
 		/* invisible border (will be colored on hover/focus) */
 		border: solid 1px transparent;

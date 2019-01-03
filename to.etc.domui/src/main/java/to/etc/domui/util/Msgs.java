@@ -38,7 +38,7 @@ public enum Msgs implements IBundleCode {
 
 	pageWithoutUrlContext, noUrlContextValueFor,
 	dataValueAccessDenied,
-	uiPagerFirst, uiPagerPrev, uiPagerNext, uiPagerLast;
+	uiPagerPrev, uiPagerNext;
 
 	@Override public BundleRef getBundle() {
 		return BUNDLE;
