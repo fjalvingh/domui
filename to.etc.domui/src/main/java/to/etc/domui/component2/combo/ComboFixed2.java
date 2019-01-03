@@ -214,6 +214,11 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 		public String convertObjectToString(Locale loc, Object in) throws UIException {
 			if(null == in)
 				return "";
+			ClassMetaModel classMeta = MetaManager.findClassMeta(in.getClass());
+			String domainLabel = classMeta.getDomainLabel(NlsContext.getLocale(), in);
+			if(null != domainLabel)
+				return domainLabel;
+
 			return String.valueOf(in);
 		}
 	};
@@ -231,7 +236,7 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 	 * to convert to a string.
 	 */
 	static public <T> ComboFixed2<T> createCombo(@NonNull IObjectToStringConverter<T> converter, T... items) {
-		List<ValueLabelPair<T>> values = new ArrayList<ValueLabelPair<T>>();
+		List<ValueLabelPair<T>> values = new ArrayList<>();
 		for(T item : items) {
 			String v = converter.convertObjectToString(NlsContext.getLocale(), item);
 			if(null == v)
