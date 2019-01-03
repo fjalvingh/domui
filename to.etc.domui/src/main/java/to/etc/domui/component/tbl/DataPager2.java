@@ -41,22 +41,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * New datapager using the
+ * Datapager using buttons and a page number list.
  *
- *
- * A pager component for a DataTable-based table. This gets attached
- * to a table, and then controls the table's paging. This pager has
- * a fixed L&F.
- *
- * The pager looks something like:
- * <pre>
- * [<<] [<] [>] [>>]     Record 50-75
- * </pre>
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on Jun 19, 2008
+ * Created on Jan 2, 2019
  */
-public class DataPager2 extends Div implements IDataTableChangeListener {
+final public class DataPager2 extends Div implements IDataTablePager {
 	private Button m_prevBtn;
 
 	private Button m_nextBtn;
@@ -302,10 +293,12 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 		redraw();
 	}
 
+	@Override
 	public boolean isShowSelection() {
 		return m_showSelection;
 	}
 
+	@Override
 	public void setShowSelection(boolean showSelection) {
 		if(m_showSelection == showSelection)
 			return;
@@ -313,12 +306,13 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 		forceRebuild();
 	}
 
+	@Override
 	public void addButton(@NonNull SmallImgButton sib) {
 		m_extraButtonList.add(sib);
 		forceRebuild();
 	}
 
 	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
-		m_extraButtonList.add(new SmallImgButton(img, clicked));
+		addButton(new SmallImgButton(img, clicked));
 	}
 }

@@ -57,7 +57,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 19, 2008
  */
-public class DataPager1 extends Div implements IDataTableChangeListener {
+public class DataPager1 extends Div implements IDataTablePager {
 	private ATag m_firstBtn;
 
 	private ATag m_prevBtn;
@@ -323,10 +323,12 @@ public class DataPager1 extends Div implements IDataTableChangeListener {
 		redraw();
 	}
 
+	@Override
 	public boolean isShowSelection() {
 		return m_showSelection;
 	}
 
+	@Override
 	public void setShowSelection(boolean showSelection) {
 		if(m_showSelection == showSelection)
 			return;
@@ -334,12 +336,13 @@ public class DataPager1 extends Div implements IDataTableChangeListener {
 		forceRebuild();
 	}
 
+	@Override
 	public void addButton(@NonNull SmallImgButton sib) {
 		m_extraButtonList.add(sib);
 		forceRebuild();
 	}
 
 	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
-		m_extraButtonList.add(new SmallImgButton(img, clicked));
+		addButton(new SmallImgButton(img, clicked));
 	}
 }

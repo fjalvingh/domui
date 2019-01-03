@@ -639,7 +639,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			}
 
 			//-- Add the pager,
-			DataPager pg = new DataPager(m_result);
+			DataPager pg = new DataPager(dt);
 			getFloater().add(pg);
 			dt.setTestID("resultTableLookupInput");
 		} else {
