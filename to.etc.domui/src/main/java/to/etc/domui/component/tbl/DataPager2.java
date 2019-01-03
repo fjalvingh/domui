@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
@@ -171,39 +172,47 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		bd.add(m_prevBtn);
 
 		/*
-		 * render page numbers:
+		 * render page numbers. The basic group is: 3 at the start, 3 at the end, 5 in the middle, unless we have <= 10 pages
+		 * in which case we render all.
+		 *
 		 * 1 2 3 ... n-2 n-1 n n+1 n+2 ... np-2 np-1 np
 		 */
-		int ci = 0;
-		ci = renderButtons(ci, 0, 3);		// First 3 buttons
+		if(np <= 10) {
+			renderButtons(0, 0, 10);
+		} else {
+			int ci = renderButtons(0, 0, 3);        // First 3 buttons
 
-		if(ci < np) {
-			//-- do we have a middle range?
-			int ms = cp - 2;
-			if(ms < ci)
-				ms = ci;
-			int me = cp + 3;			// exclusive bound
-			if(me > np)
-				me = np;
-
-			if(ms < me) {
-				ci = ms;
-
-				bd.add(" ... ");
-
-				ci = renderButtons(ci, ms, me);
-			}
-
-			//-- Now do the end range, if applicable
 			if(ci < np) {
-				ms = np - 2;
+				//-- do we have a middle range?
+				int ms = cp - 2;
 				if(ms < ci)
 					ms = ci;
+				int me = cp + 3;            // exclusive bound
+				if(me > np)
+					me = np;
 
-				bd.add(" ... ");
+				if(ms < me) {
+					if(ci < ms)
+						bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
+					ci = ms;
 
-				ci = ms;
-				ci = renderButtons(ci, ms, np);
+					//bd.add(" ... ");
+
+					ci = renderButtons(ci, ms, me);
+				}
+
+				//-- Now do the end range, if applicable
+				if(ci < np) {
+					ms = np - 2;
+					if(ms < ci)
+						ms = ci;
+
+					if(ci < ms)
+						bd.add(Icon.faEllipsisH.createNode().css("ui-dp2-ellipsis"));
+
+					ci = ms;
+					ci = renderButtons(ci, ms, np);
+				}
 			}
 		}
 
@@ -223,9 +232,9 @@ final public class DataPager2 extends Div implements IDataTablePager {
 			if(ci >= np)
 				break;
 			if(ci == m_table.getCurrentPage()) {
-				b = new Button("ui-dp2-pn ui-dp2-cp");
+				b = new Button("ui-dp2-btn ui-dp2-pn ui-dp2-cp");
 			} else {
-				b = new Button("ui-dp2-pn");
+				b = new Button("ui-dp2-btn ui-dp2-pn");
 			}
 			b.add(Integer.toString(ci + 1));
 			final int morons = ci;

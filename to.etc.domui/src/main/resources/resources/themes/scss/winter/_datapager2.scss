@@ -4,8 +4,14 @@ $pager2-button-bg: $alt-button-bg !default
 
 // https://fvsch.com/styling-buttons/ is useful
 .ui-dp2 {
-	.ui-dp2-btn, .ui-dp2-pn {
-		margin-right: 10px;
+	.ui-dp2-btn + .ui-dp2-btn {
+		margin-left: 10px;
+	}
+
+	span.ui-dp2-ellipsis {
+		display: inline-block;
+		height: 2.25em;
+		padding: $pager2-padding;
 	}
 
 	button, button.ui-sib2 {
