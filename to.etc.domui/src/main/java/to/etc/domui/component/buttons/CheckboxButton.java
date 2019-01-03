@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.Msgs;
@@ -73,6 +74,17 @@ public class CheckboxButton extends AbstractDivControl<Boolean> {
 		return this;
 	}
 
+	@Deprecated
+	@Override
+	public IValueChanged< ? > getOnValueChanged() {
+		IValueChanged< ? > vc = m_cb.getOnValueChanged();
+		return vc;
+	}
+
+	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+		m_cb.setOnValueChanged(onValueChanged);
+	}
+
 	@Override protected void internalSetValue(@Nullable Boolean value) {
 		m_cb.setValue(value);
 	}
@@ -88,5 +100,18 @@ public class CheckboxButton extends AbstractDivControl<Boolean> {
 
 	public boolean isChecked() {
 		return Boolean.TRUE.equals(getBindValue());
+	}
+
+	public boolean isImmediate() {
+		return m_cb.isImmediate();
+	}
+
+
+	public void immediate(boolean immediate) {
+		m_cb.immediate(immediate);
+	}
+
+	public void immediate() {
+		m_cb.immediate();
 	}
 }

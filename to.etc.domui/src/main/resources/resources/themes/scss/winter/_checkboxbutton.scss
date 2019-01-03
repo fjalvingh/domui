@@ -122,6 +122,7 @@
 }
 
 .ui-chkbb {
+	display: inline-block;
 	position: relative;
 	*, *:before, *:after { box-sizing: border-box; }
 	//overflow: hidden;
