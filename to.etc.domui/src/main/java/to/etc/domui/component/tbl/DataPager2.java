@@ -143,10 +143,9 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	/*--------------------------------------------------------------*/
 
 	private void redraw() throws Exception {
-		Div bd = m_buttonDiv;
-		if(bd == null)
+		if(! isBuilt())
 			return;
-
+		Div bd = m_buttonDiv;
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
 		if(np == 0) {
