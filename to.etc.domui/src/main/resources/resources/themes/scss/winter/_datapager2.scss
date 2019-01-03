@@ -1,0 +1,51 @@
+$pager2-padding: 0.5em 1em !default;
+$pager2-button-color: $alt-button-color !default;
+$pager2-button-bg: $alt-button-bg !default
+
+.ui-dp2 {
+	.ui-dp2-btn, .ui-dp2-pn {
+		margin-right: 10px;
+
+	}
+
+	button {
+		@include button-reset;
+
+		display: inline-block;
+		text-align: center;
+		text-decoration: none;
+		margin: 2px 0;
+
+		/* invisible border (will be colored on hover/focus) */
+		border: solid 1px transparent;
+		border-radius: 4px;
+
+		/* size comes from text & padding (no width/height) */
+		padding: $pager2-padding;
+
+		/* make sure colors have enough contrast! */
+		color: $pager2-button-color;
+		background-color: $pager2-button-bg;
+
+		&:active {
+			transform: translateY(1px);
+			filter: saturate(150%);
+		}
+		&:hover:not(.ui-dp2-cp) {
+			color: #051cac;
+			border-color: currentColor;
+			background-color: white;
+		}
+
+		&.ui-dp2-cp {
+			color: $pager2-button-bg;
+			background-color: $pager2-button-color;
+		}
+		&[disabled="disabled"], &[disabled="disabled"]:hover {
+			background-color: #ddd;
+			color: #777;
+			border-color: transparent;
+			cursor: default;
+		}
+	}
+}

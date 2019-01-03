@@ -28,12 +28,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.misc.IIconRef;
-import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.BundleRef;
@@ -59,13 +57,9 @@ import java.util.List;
  * Created on Jun 19, 2008
  */
 public class DataPager2 extends Div implements IDataTableChangeListener {
-	private Button m_firstBtn;
-
 	private Button m_prevBtn;
 
 	private Button m_nextBtn;
-
-	private Button m_lastBtn;
 
 	private PageableTabularComponentBase< ? > m_table;
 
@@ -92,7 +86,6 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 		Div bd = m_buttonDiv = new Div("ui-dp2-buttons");
 		add(bd);
 
-		m_firstBtn = appendButton(bd, Msgs.uiPagerFirst, () -> m_table.setCurrentPage(0));
 		m_prevBtn = appendButton(bd, Msgs.uiPagerPrev, () -> {
 			int cp = m_table.getCurrentPage();
 			if(cp <= 0)
@@ -110,12 +103,6 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 				return;
 			m_table.setCurrentPage(cp);
 		});
-		m_lastBtn = appendButton(bd, Msgs.uiPagerLast, () -> {
-			int pg = m_table.getPageCount();
-			if(pg == 0)
-				return;
-			m_table.setCurrentPage(pg - 1);
-		});
 		redraw();
 	}
 
@@ -123,6 +110,7 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 		Button b = new Button("ui-dp2-btn");
 		b.setClicked(clickednode -> x.execute());
 		bd.add(b);
+		b.add(code.getString());
 		return b;
 	}
 
@@ -184,83 +172,113 @@ public class DataPager2 extends Div implements IDataTableChangeListener {
 		setDisplay(DisplayType.BLOCK);
 
 		if(cp <= 0) {
-			m_firstBtn.setDisabled(true);
 			m_prevBtn.setDisabled(true);
 		} else {
-			m_firstBtn.setDisabled(false);
 			m_prevBtn.setDisabled(false);
 		}
 
 		if(cp + 1 >= np) {
-			m_lastBtn.setDisabled(true);
 			m_nextBtn.setDisabled(true);
 		} else {
-			m_lastBtn.setDisabled(false);
 			m_nextBtn.setDisabled(false);
 		}
 
 		bd.removeAllChildren();
-		bd.add(m_firstBtn);
 		bd.add(m_prevBtn);
 
+		/*
+		 * render page numbers:
+		 * 1 2 3 ... n-2 n-1 n n+1 n+2 ... np-2 np-1 np
+		 */
+		int ci = 0;
+		ci = renderButtons(ci, 0, 3);		// First 3 buttons
 
+		if(ci < np) {
+			//-- do we have a middle range?
+			int ms = cp - 2;
+			if(ms < ci)
+				ms = ci;
+			int me = cp + 3;			// exclusive bound
+			if(me > np)
+				me = np;
+
+			if(ms < me) {
+				ci = ms;
+
+				bd.add(" ... ");
+
+				ci = renderButtons(ci, ms, me);
+			}
+
+			//-- Now do the end range, if applicable
+			if(ci < np) {
+				ms = np - 2;
+				if(ms < ci)
+					ms = ci;
+
+				bd.add(" ... ");
+
+				ci = ms;
+				ci = renderButtons(ci, ms, np);
+			}
+		}
 
 		bd.add(m_nextBtn);
-		bd.add(m_lastBtn);
 
 		bd.add("\u00a0\u00a0");
 		for(@NonNull SmallImgButton sib : m_extraButtonList) {
 			bd.add(sib);
 		}
+	}
+
+
+	private int renderButtons(int ci, int from, int to) throws Exception {
+		int np = m_table.getPageCount();
+		for(int i = from; i < to; i++) {
+			Button b;
+			if(ci >= np)
+				break;
+			if(ci == m_table.getCurrentPage()) {
+				b = new Button("ui-dp2-pn ui-dp2-cp");
+			} else {
+				b = new Button("ui-dp2-pn");
+			}
+			b.add(Integer.toString(ci + 1));
+			final int morons = ci;
+			b.setClicked(clickednode -> m_table.setCurrentPage(morons));
+			m_buttonDiv.add(b);
+			ci++;
+		}
+		return ci;
+	}
+
+//	private void redrawSelectionButtons() throws Exception {
+//		//-- Show/hide the "show selection" button
+//		final ISelectableTableComponent<Object> dt = (ISelectableTableComponent<Object>) getSelectableTable();
+//		if(null == dt)
+//			throw new IllegalStateException("Null selectable table?");
 //
-//		int tc = m_table.getTruncatedCount();						// FIXME jal 20160125 Should be an isTruncated property, as the count is just model.size.
-//		if(tc > 0) {
-//			if(m_truncated == null) {
-//				m_truncated = new Img();
-//				m_truncated.setSrc("THEME/nav-overflow.png");
-//				m_truncated.setTitle(Msgs.uiPagerOverflow.format(Integer.valueOf(tc)));
-//				m_truncated.setCssClass("ui-dp-nav-pgr-ovf");
-//				m_textDiv.add(m_truncated);
+//		if(isNeedSelectionButton()) {
+//			if(m_showSelectionBtn == null) {
+//				m_showSelectionBtn = new SmallImgButton(Icon.of("THEME/dpr-select-on.png"));
+//				m_buttonDiv.add(4, m_showSelectionBtn); // Always after last navigation button
+//				m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
+//					@Override
+//					public void clicked(@NonNull NodeBase clickednode) throws Exception {
+//						dt.setShowSelection(true);
+//						clickednode.remove();
+//						m_showSelectionBtn = null;
+//					}
+//				});
+//				m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
 //			}
 //		} else {
-//			if(m_truncated != null) {
-//				m_truncated.remove();
-//				m_truncated = null;
+//			if(m_showSelectionBtn != null) {
+//				m_showSelectionBtn.remove();
+//				m_showSelectionBtn = null;
 //			}
 //		}
-//		//System.err.println("DataPager: redraw() called, currentPage=" + cp + ", pageCount=" + np + ", rowsAsked=" + rowsAsked);
-//		if(isShowSelection() && getSelectableTable() != null) {
-//			redrawSelectionButtons();
-//		}
-	}
-
-	private void redrawSelectionButtons() throws Exception {
-		//-- Show/hide the "show selection" button
-		final ISelectableTableComponent<Object> dt = (ISelectableTableComponent<Object>) getSelectableTable();
-		if(null == dt)
-			throw new IllegalStateException("Null selectable table?");
-
-		if(isNeedSelectionButton()) {
-			if(m_showSelectionBtn == null) {
-				m_showSelectionBtn = new SmallImgButton(Icon.of("THEME/dpr-select-on.png"));
-				m_buttonDiv.add(4, m_showSelectionBtn); // Always after last navigation button
-				m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
-					@Override
-					public void clicked(@NonNull NodeBase clickednode) throws Exception {
-						dt.setShowSelection(true);
-						clickednode.remove();
-						m_showSelectionBtn = null;
-					}
-				});
-				m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
-			}
-		} else {
-			if(m_showSelectionBtn != null) {
-				m_showSelectionBtn.remove();
-				m_showSelectionBtn = null;
-			}
-		}
-	}
+//	}
 
 	public Div getButtonDiv() {
 		return m_buttonDiv;
