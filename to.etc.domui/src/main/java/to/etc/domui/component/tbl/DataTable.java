@@ -268,7 +268,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			headerCell.setClicked(m_headerSelectClickHandler);
 			headerCell.setCssClass("ui-clickable");
 //			headerCell.setWidth("1%"); //keep selection column with minimal width
-			cell.getCol().setWidth("1%");
+			cell.getCol().setWidth("3em");
 		}
 		m_rowRenderer.renderHeader(this, hc);
 	}
