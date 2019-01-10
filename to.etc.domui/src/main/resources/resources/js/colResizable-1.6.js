@@ -85,7 +85,7 @@
 		console.log("after table width=" + t.width());
 		tables[id] = t; 	//the table object is stored using its id as key
 		t.addClass(SIGNATURE);
-		t.width(t.width());
+		t.width(t.width());			// jal 20180110 SourceMappingPage: with this here ON this prevents cols from suddenly becoming too small
 		createGrips(t);		//grips are created
 	};
 
