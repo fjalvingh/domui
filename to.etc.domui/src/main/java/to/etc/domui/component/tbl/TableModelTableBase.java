@@ -58,7 +58,9 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 		model.addChangeListener(this);
 	}
 
-	public TableModelTableBase() {}
+	public TableModelTableBase() {
+		m_model = new SimpleListModel<>(Collections.emptyList());
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Model/page changed listener code..					*/
