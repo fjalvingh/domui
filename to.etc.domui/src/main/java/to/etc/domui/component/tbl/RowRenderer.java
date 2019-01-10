@@ -10,6 +10,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SortableType;
 import to.etc.domui.component.misc.DisplaySpan;
 import to.etc.domui.component.ntbl.IRowButtonFactory;
+import to.etc.domui.component.tbl.HeaderContainer.HeaderContainerCell;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
@@ -249,8 +250,10 @@ import java.util.function.Predicate;
 			ix++;
 		}
 
-		if(getRowButtonFactory() != null)
-			cc.add("");
+		if(getRowButtonFactory() != null) {
+			HeaderContainerCell cell = cc.add("");
+			cell.getCol().setWidth("10em");
+		}
 	}
 
 	/**
@@ -263,10 +266,19 @@ import java.util.function.Predicate;
 		boolean fullWidth = width != null && width.contains("100%");
 
 		//-- 1. If any width is set with width(String) then we only use that.
-		boolean hasAssignedWidth = m_columnList.stream().anyMatch(a -> !StringTool.isBlank(a.getWidth()));
+		boolean hasAssignedWidth = m_columnList.stream().anyMatch(a -> !StringTool.isBlank(a.getWidth()) || a.getCharacterWidth() > 0);
 		if(hasAssignedWidth) {
 			//-- Just copy all widths.
-			m_columnList.forEach(a -> map.put(a, a.getWidth()));
+			m_columnList.forEach(a -> {
+				String w = a.getWidth();
+				if(null == w) {
+					int cw = a.getCharacterWidth();
+					if(cw > 0) {
+						w = cw + "em";
+					}
+				}
+				map.put(a, w);
+			});
 			return map;
 		}
 
