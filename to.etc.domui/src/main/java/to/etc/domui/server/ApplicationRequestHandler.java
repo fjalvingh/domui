@@ -67,7 +67,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	private boolean accepts(@NonNull IRequestContext ctx) {
 		return m_application.getUrlExtension().equals(ctx.getExtension())
 				|| ctx.getExtension().equals("obit")
-				|| (m_application.getRootPage() != null && ctx.getPageName() == null)
+				|| (m_application.getRootPage() != null && ctx.getPageName() == null && ! m_application.isIgnoredUrlPrefix(ctx.getInputPath()))
 				;
 	}
 
