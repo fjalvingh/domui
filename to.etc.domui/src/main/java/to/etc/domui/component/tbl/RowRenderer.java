@@ -503,11 +503,15 @@ import java.util.function.Predicate;
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
 				ds.setRenderer(new IRenderInto<X>() {
+					@Override public void render(@NonNull NodeContainer node, @NonNull X object) throws Exception {
+						contentRenderer.render(node, object);
+					}
+
 					/**
 					 * Wrap the renderer so we can pass the "instance" to it.
 					 */
 					@Override
-					public void render(@NonNull NodeContainer node, @Nullable X object) throws Exception {
+					public void renderOpt(@NonNull NodeContainer node, @Nullable X object) throws Exception {
 						contentRenderer.renderOpt(node, object); //, instance);
 					}
 				});
