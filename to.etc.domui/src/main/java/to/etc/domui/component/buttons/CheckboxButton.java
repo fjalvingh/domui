@@ -1,5 +1,6 @@
 package to.etc.domui.component.buttons;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.AbstractDivControl;
 import to.etc.domui.dom.html.Checkbox;
@@ -50,6 +51,11 @@ public class CheckboxButton extends AbstractDivControl<Boolean> {
 
 		cont.setSpecialAttribute("data-checked", on);
 		cont.setSpecialAttribute("data-unchecked", off);
+	}
+
+	@NonNull @Override public CheckboxButton css(@NonNull String... classNames) {
+		super.css(classNames);
+		return this;
 	}
 
 	@Nullable @Override public NodeBase getForTarget() {
