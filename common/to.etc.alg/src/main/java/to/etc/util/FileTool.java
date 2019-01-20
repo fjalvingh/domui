@@ -1618,7 +1618,7 @@ public class FileTool {
 				StringBuilder sb = new StringBuilder(off * 4);
 				sb.append("Raw INPUT dump of the input stream:\n");
 				for(int doff = 0; doff < off; doff += 32) {
-					StringTool.arrayToDumpLine(sb, buf, doff, 32);
+					StringTool.arrayToDumpLine(sb, buf, doff, 32, buf.length);
 					sb.append("\n");
 				}
 				sb.append("Total size of the input stream is " + off + " bytes\n");
@@ -1642,7 +1642,7 @@ public class FileTool {
 			sb.append("Raw INPUT dump of the input stream:\n");
 			int doff = 0;
 			for(; doff < buf.length; doff += 32) {
-				StringTool.arrayToDumpLine(sb, buf, doff, 32);
+				StringTool.arrayToDumpLine(sb, buf, doff, 32, buf.length);
 				sb.append("\n");
 			}
 
@@ -1657,7 +1657,7 @@ public class FileTool {
 
 				//-- Log whatever's read,
 				for(int rlen = 0; rlen < szread; rlen += 32) {
-					StringTool.arrayToDumpLine(sb, buf, rlen, 32);
+					StringTool.arrayToDumpLine(sb, buf, rlen, 32, buf.length);
 					sb.append("\n");
 					doff += 32;
 				}
