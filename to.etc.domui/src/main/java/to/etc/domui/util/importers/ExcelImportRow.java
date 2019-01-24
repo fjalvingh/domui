@@ -136,10 +136,24 @@ public class ExcelImportRow implements IImportRow {
 					case NUMERIC:
 						return new BigDecimal(m_cell.getNumericCellValue());
 					case STRING:
-						return new BigDecimal(m_cell.getStringCellValue());
+						String value = m_cell.getStringCellValue();
+						if(value == null)
+							return null;
+						value = value.trim().replace(',', '.');
+						if(value.length() == 0)
+							return null;
+						return new BigDecimal(value);
 				}
 			} catch(Exception x) {
-				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress()+ "] " + x.toString());
+				x.printStackTrace();
+				String base;
+				try {
+					base = m_cell.getStringCellValue();
+				} catch(Exception xx) {
+					base = null;
+				}
+
+				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress()+ "], value '" + base + "': " + x.toString());
 				//throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress().getRow()+ ", " + m_cell.getAddress().getColumn() + "] " + x.toString());
 			}
 		}
