@@ -7,6 +7,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.query.QNotFoundException;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -117,6 +118,30 @@ public class ExcelImportRow implements IImportRow {
 		@Nullable
 		@Override public Date asDate() {
 			return m_cell.getDateCellValue();
+		}
+
+		@Nullable @Override public BigDecimal getDecimal() {
+			try {
+				switch(m_cell.getCellTypeEnum()) {
+					default:
+						throw new IllegalStateException("Unknown cell type: " + m_cell.getCellTypeEnum());
+
+					case _NONE:
+					case BLANK:
+						return null;
+
+					case BOOLEAN:
+						return BigDecimal.ONE;
+
+					case NUMERIC:
+						return new BigDecimal(m_cell.getNumericCellValue());
+					case STRING:
+						return new BigDecimal(m_cell.getStringCellValue());
+				}
+			} catch(Exception x) {
+				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress()+ "] " + x.toString());
+				//throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress().getRow()+ ", " + m_cell.getAddress().getColumn() + "] " + x.toString());
+			}
 		}
 	}
 

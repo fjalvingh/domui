@@ -2,6 +2,7 @@ package to.etc.domui.util.importers;
 
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -21,6 +22,10 @@ class EmptyColumn extends AbstractImportColumn implements IImportColumn {
 
 	@Nullable
 	@Override public Date asDate() {
+		return null;
+	}
+
+	@Nullable @Override public BigDecimal getDecimal() {
 		return null;
 	}
 
