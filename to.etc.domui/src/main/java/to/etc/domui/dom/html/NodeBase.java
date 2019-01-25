@@ -172,6 +172,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	@Nullable
 	private List<String> m_specialAttributes;
 
+	@Nullable
+	private List<NotificationListener<?>> m_notificationListenerList;
+
 	static private final byte F_FOCUSREQUESTED = 0x01;
 
 	static private final byte F_BUNDLEFOUND = 0x02;
@@ -452,7 +455,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Returns T if this node is attached to a real page.
-	 * @return
 	 */
 	final public boolean isAttached() {
 		return null != m_page;
@@ -460,7 +462,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Internal use only.
-	 * @param page
 	 */
 	final void setPage(final Page page) {
 		m_page = page;
@@ -478,17 +479,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Internal: register this node with the page.
-	 * @param p
 	 */
 	void registerWithPage(@NonNull final Page p) {
 		p.registerNode(this);
 	}
 
-	void internalOnAddedToPage(final Page p) {
+	void internalOnAddedToPage(@NonNull Page p) {
 		onAddedToPage(p);
 		List<NotificationListener<?>> list = m_notificationListenerList;
 		if(null != list) {
-			list.forEach(a -> p.addNotificationListener(a));
+			list.forEach(p::addNotificationListener);
 		}
 		StringBuilder appendJS = m_appendJS;
 		if(appendJS != null) {
@@ -497,8 +497,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		}
 	}
 
-	void internalOnRemoveFromPage(final Page p) {
+	void internalOnRemoveFromPage(@NonNull Page p) {
 		onRemoveFromPage(p);
+		List<NotificationListener<?>> list = m_notificationListenerList;
+		if(null != list) {
+			list.forEach(p::removeNotificationListener);
+		}
 	}
 
 	public String getTextOnly() {
@@ -519,7 +523,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Set the value for the "class" (css class) attribute. This can be null, or one or
 	 * more class names separated by space.
-	 * @param cssClass
 	 */
 	public void setCssClass(@Nullable final String cssClass) {
 		//		System.out.println("--- id="+m_actualID+", css="+cssClass);
@@ -531,8 +534,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Removes the specified CSS class. This looks in the space delimited list and removes all 'words' there
 	 * that match this name. Returns T if the class was actually present.
-	 * @param nameList
-	 * @return
 	 */
 	final public boolean removeCssClass(@NonNull final String nameList) {
 		String cssClass = getCssClass();
@@ -1941,19 +1942,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	public final <T> void addNotificationListener(Class<T> eventClass, INotificationListener<T> listener) {
 		NotificationListener<T> nl = new Page.NotificationListener<>(eventClass, this, listener);
+		List<NotificationListener<?>> list = m_notificationListenerList;
+		if(null == list) {
+			list = m_notificationListenerList = new ArrayList<>(4);
+		}
+		list.add(nl);
 		if(isAttached())
 			getPage().addNotificationListener(nl);
-		else {
-			List<NotificationListener<?>> list = m_notificationListenerList;
-			if(null == list) {
-				list = m_notificationListenerList = new ArrayList<>(4);
-			}
-			list.add(nl);
-		}
 	}
-
-	@Nullable
-	private List<NotificationListener<?>> m_notificationListenerList;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Soft binding support.								*/
@@ -1967,7 +1963,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Checks the tree starting at this component for binding errors; all of those will be reported
 	 * by sending them to the error listeners. In case of errors this will return true.
-	 * @return
 	 */
 	public boolean bindErrors() throws Exception {
 		return OldBindingHandler.reportBindingErrors(this);
@@ -1975,7 +1970,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * If present, return all bindings on this node.
-	 * @return
 	 */
 	@Nullable
 	final public List<IBinding> getBindingList() {
