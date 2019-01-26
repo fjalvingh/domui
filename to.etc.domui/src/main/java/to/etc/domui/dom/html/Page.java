@@ -1134,6 +1134,33 @@ final public class Page implements IQContextContainer {
 	/*	CODING:	Notifications												*/
 	/*----------------------------------------------------------------------*/
 
+	private List<NotificationListener<?>> m_notificationListenerList = new ArrayList<>();
+
+	<T> void addNotificationListener(NotificationListener<T> newl) {
+		for(NotificationListener<?> nl : m_notificationListenerList) {
+			if(nl.getWhom() == newl.getWhom() && nl.getEventClass() == newl.getEventClass()) {
+				return;
+			}
+		}
+		m_notificationListenerList.add(newl);
+	}
+
+	<T> void removeNotificationListener(NotificationListener<T> oldl) {
+		m_notificationListenerList.remove(oldl);
+	}
+
+	<T> void notifyPage(@NonNull T eventClass) throws Exception {
+		buildSubTree(getBody());
+
+		Class<?> clz = eventClass.getClass();
+		for(NotificationListener<?> nl : m_notificationListenerList) {
+			if(nl.getEventClass().isAssignableFrom(clz)) {
+				INotificationListener<T> listener = (INotificationListener<T>) nl.getListener();
+				listener.notify(eventClass);
+			}
+		}
+	}
+
 	@NonNullByDefault
 	public static class NotificationListener<T> {
 		final private Class<T> m_eventClass;
@@ -1158,29 +1185,6 @@ final public class Page implements IQContextContainer {
 
 		public INotificationListener<T> getListener() {
 			return m_listener;
-		}
-	}
-
-	private List<NotificationListener<?>> m_notificationListenerList = new ArrayList<>();
-
-	<T> void addNotificationListener(NotificationListener<T> newl) {
-		for(NotificationListener<?> nl : m_notificationListenerList) {
-			if(nl.getWhom() == newl.getWhom() && nl.getEventClass() == newl.getEventClass()) {
-				return;
-			}
-		}
-		m_notificationListenerList.add(newl);
-	}
-
-	<T> void notifyPage(@NonNull T eventClass) throws Exception {
-		buildSubTree(getBody());
-
-		Class<?> clz = eventClass.getClass();
-		for(NotificationListener<?> nl : m_notificationListenerList) {
-			if(nl.getEventClass().isAssignableFrom(clz)) {
-				INotificationListener<T> listener = (INotificationListener<T>) nl.getListener();
-				listener.notify(eventClass);
-			}
 		}
 	}
 }

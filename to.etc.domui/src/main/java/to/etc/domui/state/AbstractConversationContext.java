@@ -218,6 +218,14 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 		m_uploadList.add(f);
 	}
 
+	/**
+	 * Unregister the specified file from the file list, so that it will not
+	 * be deleted when the request ends.
+	 */
+	public void claimUploadFile(@NonNull File file) {
+		m_uploadList.remove(file);
+	}
+
 	protected void discardTempFiles() {
 		for(File f : m_uploadList) {
 			try {
@@ -230,9 +238,6 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 		m_uploadList.clear();
 	}
 
-	/*----------------------------------------------------------------------*/
-	/*	CODING:	Debug														*/
-	/*----------------------------------------------------------------------*/
 	public void dump() {
 		for(File df : m_uploadList) {
 			System.out.println("      Uploaded file: " + df);

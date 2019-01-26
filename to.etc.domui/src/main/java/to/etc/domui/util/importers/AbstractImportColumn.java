@@ -2,6 +2,7 @@ package to.etc.domui.util.importers;
 
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -27,4 +28,14 @@ abstract public class AbstractImportColumn implements IImportColumn {
 		return Integer.valueOf(stringValue);
 	}
 
+	@Nullable @Override public BigDecimal getDecimal() {
+		String stringValue = getStringValue();
+		if(null == stringValue)
+			return null;
+		stringValue = stringValue.trim().replace(',', '.');
+		if(stringValue.length() == 0)
+			return null;
+
+		return new BigDecimal(stringValue);
+	}
 }

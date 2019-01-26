@@ -10,6 +10,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SortableType;
 import to.etc.domui.component.misc.DisplaySpan;
 import to.etc.domui.component.ntbl.IRowButtonFactory;
+import to.etc.domui.component.tbl.HeaderContainer.HeaderContainerCell;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
@@ -191,7 +192,7 @@ import java.util.function.Predicate;
 			TH th;
 			Col col;
 			String label = cd.getColumnLabel();
-			if(!cd.getSortable().isSortable() || !sortablemodel) {
+			if(! sortablemodel || ! isSortable(cd)) {
 				//-- Just add the span with label, if present. Span is needed to allow styling.
 				HeaderContainer.HeaderContainerCell cell = cc.add(new Span(label));
 				th = cell.getTh();
@@ -249,8 +250,24 @@ import java.util.function.Predicate;
 			ix++;
 		}
 
-		if(getRowButtonFactory() != null)
-			cc.add("");
+		if(getRowButtonFactory() != null) {
+			HeaderContainerCell cell = cc.add("");
+			cell.getCol().setWidth("10em");
+		}
+	}
+
+	private boolean isSortable(ColumnDef<T, ?> cd) {
+		if(cd.getPropertyMetaModel() != null) {
+			return cd.getSortable().isSortable();
+		}
+
+		//-- If there is no property then we need a sort helper
+		if(cd.getSortHelper() != null)
+			return true;
+
+		if(null != cd.getSortProperty())
+			return true;
+		return false;
 	}
 
 	/**
@@ -263,10 +280,19 @@ import java.util.function.Predicate;
 		boolean fullWidth = width != null && width.contains("100%");
 
 		//-- 1. If any width is set with width(String) then we only use that.
-		boolean hasAssignedWidth = m_columnList.stream().anyMatch(a -> !StringTool.isBlank(a.getWidth()));
+		boolean hasAssignedWidth = m_columnList.stream().anyMatch(a -> !StringTool.isBlank(a.getWidth()) || a.getCharacterWidth() > 0);
 		if(hasAssignedWidth) {
 			//-- Just copy all widths.
-			m_columnList.forEach(a -> map.put(a, a.getWidth()));
+			m_columnList.forEach(a -> {
+				String w = a.getWidth();
+				if(null == w) {
+					int cw = a.getCharacterWidth();
+					if(cw > 0) {
+						w = cw + "em";
+					}
+				}
+				map.put(a, w);
+			});
 			return map;
 		}
 
@@ -491,11 +517,15 @@ import java.util.function.Predicate;
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
 				ds.setRenderer(new IRenderInto<X>() {
+					@Override public void render(@NonNull NodeContainer node, @NonNull X object) throws Exception {
+						contentRenderer.render(node, object);
+					}
+
 					/**
 					 * Wrap the renderer so we can pass the "instance" to it.
 					 */
 					@Override
-					public void render(@NonNull NodeContainer node, @Nullable X object) throws Exception {
+					public void renderOpt(@NonNull NodeContainer node, @Nullable X object) throws Exception {
 						contentRenderer.renderOpt(node, object); //, instance);
 					}
 				});

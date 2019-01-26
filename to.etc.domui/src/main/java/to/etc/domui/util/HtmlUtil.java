@@ -47,6 +47,7 @@ final public class HtmlUtil {
 			return null;
 //		System.out.println("Sanitize: input=" + htmlIn);
 		String s = sanitize(htmlIn, false, true);
+		s = compact(s);
 		return s;
 	}
 
@@ -86,6 +87,28 @@ final public class HtmlUtil {
 			//-- Sigh.
 		}
 		return sb.toString();
+	}
+
+	static private final String WS1 = "<p><br/></p>";
+	static private final String WS2 = "<p><br /></p>";
+
+
+	private static String compact(String input) {
+		try {
+			//-- Remove all instances of <p><br/><p> at the start and end of the input
+			while(input.startsWith(WS1))
+				input = input.substring(WS1.length());
+			while(input.startsWith(WS2))
+				input = input.substring(WS2.length());
+			while(input.endsWith(WS1))
+				input = input.substring(0, input.length() - WS1.length());
+			while(input.endsWith(WS2))
+				input = input.substring(0, input.length() - WS2.length());
+			return input;
+		} catch(Exception x) {
+			x.printStackTrace();
+			return input;
+		}
 	}
 
 	private static boolean processTag(Tag tag, OutputDocument outputDocument) {

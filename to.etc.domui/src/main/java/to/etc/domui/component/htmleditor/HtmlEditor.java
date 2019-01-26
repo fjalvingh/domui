@@ -145,7 +145,6 @@ public class HtmlEditor extends TextArea {
 	 * Contains the in-editor stylesheet to use, which determines the presentation\
 	 * of the document inside the editor. If not set it defaults to
 	 * THEME/minieditor.css.
-	 * @return
 	 */
 	protected String getStyleSheet() throws Exception {
 		return getThemedResourceRURL(m_styleSheet == null ? "THEME/minieditor.css" : m_styleSheet);
@@ -166,7 +165,6 @@ public class HtmlEditor extends TextArea {
 	/**
 	 * Set a new HTML document value into the area. If the page is built we need to call a method on
 	 * the editor object so that it will update it's presentation.
-	 * @see to.etc.domui.dom.html.TextArea#setValue(java.lang.String)
 	 */
 	@Override
 	public void setValue(@Nullable String v) {
@@ -206,7 +204,11 @@ public class HtmlEditor extends TextArea {
 			String s = values[i];
 			try {
 				System.out.println("pre-value[" + i + "]=" + s);
-				values[i] = HtmlUtil.removeUnsafe(s);
+				String nw = HtmlUtil.removeUnsafe(s);
+				if(nw != null && nw.length() == 0)
+					nw = null;
+				values[i] = nw;
+
 //
 //
 //				StringTool.entitiesToUnicode(sb, s, true);
