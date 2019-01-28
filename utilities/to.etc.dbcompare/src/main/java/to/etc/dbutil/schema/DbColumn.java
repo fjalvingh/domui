@@ -43,6 +43,8 @@ public class DbColumn implements Serializable {
 	@Nullable
 	private DbSequence m_usedSequence;
 
+	private boolean m_quoteName;
+
 	public DbColumn(DbTable table, String name, ColumnType type, int precision, int scale, boolean nullable, Boolean autoIncrement) {
 		m_table = table;
 		m_name = name;
@@ -364,5 +366,13 @@ public class DbColumn implements Serializable {
 
 	public void setUsedSequence(@Nullable DbSequence usedSequence) {
 		m_usedSequence = usedSequence;
+	}
+
+	public boolean isQuoteName() {
+		return m_quoteName;
+	}
+
+	public void setQuoteName(boolean quoteName) {
+		m_quoteName = quoteName;
 	}
 }
