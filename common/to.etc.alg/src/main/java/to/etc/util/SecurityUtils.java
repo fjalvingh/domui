@@ -25,9 +25,16 @@
 package to.etc.util;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
@@ -35,16 +42,21 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.interfaces.RSAPublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Apr 6, 2004
  */
 public class SecurityUtils {
+
 	static private final SecureRandom RANDOM = new SecureRandom();
+
+	public static final String SSH_RSA = "ssh-rsa";
 
 	static public String encodeToHex(PrivateKey privk) {
 		byte[] enc = privk.getEncoded();
@@ -163,6 +175,8 @@ public class SecurityUtils {
 		return kf.generatePrivate(pks);
 	}
 
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Hashing functions.									*/
 	/*--------------------------------------------------------------*/
@@ -220,6 +234,129 @@ public class SecurityUtils {
 		return salt;
 	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	SSH format keys												*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Decodes a id_xxx.pub format key, like:
+	 * <pre>
+	 *     ssh-rsa AAAAB3N....== jal@etc.to
+	 * </pre>
+	 *
+	 * See https://stackoverflow.com/questions/3706177/how-to-generate-ssh-compatible-id-rsa-pub-from-java
+	 */
+	static public PublicKey decodeSshPublicKey(String text) throws KeyFormatException {
+		try {
+			// Remove any newlines that can be the result of pasting.
+			text = text.replace("\r", "").replace("\n", "");
+			String[] split = text.split("\\s+");
+			if(split.length < 2)
+				throw new KeyFormatException("ssh key format not recognised");
+			if(SSH_RSA.equals(split[0])) {
+				byte[] data = StringTool.decodeBase64(split[1]);
+				try(DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
+					byte[] buf = readIntLenBytes(dis);			// ssh-rsa signature
+					if(buf.length != 7 || !Arrays.equals(buf, SSH_RSA.getBytes()))
+						throw new KeyFormatException("Expecting byte pattern ssh-rsa");
+					BigInteger exp = new BigInteger(readIntLenBytes(dis));
+					BigInteger mod = new BigInteger(readIntLenBytes(dis));
+					return new RSAPublicKeyImpl(exp, mod, "RSA", "RFC4251", data);
+				}
+			}
+		} catch(Exception x) {
+			throw new KeyFormatException(x, "Failed to decode public key");
+		}
+		throw new KeyFormatException("Key format not recognised");
+	}
+
+	private static byte[] readIntLenBytes(DataInputStream dis) throws Exception {
+		int l = dis.readInt();						// length of public exponent
+		if(l < 0 || l > 8192)
+			throw new KeyFormatException("Bad length");
+		byte[] buf = new byte[l];
+		if(dis.read(buf) != l)
+			throw new KeyFormatException("Bad length");
+		return buf;
+	}
+
+	static public String encodeSshPublicKey(PublicKey key, @Nullable String userId) throws KeyFormatException {
+		String algo = key.getAlgorithm();
+		if("RSA".equalsIgnoreCase(algo)) {
+			try(ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+				try(DataOutputStream dos = new DataOutputStream(bos)) {
+					byte[] bytes = SSH_RSA.getBytes();
+					dos.writeInt(bytes.length);
+					dos.write(bytes);
+
+					RSAPublicKey p = (RSAPublicKey) key;
+					BigInteger exp = p.getPublicExponent();
+					bytes = exp.toByteArray();
+					dos.writeInt(bytes.length);
+					dos.write(bytes);
+
+					BigInteger mod = p.getModulus();
+					bytes = mod.toByteArray();
+					dos.writeInt(bytes.length);
+					dos.write(bytes);
+
+					byte[] encoded = key.getEncoded();
+					if(userId == null)
+						userId = "unknown";
+					return "ssh-rsa"
+						+ " " + StringTool.encodeBase64ToString(bos.toByteArray())
+						+ " " + userId;
+				}
+			} catch(IOException x) {
+				throw new KeyFormatException(x, "Nonsense");
+			}
+		}
+
+		throw new KeyFormatException("Unsupported key algorithm: " + algo);
+	}
+
+
+
+
+
+	public final static class RSAPublicKeyImpl implements RSAPublicKey {
+		private final BigInteger m_publicExp;
+
+		private final BigInteger m_modulo;
+
+		private final String m_algo;
+		private final String m_format;
+		private final byte[] m_encoded;
+
+		public RSAPublicKeyImpl(BigInteger publicExp, BigInteger modulo, String algo, String format, byte[] encoded) {
+			m_publicExp = publicExp;
+			m_modulo = modulo;
+			m_algo = algo;
+			m_format = format;
+			m_encoded = encoded;
+		}
+
+		@Override public BigInteger getPublicExponent() {
+			return m_publicExp;
+		}
+
+		@Override public String getAlgorithm() {
+			return m_algo;
+		}
+
+		@Override public String getFormat() {
+			return m_format;
+		}
+
+		@Override public byte[] getEncoded() {
+			return m_encoded;
+		}
+
+		@Override public BigInteger getModulus() {
+			return m_modulo;
+		}
+	}
+
 	/**
 	 * Generate a secure password hash by randomly generating a salt, then
 	 * hashing the password using PBKDF2.
@@ -250,6 +387,4 @@ public class SecurityUtils {
 			return false;
 		}
 	}
-
-
 }
