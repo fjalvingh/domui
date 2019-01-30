@@ -24,6 +24,9 @@
  */
 package to.etc.util;
 
+import org.bouncycastle.openssl.jcajce.JcaPEMWriter;
+import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
+import org.bouncycastle.util.io.pem.PemObject;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
@@ -34,6 +37,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.KeyFactory;
@@ -237,6 +241,9 @@ public class SecurityUtils {
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	SSH format keys												*/
 	/*----------------------------------------------------------------------*/
+	/*
+	 * https://www.cryptosys.net/pki/rsakeyformats.html
+	 */
 
 	/**
 	 * Decodes a id_xxx.pub format key, like:
@@ -300,7 +307,6 @@ public class SecurityUtils {
 					dos.writeInt(bytes.length);
 					dos.write(bytes);
 
-					byte[] encoded = key.getEncoded();
 					if(userId == null)
 						userId = "unknown";
 					return "ssh-rsa"
@@ -315,9 +321,75 @@ public class SecurityUtils {
 		throw new KeyFormatException("Unsupported key algorithm: " + algo);
 	}
 
+	/**
+	 *
+	 */
+	static public PrivateKey decodeSshPrivateKey(String key) throws KeyFormatException {
+		try {
+			if(key.startsWith("-----BEGIN RSA PRIVATE KEY-----")) {		// PKCS#1
+				//-- PEM like format. Strip pem lines
+				byte[] pkcs1 = readPemFormat(key);
+				byte[] pkcs8 = decodeRsaPKCS1PrivateKey(pkcs1);
 
+				EncodedKeySpec pks = new PKCS8EncodedKeySpec(pkcs8);
+				KeyFactory kf = KeyFactory.getInstance("RSA");
+				return kf.generatePrivate(pks);
+			} else if(key.startsWith("-----BEGIN ENCRYPTED PRIVATE KEY-----")) {
 
+			}
+		} catch(Exception x) {
+			throw new KeyFormatException(x, "Bad or unknown format");
+		}
+		throw new KeyFormatException("Unknown format");
+	}
 
+	/**
+	 * Change the unencrypted PKCS#1 RSA private key format to PKCS#8.
+	 *
+	 * See
+	 * https://stackoverflow.com/questions/45646808/convert-an-rsa-pkcs1-private-key-string-to-a-java-privatekey-object
+	 * https://stackoverflow.com/questions/23709898/java-convert-dkim-private-key-from-rsa-to-der-for-javamail
+	 */
+	static private byte[] decodeRsaPKCS1PrivateKey(byte[] oldder) {
+		final byte[] prefix = {0x30,(byte)0x82,0,0, 2,1,0, // SEQUENCE(lenTBD) and version INTEGER
+			0x30,0x0d, 6,9,0x2a,(byte)0x86,0x48,(byte)0x86,(byte)0xf7,0x0d,1,1,1, 5,0, // AlgID for rsaEncryption,NULL
+			4,(byte)0x82,0,0 }; // OCTETSTRING(lenTBD)
+		byte[] newder = new byte [prefix.length + oldder.length];
+		System.arraycopy (prefix,0, newder,0, prefix.length);
+		System.arraycopy (oldder,0, newder,prefix.length, oldder.length);
+		// and patch the (variable) lengths to be correct
+		int len = oldder.length, loc = prefix.length-2;
+		newder[loc] = (byte)(len>>8); newder[loc+1] = (byte)len;
+		len = newder.length-4; loc = 2;
+		newder[loc] = (byte)(len>>8); newder[loc+1] = (byte)len;
+
+		return newder;
+	}
+
+	static private final byte[] readPemFormat(String in) {
+		StringBuilder sb = new StringBuilder();
+		for(String line: new LineIterator(in)) {
+			if(! line.startsWith("--") && line.length() > 0) {
+				sb.append(line);
+
+			}
+		}
+		return StringTool.decodeBase64(sb.toString());
+	}
+
+	/**
+	 * See
+	 * http://techxperiment.blogspot.com/2016/10/create-and-read-pkcs-8-format-private.html
+	 */
+	static public String encodeSshPkcs8PrivateKey(PrivateKey key) throws Exception {
+		JcaPKCS8Generator g = new JcaPKCS8Generator(key, null);
+		PemObject pem = g.generate();
+		StringWriter sw = new StringWriter();
+		try(JcaPEMWriter pw = new JcaPEMWriter(sw)) {
+			pw.writeObject(pem);
+		}
+		return sw.toString();
+	}
 
 	public final static class RSAPublicKeyImpl implements RSAPublicKey {
 		private final BigInteger m_publicExp;
