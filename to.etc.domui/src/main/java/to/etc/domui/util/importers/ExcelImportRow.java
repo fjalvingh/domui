@@ -36,7 +36,7 @@ public class ExcelImportRow implements IImportRow {
 	}
 
 	@Override public int getColumnCount() {
-		return m_row.getLastCellNum() + 1;
+		return m_row.getLastCellNum() /* + 1 jal 20190204 removed, last cell number seems 1 based */ ;
 	}
 
 	@Override public IImportColumn get(int index) {
