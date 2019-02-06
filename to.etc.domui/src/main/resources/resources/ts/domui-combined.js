@@ -1601,12 +1601,6 @@ var WebUI;
         if (!val || val.length == 0)
             return;
         Calendar.__init();
-        var pos = val.indexOf(' ');
-        var timeval = null;
-        if (pos != -1) {
-            timeval = $.trim(val.substring(pos + 1));
-            val = $.trim(val.substring(0, pos));
-        }
         try {
             val = $.trim(val);
             val = val.replace(new RegExp("\\" + Calendar._TT["DATE_TIME_SEPARATOR"] + "+"), Calendar._TT["DATE_TIME_SEPARATOR"]);

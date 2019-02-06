@@ -1463,7 +1463,7 @@ public abstract class DomApplication {
 
 	private static void optionallyAdd(StringBuilder sb, @Nullable String thing) {
 		if(null != thing && thing.length() > 0) {
-			sb.append(' ').append(thing);
+			sb.append('_').append(thing);
 		}
 	}
 

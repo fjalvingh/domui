@@ -52,15 +52,6 @@ namespace WebUI {
 			return;
 		Calendar.__init();
 
-		// -- 20130425 jal if this is a date+time thing the value will hold space-separated time, so make sure to split it;
-		let pos = val.indexOf(' ');
-		let timeval = null;
-		if(pos != -1) {
-			// -- Split into trimmed time part and val = only date
-			timeval = $.trim(val.substring(pos + 1));
-			val = $.trim(val.substring(0, pos));
-		}
-
 		// -- Try to decode then reformat the date input
 		try {
 			val = $.trim(val);
