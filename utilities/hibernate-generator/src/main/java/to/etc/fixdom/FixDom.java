@@ -8,10 +8,15 @@ import com.github.javaparser.ast.PackageDeclaration;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.SimpleName;
+import com.github.javaparser.ast.expr.ThisExpr;
+import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.File;
 import java.util.EnumSet;
@@ -85,8 +90,6 @@ public class FixDom {
 			}
 
 			System.out.println(parse.toString());
-
-
 		}
 
 
@@ -102,9 +105,32 @@ public class FixDom {
 		if(! method.getName().asString().startsWith("set")) {
 			return;
 		}
-		method.setType(new TypeParameter("N"));
+		TypeParameter typeN = new TypeParameter("N");
+		method.setType(typeN);
+
+		//-- All places where we have a return we need to rewrite
 
 
+		NodeList<Statement> statements = method.getBody().get().getStatements();
+		if(statements.size() != 0) {
+			Statement last = statements.get(statements.size() - 1);
+			if(last.toString().equals("return")) {
+				statements.remove(statements.size()-1);
+			}
+		}
+
+		//-- Fix any intermediary returns
+		CastExpr cx = new CastExpr(typeN, new ThisExpr());
+		method.getBody().get().accept(new VoidVisitorAdapter<Void>() {
+			@Override public void visit(ReturnStmt n, Void arg) {
+				n.setExpression(cx);
+				super.visit(n, arg);
+			}
+		}, null);
+
+		//-- Add the appropriate statement
+		ReturnStmt rs = new ReturnStmt(cx);
+		statements.add(rs);
 	}
 
 	private void error(File file, String err) {
