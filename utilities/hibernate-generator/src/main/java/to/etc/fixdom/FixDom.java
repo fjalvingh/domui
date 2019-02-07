@@ -19,6 +19,7 @@ import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.util.EnumSet;
 import java.util.Optional;
 
@@ -42,11 +43,6 @@ public class FixDom {
 
 		File file = new File(root, "css/CssBase.java");
 		fixBaseFile(file);
-
-
-
-
-
 	}
 
 	private void fixBaseFile(File file) throws Exception {
@@ -79,7 +75,9 @@ public class FixDom {
 			NodeList<TypeParameter> typeParameters = mdi.getTypeParameters();
 
 			NodeList<ClassOrInterfaceType> nl = new NodeList<>();
-			nl.add(new ClassOrInterfaceType(type.getNameAsString()));
+			ClassOrInterfaceType baseType = new ClassOrInterfaceType(type.getNameAsString());
+			baseType.setTypeArguments(NodeList.nodeList(new TypeParameter("N")));
+			nl.add(baseType);
 			TypeParameter tp = new TypeParameter("N", nl);
 			typeParameters.add(tp);
 			mdi.setTypeParameters(typeParameters);
@@ -90,11 +88,12 @@ public class FixDom {
 			}
 
 			System.out.println(parse.toString());
+
+			File f = new File(file.getParentFile(), type.getNameAsString() + ".java");
+			try(FileWriter fw = new FileWriter(f)) {
+				fw.write(parse.toString());
+			}
 		}
-
-
-
-
 	}
 
 	private void fixMethod(MethodDeclaration method) {
