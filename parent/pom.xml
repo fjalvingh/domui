@@ -109,16 +109,17 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>ru.yandex.qatools.allure</groupId>
-            <artifactId>allure-junit-adaptor</artifactId>
-            <version>${allure.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>${jaxb.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ru.yandex.qatools.allure</groupId>-->
+<!--            <artifactId>allure-junit-adaptor</artifactId>-->
+<!--            <version>${allure.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>javax.xml.bind</groupId>-->
+<!--            <artifactId>jaxb-api</artifactId>-->
+<!--            <version>${jaxb.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
     </dependencies>
 
     <dependencyManagement>
@@ -537,11 +538,11 @@
 
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>ru.yandex.qatools.allure</groupId>
-                <artifactId>allure-maven-plugin</artifactId>
-                <version>${allure.maven.version}</version>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>ru.yandex.qatools.allure</groupId>-->
+<!--                <artifactId>allure-maven-plugin</artifactId>-->
+<!--                <version>${allure.maven.version}</version>-->
+<!--            </plugin>-->
 
             <!--<plugin>-->
                 <!--<groupId>org.apache.maven.plugins</groupId>-->
@@ -572,25 +573,6 @@
                 </configuration>
             </plugin>
 
-            <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven-pmd-plugin.version}</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs-maven-plugin.version}</version>
-                <configuration>
-                    <effort>Max</effort>
-                    <threshold>Low</threshold>
-                    <xmlOutput>true</xmlOutput>
-                </configuration>
-            </plugin>
-            -->
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -614,11 +596,11 @@
     <!-- Create a special profile to sign jars for release. -->
     <build>
         <plugins>
-            <plugin>
-                <groupId>io.qameta.allure</groupId>
-                <artifactId>allure-maven</artifactId>
-                <version>2.8</version>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>io.qameta.allure</groupId>-->
+<!--                <artifactId>allure-maven</artifactId>-->
+<!--                <version>2.8</version>-->
+<!--            </plugin>-->
 
             <!-- (jal) generate jars for test classes. -->
             <plugin>
@@ -647,16 +629,16 @@
                     <argLine>--add-modules java.activation</argLine>
                     <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --illegal-access=deny</argLine>
 
-                    <!-- Allure reports -->
-                    <argLine>
-                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
-                    </argLine>
-                    <properties>
-                        <property>
-                            <name>listener</name>
-                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>
-                        </property>
-                    </properties>
+<!--                    &lt;!&ndash; Allure reports &ndash;&gt;-->
+<!--                    <argLine>-->
+<!--                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar-->
+<!--                    </argLine>-->
+<!--                    <properties>-->
+<!--                        <property>-->
+<!--                            <name>listener</name>-->
+<!--                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>-->
+<!--                        </property>-->
+<!--                    </properties>-->
 
 <!-- The complete and utter idiots that wrote Surefire cause a failure if this class cannot be found. -->
 <!--                    <excludedGroups>to.etc.puzzler.GroupUsesDatabase</excludedGroups> -->
@@ -671,11 +653,11 @@
                         <artifactId>aspectjweaver</artifactId>
                         <version>${aspectj.version}</version>
                     </dependency>
-                    <dependency>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                        <version>2.3.0</version>
-                    </dependency>
+<!--                    <dependency>-->
+<!--                        <groupId>javax.xml.bind</groupId>-->
+<!--                        <artifactId>jaxb-api</artifactId>-->
+<!--                        <version>2.3.0</version>-->
+<!--                    </dependency>-->
                 </dependencies>
             </plugin>
 
@@ -689,16 +671,16 @@
                 <!-- jal: pass webdriver.url to JUnit tests needing that -->
                 <configuration>
                     <!-- Allure reports -->
-                    <argLine>
-                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
-                    </argLine>
-                    <argline>-noverify</argline>
-                    <properties>
-                        <property>
-                            <name>listener</name>
-                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>
-                        </property>
-                    </properties>
+<!--                    <argLine>-->
+<!--                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar-->
+<!--                    </argLine>-->
+<!--                    <argline>-noverify</argline>-->
+<!--                    <properties>-->
+<!--                        <property>-->
+<!--                            <name>listener</name>-->
+<!--                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>-->
+<!--                        </property>-->
+<!--                    </properties>-->
 
                     <systemPropertyVariables>
                         <webdriver.url>http://localhost:${jetty.http.port}/demo/</webdriver.url>

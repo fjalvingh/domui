@@ -13,23 +13,23 @@
         <module name="to.etc.domui.hibutil" />
         <module name="fontawesome4" />
         <module name="domui-hibernate-generator" />
-        <module name="jira-bug-reporter" />
+        <module name="to.etc.dbcompare" />
         <module name="to.etc.webapp.core" />
         <module name="to.etc.alg" />
         <module name="to.etc.domui.formbuilder" />
-        <module name="to.etc.domui" />
         <module name="to.etc.pater" />
         <module name="to.etc.db" />
         <module name="to.etc.domui.selenium" />
-        <module name="to.etc.syntaxer" />
-        <module name="to.etc.dbcompare" />
+        <module name="to.etc.domui.legacy" />
         <module name="fontawesome5free" />
         <module name="domui-hello" />
         <module name="vaadin-sass-compiler" />
         <module name="property-annotations-processor" />
-        <module name="to.etc.logger" />
-        <module name="to.etc.domui.legacy" />
         <module name="annotations" />
+        <module name="jira-bug-reporter" />
+        <module name="to.etc.logger" />
+        <module name="to.etc.syntaxer" />
+        <module name="to.etc.domui" />
       </profile>
       <profile name="Annotation profile for domui" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -47,7 +47,7 @@
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="10" />
       <module name="domui-utilities" target="1.5" />
-      <module name="fontawesome4" target="1.5" />
+      <module name="fontawesome4" target="10" />
       <module name="fontawesome5free" target="10" />
       <module name="integrations" target="1.5" />
       <module name="java9" target="1.5" />
