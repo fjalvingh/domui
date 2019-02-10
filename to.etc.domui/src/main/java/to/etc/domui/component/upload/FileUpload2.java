@@ -291,8 +291,13 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		return m_value;
 	}
 
-	public void clear() {
+	public void clear() throws Exception {
+		if(m_value == null)
+			return;
 		setValue(null);
+		IValueChanged<FileUpload2> onValueChanged = (IValueChanged<FileUpload2>) getOnValueChanged();
+		if(null != onValueChanged)
+			onValueChanged.onValueChanged(this);
 	}
 
 	/**
