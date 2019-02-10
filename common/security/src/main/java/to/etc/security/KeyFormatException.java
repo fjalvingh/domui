@@ -1,4 +1,4 @@
-package to.etc.util;
+package to.etc.security;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
