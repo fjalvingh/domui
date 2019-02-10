@@ -1,7 +1,8 @@
-package to.etc.util;
+package to.etc.security.test;
 
 import org.junit.Assert;
 import org.junit.Test;
+import to.etc.security.SshKeyUtils;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -31,14 +32,14 @@ public class SecurityUtilTest {
 
 	@Test
 	public void testReadSshPk() throws Exception {
-		PublicKey publicKey = SecurityUtils.decodeSshPublicKey(PUB_SSH);
-		String s = SecurityUtils.encodeSshPublicKey(publicKey, "jal@pigalle");
+		PublicKey publicKey = SshKeyUtils.decodeSshPublicKey(PUB_SSH);
+		String s = SshKeyUtils.encodeSshPublicKey(publicKey, "jal@pigalle");
 		Assert.assertEquals(PUB_SSH, s);
 	}
 
 	@Test
 	public void testReadSshPriv() throws Exception {
-		PrivateKey privKey = SecurityUtils.decodeSshPrivateKey(PRIV_SSH);
+		PrivateKey privKey = SshKeyUtils.decodeSshPrivateKey(PRIV_SSH);
 		//String s = SecurityUtils.encodeSshPublicKey(publicKey, "jal@pigalle");
 		//Assert.assertEquals(PUB_SSH, s);
 	}

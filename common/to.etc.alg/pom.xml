@@ -45,21 +45,6 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Optional dependencies for the security related tools. -->
-        <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15on</artifactId>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <optional>true</optional>
-        </dependency>
-
         <!-- Test dependencies  -->
         <dependency>
             <groupId>junit</groupId>
