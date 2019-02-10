@@ -86,12 +86,8 @@ public class DateInput2 extends Text2<Date> {
 	 */
 	public DateInput2(boolean withtime) {
 		super(Date.class);
+		m_withTime = ! withtime;					// Ensure things are set
 		setCssClass("ui-din2");
-		setMaxLength(10);
-		setSize(10);
-		setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
-		//m_selCalButton = new HoverButton("THEME/btn-datein.png");
-		//m_selCalButton.setCssClass("ui-di-sib");		// Allow separate styling of these buttons.
 		setWithTime(withtime);
 	}
 

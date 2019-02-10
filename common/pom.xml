@@ -40,6 +40,7 @@
         <module>to.etc.db</module>
         <module>to.etc.pater</module>
         <module>to.etc.syntaxer</module>
+        <module>security</module>
     </modules>
 
 </project>

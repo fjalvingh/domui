@@ -1,6 +1,5 @@
 package to.etc.domui.state;
 
-import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.eclipse.jdt.annotation.NonNull;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 27, 2013
  */
-@Immutable
+//@Immutable
 final public class SavedWindow {
 	@NonNull
 	private final String m_id;

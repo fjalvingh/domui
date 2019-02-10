@@ -21,13 +21,15 @@
 
     <properties>
         <!-- JDK properties -->
-        <jdk.version>1.8</jdk.version>
-        <ecj.version>3.13.102</ecj.version>
+        <jdk.version>11</jdk.version>
+        <ecj.version>3.16.0</ecj.version>
+        <!--<ecj.version>3.13.102</ecj.version>-->
         <kotlin.version>1.2.31</kotlin.version>
 
         <!-- Plugin versions -->
-        <maven-javadoc-plugin.version>2.10.4</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <maven-surefire.version>2.22.0</maven-surefire.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
@@ -35,7 +37,7 @@
         <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
         <maven-enforcer-plugin.version>1.4.1</maven-enforcer-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
-        <maven-failsafe-plugin.version>2.21.0</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
         <plexus-compiler-eclipse.version>2.8.5</plexus-compiler-eclipse.version>
         <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
@@ -46,6 +48,7 @@
         <maven-pldoc-plugin.version>3.0.13</maven-pldoc-plugin.version>
         <maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
 
+        <bouncy.version>1.60</bouncy.version>
         <org.slf4j.version>1.7.23</org.slf4j.version>
         <cglib.version>2.2</cglib.version>
         <bouncycastle.version>1.56</bouncycastle.version>
@@ -65,9 +68,11 @@
         <batik.version>1.8</batik.version>
         <jericho.version>3.4</jericho.version>
         <gnu.regexp.version>1.1.4</gnu.regexp.version>
-        <jetty.version>9.3.8.v20160314</jetty.version>
+        <jetty.version>9.4.14.v20181114</jetty.version>
         <selenium.version>3.5.3</selenium.version>
         <hsqldb.version>2.4.0</hsqldb.version>
+
+        <jaxb.version>2.3.0</jaxb.version>
 
         <xml-apis.version>2.0.2</xml-apis.version>
         <com.ibm.icu.version>58.2</com.ibm.icu.version>
@@ -78,7 +83,7 @@
         <junit.version>4.12</junit.version>
         <allure.version>1.5.4</allure.version>
         <allure.maven.version>2.6</allure.maven.version>
-        <aspectj.version>1.8.10</aspectj.version>
+        <aspectj.version>1.9.1</aspectj.version>
 
         <!-- Versions needed for dependency convergence-->
         <commons-beanutils.version>1.9.3</commons-beanutils.version>
@@ -105,11 +110,17 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>ru.yandex.qatools.allure</groupId>
-            <artifactId>allure-junit-adaptor</artifactId>
-            <version>${allure.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>ru.yandex.qatools.allure</groupId>-->
+<!--            <artifactId>allure-junit-adaptor</artifactId>-->
+<!--            <version>${allure.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>javax.xml.bind</groupId>-->
+<!--            <artifactId>jaxb-api</artifactId>-->
+<!--            <version>${jaxb.version}</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
     </dependencies>
 
     <dependencyManagement>
@@ -222,6 +233,23 @@
                 <version>${javax.servlet.version}</version>
             </dependency>
 
+            <!-- Optional dependencies for the security related tools. -->
+            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncy.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncy.version}</version>
+                <optional>true</optional>
+            </dependency>
+
             <dependency>
                 <groupId>javax.el</groupId>
                 <artifactId>el-api</artifactId>
@@ -305,58 +333,23 @@
             <!-- Apache Batik -->
             <dependency>
                 <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-awt-util</artifactId>
-                <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-bridge</artifactId>
-                <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-css</artifactId>
-                <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-dom</artifactId>
-                <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-gvt</artifactId>
-                <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-parser</artifactId>
-                <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-script</artifactId>
-                <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-svg-dom</artifactId>
-                <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
                 <artifactId>batik-transcoder</artifactId>
                 <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-util</artifactId>
-                <version>${batik.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>batik-xml</artifactId>
-                <version>${batik.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis-ext</artifactId>
+                    </exclusion>
+                    <!-- Below contains org.w3c.dom definitions which is not allowed after java 9 -->
+                    <exclusion>
+                        <groupId>org.apache.xmlgraphics</groupId>
+                        <artifactId>batik-ext</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
@@ -494,6 +487,20 @@
                 <version>3.17</version>
             </dependency>
 
+            <!-- Java 9 muck -->
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+
+
         </dependencies>
     </dependencyManagement>
 
@@ -514,11 +521,11 @@
 
     <reporting>
         <plugins>
-            <plugin>
-                <groupId>ru.yandex.qatools.allure</groupId>
-                <artifactId>allure-maven-plugin</artifactId>
-                <version>${allure.maven.version}</version>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>ru.yandex.qatools.allure</groupId>-->
+<!--                <artifactId>allure-maven-plugin</artifactId>-->
+<!--                <version>${allure.maven.version}</version>-->
+<!--            </plugin>-->
 
             <!--<plugin>-->
                 <!--<groupId>org.apache.maven.plugins</groupId>-->
@@ -549,25 +556,6 @@
                 </configuration>
             </plugin>
 
-            <!--
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pmd-plugin</artifactId>
-                <version>${maven-pmd-plugin.version}</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>${findbugs-maven-plugin.version}</version>
-                <configuration>
-                    <effort>Max</effort>
-                    <threshold>Low</threshold>
-                    <xmlOutput>true</xmlOutput>
-                </configuration>
-            </plugin>
-            -->
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
@@ -591,11 +579,11 @@
     <!-- Create a special profile to sign jars for release. -->
     <build>
         <plugins>
-            <plugin>
-                <groupId>io.qameta.allure</groupId>
-                <artifactId>allure-maven</artifactId>
-                <version>2.8</version>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>io.qameta.allure</groupId>-->
+<!--                <artifactId>allure-maven</artifactId>-->
+<!--                <version>2.8</version>-->
+<!--            </plugin>-->
 
             <!-- (jal) generate jars for test classes. -->
             <plugin>
@@ -615,18 +603,25 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.20</version>
+                <version>${maven-surefire.version}</version>
                 <configuration>
-                    <!-- Allure reports -->
-                    <argLine>
-                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
-                    </argLine>
-                    <properties>
-                        <property>
-                            <name>listener</name>
-                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>
-                        </property>
-                    </properties>
+                    <!-- Java 9 trainwreck, see https://stackoverflow.com/questions/50295487/noclassdeffounderror-could-not-initialize-class-com-sun-xml-bind-v2-model-impl -->
+                    <forkMode>always</forkMode>
+<!--                    <argLine>&#45;&#45;add-modules java.xml.bind</argLine>-->
+<!--                    <argLine>&#45;&#45;add-modules javax.activation</argLine>-->
+<!--                    <argLine>&#45;&#45;add-modules java.activation</argLine>-->
+                    <argLine>--add-opens=java.base/java.lang=ALL-UNNAMED --illegal-access=deny</argLine>
+
+<!--                    &lt;!&ndash; Allure reports &ndash;&gt;-->
+<!--                    <argLine>-->
+<!--                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar-->
+<!--                    </argLine>-->
+<!--                    <properties>-->
+<!--                        <property>-->
+<!--                            <name>listener</name>-->
+<!--                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>-->
+<!--                        </property>-->
+<!--                    </properties>-->
 
 <!-- The complete and utter idiots that wrote Surefire cause a failure if this class cannot be found. -->
 <!--                    <excludedGroups>to.etc.puzzler.GroupUsesDatabase</excludedGroups> -->
@@ -636,11 +631,16 @@
                 </configuration>
 
                 <dependencies>
-                    <dependency>
-                        <groupId>org.aspectj</groupId>
-                        <artifactId>aspectjweaver</artifactId>
-                        <version>${aspectj.version}</version>
-                    </dependency>
+<!--                    <dependency>-->
+<!--                        <groupId>org.aspectj</groupId>-->
+<!--                        <artifactId>aspectjweaver</artifactId>-->
+<!--                        <version>${aspectj.version}</version>-->
+<!--                    </dependency>-->
+<!--                    <dependency>-->
+<!--                        <groupId>javax.xml.bind</groupId>-->
+<!--                        <artifactId>jaxb-api</artifactId>-->
+<!--                        <version>2.3.0</version>-->
+<!--                    </dependency>-->
                 </dependencies>
             </plugin>
 
@@ -654,15 +654,16 @@
                 <!-- jal: pass webdriver.url to JUnit tests needing that -->
                 <configuration>
                     <!-- Allure reports -->
-                    <argLine>
-                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
-                    </argLine>
-                    <properties>
-                        <property>
-                            <name>listener</name>
-                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>
-                        </property>
-                    </properties>
+<!--                    <argLine>-->
+<!--                        -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar-->
+<!--                    </argLine>-->
+<!--                    <argline>-noverify</argline>-->
+<!--                    <properties>-->
+<!--                        <property>-->
+<!--                            <name>listener</name>-->
+<!--                            <value>ru.yandex.qatools.allure.junit.AllureRunListener</value>-->
+<!--                        </property>-->
+<!--                    </properties>-->
 
                     <systemPropertyVariables>
                         <webdriver.url>http://localhost:${jetty.http.port}/demo/</webdriver.url>
@@ -791,6 +792,9 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>${maven-javadoc-plugin.version}</version>
+                    <configuration> <!-- add this to disable checking -->
+                        <additionalparam>-Xdoclint:none</additionalparam>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>

@@ -58,7 +58,7 @@ public class HSQLDBGenerator extends AbstractGenerator {
 	public void addSequence(List<String> out, DbSequence sq, GenSequenceType type) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("create sequence ");
-		renderQualifiedName(sb, sq.getSchema(), sq.getName());
+		renderQualifiedName(sb, sq.getSchema(), sq.getName(), sq.isQuoteName());
 
 		if(sq.getIncrement() != Long.MIN_VALUE) {
 			sb.append(" increment by ").append(sq.getIncrement());

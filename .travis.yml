@@ -9,7 +9,7 @@ branches:
   - domui-1.0
 
 jdk:
-- oraclejdk8
+- oraclejdk10
 
 language: java
 

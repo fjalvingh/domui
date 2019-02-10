@@ -1,13 +1,12 @@
 package to.etc.domui.logic.errors;
 
-import jdk.nashorn.internal.ir.annotations.Immutable;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.PropertyMetaModel;
 
 /**
  * Created by jal on 11/16/14.
  */
-@Immutable
+//@Immutable
 final public class Problems {
 	private Problems() {}
 

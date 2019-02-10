@@ -64,8 +64,8 @@ abstract public class AbstractGenerator {
 	 * Basic name renderer. Renders the name literally except when it
 	 * contains lowercase or bad chars.
 	 */
-	public void renderName(StringBuilder a, String name) {
-		if(!isQuotingNeeded(name)) {
+	public void renderName(StringBuilder a, String name, boolean forceQuote) {
+		if(! forceQuote && !isQuotingNeeded(name)) {
 			a.append(name);
 			return;
 		}
@@ -74,12 +74,12 @@ abstract public class AbstractGenerator {
 		a.append('"');
 	}
 
-	protected void renderQualifiedName(StringBuilder sb, DbSchema schema, String name) {
+	protected void renderQualifiedName(StringBuilder sb, DbSchema schema, String name, boolean forceQuote) {
 		if(m_appendSchemaNames && schema != null) {
-			renderName(sb, schema.getName());
+			renderName(sb, schema.getName(), schema.isForceQuote());
 			sb.append('.');
 		}
-		renderName(sb, name);
+		renderName(sb, name, forceQuote);
 	}
 
 	public void renderFieldName(StringBuilder a, String name) {
@@ -159,7 +159,7 @@ abstract public class AbstractGenerator {
 	public void renderDefaultSequence(StringBuilder sb, @NonNull DbColumn c, @NonNull DbSequence usedSequence) {
 		sb.append(" default ");
 		sb.append("nextval('");
-		renderQualifiedName(sb, usedSequence.getSchema(), usedSequence.getName());
+		renderQualifiedName(sb, usedSequence.getSchema(), usedSequence.getName(), false);
 		sb.append("')");
 	}
 
@@ -174,7 +174,7 @@ abstract public class AbstractGenerator {
 	public void addSequence(List<String> out, DbSequence sq, GenSequenceType type) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("create sequence ");
-		renderQualifiedName(sb, sq.getSchema(), sq.getName());
+		renderQualifiedName(sb, sq.getSchema(), sq.getName(), sq.isQuoteName());
 
 		if(sq.getIncrement() != Long.MIN_VALUE) {
 			sb.append(" increment by ").append(sq.getIncrement());
@@ -201,7 +201,7 @@ abstract public class AbstractGenerator {
 		sb.append("alter table ");
 		renderTableName(sb, dt);
 		sb.append("\n\tadd ");
-		sb.append(sc.getName());
+		renderName(sb, sc.getName(), sc.isQuoteName());
 		sb.append(' ');
 		renderColumnType(sb, sc, true);
 		renderDefault(sb, sc);
@@ -209,7 +209,7 @@ abstract public class AbstractGenerator {
 	}
 
 	private void renderTableName(StringBuilder sb, DbTable dt) {
-		renderQualifiedName(sb, dt.getSchema(), dt.getName());
+		renderQualifiedName(sb, dt.getSchema(), dt.getName(), dt.isQuoteName());
 	}
 
 	public void renderColumnDrop(List<String> l, DbTable dt, DbColumn dc) {
@@ -221,9 +221,9 @@ abstract public class AbstractGenerator {
 		if(sc.getComment() != null && sc.getComment().length() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on column ");
-			renderQualifiedName(sb, sc.getTable().getSchema(), sc.getTable().getName());
+			renderQualifiedName(sb, sc.getTable().getSchema(), sc.getTable().getName(), sc.getTable().isQuoteName());
 			sb.append('.');
-			renderName(sb, sc.getName());
+			renderName(sb, sc.getName(), sc.isQuoteName());
 			sb.append(" is ");
 			sb.append(quoted(sc.getComment()));
 			sl.add(sb.toString());
@@ -234,7 +234,7 @@ abstract public class AbstractGenerator {
 		if(sc.getComments() != null && sc.getComments().length() > 0) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on table ");
-			renderQualifiedName(sb, sc.getSchema(), sc.getName());
+			renderQualifiedName(sb, sc.getSchema(), sc.getName(), sc.isQuoteName());
 			sb.append(" is ");
 			sb.append(quoted(sc.getComments()));
 			sb.append(";\n");
@@ -312,7 +312,7 @@ abstract public class AbstractGenerator {
 	public void addTable(List<String> l, DbTable st) {
 		StringBuilder sb = new StringBuilder(512);
 		sb.append("create table ");
-		renderQualifiedName(sb, st.getSchema(), st.getName());
+		renderQualifiedName(sb, st.getSchema(), st.getName(), st.isQuoteName());
 		sb.append(" (\n");
 
 		//-- Create the PK field 1st *if* the table has a single PK.
@@ -351,7 +351,7 @@ abstract public class AbstractGenerator {
 		String name = pk.getName();
 		if(null != name) {
 			sb.append(" constraint ");
-			renderName(sb, name);
+			renderName(sb, name, false);
 		}
 		sb.append(" primary key\n");
 	}
@@ -404,7 +404,7 @@ abstract public class AbstractGenerator {
 	}
 
 	protected void renderCreateColumnNameAndType(StringBuilder sb, DbColumn c) {
-		sb.append(c.getName());
+		renderName(sb, c.getName(), c.isQuoteName());
 		sb.append(" ");
 		renderColumnType(sb, c, true);
 	}
@@ -412,7 +412,7 @@ abstract public class AbstractGenerator {
 	public void renderDropTable(List<String> l, DbTable dt) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("drop table ");
-		sb.append(dt.getName());
+		renderName(sb, dt.getName(), dt.isQuoteName());
 		sb.append(" cascade constraints;\n");
 		l.add(sb.toString());
 
@@ -465,7 +465,7 @@ abstract public class AbstractGenerator {
 		a.append("alter table ");
 		renderTableName(a, dt);
 		a.append("\n\tdrop constraint ");
-		renderName(a, sr.getName());
+		renderName(a, sr.getName(), false);
 		l.add(a.toString());
 	}
 
@@ -474,13 +474,13 @@ abstract public class AbstractGenerator {
 		a.append("alter table ");
 		renderTableName(a, dt);
 		a.append("\n\tadd constraint ");
-		renderName(a, dr.getName());
+		renderName(a, dr.getName(), false);
 		a.append(" foreign key(");
 		int i = 0;
 		for(FieldPair p : dr.getPairList()) {
 			if(i++ > 0)
 				a.append(',');
-			renderName(a, p.getChildColumn().getName());
+			renderName(a, p.getChildColumn().getName(), p.getChildColumn().isQuoteName());
 		}
 		a.append(")\n\t\treferences ");
 		renderTableName(a, dr.getParent());
@@ -489,7 +489,7 @@ abstract public class AbstractGenerator {
 		for(FieldPair p : dr.getPairList()) {
 			if(i++ > 0)
 				a.append(',');
-			renderName(a, p.getParentColumn().getName());
+			renderName(a, p.getParentColumn().getName(), p.getParentColumn().isQuoteName());
 		}
 		a.append(")");
 
@@ -616,7 +616,7 @@ abstract public class AbstractGenerator {
 		if(ix.isUnique())
 			a.append("unique ");
 		a.append("index ");
-		renderName(a, ix.getName());
+		renderName(a, ix.getName(), false);
 		a.append(" on ");
 		renderTableName(a, ix.getTable());
 		a.append('(');
@@ -624,7 +624,7 @@ abstract public class AbstractGenerator {
 		for(IndexColumn c : ix.getColumnList()) {
 			if(i++ != 0)
 				a.append(',');
-			renderName(a, c.getColumn().getName());
+			renderName(a, c.getColumn().getName(), c.getColumn().isQuoteName());
 			if(c.isDescending())
 				a.append(" desc");
 		}

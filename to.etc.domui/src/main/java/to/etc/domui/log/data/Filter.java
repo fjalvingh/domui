@@ -1,9 +1,10 @@
 package to.etc.domui.log.data;
 
-import org.w3c.dom.*;
-
-import to.etc.domui.component.meta.*;
-import to.etc.log.handler.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import to.etc.domui.component.meta.MetaProperty;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.log.handler.LogFilterType;
 
 public class Filter {
 	private LogFilterType m_type;

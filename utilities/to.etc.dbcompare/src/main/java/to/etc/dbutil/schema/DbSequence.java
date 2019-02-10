@@ -25,6 +25,8 @@ public class DbSequence {
 
 	private final long m_lastValue;
 
+	private boolean m_quoteName;
+
 	public DbSequence(DbSchema schema, String name, ColumnType columnType, String type, long startValue, long minValue, long maxValue, long increment, long cacheSize, long lastValue) {
 
 		m_schema = schema;
@@ -77,5 +79,13 @@ public class DbSequence {
 
 	public long getLastValue() {
 		return m_lastValue;
+	}
+
+	public boolean isQuoteName() {
+		return m_quoteName;
+	}
+
+	public void setQuoteName(boolean quoteName) {
+		m_quoteName = quoteName;
 	}
 }

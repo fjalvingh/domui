@@ -23,6 +23,8 @@ public class DbSchema implements Serializable {
 
 	private String m_name;
 
+	private boolean m_forceQuote;
+
 	private Map<String, DbTable> m_tableMap = new HashMap<String, DbTable>();
 
 	private Map<String, DbIndex> m_indexMap = new HashMap<String, DbIndex>();
@@ -57,6 +59,10 @@ public class DbSchema implements Serializable {
 
 	public String getName() {
 		return m_name;
+	}
+
+	public void setName(String name) {
+		m_name = name;
 	}
 
 	public DbTable createTable(String name) {
@@ -170,5 +176,13 @@ public class DbSchema implements Serializable {
 		ArrayList<DbSequence> list = new ArrayList<>(m_sequenceMap.values());
 		list.sort(Comparator.comparing(DbSequence::getName));
 		return list;
+	}
+
+	public boolean isForceQuote() {
+		return m_forceQuote;
+	}
+
+	public void setForceQuote(boolean forceQuote) {
+		m_forceQuote = forceQuote;
 	}
 }

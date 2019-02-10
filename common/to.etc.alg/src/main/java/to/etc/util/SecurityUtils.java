@@ -44,6 +44,7 @@ import java.security.spec.X509EncodedKeySpec;
  * Created on Apr 6, 2004
  */
 public class SecurityUtils {
+
 	static private final SecureRandom RANDOM = new SecureRandom();
 
 	static public String encodeToHex(PrivateKey privk) {
@@ -163,6 +164,8 @@ public class SecurityUtils {
 		return kf.generatePrivate(pks);
 	}
 
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Hashing functions.									*/
 	/*--------------------------------------------------------------*/
@@ -250,6 +253,4 @@ public class SecurityUtils {
 			return false;
 		}
 	}
-
-
 }

@@ -10,25 +10,27 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="annotations" />
-        <module name="domui-hello" />
-        <module name="domui-hibernate-generator" />
-        <module name="fontawesome4" />
-        <module name="fontawesome5free" />
-        <module name="jira-bug-reporter" />
-        <module name="property-annotations-processor" />
-        <module name="to.etc.alg" />
-        <module name="to.etc.db" />
-        <module name="to.etc.dbcompare" />
-        <module name="to.etc.domui" />
-        <module name="to.etc.domui.formbuilder" />
         <module name="to.etc.domui.hibutil" />
-        <module name="to.etc.domui.legacy" />
-        <module name="to.etc.domui.selenium" />
-        <module name="to.etc.logger" />
-        <module name="to.etc.pater" />
-        <module name="to.etc.syntaxer" />
+        <module name="fontawesome4" />
+        <module name="domui-hibernate-generator" />
+        <module name="to.etc.dbcompare" />
         <module name="to.etc.webapp.core" />
+        <module name="to.etc.alg" />
+        <module name="to.etc.domui.formbuilder" />
+        <module name="security" />
+        <module name="to.etc.pater" />
+        <module name="to.etc.db" />
+        <module name="to.etc.domui.selenium" />
+        <module name="to.etc.domui.legacy" />
+        <module name="fontawesome5free" />
+        <module name="domui-hello" />
+        <module name="vaadin-sass-compiler" />
+        <module name="property-annotations-processor" />
+        <module name="annotations" />
+        <module name="jira-bug-reporter" />
+        <module name="to.etc.logger" />
+        <module name="to.etc.syntaxer" />
+        <module name="to.etc.domui" />
       </profile>
       <profile name="Annotation profile for domui" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -40,65 +42,60 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="annotations" target="1.8" />
+      <module name="annotations" target="11" />
       <module name="common" target="1.5" />
-      <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
-      <module name="domui-hibernate-generator" target="1.8" />
+      <module name="domui-hibernate-generator" target="11" />
       <module name="domui-utilities" target="1.5" />
-      <module name="fontawesome4" target="1.5" />
-      <module name="fontawesome5free" target="1.8" />
+      <module name="fontawesome4" target="11" />
+      <module name="fontawesome5free" target="11" />
       <module name="integrations" target="1.5" />
-      <module name="jira-bug-reporter" target="1.8" />
-      <module name="master" target="1.5" />
+      <module name="java9" target="1.5" />
+      <module name="jira-bug-reporter" target="11" />
       <module name="property-annotations-processor" target="1.8" />
-      <module name="to.etc.alg" target="1.8" />
-      <module name="to.etc.db" target="1.8" />
-      <module name="to.etc.dbcompare" target="1.8" />
-      <module name="to.etc.domui" target="1.8" />
-      <module name="to.etc.domui.demo" target="1.8" />
-      <module name="to.etc.domui.derbydata" target="1.8" />
-      <module name="to.etc.domui.formbuilder" target="1.8" />
-      <module name="to.etc.domui.hibutil" target="1.8" />
-      <module name="to.etc.domui.legacy" target="1.8" />
+      <module name="security" target="11" />
+      <module name="to.etc.alg" target="11" />
+      <module name="to.etc.db" target="11" />
+      <module name="to.etc.dbcompare" target="11" />
+      <module name="to.etc.domui" target="11" />
+      <module name="to.etc.domui.demo" target="11" />
+      <module name="to.etc.domui.derbydata" target="11" />
+      <module name="to.etc.domui.formbuilder" target="11" />
+      <module name="to.etc.domui.hibutil" target="11" />
+      <module name="to.etc.domui.legacy" target="11" />
       <module name="to.etc.domui.parent" target="1.5" />
-      <module name="to.etc.domui.selenium" target="1.8" />
-      <module name="to.etc.logger" target="1.8" />
-      <module name="to.etc.pater" target="1.8" />
-      <module name="to.etc.syntaxer" target="1.8" />
-      <module name="to.etc.webapp.core" target="1.8" />
+      <module name="to.etc.domui.selenium" target="11" />
+      <module name="to.etc.logger" target="11" />
+      <module name="to.etc.pater" target="11" />
+      <module name="to.etc.syntaxer" target="11" />
+      <module name="to.etc.webapp.core" target="11" />
     </bytecodeTargetLevel>
   </component>
   <component name="EclipseCompilerSettings">
+    <option name="ECJ_TOOL_PATH" value="$USER_HOME$/ecjs/ecj-I20190209-1800.jar" />
     <option name="ADDITIONAL_OPTIONS_STRING" value="-properties $MODULE_DIR$/.settings/org.eclipse.jdt.core.prefs" />
+  </component>
+  <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="annotations" options="-properties /home/jal/git/domui/master/common/annotations/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="common" options="" />
-      <module name="domui-archetypes" options="" />
-      <module name="domui-hello" options="" />
-      <module name="domui-hibernate-generator" options="-properties /home/jal/git/domui/master/utilities/hibernate-generator/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="domui-utilities" options="" />
-      <module name="fontawesome4" options="" />
-      <module name="fontawesome5free" options="-properties /home/jal/git/domui/master/integrations/fontawesome5free/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="integrations" options="" />
-      <module name="jira-bug-reporter" options="-properties /home/jal/git/domui/master/jira-bug-reporter/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="property-annotations-processor" options="-properties /home/jal/git/domui/master/common/property-annotation-processor/.settings/org.eclipse.jdt.core.prefs" />
-      <module name="to.etc.alg" options="-properties /home/jal/git/domui/master/common/to.etc.alg/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.db" options="-properties /home/jal/git/domui/master/common/to.etc.db/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.dbcompare" options="-properties /home/jal/git/domui/master/utilities/to.etc.dbcompare/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui" options="-properties /home/jal/git/domui/master/to.etc.domui/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.demo" options="-properties /home/jal/git/domui/master/to.etc.domui.demo/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.derbydata" options="-properties /home/jal/git/domui/master/to.etc.domui.derbydata/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.formbuilder" options="-properties /home/jal/git/domui/master/to.etc.domui.formbuilder/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.hibutil" options="-properties /home/jal/git/domui/master/integrations/to.etc.domui.hibutil/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.legacy" options="-properties /home/jal/git/domui/master/to.etc.domui.legacy/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.parent" options="" />
-      <module name="to.etc.domui.selenium" options="-properties /home/jal/git/domui/master/integrations/to.etc.domui.selenium/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.logger" options="-properties /home/jal/git/domui/master/common/to.etc.logger/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.pater" options="-properties /home/jal/git/domui/master/common/to.etc.pater/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.syntaxer" options="-properties /home/jal/git/domui/master/common/to.etc.syntaxer/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.webapp.core" options="-properties /home/jal/git/domui/master/to.etc.webapp.core/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="annotations" options="-properties $PROJECT_DIR$/common/annotations/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="domui-hibernate-generator" options="-properties $PROJECT_DIR$/utilities/hibernate-generator/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="jira-bug-reporter" options="-properties $PROJECT_DIR$/jira-bug-reporter/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="property-annotations-processor" options="-properties $PROJECT_DIR$/common/property-annotation-processor/.settings/org.eclipse.jdt.core.prefs" />
+      <module name="to.etc.alg" options="-properties $PROJECT_DIR$/common/to.etc.alg/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.db" options="-properties $PROJECT_DIR$/common/to.etc.db/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.dbcompare" options="-properties $PROJECT_DIR$/utilities/to.etc.dbcompare/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui" options="-properties $PROJECT_DIR$/to.etc.domui/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.demo" options="-properties $PROJECT_DIR$/to.etc.domui.demo/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.derbydata" options="-properties $PROJECT_DIR$/to.etc.domui.derbydata/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.formbuilder" options="-properties $PROJECT_DIR$/to.etc.domui.formbuilder/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.hibutil" options="-properties $PROJECT_DIR$/integrations/to.etc.domui.hibutil/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.legacy" options="-properties $PROJECT_DIR$/to.etc.domui.legacy/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.domui.selenium" options="-properties $PROJECT_DIR$/integrations/to.etc.domui.selenium/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.logger" options="-properties $PROJECT_DIR$/common/to.etc.logger/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.pater" options="-properties $PROJECT_DIR$/common/to.etc.pater/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.syntaxer" options="-properties $PROJECT_DIR$/common/to.etc.syntaxer/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
+      <module name="to.etc.webapp.core" options="-properties $PROJECT_DIR$/to.etc.webapp.core/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
     </option>
   </component>
 </project>
