@@ -29,15 +29,21 @@ public class SearchControlLine<D> {
 	@Nullable
 	final private D m_defaultValue;
 
+	/** This is the default value to use only for the first search. When clear is called the value in defaultValue will be used. */
+	@Nullable
+	final private D m_initialValue;
+
+
 	/** When added by a property name, this refers to that property. */
 	@Nullable
 	final private PropertyMetaModel<?> m_property;
 
 	private final boolean m_fromMetadata;
 
-	public SearchControlLine(IControl<D> control, ILookupQueryBuilder<D> qb, @Nullable PropertyMetaModel<?> pmm, @Nullable D defaultValue, @Nullable NodeContainer labelNode, boolean fromMetadata) {
+	public SearchControlLine(IControl<D> control, ILookupQueryBuilder<D> qb, @Nullable PropertyMetaModel<?> pmm, @Nullable D defaultValue, @Nullable D initialValue, @Nullable NodeContainer labelNode, boolean fromMetadata) {
 		m_control = control;
 		m_defaultValue = defaultValue;
+		m_initialValue = initialValue;
 		m_queryBuilder = qb;
 		m_label = labelNode;
 		m_property = pmm;
@@ -55,6 +61,10 @@ public class SearchControlLine<D> {
 	@Nullable
 	public D getDefaultValue() {
 		return m_defaultValue;
+	}
+
+	@Nullable public D getInitialValue() {
+		return m_initialValue;
 	}
 
 	public ILookupQueryBuilder<D> getQueryBuilder() {

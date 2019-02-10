@@ -26,8 +26,6 @@ package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IAsyncListener;
 import to.etc.domui.component.delayed.IAsyncRunnable;
@@ -35,16 +33,11 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.RequestContextImpl;
-import to.etc.util.FileTool;
+import to.etc.util.WrappedException;
 import to.etc.webapp.query.IQContextContainer;
-import to.etc.webapp.query.QContextContainer;
-import to.etc.webapp.query.QDataContext;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -140,15 +133,8 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 23, 2008
  */
-public class ConversationContext implements IQContextContainer {
-	static public final Logger LOG = LoggerFactory.getLogger(ConversationContext.class);
-
-	/** True when this context was destroyed because the session was invalidated. */
-	private boolean m_sessionDestroyed;
-
-	enum ConversationState {
-		DETACHED, ATTACHED, DESTROYED
-	}
+public class ConversationContext extends AbstractConversationContext implements IQContextContainer {
+	//static public final Logger LOG = LoggerFactory.getLogger(ConversationContext.class);
 
 	/** The conversation ID, unique within the user's session. */
 	@Nullable
@@ -159,30 +145,22 @@ public class ConversationContext implements IQContextContainer {
 
 	/** The pages that are part of this conversation, indexed by [className] */
 	@NonNull
-	private final Map<String, Page> m_pageMap = new HashMap<String, Page>();
-
-	/** The map of all attribute objects added to this conversation. */
-	@NonNull
-	private Map<String, Object> m_map = Collections.EMPTY_MAP;
-
-	@Nullable
-	private WindowSession m_manager;
+	private final Map<String, Page> m_pageMap = new HashMap<>();
 
 	@Nullable
 	private DelayedActivitiesManager m_delayManager;
 
 	@NonNull
-	private ConversationState m_state = ConversationState.DETACHED;
-
-	@NonNull
-	private List<File> m_uploadList = Collections.EMPTY_LIST;
-
-	@NonNull
 	private Map<String, String> m_persistedParameterMap = new HashMap<>();
 
 	/**
+	 * The contexts of all (live) subPages in the conversation.
+	 */
+	@NonNull
+	private Set<SubConversationContext> m_subConversationSet = new HashSet<>();
+
+	/**
 	 * Return the ID for this conversation.
-	 * @return
 	 */
 	final public String getId() {
 		if(null == m_id)
@@ -191,13 +169,9 @@ public class ConversationContext implements IQContextContainer {
 	}
 
 	final void initialize(@NonNull final WindowSession m, @NonNull String id) {
-		if(m == null)
-			throw new IllegalStateException("Internal: manager cannot be null, dude");
-		if(m_manager != null)
-			throw new IllegalStateException("Internal: manager is ALREADY set, dude");
 		if(m_id != null)
 			throw new IllegalStateException("ID set twice?");
-		m_manager = m;
+		super.initialize(m);
 		m_id = id;
 		m_fullId = m.getWindowID() + "." + m_id;
 	}
@@ -241,75 +215,14 @@ public class ConversationContext implements IQContextContainer {
 	/*	CODING:	Lifecycle management								*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Called when a new request which accesses this context is entering the
-	 * server. This should restore the context to a usable state.
-	 * @throws Exception
+	 * @param sessionDestroyed		indicates that the HttpSession has been invalidated somehow, possibly logout
 	 */
-	public void onAttach() throws Exception {}
-
-	/**
-	 * Called when the request has terminated, the response has been rendered and the
-	 * server is about to exit all handling for the request. This must discard any
-	 * data that should not be stored between requests, and it must discard any
-	 * resource like database connections and the like.
-	 *
-	 * @throws Exception
-	 */
-	public void onDetach() throws Exception {}
-
-	public void onDestroy() throws Exception {}
-
-	void internalAttach() throws Exception {
-		LOG.debug("Attaching " + this);
-		if(m_state != ConversationState.DETACHED)
-			throw new IllegalStateException("Wrong state for ATTACH: " + m_state);
-		for(Object o : m_map.values()) {
-			if(o instanceof IConversationStateListener) {
-				try {
-					((IConversationStateListener) o).conversationAttached(this);
-				} catch(Exception x) {
-					x.printStackTrace();
-					LOG.error("In calling attach listener", x);
-				}
-			}
-		}
-		try {
-			onAttach();
-		} finally {
-			m_state = ConversationState.ATTACHED;
-		}
-	}
-
-	void internalDetach() throws Exception {
-		LOG.debug("Detaching " + this);
-		if(m_state != ConversationState.ATTACHED)
-			throw new IllegalStateException("Wrong state for DETACH: " + m_state + " in " + this);
-		for(Object o : m_map.values()) {
-			if(o instanceof IConversationStateListener) {
-				try {
-					((IConversationStateListener) o).conversationDetached(this);
-				} catch(Exception x) {
-					x.printStackTrace();
-					LOG.error("In calling detach listener", x);
-				}
-			}
-		}
-		try {
-			onDetach();
-		} finally {
-			m_state = ConversationState.DETACHED;
-		}
-	}
-
-	/**
-	 * @param sessionDestroyed		indicates that the HttpSession has been invalidated somehow, possibly logoout
-	 * @throws Exception
-	 */
+	@Override
 	void internalDestroy(boolean sessionDestroyed) throws Exception {
 		LOG.info("Destroying " + this);
-		if(m_state == ConversationState.DESTROYED) {
+		if(getState() == ConversationState.DESTROYED) {
 			if(!sessionDestroyed)
-				throw new IllegalStateException("Wrong state for DESTROY: " + m_state);
+				throw new IllegalStateException("Wrong state for DESTROY: " + getState());
 			return;
 		}
 
@@ -326,50 +239,44 @@ public class ConversationContext implements IQContextContainer {
 		}
 		m_pageMap.clear();
 
+		// Destroy all subconversations
+		for(SubConversationContext subContext : m_subConversationSet) {
+			try {
+				destroySubConversation(subContext);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+		m_subConversationSet.clear();
+
 		if(m_delayManager != null) {
 			m_delayManager.terminate();
 			m_delayManager = null;
 		}
+		super.internalDestroy(sessionDestroyed);
+	}
 
-		for(Object o : m_map.values()) {
-			if(o instanceof IConversationStateListener) {
-				try {
-					((IConversationStateListener) o).conversationDestroyed(this);
-					getWindowSession().getApplication().internalCallConversationDestroyed(this);
-				} catch(Exception x) {
-					if(! sessionDestroyed) {
-						x.printStackTrace();
-						LOG.error("In calling destroy listener", x);
-					}
-				}
-			}
-		}
-		getWindowSession().getApplication().internalCallConversationDestroyed(this);
-		try {
-			onDestroy();
-		} catch(Exception x) {
-			if(! sessionDestroyed)
-				throw x;
-
-			//-- Ignore trouble during session invalidate
-		} finally {
-			m_state = ConversationState.DESTROYED;
-			m_sessionDestroyed = sessionDestroyed;
-			discardTempFiles();
+	@Override void internalAttach() throws Exception {
+		super.internalAttach();
+		for(SubConversationContext sc : m_subConversationSet) {
+			sc.internalAttach();
 		}
 	}
 
-	public void checkAttached() {
-		if(m_state != ConversationState.ATTACHED)
-			throw new ConversationDestroyedException(toString(), String.valueOf(m_state));
+	@Override void internalDetach() throws Exception {
+		super.internalDetach();
+		for(SubConversationContext sc : m_subConversationSet) {
+			sc.internalDetach();
+		}
 	}
 
 	/**
 	 * Force this context to destroy itself.
 	 */
+	@Override
 	public void destroy() {
 		getWindowSession().destroyConversation(this);
-		m_manager = null;
+		super.destroy();
 	}
 
 	/*--------------------------------------------------------------*/
@@ -377,8 +284,6 @@ public class ConversationContext implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Returns any cached page in this context.
-	 * @param clz
-	 * @return
 	 */
 	Page findPage(final Class< ? extends NodeBase> clz) {
 		return m_pageMap.get(clz.getName());
@@ -400,59 +305,49 @@ public class ConversationContext implements IQContextContainer {
 		m_pageMap.remove(pg.getBody().getClass().getName());
 	}
 
-	/**
-	 * Experimental interface: get the WindowSession for this page(set).
-	 * @return
-	 */
-	@NonNull
-	public WindowSession getWindowSession() {
-		if(null != m_manager)
-			return m_manager;
-		throw new IllegalStateException("Not initialized?");
-	}
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	SubConversation management									*/
+	/*----------------------------------------------------------------------*/
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Contained objects map (EXPERIMENTAL)				*/
-	/*--------------------------------------------------------------*/
 	/**
-	 * EXPERIMENTAL DO NOT USE.
-	 * @param name
-	 * @param val
+	 * Register and activate a subconversation context.
 	 */
-	public void setAttribute(final String name, final Object val) {
-		if(m_map == Collections.EMPTY_MAP)
-			m_map = new HashMap<String, Object>();
-		Object old = m_map.put(name, val);
-
-		if(old != null) {
-			if(old instanceof IConversationStateListener) {
+	public void addSubConversation(SubConversationContext suc) {
+		if(m_subConversationSet.add(suc)) {
+			if(suc.getState() == ConversationState.DETACHED) {
+				suc.initialize(getWindowSession());
 				try {
-					((IConversationStateListener) old).conversationDetached(this);
+					suc.internalAttach();
 				} catch(Exception x) {
-					x.printStackTrace();
-					LOG.error("In calling detach listener", x);
+					throw WrappedException.wrap(x);			// Really great those checked exceptions 8-(
 				}
 			}
 		}
 	}
 
 	/**
-	 * EXPERIMENTAL DO NOT USE.
-	 * @param name
-	 * @return
+	 * Detaches and discards a subconversation.
 	 */
-	@Nullable
-	public Object getAttribute(final String name) {
-		return m_map.get(name);
+	public void removeAndDestroySubConversation(SubConversationContext suc) throws Exception {
+		if(! m_subConversationSet.remove(suc))
+			return;
+		destroySubConversation(suc);
+	}
+
+	private void destroySubConversation(SubConversationContext suc) throws Exception {
+
+		//-- Detach and destroy
+		if(suc.getState() == ConversationState.ATTACHED) {
+			suc.internalDetach();
+		}
+		if(suc.getState() == ConversationState.DETACHED) {
+			suc.internalDestroy(false);
+		}
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Delayed activities scheduling.						*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @return
-	 */
 	synchronized DelayedActivitiesManager getDelayedActivitiesManager() {
 		if(m_delayManager == null)
 			m_delayManager = new DelayedActivitiesManager();
@@ -462,9 +357,6 @@ public class ConversationContext implements IQContextContainer {
 	/**
 	 * Schedule an activity to be started later. This calls the {@link IAsyncListener#onActivityScheduled(IAsyncRunnable)} method of
 	 * all listeners, and stores their "keep object" for later use.
-	 * @param container
-	 * @param a
-	 * @return
 	 */
 	public DelayedActivityInfo scheduleDelayed(@NonNull final AsyncContainer container, @NonNull final IAsyncRunnable a) throws Exception {
 		return getDelayedActivitiesManager().schedule(a, container);
@@ -484,7 +376,6 @@ public class ConversationContext implements IQContextContainer {
 
 	/**
 	 * If the page has asynchronous stuff, this returns true.
-	 * @return
 	 */
 	public boolean isPollCallbackRequired() {
 		DelayedActivitiesManager delayManager = m_delayManager;
@@ -496,7 +387,6 @@ public class ConversationContext implements IQContextContainer {
 	 * update the screen. This is not an asy action by itself (it starts no threads) but
 	 * it will cause the poll handler to start, and will use the same response mechanism
 	 * as the asy callback code.
-	 * @param nc
 	 */
 	public <T extends NodeContainer & IPolledForUpdate> void registerPoller(T nc) {
 		getDelayedActivitiesManager().registerPoller(nc);
@@ -513,41 +403,13 @@ public class ConversationContext implements IQContextContainer {
 	//		getDelayedActivitiesManager().setContinuousPolling(interval);
 	//	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Upload code.										*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Register a file that was uploaded and that needs to be deleted at end of conversation time.
-	 * @param f
-	 */
-	public void registerTempFile(@NonNull final File f) {
-		if(m_uploadList == Collections.EMPTY_LIST)
-			m_uploadList = new ArrayList<File>();
-		m_uploadList.add(f);
-	}
-
-	protected void discardTempFiles() {
-		for(File f : m_uploadList) {
-			try {
-				if(f.isDirectory())
-					FileTool.deleteDir(f);
-				else
-					f.delete();
-			} catch(Exception x) {}
-		}
-		m_uploadList.clear();
-	}
-
+	@Override
 	public void dump() {
-		System.out.println("    Conversation: " + getId() + " in state " + m_state);
+		System.out.println("    Conversation: " + getId() + " in state " + getState());
 		if(m_delayManager == null)
 			System.out.println("      No delayed actions pending");
 		else {
 			System.out.println("      Delayed action manager is present");
-		}
-
-		for(File df : m_uploadList) {
-			System.out.println("      Uploaded file: " + df);
 		}
 
 		StringBuilder sb = new StringBuilder(128);
@@ -567,70 +429,6 @@ public class ConversationContext implements IQContextContainer {
 
 			System.out.println(sb.toString());
 		}
-	}
-
-	ConversationState getState() {
-		return m_state;
-	}
-
-	public boolean isValid() {
-		return m_state == ConversationState.ATTACHED;
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	IQContextContainer implementation.					*/
-	/*--------------------------------------------------------------*/
-	@Override
-	@NonNull
-	public QContextContainer getContextContainer(@NonNull String key) {
-		key = "cc-" + key;
-		QContextContainer cc = (QContextContainer) getAttribute(key);
-		if(null == cc) {
-			cc = new DomUIContextContainer();
-			setAttribute(key, cc);
-		}
-		return cc;
-	}
-
-	@Override
-	@NonNull
-	public List<QContextContainer> getAllContextContainers() {
-		List<QContextContainer> ccl = new ArrayList<QContextContainer>();
-		for(Object o : m_map.values()) {
-			if(o instanceof QContextContainer) {
-				ccl.add((QContextContainer) o);
-			}
-		}
-		return ccl;
-	}
-
-	static private final class DomUIContextContainer extends QContextContainer implements IConversationStateListener {
-		@Override
-		public void conversationNew(@NonNull ConversationContext cc) throws Exception {
-			QDataContext c = internalGetSharedContext();
-			if(c instanceof IConversationStateListener)
-				((IConversationStateListener) c).conversationNew(cc);
-		}
-
-		@Override
-		public void conversationAttached(@NonNull ConversationContext cc) throws Exception {
-			QDataContext c = internalGetSharedContext();
-			if(c instanceof IConversationStateListener)
-				((IConversationStateListener) c).conversationAttached(cc);
-		}
-
-		@Override
-		public void conversationDetached(@NonNull ConversationContext cc) throws Exception {
-			QDataContext c = internalGetSharedContext();
-			if(c instanceof IConversationStateListener)
-				((IConversationStateListener) c).conversationDetached(cc);
-		}
-
-		@Override
-		public void conversationDestroyed(@NonNull ConversationContext cc) throws Exception {
-			QDataContext c = internalGetSharedContext();
-			if(c instanceof IConversationStateListener)
-				((IConversationStateListener) c).conversationDestroyed(cc);
-		}
+		super.dump();
 	}
 }

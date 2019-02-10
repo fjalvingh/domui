@@ -142,4 +142,15 @@ public class ParameterInfoImpl implements IParameterInfo {
 	@Override public int hashCode() {
 		return Objects.hash(m_parameterMap, m_rurl);
 	}
+
+	@Override public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[url=").append(m_rurl);
+		if(m_parameterMap.size() != 0) {
+			m_parameterMap.forEach((k, v) -> sb.append(", ").append(k).append("=").append(String.valueOf(v)));
+		}
+		sb.append("]");
+		return sb.toString();
+
+	}
 }

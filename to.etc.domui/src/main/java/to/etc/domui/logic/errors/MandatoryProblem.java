@@ -13,7 +13,7 @@ final public class MandatoryProblem extends Problem {
 	static public final MandatoryProblem	INSTANCE = new MandatoryProblem();
 
 	private MandatoryProblem() {
-		super(Msgs.class, Msgs.MANDATORY);
+		super(Msgs.mandatory);
 	}
 
 	public <T> void check(@NonNull ProblemModel model, @NonNull T instance, @NonNull String property) {

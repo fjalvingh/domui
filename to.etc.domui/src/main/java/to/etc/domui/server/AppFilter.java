@@ -29,11 +29,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import to.etc.domui.login.DefaultLoginDeterminator;
+import to.etc.domui.login.ILoginDeterminator;
 import to.etc.domui.util.DomUtil;
 import to.etc.log.EtcLoggerFactory;
 import to.etc.util.ClassUtil;
 import to.etc.util.DeveloperOptions;
-import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
@@ -179,56 +180,8 @@ public class AppFilter implements Filter {
 	//	return m_appContext;
 	//}
 
-	@Nullable
-	static private String readDefaultConfiguration(@Nullable String logConfigLocation) {
-		if(logConfigLocation != null) {
-			try {
-				File configFile = new File(logConfigLocation);
-				if(!(configFile.exists() && configFile.isFile())) {
-					//-- Try to find this as a class-relative resource;
-					if(!logConfigLocation.startsWith("/")) {
-						String res = FileTool.readResourceAsString(AppFilter.class, "/" + logConfigLocation, "utf-8");
-						if(res != null) {
-							System.out.println("DomUI: using user-specified log config file from classpath-resource " + logConfigLocation);
-							return res;
-						}
-					}
-				} else {
-					String res = FileTool.readFileAsString(configFile, "utf-8");
-					if(res != null) {
-						System.out.println("DomUI: using logging configuration file " + configFile.getAbsolutePath());
-						return res;
-					}
-				}
-			} catch(Exception ex) {
-			}
-		}
-
-		/*
-		 * Try root resource
-		 */
-
-
-		try {
-			String res = FileTool.readResourceAsString(AppFilter.class, "/etcLoggerConfig.xml", "utf-8");
-			if(res != null)
-				System.out.println("DomUI: using /etcLoggerConfig.xml java resource");
-			return res;
-		} catch(Exception ex) {}
-
-		try {
-			String res = FileTool.readResourceAsString(AppFilter.class, "etcLoggerConfig.xml", "utf-8");
-			if(res != null)
-				System.out.println("DomUI: using internal etcLoggerConfig.xml");
-			return res;
-		} catch(Exception ex) {}
-
-		return null;
-	}
-
 	/**
 	 * Initialize by reading config from the web.xml.
-	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	@Override
 	public synchronized void init(final FilterConfig config) throws ServletException {
@@ -286,7 +239,7 @@ public class AppFilter implements Filter {
 		}
 	}
 
-	static public void initLogConfig(@Nullable File appRoot, String logConfig) throws Error {
+	static private void initLogConfig(@Nullable File appRoot, String logConfigParameter) throws Error {
 		try {
 			if(null == appRoot) {
 				appRoot = new File(System.getProperty("user.home"));
@@ -294,51 +247,37 @@ public class AppFilter implements Filter {
 				appRoot = new File(appRoot, "WEB-INF");
 			}
 
-			if(logConfig == null) {
-				logConfig = LOGCONFIG_NAME;
+			//-- Prio 0: developer.properties
+			File writablePath = null;
+			File logSource = null;
+			String logconfig = DeveloperOptions.getString("domui.logconfig");
+			if(null != logconfig) {
+				logSource = trySource(appRoot, logconfig);
+
+				//-- Always have a writable config
+				writablePath = makeAbs(appRoot, logconfig);
 			}
 
-			//-- Resolve path(s)
-			File configFile = null;
-			if(logConfig.startsWith(File.separator)) {
-				//-- Absolute path - obey
-				configFile = new File(logConfig);
-			} else {
-				configFile = new File(appRoot, logConfig);
+			//-- Prio 1: -DLOGCONFIG
+			logconfig = System.getProperty("LOGCONFIG");
+			if(null != logconfig) {
+				logSource = trySource(appRoot, logconfig);
+				writablePath = makeAbs(appRoot, logconfig);
 			}
 
-			//-- Does this exist?
-			if(configFile.isDirectory()) {
-				configFile = new File(configFile, LOGCONFIG_NAME);
+			//-- Prio 2: parameter - not writable
+			if(logSource == null && logConfigParameter != null) {
+				logSource = trySource(appRoot, logConfigParameter);
 			}
 
-			File configFolder = configFile.getParentFile();
-
-			//-- Load the config, if present, or use the default config
-			String xmlContent = null;
-			if(configFile.exists() && configFile.isFile()) {
-				try {
-					xmlContent = FileTool.readFileAsString(configFile);
-				} catch(Exception x) {
-					System.err.println("etclog: failed to read " + configFile);
-				}
+			//-- Prio 3: etclogger.config.xml in web-inf
+			if(null == logSource) {
+				logSource = trySource(appRoot, LOGCONFIG_NAME);
 			}
 
-			//-- 3. If user-changed one failed- load a default one.
-			if(null == xmlContent) {
-				// -- Where to get log config from?
-				String logspec = DeveloperOptions.getString("domui.logconfig");
-				if(logspec == null) {
-					logspec = System.getProperty("domui.logconfig");
-					if(null == logspec)
-						logspec = logConfig;
-				}
-				xmlContent = readDefaultConfiguration(logspec);
-				if(null == xmlContent)
-					throw new IllegalStateException("no logger configuration found at all");
-			}
-
-			EtcLoggerFactory.getSingleton().initialize(configFile, xmlContent);
+			//-- 2. We now have either a path or not. Load the default config.
+			if(logSource != null)
+				EtcLoggerFactory.getSingleton().initializeFromFile(logSource, writablePath);
 		} catch(Exception x) {
 			x.printStackTrace();
 			throw WrappedException.wrap(x);
@@ -346,6 +285,24 @@ public class AppFilter implements Filter {
 			x.printStackTrace();
 			throw x;
 		}
+	}
+
+	static private File makeAbs(File appRoot, String name) {
+		File f = new File(name);
+		if(f.isAbsolute())
+			return f;
+		return new File(appRoot, name);
+	}
+
+	@Nullable
+	static private File trySource(File appRoot, String name) {
+		File f = new File(name);
+		if(!f.isAbsolute()) {
+			f = new File(appRoot, name);
+		}
+		if(f.exists() && f.isFile())
+			return f;
+		return null;
 	}
 
 	public String getApplicationClassName(final ConfigParameters p) {

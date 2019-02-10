@@ -482,7 +482,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		if (null != query){
 			query.getOrder().clear();
 		}
-		fireModelChanged();
+		fireModelSorted();
 	}
 
 	/**

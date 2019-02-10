@@ -24,11 +24,20 @@
  */
 package to.etc.domui.component.layout;
 
-import java.util.*;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.TDAlignType;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.util.DomUtil;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Small header component to separate items vertically on a page.
@@ -43,7 +52,7 @@ public class CaptionedHeader extends Table {
 
 	private List<SmallImgButton> m_btns = Collections.EMPTY_LIST;
 
-	private String m_icon;
+	private IIconRef m_icon;
 
 	public CaptionedHeader() {}
 
@@ -51,7 +60,7 @@ public class CaptionedHeader extends Table {
 		m_caption = ttl;
 	}
 
-	public CaptionedHeader(String ttl, String icon) {
+	public CaptionedHeader(String ttl, IIconRef icon) {
 		m_caption = ttl;
 		m_icon = icon;
 	}
@@ -83,10 +92,13 @@ public class CaptionedHeader extends Table {
 		Div ttl = new Div();
 		ttltd.add(ttl);
 		ttl.setCssClass("ui-chdr-ttl");
-		if(m_icon != null) {
-			Img img = new Img(m_icon);
-			img.setAlign(ImgAlign.CENTER);
-			ttl.add(img);
+		IIconRef icon = m_icon;
+		if(icon != null) {
+			ttl.add(icon.createNode());
+			//
+			//Img img = new Img(m_icon);
+			//img.setAlign(ImgAlign.CENTER);
+			//ttl.add(img);
 		}
 		ttl.add(m_caption);
 		TD right = b.addCell();
@@ -98,13 +110,13 @@ public class CaptionedHeader extends Table {
 		}
 	}
 
-	public void addButton(String image, String hint, IClicked<NodeBase> handler) {
+	public void addButton(IIconRef image, String hint, IClicked<NodeBase> handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setClicked(handler);
 		internallyAddButton(ib, hint);
 	}
 
-	public void addButton(String image, String hint, String onClickJs) {
+	public void addButton(IIconRef image, String hint, String onClickJs) {
 		SmallImgButton ib = new SmallImgButton(image);
 		ib.setOnClickJS(onClickJs);
 		internallyAddButton(ib, hint);
@@ -121,11 +133,11 @@ public class CaptionedHeader extends Table {
 		}
 	}
 
-	public String getIcon() {
+	public IIconRef getIcon() {
 		return m_icon;
 	}
 
-	public void setIcon(String icon) {
+	public void setIcon(IIconRef icon) {
 		if(DomUtil.isEqual(icon, m_icon))
 			return;
 		m_icon = icon;

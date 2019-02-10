@@ -1,12 +1,9 @@
 package to.etc.domui.derbydata.init;
 
-import java.io.*;
-
-import javax.sql.*;
-
-import org.hibernate.*;
-
-import to.etc.dbpool.*;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import to.etc.dbpool.ConnectionPool;
+import to.etc.dbpool.PoolManager;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.derbydata.db.Customer;
@@ -16,10 +13,15 @@ import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.derbydata.db.InvoiceLine;
 import to.etc.domui.derbydata.db.MediaType;
 import to.etc.domui.derbydata.db.Track;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.hibernate.config.*;
-import to.etc.domui.hibernate.generic.*;
-import to.etc.webapp.query.*;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.hibernate.config.HibernateConfigurator;
+import to.etc.domui.hibernate.generic.BuggyHibernateBaseContext;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
+
+import javax.sql.DataSource;
+import java.io.File;
 
 public class DbUtil {
 	/**
@@ -32,8 +34,8 @@ public class DbUtil {
 		HibernateConfigurator.addClasses(Artist.class, Album.class, MediaType.class, Track.class);
 		HibernateConfigurator.addClasses(Genre.class, Customer.class, Employee.class, Invoice.class, InvoiceLine.class);
 
-		HibernateConfigurator.enableBeforeImages(true);
-		HibernateConfigurator.enableObservableCollections(true);
+		//HibernateConfigurator.enableBeforeImages(true);
+		//HibernateConfigurator.enableObservableCollections(true);
 
 		HibernateConfigurator.initialize(ds);
     }

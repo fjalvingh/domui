@@ -105,6 +105,28 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	String getInputPath();
 
 	/**
+	 * Returns the URL context string, defined as the part inside the input URL that is before the name in the URL.
+	 * Specifically:
+	 * <ul>
+	 *	<li>This uses the {@link #getInputPath()} URL as the basis, so the path never starts with the webapp context</li>
+	 *	<li>If the URL's last part has a suffix then the last part is assumed to be the pageName, and everything
+	 *		before this pageName is the urlContextString</li>
+	 *	<li>If an urlContextString is present then it always ends in a /</li>
+	 *	<li>If the URL is just a pageName then this returns the empty string</li>
+	 * </ul>
+	 *
+	 * The following always holds: {@link #getUrlContextString()} + {@link #getPageName()} + m_extension = {@link #getInputPath()}.
+	 */
+	@NonNull
+	String getUrlContextString();
+
+	/**
+	 * Returns the last part of the URL, provided that part has an extension. If not there is no page name.
+	 */
+	@Nullable
+	String getPageName();
+
+	/**
 	 * Returns the value of the "User-Agent" header to determine the browser type.
 	 */
 	@Nullable

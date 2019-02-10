@@ -1,10 +1,12 @@
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.converter.ConverterRegistry;
+import to.etc.util.StringTool;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.converter.*;
-import to.etc.util.*;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * This is a list model where the list instance will be maintained by the model, and where the
@@ -53,7 +55,7 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 			ClassMetaModel cmm = MetaManager.findClassMeta(getDataClass());
 			Comparator<T> comp = ConverterRegistry.getComparator(cmm, key, descending);
 			setComparator(comp);
-			fireModelChanged();
+			fireModelSorted();
 		}
 		m_sortKey = key;
 		m_descending = descending;

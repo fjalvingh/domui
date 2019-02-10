@@ -28,16 +28,28 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.IBundleCode;
 
 public class ValidationException extends UIException {
-	public ValidationException() {
-		super(Msgs.BUNDLE, Msgs.NOT_VALID);
+	public ValidationException(IBundleCode code, Object... parameters) {
+		super(code, parameters);
 	}
 
+	public ValidationException(Throwable t, IBundleCode code, Object... parameters) {
+		super(t, code, parameters);
+	}
+
+	@Deprecated
+	public ValidationException() {
+		super(Msgs.notValid);
+	}
+
+	@Deprecated
 	public ValidationException(BundleRef bundle, String code, Object... parameters) {
 		super(bundle, code, parameters);
 	}
 
+	@Deprecated
 	public ValidationException(String code, Object... param) {
 		super(Msgs.BUNDLE, code, param);
 	}

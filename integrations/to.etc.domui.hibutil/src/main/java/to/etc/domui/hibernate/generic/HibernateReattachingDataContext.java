@@ -27,7 +27,7 @@ package to.etc.domui.hibernate.generic;
 import org.hibernate.Session;
 import org.hibernate.engine.internal.StatefulPersistenceContext;
 import org.hibernate.internal.SessionImpl;
-import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.AbstractConversationContext;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QDataContextFactory;
 
@@ -72,13 +72,13 @@ public class HibernateReattachingDataContext extends BuggyHibernateBaseContext {
 	}
 
 	@Override
-	public void conversationDestroyed(final ConversationContext cc) throws Exception {
+	public void conversationDestroyed(AbstractConversationContext cc) throws Exception {
 		setIgnoreClose(false);
 		conversationDetached(cc);
 	}
 
 	@Override
-	public void conversationDetached(final ConversationContext cc) throws Exception {
+	public void conversationDetached(AbstractConversationContext cc) throws Exception {
 		if(m_session == null)
 			return;
 

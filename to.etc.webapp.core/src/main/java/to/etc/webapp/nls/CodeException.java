@@ -46,6 +46,23 @@ public class CodeException extends RuntimeException {
 	@NonNull
 	private final Object[] m_parameters;
 
+	public CodeException(IBundleCode code, Object... parameters) {
+		m_bundle = code.getBundle();
+		m_code = code.name();
+		m_parameters = parameters;
+	}
+
+	public CodeException(Throwable t, IBundleCode code, Object... parameters) {
+		super(t);
+		m_bundle = code.getBundle();
+		m_code = code.name();
+		m_parameters = parameters;
+	}
+
+	/**
+	 * Deprecated: Use IBundleCode / enum.
+	 */
+	@Deprecated
 	public CodeException(@NonNull final BundleRef bundle, @NonNull final String code, final Object... parameters) {
 		if(bundle == null || code == null)
 			throw new IllegalArgumentException("Bundle or code cannot be null");

@@ -36,6 +36,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.searchpanel.lookupcontrols.FactoryPair;
 import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.component.searchpanel.lookupcontrols.LookupControlRegistry2;
@@ -60,7 +61,6 @@ import to.etc.webapp.query.QCriteria;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -143,7 +143,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	private boolean m_collapsed;
 
 	/**
-	 * Calculated by entered search criteria, T in case that exists any field resulting with {@link AppendCriteriaResult#VALID} in LookupForm fields.
+	 * This is T if after calculating the criteria at least one field was not empty.
 	 */
 	private boolean m_hasUserDefinedCriteria;
 
@@ -161,6 +161,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	@Nullable
 	private UIMessage m_newBtnDisableReason;
+
+	private boolean m_hasBeenUsed;
 
 	public enum ButtonMode {
 		/** Show this button only when the lookup form is expanded */
@@ -276,8 +278,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		for(Object o : m_itemList) {
 			if(o instanceof SearchControlLine) {
 				SearchControlLine<?> it = (SearchControlLine<?>) o;
-				it.clear();
-				formBuilder.append(it);
+				appendControlLine(formBuilder, it);
 			} else if(o instanceof  IExecute) {
 				((IExecute) o).execute();
 			}
@@ -318,6 +319,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 			if(m_clicker != null)
 				m_clicker.clicked(SearchPanel.this);
 		});
+		m_hasBeenUsed = true;							// Indicate that we need to use defaultValue instead of initialValue next time.
+	}
+
+	private <P> void appendControlLine(ISearchFormBuilder formBuilder, SearchControlLine<P> it) throws Exception {
+		P initialValue = it.getInitialValue();
+		P value = m_hasBeenUsed || initialValue == null ? it.getDefaultValue() : initialValue;
+		it.getControl().setValue(value);
+		formBuilder.append(it);
 	}
 
 	//private void addFilterFragment(NodeContainer searchContainer) {
@@ -386,7 +395,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	protected void defineDefaultButtons() {
 		DefaultButton b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH));
-		b.setIcon("THEME/btnFind.png");
+		b.setIcon(Icon.of("THEME/btnFind.png"));
 		b.setTestID("searchButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_SEARCH_TITLE));
 		b.css("is-primary");
@@ -397,7 +406,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		addButtonItem(b, 100, ButtonMode.NORMAL);
 
 		m_clearButton = b = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR));
-		b.setIcon("THEME/btnClear.png");
+		b.setIcon(Icon.of("THEME/btnClear.png"));
 		b.setTestID("clearButton");
 		b.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CLEAR_TITLE));
 		b.setClicked(xb -> {
@@ -408,7 +417,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		addButtonItem(b, 200, ButtonMode.NORMAL);
 
 		//-- Collapse button thingy
-		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), "THEME/btnHideLookup.png", bx -> collapse());
+		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), Icon.of("THEME/btnHideLookup.png"), bx -> collapse());
 		m_collapseButton.setTestID("hideButton");
 		m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
 		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
@@ -452,7 +461,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 		//-- Collapse button thingy
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
-		m_collapseButton.setIcon("THEME/btnShowLookup.png");
+		m_collapseButton.setIcon(Icon.of("THEME/btnShowLookup.png"));
 		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> restore());
 		createButtonRow(m_collapsedPanel, true);
 		//trigger after collapse event is set
@@ -469,7 +478,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		createButtonRow(m_buttonRow, false);
 
 		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE));
-		m_collapseButton.setIcon("THEME/btnHideLookup.png");
+		m_collapseButton.setIcon(Icon.of("THEME/btnHideLookup.png"));
 		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> collapse());
 
 		m_content.setDisplay(DisplayType.BLOCK);
@@ -512,6 +521,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	@Nullable
 	public QCriteria<T> getCriteria() throws Exception {
+		if(! isBuilt())
+			build();
 		m_hasUserDefinedCriteria = false;
 		QCriteria<T> root;
 		IQueryFactory<T> queryFactory = getQueryFactory();
@@ -588,12 +599,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_newBtn.setIcon(Theme.BTN_NEW);
 				m_newBtn.setTestID("newButton");
 				m_newBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_NEW_TITLE));
-				m_newBtn.setClicked(new IClicked<NodeBase>() {
-					@Override
-					public void clicked(final @NonNull NodeBase xb) throws Exception {
-						if(getOnNew() != null) {
-							getOnNew().clicked(SearchPanel.this);
-						}
+				m_newBtn.setClicked(xb -> {
+					if(getOnNew() != null) {
+						getOnNew().clicked(SearchPanel.this);
 					}
 				});
 				m_newBtn.setDisabled(m_newBtnDisableReason);
@@ -648,13 +656,10 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 				m_cancelBtn.setIcon(Theme.BTN_CANCEL);
 				m_cancelBtn.setTestID("cancelButton");
 				m_cancelBtn.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL_TITLE));
-				m_cancelBtn.setClicked(new IClicked<NodeBase>() {
-					@Override
-					public void clicked(final @NonNull NodeBase xb) throws Exception {
+				m_cancelBtn.setClicked(xb -> {
 
-						if(getOnCancel() != null) {
-							getOnCancel().clicked(SearchPanel.this);
-						}
+					if(getOnCancel() != null) {
+						getOnCancel().clicked(SearchPanel.this);
 					}
 				});
 				addButtonItem(m_cancelBtn, 400, ButtonMode.BOTH);
@@ -704,6 +709,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		if(m_buttonItemList == Collections.EMPTY_LIST)
 			m_buttonItemList = new ArrayList<>(10);
 		m_buttonItemList.add(new ButtonRowItem(order, both, b));
+		forceRebuild();
 	}
 
 	/**
@@ -712,12 +718,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 * @param iscollapsed
 	 */
 	private void createButtonRow(NodeContainer c, boolean iscollapsed) {
-		Collections.sort(m_buttonItemList, new Comparator<ButtonRowItem>() { // Sort in ascending order,
-			@Override
-			public int compare(ButtonRowItem o1, ButtonRowItem o2) {
-				return o1.getOrder() - o2.getOrder();
-			}
-		});
+		// Sort in ascending order,
+		Collections.sort(m_buttonItemList, (o1, o2) -> o1.getOrder() - o2.getOrder());
 
 		for(ButtonRowItem bi : m_buttonItemList) {
 			if((iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.COLLAPSED)) || (!iscollapsed && (bi.getMode() == ButtonMode.BOTH || bi.getMode() == ButtonMode.NORMAL))) {
@@ -883,7 +885,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Set the default form factory to use when forms are generated. This is a global parameter
-	 * and should only be set from {@link to.etc.domui.server.DomApplication#initialize(ConfigParameters)}
+	 * and should only be set from DomApplication.initialize.
 	 */
 	static public void setDefaultSearchFormBuilder(Supplier<ISearchFormBuilder> factory) {
 		m_defaultFormBuilderFactory = factory;
@@ -999,7 +1001,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//	FIXME cannot set hint here because setHint is not part of IControl
 		//}
 
-		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, builder.getDefaultValue(), labelNode, false);
+		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, builder.getDefaultValue(), builder.getInitialValue(), labelNode, false);
 		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;
@@ -1089,7 +1091,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//	FIXME cannot set hint here because setHint is not part of IControl
 		//}
 
-		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, null, labelNode, fromMetadata);
+		SearchControlLine<D> ll = new SearchControlLine<>(control, qb, property, null, null, labelNode, fromMetadata);
 		assignCalcTestID(ll, property, labelText);
 		addLookupLine(ll);
 		return ll;

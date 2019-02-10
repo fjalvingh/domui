@@ -36,6 +36,7 @@ import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.util.IComboDataSet;
 import to.etc.domui.util.ILabelStringRenderer;
 import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.Msgs;
 import to.etc.util.PropertyInfo;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
@@ -265,13 +266,13 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		sb.append(getName());
 		sb.append(".");
 		if(val == Boolean.TRUE)
-			sb.append("true");
+			sb.append(Msgs.uiBoolTrue.getString());
 		else if(val == Boolean.FALSE)
-			sb.append("false");
+			sb.append(Msgs.uiBoolFalse.getString());
 		else if(val instanceof Enum< ? >)
 			sb.append(((Enum< ? >) val).name());
 		else if(val instanceof Boolean) {
-			sb.append(((Boolean)val).booleanValue() ? "true" : "false");
+			sb.append(((Boolean)val).booleanValue() ? Msgs.uiBoolTrue.getString() : Msgs.uiBoolFalse.getString());
 		} else
 			throw new IllegalStateException("Property value " + val + " for property " + this + " is not an enumerable or boolean domain (class=" + val.getClass() + ")");
 		sb.append(".label");

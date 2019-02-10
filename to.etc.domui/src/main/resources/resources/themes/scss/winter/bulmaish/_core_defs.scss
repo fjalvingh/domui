@@ -167,3 +167,8 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	}
 }
 
+@mixin overflow-ellipsis() {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

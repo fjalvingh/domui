@@ -4,8 +4,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.Img;
-import to.etc.domui.dom.html.ImgAlign;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.themes.Theme;
@@ -67,22 +65,23 @@ public class MessageFlare extends Flare {
 			default:
 				throw new IllegalArgumentException("Unknown msg type:" + m_type);
 		}
-		Img img = null;
+		IIconRef img = null;
 		switch(m_type){
 			case ERROR:
-				img = new Img(Theme.ICON_MBX_ERROR);
+				img = Theme.ICON_MBX_ERROR;
 				break;
 			case INFO:
-				img = new Img(Theme.ICON_MBX_INFO);
+				img = Theme.ICON_MBX_INFO;
 				break;
 			case WARNING:
-				img = new Img(Theme.ICON_MBX_WARNING);
+				img = Theme.ICON_MBX_WARNING;
 				break;
 			default:
 				throw new IllegalStateException("Unknown msg type:" + m_type);
 		}
-		img.setAlign(ImgAlign.LEFT);
-		add(img);
+		NodeBase icon = img.createNode();
+		//icon.setAlign(ImgAlign.LEFT);
+		add(icon);
 	}
 
 	@Override

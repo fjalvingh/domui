@@ -24,9 +24,12 @@
  */
 package to.etc.domui.component.menu;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.annotations.UIRights;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.login.IUser;
+import to.etc.domui.login.IUserRightChecker;
+import to.etc.domui.login.User2RightsChecker;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -44,17 +47,17 @@ public class MenuManager {
 
 	private final MenuItem m_root = new MenuItem(this);
 
+	@NonNull
+	private IUserRightChecker<IUser> m_userRightChecker = new User2RightsChecker();
+
 	private Map<String, MenuItem> m_idMap;
 
-	static public Comparator<MenuItem> C_BY_ORDER_AND_CHILDREN = new Comparator<MenuItem>() {
-		@Override
-		public int compare(MenuItem o1, MenuItem o2) {
-			boolean c1 = o1.getChildren().size() > 0;
-			boolean c2 = o2.getChildren().size() > 0;
-			if(c1 != c2)
-				return c1 ? 1 : -1;
-			return o1.getOrder() - o2.getOrder();
-		}
+	static public Comparator<MenuItem> C_BY_ORDER_AND_CHILDREN = (o1, o2) -> {
+		boolean c1 = o1.getChildren().size() > 0;
+		boolean c2 = o2.getChildren().size() > 0;
+		if(c1 != c2)
+			return c1 ? 1 : -1;
+		return o1.getOrder() - o2.getOrder();
 	};
 
 	/**
@@ -140,7 +143,7 @@ public class MenuManager {
 
 			//-- If the user has none of these then do not show
 			for(String rr : requiredRights) {
-				if(user.hasRight(rr)) {
+				if(m_userRightChecker.hasRight(user, rr)) {
 					menuOk = true;
 					break;
 				}
@@ -154,7 +157,7 @@ public class MenuManager {
 			UIRights uir = pageClass.getAnnotation(UIRights.class);
 			if(null != uir && uir.value().length > 0) {
 				for(String rr : uir.value()) {
-					if(user.hasRight(rr))
+					if(m_userRightChecker.hasRight(user, rr))
 						return true;
 				}
 				return false;
@@ -164,34 +167,7 @@ public class MenuManager {
 		return true;
 	}
 
-
-	///**
-	// * Creates a filtered and possibly reordered user menu.
-	// */
-	//public List<MenuItem> createUserMenu(IMenuItemFilter filter) throws Exception {
-	//	List<MenuItem> root = getRootMenu();
-	//	List<MenuItem> res = createSubMenu(root, filter, null);
-	//	return res;
-	//}
-	//
-	//private List<MenuItem> createSubMenu(List<MenuItem> root, IMenuItemFilter filter, MenuItem parent) throws Exception {
-	//	List<MenuItem> res = new ArrayList<MenuItem>();
-	//	for(MenuItem mi : root) {
-	//		MenuItem m = (MenuItem) mi;
-	//		if(filter != null) {
-	//			filter.setNode(m);
-	//			if(!filter.isAllowed())
-	//				continue;
-	//		}
-	//
-	//		MenuItemProxy p = new MenuItemProxy(m);
-	//		if(m.isSubMenu()) {
-	//			p.setChildren(createSubMenu(m.getChildren(), filter, p));
-	//		}
-	//		p.setParent(parent);
-	//		if(!m.isSubMenu() || p.getChildren().size() > 0)
-	//			res.add(p);
-	//	}
-	//	return res;
-	//}
+	public void setUserRightChecker(@NonNull IUserRightChecker<IUser> userRightChecker) {
+		m_userRightChecker = userRightChecker;
+	}
 }

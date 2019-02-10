@@ -27,11 +27,11 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.NonNull;
 
 public interface IConversationStateListener {
-	void conversationNew(@NonNull ConversationContext cc) throws Exception;
+	void conversationNew(@NonNull AbstractConversationContext cc) throws Exception;
 
-	void conversationAttached(@NonNull ConversationContext cc) throws Exception;
+	void conversationAttached(@NonNull AbstractConversationContext cc) throws Exception;
 
-	void conversationDetached(@NonNull ConversationContext cc) throws Exception;
+	void conversationDetached(@NonNull AbstractConversationContext cc) throws Exception;
 
-	void conversationDestroyed(@NonNull ConversationContext cc) throws Exception;
+	void conversationDestroyed(@NonNull AbstractConversationContext cc) throws Exception;
 }

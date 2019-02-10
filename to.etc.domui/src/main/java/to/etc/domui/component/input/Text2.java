@@ -34,6 +34,7 @@ import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyMetaValidator;
 import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConvertable;
 import to.etc.domui.converter.IConverter;
@@ -94,6 +95,12 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		@Override public String getInputType() {
 			return m_password ? "password" : "text";
 		}
+
+		@Override public boolean isFocusable() {
+			if(m_disableFocus)
+				return false;
+			return super.isFocusable();
+		}
 	};
 
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
@@ -149,6 +156,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	@Nullable
 	private List<NodeBase> m_buttonList;
+
+	private boolean m_disableFocus;
 
 	public enum NumberMode {
 		NONE, DIGITS, FLOAT,
@@ -271,7 +280,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		if(raw == null || raw.length() == 0) {
 			//-- Field is empty.
 			if(isMandatory()) {
-				throw new ValidationException(Msgs.MANDATORY);
+				throw new ValidationException(Msgs.mandatory);
 			}
 
 			//-- Empty field always results in null object.
@@ -308,10 +317,10 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		} catch(UIException x) {
 			throw new ValidationException(x.getBundle(), x.getCode(), x.getParameters());
 		} catch(RuntimeConversionException x) {
-			throw new ValidationException(Msgs.NOT_VALID, raw);
+			throw new ValidationException(Msgs.notValid, raw);
 		} catch(Exception x) {
 			x.printStackTrace();
-			throw new ValidationException(Msgs.UNEXPECTED_EXCEPTION, x);
+			throw new ValidationException(Msgs.unexpectedException, x);
 		}
 	}
 
@@ -458,7 +467,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			return;
 		} catch(Exception x) {
 			x.printStackTrace();
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.UNEXPECTED_EXCEPTION, x));
+			setMessage(UIMessage.error(Msgs.unexpectedException, x));
 			return;
 		}
 		m_input.setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
@@ -630,7 +639,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		}
 	}
 
-	public SmallImgButton addButton(String image, IClicked<NodeBase> clicked) {
+	public SmallImgButton addButton(IIconRef image, IClicked<SmallImgButton> clicked) {
 		SmallImgButton sib = new SmallImgButton(image, clicked);
 		addButton(sib);
 		return sib;
@@ -973,4 +982,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return this;
 	}
 
+	public void setDisableFocus(boolean disableFocus) {
+		m_disableFocus = disableFocus;
+	}
 }

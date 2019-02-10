@@ -67,6 +67,7 @@ import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
+import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
 import to.etc.webapp.query.QField;
@@ -171,11 +172,21 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	@Nullable
 	private List<String> m_specialAttributes;
 
+	@Nullable
+	private List<NotificationListener<?>> m_notificationListenerList;
+
 	static private final byte F_FOCUSREQUESTED = 0x01;
 
 	static private final byte F_BUNDLEFOUND = 0x02;
 
 	static private final byte F_BUNDLEUSED = 0x04;
+
+	/**
+	 * When set this prevents the OptimalDeltaRenderer from replacing this node. It prevents the optimization that
+	 * replaces an upper node with a new render if that is more efficient than a set of (delete, add) deltas. The
+	 * flag is useful when Javascript is attached to nodes which would be destroyed when the nodes are rewritten.
+	 */
+	static private final byte F_NOREPLACE = 0x08;
 
 	private byte m_flags;
 
@@ -275,7 +286,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Internal, do the proper run sequence for a clicked event.
-	 * @throws Exception
 	 */
 	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		IClickBase<NodeBase> c = (IClickBase<NodeBase>) getClicked();
@@ -283,8 +293,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			((IClicked<NodeBase>) c).clicked(this);
 		} else if(c instanceof IClicked2< ? >) {
 			((IClicked2<NodeBase>) c).clicked(this, cli);
-		} else
+		} else if(c != null) {
 			throw new IllegalStateException("? Node " + this.getActualID() + " does not have a (valid) click handler??");
+		}
 	}
 
 	/**
@@ -337,13 +348,34 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		internalClearDelta();
 	}
 
+	/**
+	 * Counts the #of nodes that would need to be rendered if this tree is rendered. It returns -1
+	 * if any node has the isKeepNode() flag set, thereby preventing re-rendering of that part.
+	 */
 	protected int internalGetNodeCount(int depth) {
 		return 1;
 	}
 
 	/**
+	 * Tell the Optimal Delta Renderer that this node should be kept if possible. This disables the optimization
+	 * where the ODR decides that a single delete and an add of a whole structure is more efficient than a lot of
+	 * (delete, add) operations. Use this method when the node in question has Javascript attached to it which is
+	 * to remain intact.
+	 */
+	public void setKeepNode(boolean keepNode) {
+		if(keepNode) {
+			m_flags |= F_NOREPLACE;
+		} else {
+			m_flags &= ~ F_NOREPLACE;
+		}
+	}
+
+	public boolean isKeepNode() {
+		return (m_flags & F_NOREPLACE) != 0;
+	}
+
+	/**
 	 * Calculates a new ID for a node.
-	 * @return
 	 */
 	@NonNull
 	final String nextUniqID() {
@@ -423,7 +455,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Returns T if this node is attached to a real page.
-	 * @return
 	 */
 	final public boolean isAttached() {
 		return null != m_page;
@@ -431,7 +462,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Internal use only.
-	 * @param page
 	 */
 	final void setPage(final Page page) {
 		m_page = page;
@@ -449,17 +479,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Internal: register this node with the page.
-	 * @param p
 	 */
 	void registerWithPage(@NonNull final Page p) {
 		p.registerNode(this);
 	}
 
-	void internalOnAddedToPage(final Page p) {
+	void internalOnAddedToPage(@NonNull Page p) {
 		onAddedToPage(p);
 		List<NotificationListener<?>> list = m_notificationListenerList;
 		if(null != list) {
-			list.forEach(a -> p.addNotificationListener(a));
+			list.forEach(p::addNotificationListener);
 		}
 		StringBuilder appendJS = m_appendJS;
 		if(appendJS != null) {
@@ -468,8 +497,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		}
 	}
 
-	void internalOnRemoveFromPage(final Page p) {
+	void internalOnRemoveFromPage(@NonNull Page p) {
 		onRemoveFromPage(p);
+		List<NotificationListener<?>> list = m_notificationListenerList;
+		if(null != list) {
+			list.forEach(p::removeNotificationListener);
+		}
 	}
 
 	public String getTextOnly() {
@@ -490,7 +523,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Set the value for the "class" (css class) attribute. This can be null, or one or
 	 * more class names separated by space.
-	 * @param cssClass
 	 */
 	public void setCssClass(@Nullable final String cssClass) {
 		//		System.out.println("--- id="+m_actualID+", css="+cssClass);
@@ -502,18 +534,18 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Removes the specified CSS class. This looks in the space delimited list and removes all 'words' there
 	 * that match this name. Returns T if the class was actually present.
-	 * @param name
-	 * @return
 	 */
-	final public boolean removeCssClass(@NonNull final String name) {
+	final public boolean removeCssClass(@NonNull final String nameList) {
 		String cssClass = getCssClass();
 		if(cssClass == null)
 			return false;
 		String[] split = cssClass.split("\\s+");
+		String[] names = nameList.split("\\s+");
+
 		StringBuilder sb = new StringBuilder(cssClass.length());
 		boolean fnd = false;
 		for(String s: split) {
-			if(name.equals(s)) {
+			if(hasName(names, s)) {
 				fnd = true;
 			} else {
 				if(sb.length() > 0)
@@ -525,6 +557,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			return false;
 		setCssClass(sb.toString());
 		return true;
+	}
+
+	static private boolean hasName(String[] items, String name) {
+		for(int i = items.length; --i >= 0;) {
+			if(name.equals(items[i]))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -780,6 +820,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	final private void clearBuilt() {
 		m_built = false;
+		m_createJS = null;
+		m_createStmt = null;
 		if(m_page != null)
 			m_page.internalAddPendingBuild(this);
 	}
@@ -1281,6 +1323,12 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		throw new IllegalStateException("The component " + this + " does not accept the web data request #" + action);
 	}
 
+	/**
+	 * Get the proper value for the component from the parameters
+	 * in the post request. If the result is that the component has
+	 * changed then return TRUE; this will cause the component's
+	 * onValueChange handler to be called.
+	 */
 	public boolean acceptRequestParameter(@NonNull final String[] values) throws Exception {
 		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
 	}
@@ -1727,22 +1775,25 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*--------------------------------------------------------------*/
 	/**
 	 * This returns the default "shared context" for database access.
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
-	public QDataContext getSharedContext() throws Exception {
-		return getParent().getSharedContext();								// Delegate getting the "default context" to the parent node.
+	final public QDataContext getSharedContext() throws Exception {
+		return getSharedContextFactory().getDataContext();
+		//return getParent().getSharedContext();								// Delegate getting the "default context" to the parent node.
 	}
 
 	@NonNull
-	public QDataContextFactory getSharedContextFactory() {
-		return getParent().getSharedContextFactory();
+	final public QDataContextFactory getSharedContextFactory() {
+		return getSharedContextFactory(QContextManager.DEFAULT);
+	}
+
+	@NonNull
+	public QDataContextFactory getSharedContextFactory(@NonNull String key) {
+		return getParent().getSharedContextFactory(key);
 	}
 
 	/**
 	 * Get the context.
-	 * @return
 	 */
 	@NonNull
 	public ILogicContext lc() throws Exception {
@@ -1752,7 +1803,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Claim the focus for this component. Only reasonable for input type and action
 	 * components (links, buttons). For now this can only be called for components that
-	 * are already attached to a page. If this is a proble I'll fix it. Only one component
+	 * are already attached to a page. If this is a problem I'll fix it. Only one component
 	 * in a page can claim focus for itself.
 	 */
 	public void setFocus() {
@@ -1765,7 +1816,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Returns T if this control has requested the focus.
-	 * @return
 	 */
 	final public boolean isFocusRequested() {
 		return (m_flags & F_FOCUSREQUESTED) != 0;
@@ -1885,10 +1935,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Send a self-defined event through the whole page. All nodes that registered
 	 * for that event using {@link #addNotificationListener(Class, INotificationListener)} will
 	 * receive the event in their listeners.
-	 *
-	 * @param eventClass
-	 * @param <T>
-	 * @throws Exception
 	 */
 	public final <T> void notify(T eventClass) throws Exception {
 		getPage().notifyPage(eventClass);
@@ -1896,19 +1942,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	public final <T> void addNotificationListener(Class<T> eventClass, INotificationListener<T> listener) {
 		NotificationListener<T> nl = new Page.NotificationListener<>(eventClass, this, listener);
+		List<NotificationListener<?>> list = m_notificationListenerList;
+		if(null == list) {
+			list = m_notificationListenerList = new ArrayList<>(4);
+		}
+		list.add(nl);
 		if(isAttached())
 			getPage().addNotificationListener(nl);
-		else {
-			List<NotificationListener<?>> list = m_notificationListenerList;
-			if(null == list) {
-				list = m_notificationListenerList = new ArrayList<>(4);
-			}
-			list.add(nl);
-		}
 	}
-
-	@Nullable
-	private List<NotificationListener<?>> m_notificationListenerList;
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Soft binding support.								*/
@@ -1922,7 +1963,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Checks the tree starting at this component for binding errors; all of those will be reported
 	 * by sending them to the error listeners. In case of errors this will return true.
-	 * @return
 	 */
 	public boolean bindErrors() throws Exception {
 		return OldBindingHandler.reportBindingErrors(this);
@@ -1930,7 +1970,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * If present, return all bindings on this node.
-	 * @return
 	 */
 	@Nullable
 	final public List<IBinding> getBindingList() {

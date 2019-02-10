@@ -52,6 +52,7 @@ public class PersistentObservableList<T> extends PersistentBag implements IObser
 	public PersistentObservableList(SharedSessionContractImplementor session) {
 		super(session);
 		m_from = "1 param constructor called at " + StringTool.getLocation();
+		throw new IllegalStateException("Single parameter constructor called - cannot set a BAG object");
 	}
 
 
@@ -60,6 +61,8 @@ public class PersistentObservableList<T> extends PersistentBag implements IObser
 	/*--------------------------------------------------------------*/
 
 	private IObservableList instance() {
+		if(null == bag)
+			throw new IllegalStateException("The bag field is null");
 		return (IObservableList) bag;
 	}
 

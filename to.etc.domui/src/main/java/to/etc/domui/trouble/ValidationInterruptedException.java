@@ -1,6 +1,6 @@
 package to.etc.domui.trouble;
 
-import to.etc.domui.util.*;
+import to.etc.domui.util.Msgs;
 
 /**
  * Thrown when validation is delayed because some component needs a question answered 1st.
@@ -10,7 +10,7 @@ import to.etc.domui.util.*;
  */
 public class ValidationInterruptedException extends ValidationException {
 	public ValidationInterruptedException() {
-		super(Msgs.BUNDLE, Msgs.UI_VALIDATION_INTERRUPTED);
+		super(Msgs.uiValidationInterrupted);
 	}
 
 }

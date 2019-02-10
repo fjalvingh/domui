@@ -24,12 +24,16 @@
  */
 package to.etc.domui.trouble;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.html.*;
-import to.etc.domui.themes.*;
-import to.etc.domui.util.*;
+import to.etc.domui.component.layout.CaptionedPanel;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.Table;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.Msgs;
 
-public class DataAccessViolationPage extends UrlPage {
+final public class DataAccessViolationPage extends UrlPage {
 	public static final String PARAM_ERRMSG = "errorMessage";
 
 	@Override
@@ -44,8 +48,7 @@ public class DataAccessViolationPage extends UrlPage {
 		ep.getContent().add(t);
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
-		Img img = new Img(Theme.ACCESS_DENIED);
-		td.add(img);
+		td.add(Theme.ACCESS_DENIED.createNode());
 
 		TD co = b.addCell();
 		String txt = msg;

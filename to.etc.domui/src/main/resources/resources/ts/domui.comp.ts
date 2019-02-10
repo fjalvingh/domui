@@ -131,11 +131,18 @@ namespace WebUI {
 	}
 
 	/*-------------- DataTable column --------------------*/
-	export function dataTableResults(id: string, compId: string): void {
+	export function dataTableResults(id: string, compId: string, resizeMode: string): void {
+		let mode = 'flex';
+		switch(resizeMode) {
+			case 'FIXED':	mode = 'fit'; break;
+			case 'FLEX':	mode = 'flex'; break;
+			case 'OVERFLOW':mode = 'overflow'; break;
+		}
 		setTimeout(a => {
             $('#' +id).colResizable({
                 postbackSafe: false,
-				resizeMode: 'flex',
+				resizeMode: mode,
+				partialRefresh: true,
                 onResize: function(tbl) {
                     WebUI.dataTableUpdateWidths(tbl, compId);
                 }

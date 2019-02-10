@@ -2,5 +2,6 @@
 
 /*** ContentPanel ***/
 .ui-cpnl {
-	padding: $vertical-padding 0px 0px $horizontal-padding;
+	padding: $vertical-padding $horizontal-padding;
+	//padding: $vertical-padding 0px 0px $horizontal-padding;	20181224 changed to have left+right padding.
 }

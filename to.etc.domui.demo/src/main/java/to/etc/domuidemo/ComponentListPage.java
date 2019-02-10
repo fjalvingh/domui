@@ -10,6 +10,7 @@ import to.etc.domuidemo.pages.graphs.GraphPage;
 import to.etc.domuidemo.pages.overview.agenda.DemoWeekAgenda;
 import to.etc.domuidemo.pages.overview.buttons.DemoDefaultButton;
 import to.etc.domuidemo.pages.overview.buttons.DemoLinkButton;
+import to.etc.domuidemo.pages.overview.buttons.RadioButtonPage;
 import to.etc.domuidemo.pages.overview.delayed.DemoAsyncContainer;
 import to.etc.domuidemo.pages.overview.delayed.DemoPollingDiv;
 import to.etc.domuidemo.pages.overview.dnd.DemoDragDrop;
@@ -24,7 +25,6 @@ import to.etc.domuidemo.pages.overview.input.DemoCheckbox;
 import to.etc.domuidemo.pages.overview.input.DemoComboFixed;
 import to.etc.domuidemo.pages.overview.input.DemoDateInput;
 import to.etc.domuidemo.pages.overview.input.DemoFileUpload;
-import to.etc.domuidemo.pages.overview.input.DemoRadioButton;
 import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType1;
 import to.etc.domuidemo.pages.overview.input.DemoSearchAsYouType2;
 import to.etc.domuidemo.pages.overview.input.DemoText;
@@ -44,6 +44,7 @@ import to.etc.domuidemo.pages.overview.misc.DemoALink;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayCheckbox;
 import to.etc.domuidemo.pages.overview.misc.DemoDisplayValue;
 import to.etc.domuidemo.pages.overview.misc.DemoMsgBox;
+import to.etc.domuidemo.pages.overview.misc.SvgIconPage;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
 import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
 import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
@@ -72,13 +73,17 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoMsgBox.class, "The Message Box");
 
 		addCaption("Simple components");
+		addLink(DemoALink.class, "The ALink and ATag components: several kinds of links");
+		addLink(SvgIconPage.class, "Renders components with SVG icons");
+
+		addCaption("Buttons");
 		addLink(DemoDefaultButton.class, "The DefaultButton");
 		addLink(DemoLinkButton.class, "The LinkButton");
-		addLink(DemoALink.class, "The ALink and ATag components: several kinds of links");
+		addLink(RadioButtonPage.class, "The Radio button and ButtonGroup");
+		addLink(DemoCheckbox.class, "The checkbox component");
+
 
 		addCaption("Input components");
-		addLink(DemoCheckbox.class, "The checkbox component");
-		addLink(DemoRadioButton.class, "The RadioButton components");
 		addLink(DemoText.class, "The Text<T> component");
 		addLink(DemoTextStr.class, "The TextStr component (shortcut for Text<String>)");
 		addLink(DemoDateInput.class, "The DateInput component for date and datetime input");

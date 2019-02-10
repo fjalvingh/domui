@@ -1,6 +1,0 @@
-@function increase($a, $byPercent){
-    @return $a + $a * $byPercent / 100;
-}
-.foo {
-  a: increase(100, 10); 
-}

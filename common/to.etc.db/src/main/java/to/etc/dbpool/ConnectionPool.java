@@ -408,7 +408,6 @@ final public class ConnectionPool {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Check to make s
-	 * @throws SQLException
 	 */
 	synchronized void checkParameters() throws SQLException {
 		usable();
@@ -436,7 +435,6 @@ final public class ConnectionPool {
 			addPlSqlDebugHandler(plsqldebug);
 
 		//-- Now initialize the rest of the parameters and try to allocate a connection for testing pps.
-		Connection dbc = null;
 		try {
 			if(c().isSetlog())
 				DriverManager.setLogWriter(new PrintWriter(System.out));
@@ -447,43 +445,42 @@ final public class ConnectionPool {
 				System.out.println("  *warning: printExceptions is true");
 
 
-			dbc = getCheckedConnection(); // Allocate a connection to see if we're OK
-//			m_dbtype = GenericDB.getDbType(dbc); // Try to find the database type.
-			DatabaseMetaData md = dbc.getMetaData();
-			System.out.println("pool(" + getID() + "): driver version " + md.getDriverVersion() + ", " + md.getDatabaseProductName());
+			try(Connection dbc = allocateConnection(null, null)) {
+				DatabaseMetaData md = dbc.getMetaData();
+				System.out.println("pool(" + getID() + "): driver version " + md.getDriverVersion() + ", " + md.getDatabaseProductName());
 
-			//-- Get database type.
-			m_dbType = DbPoolUtil.getDbTypeByDriverName(md.getDriverName());
-			IConnectionStatisticsFactory connectionStatisticsFactory = null;
-			switch(m_dbType) {
-				default:
-					break;
+				//-- Get database type.
+				m_dbType = DbPoolUtil.getDbTypeByDriverName(md.getDriverName());
+				IConnectionStatisticsFactory connectionStatisticsFactory = null;
+				switch(m_dbType) {
+					default:
+						break;
 
-				case ORACLE:
-					connectionStatisticsFactory = new OracleConnectionStatisticsFactory();
-					break;
-			}
-			m_connectionStatisticsFactory = connectionStatisticsFactory;
+					case ORACLE:
+						connectionStatisticsFactory = new OracleConnectionStatisticsFactory();
+						break;
+				}
+				m_connectionStatisticsFactory = connectionStatisticsFactory;
 
-			//-- Define a check string if needed.
-			if(c().isCheckConnection()) {
-				if(c().getCheckSQL() != null) {
-					m_check_calc = c().getCheckSQL();
-				} else {
-					switch(m_dbType){
-						default:
-							throw new SQLException("pool(" + getID() + ")'s type is unknown, it needs a manually-configured 'check' SQL statement");
-						case ORACLE:
-							m_check_calc = "select 1 from dual";
-							break;
-						case POSTGRES:
-						case MYSQL:
-							m_check_calc = "select 1";
-							break;
+				//-- Define a check string if needed.
+				if(c().isCheckConnection()) {
+					if(c().getCheckSQL() != null) {
+						m_check_calc = c().getCheckSQL();
+					} else {
+						switch(m_dbType){
+							default:
+								throw new SQLException("pool(" + getID() + ")'s type is unknown, it needs a manually-configured 'check' SQL statement");
+							case ORACLE:
+								m_check_calc = "select 1 from dual";
+								break;
+							case POSTGRES:
+							case MYSQL:
+								m_check_calc = "select 1";
+								break;
+						}
 					}
 				}
 			}
-
 		} catch(ClassNotFoundException x) {
 			throw new SQLException("pool(" + m_id + "): driver not found " + c().getDriverClassName());
 		} catch(SQLException x) {
@@ -492,11 +489,6 @@ final public class ConnectionPool {
 			throw x;
 		} catch(Exception x) {
 			throw new RuntimeException(x);
-		} finally {
-			try {
-				if(dbc != null)
-					dbc.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -584,14 +576,15 @@ final public class ConnectionPool {
 
 			try {
 				//				ALLOC.msg(m_id+": get connection on "+m_url+", uid="+m_uid);
-				Properties p = m_properties;
-				if(user != null) {
-					p = new Properties(m_properties);
-					p.setProperty("user", user);
-					p.setProperty("password", passwd);
-				}
-
-				dbc = m_driver.connect(c().getUrl(), p);
+				dbc = allocateConnection(user, passwd);
+				//Properties p = m_properties;
+				//if(user != null) {
+				//	p = new Properties(m_properties);
+				//	p.setProperty("user", user);
+				//	p.setProperty("password", passwd);
+				//}
+				//
+				//dbc = m_driver.connect(c().getUrl(), p);
 			} catch(SQLException x) {
 				//x.printStackTrace();
 				MSG.log(Level.WARNING, "Failed to get connection for " + getID() + ": " + x.toString(), x);
@@ -612,6 +605,17 @@ final public class ConnectionPool {
 			}
 		}
 		throw new SQLException("Cannot get new connection for user " + user + " from database driver: " + lastx, lastx);
+	}
+
+	private Connection allocateConnection(String user, String passwd) throws SQLException {
+		Properties p = m_properties;
+		if(user != null) {
+			p = new Properties(m_properties);
+			p.setProperty("user", user);
+			p.setProperty("password", passwd);
+		}
+
+		return m_driver.connect(c().getUrl(), p);
 	}
 
 

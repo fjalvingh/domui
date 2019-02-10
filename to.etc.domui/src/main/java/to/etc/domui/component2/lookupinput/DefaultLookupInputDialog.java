@@ -231,7 +231,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 			}
 
 			//-- Add the pager,
-			DataPager pg = new DataPager(m_result);
+			DataPager pg = new DataPager(dt);
 			add(pg);
 			dt.setTestID("resultTableLookupInput");
 		} else {

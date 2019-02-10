@@ -24,11 +24,13 @@
  */
 package to.etc.webapp.ajax.renderer.json;
 
-import java.lang.reflect.*;
-import java.util.*;
+import to.etc.util.StringTool;
+import to.etc.webapp.ajax.renderer.ItemRenderer;
+import to.etc.webapp.ajax.renderer.RenderRegistry;
 
-import to.etc.util.*;
-import to.etc.webapp.ajax.renderer.*;
+import java.lang.reflect.Array;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Renders an AJAX object tree as an XML document that can eb easily used
@@ -86,7 +88,7 @@ public class JSONRegistry extends RenderRegistry {
 		register(String.class, new JSONItemRenderer() {
 			@Override
 			public void render(final JSONRenderer rd, final Object val) throws Exception {
-				StringTool.strToJavascriptString(rd.getWriter(), (String) val, false);
+				StringTool.strToJavascriptString(rd.getWriter(), (String) val, true);
 			}
 		});
 

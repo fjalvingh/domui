@@ -10,24 +10,26 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="annotations" />
-        <module name="domui-hello" />
+        <module name="to.etc.domui.hibutil" />
+        <module name="fontawesome4" />
         <module name="domui-hibernate-generator" />
         <module name="jira-bug-reporter" />
-        <module name="property-annotations-processor" />
-        <module name="to.etc.alg" />
-        <module name="to.etc.db" />
-        <module name="to.etc.dbcompare" />
-        <module name="to.etc.domui" />
-        <module name="to.etc.domui.formbuilder" />
-        <module name="to.etc.domui.hibutil" />
-        <module name="to.etc.domui.legacy" />
-        <module name="to.etc.domui.selenium" />
-        <module name="to.etc.logger" />
-        <module name="to.etc.pater" />
-        <module name="to.etc.syntaxer" />
         <module name="to.etc.webapp.core" />
+        <module name="to.etc.alg" />
+        <module name="to.etc.domui.formbuilder" />
+        <module name="to.etc.domui" />
+        <module name="to.etc.pater" />
+        <module name="to.etc.db" />
+        <module name="to.etc.domui.selenium" />
+        <module name="to.etc.syntaxer" />
+        <module name="to.etc.dbcompare" />
+        <module name="fontawesome5free" />
+        <module name="domui-hello" />
         <module name="vaadin-sass-compiler" />
+        <module name="property-annotations-processor" />
+        <module name="to.etc.logger" />
+        <module name="to.etc.domui.legacy" />
+        <module name="annotations" />
       </profile>
       <profile name="Annotation profile for domui" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -45,6 +47,8 @@
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="10" />
       <module name="domui-utilities" target="1.5" />
+      <module name="fontawesome4" target="1.5" />
+      <module name="fontawesome5free" target="10" />
       <module name="integrations" target="1.5" />
       <module name="java9" target="1.5" />
       <module name="jira-bug-reporter" target="10" />
@@ -64,40 +68,11 @@
       <module name="to.etc.pater" target="10" />
       <module name="to.etc.syntaxer" target="10" />
       <module name="to.etc.webapp.core" target="10" />
-      <module name="vaadin-sass-compiler" target="1.6" />
     </bytecodeTargetLevel>
   </component>
   <component name="EclipseCompilerSettings">
-    <option name="ECJ_TOOL_PATH" value="$USER_HOME$/ecjs/ecj-head.jar" />
+    <option name="ECJ_TOOL_PATH" value="$USER_HOME$/ecjs/ecj-I20190209-1800.jar" />
     <option name="ADDITIONAL_OPTIONS_STRING" value="-properties $MODULE_DIR$/.settings/org.eclipse.jdt.core.prefs" />
-    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
-      <module name="annotations" options="-properties /home/jal/git/domui/java9/common/annotations/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="common" options="" />
-      <module name="domui-archetypes" options="" />
-      <module name="domui-hello" options="" />
-      <module name="domui-hibernate-generator" options="-properties /home/jal/git/domui/java9/utilities/hibernate-generator/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="domui-utilities" options="" />
-      <module name="integrations" options="" />
-      <module name="java9" options="" />
-      <module name="jira-bug-reporter" options="-properties /home/jal/git/domui/java9/jira-bug-reporter/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="property-annotations-processor" options="-properties /home/jal/git/domui/java9/common/property-annotation-processor/.settings/org.eclipse.jdt.core.prefs" />
-      <module name="to.etc.alg" options="-properties /home/jal/git/domui/java9/common/to.etc.alg/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.db" options="-properties /home/jal/git/domui/java9/common/to.etc.db/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.dbcompare" options="-properties /home/jal/git/domui/java9/utilities/to.etc.dbcompare/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui" options="-properties /home/jal/git/domui/java9/to.etc.domui/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.demo" options="-properties /home/jal/git/domui/java9/to.etc.domui.demo/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.derbydata" options="-properties /home/jal/git/domui/java9/to.etc.domui.derbydata/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.formbuilder" options="-properties /home/jal/git/domui/java9/to.etc.domui.formbuilder/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.hibutil" options="-properties /home/jal/git/domui/java9/integrations/to.etc.domui.hibutil/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.legacy" options="-properties /home/jal/git/domui/java9/to.etc.domui.legacy/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.domui.parent" options="" />
-      <module name="to.etc.domui.selenium" options="-properties /home/jal/git/domui/java9/integrations/to.etc.domui.selenium/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.logger" options="-properties /home/jal/git/domui/java9/common/to.etc.logger/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.pater" options="-properties /home/jal/git/domui/java9/common/to.etc.pater/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.syntaxer" options="-properties /home/jal/git/domui/java9/common/to.etc.syntaxer/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="to.etc.webapp.core" options="-properties /home/jal/git/domui/java9/to.etc.webapp.core/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
-      <module name="vaadin-sass-compiler" options="" />
-    </option>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

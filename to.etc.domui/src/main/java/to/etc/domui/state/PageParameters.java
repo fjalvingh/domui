@@ -53,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Encapsulates parameters for a page. All parameters must be presentable in URL form,
@@ -76,6 +77,9 @@ public class PageParameters implements IPageParameters, Serializable {
 	/** The approximate length of this parameters instance when rendered on an URL. */
 	private int m_dataLength;
 
+	@NonNull
+	private String m_urlContextString = "";
+
 	/**
 	 * Create an empty PageParameters.
 	 */
@@ -84,7 +88,6 @@ public class PageParameters implements IPageParameters, Serializable {
 	/**
 	 * Create page parameters and fill with the initial set defined in the argument list. For details of
 	 * what can be passed see {@link #addParameters(Object...)}.
-	 * @param list
 	 */
 	public PageParameters(Object... list) {
 		try {
@@ -105,13 +108,11 @@ public class PageParameters implements IPageParameters, Serializable {
 		//		}
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getUnlockedCopy()
-	 */
 	@NonNull
 	@Override
 	public PageParameters getUnlockedCopy() {
 		PageParameters clone = new PageParameters();
+		clone.m_urlContextString = m_urlContextString;
 		for(Map.Entry<String, Object> entry : m_map.entrySet()) {
 			clone.addParameter(entry.getKey(), entry.getValue());
 		}
@@ -129,8 +130,6 @@ public class PageParameters implements IPageParameters, Serializable {
 
 	/**
 	 * Primitive, only allowing String value.
-	 * @param name
-	 * @param value
 	 */
 	private void setParameter(String name, String value) {
 		increaseLength(value);
@@ -156,8 +155,6 @@ public class PageParameters implements IPageParameters, Serializable {
 
 	/**
 	 * Primitive, only allowing string array.
-	 * @param name
-	 * @param values
 	 */
 	private void setParameter(String name, String[] values) {
 		if(null != values) {
@@ -171,8 +168,6 @@ public class PageParameters implements IPageParameters, Serializable {
 	/**
 	 * Returns a single value for a parameter. The parameter must either be a single
 	 * string, or must be a 1-size array.
-	 * @param name
-	 * @return
 	 */
 	@Nullable
 	private String	getOne(String name) {
@@ -190,9 +185,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	}
 
 	/**
-	 * {@link PageParameters.getOne}
 	 * Throws MissingParameterException when the parameter can not be found.
-	 *
 	 */
 	@NonNull
 	private String getOneNotNull(String name) {
@@ -210,8 +203,6 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * the primary key for the object will be rendered as the value, otherwise it will be rendered as a tostring.
 	 * You can also specify a single object in the location for the next key; in this case both key and value will
 	 * be determined from this object; it must be some persistent object which knows it's key field.
-	 *
-	 * @param plist
 	 */
 	public void addParameters(Object... plist) throws Exception {
 		writeable();
@@ -249,8 +240,6 @@ public class PageParameters implements IPageParameters, Serializable {
 
 	/**
 	 * Add string, value pair. Existing parameter is overwritten.
-	 * @param k
-	 * @param object
 	 */
 	private void internalAdd(String k, Object o) throws Exception {
 		writeable();
@@ -324,7 +313,7 @@ public class PageParameters implements IPageParameters, Serializable {
 	/**
 	 * Removes the parameter with specified name entirely from the map.
 	 *
-	 * @param name, the name of the parameter to be removed.
+	 * @param name the name of the parameter to be removed.
 	 */
 	public void removeParameter(String name) {
 		writeable();
@@ -332,9 +321,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		decreaseLength(v);
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#hasParameter(java.lang.String)
-	 */
 	@Override
 	public boolean hasParameter(String name) {
 		return m_map.containsKey(name);
@@ -342,16 +328,12 @@ public class PageParameters implements IPageParameters, Serializable {
 
 	/**
 	 * Return the number of parameter (names) in this instance.
-	 * @return
 	 */
 	@Override
 	public int size() {
 		return m_map.size();
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getInt(java.lang.String)
-	 */
 	@Override
 	public int getInt(String name) {
 		String v = getOneNotNull(name);
@@ -362,9 +344,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		throw new UnusableParameterException(name, "int", v);
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getInt(java.lang.String, int)
-	 */
 	@Override
 	public int getInt(String name, int df) {
 		String v = getOne(name);
@@ -378,9 +357,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		return df;
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getLong(java.lang.String)
-	 */
 	@Override
 	public long getLong(String name) {
 		String v = getOneNotNull(name);
@@ -391,9 +367,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		throw new UnusableParameterException(name, "long", v);
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getLong(java.lang.String, long)
-	 */
 	@Override
 	public long getLong(String name, long df) {
 		String v = getOne(name);
@@ -407,9 +380,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		return df;
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getBoolean(java.lang.String)
-	 */
 	@Override
 	public boolean getBoolean(String name) {
 		String v = getOneNotNull(name);
@@ -419,9 +389,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		throw new UnusableParameterException(name, "boolean", v);
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getBoolean(java.lang.String, boolean)
-	 */
 	@Override
 	public boolean getBoolean(String name, boolean df) {
 		String v = getOne(name);
@@ -441,9 +408,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		return df;
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getLongW(java.lang.String)
-	 */
 	@Override
 	public Long getLongW(String name) {
 		String v = getOneNotNull(name);
@@ -454,17 +418,11 @@ public class PageParameters implements IPageParameters, Serializable {
 		throw new UnusableParameterException(name, "long", v);
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getLongW(java.lang.String, long)
-	 */
 	@Override
 	public Long getLongW(String name, long df) {
 		return getLongW(name, Long.valueOf(df));
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getLongW(java.lang.String, java.lang.Long)
-	 */
 	@Override
 	public Long getLongW(String name, Long df) {
 		String v = getOne(name);
@@ -478,18 +436,12 @@ public class PageParameters implements IPageParameters, Serializable {
 		return df;
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getString(java.lang.String)
-	 */
 	@Override
 	@NonNull
 	public String getString(String name) {
 		return getOneNotNull(name);
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getString(java.lang.String, java.lang.String)
-	 */
 	@Override
 	@Nullable
 	public String getString(String name, String df) {
@@ -497,9 +449,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		return v == null ? df : v;
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getStringArray(java.lang.String)
-	 */
 	@Override
 	@NonNull
 	public String[] getStringArray(@NonNull String name) {
@@ -509,9 +458,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		return arr;
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getStringArray(java.lang.String, java.lang.String[])
-	 */
 	@Override
 	@Nullable
 	public String[] getStringArray(@NonNull String name, @Nullable String[] deflt) {
@@ -526,13 +472,9 @@ public class PageParameters implements IPageParameters, Serializable {
 		return deflt;
 	}
 
-
 	/**
 	 * Gets the value for the specified parameter name as untyped value.
 	 * It is used internally for generic copying of params form one PageParameter to another.
-	 *
-	 * @param name
-	 * @return
 	 */
 	@Nullable
 	public Object getObject(String name) {
@@ -546,10 +488,17 @@ public class PageParameters implements IPageParameters, Serializable {
 			m_map.put(name, value);
 	}
 
+	@NonNull
+	@Override public String getUrlContextString() {
+		return m_urlContextString;
+	}
+
+	public void setUrlContextString(@NonNull String urlContextString) {
+		m_urlContextString = urlContextString == null ? "" : urlContextString;
+	}
+
 	/**
 	 * Create this from an actual request. This does not add any parameter that starts with _ or $.
-	 * @param c
-	 * @return
 	 */
 	@NonNull
 	static public PageParameters createFrom(IRequestContext ctx) {
@@ -568,13 +517,32 @@ public class PageParameters implements IPageParameters, Serializable {
 				}
 			}
 		}
+		pp.setUrlContextString(ctx.getUrlContextString());
+		return pp;
+	}
+
+	static public PageParameters createFromAll(IRequestContext ctx) {
+		PageParameters pp = new PageParameters();
+		for(String name : ctx.getParameterNames()) {
+			if(name.length() > 0) {
+				char c = name.charAt(0);
+				if(!name.startsWith("webui")) {
+					String[] par = ctx.getParameters(name);
+					if(par != null && par.length > 0) {
+						if(par.length == 1)
+							pp.setParameter(name, par[0]); // Add as single string
+						else
+							pp.setParameter(name, par); // Add as string[]0
+					}
+				}
+			}
+		}
+		pp.setUrlContextString(ctx.getUrlContextString());
 		return pp;
 	}
 
 	/**
 	 * Create this from an string representation of params. This is used as utility for manipulation of data that stores params as strings.
-	 * @param paramsAsString
-	 * @return
 	 */
 	@NonNull
 	static public PageParameters createFromEncodedUrlString(@NonNull String paramsAsString) {
@@ -629,9 +597,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		return "Parameters: " + sb.toString();
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getParameterNames()
-	 */
 	@Override
 	@NonNull
 	public String[] getParameterNames() {
@@ -656,7 +621,7 @@ public class PageParameters implements IPageParameters, Serializable {
 			if(!compValues(oval, val))
 				return false;
 		}
-		return true;
+		return Objects.equals(getUrlContextString(), a.getUrlContextString());
 	}
 
 	private boolean compValues(Object oval, Object val) {
@@ -684,9 +649,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		return true;
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		throw new IllegalStateException("missing");
@@ -696,9 +658,6 @@ public class PageParameters implements IPageParameters, Serializable {
 	 * Apply changes to source.
 	 * New values found in changes would be added to source, changed values found in changes would replace values in source.
 	 * Params that are not found in changes would remian unchanged in source. So, this utility can not be used to remove items from source.
-	 *
-	 * @param source
-	 * @param changes
 	 */
 	public static void applyChanges(PageParameters source, PageParameters changes) {
 
@@ -712,9 +671,6 @@ public class PageParameters implements IPageParameters, Serializable {
 		}
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#calculateHashString()
-	 */
 	@Override
 	@NonNull
 	public String calculateHashString() {
@@ -745,15 +701,15 @@ public class PageParameters implements IPageParameters, Serializable {
 					}
 				}
 			}
+			String cxs = getUrlContextString();
+			if(null != cxs)
+				md.update(cxs.getBytes("utf-8"));
 		} catch(UnsupportedEncodingException x) {
 			throw WrappedException.wrap(x);									// Cannot happen.
 		}
 		return StringTool.toHex(md.digest());
 	}
 
-	/**
-	 * @see to.etc.domui.state.IPageParameters#getDataLength()
-	 */
 	@Override
 	public int getDataLength() {
 		return m_dataLength;
@@ -766,15 +722,13 @@ public class PageParameters implements IPageParameters, Serializable {
 
 	/**
 	 * Decode a http query string into a PageParameters instance.
-	 * @param query
-	 * @return
 	 */
 	@NonNull
 	static public PageParameters decodeParameters(@Nullable String query) {
 		if(null == query)
 			return new PageParameters();
 		String[] indiar = query.split("&");
-		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		Map<String, List<String>> map = new HashMap<>();
 		for(String frag : indiar) {
 			int pos = frag.indexOf('=');
 			if(pos >= 0) {
@@ -782,13 +736,8 @@ public class PageParameters implements IPageParameters, Serializable {
 				String value = frag.substring(pos + 1);
 				name = StringTool.decodeURLEncoded(name);
 				value = StringTool.decodeURLEncoded(value);
-	
-				List<String>	l = map.get(name);
-				if(null == l) {
-					l = new ArrayList<String>();
-					map.put(name, l);
-				}
-				l.add(value);
+
+				map.computeIfAbsent(name, k -> new ArrayList<>()).add(value);
 			}
 		}
 	
@@ -802,4 +751,35 @@ public class PageParameters implements IPageParameters, Serializable {
 		}
 		return pp;
 	}
+
+	/**
+	 * Convert the parameters to a properly escaped URL string.
+	 */
+	public String toEscapedURL() {
+		StringBuilder sb = new StringBuilder();
+		for(Map.Entry<String, Object> en : m_map.entrySet()) {
+			String name = en.getKey();
+			Object value = en.getValue();
+			if(value instanceof List) {
+				List<String> list = (List<String>) value;
+				for(String s : list) {
+					if(sb.length() > 0)
+						sb.append('&');
+					sb.append(StringTool.encodeURLEncoded(name));
+					sb.append('=');
+					if(null != s)
+						sb.append(StringTool.encodeURLEncoded((String) s));
+				}
+			} else {
+				if(sb.length() > 0)
+					sb.append('&');
+				sb.append(StringTool.encodeURLEncoded(name));
+				sb.append('=');
+				if(null != value)
+					sb.append(StringTool.encodeURLEncoded((String) value));
+			}
+		}
+		return sb.toString();
+	}
+
 }

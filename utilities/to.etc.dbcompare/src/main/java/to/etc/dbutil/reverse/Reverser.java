@@ -51,4 +51,7 @@ public interface Reverser {
 	void reverseParentRelation(Connection dbc, @NonNull DbTable dbTable) throws Exception;
 
 	void reverseChildRelations(Connection dbc, @NonNull DbTable dbTable) throws Exception;
+
+	@Nullable
+	DbSchema findSchema(@NonNull String name);
 }

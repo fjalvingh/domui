@@ -26,6 +26,8 @@ package to.etc.domui.component.menu;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIMenu;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
@@ -73,7 +75,7 @@ final public class MenuItem {
 
 	private String m_searchKey;
 
-	private String m_image;
+	private IIconRef m_image;
 
 	private Class< ? extends UrlPage> m_pageClass;
 
@@ -196,13 +198,13 @@ final public class MenuItem {
 		return this;
 	}
 
-	public MenuItem image(String name) {
+	public MenuItem image(IIconRef name) {
 		m_image = name;
 		return this;
 	}
 
 	public MenuItem image(Class< ? > res, String name) {
-		m_image = DomUtil.getJavaResourceRURL(res, name);
+		m_image = Icon.of(DomUtil.getJavaResourceRURL(res, name));
 		return this;
 	}
 
@@ -373,7 +375,7 @@ final public class MenuItem {
 		return m_pageParameters;
 	}
 
-	public String getImage() {
+	public IIconRef getImage() {
 		return m_image;
 	}
 
@@ -389,16 +391,16 @@ final public class MenuItem {
 				if(ma != null) {
 					if(! ma.iconName().isEmpty()) {
 						if(ma.iconBase() != Object.class)
-							image(DomUtil.getJavaResourceRURL(ma.iconBase(), ma.iconName()));
+							image(ma.iconBase(), ma.iconName());
 						else
-							image(ma.iconName());
+							image(Icon.of(ma.iconName()));
 					}
 				}
 
 				//-- Not set using a UIMenu annotation. Is a .png with the same classname available?
 				String cn = DomUtil.getClassNameOnly(clz) + ".png";
 				if(DomUtil.hasResource(clz, cn)) {
-					image(DomUtil.getJavaResourceRURL(clz, cn)); // Set class-based URL
+					image(clz, cn); 									// Set class-based URL
 				}
 			}
 

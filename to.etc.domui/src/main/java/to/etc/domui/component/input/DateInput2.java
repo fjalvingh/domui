@@ -30,7 +30,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyMetaValidator;
 import to.etc.domui.component.meta.TemporalPresentationType;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.DateConverter;
 import to.etc.domui.converter.DateTimeConverter;
@@ -86,25 +86,21 @@ public class DateInput2 extends Text2<Date> {
 	 */
 	public DateInput2(boolean withtime) {
 		super(Date.class);
+		m_withTime = ! withtime;					// Ensure things are set
 		setCssClass("ui-din2");
-		setMaxLength(10);
-		setSize(10);
-		setConverter(ConverterRegistry.getConverterInstance(DateConverter.class));
-		//m_selCalButton = new HoverButton("THEME/btn-datein.png");
-		//m_selCalButton.setCssClass("ui-di-sib");		// Allow separate styling of these buttons.
 		setWithTime(withtime);
 	}
 
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		SmallImgButton sib = addButton(FaIcon.faCalendar, a -> { });
+		SmallImgButton sib = addButton(Icon.faCalendar, a -> { });
 		m_showCalendarButton = sib;
 		sib.setClicked(null);
 		sib.setOnClickJS("WebUI.showCalendar('" + internalGetInput().getActualID() + "'," + isWithTime() + ")");
 		internalGetInput().setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 		if(! m_hideTodayButton) {
-			SmallImgButton todayBtn = addButton(FaIcon.faCalendarCheckO, c -> {
+			SmallImgButton todayBtn = addButton(Icon.faCalendarCheckO, c -> {
 				Date currentDate = new Date();
 				if(!m_withTime) {
 					currentDate = DateUtil.truncateDate(currentDate);

@@ -123,8 +123,8 @@ abstract public class SelectBasedControl<T> extends Select implements IControl<T
 	@Override
 	final public T getValue() {
 		if(isMandatory() && m_currentValue == null) {
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-			throw new ValidationException(Msgs.NOT_VALID, "null");
+			setMessage(UIMessage.error(Msgs.mandatory));
+			throw new ValidationException(Msgs.notValid, "null");
 		}
 		return m_currentValue;
 	}

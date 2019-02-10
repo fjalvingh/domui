@@ -179,7 +179,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 		if(list.size() == 0) {
 			Div error = new Div();
 			error.setCssClass("ui-dct-nores");
-			error.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
+			error.setText(Msgs.uiDatatableEmpty.getString());
 			add(error);
 			return;
 		}
@@ -270,12 +270,16 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	/*--------------------------------------------------------------*/
 	/*	CODING:	TableModelListener interface implementation.		*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @see to.etc.domui.component.tbl.ITableModelListener#modelChanged(to.etc.domui.component.tbl.ITableModel)
-	 */
 	@Override
 	public void modelChanged(@Nullable ITableModel<T> model) {
+		rebuild();
+	}
+
+	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+		rebuild();
+	}
+
+	@Override protected void updateAllRows() throws Exception {
 		rebuild();
 	}
 

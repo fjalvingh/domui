@@ -64,7 +64,7 @@ final class LookupFactoryDate implements ILookupControlFactory {
 
 		final DateInput2 dateFrom = new DateInput2();
 		dateFrom.setWithTime(withTime);
-		Span sp = new Span(" " + Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_DATE_TILL) + " ");
+		Span sp = new Span(" " + Msgs.uiLookupDateTill.getString() + " ");
 		sp.setCssClass("ui-lfd-datetill");
 		final DateInput2 dateTo = new DateInput2();
 		dateTo.setWithTime(withTime);

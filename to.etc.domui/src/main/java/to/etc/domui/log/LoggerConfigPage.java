@@ -1,19 +1,16 @@
 package to.etc.domui.log;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.controlfactory.ModelBindings;
 import to.etc.domui.component.layout.ButtonBar;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.css.FontStyle;
 import to.etc.domui.dom.errors.MsgType;
-import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IUserInputModifiedFence;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.UrlPage;
@@ -23,6 +20,7 @@ import to.etc.domui.log.data.HandlerType;
 import to.etc.domui.log.data.LoggerRootDef;
 import to.etc.domui.log.data.Matcher;
 import to.etc.domui.state.UIGoto;
+import to.etc.domui.themes.Theme;
 import to.etc.domui.util.Msgs;
 import to.etc.log.EtcLoggerFactory;
 import to.etc.log.Level;
@@ -54,8 +52,6 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	private ConfigPart m_configPart;
 
 	private LoggerRootDef m_rootDef;
-
-	private ModelBindings m_rootDefBindings;
 
 	@Override
 	public void createContent() throws Exception {
@@ -145,7 +141,8 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private void addRootConfigPart() throws Exception {
-		m_rootDef = new LoggerRootDef(EtcLoggerFactory.getSingleton().getLogDir(), EtcLoggerFactory.getSingleton().logDirOriginalAsConfigured(), EtcLoggerFactory.getSingleton().getLogDir());
+		EtcLoggerFactory singleton = EtcLoggerFactory.getSingleton();
+		m_rootDef = new LoggerRootDef(singleton.getLogDir().toString(), singleton.logDirOriginalAsConfigured(), singleton.getLogDir().toString());
 		FormBuilder fb = new FormBuilder(this);
 
 		fb.property(m_rootDef, LoggerRootDef.pROOTDIR).control();
@@ -158,24 +155,14 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	protected void createCommitButton() {
-		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Msgs.BTN_SAVE, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				save();
-			}
-		});
+		m_saveButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_OKAY), Theme.BTN_SAVE, b -> save());
 		//hide by default, it would become visible if modifications on page are detected
 		m_saveButton.setDisabled(true);
 		m_saveButton.setTitle("no changes to save");
 	}
 
 	protected void createCancelButton() {
-		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Msgs.BTN_CANCEL, new IClicked<DefaultButton>() {
-			@Override
-			public void clicked(@NonNull DefaultButton b) throws Exception {
-				reloadPageData();
-			}
-		});
+		m_cancelButton = getButtonBar().addButton(BUNDLE.getString(Msgs.EDLG_CANCEL), Theme.BTN_CANCEL, b -> reloadPageData());
 		//hide by default, it would become visible if modifications on page are detected
 		m_cancelButton.setDisabled(true);
 	}
@@ -193,7 +180,6 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private boolean validateData() throws Exception {
-		m_rootDefBindings.moveControlToModel();
 		return m_configPart.validateData();
 	}
 

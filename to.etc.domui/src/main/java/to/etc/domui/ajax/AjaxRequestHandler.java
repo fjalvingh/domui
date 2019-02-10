@@ -25,6 +25,9 @@
 package to.etc.domui.ajax;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.login.IUser;
+import to.etc.domui.login.IUserRightChecker;
+import to.etc.domui.login.User2RightsChecker;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IFilterRequestHandler;
 import to.etc.domui.server.IRequestInterceptor;
@@ -58,6 +61,9 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 	private ContainerDefinition m_requestContainerDef;
 
 	private final RpcCallHandler m_callHandler;
+
+	@NonNull
+	private IUserRightChecker<IUser> m_userRightChecker = new User2RightsChecker();
 
 	public AjaxRequestHandler(final DomApplication domApplication) {
 		m_application = domApplication;
@@ -104,6 +110,15 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 
 	public void setRequestContainerDef(final ContainerDefinition requestContainerDef) {
 		m_requestContainerDef = requestContainerDef;
+	}
+
+	@NonNull
+	public IUserRightChecker<IUser> getUserRightChecker() {
+		return m_userRightChecker;
+	}
+
+	public void setUserRightChecker(@NonNull IUserRightChecker<IUser> userRightChecker) {
+		m_userRightChecker = userRightChecker;
 	}
 
 	/*--------------------------------------------------------------*/

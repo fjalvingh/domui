@@ -3,11 +3,13 @@ package to.etc.domui.component.menu;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.menu.PopupMenu.Item;
 import to.etc.domui.component.menu.PopupMenu.Submenu;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.Span;
 import to.etc.domui.server.RequestContextImpl;
 
 import java.util.ArrayList;
@@ -178,34 +180,28 @@ public class SimplePopupMenu extends Div {
 		final Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
 		Img img = new Img("THEME/pmnu-submenu-open.png");
 		d.add(img);
-		d.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(@NonNull NodeBase clickednode) throws Exception {
-				submenuClicked(d, a);
-			}
-		});
+		d.setClicked(clickednode -> submenuClicked(d, a));
 	}
 
 	protected void renderItem(@NonNull NodeContainer into, final Item a) {
 		Div d = renderItem(into, a.getTitle(), a.getHint(), a.getIcon(), false);
-		d.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(@NonNull NodeBase clickednode) throws Exception {
-				closeMenu();
-				if(null != a.getClicked())
-					a.getClicked().clicked(SimplePopupMenu.this);
-			}
+		d.setClicked(clickednode -> {
+			closeMenu();
+			if(null != a.getClicked())
+				a.getClicked().clicked(SimplePopupMenu.this);
 		});
 	}
 
-	private Div renderItem(@NonNull NodeContainer into, String text, String hint, String icon, boolean disabled) {
+	private Div renderItem(@NonNull NodeContainer into, String text, String hint, IIconRef icon, boolean disabled) {
 		Div d = new Div();
 		into.add(d);
 		d.setCssClass("ui-pmnu-action " + (disabled ? "ui-pmnu-disabled" : "ui-pmnu-enabled"));
 		if(null != icon) {
-			d.setBackgroundImage(icon);
+			NodeBase node = icon.createNode();
+			node.addCssClass("ui-pmnu-icon");
+			d.add(node);
 		}
-		d.add(text);
+		d.add(new Span("ui-pmnu-icon", text));
 		if(null != hint)
 			d.setTitle(hint);
 		return d;
@@ -219,12 +215,9 @@ public class SimplePopupMenu extends Div {
 		}
 
 		Div d = renderItem(into, action.getName(val), action.getTitle(val), action.getIcon(val), false);
-		d.setClicked(new IClicked<NodeBase>() {
-			@Override
-			public void clicked(@NonNull NodeBase clickednode) throws Exception {
-				closeMenu();
-				action.execute(getRelativeTo(), val);
-			}
+		d.setClicked(clickednode -> {
+			closeMenu();
+			action.execute(getRelativeTo(), val);
 		});
 	}
 
@@ -249,11 +242,11 @@ public class SimplePopupMenu extends Div {
 		getActionList().add(new Item(action));
 	}
 
-	public void addItem(String caption, String icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
+	public void addItem(String caption, IIconRef icon, String hint, boolean disabled, IClicked<NodeBase> clk) {
 		getActionList().add(new Item(icon, caption, hint, disabled, clk, null));
 	}
 
-	public void addItem(String caption, String icon, IClicked<NodeBase> clk) {
+	public void addItem(String caption, IIconRef icon, IClicked<NodeBase> clk) {
 		getActionList().add(new Item(icon, caption, null, false, clk, null));
 	}
 

@@ -56,6 +56,8 @@ import java.util.List;
 import java.util.Objects;
 
 abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<QT, OT> implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication, IQueryManipulator<QT>, IForTarget {
+	private static boolean m_globalDisableSelectOne = false;
+
 	/** If set, the complete title for the popup window shown when the 'find' button is pressed. */
 	@Nullable
 	private String m_defaultTitle;
@@ -92,6 +94,9 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 * When T, it sets default lookup popup to search immediately.
 	 */
 	private boolean m_popupSearchImmediately;
+
+	@Nullable
+	private Boolean m_disableSelectOne;
 
 	/**
 	 * Factory for the lookup dialog, to be shown when the lookup button
@@ -322,7 +327,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		int size = model.getRows();
 		if(size == 0) {
 			openMessagePanel("ui-lui-result-none", Msgs.UI_KEYWORD_SEARCH_NO_MATCH);
-		} else if (size == 1){ //in case of single match select value
+		} else if (size == 1 && ! isDisableSelectOne()){ 					//in case of single match select value
 			handleSetValue(model.getItems(0, 1).get(0));
 		} else if(size > 10) {
 			String count = Integer.toString(size);
@@ -521,4 +526,22 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		m_popupSearchImmediately = popupSearchImmediatelly;
 	}
 
+	static public void setDisableSelectOneGlobal(boolean dis) {
+		m_globalDisableSelectOne = dis;
+	}
+
+	/**
+	 * By default the lookup will select a value when it is the only
+	 * result of a keyword search. To disable that set this value.
+	 */
+	public boolean isDisableSelectOne() {
+		Boolean v = m_disableSelectOne;
+		if(null == v)
+			return m_globalDisableSelectOne;
+		return v.booleanValue();
+	}
+
+	public void setDisableSelectOne(boolean disableSelectOne) {
+		m_disableSelectOne = disableSelectOne;
+	}
 }

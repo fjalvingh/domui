@@ -1,5 +1,7 @@
 package to.etc.domuidemo.pages.overview.tree2;
 
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.derbydata.db.Album;
 import to.etc.domui.derbydata.db.Artist;
 import to.etc.domui.derbydata.db.Track;
@@ -102,17 +104,17 @@ public class DemoNode {
 		return m_parent;
 	}
 
-	public String getIcon() {
+	public IIconRef getIcon() {
 		if(m_album != null) {
-			return "fa-th-list";
+			return Icon.faThList;
 		} else if(m_artist != null) {
-			return "fa-group";
+			return Icon.faObjectGroup;
 		} else if(m_track != null) {
-			return "fa-music";
+			return Icon.faMusic;
 		} else if(m_letter != null) {
-			return "fa-folder";
+			return Icon.faFolder;
 		} else {
-			return "fa-question-circle-o";
+			return Icon.faQuestionCircleO;
 		}
 	}
 

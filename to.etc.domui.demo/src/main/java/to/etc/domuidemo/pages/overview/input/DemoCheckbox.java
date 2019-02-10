@@ -1,7 +1,13 @@
 package to.etc.domuidemo.pages.overview.input;
 
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
+import to.etc.domui.component.buttons.CheckboxButton;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.component2.form4.FormBuilder;
+import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.UrlPage;
 
 public class DemoCheckbox extends UrlPage {
 	@Override
@@ -23,6 +29,14 @@ public class DemoCheckbox extends UrlPage {
 				DemoCheckbox.this.add(d);
 			}
 		});
-	}
 
+
+		add(new HTag(2, "Checkbox Buttons"));
+		FormBuilder fb = new FormBuilder(this);
+
+		fb.label("Normal size").control(new CheckboxButton());
+		fb.label("Small").control(new CheckboxButton().css("is-small"));
+		fb.label("Medium").control(new CheckboxButton().css("is-medium"));
+		fb.label("Large").control(new CheckboxButton().css("is-large"));
+	}
 }

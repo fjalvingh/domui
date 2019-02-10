@@ -127,7 +127,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 		if(StringTool.isBlank(m_value)) {
 			if(isMandatory()) {
-				throw new ValidationException(Msgs.MANDATORY);
+				throw new ValidationException(Msgs.mandatory);
 			}
 		}
 	}

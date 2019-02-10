@@ -37,7 +37,6 @@ public class Span extends NodeContainer {
 
 	/**
 	 * Create a span holding the specified message.
-	 * @param txt
 	 */
 	public Span(String txt) {
 		this();
@@ -46,8 +45,6 @@ public class Span extends NodeContainer {
 
 	/**
 	 * Create a span holding a specific message and having a given css class.
-	 * @param cssClass
-	 * @param text
 	 */
 	public Span(String cssClass, String text) {
 		this(text);

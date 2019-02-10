@@ -1,14 +1,16 @@
 package to.etc.domuidemo.pages.overview.allcomponents;
 
 import to.etc.domui.component.buttons.DefaultButton;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.RadioGroup;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TH;
 import to.etc.domui.dom.html.THead;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.themes.Theme;
+import to.etc.domuidemo.pages.overview.buttons.TestEnum;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,16 +91,24 @@ public class ButtonFragment extends Div {
 		addHead("Normal");
 		addSub("Text", () -> new DefaultButton("Click me", a -> {}));
 		addSub("+icon", () -> new DefaultButton("click", Theme.BTN_CHECKMARK, a-> {}));
-		addSub("+FaIcon", () -> new DefaultButton("click", FaIcon.faHeart, a-> {}));
-		addSub("IconOnly", () -> new DefaultButton("", FaIcon.faEye, a-> {}));
+		addSub("+FaIcon", () -> new DefaultButton("click", Icon.faHeart, a-> {}));
+		addSub("IconOnly", () -> new DefaultButton("", Icon.faEye, a-> {}));
 
 		addHead("Disabled");
 		Consumer<DefaultButton> disabler = b -> b.setDisabled(true);
 		addSub("Text", () -> new DefaultButton("Click me", a -> {}), disabler);
 		addSub("+icon", () -> new DefaultButton("click", Theme.BTN_CHECKMARK, a-> {}), disabler);
-		addSub("+FaIcon", () -> new DefaultButton("click", FaIcon.faHeart, a-> {}), disabler);
-		addSub("IconOnly", () -> new DefaultButton("", FaIcon.faEye, a-> {}),disabler);
+		addSub("+FaIcon", () -> new DefaultButton("click", Icon.faHeart, a-> {}), disabler);
+		addSub("IconOnly", () -> new DefaultButton("", Icon.faEye, a-> {}),disabler);
 
+		RadioGroup<TestEnum> rg = RadioGroup.createFromEnum(TestEnum.class);
+		add(rg);
+		rg.addCssClass("ui-rbb-buttons");
+
+		rg = RadioGroup.createFromEnum(TestEnum.class);
+		add(rg);
+		rg.addCssClass("ui-rbb-buttons");
+		rg.setDisabled(true);
 	}
 
 	private void addAction(String name, Consumer<DefaultButton> c) {

@@ -29,6 +29,8 @@ import to.etc.domui.annotations.UIMenu;
 import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.layout.ErrorMessageDiv;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.OddCharacters;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.errors.IErrorFence;
@@ -45,7 +47,6 @@ import to.etc.domui.dom.html.Table;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IShelvedEntry;
 import to.etc.domui.state.UIGoto;
-import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 
 import java.util.List;
@@ -202,22 +203,12 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	}
 
 	private void addBackButton(@NonNull TD td) {
-		HoverButton backButton = new HoverButton(Theme.APPBAR_BACK_ICON, new IClicked<HoverButton>() {
-			@Override
-			public void clicked(@NonNull HoverButton clickednode) throws Exception {
-				UIGoto.back();
-			}
-		});
+		HoverButton backButton = new HoverButton("THEME/72x24_back.png", clickednode -> UIGoto.back());
 		td.add(backButton);
 	}
 
 	private void addCloseButton(@NonNull TD td) {
-		HoverButton button = new HoverButton(Theme.APPBAR_CLOSE_ICON, new IClicked<HoverButton>() {
-			@Override
-			public void clicked(@NonNull HoverButton clickednode) throws Exception {
-				getPage().getBody().closeWindow();
-			}
-		});
+		HoverButton button = new HoverButton("THEME/72x24_close.png", clickednode -> getPage().getBody().closeWindow());
 		td.add(button);
 	}
 
@@ -331,7 +322,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 		}
 	}
 
-	public void addButton(String image, String hint, IClicked<NodeBase> handler) {
+	public void addButton(IIconRef image, String hint, IClicked<NodeBase> handler) {
 		SmallImgButton ib = new SmallImgButton(image);
 		getButtonpart().add(ib);
 		ib.setTitle(hint);
@@ -339,7 +330,7 @@ public class AppPageTitleBar extends BasePageTitleBar {
 	}
 
 	protected void addDefaultButtons(final NodeContainer nc) {
-		SmallImgButton ib = new SmallImgButton("THEME/btnSpecialChar.png");
+		SmallImgButton ib = new SmallImgButton(Icon.of("THEME/btnSpecialChar.png"));
 		nc.add(ib);
 		ib.setTitle("Toon lijst van bijzondere tekens");
 		ib.setClicked(new IClicked<NodeBase>() {

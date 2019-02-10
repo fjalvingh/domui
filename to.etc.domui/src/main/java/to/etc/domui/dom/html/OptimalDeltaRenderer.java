@@ -70,7 +70,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 6, 2008
  */
-public class OptimalDeltaRenderer implements IContributorRenderer {
+final public class OptimalDeltaRenderer implements IContributorRenderer {
 	static private final boolean DEBUG = false;
 
 	private IBrowserOutput m_o;
@@ -96,24 +96,24 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 		/** The container this is info about. */
 		public NodeContainer node;
 
-		public List<NodeBase> deleteList = Collections.EMPTY_LIST;
+		List<NodeBase> deleteList = Collections.emptyList();
 
-		public List<NodeBase> attrChangeList = Collections.EMPTY_LIST;
+		List<NodeBase> attrChangeList = Collections.emptyList();
 
-		public List<NodeBase> addList = Collections.EMPTY_LIST;
+		List<NodeBase> addList = Collections.emptyList();
 
-		public List<NodeInfo> lowerChanges = Collections.EMPTY_LIST;
+		List<NodeInfo> lowerChanges = Collections.emptyList();
 
 		/** When T this node is being ADDED. This means that all changes below it can be handled by issuing a single DELETE for it. */
-		public boolean isAdded;
+		boolean isAdded;
 
-		public boolean isFullRender;
+		boolean isFullRender;
 
-		public NodeInfo(NodeContainer c) {
+		NodeInfo(NodeContainer c) {
 			node = c;
 		}
 
-		public void setFullRerender() {
+		void setFullRerender() {
 			isFullRender = true;
 			lowerChanges = null;
 			attrChangeList = null;
@@ -122,37 +122,36 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 
 		/**
 		 * Adds an attribute change for some child.
-		 * @param n
 		 */
-		public void addAttrChange(NodeBase n) {
+		void addAttrChange(NodeBase n) {
 			if(isFullRender || isAdded)
 				return;
 			if(attrChangeList == Collections.EMPTY_LIST)
-				attrChangeList = new ArrayList<NodeBase>();
+				attrChangeList = new ArrayList<>();
 			attrChangeList.add(n);
 		}
 
-		public void addDelete(NodeBase b) {
+		void addDelete(NodeBase b) {
 			if(isFullRender || isAdded)
 				return;
 			if(deleteList == Collections.EMPTY_LIST)
-				deleteList = new ArrayList<NodeBase>();
+				deleteList = new ArrayList<>();
 			deleteList.add(b);
 		}
 
-		public void addAdd(int ix, NodeBase n) {
+		void addAdd(int ix, NodeBase n) {
 			if(isFullRender || isAdded)
 				return;
 			if(addList == Collections.EMPTY_LIST)
-				addList = new ArrayList<NodeBase>();
+				addList = new ArrayList<>();
 			addList.add(n);
 		}
 
-		public void addChildChange(NodeInfo ch) {
+		void addChildChange(NodeInfo ch) {
 			if(ch == this)
 				throw new IllegalStateException("?? Adding myself to my own lower list?! " + this.node);
 			if(lowerChanges == Collections.EMPTY_LIST)
-				lowerChanges = new ArrayList<NodeInfo>();
+				lowerChanges = new ArrayList<>();
 			lowerChanges.add(ch);
 		}
 	}
@@ -241,7 +240,7 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 		if(m_page.getDefaultFocusSource() != null && focusComponent == null) {
 			recurseCheckFocus(m_page.getDefaultFocusSource());
 		}
-		m_page.calculateDefaultFocus(null);
+		m_page.setDefaultFocusSource(null);
 
 		//-- If a component has requested focus - do it.
 		focusComponent = m_page.getFocusComponent();
@@ -281,7 +280,7 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 	}
 
 	@Override
-	public void renderLoadCSS(@NonNull String path) throws Exception {
+	public void renderLoadCSS(@NonNull String path, String... options) throws Exception {
 		String rurl = m_page.getBody().getThemedResourceRURL(path);
 		path = ctx().getRelativePath(rurl);
 		o().writeRaw("WebUI.loadStylesheet(" + StringTool.strToJavascriptString(path, false) + ");\n");
@@ -300,9 +299,9 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 	 */
 	private void calc(Page page) throws Exception {
 		//-- Create the BODY node's nodeInfo; this starts the tree of changes.
-		NodeInfo root = new NodeInfo(null); // jal 20081111 Body is not the PARENT - it is the 1st node to evaluate.
+		NodeInfo root = new NodeInfo(null);			// jal 20081111 Body is not the PARENT - it is the 1st node to evaluate.
 		//		m_infoMap.put(page.getBody(), root);
-		doContainer(root, page.getBody()); // Pass 1: annotation
+		doContainer(root, page.getBody());				// Pass 1: annotation
 
 		if(DEBUG)
 			dump(root);
@@ -389,32 +388,6 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 		o().nl();
 	}
 
-	//	static private String tmpConv(String in) {
-	//		StringBuilder sb = new StringBuilder(in.length() + 20);
-	//		for(int i = 0; i < in.length(); i++) {
-	//			char c = in.charAt(i);
-	//			switch(c){
-	//				default:
-	//					sb.append(c);
-	//					break;
-	//				case '<':
-	//					sb.append("&lt;");
-	//					break;
-	//				case '>':
-	//					sb.append("&gt;");
-	//					break;
-	//				case '&':
-	//					sb.append("&amp;");
-	//					break;
-	//				case '\n':
-	//					sb.append("\n");
-	//					break;
-	//			}
-	//		}
-	//
-	//		return sb.toString();
-	//	}
-
 	private void renderRest(NodeInfo ni) throws Exception {
 		if(ni.isFullRender) {
 			if("textarea".equalsIgnoreCase(ni.node.getTag())) {
@@ -454,57 +427,8 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 			renderRest(tni);
 	}
 
-	//	private void renderRest(NodeInfo ni) throws Exception {
-	//		if(ni.isFullRender) {
-	//			o().tag("replaceContent");
-	//			o().attr("select", "#" + ni.node.getActualID());
-	//			m_html.setTagless(false);
-	//			m_html.setRenderMode(HtmlRenderMode.REPL);
-	//
-	//			boolean ind = o().isIndentEnabled();
-	//			if("textarea".equals(ni.node.getTag())) { // QDFIX Do not indent textarea content
-	//				o().setIndentEnabled(false);
-	//
-	//				//-- Render content using br as eoln
-	//				NodeContainer nc = ni.node;
-	//				if(nc.getChildCount() == 1) {
-	//					NodeBase nb = nc.getChild(0);
-	//					if(nb instanceof TextNode) {
-	//						String val = ((TextNode) nb).getText();
-	//						val = tmpConv(val);
-	//
-	//
-	//						o().endtag();
-	//						o().writeRaw(val);
-	//						o().closetag("replaceContent");
-	//						o().setIndentEnabled(ind);
-	//						renderAttributeChange(ni.node); // 20080820 jal Fix voor ontbrekende attrs als tekstinhoud TextArea wijzigt?
-	//						return;
-	//					}
-	//				}
-	//			}
-	//			//			m_html.setNewNode(true);
-	//
-	//			//			ni.node.visit(m_fullRenderer);
-	//			m_fullRenderer.visitChildren(ni.node); // 20080624 jal fix for table in table in table in table..... when paging
-	//			o().closetag("replaceContent");
-	//			o().setIndentEnabled(ind);
-	//			renderAttributeChange(ni.node); // 20080820 jal Fix voor ontbrekende attrs als tekstinhoud TextArea wijzigt?
-	//			return;
-	//		}
-	//
-	//		for(NodeBase b : ni.attrChangeList)
-	//			renderAttributeChange(b);
-	//		for(NodeBase b : ni.addList)
-	//			renderAdd(ni.node, b);
-	//		for(NodeInfo tni : ni.lowerChanges)
-	//			renderRest(tni);
-	//	}
-
 	/**
 	 * Retrieves an existing nodeInfo, or adds a new one for this container.
-	 * @param c
-	 * @return
 	 */
 	private NodeInfo makeNodeInfo(NodeContainer c) {
 		NodeInfo ni = m_infoMap.get(c);
@@ -519,8 +443,6 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 	 * Handle whatever's needed for updating a base node. If this gets called we're
 	 * already certain that the base node exists still; the only thing it can have is
 	 * attribute changes.
-	 *
-	 * @param n
 	 */
 	private void doBase(NodeInfo parentInfo, NodeBase n) throws Exception {
 		//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
@@ -532,7 +454,6 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 
 	/**
 	 * Recursive walker.
-	 * @param nc
 	 */
 	private void doContainerChildren(NodeInfo nodeInfo, NodeContainer nc) throws Exception {
 		List<NodeBase> chl = nc.internalGetChildren();
@@ -548,7 +469,6 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 
 	/**
 	 * Annotation pass for a container. Handle changes in this node, then move to the children.
-	 * @param n
 	 */
 	private void doContainer(NodeInfo parentChanges, NodeContainer n) throws Exception {
 		//-- Handle tree changes, after build
@@ -592,8 +512,6 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 	 * Called with a node which HAS a changed tree. This creates the annotation (todo list)
 	 * for this node as a NodeInfo structure. It may happen that the node has no changes in
 	 * it' list after all after parsing; in this case no deltanode is created.
-	 *
-	 * @param nc
 	 */
 	private void doTreeDeltaOn(NodeInfo parentInfo, NodeContainer nc) throws Exception {
 		if(DEBUG)
@@ -831,7 +749,12 @@ public class OptimalDeltaRenderer implements IContributorRenderer {
 				// Bug# 1101: get a quick indication of how big the subtree is by traversing only the 1st subtree in the nodes;
 				int xcount = 0;
 				for(NodeBase n : newl) {
-					xcount += n.internalGetNodeCount(2);
+					int nodeCt = n.internalGetNodeCount(2);
+					if(nodeCt == -1) {
+						xcount = -1;
+						break;
+					}
+					xcount += nodeCt;
 				}
 				if(xcount > ncmd * 2) {
 					//-- end bug# 1101 fix

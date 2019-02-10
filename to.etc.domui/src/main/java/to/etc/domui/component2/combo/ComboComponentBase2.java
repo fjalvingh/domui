@@ -32,6 +32,7 @@ import to.etc.domui.component.input.CriteriaComboDataSet;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
@@ -262,11 +263,13 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		}
 	}
 
+	@Override
 	final public V getBindValue() {
 		validateBindValue();
 		return m_currentValue;
 	}
 
+	@Override
 	final public void setBindValue(V value) {
 		if(MetaManager.areObjectsEqual(m_currentValue, value)) {
 			return;
@@ -274,9 +277,10 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		setValue(value);
 	}
 
-	private void validateBindValue() {
+	@Override
+	protected void validateBindValue() {
 		if(isMandatory() && m_currentValue == null) {
-			throw new ValidationException(Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 	}
 
@@ -481,21 +485,13 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/*--------------------------------------------------------------*/
 	/**
 	 * Add a small image button after the combo.
-	 * @param img
-	 * @param title
-	 * @param click
 	 */
-	public void addExtraButton(String img, String title, final IClicked<NodeBase> click) {
+	public void addExtraButton(IIconRef img, String title, final IClicked<NodeBase> click) {
 		if(m_buttonList == Collections.EMPTY_LIST)
-			m_buttonList = new ArrayList<SmallImgButton>();
+			m_buttonList = new ArrayList<>();
 		SmallImgButton si = new SmallImgButton(img);
 		if(click != null) {
-			si.setClicked(new IClicked<SmallImgButton>() {
-				@Override
-				public void clicked(@NonNull SmallImgButton b) throws Exception {
-					click.clicked(ComboComponentBase2.this);
-				}
-			});
+			si.setClicked((IClicked<SmallImgButton>) b -> click.clicked(ComboComponentBase2.this));
 		}
 		if(title != null)
 			si.setTitle(title);

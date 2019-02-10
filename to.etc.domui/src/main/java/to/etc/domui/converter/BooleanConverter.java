@@ -24,10 +24,10 @@
  */
 package to.etc.domui.converter;
 
-import java.util.*;
+import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.Msgs;
 
-import to.etc.domui.trouble.*;
-import to.etc.domui.util.*;
+import java.util.Locale;
 
 public class BooleanConverter implements IConverter<Boolean> {
 	static private final BooleanConverter m_instance = new BooleanConverter();
@@ -47,7 +47,7 @@ public class BooleanConverter implements IConverter<Boolean> {
 	public String convertObjectToString(Locale loc, Boolean in) throws UIException {
 		if(in == null)
 			return null;
-		return Msgs.BUNDLE.getString(loc, in.booleanValue() ? Msgs.UI_BOOL_TRUE : Msgs.UI_BOOL_FALSE);
+		return Msgs.uiBoolTrue.getBundle().getString(loc, in.booleanValue() ? Msgs.uiBoolTrue.name() : Msgs.uiBoolFalse.name());
 	}
 
 	static public final BooleanConverter getInstance() {

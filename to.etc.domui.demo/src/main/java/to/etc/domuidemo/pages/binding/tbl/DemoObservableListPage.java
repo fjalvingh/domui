@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages.binding.tbl;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.VerticalSpacer;
 import to.etc.domui.component.tbl.DataPager;
 import to.etc.domui.component.tbl.DataTable;
@@ -72,20 +73,10 @@ public class DemoObservableListPage extends UrlPage {
 		m_lower.add(dt);
 		dt.setList(ol);
 
-		LinkButton lb = new LinkButton("Add album", "THEME/btnAdd.png", new IClicked<LinkButton>() {
-			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
-				addAlbum(a, ol);
-			}
-		});
+		LinkButton lb = new LinkButton("Add album", Icon.of("THEME/btnAdd.png"), (IClicked<LinkButton>) clickednode -> addAlbum(a, ol));
 		m_lower.add(lb);
 
-		lb = new LinkButton("Delete album", "THEME/btnDelete.png", new IClicked<LinkButton>() {
-			@Override
-			public void clicked(LinkButton clickednode) throws Exception {
-				deleteAlbum(a, ol);
-			}
-		});
+		lb = new LinkButton("Delete album", Icon.of("THEME/btnDelete.png"), (IClicked<LinkButton>) clickednode -> deleteAlbum(a, ol));
 		m_lower.add(lb);
 
 

@@ -183,4 +183,8 @@ public class TestDataContextStub implements QDataContext {
 	public void setKeepOriginals() {
 		throw new IllegalStateException("Not implemented");
 	}
+
+	@NonNull @Override public <T> T reload(@NonNull T source) throws Exception {
+		return source;
+	}
 }

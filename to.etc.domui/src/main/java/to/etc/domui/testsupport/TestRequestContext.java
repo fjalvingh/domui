@@ -104,6 +104,15 @@ public class TestRequestContext implements IRequestContext {
 		return m_input;
 	}
 
+	@Override public String getUrlContextString() {
+		return "";
+	}
+
+	@Override public String getPageName() {
+		int pos = m_input.lastIndexOf('.');
+		return m_input.substring(0, pos);
+	}
+
 	@Override
 	@NonNull
 	public Writer getOutputWriter(@NonNull String contentType, @Nullable String encoding) throws IOException {

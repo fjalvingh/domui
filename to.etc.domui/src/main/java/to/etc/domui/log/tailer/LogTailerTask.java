@@ -1,7 +1,7 @@
 package to.etc.domui.log.tailer;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.AbstractConversationContext;
 import to.etc.domui.state.IConversationStateListener;
 import to.etc.util.FileTool;
 
@@ -188,16 +188,16 @@ public class LogTailerTask implements IConversationStateListener {
 	/*--------------------------------------------------------------*/
 
 	@Override
-	public void conversationNew(@NonNull ConversationContext cc) throws Exception {}
+	public void conversationNew(@NonNull AbstractConversationContext cc) throws Exception {}
 
 	@Override
-	public void conversationAttached(@NonNull ConversationContext cc) throws Exception {}
+	public void conversationAttached(@NonNull AbstractConversationContext cc) throws Exception {}
 
 	@Override
-	public void conversationDetached(@NonNull ConversationContext cc) throws Exception {}
+	public void conversationDetached(@NonNull AbstractConversationContext cc) throws Exception {}
 
 	@Override
-	public void conversationDestroyed(@NonNull ConversationContext cc) throws Exception {
+	public void conversationDestroyed(@NonNull AbstractConversationContext cc) throws Exception {
 		synchronized(this) {
 			FileTool.closeAll(m_fileContentReader, m_fileDeltaReader);
 		}

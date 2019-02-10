@@ -89,6 +89,6 @@ final public class SimplePropertyInjectorFactory implements IPagePropertyFactory
 	}
 
 	protected PropertyInjector createParameterInjector(PropertyInfo pi, String name, boolean mandatory) {
-		return new UrlParameterInjector(pi.getSetter(), name, mandatory);
+		return new UrlParameterInjector(pi, name, mandatory);
 	}
 }

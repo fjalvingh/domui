@@ -32,6 +32,8 @@ import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.Col;
+import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
@@ -65,6 +67,7 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.dom.html.XmlTextNode;
 import to.etc.domui.parts.GrayscalerPart;
 import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IDragHandler;
 import to.etc.domui.util.IDraggable;
@@ -792,6 +795,21 @@ public class HtmlTagRenderer implements INodeVisitor {
 		renderTagend(n, m_o);
 	}
 
+	@Override public void visitCol(Col n) throws Exception {
+		o().setIndentEnabled(false);
+		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
+	@Override public void visitColGroup(ColGroup n) throws Exception {
+		o().setIndentEnabled(false);
+		basicNodeRender(n, m_o);
+		if(n.getSpan() > 0) {
+			o().attr("span", Integer.toString(n.getSpan()));
+		}
+		renderTagend(n, m_o);
+	}
+
 	@Override
 	public void visitUnderline(final Underline n) throws Exception {
 		basicNodeRender(n, m_o);
@@ -1138,8 +1156,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 			if(m_renderInline) {
 				String s = new ImgToDataRenderer().imageToData(src);
 				o().attr("src", s);
-
 			} else {
+				//-- Make absolute
+				if(! src.startsWith("/")) {
+					src = UIContext.getRequestContext().getRelativePath(src);	// FIXME Must become easier
+				}
 				o().attr("src", src);                                // 20110104 was rawAttr causing fails on & in delta????
 			}
 		}

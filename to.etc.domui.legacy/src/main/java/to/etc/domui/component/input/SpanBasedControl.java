@@ -129,8 +129,8 @@ abstract public class SpanBasedControl<T> extends Span implements IControl<T> {
 	@Override
 	public T getValue() {
 		if(m_value == null && isMandatory()) {
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-			throw new ValidationException(Msgs.MANDATORY);
+			setMessage(UIMessage.error(Msgs.mandatory));
+			throw new ValidationException(Msgs.mandatory);
 		}
 		return m_value;
 	}

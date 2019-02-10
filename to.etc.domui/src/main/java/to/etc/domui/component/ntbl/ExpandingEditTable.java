@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.tbl.ColumnContainer;
 import to.etc.domui.component.tbl.HeaderContainer;
@@ -36,6 +37,7 @@ import to.etc.domui.component.tbl.IRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component.tbl.RowButtonContainer;
 import to.etc.domui.component.tbl.TableModelTableBase;
+import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IHasModifiedIndication;
@@ -162,7 +164,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 			Div d = new Div();
 			m_emptyDiv = d;
 			d.setCssClass("ui-xdt-nores");
-			d.setText(Msgs.BUNDLE.getString(Msgs.UI_DATATABLE_EMPTY));
+			d.setText(Msgs.uiDatatableEmpty.getString());
 			add(d);
 			return true;
 		}
@@ -206,14 +208,17 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		//-- Render the header, if applicable
 		if(!isHideHeader()) {
 			THead hd = new THead();
-			HeaderContainer<T> hc = new HeaderContainer<T>(this, hd, "ui-xdt-hdr");
+			ColGroup cg = new ColGroup();
+			HeaderContainer<T> hc = new HeaderContainer<T>(this, cg, hd, "ui-xdt-hdr");
 			if(!isHideIndex()) {
 				hc.add((NodeBase) null);
 			}
 
 			m_rowRenderer.renderHeader(this, hc);
-			if(hc.hasContent())
+			if(hc.hasContent()) {
+				// m_table.add(cg);			FIXME Should we?
 				m_table.add(hd);
+			}
 
 			m_columnCount = hc.row().getChildCount();
 			if(!isHideIndex())
@@ -282,7 +287,7 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 
 		if(isEnableDeleteButton() && getModel() instanceof IModifyableTableModel< ? >) {
 			//-- Render a default "delete" button.
-			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), "THEME/btnDelete.png", Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
+			bc.addConfirmedLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_DELETE), Icon.of("THEME/btnDelete.png"), Msgs.BUNDLE.getString(Msgs.UI_XDT_DELSURE), new IClicked<LinkButton>() {
 				@Override
 				public void clicked(@NonNull LinkButton clickednode) throws Exception {
 					((IModifyableTableModel<T>) getModel()).delete(value);
@@ -508,31 +513,16 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newInstance = instance;
 
 		//-- Now add confirm/cancel button in action column
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Theme.BTN_CONFIRM, new IClicked<LinkButton>() {
-			@Override
-			public void clicked(@NonNull LinkButton clickednode) throws Exception {
-				commitNewRow();
-			}
-		});
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CONFIRM), Theme.BTN_CONFIRM, clickednode -> commitNewRow());
 
-		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Theme.BTN_DELETE, new IClicked<LinkButton>() {
-			@Override
-			public void clicked(@NonNull LinkButton clickednode) throws Exception {
-				cancelNew();
-			}
-		});
+		bc.addLinkButton(Msgs.BUNDLE.getString(Msgs.UI_XDT_CANCEL), Theme.BTN_DELETE, clickednode -> cancelNew());
 	}
 
 	public void cancelNew() {
 		if(m_newEditor == null)
 			return;
 		if(DomUtil.isModified(m_newEditor)) {
-			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), new IClicked<MsgBox>() {
-				@Override
-				public void clicked(@NonNull MsgBox clickednode) throws Exception {
-					cancelNewReally();
-				}
-			});
+			MsgBox.continueCancel(this, Msgs.BUNDLE.getString(Msgs.UI_XDT_SURE), (IClicked<MsgBox>) clickednode -> cancelNewReally());
 			return;
 		}
 		cancelNewReally();
@@ -601,6 +591,10 @@ public class ExpandingEditTable<T> extends TableModelTableBase<T> implements IHa
 		m_newBody = null;
 		m_newEditor = null;
 		m_newInstance = null;
+	}
+
+	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+		modelChanged(model);
 	}
 
 	/**

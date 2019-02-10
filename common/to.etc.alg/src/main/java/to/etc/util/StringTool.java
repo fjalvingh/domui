@@ -478,6 +478,21 @@ public class StringTool {
 		return s.substring(0, maxlen);
 	}
 
+	/**
+	 * Get position in a string of a given zero-based line and column. Returns -1 if not located.
+	 */
+	static public int getPositionIn(String text, int line, int column) {
+		int i = 0;
+		while(i < text.length() && line > 0) {
+			char c = text.charAt(i++);
+			if(c == '\n') {
+				line--;
+			}
+		}
+
+		i += column;
+		return i < 0 || i > text.length() ? -1 : i;
+	}
 
 	/**
 	 *	Returns a string with the specified length. If the string is too long
@@ -1067,10 +1082,11 @@ public class StringTool {
 
 
 	/**
-	 *	Returns the extension of a file. The extension includes the . If no
-	 *  extension is present then the empty string is returned ("").
+	 * Deprecated: use {@link FileTool#getFileExtension(String)}.
+	 *
+	 * Returns the extension of a file. The extension includes the . If no
+	 * extension is present then the empty string is returned ("").
 	 * @deprecated
-	 * @see FileTool.getFileExtension(String)
 	 */
 	@Deprecated
 	static public String getFileExtension(final String fn) {
@@ -1986,6 +2002,12 @@ public class StringTool {
 		return current.substring(0, lix + 1) + tpl; // Make relative to old URL.
 	}
 
+	/**
+	 * Do a case-insensitive replace.
+	 */
+	static public String strReplaceCI(String input, String old, String nw) {
+		return input.replaceAll("(?i)" + Pattern.quote(old), nw);
+	}
 
 	/**
 	 * Takes an input URL and handles all '.' and '..' replacements. Any '.'
@@ -2614,33 +2636,33 @@ public class StringTool {
 		return ns + "ns";
 	}
 
-	/**
-	 * Case-sensitive replace of all occurrences of [old] with [new].
-	 */
-	static public String strReplace(final String src, final String old, final String nw) {
-		if(src == null || old == null || nw == null || src.length() < old.length() || old.length() == 0)
-			return src;
-		int pos = src.indexOf(old); // Try to find quickly,
-		if(pos == -1)
-			return src; // Not found -> return original
-		int len = src.length();
-		StringBuilder sb = new StringBuilder(len + 20);
-		int ix = 0;
-		while(ix < len) {
-			if(pos > ix) {
-				sb.append(src, ix, pos); // Copy up to pos
-				ix = pos;
-			}
-			sb.append(nw); // Replace occurence,
-			ix += old.length(); // Past source occurence
-			pos = src.indexOf(old, ix);
-			if(pos == -1) {
-				sb.append(src, ix, len);
-				break;
-			}
-		}
-		return sb.toString();
-	}
+	///**
+	// * Case-sensitive replace of all occurrences of [old] with [new].
+	// */
+	//static public String strReplace(final String src, final String old, final String nw) {
+	//	if(src == null || old == null || nw == null || src.length() < old.length() || old.length() == 0)
+	//		return src;
+	//	int pos = src.indexOf(old); // Try to find quickly,
+	//	if(pos == -1)
+	//		return src; // Not found -> return original
+	//	int len = src.length();
+	//	StringBuilder sb = new StringBuilder(len + 20);
+	//	int ix = 0;
+	//	while(ix < len) {
+	//		if(pos > ix) {
+	//			sb.append(src, ix, pos); // Copy up to pos
+	//			ix = pos;
+	//		}
+	//		sb.append(nw); // Replace occurence,
+	//		ix += old.length(); // Past source occurence
+	//		pos = src.indexOf(old, ix);
+	//		if(pos == -1) {
+	//			sb.append(src, ix, len);
+	//			break;
+	//		}
+	//	}
+	//	return sb.toString();
+	//}
 
 	/**
 	 * If the throwable passed as a message then return it verbatim, else

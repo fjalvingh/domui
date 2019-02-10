@@ -27,13 +27,10 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.dom.html.Img;
-import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.util.DomUtil;
 
 /**
  * A Button tag containing a single, usually small, image. The image is a normal image
@@ -46,7 +43,7 @@ import to.etc.domui.util.DomUtil;
 @NonNullByDefault
 public class SmallImgButton extends Button {
 	@Nullable
-	private String m_icon;
+	private IIconRef m_icon;
 
 	/**
 	 * Create the empty button.
@@ -64,7 +61,7 @@ public class SmallImgButton extends Button {
 	 * theme, or it can be an absolute image path to a web file.
 	 * @param rurl
 	 */
-	public SmallImgButton(String rurl) {
+	public SmallImgButton(IIconRef rurl) {
 		this();
 		setSrc(rurl);
 	}
@@ -74,7 +71,7 @@ public class SmallImgButton extends Button {
 	 * @param rurl
 	 * @param cl
 	 */
-	public SmallImgButton(String rurl, IClicked<? extends NodeBase> cl) {
+	public SmallImgButton(IIconRef rurl, IClicked<SmallImgButton> cl) {
 		this();
 		setClicked(cl);
 		setSrc(rurl);
@@ -91,7 +88,7 @@ public class SmallImgButton extends Button {
 	}
 
 	@NonNull
-	public SmallImgButton icon(String icon) {
+	public SmallImgButton icon(IIconRef icon) {
 		setSrc(icon);
 		return this;
 	}
@@ -101,13 +98,13 @@ public class SmallImgButton extends Button {
 	 * with THEME/ it specifies an image from the current THEME's directory.
 	 * @param src
 	 */
-	public void setSrc(@Nullable String src) {
+	public void setSrc(@Nullable IIconRef src) {
 		m_icon = src;
 		forceRebuild();
 	}
 
 	@Nullable
-	public String getSrc() {
+	public IIconRef getSrc() {
 		return m_icon;
 	}
 
@@ -118,22 +115,24 @@ public class SmallImgButton extends Button {
 
 	@Override
 	public void createContent() throws Exception {
-		String iconUrl = m_icon;
+		IIconRef iconUrl = m_icon;
 		if(null != iconUrl) {
 			//-- Does the URL contain a dot? That indicates a resource somehow.
 			Div d = new Div("ui-icon");
 			add(d);
-			if(DomUtil.isIconName(iconUrl)) {
-				FaIcon icon = new FaIcon(iconUrl);
-				//icon.addCssClass("ui-sib-icon");
-				d.add(icon);
-			} else {
-				String icon = getThemedResourceRURL(iconUrl);
-				Img img = new Img(icon);
-				d.add(img);
-				img.setImgBorder(0);
-				img.setDisabled(isDisabled());
-			}
+			d.add(iconUrl.createNode());
+
+			//if(DomUtil.isIconName(iconUrl)) {
+			//	FontIcon icon = new FontIcon(iconUrl);
+			//	//icon.addCssClass("ui-sib-icon");
+			//	d.add(icon);
+			//} else {
+			//	String icon = getThemedResourceRURL(iconUrl);
+			//	Img img = new Img(icon);
+			//	d.add(img);
+			//	img.setImgBorder(0);
+			//	img.setDisabled(isDisabled());
+			//}
 		}
 	}
 }

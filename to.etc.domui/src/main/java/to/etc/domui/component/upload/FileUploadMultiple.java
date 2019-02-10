@@ -28,7 +28,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.misc.FaIcon;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Button;
@@ -89,7 +90,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	private String m_buttonIcon;
 
 	@Nullable
-	private String m_clearButtonIcon = FaIcon.faWindowClose;
+	private IIconRef m_clearButtonIcon = Icon.faWindowClose;
 
 	public FileUploadMultiple() {
 		m_allowedExtensions = new ArrayList<>();
@@ -126,7 +127,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 			d.add(item.getRemoteFileName());
 		}
 
-		String clearButtonIcon = m_clearButtonIcon;
+		IIconRef clearButtonIcon = m_clearButtonIcon;
 		if(clearButtonIcon != null) {
 			add(new DefaultButton("", clearButtonIcon, b -> clear()));
 		} else {
@@ -186,7 +187,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		valueD.add(d);
 		Button btn = new Button().css("ui-fup2-del");
 		d.add(btn);
-		btn.add(new FaIcon(FaIcon.faWindowCloseO));
+		btn.add(Icon.faWindowCloseO.createNode());
 		d.add(uploadItem.getRemoteFileName());
 		btn.setClicked(a -> {
 			m_value.remove(uploadItem);
@@ -240,7 +241,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 
 	private void validate() {
 		if(m_value == null && isMandatory()) {
-			throw new ValidationException(Msgs.BUNDLE, Msgs.MANDATORY);
+			throw new ValidationException(Msgs.mandatory);
 		}
 	}
 

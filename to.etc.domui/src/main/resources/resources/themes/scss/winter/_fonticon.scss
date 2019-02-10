@@ -1,0 +1,18 @@
+/*** FontIcon and variants ***/
+.ui-fnti {
+	@each $name, $size in $sizes-map {
+		&.is-#{$name} {
+			font-size: $size;
+		}
+	}
+
+	@each $name, $pair in $colors {
+		&.is-#{$name} {
+			color: nth($pair, 1);
+		}
+	}
+}
+
+.ui-blank {
+	visibility: hidden !important;
+}

@@ -71,6 +71,12 @@ public class Label extends NodeContainer {
 	}
 
 	@Override
+	public Label css(String... css) {
+		super.css(css);
+		return this;
+	}
+
+	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitLabel(this);
 	}

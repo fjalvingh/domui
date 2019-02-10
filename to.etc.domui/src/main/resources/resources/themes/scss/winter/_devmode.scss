@@ -1,4 +1,4 @@
-/*** Development mode popup ***/
+/*** InternalParentTree popup ***/
 .ui-ipt {
 	z-index: 200;
 	position: absolute;
@@ -8,6 +8,16 @@
 	height: 200px;
 	background-color: #04001f;
 	border: 4px solid black;
+
+	.ui-ipt-link {
+		//text-decoration: underline;
+		color: #7777ff;
+		cursor: pointer;
+	}
+
+	.ui-ipt-icon {
+		padding-right: 8px;
+	}
 }
 .ui-ipt-ttl {
 	background-color: #24001f;
@@ -26,5 +36,6 @@
 	white-space: nowrap;
 }
 .ui-ipt-btn {
-	cursor: crosshair;
+	cursor: pointer;
+	padding: 0px 4px;
 }

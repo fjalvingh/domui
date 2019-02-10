@@ -27,6 +27,8 @@ package to.etc.domui.component.tbl;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.Col;
+import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TH;
 import to.etc.domui.dom.html.THead;
@@ -49,14 +51,17 @@ final public class HeaderContainer<T> {
 
 	final private THead m_head;
 
+	final private ColGroup m_colGroup;
+
 	@Nullable
 	private TR m_tr;
 
 	private boolean m_finished;
 
-	public HeaderContainer(TableModelTableBase<T> table, THead head, @Nullable String headerRowCSS) {
+	public HeaderContainer(TableModelTableBase<T> table, ColGroup colGroup, THead head, @Nullable String headerRowCSS) {
 		m_table = table;
 		m_head = head;
+		m_colGroup = colGroup;
 		m_headerRowCSS = headerRowCSS;
 	}
 
@@ -81,7 +86,6 @@ final public class HeaderContainer<T> {
 
 	/**
 	 * Return the main header row. Create it if it does not yet exist.
-	 * @return
 	 */
 	final public TR row() {
 		m_finished = true;
@@ -89,6 +93,7 @@ final public class HeaderContainer<T> {
 		if(null == tr) {
 			m_tr = tr = new TR();
 			tr.setCssClass(m_headerRowCSS);
+			tr.setKeepNode(true);
 			m_head.add(tr);
 		}
 		return tr;
@@ -96,18 +101,23 @@ final public class HeaderContainer<T> {
 
 	/**
 	 * Adds a column header to the table.
-	 * @param columnContent
 	 */
-	public TH add(@Nullable NodeBase columnContent) {
-		TH td = new TH();
-		row().add(td);
-		td.addCssClass("ui-dt-th");
+	public HeaderContainerCell add(@Nullable NodeBase columnContent) {
+		TH th = new TH();
+		th.setKeepNode(true);
+		row().add(th);
+
+		Col col = new Col();
+		col.setKeepNode(true);
+		m_colGroup.add(col);
+
+		th.addCssClass("ui-dt-th");
 		if(columnContent != null)
-			td.add(columnContent);
-		return td;
+			th.add(columnContent);
+		return new HeaderContainerCell(th, col);
 	}
 
-	public TH add(@Nullable String txt) {
+	public HeaderContainerCell add(@Nullable String txt) {
 		if(txt != null) {
 			txt = txt.trim();
 			if(txt != null && txt.length() > 0) {
@@ -121,10 +131,28 @@ final public class HeaderContainer<T> {
 
 	/**
 	 * Use to check whether there is some content rendered to it or not.
-	 * @return
 	 */
 	public boolean hasContent() {
 		TR tr = m_tr;
 		return (tr != null && tr.getChildCount() > 0);
+	}
+
+	public static final class HeaderContainerCell {
+		private final TH m_th;
+
+		private final Col m_col;
+
+		public HeaderContainerCell(TH th, Col col) {
+			m_th = th;
+			m_col = col;
+		}
+
+		public TH getTh() {
+			return m_th;
+		}
+
+		public Col getCol() {
+			return m_col;
+		}
 	}
 }

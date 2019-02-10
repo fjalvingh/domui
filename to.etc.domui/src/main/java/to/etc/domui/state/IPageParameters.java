@@ -8,7 +8,6 @@ public interface IPageParameters {
 	/**
 	 * Creates copy of current PageParameters.
 	 * Since modification of live page params is not allowed, in order to navigate to other page with similar set of params, use this method to get params template for new page navigation.
-	 * @return
 	 */
 	PageParameters getUnlockedCopy();
 
@@ -161,6 +160,9 @@ public interface IPageParameters {
 	 */
 	@NonNull String[] getParameterNames();
 
+	@Nullable
+	String getUrlContextString();
+
 	/**
 	 * Compare this with another instance. Used to see that a new request has different parameters
 	 * than an earlier request.
@@ -177,13 +179,11 @@ public interface IPageParameters {
 
 	/**
 	 * EXPENSIVE Hash all parameter values into an MD5 hash. This must be repeatable so same parameters get the same hash code.
-	 * @return
 	 */
 	@NonNull String calculateHashString();
 
 	/**
 	 * Return the number of characters that this would take on an url.
-	 * @return
 	 */
 	int getDataLength();
 

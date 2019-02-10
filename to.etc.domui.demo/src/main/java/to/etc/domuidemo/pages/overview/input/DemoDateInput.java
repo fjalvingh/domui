@@ -1,59 +1,40 @@
 package to.etc.domuidemo.pages.overview.input;
 
-import java.util.*;
+import to.etc.domui.component.input.DateInput2;
+import to.etc.domui.component.layout.ContentPanel;
+import to.etc.domui.component.layout.MessageLine;
+import to.etc.domui.component.misc.VerticalSpacer;
+import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.HTag;
+import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.UrlPage;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
+import java.util.Date;
 
 public class DemoDateInput extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
-		Div d = new Div();
+		Div d = new ContentPanel();
 		add(d);
 
-		d.add("Date");
-		DateInput di = new DateInput();
+		d.add(new HTag(2, "Date-only input field"));
+		DateInput2 di = new DateInput2();
 		d.add(di);
 
-		add(new VerticalSpacer(40));
-		final DateInput dti = new DateInput(true);
-		d	= new Div();
-		add(d);
-		d.add("Date and time");
+		d.add(new VerticalSpacer(40));
+		d.add(new HTag(2, "Date and time"));
+		DateInput2 dti = new DateInput2(true);
 		d.add(dti);
-		dti.setOnValueChanged(new IValueChanged<DateInput>() {
-			@Override
-			public void onValueChanged(DateInput component) throws Exception {
-				addChange(dti.getValue());
-			}
-		});
+		Div res1 = new Div();
+		dti.setOnValueChanged((IValueChanged<DateInput2>) component -> res1.add(new MessageLine(MsgType.INFO, "Selected date and time: " + dti.getValue())));
+		d.add(res1);
 
-
-		add(new VerticalSpacer(40));
-		d = new Div();
-		add(d);
-		d.add("Disabled control");
-		final DateInput dis = new DateInput(true);
+		d.add(new VerticalSpacer(40));
+		d.add(new HTag(2, "Disabled control"));
+		DateInput2 dis = new DateInput2(true);
 		dis.setDisabled(true);
 		dis.setValue(new Date());
 		d.add(dis);
-
-		add(new VerticalSpacer(40));
-		d = new Div();
-		add(d);
-		d.add("");
-		DateInput ccc = new DateInput();
-		d.add(ccc);
-		ccc.setOnValueChanged(new IValueChanged<DateInput>() {
-			@Override
-			public void onValueChanged(DateInput component) throws Exception {
-				addChange(component.getValue());
-			}
-		});
-	}
-
-	protected void addChange(Date value) {
-		add(new MsgDiv("Selected is: " + value));
 	}
 }

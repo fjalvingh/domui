@@ -37,11 +37,7 @@ import to.etc.domui.converter.CompoundComparator;
 import to.etc.domui.converter.IValueValidator;
 import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.PropertyComparator;
-import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.login.IUser;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IRequestContext;
-import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DisplayPropertyNodeContentRenderer;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.ILabelStringRenderer;
@@ -104,9 +100,7 @@ final public class MetaManager {
 	static public ClassMetaModel findClassMeta(@NonNull Class<?> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("Class<?> parameter cannot be null");
-		if(clz.getName().contains("$$"))
-			clz = clz.getSuperclass(); // Enhanced class (Hibernate). Get base class instead
-		return MetaInitializer.findAndInitialize(clz);
+		return MetaInitializer.findAndInitialize(DomUtil.getUnproxiedClass(clz));
 	}
 
 	/**
@@ -175,53 +169,50 @@ final public class MetaManager {
 		return pmm;
 	}
 
-	/**
-	 * Handles the permission sets like "viewpermission" and "editpermission". If
-	 * the array contains null the field can be seen by all users. If it has a value
-	 * the first-level array is a set of ORs; the second level are ANDs. Meaning that
-	 * an array in the format:
-	 * <pre>
-	 * { {"admin"}
-	 * , {"editroles", "user"}
-	 * , {"tester"}
-	 * };
-	 * </pre>
-	 * this means that the field is visible for a user with the roles:
-	 * <pre>
-	 * 	"admin" OR "tester" OR ("editroles" AND "user")
-	 * </pre>
-	 */
-	static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
-		if(roleset == null)
-			return true; // No restrictions
-
-		IUser user = UIContext.getCurrentUser();
-		if(null == user)
-			return false;
-		for(String[] orset : roleset) {
-			boolean ok = true;
-			for(String perm : orset) {
-				if(!user.hasRight(perm)) {
-					ok = false;
-					break;
-				}
-			}
-			//-- Were all "AND" conditions true then accept
-			if(ok)
-				return true;
-		}
-		return false;
-	}
+	///**
+	// * Handles the permission sets like "viewpermission" and "editpermission". If
+	// * the array contains null the field can be seen by all users. If it has a value
+	// * the first-level array is a set of ORs; the second level are ANDs. Meaning that
+	// * an array in the format:
+	// * <pre>
+	// * { {"admin"}
+	// * , {"editroles", "user"}
+	// * , {"tester"}
+	// * };
+	// * </pre>
+	// * this means that the field is visible for a user with the roles:
+	// * <pre>
+	// * 	"admin" OR "tester" OR ("editroles" AND "user")
+	// * </pre>
+	// */
+	//static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
+	//	if(roleset == null)
+	//		return true; // No restrictions
+	//
+	//	IUser user = UIContext.getCurrentUser();
+	//	if(null == user)
+	//		return false;
+	//	for(String[] orset : roleset) {
+	//		boolean ok = true;
+	//		for(String perm : orset) {
+	//			if(!user.hasRight(perm)) {
+	//				ok = false;
+	//				break;
+	//			}
+	//		}
+	//		//-- Were all "AND" conditions true then accept
+	//		if(ok)
+	//			return true;
+	//	}
+	//	return false;
+	//}
 
 	static private IRenderInto<?> createComboLabelRenderer(Class<? extends ILabelStringRenderer<?>> lsr) {
 		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
-		return new IRenderInto<Object>() {
-			@Override
-			public void render(@NonNull NodeContainer node, @NonNull Object object) {
-				String text = lr.getLabelFor(object);
-				if(text != null)
-					node.add(text);
-			}
+		return (IRenderInto<Object>) (node, object) -> {
+			String text = lr.getLabelFor(object);
+			if(text != null)
+				node.add(text);
 		};
 	}
 
@@ -229,12 +220,9 @@ final public class MetaManager {
 		return list != null && list.size() > 0;
 	}
 
-	static private IRenderInto<?> TOSTRING_RENDERER = new IRenderInto<Object>() {
-		@Override
-		public void render(@NonNull NodeContainer node, @Nullable Object object) {
-			if(object != null)
-				node.add(object.toString());
-		}
+	static private IRenderInto<?> TOSTRING_RENDERER = (IRenderInto<Object>) (node, object) -> {
+		if(object != null)
+			node.add(object.toString());
 	};
 
 
@@ -246,8 +234,6 @@ final public class MetaManager {
 	 * 				be equal to the combo's list item type, and the renderer expects items of that
 	 * 				type.
 	 *
-	 * @param cmm
-	 * @return
 	 */
 	@NonNull
 	static public IRenderInto<?> createDefaultComboRenderer(@Nullable PropertyMetaModel<?> pmm, @Nullable ClassMetaModel cmm) {
@@ -304,10 +290,6 @@ final public class MetaManager {
 	 * are considered equal when they are the same reference; if a.equal(b) holds or, when the objects
 	 * are both objects for which a PK is known, when the PK's are equal.
 	 * Also works for array types.
-	 * @param a
-	 * @param b
-	 * @param cmm
-	 * @return
 	 */
 	static public boolean areObjectsEqual(Object a, Object b, ClassMetaModel cmm) {
 		if(a == b)
@@ -354,6 +336,7 @@ final public class MetaManager {
 				return false;
 			}
 		}
+
 		//-- We need a special handlings for arrays, since built-in equals does not work for arrays!
 		if(a.getClass().isArray()) {
 			if(Array.getLength(a) != Array.getLength(b)) {
@@ -375,9 +358,6 @@ final public class MetaManager {
 
 	/**
 	 * Locate the enum's default label.
-	 * @param <T>
-	 * @param val
-	 * @return
 	 */
 	static public <T extends Enum<?>> String findEnumLabel(T val) {
 		if(val == null)
@@ -390,8 +370,6 @@ final public class MetaManager {
 	/**
 	 * Creates a List of Pair's for each domain value in a class which represents a domain (like an enum or Boolean). The
 	 * list is ready to be used by ComboFixed.
-	 * @param clz
-	 * @return
 	 */
 	static public <T extends Enum<?>> List<ValueLabelPair<T>> createEnumList(Class<T> clz) {
 		List<ValueLabelPair<T>> res = new ArrayList<ValueLabelPair<T>>();
@@ -411,9 +389,6 @@ final public class MetaManager {
 	/**
 	 * Parse the property path and return the list of properties in the path. This explicitly allows
 	 * traversing child relations provided generic type information is present to denote the child's type.
-	 * @param m
-	 * @param compoundName
-	 * @return
 	 */
 	static public List<PropertyMetaModel<?>> parsePropertyPath(@NonNull ClassMetaModel m, String compoundName) {
 		int ix = 0;
@@ -465,9 +440,6 @@ final public class MetaManager {
 	 * This tries to determine the value class for a property defined as some kind
 	 * of Collection&lt;T&gt; or T[]. If the type cannot be determined this returns
 	 * null.
-	 *
-	 * @param genericType
-	 * @return
 	 */
 	@Nullable
 	static public Class<?> findCollectionType(Type genericType) {
@@ -497,12 +469,6 @@ final public class MetaManager {
 
 	/**
 	 * Returns T if instance.propertyname is a duplicate in some other instance in the list.
-	 * @param <T>
-	 * @param items
-	 * @param instance
-	 * @param propertyname
-	 * @return
-	 * @throws Exception
 	 */
 	static public <T> boolean hasDuplicates(List<T> items, T instance, String propertyname) throws Exception {
 		ClassMetaModel cmm = findClassMeta(instance.getClass());
@@ -524,11 +490,6 @@ final public class MetaManager {
 	/*	CODING:	Generic data model utility functions.				*/
 	/*--------------------------------------------------------------*/
 
-	/**
-	 *
-	 * @param t
-	 * @return
-	 */
 	static public String identify(Object t) {
 		if(t == null)
 			return "null";
@@ -548,9 +509,6 @@ final public class MetaManager {
 	 * Return the primary key field for a given instance. This throws IllegalArgumentException's when the
 	 * instance passed is not persistent or has an unknown primary key. If the primary key is just null
 	 * this returns null.
-	 *
-	 * @param instance
-	 * @return
 	 */
 	static public Object getPrimaryKey(Object instance) throws Exception {
 		return getPrimaryKey(instance, null);
@@ -609,8 +567,6 @@ final public class MetaManager {
 
 	/**
 	 * Generate some set of columns to show from a class' metadata, if enabled.
-	 * @param cmm
-	 * @return
 	 */
 	@NonNull
 	static public List<DisplayPropertyMetaModel> calculateObjectProperties(ClassMetaModel cm) {
@@ -648,7 +604,7 @@ final public class MetaManager {
 	}
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:		*/
+	/*	CODING:	Enum support.										*/
 	/*--------------------------------------------------------------*/
 
 	/**
@@ -668,11 +624,6 @@ final public class MetaManager {
 	 * Get a label for the enum value "value" presented on the property passed. This will first
 	 * check to see if this property has overridden the labels for the enum before falling back
 	 * to the enum's global bundle.
-	 *
-	 * @param clz
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	static public String getEnumLabel(Class<?> clz, String property, Object value) {
 		if(value == null)
@@ -684,9 +635,6 @@ final public class MetaManager {
 	 * Get a label for the enum value "value" presented on the property passed. This will first
 	 * check to see if this property has overridden the labels for the enum before falling back
 	 * to the enum's global bundle.
-	 * @param pmm
-	 * @param value
-	 * @return
 	 */
 	static public String getEnumLabel(PropertyMetaModel<?> pmm, Object value) {
 		if(value == null)
@@ -713,11 +661,6 @@ final public class MetaManager {
 	/**
 	 * Copy all matching SIMPLE (non collection) properties from "from" to "to", but ignore the specified list of
 	 * properties. Since properties are copied by name the objects can be of different types.
-	 *
-	 * @param to
-	 * @param from
-	 * @param except
-	 * @throws Exception
 	 */
 	public static void copyValuesExcept(Object to, Object from, Object... except) throws Exception {
 		Set<Object> exceptSet = new HashSet<Object>();
@@ -766,8 +709,6 @@ final public class MetaManager {
 	/**
 	 * Return the list of defined combo properties, either on property model or class model. Returns
 	 * the empty list if none are defined.
-	 * @param pmm
-	 * @return
 	 */
 	@NonNull
 	static public List<DisplayPropertyMetaModel> getComboProperties(@NonNull PropertyMetaModel<?> pmm) {
@@ -824,11 +765,6 @@ final public class MetaManager {
 
 	/**
 	 * Fill target instance with same values as found in source instance. PK, TCN and transient properties would not be copied.
-	 *
-	 * @param <T>
-	 * @param source
-	 * @param target
-	 * @throws Exception
 	 */
 	static public <T> void fillCopy(@NonNull T source, @NonNull T target) {
 		fillCopy(source, target, false, false, false);
@@ -836,12 +772,6 @@ final public class MetaManager {
 
 	/**
 	 * Fill target instance with same values as found in source instance. PK, TCN and transient properties would not be copied.
-	 *
-	 * @param <T>
-	 * @param source
-	 * @param target
-	 * @param ignoredColumns Specified optional columns that would not be filled with data from source
-	 * @throws Exception
 	 */
 	static public <T> void fillCopy(@NonNull T source, @NonNull T target, String... ignoredColumns) {
 		fillCopy(source, target, false, false, false, ignoredColumns);
@@ -850,9 +780,6 @@ final public class MetaManager {
 	/**
 	 * Fill target instance with same values as found in source instance.
 	 *
-	 * @param <T>
-	 * @param source
-	 * @param target
 	 * @param copyPK If T, it also copies PK value(s)
 	 * @param copyTCN If T, it also copies TCN value(s)
 	 * @param copyTransient If T, it also copies transient values
@@ -885,8 +812,6 @@ final public class MetaManager {
 
 	/**
 	 * EXPENSIVE - Use with care - try to find a ClassMetaModel that represents the specified table name.
-	 * @param tableName
-	 * @return
 	 */
 	@Nullable
 	static synchronized public ClassMetaModel findClassByTable(@NonNull String tableName) {
@@ -900,12 +825,6 @@ final public class MetaManager {
 	/**
 	 * If the persistent class specified has dependent child records this returns the first table name or table entity name (if found) for which
 	 * children are found. It returns null if no children are found, in which case it should be safe to delete the record.
-	 *
-	 * @param dc
-	 * @param schemaName
-	 * @param instance
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
 	static public <K, T extends IIdentifyable<K>> String hasChildRecords(QDataContext dc, @NonNull String schemaName, @NonNull T instance) throws Exception {

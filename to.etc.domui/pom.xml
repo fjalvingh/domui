@@ -112,22 +112,6 @@
             <artifactId>jsass</artifactId>
         </dependency>
 
-        <!-- EXPERIMENTAL: sass support -->
-        <dependency>
-            <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-sass-compiler</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>rhino</groupId>
-                    <artifactId>js</artifactId>
-                </exclusion>
-                <!--<exclusion>-->
-                    <!--<groupId>com.yahoo.platform.yui</groupId>-->
-                    <!--<artifactId>yuicompressor</artifactId>-->
-                <!--</exclusion>-->
-            </exclusions>
-        </dependency>
-
         <!-- Batik -->
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>
@@ -275,17 +259,17 @@
         </dependency>
 
         <!-- Java 9 / JUnit -->
-        <dependency>
-            <!--<scope>test</scope>-->
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-        </dependency>
-        <dependency>
-            <!--<scope>test</scope>-->
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>${jaxb.version}</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            &lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
+<!--            <groupId>javax.xml.bind</groupId>-->
+<!--            <artifactId>jaxb-api</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            &lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
+<!--            <groupId>org.glassfish.jaxb</groupId>-->
+<!--            <artifactId>jaxb-runtime</artifactId>-->
+<!--            <version>${jaxb.version}</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>javax.activation</groupId>
             <artifactId>activation</artifactId>

@@ -24,14 +24,15 @@
  */
 package to.etc.domui.ajax;
 
-import java.io.*;
+import to.etc.domui.annotations.ResponseFormat;
+import to.etc.domui.login.IUser;
+import to.etc.domui.server.HttpServerRequestResponse;
+import to.etc.domui.server.IRequestResponse;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.UIContext;
 
-import javax.servlet.http.*;
-
-import to.etc.domui.annotations.*;
-import to.etc.domui.login.*;
-import to.etc.domui.server.*;
-import to.etc.domui.state.*;
+import javax.servlet.http.HttpServletResponse;
+import java.io.Writer;
 
 public class AjaxRequestContext implements IRpcCallContext {
 	private final RequestContextImpl m_rctx;
@@ -40,7 +41,7 @@ public class AjaxRequestContext implements IRpcCallContext {
 
 	private final RpcCallHandler m_callHandler;
 
-	public AjaxRequestContext(final AjaxRequestHandler ajaxRequestHandler, final RpcCallHandler ch, final RequestContextImpl ctx) {
+	public AjaxRequestContext(AjaxRequestHandler ajaxRequestHandler, RpcCallHandler ch, RequestContextImpl ctx) {
 		m_rh = ajaxRequestHandler;
 		m_rctx = ctx;
 		m_callHandler = ch;
@@ -62,16 +63,16 @@ public class AjaxRequestContext implements IRpcCallContext {
 	/*	CODING:	ServiceCallerCallback interface.					*/
 	/*--------------------------------------------------------------*/
 	@Override
-	public <T> T createHandlerClass(final Class<T> clz) throws Exception {
+	public <T> T createHandlerClass(Class<T> clz) throws Exception {
 		return m_rh.makeCallClass(clz, this);
 	}
 
 	@Override
-	public boolean hasRight(final String role) {
+	public boolean hasRight(String role) {
 		IUser user = UIContext.getCurrentUser();
 		if(user == null)
 			return false;
-		return user.hasRight(role);
+		return m_rh.getUserRightChecker().hasRight(user, role);
 	}
 
 	@Override
@@ -104,8 +105,6 @@ public class AjaxRequestContext implements IRpcCallContext {
 
 	/**
 	 * Decode the call format (json, json-bulk, xml, xml-bulk), then execute.
-	 * @param rurl2
-	 * @throws Exception
 	 */
 	void execute(final String rurl) throws Exception {
 		try {

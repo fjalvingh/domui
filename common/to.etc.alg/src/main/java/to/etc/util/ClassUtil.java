@@ -30,6 +30,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.io.File;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -685,5 +686,23 @@ final public class ClassUtil {
 		}
 		return null;
 	}
+
+	@NonNull
+	public static List<Field> getAllFields(@NonNull Class<?> clz) {
+		List<Field> all = new ArrayList<>();
+		calculateAllFields(all, clz);
+		return all;
+	}
+
+	private static void calculateAllFields(List<Field> all, Class<?> clz) {
+		for(Field declaredField : clz.getDeclaredFields()) {
+			all.add(declaredField);
+		}
+
+		if(clz.getSuperclass() != Object.class) {
+			calculateAllFields(all, clz.getSuperclass());
+		}
+	}
+
 
 }

@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import java.nio.charset.Charset;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -203,6 +204,15 @@ public class SecurityUtils {
 			throw WrappedException.wrap(x);
 		}
 	}
+	static public String getMD5Hash(@NonNull String in, @NonNull Charset encoding) {
+		try {
+			byte[] hash = md5Hash(in.getBytes(encoding));
+			return StringTool.toHex(hash);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
+
 
 	static public byte[] createSalt(int bytes) {
 		byte[] salt = new byte[bytes];

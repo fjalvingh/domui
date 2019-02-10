@@ -25,9 +25,12 @@
 package to.etc.webapp.query;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Fugly singleton helper class to globally access database stuff.
@@ -36,10 +39,12 @@ import java.util.Map;
  * Created on Jul 15, 2009
  */
 final public class QContextManager {
+	static private final Logger LOG = LoggerFactory.getLogger(QContextManager.class);
+
 	static public final String DEFAULT = "default-context";
 
 	/** The actual implementation handling all manager chores. */
-	final static private Map<String, IQContextFactorySquared> m_instanceMap = new HashMap<String, IQContextFactorySquared>();
+	final static private Map<String, Supplier<QDataContextFactory>> m_instanceMap = new HashMap<>();
 
 	final static private Map<String, Exception> m_initializedMap = new HashMap<>();
 
@@ -48,10 +53,9 @@ final public class QContextManager {
 	/**
 	 * Override the default implementation of QContextManager with your own. This <b>must</b> be
 	 * called before QContextManager is ever used.
-	 * @param cm
 	 */
-	static synchronized public void setImplementation(@NonNull String key, @NonNull IQContextFactorySquared cm) {
-		IQContextFactorySquared m = m_instanceMap.get(key);
+	static synchronized public void setImplementation(@NonNull String key, @NonNull Supplier<QDataContextFactory> cm) {
+		Supplier<QDataContextFactory> m = m_instanceMap.get(key);
 		if(m != null) {
 			Exception where = m_initializedMap.get(key);
 			throw new IllegalStateException("Context factory for [" + key + "] has already been used, setting a different implementation is no longer possible", where);
@@ -68,23 +72,16 @@ final public class QContextManager {
 	}
 
 	static public void setImplementation(@NonNull String key, @NonNull final QDataContextFactory factory) {
-		setImplementation(key, new IQContextFactorySquared() {
-			@Override
-			@NonNull
-			public QDataContextFactory getDataContextFactory() {
-				return factory;
-			}
-		});
+		setImplementation(key, () -> factory);
 	}
 
 	/**
 	 * Returns the instance of the manager used to satisfy all calls. If no instance is
 	 * set this will create the default handler instance.
-	 * @return
 	 */
 	@NonNull
-	static public synchronized IQContextFactorySquared instance(@NonNull String key) {
-		IQContextFactorySquared m = m_instanceMap.get(key);
+	static public synchronized Supplier<QDataContextFactory> instance(@NonNull String key) {
+		Supplier<QDataContextFactory> m = m_instanceMap.get(key);
 		if(m != null)
 			return m;
 		throw new IllegalStateException("No context factory-factory found for key=" + key + " - call setImplementation() for that key before using me.");
@@ -94,41 +91,32 @@ final public class QContextManager {
 	 * Return the named QDataContextFactory. This is the root of *all* default connections
 	 * allocated through DomUI. This either returns the single factory, or it asks the delegate
 	 * to get a factory, allowing the delegate to return a user-specific factory.
-	 *
-	 * @return
 	 */
 	@NonNull
 	static synchronized public QDataContextFactory getDataContextFactory(@NonNull String key) {
-		return instance(key).getDataContextFactory();
+		return instance(key).get();
 	}
 
 	/**
 	 * Return the DEFAULT QDataContextFactory. This is the root of *all* default connections
 	 * allocated through DomUI. This either returns the single factory, or it asks the delegate
 	 * to get a factory, allowing the delegate to return a user-specific factory.
-	 *
-	 * @return
 	 */
 	@NonNull
 	static synchronized public QDataContextFactory getDataContextFactory() {
-		return instance(DEFAULT).getDataContextFactory();
+		return instance(DEFAULT).get();
 	}
 
 	/**
 	 * Return the unmanaged (manually closed) context factory.
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	static public QDataContext createUnmanagedContext(@NonNull String key) throws Exception {
-		return instance(key).getDataContextFactory().getDataContext();
+		return instance(key).get().getDataContext();
 	}
 
 	/**
 	 * Return the DEFAULT unmanaged (manually closed) context factory.
-	 * @param key
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	static public QDataContext createUnmanagedContext() throws Exception {
@@ -144,9 +132,6 @@ final public class QContextManager {
 	 * QDataContext already present in the container. In addition, all data contexts
 	 * allocated thru this mechanism have a disabled close() method, preventing
 	 * them from closing the shared connection.
-	 *
-	 * @param cc
-	 * @return
 	 */
 	@NonNull
 	static public QDataContextFactory getDataContextFactory(@NonNull String key, @NonNull final QContextContainer cc) {
@@ -185,7 +170,6 @@ final public class QContextManager {
 
 	/**
 	 * If the specified container contains a shared context close it.
-	 * @param cc
 	 */
 	static public void closeSharedContext(@NonNull String key, @NonNull final QContextContainer cc) {
 		QDataContext dc = cc.internalGetSharedContext();
@@ -193,6 +177,7 @@ final public class QContextManager {
 			return;
 		cc.internalSetSharedContext(null);
 		dc.setIgnoreClose(false); 								// Make sure close gets heeded.
+		LOG.trace("Closing shared QDataContext " + dc);
 		dc.close();
 	}
 
@@ -225,11 +210,6 @@ final public class QContextManager {
 
 		private QDataContextFactory m_orig;
 
-		/**
-		 * Constructor.
-		 * @param cc
-		 * @param orig
-		 */
 		public UnclosableContextFactory(QContextContainer cc, QDataContextFactory orig) {
 			if(cc == null)
 				throw new NullPointerException("Container cannot be null");
@@ -249,6 +229,7 @@ final public class QContextManager {
 			dc = m_orig.getDataContext();
 			dc.setIgnoreClose(true);
 			m_contextContainer.internalSetSharedContext(dc); // Store allocated thingy
+			LOG.trace("Allocating shared QDataContext " + dc);
 			return dc;
 		}
 

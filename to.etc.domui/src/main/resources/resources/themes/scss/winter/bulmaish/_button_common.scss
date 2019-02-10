@@ -264,6 +264,10 @@ $button-static-border-color: $grey-lighter !default;
 		border-color: $button-disabled-border-color;
 		box-shadow: $button-disabled-shadow;
 		opacity: $button-disabled-opacity;
+
+		img {
+			filter: grayscale(100%);
+		}
 	}
 
 	&.is-fullwidth {
@@ -290,4 +294,14 @@ $button-static-border-color: $grey-lighter !default;
 		box-shadow: none;
 		pointer-events: none;
 	}
+}
+
+/** Disable all style on a button */
+@mixin button-reset {
+	padding: 0;
+	border: none;
+	font: inherit;
+	color: inherit;
+	background-color: transparent;
+	cursor: pointer;
 }

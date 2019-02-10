@@ -490,8 +490,6 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	 * bundle for *this* class. Usually you would use the same call on a property, not on the class,
 	 * since the property based version allows you to have property-specific translations for values.
 	 * The property based version delegates here when no property based version is found.
-	 *
-	 * @see to.etc.domui.component.meta.ClassMetaModel#getDomainLabel(java.util.Locale, java.lang.Object)
 	 */
 	@Nullable
 	@Override
@@ -503,10 +501,9 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 			} catch(Exception x) {}
 		}
 		if(value instanceof Boolean)
-			return Msgs.BUNDLE.getString(((Boolean) value).booleanValue() ? Msgs.UI_BOOL_TRUE : Msgs.UI_BOOL_FALSE);
+			return (((Boolean) value).booleanValue() ? Msgs.uiBoolTrue : Msgs.uiBoolFalse).getString();
 
 		throw new IllegalStateException("Invalid call for non-domain object.");
-		//		return null;
 	}
 
 	@Nullable

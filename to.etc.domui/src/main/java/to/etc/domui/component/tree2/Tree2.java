@@ -367,11 +367,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 			throw new IllegalStateException("Cannot calculate content renderer for null value");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
 		IRenderInto<Object> rr = (IRenderInto<Object>) MetaManager.createDefaultComboRenderer(m_propertyMetaModel, cmm);
-		return new IRenderInto<T>() {
-			@Override public void render(@NonNull NodeContainer node, @NonNull T object) throws Exception {
-				rr.render(node, object);
-			}
-		};
+		return (node, object) -> rr.render(node, object);
 	}
 
 	private void renderContent(@NonNull final NodeContainer cell, @Nullable final T value) throws Exception {

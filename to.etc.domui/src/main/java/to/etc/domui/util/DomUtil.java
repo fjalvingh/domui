@@ -267,9 +267,6 @@ final public class DomUtil {
 
 	/**
 	 * Returns T if the given Java Resource exists.
-	 * @param clz
-	 * @param name
-	 * @return
 	 */
 	static public boolean classResourceExists(final Class<?> clz, final String name) {
 		InputStream is = clz.getResourceAsStream(name);
@@ -291,10 +288,14 @@ final public class DomUtil {
 		}
 	}
 
+	static public final Class<?> getUnproxiedClass(@NonNull Class<?> clz) {
+		if(clz.getName().contains("$$"))
+			clz = clz.getSuperclass();									// Enhanced class (Hibernate). Get base class instead
+		return clz;
+	}
+
 	/**
 	 * Returns T if the class represents an integer numeric type.
-	 * @param clz
-	 * @return
 	 */
 	static public boolean isIntegerType(Class<?> clz) {
 		return clz == int.class || clz == Integer.class || clz == long.class || clz == Long.class || clz == Short.class || clz == short.class;
@@ -334,8 +335,6 @@ final public class DomUtil {
 
 	/**
 	 * Return T if the class represents a real (double or float) type.
-	 * @param clz
-	 * @return
 	 */
 	static public boolean isRealType(Class<?> clz) {
 		return clz == float.class || clz == Float.class || clz == Double.class || clz == double.class;
@@ -343,8 +342,6 @@ final public class DomUtil {
 
 	/**
 	 * Returns T if the type is some numeric type that can have a fraction.
-	 * @param clz
-	 * @return
 	 */
 	static public boolean isScaledType(Class<?> clz) {
 		return isRealType(clz) || clz == BigDecimal.class;
@@ -352,8 +349,6 @@ final public class DomUtil {
 
 	/**
 	 * Returns T if this is one of the basic types: any numeric including BigDecimal and BigInteger; string, or date.
-	 * @param t
-	 * @return
 	 */
 	static public boolean isBasicType(Class<?> t) {
 		if(t.isPrimitive())
@@ -366,10 +361,6 @@ final public class DomUtil {
 	 * Retrieves a value from an object using introspection. The name is the direct
 	 * name of a method that *must* exist; it does not add a "get". If the method
 	 * does not exist this throws an exception.
-	 *
-	 * @param inst
-	 * @param name
-	 * @return
 	 */
 	static public final Object getClassValue(@NonNull final Object inst, @NonNull final String name) throws Exception {
 		if(inst == null)

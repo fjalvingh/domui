@@ -2,6 +2,7 @@ package to.etc.domui.util.importers;
 
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -18,4 +19,6 @@ public interface IImportColumn {
 	@Nullable Long asLong();
 
 	@Nullable Integer asInteger();
+
+	@Nullable BigDecimal getDecimal();
 }

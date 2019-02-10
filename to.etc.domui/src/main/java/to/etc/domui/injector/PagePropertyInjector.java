@@ -9,8 +9,11 @@ import to.etc.util.PropertyInfo;
 import to.etc.webapp.ProgrammerErrorException;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
+ * Base class for simple injections.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 24-7-18.
  */
@@ -48,7 +51,7 @@ public class PagePropertyInjector implements IPagePropertyFactory {
 			throw new ProgrammerErrorException(UIUrlParameter.class.getSimpleName() + " annotation cannot be used on a setterless property (is the setter private?)");
 
 		String name = upp.name().isEmpty() ? propertyInfo.getName() : upp.name();
-		return new CalculatedInjector(m_calculator, setter, name, upp.mandatory());
+		return new CalculatedInjector(m_calculator, propertyInfo, name, upp.mandatory());
 	}
 
 	private static class CalculatedInjector extends PropertyInjector {
@@ -58,14 +61,14 @@ public class PagePropertyInjector implements IPagePropertyFactory {
 
 		private final boolean m_mandatory;
 
-		public CalculatedInjector(BiFunctionEx<UrlPage, String, Object> calculator, Method setter, String name, boolean mandatory) {
-			super(setter);
+		public CalculatedInjector(BiFunctionEx<UrlPage, String, Object> calculator, PropertyInfo info, String name, boolean mandatory) {
+			super(info);
 			m_calculator = calculator;
 			m_name = name;
 			m_mandatory = mandatory;
 		}
 
-		@Override public void inject(UrlPage page, IPageParameters pp) throws Exception {
+		@Override public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
 			String value = pp.getString(m_name, null);
 			if(null == value) {
 				if(m_mandatory)

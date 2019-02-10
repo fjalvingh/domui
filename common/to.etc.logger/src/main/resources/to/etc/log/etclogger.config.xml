@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config logLocation="%user.home%/logs">
    <handler type="stdout">
-      <log level="WARN" name="" />
+      <format pattern="%d %p %mdc{loginId} %t [%l] %msg"/>
+      <log level="WARN" name=""/>
+      <log level="NONE" name="org.hibernate.internal.SessionImpl"/>
+      <log level="NONE" name="org.hibernate.metamodel.internal.MetadataContext"/>
+      <log level="NONE" name="org.hibernate.metamodel.internal.MetadataContext"/>
    </handler>
 </config>

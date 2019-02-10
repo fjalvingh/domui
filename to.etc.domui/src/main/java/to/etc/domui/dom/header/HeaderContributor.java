@@ -87,10 +87,10 @@ abstract public class HeaderContributor {
 		return c;
 	}
 
-	static synchronized public HeaderContributor loadStylesheet(final String name) {
+	static synchronized public HeaderContributor loadStylesheet(final String name, String... options) {
 		HeaderContributor c = m_jsMap.get(name);
 		if(c == null) {
-			c = new CssContributor(name, false);
+			c = new CssContributor(name, false, options);
 			m_jsMap.put(name, c);
 		}
 		return c;

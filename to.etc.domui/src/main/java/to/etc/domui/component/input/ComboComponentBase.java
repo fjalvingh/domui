@@ -176,8 +176,8 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 	@Override
 	final public V getValue() {
 		if(isMandatory() && m_currentValue == null) {
-			setMessage(UIMessage.error(Msgs.BUNDLE, Msgs.MANDATORY));
-			throw new ValidationException(Msgs.MANDATORY);
+			setMessage(UIMessage.error(Msgs.mandatory));
+			throw new ValidationException(Msgs.mandatory);
 		} else
 			clearMessage();
 		return m_currentValue;

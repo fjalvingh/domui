@@ -173,4 +173,8 @@ public class Customer extends DbRecordBase<Long> {
 	public void setSupportRepresentative(Employee supportRepresentative) {
 		m_supportRepresentative = supportRepresentative;
 	}
+
+	@Override public String toString() {
+		return getFirstName() + " " + getLastName();
+	}
 }

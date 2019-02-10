@@ -149,9 +149,11 @@ var WebUI;
         $.ajax(call);
     }
     WebUI.scall = scall;
-    function jsoncall(id, fields) {
+    function jsoncall(id, fields, callback) {
+        if (callback === void 0) { callback = undefined; }
         if (!fields)
             fields = {};
+        WebUI.getInputFields(fields);
         fields["webuia"] = "$pagejson";
         fields["webuic"] = id;
         fields["$pt"] = window.DomUIpageTag;
@@ -159,17 +161,22 @@ var WebUI;
         var response = "";
         $.ajax({
             url: WebUI.getPostURL(),
-            dataType: "text/xml",
+            dataType: "*",
             data: fields,
             cache: false,
-            async: false,
+            async: callback != undefined,
             type: "POST",
             success: function (data, state) {
                 response = data;
+                if (callback) {
+                    callback(JSON.parse(data));
+                }
             },
             error: handleError
         });
-        return eval("(" + response + ")");
+        if (callback)
+            return;
+        return JSON.parse(response);
     }
     WebUI.jsoncall = jsoncall;
     function sendJsonAction(id, action, json) {
@@ -742,11 +749,24 @@ var WebUI;
         }
     }
     WebUI.popinKeyClose = popinKeyClose;
-    function dataTableResults(id, compId) {
+    function dataTableResults(id, compId, resizeMode) {
+        var mode = 'flex';
+        switch (resizeMode) {
+            case 'FIXED':
+                mode = 'fit';
+                break;
+            case 'FLEX':
+                mode = 'flex';
+                break;
+            case 'OVERFLOW':
+                mode = 'overflow';
+                break;
+        }
         setTimeout(function (a) {
             $('#' + id).colResizable({
                 postbackSafe: false,
-                resizeMode: 'flex',
+                resizeMode: mode,
+                partialRefresh: true,
                 onResize: function (tbl) {
                     WebUI.dataTableUpdateWidths(tbl, compId);
                 }
@@ -1257,6 +1277,8 @@ var WebUI;
         textArea.select();
         try {
             var successful = document.execCommand('copy');
+            if (!successful)
+                alert('The text to copy was too large');
             var msg = successful ? 'successful' : 'unsuccessful';
             console.log('Copying text command was ' + msg);
         }
@@ -1579,12 +1601,6 @@ var WebUI;
         if (!val || val.length == 0)
             return;
         Calendar.__init();
-        var pos = val.indexOf(' ');
-        var timeval = null;
-        if (pos != -1) {
-            timeval = $.trim(val.substring(pos + 1));
-            val = $.trim(val.substring(0, pos));
-        }
         try {
             val = $.trim(val);
             val = val.replace(new RegExp("\\" + Calendar._TT["DATE_TIME_SEPARATOR"] + "+"), Calendar._TT["DATE_TIME_SEPARATOR"]);

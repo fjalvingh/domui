@@ -28,7 +28,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.layout.CaptionedPanel;
 import to.etc.domui.component.misc.ALink;
 import to.etc.domui.dom.html.Div;
-import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Li;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
@@ -82,8 +81,7 @@ public class AccessDeniedPage extends UrlPage {
 		ep.getContent().add(t);
 		TBody b = t.addBody();
 		TD td = b.addRowAndCell();
-		Img img = new Img(Theme.ACCESS_DENIED);
-		td.add(img);
+		td.add(Theme.ACCESS_DENIED.createNode());
 
 		TD co = b.addCell();
 		String txt = Msgs.BUNDLE.formatMessage(Msgs.LOGIN_ACCESS_DENIED, pageName);
