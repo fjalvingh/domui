@@ -38,6 +38,9 @@ public class DbTable implements Serializable {
 
 	private String m_name;
 
+	/** Force quote the name to force case */
+	private boolean m_quoteName;
+
 	private String m_comments;
 
 	private List<DbColumn> m_columnList;
@@ -417,5 +420,13 @@ public class DbTable implements Serializable {
 	public void initializeColumns(@NonNull List<DbColumn> columnList, @NonNull Map<String, DbColumn> columnMap) {
 		m_columnList = Collections.unmodifiableList(columnList);
 		m_columnMap = Collections.unmodifiableMap(columnMap);
+	}
+
+	public boolean isQuoteName() {
+		return m_quoteName;
+	}
+
+	public void setQuoteName(boolean quoteName) {
+		m_quoteName = quoteName;
 	}
 }
