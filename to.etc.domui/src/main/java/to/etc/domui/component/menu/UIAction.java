@@ -3,8 +3,10 @@ package to.etc.domui.component.menu;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.function.BiConsumerEx;
 
-abstract public class UIAction<T> implements IUIAction<T> {
+public class UIAction<T> implements IUIAction<T> {
 	final private String m_name;
 
 	final private String m_title;
@@ -14,10 +16,23 @@ abstract public class UIAction<T> implements IUIAction<T> {
 	@Nullable
 	private String m_disableReason;
 
+	private final BiConsumerEx<NodeBase, T> m_execute;
+
 	public UIAction(String name, String title, IIconRef icon) {
 		m_name = name;
 		m_title = title;
 		m_icon = icon;
+		m_execute = (a, b) -> {
+			throw new IllegalStateException("Missing execute");
+		};
+	}
+
+	public UIAction(String name, String title, IIconRef icon, @Nullable String disableReason, BiConsumerEx<NodeBase, T> execute) {
+		m_name = name;
+		m_title = title;
+		m_icon = icon;
+		m_disableReason = disableReason;
+		m_execute = execute;
 	}
 
 	@Override
@@ -46,5 +61,9 @@ abstract public class UIAction<T> implements IUIAction<T> {
 	@Nullable
 	public IIconRef getIcon(@Nullable T instance) throws Exception {
 		return m_icon;
+	}
+
+	@Override public void execute(@NonNull NodeBase component, @Nullable T instance) throws Exception {
+		m_execute.accept(component, instance);
 	}
 }

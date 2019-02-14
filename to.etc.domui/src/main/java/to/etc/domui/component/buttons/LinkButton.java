@@ -65,7 +65,7 @@ public class LinkButton extends ATag implements IActionControl {
 	public LinkButton() {
 	}
 
-	public LinkButton(@NonNull String txt, @NonNull IIconRef image, @NonNull IClicked<LinkButton> clk) {
+	public LinkButton(@NonNull String txt, @Nullable IIconRef image, @NonNull IClicked<LinkButton> clk) {
 		setClicked(clk);
 		m_text = txt;
 		setImage(image);
