@@ -176,6 +176,10 @@ final public class DependentTaskSource<T> {
 		}
 	}
 
+	public int size() {
+		return m_taskMap.size();
+	}
+
 	public enum TaskState {
 		NONE,
 		RUNNING,
