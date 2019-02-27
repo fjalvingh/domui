@@ -2,7 +2,6 @@ package my.domui.app.core.authentication;
 
 import my.domui.app.core.db.DbUser;
 import org.apache.commons.codec.binary.Hex;
-import org.bouncycastle.util.Arrays;
 import to.etc.domui.login.ILoginAuthenticator;
 import to.etc.domui.login.IUser;
 import to.etc.domui.server.IRequestContext;

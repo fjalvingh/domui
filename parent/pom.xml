@@ -154,7 +154,6 @@
                 </exclusions>
             </dependency>
 
-            <!-- Optional dependencies for the security related tools. -->
             <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -168,7 +167,6 @@
                 <artifactId>bcprov-jdk15on</artifactId>
                 <version>${bouncy.version}</version>
             </dependency>
-
 
             <!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation -->
             <dependency>
