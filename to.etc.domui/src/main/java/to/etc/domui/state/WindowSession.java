@@ -111,10 +111,6 @@ final public class WindowSession {
 	@Nullable
 	private String m_targetURL;
 
-	/** If set then change the URL context part of the page */
-	@Nullable
-	private String m_urlContext;
-
 	/** Timestamp of the last time this WindowSession was used by a request. This is used to determine if a WindowSession has expired */
 	private long m_lastUsed;
 
@@ -395,7 +391,7 @@ final public class WindowSession {
 		//			return false;							// Piss off then
 
 		ConversationContext cc = getTargetConversation();
-		IPageParameters pp = getTargetPageParameters();
+		IPageParameters pp = getTargetPageParameters(ctx);
 		Constructor< ? extends UrlPage> bestpc = null;
 
 		/*
@@ -530,7 +526,8 @@ final public class WindowSession {
 		StringBuilder sb = new StringBuilder();
 
 		//-- Create the path URL
-		String urlContext = m_urlContext == null ? ctx.getUrlContextString() : m_urlContext;
+		IPageParameters pp = to.getPageParameters();
+		String urlContext = pp.getUrlContextString() == null ? ctx.getUrlContextString() : pp.getUrlContextString();
 		sb.append(urlContext).append(to.getBody().getClass().getName()).append('.').append(ctx.getApplication().getUrlExtension());
 		String pagePath = ctx.getRelativePath(sb.toString());			// Convert to app URL
 		sb.setLength(0);
@@ -541,7 +538,6 @@ final public class WindowSession {
 		sb.append(to.getConversation().getFullId());
 
 		//-- If the parameter string is too big we need to keep them in memory.
-		IPageParameters pp = to.getPageParameters();
 		if(pp.getDataLength() > 1024) {
 			//-- We need a large referral
 			to.getConversation().setAttribute("__ORIPP", pp);
@@ -638,8 +634,17 @@ final public class WindowSession {
 	}
 
 	@Nullable
-	public IPageParameters getTargetPageParameters() {
-		return m_targetPageParameters;
+	public IPageParameters getTargetPageParameters(RequestContextImpl ctx) {
+		IPageParameters pp = m_targetPageParameters;
+		if(pp == null) {
+			pp = new PageParameters();
+		}
+		String context = pp.getUrlContextString();
+		if(null == context) {
+			context = ctx.getUrlContextString();
+			((PageParameters) pp).setUrlContextString(context);
+		}
+		return pp;
 	}
 
 	@Nullable
