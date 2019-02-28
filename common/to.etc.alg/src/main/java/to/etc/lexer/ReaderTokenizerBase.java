@@ -121,119 +121,126 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 			if(token != T_EOF)
 				return token;
 
-			switch(c){
-				default:
-					if(Character.isWhitespace((char) c)) {
-						for(;;) {
-							if(m_return_nl) // Must we treat NL differently?
-							{
-								if(c == '\n') // Is newline-> end loop
-									break;
-							}
-							if(c == -1)
-								break;
-							else if(!Character.isWhitespace((char) c))
-								break;
+			int t = decodeToken(c);
+			if(t != Integer.MAX_VALUE)
+				return t;
+		}
+	}
 
-							//-- This is whitespace- accept and continue
-							append((char) c);
-							accept(); // Accept whitespace char,
-							c = LA(); // NEXT
+	protected int decodeToken(int c) throws IOException, SourceErrorException {
+		switch(c){
+			default:
+				if(Character.isWhitespace((char) c)) {
+					for(;;) {
+						if(m_return_nl) // Must we treat NL differently?
+						{
+							if(c == '\n') // Is newline-> end loop
+								break;
 						}
+						if(c == -1)
+							break;
+						else if(!Character.isWhitespace((char) c))
+							break;
 
-						//-- End of whitespace loop
-						return ' ';
+						//-- This is whitespace- accept and continue
+						append((char) c);
+						accept(); // Accept whitespace char,
+						c = LA(); // NEXT
 					}
 
-					if(isIdStart((char) c))
-						return scanIdentifier();
+					//-- End of whitespace loop
+					return ' ';
+				}
+
+				if(isIdStart((char) c))
+					return scanIdentifier();
+				append((char) c);
+				accept();
+				return c;
+
+			case '\n':
+				if(m_return_nl) {
 					append((char) c);
 					accept();
 					return c;
+				} else {
+					for(;;) {
+						if(c == -1)
+							break;
+						else if(!Character.isWhitespace((char) c))
+							break;
 
-				case '\n':
-					if(m_return_nl) {
+						//-- This is whitespace- accept and continue
 						append((char) c);
-						accept();
-						return c;
-					} else {
-						for(;;) {
-							if(c == -1)
-								break;
-							else if(!Character.isWhitespace((char) c))
-								break;
-
-							//-- This is whitespace- accept and continue
-							append((char) c);
-							accept(); // Accept whitespace char,
-							c = LA(); // NEXT
-						}
-
-						//-- End of whitespace loop
-						return ' ';
+						accept(); // Accept whitespace char,
+						c = LA(); // NEXT
 					}
 
-				case -1:
-					return T_EOF;
+					//-- End of whitespace loop
+					return ' ';
+				}
 
-				case '"':
-				case '\'':
-					//-- String constant
-					return scanString();
+			case -1:
+				return T_EOF;
 
-				case '0':
-				case '1':
-				case '2':
-				case '3':
-				case '4':
-				case '5':
-				case '6':
-				case '7':
-				case '8':
-				case '9':
-					if(m_scanUndottedNumbers)
-						return scanUndottedNumber();
-					return scanNumber(); // Scan a number OR an IP address
+			case '"':
+			case '\'':
+				//-- String constant
+				return scanString();
 
-				case '/':
-					//-- Line-based comment?
-					if(LA(1) == '/') {
-						copy(2);
-						for(;;) {
-							c = LA();
-							if(c == '\n' || c == -1) { // Eof/eoln?
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			case '7':
+			case '8':
+			case '9':
+				if(m_scanUndottedNumbers)
+					return scanUndottedNumber();
+				return scanNumber(); // Scan a number OR an IP address
+
+			case '/':
+				//-- Line-based comment?
+				if(LA(1) == '/') {
+					copy(2);
+					for(;;) {
+						c = LA();
+						if(c == '\n' || c == -1) { // Eof/eoln?
+							if(m_returnComment)
+								return T_COMMENT;
+							break;
+						}
+						copy(); // Always accept
+					}
+				} else if(LA(1) == '*') // C style multiline comment?
+				{
+					copy(2); // accept /*
+					int lc = 0;
+					for(;;) {
+						c = LA();
+						copy();
+						if(c == -1)
+							throw new IllegalStateException("Unexpected EOF in multiline comment started at line " + getTokenLine() + ":" + getTokenColumn());
+						if(c == '/') {
+							if(lc == '*') {
 								if(m_returnComment)
 									return T_COMMENT;
 								break;
 							}
-							copy(); // Always accept
 						}
-					} else if(LA(1) == '*') // C style multiline comment?
-					{
-						copy(2); // accept /*
-						int lc = 0;
-						for(;;) {
-							c = LA();
-							copy();
-							if(c == -1)
-								throw new IllegalStateException("Unexpected EOF in multiline comment started at line " + getTokenLine() + ":" + getTokenColumn());
-							if(c == '/') {
-								if(lc == '*') {
-									if(m_returnComment)
-										return T_COMMENT;
-									break;
-								}
-							}
-							lc = c;
-						}
-					} else {
-						accept(); // Single slash
-						append((char) c);
-						return c;
+						lc = c;
 					}
-					break;
-			}
+				} else {
+					accept(); // Single slash
+					append((char) c);
+					return c;
+				}
+				break;
 		}
+		return Integer.MAX_VALUE;
 	}
 
 	public void setScanUndottedNumbers(boolean scanUndottedNumbers) {
