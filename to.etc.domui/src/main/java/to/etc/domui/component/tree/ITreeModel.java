@@ -27,6 +27,9 @@ package to.etc.domui.component.tree;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The base model for a Tree. This encapsulates the knowledge about a tree, and returns tree-based
  * context information for when the tree is being built.
@@ -118,4 +121,33 @@ public interface ITreeModel<T> {
 	 */
 	default void collapseChildren(@Nullable T item) throws Exception {
 	}
+
+
+
+	/**
+	 * Calculates a tree path for a given node, as a set of nodes that walk to the item. The
+	 * root element is always the 1st element in the treepath
+	 */
+	default List<T> getTreePath(T item) throws Exception {
+		List<T> path = new ArrayList<>();
+		addParentPath(path, item);
+		return path;
+	}
+
+	default void addParentPath(List<T> path, T item) throws Exception {
+		T parent = getParent(item);
+
+		/*
+		 * jal 20081127 The explicit compare with the root node is needed because we allow the root
+		 * node to be null. In that case the path to the item MUST start with null (representing the
+		 * root node).
+		 */
+		if(parent == getRoot()) {
+			path.add(parent);
+		} else if(parent != null) {
+			addParentPath(path, parent);
+		}
+		path.add(item);
+	}
+
 }
