@@ -809,9 +809,13 @@ var WebUI;
         var elem = document.getElementById(id);
         var parentDiv = elem.parentNode;
         var editor = _ckEditorMap[id][0];
+        if (editor.config._setWidth && editor.config._setHeight)
+            return;
         var resizeFunction = function (ev) {
             try {
-                editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
+                var wid = editor.config._setWidth || $(parentDiv).width() - 2;
+                var hig = editor.config._setHeight || $(parentDiv).height();
+                editor.resize(wid, hig);
             }
             catch (ex) {
                 WebUI.log('error in CKeditor_OnComplete#resizeFunction: ' + ex);

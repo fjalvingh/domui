@@ -207,9 +207,18 @@ namespace WebUI {
 		let elem = document.getElementById(id);
 		let parentDiv = elem.parentNode;
 		let editor = _ckEditorMap[id][0];
+
+		//-- If width/height are both set there is no need for resize code
+		if(editor.config._setWidth && editor.config._setHeight)
+			return;
+
 		let resizeFunction = function(ev) {
 			try {
-				editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
+				let wid = editor.config._setWidth || $(parentDiv).width() - 2;
+				let hig = editor.config._setHeight || $(parentDiv).height();
+
+				editor.resize(wid, hig);
+				// editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
 			} catch(ex) {
 				WebUI.log('error in CKeditor_OnComplete#resizeFunction: ' + ex);
 			}

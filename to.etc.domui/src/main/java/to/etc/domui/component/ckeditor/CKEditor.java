@@ -106,7 +106,7 @@ public class CKEditor extends TextArea {
 		m_vn = "_ck" + getActualID();
 
 
-		sb.append("var ").append(m_vn).append(" = CKEDITOR.replace('").append(getActualID()).append("', {");
+		sb.append("\nvar ").append(m_vn).append(" = CKEDITOR.replace('").append(getActualID()).append("', {");
 		sb.append("customConfig: '").append(DomUtil.getRelativeApplicationResourceURL("$ckeditor/domuiconfig.js")).append("'\n");
 		sb.append(",on: {instanceReady: function(ev) {WebUI.CKeditor_OnComplete('" + getActualID() + "');}}\n");
 
@@ -143,12 +143,16 @@ public class CKEditor extends TextArea {
 		sb.append(", uiColor: '" + color + "'\n");
 
 		String s = m_internalWidth;
-		if(null != s)
+		if(null != s) {
 			sb.append(", width:'").append(s).append("'\n");
+			sb.append(", _setWidth:'").append(s).append("'\n");
+		}
 
 		s = m_internalHeight;
-		if(null != s)
+		if(null != s) {
 			sb.append(", height:'").append(s).append("'\n");
+			sb.append(", _setHeight:'").append(s).append("'\n");
+		}
 
 		//-- Finish.
 		sb.append("});\n");
