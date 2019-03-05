@@ -36,6 +36,7 @@ import to.etc.domui.server.RequestContextImpl;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.IQContextContainer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -227,9 +228,10 @@ public class ConversationContext extends AbstractConversationContext implements 
 		}
 
 		//-- Call the DESTROY handler for all attached pages, then disconnect them
-		for(Page pg : m_pageMap.values()) {
+		for(Page pg : new ArrayList<>(m_pageMap.values())) {
 			try {
-				pg.getBody().onDestroy();
+				destroyPage(pg);
+				//pg.getBody().onDestroy();
 			} catch(Exception x) {
 				if(! sessionDestroyed) {
 					System.err.println("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x);
@@ -303,6 +305,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 			x.printStackTrace();
 		}
 		m_pageMap.remove(pg.getBody().getClass().getName());
+		getWindowSession().getApplication().callPageDestroyedListeners(pg);
 	}
 
 	/*----------------------------------------------------------------------*/
