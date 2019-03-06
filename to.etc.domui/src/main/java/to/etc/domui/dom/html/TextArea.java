@@ -102,6 +102,14 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		m_rows = rows;
 	}
 
+	public String internalGetValue() {
+		return m_value;
+	}
+
+	protected void internalSetValue(String value) {
+		m_value = value;
+	}
+
 	/**
 	 * Bind-capable version of getValue(). If called (usually from binding) this will act as follows:
 	 * <ul>
@@ -139,7 +147,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	public String getValue() {
 		try {
 			validate();
-			return m_value;
+			return internalGetValue();
 		} catch(ValidationException x) {
 			setMessage(UIMessage.error(x));
 			throw x;
@@ -165,7 +173,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 
 	public String getRawValue() {
-		return m_value;
+		return internalGetValue();
 	}
 
 	@Override
@@ -202,7 +210,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		String value = m_value;
 		if(DomUtil.isEqual(v, value))
 			return;
-		m_value = v;
+		internalSetValue(v);
 		setMessage(null);
 		setText(v);
 	}

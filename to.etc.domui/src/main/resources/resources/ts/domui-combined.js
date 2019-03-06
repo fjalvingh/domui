@@ -804,6 +804,13 @@ var WebUI;
         }
     }
     WebUI.unregisterCkEditorId = unregisterCkEditorId;
+    function CKeditor_setValue(id, value) {
+        var editor = _ckEditorMap[id][0];
+        if (!editor)
+            return;
+        editor.setData(value === undefined || value === null ? "" : value);
+    }
+    WebUI.CKeditor_setValue = CKeditor_setValue;
     function CKeditor_OnComplete(id) {
         WebUI.doCustomUpdates();
         var elem = document.getElementById(id);
@@ -813,9 +820,7 @@ var WebUI;
             return;
         var resizeFunction = function (ev) {
             try {
-                var wid = editor.config._setWidth || $(parentDiv).width() - 2;
-                var hig = editor.config._setHeight || $(parentDiv).height();
-                editor.resize(wid, hig);
+                editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
             }
             catch (ex) {
                 WebUI.log('error in CKeditor_OnComplete#resizeFunction: ' + ex);

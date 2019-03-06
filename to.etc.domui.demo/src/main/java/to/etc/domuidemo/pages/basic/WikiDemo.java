@@ -1,11 +1,13 @@
 package to.etc.domuidemo.pages.basic;
 
-import java.io.*;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.ckeditor.CKEditor;
+import to.etc.domui.component.htmleditor.FileBasedEditorFileSystem;
+import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.UrlPage;
 
-import to.etc.domui.component.buttons.*;
-import to.etc.domui.component.ckeditor.*;
-import to.etc.domui.component.htmleditor.*;
-import to.etc.domui.dom.html.*;
+import java.io.File;
 
 /**
  * Demo page containing an CKEditor.
@@ -24,8 +26,8 @@ public class WikiDemo extends UrlPage {
 		setTitle("Wiki Editor example");
 
 		add(m_editor = new CKEditor());
-		m_editor.setRows(24);
-		m_editor.setCols(80);
+		m_editor.setWidth("600px");
+		m_editor.setHeight("300px");
 
 		add(new BR());
 		DefaultButton	b = new DefaultButton("Opslaan", new IClicked<DefaultButton>() {

@@ -197,10 +197,17 @@ namespace WebUI {
 		}
 	}
 
+	export function CKeditor_setValue(id: string, value: string) {
+		let editor = _ckEditorMap[id][0];
+		if(! editor)
+			return;
+		editor.setData(value === undefined || value === null ? "" : value);
+	}
+
 	/**
 	 * Piece of support needed for CK editor to properly fix its size, using _OnComplete handler.
 	 *
-	 * @param id
+	 * @param id of the area node of the editor.
 	 */
 	export function CKeditor_OnComplete(id): void {
 		WebUI.doCustomUpdates();
@@ -214,11 +221,11 @@ namespace WebUI {
 
 		let resizeFunction = function(ev) {
 			try {
-				let wid = editor.config._setWidth || $(parentDiv).width() - 2;
-				let hig = editor.config._setHeight || $(parentDiv).height();
-
-				editor.resize(wid, hig);
-				// editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
+				// let wid = editor.config._setWidth || $(parentDiv).width() - 2;
+				// let hig = editor.config._setHeight || $(parentDiv).height();
+				//
+				// editor.resize(wid, hig);
+				editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
 			} catch(ex) {
 				WebUI.log('error in CKeditor_OnComplete#resizeFunction: ' + ex);
 			}
