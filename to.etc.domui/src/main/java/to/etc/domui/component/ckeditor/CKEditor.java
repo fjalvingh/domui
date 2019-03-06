@@ -174,15 +174,15 @@ public class CKEditor extends Div implements IControl<String> {
 		super.renderJavascriptState(b);
 	}
 
-	@Override
-	public void setWidth(@Nullable String width) {
-		m_internalWidth = width;
-	}
-
-	@Override
-	public void setHeight(@Nullable String height) {
-		m_internalHeight = height;
-	}
+	//@Override
+	//public void setWidth(@Nullable String width) {
+	//	m_internalWidth = width;
+	//}
+	//
+	//@Override
+	//public void setHeight(@Nullable String height) {
+	//	m_internalHeight = height;
+	//}
 
 	private void appendOption(@NonNull final StringBuilder sb, @NonNull final String option, @NonNull final String value) {
 		sb.append(m_vn).append(".").append(option).append(" = ");
