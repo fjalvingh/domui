@@ -97,7 +97,7 @@ abstract public class JiraReporter implements IBugListener {
 		IssueInput ii = builder.build();
 
 		BasicIssue issue = client.getIssueClient().createIssue(ii).claim();
-		System.out.println("Issue created as " + issue.getKey());
+		System.err.println("jira: Issue created as " + issue.getKey());
 	}
 
 	/**
@@ -153,17 +153,17 @@ abstract public class JiraReporter implements IBugListener {
 		SearchResult result = searchClient.searchJql(sb.toString()).claim();
 		int total = result.getTotal();
 		if(0 == total) {
-			System.out.println("jira: no result for hash=" + hash);
+			System.err.println("jira: no result for hash=" + hash);
 			return false;
 		}
 
 		for(Issue issue : result.getIssues()) {
 			String key = issue.getKey();
-			System.out.println("jira: key=" + key);
+			System.err.println("jira: key=" + key);
 
 			Comment comment = Comment.valueOf(calculateDescription(item));
 			client.getIssueClient().addComment(issue.getCommentsUri(), comment).claim();
-			System.out.println("jira: issue " + key + " updated");
+			System.err.println("jira: issue " + key + " updated");
 			return true;
 		}
 		return false;
