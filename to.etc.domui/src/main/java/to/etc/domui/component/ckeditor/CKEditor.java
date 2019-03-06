@@ -27,6 +27,7 @@ package to.etc.domui.component.ckeditor;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.htmleditor.IEditorFileSystem;
+import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.misc.MsgBox.IAnswer;
 import to.etc.domui.component.misc.MsgBox.Type;
@@ -318,21 +319,26 @@ public class CKEditor extends Div implements IControl<String> {
 			});
 		}
 	}
-	//
-	//public int getRows() {
-	//	return m_area.getRows();
-	//}
-	//public void setRows(int size) {
-	//	m_area.setRows(size);
-	//}
-	//
-	//public int getCols() {
-	//	return m_area.getCols();
-	//}
-	//public void setCols(int cols) {
-	//	m_area.setCols(cols);
-	//}
 
+	/**
+	 * Bind-capable version of getValue(). If called (usually from binding) this will act as follows:
+	 * <ul>
+	 * 	<li>If this component has an input error: throw the ValidationException for that error</li>
+	 * 	<li>On no error this returns the value.</li>
+	 * </ul>
+	 * @return
+	 */
+	@Nullable
+	public String getBindValue() {
+		return m_area.getBindValue();
+	}
+
+	public void setBindValue(@Nullable String value) {
+		if(MetaManager.areObjectsEqual(m_area.internalGetValue(), value)) {
+			return;
+		}
+		setValue(value);
+	}
 
 	final private class CkEditorArea extends TextArea {
 		@Override public void setValue(String v) {
