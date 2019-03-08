@@ -565,6 +565,12 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 
 		//parentVn.forceRebuild();
 		Ul ul = parentVn.getChildRoot();
+		if(null == ul) {
+			expandNode(parent);
+			ul = parentVn.getChildRoot();
+			if(null == ul)
+				throw new IllegalStateException("There is no UI container for parent node " + parent);
+		}
 		renderList(ul, parentVn);
 	}
 
