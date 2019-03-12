@@ -1,6 +1,7 @@
 package to.etc.domuidemo.pages.test.binding;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
@@ -49,8 +50,8 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 
 	/**
 	 * Binding between property and control of different type must result in an error.
-	 * @throws Exception
 	 */
+	@Ignore("JAVA9")
 	@Test
 	public void testBindingTypes1() throws Exception {
 		wd().openScreen(BindingTypeForm1.class);
@@ -137,6 +138,7 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	/**
 	 * See https://etc.to/confluence/x/GYA-/
 	 */
+	@Ignore("JAVA9")
 	@Test
 	public void testDoNotBindDottedControlPath() throws Exception {
 		wd().openScreen(DoNotBindControlDottedTestPage.class);
