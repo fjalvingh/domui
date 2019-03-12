@@ -45,8 +45,6 @@ import to.etc.util.WrappedException;
 public class ControlCreatorRelationCombo implements IControlCreator {
 	/**
 	 * Accept any UP relation; if the relation has a "comboLookup" type hint we score 10, else we score 2.
-	 *
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
