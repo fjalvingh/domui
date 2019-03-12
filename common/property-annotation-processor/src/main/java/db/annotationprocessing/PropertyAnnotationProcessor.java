@@ -134,8 +134,15 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 					generateLinkClass(pkgName, entityName, ann, properties);
 					generateStaticClass(pkgName, entityName, ann, properties);
 				} catch(Exception e1) {
-					e1.printStackTrace();
-					messager.printMessage(Kind.ERROR, e1.toString() + " in " + getClass(), classElement);
+
+					/*
+					 * ecj apparently calls this several times, causing:
+					 * Error:(27, 20) java: javax.annotation.processing.FilerException: Source file already exists : nl.skarp.portal.pages.definitions.usability.PiResult_Link in class db.annotationprocessing.PropertyAnnotationProcessor
+					 */
+					if(! e1.getMessage().toLowerCase().contains("source file already exists")) {
+						e1.printStackTrace();
+						messager.printMessage(Kind.ERROR, e1.toString() + " in " + getClass(), classElement);
+					}
 				}
 			}
 		}
