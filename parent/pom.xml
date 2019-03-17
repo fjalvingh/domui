@@ -154,20 +154,6 @@
                 </exclusions>
             </dependency>
 
-            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on -->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcpkix-jdk15on</artifactId>
-                <version>${bouncy.version}</version>
-            </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk15on</artifactId>
-                <version>${bouncy.version}</version>
-            </dependency>
-
             <!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation -->
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -238,6 +224,23 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>servlet-api</artifactId>
                 <version>${javax.servlet.version}</version>
+            </dependency>
+
+            <!-- Optional dependencies for the security related tools. -->
+            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcpkix-jdk15on -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>${bouncy.version}</version>
+                <optional>true</optional>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>${bouncy.version}</version>
+                <optional>true</optional>
             </dependency>
 
             <dependency>

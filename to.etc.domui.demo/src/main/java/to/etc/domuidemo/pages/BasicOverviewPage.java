@@ -57,7 +57,7 @@ public class BasicOverviewPage extends UrlPage {
 	}
 
 	private NodeBase createTab3() throws Exception {
-		var c = new Div();
+		Div c = new Div();
 
 		c.add(new InfoPanel("This showcases the available panels and headers. This thingy, by the way, is an InfoPanel."));
 		CaptionedHeader ch = new CaptionedHeader("CaptionedHeader");

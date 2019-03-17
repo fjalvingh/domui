@@ -36,21 +36,14 @@ public enum Msgs implements IBundleCode {
 	uiChkbbOn,
 	uiChkbbOff,
 
-	pageWithoutUrlContext, noUrlContextValueFor,
+	pageWithoutUrlContext,
+	noUrlContextValueFor,
 	dataValueAccessDenied,
-	uiPagerPrev, uiPagerNext;
+	uiPagerPrev,
+	uiPagerNext,
 
-	@Override public BundleRef getBundle() {
-		return BUNDLE;
-	}
-
-	/**
-	 * A reference to the global shared message bundle for DomUI messages.
-	 */
-	public static BundleRef BUNDLE = BundleRef.create(Msgs.class, "messages");
-
-	/** Error component panel header text: Warnings */
-	public static String UI_WARNING_HEADER = "ui.warning.header";
+	uiWarningHeader
+	;
 
 	/** Error component panel header text: Info */
 	public static String UI_INFO_HEADER = "ui.info.header";
@@ -324,4 +317,13 @@ public enum Msgs implements IBundleCode {
 	public static String UI_UPLOADMULTI_TEXT = "ui.uploadmulti.button";
 
 	static public final String EXPORT_BUTTON = "ui.btn.export";
+	@Override public BundleRef getBundle() {
+		return BUNDLE;
+	}
+
+	/**
+	 * A reference to the global shared message bundle for DomUI messages.
+	 */
+	public static BundleRef BUNDLE = BundleRef.create(Msgs.class, "messages");
+
 }

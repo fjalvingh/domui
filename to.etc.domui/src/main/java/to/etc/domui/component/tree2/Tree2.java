@@ -45,7 +45,6 @@ import to.etc.domui.dom.html.Ul;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.IRenderInto;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -336,25 +335,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	 * root element is always the 1st element in the treepath
 	 */
 	public List<T> getTreePath(T item) throws Exception {
-		List<T> path = new ArrayList<>();
-		addParentPath(path, item);
-		return path;
-	}
-
-	private void addParentPath(List<T> path, T item) throws Exception {
-		T parent = getModel().getParent(item);
-
-		/*
-		 * jal 20081127 The explicit compare with the root node is needed because we allow the root
-		 * node to be null. In that case the path to the item MUST start with null (representing the
-		 * root node).
-		 */
-		if(parent == getModel().getRoot()) {
-			path.add(parent);
-		} else if(parent != null) {
-			addParentPath(path, parent);
-		}
-		path.add(item);
+		return getModel().getTreePath(item);
 	}
 
 	private IRenderInto<T> calculateContentRenderer(Object val) {
@@ -565,6 +546,12 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 
 		//parentVn.forceRebuild();
 		Ul ul = parentVn.getChildRoot();
+		if(null == ul) {
+			expandNode(parent);
+			ul = parentVn.getChildRoot();
+			if(null == ul)
+				throw new IllegalStateException("There is no UI container for parent node " + parent);
+		}
 		renderList(ul, parentVn);
 	}
 

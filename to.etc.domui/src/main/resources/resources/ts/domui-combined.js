@@ -804,11 +804,20 @@ var WebUI;
         }
     }
     WebUI.unregisterCkEditorId = unregisterCkEditorId;
+    function CKeditor_setValue(id, value) {
+        var editor = _ckEditorMap[id][0];
+        if (!editor)
+            return;
+        editor.setData(value === undefined || value === null ? "" : value);
+    }
+    WebUI.CKeditor_setValue = CKeditor_setValue;
     function CKeditor_OnComplete(id) {
         WebUI.doCustomUpdates();
         var elem = document.getElementById(id);
         var parentDiv = elem.parentNode;
         var editor = _ckEditorMap[id][0];
+        if (editor.config._setWidth && editor.config._setHeight)
+            return;
         var resizeFunction = function (ev) {
             try {
                 editor.resize($(parentDiv).width() - 2, $(parentDiv).height());
