@@ -1,8 +1,0 @@
-/*** 250_BulkUploadButton component ***/
-.ui-bupb {
-}
-.ui-bupb .swfupload {
-	position: absolute;
-	z-index: 1;
-	vertical-align: top;
-}
