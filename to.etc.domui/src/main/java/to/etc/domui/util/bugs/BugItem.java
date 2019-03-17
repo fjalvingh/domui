@@ -230,7 +230,7 @@ final public class BugItem {
 	@Nullable
 	public <T> T findContextItem(Class<T> clazz) {
 		for(Object contextItem : getContextItems()) {
-			if(clazz.isAssignableFrom(contextItem.getClass())) {
+			if(null != contextItem && clazz.isAssignableFrom(contextItem.getClass())) {
 				return (T) contextItem;
 			}
 		}

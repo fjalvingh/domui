@@ -102,6 +102,8 @@ final public class FormBuilder {
 	}
 
 	static private <I, V> BindReference<I, V> createRef(@NonNull I instance, @NonNull String property, @NonNull Class<V> type) {
+		if(null == instance)
+			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(instance.getClass(), property);
 		if(DomUtil.getBoxedForPrimitive(pmm.getActualType()) != DomUtil.getBoxedForPrimitive(type)) {
 			throw new ProgrammerErrorException(pmm + " must be of type " + type.getName());
@@ -111,6 +113,8 @@ final public class FormBuilder {
 	}
 
 	static private <I, V> BindReference<I, V> createRef(@NonNull I instance, @NonNull QField<I, V> property) {
+		if(null == instance)
+			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		PropertyMetaModel<V> pmm = MetaManager.getPropertyMeta(instance.getClass(), property);
 		//if(DomUtil.getBoxedForPrimitive(pmm.getActualType()) != DomUtil.getBoxedForPrimitive(property.)) {
 		//	throw new ProgrammerErrorException(pmm + " must be of type " + type.getName());
@@ -177,6 +181,8 @@ final public class FormBuilder {
 
 	@NonNull
 	public <T> UntypedControlBuilder<T> property(@NonNull T instance, @GProperty String property) {
+		if(null == instance)
+			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		check();
 		UntypedControlBuilder<T> currentBuilder = new UntypedControlBuilder<>(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 		m_currentBuilder = currentBuilder;
@@ -199,6 +205,8 @@ final public class FormBuilder {
 
 	@NonNull
 	public <T, V> TypedControlBuilder<T, V> property(@NonNull T instance, QField<?, V> property) {
+		if(null == instance)
+			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
 		check();
 		TypedControlBuilder<T, V> builder = new TypedControlBuilder<>(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 		m_currentBuilder = builder;

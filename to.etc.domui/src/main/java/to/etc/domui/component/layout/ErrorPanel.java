@@ -122,7 +122,7 @@ public class ErrorPanel extends CaptionedPanel implements IErrorMessageListener 
 				break;
 
 			case WARNING:
-				setTitle(Msgs.BUNDLE.getString(Msgs.UI_WARNING_HEADER));
+				setTitle(Msgs.uiWarningHeader.getString());
 				break;
 
 			case ERROR:

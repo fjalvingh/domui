@@ -801,14 +801,8 @@ final public class WindowSession {
 	/**
 	 * Call all "new page" listeners when a page is unbuilt or new at this time.
 	 */
-	private void callNewPageCreatedListeners(@NonNull final Page pg) throws Exception {
-		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners()) {
-			npi.newPageCreated(pg.getBody());
-
-			//-- Make very sure none of the listeners built the page jal 20130417 switched off for now, unsure why this is a problem..
-//			if(pg.getBody().isBuilt())
-//				throw new IllegalStateException("Error: INewPageInstantiated#newPageCreated() call in " + npi + " has forced the page to be built - this is not allowed");
-		}
+	private void callNewPageCreatedListeners(@NonNull Page pg) throws Exception {
+		getApplication().callNewPageCreatedListeners(pg);
 	}
 
 // jal 20091122 Bug# 605 Move this globally.

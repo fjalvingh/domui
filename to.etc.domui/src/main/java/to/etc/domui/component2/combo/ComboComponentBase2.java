@@ -169,6 +169,8 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 		//-- Append stuff to the combo
 		List<T> list = getData();
+		if(null == list)
+			list = Collections.emptyList();
 		V raw = internalGetCurrentValue();
 		int index = findListIndexForValue(raw);
 		if(index == -1) {
@@ -190,6 +192,8 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 		//-- Append stuff to the combo
 		List<T> list = getData();
+		if(null == list)
+			list = Collections.emptyList();
 		V raw = internalGetCurrentValue();
 
 		//-- First loop over all values to find out if current value is part of value domain.
@@ -332,7 +336,6 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	/**
 	 * The user selected a different option.
-	 * @see to.etc.domui.dom.html.Select#internalOnUserInput(int, int)
 	 */
 	final protected boolean internalOnUserInput(int oldindex, int nindex) {
 		if(isDisabled()) {
@@ -376,6 +379,8 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		try {
 			ClassMetaModel cmm = MetaManager.findClassMeta(newvalue.getClass());
 			List<T> data = getData();
+			if(null == data)
+				data = Collections.emptyList();
 			for(int ix = 0; ix < data.size(); ix++) {
 				V value = listToValue(data.get(ix));
 				if(MetaManager.areObjectsEqual(value, newvalue, cmm))
@@ -390,6 +395,8 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	private V findListValueByIndex(int ix) {
 		try {
 			List<T> data = getData();
+			if(null == data)
+				data = Collections.emptyList();
 			if(ix < 0 || ix >= data.size())
 				return null;
 			return listToValue(data.get(ix));
@@ -436,7 +443,6 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/*--------------------------------------------------------------*/
 	/**
 	 * Can be used to set a specific list-of-values. When called this clears the existing dataset.
-	 * @param data
 	 */
 	public void setData(List<T> data) {
 		if(m_data != data) {
@@ -450,34 +456,42 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/**
 	 * Returns the data to use as the list-of-values of this combo. This must contain actual selectable
 	 * values only, it may not contain a "no selection made" value thingerydoo.
-	 * @return
-	 * @throws Exception
 	 */
-	public List<T> getData() throws Exception {
+	public List<T> getData() {
 		if(m_data == null)
 			m_data = provideData();
 		return m_data;
 	}
 
+	public void setQuery(QCriteria<T> criteria) {
+		if(null == criteria) {
+			m_dataSet = null;
+		} else {
+			m_dataSet = new CriteriaComboDataSet<>(criteria);
+		}
+		m_data = null;
+		forceRebuild();
+	}
+
 	/**
 	 * Creates the list-of-values that is to be used if no specific lov is set using setData(). The
 	 * default implementation walks the data providers to see if one is present.
-	 * @return
-	 * @throws Exception
 	 */
-	protected List<T> provideData() throws Exception {
-		if(m_listMaker != null)
-			return DomApplication.get().getCachedList(m_listMaker);
+	protected List<T> provideData() {
+		try {
+			if(m_listMaker != null)
+				return DomApplication.get().getCachedList(m_listMaker);
 
-		//-- Try datasets,
-		IComboDataSet<T> builder = m_dataSet;
-		if(builder == null && m_dataSetClass != null)
-			builder = DomApplication.get().createInstance(m_dataSetClass);
-		if(builder != null)
-			return builder.getComboDataSet(getPage().getBody());
-		return Collections.EMPTY_LIST;
-		//
-		//		throw new IllegalStateException("I have no way to get data to show in my combo..");
+			//-- Try datasets,
+			IComboDataSet<T> builder = m_dataSet;
+			if(builder == null && m_dataSetClass != null)
+				builder = DomApplication.get().createInstance(m_dataSetClass);
+			if(builder != null)
+				return builder.getComboDataSet(getPage().getBody());
+			return Collections.EMPTY_LIST;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 	/*--------------------------------------------------------------*/
@@ -506,17 +520,11 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IControl<T> implementation.						*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
-	 */
 	@Override
 	public V getValueSafe() {
 		return DomUtil.getValueSafe(this);
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IControl#hasError()
-	 */
 	@Override
 	public boolean hasError() {
 		getValueSafe();
@@ -526,11 +534,28 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Getters, setters and other boring crud.				*/
 	/*--------------------------------------------------------------*/
+
+	/**
+	 * Use getRenderer() instead.
+	 */
+	@Deprecated
 	public IRenderInto<T> getContentRenderer() {
 		return m_contentRenderer;
 	}
 
+	/**
+	 * Use setRenderer() instead.
+	 */
+	@Deprecated
 	public void setContentRenderer(IRenderInto<T> contentRenderer) {
+		m_contentRenderer = contentRenderer;
+	}
+
+	public IRenderInto<T> getRenderer() {
+		return m_contentRenderer;
+	}
+
+	public void setRenderer(IRenderInto<T> contentRenderer) {
 		m_contentRenderer = contentRenderer;
 	}
 
@@ -578,16 +603,11 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	 * If this combobox has a "unselected" option currently this contains that option. When present it
 	 * means that indexes in the <i>combo</i> list are one <i>higher</i> than indexes in the backing
 	 * dataset (because this empty option is always choice# 0).
-	 * @return
 	 */
 	protected SelectOption getEmptyOption() {
 		return m_emptyOption;
 	}
 
-	/**
-	 * See getter.
-	 * @param emptyOption
-	 */
 	protected void setEmptyOption(SelectOption emptyOption) {
 		m_emptyOption = emptyOption;
 	}

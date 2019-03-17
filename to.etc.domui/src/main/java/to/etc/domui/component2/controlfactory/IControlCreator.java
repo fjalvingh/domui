@@ -9,7 +9,6 @@ public interface IControlCreator {
 	/**
 	 * This must return a +ve value when this factory accepts the specified property; the returned value
 	 * is an eagerness score. The factory returning the highest eagerness wins.
-	 * @param pmm
 	 * @param controlClass When set the control factory *must* be able to return a component which is assignment-compatible with this class type. If it cannot it MUST refuse to create the control.
 	 * @return
 	 */
