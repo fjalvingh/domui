@@ -134,8 +134,15 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 					generateLinkClass(pkgName, entityName, ann, properties);
 					generateStaticClass(pkgName, entityName, ann, properties);
 				} catch(Exception e1) {
-					e1.printStackTrace();
-					messager.printMessage(Kind.ERROR, e1.toString() + " in " + getClass(), classElement);
+
+					/*
+					 * ecj apparently calls this several times, causing:
+					 * Error:(27, 20) java: javax.annotation.processing.FilerException: Source file already exists : nl.skarp.portal.pages.definitions.usability.PiResult_Link in class db.annotationprocessing.PropertyAnnotationProcessor
+					 */
+					if(! e1.getMessage().toLowerCase().contains("source file already exists")) {
+						e1.printStackTrace();
+						messager.printMessage(Kind.ERROR, e1.toString() + " in " + getClass(), classElement);
+					}
 				}
 			}
 		}
@@ -151,9 +158,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	}
 
 	private JavaFileObject createFile(String name, TypeElement ann) throws IOException {
-		JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(name, ann);
-		sourceFile.delete();
-		return sourceFile;
+		return processingEnv.getFiler().createSourceFile(name, ann);
 	}
 
 	private void generateStaticClass(String pkgName, String targetClassName, TypeElement ann, List<Property> properties) throws Exception {
@@ -246,12 +251,17 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 		return m_sourceVersion;
 	}
 
+	/**
+	 * Pretty dumb to use an enum to represent versions if you want to be backward compatible, so
+	 * convert the fuckup into a number.
+	 */
 	public int getUnfsckedVersionNumber() {
-		String ver = System.getProperty("java.specification.version");
-		if(ver == null)
+		String name = getSourceVersion().name();
+		int index = name.lastIndexOf('_');
+		if(index == -1)
 			return 8;
 		try {
-			return Integer.parseInt(ver);
+			return Integer.parseInt(name.substring(index + 1));
 		} catch(Exception x) {
 			return 8;
 		}

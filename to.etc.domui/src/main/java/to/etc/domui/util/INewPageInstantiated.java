@@ -27,18 +27,23 @@ package to.etc.domui.util;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.UrlPage;
 
+/**
+ * Listener for page created and page destroyed events (with a bad name, sigh).
+ */
 public interface INewPageInstantiated {
 	/**
 	 * Called when the page is still "unbuilt", just after creation of it.
-	 * @param body
-	 * @throws Exception
 	 */
 	void newPageCreated(@NonNull UrlPage body) throws Exception;
 
 	/**
 	 * Called whenever a page is "built", also when it is built *again* due to a forceRebuild.
-	 * @param body
-	 * @throws Exception
 	 */
-	void newPageBuilt(@NonNull UrlPage body) throws Exception;
+	default void newPageBuilt(@NonNull UrlPage body) throws Exception {}
+
+	/**
+	 * Called whenever a page is destroyed. You can no longer do things with the page as it's dead already.
+	 */
+	default void pageDestroyed(@NonNull UrlPage body) throws Exception {}
 }
+

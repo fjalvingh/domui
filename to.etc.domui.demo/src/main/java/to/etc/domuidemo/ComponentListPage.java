@@ -18,6 +18,7 @@ import to.etc.domuidemo.pages.overview.dnd.DemoTableInDrag;
 import to.etc.domuidemo.pages.overview.graph.DemoColorPicker;
 import to.etc.domuidemo.pages.overview.graph.DemoColorPicker2;
 import to.etc.domuidemo.pages.overview.htmleditor.DemoCKEditor;
+import to.etc.domuidemo.pages.overview.htmleditor.DemoCKEditorResizing;
 import to.etc.domuidemo.pages.overview.htmleditor.DemoDisplayHtml;
 import to.etc.domuidemo.pages.overview.htmleditor.DemoHtmlEditor;
 import to.etc.domuidemo.pages.overview.input.DemoBulkUpload;
@@ -92,7 +93,8 @@ public class ComponentListPage extends MenuPage {
 		addLink(DemoBulkUpload.class, "The bulk file upload component");
 		addLink(DemoTextArea.class, "The TextArea component");
 		addLink(DemoHtmlEditor.class, "The small and fast HTMLEditor component");
-		addLink(DemoCKEditor.class, "The big HTML editor - CKEditor component");
+		addLink(DemoCKEditor.class, "The big HTML editor - CKEditor component, fixed size");
+		addLink(DemoCKEditorResizing.class, "The big HTML editor - CKEditor component, auto resizing");
 
 		addCaption("Search as you type");
 		addLink(DemoSearchAsYouType1.class, "Component to search-as-you-type in a list of possible values");
