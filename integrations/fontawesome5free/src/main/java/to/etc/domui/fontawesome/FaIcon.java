@@ -7,7 +7,7 @@ import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.WrappedIconRef;
 import to.etc.domui.dom.html.NodeBase;
 
-import javax.annotation.Generated;
+import javax.annotation.processing.Generated;
 
 /**
  * All of the definitions in the FontAwesome 4.7.0 font distribution.
