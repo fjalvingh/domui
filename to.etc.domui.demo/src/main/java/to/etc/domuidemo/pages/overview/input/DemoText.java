@@ -1,9 +1,12 @@
 package to.etc.domuidemo.pages.overview.input;
 
-import java.math.*;
+import to.etc.domui.component.input.Text2;
+import to.etc.domui.dom.html.BR;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.Label;
+import to.etc.domui.dom.html.UrlPage;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.dom.html.*;
+import java.math.BigDecimal;
 
 public class DemoText extends UrlPage {
 	@Override
@@ -13,7 +16,7 @@ public class DemoText extends UrlPage {
 
 		Label l = new Label("String");
 		d.add(l);
-		Text<String> ts = new Text<String>(String.class);
+		Text2<String> ts = new Text2<String>(String.class);
 		d.add(ts);
 		ts.setValue("Example");
 
@@ -21,7 +24,7 @@ public class DemoText extends UrlPage {
 		d.add(new BR());
 		l = new Label("Integer");
 		d.add(l);
-		Text<Integer> ti = new Text<Integer>(Integer.class);
+		Text2<Integer> ti = new Text2<Integer>(Integer.class);
 		d.add(ti);
 		ti.setValue(143);
 
@@ -29,7 +32,7 @@ public class DemoText extends UrlPage {
 		d.add(new BR());
 		l = new Label("Long");
 		d.add(l);
-		Text<Long> tl = new Text<Long>(Long.class);
+		Text2<Long> tl = new Text2<Long>(Long.class);
 		d.add(tl);
 		tl.setSize(8);
 		tl.setMaxLength(16);
@@ -39,18 +42,18 @@ public class DemoText extends UrlPage {
 		d.add(new BR());
 		l = new Label("Double");
 		d.add(l);
-		Text<Double> td = new Text<Double>(Double.class);
+		Text2<Double> td = new Text2<Double>(Double.class);
 		d.add(td);
 		td.setSize(14);
 		td.setMaxLength(16);
 		//-- using rawvalue
-		td.setRawValue("2143.34");
+		td.setValue(2143.34d);
 
 		d.add(new BR());
 		d.add(new BR());
 		l = new Label("Float");
 		d.add(l);
-		Text<Float> tf = new Text<Float>(Float.class);
+		Text2<Float> tf = new Text2<Float>(Float.class);
 		d.add(tf);
 		tf.setSize(14);
 		tf.setMaxLength(16);
@@ -60,12 +63,12 @@ public class DemoText extends UrlPage {
 		d.add(new BR());
 		l = new Label("BigDecimal");
 		d.add(l);
-		Text<BigDecimal> tbd = new Text<BigDecimal>(BigDecimal.class);
+
+		Text2<BigDecimal> tbd = new Text2<BigDecimal>(BigDecimal.class);
 		d.add(tbd);
 		tbd.setSize(25);
 		tbd.setMaxLength(32);
-		//-- using rawvalue
-		tbd.setRawValue("5294987394387");
+		tbd.setValue(new BigDecimal("8192.76"));
 	}
 }
 
