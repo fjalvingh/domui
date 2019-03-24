@@ -77,8 +77,11 @@ public class PageParameters implements IPageParameters, Serializable {
 	/** The approximate length of this parameters instance when rendered on an URL. */
 	private int m_dataLength;
 
-	@NonNull
-	private String m_urlContextString = "";
+	/**
+	 * When set this means a page context is explicitly requested; when unset this means "keep current page context".
+	 */
+	@Nullable
+	private String m_urlContextString;
 
 	/**
 	 * Create an empty PageParameters.
@@ -488,7 +491,7 @@ public class PageParameters implements IPageParameters, Serializable {
 			m_map.put(name, value);
 	}
 
-	@NonNull
+	@Nullable
 	@Override public String getUrlContextString() {
 		return m_urlContextString;
 	}
