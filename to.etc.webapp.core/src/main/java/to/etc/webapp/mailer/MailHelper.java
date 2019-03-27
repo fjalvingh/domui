@@ -364,7 +364,7 @@ public class MailHelper {
 		m_text_sb.append(url);
 		m_text_sb.append(")");
 
-		htmlTag("a", "href", url);
+		htmlTag("a", "clicktracking", "off", "href", url);
 		htmlText(StringTool.htmlStringize(text));
 		htmlEndTag("a");
 		return this;
@@ -619,8 +619,8 @@ public class MailHelper {
 	//}
 
 	public Message getMessage() {
-		if(m_from == null)
-			throw new IllegalStateException("No 'from' specified.");
+		//if(m_from == null)
+		//	throw new IllegalStateException("No 'from' specified.");
 		Message m = new Message();
 		m.setFrom(m_from);
 		for(Address to : m_to)
