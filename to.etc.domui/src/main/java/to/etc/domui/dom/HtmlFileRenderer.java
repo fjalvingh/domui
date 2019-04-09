@@ -10,6 +10,7 @@ import to.etc.domui.dom.html.NodeVisitorBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.parts.ExtendedParameterInfoImpl;
 import to.etc.domui.parts.TempFilePart;
 import to.etc.domui.parts.TempFilePart.Disposition;
@@ -449,9 +450,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		} else {
 			for(HeaderContributor contributor : m_contributors) {
 				contributor.contribute(this);
-		}
-		for(HeaderContributor contributor : m_contributors) {
-			contributor.contribute(this);
+			}
 		}
 	}
 
