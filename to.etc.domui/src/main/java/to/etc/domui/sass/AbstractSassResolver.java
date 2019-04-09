@@ -221,6 +221,8 @@ abstract public class AbstractSassResolver<O> {
 	protected String generateParameterFile() {
 		StringBuilder sb = new StringBuilder();
 		for(String name : m_params.getParameterNames()) {
+			if(name.startsWith("__"))
+				continue;
 			String[] values = m_params.getParameters(name);
 			if(null != values && values.length == 1) {
 				String value = values[0];

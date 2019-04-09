@@ -50,8 +50,14 @@ public class JSassCompiler implements ISassCompiler {
 		opt.setOutputStyle(OutputStyle.EXPANDED);
 		opt.setIndent("\t");
 		opt.setLinefeed("\n");
-		opt.setSourceMapEmbed(true);
+
+		boolean map = params.getParameter("__nomap") == null;
+		opt.setSourceMapEmbed(map);
+		if(! map) {
+			opt.setSourceMapContents(false);
+		}
 		opt.setSourceComments(false);
+
 
 		boolean isSass = rurl.toLowerCase().endsWith(".sass");
 		opt.setIsIndentedSyntaxSrc(isSass);

@@ -421,7 +421,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Internal use only: set the assigned id.
 	 * @param actualID
 	 */
-	final void setActualID(@NonNull final String actualID) {
+	final protected void setActualID(@NonNull final String actualID) {
 		m_actualID = actualID;
 	}
 
