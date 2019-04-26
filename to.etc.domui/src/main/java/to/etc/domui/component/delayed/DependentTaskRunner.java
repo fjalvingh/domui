@@ -120,6 +120,10 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 		return Objects.requireNonNull(m_progress).isCancelled();
 	}
 
+	public synchronized List<SingleTaskExecutor<T>> getRunningTasks() {
+		return new ArrayList<>(m_runningTasks);
+	}
+
 	/**
 	 * The executor task which runs the payload and handles error and success registration.
 	 */
@@ -148,7 +152,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 			}
 			m_runner.taskStarting(this);
 			try {
-				System.out.println("-- starting " + m_task);
+				//System.out.println("-- starting " + m_task);
 				p.setTotalWork(1.0);
 				m_task.getItem().run(p);
 				p.complete();
@@ -159,7 +163,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 					x.printStackTrace();
 				}
 			} finally {
-				System.out.println("-- finished " + m_task + " " + error);
+				//System.out.println("-- finished " + m_task + " " + error);
 				m_task.completed(exception, error);
 				synchronized(this) {
 					m_endTime = new Date();
