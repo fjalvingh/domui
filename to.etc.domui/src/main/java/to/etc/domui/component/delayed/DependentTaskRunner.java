@@ -19,9 +19,9 @@ import java.util.Objects;
 public class DependentTaskRunner<T extends IAsyncRunnable> {
 	private final DependentTaskSource<T> m_taskSource = new DependentTaskSource<>();
 
-	private final FunctionEx<List<Task<T>>, Task<T>> m_calculateBest = tasks -> tasks.get(0);
+	private FunctionEx<List<Task<T>>, Task<T>> m_calculateBest = tasks -> tasks.get(0);
 
-	private final FunctionEx<T, Integer> m_priorityCalculator = t -> 10;
+	private FunctionEx<T, Integer> m_priorityCalculator = t -> 10;
 
 	private final List<SingleTaskExecutor<T>> m_scheduledList = new ArrayList<>();
 
@@ -57,6 +57,14 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 		for(Task<T> task: m_taskSource.getCancelledSet()) {
 			handleCancelled(task);
 		}
+	}
+
+	public void setCalculateBest(FunctionEx<List<Task<T>>, Task<T>> calculateBest) {
+		m_calculateBest = calculateBest;
+	}
+
+	public void setPriorityCalculator(FunctionEx<T, Integer> priorityCalculator) {
+		m_priorityCalculator = priorityCalculator;
 	}
 
 	private void runDefinition(Task<T> tableTask) throws Exception {
