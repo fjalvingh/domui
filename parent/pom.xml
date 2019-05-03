@@ -718,38 +718,52 @@
                     <artifactId>maven-dependency-plugin</artifactId>
                 </plugin>
 
+<!--                <plugin>-->
+<!--                    <groupId>org.apache.maven.plugins</groupId>-->
+<!--                    <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                    <version>${maven-compiler-plugin.version}</version>-->
+<!--                    <configuration>-->
+<!--                        <compilerId>eclipse</compilerId>-->
+<!--                        <source>${jdk.version}</source>-->
+<!--                        <target>${jdk.version}</target>-->
+<!--                        &lt;!&ndash; Passing arguments is a trainwreck, see https://issues.apache.org/jira/browse/MCOMPILER-123 &ndash;&gt;-->
+<!--                        <compilerArgs>-->
+<!--                            <arg>-properties</arg>-->
+<!--                            <arg>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</arg>-->
+<!--                            <arg>-enableJavadoc</arg>-->
+<!--                        </compilerArgs>-->
+
+<!--                        <showWarnings>true</showWarnings>-->
+<!--                        <showDeprecation>true</showDeprecation>-->
+<!--                    </configuration>-->
+
+<!--                    <dependencies>-->
+<!--                        <dependency>-->
+<!--                            <groupId>org.codehaus.plexus</groupId>-->
+<!--                            <artifactId>plexus-compiler-eclipse</artifactId>-->
+<!--                            <version>${plexus-compiler-eclipse.version}</version>-->
+<!--                        </dependency>-->
+
+<!--                        <dependency>-->
+<!--                            <groupId>org.eclipse.jdt</groupId>-->
+<!--                            <artifactId>ecj</artifactId>-->
+<!--                            <version>${ecj.version}</version>-->
+<!--                        </dependency>-->
+<!--                    </dependencies>-->
+<!--                </plugin>-->
+
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <compilerId>eclipse</compilerId>
                         <source>${jdk.version}</source>
                         <target>${jdk.version}</target>
                         <!-- Passing arguments is a trainwreck, see https://issues.apache.org/jira/browse/MCOMPILER-123 -->
-                        <compilerArgs>
-                            <arg>-properties</arg>
-                            <arg>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</arg>
-                            <arg>-enableJavadoc</arg>
-                        </compilerArgs>
 
-                        <showWarnings>true</showWarnings>
+                        <showWarnings>false</showWarnings>
                         <showDeprecation>true</showDeprecation>
                     </configuration>
-
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.codehaus.plexus</groupId>
-                            <artifactId>plexus-compiler-eclipse</artifactId>
-                            <version>${plexus-compiler-eclipse.version}</version>
-                        </dependency>
-
-                        <dependency>
-                            <groupId>org.eclipse.jdt</groupId>
-                            <artifactId>ecj</artifactId>
-                            <version>${ecj.version}</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
 
 
