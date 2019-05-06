@@ -21,7 +21,6 @@
   "files": [
     "domui.ajax.ts"
     , "domui.browser.ts"
-    , "domui.bulkupload.ts"
     , "domui.busy.ts"
     , "domui.comp.ts"
     , "domui.computil.ts"
