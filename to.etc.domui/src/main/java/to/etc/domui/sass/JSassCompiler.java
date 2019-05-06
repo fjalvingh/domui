@@ -1,5 +1,6 @@
 package to.etc.domui.sass;
 
+import io.bit3.jsass.CompilationException;
 import io.bit3.jsass.Compiler;
 import io.bit3.jsass.Options;
 import io.bit3.jsass.Output;
@@ -62,13 +63,17 @@ public class JSassCompiler implements ISassCompiler {
 		boolean isSass = rurl.toLowerCase().endsWith(".sass");
 		opt.setIsIndentedSyntaxSrc(isSass);
 
-		StringContext fc = new StringContext(file.getContents(), file.getImportUri(), out.toURI(), opt);
-		Compiler co = new Compiler();
-		Output res = co.compile(fc);
-		String css = res.getCss();
-		output.write(css == null ? "" : css);
-		out.delete();
-		jsr.close();
+		try {
+			StringContext fc = new StringContext(file.getContents(), file.getImportUri(), out.toURI(), opt);
+			Compiler co = new Compiler();
+			Output res = co.compile(fc);
+			String css = res.getCss();
+			output.write(css == null ? "" : css);
+			out.delete();
+			jsr.close();
+		} catch(CompilationException cx) {
+			throw new SassException(cx.getErrorMessage() + "\n" + cx.getErrorJson(), cx);
+		}
 	}
 
 	@Override public boolean available() {

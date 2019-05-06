@@ -12,7 +12,6 @@ import to.etc.util.StringTool;
 import to.etc.webapp.core.ServerTools;
 import to.etc.webapp.query.IIdentifyable;
 
-import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -726,7 +725,7 @@ public class MailHelper {
 
 	@NonNull
 	protected InputStream getApplicationResource(@NonNull String name) throws Exception {
-		throw new OperationNotSupportedException("Override getApplicationResource(String)");
+		throw new UnsupportedOperationException("Override getApplicationResource(String)");
 
 //		//-- Get the appfile represented by that RURL.
 //		IResourceRef rr = DomApplication.get().getResource(rurl, ResourceDependencyList.NULL);

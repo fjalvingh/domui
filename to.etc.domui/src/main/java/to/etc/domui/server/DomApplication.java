@@ -1633,6 +1633,46 @@ public abstract class DomApplication {
 		return m_newPageInstListeners;
 	}
 
+	/**
+	 * Call all "new page" listeners when a page is unbuilt or new at this time.
+	 */
+	public void callNewPageCreatedListeners(@NonNull Page pg) throws Exception {
+		for(INewPageInstantiated npi : getNewPageInstantiatedListeners()) {
+			npi.newPageCreated(pg.getBody());
+		}
+		for(IDomUIStateListener usl : getUIStateListeners()) {
+			try {
+				usl.onPageCreated(pg);
+			} catch(Exception x) {
+				System.err.println("Exception in DomUI state listener " + usl + ": " + x);
+				x.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 * Call all "new page" listeners when a page is unbuilt or new at this time.
+	 */
+	public void callPageDestroyedListeners(@NonNull Page pg) {
+		for(INewPageInstantiated npi : getNewPageInstantiatedListeners()) {
+			try {
+				npi.pageDestroyed(pg.getBody());
+			} catch(Exception x) {
+				System.err.println("Exception while destroying page " + pg + ": " + x);
+				x.printStackTrace();
+			}
+		}
+		for(IDomUIStateListener usl : getUIStateListeners()) {
+			try {
+				usl.onPageDestroyed(pg);
+			} catch(Exception x) {
+				System.err.println("Exception in DomUI state listener " + usl + ": " + x);
+				x.printStackTrace();
+			}
+		}
+	}
+
+
 	public synchronized ILoginAuthenticator getLoginAuthenticator() {
 		return m_loginAuthenticator;
 	}

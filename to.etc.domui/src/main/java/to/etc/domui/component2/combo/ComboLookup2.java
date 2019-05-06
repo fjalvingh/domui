@@ -24,13 +24,19 @@
  */
 package to.etc.domui.component2.combo;
 
-import java.util.*;
+import to.etc.domui.component.input.IComboBox;
+import to.etc.domui.component.input.IQueryManipulator;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.IListMaker;
+import to.etc.domui.util.IRenderInto;
+import to.etc.domui.util.PropertyNodeContentRenderer;
+import to.etc.webapp.query.QCriteria;
 
-import to.etc.domui.component.input.*;
-import to.etc.domui.component.meta.*;
-import to.etc.domui.component.meta.impl.*;
-import to.etc.domui.util.*;
-import to.etc.webapp.query.*;
+import java.util.List;
 
 /**
  * Combobox component where the list type is the same as the value type, i.e. it
@@ -39,12 +45,11 @@ import to.etc.webapp.query.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 16, 2010
  */
-public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
+public class ComboLookup2<T> extends ComboComponentBase2<T, T> implements IComboBox<T> {
 	public ComboLookup2() {}
 
 	/**
 	 * Use the specified cached list maker to fill the combobox.
-	 * @param maker
 	 */
 	public ComboLookup2(IListMaker<T> maker) {
 		super(maker);
@@ -60,7 +65,6 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 
 	/**
 	 * Create a combo which fills it's list with the result of the query passed.
-	 * @param query
 	 */
 	public ComboLookup2(QCriteria<T> query) {
 		super(query);
@@ -68,7 +72,6 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 
 	/**
 	 * Create a combo which fills it's list with the result of the query passed.
-	 * @param query
 	 */
 	public ComboLookup2(QCriteria<T> query, IRenderInto<T> cr) {
 		this(query);
@@ -77,8 +80,6 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 
 	/**
 	 * Create a combo which fills it's list with the result of the query. Each value is filled from the values of the properties specified.
-	 * @param query
-	 * @param properties
 	 */
 	public ComboLookup2(QCriteria<T> query, String... properties) {
 		this(query);
@@ -87,8 +88,6 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 
 	/**
 	 * Create a combo which fills it's list with the specified in list. Each value is filled from the values of the properties specified.
-	 * @param in
-	 * @param properties
 	 */
 	public ComboLookup2(List<T> in, String... properties) {
 		super(in);
@@ -98,7 +97,6 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 	/**
 	 * This implements the identical conversion, i.e. in=out, because this component returns
 	 * the list type.
-	 * @see to.etc.domui.component.input.ComboComponentBase#listToValue(java.lang.Object)
 	 */
 	@Override
 	protected T listToValue(T in) {
@@ -108,11 +106,6 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Utility methods.									*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param pmm
-	 * @return
-	 */
 	static public <T> ComboLookup2<T> createLookup(PropertyMetaModel<T> pmm) throws Exception {
 		IRenderInto<T> r = (IRenderInto<T>) MetaManager.createDefaultComboRenderer(pmm, null);
 
@@ -160,5 +153,18 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> {
 		return co;
 	}
 
+	@Override public ComboLookup2<T> data(List<T> list) {
+		setData(list);
+		return this;
+	}
 
+	@Override public ComboLookup2<T> query(QCriteria<T> criteria) {
+		setQuery(criteria);
+		return this;
+	}
+
+	@Override public ComboLookup2<T> renderer(IRenderInto<T> renderer) {
+		setRenderer(renderer);
+		return this;
+	}
 }

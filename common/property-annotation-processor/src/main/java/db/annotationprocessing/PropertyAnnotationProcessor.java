@@ -158,9 +158,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	}
 
 	private JavaFileObject createFile(String name, TypeElement ann) throws IOException {
-		JavaFileObject sourceFile = processingEnv.getFiler().createSourceFile(name, ann);
-		sourceFile.delete();
-		return sourceFile;
+		return processingEnv.getFiler().createSourceFile(name, ann);
 	}
 
 	private void generateStaticClass(String pkgName, String targetClassName, TypeElement ann, List<Property> properties) throws Exception {
@@ -253,6 +251,10 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 		return m_sourceVersion;
 	}
 
+	/**
+	 * Pretty dumb to use an enum to represent versions if you want to be backward compatible, so
+	 * convert the fuckup into a number.
+	 */
 	public int getUnfsckedVersionNumber() {
 		String ver = System.getProperty("java.specification.version");
 		if(ver == null)

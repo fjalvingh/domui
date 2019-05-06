@@ -34,7 +34,6 @@ import to.etc.domui.dom.html.TextArea;
 public class ControlCreatorTextArea implements IControlCreator {
 	/**
 	 * Accept if the componentHint says textarea.
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
