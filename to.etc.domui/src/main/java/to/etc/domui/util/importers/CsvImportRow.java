@@ -5,7 +5,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,8 +31,8 @@ public class CsvImportRow implements IImportRow {
 	}
 
 	@Override public IImportColumn get(int index) throws IOException {
-		if(index < 0 || index >= m_columns.size())
-			throw new IllegalStateException("Column index invalid: must be between 0 and " + m_columns.size());
+		//if(index < 0 || index >= m_columns.size())
+		//	throw new IllegalStateException("Column index invalid: must be between 0 and " + m_columns.size());
 		while(index >= m_colWrappers.size()) {
 			m_colWrappers.add(new Col(m_colWrappers.size(), m_reader.getColumnName(index)));
 		}
@@ -58,7 +57,7 @@ public class CsvImportRow implements IImportRow {
 		}
 
 		@Nullable @Override public String getStringValue() {
-			return m_columns.get(m_index);
+			return m_columns.size() <= m_index ? null : m_columns.get(m_index);
 		}
 
 		@Nullable @Override public Date asDate() {
