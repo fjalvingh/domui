@@ -958,11 +958,15 @@ public class StringTool {
 	 * @return
 	 */
 	static public String toHex(final byte[] arr, final int start, final int end) {
-		StringBuffer sb = new StringBuffer(arr.length * 2);
+		StringBuilder sb = new StringBuilder(arr.length * 2);
 
-		for(int i = start; i < end; i++)
-			sb.append(intToStr((arr[i]) & 0xff, 16, 2));
-
+		for(int i = start; i < end; i++) {
+			int v = arr[i];
+			int c = (v >> 4) & 0xf;
+			sb.append(c <= 9 ? (char)(c + '0') : (char) (c + 'a' - 10));
+			c = v & 0xf;
+			sb.append(c <= 9 ? (char)(c + '0') : (char) (c + 'a' - 10));
+		}
 		return sb.toString();
 	}
 
@@ -984,7 +988,7 @@ public class StringTool {
 	 * @return
 	 */
 	static public String toHexSp(final byte[] arr, final int start, final int end) {
-		StringBuffer sb = new StringBuffer(arr.length * 2);
+		StringBuilder sb = new StringBuilder(arr.length * 2);
 
 		for(int i = start; i < end; i++) {
 			sb.append(intToStr((arr[i]) & 0xff, 16, 2));

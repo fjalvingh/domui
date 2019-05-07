@@ -39,6 +39,10 @@ public class TH extends TD {
 		super("th");
 	}
 
+	public TH(String cssClass) {
+		setCssClass(cssClass);
+	}
+
 	@Override
 	public void visit(INodeVisitor v) throws Exception {
 		v.visitTH(this);

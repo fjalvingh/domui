@@ -71,8 +71,9 @@ final public class LookupInput2<T> extends LookupInputBase2<T, T> {
 		super(new SameTypeModelFactory<T>(), lookupClass, lookupClass);
 	}
 
-	public LookupInput2(@NonNull QCriteria<T> rootQuery) {
+	public LookupInput2(@NonNull QCriteria<T> rootQuery, String... resultColumns) {
 		super(new SameTypeModelFactory<T>(), rootQuery, DomUtil.nullChecked(rootQuery.getBaseClass()));
+		setValueColumns(resultColumns);
 	}
 
 	public LookupInput2(@NonNull Class<T> dataClass, @NonNull List<T> data) {

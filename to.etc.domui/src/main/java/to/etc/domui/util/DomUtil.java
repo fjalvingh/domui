@@ -92,6 +92,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -962,8 +963,6 @@ final public class DomUtil {
 	/**
 	 * Remove all HTML tags from the input and keep only the text content. Things like script tags and the like
 	 * will be removed but their contents will be kept.
-	 * @param sb
-	 * @param in
 	 */
 	static public void stripHtml(final StringBuilder sb, final String in) {
 		HtmlScanner hs = new HtmlScanner();
@@ -985,6 +984,26 @@ final public class DomUtil {
 		}
 		if(hs.getPos() < in.length())
 			sb.append(in, hs.getPos(), in.length());
+	}
+
+	static public boolean containsHtml(String txt) {
+		HtmlScanner hs = new HtmlScanner();
+		int lpos = 0;
+		hs.setDocument(txt);
+		for(; ; ) {
+			String tag = hs.nextTag(); // Find the next tag.
+			if(tag == null)
+				return false;
+			if(isHtmlTag(tag))
+				return true;
+			hs.skipTag();
+		}
+	}
+
+	static private final Set<String> HTML_SET = new HashSet<>(Arrays.asList("p", "b", "br", "i", "em", "div", "span", "ul", "li", "ol", "dd", "dl", "dt", "font", "h1", "h2", "h3", "h4", "h5", "h6"));
+
+	private static boolean isHtmlTag(String tag) {
+		return HTML_SET.contains(tag.toLowerCase());
 	}
 
 	static public void dumpException(final Exception x) {

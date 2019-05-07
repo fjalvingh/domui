@@ -185,6 +185,10 @@
 		}
 		let q = cmdNode.getAttribute('select');
 		if(!q) {
+			//-- BUGFIX DarkReader inserts style tags; skip those.
+			if(cmd == 'style')
+				return true;
+
 			//-- Node sans select-> we are in trouble -> this is probably a server error/response. Report session error, then reload. (Marc, 20111017)
 			alert('The server seems to have lost this page.. Reloading the page with fresh data');
 			window.location.href = window.location.href;

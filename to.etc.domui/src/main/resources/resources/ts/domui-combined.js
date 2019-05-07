@@ -3859,6 +3859,8 @@ var WebUI;
         }
         var q = cmdNode.getAttribute('select');
         if (!q) {
+            if (cmd == 'style')
+                return true;
             alert('The server seems to have lost this page.. Reloading the page with fresh data');
             window.location.href = window.location.href;
             return false;

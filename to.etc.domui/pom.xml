@@ -226,6 +226,11 @@
                     <groupId>org.apache.xmlgraphics</groupId>
                     <artifactId>batik-ext</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>xalan</groupId>
+                    <artifactId>xalan</artifactId>
+                </exclusion>
+
             </exclusions>
         </dependency>
 <!--        <dependency>-->

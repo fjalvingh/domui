@@ -10,6 +10,7 @@ import to.etc.domui.dom.html.NodeVisitorBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.parts.ExtendedParameterInfoImpl;
 import to.etc.domui.parts.TempFilePart;
 import to.etc.domui.parts.TempFilePart.Disposition;
@@ -49,12 +50,14 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 	private final Page m_page;
 
+	private boolean m_xml;
+
 	/**
 	 * The thingy responsible for rendering the tags,
 	 */
 	private HtmlTagRenderer m_tagRenderer;
 
-	private final String m_pageTitle = "DomUI report";
+	private String m_pageTitle = "DomUI report";
 
 	@NonNull
 	private IBrowserOutput m_o;
@@ -104,17 +107,47 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		}
 	}
 
-	private void addHeaderContributors(List<HeaderContributor> contributors) {
+	public void addHeaderContributors(List<HeaderContributor> contributors) {
 		m_contributors.addAll(contributors);
 	}
 
-	static public HtmlFileRenderer create(@NonNull Writer output, @NonNull NodeContainer rootNode) {
+	public void addHeaderContributor(HeaderContributor contributor) {
+		m_contributors.add(contributor);
+	}
+
+	static public HtmlFileRenderer create(@NonNull Writer output, @NonNull NodeContainer rootNode) throws Exception {
 		FastXmlOutputWriter out = new FastXmlOutputWriter(output);
 		HtmlTagRenderer rr = new StandardHtmlTagRenderer(BrowserVersion.INSTANCE, out, false);
 		rr.setRenderInline(true);
 		HtmlFileRenderer fr = new HtmlFileRenderer(rr, out, rootNode);
 		return fr;
 	}
+
+	static public HtmlFileRenderer create(@NonNull Writer output, @NonNull Page sourcePage, @NonNull NodeContainer rootNode) throws Exception {
+		NodeContainer renderRoot = rootNode;
+		if(! rootNode.isAttached()) {
+			UrlPage body;
+			if(rootNode instanceof UrlPage) {
+				body = (UrlPage) rootNode;
+			} else {
+				body = new UrlPage();
+			}
+
+			Page page = new Page(body);
+			if(body != rootNode)
+				body.add(rootNode);
+
+			page.internalInitialize(sourcePage.getPageParameters(), sourcePage.getConversation());
+			renderRoot = body;
+		}
+
+		FastXmlOutputWriter out = new FastXmlOutputWriter(output);
+		HtmlTagRenderer rr = new StandardHtmlTagRenderer(BrowserVersion.INSTANCE, out, false);
+		rr.setRenderInline(true);
+		HtmlFileRenderer fr = new HtmlFileRenderer(rr, out, renderRoot);
+		return fr;
+	}
+
 
 	static public void download(@NonNull NodeContainer resultFragment, @NonNull String fileName) throws Exception {
 		File tempFile = File.createTempFile("ht-", ".html");
@@ -130,11 +163,17 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		return new Builder(rootNode);
 	}
 
-	protected HtmlFileRenderer(@NonNull HtmlTagRenderer tagRenderer, @NonNull IBrowserOutput output, NodeContainer rootNode) {
+	protected HtmlFileRenderer(@NonNull HtmlTagRenderer tagRenderer, @NonNull IBrowserOutput output, NodeContainer rootNode) throws Exception {
 		m_tagRenderer = tagRenderer;
 		m_o = output;
 		m_rootNode = rootNode;
 		setRenderMode(HtmlRenderMode.FULL);
+
+		if(! rootNode.isAttached()) {
+			UrlPage body = new UrlPage();
+			Page page = new Page(body);
+			body.add(rootNode);
+		}
 		m_page = rootNode.getPage();
 	}
 
@@ -143,6 +182,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	 */
 	public void render(IRequestContext ctx) throws Exception {
 		m_ctx = ctx;
+		m_page.internalFullBuild();
 
 		renderPageHeader();
 		renderThemeCSS();
@@ -194,6 +234,14 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		m_tagRenderer.setRenderMode(m);
 	}
 
+	public boolean isXml() {
+		return m_xml;
+	}
+
+	public void setXml(boolean xml) {
+		m_xml = xml;
+	}
+
 	@Override
 	@NonNull
 	public IBrowserOutput o() {
@@ -222,7 +270,12 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 			m_createJS.append(n.getCreateJS());
 		n.internalRenderJavascriptState(m_stateBuilder);
 		if(!(n instanceof TextNode)) {
-			m_o.dec();                                        // 20080626 img et al does not dec()...
+			if(m_xml) {
+				if(!n.isRendersOwnClose()) {
+					getTagRenderer().renderEndTag(n);
+				}
+			} else
+				m_o.dec();										// 20080626 img et al does not dec()...
 		}
 		n.internalClearDelta();
 	}
@@ -234,10 +287,11 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	@Deprecated
 	public void visitLiteralXhtml(LiteralXhtml n) throws Exception {
 		visitNodeBase(n); 						// Handle most thingies we need to do,
-
-		//-- In HTML mode we MUST end this tag, and we need to inc() because the visitNodeBase() has decremented..
-		m_o.inc();
-		getTagRenderer().renderEndTag(n);		// Force close the tag in HTML mode.
+		if(!m_xml) {
+			//-- In HTML mode we MUST end this tag, and we need to inc() because the visitNodeBase() has decremented..
+			m_o.inc();
+			getTagRenderer().renderEndTag(n); // Force close the tag in HTML mode.
+		}
 	}
 
 	/**
@@ -286,12 +340,58 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	 * Render the page's doctype.
 	 */
 	protected void renderPageHeader() throws Exception {
-		o().writeRaw("<!DOCTYPE html>\n");
-		o().tag("html");
-		o().endtag();
-		o().tag("head");
-		o().endtag();
-		o().writeRaw("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+		if(isXml()) {
+			o().writeRaw(
+				"<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" //
+				+ "<head>\n" //
+				+ "<meta http-equiv=\"Content-Type\" content=\"application/xhtml+xml; charset=UTF-8\"/>\n" //
+			);
+		} else {
+			o().writeRaw("<!DOCTYPE html>\n");
+			o().tag("html");
+			o().endtag();
+			o().tag("head");
+			o().endtag();
+			o().writeRaw("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+		}
+	}
+
+	static private String xmlStringize(final String is) {
+		if(is == null)
+			return "null";
+		StringBuffer sb = new StringBuffer(is.length() + 20);
+		xmlStringize(sb, is);
+		return sb.toString();
+	}
+
+	static private void xmlStringize(final StringBuffer sb, final String is) {
+		if(is == null) {
+			sb.append("null");
+			return;
+		}
+		for(int i = 0; i < is.length(); i++) {
+			char c = is.charAt(i);
+			switch(c){
+				case '>':
+					sb.append("&gt;");
+					break;
+				case '<':
+					sb.append("&lt;");
+					break;
+				case '&':
+					sb.append("&amp;");
+					break;
+				//case '"':
+				//	sb.append("&quot;");
+				//	break;
+				//case '\'':
+				//	sb.append("&apos;");
+				//	break;
+				default:
+					sb.append(c);
+					break;
+			}
+		}
 	}
 
 	/**
@@ -305,13 +405,14 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		String themeName = DomApplication.get().getDefaultThemeName();
 		BrowserVersion version = BrowserVersion.INSTANCE;
 		String css = ThemeResourceFactory.PREFIX + themeName + "/style.scss";
-		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(themeName, version, css, "");
+		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(themeName, version, css, "__nomap=true");
 		PartData data = DomApplication.get().getPartService().getData(pi);
 
 		o().writeRaw("<style type='text/css'>\n");
 		try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
 			try(InputStreamReader isr = new InputStreamReader(bbis, "utf-8")) {
 				String cssStr = FileTool.readStreamAsString(isr);
+				cssStr = xmlStringize(cssStr);
 				o().writeRaw(cssStr);
 			}
 		}
@@ -327,6 +428,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		try(InputStream is = requireNonNull(resource.getInputStream())) {
 			try(InputStreamReader isr = new InputStreamReader(is, "utf-8")) {
 				String str = FileTool.readStreamAsString(isr);
+				str = xmlStringize(str);
 				o().writeRaw(str);
 			}
 		}
@@ -336,15 +438,19 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
 	 */
 	public void renderHeadContributors() throws Exception {
-		List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(m_page.getApplication().getHeaderContributorList());
-		Collections.sort(full, HeaderContributor.C_ENTRY);
-		for(HeaderContributorEntry hce : full) {
-			HeaderContributor contributor = hce.getContributor();
-			if(contributor.isOfflineCapable())
+		if(m_contributors.size() == 0) {
+			List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(m_page.getApplication().getHeaderContributorList());
+
+			Collections.sort(full, HeaderContributor.C_ENTRY);
+			for(HeaderContributorEntry hce : full) {
+				HeaderContributor contributor = hce.getContributor();
+				if(contributor.isOfflineCapable())
+					contributor.contribute(this);
+			}
+		} else {
+			for(HeaderContributor contributor : m_contributors) {
 				contributor.contribute(this);
-		}
-		for(HeaderContributor contributor : m_contributors) {
-			contributor.contribute(this);
+			}
 		}
 	}
 
@@ -362,6 +468,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 			try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
 				try(InputStreamReader isr = new InputStreamReader(bbis, "utf-8")) {
 					String cssStr = FileTool.readStreamAsString(isr);
+					cssStr = xmlStringize(cssStr);
 					o().writeRaw(cssStr);
 				}
 			}
@@ -411,5 +518,13 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 			m_stateJS.setLength(0);
 		}
 		return m_createJS;
+	}
+
+	public Page getPage() {
+		return m_page;
+	}
+
+	public void setPageTitle(String pageTitle) {
+		m_pageTitle = pageTitle;
 	}
 }
