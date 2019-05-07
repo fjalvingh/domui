@@ -34,7 +34,9 @@ import to.etc.domui.databinding.list2.IListChangeListener;
 import to.etc.domui.databinding.list2.IListChangeVisitor;
 import to.etc.domui.databinding.list2.ListChangeEvent;
 import to.etc.domui.databinding.observables.IObservableList;
+import to.etc.domui.databinding.observables.ObservableList;
 import to.etc.domui.databinding.observables.ObservableListModelAdapter;
+import to.etc.domui.databinding.observables.SortableObservableListModelAdapter;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.util.IShelvedListener;
@@ -214,8 +216,21 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 
 			//-- We're going to replace this, so remove me as a list change listener.
 			oa.getSource().removeChangeListener(this);
+		} else if(om instanceof SortableObservableListModelAdapter<?>) {
+			//-- Check if this is the same list, wrapped already.
+			SortableObservableListModelAdapter<T> oa = (SortableObservableListModelAdapter<T>) om;
+			if(oa.getSource() == list)							// Same list?
+				return;
+
+			//-- We're going to replace this, so remove me as a list change listener.
+			oa.getSource().removeChangeListener(this);
+
 		}
-		if(null != list) {
+		if(list instanceof ObservableList) {
+			SortableObservableListModelAdapter<T> ma = new SortableObservableListModelAdapter<>((ObservableList<T>) list);
+			setModel(ma);
+			list.addChangeListener(this);
+		} else if(list instanceof IObservableList<?>) {
 			ObservableListModelAdapter<T> ma = new ObservableListModelAdapter<T>(list);
 			setModel(ma);
 			list.addChangeListener(this);
