@@ -24,7 +24,10 @@
  */
 package to.etc.domui.component.meta;
 
-import java.lang.annotation.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * This is an item in an object's default search definition. This defines
