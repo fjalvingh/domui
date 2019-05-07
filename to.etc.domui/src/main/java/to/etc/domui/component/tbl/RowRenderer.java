@@ -237,7 +237,7 @@ import java.util.function.Predicate;
 //				sortImages[ix] = img;
 			}
 
-			String cssClass = cd.getCssClass();
+			String cssClass = cd.getHeaderCssClass();
 			if(cssClass != null)
 				th.addCssClass(cssClass);
 			applyNumericCssClass(th, cd);

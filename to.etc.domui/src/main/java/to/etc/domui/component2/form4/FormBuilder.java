@@ -16,6 +16,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
+import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.query.QField;
 
 /**
@@ -628,6 +629,15 @@ final public class FormBuilder {
 			m_nextLabel = label;
 			return this;
 		}
+
+		@NonNull
+		public TypedControlBuilder<I, V> label(@NonNull IBundleCode code) {
+			if(null != m_nextLabelControl)
+				throw new IllegalStateException("You already set a Label instance");
+			m_nextLabel = code.getString();
+			return this;
+		}
+
 
 		@NonNull
 		public TypedControlBuilder<I, V> label(@NonNull NodeContainer label) {
