@@ -31,6 +31,7 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.server.DomApplication;
@@ -88,11 +89,7 @@ public class ControlCreatorRelationLookup implements IControlCreator {
 			if(cmm.getLookupSelectedRenderer() != null)
 				li.setValueRenderer((IRenderInto<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		}
-		if(pmm.isRequired())
-			li.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			li.setTitle(s);
+		UIControlUtil.configure(li, pmm);
 
 		//-- 20110721 jal If a query manipulator is present- use it.
 		IQueryManipulator<T> qm = pmm.getQueryManipulator();

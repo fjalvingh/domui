@@ -239,11 +239,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	}
 
 	public void defineFrom(@NonNull PropertyMetaModel< ? > pmm) {
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			setTitle(s);
-
-		// FIXME Define more fully.
+		UIControlUtil.configureHint(this, pmm);
 	}
 
 	@Nullable @Override public NodeBase getForTarget() {

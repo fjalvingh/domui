@@ -30,7 +30,6 @@ import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.converter.IObjectToStringConverter;
 import to.etc.domui.dom.html.NodeContainer;
@@ -268,17 +267,10 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 			vl.add(new ValueLabelPair<T>((T) o, label));
 		}
 
-		ComboFixed2<T> c = new ComboFixed2<T>(vl);
-		if(pmm.isRequired())
-			c.setMandatory(true);
-		if(!editable || pmm.getReadOnly() == YesNoType.YES)
-			c.setDisabled(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			c.setTitle(s);
+		ComboFixed2<T> c = new ComboFixed2<>(vl);
+		UIControlUtil.configure(c, pmm, editable);
 		return c;
 	}
-
 
 	/**
 	 * Create a combo for a list of objects. It calls Qfield on them to

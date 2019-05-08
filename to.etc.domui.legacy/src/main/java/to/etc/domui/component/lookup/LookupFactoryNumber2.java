@@ -27,10 +27,10 @@ package to.etc.domui.component.lookup;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.dom.css.TextAlign;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.util.DomUtil;
@@ -84,12 +84,7 @@ import java.math.BigDecimal;
 			int size = MetaManager.calculateTextSize(pmm);
 			if(size > 0)
 				numText.setSize(size);
-			String s = pmm.getDefaultHint();
-			if(s != null)
-				numText.setTitle(s);
-			String hint = MetaUtils.findHintText(spm);
-			if(hint != null)
-				numText.setTitle(hint);
+			UIControlUtil.configure(spm, pmm, numText);
 		}
 		Double minmax = Double.valueOf(calcMaxValue(pmm));
 		boolean monetary = NumericPresentation.isMonetary(pmm.getNumericPresentation());

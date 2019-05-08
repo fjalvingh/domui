@@ -33,6 +33,7 @@ import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyMetaValidator;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.css.DisplayType;
@@ -158,10 +159,7 @@ final class LookupFactoryNumber implements ILookupControlFactory {
 		if(pmm.getLength() > 0)
 			numText.setMaxLength(pmm.getLength());
 
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			numText.setTitle(s);
-
+		UIControlUtil.configureHint(numText, pmm);
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			numText.addValidator(mpv);
 

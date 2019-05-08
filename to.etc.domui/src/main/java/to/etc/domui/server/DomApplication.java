@@ -214,6 +214,8 @@ public abstract class DomApplication {
 	/** When T the UI will try to generate test ID's and helper thingies to easily show those IDs */
 	private boolean m_uiTestMode;
 
+	private boolean m_defaultHintsOnControl = true;
+
 	/** When > 0, this defines that pages are automatically reloaded when changed */
 	private int m_autoRefreshPollInterval;
 
@@ -2220,6 +2222,17 @@ public abstract class DomApplication {
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * When T (the default) controls will receive any hint text as provided by metadata or explicit command.
+	 */
+	public boolean isDefaultHintsOnControl() {
+		return m_defaultHintsOnControl;
+	}
+
+	public void setDefaultHintsOnControl(boolean defaultHintsOnControl) {
+		m_defaultHintsOnControl = defaultHintsOnControl;
 	}
 
 	static {

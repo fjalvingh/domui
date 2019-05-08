@@ -33,6 +33,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.IRenderInto;
@@ -89,11 +90,7 @@ public class ControlFactoryRelationLookup implements PropertyControlFactory {
 			if(cmm.getLookupSelectedRenderer() != null)
 				li.setValueRenderer((IRenderInto<T>) DomApplication.get().createInstance(cmm.getLookupSelectedRenderer())); // Bloody stupid Java generic crap
 		}
-		if(pmm.isRequired())
-			li.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			li.setTitle(s);
+		UIControlUtil.configure(li, pmm, editable);
 
 		//-- 20110721 jal If a query manipulator is present- use it.
 		IQueryManipulator<T> qm = pmm.getQueryManipulator();

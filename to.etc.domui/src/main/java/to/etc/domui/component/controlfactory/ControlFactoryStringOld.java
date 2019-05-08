@@ -27,6 +27,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.misc.DisplayValue;
+import to.etc.domui.component.misc.UIControlUtil;
 
 import java.math.BigDecimal;
 
@@ -64,9 +65,7 @@ public class ControlFactoryStringOld implements PropertyControlFactory {
 			DisplayValue<T> dv = new DisplayValue<T>(iclz);
 			if(pmm.getConverter() != null)
 				dv.setConverter(pmm.getConverter());
-			String s = pmm.getDefaultHint();
-			if(s != null)
-				dv.setTitle(s);
+			UIControlUtil.configureHint(dv, pmm);
 			return new ControlFactoryResult(dv);
 		}
 

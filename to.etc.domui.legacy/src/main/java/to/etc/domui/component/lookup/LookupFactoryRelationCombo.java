@@ -26,10 +26,10 @@ package to.etc.domui.component.lookup;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.ComboLookup;
-import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.util.Constants;
 import to.etc.util.WrappedException;
@@ -58,12 +58,7 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 
 				//				if(pmm.isRequired()) jal 20110802 Mandatoryness in property model has no relation with search criteria of course!
 				//					co.setMandatory(true);
-				String s = pmm.getDefaultHint();
-				if(s != null)
-					co.setTitle(s);
-				String hint = MetaUtils.findHintText(spm);
-				if(hint != null)
-					co.setTitle(hint);
+				UIControlUtil.configure(spm, pmm, co);
 				input = co;
 			} catch(Exception x) {
 				throw WrappedException.wrap(x); // Checked exceptions are idiocy.
@@ -92,4 +87,5 @@ final class LookupFactoryRelationCombo implements ILookupControlFactory {
 		}
 		return new EqLookupControlImpl<>(spm.getProperty().getName(), input);
 	}
+
 }

@@ -35,6 +35,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyMetaValidator;
 import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
 import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConvertable;
 import to.etc.domui.converter.IConverter;
@@ -784,11 +785,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
-		if(pmm.isRequired())
-			txt.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			txt.setTitle(s);
+		UIControlUtil.configure(txt, pmm);
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			txt.addValidator(mpv);
 		txt.setTextAlign(TextAlign.RIGHT);
@@ -810,10 +807,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	/**
 	 * Create an int input control, properly configured for the specified property.
-	 * @param clz
-	 * @param property
-	 * @param editable
-	 * @return
 	 */
 	@NonNull
 	static public Text2<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
@@ -858,11 +851,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			txt.setReadOnly(true);
 		if(pmm.getConverter() != null)
 			txt.setConverter(pmm.getConverter());
-		if(pmm.isRequired())
-			txt.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			txt.setTitle(s);
+		UIControlUtil.configure(txt, pmm);
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			txt.addValidator(mpv);
 

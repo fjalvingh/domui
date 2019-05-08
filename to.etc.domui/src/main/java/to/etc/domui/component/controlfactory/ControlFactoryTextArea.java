@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.server.DomApplication;
 
@@ -58,11 +59,7 @@ public class ControlFactoryTextArea implements PropertyControlFactory {
 			ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
 			ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
 		}
-		if(pmm.isRequired())
-			ta.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			ta.setTitle(s);
+		UIControlUtil.configure(ta, pmm, editable);
 
 		int length = pmm.getLength();
 		if(length > 0) {
