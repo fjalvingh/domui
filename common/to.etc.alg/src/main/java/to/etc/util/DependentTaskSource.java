@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.FunctionEx;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,7 +45,7 @@ final public class DependentTaskSource<T> {
 	@Nullable
 	private List<Task<T>> m_runnableTasks;
 
-	public synchronized void addItem(T item, List<T> itemChildren) {
+	public synchronized void addItem(T item, Collection<? extends T> itemChildren) {
 		if(m_runnableTasks != null)
 			throw new IllegalStateException("Implementation restriction: you cannot add tasks once you have started consuming them");
 		Task<T> task = task(item);

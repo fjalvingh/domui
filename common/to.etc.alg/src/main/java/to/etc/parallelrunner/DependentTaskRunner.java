@@ -8,6 +8,7 @@ import to.etc.util.MessageException;
 import to.etc.util.Progress;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -116,7 +117,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 
 	}
 
-	public void addTask(T task, List<T> dependencies) {
+	public void addTask(T task, Collection<? extends T> dependencies) {
 		m_taskSource.addItem(task, dependencies);
 	}
 
