@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IActivity;
-import to.etc.domui.component.delayed.IAsyncRunnable;
+import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;

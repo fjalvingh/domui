@@ -2,6 +2,7 @@ package to.etc.domui.component.delayed;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.parallelrunner.IAsyncRunnable;
 
 /**
  * Listener interface for asynchronous UI actions. Used to collect and restore context information

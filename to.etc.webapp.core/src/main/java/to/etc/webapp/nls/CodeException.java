@@ -26,6 +26,7 @@ package to.etc.webapp.nls;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.MessageException;
 
 import java.text.MessageFormat;
 import java.util.Locale;
@@ -36,7 +37,7 @@ import java.util.Locale;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Mar 31, 2009
  */
-public class CodeException extends RuntimeException {
+public class CodeException extends MessageException {
 	@NonNull
 	private final BundleRef m_bundle;
 

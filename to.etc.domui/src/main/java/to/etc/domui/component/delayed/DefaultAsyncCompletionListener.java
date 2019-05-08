@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.Msgs;
+import to.etc.parallelrunner.IAsyncCompletionListener;
 import to.etc.util.CancelledException;
 import to.etc.util.StringTool;
 

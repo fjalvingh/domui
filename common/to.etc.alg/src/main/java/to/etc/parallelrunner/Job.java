@@ -1,10 +1,9 @@
-package to.etc.domui.component.delayed;
+package to.etc.parallelrunner;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.CancelledException;
 import to.etc.util.Progress;
 import to.etc.util.WrappedException;
-import to.etc.webapp.nls.CodeException;
 
 import java.util.Objects;
 
@@ -164,11 +163,16 @@ public final class Job implements Runnable {
 			Throwable exception = getException();
 			if(null != exception) {
 				sb.append(" with error: ");
-				if(exception instanceof CodeException) {
-					sb.append(exception.getMessage());
-				} else {
+				String message = exception.getMessage();
+				if(null == message || message.length() == 0)
 					sb.append(exception.toString());
-				}
+				else
+					sb.append(message);
+				//if(exception instanceof CodeException) {
+				//	sb.append(exception.getMessage());
+				//} else {
+				//	sb.append(exception.toString());
+				//}
 			}
 			return sb.toString();
 		}

@@ -1,10 +1,10 @@
-package to.etc.domui.component.delayed;
+package to.etc.parallelrunner;
 
-import to.etc.domui.trouble.UIException;
 import to.etc.function.FunctionEx;
 import to.etc.util.CancelledException;
 import to.etc.util.DependentTaskSource;
 import to.etc.util.DependentTaskSource.Task;
+import to.etc.util.MessageException;
 import to.etc.util.Progress;
 
 import java.util.ArrayList;
@@ -167,7 +167,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 			} catch(Exception x) {
 				exception = x;
 				error = x.toString();
-				if(! (x instanceof UIException)) {
+				if(! (x instanceof MessageException)) {
 					x.printStackTrace();
 				}
 			} finally {
