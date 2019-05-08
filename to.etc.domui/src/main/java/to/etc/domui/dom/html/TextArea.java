@@ -340,4 +340,8 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	public void setMaxByteLength(int maxByteLength) {
 		m_maxByteLength = maxByteLength;
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

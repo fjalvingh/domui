@@ -296,4 +296,8 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 
 	@Override
 	public void setDisabled(boolean d) {}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

@@ -669,6 +669,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	/**
 	 * Set a hint text for this control, for some reason only on the select button??
 	 */
+	@Override
 	public void setHint(@Nullable String text) {
 		if(m_selButton != null)
 			m_selButton.setTitle(text);

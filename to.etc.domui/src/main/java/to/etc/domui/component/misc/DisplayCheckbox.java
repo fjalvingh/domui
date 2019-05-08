@@ -128,4 +128,8 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean> {
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		throw new UnsupportedOperationException("Display control");
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

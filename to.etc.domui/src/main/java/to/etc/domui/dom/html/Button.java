@@ -72,9 +72,6 @@ public class Button extends NodeContainer implements IActionControl, IForTarget 
 	/**
 	 * Do not call click handler when the button is disabled. This prevents a malicious user from clicking a disabled
 	 * button and still having an effect.
-	 *
-	 * @param cli
-	 * @throws Exception
 	 */
 	@Override public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
 		if(isDisabled()) {						// Disabled buttons should never click, even if browser lies about it
@@ -159,5 +156,9 @@ public class Button extends NodeContainer implements IActionControl, IForTarget 
 
 	@Nullable @Override public NodeBase getForTarget() {
 		return this;
+	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
 	}
 }

@@ -343,4 +343,8 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 		IIconRef s = Icon.of(DomUtil.getJavaResourceRURL(base, resurl));
 		setEmptyIcon(s);
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

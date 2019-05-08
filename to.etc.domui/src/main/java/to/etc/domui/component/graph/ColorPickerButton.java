@@ -116,4 +116,8 @@ public class ColorPickerButton extends Div implements IHasChangeListener, IContr
 	public void setMandatory(boolean ro) {
 		m_mandatory = ro;
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

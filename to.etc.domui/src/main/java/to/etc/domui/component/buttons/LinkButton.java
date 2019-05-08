@@ -214,4 +214,8 @@ public class LinkButton extends ATag implements IActionControl {
 		setOverrideTitle(msg);
 		setDisabled(msg != null);
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

@@ -265,4 +265,8 @@ public class EnumSetInput<T> extends AbstractDivControl<Set<T>> {
 	//		input.setAddSingleMatch(addSingleMatch);
 	//	return this;
 	//}
+
+	@Override public void setHint(@Nullable String hintText) {
+		setTitle(hintText);
+	}
 }

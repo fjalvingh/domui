@@ -837,4 +837,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	public void setBatchSize(int batchSize) {
 		m_batchSize = batchSize;
 	}
+
+	@Override public void setHint(String hintText) {
+	}
 }

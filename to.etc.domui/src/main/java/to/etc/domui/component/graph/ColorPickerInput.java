@@ -109,4 +109,8 @@ public class ColorPickerInput extends Input implements IControl<String> {
 		else
 			appendCreateJS("WebUI.colorPickerInput('#" + getActualID() +"','#"+m_coldiv.getActualID() + "','" + getRawValue() + "'," + Boolean.valueOf(getOnValueChanged() != null) + ");");
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

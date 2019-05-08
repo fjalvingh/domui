@@ -429,4 +429,9 @@ public class CKEditor extends Div implements IControl<String> {
 		}
 	}
 
+
+	@Override public void setHint(String hintText) {
+		//-- For CKEditor having a hint seems unwanted.
+		//setTitle(hintText);
+	}
 }

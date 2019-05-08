@@ -817,4 +817,8 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		super.createContent();
 		renderMode();
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

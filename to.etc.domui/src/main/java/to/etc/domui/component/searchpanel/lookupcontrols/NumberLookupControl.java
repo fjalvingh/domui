@@ -406,4 +406,8 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		m_input.setSize(size);
 	}
 
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

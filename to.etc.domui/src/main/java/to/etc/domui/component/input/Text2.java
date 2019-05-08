@@ -985,4 +985,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	public void setDisableFocus(boolean disableFocus) {
 		m_disableFocus = disableFocus;
 	}
+
+	@Override public void setHint(@Nullable String hintText) {
+		setTitle(hintText);
+	}
 }

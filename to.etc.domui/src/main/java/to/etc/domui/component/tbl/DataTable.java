@@ -1134,4 +1134,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	public void webActionCOLWIDTHS(@NonNull RequestContextImpl context) throws Exception {
 		m_rowRenderer.updateWidths(this, context);
 	}
+
+	@Override public void setHint(String hintText) {
+	}
 }
