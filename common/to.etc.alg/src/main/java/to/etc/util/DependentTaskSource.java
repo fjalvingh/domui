@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
+import java.util.stream.Collectors;
 
 /**
  * This wraps a tree of dependent things, and supports "creating" each dependent thing
@@ -53,6 +55,29 @@ final public class DependentTaskSource<T> {
 			Task<T> childTask = task(child);
 			task.addChild(childTask);
 		}
+		checkCircularDependencies(task);
+	}
+
+	/**
+	 * Make sure that no child dependency depends on a parent.
+	 */
+	private void checkCircularDependencies(Task<T> task) {
+		checkCircularDependencies(task, new Stack<>());
+	}
+
+	private void checkCircularDependencies(Task<T> task, Stack<T> stack) {
+		if(stack.contains(task.getItem())) {
+			//-- Circular dependency.
+			StringBuilder sb = new StringBuilder();
+			sb.append("Circular dependency in task " + task.getItem() + ": it has a circular dependency through ");
+			sb.append(stack.stream().map(a -> a.toString()).collect(Collectors.joining(" -> ")));
+			throw new IllegalStateException(sb.toString());
+		}
+		stack.add(task.getItem());
+		for(Task<T> child : task.getChildren()) {
+			checkCircularDependencies(child, stack);
+		}
+		stack.pop();
 	}
 
 	/**
@@ -95,7 +120,7 @@ final public class DependentTaskSource<T> {
 				return task;
 			if(isFinished())
 				return null;
-			wait();
+			wait(5000);
 		}
 	}
 
@@ -109,10 +134,15 @@ final public class DependentTaskSource<T> {
 
 	private synchronized List<Task<T>> internalRunnableTasks() {
 		List<Task<T>> runnableTasks = m_runnableTasks;
-		if(runnableTasks == null) {
+		if(runnableTasks == null) {						// Only happens at start (1x)
 			m_todo.addAll(m_taskMap.values());
 			m_runnableTasks = runnableTasks = new ArrayList<>();
 			calculateRunnableTasks();
+		} else if(runnableTasks.size() == 0) {
+			if(m_running.size() == 0) {
+				if(m_todo.size() > 0)
+					throw new IllegalStateException("There are no tasks running, but none of the todo tasks became available");
+			}
 		}
 		return runnableTasks;
 	}
@@ -235,7 +265,7 @@ final public class DependentTaskSource<T> {
 					throw new IllegalStateException("The task " + this + " can only be completed in RUNNING state but it is in state " + m_state);
 
 				m_source.m_running.remove(this);
-				if(errorMessage != null || exception != null) {
+				if(! StringTool.isBlank(errorMessage) || exception != null) {
 					m_error = errorMessage;
 					m_exception = exception;
 					m_state = TaskState.FAILED;
@@ -256,6 +286,18 @@ final public class DependentTaskSource<T> {
 						}
 					}
 				}
+				//
+				///*
+				// * At this point we need to have runnable items or we must be done, otherwise we are blocking
+				// * because there is a loop.
+				// */
+				//if(m_source.m_runnableTasks.size() == 0) {
+				//	if(m_source.m_running.size() == 0) {
+				//
+				//	}
+				//}
+				//
+				//
 				m_source.notifyAll();			// Some state changed, notify waiters
 			}
 		}
@@ -298,6 +340,10 @@ final public class DependentTaskSource<T> {
 			m_children.clear();
 		}
 
+		public synchronized TaskState getState() {
+			return m_state;
+		}
+
 		public V getItem() {
 			return m_item;
 		}
@@ -312,13 +358,24 @@ final public class DependentTaskSource<T> {
 		}
 
 		@Nullable
-		public Exception getException() {
+		public synchronized Exception getException() {
 			return m_exception;
 		}
 
 		@Nullable
-		public String getError() {
+		public synchronized String getUserError() {
 			return m_error;
+		}
+
+		@Nullable
+		public synchronized String getErrorMessage() {
+			String error = m_error;
+			if(null != error)
+				return error;
+			Exception exception = m_exception;
+			if(null != exception)
+				return exception.toString();
+			return null;
 		}
 
 		@Nullable
