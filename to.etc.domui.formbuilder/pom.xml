@@ -22,10 +22,6 @@
             <artifactId>slf4j-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-        </dependency>
-        <dependency>
             <groupId>to.etc.domui</groupId>
             <artifactId>to.etc.logger</artifactId>
         </dependency>

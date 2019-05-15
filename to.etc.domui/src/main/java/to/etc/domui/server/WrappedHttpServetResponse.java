@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
@@ -72,8 +73,6 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 
 	/**
 	 * Set the mode you want. If you do not care set to {@link InternetExplorerVersion}.EDGE. If you do not want to send any header set to null.
-	 * @param iemode
-	 * @throws IOException
 	 */
 	public void setIeEmulationMode(@Nullable String compatible) throws IOException {
 		if(m_flushed)
@@ -85,10 +84,6 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Stream-based crap.									*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @see javax.servlet.ServletResponseWrapper#getOutputStream()
-	 */
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
 		if(m_wrappedwr != null)
@@ -216,6 +211,14 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 		public void close() throws IOException {
 			// TODO Auto-generated method stub
 			super.close();
+		}
+
+		@Override public boolean isReady() {
+			return true;
+		}
+
+		@Override public void setWriteListener(WriteListener writeListener) {
+
 		}
 	}
 }
