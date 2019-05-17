@@ -251,7 +251,7 @@ public class UrlPage extends AbstractPage {
 	/**
 	 * Get all system broadcast messages for the page, and clear that list (empty the postbox).
 	 */
-	public List<?> getPageMessagesAndClear() {
+	public List<?> getPostboxAndClear() {
 		return getPage().getPageMessagesAndClear();
 	}
 
@@ -261,7 +261,7 @@ public class UrlPage extends AbstractPage {
 	 * Returns an asynchronous link that can be used to signal the page when some event occurs,
 	 * but which will disappear if the page is destroyed before that happens.
 	 */
-	public AsyncMessageLink asyncMessage() {
+	public AsyncMessageLink postbox() {
 		return m_asyncLink;
 	}
 
@@ -269,7 +269,7 @@ public class UrlPage extends AbstractPage {
 		@Nullable
 		private Page m_page;
 
-		public <T> void post(T message) {
+		public <T> void post(@NonNull T message) {
 			Page page = m_page;
 			if(null == page)
 				return;
