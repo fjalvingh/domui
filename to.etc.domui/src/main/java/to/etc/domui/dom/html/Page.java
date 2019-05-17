@@ -230,7 +230,7 @@ final public class Page implements IQContextContainer {
 	@NonNull
 	private List<IExecute> m_afterRenderList = Collections.EMPTY_LIST;
 
-
+	private List<Object> m_pageMessageList = new ArrayList<>();
 
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -527,7 +527,6 @@ final public class Page implements IQContextContainer {
 		}
 		m_removeAfterRenderList.add(node);
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Automatic Test ID management.						*/
@@ -1113,6 +1112,27 @@ final public class Page implements IQContextContainer {
 			listener.execute();
 		}
 	}
+
+	/**
+	 * Internal: add a new message for the page.
+	 */
+	public <T> void addPageMessage(T message) {
+		synchronized(this) {
+			m_pageMessageList.add(message);
+		}
+	}
+
+	/**
+	 * Get all messages for the page, and clear that list (empty the postbox).
+	 */
+	public List<?> getPageMessagesAndClear() {
+		synchronized(this) {
+			List<Object> list = m_pageMessageList;
+			m_pageMessageList = new ArrayList<>();
+			return list;
+		}
+	}
+
 
 	public Set<SubPage> getRemovedSubPages() {
 		return m_removedSubPages;

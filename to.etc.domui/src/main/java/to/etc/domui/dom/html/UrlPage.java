@@ -240,5 +240,12 @@ public class UrlPage extends AbstractPage {
 	public void refreshOnReload() {
 		m_refreshOnReload = true;
 	}
+
+	/**
+	 * Get all system broadcast messages for the page, and clear that list (empty the postbox).
+	 */
+	public List<?> getPageMessagesAndClear() {
+		return getPage().getPageMessagesAndClear();
+	}
 }
 

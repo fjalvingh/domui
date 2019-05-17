@@ -143,6 +143,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -349,6 +350,8 @@ public abstract class DomApplication {
 	@NonNull
 	private Set<String> m_persistentParameterSet = new HashSet<>();
 
+	private Set<Page> m_activePageList = new HashSet<>();
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization and session management.				*/
 	/*--------------------------------------------------------------*/
@@ -443,6 +446,20 @@ public abstract class DomApplication {
 		addRequestHandler(m_partHandler, 80);
 		addRequestHandler(new ApplicationRequestHandler(this), 50);			// .ui and related
 		addRequestHandler(new AjaxRequestHandler(this), 20);		// .xaja ajax calls.
+
+		addUIStateListener(new IDomUIStateListener() {
+			@Override public void onPageCreated(@NonNull Page page) throws Exception {
+				synchronized(this) {
+					m_activePageList.add(page);
+				}
+			}
+
+			@Override public void onPageDestroyed(@NonNull Page page) throws Exception {
+				synchronized(this) {
+					m_activePageList.remove(page);
+				}
+			}
+		});
 	}
 
 	protected void registerControlFactories() {
@@ -469,7 +486,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Returns the single DomApplication instance in use for the webapp.
-	 * @return
 	 */
 	@NonNull
 	static synchronized public DomApplication get() {
@@ -488,6 +504,34 @@ public abstract class DomApplication {
 		m_appSessionListeners = new HashSet<IAppSessionListener>(m_appSessionListeners);
 		m_appSessionListeners.remove(l);
 	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Talking with all pages in the system.						*/
+	/*----------------------------------------------------------------------*/
+
+	/**
+	 * Get all Pages that are currently active (meaning they are in memory and can be shown to
+	 * a user) which implement any given interface.
+	 */
+	public synchronized List<Page> getActivePages(@NonNull Class<?> implementing) {
+		return m_activePageList.stream()
+			.filter(a -> implementing.isInstance(a.getBody()))
+			.collect(Collectors.toList());
+	}
+
+
+	/**
+	 * Send a message to all active pages in the system. Pages wanting to receive the message must
+	 * implement {@link IPagePostbox} so that the code can determine whether the page needs the message.
+	 * If accepted by IPagePostbox the message will be added to the page, and a page can request all
+	 * of its messages when it is active again, for instance using a {@link to.etc.domui.component.delayed.PollingDiv}.
+	 */
+	public <T> void sendPageMail(T message) {
+		for(Page page : getActivePages(IPagePostbox.class)) {
+			page.addPageMessage(message);
+		}
+	}
+
 
 	private synchronized Set<IAppSessionListener> getAppSessionListeners() {
 		return m_appSessionListeners;
