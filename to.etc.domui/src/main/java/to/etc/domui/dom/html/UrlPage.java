@@ -30,6 +30,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.BreadCrumb;
 import to.etc.domui.component.layout.Window;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.dom.html.Page.AsyncMessageLink;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
 import to.etc.domui.server.DomApplication;
@@ -104,11 +105,7 @@ public class UrlPage extends AbstractPage {
 	public void onDestroy() throws Exception {}
 
 	public final void internalOnDestroy() throws Exception {
-		try {
-			onDestroy();
-		} finally {
-			m_asyncLink.m_page = null;
-		}
+		onDestroy();
 	}
 
 	/**
@@ -255,28 +252,12 @@ public class UrlPage extends AbstractPage {
 		return getPage().getPageMessagesAndClear();
 	}
 
-	final private AsyncMessageLink m_asyncLink = new AsyncMessageLink();
-
 	/**
 	 * Returns an asynchronous link that can be used to signal the page when some event occurs,
 	 * but which will disappear if the page is destroyed before that happens.
 	 */
 	public AsyncMessageLink postbox() {
-		return m_asyncLink;
+		return getPage().postbox();
 	}
-
-	static public final class AsyncMessageLink {
-		@Nullable
-		private Page m_page;
-
-		public <T> void post(@NonNull T message) {
-			Page page = m_page;
-			if(null == page)
-				return;
-			if(! page.isDestroyed())
-				page.addPageMessage(message);
-		}
-	}
-
 }
 

@@ -305,6 +305,12 @@ final public class Page implements IQContextContainer {
 		m_pageParameters = pp;
 	}
 
+	public final void internalOnDestroy() throws Exception {
+		m_asyncLink.m_page = null;
+		UrlPage body = getBody();
+		body.internalOnDestroy();
+	}
+
 	public void setTheCurrentNode(@Nullable NodeBase b) {
 		if(b != null && b.getPage() != this)
 			throw new IllegalStateException("The node is not part of this page!");
@@ -1205,6 +1211,35 @@ final public class Page implements IQContextContainer {
 
 		public INotificationListener<T> getListener() {
 			return m_listener;
+		}
+	}
+
+
+	final private AsyncMessageLink m_asyncLink = new AsyncMessageLink(this);
+
+	/**
+	 * Returns an asynchronous link that can be used to signal the page when some event occurs,
+	 * but which will disappear if the page is destroyed before that happens.
+	 */
+	public AsyncMessageLink postbox() {
+		return m_asyncLink;
+	}
+
+	static public final class AsyncMessageLink {
+		@Nullable
+		private Page m_page;
+
+		public AsyncMessageLink(Page up) {
+			m_page = up;
+		}
+
+		public <T> void post(@NonNull T message) {
+			Page page = m_page;
+			if(null == page) {
+				//System.err.println("Dropping post: " + message);
+				return;
+			}
+			page.addPageMessage(message);
 		}
 	}
 }
