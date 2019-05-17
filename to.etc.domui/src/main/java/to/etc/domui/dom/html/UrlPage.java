@@ -100,9 +100,16 @@ public class UrlPage extends AbstractPage {
 
 	/**
 	 * Called when the page gets destroyed (navigation or such).
-	 * @throws Exception
 	 */
 	public void onDestroy() throws Exception {}
+
+	public final void internalOnDestroy() throws Exception {
+		try {
+			onDestroy();
+		} finally {
+			m_asyncLink.m_page = null;
+		}
+	}
 
 	/**
 	 * Get the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
@@ -247,5 +254,29 @@ public class UrlPage extends AbstractPage {
 	public List<?> getPageMessagesAndClear() {
 		return getPage().getPageMessagesAndClear();
 	}
+
+	final private AsyncMessageLink m_asyncLink = new AsyncMessageLink();
+
+	/**
+	 * Returns an asynchronous link that can be used to signal the page when some event occurs,
+	 * but which will disappear if the page is destroyed before that happens.
+	 */
+	public AsyncMessageLink asyncMessage() {
+		return m_asyncLink;
+	}
+
+	static public final class AsyncMessageLink {
+		@Nullable
+		private Page m_page;
+
+		public <T> void post(T message) {
+			Page page = m_page;
+			if(null == page)
+				return;
+			if(! page.isDestroyed())
+				page.addPageMessage(message);
+		}
+	}
+
 }
 

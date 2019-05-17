@@ -299,7 +299,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 	void destroyPage(@NonNull final Page pg) {
 		//-- Call the page's DESTROY handler while still attached
 		try {
-			pg.getBody().onDestroy();
+			pg.getBody().internalOnDestroy();
 		} catch(Exception x) {
 			System.err.println("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x);
 			x.printStackTrace();
