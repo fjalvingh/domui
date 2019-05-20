@@ -59,13 +59,13 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	 * bugs with IE, who else, which does not send the charset header.
 	 *
 	 */
-	static private String m_forceEncoding;
+	static private String m_forceEncoding = "utf-8";
 
 	/**
 	 * Make sure the encoding is set instead of failing silently and fscking up input - because
 	 * that takes forever to fix 8-/
 	 */
-	static private boolean m_encodingSet;
+	static private boolean m_encodingSet = true;
 
 	static private class PerThreadData {
 		public PerThreadData() {}
@@ -186,6 +186,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 		ServletRequest sr = ev.getServletRequest();
 		if(!(sr instanceof HttpServletRequest))
 			return;
+
 		HttpServletRequest r = (HttpServletRequest) sr;
 		PerThreadData threadData = m_perThreadData.get();
 		if(DEBUG) {
