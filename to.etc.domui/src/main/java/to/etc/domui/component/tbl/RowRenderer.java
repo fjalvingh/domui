@@ -673,7 +673,8 @@ import java.util.function.Predicate;
 
 	@Nullable
 	protected ColumnDef<T, ?> getSortColumn() {
-		return m_columnList.getSortColumn();
+		ColumnDef<T, ?> sortColumn = m_columnList.getSortColumn();
+		return sortColumn == null ? null : isSortable(sortColumn) ? sortColumn : null;
 	}
 
 	protected boolean isSortDescending() {
