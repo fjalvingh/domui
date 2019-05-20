@@ -1366,9 +1366,6 @@ public abstract class DomApplication {
 	 * Create a resource ref to a class based resource. If we are running in DEBUG mode this will
 	 * generate something which knows the source of the resource, so it can handle changes to that
 	 * source while developing.
-	 *
-	 * @param name
-	 * @return
 	 */
 	@NonNull
 	public IResourceRef createClasspathReference(String name) {

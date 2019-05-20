@@ -61,12 +61,6 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 		return r;
 	}
 
-	/**
-	 *
-	 * @param da
-	 * @param name.
-	 * @return
-	 */
 	private IResourceRef tryVersionedResource(DomApplication da, String iname) throws Exception {
 		//-- 1. Try WebFile first
 		File f = da.getAppFile(iname);
