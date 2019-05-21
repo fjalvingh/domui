@@ -37,8 +37,7 @@ public interface IModifyableResource {
 	 * Return the <i>current</i> last modification time. This <b>must</b> return the ACTUAL modification time of the resource; the time
 	 * returned by this call will be compared with the time that the resource was last used (stored somewhere else) to decide if this
 	 * resource has changed in the meantime.
-	 * This call <b>must</i> return -1 for a resource that does not exist - because non-existence is a valid caching criteria too!
-	 * @return
+	 * This call <b>must</i> return -1 for a resource that does not exist - because non-existence is a valid caching criterium too!
 	 */
 	long getLastModified();
 }

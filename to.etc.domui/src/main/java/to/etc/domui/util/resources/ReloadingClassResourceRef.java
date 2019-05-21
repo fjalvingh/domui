@@ -86,10 +86,7 @@ public class ReloadingClassResourceRef implements IResourceRef, IModifyableResou
 		 * b. resource does not exist -> cannot be handled by this class, apparently
 		 * c. resource and source exists -> use the source's last modified date.
 		 */
-		//return m_source == null ? -1 : m_source.getLastModified();
-
-		IModifyableResource source = m_source;
-		return source == null ? 1234L : m_source.getLastModified();
+		return m_source == null ? -1 : m_source.getLastModified();
 	}
 
 	@Override

@@ -182,6 +182,8 @@ abstract public class AbstractSassResolver<O> {
 			m_dependencyList.add(ref);
 			String content;
 			try(InputStream is = ref.getInputStream()) {
+				if(is == null)
+					throw new IllegalStateException("Null inputstream from existing resource " + ref);
 				content = FileTool.readStreamAsString(is, "utf-8");
 			}
 			O imp = createInput(name, content);
