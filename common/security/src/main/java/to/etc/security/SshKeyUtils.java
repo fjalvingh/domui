@@ -15,8 +15,11 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.math.BigInteger;
 import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
@@ -220,5 +223,13 @@ public class SshKeyUtils {
 		}
 	}
 
+	public static KeyPair generateKeyPair() throws Exception {
+		KeyPairGenerator kg = KeyPairGenerator.getInstance("RSA");
+		//SecureRandom random = SecureRandom.getInstanceStrong();
+		SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+		kg.initialize(2048, random);
+		KeyPair pair = kg.generateKeyPair();
+		return pair;
+	}
 
 }
