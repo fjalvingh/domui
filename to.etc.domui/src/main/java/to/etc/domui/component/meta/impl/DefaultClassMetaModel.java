@@ -503,7 +503,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 		if(value instanceof Boolean)
 			return (((Boolean) value).booleanValue() ? Msgs.uiBoolTrue : Msgs.uiBoolFalse).getString();
 
-		throw new IllegalStateException("Invalid call for non-domain object.");
+		return null;
 	}
 
 	@Nullable

@@ -147,8 +147,14 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		if(! isBuilt())
 			return;
 		Div bd = m_buttonDiv;
-		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
+		if(np <= 1) {
+			bd.setDisplay(DisplayType.NONE);
+			return;
+		}
+		bd.setDisplay(DisplayType.BLOCK);
+
+		int cp = m_table.getCurrentPage();
 		if(np == 0) {
 			setDisplay(DisplayType.NONE);
 			return;
