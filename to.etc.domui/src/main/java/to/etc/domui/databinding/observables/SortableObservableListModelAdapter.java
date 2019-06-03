@@ -1,6 +1,7 @@
 package to.etc.domui.databinding.observables;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.tbl.ISortableTableModel;
@@ -34,6 +35,9 @@ final public class SortableObservableListModelAdapter<T> implements ITableModel<
 
 	final private List<ITableModelListener<T>> m_listeners = new ArrayList<ITableModelListener<T>>();
 
+	@NonNull
+	private final Class<?> m_dataClass;
+
 	/** The current sort key (a property in the data class), or null if currently unsorted. */
 	private String m_sortKey;
 
@@ -42,6 +46,12 @@ final public class SortableObservableListModelAdapter<T> implements ITableModel<
 
 	public SortableObservableListModelAdapter(@NonNull ObservableList<T> list) {
 		m_list = list;
+		m_dataClass = Object.class;
+	}
+
+	public SortableObservableListModelAdapter(@NonNull ObservableList<T> list, @Nullable Class<?> dataClass) {
+		m_list = list;
+		m_dataClass = dataClass == null ? Object.class : dataClass;
 	}
 
 	@NonNull
@@ -126,7 +136,7 @@ final public class SortableObservableListModelAdapter<T> implements ITableModel<
 	}
 
 	private Class<?> getDataClass() {
-		return m_list.size() == 0 ? Object.class : m_list.get(0).getClass();
+		return m_list.size() == 0 ? m_dataClass : m_list.get(0).getClass();
 	}
 
 	private class EvListener implements IListChangeListener<T> {

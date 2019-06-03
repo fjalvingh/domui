@@ -207,6 +207,10 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	/*--------------------------------------------------------------*/
 
 	public void setList(@Nullable IObservableList<T> list) {
+		setList(list, Object.class);
+	}
+
+	public void setList(@Nullable IObservableList<T> list, Class<?> clazz) {
 		ITableModel<T> om = m_model;
 		if(om instanceof ObservableListModelAdapter< ? >) {
 			//-- Check if this is the same list, wrapped already.
@@ -227,7 +231,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 
 		}
 		if(list instanceof ObservableList) {
-			SortableObservableListModelAdapter<T> ma = new SortableObservableListModelAdapter<>((ObservableList<T>) list);
+			SortableObservableListModelAdapter<T> ma = new SortableObservableListModelAdapter<>((ObservableList<T>) list, clazz);
 			setModel(ma);
 			list.addChangeListener(this);
 		} else if(list instanceof IObservableList<?>) {
@@ -236,7 +240,6 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 			list.addChangeListener(this);
 		}
 	}
-
 	@Nullable
 	public IObservableList<T> getList() {
 		ITableModel<T> om = getModel();
