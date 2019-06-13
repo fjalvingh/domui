@@ -27,6 +27,7 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.FloatingDiv;
+import to.etc.domui.component.misc.ExceptionDialog;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.css.CssBase;
@@ -36,6 +37,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.logic.errors.ProblemModel;
 import to.etc.domui.logic.errors.ProblemReporter;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
 
 import java.util.ArrayList;
@@ -904,6 +906,14 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		printsize(new TextNode());
 		printsize(new UrlPage());
 		printsize(new CssBase());
+	}
+
+	public void executeWithDialog(String what,IExecute exec) throws Exception {
+		try {
+			exec.execute();
+		} catch(Exception x) {
+			ExceptionDialog.create(this, what, x);
+		}
 	}
 }
 
