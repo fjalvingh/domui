@@ -123,8 +123,24 @@ public class FutureImpl<T> implements Future<T> {
 		notifyAll();
 	}
 
+	@Nullable
+	public String getDescription() {
+		return m_description;
+	}
+
 	@Override
 	public String toString() {
-		return m_description == null ? super.toString() : m_description;
+		String description = m_description;
+		if(null != description)
+			return description;
+		synchronized(this) {
+			if(m_done) {
+				Exception exception = m_exception;
+				if(exception != null)
+					return exception.toString();
+				return String.valueOf(m_result);
+			}
+		}
+		return "(future value)";
 	}
 }
