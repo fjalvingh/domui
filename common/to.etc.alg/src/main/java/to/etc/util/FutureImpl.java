@@ -35,7 +35,6 @@ public class FutureImpl<T> implements Future<T> {
 
 	/**
 	 * Create a future that's already done, with the specified result.
-	 * @param result
 	 */
 	public FutureImpl(@Nullable T result) {
 		m_done = true;
@@ -52,7 +51,6 @@ public class FutureImpl<T> implements Future<T> {
 
 	/**
 	 * Create a future that's already done, with the specified error.
-	 * @param error
 	 */
 	public FutureImpl(@NonNull Exception error) {
 		m_exception = error;
@@ -78,7 +76,6 @@ public class FutureImpl<T> implements Future<T> {
 
 	/**
 	 * Get the result, wait if it's not yet available.
-	 * @see java.util.concurrent.Future#get()
 	 */
 	@Override
 	synchronized public T get() throws InterruptedException, ExecutionException {
@@ -93,7 +90,7 @@ public class FutureImpl<T> implements Future<T> {
 	}
 
 	@Override
-	public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+	public synchronized T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
 		long ets = System.currentTimeMillis() + unit.toMillis(timeout);
 		for(;;) {
 			if(m_done) {									// Marked as ready?
@@ -110,7 +107,6 @@ public class FutureImpl<T> implements Future<T> {
 
 	/**
 	 * Return the result, and notify any waiters.
-	 * @param value
 	 */
 	public synchronized void	set(@Nullable T value) {
 		m_done = true;
@@ -120,7 +116,6 @@ public class FutureImpl<T> implements Future<T> {
 
 	/**
 	 * Mark the future as ready, but aborted with an exception.
-	 * @param reason
 	 */
 	public synchronized void set(@NonNull Exception reason) {
 		m_exception = reason;
