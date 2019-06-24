@@ -259,5 +259,14 @@ public class UrlPage extends AbstractPage {
 	public AsyncMessageLink postbox() {
 		return getPage().postbox();
 	}
+
+	/**
+	 * Redirects to URL after specified milliseconds
+	 * @param url to redirect to
+	 * @param milliseconds after which redirect occurs
+	 */
+	public void redirectIn(String url, long milliseconds) {
+		appendJavascript("setTimeout(function() { window.location.href = \"" + url + "\"; }, " + milliseconds + ");");
+	}
 }
 
