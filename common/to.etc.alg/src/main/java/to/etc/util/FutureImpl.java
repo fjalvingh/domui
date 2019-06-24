@@ -23,7 +23,7 @@ public class FutureImpl<T> implements Future<T> {
 
 	private T m_result;
 
-	private Exception m_exception;
+	private Throwable m_exception;
 
 	public FutureImpl() {
 		m_description = null;
@@ -117,7 +117,7 @@ public class FutureImpl<T> implements Future<T> {
 	/**
 	 * Mark the future as ready, but aborted with an exception.
 	 */
-	public synchronized void set(@NonNull Exception reason) {
+	public synchronized void set(@NonNull Throwable reason) {
 		m_exception = reason;
 		m_done = true;
 		notifyAll();
@@ -135,7 +135,7 @@ public class FutureImpl<T> implements Future<T> {
 			return description;
 		synchronized(this) {
 			if(m_done) {
-				Exception exception = m_exception;
+				Throwable exception = m_exception;
 				if(exception != null)
 					return exception.toString();
 				return String.valueOf(m_result);
