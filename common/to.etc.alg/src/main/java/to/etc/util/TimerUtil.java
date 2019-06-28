@@ -7,7 +7,7 @@ import java.util.Timer;
  * Created on 25-6-19.
  */
 final public class TimerUtil {
-	static private final Timer m_timer = new Timer();
+	static private final Timer m_timer = new Timer(true);
 
 	private TimerUtil() {
 	}
