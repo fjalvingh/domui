@@ -375,7 +375,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			}
 		}
 
-		System.setProperty("webdriver.chromedriver", driver);
+		System.setProperty("webdriver.chrome.driver", driver);
 		dc.setCapability("chrome.binary", chrome);
 
 		//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
