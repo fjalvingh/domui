@@ -361,6 +361,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		Builder builder = new Builder();
 		builder.usingAnyFreePort();
 		builder.withEnvironment(env);
+
 		ChromeDriverService service = builder.build();
 		MyChromeDriver chromeDriver = new MyChromeDriver(service, dc);
 
@@ -426,6 +427,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		ChromeOptions options = getCommonChromeOptions(lang);
 		options.addArguments("--headless");
 		options.addArguments("--no-sandbox");
+		options.addArguments("--disable-dev-shm-usage");
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
