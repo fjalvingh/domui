@@ -24,7 +24,8 @@
  */
 package to.etc.util;
 
-import java.io.*;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * This is a utility class that implements an input stream which retrieves it's
@@ -53,6 +54,11 @@ public class ByteBufferInputStream extends InputStream {
 		m_data = data;
 		m_sz = calcDataSize();
 		//		System.out.println("Byte stream of "+m_sz);
+	}
+
+	public ByteBufferInputStream(List<byte[]> data) {
+		m_data = data.toArray(new byte[data.size()][]);
+		m_sz = calcDataSize();
 	}
 
 	/**
