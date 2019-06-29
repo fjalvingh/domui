@@ -336,7 +336,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	static private final String[] CHROMEDRIVERLOCATIONS = {
 		"/home/vsts/work/node_modules/chromedriver/lib/chromedriver/chromedriver",
 		"/usr/local/bin/chromedriver",
-		"/usr/bin/chromedriver"
+		"/usr/bin/chromedriver",
+		"${HOME}/chromedriver"
 	};
 	static private final String[] CHROMELOCATIONS = {
 		"/usr/local/bin/google-chrome",
@@ -402,6 +403,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	@Nullable
 	private static String findLocation(String[] locs) {
 		for(String loc : locs) {
+			loc = loc.replace("${HOME}", System.getProperty("user.home"));
+
 			if(new File(loc).exists()) {
 				return loc;
 			}
