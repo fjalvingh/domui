@@ -29,7 +29,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 @NonNullByDefault
 public class HTag extends NodeContainer {
 	public HTag(int level) {
-		super("H" + level);
+		super("h" + level);
 		if(level < 0 || level > 6)
 			throw new IllegalStateException("Invalid H tag");
 	}

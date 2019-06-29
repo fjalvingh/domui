@@ -41,4 +41,8 @@ final public class HeaderContributorEntry {
 	public int getOrder() {
 		return m_order;
 	}
+
+	@Override public String toString() {
+		return m_contributor + " (order " + m_order + ")";
+	}
 }

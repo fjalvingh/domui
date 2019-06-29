@@ -44,8 +44,6 @@ public class ReloadingClassResourceRef implements IResourceRef, IModifyableResou
 
 	/**
 	 * Create a root-based class resource ref.
-	 * @param mr
-	 * @param name
 	 */
 	public ReloadingClassResourceRef(IModifyableResource mr, String name) {
 		m_source = mr;
@@ -54,11 +52,6 @@ public class ReloadingClassResourceRef implements IResourceRef, IModifyableResou
 			throw new IllegalStateException("The root-based resource reference " + name + " must start with a '/'");
 		m_name = name;
 	}
-
-	//	public ClassResourceRef(Class< ? > base, String name) {
-	//		m_base = base;
-	//		m_name = name;
-	//	}
 
 	/**
 	 * This is a funny one.... When a class resource is loaded from a .jar file Java will cache that data. This means that even
@@ -85,6 +78,14 @@ public class ReloadingClassResourceRef implements IResourceRef, IModifyableResou
 	 */
 	@Override
 	public long getLastModified() {
+		/*
+		 * jal 20190520 the below does not work on Wildcat because no source can be found there. It also seems
+		 * wrong, because even when no source is present there should be a last modified date IF the actual resource
+		 * exists. I.e. we have the following cases:
+		 * a. resource exists but source cannot be found -> lastModified must be constant and resource exists (but we cannot see whether it changed)
+		 * b. resource does not exist -> cannot be handled by this class, apparently
+		 * c. resource and source exists -> use the source's last modified date.
+		 */
 		return m_source == null ? -1 : m_source.getLastModified();
 	}
 

@@ -72,8 +72,6 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 
 	/**
 	 * Set the mode you want. If you do not care set to {@link InternetExplorerVersion}.EDGE. If you do not want to send any header set to null.
-	 * @param iemode
-	 * @throws IOException
 	 */
 	public void setIeEmulationMode(@Nullable String compatible) throws IOException {
 		if(m_flushed)
@@ -85,10 +83,6 @@ public class WrappedHttpServetResponse extends HttpServletResponseWrapper {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Stream-based crap.									*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @see javax.servlet.ServletResponseWrapper#getOutputStream()
-	 */
 	@Override
 	public ServletOutputStream getOutputStream() throws IOException {
 		if(m_wrappedwr != null)

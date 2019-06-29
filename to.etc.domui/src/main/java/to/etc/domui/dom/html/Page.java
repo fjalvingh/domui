@@ -230,7 +230,7 @@ final public class Page implements IQContextContainer {
 	@NonNull
 	private List<IExecute> m_afterRenderList = Collections.EMPTY_LIST;
 
-
+	private List<Object> m_pageMessageList = new ArrayList<>();
 
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -303,6 +303,12 @@ final public class Page implements IQContextContainer {
 		}
 
 		m_pageParameters = pp;
+	}
+
+	public final void internalOnDestroy() throws Exception {
+		m_asyncLink.m_page = null;
+		UrlPage body = getBody();
+		body.internalOnDestroy();
 	}
 
 	public void setTheCurrentNode(@Nullable NodeBase b) {
@@ -527,7 +533,6 @@ final public class Page implements IQContextContainer {
 		}
 		m_removeAfterRenderList.add(node);
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Automatic Test ID management.						*/
@@ -1114,6 +1119,27 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
+	/**
+	 * Internal: add a new message for the page.
+	 */
+	public <T> void addPageMessage(T message) {
+		synchronized(this) {
+			m_pageMessageList.add(message);
+		}
+	}
+
+	/**
+	 * Get all messages for the page, and clear that list (empty the postbox).
+	 */
+	public List<?> getPageMessagesAndClear() {
+		synchronized(this) {
+			List<Object> list = m_pageMessageList;
+			m_pageMessageList = new ArrayList<>();
+			return list;
+		}
+	}
+
+
 	public Set<SubPage> getRemovedSubPages() {
 		return m_removedSubPages;
 	}
@@ -1185,6 +1211,35 @@ final public class Page implements IQContextContainer {
 
 		public INotificationListener<T> getListener() {
 			return m_listener;
+		}
+	}
+
+
+	final private AsyncMessageLink m_asyncLink = new AsyncMessageLink(this);
+
+	/**
+	 * Returns an asynchronous link that can be used to signal the page when some event occurs,
+	 * but which will disappear if the page is destroyed before that happens.
+	 */
+	public AsyncMessageLink postbox() {
+		return m_asyncLink;
+	}
+
+	static public final class AsyncMessageLink {
+		@Nullable
+		private Page m_page;
+
+		public AsyncMessageLink(Page up) {
+			m_page = up;
+		}
+
+		public <T> void post(@NonNull T message) {
+			Page page = m_page;
+			if(null == page) {
+				//System.err.println("Dropping post: " + message);
+				return;
+			}
+			page.addPageMessage(message);
 		}
 	}
 }

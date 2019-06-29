@@ -35,6 +35,8 @@ import to.etc.domui.state.DelayedActivityInfo;
 import to.etc.domui.state.DelayedActivityInfo.State;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.Msgs;
+import to.etc.parallelrunner.IAsyncCompletionListener;
+import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.util.Progress;
 import to.etc.util.StringTool;
 

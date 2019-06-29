@@ -26,4 +26,6 @@ fc-cache -v
 echo "Fonts in .fonts:"
 ls -l ~/.fonts
 
+mvn install:install-file -Dfile=buildResources/ecj-4.11M3.jar -DgroupId=org.eclipse.jdt -DartifactId=ecj -Dversion=4.11.3 -Dpackaging=jar
+
 

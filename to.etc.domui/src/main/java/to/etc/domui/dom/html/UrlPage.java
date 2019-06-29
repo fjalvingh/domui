@@ -30,6 +30,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.BreadCrumb;
 import to.etc.domui.component.layout.Window;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
+import to.etc.domui.dom.html.Page.AsyncMessageLink;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
 import to.etc.domui.server.DomApplication;
@@ -100,9 +101,12 @@ public class UrlPage extends AbstractPage {
 
 	/**
 	 * Called when the page gets destroyed (navigation or such).
-	 * @throws Exception
 	 */
 	public void onDestroy() throws Exception {}
+
+	public final void internalOnDestroy() throws Exception {
+		onDestroy();
+	}
 
 	/**
 	 * Get the page name used for {@link AppPageTitleBar} and {@link BreadCrumb} related code. To set the head title use the
@@ -239,6 +243,30 @@ public class UrlPage extends AbstractPage {
 
 	public void refreshOnReload() {
 		m_refreshOnReload = true;
+	}
+
+	/**
+	 * Get all system broadcast messages for the page, and clear that list (empty the postbox).
+	 */
+	public List<?> getPostboxAndClear() {
+		return getPage().getPageMessagesAndClear();
+	}
+
+	/**
+	 * Returns an asynchronous link that can be used to signal the page when some event occurs,
+	 * but which will disappear if the page is destroyed before that happens.
+	 */
+	public AsyncMessageLink postbox() {
+		return getPage().postbox();
+	}
+
+	/**
+	 * Redirects to URL after specified milliseconds
+	 * @param url to redirect to
+	 * @param milliseconds after which redirect occurs
+	 */
+	public void redirectIn(String url, long milliseconds) {
+		appendJavascript("setTimeout(function() { window.location.href = \"" + url + "\"; }, " + milliseconds + ");");
 	}
 }
 

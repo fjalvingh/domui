@@ -6,7 +6,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.rules.TestName;
 import org.openqa.selenium.UnhandledAlertException;
-import ru.yandex.qatools.allure.annotations.Attachment;
 import to.etc.pater.OnTestFailure;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
@@ -164,12 +163,12 @@ abstract public class AbstractWebDriverTest {
 		return f;
 	}
 
-	@Attachment(value = "{method} {1}", type = "image/png")
+	//@Attachment(value = "{method} {1}", type = "image/png")
 	public byte[] allureAttachment(byte[] image, String description) {
 		return image;
 	}
 
-	@Attachment(value = "{1}", type="text/plain")
+	//@Attachment(value = "{1}", type="text/plain")
 	public String allureText(String data, String description) {
 		return data;
 	}

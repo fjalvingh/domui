@@ -1,4 +1,4 @@
-package to.etc.domui.component.delayed;
+package to.etc.parallelrunner;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;

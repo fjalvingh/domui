@@ -36,13 +36,13 @@ import to.etc.domui.state.WindowSession;
  * Created on Jun 18, 2010
  */
 public interface IDomUIStateListener {
-	void windowSessionCreated(WindowSession ws) throws Exception;
+	default void windowSessionCreated(WindowSession ws) throws Exception {}
 
-	void windowSessionDestroyed(WindowSession ws) throws Exception;
+	default void windowSessionDestroyed(WindowSession ws) throws Exception {}
 
-	void conversationCreated(AbstractConversationContext cc) throws Exception;
+	default void conversationCreated(AbstractConversationContext cc) throws Exception {}
 
-	void conversationDestroyed(AbstractConversationContext cc) throws Exception;
+	default void conversationDestroyed(AbstractConversationContext cc) throws Exception {}
 
 //	void pageCreated(Page pg) throws Exception;
 //
@@ -51,14 +51,14 @@ public interface IDomUIStateListener {
 	/**
 	 * Called just before the page is rendered fully.
 	 */
-	void onBeforeFullRender(RequestContextImpl ctx, Page pg);
+	default void onBeforeFullRender(RequestContextImpl ctx, Page pg) {}
 
 	/**
 	 * Called just before page actions are executed (AJAX requests)
 	 */
-	void onBeforePageAction(RequestContextImpl ctx, Page pg);
+	default void onBeforePageAction(RequestContextImpl ctx, Page pg) {}
 
-	void onAfterPage(IRequestContext ctx, Page pg);
+	default void onAfterPage(IRequestContext ctx, Page pg) {}
 
 	/**
 	 * Called when the page is still "unbuilt", just after creation of it.

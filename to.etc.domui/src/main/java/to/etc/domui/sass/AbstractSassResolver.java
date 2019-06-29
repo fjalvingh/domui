@@ -182,6 +182,8 @@ abstract public class AbstractSassResolver<O> {
 			m_dependencyList.add(ref);
 			String content;
 			try(InputStream is = ref.getInputStream()) {
+				if(is == null)
+					throw new IllegalStateException("Null inputstream from existing resource " + ref);
 				content = FileTool.readStreamAsString(is, "utf-8");
 			}
 			O imp = createInput(name, content);
@@ -221,6 +223,8 @@ abstract public class AbstractSassResolver<O> {
 	protected String generateParameterFile() {
 		StringBuilder sb = new StringBuilder();
 		for(String name : m_params.getParameterNames()) {
+			if(name.startsWith("__"))
+				continue;
 			String[] values = m_params.getParameters(name);
 			if(null != values && values.length == 1) {
 				String value = values[0];

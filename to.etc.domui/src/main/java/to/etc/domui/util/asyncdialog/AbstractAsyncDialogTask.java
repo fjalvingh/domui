@@ -2,7 +2,7 @@ package to.etc.domui.util.asyncdialog;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.delayed.IAsyncRunnable;
+import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.domui.logic.ILogicContext;
 import to.etc.domui.logic.LogicContextImpl;
 import to.etc.util.FileTool;

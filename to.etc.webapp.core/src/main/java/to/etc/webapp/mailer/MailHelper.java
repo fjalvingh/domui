@@ -6,22 +6,17 @@ import to.etc.smtp.Address;
 import to.etc.smtp.IMailAttachment;
 import to.etc.smtp.Message;
 import to.etc.smtp.MimeWriter;
-import to.etc.smtp.SmtpTransport;
 import to.etc.util.ByteBufferInputStream;
-import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.webapp.core.ServerTools;
 import to.etc.webapp.query.IIdentifyable;
-import to.etc.webapp.query.QDataContext;
 
-import javax.naming.OperationNotSupportedException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -368,7 +363,7 @@ public class MailHelper {
 		m_text_sb.append(url);
 		m_text_sb.append(")");
 
-		htmlTag("a", "href", url);
+		htmlTag("a", "clicktracking", "off", "href", url);
 		htmlText(StringTool.htmlStringize(text));
 		htmlEndTag("a");
 		return this;
@@ -539,97 +534,102 @@ public class MailHelper {
 		return this;
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Handle sending.										*/
-	/*--------------------------------------------------------------*/
+	///*--------------------------------------------------------------*/
+	///*	CODING:	Handle sending.										*/
+	///*--------------------------------------------------------------*/
+	//
+	///**
+	// * Send the message using the {@link BulkMailer}'s default instance, using a newly allocated connection.
+	// * @throws Exception
+	// */
+	//public void send() throws Exception {
+	//	sendInternal(null);
+	//}
+	//
+	///**
+	// * Send the message immediately through the specified transport - only use this if the BulkMailer should
+	// * not be used. If the sending fails it will not be repeated (an exception will be thrown).
+	// *
+	// * @param transport
+	// * @throws Exception
+	// */
+	//public void send(@NonNull SmtpTransport transport) throws Exception {
+	//	sendInternal(transport);
+	//}
+	//
+	///**
+	// * Send the message using the {@link BulkMailer} using the specified connection. The message will be sent only
+	// * when that connection is commited, storing the data into the database for the BulkMailer to find.
+	// * @param dc
+	// * @throws Exception
+	// */
+	//public void send(@NonNull QDataContext dc) throws Exception {
+	//	sendInternal(dc);
+	//}
+	//
+	///**
+	// * Queue the message for transmission.
+	// * @throws Exception
+	// */
+	//public void sendInternal(@Nullable Object through) throws Exception {
+	//	addTrailer();
+	//	htmlEndTag("body");
+	//	htmlEndTag("html");
+	//	if(DeveloperOptions.getBool("email.send", true)) {
+	//		String alt = DeveloperOptions.getString("email.debug");
+	//		if(alt != null) {
+	//			List<Address> replaced = new ArrayList<Address>();
+	//			for(Address adr : getTo()) {
+	//				//-- In debug use alternate address but ORIGINAL name
+	//				String name = adr.getName();
+	//				if(name == null)
+	//					name = adr.getEmail().replace('@', '-');
+	//				replaced.add(new Address(alt, name));
+	//			}
+	//			getTo().clear();
+	//			for(Address adr : replaced) {
+	//				addTo(adr);
+	//			}
+	//		}
+	//
+	//		//-- Create the message
+	//		Message m = getMessage();
+	//
+	//		//-- Now queue/send
+	//		if(through instanceof SmtpTransport)
+	//			((SmtpTransport) through).send(m);
+	//		else if(through instanceof QDataContext)
+	//			BulkMailer.getInstance().store((QDataContext) through, m);
+	//		else if(null == through)
+	//			BulkMailer.getInstance().store(m);
+	//		else
+	//			throw new IllegalStateException("Unknown store method");
+	//	} else {
+	//		System.out.println("MAIL: on " + new Date() + " should send to: ");
+	//		for(Address a : getTo()) {
+	//			System.out.println("\t" + a.getName() + " [" + a.getEmail() + "]");
+	//		}
+	//		System.out.println("\tSUBJECT: " + getSubject());
+	//		System.out.println(getTextBuffer().toString());
+	//		System.out.println("--- html ---");
+	//		System.out.println(getHtmlBuffer().toString());
+	//		System.out.println("--- end ---");
+	//	}
+	//}
 
-	/**
-	 * Send the message using the {@link BulkMailer}'s default instance, using a newly allocated connection.
-	 * @throws Exception
-	 */
-	public void send() throws Exception {
-		sendInternal(null);
-	}
-
-	/**
-	 * Send the message immediately through the specified transport - only use this if the BulkMailer should
-	 * not be used. If the sending fails it will not be repeated (an exception will be thrown).
-	 *
-	 * @param transport
-	 * @throws Exception
-	 */
-	public void send(@NonNull SmtpTransport transport) throws Exception {
-		sendInternal(transport);
-	}
-
-	/**
-	 * Send the message using the {@link BulkMailer} using the specified connection. The message will be sent only
-	 * when that connection is commited, storing the data into the database for the BulkMailer to find.
-	 * @param dc
-	 * @throws Exception
-	 */
-	public void send(@NonNull QDataContext dc) throws Exception {
-		sendInternal(dc);
-	}
-
-	/**
-	 * Queue the message for transmission.
-	 * @throws Exception
-	 */
-	public void sendInternal(@Nullable Object through) throws Exception {
-		addTrailer();
-		htmlEndTag("body");
-		htmlEndTag("html");
-		if(DeveloperOptions.getBool("email.send", true)) {
-			String alt = DeveloperOptions.getString("email.debug");
-			if(alt != null) {
-				List<Address> replaced = new ArrayList<Address>();
-				for(Address adr : getTo()) {
-					//-- In debug use alternate address but ORIGINAL name
-					String name = adr.getName();
-					if(name == null)
-						name = adr.getEmail().replace('@', '-');
-					replaced.add(new Address(alt, name));
-				}
-				getTo().clear();
-				for(Address adr : replaced) {
-					addTo(adr);
-				}
-			}
-
-			//-- Create the message
-			if(m_from == null)
-				throw new IllegalStateException("No 'from' specified.");
-			Message m = new Message();
-			m.setFrom(m_from);
-			for(Address to : m_to)
-				m.addTo(to);
-			m.setSubject(getSubject());
-			m.setBody(getTextBuffer().toString());
-			m.setHtmlBody(getHtmlBuffer().toString());
-			for(IMailAttachment aa : getAttachmentList())
-				m.addAttachment(aa);
-
-			//-- Now queue/send
-			if(through instanceof SmtpTransport)
-				((SmtpTransport) through).send(m);
-			else if(through instanceof QDataContext)
-				BulkMailer.getInstance().store((QDataContext) through, m);
-			else if(null == through)
-				BulkMailer.getInstance().store(m);
-			else
-				throw new IllegalStateException("Unknown store method");
-		} else {
-			System.out.println("MAIL: on " + new Date() + " should send to: ");
-			for(Address a : getTo()) {
-				System.out.println("\t" + a.getName() + " [" + a.getEmail() + "]");
-			}
-			System.out.println("\tSUBJECT: " + getSubject());
-			System.out.println(getTextBuffer().toString());
-			System.out.println("--- html ---");
-			System.out.println(getHtmlBuffer().toString());
-			System.out.println("--- end ---");
-		}
+	public Message getMessage() {
+		//if(m_from == null)
+		//	throw new IllegalStateException("No 'from' specified.");
+		Message m = new Message();
+		m.setFrom(m_from);
+		for(Address to : m_to)
+			m.addTo(to);
+		m.setSubject(getSubject());
+		m.setBody(getTextBuffer().toString());
+		m.setHtmlBody(getHtmlBuffer().toString());
+		for(IMailAttachment aa : getAttachmentList())
+			m.addAttachment(aa);
+		return m;
 	}
 
 
@@ -725,7 +725,7 @@ public class MailHelper {
 
 	@NonNull
 	protected InputStream getApplicationResource(@NonNull String name) throws Exception {
-		throw new OperationNotSupportedException("Override getApplicationResource(String)");
+		throw new UnsupportedOperationException("Override getApplicationResource(String)");
 
 //		//-- Get the appfile represented by that RURL.
 //		IResourceRef rr = DomApplication.get().getResource(rurl, ResourceDependencyList.NULL);

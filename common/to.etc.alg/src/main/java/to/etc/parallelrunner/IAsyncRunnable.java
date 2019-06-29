@@ -1,8 +1,7 @@
-package to.etc.domui.component.delayed;
+package to.etc.parallelrunner;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.util.Progress;
-import to.etc.webapp.query.QContextManager;
 
 /**
  * This defines a handler for asynchronous execution within a DomUI page. See {@link AsyncContainer} for a component that uses it.

@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
+ * Generic dialog to show exceptions. By default this just shows the
+ * reason code passed and an exception stack trace. But you can register
+ * extra handlers that decode messages from specific exception types.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 2-1-18.
  */

@@ -845,18 +845,17 @@ public class StringTool {
 	/**
 	 *	Returns a string of hex bytes for a given thing.
 	 *	@parameter	ar: the array that data needs to be gotten from
-	     *      @parameter      bi: The initial index where the 1st byte is in the array
-	     *      @parameter      nc:     The number of bytes to decode.
-	     */
-	static public void arrayToHexStr(@NonNull final Appendable sb, @NonNull final byte[] ar, final int bi, final int nc, final boolean fillout) throws IOException {
+	 *      @parameter      bufferIndex: The initial index where the 1st byte is in the array
+	 *      @parameter      bytesPerLine:     The number of bytes to decode.
+	 */
+	static public void arrayToHexStr(@NonNull Appendable sb, @NonNull byte[] ar, int bufferIndex, int bytesPerLine, int bufferSize, boolean fillout) throws IOException {
 		int i, ei;
 
-		ei = nc + bi;
-		for(i = bi; i < ei; i++) {
-			if(i >= ar.length) // Past end of array?
-			{
-				if(!fillout) // No need to add spaces?
-					return; // Then return the result
+		ei = bytesPerLine + bufferIndex;
+		for(i = bufferIndex; i < ei; i++) {
+			if(i >= ar.length || i >= bufferSize) {				// Past end of array?
+				if(!fillout)									// No need to add spaces?
+					return;										// Then return the result
 				sb.append("   "); // Add 3 spaces.
 			} else {
 				sb.append(intToStr((ar[i] & 0xff), 16, 2));
@@ -882,17 +881,16 @@ public class StringTool {
 		}
 	}
 
-
 	/**
 	 *      Returns a dumpstring containing the offset, the hex bytes, and the ascii
 	 *      representation of a given dump buffer.
 	 */
-	static public void arrayToDumpLine(@NonNull final Appendable sb, @NonNull final byte[] ar, final int bi, final int nc) throws IOException {
-		sb.append(intToStr(bi, 16, 4)); // Buffer offset
+	static public void arrayToDumpLine(@NonNull Appendable sb, @NonNull byte[] ar, int bi, int bytesPerLine, int bufferSize) throws IOException {
+		sb.append(intToStr(bi, 16, 4));				// Buffer offset
 		sb.append(": ");
-		arrayToHexStr(sb, ar, bi, nc, true); // Get filled-out string of nc bytes in HEX
+		arrayToHexStr(sb, ar, bi, bytesPerLine, bufferSize, true);	// Get filled-out string of nc bytes in HEX
 		sb.append("  ");
-		arrayToAsciiStr(sb, ar, bi, nc);
+		arrayToAsciiStr(sb, ar, bi, bytesPerLine);
 	}
 
 	/**
@@ -900,22 +898,30 @@ public class StringTool {
 	 * <pre>
 	 * 	0000 ff ef aa bb cc dd 99 88  ff ef aa bb cc dd 99 88 sgdfkajse
 	 * </pre>
-	 * @param sb
-	 * @param ar
-	 * @param off
-	 * @param len
-	 * @throws IOException
 	 */
-	static public void dumpData(@NonNull final Appendable sb, @NonNull final byte[] ar, final int off, final int len) throws IOException {
+	static public void dumpData(@NonNull Appendable sb, @NonNull byte[] ar, int off, int len) throws IOException {
 		int ix = off;
 		int left = len;
 		while(left > 0) {
-			StringTool.arrayToDumpLine(sb, ar, ix, left > 16 ? 16 : left);
+			StringTool.arrayToDumpLine(sb, ar, ix, 16, len);
 			sb.append("\n");
 			left -= 16;
 			ix += 16;
 		}
 	}
+
+	static public void dumpData(@NonNull Appendable sb, @NonNull byte[] ar, int off, int len, @NonNull String prefix) throws IOException {
+		int ix = off;
+		int left = len;
+		while(left > 0) {
+			sb.append(prefix);
+			StringTool.arrayToDumpLine(sb, ar, ix, 16, len);
+			sb.append("\n");
+			left -= 16;
+			ix += 16;
+		}
+	}
+
 
 	static public void printHex(@NonNull final PrintWriter pw, @NonNull final byte[] arr) {
 		printHex(pw, arr, 0, arr.length);
@@ -952,11 +958,15 @@ public class StringTool {
 	 * @return
 	 */
 	static public String toHex(final byte[] arr, final int start, final int end) {
-		StringBuffer sb = new StringBuffer(arr.length * 2);
+		StringBuilder sb = new StringBuilder(arr.length * 2);
 
-		for(int i = start; i < end; i++)
-			sb.append(intToStr((arr[i]) & 0xff, 16, 2));
-
+		for(int i = start; i < end; i++) {
+			int v = arr[i];
+			int c = (v >> 4) & 0xf;
+			sb.append(c <= 9 ? (char)(c + '0') : (char) (c + 'a' - 10));
+			c = v & 0xf;
+			sb.append(c <= 9 ? (char)(c + '0') : (char) (c + 'a' - 10));
+		}
 		return sb.toString();
 	}
 
@@ -978,7 +988,7 @@ public class StringTool {
 	 * @return
 	 */
 	static public String toHexSp(final byte[] arr, final int start, final int end) {
-		StringBuffer sb = new StringBuffer(arr.length * 2);
+		StringBuilder sb = new StringBuilder(arr.length * 2);
 
 		for(int i = start; i < end; i++) {
 			sb.append(intToStr((arr[i]) & 0xff, 16, 2));

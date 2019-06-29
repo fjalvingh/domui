@@ -1,17 +1,15 @@
 dist: xenial
-sudo: required
+sudo: false
 
 addons:
-  apt:
-    packages:
-      - google-chrome-stable
+  chrome: stable
 
 branches:
   except:
   - domui-1.0
 
 jdk:
-- openjdk8
+- openjdk11
 
 language: java
 

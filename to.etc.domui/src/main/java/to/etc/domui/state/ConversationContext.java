@@ -28,7 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IAsyncListener;
-import to.etc.domui.component.delayed.IAsyncRunnable;
+import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
@@ -299,7 +299,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 	void destroyPage(@NonNull final Page pg) {
 		//-- Call the page's DESTROY handler while still attached
 		try {
-			pg.getBody().onDestroy();
+			pg.internalOnDestroy();
 		} catch(Exception x) {
 			System.err.println("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x);
 			x.printStackTrace();
