@@ -13,6 +13,8 @@ pool:
 steps:
 - checkout: self
   submodules: true
+- script: npm install chromedriver
+
 - task: Maven@3
   inputs:
     mavenPomFile: 'pom.xml'
