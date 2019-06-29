@@ -186,6 +186,14 @@ public class NodeVisitorBase implements INodeVisitor {
 		visitNodeBase(n);
 	}
 
+	@Override public void visitVideo(Video n) throws Exception {
+		sub(n);
+	}
+
+	@Override public void visitSource(Source n) throws Exception {
+		visitNodeBase(n);
+	}
+
 	public void visitNodeBase(NodeBase n) throws Exception {}
 
 	public void visitNodeContainer(NodeContainer n) throws Exception {}

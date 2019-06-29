@@ -63,10 +63,13 @@ final public class LoadedImage implements IUIImage {
 		OriginalImagePage page = identify.getPageList().get(0);
 		Dimension dimension = new Dimension(page.getWidth(), page.getHeight());		// Original's size.
 		if(maxSize != null && !maxSize.contains(dimension)) {						// Original too large -> resize it
+			//-- Calculate new size, keeping aspect ratio
+			java.awt.Dimension rDims = ImaTool.resizeWithAspect(maxSize.getWidth(), maxSize.getHeight(), page.getWidth(), page.getHeight());
+
 			//-- Resize
 			ImageSpec spec = new ImageSpec(original, identify);
 			ImageConverterHelper h = new ImageConverterHelper();
-			ImageSpec resized = ImageMagicImageHandler.getInstance().thumbnail(h, spec, 0, maxSize.getWidth(), maxSize.getHeight(), "image/png");
+			ImageSpec resized = ImageMagicImageHandler.getInstance().thumbnail(h, spec, 0, rDims.width, rDims.height, "image/png");
 			original = resized.getSource();											// Original is now the initial resized one.
 			if(null != resourceList)
 				resourceList.add(original);

@@ -63,7 +63,7 @@ final public class FormBuilder {
 		if(null == text)
 			return;
 
-		IIconRef ir = Icon.faInfo.css("ui-f4-hinticon");
+		IIconRef ir = Icon.faInfoCircle.css("ui-f4-hinticon");
 		NodeBase irNode = ir.createNode();
 		node.add(irNode);
 

@@ -772,7 +772,7 @@ public abstract class DomApplication {
 		String s = url.toLowerCase();
 
 		if(s.startsWith("http://")) {
-			s = s.substring(0, 7);                // Strip http://
+			s = s.substring(7);                // Strip http://
 		} else if(s.startsWith("https://")) {
 			s = s.substring(8);                    // Same
 		} else {

@@ -67,6 +67,17 @@ final public class QQueryUtils {
 			return (T) Proxy.newProxyInstance(m_cl, m_resultInterface, new InvocationHandler() {
 				@Override
 				public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+					if(method.getName().equals("toString")) {
+						StringBuilder sb = new StringBuilder();
+						sb.append(m_resultInterface[0].getSimpleName() + ": ");
+						for(int i = 0; i < row.length; i++) {
+							if(i > 0)
+								sb.append(", ");
+							sb.append(String.valueOf(row[i]));
+						}
+						return sb.toString();
+					}
+
 					Integer index = m_imap.get(method);
 					if(null == index)
 						throw new IllegalArgumentException("Unexpected method " + method + " not found in map");

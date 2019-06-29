@@ -101,16 +101,16 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 		return (getModel().getRows() + pageSize - 1) / pageSize;
 	}
 
-	/**
-	 * FIXME jal 20160125 Remove and replace with isTruncated property.
-	 */
-	public int getTruncatedCount() throws Exception {
+	public boolean isTruncated() {
 		ITableModel<T> tm = getModel();
 		if(tm == null || !(tm instanceof ITruncateableDataModel))
-			return 0;
+			return false;
 		ITruncateableDataModel t = (ITruncateableDataModel) tm;
-		if(t.isTruncated())
-			return getModel().getRows();
-		return 0;
+		return t.isTruncated();
+	}
+
+	public int getResultCount() throws Exception {
+		ITableModel<T> tm = getModel();
+		return tm == null ? 0 : tm.getRows();
 	}
 }

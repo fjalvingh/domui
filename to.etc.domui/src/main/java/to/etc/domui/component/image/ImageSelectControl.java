@@ -184,8 +184,9 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 	}
 
 	private void renderImage(@NonNull RequestContextImpl ctx, @NonNull IUIImage thumbnail) throws Exception {
-		IUIImageInstance ii = thumbnail.getImage(m_displayDimensions, true);
-		OutputStream os = ctx.getRequestResponse().getOutputStream(ii.getMimeType(), null, ii.getImageSize());
+		IUIImageInstance ii = thumbnail.getImage(m_displayDimensions, false);
+		int imageSize = ii.getImageSize();
+		OutputStream os = ctx.getRequestResponse().getOutputStream(ii.getMimeType(), null, imageSize);
 		InputStream is = ii.getImage();
 		try {
 			FileTool.copyFile(os, is);

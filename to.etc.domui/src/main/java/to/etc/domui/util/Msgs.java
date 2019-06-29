@@ -15,6 +15,7 @@ public enum Msgs implements IBundleCode {
 	uiBoolTrue,
 	uiBoolFalse,
 	uiInconsistentData,
+	uiConcurrentUpdate,
 	/** The database query timed out and was cancelled. */
 	uiQueryTimeout,
 	uiValidationFailed,
@@ -41,8 +42,9 @@ public enum Msgs implements IBundleCode {
 	dataValueAccessDenied,
 	uiPagerPrev,
 	uiPagerNext,
-
-	uiWarningHeader
+	uiPagerRecordCount,
+	uiPagerOverflow2,
+	uiWarningHeader,
 	;
 
 	/** Error component panel header text: Info */

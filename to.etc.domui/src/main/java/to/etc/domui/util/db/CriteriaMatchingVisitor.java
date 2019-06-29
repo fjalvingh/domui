@@ -3,6 +3,7 @@ package to.etc.domui.util.db;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
 import to.etc.domui.component.meta.impl.PathPropertyMetaModel;
@@ -424,12 +425,34 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 
 	@Override
 	public void visitExistsSubquery(@NonNull QExistsSubquery< ? > q) throws Exception {
-		throw new IllegalStateException("'exists' has no meaning here");
+		PropertyMetaModel<List<?>> pmm = (PropertyMetaModel<List<?>>) m_cmm.getProperty(q.getParentProperty());
+		List<?> list = pmm.getValue(m_instance);
+		if(list == null) {
+			m_lastResult = false;
+			return;
+		}
+
+		m_lastResult = checkSubExists(q, list);
+	}
+
+	private <C> boolean checkSubExists(@NonNull QExistsSubquery< ? > q, List<?> items) throws Exception {
+		QExistsSubquery<C> sq = (QExistsSubquery<C>) q;
+		List<C> list = (List<C>) items;
+
+		ClassMetaModel cmm = MetaManager.findClassMeta(q.getBaseClass());
+
+		for(C subitem : list) {
+			CriteriaMatchingVisitor<C> mv = new CriteriaMatchingVisitor<>(subitem, cmm);
+			q.getRestrictions().visit(mv);
+			if(mv.m_lastResult)
+				return true;
+		}
+		return false;
 	}
 
 	@Override
 	public void visitSelectionSubquery(@NonNull QSelectionSubquery n) throws Exception {
-		throw new IllegalStateException("'subselection' has no meaning here");
+		throw new IllegalStateException("'subselection' not implemented");
 	}
 
 	@NonNull
