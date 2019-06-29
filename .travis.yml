@@ -9,7 +9,7 @@ branches:
   - domui-1.0
 
 jdk:
-- openjdk11
+- openjdk8
 
 language: java
 
