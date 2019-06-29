@@ -337,6 +337,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		"/home/vsts/work/node_modules/chromedriver/lib/chromedriver/chromedriver",
 		"/usr/local/bin/chromedriver",
 		"/usr/bin/chromedriver",
+		"${HOME}/bin/chromedriver",
 		"${HOME}/chromedriver"
 	};
 	static private final String[] CHROMELOCATIONS = {
@@ -406,6 +407,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			loc = loc.replace("${HOME}", System.getProperty("user.home"));
 
 			if(new File(loc).exists()) {
+				System.out.println("selenium: found " + loc);
 				return loc;
 			}
 		}
