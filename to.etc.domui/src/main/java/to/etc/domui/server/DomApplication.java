@@ -215,6 +215,8 @@ public abstract class DomApplication {
 	/** When T the UI will try to generate test ID's and helper thingies to easily show those IDs */
 	private boolean m_uiTestMode;
 
+	private boolean m_defaultHintsOnControl = true;
+
 	/** When > 0, this defines that pages are automatically reloaded when changed */
 	private int m_autoRefreshPollInterval;
 
@@ -814,7 +816,7 @@ public abstract class DomApplication {
 		String s = url.toLowerCase();
 
 		if(s.startsWith("http://")) {
-			s = s.substring(0, 7);                // Strip http://
+			s = s.substring(7);                // Strip http://
 		} else if(s.startsWith("https://")) {
 			s = s.substring(8);                    // Same
 		} else {
@@ -2261,6 +2263,17 @@ public abstract class DomApplication {
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * When T (the default) controls will receive any hint text as provided by metadata or explicit command.
+	 */
+	public boolean isDefaultHintsOnControl() {
+		return m_defaultHintsOnControl;
+	}
+
+	public void setDefaultHintsOnControl(boolean defaultHintsOnControl) {
+		m_defaultHintsOnControl = defaultHintsOnControl;
 	}
 
 	static {

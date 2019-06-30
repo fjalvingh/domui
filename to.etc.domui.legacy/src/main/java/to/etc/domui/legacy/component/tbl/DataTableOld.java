@@ -1049,4 +1049,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 		m_preventRowHighlight = preventRowHighlight;
 	}
 
+
+	@Override public void setHint(String hintText) {
+	}
 }

@@ -33,6 +33,7 @@ import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.BundleRef;
@@ -228,6 +229,17 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		for(@NonNull SmallImgButton sib : m_extraButtonList) {
 			bd.add(sib);
 		}
+
+		Span reco = new Span();
+		reco.addCssClass("ui-dp2-nurec");
+		reco.add(Msgs.uiPagerRecordCount.format(m_table.getResultCount()));
+		bd.add(reco);
+		if(m_table.isTruncated()) {
+			Div node = new Div("ui-dp2-trunc");
+			bd.add(node);
+			node.setTitle(Msgs.uiPagerOverflow2.getString());
+		}
+
 	}
 
 

@@ -29,9 +29,9 @@ import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.dom.html.IControl;
 import to.etc.webapp.nls.NlsContext;
 
@@ -77,13 +77,7 @@ final class LookupFactoryEnumAndBool implements ILookupControlFactory {
 			}
 
 			final ComboFixed< ? > c = new ComboFixed<Object>(vl);
-			String s = pmm.getDefaultHint();
-			if(s != null) {
-				c.setTitle(s);
-			}
-			String hint = MetaUtils.findHintText(spm);
-			if(hint != null)
-				c.setTitle(hint);
+			UIControlUtil.configure(spm, pmm, c);
 			ctlnode = c;
 		}
 

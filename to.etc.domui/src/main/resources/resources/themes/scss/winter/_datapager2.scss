@@ -55,4 +55,17 @@ $pager2-button-bg: $alt-button-bg !default
 			cursor: default;
 		}
 	}
+
+	.ui-dp2-nurec {
+		font-size: small;
+		vertical-align: middle;
+	}
+	.ui-dp2-trunc {
+		display: inline-block;
+		vertical-align: middle;
+		margin-left: 5px;
+		width: 16px;
+		height: 16px;
+		background: url(nav-overflow.png) no-repeat;
+	}
 }

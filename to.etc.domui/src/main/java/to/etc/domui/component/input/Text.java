@@ -32,6 +32,7 @@ import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyMetaValidator;
 import to.etc.domui.component.meta.impl.MetaPropertyValidatorImpl;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConvertable;
 import to.etc.domui.converter.IConverter;
@@ -614,11 +615,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 
 		if(pmm.getLength() > 0)
 			txt.setMaxLength(pmm.getLength());
-		if(pmm.isRequired())
-			txt.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			txt.setTitle(s);
+		UIControlUtil.configure(txt, pmm);
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			txt.addValidator(mpv);
 		txt.setTextAlign(TextAlign.RIGHT);
@@ -699,11 +696,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			txt.setReadOnly(true);
 		if(pmm.getConverter() != null)
 			txt.setConverter(pmm.getConverter());
-		if(pmm.isRequired())
-			txt.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			txt.setTitle(s);
+		UIControlUtil.configure(txt, pmm);
 		for(PropertyMetaValidator mpv : pmm.getValidators())
 			txt.addValidator(mpv);
 
@@ -816,5 +809,9 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	public void createContent() throws Exception {
 		super.createContent();
 		renderMode();
+	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
 	}
 }

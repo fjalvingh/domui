@@ -252,4 +252,8 @@ public class Img extends NodeBase implements IActionControl {
 		m_useMap = useMap;
 		changed();
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

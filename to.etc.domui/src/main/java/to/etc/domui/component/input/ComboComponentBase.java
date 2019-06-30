@@ -476,4 +476,8 @@ public class ComboComponentBase<T, V> extends Select implements IControl<V>, IHa
 		super.setMandatory(mandatory); // Switch flag
 		forceRebuild(); // The "empty option" might have changed
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

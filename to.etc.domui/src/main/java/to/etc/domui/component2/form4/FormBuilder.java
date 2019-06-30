@@ -6,8 +6,12 @@ import to.etc.domui.component.binding.BindReference;
 import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
+import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.dom.html.BindingBuilderBidi;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
@@ -18,6 +22,8 @@ import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.query.QField;
+
+import java.util.function.BiConsumer;
 
 /**
  * Yet another attempt at a generic form builder, using the Builder pattern. The builder
@@ -47,6 +53,29 @@ final public class FormBuilder {
 	private boolean m_append;
 
 	private boolean m_currentDirection;
+
+	private static boolean m_defaultShowHintAsIcon;
+
+	private Boolean m_showHintAsIcon;
+
+	@NonNull
+	static private BiConsumer<NodeContainer, String> m_defaultHintRenderer = (node, text) -> {
+		if(null == text)
+			return;
+
+		IIconRef ir = Icon.faInfoCircle.css("ui-f4-hinticon");
+		NodeBase irNode = ir.createNode();
+		node.add(irNode);
+
+		irNode.setClicked(a -> {
+			Div content = new Div();
+			DomUtil.renderHtmlString(content, text);
+			MsgBox.info(node, content);
+		});
+	};
+
+	@Nullable
+	private BiConsumer<NodeContainer, String> m_hintRenderer;
 
 	/** While set, all controls added will have their readOnly property bound to this reference unless otherwise specified */
 	@Nullable
@@ -122,7 +151,15 @@ final public class FormBuilder {
 		//}
 		return new BindReference<>(instance, pmm);
 	}
+	public FormBuilder hintAsIcon(boolean yes) {
+		m_showHintAsIcon = yes;
+		return this;
+	}
 
+	@Nullable
+	public Boolean getShowHintAsIcon() {
+		return m_showHintAsIcon;
+	}
 
 	/**
 	 * By default bind all next components' readOnly property to the specified Boolean property. This binding
@@ -270,6 +307,8 @@ final public class FormBuilder {
 	}
 
 	private <I, V> void addControl(BuilderData<I, V> builder,@NonNull NodeBase control, @Nullable IBidiBindingConverter<?, ?> conv) throws Exception {
+		PropertyMetaModel<?> pmm = builder.m_propertyMetaModel;
+
 		if (control.getClass().getSimpleName().contains("TextArea")
 			&& builder.m_labelCss == null) {
 			builder.m_labelCss = "ui-f4-ta";
@@ -277,10 +316,19 @@ final public class FormBuilder {
 
 		NodeContainer lbl = builder.determineLabel();
 		resetDirection();
-		m_layouter.addControl(control, lbl, builder.m_controlCss, builder.m_labelCss, m_append);
+
+		String hintText = builder.m_hintText;
+		if(null == hintText && pmm != null) {
+			hintText = pmm.getDefaultHint();
+		}
+		boolean hintAsIcon = m_defaultShowHintAsIcon;
+		Boolean b = m_showHintAsIcon;
+		if(null != b)
+			hintAsIcon = b;
+
+		m_layouter.addControl(control, lbl, hintAsIcon ? hintText : null, builder.m_controlCss, builder.m_labelCss, m_append, getHintRenderer());
 
 		String testid = builder.m_testid;
-		PropertyMetaModel<?> pmm = builder.m_propertyMetaModel;
 		if(null != testid)
 			control.setTestID(testid);
 		else if(control.getTestID() == null) {
@@ -290,6 +338,10 @@ final public class FormBuilder {
 
 		if(control instanceof IControl) {
 			IControl< ? > ctl = (IControl< ? >) control;
+
+			if(!hintAsIcon) {
+				ctl.setHint(hintText);
+			}
 			if(null != pmm) {
 				Object instance = builder.m_instance;
 				if(null != instance) {
@@ -375,6 +427,9 @@ final public class FormBuilder {
 		protected String m_errorLocation;
 
 		protected String m_nextLabel;
+
+		@Nullable
+		protected String m_hintText;
 
 		protected NodeContainer m_nextLabelControl;
 
@@ -505,6 +560,7 @@ final public class FormBuilder {
 			this.m_readOnly = o.m_readOnly;
 			this.m_readOnlyOnce = o.m_readOnlyOnce;
 			this.m_testid = o.m_testid;
+			this.m_hintText = o.m_hintText;
 		}
 	}
 
@@ -532,6 +588,16 @@ final public class FormBuilder {
 			if(null != m_nextLabel)
 				throw new IllegalStateException("You already set a String label instance");
 			m_nextLabelControl = label;
+			return this;
+		}
+
+		public ItemBuilder hint(@Nullable String s) {
+			m_hintText = s;
+			return this;
+		}
+
+		public ItemBuilder hint(@Nullable IBundleCode code) {
+			m_hintText = code == null ? null : code.getString();
 			return this;
 		}
 
@@ -644,6 +710,16 @@ final public class FormBuilder {
 			if(null != m_nextLabel)
 				throw new IllegalStateException("You already set a String label instance");
 			m_nextLabelControl = label;
+			return this;
+		}
+
+		public TypedControlBuilder<I, V> hint(@Nullable String s) {
+			m_hintText = s;
+			return this;
+		}
+
+		public TypedControlBuilder<I, V> hint(@Nullable IBundleCode s) {
+			m_hintText = s == null ? null : s.getString();
 			return this;
 		}
 
@@ -838,6 +914,16 @@ final public class FormBuilder {
 			return this;
 		}
 
+		public UntypedControlBuilder<I>  hint(@Nullable String s) {
+			m_hintText = s;
+			return this;
+		}
+
+		public UntypedControlBuilder<I>  hint(@Nullable IBundleCode s) {
+			m_hintText = s == null ? null : s.getString();
+			return this;
+		}
+
 		@NonNull
 		public UntypedControlBuilder<I> unlabeled() {
 			label("");
@@ -1009,4 +1095,33 @@ final public class FormBuilder {
 		}
 	}
 
+	/**
+	 * When set, the form builder will add (i) icons after each label for controls that have a
+	 * hint text. If you set this you should also set {@link DomApplication#isDefaultHintsOnControl()} to false.
+	 */
+	public static boolean isDefaultShowHintAsIcon() {
+		return m_defaultShowHintAsIcon;
+	}
+
+	public static void setDefaultShowHintAsIcon(boolean defaultShowHintAsIcon) {
+		m_defaultShowHintAsIcon = defaultShowHintAsIcon;
+	}
+
+	public static void setDefaultHintRenderer(BiConsumer<NodeContainer, String> defaultHintRenderer) {
+		m_defaultHintRenderer = defaultHintRenderer;
+	}
+
+	public FormBuilder hintRenderer(BiConsumer<NodeContainer, String> hintRenderer) {
+		m_hintRenderer = hintRenderer;
+		return this;
+	}
+
+	@Nullable
+	public BiConsumer<NodeContainer, String> getHintRenderer() {
+		BiConsumer<NodeContainer, String> hintRenderer = m_hintRenderer;
+		if(null == hintRenderer) {
+			hintRenderer = m_defaultHintRenderer;
+		}
+		return hintRenderer;
+	}
 }

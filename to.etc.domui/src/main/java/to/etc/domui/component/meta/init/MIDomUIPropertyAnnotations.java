@@ -168,6 +168,8 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 			pmm.setSortable(mp.defaultSortable());
 		if(mp.length() >= 0)
 			pmm.setLength(mp.length());
+		if(mp.scale() >= 0)
+			pmm.setScale(mp.scale());
 		if(mp.displaySize() >= 0)
 			pmm.setDisplayLength(mp.displaySize());
 		if(mp.noWrap() != YesNoType.UNKNOWN)

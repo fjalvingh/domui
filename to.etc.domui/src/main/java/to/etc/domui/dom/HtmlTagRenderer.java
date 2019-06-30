@@ -52,6 +52,7 @@ import to.etc.domui.dom.html.Pre;
 import to.etc.domui.dom.html.RadioButton;
 import to.etc.domui.dom.html.Select;
 import to.etc.domui.dom.html.SelectOption;
+import to.etc.domui.dom.html.Source;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
@@ -64,6 +65,7 @@ import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.dom.html.Ul;
 import to.etc.domui.dom.html.Underline;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.html.Video;
 import to.etc.domui.dom.html.XmlTextNode;
 import to.etc.domui.parts.GrayscalerPart;
 import to.etc.domui.server.BrowserVersion;
@@ -798,6 +800,25 @@ public class HtmlTagRenderer implements INodeVisitor {
 	@Override public void visitCol(Col n) throws Exception {
 		o().setIndentEnabled(false);
 		basicNodeRender(n, m_o);
+		renderTagend(n, m_o);
+	}
+
+	@Override public void visitVideo(Video n) throws Exception {
+		o().setIndentEnabled(false);
+		basicNodeRender(n, m_o);
+		o().attr("controls", "");                                // 20110104 was rawAttr causing fails on & in delta????
+		renderTagend(n, m_o);
+	}
+
+	@Override public void visitSource(Source n) throws Exception {
+		o().setIndentEnabled(false);
+		basicNodeRender(n, m_o);
+		String src = n.getSrc();
+		if(! src.startsWith("/")) {
+			src = UIContext.getRequestContext().getRelativePath(src);	// FIXME Must become easier
+		}
+		o().attr("src", src);                                // 20110104 was rawAttr causing fails on & in delta????
+
 		renderTagend(n, m_o);
 	}
 

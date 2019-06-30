@@ -26,10 +26,10 @@ package to.etc.domui.component.searchpanel.lookupcontrols;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.dom.css.TextAlign;
 
 /**
@@ -62,13 +62,7 @@ final class NumberLookupFactory2 implements ILookupFactory<NumberLookupValue> {
 		int size = MetaManager.calculateTextSize(pmm);
 		if(size > 0)
 			numText.setSize(size);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			numText.setTitle(s);
-		String hint = MetaUtils.findHintText(spm);
-		if(hint != null)
-			numText.setTitle(hint);
-
+		UIControlUtil.configure(spm, pmm, numText);
 		if(monetary) {
 			numText.setTextAlign(TextAlign.RIGHT);
 		}

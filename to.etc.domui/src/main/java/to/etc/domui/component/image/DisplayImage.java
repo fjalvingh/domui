@@ -56,7 +56,6 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 
 	/**
 	 * Called to render the image inside the component.
-	 * @see to.etc.domui.dom.html.NodeBase#componentHandleWebDataRequest(to.etc.domui.server.RequestContextImpl, java.lang.String)
 	 */
 	@Override
 	public void componentHandleWebDataRequest(RequestContextImpl ctx, String action) throws Exception {
@@ -102,5 +101,9 @@ public class DisplayImage extends AbstractDivControl<IUIImage> {
 		m_maxSize = size == null ? Dimension.ICON : size;
 		m_thumbnail = true;
 		forceRebuild();
+	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
 	}
 }

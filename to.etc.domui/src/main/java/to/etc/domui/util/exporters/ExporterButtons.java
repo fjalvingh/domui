@@ -215,7 +215,7 @@ public class ExporterButtons {
 		private String m_fileName;
 
 		@Nullable
-		private List<T> m_sourceRecords;
+		private SupplierEx<List<T>> m_sourceSupplier;
 
 		public ExportButtonBuilder(Class<T> classModel, SupplierEx<QCriteria<T>> criteriaSupplier) {
 			m_classModel = MetaManager.findClassMeta(classModel);
@@ -265,8 +265,13 @@ public class ExporterButtons {
 			return this;
 		}
 
+		public ExportButtonBuilder<T> sourceSupplier(SupplierEx<List<T>> supplier) {
+			m_sourceSupplier = supplier;
+			return this;
+		}
+
 		public ExportButtonBuilder<T> source(List<T> source) {
-			m_sourceRecords = source;
+			m_sourceSupplier = () -> source;
 			return this;
 		}
 
@@ -329,7 +334,10 @@ public class ExporterButtons {
 			if(null == criteria) {
 				return;
 			}
-			List<T> sourceRecords = m_sourceRecords;
+			SupplierEx<List<T>> sourceSupplier = m_sourceSupplier;
+			if(null == sourceSupplier)
+				return;
+			List<T> sourceRecords = sourceSupplier.get();
 			if(null == sourceRecords)
 				return;
 			String fileName = calculateFileName(criteria);
@@ -385,7 +393,7 @@ public class ExporterButtons {
 			DefaultButton button = new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO);
 			button.setClicked(ab -> {
 				showFormatPopup(format -> {
-					if(m_sourceRecords != null) {
+					if(m_sourceSupplier != null) {
 						executeExportFromList(ab.getParent(), format);
 					} else {
 						executeExportByQuery(ab.getParent(), format);

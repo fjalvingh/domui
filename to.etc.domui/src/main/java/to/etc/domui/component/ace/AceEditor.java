@@ -757,4 +757,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		}
 	}
 
+
+	@Override public void setHint(String hintText) {
+		//setTitle(hintText);
+	}
 }

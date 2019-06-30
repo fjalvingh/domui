@@ -46,7 +46,6 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * value is converted to a presentable form using any (implicitly) defined converters; it will not
 	 * be validated though! This means that if you set an invalid value for a validator this will not
 	 * be seen until the value is gotten from the control again.
-	 * @param v
 	 */
 	void setValue(@Nullable T v);
 
@@ -62,7 +61,6 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * the resulting error as posted by the error handling framework gets displayed on the
 	 * form when the request completes.
 	 * <p>To get the value of a component while ignoring exceptions call {@link #getValueSafe()}.</p>
-	 * @return
 	 */
 	@Nullable
 	T getValue();
@@ -72,7 +70,6 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * if the value was invalid. For this method NULL either means the value was invalid OR
 	 * it's content was empty. To distinguish between the two call {@link #hasError()} or use
 	 * {@link #getValue()} instead of this call.
-	 * @return
 	 */
 	default T getValueSafe() {
 		try {
@@ -94,7 +91,6 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * Returns T if the control is currently in readonly mode. Controls that do not
 	 * have a readonly ability (comboboxes) will use disabled as the readonly state.
 	 * For those controls the readonly state mirrors the disabled state.
-	 * @return
 	 */
 	boolean isReadOnly();
 
@@ -109,34 +105,29 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * Returns T if the control is currently in disabled. Controls that do not
 	 * have a readonly ability (comboboxes) will use disabled as the readonly state.
 	 * For those controls the readonly state mirrors the disabled state.
-	 * @return
 	 */
 	@Override
 	boolean isDisabled();
 
 	/**
 	 * Returns T if this control is a mandatory input.
-	 * @return
 	 */
 	boolean isMandatory();
 
 	/**
 	 * Make the control mandatory.
-	 * @param ro
 	 */
 	void setMandatory(boolean ro);
 
 	/**
 	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
-	 * @param errorLocation
 	 */
 	void setErrorLocation(@Nullable String errorLocation);
 
 	/**
 	 * When set this contains a user-understandable tekst indicating which control has the error. It usually contains
 	 * the "label" associated with the control, and is set automatically by form builders if possible.
-	 * @return
 	 */
 	@Nullable
 	String getErrorLocation();

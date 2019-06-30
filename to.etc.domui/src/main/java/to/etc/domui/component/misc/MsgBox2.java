@@ -401,7 +401,7 @@ final public class MsgBox2 extends Window {
 	 * @return
 	 */
 	@NonNull
-	public MsgBox2 text(@NonNull String txt) {
+	public MsgBox2 text(String txt) {
 		m_theText = txt;
 		return this;
 	}
@@ -412,7 +412,7 @@ final public class MsgBox2 extends Window {
 	 * @return
 	 */
 	@NonNull
-	public MsgBox2 content(@NonNull NodeContainer content) {
+	public MsgBox2 content(NodeContainer content) {
 		m_content = content;
 		return this;
 	}

@@ -26,9 +26,9 @@ package to.etc.domui.component.searchpanel.lookupcontrols;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.ComboLookup;
-import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.util.WrappedException;
 
 final class RelationComboLookupFactory2<T> implements ILookupFactory<T> {
@@ -37,12 +37,7 @@ final class RelationComboLookupFactory2<T> implements ILookupFactory<T> {
 		try {
 			ComboLookup<T> co = ComboLookup.createLookup(pmm);
 			co.setMandatory(false);								// Mandatoryness of field has no meaning for search
-			String s = pmm.getDefaultHint();
-			if(s != null)
-				co.setTitle(s);
-			String hint = MetaUtils.findHintText(spm);
-			if(hint != null)
-				co.setTitle(hint);
+			UIControlUtil.configure(spm, pmm, co);
 
 			return new FactoryPair<>(new ObjectLookupQueryBuilder<>(pmm.getName()), co);
 		} catch(Exception x) {

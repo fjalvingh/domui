@@ -246,12 +246,11 @@ public class DataPager1 extends Div implements IDataTablePager {
 			m_lastBtn.setCssClass("ui-dp-nav-l");
 			m_nextBtn.setCssClass("ui-dp-nav-n");
 		}
-		int tc = m_table.getTruncatedCount();						// FIXME jal 20160125 Should be an isTruncated property, as the count is just model.size.
-		if(tc > 0) {
+		if(m_table.isTruncated()) {
 			if(m_truncated == null) {
 				m_truncated = new Img();
 				m_truncated.setSrc("THEME/nav-overflow.png");
-				m_truncated.setTitle(Msgs.uiPagerOverflow.format(Integer.valueOf(tc)));
+				m_truncated.setTitle(Msgs.uiPagerOverflow.format());
 				m_truncated.setCssClass("ui-dp-nav-pgr-ovf");
 				m_textDiv.add(m_truncated);
 			}

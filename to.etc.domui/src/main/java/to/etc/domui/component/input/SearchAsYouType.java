@@ -436,4 +436,8 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	public void setOnEnter(@Nullable FunctionEx<String, T> onEnter) {
 		m_onEnter = onEnter;
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

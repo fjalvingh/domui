@@ -24,9 +24,14 @@
  */
 package to.etc.domui.component.meta;
 
-import java.lang.annotation.*;
+import to.etc.domui.converter.DummyConverter;
+import to.etc.domui.converter.IConverter;
+import to.etc.domui.converter.IValueValidator;
 
-import to.etc.domui.converter.*;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Annotation to add metadata to a property. Data defined in here is <i>added</i> to any data discovered in another way,
@@ -63,6 +68,8 @@ public @interface MetaProperty {
 	 * @return
 	 */
 	int length() default -1;
+
+	int scale() default -1;
 
 	/**
 	 * Whether the value is a required value. This sadly cannot use boolean because I need a value

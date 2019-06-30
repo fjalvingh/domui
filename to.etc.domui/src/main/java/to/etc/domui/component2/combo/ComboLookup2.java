@@ -30,6 +30,7 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.util.IComboDataSet;
 import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.IRenderInto;
@@ -145,11 +146,7 @@ public class ComboLookup2<T> extends ComboComponentBase2<T, T> implements ICombo
 		if(co == null)
 			throw new IllegalStateException("I do not have enough information to create the data set for the combobox from the property meta data=" + pmm);
 
-		if(pmm.isRequired())
-			co.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			co.setTitle(s);
+		UIControlUtil.configure(co, pmm);
 		return co;
 	}
 

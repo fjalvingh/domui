@@ -191,4 +191,8 @@ abstract public class AbstractDivControl<T> extends Div implements IControl<T> {
 	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
 		m_valueChanged = onValueChanged;
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

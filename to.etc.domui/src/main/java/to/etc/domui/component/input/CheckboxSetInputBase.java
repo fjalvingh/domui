@@ -167,4 +167,8 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 	protected void readOnlyChanged() {
 		disabledChanged();
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }
