@@ -57,7 +57,7 @@ public class LinkClassGenerator extends ClassGenerator {
 
 	@Override
 	protected void generateParentProperty(TypeMirror returnType, String propertyName) throws Exception {
-		System.out.println("ANN: parent type is " + returnType);
+		//System.out.println("ANN: parent type is " + returnType);
 		Element mtype = typeUtils().asElement(returnType);
 		String qtype;
 		if(null == mtype) {
