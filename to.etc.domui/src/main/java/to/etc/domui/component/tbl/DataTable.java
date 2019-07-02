@@ -1109,6 +1109,10 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		return m_visibleItemList.contains(rowSet);
 	}
 
+	public boolean isVisible(@NonNull T data) {
+		return m_visibleItemList.stream().anyMatch(x->data.equals(x.getInstance()));
+	}
+
 	void appendExtraRowAfter(TableRowSet<T> rowSet, DataTableRow<T> newRow, DataTableRow<T> row) {
 		checkVisible(rowSet);
 		row.appendAfterMe(newRow);
