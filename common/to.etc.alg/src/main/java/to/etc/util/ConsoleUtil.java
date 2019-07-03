@@ -87,6 +87,10 @@ public class ConsoleUtil {
 	public static final String CYAN_BACKGROUND_BRIGHT = "\033[0;106m";  // CYAN
 	public static final String WHITE_BACKGROUND_BRIGHT = "\033[0;107m";   // WHITE
 
+	static private final String[] ROTCOLORS = {
+		GREEN, PURPLE, CYAN, GREEN_BRIGHT, PURPLE_BRIGHT
+	};
+
 	static public String getLogTimeAndThread() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(m_logFmt.format(new Date()));
@@ -105,45 +109,52 @@ public class ConsoleUtil {
 
 		return  sb.toString();
 	}
-	static public void consoleLog(String from, String message) {
-		consoleLog(0, from, message);
+	static public void consoleLog(String... segments) {
+		consoleLog(0, segments);
 	}
 
-	static public void consoleError(String from, String message) {
-		consoleLog(2, from, message);
+	static public void consoleError(String... segments) {
+		consoleLog(2, segments);
 	}
 
-	static public void consoleWarning(String from, String message) {
-		consoleLog(1, from, message);
+	static public void consoleWarning(String... segments) {
+		consoleLog(1, segments);
 	}
 
-	static public void consoleLog(int type, String from, String message) {
+	static public void consoleLog(int type, String... segments) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(BLUE);
-		append(sb, m_logFmt.format(new Date()), 13);
+		append(sb, m_logFmt.format(new Date()), 12);
 		sb.append(' ');
 		sb.append(CYAN);
 		String name = Thread.currentThread().getName();
 		append(sb, name, 10);
 		sb.append(' ');
-		sb.append(PURPLE);
-		append(sb, from, 15);
 
-		switch(type) {
-			default:
-				sb.append(WHITE);
-				break;
+		for(int i = 0; i < segments.length; i++) {
+			String segment = segments[i];
 
-			case 1:
-				sb.append(YELLOW);
-				break;
+			if(i == segments.length - 1) {
+				//-- Last part: the message
+				switch(type) {
+					default:
+						sb.append(WHITE);
+						break;
 
-			case 2:
-				sb.append(RED);
-				break;
+					case 1:
+						sb.append(YELLOW);
+						break;
+
+					case 2:
+						sb.append(RED);
+						break;
+				}
+				sb.append(" ").append(segment.replace("\n", "\n  ")).append(RESET);
+			} else {
+				sb.append(ROTCOLORS[i % ROTCOLORS.length]);
+				append(sb, segment, 15);
+			}
 		}
-
-		sb.append(" ").append(message.replace("\n", "\n  ")).append(RESET);
 		System.out.println(sb.toString());
 	}
 
