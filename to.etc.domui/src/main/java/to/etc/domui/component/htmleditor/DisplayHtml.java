@@ -158,4 +158,8 @@ public class DisplayHtml extends Div implements IDisplayControl<String> {
 	@Override
 	public void setDisabled(boolean d) {
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

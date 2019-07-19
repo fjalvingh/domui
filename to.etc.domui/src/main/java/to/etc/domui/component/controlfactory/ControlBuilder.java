@@ -32,7 +32,7 @@ import to.etc.domui.component.layout.ErrorMessageDiv;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
-import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.dom.errors.IErrorMessageListener;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -296,13 +296,7 @@ public class ControlBuilder {
 		}
 
 		ComboFixed<?> c = new ComboFixed<Object>(vl);
-		if(pmm.isRequired())
-			c.setMandatory(true);
-		if(!editable || pmm.getReadOnly() == YesNoType.YES)
-			c.setDisabled(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			c.setTitle(s);
+		UIControlUtil.configure(c, pmm, editable);
 		return c;
 	}
 

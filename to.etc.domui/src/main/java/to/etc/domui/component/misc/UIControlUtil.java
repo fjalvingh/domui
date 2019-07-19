@@ -28,7 +28,12 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.dom.html.IControl;
+import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.nls.BundleRef;
 
@@ -52,10 +57,6 @@ final public class UIControlUtil {
 	 * FIXME Replace with {@link ComboFixed#createEnumCombo(Class)}.
 	 * Create a combo for all members of an enum. It uses the enums labels as description. Since this has no known property it cannot
 	 * use per-property translations!!
-	 *
-	 * @param <T>
-	 * @param clz
-	 * @return
 	 */
 	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class<T> clz) {
@@ -66,10 +67,6 @@ final public class UIControlUtil {
 	 * Returns a combo for all of the list-of-value items for the specified property.
 	 * FIXME Replace with {@link ComboFixed#createEnumCombo(Class, String)}.
 	 *
-	 * @param <T>
-	 * @param base		The class
-	 * @param property	The property on the class.
-	 * @return
 	 */
 	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class< ? > base, String property) {
@@ -78,10 +75,6 @@ final public class UIControlUtil {
 
 	/**
 	 * Returns a combo for all of the list-of-value items for the specified property.
-	 * FIXME Replace with {@link ComboFixed#createEnumCombo(PropertyMetaModel)}.
-	 * @param <T>
-	 * @param pmm
-	 * @return
 	 */
 	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm) {
@@ -91,9 +84,6 @@ final public class UIControlUtil {
 	/**
 	 * Create a combobox having only the specified enum labels.
 	 * FIXME Replace with {@link ComboFixed#createEnumCombo(Enum...)}.
-	 * @param <T>
-	 * @param items
-	 * @return
 	 */
 	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(T... items) {
@@ -102,12 +92,6 @@ final public class UIControlUtil {
 
 	/**
 	 * Create a combobox having only the specified enum labels.
-	 * FIXME Replace with {@link ComboFixed#createEnumCombo(Class, String, Enum...)}
-	 * @param <T>
-	 * @param base
-	 * @param property
-	 * @param domainvalues
-	 * @return
 	 */
 	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(Class< ? > base, String property, T... domainvalues) {
@@ -117,10 +101,6 @@ final public class UIControlUtil {
 	/**
 	 * Create a combobox having only the specified enum labels.
 	 * FIXME Replace with {@link ComboFixed#createEnumCombo(PropertyMetaModel, Enum...)}.
-	 * @param <T>
-	 * @param pmm
-	 * @param domainvalues
-	 * @return
 	 */
 	@Deprecated
 	static public <T extends Enum<T>> ComboFixed<T> createEnumCombo(PropertyMetaModel< ? > pmm, T... domainvalues) {
@@ -129,8 +109,6 @@ final public class UIControlUtil {
 
 	/**
 	 * Replace with method in {@link MetaManager}
-	 * @param label
-	 * @return
 	 */
 	@Deprecated
 	static public String getEnumLabel(Enum< ? > label) {
@@ -139,11 +117,6 @@ final public class UIControlUtil {
 
 	/**
 	 * Replace with method in {@link MetaManager}
-	 *
-	 * @param clz
-	 * @param property
-	 * @param value
-	 * @return
 	 */
 	@Deprecated
 	static public String getEnumLabel(Class< ? > clz, String property, Object value) {
@@ -152,10 +125,6 @@ final public class UIControlUtil {
 
 	/**
 	 * Replace with method in {@link MetaManager}
-	 *
-	 * @param pmm
-	 * @param value
-	 * @return
 	 */
 	@Deprecated
 	static public String getEnumLabel(PropertyMetaModel< ? > pmm, Object value) {
@@ -167,10 +136,6 @@ final public class UIControlUtil {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create a control to input a monetary value proper for the specified property.
-	 * @param clz
-	 * @param property
-	 * @return
-	 * @deprecated Use {@link Text#createDoubleMoneyInput(Class<?>,String,boolean)} instead
 	 */
 	@Deprecated
 	@NonNull
@@ -216,10 +181,6 @@ final public class UIControlUtil {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Create an int input control, properly configured for the specified property.
-	 * @param clz
-	 * @param property
-	 * @param editable
-	 * @return
 	 * @deprecated Use {@link Text#createIntInput(Class<?>,String,boolean)} instead
 	 */
 	@Deprecated
@@ -312,15 +273,43 @@ final public class UIControlUtil {
 	/**
 	 * Returns resource text, but with excluded action key (exclamation mark symbol).
 	 * That enables to reuse button captions on link buttons i.e. 
-	 *   
-	 * @param bundle
-	 * @param key
-	 * @return
 	 */
 	@NonNull
 	public static String removeActionKeyStr(@NonNull BundleRef bundle, @NonNull String key) {
 		return DomUtil.nullChecked(bundle.getString(key).replace("!", ""));
 	}
 
+	public static void configureHint(IControl<?> c, PropertyMetaModel<?> pmm) {
+		if(DomApplication.get().isDefaultHintsOnControl()) {
+			String s = pmm.getDefaultHint();
+			if(s != null)
+				c.setHint(s);
+		}
+	}
+
+	public static void configure(IControl<?> c, PropertyMetaModel<?> pmm) {
+		configureHint(c, pmm);
+		if(pmm.isRequired())
+			c.setMandatory(true);
+		if(pmm.getReadOnly() == YesNoType.YES)
+			c.setDisabled(true);
+	}
+	public static void configure(IControl<?> c, PropertyMetaModel<?> pmm, boolean editable) {
+		configureHint(c, pmm);
+		if(pmm.isRequired())
+			c.setMandatory(true);
+		if(!editable || pmm.getReadOnly() == YesNoType.YES)
+			c.setDisabled(true);
+	}
+	public static void configure(@NonNull SearchPropertyMetaModel spm, PropertyMetaModel<?> pmm, IControl<?> co) {
+		if(DomApplication.get().isDefaultHintsOnControl()) {
+			String s = pmm.getDefaultHint();
+			if(s != null)
+				co.setHint(s);
+			String hint = MetaUtils.findHintText(spm);
+			if(hint != null)
+				co.setHint(hint);
+		}
+	}
 }
 

@@ -333,6 +333,18 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		m_dotFontChecked = true;
 	}
 
+	static private final String[] CHROMEDRIVERLOCATIONS = {
+		"/home/vsts/work/node_modules/chromedriver/lib/chromedriver/chromedriver",
+		"/usr/local/bin/chromedriver",
+		"/usr/bin/chromedriver",
+		"${HOME}/bin/chromedriver",
+		"${HOME}/chromedriver"
+	};
+	static private final String[] CHROMELOCATIONS = {
+		"/usr/local/bin/google-chrome",
+		"/usr/bin/google-chrome"
+	};
+
 	private static WebDriver allocateChromeInstance(BrowserModel model, Locale lang) throws IOException {
 		DesiredCapabilities dc;
 		switch(model) {
@@ -349,9 +361,24 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		}
 
 		TestProperties tp = TUtilTestProperties.getTestProperties();
-		String chromeBinariesLocation = tp.getProperty("webdriver.chrome.driver", "/usr/bin/google-chrome");
-		System.setProperty("webdriver.chromedriver", chromeBinariesLocation);
-		dc.setCapability("chrome.binary", chromeBinariesLocation);
+		String driver = tp.getProperty("webdriver.chrome.driver", null);
+		if(null == driver) {
+			driver = findLocation(CHROMEDRIVERLOCATIONS);
+			if(null == driver) {
+				throw new IOException("chromedriver not found in any of the default paths. Add the webdriver.chrome.driver property with the path to it.");
+			}
+		}
+
+		String chrome = tp.getProperty("webdriver.chrome.executable", null);
+		if(null == chrome) {
+			chrome = findLocation(CHROMELOCATIONS);
+			if(null == chrome) {
+				throw new IOException("google-chrome executable not found in any of the default paths. Add the webdriver.chrome.executable property with the path to it.");
+			}
+		}
+
+		System.setProperty("webdriver.chrome.driver", driver);
+		dc.setCapability("chrome.binary", chrome);
 
 		//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
 		File dir = createFontConfigFile();
@@ -361,6 +388,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		Builder builder = new Builder();
 		builder.usingAnyFreePort();
 		builder.withEnvironment(env);
+
 		ChromeDriverService service = builder.build();
 		MyChromeDriver chromeDriver = new MyChromeDriver(service, dc);
 
@@ -371,6 +399,19 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		System.out.println("wd: allocated " + browserName + " " + version);
 
 		return chromeDriver;
+	}
+
+	@Nullable
+	private static String findLocation(String[] locs) {
+		for(String loc : locs) {
+			loc = loc.replace("${HOME}", System.getProperty("user.home"));
+
+			if(new File(loc).exists()) {
+				System.out.println("selenium: found " + loc);
+				return loc;
+			}
+		}
+		return null;
 	}
 
 	private static DesiredCapabilities getIECapabilities(BrowserModel browser, Locale lang) {
@@ -426,6 +467,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		ChromeOptions options = getCommonChromeOptions(lang);
 		options.addArguments("--headless");
 		options.addArguments("--no-sandbox");
+		options.addArguments("--disable-dev-shm-usage");
 		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
 		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
 		capabilities.setCapability(ChromeOptions.CAPABILITY, options);

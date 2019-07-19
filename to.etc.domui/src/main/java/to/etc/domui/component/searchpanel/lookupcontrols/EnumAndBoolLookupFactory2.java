@@ -28,9 +28,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
-import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.component2.combo.ComboFixed2;
 import to.etc.webapp.nls.NlsContext;
 
@@ -66,13 +66,7 @@ final class EnumAndBoolLookupFactory2<T> implements ILookupFactory<T> {
 		}
 
 		final ComboFixed2<T> c = new ComboFixed2<>(vl);
-		String s = pmm.getDefaultHint();
-		if(s != null) {
-			c.setTitle(s);
-		}
-		String hint = MetaUtils.findHintText(spm);
-		if(hint != null)
-			c.setTitle(hint);
+		UIControlUtil.configure(spm, pmm, c);
 		return new FactoryPair<>(new ObjectLookupQueryBuilder<T>(pmm.getName()), c);
 	}
 }

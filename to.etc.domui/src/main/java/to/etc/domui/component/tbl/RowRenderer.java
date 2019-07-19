@@ -320,7 +320,7 @@ import java.util.function.Predicate;
 		if(scd == sortColumn) {
 			setSortDescending(!isSortDescending());			// Toggle
 		} else {
-			if(sortColumn != null)
+			if(sortColumn != null && isSortable(sortColumn))
 				updateSortImage(sortColumn, SortableType.UNKNOWN);
 			m_columnList.setSortColumn(scd, scd.getSortable());             // Set the new sort column
 		}
@@ -374,6 +374,8 @@ import java.util.function.Predicate;
 		if(index == -1)
 			throw new IllegalStateException("?? Cannot find sort column!?");
 		Div sp = sortSpans[index];
+		if(null == sp)
+			throw new IllegalStateException("Missing sort image for column " + scd);
 		switch(sortOrder) {
 			default:
 				sp.removeCssClass("ui-sort-a ui-sort-d");

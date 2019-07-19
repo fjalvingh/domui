@@ -346,4 +346,7 @@ public class DataCellTable<T> extends PageableTabularComponentBase<T> implements
 	@Override
 	protected void createSelectionUI() throws Exception {}
 
+
+	@Override public void setHint(String hintText) {
+	}
 }

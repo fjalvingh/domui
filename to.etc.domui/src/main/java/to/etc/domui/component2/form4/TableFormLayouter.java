@@ -9,6 +9,8 @@ import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 
+import java.util.function.BiConsumer;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 6-3-18.
@@ -63,14 +65,14 @@ public class TableFormLayouter implements IFormLayouter {
 	}
 
 	@Override
-	public void addControl(NodeBase control, NodeContainer lbl, String controlCss, String labelCss, boolean append) {
+	public void addControl(NodeBase control, NodeContainer lbl, @Nullable String hintText, String controlCss, String labelCss, boolean append, BiConsumer<NodeContainer, String> hintRenderer) {
 		if(m_horizontal)
-			addHorizontal(control, lbl, controlCss, labelCss, append);
+			addHorizontal(control, lbl, hintText, controlCss, labelCss, append, hintRenderer);
 		else
-			addVertical(control, lbl, controlCss, labelCss, append);
+			addVertical(control, lbl, hintText, controlCss, labelCss, append, hintRenderer);
 	}
 
-	private void addVertical(NodeBase control, NodeBase lbl, String controlCss, String labelCss, boolean append) {
+	private void addVertical(NodeBase control, NodeBase lbl, String hintText, String controlCss, String labelCss, boolean append, BiConsumer<NodeContainer, String> hintRenderer) {
 		TBody b = body();
 		if(append) {
 			TD cell = b.cell();
@@ -89,6 +91,8 @@ public class TableFormLayouter implements IFormLayouter {
 			TD labelcell = b.addCell("ui-f4-lbl ui-f4-lbl-v");
 			if(null != lbl)
 				labelcell.add(lbl);
+			if(hintText != null)
+				hintRenderer.accept(labelcell, hintText);
 			if(labelCss != null)
 				labelcell.addCssClass(labelCss);
 
@@ -102,7 +106,8 @@ public class TableFormLayouter implements IFormLayouter {
 			((Label) lbl).setForTarget(control);
 	}
 
-	private void addHorizontal(NodeBase control, NodeBase lbl, String controlCss, String labelCss, boolean append) {
+	private void addHorizontal(NodeBase control, NodeBase lbl, String hintText, String controlCss, String labelCss, boolean append,
+		BiConsumer<NodeContainer, String> hintRenderer) {
 		TBody b = body();
 		if(append) {
 			TR row = controlRow();
@@ -126,6 +131,8 @@ public class TableFormLayouter implements IFormLayouter {
 
 			if(labelCss != null)
 				labelcell.addCssClass(labelCss);
+			if(hintText != null)
+				hintRenderer.accept(labelcell, hintText);
 
 			TD controlcell = controlRow().addCell();
 			controlcell.setCssClass("ui-f4-ctl ui-f4-ctl-h");

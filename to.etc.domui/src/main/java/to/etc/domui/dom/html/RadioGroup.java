@@ -214,4 +214,8 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		return rg;
 	}
 
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

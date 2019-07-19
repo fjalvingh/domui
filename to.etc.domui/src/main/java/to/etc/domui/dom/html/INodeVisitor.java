@@ -100,4 +100,8 @@ public interface INodeVisitor {
 	void visitColGroup(ColGroup n) throws Exception;
 
 	void visitCol(Col n) throws Exception;
+
+	void visitVideo(Video n) throws Exception;
+
+	void visitSource(Source source) throws Exception;
 }

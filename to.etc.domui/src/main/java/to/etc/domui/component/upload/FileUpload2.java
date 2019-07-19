@@ -403,5 +403,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		m_readOnly = readOnly;
 		forceRebuild();
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }
 

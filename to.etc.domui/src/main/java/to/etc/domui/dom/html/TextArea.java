@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.trouble.ValidationException;
@@ -116,7 +117,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	 * 	<li>If this component has an input error: throw the ValidationException for that error</li>
 	 * 	<li>On no error this returns the value.</li>
 	 * </ul>
-	 * @return
 	 */
 	@Nullable
 	public String getBindValue() {
@@ -140,9 +140,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		}
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IControl#getValue()
-	 */
 	@Override
 	public String getValue() {
 		try {
@@ -154,17 +151,11 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 		}
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IControl#getValueSafe()
-	 */
 	@Override
 	public String getValueSafe() {
 		return DomUtil.getValueSafe(this);
 	}
 
-	/**
-	 * @see to.etc.domui.dom.html.IControl#hasError()
-	 */
 	@Override
 	public boolean hasError() {
 		getValueSafe();
@@ -263,7 +254,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	/*--------------------------------------------------------------*/
 	/**
 	 * Returns the modified-by-user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
 	@Override
 	public boolean isModified() {
@@ -272,7 +262,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 	/**
 	 * Set or clear the modified by user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#setModified(boolean)
 	 */
 	@Override
 	public void setModified(boolean as) {
@@ -288,11 +277,7 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 			ta.setCols(MetaUtils.parseIntParam(hint, MetaUtils.COL, 80));
 			ta.setRows(MetaUtils.parseIntParam(hint, MetaUtils.ROW, 4));
 		}
-		if(pmm.isRequired())
-			ta.setMandatory(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			ta.setTitle(s);
+		UIControlUtil.configure(ta, pmm);
 		int maxlen = pmm.getLength();
 		if(maxlen > 0) {
 			ta.setMaxLength(maxlen);
@@ -316,7 +301,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	/**
 	 * This sets the max input length for the text area, or unlimited when &lt;= 0. This is not
 	 * a valid HTML attribute for html < 5; the handling is done in Javascript.
-	 * @return
 	 */
 	public int getMaxLength() {
 		return m_maxLength;
@@ -331,7 +315,6 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 	 * for Oracle's 4000 byte varchar2 limit in versions &lt; 12c. When set, the text area will
 	 * first apply the limit set by maxLength; if that still delivers more bytes than set in this
 	 * property it will limit to the number of bytes here by removing characters.
-	 * @return
 	 */
 	public int getMaxByteLength() {
 		return m_maxByteLength;
@@ -339,5 +322,9 @@ public class TextArea extends InputNodeContainer implements INativeChangeListene
 
 	public void setMaxByteLength(int maxByteLength) {
 		m_maxByteLength = maxByteLength;
+	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
 	}
 }

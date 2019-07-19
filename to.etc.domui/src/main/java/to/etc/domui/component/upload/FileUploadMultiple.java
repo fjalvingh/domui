@@ -370,5 +370,9 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		m_readOnly = readOnly;
 		forceRebuild();
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }
 

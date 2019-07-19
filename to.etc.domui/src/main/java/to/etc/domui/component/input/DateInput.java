@@ -30,6 +30,7 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyMetaValidator;
 import to.etc.domui.component.meta.TemporalPresentationType;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.DateConverter;
 import to.etc.domui.converter.DateTimeConverter;
@@ -214,15 +215,10 @@ public class DateInput extends Text<Date> {
 	@NonNull
 	public static DateInput createDateInput(PropertyMetaModel<Date> pmm, boolean editable, boolean setDefaultErrorLocation) {
 		DateInput di = new DateInput();
-		if(pmm.isRequired())
-			di.setMandatory(true);
-		if(!editable)
-			di.setDisabled(true);
-		if(pmm.getTemporal() == TemporalPresentationType.DATETIME)
+		UIControlUtil.configure(di, pmm, editable);
+		if(pmm.getTemporal() == TemporalPresentationType.DATETIME) {
 			di.setWithTime(true);
-		String s = pmm.getDefaultHint();
-		if(s != null)
-			di.setTitle(s);
+		}
 		if(setDefaultErrorLocation) {
 			di.setErrorLocation(pmm.getDefaultLabel());
 		}

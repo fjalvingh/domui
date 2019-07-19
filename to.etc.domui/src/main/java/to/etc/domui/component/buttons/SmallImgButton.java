@@ -135,4 +135,8 @@ public class SmallImgButton extends Button {
 			//}
 		}
 	}
+
+	@Override public void setHint(@Nullable String hintText) {
+		setTitle(hintText);
+	}
 }

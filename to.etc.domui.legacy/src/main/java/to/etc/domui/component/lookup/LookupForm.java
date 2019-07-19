@@ -1186,7 +1186,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 		if(it.getErrorLocation() == null) {
 			it.setErrorLocation(it.getLabelText());
 		}
-
 	}
 
 	private void addNonControlItem(@NonNull Item it) {
@@ -1217,7 +1216,6 @@ public class LookupForm<T> extends Div implements IButtonContainer {
 
 	/**
 	 * Create the lookup item, depending on its kind.
-	 * @param it
 	 */
 	private void internalAddLookupItem(Item it) {
 		if(!it.isControl()) {

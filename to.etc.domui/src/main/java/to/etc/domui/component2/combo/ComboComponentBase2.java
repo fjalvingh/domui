@@ -707,4 +707,8 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	@Override protected void onForceRebuild() {
 		m_select.forceRebuild();
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

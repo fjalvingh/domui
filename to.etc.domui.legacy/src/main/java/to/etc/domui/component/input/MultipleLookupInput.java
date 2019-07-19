@@ -560,4 +560,8 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 	public void setIsLookupAllowed(@Nullable IActionAllowed isLookupAllowed) {
 		m_lookupInput.setIsLookupAllowed(isLookupAllowed);
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

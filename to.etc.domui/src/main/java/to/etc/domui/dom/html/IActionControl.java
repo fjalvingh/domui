@@ -24,6 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * A non-input control that usually only controls some action, like a button
  * or tab pane tab. They can only be enabled and disabled, and someone can
@@ -53,4 +55,6 @@ public interface IActionControl {
 	 * Returns the currently assigned test ID.
 	 */
 	String getTestID();
+
+	void setHint(@Nullable String hintText);
 }

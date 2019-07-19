@@ -556,4 +556,8 @@ public class ComboBoxBase<T, V> extends Div implements IControl<V> {
 		m_onValueChanged = onValueChanged;
 	}
 
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

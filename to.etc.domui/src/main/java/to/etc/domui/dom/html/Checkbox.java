@@ -248,4 +248,8 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	@Nullable @Override public NodeBase getForTarget() {
 		return this;
 	}
+
+	@Override public void setHint(String hintText) {
+		setTitle(hintText);
+	}
 }

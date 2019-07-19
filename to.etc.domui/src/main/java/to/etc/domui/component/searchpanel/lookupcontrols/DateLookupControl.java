@@ -136,6 +136,7 @@ public class DateLookupControl extends Div implements IControl<DatePeriod> {
 		return m_hint;
 	}
 
+	@Override
 	public void setHint(String hint) {
 		if(Objects.equals(m_hint, hint))
 			return;
