@@ -18,8 +18,10 @@ import to.etc.dbutil.schema.Trigger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static to.etc.dbcompare.AbstractSchemaComparator.csCOMMENT;
 import static to.etc.dbcompare.AbstractSchemaComparator.csNULLABLE;
@@ -38,9 +40,18 @@ import static to.etc.dbcompare.AbstractSchemaComparator.csSQLTYPE;
 abstract public class AbstractGenerator {
 	protected boolean m_appendSchemaNames = true;
 
+	private Set<String> m_reservedWordMap = new HashSet<>();
+
 	abstract public String getIdent();
 
 	private Map<ColumnType, TypeMapping> m_mapmap = new HashMap<ColumnType, TypeMapping>();
+
+	public AbstractGenerator() {
+		registerReservedWords("from", "select", "insert", "update", "merge", "procedure", "function"
+			, "where", "join", "inner", "outer", "left", "right", "cross", "natural", "sum", "avg"
+			, "union"
+		);
+	}
 
 	protected void registerMapping(ColumnType t, TypeMapping m) {
 		m_mapmap.put(t, m);
@@ -50,7 +61,16 @@ abstract public class AbstractGenerator {
 		m_mapmap.put(t, new SimpleMapping(name));
 	}
 
+	protected void registerReservedWords(String... words) {
+		for(String word : words) {
+			m_reservedWordMap.add(word.toLowerCase());
+		}
+	}
+
 	public boolean isQuotingNeeded(String name) {
+		if(m_reservedWordMap.contains(name.toLowerCase()))
+			return true;
+
 		for(int i = 0; i < name.length(); i++) {
 			char c = name.charAt(i);
 			if(! Character.isLetterOrDigit(c) && c != '_' && c != '$')

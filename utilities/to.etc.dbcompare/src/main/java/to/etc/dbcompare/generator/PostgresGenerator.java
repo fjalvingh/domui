@@ -10,6 +10,7 @@ import to.etc.dbutil.schema.*;
  */
 public class PostgresGenerator extends AbstractGenerator {
 
+
 	static private final TypeMapping NUMBER = new TypeMapping() {
 		@Override
 		public void renderType(StringBuilder a, DbColumn c) {
@@ -47,6 +48,7 @@ public class PostgresGenerator extends AbstractGenerator {
 		registerMapping(ColumnType.BIGINT, (a, c) -> a.append("bigint"));
 		registerMapping(ColumnType.BLOB, (a, c) -> a.append("oid"));
 
+		registerReservedWords("user");
 	}
 
 
