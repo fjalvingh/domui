@@ -46,7 +46,7 @@ public class SourceLocation {
 
 	public SourceLocation(ReaderScannerBase rt) {
 		m_src = rt.getSource();
-		m_line = rt.getTokenLine();
+		m_line = rt.getTokenLine() + 1;
 		m_col = rt.getTokenColumn();
 	}
 
