@@ -761,4 +761,17 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	@Override public void setHint(String hintText) {
 		//setTitle(hintText);
 	}
+
+	public void insertAtCursor(String txt) throws Exception {
+		var sb = new StringBuilder();
+		sb.append("var pos = ");
+		handle(sb).append("getCursorPosition();");
+		appendJavascript(handle(sb).append("session.insert(pos, \"").append(txt).append("\");").toString());
+	}
+
+	public void insertAt(String text, int row, int column) {
+		var sb = new StringBuilder();
+		sb.append("var pos = ").append("{row: ").append(row).append(", column: ").append(column).append("};");
+		appendJavascript(handle(sb).append("session.insert(pos, \"").append(text).append("\");").toString());
+	}
 }
