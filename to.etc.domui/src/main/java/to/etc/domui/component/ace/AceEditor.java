@@ -301,7 +301,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		if(m_tabSize == tabSize)
 			return;
 		m_tabSize = tabSize;
-		if(! isBuilt())
+		if(!isBuilt())
 			updateTabSize();
 	}
 
@@ -311,7 +311,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	}
 
 	public void gotoLine(int line) {
-		if(! isBuilt())
+		if(!isBuilt())
 			m_gotoLine = line;
 		else {
 			callMethod("gotoLine", Integer.toString(line));
@@ -319,7 +319,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	}
 
 	public void gotoLine(int line, int col) {
-		if(! isBuilt())
+		if(!isBuilt())
 			m_gotoLine = line;
 		else {
 			callMethod("gotoLine", Integer.toString(line), Integer.toString(col));
@@ -445,7 +445,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	 */
 	public void setCompletionHandler(ICompletionHandler completionHandler) {
 		m_completionHandler = completionHandler;
-		if(! m_completerDefined)
+		if(!m_completerDefined)
 			appendCompleterJS();
 	}
 
@@ -469,7 +469,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		String value = m_value;
 		if(null == value)
 			return null;
-		int pos = StringTool.getPositionIn(value, row, col);		// position at cursor
+		int pos = StringTool.getPositionIn(value, row, col);        // position at cursor
 		if(pos <= 1)
 			return null;
 
@@ -477,7 +477,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		int start = pos;
 		while(start > 0) {
 			char c = value.charAt(start - 1);
-			if(! validchars.test(c)) {
+			if(!validchars.test(c)) {
 				break;
 			}
 			start--;
@@ -535,7 +535,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		int uselesscol = col;
 		int uselessEndLine = endLine;
 		int uselessLine = line;
-		int uselessEndCol = endCol;					// Do not repeat yourself my ass.
+		int uselessEndCol = endCol;                    // Do not repeat yourself my ass.
 
 		String ident = sev.toString() + line + "/" + col + "/" + endLine + "/" + endCol + message;
 		Marker marker = m_markerByIdentMap.computeIfAbsent(ident, a -> new Marker(m_nextId++, sev, message, uselessLine, uselesscol, uselessEndLine, uselessEndCol, css));
@@ -550,7 +550,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		if(null == value || endPosition <= startPosition)
 			return -1;
 		PositionCalculator calculator = m_calculator;
-		if(calculator == null || ! value.equals(calculator.getText())) {
+		if(calculator == null || !value.equals(calculator.getText())) {
 			calculator = m_calculator = new PositionCalculator(value);
 		}
 		Point sp = new Point();
@@ -612,10 +612,10 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		//m_oldMarkerSet.removeAll(set);
 
 		set = new HashSet<>(m_markerSet);
-		set.removeAll(m_oldMarkerSet);						// Get all added thingies
+		set.removeAll(m_oldMarkerSet);                        // Get all added thingies
 		for(Marker marker : set) {
 			sb.append("try {\n");
-			sb.append("let range = new range_.Range(" + marker.getLine() + ", " + marker.getColumn() +"," + marker.getEndLine() + ", " + (marker.getEndColumn()) + ");\n");
+			sb.append("let range = new range_.Range(" + marker.getLine() + ", " + marker.getColumn() + "," + marker.getEndLine() + ", " + (marker.getEndColumn()) + ");\n");
 			sb.append("range.start = session.doc.createAnchor(range.start);\n"
 				+ "range.end = session.doc.createAnchor(range.end);\n"
 			);
@@ -641,8 +641,11 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	 */
 	public static final class Completion {
 		private final String m_name;
+
 		private final String m_value;
+
 		private final String m_meta;
+
 		private final int m_score;
 
 		public Completion(String name, String value, String meta, int score) {
@@ -760,5 +763,22 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	@Override public void setHint(String hintText) {
 		//setTitle(hintText);
+	}
+
+	public void insertAtCursor(String txt) throws Exception {
+		var sb = new StringBuilder();
+		sb.append("var pos = ");
+		handle(sb).append("getCursorPosition();");
+		appendJavascript(handle(sb).append("session.insert(pos, ").append(escape(txt)).append(");").toString());
+	}
+
+	public void insertAt(String text, int row, int column) {
+		var sb = new StringBuilder();
+		sb.append("var pos = ").append("{row: ").append(row).append(", column: ").append(column).append("};");
+		appendJavascript(handle(sb).append("session.insert(pos, ").append(escape(text)).append(");").toString());
+	}
+
+	private String escape(String s) {
+		return StringTool.strToJavascriptString(s, true);
 	}
 }
