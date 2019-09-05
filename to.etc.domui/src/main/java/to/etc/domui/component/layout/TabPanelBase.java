@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 public class TabPanelBase extends Div {
 	@Nullable
 	private NodeContainer m_labelContainer;
@@ -282,8 +284,15 @@ public class TabPanelBase extends Div {
 			m_tablist.add(pos, ti);
 		}
 		m_tabBuilder = null;
-		if(isBuilt())
-			forceRebuild();
+		if(isBuilt()) {
+			renderLabel(pos, ti);
+			if(!ti.isLazy()) {
+				var content = ti.getContent();
+				content.setDisplay(DisplayType.NONE);
+				ti.setAdded(true);
+				requireNonNull(m_contentContainer).add(content);
+			}
+		}
 		return ti;
 	}
 

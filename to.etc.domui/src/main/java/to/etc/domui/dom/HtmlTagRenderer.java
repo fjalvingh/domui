@@ -677,9 +677,11 @@ public class HtmlTagRenderer implements INodeVisitor {
 			UIDragDropUtil.exposeDroppable(b, dh);
 		}
 
-		String s = getStyleFor(b); 								// Get/recalculate style
-		if(s.length() > 0)
-			o.attr("style", s); 								// Append style
+		String cachedStyles = b.getCachedStyle();
+		String styles = getStyleFor(b); 								// Get/recalculate style
+		if(styles.length() > 0 || cachedStyles == null) {//if cached styles is null, styles have changed.
+			o.attr("style", styles);
+		}
 
 		String ttl = b.getTitle();
 		if(m_uiTestMode) {
