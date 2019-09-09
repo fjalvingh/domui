@@ -678,8 +678,14 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		String s = getStyleFor(b); 								// Get/recalculate style
-		if(s.length() > 0 || b.shouldRenderStyles())
-			o.attr("style", s); 								// Append style
+		if(s.length() > 0 || b.isStyleRendered()) {
+			o.attr("style", s);
+			if(s.length() == 0) {
+				b.clearStyleRendered(); // if we rendered the empty style we can remove it next time
+			} else {
+				b.setStyleRendered(); // otherwise there is stuff there
+			}
+		}
 
 		String ttl = b.getTitle();
 		if(m_uiTestMode) {

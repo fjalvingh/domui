@@ -188,7 +188,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	static private final byte F_NOREPLACE = 0x08;
 
-	static private final byte F_RENDERSTYLES = 0x16;
+	static private final byte F_STYLERENDERED = 0x16;
 
 	private byte m_flags;
 
@@ -309,7 +309,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	final protected void changed() {
 		if(m_disableChanged > 0)
 			return;
-		setRenderStyles();
+		setStyleRendered();
 		setCachedStyle(null);
 		internalSetHasChangedAttributes();
 		NodeContainer p = m_parent;
@@ -2294,13 +2294,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		return this;
 	}
 
-	public void setRenderStyles() {
-		m_flags |= F_RENDERSTYLES;
+	public void setStyleRendered() {
+		m_flags |= F_STYLERENDERED;
 	}
-	public boolean shouldRenderStyles() {
-		return (m_flags & F_RENDERSTYLES) != 0;
+	public boolean isStyleRendered() {
+		return (m_flags & F_STYLERENDERED) != 0;
 	}
-	public void removeRenderStyles() {
-		m_flags &= ~ F_RENDERSTYLES;
+	public void clearStyleRendered() {
+		m_flags &= ~F_STYLERENDERED;
 	}
 }
