@@ -89,6 +89,11 @@ abstract public class PageableTabularComponentBase<T> extends SelectableTabularC
 			throw new IllegalStateException("Cannot set current page to " + currentPage);
 		if(m_currentPage == currentPage)
 			return;
+
+		//-- Make sure all inputs are valid
+		if(bindErrors())
+			return;
+
 		m_currentPage = currentPage;
 		updateAllRows();
 		firePageChanged();
