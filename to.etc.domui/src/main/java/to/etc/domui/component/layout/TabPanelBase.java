@@ -122,10 +122,6 @@ public class TabPanelBase extends Div {
 	protected void renderLabel(int index, TabInstance ti) {
 		NodeContainer into = Objects.requireNonNull(m_labelContainer);
 		Li li = ti.getTab();
-//		Li separator = new Li();
-//		separator.setCssClass("ui-tab-ibt");
-//		if(index == 0)
-//			separator.addCssClass("ui-tab-ibt-first");
 		if(li == null || !li.isAttached()) {
 			li = new Li();
 			if(ti.isCloseable()) {
@@ -133,10 +129,8 @@ public class TabPanelBase extends Div {
 			} else {
 				li.setCssClass("ui-tab-li");
 			}
-//			into.add(separator);
-			into.add(li);
+			into.add(index, li);
 			ti.setTab(li);                    	// Save for later use,
-//			ti.setSeparator(separator);			// Save for later use,
 			if(index == getCurrentTab()) {
 				li.addCssClass("ui-tab-sel");
 			} else {
@@ -158,17 +152,6 @@ public class TabPanelBase extends Div {
 		IIconRef iconUrl = ti.getImage();
 		if(null != iconUrl) {
 			dt.add(iconUrl.createNode());
-
-			////-- Add any icon
-			//if(DomUtil.isIconName(iconUrl)) {
-			//	FontIcon icon = new FontIcon(iconUrl);
-			//	dt.add(icon);
-			//} else {
-			//	String icon = getThemedResourceRURL(iconUrl);
-			//	Img img = new Img(icon);
-			//	dt.add(img);
-			//	img.setImgBorder(0);
-			//}
 		}
 
 		NodeBase label = ti.getLabel();
@@ -278,11 +261,11 @@ public class TabPanelBase extends Div {
 	}
 
 	private TabInstance addTabInstance(TabInstance ti, int pos) {
-		if(pos < 0 || pos >= m_tablist.size())
-			m_tablist.add(ti);
-		else {
-			m_tablist.add(pos, ti);
+		if(pos < 0 || pos >= m_tablist.size()) {
+			pos = m_tablist.size();
 		}
+		m_tablist.add(pos, ti);
+
 		m_tabBuilder = null;
 		if(isBuilt()) {
 			renderLabel(pos, ti);
@@ -293,6 +276,8 @@ public class TabPanelBase extends Div {
 				requireNonNull(m_contentContainer).add(content);
 			}
 		}
+		if(pos <= m_currentTab)
+			m_currentTab++;
 		return ti;
 	}
 

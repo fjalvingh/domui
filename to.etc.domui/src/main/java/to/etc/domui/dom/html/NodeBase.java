@@ -188,6 +188,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	static private final byte F_NOREPLACE = 0x08;
 
+	static private final byte F_RENDERSTYLES = 0x16;
+
 	private byte m_flags;
 
 	private StackTraceElement[] m_allocationTracepoint;
@@ -307,6 +309,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	final protected void changed() {
 		if(m_disableChanged > 0)
 			return;
+		setRenderStyles();
 		setCachedStyle(null);
 		internalSetHasChangedAttributes();
 		NodeContainer p = m_parent;
@@ -2094,7 +2097,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
-	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate top position. This in needed as workaround for fact that, once node update is re-rendered it looses top value inside style attribute. 
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate top position. This in needed as workaround for fact that, once node update is re-rendered it looses top value inside style attribute.
 	 */
 	public void alignToTop(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Top, "WebUI.alignToTop", node, yOffset, appendAsCreateJs, addServerPositionCallback);
@@ -2117,7 +2120,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param node
 	 * @param yOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
-	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate top position. This in needed as workaround for fact that, once node update is re-rendered it looses top value inside style attribute. 
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate top position. This in needed as workaround for fact that, once node update is re-rendered it looses top value inside style attribute.
 	 */
 	public void alignTopToBottom(@NonNull NodeBase node, int yOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.TopToBottom, "WebUI.alignTopToBottom", node, yOffset, appendAsCreateJs, addServerPositionCallback);
@@ -2140,7 +2143,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
-	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute. 
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute.
 	 */
 	public void alignToLeft(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Left, "WebUI.alignToLeft", node, xOffset, appendAsCreateJs, addServerPositionCallback);
@@ -2163,7 +2166,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
-	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute. 
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute.
 	 */
 	public void alignToRight(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Right, "WebUI.alignToRight", node, xOffset, appendAsCreateJs, addServerPositionCallback);
@@ -2186,7 +2189,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * @param node
 	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
-	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute. 
+	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute.
 	 */
 	public void alignToMiddle(@NonNull NodeBase node, int xOffset, boolean appendAsCreateJs, boolean addServerPositionCallback){
 		alignTo(AlignmentType.Middle, "WebUI.alignToMiddle", node, xOffset, appendAsCreateJs, addServerPositionCallback);
@@ -2289,5 +2292,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			addCssClass(cn);
 		}
 		return this;
+	}
+
+	public void setRenderStyles() {
+		m_flags |= F_RENDERSTYLES;
+	}
+	public boolean shouldRenderStyles() {
+		return (m_flags & F_RENDERSTYLES) != 0;
+	}
+	public void removeRenderStyles() {
+		m_flags &= ~ F_RENDERSTYLES;
 	}
 }
