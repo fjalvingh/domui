@@ -276,8 +276,9 @@ public class TabPanelBase extends Div {
 				requireNonNull(m_contentContainer).add(content);
 			}
 		}
-		if(pos <= m_currentTab)
+		if(pos <= m_currentTab && m_tablist.size() != 1) { // increment if inserted before current and this isn't the only node.
 			m_currentTab++;
+		}
 		return ti;
 	}
 
