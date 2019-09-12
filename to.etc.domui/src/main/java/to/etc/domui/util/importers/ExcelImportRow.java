@@ -17,11 +17,14 @@ import java.util.List;
  */
 @NonNullByDefault
 public class ExcelImportRow implements IImportRow {
+	final private ExcelRowReader m_rr;
+
 	final private Row m_row;
 
 	private final List<String> m_headerNames;
 
-	public ExcelImportRow(Row row, List<String> headerNames) {
+	public ExcelImportRow(ExcelRowReader rr, Row row, List<String> headerNames) {
+		m_rr = rr;
 		if(null == row)
 			throw new IllegalStateException();
 		m_row = row;
@@ -53,7 +56,7 @@ public class ExcelImportRow implements IImportRow {
 		Cell cell = m_row.getCell(index);
 		if(null == cell)
 			return new EmptyColumn(headerName);
-		return new ExcelColumn(cell, headerName);
+		return new ExcelColumn(this, cell, headerName);
 	}
 
 	@Override
@@ -77,7 +80,10 @@ public class ExcelImportRow implements IImportRow {
 
 		private final String m_name;
 
-		public ExcelColumn(@NonNull Cell cell, String name) {
+		private final ExcelImportRow m_row;
+
+		public ExcelColumn(ExcelImportRow row, @NonNull Cell cell, String name) {
+			m_row = row;
 			if(null == cell)
 				throw new IllegalStateException("Cell cannot be null");
 			m_cell = cell;
@@ -103,7 +109,8 @@ public class ExcelImportRow implements IImportRow {
 						return String.valueOf(m_cell.getBooleanCellValue());
 
 					case NUMERIC:
-						return Double.toString(m_cell.getNumericCellValue());
+						return m_row.m_rr.convertDouble(m_cell.getNumericCellValue());
+						//return Double.toString(m_cell.getNumericCellValue());
 					case STRING:
 						return m_cell.getStringCellValue();
 
