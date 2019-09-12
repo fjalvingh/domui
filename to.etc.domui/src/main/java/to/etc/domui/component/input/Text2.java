@@ -829,7 +829,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	}
 
 	@NonNull
-	static public <T> Text2< ? > createText(Class< ? > clz, String property, boolean editable) {
+	static public <T> Text2<T> createText(Class< ? > clz, String property, boolean editable) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.getPropertyMeta(clz, property);
 		return Text2.createText(pmm.getActualType(), pmm, editable);
 	}
