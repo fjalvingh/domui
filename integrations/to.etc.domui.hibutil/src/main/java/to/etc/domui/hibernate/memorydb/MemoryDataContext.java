@@ -104,9 +104,7 @@ public class MemoryDataContext implements QDataContext {
 			return;
 		}
 		if(isORMProxy(sourceValue)) {
-
-
-
+			sourceValue = m_mdb.getProxyBuilder().createParentProxy(this, attribute, sourceValue);
 		} else {
 			//-- Not a proxy: real class. Reload it into this instance and use that as the value.
 			sourceValue = loadHere(sourceValue);

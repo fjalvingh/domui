@@ -41,6 +41,8 @@ final public class MemoryDb {
 
 	private final MetaCache m_meta = new MetaCache();
 
+	private final ProxyBuilder m_proxyBuilder = new ProxyBuilder();
+
 	public MemoryDb(QDataContext source) {
 		m_source = source;
 	}
@@ -72,5 +74,9 @@ final public class MemoryDb {
 
 	public EntityMeta getMeta(Class<?> clz) {
 		return m_meta.getEntity(clz);
+	}
+
+	public ProxyBuilder getProxyBuilder() {
+		return m_proxyBuilder;
 	}
 }
