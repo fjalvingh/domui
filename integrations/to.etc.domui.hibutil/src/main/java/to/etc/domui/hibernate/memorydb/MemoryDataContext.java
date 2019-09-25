@@ -30,7 +30,7 @@ public class MemoryDataContext implements QDataContext {
 	}
 
 	@Override public <T> T find(Class<T> clz, Object pk) throws Exception {
-		clz = fixClass(clz);
+		clz = MemoryDb.fixClass(clz);
 		Map<Object, Object> eptm = m_entityPerTypeMap.computeIfAbsent(clz, a -> new HashMap<>());
 		T o = (T) eptm.get(pk);
 		if(o == MemoryDb.NOT_FOUND)
@@ -45,15 +45,6 @@ public class MemoryDataContext implements QDataContext {
 			eptm.put(pk, o);
 		}
 		return o;
-	}
-
-	/**
-	 * If the class instance is a proxy class this tries to get the actual class.
-	 */
-	private <T> Class<T> fixClass(Class<T> in) {
-		if(HibernateProxy.class.isAssignableFrom(in))
-			return (Class<T>) in.getSuperclass();
-		return in;
 	}
 
 	private boolean isORMProxy(Object object) {
@@ -112,8 +103,8 @@ public class MemoryDataContext implements QDataContext {
 		attribute.setValue(de, sourceValue);
 	}
 
-	private <T> T loadHere(T original) throws Exception {
-		Class<T> clz = (Class<T>) fixClass(original.getClass());
+	<T> T loadHere(T original) throws Exception {
+		Class<T> clz = (Class<T>) MemoryDb.fixClass(original.getClass());
 		EntityMeta em = m_mdb.getMeta(clz);
 		Object pk = em.getId().getValue(original);			// Get the PK value
 		if(null == pk)

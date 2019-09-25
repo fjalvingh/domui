@@ -1,5 +1,7 @@
 package to.etc.domui.hibernate.memorydb;
 
+import javassist.util.proxy.Proxy;
+import org.hibernate.proxy.HibernateProxy;
 import to.etc.webapp.query.QDataContext;
 
 import java.util.HashMap;
@@ -47,6 +49,15 @@ final public class MemoryDb {
 		m_source = source;
 	}
 
+	/**
+	 * If the class instance is a proxy class this tries to get the actual class.
+	 */
+	static <T> Class<T> fixClass(Class<T> in) {
+		if(HibernateProxy.class.isAssignableFrom(in))
+			return (Class<T>) in.getSuperclass();
+		return in;
+	}
+
 	public QDataContext createDataContext() {
 		return new MemoryDataContext(this);
 	}
@@ -78,5 +89,21 @@ final public class MemoryDb {
 
 	public ProxyBuilder getProxyBuilder() {
 		return m_proxyBuilder;
+	}
+
+	public static boolean isMdbProxy(Object val) {
+		return val instanceof Proxy;
+	}
+
+	public <T> T getOriginal(T instance) {
+		Class<?> clz = fixClass(instance.getClass());
+		Map<Object, Object> map = m_entityPerTypeMap.get(clz);
+		if(null == map)
+			return null;
+		Object pk = getMeta(clz).getId().getValue(instance);
+		if(null == pk)
+			throw new IllegalStateException(instance + " has no primary key assigned");
+		Object o = map.get(pk);
+		return (T) o;
 	}
 }

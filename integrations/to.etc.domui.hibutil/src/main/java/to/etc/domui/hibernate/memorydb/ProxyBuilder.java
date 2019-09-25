@@ -47,9 +47,16 @@ class ProxyBuilder {
 		//-- Now create the instance using the method handler for loading
 		Proxy proxy = (Proxy) proxyClass.newInstance();
 		proxy.setHandler(new MethodHandler() {
+			private T m_copy;
+
 			@Override public Object invoke(Object self, Method thisMethod, Method proceed, Object[] args) throws Throwable {
 				System.out.println(">> proxying " + thisMethod.getName());
-				return proceed.invoke(self, args);
+				T copy = m_copy;
+				if(null == copy) {
+					//-- We need to instantiate the copy.
+					m_copy = copy = (T) dc.loadHere(self);
+				}
+				return proceed.invoke(copy, args);
 			}
 		});
 		return (T) proxy;
