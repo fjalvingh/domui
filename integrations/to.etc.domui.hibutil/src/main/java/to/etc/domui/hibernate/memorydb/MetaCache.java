@@ -36,7 +36,7 @@ final class MetaCache {
 		if(null == clz.getAnnotation(Entity.class))
 			throw new IllegalStateException("The class " + clz.getName() + " is not an entity class (no @Entity annotation)");
 
-		EntityMeta em = new EntityMeta(clz);
+		EntityMeta em = new EntityMeta(this, clz);
 		m_entityMap.put(clz, em);
 
 		AttributeMeta id = null;

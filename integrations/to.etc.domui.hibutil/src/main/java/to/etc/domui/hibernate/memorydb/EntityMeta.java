@@ -1,5 +1,7 @@
 package to.etc.domui.hibernate.memorydb;
 
+import org.eclipse.jdt.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,13 +12,16 @@ import java.util.List;
  * Created on 25-09-19.
  */
 final class EntityMeta {
+	private final MetaCache m_cache;
+
 	private final Class<?> m_entityClass;
 
 	private final List<AttributeMeta> m_attributes = new ArrayList<>();
 
 	private AttributeMeta m_id;
 
-	public EntityMeta(Class<?> entityClass) {
+	public EntityMeta(MetaCache cache, Class<?> entityClass) {
+		m_cache = cache;
 		m_entityClass = entityClass;
 	}
 
@@ -38,5 +43,14 @@ final class EntityMeta {
 
 	@Override public String toString() {
 		return m_entityClass.getSimpleName();
+	}
+
+	public MetaCache getCache() {
+		return m_cache;
+	}
+
+	@Nullable
+	public <I> Object getIdValue(I instance) {
+		return getId().getValue(instance);
 	}
 }

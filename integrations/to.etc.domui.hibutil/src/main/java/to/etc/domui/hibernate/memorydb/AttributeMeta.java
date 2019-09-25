@@ -1,6 +1,7 @@
 package to.etc.domui.hibernate.memorydb;
 
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.WrappedException;
 
 import java.lang.reflect.Method;
@@ -22,6 +23,9 @@ final class AttributeMeta {
 
 	private final MetaRelType m_relType;
 
+	@Nullable
+	private EntityMeta m_relationEntity;
+
 	public AttributeMeta(EntityMeta entity, Method getter, Method setter, String name, Class<?> actualType, MetaRelType relType) {
 		m_entity = entity;
 		m_getter = getter;
@@ -33,6 +37,14 @@ final class AttributeMeta {
 
 	public EntityMeta getEntity() {
 		return m_entity;
+	}
+
+	public synchronized EntityMeta getRelationEntity() {
+		EntityMeta relationEntity = m_relationEntity;
+		if(null == relationEntity) {
+			relationEntity = m_relationEntity = m_entity.getCache().getEntity(m_actualType);
+		}
+		return relationEntity;
 	}
 
 	public Method getGetter() {

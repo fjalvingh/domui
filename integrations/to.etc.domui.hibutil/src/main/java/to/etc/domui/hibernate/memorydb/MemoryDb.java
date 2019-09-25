@@ -55,6 +55,8 @@ final public class MemoryDb {
 	static <T> Class<T> fixClass(Class<T> in) {
 		if(HibernateProxy.class.isAssignableFrom(in))
 			return (Class<T>) in.getSuperclass();
+		if(Proxy.class.isAssignableFrom(in))
+			return (Class<T>) in.getSuperclass();
 		return in;
 	}
 
@@ -66,20 +68,24 @@ final public class MemoryDb {
 	 * Get an original copy for the specified thing. Return null if not found.
 	 */
 	<T> T findEntity(Class<T> clz, Object pk) throws Exception {
+		System.out.print("mdb: find " + clz.getSimpleName() + "#" + pk);
 		Map<Object, Object> emap = m_entityPerTypeMap.computeIfAbsent(clz, a -> new HashMap<>());
 		T o = (T) emap.get(pk);
 
 		if(o == NOT_FOUND) {
+			System.out.println(" - not found (cached)");
 			return null;
 		}
 
 		//-- Try the original db
 		o = m_source.find(clz, pk);
 		if(null == o) {
+			System.out.println(" - not found (new query)");
 			emap.put(pk, NOT_FOUND);
 			return null;
 		}
 		emap.put(pk, o);
+		System.out.println(" - found");
 		return o;
 	}
 

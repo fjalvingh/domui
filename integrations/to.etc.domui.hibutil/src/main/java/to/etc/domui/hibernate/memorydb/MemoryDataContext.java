@@ -41,9 +41,18 @@ public class MemoryDataContext implements QDataContext {
 		if(null == o) {
 			eptm.put(pk, MemoryDb.NOT_FOUND);
 		} else {
-			o = createProxied(clz, o);
+			o = createProxied(m_mdb.getMeta(clz), o);
 			eptm.put(pk, o);
 		}
+		return o;
+	}
+
+	<T> T findLocally(Class<T> clz, Object pk) {
+		clz = MemoryDb.fixClass(clz);
+		Map<Object, Object> eptm = m_entityPerTypeMap.computeIfAbsent(clz, a -> new HashMap<>());
+		T o = (T) eptm.get(pk);
+		if(o == MemoryDb.NOT_FOUND)
+			return null;
 		return o;
 	}
 
@@ -60,10 +69,9 @@ public class MemoryDataContext implements QDataContext {
 	 * with lazies that load the parent when accessed, and all child lists with lazies
 	 * that load the children when accessed.
 	 */
-	private <T> T createProxied(Class<T> clz, T se) throws Exception {
-		T de = clz.newInstance();
+	private <T> T createProxied(EntityMeta em, T se) throws Exception {
+		T de = (T) em.getEntityClass().newInstance();
 
-		EntityMeta em = m_mdb.getMeta(clz);
 		for(AttributeMeta attribute : em.getAttributes()) {
 			switch(attribute.getRelType()) {
 				default:
@@ -75,10 +83,35 @@ public class MemoryDataContext implements QDataContext {
 				case PARENT:
 					copyParentValue(de, se, attribute);
 					break;
+
+				case CHILDLIST:
+					copyChildListValue(de, se, attribute);
+					break;
 			}
 		}
 
 		return de;
+	}
+
+	/**
+	 * Creates a proxy for any collection. The proxy will instantiate all entities
+	 * in the list in this context as soon as any list method gets called.
+	 */
+	private <T, V, M> void copyChildListValue(T de, T se, AttributeMeta attribute) throws Exception{
+		V sourceValue = (V) attribute.getValue(se);
+		if(null == sourceValue) {							// Bail out quickly
+			attribute.setValue(de, null);
+			return;
+		}
+
+		//-- The return class MUST be List.
+		if(! (sourceValue instanceof List)) {
+			throw new IllegalStateException(attribute + " contains not a List but a " + sourceValue.getClass().getName());
+		}
+
+		//-- We'll always proxy these lists.
+		V newList = (V) m_mdb.getProxyBuilder().createListProxy(this, attribute, (List<M>) sourceValue);
+		attribute.setValue(de, newList);
 	}
 
 	/**
@@ -94,22 +127,46 @@ public class MemoryDataContext implements QDataContext {
 			attribute.setValue(de, null);
 			return;
 		}
+		EntityMeta targetEntity = attribute.getRelationEntity();
 		if(isORMProxy(sourceValue)) {
-			sourceValue = m_mdb.getProxyBuilder().createParentProxy(this, attribute, sourceValue);
+			//-- Do we already have this locally?
+			Object pk = targetEntity.getIdValue(sourceValue);
+			if(null == pk)
+				throw new IllegalStateException(attribute + ": value " + sourceValue + " has no primary key");
+			Object localInstance = findLocally(targetEntity.getEntityClass(), pk);
+			if(null != localInstance) {
+				//-- Just use the local instance
+				sourceValue = (V) localInstance;
+			} else {
+				//-- We really need a proxy
+				sourceValue = m_mdb.getProxyBuilder().createParentProxy(this, attribute, sourceValue);
+				m_entityPerTypeMap.computeIfAbsent(targetEntity.getEntityClass(), a -> new HashMap<>()).put(pk, sourceValue);
+			}
 		} else {
 			//-- Not a proxy: real class. Reload it into this instance and use that as the value.
-			sourceValue = loadHere(sourceValue);
+			sourceValue = loadHere(targetEntity, sourceValue);
 		}
 		attribute.setValue(de, sourceValue);
 	}
 
-	<T> T loadHere(T original) throws Exception {
-		Class<T> clz = (Class<T>) MemoryDb.fixClass(original.getClass());
-		EntityMeta em = m_mdb.getMeta(clz);
+	<T> T loadHere(EntityMeta em, T original) throws Exception {
 		Object pk = em.getId().getValue(original);			// Get the PK value
 		if(null == pk)
 			throw new IllegalStateException("Instance " + original + " has a null primary key");
-		return get(clz, pk);
+		return (T) get(em.getEntityClass(), pk);
+	}
+
+	/**
+	 * Usable from proxy only, this loads the original value from the memoryDB, then
+	 * creates a nonproxied copy. This nonproxied copy is then returned without it
+	 * being registered in the entityMap - because that should already contain the
+	 * proxy.
+	 */
+	<T> T loadCopyButDoNotRegister(EntityMeta em, T original) throws Exception {
+		original = (T) m_mdb.findEntity(em.getEntityClass(), em.getIdValue(original));
+		if(null == original)
+			throw new IllegalStateException("Cannot relocate original!?");
+		return createProxied(em, original);
 	}
 
 	/**
