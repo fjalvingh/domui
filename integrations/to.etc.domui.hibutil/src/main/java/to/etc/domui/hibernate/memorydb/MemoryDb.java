@@ -2,9 +2,11 @@ package to.etc.domui.hibernate.memorydb;
 
 import javassist.util.proxy.Proxy;
 import org.hibernate.proxy.HibernateProxy;
+import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -111,5 +113,29 @@ final public class MemoryDb {
 			throw new IllegalStateException(instance + " has no primary key assigned");
 		Object o = map.get(pk);
 		return (T) o;
+	}
+
+	/**
+	 * Issue a query in the source, and copy all of the results into the entity map
+	 * so that subcontexts can find them without database I/O. This will return the
+	 * list of entities found- as entities of the real data context.
+	 */
+	public <T> List<T> prepare(QCriteria<T> q) throws Exception {
+		List<T> sourceList = m_source.query(q);
+		for(T item : sourceList) {
+			Class<?> clz = fixClass(item.getClass());
+			Map<Object, Object> map = m_entityPerTypeMap.computeIfAbsent(clz, a -> new HashMap<>());
+			EntityMeta em = getMeta(clz);
+			Object pk = em.getIdValue(item);
+			if(null == pk)
+				throw new IllegalStateException("?? entity with null pk?");
+			Object stored = map.get(pk);
+			if(stored == null) {
+				map.put(pk, item);
+			} else if(stored != item) {
+				throw new IllegalStateException("Duplicate entity stored in original cache: " + item + " and " + stored);
+			}
+		}
+		return sourceList;
 	}
 }
