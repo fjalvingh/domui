@@ -63,11 +63,11 @@ final class MetaCache {
 						throw new IllegalStateException("The entity " + clz.getName() + " has multiple properties annotated with @Id");
 					id = am;
 				}
-				if(null == id)
-					throw new IllegalStateException(clz.getName() + " has no @Id property");
-				em.setId(id);
 			}
 		}
+		if(null == id)
+			throw new IllegalStateException(clz.getName() + " has no @Id property");
+		em.setId(id);
 		return em;
 	}
 }
