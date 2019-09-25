@@ -1,6 +1,5 @@
 package to.etc.domui.hibernate.memorydb;
 
-import org.hibernate.Hibernate;
 import org.hibernate.proxy.HibernateProxy;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.query.ICriteriaTableDef;
@@ -24,6 +23,8 @@ public class MemoryDataContext implements QDataContext {
 	private final MemoryDb m_mdb;
 
 	private Map<Class<?>, Map<Object, Object>> m_entityPerTypeMap = new HashMap<>();
+
+	private int m_nextIntPk = Integer.MAX_VALUE;
 
 	public MemoryDataContext(MemoryDb mdb) {
 		m_mdb = mdb;
@@ -177,16 +178,45 @@ public class MemoryDataContext implements QDataContext {
 		attribute.setValue(de, value);
 	}
 
+	/**
+	 * Fakes the "save" operation. If the entity is already part of the cache then nothing really
+	 * happens. If not a PK is assigned and the thingy is added as an entity by PK.
+	 */
 	@Override public void save(Object o) throws Exception {
-		Class<?> actualClass = Hibernate.getClass(o);
-		m_entityPerTypeMap.computeIfAbsent(actualClass, a -> new HashMap<>());
+		Class<?> clz = MemoryDb.fixClass(o.getClass());
+		EntityMeta em = m_mdb.getMeta(clz);
+		Object pk = em.getIdValue(o);
+		Map<Object, Object> map = m_entityPerTypeMap.computeIfAbsent(clz, a -> new HashMap<>());
+		if(pk != null) {
+			Object stored = map.get(pk);
+			if(null == stored) {
+				System.out.println("mdb warning: " + o + " has pre-assigned PK but did not come from this session - possible mixup");
+				map.put(pk, o);
+				return;
+			}
 
+			if(stored != o) {
+				throw new IllegalStateException("Duplicate entity " + em + " id=" + pk);
+			}
+			return;
+		}
 
+		//-- We need to store this. Calculate a pk.
+		int idNr = --m_nextIntPk;
 
-		throw new IllegalStateException("Not implemented");
+		if(Integer.class == em.getId().getActualType()) {
+			pk = idNr;
+		} else if(Long.class == em.getId().getActualType()) {
+			pk = Long.valueOf(idNr);
+		} else if(String.class == em.getId().getActualType()) {
+			pk = Integer.toString(idNr, 36);
+		} else {
+			throw new IllegalStateException("Unsupported primary key type: " + em.getId().getActualType().getName());
+		}
+		em.getId().setValue(o, pk);
+
+		map.put(pk, o);
 	}
-
-
 
 	@Override public <T> T get(Class<T> clz, Object pk) throws Exception {
 		T t = find(clz, pk);
