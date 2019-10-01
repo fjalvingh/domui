@@ -23,7 +23,11 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 
 	final private boolean m_multiSelect;
 
+	@Nullable
 	final private IAcceptable<T> m_acceptable;
+
+	@Nullable
+	private IAcceptable<T> m_removable;
 
 	public InstanceSelectionModel(boolean multiSelect) {
 		this(multiSelect, null);
@@ -32,6 +36,12 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 	public InstanceSelectionModel(boolean multiSelect, @Nullable IAcceptable<T> acceptable) {
 		m_multiSelect = multiSelect;
 		m_acceptable = acceptable;
+	}
+
+	public InstanceSelectionModel(boolean multiSelect, @Nullable IAcceptable<T> acceptable, @Nullable IAcceptable<T> removable) {
+		m_multiSelect = multiSelect;
+		m_acceptable = acceptable;
+		m_removable = removable;
 	}
 
 	@Override
@@ -81,6 +91,10 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 				return; // Was already selected.
 			callChanged(rowinstance, true);
 		} else {
+			var removable = m_removable;
+			if(removable != null && !removable.acceptable(rowinstance)) {
+				return; //not removable
+			}
 			if(!m_selectedSet.remove(rowinstance))
 				return; // Was not selected.
 			callChanged(rowinstance, false);
