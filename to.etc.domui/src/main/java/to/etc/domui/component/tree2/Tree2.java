@@ -123,10 +123,11 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	/**
 	 * Get or create a thingy for a visible node.
 	 */
-	private Tree2Node<T> getTree2Node(T base) {
+	private Tree2Node<T> getTree2Node(T base) throws Exception {
+
 		Tree2Node<T> n = m_openMap.get(base);
 		if(n == null) {
-			n = new Tree2Node<>(base);
+			n = new Tree2Node<>(base, getModel().getRoot() == base);
 			m_openMap.put(base, n);
 		}
 		return n;
@@ -178,7 +179,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 				 * a separate cell.
 				 */
 				li.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
-				Ul childUl = new Ul("ui-tree2-rootlist");
+				Ul childUl = new Ul("ui-tree2-list");
 				renderList(childUl, li);
 				li.add(childUl);
 				li.setChildRoot(childUl);
@@ -246,7 +247,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 					vn.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
 					//img.addCssClass("ui-tree2-act");
 					vn.setFoldingClicked((IClicked<NodeContainer>) bxx -> collapseNode(pathValue, true));
-					Ul childUl = new Ul("ui-tree2-rootlist");
+					Ul childUl = new Ul("ui-tree2-root");
 					renderList(childUl, vn);
 					vn.setChildRoot(childUl);
 					vn.add(childUl);

@@ -20,6 +20,8 @@ import java.util.Objects;
 final public class Tree2Node<V> extends Li {
 	final private V m_value;
 
+	private final boolean m_isRoot;
+
 	/** Container for the expand/collapse button and its rendition */
 	final private Div m_foldingIcon = new Div("ui-tree2-foldicon");
 
@@ -36,15 +38,17 @@ final public class Tree2Node<V> extends Li {
 
 	private boolean m_unExpandable;
 
-	public Tree2Node(V item) {
+	public Tree2Node(V item, boolean isRoot) {
 		m_value = item;
+		m_isRoot = isRoot;
 		m_content = new ATag("ui-tree2-val");
 		m_content.setHref("#");
 	}
 
 	@Override public void createContent() throws Exception {
 		updateCssClass();
-		add(m_foldingIcon);
+		if(! m_isRoot)
+			add(m_foldingIcon);
 		add(m_content);
 		Ul childRoot = m_childRoot;
 		if(null != childRoot)
