@@ -2266,6 +2266,13 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * Double click time, in ms.
+	 */
+	public long getDblClickTime() {
+		return 500;
+	}
+
+	/**
 	 * When T (the default) controls will receive any hint text as provided by metadata or explicit command.
 	 */
 	public boolean isDefaultHintsOnControl() {

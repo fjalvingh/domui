@@ -221,6 +221,12 @@ final public class Page implements IQContextContainer {
 	@NonNull
 	private PagePhase m_phase = PagePhase.NULL;
 
+	/** The last node that was clicked, for doubleclick detection */
+	@Nullable
+	private NodeBase m_lastClickTarget;
+
+	private long m_lastClickTime;
+
 	/**
 	 * Nodes that are added to a render and that are removed by the Javascript framework are added here; this
 	 * will force them to be removed from the tree after any render without causing a delta.
@@ -867,6 +873,23 @@ final public class Page implements IQContextContainer {
 		appendJS(js);
 	}
 
+
+	/**
+	 * Registers a clicked node, and returns TRUE if we have a double click event.
+	 */
+	public boolean registerClick(NodeBase clicked) {
+		long cts = System.currentTimeMillis();
+		if(m_lastClickTarget == clicked) {
+			//-- within DBLCLICKTIME?
+			long dly = cts - m_lastClickTime;
+			m_lastClickTime = cts;
+			return dly <= DomApplication.get().getDblClickTime();
+		} else {
+			m_lastClickTarget = clicked;
+			m_lastClickTime = cts;
+			return false;
+		}
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Component focus handling.							*/

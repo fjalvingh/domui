@@ -37,14 +37,17 @@ final public class ClickInfo {
 
 	private boolean m_alt;
 
+	private final boolean m_doubleClick;
+
 	private boolean m_control;
 
 	private int m_pageX, m_pageY;
 
-	public ClickInfo(IParameterInfo pi) {
+	public ClickInfo(IParameterInfo pi, boolean doubleClick) {
 		m_shift = "true".equals(pi.getParameter("_shiftKey"));
 		m_control = "true".equals(pi.getParameter("_controlKey"));
 		m_alt = "true".equals(pi.getParameter("_altKey"));
+		m_doubleClick = doubleClick;
 		int v;
 		try {
 			v = Integer.parseInt(pi.getParameter("_pageX"));
@@ -70,6 +73,10 @@ final public class ClickInfo {
 
 	public boolean isControl() {
 		return m_control;
+	}
+
+	public boolean isDoubleClick() {
+		return m_doubleClick;
 	}
 
 	public int getPageX() {
