@@ -43,6 +43,7 @@ import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.domui.util.resources.IResourceRef;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
@@ -191,6 +192,12 @@ final public class Page implements IQContextContainer {
 	 * the SVG/VML graphic flow editor.
 	 */
 	private boolean m_renderAsXHTML;
+
+	/**
+	 * EXPERIMENTAL Render the page through a HTML template.
+	 */
+	@Nullable
+	private IResourceRef m_renderTemplate;
 
 	/**
 	 * If the page has gotten it's values injected this is set to true. This prevents injecting
@@ -1065,6 +1072,18 @@ final public class Page implements IQContextContainer {
 
 	public void setRenderAsXHTML(boolean renderAsXHTML) {
 		m_renderAsXHTML = renderAsXHTML;
+	}
+
+	public void setRenderTemplate(IResourceRef tmp) {
+		m_renderTemplate = tmp;
+	}
+
+	/**
+	 * Experimental: render the page through a template.
+	 */
+	@Nullable
+	public IResourceRef getRenderTemplate() {
+		return m_renderTemplate;
 	}
 
 	public void setDefaultFocusSource(@Nullable NodeBase node) {

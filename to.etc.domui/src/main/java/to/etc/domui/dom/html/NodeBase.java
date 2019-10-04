@@ -441,7 +441,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * INTERNAL USE ONLY, FOR SPECIAL CASES!!!! Node tags may NEVER change once rendered to the browser.
 	 * @param tag
 	 */
-	final protected void internalSetTag(@NonNull final String tag) {
+	public final void internalSetTag(@NonNull final String tag) {
 		m_tag = tag;
 	}
 
