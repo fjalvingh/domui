@@ -30,20 +30,8 @@ ul.ui-tree3-list > li:last-child {
 	padding-bottom: 0;
 }
 
-// tree labels
-.ui-tree3-label {
-	position: relative;
-	display: inline-block;
-	background: #fff;
-	cursor: pointer;
-
-	&:hover {
-		color: #666;
-	}
-}
-
-// tree expanded icon
-.ui-tree3-branch:before {
+// Fold/unfold button
+.ui-tree3-fbtn {
 	background: #000;
 	color: #fff;
 	position: relative;
@@ -58,8 +46,35 @@ ul.ui-tree3-list > li:last-child {
 	line-height: .9em;
 }
 
-li.ui-tree3-opened > .ui-tree3-branch:before {
-	content: '-';
+//.ui-tree3-branch:before {
+//	background: #000;
+//	color: #fff;
+//	position: relative;
+//	z-index: 1;
+//	float: left;
+//	margin: 0 1em 0 -2em;
+//	width: 1em;
+//	height: 1em;
+//	border-radius: 1em;
+//	content: '+';
+//	text-align: center;
+//	line-height: .9em;
+//}
+
+//li.ui-tree3-opened > .ui-tree3-branch:before {
+//	content: '-';
+//}
+
+// tree labels
+.ui-tree3-label {
+	position: relative;
+	display: inline-block;
+	background: #fff;
+	cursor: pointer;
+
+	&:hover {
+		color: #666;
+	}
 }
 
 // tree branches

@@ -24,7 +24,7 @@ final public class Tree3Node<V> extends Li {
 	private final boolean m_isRoot;
 
 	/** Container for the expand/collapse button and its rendition */
-	final private Div m_foldingIcon = new Div("ui-tree3-foldicon");
+	final private Div m_foldingIcon = new Div("ui-tree3-fbtn");
 
 	final private NodeContainer m_content;
 
@@ -42,7 +42,7 @@ final public class Tree3Node<V> extends Li {
 	public Tree3Node(V item, boolean isRoot) {
 		m_value = item;
 		m_isRoot = isRoot;
-		m_content = new Span("ui-tree3-val");
+		m_content = new Span();
 	}
 
 	@Override public void createContent() throws Exception {
@@ -52,6 +52,7 @@ final public class Tree3Node<V> extends Li {
 		} else {
 			m_content.addCssClass("ui-tree3-branch ui-tree3-label");
 		}
+		add(m_foldingIcon);
 		add(m_content);
 		Ul childRoot = m_childRoot;
 		if(null != childRoot)
@@ -81,6 +82,8 @@ final public class Tree3Node<V> extends Li {
 			+ (m_selected ? " ui-tree3-selected" : "")
 			+ (m_isRoot ? " ui-tree3-rootitem" : "")
 		);
+		m_foldingIcon.setText(m_expanded ? "-" : "+");
+		m_foldingIcon.setCssClass(m_expanded ? "ui-tree3-fbtn ui-tree3-opened" : "ui-tree3-fbtn ui-tree3-closed");
 	}
 
 	void setFoldingClicked(@Nullable IClicked<? extends NodeBase> clicked) {
@@ -112,7 +115,9 @@ final public class Tree3Node<V> extends Li {
 	}
 
 	void setExpanded(boolean expanded) {
-		this.m_expanded = expanded;
+		m_expanded = expanded;
+		m_foldingIcon.setText(expanded ? "-" : "+");
+		m_foldingIcon.setCssClass(expanded ? "ui-tree3-fbtn ui-tree3-opened" : "ui-tree3-fbtn ui-tree3-closed");
 	}
 
 	boolean isUnExpandable() {
