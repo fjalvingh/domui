@@ -45,6 +45,10 @@ ul.ui-tree3-list > li:last-child {
 	text-align: center;
 	line-height: .9em;
 }
+.ui-tree3-leaf > .ui-tree3-fbtn {
+	display: none;
+}
+
 
 //.ui-tree3-branch:before {
 //	background: #000;
@@ -78,7 +82,7 @@ ul.ui-tree3-list > li:last-child {
 }
 
 // tree branches
-ul.ui-tree3-list li:before {
+ul.ui-tree3-list li:before { // Line before entire li.
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -89,7 +93,7 @@ ul.ui-tree3-list li:before {
 	content: "";
 }
 
-.ui-tree3-label:after {
+.ui-tree3-label:after {				// Line \-- leading to a leaf child
 	font-family: 'Open Sans', sans-serif;
 	font-size: 16px;
 
@@ -106,9 +110,9 @@ ul.ui-tree3-list li:before {
 }
 
 //- hides a horizontal bar leading to the expanded node
-.ui-tree3-branch.ui-tree3-label:after { border-bottom: 0; }
+.ui-tree3-branch > .ui-tree3-label:after { border-bottom: 0; }
 
-.ui-tree3-opened > .ui-tree3-label:after {
+.ui-tree3-opened > .ui-tree3-label:after {		// --\ line from opened level to children
 	border-radius: 0 .3em 0 0;
 	border-top: 1px solid #777;
 	border-right: 1px solid #777;

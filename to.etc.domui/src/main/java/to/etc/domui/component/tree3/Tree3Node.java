@@ -47,11 +47,6 @@ final public class Tree3Node<V> extends Li {
 
 	@Override public void createContent() throws Exception {
 		updateCssClass();
-		if(isUnExpandable()) {
-			m_content.addCssClass("ui-tree3-leaf ui-tree3-label");
-		} else {
-			m_content.addCssClass("ui-tree3-branch ui-tree3-label");
-		}
 		add(m_foldingIcon);
 		add(m_content);
 		Ul childRoot = m_childRoot;
@@ -75,13 +70,23 @@ final public class Tree3Node<V> extends Li {
 	}
 
 	private void updateCssClass() {
-		setCssClass("ui-tree3-item ui-tree3-"
-			+ m_treeNodeType.name().toLowerCase().replace("_", "-")
+		setCssClass("ui-tree3-item "
+			//+ "ui-tree3-" + m_treeNodeType.name().toLowerCase().replace("_", "-")
 			+ (m_treeNodeType == Tree3NodeType.OPENED_LAST ? " ui-tree3-opened" : "")
 			+ (m_treeNodeType == Tree3NodeType.CLOSED_LAST ? " ui-tree3-closed" : "")
 			+ (m_selected ? " ui-tree3-selected" : "")
 			+ (m_isRoot ? " ui-tree3-rootitem" : "")
+			+ (isExpanded() ? " ui-tree3-opened" : " ui-tree3-closed")
+			+ (isUnExpandable() ? " ui-tree3-leaf" : " ui-tree3-branch")
 		);
+		m_content.addCssClass("ui-tree3-label");
+		//if(isUnExpandable()) {
+		//	m_content.addCssClass("ui-tree3-leaf ui-tree3-label");
+		//	m_content.removeCssClass("ui-tree2-branch");
+		//} else {
+		//	m_content.addCssClass("ui-tree3-branch ui-tree3-label");
+		//	m_content.removeCssClass("ui-tree2-leaf");
+		//}
 		m_foldingIcon.setText(m_expanded ? "-" : "+");
 		m_foldingIcon.setCssClass(m_expanded ? "ui-tree3-fbtn ui-tree3-opened" : "ui-tree3-fbtn ui-tree3-closed");
 	}
