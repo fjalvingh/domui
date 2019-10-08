@@ -33,7 +33,7 @@ package to.etc.domui.dom.css;
 public enum DisplayType {
 	NONE("none"), INLINE("inline"), BLOCK("block"), INLINE_BLOCK("inline-block"), LIST_ITEM("list-item"), RUN_IN("run-in"), COMPACT("compact"), MARKER("marker"), TABLE("table"), INLINE_TABLE("inline-table"), TABLE_ROW_GROUP(
 		"table-row-group"), TABLE_HEADER_GROUP("table-header-group"), TABLE_FOOTER_GROUP("table-footer-group"), TABLE_ROW("table-row"), TABLE_COLUMN_GROUP("table-column-group"), TABLE_COLUMN(
-		"table-column"), TABLE_CELL("table-cell"), TABLE_CAPTION("table-caption");
+		"table-column"), TABLE_CELL("table-cell"), TABLE_CAPTION("table-caption"), FLEX("flex");
 
 	private String m_txt;
 

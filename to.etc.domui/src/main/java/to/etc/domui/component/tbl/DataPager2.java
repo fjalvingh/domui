@@ -59,6 +59,8 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	/** When set (default) this shows selection details when a table has a selectable model. */
 	private boolean m_showSelection = true;
 
+	final private Div m_buttonContainer = new Div("ui-dp2-bc");
+
 	private Div m_buttonDiv = new Div();
 
 	@NonNull
@@ -72,8 +74,9 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-dp2");
+		add(m_buttonContainer);
 		Div bd = m_buttonDiv = new Div("ui-dp2-buttons");
-		add(bd);
+		m_buttonContainer.add(bd);
 
 		m_prevBtn = appendButton(bd, Msgs.uiPagerPrev, () -> {
 			int cp = m_table.getCurrentPage();
@@ -150,10 +153,10 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		Div bd = m_buttonDiv;
 		int np = m_table.getPageCount();
 		if(np <= 1) {
-			bd.setDisplay(DisplayType.NONE);
+			m_buttonContainer.setDisplay(DisplayType.NONE);
 			return;
 		}
-		bd.setDisplay(DisplayType.BLOCK);
+		m_buttonContainer.setDisplay(DisplayType.BLOCK);
 
 		int cp = m_table.getCurrentPage();
 		if(np == 0) {
@@ -225,7 +228,6 @@ final public class DataPager2 extends Div implements IDataTablePager {
 
 		bd.add(m_nextBtn);
 
-		bd.add("\u00a0\u00a0");
 		for(@NonNull SmallImgButton sib : m_extraButtonList) {
 			bd.add(sib);
 		}
