@@ -25,8 +25,6 @@ final public class Tree2Node<V> extends Li {
 	/** Container for the expand/collapse button and its rendition */
 	final private Div m_foldingIcon = new Div("ui-tree2-foldicon");
 
-	final private Div m_line = new Div("ui-tree2-line");
-
 	final private ATag m_content;
 
 	@Nullable
@@ -49,12 +47,9 @@ final public class Tree2Node<V> extends Li {
 
 	@Override public void createContent() throws Exception {
 		updateCssClass();
-		//if(m_isRoot)
-		//	m_foldingIcon.addCssClass("ui-tree-foldicon-root");
-		add(m_line);
-		m_line.removeAllChildren();
-		m_line.add(m_foldingIcon);
-		m_line.add(m_content);
+		if(! m_isRoot)
+			add(m_foldingIcon);
+		add(m_content);
 		Ul childRoot = m_childRoot;
 		if(null != childRoot)
 			add(childRoot);
@@ -79,7 +74,6 @@ final public class Tree2Node<V> extends Li {
 		setCssClass("ui-tree2-item ui-tree2-"
 			+ m_treeNodeType.name().toLowerCase().replace("_", "-")
 			+ (m_selected ? " ui-tree2-selected" : "")
-			+ (m_isRoot ? " ui-tree2-rootitem" : "")
 		);
 	}
 

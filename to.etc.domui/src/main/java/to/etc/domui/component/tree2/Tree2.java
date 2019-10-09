@@ -99,7 +99,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 		//-- The root node is always expanded, of course
 		T root = getModel().getRoot();
 
-		Ul ul = m_rootDisplayNode = new Ul("ui-tree2-list ui-tree2-rootlist");
+		Ul ul = m_rootDisplayNode = new Ul("ui-tree2-rootlist");
 		if(isShowRoot()) {
 			Tree2Node<T> n = getTree2Node(root);		// Pre-create the node
 			n.setExpanded(true);							// and set it to expanded
@@ -144,6 +144,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 	private void renderList(Ul into, Tree2Node<T> parent) throws Exception {
 		into.removeAllChildren();
 		T parentValue = parent.getValue();
+		//Ul ul = new Ul("ui-tree2-list");
 		parent.setChildRoot(into);
 
 		int len = getModel().getChildCount(parentValue);// #of items in this thingy.
@@ -246,7 +247,7 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 					vn.setType(last ? TreeNodeType.OPENED_LAST : TreeNodeType.OPENED);
 					//img.addCssClass("ui-tree2-act");
 					vn.setFoldingClicked((IClicked<NodeContainer>) bxx -> collapseNode(pathValue, true));
-					Ul childUl = new Ul("ui-tree2-list");
+					Ul childUl = new Ul("ui-tree2-root");
 					renderList(childUl, vn);
 					vn.setChildRoot(childUl);
 					vn.add(childUl);
