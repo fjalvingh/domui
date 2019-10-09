@@ -588,4 +588,22 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 		Ul ul = parentVn.getChildRoot();
 		renderList(ul, parentVn);
 	}
+
+	@Nullable
+	public T getSelectedValue() {
+		return m_selectedValue;
+	}
+
+	public void setSelectedValue(@Nullable T selectedValue) throws Exception {
+		T old = m_selectedValue;
+		if(old == selectedValue)
+			return;
+
+		if(null != old) {
+			markNewSelection(old, false);
+		}
+		m_selectedValue = selectedValue;
+		expandNode(getModel().getParent(selectedValue));
+		markNewSelection(selectedValue, true);
+	}
 }
