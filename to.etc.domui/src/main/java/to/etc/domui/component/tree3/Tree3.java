@@ -81,6 +81,9 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 
 	private INodePredicate<T> m_nodeSelectablePredicate;
 
+	@Nullable
+	private T m_selectedValue;
+
 	public Tree3() {
 		setCssClass("ui-tree3");
 	}
@@ -392,6 +395,14 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 	}
 
 	protected void cellClicked(@NonNull final T value, @NonNull ClickInfo clinfo) throws Exception {
+		if(isSelectable(value)) {
+			T selected = m_selectedValue;
+			if(null != selected)
+				markNewSelection(selected, false);
+			markNewSelection(value, true);
+			m_selectedValue = value;
+		}
+
 		if(getCellClicked() != null)
 			getCellClicked().cellClicked(value);
 	}
@@ -418,10 +429,14 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 	/**
 	 * Internal use: set or reset the 'selected' indication on the visible nodeValue.
 	 */
-	protected void markAsSelected(T nodeValue, boolean selected) throws Exception {
-		if(null != nodeValue)
-			expandNode(nodeValue);
+	//protected void markAsSelected(T nodeValue, boolean selected) throws Exception {
+	//	if(null != nodeValue)
+	//		expandNode(nodeValue);
+	//
+	//	markNewSelection(nodeValue, selected);
+	//}
 
+	private void markNewSelection(T nodeValue, boolean selected) throws Exception {
 		Tree3Node<T> vn = m_openMap.get(nodeValue);
 		if(vn == null)
 			return;

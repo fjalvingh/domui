@@ -77,7 +77,11 @@ ul.ui-tree3-list > li:last-child {
 	cursor: pointer;
 
 	&:hover {
-		color: #666;
+		outline: 1px solid #ffd55a;
+		outline-offset: -1px;
+	}
+	&.ui-tree3-selected {
+		background-color: $highlight2_bg;
 	}
 }
 
