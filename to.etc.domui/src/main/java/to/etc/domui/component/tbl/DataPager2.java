@@ -59,7 +59,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	/** When set (default) this shows selection details when a table has a selectable model. */
 	private boolean m_showSelection = true;
 
-	final private Div m_buttonContainer = new Div("ui-dp2-bc");
+	private Div m_buttonContainer;
 
 	private Div m_buttonDiv = new Div();
 
@@ -74,6 +74,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-dp2");
+		m_buttonContainer = new Div("ui-dp2-bc");
 		add(m_buttonContainer);
 		Div bd = m_buttonDiv = new Div("ui-dp2-buttons");
 		m_buttonContainer.add(bd);
