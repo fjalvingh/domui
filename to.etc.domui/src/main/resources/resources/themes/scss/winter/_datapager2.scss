@@ -62,10 +62,9 @@ $pager2-button-bg: $alt-button-bg !default
 	}
 
 	.ui-dp2-nurec {
+		display: flex;
+		align-items: center;
 		font-size: small;
-		vertical-align: middle;
-		padding: 0.5em 1em;
-		margin: 1px 0;
 	}
 	.ui-dp2-trunc {
 		display: inline-block;
