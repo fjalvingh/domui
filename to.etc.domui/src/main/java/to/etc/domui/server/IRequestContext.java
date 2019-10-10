@@ -133,7 +133,8 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	String getUserAgent();
 
 	/**
-	 * Creates a full path from an application-relative path. So if the root of the application
+	 * If the input path is relative this creates a full path from an application-relative
+	 * path, otherwise it returns the original. So if the root of the application
 	 * is "http://localhost/demo/", calling this with "img/button.png" will return the string
 	 * "http://localhost/demo/img/button.png".
 	 */

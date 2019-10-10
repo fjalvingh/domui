@@ -435,9 +435,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	//		}
 	}
 
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getRelativePath(java.lang.String)
-	 */
 	@Override
 	public @NonNull String getRelativePath(@NonNull String rel) {
 		if(DomUtil.isAbsoluteURL(rel))
