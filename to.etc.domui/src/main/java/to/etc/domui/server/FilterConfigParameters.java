@@ -32,7 +32,8 @@ public class FilterConfigParameters implements ConfigParameters {
 	@NonNull
 	@Override
 	public URL getResourcePath(@NonNull String path) throws Exception {
-		URL url = m_fc.getServletContext().getResource(path);
-		return url;
+		if(path.startsWith("/"))
+			return m_fc.getServletContext().getResource(path);
+		return m_fc.getServletContext().getResource("/" + path);		// Always nice to have a relative path start with /. Morons.
 	}
 }
