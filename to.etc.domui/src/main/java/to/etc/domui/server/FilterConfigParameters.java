@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 
 import javax.servlet.FilterConfig;
 import java.io.File;
+import java.net.URL;
 
 public class FilterConfigParameters implements ConfigParameters {
 	@NonNull
@@ -26,5 +27,12 @@ public class FilterConfigParameters implements ConfigParameters {
 	@Override
 	public File getWebFileRoot() {
 		return m_webFileRoot;
+	}
+
+	@NonNull
+	@Override
+	public URL getResourcePath(@NonNull String path) throws Exception {
+		URL url = m_fc.getServletContext().getResource(path);
+		return url;
 	}
 }

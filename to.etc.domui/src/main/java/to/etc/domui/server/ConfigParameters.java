@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.File;
+import java.net.URL;
 
 /**
  * Hides the method to get app parameters. Currently proxies to
@@ -40,5 +41,12 @@ import java.io.File;
 public interface ConfigParameters {
 	@Nullable String getString(@NonNull String name);
 
+	/**
+	 * Pending removal: does not work with web fragments.
+	 */
+	@Deprecated
 	@NonNull File getWebFileRoot();
+
+	@NonNull
+	URL getResourcePath(@NonNull String path) throws Exception;
 }

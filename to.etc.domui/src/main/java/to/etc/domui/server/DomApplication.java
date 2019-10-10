@@ -117,6 +117,7 @@ import to.etc.domui.util.resources.ReloadingClassResourceRef;
 import to.etc.domui.util.resources.ResourceDependencyList;
 import to.etc.domui.util.resources.ResourceInfoCache;
 import to.etc.domui.util.resources.SimpleResourceFactory;
+import to.etc.domui.util.resources.UrlWebappResourceRef;
 import to.etc.domui.util.resources.VersionedJsResourceFactory;
 import to.etc.domui.util.resources.WebappResourceRef;
 import to.etc.function.ConsumerEx;
@@ -132,6 +133,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -289,6 +291,8 @@ public abstract class DomApplication {
 	/** The "current theme". This will become part of all themed resource URLs and is interpreted by the theme factory to resolve resources. */
 	@NonNull
 	private volatile String m_defaultTheme = "";
+
+	private ConfigParameters m_configParameters;
 
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
@@ -701,6 +705,7 @@ public abstract class DomApplication {
 
 	final synchronized public void internalInitialize(@NonNull final ConfigParameters pp, boolean development) throws Exception {
 		setCurrentApplication(this);
+		m_configParameters = pp;
 
 		//		m_myClassLoader = appClassLoader;
 		m_webFilePath = pp.getWebFileRoot();
@@ -1286,31 +1291,31 @@ public abstract class DomApplication {
 
 	/**
 	 * Return a file from the webapp's root directory. Example: passing WEB-INF/web.xml
-	 * would return the file for the web.xml.
-	 *
-	 * @param path
-	 * @return
+	 * would return the file for the web.xml. <b>Warning: this does not work for web fragments</b>
 	 */
 	@NonNull
 	public File getAppFile(final String path) {
 		return new File(m_webFilePath, path);
 	}
 
+
 	/**
 	 * Primitive to return either a File-based resource from the web content files
 	 * or a classpath resource (below /resources/) for the same path. The result will
 	 * implement {@link IModifyableResource}. This will not use any kind of resource
 	 * factory.
-	 *
-	 * @param name
-	 * @return
 	 */
 	@NonNull
-	public IResourceRef getAppFileOrResource(String name) {
+	public IResourceRef getAppFileOrResource(String name) throws Exception {
 		//-- 1. Is a file-based resource available?
 		File f = getAppFile(name);
 		if(f.exists())
 			return new WebappResourceRef(f);
+
+		//-- 2. Can we get it from any fragment?
+		UrlWebappResourceRef resource = new UrlWebappResourceRef(m_configParameters.getResourcePath(name));
+		if(resource.exists())
+			return resource;
 		return createClasspathReference("/resources/" + name);
 	}
 
@@ -1327,8 +1332,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Get the best factory to resolve the specified resource name.
-	 * @param name
-	 * @return
 	 */
 	@Nullable
 	public IResourceFactory findResourceFactory(String name) {
@@ -1350,7 +1353,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Returns the root of the webapp's installation directory on the local file system.
-	 * @return
 	 */
 	@NonNull
 	public final File getWebAppFileRoot() {
@@ -1386,11 +1388,8 @@ public abstract class DomApplication {
 	 * class resource with this name below /resources/. But {@link IResourceFactory} instances registered
 	 * with DomApplication can provide other means to locate resources.
 	 *
-	 * @param name
 	 * @param rdl    The dependency list. Pass {@link ResourceDependencyList#NULL} if you do not need the
 	 * 				dependencies.
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	public IResourceRef getResource(@NonNull String name, @NonNull IResourceDependencyList rdl) throws Exception {
@@ -1410,9 +1409,6 @@ public abstract class DomApplication {
 	/**
 	 * Quickly determines if a given resource exists. Enter with the full resource path, like $js/xxx, THEME/xxx and the like; it
 	 * mirrors the logic of {@link #getAppFileOrResource(String)}.
-	 * @param name
-	 * @return
-	 * @throws Exception
 	 */
 	public boolean hasApplicationResource(final String name) throws Exception {
 		synchronized(this) {
@@ -1444,11 +1440,17 @@ public abstract class DomApplication {
 		if(rf != null)
 			return rf.getResource(this, name, rdl);
 
+
 		//-- No factory. Return class/file reference.
-		File src = new File(m_webFilePath, name);
-		IResourceRef r = new WebappResourceRef(src);
+		URL url = m_configParameters.getResourcePath(name);
+		IResourceRef r = new UrlWebappResourceRef(url);
 		rdl.add(r);
 		return r;
+
+		//File src = new File(m_webFilePath, name);
+		//IResourceRef r = new WebappResourceRef(src);
+		//rdl.add(r);
+		//return r;
 	}
 
 	/**
