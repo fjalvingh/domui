@@ -133,7 +133,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -783,7 +782,6 @@ public abstract class DomApplication {
 		if("true".equals(haso))
 			uiTestMode = true;
 		haso = System.getProperty("domui.testui");
-		System.out.println("TEST TEST: domui.testui = " + haso);
 		if("true".equals(haso))
 			uiTestMode = true;
 
@@ -1312,6 +1310,14 @@ public abstract class DomApplication {
 		if(f.exists())
 			return new WebappResourceRef(f);
 
+		//-- Is it a resource in a .jar?
+		if(inDevelopmentMode()) {
+			IModifyableResource ts = ClasspathInventory.getInstance().findResourceSource("META-INF/resources/" + name);
+			if(null != ts) {
+				return new ReloadingClassResourceRef(ts, "/" + name);
+			}
+		}
+
 		//-- 2. Can we get it from any fragment?
 		UrlWebappResourceRef resource = new UrlWebappResourceRef(m_configParameters.getResourcePath(name));
 		if(resource.exists())
@@ -1442,10 +1448,14 @@ public abstract class DomApplication {
 
 
 		//-- No factory. Return class/file reference.
-		URL url = m_configParameters.getResourcePath(name);
-		IResourceRef r = new UrlWebappResourceRef(url);
+		IResourceRef r =  getAppFileOrResource(name);
 		rdl.add(r);
 		return r;
+
+		//URL url = m_configParameters.getResourcePath(name);
+		//IResourceRef r = new UrlWebappResourceRef(url);
+		//rdl.add(r);
+		//return r;
 
 		//File src = new File(m_webFilePath, name);
 		//IResourceRef r = new WebappResourceRef(src);

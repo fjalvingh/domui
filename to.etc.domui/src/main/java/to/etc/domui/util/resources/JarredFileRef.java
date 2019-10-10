@@ -1,6 +1,7 @@
 package to.etc.domui.util.resources;
 
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.reloader.Reloader;
 import to.etc.util.ByteBufferInputStream;
 
 import java.io.IOException;
@@ -62,6 +63,8 @@ final public class JarredFileRef implements IModifyableResource {
 		}
 		m_time = lastModified;
 		m_size = size;
+		if(Reloader.DEBUG)
+			System.out.println("JarredFileRef: updated " + m_name);
 	}
 
 	@Nullable byte[][] getResourceData() {
