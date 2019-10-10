@@ -68,7 +68,8 @@ public class TUtilDomUI {
 			@NonNull
 			@Override
 			public URL getResourcePath(@NonNull String path) throws Exception {
-				return new URL(path);
+				File f = new File(getWebFileRoot(), path);
+				return f.toURL();
 			}
 		};
 		application.addHeaderContributor(HeaderContributor.loadStylesheet("font-awesome"), 11);
@@ -100,7 +101,8 @@ public class TUtilDomUI {
 				@NonNull
 				@Override
 				public URL getResourcePath(@NonNull String path) throws Exception {
-					return new URL(path);
+					File f = new File(getWebFileRoot(), path);
+					return f.toURL();
 				}
 			};
 
