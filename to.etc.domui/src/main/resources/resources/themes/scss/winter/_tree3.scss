@@ -98,9 +98,6 @@ ul.ui-tree3-list li:before { // Line before entire li.
 }
 
 .ui-tree3-label:after {				// Line \-- leading to a leaf child
-	font-family: 'Open Sans', sans-serif;
-	font-size: 16px;
-
 	position: absolute;
 	top: 0;
 	left: -1.5em;
