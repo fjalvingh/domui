@@ -30,6 +30,7 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.login.IUser;
 import to.etc.domui.login.IUserRightChecker;
 import to.etc.domui.login.User2RightsChecker;
+import to.etc.function.BiFunctionEx;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -51,6 +52,9 @@ public class MenuManager {
 	private IUserRightChecker<IUser> m_userRightChecker = new User2RightsChecker();
 
 	private Map<String, MenuItem> m_idMap;
+
+	@NonNull
+	private BiFunctionEx<MenuItem, IUser, Boolean> m_pageAccessCheck = this::isNodeAuthorized;
 
 	static public Comparator<MenuItem> C_BY_ORDER_AND_CHILDREN = (o1, o2) -> {
 		boolean c1 = o1.getChildren().size() > 0;
@@ -95,7 +99,7 @@ public class MenuManager {
 	/**
 	 * Calculate the user-specific menu by applying the users' rights on all menu items.
 	 */
-	public MenuItem createUserMenu(IUser user) {
+	public MenuItem createUserMenu(IUser user) throws Exception {
 		MenuItem root = getRoot();
 
 		MenuItem userRoot = new MenuItem(this);
@@ -124,9 +128,9 @@ public class MenuManager {
 		}
 	}
 
-	private void buildAuthorization(MenuItem userMenu, MenuItem systemMenu, IUser user) {
+	private void buildAuthorization(MenuItem userMenu, MenuItem systemMenu, IUser user) throws Exception {
 		for(MenuItem sysItem : systemMenu.getChildren()) {
-			if(isNodeAuthorized(sysItem, user)) {
+			if(m_pageAccessCheck.apply(sysItem, user)) {
 				//-- We're allowed to use this, so copy it
 				MenuItem userItem = userMenu.addClone(sysItem);
 
@@ -169,5 +173,9 @@ public class MenuManager {
 
 	public void setUserRightChecker(@NonNull IUserRightChecker<IUser> userRightChecker) {
 		m_userRightChecker = userRightChecker;
+	}
+
+	public void setPageAccessCheck(@NonNull BiFunctionEx<MenuItem, IUser, Boolean> pageAccessCheck) {
+		m_pageAccessCheck = pageAccessCheck;
 	}
 }
