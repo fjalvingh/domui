@@ -166,9 +166,17 @@ final public class PageRequestHandler {
 		if(DomUtil.USERLOG.isDebugEnabled()) {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + m_cid + "\nAction=" + m_action + "\n");
 		}
-		if(!Constants.ACMD_ASYPOLL.equals(m_action))
+		if(!Constants.ACMD_ASYPOLL.equals(m_action)) {
 //			System.out.println("req: " + cid + " action " + action + ", " + m_ctx.getParameter(Constants.PARAM_UICOMPONENT));
 			logUser("Incoming request on " + m_cid + " action=" + m_action);
+			//HttpServerRequestResponse rr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
+			//Enumeration<String> en = rr.getRequest().getHeaderNames();
+			//while(en.hasMoreElements()) {
+			//	String name = en.nextElement();
+			//	System.out.println("header " + name + ": " + rr.getRequest().getHeader(name));
+			//}
+
+		}
 
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
 		if(Constants.ACMD_OBITUARY.equals(m_action)) {
