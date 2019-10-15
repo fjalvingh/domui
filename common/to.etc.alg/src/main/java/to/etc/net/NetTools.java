@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.w3c.dom.Document;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
+import to.etc.util.WrappedException;
 import to.etc.xml.DomTools;
 
 import javax.servlet.http.HttpServletRequest;
@@ -52,13 +53,9 @@ final public class NetTools {
 	/**
 	 * Takes the host= parameter in the header to construct the real
 	 * hostname.
-	 *
-	 * @param sb
-	 * @param req
-	 * @throws Exception
 	 */
 	static public void getHostURL(StringBuffer sb, HttpServletRequest req) {
-		sb.append(req.getScheme());
+		sb.append(isHttps(req) ? "https" : "http");
 		sb.append("://");
 		sb.append(getHostName(req));
 		int port = getHostPort(req);
@@ -104,7 +101,7 @@ final public class NetTools {
 		// Only allow proxy headers from non internet addresses (10.x, 172.16..31, 192.168..)
 		String remoteHost = req.getRemoteHost();
 		InetAddress remote = InetAddress.getByName(remoteHost);
-		if(remote.isSiteLocalAddress()) {
+		if(remote.isSiteLocalAddress() || remote.isLinkLocalAddress() || remote.isLoopbackAddress()) {
 			//-- Proxied?
 			String hdr = req.getHeader("X-Forwarded-For");
 			if(null != hdr)
@@ -112,24 +109,31 @@ final public class NetTools {
 			hdr = req.getHeader("X-Client-IP");
 			if(null != hdr)
 				return hdr;
+			hdr = req.getHeader("X-real-ip");
+			if(null != hdr)
+				return hdr;
 		}
 		return remoteHost;
 	}
 
-	public static boolean isHttps(HttpServletRequest request) throws Exception {
-		String scheme = request.getScheme();
-		if("https".equalsIgnoreCase(scheme))
-			return true;
-		String remoteHost = request.getRemoteHost();
-		InetAddress remote = InetAddress.getByName(remoteHost);
-		if(!remote.isSiteLocalAddress())
-			return false;
+	public static boolean isHttps(HttpServletRequest request) {
+		try {
+			String scheme = request.getScheme();
+			if("https".equalsIgnoreCase(scheme))
+				return true;
+			String remoteHost = request.getRemoteHost();						// We need to know if the origin is a proxy server
+			InetAddress remote = InetAddress.getByName(remoteHost);
+			if(!remote.isSiteLocalAddress() && ! remote.isLinkLocalAddress() && ! remote.isLoopbackAddress() )
+				return false;												// Internet address: not from a proxy server
 
-		//-- Try proxy headers
-		String hdr = request.getHeader("X-forwarded-proto");
-		if(null == hdr)
-			return false;
-		return "https".equalsIgnoreCase(hdr);
+			//-- Try proxy headers
+			String hdr = request.getHeader("X-forwarded-proto");
+			if(null == hdr)
+				return false;
+			return "https".equalsIgnoreCase(hdr);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 	static public int getHostPort(HttpServletRequest req) {
@@ -153,9 +157,6 @@ final public class NetTools {
 	 * the request. This properly handles URLEncoding and returns a
 	 * string which NEVER starts with a '/', and which contains
 	 * no hostname or port.
-	 *
-	 * @param req
-	 * @return
 	 */
 	static public String getInputPath(HttpServletRequest req) {
 		String rurl = req.getRequestURI();
@@ -179,8 +180,6 @@ final public class NetTools {
 	 * Returns the URL to the root of the application. This is the complete
 	 * host URL including http://, host name and port number, followed by
 	 * the webapp's context. The path is guaranteed to end in a slash.
-	 * @param req
-	 * @return
 	 */
 	@NonNull
 	static public String getApplicationURL(@NonNull HttpServletRequest req) {
@@ -197,9 +196,6 @@ final public class NetTools {
 	 * This returns the application's context path <b>without any slashes!!</b>. So for
 	 * a webapp deployed to http://www.test.nl:8080/demoapp/ this will return the string
 	 * "demoapp". For a root application this returns the empty string.
-	 *
-	 * @param req
-	 * @return
 	 */
 	static public String getApplicationContext(HttpServletRequest req) {
 		String s = req.getContextPath();
