@@ -76,6 +76,8 @@ final public class Crawlers {
 					String javaSucksWithUselessFinalGarbage = NetTools.getRemoteHost(request);
 					hostName = javaSucksWithUselessFinalGarbage;
 					Boolean checked = m_validatedRemotes.computeIfAbsent(hostName, a -> checkDomain(bot, javaSucksWithUselessFinalGarbage));        // Calling those guys morons is an insult to morons.
+					if(! checked)
+						System.err.println("SEO: assumed bot " + bot.getName() + "@" + hostName + " was refused access as a bot");
 					return checked;
 				} catch(Exception x) {
 					System.err.println("SEO: assumed bot " + bot.getName() + "@" + hostName + " threw " + WrappedException.unwrap(x));
@@ -87,14 +89,12 @@ final public class Crawlers {
 	}
 
 	private Boolean checkDomain(Bot bot, String hostName) {
-		String dnsName = lookupDomainName(hostName);
-		return bot.isDomain(dnsName);
-	}
-
-	private String lookupDomainName(String hostName) {
 		try {
 			InetAddress addr = InetAddress.getByName(hostName);
-			return addr.getCanonicalHostName();
+			if(addr.isSiteLocalAddress() || addr.isLoopbackAddress() || addr.isLinkLocalAddress())
+				return Boolean.TRUE;
+
+			return bot.isDomain(addr.getCanonicalHostName());
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);                // It is one thing to create checked exceptions. But it is plain idiotic to persist in having them.
 		}
@@ -108,7 +108,7 @@ final public class Crawlers {
 	//-- https://www.onely.com/blog/detect-verify-crawlers/
 	static {
 		INSTANCE.registerCrawler("GoogleBot", Set.of("googlebot/"), Set.of(".google.com", ".googlebot.com"));
-		INSTANCE.registerCrawler("BingBot", Set.of("bingbot/"), Set.of(".google.com"));
+		INSTANCE.registerCrawler("BingBot", Set.of("bingbot/"), Set.of(".search.msn.com"));
 		INSTANCE.registerCrawler("Yahoo", Set.of("slurp"), Set.of(".crawl.yahoo.net"));
 		INSTANCE.registerCrawler("Baidu", Set.of("baiduspider"), Set.of(".crawl.baidu.com", ".crawl.baidu.jp"));
 		INSTANCE.registerCrawler("Yandex", Set.of("yandexbot/"), Set.of(".yandex.ru", ".yandex.net", ".yandex.com"));

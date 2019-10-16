@@ -223,4 +223,9 @@ public class TestRequestContext implements IRequestContext {
 	@Override public void setThemeName(String userThemeName) {
 
 	}
+
+	@Override
+	public boolean isCrawler() {
+		return false;
+	}
 }

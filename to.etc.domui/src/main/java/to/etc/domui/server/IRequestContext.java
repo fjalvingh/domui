@@ -148,4 +148,9 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	 */
 	@NonNull
 	Writer getOutputWriter(@NonNull String contentType, @Nullable String encoding) throws IOException;
+
+	/**
+	 * Should return true if the request comes from a crawler.
+	 */
+	boolean isCrawler();
 }
