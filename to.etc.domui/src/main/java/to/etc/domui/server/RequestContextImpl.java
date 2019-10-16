@@ -40,6 +40,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.upload.UploadItem;
 import to.etc.util.FileTool;
 import to.etc.util.WrappedException;
+import to.etc.webapp.crawlers.Crawlers;
 
 import java.io.File;
 import java.io.IOException;
@@ -563,5 +564,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			m_attributeMap.remove(name);
 		else
 			m_attributeMap.put(name, value);
+	}
+
+	@Override
+	public boolean isCrawler() {
+		IRequestResponse rr = getRequestResponse();
+		if(rr instanceof HttpServerRequestResponse) {
+			return Crawlers.INSTANCE.isCrawler(((HttpServerRequestResponse) rr).getRequest());
+		}
+		return false;
 	}
 }

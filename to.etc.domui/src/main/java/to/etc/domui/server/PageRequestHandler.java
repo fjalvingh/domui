@@ -191,9 +191,15 @@ final public class PageRequestHandler {
 			windowSession = m_ctx.getSession().findWindowSession(cida.getWindowId());
 		}
 		if(windowSession == null) {
-			//-- no session yet: create one and redirect to a new URL that contains it.
-			createSessionAndReload();
-			return;
+			//-- If this is a crawler we would render a page with a fake session
+			if(m_application.getIsCrawlerFunctor().apply(m_ctx)) {
+				windowSession = m_ctx.getSession().createWindowSession();
+				cida = new CidPair(windowSession.getWindowID(), ".x");
+			} else {
+				//-- no session yet: create one and redirect to a new URL that contains it.
+				createSessionAndReload();
+				return;
+			}
 		}
 		if(cida == null)										// Cannot happen, but make sure.
 			throw new IllegalStateException("Cannot happen: cida is null??");
