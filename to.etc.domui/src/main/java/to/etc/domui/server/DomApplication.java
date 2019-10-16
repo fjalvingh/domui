@@ -144,6 +144,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -370,6 +371,14 @@ public abstract class DomApplication {
 	private String m_jQueryPath;
 
 	private String m_problemFromAddress;
+
+	/**
+	 * Decides when a request is made by a crawler, and renders without Javascript redirect.
+	 */
+	@NonNull
+	private Function<IRequestContext, Boolean> m_isCrawlerFunctor = (c -> {
+		return c.isCrawler();
+	});
 
 	/**
 	 * A single request filter and it's priority in the filter list.
@@ -1727,6 +1736,14 @@ public abstract class DomApplication {
 		}
 	}
 
+	@NonNull
+	public Function<IRequestContext, Boolean> getIsCrawlerFunctor() {
+		return m_isCrawlerFunctor;
+	}
+
+	public void setIsCrawlerFunctor(@NonNull Function<IRequestContext, Boolean> isCrawlerFunctor) {
+		m_isCrawlerFunctor = isCrawlerFunctor;
+	}
 
 	public synchronized ILoginAuthenticator getLoginAuthenticator() {
 		return m_loginAuthenticator;
