@@ -30,12 +30,12 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.login.IUser;
 import to.etc.domui.login.IUserRightChecker;
 import to.etc.domui.login.User2RightsChecker;
-import to.etc.function.BiFunctionEx;
 
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * The singleton which maintains the full system menu and all personal copies.
@@ -53,8 +53,15 @@ public class MenuManager {
 
 	private Map<String, MenuItem> m_idMap;
 
+	public interface IMenuAccessCheck extends AutoCloseable {
+		boolean isAllowed(IUser user, MenuItem item) throws Exception;
+
+		@Override
+		default void close() throws Exception {}
+	}
+
 	@NonNull
-	private BiFunctionEx<MenuItem, IUser, Boolean> m_pageAccessCheck = this::isNodeAuthorized;
+	private Supplier<IMenuAccessCheck> m_pageAccessCheckFactory = () -> this::isNodeAuthorized;
 
 	static public Comparator<MenuItem> C_BY_ORDER_AND_CHILDREN = (o1, o2) -> {
 		boolean c1 = o1.getChildren().size() > 0;
@@ -105,9 +112,11 @@ public class MenuManager {
 		MenuItem userRoot = new MenuItem(this);
 
 		//-- First: build a tree of all nodes the user is authorized to see
-		buildAuthorization(userRoot, root, user);
-		pruneEmpties(userRoot);
-		return userRoot;
+		try(IMenuAccessCheck checker = m_pageAccessCheckFactory.get()) {
+			buildAuthorization(userRoot, root, user, checker);
+			pruneEmpties(userRoot);
+			return userRoot;
+		}
 	}
 
 	/**
@@ -128,18 +137,18 @@ public class MenuManager {
 		}
 	}
 
-	private void buildAuthorization(MenuItem userMenu, MenuItem systemMenu, IUser user) throws Exception {
+	private void buildAuthorization(MenuItem userMenu, MenuItem systemMenu, IUser user, IMenuAccessCheck checker) throws Exception {
 		for(MenuItem sysItem : systemMenu.getChildren()) {
-			if(m_pageAccessCheck.apply(sysItem, user)) {
+			if(checker.isAllowed(user, sysItem)) {
 				//-- We're allowed to use this, so copy it
 				MenuItem userItem = userMenu.addClone(sysItem);
 
-				buildAuthorization(userItem, sysItem, user);
+				buildAuthorization(userItem, sysItem, user, checker);
 			}
 		}
 	}
 
-	private boolean isNodeAuthorized(MenuItem item, IUser user) {
+	private boolean isNodeAuthorized(IUser user, MenuItem item) {
 		//-- Collect all applicable rights.
 		String[] requiredRights = item.getRequiredRights();
 		if(null != requiredRights) {
@@ -175,7 +184,7 @@ public class MenuManager {
 		m_userRightChecker = userRightChecker;
 	}
 
-	public void setPageAccessCheck(@NonNull BiFunctionEx<MenuItem, IUser, Boolean> pageAccessCheck) {
-		m_pageAccessCheck = pageAccessCheck;
+	public void setPageAccessCheckFactory(@NonNull Supplier<IMenuAccessCheck> pageAccessCheckFactory) {
+		m_pageAccessCheckFactory = pageAccessCheckFactory;
 	}
 }
