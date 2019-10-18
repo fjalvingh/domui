@@ -1,3 +1,18 @@
 .ui-cbis {
 	display: inline;
+	.ui-cbis-c {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+
+		.ui-cbis-p {
+			padding-right: 10px;
+		}
+
+		input, span {
+			vertical-align: middle;
+		}
+	}
 }
+
+

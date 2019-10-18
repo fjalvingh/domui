@@ -5,9 +5,11 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IRenderInto;
 
 import java.util.Collection;
@@ -59,16 +61,15 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-cbis");
+		addCssClass("ui-cbis");
+		Div setContainer = new Div("ui-cbis-c");
+		add(setContainer);
 		m_checkMap.clear();
 		List<T> data = getData();
 		int count = 0;
 		if(null != data) {
 			for(T lv : data) {
-				if(count++ != 0) {
-					add(" ");
-				}
-				renderCheckbox(lv);
+				renderCheckbox(setContainer, lv);
 			}
 		}
 	}
@@ -83,7 +84,9 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		return id == null ? null : id.getActualID();
 	}
 
-	private void renderCheckbox(@NonNull T lv) throws Exception {
+	private void renderCheckbox(Div setContainer, @NonNull T lv) throws Exception {
+		Div pair = new Div("ui-cbis-p");
+		setContainer.add(pair);
 		V listval = listToValue(lv);
 
 		Checkbox cb = new Checkbox();
@@ -93,11 +96,13 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		boolean disa = isDisabled() || isReadOnly();
 		cb.setReadOnly(disa);
 
-		add(cb);
+		pair.add(cb);
 		IRenderInto<T> cr = m_actualContentRenderer;
 		if(cr == null)
 			cr = m_actualContentRenderer = calculateContentRenderer(lv);
-		cr.render(this, lv);
+		Span span = new Span();
+		pair.add(span);
+		cr.render(span, lv);
 		m_checkMap.put(listval, cb);
 
 		final IValueChanged<CheckboxSetInputBase<V, T>> ovc = (IValueChanged<CheckboxSetInputBase<V, T>>) getOnValueChanged();
