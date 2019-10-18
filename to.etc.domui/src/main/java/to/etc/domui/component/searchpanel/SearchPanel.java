@@ -52,6 +52,7 @@ import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.themes.Theme;
+import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.Msgs;
@@ -557,7 +558,11 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		IControl<D> control = it.getControl();
 		ILookupQueryBuilder<D> builder = it.getQueryBuilder();
 		if(null != control && null != builder) {
-			return builder.appendCriteria(criteria, control.getValue());
+			try {
+				return builder.appendCriteria(criteria, control.getValue());
+			} catch(ValidationException x) {
+				return LookupQueryBuilderResult.INVALID;
+			}
 		}
 		return LookupQueryBuilderResult.EMPTY;
 	}
