@@ -59,6 +59,11 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		return m_groupName;
 	}
 
+	public RadioGroup<T> asButtons() {
+		addCssClass("ui-rbb-buttons");
+		return this;
+	}
+
 	@Override
 	public T getValue() {
 		try {

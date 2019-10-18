@@ -51,8 +51,6 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 	/**
 	 * Returns the data to use as the list-of-values of this combo. This must contain actual selectable
 	 * values only, it may not contain a "no selection made" value thingerydoo.
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
 	public List<T> getData() throws Exception {
