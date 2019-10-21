@@ -155,8 +155,8 @@ import java.util.concurrent.TimeoutException;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 12, 2006
  */
-public class VpEventManager implements Runnable {
-	static private final Logger LOG = LoggerFactory.getLogger(VpEventManager.class);
+public class DbEventManager implements Runnable {
+	static private final Logger LOG = LoggerFactory.getLogger(DbEventManager.class);
 
 	static private final long DELETEINTERVAL = 10 * 60 * 1000;
 
@@ -174,11 +174,11 @@ public class VpEventManager implements Runnable {
 	}
 
 	@Nullable
-	static private VpEventManager m_instance;
+	static private DbEventManager m_instance;
 
 	/** If initialized in test mode this contains the per-thread instances of this singleton. */
 	@Nullable
-	static private ThreadLocal<VpEventManager> m_testInstances;
+	static private ThreadLocal<DbEventManager> m_testInstances;
 
 	@NonNull
 	private DataSource m_ds;
@@ -226,7 +226,7 @@ public class VpEventManager implements Runnable {
 	/*	CODING:	Singleton init.                                  	*/
 	/*--------------------------------------------------------------*/
 
-	private VpEventManager(@NonNull final DataSource ds, @NonNull final String tableName, @NonNull final IEventMarshaller eventMarshaller) {
+	private DbEventManager(@NonNull final DataSource ds, @NonNull final String tableName, @NonNull final IEventMarshaller eventMarshaller) {
 		m_ds = ds;
 		m_tableName = tableName;
 		m_eventMarshaller = eventMarshaller;
@@ -242,9 +242,9 @@ public class VpEventManager implements Runnable {
 	 *
 	 * @return
 	 */
-	static synchronized public VpEventManager getInstance() {
-		ThreadLocal<VpEventManager> tl = m_testInstances;
-		VpEventManager em;
+	static synchronized public DbEventManager getInstance() {
+		ThreadLocal<DbEventManager> tl = m_testInstances;
+		DbEventManager em;
 		if(null != tl) {
 			em = tl.get();
 			if(null == em) {
@@ -259,7 +259,7 @@ public class VpEventManager implements Runnable {
 		return em;
 	}
 
-	private static VpEventManager initDummyEventManagerForTest() {
+	private static DbEventManager initDummyEventManagerForTest() {
 		IEventMarshaller dummyEM = new IEventMarshaller() {
 			@Override
 			public <T extends AppEventBase> T unmarshalEvent(String varchar) throws Exception {
@@ -271,7 +271,7 @@ public class VpEventManager implements Runnable {
 				return "";
 			}
 		};
-		return new VpEventManager(new TestDataSourceStub(), "sys_vp_events", dummyEM);
+		return new DbEventManager(new TestDataSourceStub(), "sys_vp_events", dummyEM);
 	}
 
 	/**
@@ -282,13 +282,13 @@ public class VpEventManager implements Runnable {
 	 * @throws Exception
 	 */
 	static public synchronized void initialize(final DataSource ds, final String tableName, @NonNull final IEventMarshaller eventMarshaller) throws Exception {
-		ThreadLocal<VpEventManager> tl = m_testInstances;
+		ThreadLocal<DbEventManager> tl = m_testInstances;
 		if(null != tl)
 			throw new IllegalStateException("The VpEventManager has already been initialized for TEST mode");
 		if(m_instance != null)
 			return;
 
-		VpEventManager em = new VpEventManager(ds, tableName, eventMarshaller);
+		DbEventManager em = new DbEventManager(ds, tableName, eventMarshaller);
 		em.init();
 		m_instance = em;
 	}
@@ -296,9 +296,9 @@ public class VpEventManager implements Runnable {
 	static public synchronized void initializeForTest() {
 		if(m_instance != null)
 			throw new IllegalStateException("The VpEventManager has already been initialized for PRODUCTION mode");
-		ThreadLocal<VpEventManager> tl = m_testInstances;
+		ThreadLocal<DbEventManager> tl = m_testInstances;
 		if(null == tl) {
-			m_testInstances = tl = new ThreadLocal<VpEventManager>();
+			m_testInstances = tl = new ThreadLocal<DbEventManager>();
 		}
 	}
 
@@ -372,6 +372,7 @@ public class VpEventManager implements Runnable {
 			//-- Create the sequence,
 			ps = dbc.prepareStatement(seq);
 			ps.executeUpdate();
+			dbc.commit();
 		} catch(Exception x) {
 			String msg = x.toString().toLowerCase();
 
