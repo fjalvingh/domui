@@ -8,8 +8,8 @@ import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IValueChanged;
+import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.IRenderInto;
 
 import java.util.Collection;
@@ -100,7 +100,8 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		IRenderInto<T> cr = m_actualContentRenderer;
 		if(cr == null)
 			cr = m_actualContentRenderer = calculateContentRenderer(lv);
-		Span span = new Span();
+		Label span = new Label();
+		span.setForTarget(cb);
 		pair.add(span);
 		cr.render(span, lv);
 		m_checkMap.put(listval, cb);
