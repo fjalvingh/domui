@@ -387,6 +387,9 @@ public class DbEventManager implements Runnable {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {}
+			try {
+				dbc.rollback();
+			} catch(Exception x) {}
 		}
 	}
 
@@ -661,7 +664,7 @@ public class DbEventManager implements Runnable {
 				dbc.setAutoCommit(false);
 
 			//-- Get a new upid
-			ps = dbc.prepareStatement("select " + m_tableName + "_SQ.nextval from dual");
+			ps = dbc.prepareStatement(nextId());
 			rs = ps.executeQuery();
 			if(!rs.next())
 				throw new SQLException("No result from select-from-sequence!?");
@@ -707,6 +710,19 @@ public class DbEventManager implements Runnable {
 					dbc.setAutoCommit(true);
 			} catch(Exception x) {}
 			FileTool.closeAll(rs, ps);
+		}
+	}
+
+	private String nextId() {
+		switch(m_dbtype) {
+			default:
+				throw new IllegalStateException("Unsupported db " + m_dbtype);
+
+			case ORACLE:
+				return "select " + m_tableName + "_SQ.nextval from dual";
+
+			case POSTGRES:
+				return "select nextval('" + m_tableName + "_sq')";
 		}
 	}
 
