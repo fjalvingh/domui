@@ -262,7 +262,7 @@ public class DbEventManager implements Runnable {
 	private static DbEventManager initDummyEventManagerForTest() {
 		IEventMarshaller dummyEM = new IEventMarshaller() {
 			@Override
-			public <T extends AppEventBase> T unmarshalEvent(String varchar) throws Exception {
+			public <T extends AppEventBase> T unmarshalEvent(String evname, String varchar) throws Exception {
 				return null;
 			}
 
@@ -271,20 +271,16 @@ public class DbEventManager implements Runnable {
 				return "";
 			}
 		};
-		return new DbEventManager(new TestDataSourceStub(), "sys_vp_events", dummyEM);
+		return new DbEventManager(new TestDataSourceStub(), "sys_db_events", dummyEM);
 	}
 
 	/**
 	 * Initialize for production mode.
-	 * @param ds
-	 * @param tableName
-	 * @param eventMarshaller
-	 * @throws Exception
 	 */
 	static public synchronized void initialize(final DataSource ds, final String tableName, @NonNull final IEventMarshaller eventMarshaller) throws Exception {
 		ThreadLocal<DbEventManager> tl = m_testInstances;
 		if(null != tl)
-			throw new IllegalStateException("The VpEventManager has already been initialized for TEST mode");
+			throw new IllegalStateException("The DbEventManager has already been initialized for TEST mode");
 		if(m_instance != null)
 			return;
 
@@ -295,7 +291,7 @@ public class DbEventManager implements Runnable {
 
 	static public synchronized void initializeForTest() {
 		if(m_instance != null)
-			throw new IllegalStateException("The VpEventManager has already been initialized for PRODUCTION mode");
+			throw new IllegalStateException("The DbEventManager has already been initialized for PRODUCTION mode");
 		ThreadLocal<DbEventManager> tl = m_testInstances;
 		if(null == tl) {
 			m_testInstances = tl = new ThreadLocal<DbEventManager>();
@@ -312,7 +308,7 @@ public class DbEventManager implements Runnable {
 
 	private void exception(final Throwable t, final String s) {
 		LOG.error(s, t);
-		System.out.println("VpEventManager: EXCEPTION " + s);
+		System.out.println("DbEventManager: EXCEPTION " + s);
 		t.printStackTrace();
 	}
 
@@ -334,8 +330,6 @@ public class DbEventManager implements Runnable {
 
 	/**
 	 * Tries to create the table if it doesn't exist. Ignores all errors.
-	 *
-	 * @param dbc
 	 */
 	private void createTable(final Connection dbc) {
 		PreparedStatement ps = null;
@@ -398,10 +392,6 @@ public class DbEventManager implements Runnable {
 	 * causes an exception. This creates the database table (if needed), opens the event manager for event registration
 	 * and allows posting events. The event handler thread is *not* started though - it should be started by a call to start() after
 	 * system initialization completes fully, to allow started events to use the entire system.
-	 *
-	 * @param ds
-	 * @param tableName
-	 * @throws Exception
 	 */
 	private synchronized void init() throws Exception {
 		Connection dbc = null;
@@ -438,7 +428,7 @@ public class DbEventManager implements Runnable {
 			if(m_handlerThread != null)
 				return;
 			m_handlerThread = new Thread(this);
-			m_handlerThread.setName("SystemEventManager");
+			m_handlerThread.setName("DbEvMan");
 			m_handlerThread.setDaemon(true);
 			m_handlerThread.start();
 		}
@@ -541,9 +531,6 @@ public class DbEventManager implements Runnable {
 
 	/**
 	 * Reads a single row from the event list. Skips serialization errors.
-	 * @param rs
-	 * @param al
-	 * @throws Exception
 	 */
 	private void readEventObject(final ResultSet rs, final List<AppEventBase> al) throws Exception {
 		//-- 1. Get fields
@@ -552,14 +539,14 @@ public class DbEventManager implements Runnable {
 			if(upid > m_upid)
 				m_upid = upid;
 		}
-		//        String  evname  = rs.getString(2);
+		String  evname  = rs.getString(2);
 		Timestamp ts = rs.getTimestamp(3);
 		String server = rs.getString(4);
 		String objectString = rs.getString(5);
 
-		//-- Unserialize
+		//-- Unmarshal
 		try {
-			AppEventBase act = m_eventMarshaller.unmarshalEvent(objectString);
+			AppEventBase act = m_eventMarshaller.unmarshalEvent(evname, objectString);
 			if(act == null) {
 				log("Event " + upid + " skipped: the embedded object is null");
 				return;
@@ -574,7 +561,6 @@ public class DbEventManager implements Runnable {
 			al.add(e);
 		} catch(Exception x) {
 			log("Event " + upid + ": serialization got exception " + x);
-			//			x.printStackTrace();
 		}
 	}
 
@@ -760,8 +746,6 @@ public class DbEventManager implements Runnable {
 
 	/**
 	 * Remove a weak or normal listener from a map.
-	 * @param cl
-	 * @param listener
 	 */
 	public synchronized void removeListener(@NonNull final Class< ? > cl, @NonNull final AppEventListener< ? > listener) {
 		List<Item> l = m_listenerList.get(cl.getName());
