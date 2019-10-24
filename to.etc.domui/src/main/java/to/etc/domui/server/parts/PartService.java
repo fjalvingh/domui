@@ -11,6 +11,7 @@ import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.LRUHashMap;
+import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencyList;
 import to.etc.util.ByteBufferOutputStream;
 import to.etc.util.DeveloperOptions;
@@ -127,8 +128,11 @@ public class PartService {
 	 */
 	public PartData getData(IExtendedParameterInfo parameters) throws Exception {
 		PartExecutionReference executionReference = findPart(parameters);
-		if(executionReference == null)
-			throw new ThingyNotFoundException("No part found for " + parameters);
+		if(executionReference == null) {
+			executionReference = checkResourcePart(parameters);
+			if(null == executionReference)
+				throw new ThingyNotFoundException("No part found for " + parameters);
+		}
 
 		IPartFactory factory = executionReference.getFactory();
 		if(factory instanceof IBufferedPartFactory) {
@@ -146,7 +150,10 @@ public class PartService {
 		if(null != ref)
 			return ref;
 
-		return checkUrlPart(parameters);
+		ref = checkUrlPart(parameters);
+		if(null != ref)
+			return ref;
+		return null; // checkResourcePart(parameters);
 	}
 
 	@Nullable
@@ -158,6 +165,19 @@ public class PartService {
 		}
 
 		return null;							// No matches
+	}
+
+	@Nullable
+	private PartExecutionReference checkResourcePart(IExtendedParameterInfo xpi) {
+		String inputPath = xpi.getInputPath();
+		try {
+			IResourceRef res = m_application.getAppFileOrResource(inputPath);
+			if(res.exists()) {
+				return new PartExecutionReference(new InternalResourcePart(), xpi);
+			}
+		} catch(Exception x) {
+		}
+		return null;
 	}
 
 	/**
