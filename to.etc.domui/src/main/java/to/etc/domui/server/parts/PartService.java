@@ -6,6 +6,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.PageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.LRUHashMap;
@@ -207,13 +208,16 @@ public class PartService {
 			throw new ThingyNotFoundException("The part factory '" + segment + "' cannot be located.");
 		}
 
-		IExtendedParameterInfo infoProxy = new ParameterInfoProxy(parameters) {
-			@NonNull @Override public String getInputPath() {
-				return rest;
-			}
-		};
+		PageParameters pp = new PageParameters(parameters);
+		pp.setInputPath(rest);
+		//
+		//IExtendedParameterInfo infoProxy = new ParameterInfoProxy(parameters) {
+		//	@NonNull @Override public String getInputPath() {
+		//		return rest;
+		//	}
+		//};
 
-		return new PartExecutionReference(factory, infoProxy);
+		return new PartExecutionReference(factory, pp);
 	}
 
 	/*--------------------------------------------------------------*/

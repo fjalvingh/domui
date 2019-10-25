@@ -105,8 +105,8 @@ final public class PageRequestHandler {
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
-		m_action = ctx.getParameter(Constants.PARAM_UIACTION);			// AJAX action request?
-		String cid = m_cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
+		m_action = ctx.getPageParameters().getString(Constants.PARAM_UIACTION, null);			// AJAX action request?
+		String cid = m_cid = ctx.getPageParameters().getString(Constants.PARAM_CONVERSATION_ID, null);
 		m_cida = cid == null ? null : CidPair.decodeLax(cid);
 
 		String pageName = ctx.getPageName();
@@ -278,8 +278,7 @@ final public class PageRequestHandler {
 	}
 
 	@NotNull private PageParameters getPageParameters(@Nullable ConversationContext conversation) {
-		PageParameters papa;
-		papa = PageParameters.createFrom(m_ctx);
+		PageParameters papa = PageParameters.createFrom(m_ctx.getPageParameters());
 
 		//-- If this request is a huge post request - get the huge post parameters.
 		String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
@@ -492,7 +491,7 @@ final public class PageRequestHandler {
 	}
 
 	private boolean isPageTagStillValid(@NonNull Page page) throws Exception {
-		String s = m_ctx.getParameter(Constants.PARAM_PAGE_TAG);
+		String s = m_ctx.getPageParameters().getString(Constants.PARAM_PAGE_TAG, null);
 		if(s == null)
 			return true;							// No page tag -> assume OK!?
 
@@ -533,12 +532,9 @@ final public class PageRequestHandler {
 		 * Warning: do NOT access the WindowSession by findWindowSession: that updates the window touched
 		 * timestamp and causes obituary timeout handling to fail.
 		 */
-		int pageTag;
-		try {
-			pageTag = Integer.parseInt(m_ctx.getParameter(Constants.PARAM_PAGE_TAG));
-		} catch(Exception x) {
+		int pageTag = m_ctx.getPageParameters().getInt(Constants.PARAM_PAGE_TAG, -1);
+		if(-1 == pageTag)
 			throw new IllegalStateException("Missing or invalid $pt PageTAG in OBITUARY request");
-		}
 		CidPair cida = m_cida;
 		if(cida == null)
 			throw new IllegalStateException("Missing $cid in OBITUARY request");
@@ -598,7 +594,7 @@ final public class PageRequestHandler {
 				if(null != hs) {
 					m_ctx.internalSetWindowSession(windowSession);			// Should prevent issues when reloading
 
-					String newid = windowSession.internalAttemptReload(hs, m_runClass, PageParameters.createFrom(m_ctx), cida.getWindowId());
+					String newid = windowSession.internalAttemptReload(hs, m_runClass, PageParameters.createFrom(m_ctx.getPageParameters()), cida.getWindowId());
 					if(newid != null)
 						conversationId = newid;
 				}
@@ -611,7 +607,7 @@ final public class PageRequestHandler {
 		}
 
 		//-- 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
-		PageParameters pp = PageParameters.createFrom(m_ctx);
+		PageParameters pp = PageParameters.createFrom(m_ctx.getPageParameters());
 		if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
 
@@ -749,7 +745,7 @@ final public class PageRequestHandler {
 		if(Constants.ACMD_ASYPOLL.equals(action)) {
 			m_inhibitlog = true;
 		} else if(targetComponent == null) {
-			String targetComponentID = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
+			String targetComponentID = m_ctx.getPageParameters().getString(Constants.PARAM_UICOMPONENT, null);
 			if(! PageUtil.isSafeToIgnoreUnknownNodeOnAction(action))
 				throw new IllegalStateException("Unknown node '" + targetComponentID + "' for action='" + action + "'");
 
@@ -856,7 +852,7 @@ final public class PageRequestHandler {
 	 */
 	@Nullable
 	private NodeBase getTargetComponent(Page page) {
-		String targetComponentID = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
+		String targetComponentID = m_ctx.getPageParameters().getString(Constants.PARAM_UICOMPONENT, null);
 		if(null == targetComponentID)
 			return null;
 
@@ -891,7 +887,7 @@ final public class PageRequestHandler {
 				throw new ProgrammerErrorException("The component " + wcomp + " must implement " + IComponentJsonProvider.class.getName() + " to be able to accept JSON data requests");
 
 			IComponentJsonProvider dp = (IComponentJsonProvider) wcomp;
-			PageParameters pp = PageParameters.createFromAll(m_ctx);
+			PageParameters pp = new PageParameters(m_ctx.getPageParameters());
 			Object value = dp.provideJsonData(pp);							// Let the component return something to render.
 			renderJsonLikeResponse(value);
 		} finally {
@@ -968,8 +964,9 @@ final public class PageRequestHandler {
 		long ts = System.nanoTime();
 
 		List<NodeBase> changed = new ArrayList<>();
-		for(String name : m_ctx.getParameterNames()) {
-			String[] values = m_ctx.getParameters(name); 			// Get the value;
+		IExtendedParameterInfo pp = m_ctx.getPageParameters();
+		for(String name : pp.getParameterNames()) {
+			String[] values = pp.getStringArray(name, null); 			// Get the value;
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
 				NodeBase nb = page.findNodeByID(name); 				// Can we find this literally?

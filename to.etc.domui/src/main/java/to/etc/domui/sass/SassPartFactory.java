@@ -4,12 +4,12 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
-import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.StringTool;
@@ -24,7 +24,7 @@ import java.io.OutputStreamWriter;
  * Created on 17-4-17.
  */
 @NonNullByDefault
-public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
+public class SassPartFactory implements IBufferedPartFactory<IExtendedParameterInfo> {
 	static private final Logger LOG = LoggerFactory.getLogger(SassPartFactory.class);
 
 	/**
@@ -37,12 +37,13 @@ public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
 		}
 	};
 
-	@NonNull @Override public IPageParameters decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
+	@NonNull @Override public IExtendedParameterInfo decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
 		PageParameters ppi = new PageParameters(param, name -> ! name.startsWith("$"));	// Ignore DomUI system parameters
+		ppi.setBrowserVersion(BrowserVersion.INSTANCE);
 		return ppi;
 	}
 
-	@Override public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception {
+	@Override public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull IExtendedParameterInfo params, @NonNull IResourceDependencyList rdl) throws Exception {
 		long ts = System.nanoTime();
 
 		/*

@@ -32,6 +32,8 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.CompoundKeyConverter;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -56,9 +58,18 @@ import java.util.function.Predicate;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 22, 2008
  */
-public class PageParameters extends PageParameterWrapper implements IPageParameters, Serializable {
+public class PageParameters extends PageParameterWrapper implements IExtendedParameterInfo, Serializable {
 	/** When set no data can be changed */
 	private boolean m_readOnly = false;
+
+	@NonNull
+	private String m_inputPath = "";
+
+	@NonNull
+	private BrowserVersion m_browserVersion = BrowserVersion.INSTANCE;
+
+	@Nullable
+	private String m_themeName;
 
 	/**
 	 * Create an empty PageParameters.
@@ -70,6 +81,10 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 	public PageParameters(IPageParameters source, Predicate<String> acceptName) {
 		this();
 		copyFrom(source, acceptName);
+	}
+	public PageParameters(IPageParameters source) {
+		this();
+		copyFrom(source, a -> true);
 	}
 
 	@Override
@@ -412,6 +427,52 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 				setObject(parameterName, source.getObject(parameterName));
 			}
 		}
+
+		if(source instanceof IExtendedParameterInfo) {
+			IExtendedParameterInfo x = (IExtendedParameterInfo) source;
+			m_browserVersion = x.getBrowserVersion();
+			m_inputPath = x.getInputPath();
+			m_themeName = x.getThemeName();
+		}
 	}
 
+	@NonNull
+	static public PageParameters createFrom(IPageParameters old) {
+		PageParameters pp = new PageParameters(old, name -> {
+			char c = name.charAt(0);
+			return c != '_' && c != '$' && !name.startsWith("webui");
+		});
+		return pp;
+	}
+
+	@NonNull
+	@Override
+	public String getInputPath() {
+		return m_inputPath;
+	}
+
+	public void setInputPath(@NonNull String inputPath) {
+		writeable();
+		m_inputPath = inputPath;
+	}
+
+	@NonNull
+	@Override
+	public BrowserVersion getBrowserVersion() {
+		return m_browserVersion;
+	}
+
+	public void setBrowserVersion(@NonNull BrowserVersion browserVersion) {
+		m_browserVersion = browserVersion;
+	}
+
+	@Nullable
+	@Override
+	public String getThemeName() {
+		return m_themeName;
+	}
+
+	public void setThemeName(@Nullable String themeName) {
+		m_themeName = themeName;
+	}
 }
