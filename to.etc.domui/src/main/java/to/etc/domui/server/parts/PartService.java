@@ -3,10 +3,8 @@ package to.etc.domui.server.parts;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.parts.ParameterInfoProxy;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
-import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.DomUtil;
@@ -90,8 +88,6 @@ public class PartService {
 
 	/**
 	 * Register a part which gets called when the specified matcher matches.
-	 * @param matcher
-	 * @param factory
 	 */
 	public synchronized void registerPart(IUrlMatcher matcher, IPartFactory factory) {
 		m_urlMatcherList = new ArrayList<>(m_urlMatcherList);
@@ -104,10 +100,9 @@ public class PartService {
 
 	/**
 	 * Detect whether this is an URL part, and if so render it.
-	 * @param ctx
 	 */
 	public boolean render(RequestContextImpl ctx) throws Exception {
-		PartExecutionReference executionReference = findPart(ctx);
+		PartExecutionReference executionReference = findPart(ctx.getPageParameters());
 		if(executionReference == null)
 			return false;
 
@@ -188,7 +183,7 @@ public class PartService {
 	 * a 404 exception is thrown.
 	 */
 	@Nullable
-	private PartExecutionReference checkClassBasedPart(IParameterInfo parameters) {
+	private PartExecutionReference checkClassBasedPart(IExtendedParameterInfo parameters) {
 		String in = parameters.getInputPath();
 		String rest;
 		String segment;

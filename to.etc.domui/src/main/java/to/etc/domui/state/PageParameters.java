@@ -60,9 +60,6 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 	/** When set no data can be changed */
 	private boolean m_readOnly = false;
 
-	@NonNull
-	private String m_urlContextString = "";
-
 	/**
 	 * Create an empty PageParameters.
 	 */
