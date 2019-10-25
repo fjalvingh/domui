@@ -1,7 +1,7 @@
 package to.etc.domui.server.parts;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.server.IParameterInfo;
+import to.etc.domui.server.IExtendedParameterInfo;
 
 /**
  * Predicate which checks whether some kind of URL like input
@@ -11,5 +11,5 @@ import to.etc.domui.server.IParameterInfo;
  * Created on 24-5-17.
  */
 public interface IUrlMatcher {
-	boolean accepts(@NonNull IParameterInfo parameters);
+	boolean accepts(@NonNull IExtendedParameterInfo parameters);
 }

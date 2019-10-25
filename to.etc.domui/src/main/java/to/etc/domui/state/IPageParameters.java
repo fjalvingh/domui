@@ -5,12 +5,12 @@ import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Set;
 
-
 public interface IPageParameters extends IBasicParameterContainer {
 	/**
 	 * Creates copy of current PageParameters.
 	 * Since modification of live page params is not allowed, in order to navigate to other page with similar set of params, use this method to get params template for new page navigation.
 	 */
+	@NonNull
 	PageParameters getUnlockedCopy();
 
 	/**
@@ -19,7 +19,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param name, the name of the parameter to be checked for.
 	 * @return true when the parameter exists, false otherwise.
 	 */
-	boolean hasParameter(String name);
+	boolean hasParameter(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as an int (primitive).
@@ -28,7 +28,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as an int
 	 */
-	int getInt(String name);
+	int getInt(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as an int (primitive).
@@ -39,7 +39,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as an int
 	 */
-	int getInt(String name, int df);
+	int getInt(@NonNull String name, int df);
 
 	/**
 	 * Gets the value for the specified parametername as a long (primitive).
@@ -49,7 +49,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a long
 	 */
-	long getLong(String name);
+	long getLong(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as a long (primitive).
@@ -61,7 +61,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a long
 	 */
-	long getLong(String name, long df);
+	long getLong(@NonNull String name, long df);
 
 	/**
 	 * Gets the value for the specified parametername as a boolean (primitive).
@@ -71,7 +71,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a long
 	 */
-	boolean getBoolean(String name);
+	boolean getBoolean(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as a boolean (primitive).
@@ -83,7 +83,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a boolean
 	 */
-	boolean getBoolean(String name, boolean df);
+	boolean getBoolean(@NonNull String name, boolean df);
 
 	/**
 	 * Gets the value for the specified parametername as a Long object.
@@ -94,7 +94,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a Long
 	 */
-	Long getLongW(String name);
+	Long getLongW(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as a Long object.
@@ -107,7 +107,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a Long
 	 */
-	Long getLongW(String name, long df);
+	Long getLongW(@NonNull String name, long df);
 
 	/**
 	 * Gets the value for the specified parametername as a Long object.
@@ -120,7 +120,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a Long
 	 */
-	Long getLongW(String name, Long df);
+	Long getLongW(@NonNull String name, @Nullable Long df);
 
 	/**
 	 * Gets the value for the specified parametername as a String object.
@@ -130,7 +130,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a String
 	 */
-	@NonNull String getString(String name);
+	@NonNull String getString(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as a String object.
@@ -141,7 +141,7 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a String
 	 */
-	@Nullable String getString(String name, String df);
+	@Nullable String getString(@NonNull String name, @Nullable String df);
 
 	/**
 	 * Gets the value for the specified parametername as a String array.

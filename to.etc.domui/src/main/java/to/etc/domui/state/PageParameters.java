@@ -44,6 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * Encapsulates parameters for a page. All parameters must be presentable in URL form,
@@ -55,7 +56,7 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 22, 2008
  */
-public class PageParameters extends AbstractPageParameters implements IPageParameters, Serializable {
+public class PageParameters extends PageParameterWrapper implements IPageParameters, Serializable {
 	/** When set no data can be changed */
 	private boolean m_readOnly = false;
 
@@ -67,6 +68,11 @@ public class PageParameters extends AbstractPageParameters implements IPageParam
 	 */
 	public PageParameters() {
 		super(new MapParameterContainer());
+	}
+
+	public PageParameters(IPageParameters source, Predicate<String> acceptName) {
+		this();
+		copyFrom(source, acceptName);
 	}
 
 	@Override
@@ -401,4 +407,14 @@ public class PageParameters extends AbstractPageParameters implements IPageParam
 		}
 		return pp;
 	}
+
+	public void copyFrom(IPageParameters source, Predicate<String> acceptName) {
+		setUrlContextString(source.getUrlContextString());
+		for(String parameterName : source.getParameterNames()) {
+			if(acceptName.test(parameterName)) {
+				setObject(parameterName, source.getObject(parameterName));
+			}
+		}
+	}
+
 }

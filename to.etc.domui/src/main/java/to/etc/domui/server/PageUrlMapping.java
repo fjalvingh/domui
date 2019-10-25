@@ -111,7 +111,7 @@ final public class PageUrlMapping {
 
 		//-- Create parameters from the URL
 		Map<Level, String> varMap = currentLevel.getVarMap();
-		PageParameters pp = PageParameters.copyFrom(parameters);
+		PageParameters pp = parameters.getUnlockedCopy();
 		paramValues.forEach((level, value) -> {
 			if(varMap == null)
 				throw new IllegalStateException("No page parameters found");
@@ -135,7 +135,7 @@ final public class PageUrlMapping {
 			return null;
 
 		StringBuilder sb = new StringBuilder();
-		PageParameters pp = parameters == null ? null : PageParameters.copyFrom(parameters);
+		PageParameters pp = parameters == null ? null : parameters.getUnlockedCopy();
 		String[] segments = path.split("/");
 		for(String segment : segments) {
 			if(segment.startsWith("{") && segment.endsWith("}")) {

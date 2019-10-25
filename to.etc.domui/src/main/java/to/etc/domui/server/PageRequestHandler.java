@@ -1031,7 +1031,7 @@ final public class PageRequestHandler {
 			DomUtil.USERLOG.debug(msg);
 		}
 
-		ClickInfo cli = new ClickInfo(m_ctx, page.registerClick(targetComponent));
+		ClickInfo cli = new ClickInfo(m_ctx.getPageParameters(), page.registerClick(targetComponent));
 		targetComponent.internalOnClicked(cli);
 	}
 

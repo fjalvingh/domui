@@ -30,8 +30,11 @@ import to.etc.domui.state.IPageParameters;
 
 public interface IExtendedParameterInfo extends IPageParameters {
 	/**
-	 * Get the (remaining) part of the input path as part of a parameter. It is the empty string if
-	 * there's nothing like that.
+	 * The complete input URL without the JSDK context part and the query part. Specifically:
+	 * <ul>
+	 *	<li>The JSDK webapp context is always removed from the start, i.e. this is always the webapp-relative path</li>
+	 *	<li>The context NEVER starts with a slash</li>
+	 * </ul>
 	 */
 	@NonNull
 	String getInputPath();

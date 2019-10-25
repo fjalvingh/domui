@@ -30,6 +30,7 @@ import to.etc.domui.dom.html.Page;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
 import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.RequestContextParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.DefaultThemeVariant;
@@ -114,10 +115,13 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
+	final private RequestContextParameters m_parameterWrapper;
+
 	public RequestContextImpl(@NonNull IRequestResponse rr, @NonNull DomApplication app, @NonNull AppSession ses) {
 		m_requestResponse = rr;
 		m_application = app;
 		m_session = ses;
+		m_parameterWrapper = new RequestContextParameters(this);
 
 		//-- ViewPoint sends malconstructed URLs containing duplicated slashes.
 		String urlin = rr.getRequestURI();
@@ -180,10 +184,16 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 		Set<String> nameSet = app.getPersistentParameterSet();
 		for(String name : nameSet) {
-			String parameter = getParameter(name);
+			String parameter = getRequestResponse().getParameter(name);
 			if(null != parameter)
 				m_persistedParameterMap.put(name, parameter);
 		}
+	}
+
+	@NonNull
+	@Override
+	public IExtendedParameterInfo getPageParameters() {
+		return m_parameterWrapper;
 	}
 
 	@NonNull public Map<String, String> getPersistedParameterMap() {
@@ -255,7 +265,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			return m_windowSession;
 
 		//-- Conversation manager needed.. Can we find one?
-		String cid = getParameter(Constants.PARAM_CONVERSATION_ID);
+		String cid = getRequestResponse().getParameter(Constants.PARAM_CONVERSATION_ID);
 		if(cid != null) {
 			CidPair cida = CidPair.decode(cid);
 			m_windowSession = getSession().findWindowSession(cida.getWindowId());
@@ -316,7 +326,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 *	<li>The context NEVER starts with a slash</li>
 	 * </ul>
 	 */
-	@Override
 	@NonNull
 	public final String getInputPath() {
 		return m_inputPath;
@@ -335,7 +344,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 *
 	 * The following always holds: {@link #getUrlContextString()} + {@link #getPageName()} + m_extension = {@link #getInputPath()}.
 	 */
-	@Override
 	@NonNull
 	public String getUrlContextString() {
 		return m_urlContextString;
@@ -358,7 +366,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_requestResponse.getUserAgent();
 	}
 
-	@Override
 	public BrowserVersion getBrowserVersion() {
 		if(m_browserVersion == null) {
 			m_browserVersion = BrowserVersion.parseUserAgent(getUserAgent());
@@ -368,7 +375,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * This should be replaced by getThemeName below as that uniquely identifies the theme.
-	 * @return
 	 */
 	@NonNull @Override final public ITheme getCurrentTheme() {
 		ITheme currentTheme = m_currentTheme;
@@ -384,7 +390,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	static private final String THEMENAME = "ctx$themename";
 
-	@NonNull @Override public String getThemeName() {
+	@NonNull public String getThemeName() {
 		String themeName = m_themeName;
 		if(null == themeName) {
 			 themeName = (String) getSession().getAttribute(THEMENAME);
@@ -477,7 +483,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * Send a redirect response to the client.
-	 * @param newUrl
 	 */
 	public void redirect(@NonNull String newUrl) throws Exception {
 		getRequestResponse().redirect(newUrl);
@@ -485,8 +490,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * Send an error back to the client.
-	 * @param httpErrorCode
-	 * @param message
 	 */
 	public void sendError(int httpErrorCode, @NonNull String message) throws Exception {
 		getRequestResponse().sendError(httpErrorCode, message);
@@ -503,35 +506,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * @see to.etc.domui.server.IRequestContext#getParameter(java.lang.String)
-	 */
-	@Override
-	@Nullable
-	public String getParameter(@NonNull String name) {
-		return m_requestResponse.getParameter(name);
-	}
-
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
-	 */
-	@Override
-	@NonNull
-	public String[] getParameters(@NonNull String name) {
-		return m_requestResponse.getParameters(name);
-	}
-
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getParameterNames()
-	 */
-	@Override
-	@NonNull
-	public String[] getParameterNames() {
-		return m_requestResponse.getParameterNames();
-	}
-
-	/**
 	 * Returns the names of all file parameters.
-	 * @return
 	 */
 	public String[] getFileParameters() throws Exception {
 		return m_requestResponse.getFileParameters();
@@ -541,23 +516,9 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_requestResponse.getFileParameter(name);
 	}
 
-//	/**
-//	 * DO NOT USE - functionality only present for declarative security.
-//	 * @see to.etc.domui.server.IRequestContext#getRemoteUser()
-//	 */
-//	@Deprecated
-//	@Override
-//	public String getRemoteUser() {
-//		return getRequest().getRemoteUser();
-//	}
-//
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IAttributeContainer implementation.					*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
-	 */
 	@Override
 	public Object getAttribute(@NonNull String name) {
 		return m_attributeMap.get(name);

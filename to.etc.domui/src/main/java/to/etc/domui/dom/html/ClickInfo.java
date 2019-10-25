@@ -24,7 +24,8 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.server.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.state.IPageParameters;
 
 /**
  * Extensible info class for a "click" event.
@@ -32,6 +33,7 @@ import to.etc.domui.server.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 14, 2011
  */
+@NonNullByDefault
 final public class ClickInfo {
 	private boolean m_shift;
 
@@ -43,24 +45,13 @@ final public class ClickInfo {
 
 	private int m_pageX, m_pageY;
 
-	public ClickInfo(IParameterInfo pi, boolean doubleClick) {
-		m_shift = "true".equals(pi.getParameter("_shiftKey"));
-		m_control = "true".equals(pi.getParameter("_controlKey"));
-		m_alt = "true".equals(pi.getParameter("_altKey"));
+	public ClickInfo(IPageParameters pi, boolean doubleClick) {
+		m_shift = "true".equals(pi.getString("_shiftKey", null));
+		m_control = "true".equals(pi.getString("_controlKey", null));
+		m_alt = "true".equals(pi.getString("_altKey", null));
 		m_doubleClick = doubleClick;
-		int v;
-		try {
-			v = Integer.parseInt(pi.getParameter("_pageX"));
-		} catch(Exception x) {
-			v = 0;
-		}
-		m_pageX = v;
-		try {
-			v = Integer.parseInt(pi.getParameter("_pageX"));
-		} catch(Exception x) {
-			v = 0;
-		}
-		m_pageY = v;
+		m_pageX = pi.getInt("_pageX", 0);
+		m_pageY = pi.getInt("_pageY", 0);
 	}
 
 	public boolean isShift() {

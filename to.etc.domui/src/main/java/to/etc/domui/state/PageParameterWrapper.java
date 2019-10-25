@@ -1,6 +1,7 @@
 package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.trouble.MissingParameterException;
 import to.etc.domui.trouble.MultipleParameterException;
@@ -23,10 +24,11 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 25-10-19.
  */
-public class AbstractPageParameters implements IPageParameters {
+@NonNullByDefault
+public class PageParameterWrapper implements IPageParameters {
 	private IBasicParameterContainer m_container;
 
-	public AbstractPageParameters(IBasicParameterContainer container) {
+	public PageParameterWrapper(IBasicParameterContainer container) {
 		m_container = container;
 	}
 
@@ -202,7 +204,7 @@ public class AbstractPageParameters implements IPageParameters {
 
 	@Override
 	@Nullable
-	public String getString(String name, String df) {
+	public String getString(String name, @Nullable String df) {
 		String v = getOne(name);
 		return v == null ? df : v;
 	}
@@ -284,11 +286,7 @@ public class AbstractPageParameters implements IPageParameters {
 	@NonNull
 	@Override
 	public PageParameters getUnlockedCopy() {
-		PageParameters clone = new PageParameters();
-		clone.setUrlContextString(getUrlContextString());
-		for(String parameterName : getParameterNames()) {
-			clone.setObject(parameterName, getObject(parameterName));
-		}
+		PageParameters clone = new PageParameters(this);
 		return clone;
 	}
 

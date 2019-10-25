@@ -4,13 +4,13 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
-import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.StringTool;
 
@@ -24,7 +24,7 @@ import java.io.OutputStreamWriter;
  * Created on 17-4-17.
  */
 @NonNullByDefault
-public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> {
+public class SassPartFactory implements IBufferedPartFactory<IPageParameters> {
 	static private final Logger LOG = LoggerFactory.getLogger(SassPartFactory.class);
 
 	/**
@@ -32,17 +32,17 @@ public class SassPartFactory implements IBufferedPartFactory<ParameterInfoImpl> 
 	 * sass compiler, returning the result as a normal .css stylesheet.
 	 */
 	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@NonNull IParameterInfo parameters) {
+		@Override public boolean accepts(@NonNull IExtendedParameterInfo parameters) {
 			return parameters.getInputPath().endsWith(".scss") || parameters.getInputPath().endsWith(".sass");
 		}
 	};
 
-	@NonNull @Override public ParameterInfoImpl decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
-		ParameterInfoImpl ppi = new ParameterInfoImpl(param, name -> ! name.startsWith("$"));	// Ignore DomUI system parameters
+	@NonNull @Override public IPageParameters decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
+		PageParameters ppi = new PageParameters(param, name -> ! name.startsWith("$"));	// Ignore DomUI system parameters
 		return ppi;
 	}
 
-	@Override public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull ParameterInfoImpl params, @NonNull IResourceDependencyList rdl) throws Exception {
+	@Override public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception {
 		long ts = System.nanoTime();
 
 		/*
