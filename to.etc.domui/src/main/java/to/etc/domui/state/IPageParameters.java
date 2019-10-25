@@ -146,8 +146,6 @@ public interface IPageParameters extends IBasicParameterContainer {
 	/**
 	 * Gets the value for the specified parametername as a String array.
 	 * When the parameter does not exist, a MissingParameterException is thrown.
-	 * This method is provided for legacy reasons only.
-	 * The domui framework discourages uses of parameter arrays.
 	 *
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a String

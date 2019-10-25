@@ -2,7 +2,7 @@ package to.etc.domui.sass;
 
 import io.bit3.jsass.importer.Import;
 import io.bit3.jsass.importer.Importer;
-import to.etc.domui.parts.ParameterInfoImpl;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.WrappedException;
 
@@ -18,7 +18,7 @@ import java.util.Collections;
 class JSassResolver extends AbstractSassResolver<Import> implements Importer {
 	private final String m_basePath;
 
-	public JSassResolver(ParameterInfoImpl params, String basePath, IResourceDependencyList rdl) {
+	public JSassResolver(IPageParameters params, String basePath, IResourceDependencyList rdl) {
 		super(params, rdl);
 		m_basePath = basePath;
 	}
