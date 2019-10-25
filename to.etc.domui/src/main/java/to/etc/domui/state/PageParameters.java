@@ -493,7 +493,7 @@ public class PageParameters implements IPageParameters, Serializable {
 		return m_urlContextString;
 	}
 
-	public void setUrlContextString(@NonNull String urlContextString) {
+	public void setUrlContextString(@Nullable String urlContextString) {
 		m_urlContextString = urlContextString == null ? "" : urlContextString;
 	}
 
@@ -534,6 +534,24 @@ public class PageParameters implements IPageParameters, Serializable {
 						else
 							pp.setParameter(name, par); // Add as string[]0
 					}
+				}
+			}
+		}
+		pp.setUrlContextString(ctx.getUrlContextString());
+		return pp;
+	}
+
+	static public PageParameters copyFrom(IPageParameters ctx) {
+		PageParameters pp = new PageParameters();
+		for(String name : ctx.getParameterNames()) {
+			if(name.length() > 0) {
+				char c = name.charAt(0);
+				String[] par = ctx.getStringArray(name, null);
+				if(par != null && par.length > 0) {
+					if(par.length == 1)
+						pp.setParameter(name, par[0]); // Add as single string
+					else
+						pp.setParameter(name, par); // Add as string[]0
 				}
 			}
 		}

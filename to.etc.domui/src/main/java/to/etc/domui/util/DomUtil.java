@@ -127,8 +127,6 @@ final public class DomUtil {
 
 	/**
 	 * Map value types of primitive type to their boxed (wrapped) types.
-	 * @param clz
-	 * @return
 	 */
 	@NonNull
 	static public Class<?> getBoxedForPrimitive(@NonNull Class<?> clz) {
@@ -142,9 +140,6 @@ final public class DomUtil {
 	 * NULL CHECKING BELONGS IN THE LANGUAGE, NOT IN ANNOTATIONS, damnit! This fine idiocy is needed to
 	 * handle null checking because the pathetic losers that make up the Java JSR board are so incredible
 	 * stupid it boggles the mind. Java == cobol 8-(
-	 *
-	 * @param in
-	 * @return
 	 */
 	@Deprecated
 	@NonNull
@@ -157,11 +152,6 @@ final public class DomUtil {
 	/**
 	 * Does explicit non null check for parameter passed in as nullable but expected to be non null.
 	 * In case of null, it throws IllegalStateException with provided exceptionMsg.
-	 *
-	 * @param in
-	 * @param exceptionMsg
-	 * @return
-	 * @deprecated Use Objects.requireNonNull.
 	 */
 	@Deprecated
 	@NonNull
@@ -175,9 +165,6 @@ final public class DomUtil {
 	 * Don not use.
 	 * We are not sure that it's checked before. This is a potential null pointer access.
 	 * Adding this mean that we didn't want to introduce risk but we are marking this as a bad part of code.
-	 *
-	 * @param in
-	 * @return
 	 */
 	@Deprecated
 	@NonNull
@@ -188,8 +175,6 @@ final public class DomUtil {
 	/**
 	 * Define (or clear) the x-ua-compatible value sent for this page. When not called
 	 * this defaults to the value defined by the ms-emulation property in web.xml.
-	 * @param comp
-	 * @throws IOException
 	 */
 	static public final void setPageCompatibility(@NonNull HttpServletResponse req, @Nullable String comp) throws IOException {
 		if(!(req instanceof WrappedHttpServetResponse))
@@ -200,8 +185,6 @@ final public class DomUtil {
 
 	/**
 	 * FIXME REMOVE!??!
-	 * @param req
-	 * @throws IOException
 	 */
 	@Deprecated
 	static public final void ie8Capable(HttpServletResponse req) throws IOException {
@@ -237,9 +220,6 @@ final public class DomUtil {
 
 	/**
 	 * Use {@link StringTool#isEqualIgnoreCase(String, String)} please.
-	 * @param a
-	 * @param b
-	 * @return
 	 */
 	@Deprecated
 	static public final boolean isEqualIgnoreCase(@Nullable String a, @Nullable String b) {
@@ -390,9 +370,6 @@ final public class DomUtil {
 
 	/**
 	 * Resolve the property's value
-	 * @param base
-	 * @param path
-	 * @return
 	 */
 	static public Object getPropertyValue(@NonNull final Object base, @NonNull final String path) {
 		int pos = 0;
@@ -449,11 +426,6 @@ final public class DomUtil {
 	/**
 	 * Returns T if the topclass or one of its base classes (above the base class) has overridden
 	 * the specified method.
-	 * @param topClass
-	 * @param baseClass
-	 * @param method
-	 * @param parameters
-	 * @return
 	 */
 	static public boolean hasOverridden(Class<?> topClass, Class<?> baseClass, String method, Class<?>... parameters) {
 		Class<?> currentClass = topClass;
@@ -528,7 +500,6 @@ final public class DomUtil {
 	/**
 	 * Generate an unique identifier with reasonable expectations that it will be globally unique. This
 	 * does not use the known GUID format but shortens the string by encoding into base64-like encoding.
-	 * @return
 	 */
 	@NonNull
 	static public String generateGUID() {
@@ -612,7 +583,6 @@ final public class DomUtil {
 	/**
 	 * Returns application url part from current request.
 	 * Call depends on existing of request, so it can't be used within backend threads.
-	 * @return
 	 */
 	static public String getApplicationURL() {
 		return UIContext.getRequestContext().getRequestResponse().getApplicationURL();
@@ -623,7 +593,6 @@ final public class DomUtil {
 	 * context as either an empty string for the ROOT context or a string starting
 	 * without a slash and always ending in one, like "viewpoint/".
 	 * Call depends on existing of request, so it can't be used within backend threads.
-	 * @return
 	 */
 	static public String getApplicationContext() {
 		return UIContext.getRequestContext().getRequestResponse().getWebappContext();
@@ -632,8 +601,6 @@ final public class DomUtil {
 	/**
 	 * Returns relative path for specified resource (without host name, like '/APP_CONTEXT/resource').
 	 * Call depends on existing of request, so it can't be used within backend threads.
-	 * @param resource
-	 * @return
 	 */
 	static public String getRelativeApplicationResourceURL(String resource) {
 		return "/" + getApplicationContext() + "/" + resource;
@@ -642,9 +609,6 @@ final public class DomUtil {
 	/**
 	 * IMPORTANT: This method MUST be used only within UI threads, when UIContext.getRequestContext() != null!
 	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!
-	 * @param clz
-	 * @param pp
-	 * @return
 	 */
 	static public String createPageURL(Class<? extends UrlPage> clz, IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
@@ -659,9 +623,6 @@ final public class DomUtil {
 	/**
 	 * Create a relative URL for the specified page (an URL that is relative to the application's context, i.e. without
 	 * hostname nor webapp context).
-	 * @param clz
-	 * @param pp
-	 * @return
 	 */
 	@NonNull
 	static public String createPageRURL(@NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
@@ -678,10 +639,7 @@ final public class DomUtil {
 	 * IMPORTANT: This method MUST be used for non UI threads, when UIContext.getRequestContext() == null!
 	 * In all other, usually UI running threads, use other alternatives that is using appURL from UIContext.getRequestContext()!
 	 *
-	 * @param webAppUrl web app url, must be ended with '/'
-	 * @param clz
-	 * @param pp
-	 * @return
+	 * @param webAppUrl web app url, must end in '/'
 	 */
 	static public String createPageURL(@NonNull String webAppUrl, @NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
@@ -698,8 +656,6 @@ final public class DomUtil {
 	 * Generate an URL to some page with parameters.
 	 *
 	 * @param rurl    The absolute or relative URL to whatever resource.
-	 * @param pageParameters
-	 * @return
 	 */
 	public static String createPageURL(String rurl, IPageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
@@ -767,9 +723,6 @@ final public class DomUtil {
 	 *	<li>img/text.gif becomes /Itris_VO02/img/text.gif</li>
 	 *	<li>/ui/generic.gif remains the same</li>
 	 * </ul>
-	 * @param ci
-	 * @param rurl
-	 * @return
 	 */
 	static public String calculateURL(IRequestContext ci, String rurl) {
 		int pos = rurl.indexOf(":/"); // http://?
@@ -784,20 +737,8 @@ final public class DomUtil {
 		return ci.getRelativePath(rurl);
 	}
 
-//	@NonNull
-//	static public String[] decodeCID(@NonNull final String param) {
-//		if(param == null)
-//			throw new IllegalStateException("$cid cannot be null");
-//		int pos = param.indexOf('.');
-//		if(pos == -1)
-//			throw new IllegalStateException("Missing '.' in $CID parameter");
-//		String[] res = new String[]{param.substring(0, pos), param.substring(pos + 1)};
-//		return res;
-//	}
-
 	/**
 	 * Ensures that all of a node tree has been built.
-	 * @param p
 	 */
 	static public void buildTree(final NodeBase p) throws Exception {
 		p.build();
@@ -811,11 +752,6 @@ final public class DomUtil {
 	/**
 	 * Walks the tree starting at the node passed and returns the first instance of the given class
 	 * that is found in a normal walk of the tree.
-	 * @param <T>
-	 * @param p
-	 * @param clz
-	 * @return
-	 * @throws Exception
 	 */
 	static public <T extends NodeBase> T findComponentInTree(final NodeBase p, final Class<T> clz) throws Exception {
 		if(clz.isAssignableFrom(p.getClass()))
@@ -846,7 +782,6 @@ final public class DomUtil {
 
 	/**
 	 * Walks the entire table and adjusts it's colspans.
-	 * @param t
 	 */
 	static public void adjustTableColspans(final Table table) {
 		//-- Count the max. row length (max #cells in a row)
@@ -909,7 +844,6 @@ final public class DomUtil {
 	 * This balances tables to ensure that all rows have an equal number of rows and
 	 * columns, taking rowspans and colspans into effect.
 	 * FIXME Boring, lotso work, complete later.
-	 * @param t
 	 */
 	@SuppressWarnings("unused")
 	public static void balanceTable(Table t) {
@@ -1028,7 +962,6 @@ final public class DomUtil {
 	/**
 	 * This method will first determine whether the exception is considered severe.
 	 * Based on that outcome it will dump it or not.
-	 * @param x
 	 */
 	static public void dumpExceptionIfSevere(@NonNull final Exception x) {
 		if(ExceptionClassifier.getInstance().isSevereException(x)) {
@@ -1096,9 +1029,6 @@ final public class DomUtil {
 
 	/**
 	 * Returns T if the specified resource exists.
-	 * @param clz
-	 * @param cn
-	 * @return
 	 */
 	public static boolean hasResource(final Class<? extends UrlPage> clz, final String cn) {
 		InputStream is = null;
@@ -1119,12 +1049,6 @@ final public class DomUtil {
 		return cn.substring(cn.lastIndexOf('.') + 1);
 	}
 
-	/**
-	 *
-	 * @param ma
-	 * @param clz
-	 * @return
-	 */
 	static public BundleRef findBundle(final UIMenu ma, final Class<?> clz) {
 		if(ma != null && ma.bundleBase() != Object.class) { // Bundle base class specified?
 			String s = ma.bundleName();
@@ -1149,8 +1073,6 @@ final public class DomUtil {
 
 	/**
 	 * Returns the bundle for the specified class, defined as classname[nls].properties.
-	 * @param clz
-	 * @return
 	 */
 	static public BundleRef getClassBundle(final Class<?> clz) {
 		String s = clz.getName();
@@ -1164,8 +1086,6 @@ final public class DomUtil {
 
 	/**
 	 * Lookup a page Title bar text.. FIXME Bad logic, bad name; should have a version passing in class instance.
-	 * @param clz
-	 * @return
 	 */
 	@NonNull
 	static public String calcPageTitle(final Class<?> clz) {
@@ -1233,8 +1153,6 @@ final public class DomUtil {
 
 	/**
 	 * Lookup a page Title bar text..
-	 * @param clz
-	 * @return
 	 */
 	static public String calcPageLabel(final Class<?> clz) {
 		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
@@ -1302,9 +1220,6 @@ final public class DomUtil {
 	 *	<li>Try a bundle with the same name as the page class</li>
 	 * </ul>
 	 * If this fails return null.
-	 *
-	 * @param urlPage
-	 * @return
 	 */
 	public static BundleRef findPageBundle(UrlPage urlPage) {
 		if(urlPage == null)
@@ -1337,27 +1252,6 @@ final public class DomUtil {
 			return br;
 		return null; // Failed to get bundle.
 	}
-
-	//	/**
-	//	 * If the string passed starts with ~ start page resource bundle translation.
-	//	 * @param nodeBase
-	//	 * @param title
-	//	 * @return
-	//	 */
-	//	public static String replaceTilded(NodeBase nodeBase, String txt) {
-	//		if(txt == null) // Unset - exit
-	//			return null;
-	//		if(!txt.startsWith("~"))
-	//			return txt;
-	//		if(txt.startsWith("~~")) // Dual tilde escapes and returns a single-tilded thingy.
-	//			return txt.substring(1);
-	//
-	//		//-- Must do replacement
-	//		Page p = nodeBase.getPage();
-	//		if(p == null)
-	//			throw new ProgrammerErrorException("Attempt to retrieve a page-bundle's key (" + txt + "), but the node (" + nodeBase + ")is not attached to a page");
-	//		return p.getBody().$(txt);
-	//	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Error message visualisation utilities.				*/
@@ -1474,8 +1368,6 @@ final public class DomUtil {
 
 	/**
 	 * Render a text with crlf line endings into a node.
-	 * @param nc
-	 * @param text
 	 */
 	static public void renderLines(@NonNull NodeContainer nc, @Nullable String text, @Nullable Function<String, String> lineFixer) {
 		if(text == null)
@@ -1496,9 +1388,6 @@ final public class DomUtil {
 	 * This scans the input, and only copies "safe" html, which is HTML with only
 	 * simple constructs. It checks to make sure the resulting document is xml-safe (well-formed),
 	 * if the input is not well-formed it will add or remove tags until the result is valid.
-	 *
-	 * @param outsb
-	 * @param text
 	 */
 	static public void htmlRemoveUnsafe(StringBuilder outsb, String text) {
 		if(text == null || text.length() == 0)
@@ -1562,10 +1451,6 @@ final public class DomUtil {
 	/**
 	 * Should use {@link PageParameters#getLongW(String, Long) instead.
 	 * Obtain a parameter and convert it to a Long wrapper.
-	 * @param pp
-	 * @param name
-	 * @param def
-	 * @return
 	 */
 	@Deprecated
 	static public Long getLongParameter(IPageParameters pp, String name, Long def) {
@@ -1582,9 +1467,6 @@ final public class DomUtil {
 	/**
 	 * Convert a CSS size string like '200px' into the 200... If the size string is in any way
 	 * invalid this returns -1.
-	 *
-	 * @param css
-	 * @return
 	 */
 	static public int pixelSize(String css) {
 		return pixelSize(css, -1);
@@ -1593,10 +1475,6 @@ final public class DomUtil {
 	/**
 	 * Convert a CSS size string like '200px' into the 200... If the size string is in any way
 	 * invalid this returns specified defaultVal.
-	 *
-	 * @param css
-	 * @param defaultVal
-	 * @return
 	 */
 	static public int pixelSize(String css, int defaultVal) {
 		if(css == null || !css.endsWith("px"))
@@ -1611,9 +1489,6 @@ final public class DomUtil {
 	/**
 	 * Convert a CSS percentage size string like '90%' into the 90... If the size string is in any way
 	 * invalid this returns -1.
-	 *
-	 * @param css
-	 * @return
 	 */
 	static public int percentSize(String css) {
 		if(css == null || !css.endsWith("%"))
@@ -1642,8 +1517,6 @@ final public class DomUtil {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Find a cookie if it exists, return null otherwise.
-	 * @param name
-	 * @return
 	 */
 	@Nullable
 	static public Cookie findCookie(@NonNull String name) {
@@ -1668,10 +1541,6 @@ final public class DomUtil {
 
 	/**
 	 * Set a new or overwrite an existing cookie.
-	 *
-	 * @param name
-	 * @param value
-	 * @param maxage	Max age, in seconds.
 	 */
 	static public void setCookie(@NonNull String name, String value, int maxage) {
 		IRequestContext rci = UIContext.getRequestContext();
@@ -1700,18 +1569,12 @@ final public class DomUtil {
 		 * be traversed but the rest of the tree will. When you return SKIP the {@link IPerNode#after(NodeBase)} method
 		 * will not be called for this node. Returning any other value will stop the node traversal process
 		 * and return that value to the caller of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
-		 * @param n
-		 * @return
-		 * @throws Exception
 		 */
 		Object before(@NonNull NodeBase n) throws Exception;
 
 		/**
 		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
 		 * value this will terminate the tree walk and return that value to the called of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
-		 * @param n
-		 * @return
-		 * @throws Exception
 		 */
 		Object after(@NonNull NodeBase n) throws Exception;
 	}
@@ -1719,9 +1582,6 @@ final public class DomUtil {
 	/**
 	 * Walks a node tree, calling the handler for every node in the tree. As soon as
 	 * a handler returns not-null traversing stops and that object gets returned.
-	 * @param handler
-	 * @return
-	 * @throws Exception
 	 */
 	static public Object walkTree(NodeBase root, IPerNode handler) throws Exception {
 		if(root == null)
@@ -1794,7 +1654,6 @@ final public class DomUtil {
 	/**
 	 * Walks the subtree and asks any node implementing {@link IHasModifiedIndication} whether it has been
 	 * modified; return as soon as one node tells us it has been modified.
-	 * @param root
 	 */
 	static public boolean isModified(NodeBase root) {
 		try {
@@ -1824,7 +1683,6 @@ final public class DomUtil {
 	/**
 	 * Update modified flag of node. Propagate notify signal up to final modified fence in parant tree, if any is defined.
 	 * Use it to set modified flag as result of handling of user data modification.
-	 * @param node
 	 */
 	static public void setModifiedFlag(NodeBase node) {
 		NodeBase n = node;
@@ -1876,10 +1734,6 @@ final public class DomUtil {
 	 * EXPENSIVE - USE WITH CARE
 	 * Check if first primitive type paramater is equal to some from others.
 	 * Use only for primitive types and enums, for other complex types use {@link MetaManager#areObjectsEqual(Object, Object, ClassMetaModel)}.
-	 *
-	 * @param value
-	 * @param values
-	 * @return
 	 */
 	static public <T> boolean isIn(T value, T... values) {
 		for(T item : values) {
@@ -1892,10 +1746,6 @@ final public class DomUtil {
 
 	/**
 	 * This opens a new DomUI page, immediately creating a session for it.
-	 * @param targetClass
-	 * @param targetParameters
-	 * @param newWindowParameters
-	 * @return
 	 */
 	@NonNull
 	static public String createOpenWindowJS(@NonNull Class<?> targetClass, @Nullable IPageParameters targetParameters, @Nullable WindowParameters newWindowParameters) {
@@ -1916,10 +1766,10 @@ final public class DomUtil {
 		return createOpenWindowJS(sb.toString(), newWindowParameters);
 	}
 
-	@NonNull
 	/**
-	 * create a postUrlJS command where all pageparameters are put in a json collection.
+	 * create a postUrlJS command where all page parameters are put in a json collection.
 	 */
+	@NonNull
 	static public String createPostURLJS(@NonNull String url, @NonNull IPageParameters pageParameters) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("DomUI.postURL('");
@@ -1944,12 +1794,9 @@ final public class DomUtil {
 	 * Create a postUrlJS command where all pageparameters are put in a json collection.
 	 * Special treatment is done for parameter that defines array of values.
 	 *
-	 * @param url
-	 * @param pageParameters
 	 * @param arrayParamName  Name of parameter that is used for string array value, it is always single one.
 	 * @param useSingleQuotes When T we use single quotes to escape, otherwise we use double quotes.
 	 * @param useBlankTarget  When T, we do POST on _blank target, otherwise it navigates the same screen.
-	 * @return
 	 */
 	@NonNull
 	static public String createPostWithArrayURLJS(@NonNull String url, @NonNull IPageParameters pageParameters, @NonNull String arrayParamName, boolean useSingleQuotes, boolean useBlankTarget) {
@@ -2061,8 +1908,6 @@ final public class DomUtil {
 
 	/**
 	 * Return a large string containing lorum ipsum text, for testing purposes.
-	 * @return
-	 * @throws Exception
 	 */
 	static public String getLorem() throws Exception {
 		if(null == m_lorem) {
@@ -2081,10 +1926,6 @@ final public class DomUtil {
 
 	/**
 	 * Util can be used to check if list contains item that has equal Long Id as specified one, while instanies itself does not need to be equal.
-	 * @param <T>
-	 * @param set
-	 * @param lookingFor
-	 * @return
 	 */
 	public static <V, T extends IIdentifyable<V>> boolean containsLongIdentifyable(@NonNull Collection<T> set, @NonNull T lookingFor) {
 		V id = lookingFor.getId();
@@ -2100,9 +1941,6 @@ final public class DomUtil {
 
 	/**
 	 * Util that returns index of member in specified list that has same Long Id as specified <I>member</I>.
-	 * @param <T>
-	 * @param list
-	 * @param member
 	 * @return -1 if <I>member</I> object Long Id is not found in specified <I>list</I>, otherwise returns found index.
 	 */
 	public static <V, T extends IIdentifyable<V>> int indexOfLongIdentifyable(@NonNull List<T> list, @NonNull T lookingFor) {
@@ -2122,9 +1960,6 @@ final public class DomUtil {
 
 	/**
 	 * Add item to mergeSource if it is not already contained.
-	 * @param <T>
-	 * @param mergeSource
-	 * @param item
 	 * @return (not)appended mergeSource
 	 */
 	@NonNull
@@ -2141,9 +1976,6 @@ final public class DomUtil {
 	/**
 	 * Appends non contained items from toJoinItems into mergeSource.
 	 * Uses linear search, not suitable for large lists.
-	 * @param <T>
-	 * @param mergeSource
-	 * @param toJoinItems
 	 * @return (not)appended mergeSource
 	 */
 	public static <V, T extends IIdentifyable<V>> List<T> merge(@NonNull List<T> mergeSource, @NonNull List<T> toJoinItems) {
@@ -2155,11 +1987,6 @@ final public class DomUtil {
 
 	/**
 	 * Util that returns T if <I>lookingFor</I> object is contained in specified <I>array</I>
-	 *
-	 * @param <T>
-	 * @param array
-	 * @param lookingFor
-	 * @return
 	 */
 	public static <T> boolean contains(T[] array, T lookingFor) {
 		return indexOf(array, lookingFor) != -1;
@@ -2167,10 +1994,6 @@ final public class DomUtil {
 
 	/**
 	 * Util that returns index of <I>lookingFor</I> object inside specified <I>array</I>
-	 *
-	 * @param <T>
-	 * @param array
-	 * @param lookingFor
 	 * @return -1 if <I>lookingFor</I> object is not found in specified <I>array</I>, otherwise returns its index
 	 */
 	public static <T> int indexOf(T[] array, T lookingFor) {
@@ -2190,9 +2013,7 @@ final public class DomUtil {
 	 * If specified, it clears value to support easier 'one time purpose actions'.
 	 * Must be called within valid request UI context.
 	 *
-	 * @param attribute
 	 * @param doReset if T attribute value is set to null after reading.
-	 * @return
 	 */
 	@Nullable
 	public static Object getSessionAttribute(@NonNull String attribute, boolean doReset) {
@@ -2208,9 +2029,6 @@ final public class DomUtil {
 	/**
 	 * Set specified session attribute value. Attribute would be accessible until session expires.
 	 * Must be called within valid request UI context.
-	 *
-	 * @param attribute
-	 * @param value
 	 */
 	public static void setSessionAttribute(@NonNull String attribute, @Nullable Object value) {
 		IRequestContext ctx = UIContext.getRequestContext();
@@ -2220,9 +2038,6 @@ final public class DomUtil {
 
 	/**
 	 * Decode a {@link PropertyMetaModel#getComponentTypeHint()} hint.
-	 * @param componentTypeHint
-	 * @param string
-	 * @return
 	 */
 	@Nullable
 	public static String getHintValue(String componentTypeHint, String name) {
@@ -2277,8 +2092,6 @@ final public class DomUtil {
 
 	/**
 	 * Try to get some content text from this node, for displaying what the node "is".
-	 * @param nc
-	 * @return
 	 */
 	public static String calcNodeText(@NonNull NodeContainer nc) {
 		StringBuilder sb = new StringBuilder();
@@ -2321,10 +2134,6 @@ final public class DomUtil {
 	/**
 	 * Compares two nullable objects. If one is null and other is not, returns 1 or -1.
 	 * If both are null returns 0, if both are non null, and compare function is set, it returns result of compare, otherwise it returns 0.
-	 *
-	 * @param o1
-	 * @param o2
-	 * @return
 	 */
 	public static <T> int compareNullable(@Nullable T o1, @Nullable T o2, @Nullable BiFunction<T, T, Integer> compare) {
 		if(o1 == null) {
@@ -2346,14 +2155,6 @@ final public class DomUtil {
 	 * If both are null returns 0, if both are non null, function applies to both to get level 1 function results in chain, and then compareNullable is applied on both results until we find any of different values.
 	 * At the end it returns null if whole chain of functions returns same results.
 	 * In order to revers compare logic (desc to asc), just reverse o1 and o2 arguments ;)
-	 *
-	 * @param o1
-	 * @param o2
-	 * @param functions
-	 * @param compare
-	 * @param <T>
-	 * @param <P>
-	 * @return
 	 */
 	@SafeVarargs
 	public static <T, P> int compareNullableOnFunctions(@Nullable T o1, @Nullable T o2, @NonNull BiFunction<P, P, Integer> compare, @NonNull Function<T, P>... functions) {

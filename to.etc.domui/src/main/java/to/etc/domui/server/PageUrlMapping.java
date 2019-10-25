@@ -4,12 +4,16 @@ import io.github.classgraph.AnnotationInfo;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
 import io.github.classgraph.ScanResult;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIPage;
 import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 
 import java.beans.Introspector;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 24-10-19.
  */
+@NonNullByDefault
 final public class PageUrlMapping {
 	private final Map<String, String> m_urlToPage = new ConcurrentHashMap<>();
 
@@ -80,6 +85,10 @@ final public class PageUrlMapping {
 		}
 	}
 
+	/**
+	 * Decode the page URL, and find the target to generate.
+	 */
+	@Nullable
 	public Target findTarget(IRequestContext rx) {
 		String inputPath = rx.getInputPath();
 		String[] segments = inputPath.split("/");
@@ -116,7 +125,35 @@ final public class PageUrlMapping {
 		return new Target(targetPage, pp);
 	}
 
+	@Nullable
+	public UrlAndParameters getUrlString(Class<? extends UrlPage> pageClass, IPageParameters parameters) {
+		UIPage ann = pageClass.getAnnotation(UIPage.class);
+		if(null == ann)
+			return null;
 
+		String path = ann.value();
+		if(path.isEmpty())
+			return null;
+
+		StringBuilder sb = new StringBuilder();
+		PageParameters pp = PageParameters.copyFrom(parameters);
+		String[] segments = path.split("/");
+		for(String segment : segments) {
+			if(segment.startsWith("{") && segment.endsWith("}")) {
+				String vn = segment.substring(1, segment.length() - 1);
+				String value = pp.getString(vn, null);
+				if(null == value)
+					throw new IllegalArgumentException("Missing value for page parameter {" + vn + "} for page " + pageClass.getName());
+
+				segment = value;
+				pp.removeParameter(vn);								// No longer needed as a query parameter
+			}
+			if(sb.length() > 0)
+				sb.append('/');
+			sb.append(segment);
+		}
+		return new UrlAndParameters(sb.toString(), pp);
+	}
 
 	public static final class Target {
 		private final String m_targetPage;
@@ -127,10 +164,34 @@ final public class PageUrlMapping {
 			m_targetPage = targetPage;
 			m_parameters = parameters;
 		}
+
+		public String getTargetPage() {
+			return m_targetPage;
+		}
+
+		public PageParameters getParameters() {
+			return m_parameters;
+		}
 	}
 
+	public static final class UrlAndParameters {
+		private final String m_url;
 
+		private final PageParameters m_pageParameters;
 
+		public UrlAndParameters(String url, PageParameters pageParameters) {
+			m_url = url;
+			m_pageParameters = pageParameters;
+		}
+
+		public String getUrl() {
+			return m_url;
+		}
+
+		public PageParameters getPageParameters() {
+			return m_pageParameters;
+		}
+	}
 
 	/**
 	 * Represents all matchers at a given level.
@@ -141,7 +202,7 @@ final public class PageUrlMapping {
 		@Nullable
 		private String m_targetPage;
 
-		private Map<Level, String> m_varMap;
+		private Map<Level, String> m_varMap = Collections.emptyMap();
 
 		public Level createMatcher(String segment, Map<String, String> pageParams, Map<Level, String> paramMap) {
 			if(segment.isEmpty())
