@@ -2334,6 +2334,10 @@ public abstract class DomApplication {
 		return result;
 	}
 
+	public PageUrlMapping getPageUrlMapping() {
+		return m_pageUrlMapping;
+	}
+
 	static {
 		register(SassThemeFactory.INSTANCE);
 		register(SimpleThemeFactory.INSTANCE);

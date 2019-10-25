@@ -89,8 +89,7 @@ final public class PageUrlMapping {
 	 * Decode the page URL, and find the target to generate.
 	 */
 	@Nullable
-	public Target findTarget(IRequestContext rx) {
-		String inputPath = rx.getInputPath();
+	public Target findTarget(String inputPath, IPageParameters parameters) {
 		String[] segments = inputPath.split("/");
 
 		Level currentLevel = m_root;
@@ -112,7 +111,7 @@ final public class PageUrlMapping {
 
 		//-- Create parameters from the URL
 		Map<Level, String> varMap = currentLevel.getVarMap();
-		PageParameters pp = PageParameters.createFrom(rx);
+		PageParameters pp = PageParameters.copyFrom(parameters);
 		paramValues.forEach((level, value) -> {
 			if(varMap == null)
 				throw new IllegalStateException("No page parameters found");
@@ -126,7 +125,7 @@ final public class PageUrlMapping {
 	}
 
 	@Nullable
-	public UrlAndParameters getUrlString(Class<? extends UrlPage> pageClass, IPageParameters parameters) {
+	public UrlAndParameters getUrlString(Class<? extends UrlPage> pageClass, @Nullable IPageParameters parameters) {
 		UIPage ann = pageClass.getAnnotation(UIPage.class);
 		if(null == ann)
 			return null;
@@ -136,11 +135,13 @@ final public class PageUrlMapping {
 			return null;
 
 		StringBuilder sb = new StringBuilder();
-		PageParameters pp = PageParameters.copyFrom(parameters);
+		PageParameters pp = parameters == null ? null : PageParameters.copyFrom(parameters);
 		String[] segments = path.split("/");
 		for(String segment : segments) {
 			if(segment.startsWith("{") && segment.endsWith("}")) {
 				String vn = segment.substring(1, segment.length() - 1);
+				if(pp == null)
+					throw new IllegalArgumentException("Missing value for page parameter {" + vn + "} for page " + pageClass.getName());
 				String value = pp.getString(vn, null);
 				if(null == value)
 					throw new IllegalArgumentException("Missing value for page parameter {" + vn + "} for page " + pageClass.getName());
@@ -177,9 +178,10 @@ final public class PageUrlMapping {
 	public static final class UrlAndParameters {
 		private final String m_url;
 
+		@Nullable
 		private final PageParameters m_pageParameters;
 
-		public UrlAndParameters(String url, PageParameters pageParameters) {
+		public UrlAndParameters(String url, @Nullable PageParameters pageParameters) {
 			m_url = url;
 			m_pageParameters = pageParameters;
 		}
@@ -188,6 +190,7 @@ final public class PageUrlMapping {
 			return m_url;
 		}
 
+		@Nullable
 		public PageParameters getPageParameters() {
 			return m_pageParameters;
 		}

@@ -53,6 +53,7 @@ import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.server.WrappedHttpServetResponse;
 import to.etc.domui.state.AppSession;
@@ -610,11 +611,18 @@ final public class DomUtil {
 	 * IMPORTANT: This method MUST be used only within UI threads, when UIContext.getRequestContext() != null!
 	 * In all other, usually background running threads, other alternatives that are using stored appURL must be used!
 	 */
-	static public String createPageURL(Class<? extends UrlPage> clz, IPageParameters pp) {
+	@NonNull
+	static public String createPageURL(@NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
+		UrlAndParameters uap = DomApplication.get().getPageUrlMapping().getUrlString(clz, pp);
+		String pagePath;
+		if(null != uap) {
+			pagePath = uap.getUrl();
+			pp = uap.getPageParameters();
+		} else {
+			pagePath = clz.getName() + "." + DomApplication.get().getUrlExtension();
+		}
 		StringBuilder sb = new StringBuilder();
-		sb.append(UIContext.getRequestContext().getRelativePath(clz.getName()));
-		sb.append('.');
-		sb.append(DomApplication.get().getUrlExtension());
+		sb.append(pagePath);
 		if(pp != null)
 			addUrlParameters(sb, pp, true);
 		return sb.toString();
@@ -626,10 +634,17 @@ final public class DomUtil {
 	 */
 	@NonNull
 	static public String createPageRURL(@NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
+		UrlAndParameters uap = DomApplication.get().getPageUrlMapping().getUrlString(clz, pp);
+		String pagePath;
+		if(null != uap) {
+			pagePath = uap.getUrl();
+			pp = uap.getPageParameters();
+		} else {
+			pagePath = clz.getName() + "." + DomApplication.get().getUrlExtension();
+		}
+
 		StringBuilder sb = new StringBuilder();
-		sb.append(clz.getName());
-		sb.append('.');
-		sb.append(DomApplication.get().getUrlExtension());
+		sb.append(pagePath);
 		if(pp != null)
 			addUrlParameters(sb, pp, true);
 		return sb.toString();
@@ -644,9 +659,17 @@ final public class DomUtil {
 	static public String createPageURL(@NonNull String webAppUrl, @NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(webAppUrl);
-		sb.append(clz.getName());
-		sb.append('.');
-		sb.append(DomApplication.get().getUrlExtension());
+
+		UrlAndParameters uap = DomApplication.get().getPageUrlMapping().getUrlString(clz, pp);
+		String pagePath;
+		if(null != uap) {
+			pagePath = uap.getUrl();
+			pp = uap.getPageParameters();
+		} else {
+			pagePath = clz.getName() + "." + DomApplication.get().getUrlExtension();
+		}
+
+		sb.append(pagePath);
 		if(pp != null)
 			addUrlParameters(sb, pp, true);
 		return sb.toString();

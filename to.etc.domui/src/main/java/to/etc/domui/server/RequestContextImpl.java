@@ -137,6 +137,13 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		m_inputPath = urlin;
 
 		/*
+		 * Is the input known to the URL mapper?
+		 */
+		//app.getPageUrlMapping().findTarget(urlin, );
+
+
+
+		/*
 		 * Split the url into separate parts. If the URL has an extension then the last part
 		 * is treated as the pageName, and it gets stored into pageName, without the extension.
 		 * The part before the pageName is the contextString, which - if present - is the
