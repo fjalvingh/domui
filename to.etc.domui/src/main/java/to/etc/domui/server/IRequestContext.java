@@ -44,7 +44,10 @@ import java.io.Writer;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 29, 2010
  */
-public interface IRequestContext extends IExtendedParameterInfo {
+public interface IRequestContext {
+	@NonNull
+	IExtendedParameterInfo getPageParameters();
+
 	/**
 	 * Return the DomApplication instance.
 	 */
@@ -53,7 +56,6 @@ public interface IRequestContext extends IExtendedParameterInfo {
 
 	/**
 	 * Get the theme for this user or, if nothing is set specifically the application-default theme.
-	 * @return
 	 */
 	@NonNull ITheme getCurrentTheme() throws Exception;
 
@@ -95,30 +97,30 @@ public interface IRequestContext extends IExtendedParameterInfo {
 	@NonNull
 	String getExtension();
 
-	/**
-	 * Return the input path <i>relative to the webapp's root</i>. The webapp context path is <i>not</i>
-	 * part of this path, and the path never starts with a slash. So for the webapp "demo" with input
-	 * URL "http://localhost/demo/css/style.css" this will return "css/style.css".
-	 */
-	@Override
-	@NonNull
-	String getInputPath();
+	///**
+	// * Return the input path <i>relative to the webapp's root</i>. The webapp context path is <i>not</i>
+	// * part of this path, and the path never starts with a slash. So for the webapp "demo" with input
+	// * URL "http://localhost/demo/css/style.css" this will return "css/style.css".
+	// */
+	//@Override
+	//@NonNull
+	//String getInputPath();
 
-	/**
-	 * Returns the URL context string, defined as the part inside the input URL that is before the name in the URL.
-	 * Specifically:
-	 * <ul>
-	 *	<li>This uses the {@link #getInputPath()} URL as the basis, so the path never starts with the webapp context</li>
-	 *	<li>If the URL's last part has a suffix then the last part is assumed to be the pageName, and everything
-	 *		before this pageName is the urlContextString</li>
-	 *	<li>If an urlContextString is present then it always ends in a /</li>
-	 *	<li>If the URL is just a pageName then this returns the empty string</li>
-	 * </ul>
-	 *
-	 * The following always holds: {@link #getUrlContextString()} + {@link #getPageName()} + m_extension = {@link #getInputPath()}.
-	 */
-	@NonNull
-	String getUrlContextString();
+	///**
+	// * Returns the URL context string, defined as the part inside the input URL that is before the name in the URL.
+	// * Specifically:
+	// * <ul>
+	// *	<li>This uses the {@link #getInputPath()} URL as the basis, so the path never starts with the webapp context</li>
+	// *	<li>If the URL's last part has a suffix then the last part is assumed to be the pageName, and everything
+	// *		before this pageName is the urlContextString</li>
+	// *	<li>If an urlContextString is present then it always ends in a /</li>
+	// *	<li>If the URL is just a pageName then this returns the empty string</li>
+	// * </ul>
+	// *
+	// * The following always holds: {@link #getUrlContextString()} + {@link #getPageName()} + m_extension = {@link #getInputPath()}.
+	// */
+	//@NonNull
+	//String getUrlContextString();
 
 	/**
 	 * Returns the last part of the URL, provided that part has an extension. If not there is no page name.

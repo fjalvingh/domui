@@ -3,8 +3,10 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.Set;
 
-public interface IPageParameters {
+
+public interface IPageParameters extends IBasicParameterContainer {
 	/**
 	 * Creates copy of current PageParameters.
 	 * Since modification of live page params is not allowed, in order to navigate to other page with similar set of params, use this method to get params template for new page navigation.
@@ -158,7 +160,8 @@ public interface IPageParameters {
 	 * Gets all the names of the parameters this object is holding
 	 * @return the parameter names in an array
 	 */
-	@NonNull String[] getParameterNames();
+	@NonNull
+	Set<String> getParameterNames();
 
 	@Nullable
 	String getUrlContextString();
@@ -170,8 +173,6 @@ public interface IPageParameters {
 	 * <p>We check the size of the maps; if they are equal we ONLY have to check that each key-value
 	 * pair in SOURCE exists in TARGET AND is the same. We don't need to check for "thingies in SRC
 	 * that do not occur in TGT" because that cannot happen if the map sizes are equal.</p>
-	 *
-	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override boolean equals(Object obj);
 

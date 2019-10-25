@@ -24,9 +24,19 @@
  */
 package to.etc.domui.server;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.state.IPageParameters;
 
-public interface IExtendedParameterInfo extends IParameterInfo {
+public interface IExtendedParameterInfo extends IPageParameters {
+	/**
+	 * Get the (remaining) part of the input path as part of a parameter. It is the empty string if
+	 * there's nothing like that.
+	 */
+	@NonNull
+	String getInputPath();
+
+	@NonNull
 	BrowserVersion getBrowserVersion();
 
 	@Nullable
