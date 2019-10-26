@@ -42,11 +42,11 @@ public class ButtonPartKey {
 
 	static public ButtonPartKey decode(IExtendedParameterInfo info) {
 		ButtonPartKey k = new ButtonPartKey();
-		k.setPropFile(info.getParameter("src"));
-		k.setText(info.getParameter("txt"));
-		k.setIcon(info.getParameter("icon"));
-		k.setColor(info.getParameter("color"));
-		k.setImg(info.getParameter("img"));
+		k.setPropFile(info.getString("src", null));
+		k.setText(info.getString("txt", null));
+		k.setIcon(info.getString("icon", null));
+		k.setColor(info.getString("color", null));
+		k.setImg(info.getString("img", null));
 		return k;
 	}
 
