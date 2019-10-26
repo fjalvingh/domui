@@ -11,13 +11,13 @@ import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.domui.parts.ExtendedParameterInfoImpl;
 import to.etc.domui.parts.TempFilePart;
 import to.etc.domui.parts.TempFilePart.Disposition;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.parts.PartData;
+import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.ThemeResourceFactory;
@@ -405,8 +405,14 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		String themeName = DomApplication.get().getDefaultThemeName();
 		BrowserVersion version = BrowserVersion.INSTANCE;
 		String css = ThemeResourceFactory.PREFIX + themeName + "/style.scss";
-		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(themeName, version, css, "__nomap=true");
-		PartData data = DomApplication.get().getPartService().getData(pi);
+		PageParameters pp = new PageParameters()
+			.themeName(themeName)
+			.browserVersion(version)
+			.inputPath(css)
+			.parameter("__nomap", "true")
+			;
+
+		PartData data = DomApplication.get().getPartService().getData(pp);
 
 		o().writeRaw("<style type='text/css'>\n");
 		try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
@@ -461,9 +467,14 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 
 		String themeName = DomApplication.get().getDefaultThemeName();
 		BrowserVersion version = BrowserVersion.INSTANCE;
-		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(themeName, version, rurl, "");
+
+		PageParameters pp = new PageParameters()
+			.themeName(themeName)
+			.browserVersion(version)
+			.inputPath(rurl)
+			;
 		try {
-			PartData data = DomApplication.get().getPartService().getData(pi);
+			PartData data = DomApplication.get().getPartService().getData(pp);
 			o().writeRaw("<style type='text/css'>\n");
 			try(ByteBufferInputStream bbis = new ByteBufferInputStream(data.getData())) {
 				try(InputStreamReader isr = new InputStreamReader(bbis, "utf-8")) {

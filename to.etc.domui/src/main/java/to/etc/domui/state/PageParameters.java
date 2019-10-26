@@ -249,6 +249,11 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 		setObject(name, s);
 	}
 
+	public PageParameters parameter(String name, Object value) {
+		addParameter(name, value);
+		return this;
+	}
+
 	/**
 	 * Removes the parameter with specified name entirely from the map.
 	 *
@@ -451,9 +456,10 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 		return m_inputPath;
 	}
 
-	public void setInputPath(@NonNull String inputPath) {
+	public PageParameters inputPath(@NonNull String inputPath) {
 		writeable();
 		m_inputPath = inputPath;
+		return this;
 	}
 
 	@NonNull
@@ -462,8 +468,9 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 		return m_browserVersion;
 	}
 
-	public void setBrowserVersion(@NonNull BrowserVersion browserVersion) {
+	public PageParameters browserVersion(@NonNull BrowserVersion browserVersion) {
 		m_browserVersion = browserVersion;
+		return this;
 	}
 
 	@Nullable
@@ -472,7 +479,8 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 		return m_themeName;
 	}
 
-	public void setThemeName(@Nullable String themeName) {
+	public PageParameters themeName(@Nullable String themeName) {
 		m_themeName = themeName;
+		return this;
 	}
 }

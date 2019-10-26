@@ -208,15 +208,8 @@ public class PartService {
 			throw new ThingyNotFoundException("The part factory '" + segment + "' cannot be located.");
 		}
 
-		PageParameters pp = new PageParameters(parameters);
-		pp.setInputPath(rest);
-		//
-		//IExtendedParameterInfo infoProxy = new ParameterInfoProxy(parameters) {
-		//	@NonNull @Override public String getInputPath() {
-		//		return rest;
-		//	}
-		//};
-
+		PageParameters pp = new PageParameters(parameters)
+			.inputPath(rest);
 		return new PartExecutionReference(factory, pp);
 	}
 

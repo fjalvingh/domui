@@ -966,7 +966,7 @@ final public class PageRequestHandler {
 		List<NodeBase> changed = new ArrayList<>();
 		IExtendedParameterInfo pp = m_ctx.getPageParameters();
 		for(String name : pp.getParameterNames()) {
-			String[] values = pp.getStringArray(name, null); 			// Get the value;
+			String[] values = pp.getStringArray(name);	 			// Get the value;
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
 				NodeBase nb = page.findNodeByID(name); 				// Can we find this literally?

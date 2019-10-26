@@ -1,10 +1,10 @@
 package to.etc.domui.themes.sass;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.parts.ExtendedParameterInfoImpl;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.parts.PartData;
+import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.ThemeResourceFactory;
@@ -63,8 +63,12 @@ final public class SassTheme implements ITheme {
 	@NonNull @Override public String getStyleSheetName() throws Exception {
 		BrowserVersion version = UIContext.getRequestContext().getPageParameters().getBrowserVersion();	// FIXME Fugly!!
 		String css = ThemeResourceFactory.PREFIX + m_themeName + "/style.scss";
-		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(getThemeName(), version, css, "");
-		PartData data = DomApplication.get().getPartService().getData(pi);
+		PageParameters pp = new PageParameters()
+			.themeName(getThemeName())
+			.browserVersion(version)
+			.inputPath(css)
+			;
+		PartData data = DomApplication.get().getPartService().getData(pp);
 		String hash = StringTool.toHex(data.getHash());
 
 		return css + "?$hash=" + hash;

@@ -71,21 +71,21 @@ final public class MarkerImagePartKey {
 	static public MarkerImagePartKey decode(DomApplication da, IExtendedParameterInfo info) {
 		MarkerImagePartKey k = new MarkerImagePartKey();
 
-		String icon = info.getParameter(PARAM_ICON);
+		String icon = info.getString(PARAM_ICON, null);
 		ITheme theme = da.internalGetThemeManager().getTheme(info.getThemeName(), null);
 		String url = da.internalGetThemeManager().getThemedResourceRURL(theme, icon == null || DomUtil.isBlank(icon) ? DEFAULT_ICON : icon.trim());
 		k.setIcon(url);
 
-		k.setCaption(info.getParameter(PARAM_CAPTION));
-		k.setColor(info.getParameter(PARAM_COLOR));
-		k.setFont(info.getParameter(PARAM_FONT));
-		String s = info.getParameter(PARAM_FONTSIZE);
+		k.setCaption(info.getString(PARAM_CAPTION, null));
+		k.setColor(info.getString(PARAM_COLOR, null));
+		k.setFont(info.getString(PARAM_FONT, null));
+		String s = info.getString(PARAM_FONTSIZE, null);
 		if(DomUtil.isBlank(s))
 			k.setFontSize(0);
 		else
 			k.setFontSize(Integer.parseInt(s));
 
-		s = info.getParameter(PARAM_SPEC);
+		s = info.getString(PARAM_SPEC, null);
 		FontSpec fs;
 		if("b".equalsIgnoreCase(s))
 			fs = FontSpec.BOLD;

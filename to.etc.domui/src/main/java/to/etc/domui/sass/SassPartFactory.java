@@ -38,9 +38,8 @@ public class SassPartFactory implements IBufferedPartFactory<IExtendedParameterI
 	};
 
 	@NonNull @Override public IExtendedParameterInfo decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
-		PageParameters ppi = new PageParameters(param, name -> ! name.startsWith("$"));	// Ignore DomUI system parameters
-		ppi.setBrowserVersion(BrowserVersion.INSTANCE);
-		return ppi;
+		return new PageParameters(param, name -> ! name.startsWith("$"))	// Ignore DomUI system parameters
+			.browserVersion(BrowserVersion.INSTANCE);
 	}
 
 	@Override public void generate(@NonNull PartResponse pr, @NonNull DomApplication da, @NonNull IExtendedParameterInfo params, @NonNull IResourceDependencyList rdl) throws Exception {

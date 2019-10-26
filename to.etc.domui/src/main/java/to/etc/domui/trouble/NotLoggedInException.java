@@ -24,11 +24,12 @@
  */
 package to.etc.domui.trouble;
 
-import to.etc.domui.dom.html.*;
-import to.etc.domui.server.*;
+import to.etc.domui.dom.html.Page;
+import to.etc.domui.server.IRequestContext;
 import to.etc.domui.state.UIContext;
-import to.etc.domui.util.*;
-import to.etc.util.*;
+import to.etc.domui.util.Constants;
+import to.etc.domui.util.DomUtil;
+import to.etc.util.StringTool;
 
 /**
  * Thrown when access control is specified on a page but the user is not logged in.
@@ -54,13 +55,11 @@ final public class NotLoggedInException extends RuntimeException {
 
 	/**
 	 * Create the proper exception type to return back to the specified page after login.
-	 * @param ctx
-	 * @return
 	 */
 	static public NotLoggedInException create(IRequestContext ctx, Page page) {
 		//-- Create the after-login target URL.
 		StringBuilder sb = new StringBuilder(256);
-		sb.append(ctx.getRelativePath(ctx.getInputPath()));
+		sb.append(ctx.getRelativePath(ctx.getPageParameters().getInputPath()));
 
 		int len = sb.length();
 		try {

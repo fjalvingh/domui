@@ -78,12 +78,8 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 	@Override
 	@NonNull
 	public Key decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
-		String icon = param.getParameter("icon");
-		if(null == icon)
-			throw new IllegalStateException("Missing icon parameter");
-
-		boolean isSprite = "true".equalsIgnoreCase(param.getParameter("sprite"));
-
+		String icon = param.getString("icon");
+		boolean isSprite = "true".equalsIgnoreCase(param.getString("sprite", null));
 		return new Key(icon, isSprite);
 	}
 
