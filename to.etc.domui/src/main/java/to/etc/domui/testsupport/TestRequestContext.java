@@ -33,6 +33,7 @@ import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.IRequestResponse;
 import to.etc.domui.server.IServerSession;
 import to.etc.domui.state.AppSession;
+import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.DefaultThemeVariant;
 import to.etc.domui.themes.ITheme;
@@ -68,6 +69,8 @@ public class TestRequestContext implements IRequestContext {
 
 	private WindowSession m_conversationManager;
 
+	private PageParameters m_pageParameters = new PageParameters();
+
 	public TestRequestContext() {
 		m_input = "test/page.html";
 	}
@@ -82,6 +85,12 @@ public class TestRequestContext implements IRequestContext {
 				}
 			};
 		return m_app;
+	}
+
+	@NonNull
+	@Override
+	public PageParameters getPageParameters() {
+		return m_pageParameters;
 	}
 
 	@Override
@@ -99,13 +108,8 @@ public class TestRequestContext implements IRequestContext {
 		return m_input.substring(pos + 1);
 	}
 
-	@Override
 	public @NonNull String getInputPath() {
 		return m_input;
-	}
-
-	@Override public String getUrlContextString() {
-		return "";
 	}
 
 	@Override public String getPageName() {
@@ -139,7 +143,6 @@ public class TestRequestContext implements IRequestContext {
 		return "Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9) Gecko/2008060309 Firefox/3.0";
 	}
 
-	@Override
 	public String getParameter(final @NonNull String name) {
 		String[] v = getParameters(name);
 		if(v == null || v.length != 1)
@@ -147,20 +150,17 @@ public class TestRequestContext implements IRequestContext {
 		return v[0];
 	}
 
-	@Override
 	@NonNull
 	public String[] getParameterNames() {
 		return m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
 	}
 
-	@Override
 	@NonNull
 	public String[] getParameters(final @NonNull String name) {
 		String[] strings = m_parameterMap.get(name);
 		return strings == null ? new String[0] : strings;
 	}
 
-	@Override
 	public BrowserVersion getBrowserVersion() {
 		return null;
 	}
@@ -216,7 +216,8 @@ public class TestRequestContext implements IRequestContext {
 
 	}
 
-	@Nullable @Override public String getThemeName() {
+	@Nullable
+	public String getThemeName() {
 		return getCurrentTheme().getThemeName();
 	}
 
