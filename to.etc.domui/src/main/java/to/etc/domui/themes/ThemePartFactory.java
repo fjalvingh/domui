@@ -30,7 +30,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
-import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
@@ -57,7 +56,7 @@ final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 	 * last part, like style.theme.css
 	 */
 	static public final IUrlMatcher	MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@NonNull IParameterInfo parameters) {
+		@Override public boolean accepts(@NonNull IExtendedParameterInfo parameters) {
 			String rurl = parameters.getInputPath();
 			int dot1 = rurl.lastIndexOf('.');
 			if(dot1 == -1)
@@ -138,10 +137,7 @@ final public class ThemePartFactory implements IBufferedPartFactory<Key> {
 
 	@Override
 	public @NonNull Key decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
-		String iv = param.getParameter("iv");
-		int val = 0;
-		if(null != iv)
-			val = Integer.parseInt(iv);
+		int val = param.getInt("iv", 0);
 		return new Key(param.getBrowserVersion(), param.getInputPath(), val);
 	}
 

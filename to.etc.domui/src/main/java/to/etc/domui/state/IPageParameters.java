@@ -3,8 +3,6 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.util.Set;
-
 public interface IPageParameters extends IBasicParameterContainer {
 	/**
 	 * Creates copy of current PageParameters.
@@ -155,16 +153,6 @@ public interface IPageParameters extends IBasicParameterContainer {
 	@Nullable String[] getStringArray(@NonNull String name, @Nullable String[] deflt);
 
 	/**
-	 * Gets all the names of the parameters this object is holding
-	 * @return the parameter names in an array
-	 */
-	@NonNull
-	Set<String> getParameterNames();
-
-	@Nullable
-	String getUrlContextString();
-
-	/**
 	 * Compare this with another instance. Used to see that a new request has different parameters
 	 * than an earlier request.
 	 * <h2>remark</h2>
@@ -181,12 +169,5 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 */
 	@NonNull String calculateHashString();
 
-	/**
-	 * Return the number of characters that this would take on an url.
-	 */
-	int getDataLength();
-
 	boolean isReadOnly();
-
-	int size();
 }

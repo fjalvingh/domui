@@ -32,7 +32,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.parts.SvgPartFactory.SvgKey;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IExtendedParameterInfo;
-import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
@@ -49,7 +48,7 @@ import java.util.Objects;
  */
 public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@NonNull IParameterInfo parameters) {
+		@Override public boolean accepts(@NonNull IExtendedParameterInfo parameters) {
 			return parameters.getInputPath().endsWith(".png.svg");		}
 	};
 
@@ -102,8 +101,8 @@ public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 
 	@Override
 	public @NonNull SvgKey decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
-		int width = PartUtil.getInt(param, "w", -1);
-		int height = PartUtil.getInt(param, "h", -1);
+		int width = param.getInt("w, -1");
+		int height = param.getInt("h", -1);
 		return new SvgKey(param.getThemeName(), param.getInputPath(), width, height);
 	}
 

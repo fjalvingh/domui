@@ -61,7 +61,7 @@ final public class SassTheme implements ITheme {
 	}
 
 	@NonNull @Override public String getStyleSheetName() throws Exception {
-		BrowserVersion version = UIContext.getRequestContext().getBrowserVersion();	// FIXME Fugly!!
+		BrowserVersion version = UIContext.getRequestContext().getPageParameters().getBrowserVersion();	// FIXME Fugly!!
 		String css = ThemeResourceFactory.PREFIX + m_themeName + "/style.scss";
 		ExtendedParameterInfoImpl pi = new ExtendedParameterInfoImpl(getThemeName(), version, css, "");
 		PartData data = DomApplication.get().getPartService().getData(pi);

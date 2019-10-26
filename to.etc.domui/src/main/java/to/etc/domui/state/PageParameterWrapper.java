@@ -40,6 +40,7 @@ public class PageParameterWrapper implements IPageParameters {
 	 * Gets the value for the specified parameter name as untyped value.
 	 * It is used internally for generic copying of params form one PageParameter to another.
 	 */
+	@Override
 	@Nullable
 	public Object getObject(@NonNull String name) {
 		return m_container.getObject(name);
@@ -178,13 +179,15 @@ public class PageParameterWrapper implements IPageParameters {
 		throw new UnusableParameterException(name, "long", v);
 	}
 
+	@NonNull
 	@Override
 	public Long getLongW(String name, long df) {
-		return getLongW(name, Long.valueOf(df));
+		return Objects.requireNonNull(getLongW(name, Long.valueOf(df)));
 	}
 
+	@Nullable
 	@Override
-	public Long getLongW(String name, Long df) {
+	public Long getLongW(String name, @Nullable Long df) {
 		String v = getOne(name);
 		if(null != v && (v = v.trim()).length() > 0) {
 			try {
@@ -306,13 +309,15 @@ public class PageParameterWrapper implements IPageParameters {
 				if(sb.length() > 0)
 					sb.append("&");
 				sb.append(parameterName).append('=').append(value);
-			} else {
+			} else if(value instanceof String[]) {
 				String[] vals = (String[]) value;
 				for(String s : vals) {
 					if(sb.length() > 0)
 						sb.append("&");
 					sb.append(parameterName).append('=').append(s);
 				}
+			} else {
+				throw new IllegalStateException("Unexpected object in parameter map: " + value);
 			}
 		}
 		return "Parameters: " + sb.toString();
@@ -348,7 +353,7 @@ public class PageParameterWrapper implements IPageParameters {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(@Nullable Object obj) {
 		if(! (obj instanceof IPageParameters))
 			return false;
 
@@ -367,7 +372,7 @@ public class PageParameterWrapper implements IPageParameters {
 		return Objects.equals(getUrlContextString(), a.getUrlContextString());
 	}
 
-	private boolean compValues(Object oval, Object val) {
+	private boolean compValues(@Nullable Object oval, @Nullable Object val) {
 		if(oval instanceof String && val instanceof String) {
 			return oval.equals(val);
 		}
