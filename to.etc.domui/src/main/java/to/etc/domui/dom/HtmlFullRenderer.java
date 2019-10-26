@@ -269,7 +269,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 		// EXPERIMENTAL SVG/VML support
 		if(m_page.isAllowVectorGraphics()) {
-			if(m_ctx.getBrowserVersion().isIE()) {
+			if(m_ctx.getPageParameters().getBrowserVersion().isIE()) {
 				o().writeRaw("<style>v\\: * { behavior:url(#default#VML); display:inline-block;} </style>\n"); // Puke....
 				o().writeRaw("<xml:namespace ns=\"urn:schemas-microsoft-com:vml\" prefix=\"v\">\n");
 			}

@@ -31,6 +31,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This contributor collects information when a bug is reported with a DomUI page
@@ -66,11 +67,11 @@ final public class DomUIBugContributor implements IBugInfoContributor {
 
 		sb.append("\n\nPage input parameters\n");
 
-		String[] names = requestContext.getParameterNames();
+		Set<String> names = requestContext.getPageParameters().getParameterNames();
 		if(names != null) {
 			for(String name : names) {
 				boolean first = true;
-				String[] values = requestContext.getParameters(name);
+				String[] values = requestContext.getPageParameters().getStringArray(name, null);
 				if(values == null || values.length == 0) {
 					sb.append(name).append(": ");
 					sb.append("No value\n");

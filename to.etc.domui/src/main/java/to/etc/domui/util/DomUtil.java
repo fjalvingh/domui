@@ -536,10 +536,10 @@ final public class DomUtil {
 	}
 
 	static public void addUrlParameters(final StringBuilder sb, final IRequestContext ctx, boolean first) {
-		for(String name : ctx.getParameterNames()) {
+		for(String name : ctx.getPageParameters().getParameterNames()) {
 			if(name.equals(Constants.PARAM_CONVERSATION_ID))
 				continue;
-			String[] parameters = ctx.getParameters(name);
+			String[] parameters = ctx.getPageParameters().getStringArray(name, null);
 			if(null == parameters)
 				continue;
 			for(String value : parameters) {
@@ -716,7 +716,7 @@ final public class DomUtil {
 
 	@NonNull
 	private static PageParameters mergePageParameters(@Nullable IPageParameters pp) {
-		PageParameters newpp = PageParameters.createFrom(UIContext.getRequestContext());
+		PageParameters newpp = PageParameters.createFrom(UIContext.getRequestContext().getPageParameters());
 		if(null != pp) {
 			for(String name : pp.getParameterNames()) {
 				String value = pp.getString(name);

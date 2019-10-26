@@ -1709,7 +1709,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Called when a drop is done on a DropTarget node. This calls the appropriate handlers on both the
 	 * drop node AND the draggable that was dropped.
-	 * @param ctx
 	 */
 	protected void handleDrop(final RequestContextImpl ctx) throws Exception {
 		//-- Get the drop handler,
@@ -1718,9 +1717,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		IDropHandler droph = ((IDropTargetable) this).getDropHandler();
 
 		//-- Find the dragged node and it's DragHandler
-		String dragid = ctx.getParameter("_dragid");
-		if(dragid == null)
-			throw new IllegalStateException("No _dragid in drop request to node=" + this);
+		String dragid = ctx.getPageParameters().getString("_dragid");
 		NodeBase dragnode = getPage().findNodeByID(dragid);
 		if(dragnode == null)
 			throw new IllegalStateException("Unknown dragged node " + dragid + " in drop request to node=" + this);
@@ -1735,7 +1732,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 		//-- First call the drag handler's DROPPED thingy
 		int index = 0;
-		String s = ctx.getParameter("_index");
+		String s = ctx.getPageParameters().getString("_index", null);
 		if(s != null) {
 			try {
 				index = Integer.parseInt(s.trim());
@@ -1744,7 +1741,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 			}
 		}
 		int colIndex = 0;
-		s = ctx.getParameter("_colIndex");
+		s = ctx.getPageParameters().getString("_colIndex", null);
 		if(s != null) {
 			try {
 				colIndex = Integer.parseInt(s.trim());
@@ -1752,9 +1749,9 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 				throw new IllegalStateException("Bad _colIndex parameter in DROP request: " + s);
 			}
 		}
-		String nextSiblingId = ctx.getParameter("_siblingId");
-		String dropContainerId = ctx.getParameter("_dropContainerId");
-		String mode = ctx.getParameter("_mode");
+		String nextSiblingId = ctx.getPageParameters().getString("_siblingId", null);
+		String dropContainerId = ctx.getPageParameters().getString("_dropContainerId", null);
+		String mode = ctx.getPageParameters().getString("_mode", null);
 
 		DropEvent dx = null;
 		if(DropMode.DIV.name().equals(mode)) {
@@ -2186,8 +2183,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Adds javascript that aligns node horizontal middle to middle position of specified node, with applying offset.
 	 *
-	 * @param node
-	 * @param xOffset
 	 * @param appendAsCreateJs When T, renders javascript into appendCreateJS buffer, otherwise adds it as appendJavascript.
 	 * @param addServerPositionCallback When T, it also causes server round-trip once position is calculated to store calculate left position. This in needed as workaround for fact that, once node update is re-rendered it looses left value inside style attribute.
 	 */
@@ -2255,8 +2250,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	private void handleClientPositionAndSizeChange(@NonNull RequestContextImpl ctx) throws Exception {
-		String valueRect = ctx.getParameter(getActualID() + "_rect");
-		String valueBrowserWindowSize = ctx.getParameter("window_size");
+		String valueRect = ctx.getPageParameters().getString(getActualID() + "_rect", null);
+		String valueBrowserWindowSize = ctx.getPageParameters().getString("window_size", null);
 		if(null != valueRect && null != valueBrowserWindowSize) {
 			String[] values = valueRect.split(",");
 			try {

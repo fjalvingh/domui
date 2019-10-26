@@ -80,7 +80,7 @@ class JsonWebAction implements IWebActionHandler {
 
 	@Override
 	public void handleWebAction(@NonNull NodeBase node, @NonNull RequestContextImpl context, boolean responseExpected) throws Exception {
-		String json = context.getParameter("json");						// Get required json parameter
+		String json = context.getPageParameters().getString("json", null);						// Get required json parameter
 		if(null == json)
 			throw new IllegalArgumentException("The request parameter 'json' is missing for web action method " + m_method);
 
