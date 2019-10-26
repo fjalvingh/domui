@@ -1,6 +1,7 @@
 package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.RequestContextImpl;
 
 import java.util.HashSet;
@@ -21,6 +22,8 @@ public class RequestContextParameterContainer implements IBasicParameterContaine
 	@Override
 	public Object getObject(String name) {
 		String[] parameters = m_ctx.getRequestResponse().getParameters(name);
+		if(null == parameters)
+			return null;
 		if(parameters.length == 1)
 			return parameters[0];
 		else
@@ -51,5 +54,21 @@ public class RequestContextParameterContainer implements IBasicParameterContaine
 	@Override
 	public int getDataLength() {
 		return 0;
+	}
+
+	@Nullable
+	@Override
+	public String getThemeName() {
+		return m_ctx.getThemeName();
+	}
+
+	@Override
+	public String getInputPath() {
+		return m_ctx.getInputPath();
+	}
+
+	@Override
+	public BrowserVersion getBrowserVersion() {
+		return m_ctx.getBrowserVersion();
 	}
 }

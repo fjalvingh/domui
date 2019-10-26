@@ -156,7 +156,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
 	 */
 	@Override
-	@NonNull
+	@Nullable
 	public String[] getParameters(@NonNull String name) {
 		return getRequest().getParameterValues(name);
 	}

@@ -3,6 +3,8 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.trouble.MissingParameterException;
 import to.etc.domui.trouble.MultipleParameterException;
 import to.etc.domui.trouble.UnusableParameterException;
@@ -25,7 +27,7 @@ import java.util.Set;
  * Created on 25-10-19.
  */
 @NonNullByDefault
-public class PageParameterWrapper implements IPageParameters {
+public class PageParameterWrapper implements IPageParameters, IExtendedParameterInfo {
 	private IBasicParameterContainer m_container;
 
 	public PageParameterWrapper(IBasicParameterContainer container) {
@@ -57,6 +59,24 @@ public class PageParameterWrapper implements IPageParameters {
 	@Override
 	public int getDataLength() {
 		return getContainer().getDataLength();
+	}
+
+	@Nullable
+	@Override
+	public String getThemeName() {
+		return getContainer().getThemeName();
+	}
+
+	@NonNull
+	@Override
+	public String getInputPath() {
+		return getContainer().getInputPath();
+	}
+
+	@NonNull
+	@Override
+	public BrowserVersion getBrowserVersion() {
+		return getContainer().getBrowserVersion();
 	}
 
 	/**
@@ -350,6 +370,12 @@ public class PageParameterWrapper implements IPageParameters {
 			}
 		}
 		return sb.toString();
+	}
+
+
+	@Override
+	public int hashCode() {
+		return m_container.hashCode();
 	}
 
 	@Override

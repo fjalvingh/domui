@@ -2,6 +2,7 @@ package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.server.BrowserVersion;
 
 import java.util.Set;
 
@@ -35,4 +36,18 @@ public interface IBasicParameterContainer {
 	 * Return the number of characters that this would take on an url.
 	 */
 	int getDataLength();
+
+	@Nullable
+	String getThemeName();
+
+	/**
+	 * The complete input URL without the JSDK context part and the query part. Specifically:
+	 * <ul>
+	 *	<li>The JSDK webapp context is always removed from the start, i.e. this is always the webapp-relative path</li>
+	 *	<li>The context NEVER starts with a slash</li>
+	 * </ul>
+	 */
+	String getInputPath();
+
+	BrowserVersion getBrowserVersion();
 }

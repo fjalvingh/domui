@@ -24,24 +24,7 @@
  */
 package to.etc.domui.server;
 
-import org.eclipse.jdt.annotation.NonNull;
-import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.state.IPageParameters;
 
 public interface IExtendedParameterInfo extends IPageParameters {
-	/**
-	 * The complete input URL without the JSDK context part and the query part. Specifically:
-	 * <ul>
-	 *	<li>The JSDK webapp context is always removed from the start, i.e. this is always the webapp-relative path</li>
-	 *	<li>The context NEVER starts with a slash</li>
-	 * </ul>
-	 */
-	@NonNull
-	String getInputPath();
-
-	@NonNull
-	BrowserVersion getBrowserVersion();
-
-	@Nullable
-	String getThemeName();
 }

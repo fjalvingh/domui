@@ -62,15 +62,6 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 	/** When set no data can be changed */
 	private boolean m_readOnly = false;
 
-	@NonNull
-	private String m_inputPath = "";
-
-	@NonNull
-	private BrowserVersion m_browserVersion = BrowserVersion.INSTANCE;
-
-	@Nullable
-	private String m_themeName;
-
 	/**
 	 * Create an empty PageParameters.
 	 */
@@ -132,6 +123,22 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 	private void writeable() {
 		if(m_readOnly)
 			throw new IllegalStateException("This object is readonly and cannot be changed.");
+	}
+
+	/**
+	 * Removes all parameter values.
+	 */
+	public void clearParameters() {
+		getContainer().clear();
+
+	}
+
+	public void removeByName(Predicate<String> what) {
+		for(String parameterName : getContainer().getParameterNames()) {
+			if(what.test(parameterName)) {
+				setObject(parameterName, null);
+			}
+		}
 	}
 
 	/**
@@ -361,12 +368,6 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 		return pp;
 	}
 
-
-	@Override
-	public int hashCode() {
-		throw new IllegalStateException("missing");
-	}
-
 	/**
 	 * Apply changes to source.
 	 * New values found in changes would be added to source, changed values found in changes would replace values in source.
@@ -435,9 +436,9 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 
 		if(source instanceof IExtendedParameterInfo) {
 			IExtendedParameterInfo x = (IExtendedParameterInfo) source;
-			m_browserVersion = x.getBrowserVersion();
-			m_inputPath = x.getInputPath();
-			m_themeName = x.getThemeName();
+			browserVersion(x.getBrowserVersion());
+			inputPath(x.getInputPath());
+			themeName(x.getThemeName());
 		}
 	}
 
@@ -450,37 +451,21 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 		return pp;
 	}
 
-	@NonNull
-	@Override
-	public String getInputPath() {
-		return m_inputPath;
-	}
-
 	public PageParameters inputPath(@NonNull String inputPath) {
 		writeable();
-		m_inputPath = inputPath;
+		getContainer().setInputPath(inputPath);
 		return this;
-	}
-
-	@NonNull
-	@Override
-	public BrowserVersion getBrowserVersion() {
-		return m_browserVersion;
 	}
 
 	public PageParameters browserVersion(@NonNull BrowserVersion browserVersion) {
-		m_browserVersion = browserVersion;
+		writeable();
+		getContainer().setBrowserVersion(browserVersion);
 		return this;
 	}
 
-	@Nullable
-	@Override
-	public String getThemeName() {
-		return m_themeName;
-	}
-
 	public PageParameters themeName(@Nullable String themeName) {
-		m_themeName = themeName;
+		writeable();
+		getContainer().setThemeName(themeName);
 		return this;
 	}
 }
