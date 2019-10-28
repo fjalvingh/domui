@@ -3,6 +3,7 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.util.Constants;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -16,6 +17,10 @@ public class RequestContextParameterContainer implements IBasicParameterContaine
 
 	public RequestContextParameterContainer(RequestContextImpl ctx) {
 		m_ctx = ctx;
+		String[] parameters = m_ctx.getRequestResponse().getParameters(Constants.PARAM_CONVERSATION_ID);
+		if(null != parameters && parameters.length > 1)
+			throw new IllegalStateException("Multiple CIDs");
+
 	}
 
 	@Nullable

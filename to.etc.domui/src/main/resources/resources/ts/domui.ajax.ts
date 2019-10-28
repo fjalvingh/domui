@@ -465,7 +465,7 @@ namespace WebUI {
 		fields["$cid"] = (window as any).DomUICID;
 
 		$.ajax({
-			url: window.location.href,
+			url: WebUI.getPostURL(),
 			dataType: "*", // "text/xml",
 			data: fields,
 			cache: false,

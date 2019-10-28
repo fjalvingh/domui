@@ -357,7 +357,7 @@ var WebUI;
         fields["$pt"] = window.DomUIpageTag;
         fields["$cid"] = window.DomUICID;
         $.ajax({
-            url: window.location.href,
+            url: WebUI.getPostURL(),
             dataType: "*",
             data: fields,
             cache: false,
