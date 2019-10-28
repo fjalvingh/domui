@@ -23,6 +23,7 @@ import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.parts.IComponentUrlDataProvider;
+import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
 import to.etc.domui.state.ConversationContext;
@@ -620,15 +621,24 @@ final public class PageRequestHandler {
 		//-- END POST handling
 
 		StringBuilder sb = new StringBuilder(256);
+		String pageName = m_ctx.getPageName();
+		String path = m_ctx.getInputPath();
+		if(null != pageName) {
+			UrlAndParameters urlString = m_application.getPageUrlMapping().getUrlString((Class<? extends UrlPage>) Class.forName(pageName), pp);
+			if(null != urlString) {
+				path = urlString.getUrl();
+				pp = urlString.getPageParameters();
+			}
+		}
 
 		//			sb.append('/');
-		sb.append(m_ctx.getRelativePath(m_ctx.getInputPath()));
+		sb.append(m_ctx.getRelativePath(path));
 		sb.append('?');
 		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 		sb.append('=');
 		sb.append(windowSession.getWindowID());
 		sb.append(".").append(conversationId);
-		DomUtil.addUrlParameters(sb, m_ctx, false);
+		DomUtil.addUrlParameters(sb, pp, false);
 		ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.");
 		String expmsg = "Session " + m_cid + " has expired - starting a new session by redirecting to " + sb.toString();
 		logUser(expmsg);

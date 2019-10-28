@@ -613,7 +613,7 @@ final public class DomUtil {
 	 */
 	@NonNull
 	static public String createPageURL(@NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
-		UrlAndParameters uap = DomApplication.get().getPageUrlMapping().getUrlString(clz, pp);
+		UrlAndParameters uap = DomApplication.get().getPageUrlMapping().getUrlString(clz, pp == null ? new PageParameters() : pp);
 		String pagePath;
 		if(null != uap) {
 			pagePath = uap.getUrl();
@@ -634,7 +634,7 @@ final public class DomUtil {
 	 */
 	@NonNull
 	static public String createPageRURL(@NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp) {
-		UrlAndParameters uap = DomApplication.get().getPageUrlMapping().getUrlString(clz, pp);
+		UrlAndParameters uap = DomApplication.get().getPageUrlMapping().getUrlString(clz, pp == null ? new PageParameters() : pp);
 		String pagePath;
 		if(null != uap) {
 			pagePath = uap.getUrl();
@@ -660,7 +660,7 @@ final public class DomUtil {
 		StringBuilder sb = new StringBuilder();
 		sb.append(webAppUrl);
 
-		UrlAndParameters uap = DomApplication.get().getPageUrlMapping().getUrlString(clz, pp);
+		UrlAndParameters uap = DomApplication.get().getPageUrlMapping().getUrlString(clz, pp == null ? new PageParameters() : pp);
 		String pagePath;
 		if(null != uap) {
 			pagePath = uap.getUrl();

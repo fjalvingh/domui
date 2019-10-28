@@ -4,6 +4,7 @@ import io.github.classgraph.AnnotationInfo;
 import io.github.classgraph.ClassInfo;
 import io.github.classgraph.MethodInfo;
 import io.github.classgraph.ScanResult;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIPage;
@@ -79,7 +80,7 @@ final public class PageUrlMapping {
 			}
 
 			//-- We're here -> set the action on this level. If there already is an action we have a duplicate.
-			currentLevel.setTargetPage(pattern, varMap);
+			currentLevel.setTargetPage(name, varMap);
 		} catch(PageUrlPatternException px) {
 			throw new PageUrlPatternException(px.getSegment(), px.getMessage() + " in page " + name + ", url " + pattern);
 		}
@@ -101,6 +102,7 @@ final public class PageUrlMapping {
 					//-- We do not have a next level -> no match found
 					return null;
 				}
+				currentLevel = nextLevel;
 			}
 		}
 
@@ -125,7 +127,7 @@ final public class PageUrlMapping {
 	}
 
 	@Nullable
-	public UrlAndParameters getUrlString(Class<? extends UrlPage> pageClass, @Nullable IPageParameters parameters) {
+	public UrlAndParameters getUrlString(Class<? extends UrlPage> pageClass, @NonNull IPageParameters parameters) {
 		UIPage ann = pageClass.getAnnotation(UIPage.class);
 		if(null == ann)
 			return null;
@@ -178,10 +180,10 @@ final public class PageUrlMapping {
 	public static final class UrlAndParameters {
 		private final String m_url;
 
-		@Nullable
+		@NonNull
 		private final PageParameters m_pageParameters;
 
-		public UrlAndParameters(String url, @Nullable PageParameters pageParameters) {
+		public UrlAndParameters(String url, @NonNull PageParameters pageParameters) {
 			m_url = url;
 			m_pageParameters = pageParameters;
 		}
@@ -190,7 +192,7 @@ final public class PageUrlMapping {
 			return m_url;
 		}
 
-		@Nullable
+		@NonNull
 		public PageParameters getPageParameters() {
 			return m_pageParameters;
 		}
@@ -217,7 +219,7 @@ final public class PageUrlMapping {
 				if(null == parameter) {
 					throw new PageUrlPatternException(segment, "The page does not have a parameter '" + vn + "'");
 				}
-				paramMap.put(this, parameter);
+				paramMap.put(this, vn);
 
 				return m_byName.computeIfAbsent("", a -> new Level());
 			} else if(segment.contains("{") || segment.contains("}")) {

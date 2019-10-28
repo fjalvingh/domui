@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
 import to.etc.domui.state.ConversationContext;
@@ -116,7 +117,8 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
-	final private RequestContextParameters m_parameterWrapper;
+	@NonNull
+	private IPageParameters m_parameterWrapper;
 
 	public RequestContextImpl(@NonNull IRequestResponse rr, @NonNull DomApplication app, @NonNull AppSession ses) {
 		m_requestResponse = rr;
@@ -144,42 +146,47 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		/*
 		 * Is the input known to the URL mapper?
 		 */
-		//app.getPageUrlMapping().findTarget(urlin, );
-
-
-
-		/*
-		 * Split the url into separate parts. If the URL has an extension then the last part
-		 * is treated as the pageName, and it gets stored into pageName, without the extension.
-		 * The part before the pageName is the contextString, which - if present - is the
-		 * items/separated/by/slashes/ part which always ends in a / if actually present.
-		 */
-
-		//-- Extension and context
-		int pos = urlin.lastIndexOf('.');
-		int slpos = urlin.lastIndexOf('/');
-		if(pos < slpos)									// Dot before the slash means it's inside the context, leave that
-			pos = -1;
-
-		if(pos == -1) {
-			//-- No extension, treat the whole as the urlContextString
-			m_pageName = null;
-			m_extension = "";
-			m_extensionWithoutDot = "";
-			if(urlin.length() > 0 && !urlin.endsWith("/"))
-				urlin += "/";
-			m_urlContextString = urlin;
+		Target target = app.getPageUrlMapping().findTarget(urlin, m_parameterWrapper);
+		if(null != target) {
+			m_pageName = target.getTargetPage();
+			m_parameterWrapper = target.getParameters();
+			m_extension = "." + m_application.getUrlExtension();
+			m_extensionWithoutDot = m_application.getUrlExtension();
+			m_urlContextString = "";
 		} else {
-			//-- No slash but an extension.
-			m_extension = urlin.substring(pos);			// Extension INCLUDING dot
-			m_extensionWithoutDot = urlin.substring(pos + 1);
-			if(slpos == -1) {
-				m_urlContextString = "";				// No URL context string
-				m_pageName = urlin.substring(0, pos);	// page name without extension
+			/*
+			 * Split the url into separate parts. If the URL has an extension then the last part
+			 * is treated as the pageName, and it gets stored into pageName, without the extension.
+			 * The part before the pageName is the contextString, which - if present - is the
+			 * items/separated/by/slashes/ part which always ends in a / if actually present.
+			 */
+
+			//-- Extension and context
+			int pos = urlin.lastIndexOf('.');
+			int slpos = urlin.lastIndexOf('/');
+			if(pos < slpos)                                    // Dot before the slash means it's inside the context, leave that
+				pos = -1;
+
+			if(pos == -1) {
+				//-- No extension, treat the whole as the urlContextString
+				m_pageName = null;
+				m_extension = "";
+				m_extensionWithoutDot = "";
+				if(urlin.length() > 0 && !urlin.endsWith("/"))
+					urlin += "/";
+				m_urlContextString = urlin;
 			} else {
-				slpos++;								// past /
-				m_urlContextString = urlin.substring(0, slpos);
-				m_pageName = urlin.substring(slpos, pos);
+				//-- No slash but an extension.
+				m_extension = urlin.substring(pos);            // Extension INCLUDING dot
+				m_extensionWithoutDot = urlin.substring(pos + 1);
+				if(slpos == -1) {
+					m_urlContextString = "";                // No URL context string
+					m_pageName = urlin.substring(0, pos);    // page name without extension
+				} else {
+					slpos++;                                // past /
+					m_urlContextString = urlin.substring(0, slpos);
+					m_pageName = urlin.substring(slpos, pos);
+				}
 			}
 		}
 
