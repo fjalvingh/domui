@@ -622,7 +622,7 @@ final public class DomUtil {
 			pagePath = clz.getName() + "." + DomApplication.get().getUrlExtension();
 		}
 		StringBuilder sb = new StringBuilder();
-		sb.append(pagePath);
+		sb.append(UIContext.getRequestContext().getRelativePath(pagePath));
 		if(pp != null)
 			addUrlParameters(sb, pp, true);
 		return sb.toString();
