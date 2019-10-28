@@ -31,10 +31,10 @@ import org.apache.batik.transcoder.image.PNGTranscoder;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.parts.SvgPartFactory.SvgKey;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.IUrlMatcher;
 import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
 import java.io.StringReader;
@@ -48,7 +48,7 @@ import java.util.Objects;
  */
 public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 	static public final IUrlMatcher MATCHER = new IUrlMatcher() {
-		@Override public boolean accepts(@NonNull IExtendedParameterInfo parameters) {
+		@Override public boolean accepts(@NonNull IPageParameters parameters) {
 			return parameters.getInputPath().endsWith(".png.svg");		}
 	};
 
@@ -100,7 +100,7 @@ public class SvgPartFactory implements IBufferedPartFactory<SvgKey> {
 	}
 
 	@Override
-	public @NonNull SvgKey decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
+	public @NonNull SvgKey decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
 		int width = param.getInt("w, -1");
 		int height = param.getInt("h", -1);
 		return new SvgKey(param.getThemeName(), param.getInputPath(), width, height);

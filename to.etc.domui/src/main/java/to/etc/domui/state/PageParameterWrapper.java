@@ -4,7 +4,6 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.BrowserVersion;
-import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.trouble.MissingParameterException;
 import to.etc.domui.trouble.MultipleParameterException;
 import to.etc.domui.trouble.UnusableParameterException;
@@ -27,7 +26,7 @@ import java.util.Set;
  * Created on 25-10-19.
  */
 @NonNullByDefault
-public class PageParameterWrapper implements IPageParameters, IExtendedParameterInfo {
+public class PageParameterWrapper implements IPageParameters {
 	private IBasicParameterContainer m_container;
 
 	public PageParameterWrapper(IBasicParameterContainer container) {

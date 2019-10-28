@@ -25,7 +25,7 @@
 package to.etc.domui.parts;
 
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
@@ -68,7 +68,7 @@ final public class MarkerImagePartKey {
 
 	private FontSpec m_fontSpec;
 
-	static public MarkerImagePartKey decode(DomApplication da, IExtendedParameterInfo info) {
+	static public MarkerImagePartKey decode(DomApplication da, IPageParameters info) {
 		MarkerImagePartKey k = new MarkerImagePartKey();
 
 		String icon = info.getString(PARAM_ICON, null);

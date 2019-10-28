@@ -47,10 +47,6 @@ public class JsonWebActionFactory implements WebActionRegistry.IFactory {
 
 	/**
 	 * Render the response as a JSON object, by default.
-	 * @param calledMethod
-	 * @param ctx
-	 * @param response
-	 * @throws Exception
 	 */
 	static public void renderResponse(@NonNull Method calledMethod, @NonNull RequestContextImpl ctx, @Nullable Object response) throws Exception {
 		Writer out = ctx.getRequestResponse().getOutputWriter("application/javascript; charset=UTF-8", "utf-8");

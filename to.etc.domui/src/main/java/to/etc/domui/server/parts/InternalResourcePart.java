@@ -26,8 +26,8 @@ package to.etc.domui.server.parts;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.parts.InternalResourcePart.ResKey;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
@@ -113,7 +113,7 @@ final public class InternalResourcePart implements IBufferedPartFactory<ResKey> 
 	}
 
 	@Override
-	public @NonNull ResKey decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
+	public @NonNull ResKey decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
 		String rurl = param.getInputPath();
 		if(FileTool.getFileExtension(rurl).length() == 0) {
 			throw new HttpCallException("", HttpServletResponse.SC_FORBIDDEN, "Request forbidden for directory " + rurl);

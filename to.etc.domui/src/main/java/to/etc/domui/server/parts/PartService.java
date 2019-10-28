@@ -4,8 +4,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.DomUtil;
@@ -64,9 +64,9 @@ public class PartService {
 	private static class PartExecutionReference {
 		private final IPartFactory m_factory;
 
-		private final IExtendedParameterInfo m_info;
+		private final IPageParameters m_info;
 
-		public PartExecutionReference(IPartFactory factory, IExtendedParameterInfo info) {
+		public PartExecutionReference(IPartFactory factory, IPageParameters info) {
 			m_factory = factory;
 			m_info = info;
 		}
@@ -75,7 +75,7 @@ public class PartService {
 			return m_factory;
 		}
 
-		public IExtendedParameterInfo getInfo() {
+		public IPageParameters getInfo() {
 			return m_info;
 		}
 	}
@@ -122,7 +122,7 @@ public class PartService {
 	 * Get the data for a part identified by the specified parameters. If the part
 	 * has not yet been generated it will be generated and then cached.
 	 */
-	public PartData getData(IExtendedParameterInfo parameters) throws Exception {
+	public PartData getData(IPageParameters parameters) throws Exception {
 		PartExecutionReference executionReference = findPart(parameters);
 		if(executionReference == null) {
 			executionReference = checkResourcePart(parameters);
@@ -141,7 +141,7 @@ public class PartService {
 	}
 
 	@Nullable
-	private PartExecutionReference findPart(IExtendedParameterInfo parameters) {
+	private PartExecutionReference findPart(IPageParameters parameters) {
 		PartExecutionReference ref = checkClassBasedPart(parameters);
 		if(null != ref)
 			return ref;
@@ -153,7 +153,7 @@ public class PartService {
 	}
 
 	@Nullable
-	private PartExecutionReference checkUrlPart(IExtendedParameterInfo parameter) {
+	private PartExecutionReference checkUrlPart(IPageParameters parameter) {
 		for(MatcherFactoryPair pair : getMatcherList()) {
 			if(pair.getMatcher().accepts(parameter)) {
 				return new PartExecutionReference(pair.getFactory(), parameter);
@@ -164,7 +164,7 @@ public class PartService {
 	}
 
 	@Nullable
-	private PartExecutionReference checkResourcePart(IExtendedParameterInfo xpi) {
+	private PartExecutionReference checkResourcePart(IPageParameters xpi) {
 		String inputPath = xpi.getInputPath();
 		try {
 			IResourceRef res = m_application.getAppFileOrResource(inputPath);
@@ -184,7 +184,7 @@ public class PartService {
 	 * a 404 exception is thrown.
 	 */
 	@Nullable
-	private PartExecutionReference checkClassBasedPart(IExtendedParameterInfo parameters) {
+	private PartExecutionReference checkClassBasedPart(IPageParameters parameters) {
 		String in = parameters.getInputPath();
 		String rest;
 		String segment;
@@ -257,7 +257,7 @@ public class PartService {
 	 * @param ctx
 	 * @throws Exception
 	 */
-	private <K> void generate(IBufferedPartFactory<K> pf, RequestContextImpl ctx, IExtendedParameterInfo parameters) throws Exception {
+	private <K> void generate(IBufferedPartFactory<K> pf, RequestContextImpl ctx, IPageParameters parameters) throws Exception {
 		PartData cp = getCachedInstance2(pf, parameters);
 
 		//-- Generate the part
@@ -277,7 +277,7 @@ public class PartService {
 		}
 	}
 
-	private <K> PartData getCachedInstance2(final IBufferedPartFactory<K> pf, final IExtendedParameterInfo parameters) throws Exception {
+	private <K> PartData getCachedInstance2(final IBufferedPartFactory<K> pf, final IPageParameters parameters) throws Exception {
 		//-- Convert the data to a key object, then lookup;
 		K key = pf.decodeKey(m_application, parameters);
 		if(key == null)

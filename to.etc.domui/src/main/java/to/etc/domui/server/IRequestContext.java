@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.state.AppSession;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.themes.IThemeVariant;
@@ -46,7 +47,7 @@ import java.io.Writer;
  */
 public interface IRequestContext {
 	@NonNull
-	IExtendedParameterInfo getPageParameters();
+	IPageParameters getPageParameters();
 
 	/**
 	 * Return the DomApplication instance.

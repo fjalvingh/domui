@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.login.IUser;
 import to.etc.domui.state.AppSession;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UserLogItem;
 import to.etc.domui.util.DomUtil;
@@ -37,7 +38,7 @@ final public class ExceptionUtil {
 		sb.append("<thead><tr>\n");
 		sb.append("<th>name</th><th>Value</th>");
 		sb.append("</tr></thead>\n");
-		IExtendedParameterInfo pp = m_ctx.getPageParameters();
+		IPageParameters pp = m_ctx.getPageParameters();
 		Set<String> names = pp.getParameterNames();
 		for(String name: names) {
 			boolean first = true;
@@ -120,7 +121,7 @@ final public class ExceptionUtil {
 		mb.nl();
 		mb.ttl("Page input parameters");
 
-		IExtendedParameterInfo pp = m_ctx.getPageParameters();
+		IPageParameters pp = m_ctx.getPageParameters();
 		Set<String> names = pp.getParameterNames();
 		for(String name : names) {
 			boolean first = true;

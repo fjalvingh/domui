@@ -30,6 +30,7 @@ import to.etc.domui.dom.html.Page;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
 import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.RequestContextParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
@@ -192,7 +193,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	@NonNull
 	@Override
-	public IExtendedParameterInfo getPageParameters() {
+	public IPageParameters getPageParameters() {
 		return m_parameterWrapper;
 	}
 

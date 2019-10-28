@@ -33,7 +33,6 @@ import to.etc.domui.converter.CompoundKeyConverter;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.server.BrowserVersion;
-import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -58,7 +57,7 @@ import java.util.function.Predicate;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 22, 2008
  */
-public class PageParameters extends PageParameterWrapper implements IExtendedParameterInfo, Serializable {
+public class PageParameters extends PageParameterWrapper implements IPageParameters, Serializable {
 	/** When set no data can be changed */
 	private boolean m_readOnly = false;
 
@@ -434,8 +433,8 @@ public class PageParameters extends PageParameterWrapper implements IExtendedPar
 			}
 		}
 
-		if(source instanceof IExtendedParameterInfo) {
-			IExtendedParameterInfo x = (IExtendedParameterInfo) source;
+		if(source instanceof IPageParameters) {
+			IPageParameters x = (IPageParameters) source;
 			browserVersion(x.getBrowserVersion());
 			inputPath(x.getInputPath());
 			themeName(x.getThemeName());

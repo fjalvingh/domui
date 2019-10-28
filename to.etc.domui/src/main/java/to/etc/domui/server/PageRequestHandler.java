@@ -29,6 +29,7 @@ import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.ConversationDestroyedException;
 import to.etc.domui.state.IGotoAction;
 import to.etc.domui.state.INotReloadablePage;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
@@ -964,7 +965,7 @@ final public class PageRequestHandler {
 		long ts = System.nanoTime();
 
 		List<NodeBase> changed = new ArrayList<>();
-		IExtendedParameterInfo pp = m_ctx.getPageParameters();
+		IPageParameters pp = m_ctx.getPageParameters();
 		for(String name : pp.getParameterNames()) {
 			String[] values = pp.getStringArray(name);	 			// Get the value;
 			//-- Locate the component that the parameter is for;
