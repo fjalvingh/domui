@@ -51,7 +51,7 @@ final public class PageUrlMapping {
 				AnnotationInfo mai = methodInfo.getAnnotationInfo(UIUrlParameter.class.getName());
 				if(null != mai) {
 					String typeStr = methodInfo.getTypeDescriptor().getResultType().toString();
-					String pname = (String) anninfo.getParameterValues().getValue("name");
+					String pname = (String) mai.getParameterValues().getValue("name");
 					if(pname == null || pname.isEmpty()) {
 						pname = methodInfo.getName();
 						if(pname.startsWith("is")) {
@@ -82,7 +82,9 @@ final public class PageUrlMapping {
 			//-- We're here -> set the action on this level. If there already is an action we have a duplicate.
 			currentLevel.setTargetPage(name, varMap);
 		} catch(PageUrlPatternException px) {
-			throw new PageUrlPatternException(px.getSegment(), px.getMessage() + " in page " + name + ", url " + pattern);
+			System.err.println("ERROR: Page " + name + " pattern " + pattern + ": " + px.getMessage() + " (segment " + px.getSegment() + ")" );
+
+			//throw new PageUrlPatternException(px.getSegment(), px.getMessage() + " in page " + name + ", url " + pattern);
 		}
 	}
 
