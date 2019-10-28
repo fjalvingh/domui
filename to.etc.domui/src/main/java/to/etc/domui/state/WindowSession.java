@@ -541,6 +541,7 @@ final public class WindowSession {
 			sb.append(pagePath);
 		} else {
 			sb.append(urlString.getUrl());
+			pp = urlString.getPageParameters();
 		}
 		sb.append('?');
 		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
