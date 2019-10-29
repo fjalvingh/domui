@@ -1747,6 +1747,9 @@ final public class DomUtil {
 		return !in.startsWith("http:") && !in.startsWith("https:") && !in.startsWith("/");
 	}
 
+	/**
+	 * Returns T if this URL is either host-relative (starts with /) or a full URL starting with http(s)
+	 */
 	static public boolean isAbsoluteURL(String in) {
 		if(in == null)
 			return false;
