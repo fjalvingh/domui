@@ -18,8 +18,10 @@ public class RequestContextParameterContainer implements IBasicParameterContaine
 	public RequestContextParameterContainer(RequestContextImpl ctx) {
 		m_ctx = ctx;
 		String[] parameters = m_ctx.getRequestResponse().getParameters(Constants.PARAM_CONVERSATION_ID);
-		if(null != parameters && parameters.length > 1)
-			throw new IllegalStateException("Multiple CIDs");
+		if(null != parameters && parameters.length > 1) {
+			System.err.println("FATAL MULTIPLE CIDS " + ctx.getRequestResponse().getRequestURI() + " " + ctx.getRequestResponse().getQueryString());
+			//throw new IllegalStateException("Multiple CIDs: " + ctx.getRequestResponse().getRequestURI() + " " + ctx.getRequestResponse().getQueryString());
+		}
 
 	}
 

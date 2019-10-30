@@ -5,7 +5,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.trouble.MissingParameterException;
-import to.etc.domui.trouble.MultipleParameterException;
 import to.etc.domui.trouble.UnusableParameterException;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
@@ -94,7 +93,12 @@ public class PageParameterWrapper implements IPageParameters {
 			return null;
 		if(ar.length == 1)
 			return ar[0];
-		throw new MultipleParameterException(name); // There can be only oneeeeee.. </highlander>
+
+		System.err.println("PARAMERROR Multiple parameter values for " + name + " urlin=" + getInputPath());
+		return ar[0];
+
+
+		//throw new MultipleParameterException(name); // There can be only oneeeeee.. </highlander>
 	}
 
 	/**

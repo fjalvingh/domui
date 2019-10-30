@@ -14,7 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * This shows a Cookie warning for users of the website, as required by
+ * This shows a Cookie warning and acceptance button for users of the website, as required by
  * an idiotic EU law made by people that have the brain of a peanut and
  * are in all possible ways so stupid that it boggles the mind.
  * Instead of worthwhile legislation that would actually help with
