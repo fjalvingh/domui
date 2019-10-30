@@ -150,6 +150,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 		Map<String, Object> map = new HashMap<>();
 		map.put("r", this);
+		map.put("appUrl", m_ctx.getRelativePath(""));
 		template.execute(a, map);
 	}
 
