@@ -4138,7 +4138,7 @@ var WebUI;
     WebUI.googleOnSignin = googleOnSignin;
 })(WebUI || (WebUI = {}));
 $(function () {
-    $.getScript("$js/domui-date-checker.js");
+    $.getScript(window['DomUIappURL'] + "$js/domui-date-checker.js");
 });
 function _block() {
     WebUI.blockUI();
