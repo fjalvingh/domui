@@ -200,15 +200,12 @@ public class ALink extends ATag {
 				sb.append(DomUtil.createPageURL(m_targetURL, m_targetParameters));
 			} else {
 				//-- We need a NEW window session. Create it,
-				sb.append(DomUtil.createPageURL(m_targetClass, null)); //add class url, without params that are added manually as follows...
-				sb.append('?');
+				sb.append(DomUtil.createPageURL(m_targetClass, m_targetParameters));
+				sb.append(m_targetParameters.size() > 0 ? "&" : "?");
 				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 				sb.append('=');
 				sb.append(wid);
 				sb.append(".x");
-				if(m_targetParameters != null) {
-					DomUtil.addUrlParameters(sb, m_targetParameters, false);
-				}
 			}
 			sb.append("','");
 			sb.append(wid);
