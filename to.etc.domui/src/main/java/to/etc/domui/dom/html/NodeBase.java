@@ -188,7 +188,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 */
 	static private final byte F_NOREPLACE = 0x08;
 
-	static private final byte F_STYLERENDERED = 0x16;
+	static private final byte F_STYLERENDERED = 0x10;
 
 	private byte m_flags;
 
@@ -228,8 +228,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * This must visit the appropriate method in the node visitor. It should NOT recurse it's children.
-	 * @param v
-	 * @throws Exception
 	 */
 	abstract public void visit(@NonNull INodeVisitor v) throws Exception;
 
