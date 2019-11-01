@@ -109,6 +109,8 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	private List<SmallImgButton> m_buttonList = Collections.EMPTY_LIST;
 
+	private boolean m_disableFocus;
+
 	public ComboComponentBase2() {}
 
 	public ComboComponentBase2(@NonNull IListMaker<T> maker) {
@@ -243,6 +245,11 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		if(m_select.isAttached())
 			return m_select.getActualID();
 		return null;
+	}
+
+	@Override
+	public boolean isFocusable() {
+		return ! m_disableFocus;
 	}
 
 	@Nullable @Override public NodeBase getForTarget() {
@@ -710,5 +717,9 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	@Override public void setHint(String hintText) {
 		setTitle(hintText);
+	}
+
+	public void setDisableFocus(boolean disableFocus) {
+		m_disableFocus = disableFocus;
 	}
 }
