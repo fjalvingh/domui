@@ -62,6 +62,6 @@ final public class AccessCheckResult {
 	}
 
 	public static AccessCheckResult refused(AbstractPage page, UIRights rights, List<UIMessage> errors) {
-		return new AccessCheckResult(PageAccessCheckResult.Accepted, rights, errors, page);
+		return new AccessCheckResult(PageAccessCheckResult.Refused, rights, errors, page);
 	}
 }
