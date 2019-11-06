@@ -67,7 +67,7 @@ public class DefaultPageAccessChecker implements IPageAccessChecker {
 		/*
 		 * Access not allowed: redirect to error page.
 		 */
-		return AccessCheckResult.refused(page.getBody(), rann, errors);
+		return AccessCheckResult.refused(page.getBody(), rann == null ? new String[] {} : rann.value(), errors);
 	}
 
 	private boolean isAccessAllowed(UrlPage body, @Nullable UIRights rann, @Nullable IRightsCheckedManually rcm, IUser user) throws Exception {
