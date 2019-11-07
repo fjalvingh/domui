@@ -553,46 +553,45 @@ var WebUI;
     WebUI.popupSubmenuShow = popupSubmenuShow;
     function registerPopinClose(id) {
         _popinCloseList.push(id);
-        $(id).bind("mouseleave", popinMouseClose);
         if (_popinCloseList.length != 1)
             return;
         $(document.body).bind("keydown", popinKeyClose);
+        $(document.body).bind("mousedown", popinMouseClose);
     }
     WebUI.registerPopinClose = registerPopinClose;
     function popinClosed(id) {
         for (var i = 0; i < _popinCloseList.length; i++) {
             if (id === _popinCloseList[i]) {
-                $(id).unbind("mousedown", popinMouseClose);
                 _popinCloseList.splice(i, 1);
                 if (_popinCloseList.length == 0) {
                     $(document.body).unbind("keydown", popinKeyClose);
-                    $(document.body).unbind("beforeclick", popinBeforeClick);
+                    $(document.body).unbind("mousedown", popinMouseClose);
                 }
                 return;
             }
         }
     }
     WebUI.popinClosed = popinClosed;
-    function popinBeforeClick(ee1, obj, clickevt) {
-        for (var i = 0; i < _popinCloseList.length; i++) {
-            var id = _popinCloseList[i];
-            obj = $(obj);
-            var cl = obj.closest(id);
-            if (cl.size() > 0) {
-                $(id).unbind("mousedown", popinMouseClose);
-                _popinCloseList.splice(i, 1);
-                if (_popinCloseList.length == 0) {
-                    $(document.body).unbind("keydown", popinKeyClose);
-                    $(document.body).unbind("beforeclick", popinBeforeClick);
-                }
-                return;
-            }
-        }
-    }
-    WebUI.popinBeforeClick = popinBeforeClick;
-    function popinMouseClose() {
+    function popinMouseClose(ev) {
         if (WebUI.isUIBlocked())
             return;
+        try {
+            for (var i = 0; i < _popinCloseList.length; i++) {
+                var id = _popinCloseList[i];
+                var el = $(id);
+                if (el) {
+                    if (!el.is(ev.target)) {
+                        popinClosed(id);
+                        WebUI.scall(id.substring(1), "POPINCLOSE?", {});
+                    }
+                }
+            }
+        }
+        finally {
+        }
+    }
+    WebUI.popinMouseClose = popinMouseClose;
+    function popinCloseAll() {
         try {
             for (var i = 0; i < _popinCloseList.length; i++) {
                 var id = _popinCloseList[i];
@@ -605,11 +604,11 @@ var WebUI;
         }
         finally {
             _popinCloseList = [];
+            $(document.body).unbind("mousedown", WebUI.popinMouseClose);
             $(document.body).unbind("keydown", popinKeyClose);
-            $(document.body).unbind("beforeclick", popinBeforeClick);
         }
     }
-    WebUI.popinMouseClose = popinMouseClose;
+    WebUI.popinCloseAll = popinCloseAll;
     function popinKeyClose(evt) {
         if (!evt)
             evt = window.event;
@@ -619,7 +618,7 @@ var WebUI;
             evt.cancelBubble = true;
             if (evt.stopPropagation)
                 evt.stopPropagation();
-            popinMouseClose();
+            popinCloseAll();
         }
     }
     WebUI.popinKeyClose = popinKeyClose;

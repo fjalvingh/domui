@@ -55,50 +55,70 @@ namespace WebUI {
 	 */
 	export function registerPopinClose(id): void {
 		_popinCloseList.push(id);
-		$(id).bind("mouseleave", popinMouseClose);
+		// $(id).bind("mouseleave", popinMouseClose);
 		if(_popinCloseList.length != 1)
 			return;
 		$(document.body).bind("keydown", popinKeyClose);
-//		$(document.body).bind("beforeclick", WebUI.popinBeforeClick);	// Called when a click is done somewhere - not needed anymore, handled from java
+		$(document.body).bind("mousedown", popinMouseClose);
 	}
 
 	export function popinClosed(id): void {
 		for(let i = 0; i < _popinCloseList.length; i++) {
 			if(id === _popinCloseList[i]) {
 				//-- This one is done -> remove mouse handler.
-				$(id).unbind("mousedown", popinMouseClose);
 				_popinCloseList.splice(i, 1);
 				if(_popinCloseList.length == 0) {
 					$(document.body).unbind("keydown", popinKeyClose);
-					$(document.body).unbind("beforeclick", popinBeforeClick);
+					$(document.body).unbind("mousedown", popinMouseClose);
 				}
 				return;
 			}
 		}
 	}
 
-	export function popinBeforeClick(ee1, obj, clickevt): void {
-		for(let i = 0; i < _popinCloseList.length; i++) {
-			let id = _popinCloseList[i];
-			obj = $(obj);
-			let cl = obj.closest(id);
-			if(cl.size() > 0) {
-				//-- This one is done -> remove mouse handler.
-				$(id).unbind("mousedown", popinMouseClose);
-				_popinCloseList.splice(i, 1);
-				if(_popinCloseList.length == 0) {
-					$(document.body).unbind("keydown", popinKeyClose);
-					$(document.body).unbind("beforeclick", popinBeforeClick);
-				}
-				return;
-			}
-		}
-	}
+	// export function popinBeforeClick(ee1, obj, clickevt): void {
+	// 	for(let i = 0; i < _popinCloseList.length; i++) {
+	// 		let id = _popinCloseList[i];
+	// 		obj = $(obj);
+	// 		let cl = obj.closest(id);
+	// 		if(cl.size() > 0) {
+	// 			//-- This one is done -> remove mouse handler.
+	// 			$(id).unbind("mousedown", popinMouseClose);
+	// 			_popinCloseList.splice(i, 1);
+	// 			if(_popinCloseList.length == 0) {
+	// 				$(document.body).unbind("keydown", popinKeyClose);
+	// 				$(document.body).unbind("beforeclick", popinBeforeClick);
+	// 			}
+	// 			return;
+	// 		}
+	// 	}
+	// }
 
-	export function popinMouseClose(): void {
+	export function popinMouseClose(ev): void {
 		if(WebUI.isUIBlocked())							// We will get a LEAVE if the UI blocks during menu code... Ignore it
 			return;
 
+		try {
+			for(let i = 0; i < _popinCloseList.length; i++) {
+				let id = _popinCloseList[i];
+				let el = $(id);
+				if(el) {
+					//-- If event outside this popup -> close it
+					if(! el.is(ev.target)) {
+						popinClosed(id);
+						WebUI.scall(id.substring(1), "POPINCLOSE?", {});
+					}
+				}
+			}
+		} finally {
+			// _popinCloseList = [];
+//			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
+// 			$(document.body).unbind("keydown", popinKeyClose);
+// 			$(document.body).unbind("beforeclick", popinBeforeClick);
+		}
+	}
+
+	export function popinCloseAll() : void {
 		try {
 			for(let i = 0; i < _popinCloseList.length; i++) {
 				let id = _popinCloseList[i];
@@ -110,9 +130,9 @@ namespace WebUI {
 			}
 		} finally {
 			_popinCloseList = [];
-//			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
+			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
 			$(document.body).unbind("keydown", popinKeyClose);
-			$(document.body).unbind("beforeclick", popinBeforeClick);
+			// $(document.body).unbind("beforeclick", popinBeforeClick);
 		}
 	}
 
@@ -126,7 +146,7 @@ namespace WebUI {
 			evt.cancelBubble = true;
 			if(evt.stopPropagation)
 				evt.stopPropagation();
-			popinMouseClose();
+			popinCloseAll();
 		}
 	}
 
