@@ -99,12 +99,13 @@ namespace WebUI {
 			return;
 
 		try {
+			let target = $(ev.target);
 			for(let i = 0; i < _popinCloseList.length; i++) {
 				let id = _popinCloseList[i];
 				let el = $(id);
 				if(el) {
 					//-- If event outside this popup -> close it
-					if(! el.is(ev.target)) {
+					if(target.closest(id).length == 0) {
 						popinClosed(id);
 						WebUI.scall(id.substring(1), "POPINCLOSE?", {});
 					}

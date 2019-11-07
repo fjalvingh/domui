@@ -576,11 +576,12 @@ var WebUI;
         if (WebUI.isUIBlocked())
             return;
         try {
+            var target = $(ev.target);
             for (var i = 0; i < _popinCloseList.length; i++) {
                 var id = _popinCloseList[i];
                 var el = $(id);
                 if (el) {
-                    if (!el.is(ev.target)) {
+                    if (target.closest(id).length == 0) {
                         popinClosed(id);
                         WebUI.scall(id.substring(1), "POPINCLOSE?", {});
                     }
