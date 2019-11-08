@@ -30,7 +30,9 @@ final public class ObjectLookupQueryBuilder<D> implements ILookupQueryBuilder<D>
 			String str = (String) value;
 
 			if(m_lookupWildcardByDefault) {
-				if(! str.endsWith(".")) {
+				if(str.endsWith(".")) {
+					str = str.substring(0, str.length()-1).trim();
+				} else {
 					str = str.trim().replace("*", "%") + "%";            // FIXME Do not search with wildcard by default 8-(
 				}
 			}
