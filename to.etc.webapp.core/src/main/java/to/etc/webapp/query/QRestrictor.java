@@ -116,7 +116,7 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 		QOperatorNode restrictions = getRestrictions();
 		if(restrictions == null) {
 			setRestrictions(r);                        // Just set the single operation,
-		} else {
+		} else if(restrictions.getOperation() == QOperation.AND || restrictions.getOperation() == QOperation.OR) {
 			((QMultiNode)restrictions).add(r);
 		//} else if(restrictions.getOperation() == m_combinator) {
 		//	//-- Already the proper combinator - add the node to it.
@@ -127,6 +127,11 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 		//	comb.add(restrictions);
 		//	comb.add(r);
 		//	setRestrictions(comb);
+		} else {
+			QMultiNode comb = new QMultiNode(m_combinator);
+			comb.add(restrictions);
+			comb.add(r);
+			setRestrictions(comb);
 		}
 	}
 
