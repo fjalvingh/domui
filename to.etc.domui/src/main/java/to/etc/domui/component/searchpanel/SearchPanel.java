@@ -165,6 +165,11 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	private boolean m_hasBeenUsed;
 
+	private static boolean m_defaultShowHideButton = true;
+
+	@Nullable
+	private Boolean m_showHideButton;
+
 	public enum ButtonMode {
 		/** Show this button only when the lookup form is expanded */
 		NORMAL,
@@ -418,10 +423,12 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		addButtonItem(b, 200, ButtonMode.NORMAL);
 
 		//-- Collapse button thingy
-		m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), Icon.of("THEME/btnHideLookup.png"), bx -> collapse());
-		m_collapseButton.setTestID("hideButton");
-		m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
-		addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
+		if(isShowHideButton()) {
+			m_collapseButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE), Icon.of("THEME/btnHideLookup.png"), bx -> collapse());
+			m_collapseButton.setTestID("hideButton");
+			m_collapseButton.setTitle(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_COLLAPSE_TITLE));
+			addButtonItem(m_collapseButton, 300, ButtonMode.BOTH);
+		}
 	}
 
 	public void addFilterButton() {
@@ -461,10 +468,14 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		m_collapsed = true;
 
 		//-- Collapse button thingy
-		m_collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
-		m_collapseButton.setIcon(Icon.of("THEME/btnShowLookup.png"));
-		m_collapseButton.setClicked((IClicked<DefaultButton>) bx -> restore());
-		createButtonRow(m_collapsedPanel, true);
+		DefaultButton collapseButton = m_collapseButton;
+		if(null != collapseButton) {
+			collapseButton.setText(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_RESTORE));
+			collapseButton.setIcon(Icon.of("THEME/btnShowLookup.png"));
+			collapseButton.setClicked((IClicked<DefaultButton>) bx -> restore());
+			createButtonRow(m_collapsedPanel, true);
+		}
+
 		//trigger after collapse event is set
 		if(getOnAfterCollapse() != null) {
 			getOnAfterCollapse().clicked(this);
@@ -1151,4 +1162,27 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		item.getControl().setTestID(lbl);
 	}
 
+	public static boolean isDefaultShowHideButton() {
+		return m_defaultShowHideButton;
+	}
+
+	public static void setDefaultShowHideButton(boolean showHideButton) {
+		m_defaultShowHideButton = showHideButton;
+	}
+
+	@Nullable
+	public Boolean getShowHideButton() {
+		return m_showHideButton;
+	}
+
+	public void setShowHideButton(@Nullable Boolean showHideButton) {
+		m_showHideButton = showHideButton;
+	}
+
+	public boolean isShowHideButton() {
+		Boolean hb = m_showHideButton;
+		if(null != hb)
+			return hb;
+		return m_defaultShowHideButton;
+	}
 }
