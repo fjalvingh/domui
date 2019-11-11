@@ -194,7 +194,12 @@ import java.util.function.Predicate;
 			String label = cd.getColumnLabel();
 			if(! sortablemodel || ! isSortable(cd)) {
 				//-- Just add the span with label, if present. Span is needed to allow styling.
-				HeaderContainer.HeaderContainerCell cell = cc.add(new Span(label));
+				Div cellSpan = new Div();
+
+				HeaderContainer.HeaderContainerCell cell = cc.add(cellSpan);
+				cellSpan.add(new Span(label));
+				Div sp = new Div("ui-dt-sorticon");
+				cellSpan.add(sp);
 				th = cell.getTh();
 				col = cell.getCol();
 			} else {

@@ -454,36 +454,10 @@ namespace WebUI {
 		}
 	}
 
-	export function initScrollableTableOld(id): void {
-		($('#' + id + " table") as any).fixedHeaderTable({});
-		let sbody = $('#' + id + " .fht-tbody");
-		sbody.scroll(function() {
-			let bh = $(sbody).height();
-			let st = $(sbody).scrollTop();
-			let tbl = $('#' + id + " .fht-table tbody");
-			let th = tbl.height();
-			let left = tbl.height() - bh - st;
-			//$.dbg("scrolling: bodyheight="+bh+" scrolltop="+st+" tableheight="+th+" left="+left);
-
-			if(left > 100) {
-				//$.dbg("Scrolling: area left="+left);
-				return;
-			}
-
-			let lastRec = sbody.find("tr[lastRow]");
-			if(lastRec.length != 0) {
-				//$.dbg("scrolling: lastrec found");
-				return;
-			}
-			WebUI.scall(id, "LOADMORE", {});
-		});
-
-	}
-
 	export function scrollableTableReset(id, tblid) {
 		let tbl = $('#' + tblid);
 		let container = $('#' + id);
-		(tbl as any).floatThead('reflow');
+		// (tbl as any).floatThead('reflow');
 		WebUI.doCustomUpdates();
 
 		$.dbg('recreate');
@@ -503,31 +477,31 @@ namespace WebUI {
 		let tbl = $('#' + tblid);
 		WebUI.doCustomUpdates();
 
-		(tbl as any).floatThead({
-			scrollContainer: function() {
-				return container;
-			},
-			getSizingRow: function($table) { // this is only called when using IE, we need any row without colspan, see http://mkoryak.github.io/floatThead/examples/row-groups/
-				let rows = $table.find('tbody tr:visible').get();
-				for(let i = 0; i < rows.length; i++) {
-					let cells = $(rows[i]).find('td');
-					let isInvalidRow = false;
-					for(let i = 0; i < cells.get().length; i++) {
-						if(Number($(cells[i]).attr('colspan')) > 1) {
-							isInvalidRow = true;
-						}
-					}
-					if(!isInvalidRow) {
-						return cells;
-					}
-				}
-				if(rows.length > 0) {
-					return $(rows[0]).find('td'); //as fallback we just return first row cells
-				} else {
-					return null; //or nothing -> but this should not be possible since getSizingRow is called only on table with rows
-				}
-			}
-		});
+		// (tbl as any).floatThead({
+		// 	scrollContainer: function() {
+		// 		return container;
+		// 	},
+		// 	getSizingRow: function($table) { // this is only called when using IE, we need any row without colspan, see http://mkoryak.github.io/floatThead/examples/row-groups/
+		// 		let rows = $table.find('tbody tr:visible').get();
+		// 		for(let i = 0; i < rows.length; i++) {
+		// 			let cells = $(rows[i]).find('td');
+		// 			let isInvalidRow = false;
+		// 			for(let i = 0; i < cells.get().length; i++) {
+		// 				if(Number($(cells[i]).attr('colspan')) > 1) {
+		// 					isInvalidRow = true;
+		// 				}
+		// 			}
+		// 			if(!isInvalidRow) {
+		// 				return cells;
+		// 			}
+		// 		}
+		// 		if(rows.length > 0) {
+		// 			return $(rows[0]).find('td'); //as fallback we just return first row cells
+		// 		} else {
+		// 			return null; //or nothing -> but this should not be possible since getSizingRow is called only on table with rows
+		// 		}
+		// 	}
+		// });
 		container.scroll(function() {
 			let bh = $(container).height();
 			let st = $(container).scrollTop();

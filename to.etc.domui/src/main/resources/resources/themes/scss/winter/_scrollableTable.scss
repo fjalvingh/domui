@@ -1,69 +1,204 @@
-.fht-table,
-.fht-table thead,
-.fht-table tfoot,
-.fht-table tbody,
-.fht-table tr,
-.fht-table th,
-.fht-table td {
-    /* position */
-    margin: 0;
+@import "_variables";
+@import "_color";
 
-    /* size */
-    padding: 0;
+$data_tbl_selected_bg: #bed6f8 !default;	// blue
+$data_tbl_even_row_bg: #E5E5E5 !default; //greyish
+$data_tbl_cell_highlight_bg: #67267f !default;	// cell select: purple
+$data_tbl_cell_highlight_link_color_bg: #ffffff !default;	// link color of cell select: white
+$data_tbl_font_size: 12px !default;
+$data_tbl_expanding_row_bg: lighten($main_color, 20%) !default;
 
-    /* text */
-    font-size: 100%;
-    font: inherit;
-    vertical-align: top;
-}
+$data_tbl_header_bg: #99bfe6 !default;
+$data_tbl_header_text_color: black !default;
+$data_tbl_header_bg_img: "" !default; //-- Table header doesn't have background image
+$data_tbl_header_btm_border: undefined !default;
 
-.fht-table {
-    /* appearance */
-    border-collapse: collapse;
-    border-spacing: 0;
-}
+$data_tbl_border_color: $data_tbl_header_bg;
+$data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
 
-/* @end */
-
-/* @group Content */
-
-.fht-table-wrapper,
-.fht-table-wrapper .fht-thead,
-.fht-table-wrapper .fht-tfoot,
-.fht-table-wrapper .fht-fixed-column .fht-tbody,
-.fht-table-wrapper .fht-fixed-body .fht-tbody,
-.fht-table-wrapper .fht-tbody {
-    /* appearance */
-    overflow: hidden;
-
-    /* position */
-    position: relative;
-}
-
-.fht-table-wrapper .fht-fixed-body .fht-tbody,
-.fht-table-wrapper .fht-tbody {
-    /* appearance */
+//
+// https://css-tricks.com/position-sticky-and-table-headers/
+//
+.ui-sdt {
     overflow: auto;
-}
+    position: relative;
+    font-size: $data_tbl_font_size;
+    /*	height: 100%; jal 20150717: this cannot work: all tables now overflow whatever they are contained in. */
 
-.fht-table-wrapper .fht-table .fht-cell {
-    /* appearance */
-    overflow: hidden;
 
-    /* size */
-    height: 1px;
-}
+    .ui-sdt-separator {
+        //background: url('hr-blue.png') no-repeat;
+        padding: 1px;
+    }
 
-.fht-table-wrapper .fht-fixed-column,
-.fht-table-wrapper .fht-fixed-body {
-    /* position */
-    top: 0;
-    left: 0;
-    position: absolute;
-}
+    .mselected, .selected {
+        background-color: $highlight2_bg; /* 20110217 jal OptimalDeltaRenderer goes wrong when setting this @ 1st select.... Leave for now. */
+    }
+    & > table > tr > td {
+        border: 0;
+        margin: 0;
+        padding: 0px 3px;
+        border-left: none;
+        height: 19px;
+        vertical-align: middle;
+    }
 
-.fht-table-wrapper .fht-fixed-column {
-    /* position */
-    z-index: 1;
+    & > table {
+        table-layout: fixed;
+        overflow: auto;
+        position: relative;
+        border-collapse: collapse;
+        border-spacing: 2px;
+        //width: 100%; jal 20171023 Let table default to 100% in Java, so that we can easily override it
+        border: 1px solid $data_tbl_border_color;
+
+        margin: 0;
+        padding: 0;
+    }
+
+    .ui-sdt-nores {
+        padding: 0px 0px 10px 0px;
+        font-style: italic;
+    }
+
+    /*** Header ***/
+
+    .ui-sdt-hdr {
+        text-align: left;
+        //height: calc(2.25em + 4px);
+
+        background: $data_tbl_header_bg;
+        border-left: none !important;
+        border-right: none;
+        border-bottom: none;
+        border-right: none;
+    }
+    .ui-sdt-hdr th {
+        position: sticky;
+        white-space: nowrap;
+        top: 0;
+        //line-height: 1.5em;
+        padding: 0;
+        //padding: calc(0.375em + 1px) 4px;
+        color: $data_tbl_header_text_color;
+        text-align: left;
+        height: 2.25em;
+        vertical-align: middle;
+        font-weight: bold;
+        //font-size: 1rem;
+
+        @include overflow-ellipsis();
+
+        //background: $data_tbl_header_bg;
+        border-left: none !important;
+        border-right: none;
+        border-bottom: none;
+        border-right: none;
+    }
+
+    .ui-sdt th:FIRST-CHILD, .ui-dt-hdr:FIRST-CHILD {
+        border-left: 1px solid $data_tbl_header_btm_border !important;
+        border-top: 1px solid $data_tbl_header_btm_border !important;
+    }
+
+    .ui-sdt th:LAST-CHILD, .ui-dt-hdr:LAST-CHILD {
+        border-right: 1px solid $data_tbl_header_btm_border;
+    }
+
+    th.ui-sortable {
+        cursor: pointer;
+    }
+    th[nowrap="nowrap"] .ui-sortable {
+        white-space: nowrap;
+    }
+
+    div.ui-sortable {
+        position: relative;
+    }
+
+    .ui-dt-th div {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .ui-sortable span {
+        //margin-left: 10px;
+    }
+    .ui-dt-sorticon {
+        width: 16px;
+        height: 16px;
+        background-position: center right;
+        background-repeat: no-repeat;
+        &.ui-sort-n {
+            background-image: url(data:image/gif;base64,R0lGODlhFQAJAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAkAAAIXjI+AywnaYnhUMoqt3gZXPmVg94yJVQAAOw==);
+            //background: url(sort-none.png) no-repeat;
+        }
+        &.ui-sort-a {
+            background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjI8Bya2wnINUMopZAQA7);
+            //background: url(sort-asc.png) no-repeat;
+        }
+        &.ui-sort-d {
+            background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7);
+            //background: url(sort-desc.png) no-repeat;
+        }
+
+    }
+
+    /*** Rows and columns ***/
+    tbody tr {
+        height: 30px;
+        border-bottom: 1px solid $data_tbl_lines_color;
+    }
+
+    tbody tr > td.ui-f-lbl:first-child {
+        min-width: 150px;
+        margin-left: 10px;
+    }
+
+    //.ui-dt-row > td > span {
+    //	padding: 0 4px;
+    //}
+    .ui-dt-row > td {
+        padding: 0 4px;
+        @include overflow-ellipsis();
+    }
+
+    .ui-odd {
+    }
+
+    .ui-even {
+        background: transparent;
+    }
+
+    tr.ui-rowsel {
+        cursor: pointer;
+    }
+    tr.ui-dt-row:hover {
+        /*	border: 1px solid #ffd55a !important; */
+        outline: 1px solid #ffd55a;
+        outline-offset: -1px;
+        background-color: #fff4d3 !important;
+        border-bottom: 1px solid transparent;
+    }
+
+    &.ui-dd-rowsel tbody > tr:hover {
+        outline: 1px solid #c3df8a;
+        outline-offset: -1px;
+        background-color: #f1f9e1 !important;
+        border-bottom: 1px solid transparent;
+    }
+
+    td.ui-cellsel {
+        cursor: pointer;
+        color: $link_color;
+    }
+
+    td.ui-cellsel:hover {
+        text-decoration: underline;
+        background-color: $data_tbl_cell_highlight_bg !important;
+        color: $data_tbl_cell_highlight_link_color_bg;
+    }
+
+
 }
 

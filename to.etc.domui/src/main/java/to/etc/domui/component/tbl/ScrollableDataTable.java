@@ -63,6 +63,9 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	private boolean m_allRendered;
 
+	@Nullable
+	private String m_tableWidth;
+
 	@NonNull
 	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
 		@Override
@@ -106,7 +109,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		m_dataBody = null;
 		m_errorDiv = null;
 		m_allRendered = false;
-		addCssClass("ui-dt");
+		addCssClass("ui-sdt");
 		setOverflow(Overflow.AUTO);
 		m_nextIndexToLoad = 0;
 
@@ -226,7 +229,8 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			return;
 		Table dataTable = m_dataTable = new Table();
 		add(dataTable);
-		dataTable.setCssClass("ui-dt-ovflw-tbl");
+		dataTable.setCssClass("ui-sdt-ovflw-tbl");
+		dataTable.setWidth(m_tableWidth);
 
 		//-- Render the header.
 		ColGroup cg = new ColGroup();
@@ -234,7 +238,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 		THead hd = new THead();
 		dataTable.add(hd);
-		HeaderContainer<T> hc = new HeaderContainer<T>(this, cg, hd, "ui-dt-hdr");
+		HeaderContainer<T> hc = new HeaderContainer<T>(this, cg, hd, "ui-sdt-hdr");
 
 		renderHeader(hc);
 		if(!hc.hasContent()) {
@@ -288,10 +292,9 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 
 		m_errorDiv = new Div();
-		m_errorDiv.setCssClass("ui-dt-nores");
+		m_errorDiv.setCssClass("ui-sdt-nores");
 		m_errorDiv.setText(Msgs.uiDatatableEmpty.getString());
 		add(m_errorDiv);
-		return;
 	}
 
 
@@ -301,14 +304,10 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	/**
 	 * DO NOT OVERRIDE - DEPRECATED FOR EXTERNAL USE!!
 	 * Renders row content into specified row.
-	 *
-	 * @param cc
-	 * @param index
-	 * @param value
-	 * @throws Exception
 	 */
 	@SuppressWarnings("deprecation")
 	private void renderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
+		tr.addCssClass("ui-dt-row");
 		//-- Is a rowclick handler needed?
 		ISelectionModel<T> sm = getSelectionModel();
 		if(m_rowRenderer.getRowClicked() != null || null != sm) {
@@ -342,11 +341,6 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	/**
 	 * Must exist for CheckBoxDataTable; remove asap AND DO NOT USE AGAIN - internal interfaces should remain hidden.
-	 * @param tr
-	 * @param cc
-	 * @param index
-	 * @param value
-	 * @throws Exception
 	 */
 	@Deprecated
 	private void internalRenderRow(@NonNull final TR tr, @NonNull ColumnContainer<T> cc, int index, @NonNull final T value) throws Exception {
@@ -355,12 +349,6 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	/**
 	 * Click handler for rows. This handles both row clicked handling and row selection handling.
-	 *
-	 * @param tbl
-	 * @param b
-	 * @param instance
-	 * @param clinfo
-	 * @throws Exception
 	 */
 	private void handleRowClick(final TR b, final T instance, final ClickInfo clinfo) throws Exception {
 		//-- If we have a selection model: check if this is some selecting clicky.
@@ -385,11 +373,6 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	/**
 	 * When checkbox itself is clicked, this handles shift stuff.
-	 * @param instance
-	 * @param checked
-	 * @param info
-	 * @param clickednode
-	 * @throws Exception
 	 */
 	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @NonNull Checkbox checkbox) throws Exception {
 		handleSelectClicky(instance, info, Boolean.valueOf(checked));
@@ -404,8 +387,6 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	 * Handle a click that is meant to select/deselect the item(s). It handles ctrl+click as "toggle selection",
 	 * and shift+click as "toggle everything between this and the last one".
 	 *
-	 * @param instance
-	 * @param clinfo
 	 * @param setTo		When null toggle, else set to specific.
 	 */
 	private void handleSelectClicky(@NonNull T instance, @NonNull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
@@ -473,9 +454,6 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	/*--------------------------------------------------------------*/
 	/**
 	 * Updates the "selection" state of the specified local row#.
-	 * @param instance
-	 * @param i
-	 * @param on
 	 */
 	private void updateSelectionChanged(T instance, int lrow, boolean on) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
@@ -734,7 +712,10 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	}
 
 	public void setTableWidth(@Nullable String w) {
-		tbl().setTableWidth(w);
+		m_tableWidth = w;
+		Table dataTable = m_dataTable;
+		if(dataTable != null)
+			dataTable.setWidth(w);
 	}
 
 	@NonNull
