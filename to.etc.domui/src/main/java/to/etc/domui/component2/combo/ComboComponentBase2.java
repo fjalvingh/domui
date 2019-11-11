@@ -76,6 +76,11 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		protected boolean internalOnUserInput(int oldindex, int nindex) {
 			return ComboComponentBase2.this.internalOnUserInput(oldindex, nindex);
 		}
+
+		@Override
+		public boolean isFocusable() {
+			return ! m_disableFocus;
+		}
 	};
 
 	/**
