@@ -455,12 +455,13 @@ namespace WebUI {
 	}
 
 	export function scrollableTableReset(id, tblid) {
+		initScrollableTable(id, tblid);
+
 		let tbl = $('#' + tblid);
 		let container = $('#' + id);
-		// (tbl as any).floatThead('reflow');
-		WebUI.doCustomUpdates();
-
-		$.dbg('recreate');
+		// // (tbl as any).floatThead('reflow');
+		// WebUI.doCustomUpdates();
+		// $.dbg('recreate');
 
 		//tbl.floatThead('destroy');
 		//tbl.floatThead({

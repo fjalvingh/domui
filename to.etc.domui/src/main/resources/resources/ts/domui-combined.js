@@ -892,10 +892,9 @@ var WebUI;
     }
     WebUI.FCKeditor_OnComplete = FCKeditor_OnComplete;
     function scrollableTableReset(id, tblid) {
+        initScrollableTable(id, tblid);
         var tbl = $('#' + tblid);
         var container = $('#' + id);
-        WebUI.doCustomUpdates();
-        $.dbg('recreate');
         container.scrollTop(0);
     }
     WebUI.scrollableTableReset = scrollableTableReset;
