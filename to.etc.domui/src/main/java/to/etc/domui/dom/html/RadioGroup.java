@@ -38,6 +38,8 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	private boolean m_mandatory;
 
+	private boolean m_valueIsSet;
+
 	public RadioGroup() {
 		m_groupName = "g" + nextID();
 	}
@@ -78,8 +80,9 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	@Override
 	public void setValue(T value) {
-		if(MetaManager.areObjectsEqual(value, m_value))
+		if(MetaManager.areObjectsEqual(value, m_value) && m_valueIsSet)
 			return;
+		m_valueIsSet = true;
 		m_value = value;
 		for(RadioButton<T> rb : getButtonList()) {
 			rb.setChecked(MetaManager.areObjectsEqual(value, rb.getButtonValue()));
@@ -98,7 +101,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	final public void setBindValue(T value) {
-		if(MetaManager.areObjectsEqual(m_value, value)) {
+		if(MetaManager.areObjectsEqual(m_value, value) && m_valueIsSet) {
 			return;
 		}
 		setValue(value);

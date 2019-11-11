@@ -29,6 +29,8 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	private Map<V, Checkbox> m_checkMap = new HashMap<>();
 
+	private boolean m_asButtons;
+
 	@NonNull
 	abstract protected V listToValue(@NonNull T in) throws Exception;
 
@@ -174,5 +176,10 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	@Override public void setHint(String hintText) {
 		setTitle(hintText);
+	}
+
+	protected CheckboxSetInputBase<V, T> asButtons() {
+		m_asButtons = true;
+		return this;
 	}
 }

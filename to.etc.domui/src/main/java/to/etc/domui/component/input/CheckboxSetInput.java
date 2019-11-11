@@ -22,4 +22,11 @@ public class CheckboxSetInput<T> extends CheckboxSetInputBase<T, T> {
 		super.css(css);
 		return this;
 	}
+
+	@Override
+	public CheckboxSetInput<T> asButtons() {
+		super.asButtons();
+		return this;
+	}
+
 }
