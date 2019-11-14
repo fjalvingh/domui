@@ -24,7 +24,7 @@
         <jdk.version>11</jdk.version>
         <ecj.version>3.16.0</ecj.version>
         <!--<ecj.version>3.13.102</ecj.version>-->
-        <kotlin.version>1.3.40</kotlin.version>
+        <kotlin.version>1.3.50</kotlin.version>
 
         <!-- Plugin versions -->
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
@@ -496,6 +496,18 @@
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
                 <version>${jaxb.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.atlassian.jira</groupId>
+                <artifactId>jira-rest-java-client-core</artifactId>
+                <version>5.1.6</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.google.code.findbugs</groupId>
+                        <artifactId>jsr305</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
 
