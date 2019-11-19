@@ -14,10 +14,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -39,6 +43,8 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 
 	private int m_headerRowCount;
 
+	private final NumberFormat m_doubleFormatter;
+
 	public ExcelRowReader(File file) throws Exception {
 		String suffix = FileTool.getFileExtension(file.getName());
 		ExcelFormat format = ExcelFormat.byExtension(suffix);
@@ -49,12 +55,21 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		m_inputStream = is;
 		m_format = format;
 		m_workbook = openWorkbook();
+
+		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(Locale.US);
+		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
+	}
+
+	public String convertDouble(double value) {
+		return m_doubleFormatter.format(value);
 	}
 
 	public ExcelRowReader(InputStream is, ExcelFormat format) throws Exception {
 		m_inputStream = is;
 		m_format = format;
 		m_workbook = openWorkbook();
+		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(Locale.US);
+		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
 	}
 
 	@NonNull @Override public Iterator<IImportRow> iterator() {
@@ -70,7 +85,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	@Override public IImportRow getHeaderRow() {
 		if(m_headerRowCount <= 0)
 			throw new IllegalStateException("You cannot ask for a header row when hasHeaderRow is false");
-		return new ExcelImportRow(getSheet().getRow(getSheet().getFirstRowNum() + m_headerRowCount - 1), Collections.emptyList());
+		return new ExcelImportRow(this, getSheet().getRow(getSheet().getFirstRowNum() + m_headerRowCount - 1), Collections.emptyList());
 	}
 
 	private void checkStart() {
@@ -207,7 +222,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			m_progressIndicator++;
 			if(null == row)
 				return new EmptyRow();
-			return new ExcelImportRow(row, m_headerNames);
+			return new ExcelImportRow(ExcelRowReader.this, row, m_headerNames);
 		}
 	}
 

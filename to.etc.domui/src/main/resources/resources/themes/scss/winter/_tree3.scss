@@ -1,0 +1,138 @@
+// https://codepen.io/bisserof/pen/fdtBm
+
+.ui-tree3 {
+	margin: 1em;
+	list-style: none;
+
+	ul.ui-tree3-list, li.ui-tree3-item {
+		padding: 0;
+		margin: 0;
+		list-style: none;
+	}
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+// tree rows
+.ui-tree3 li.ui-tree3-item {
+	line-height: 1.2;
+	position: relative;
+	padding: 0 0 1em 1em;
+}
+
+.ui-tree3-rootlist ul.ui-tree3-list li.ui-tree3-item {
+	padding: 1em 0 0 1em;
+}
+
+ul.ui-tree3-list > li:last-child {
+	padding-bottom: 0;
+}
+
+// Fold/unfold button
+.ui-tree3-fbtn {
+	background: #000;
+	color: #fff;
+	position: relative;
+	z-index: 1;
+	float: left;
+	margin: 0 1em 0 -2em;
+	width: 1em;
+	height: 1em;
+	border-radius: 1em;
+	content: '+';
+	text-align: center;
+	line-height: .9em;
+}
+.ui-tree3-leaf > .ui-tree3-fbtn {
+	display: none;
+}
+
+
+//.ui-tree3-branch:before {
+//	background: #000;
+//	color: #fff;
+//	position: relative;
+//	z-index: 1;
+//	float: left;
+//	margin: 0 1em 0 -2em;
+//	width: 1em;
+//	height: 1em;
+//	border-radius: 1em;
+//	content: '+';
+//	text-align: center;
+//	line-height: .9em;
+//}
+
+//li.ui-tree3-opened > .ui-tree3-branch:before {
+//	content: '-';
+//}
+
+// tree labels
+.ui-tree3-label {
+	position: relative;
+	display: inline-block;
+	background: #fff;
+	cursor: pointer;
+
+	&:hover {
+		outline: 1px solid #ffd55a;
+		outline-offset: -1px;
+	}
+	&.ui-tree3-selected {
+		background-color: $highlight2_bg;
+	}
+}
+
+// tree branches
+ul.ui-tree3-list li:before { // Line before entire li.
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: -.5em;
+	display: block;
+	width: 0;
+	border-left: 1px solid #777;
+	content: "";
+}
+
+.ui-tree3-label:after {				// Line \-- leading to a leaf child
+	position: absolute;
+	top: 0;
+	left: -1.5em;
+	display: block;
+	height: 0.5em;
+	width: 1em;
+	border-bottom: 1px solid #777;
+	border-left: 1px solid #777;
+	border-radius: 0 0 0 .3em;
+	content: '';
+}
+
+//- hides a horizontal bar leading to the expanded node
+.ui-tree3-branch > .ui-tree3-label:after { border-bottom: 0; }
+
+.ui-tree3-opened > .ui-tree3-label:after {		// --\ line from opened level to children
+	border-radius: 0 .3em 0 0;
+	border-top: 1px solid #777;
+	border-right: 1px solid #777;
+	border-bottom: 0;
+	border-left: 0;
+	bottom: 0;
+	top: 0.5em;
+	height: auto;
+	box-sizing: content-box;
+}
+
+ul.ui-tree3-list > li:last-child:before {
+	height: 1em;
+	bottom: auto;
+}
+
+ul.ui-tree3-rootlist > li:last-child:before {
+	display: none;
+}
+
+
+

@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.login.IUser;
 import to.etc.domui.state.AppSession;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UserLogItem;
 import to.etc.domui.util.DomUtil;
@@ -19,6 +20,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,26 +38,25 @@ final public class ExceptionUtil {
 		sb.append("<thead><tr>\n");
 		sb.append("<th>name</th><th>Value</th>");
 		sb.append("</tr></thead>\n");
-		String[] names = m_ctx.getParameterNames();
-		if(names != null) {
-			for(String name: names) {
-				boolean first = true;
-				String[] values = m_ctx.getParameters(name);
-				if(values == null || values.length == 0) {
-					sb.append("<tr><td>").append(StringTool.htmlStringize(name)).append("</td><td>No value</td></tr>");
-				} else {
-					for(String value : values) {
-						sb.append("<tr><td>");
-						if(first)
-							sb.append(StringTool.htmlStringize(name));
-						else
-							sb.append("\u00a0");
-						first = false;
-						sb.append("</td><td>");
+		IPageParameters pp = m_ctx.getPageParameters();
+		Set<String> names = pp.getParameterNames();
+		for(String name: names) {
+			boolean first = true;
+			String[] values = pp.getStringArray(name, null);
+			if(values == null || values.length == 0) {
+				sb.append("<tr><td>").append(StringTool.htmlStringize(name)).append("</td><td>No value</td></tr>");
+			} else {
+				for(String value : values) {
+					sb.append("<tr><td>");
+					if(first)
+						sb.append(StringTool.htmlStringize(name));
+					else
+						sb.append("\u00a0");
+					first = false;
+					sb.append("</td><td>");
 
-						sb.append(StringTool.htmlStringize(value));
-						sb.append("</td></tr>");
-					}
+					sb.append(StringTool.htmlStringize(value));
+					sb.append("</td></tr>");
 				}
 			}
 		}
@@ -120,23 +121,22 @@ final public class ExceptionUtil {
 		mb.nl();
 		mb.ttl("Page input parameters");
 
-		String[] names = m_ctx.getParameterNames();
-		if(names != null) {
-			for(String name : names) {
-				boolean first = true;
-				String[] values = m_ctx.getParameters(name);
-				if(values == null || values.length == 0) {
-					mb.b(name).append(": ");
-					mb.append("No value").nl();
-				} else {
-					for(String value : values) {
-						if(first)
-							mb.b(name).append(": ");
-						else
-							mb.append(StringTool.strToFixedLength("", name.length())).append(": ");
-						first = false;
-						mb.append(value).nl();
-					}
+		IPageParameters pp = m_ctx.getPageParameters();
+		Set<String> names = pp.getParameterNames();
+		for(String name : names) {
+			boolean first = true;
+			String[] values = pp.getStringArray(name, null);
+			if(values == null || values.length == 0) {
+				mb.b(name).append(": ");
+				mb.append("No value").nl();
+			} else {
+				for(String value : values) {
+					if(first)
+						mb.b(name).append(": ");
+					else
+						mb.append(StringTool.strToFixedLength("", name.length())).append(": ");
+					first = false;
+					mb.append(value).nl();
 				}
 			}
 		}

@@ -25,7 +25,7 @@
 package to.etc.domui.parts;
 
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.util.StringTool;
 
@@ -40,13 +40,13 @@ public class ButtonPartKey {
 
 	private String m_img;
 
-	static public ButtonPartKey decode(IExtendedParameterInfo info) {
+	static public ButtonPartKey decode(IPageParameters info) {
 		ButtonPartKey k = new ButtonPartKey();
-		k.setPropFile(info.getParameter("src"));
-		k.setText(info.getParameter("txt"));
-		k.setIcon(info.getParameter("icon"));
-		k.setColor(info.getParameter("color"));
-		k.setImg(info.getParameter("img"));
+		k.setPropFile(info.getString("src", null));
+		k.setText(info.getString("txt", null));
+		k.setIcon(info.getString("icon", null));
+		k.setColor(info.getString("color", null));
+		k.setImg(info.getString("img", null));
 		return k;
 	}
 

@@ -155,8 +155,8 @@ import java.util.concurrent.TimeoutException;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 12, 2006
  */
-public class VpEventManager implements Runnable {
-	static private final Logger LOG = LoggerFactory.getLogger(VpEventManager.class);
+public class DbEventManager implements Runnable {
+	static private final Logger LOG = LoggerFactory.getLogger(DbEventManager.class);
 
 	static private final long DELETEINTERVAL = 10 * 60 * 1000;
 
@@ -174,11 +174,11 @@ public class VpEventManager implements Runnable {
 	}
 
 	@Nullable
-	static private VpEventManager m_instance;
+	static private DbEventManager m_instance;
 
 	/** If initialized in test mode this contains the per-thread instances of this singleton. */
 	@Nullable
-	static private ThreadLocal<VpEventManager> m_testInstances;
+	static private ThreadLocal<DbEventManager> m_testInstances;
 
 	@NonNull
 	private DataSource m_ds;
@@ -226,7 +226,7 @@ public class VpEventManager implements Runnable {
 	/*	CODING:	Singleton init.                                  	*/
 	/*--------------------------------------------------------------*/
 
-	private VpEventManager(@NonNull final DataSource ds, @NonNull final String tableName, @NonNull final IEventMarshaller eventMarshaller) {
+	private DbEventManager(@NonNull final DataSource ds, @NonNull final String tableName, @NonNull final IEventMarshaller eventMarshaller) {
 		m_ds = ds;
 		m_tableName = tableName;
 		m_eventMarshaller = eventMarshaller;
@@ -242,9 +242,9 @@ public class VpEventManager implements Runnable {
 	 *
 	 * @return
 	 */
-	static synchronized public VpEventManager getInstance() {
-		ThreadLocal<VpEventManager> tl = m_testInstances;
-		VpEventManager em;
+	static synchronized public DbEventManager getInstance() {
+		ThreadLocal<DbEventManager> tl = m_testInstances;
+		DbEventManager em;
 		if(null != tl) {
 			em = tl.get();
 			if(null == em) {
@@ -259,10 +259,10 @@ public class VpEventManager implements Runnable {
 		return em;
 	}
 
-	private static VpEventManager initDummyEventManagerForTest() {
+	private static DbEventManager initDummyEventManagerForTest() {
 		IEventMarshaller dummyEM = new IEventMarshaller() {
 			@Override
-			public <T extends AppEventBase> T unmarshalEvent(String varchar) throws Exception {
+			public <T extends AppEventBase> T unmarshalEvent(String evname, String varchar) throws Exception {
 				return null;
 			}
 
@@ -271,34 +271,30 @@ public class VpEventManager implements Runnable {
 				return "";
 			}
 		};
-		return new VpEventManager(new TestDataSourceStub(), "sys_vp_events", dummyEM);
+		return new DbEventManager(new TestDataSourceStub(), "sys_db_events", dummyEM);
 	}
 
 	/**
 	 * Initialize for production mode.
-	 * @param ds
-	 * @param tableName
-	 * @param eventMarshaller
-	 * @throws Exception
 	 */
 	static public synchronized void initialize(final DataSource ds, final String tableName, @NonNull final IEventMarshaller eventMarshaller) throws Exception {
-		ThreadLocal<VpEventManager> tl = m_testInstances;
+		ThreadLocal<DbEventManager> tl = m_testInstances;
 		if(null != tl)
-			throw new IllegalStateException("The VpEventManager has already been initialized for TEST mode");
+			throw new IllegalStateException("The DbEventManager has already been initialized for TEST mode");
 		if(m_instance != null)
 			return;
 
-		VpEventManager em = new VpEventManager(ds, tableName, eventMarshaller);
+		DbEventManager em = new DbEventManager(ds, tableName, eventMarshaller);
 		em.init();
 		m_instance = em;
 	}
 
 	static public synchronized void initializeForTest() {
 		if(m_instance != null)
-			throw new IllegalStateException("The VpEventManager has already been initialized for PRODUCTION mode");
-		ThreadLocal<VpEventManager> tl = m_testInstances;
+			throw new IllegalStateException("The DbEventManager has already been initialized for PRODUCTION mode");
+		ThreadLocal<DbEventManager> tl = m_testInstances;
 		if(null == tl) {
-			m_testInstances = tl = new ThreadLocal<VpEventManager>();
+			m_testInstances = tl = new ThreadLocal<DbEventManager>();
 		}
 	}
 
@@ -312,7 +308,7 @@ public class VpEventManager implements Runnable {
 
 	private void exception(final Throwable t, final String s) {
 		LOG.error(s, t);
-		System.out.println("VpEventManager: EXCEPTION " + s);
+		System.out.println("DbEventManager: EXCEPTION " + s);
 		t.printStackTrace();
 	}
 
@@ -334,8 +330,6 @@ public class VpEventManager implements Runnable {
 
 	/**
 	 * Tries to create the table if it doesn't exist. Ignores all errors.
-	 *
-	 * @param dbc
 	 */
 	private void createTable(final Connection dbc) {
 		PreparedStatement ps = null;
@@ -372,6 +366,7 @@ public class VpEventManager implements Runnable {
 			//-- Create the sequence,
 			ps = dbc.prepareStatement(seq);
 			ps.executeUpdate();
+			dbc.commit();
 		} catch(Exception x) {
 			String msg = x.toString().toLowerCase();
 
@@ -386,6 +381,9 @@ public class VpEventManager implements Runnable {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {}
+			try {
+				dbc.rollback();
+			} catch(Exception x) {}
 		}
 	}
 
@@ -394,10 +392,6 @@ public class VpEventManager implements Runnable {
 	 * causes an exception. This creates the database table (if needed), opens the event manager for event registration
 	 * and allows posting events. The event handler thread is *not* started though - it should be started by a call to start() after
 	 * system initialization completes fully, to allow started events to use the entire system.
-	 *
-	 * @param ds
-	 * @param tableName
-	 * @throws Exception
 	 */
 	private synchronized void init() throws Exception {
 		Connection dbc = null;
@@ -434,7 +428,7 @@ public class VpEventManager implements Runnable {
 			if(m_handlerThread != null)
 				return;
 			m_handlerThread = new Thread(this);
-			m_handlerThread.setName("SystemEventManager");
+			m_handlerThread.setName("DbEvMan");
 			m_handlerThread.setDaemon(true);
 			m_handlerThread.start();
 		}
@@ -537,9 +531,6 @@ public class VpEventManager implements Runnable {
 
 	/**
 	 * Reads a single row from the event list. Skips serialization errors.
-	 * @param rs
-	 * @param al
-	 * @throws Exception
 	 */
 	private void readEventObject(final ResultSet rs, final List<AppEventBase> al) throws Exception {
 		//-- 1. Get fields
@@ -548,14 +539,14 @@ public class VpEventManager implements Runnable {
 			if(upid > m_upid)
 				m_upid = upid;
 		}
-		//        String  evname  = rs.getString(2);
+		String  evname  = rs.getString(2);
 		Timestamp ts = rs.getTimestamp(3);
 		String server = rs.getString(4);
 		String objectString = rs.getString(5);
 
-		//-- Unserialize
+		//-- Unmarshal
 		try {
-			AppEventBase act = m_eventMarshaller.unmarshalEvent(objectString);
+			AppEventBase act = m_eventMarshaller.unmarshalEvent(evname, objectString);
 			if(act == null) {
 				log("Event " + upid + " skipped: the embedded object is null");
 				return;
@@ -570,7 +561,6 @@ public class VpEventManager implements Runnable {
 			al.add(e);
 		} catch(Exception x) {
 			log("Event " + upid + ": serialization got exception " + x);
-			//			x.printStackTrace();
 		}
 	}
 
@@ -660,7 +650,7 @@ public class VpEventManager implements Runnable {
 				dbc.setAutoCommit(false);
 
 			//-- Get a new upid
-			ps = dbc.prepareStatement("select " + m_tableName + "_SQ.nextval from dual");
+			ps = dbc.prepareStatement(nextId());
 			rs = ps.executeQuery();
 			if(!rs.next())
 				throw new SQLException("No result from select-from-sequence!?");
@@ -709,6 +699,19 @@ public class VpEventManager implements Runnable {
 		}
 	}
 
+	private String nextId() {
+		switch(m_dbtype) {
+			default:
+				throw new IllegalStateException("Unsupported db " + m_dbtype);
+
+			case ORACLE:
+				return "select " + m_tableName + "_SQ.nextval from dual";
+
+			case POSTGRES:
+				return "select nextval('" + m_tableName + "_sq')";
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Listener caller                                  	*/
 	/*--------------------------------------------------------------*/
@@ -743,8 +746,6 @@ public class VpEventManager implements Runnable {
 
 	/**
 	 * Remove a weak or normal listener from a map.
-	 * @param cl
-	 * @param listener
 	 */
 	public synchronized void removeListener(@NonNull final Class< ? > cl, @NonNull final AppEventListener< ? > listener) {
 		List<Item> l = m_listenerList.get(cl.getName());

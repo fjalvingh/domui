@@ -27,9 +27,12 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
 import to.etc.domui.state.ConversationContext;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.state.RequestContextParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.themes.DefaultThemeVariant;
@@ -40,6 +43,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.upload.UploadItem;
 import to.etc.util.FileTool;
 import to.etc.util.WrappedException;
+import to.etc.webapp.crawlers.Crawlers;
 
 import java.io.File;
 import java.io.IOException;
@@ -113,10 +117,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
+	@NonNull
+	private IPageParameters m_parameterWrapper;
+
 	public RequestContextImpl(@NonNull IRequestResponse rr, @NonNull DomApplication app, @NonNull AppSession ses) {
 		m_requestResponse = rr;
 		m_application = app;
 		m_session = ses;
+		m_parameterWrapper = new RequestContextParameters(this);
 
 		//-- ViewPoint sends malconstructed URLs containing duplicated slashes.
 		String urlin = rr.getRequestURI();
@@ -136,46 +144,64 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		m_inputPath = urlin;
 
 		/*
-		 * Split the url into separate parts. If the URL has an extension then the last part
-		 * is treated as the pageName, and it gets stored into pageName, without the extension.
-		 * The part before the pageName is the contextString, which - if present - is the
-		 * items/separated/by/slashes/ part which always ends in a / if actually present.
+		 * Is the input known to the URL mapper?
 		 */
-
-		//-- Extension and context
-		int pos = urlin.lastIndexOf('.');
-		int slpos = urlin.lastIndexOf('/');
-		if(pos < slpos)									// Dot before the slash means it's inside the context, leave that
-			pos = -1;
-
-		if(pos == -1) {
-			//-- No extension, treat the whole as the urlContextString
-			m_pageName = null;
-			m_extension = "";
-			m_extensionWithoutDot = "";
-			if(urlin.length() > 0 && !urlin.endsWith("/"))
-				urlin += "/";
-			m_urlContextString = urlin;
+		Target target = app.getPageUrlMapping().findTarget(urlin, m_parameterWrapper);
+		if(null != target) {
+			m_pageName = target.getTargetPage();
+			m_parameterWrapper = target.getParameters();
+			m_extension = "." + m_application.getUrlExtension();
+			m_extensionWithoutDot = m_application.getUrlExtension();
+			m_urlContextString = "";
 		} else {
-			//-- No slash but an extension.
-			m_extension = urlin.substring(pos);			// Extension INCLUDING dot
-			m_extensionWithoutDot = urlin.substring(pos + 1);
-			if(slpos == -1) {
-				m_urlContextString = "";				// No URL context string
-				m_pageName = urlin.substring(0, pos);	// page name without extension
+			/*
+			 * Split the url into separate parts. If the URL has an extension then the last part
+			 * is treated as the pageName, and it gets stored into pageName, without the extension.
+			 * The part before the pageName is the contextString, which - if present - is the
+			 * items/separated/by/slashes/ part which always ends in a / if actually present.
+			 */
+
+			//-- Extension and context
+			int pos = urlin.lastIndexOf('.');
+			int slpos = urlin.lastIndexOf('/');
+			if(pos < slpos)                                    // Dot before the slash means it's inside the context, leave that
+				pos = -1;
+
+			if(pos == -1) {
+				//-- No extension, treat the whole as the urlContextString
+				m_pageName = null;
+				m_extension = "";
+				m_extensionWithoutDot = "";
+				if(urlin.length() > 0 && !urlin.endsWith("/"))
+					urlin += "/";
+				m_urlContextString = urlin;
 			} else {
-				slpos++;								// past /
-				m_urlContextString = urlin.substring(0, slpos);
-				m_pageName = urlin.substring(slpos, pos);
+				//-- No slash but an extension.
+				m_extension = urlin.substring(pos);            // Extension INCLUDING dot
+				m_extensionWithoutDot = urlin.substring(pos + 1);
+				if(slpos == -1) {
+					m_urlContextString = "";                // No URL context string
+					m_pageName = urlin.substring(0, pos);    // page name without extension
+				} else {
+					slpos++;                                // past /
+					m_urlContextString = urlin.substring(0, slpos);
+					m_pageName = urlin.substring(slpos, pos);
+				}
 			}
 		}
 
 		Set<String> nameSet = app.getPersistentParameterSet();
 		for(String name : nameSet) {
-			String parameter = getParameter(name);
+			String parameter = getRequestResponse().getParameter(name);
 			if(null != parameter)
 				m_persistedParameterMap.put(name, parameter);
 		}
+	}
+
+	@NonNull
+	@Override
+	public IPageParameters getPageParameters() {
+		return m_parameterWrapper;
 	}
 
 	@NonNull public Map<String, String> getPersistedParameterMap() {
@@ -247,7 +273,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			return m_windowSession;
 
 		//-- Conversation manager needed.. Can we find one?
-		String cid = getParameter(Constants.PARAM_CONVERSATION_ID);
+		String cid = getRequestResponse().getParameter(Constants.PARAM_CONVERSATION_ID);
 		if(cid != null) {
 			CidPair cida = CidPair.decode(cid);
 			m_windowSession = getSession().findWindowSession(cida.getWindowId());
@@ -308,7 +334,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 *	<li>The context NEVER starts with a slash</li>
 	 * </ul>
 	 */
-	@Override
 	@NonNull
 	public final String getInputPath() {
 		return m_inputPath;
@@ -327,7 +352,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	 *
 	 * The following always holds: {@link #getUrlContextString()} + {@link #getPageName()} + m_extension = {@link #getInputPath()}.
 	 */
-	@Override
 	@NonNull
 	public String getUrlContextString() {
 		return m_urlContextString;
@@ -350,7 +374,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_requestResponse.getUserAgent();
 	}
 
-	@Override
 	public BrowserVersion getBrowserVersion() {
 		if(m_browserVersion == null) {
 			m_browserVersion = BrowserVersion.parseUserAgent(getUserAgent());
@@ -360,7 +383,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * This should be replaced by getThemeName below as that uniquely identifies the theme.
-	 * @return
 	 */
 	@NonNull @Override final public ITheme getCurrentTheme() {
 		ITheme currentTheme = m_currentTheme;
@@ -376,7 +398,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	static private final String THEMENAME = "ctx$themename";
 
-	@NonNull @Override public String getThemeName() {
+	@NonNull public String getThemeName() {
 		String themeName = m_themeName;
 		if(null == themeName) {
 			 themeName = (String) getSession().getAttribute(THEMENAME);
@@ -435,9 +457,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	//		}
 	}
 
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getRelativePath(java.lang.String)
-	 */
 	@Override
 	public @NonNull String getRelativePath(@NonNull String rel) {
 		if(DomUtil.isAbsoluteURL(rel))
@@ -472,7 +491,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * Send a redirect response to the client.
-	 * @param newUrl
 	 */
 	public void redirect(@NonNull String newUrl) throws Exception {
 		getRequestResponse().redirect(newUrl);
@@ -480,8 +498,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	/**
 	 * Send an error back to the client.
-	 * @param httpErrorCode
-	 * @param message
 	 */
 	public void sendError(int httpErrorCode, @NonNull String message) throws Exception {
 		getRequestResponse().sendError(httpErrorCode, message);
@@ -498,35 +514,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * @see to.etc.domui.server.IRequestContext#getParameter(java.lang.String)
-	 */
-	@Override
-	@Nullable
-	public String getParameter(@NonNull String name) {
-		return m_requestResponse.getParameter(name);
-	}
-
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
-	 */
-	@Override
-	@NonNull
-	public String[] getParameters(@NonNull String name) {
-		return m_requestResponse.getParameters(name);
-	}
-
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getParameterNames()
-	 */
-	@Override
-	@NonNull
-	public String[] getParameterNames() {
-		return m_requestResponse.getParameterNames();
-	}
-
-	/**
 	 * Returns the names of all file parameters.
-	 * @return
 	 */
 	public String[] getFileParameters() throws Exception {
 		return m_requestResponse.getFileParameters();
@@ -536,23 +524,9 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		return m_requestResponse.getFileParameter(name);
 	}
 
-//	/**
-//	 * DO NOT USE - functionality only present for declarative security.
-//	 * @see to.etc.domui.server.IRequestContext#getRemoteUser()
-//	 */
-//	@Deprecated
-//	@Override
-//	public String getRemoteUser() {
-//		return getRequest().getRemoteUser();
-//	}
-//
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IAttributeContainer implementation.					*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @see to.etc.domui.server.IAttributeContainer#getAttribute(java.lang.String)
-	 */
 	@Override
 	public Object getAttribute(@NonNull String name) {
 		return m_attributeMap.get(name);
@@ -566,5 +540,14 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 			m_attributeMap.remove(name);
 		else
 			m_attributeMap.put(name, value);
+	}
+
+	@Override
+	public boolean isCrawler() {
+		IRequestResponse rr = getRequestResponse();
+		if(rr instanceof HttpServerRequestResponse) {
+			return Crawlers.INSTANCE.isCrawler(((HttpServerRequestResponse) rr).getRequest());
+		}
+		return false;
 	}
 }

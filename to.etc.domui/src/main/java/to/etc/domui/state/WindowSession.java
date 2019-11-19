@@ -33,6 +33,7 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.ApplicationRequestHandler;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.trouble.NotLoggedInException;
 import to.etc.domui.util.Constants;
@@ -409,7 +410,7 @@ final public class WindowSession {
 		}
 
 		/*
-		 * Look back in the page shelve and check if a compatible page is present there. If so
+		 * Look back in the page shelf and check if a compatible page is present there. If so
 		 * we move back by destroying the pages "above" the target.
 		 */
 		//-- Locate the specified page/conversation in the page stack,
@@ -531,17 +532,23 @@ final public class WindowSession {
 
 		//-- Create the path URL
 		String urlContext = m_urlContext == null ? ctx.getUrlContextString() : m_urlContext;
-		sb.append(urlContext).append(to.getBody().getClass().getName()).append('.').append(ctx.getApplication().getUrlExtension());
-		String pagePath = ctx.getRelativePath(sb.toString());			// Convert to app URL
-		sb.setLength(0);
-		sb.append(pagePath);
+		IPageParameters pp = to.getPageParameters();
+		UrlAndParameters urlString = m_appSession.getApplication().getPageUrlMapping().getUrlString(to.getBody().getClass(), to.getPageParameters());
+		if(null == urlString) {
+			sb.append(urlContext).append(to.getBody().getClass().getName()).append('.').append(ctx.getApplication().getUrlExtension());
+			String pagePath = ctx.getRelativePath(sb.toString());            // Convert to app URL
+			sb.setLength(0);
+			sb.append(pagePath);
+		} else {
+			sb.append(urlString.getUrl());
+			pp = urlString.getPageParameters();
+		}
 		sb.append('?');
 		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 		sb.append('=');
 		sb.append(to.getConversation().getFullId());
 
 		//-- If the parameter string is too big we need to keep them in memory.
-		IPageParameters pp = to.getPageParameters();
 		if(pp.getDataLength() > 1024) {
 			//-- We need a large referral
 			to.getConversation().setAttribute("__ORIPP", pp);
@@ -799,13 +806,6 @@ final public class WindowSession {
 	private void callNewPageCreatedListeners(@NonNull Page pg) throws Exception {
 		getApplication().callNewPageCreatedListeners(pg);
 	}
-
-// jal 20091122 Bug# 605 Move this globally.
-//	private void callNewPageListeners(final Page pg) throws Exception {
-//		PageContext.internalSet(pg); // Jal 20081103 Set state before calling add listeners.
-//		for(INewPageInstantiated npi : getApplication().getNewPageInstantiatedListeners())
-//			npi.newPageInstantiated(m_currentPage.getBody());
-//	}
 
 	/**
 	 * Check to see if we can use a page stack entry.

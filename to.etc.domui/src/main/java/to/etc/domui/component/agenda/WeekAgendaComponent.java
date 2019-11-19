@@ -587,14 +587,8 @@ public class WeekAgendaComponent<T extends ScheduleItem> extends Div implements 
 	@Override
 	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if("newappt".equals(action)) {
-			String s = ctx.getParameter("date");
-			if(s == null)
-				throw new IllegalStateException("WeekAgendaComponent: missing date");
-			long val = Long.parseLong(s);
-			s = ctx.getParameter("duration");
-			if(s == null)
-				throw new IllegalStateException("WeekAgendaComponent: missing duration");
-			long dur = Long.parseLong(s);
+			long val = ctx.getPageParameters().getLong("date");
+			long dur = ctx.getPageParameters().getLong("duration");
 
 			if(getNewAppointmentListener() != null) {
 				Calendar cal = Calendar.getInstance();

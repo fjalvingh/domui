@@ -55,50 +55,71 @@ namespace WebUI {
 	 */
 	export function registerPopinClose(id): void {
 		_popinCloseList.push(id);
-		$(id).bind("mouseleave", popinMouseClose);
+		// $(id).bind("mouseleave", popinMouseClose);
 		if(_popinCloseList.length != 1)
 			return;
 		$(document.body).bind("keydown", popinKeyClose);
-//		$(document.body).bind("beforeclick", WebUI.popinBeforeClick);	// Called when a click is done somewhere - not needed anymore, handled from java
+		$(document.body).bind("mousedown", popinMouseClose);
 	}
 
 	export function popinClosed(id): void {
 		for(let i = 0; i < _popinCloseList.length; i++) {
 			if(id === _popinCloseList[i]) {
 				//-- This one is done -> remove mouse handler.
-				$(id).unbind("mousedown", popinMouseClose);
 				_popinCloseList.splice(i, 1);
 				if(_popinCloseList.length == 0) {
 					$(document.body).unbind("keydown", popinKeyClose);
-					$(document.body).unbind("beforeclick", popinBeforeClick);
+					$(document.body).unbind("mousedown", popinMouseClose);
 				}
 				return;
 			}
 		}
 	}
 
-	export function popinBeforeClick(ee1, obj, clickevt): void {
-		for(let i = 0; i < _popinCloseList.length; i++) {
-			let id = _popinCloseList[i];
-			obj = $(obj);
-			let cl = obj.closest(id);
-			if(cl.size() > 0) {
-				//-- This one is done -> remove mouse handler.
-				$(id).unbind("mousedown", popinMouseClose);
-				_popinCloseList.splice(i, 1);
-				if(_popinCloseList.length == 0) {
-					$(document.body).unbind("keydown", popinKeyClose);
-					$(document.body).unbind("beforeclick", popinBeforeClick);
-				}
-				return;
-			}
-		}
-	}
+	// export function popinBeforeClick(ee1, obj, clickevt): void {
+	// 	for(let i = 0; i < _popinCloseList.length; i++) {
+	// 		let id = _popinCloseList[i];
+	// 		obj = $(obj);
+	// 		let cl = obj.closest(id);
+	// 		if(cl.size() > 0) {
+	// 			//-- This one is done -> remove mouse handler.
+	// 			$(id).unbind("mousedown", popinMouseClose);
+	// 			_popinCloseList.splice(i, 1);
+	// 			if(_popinCloseList.length == 0) {
+	// 				$(document.body).unbind("keydown", popinKeyClose);
+	// 				$(document.body).unbind("beforeclick", popinBeforeClick);
+	// 			}
+	// 			return;
+	// 		}
+	// 	}
+	// }
 
-	export function popinMouseClose(): void {
+	export function popinMouseClose(ev): void {
 		if(WebUI.isUIBlocked())							// We will get a LEAVE if the UI blocks during menu code... Ignore it
 			return;
 
+		try {
+			let target = $(ev.target);
+			for(let i = 0; i < _popinCloseList.length; i++) {
+				let id = _popinCloseList[i];
+				let el = $(id);
+				if(el) {
+					//-- If event outside this popup -> close it
+					if(target.closest(id).length == 0) {
+						popinClosed(id);
+						WebUI.scall(id.substring(1), "POPINCLOSE?", {});
+					}
+				}
+			}
+		} finally {
+			// _popinCloseList = [];
+//			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
+// 			$(document.body).unbind("keydown", popinKeyClose);
+// 			$(document.body).unbind("beforeclick", popinBeforeClick);
+		}
+	}
+
+	export function popinCloseAll() : void {
 		try {
 			for(let i = 0; i < _popinCloseList.length; i++) {
 				let id = _popinCloseList[i];
@@ -110,9 +131,9 @@ namespace WebUI {
 			}
 		} finally {
 			_popinCloseList = [];
-//			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
+			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
 			$(document.body).unbind("keydown", popinKeyClose);
-			$(document.body).unbind("beforeclick", popinBeforeClick);
+			// $(document.body).unbind("beforeclick", popinBeforeClick);
 		}
 	}
 
@@ -126,7 +147,7 @@ namespace WebUI {
 			evt.cancelBubble = true;
 			if(evt.stopPropagation)
 				evt.stopPropagation();
-			popinMouseClose();
+			popinCloseAll();
 		}
 	}
 
@@ -433,39 +454,14 @@ namespace WebUI {
 		}
 	}
 
-	export function initScrollableTableOld(id): void {
-		($('#' + id + " table") as any).fixedHeaderTable({});
-		let sbody = $('#' + id + " .fht-tbody");
-		sbody.scroll(function() {
-			let bh = $(sbody).height();
-			let st = $(sbody).scrollTop();
-			let tbl = $('#' + id + " .fht-table tbody");
-			let th = tbl.height();
-			let left = tbl.height() - bh - st;
-			//$.dbg("scrolling: bodyheight="+bh+" scrolltop="+st+" tableheight="+th+" left="+left);
-
-			if(left > 100) {
-				//$.dbg("Scrolling: area left="+left);
-				return;
-			}
-
-			let lastRec = sbody.find("tr[lastRow]");
-			if(lastRec.length != 0) {
-				//$.dbg("scrolling: lastrec found");
-				return;
-			}
-			WebUI.scall(id, "LOADMORE", {});
-		});
-
-	}
-
 	export function scrollableTableReset(id, tblid) {
+		initScrollableTable(id, tblid);
+
 		let tbl = $('#' + tblid);
 		let container = $('#' + id);
-		(tbl as any).floatThead('reflow');
-		WebUI.doCustomUpdates();
-
-		$.dbg('recreate');
+		// // (tbl as any).floatThead('reflow');
+		// WebUI.doCustomUpdates();
+		// $.dbg('recreate');
 
 		//tbl.floatThead('destroy');
 		//tbl.floatThead({
@@ -482,31 +478,31 @@ namespace WebUI {
 		let tbl = $('#' + tblid);
 		WebUI.doCustomUpdates();
 
-		(tbl as any).floatThead({
-			scrollContainer: function() {
-				return container;
-			},
-			getSizingRow: function($table) { // this is only called when using IE, we need any row without colspan, see http://mkoryak.github.io/floatThead/examples/row-groups/
-				let rows = $table.find('tbody tr:visible').get();
-				for(let i = 0; i < rows.length; i++) {
-					let cells = $(rows[i]).find('td');
-					let isInvalidRow = false;
-					for(let i = 0; i < cells.get().length; i++) {
-						if(Number($(cells[i]).attr('colspan')) > 1) {
-							isInvalidRow = true;
-						}
-					}
-					if(!isInvalidRow) {
-						return cells;
-					}
-				}
-				if(rows.length > 0) {
-					return $(rows[0]).find('td'); //as fallback we just return first row cells
-				} else {
-					return null; //or nothing -> but this should not be possible since getSizingRow is called only on table with rows
-				}
-			}
-		});
+		// (tbl as any).floatThead({
+		// 	scrollContainer: function() {
+		// 		return container;
+		// 	},
+		// 	getSizingRow: function($table) { // this is only called when using IE, we need any row without colspan, see http://mkoryak.github.io/floatThead/examples/row-groups/
+		// 		let rows = $table.find('tbody tr:visible').get();
+		// 		for(let i = 0; i < rows.length; i++) {
+		// 			let cells = $(rows[i]).find('td');
+		// 			let isInvalidRow = false;
+		// 			for(let i = 0; i < cells.get().length; i++) {
+		// 				if(Number($(cells[i]).attr('colspan')) > 1) {
+		// 					isInvalidRow = true;
+		// 				}
+		// 			}
+		// 			if(!isInvalidRow) {
+		// 				return cells;
+		// 			}
+		// 		}
+		// 		if(rows.length > 0) {
+		// 			return $(rows[0]).find('td'); //as fallback we just return first row cells
+		// 		} else {
+		// 			return null; //or nothing -> but this should not be possible since getSizingRow is called only on table with rows
+		// 		}
+		// 	}
+		// });
 		container.scroll(function() {
 			let bh = $(container).height();
 			let st = $(container).scrollTop();

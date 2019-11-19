@@ -26,7 +26,7 @@ package to.etc.domui.server.parts;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
 public interface IBufferedPartFactory<K> extends IPartFactory {
@@ -38,7 +38,7 @@ public interface IBufferedPartFactory<K> extends IPartFactory {
 	 * @throws Exception
 	 */
 	@NonNull
-	K decodeKey(@NonNull DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception;
+	K decodeKey(@NonNull DomApplication application, @NonNull IPageParameters param) throws Exception;
 
 	/**
 	 * This must generate the output for the resource. That output will be put into the cache and re-rendered

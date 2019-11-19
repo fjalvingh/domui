@@ -1647,10 +1647,16 @@ public class StringTool {
 						w.append("\\t");
 						break;
 					case '\'':
-						w.append("\\'");
+						if(dblquote)
+							w.append("'");
+						else
+							w.append("\\'");
 						break;
 					case '\"':
-						w.append("\\\"");
+						if(dblquote)
+							w.append("\\\"");
+						else
+							w.append('"');
 						break;
 					case '\\':
 						w.append("\\\\");

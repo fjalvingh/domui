@@ -350,8 +350,10 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	@Override
 	public void visitRestrictionsBase(@NonNull QCriteriaQueryBase< ?, ? > n) throws Exception {
 		QOperatorNode r = n.getRestrictions();
-		QOperatorNode.prune(r);
-		if(r != null)
-			r.visit(this);
+		if(null == r)
+			return;
+		QOperatorNode alt = r.dup();
+		QOperatorNode.prune(alt);
+		alt.visit(this);
 	}
 }

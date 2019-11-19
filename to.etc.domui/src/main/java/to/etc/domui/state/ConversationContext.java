@@ -28,11 +28,11 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IAsyncListener;
-import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.IQContextContainer;
 
@@ -186,7 +186,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 		if(nameSet.size() == 0)
 			return;
 		for(String name : nameSet) {
-			String value = ctx.getParameter(name);
+			String value = ctx.getPageParameters().getString(name, null);
 			if(null != value)
 				m_persistedParameterMap.put(name, value);
 		}

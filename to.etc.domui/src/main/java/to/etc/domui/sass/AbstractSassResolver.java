@@ -3,8 +3,8 @@ package to.etc.domui.sass;
 import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.parts.ParameterInfoImpl;
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
@@ -30,7 +30,7 @@ import java.util.Map;
 abstract public class AbstractSassResolver<O> {
 	static private final Logger LOG = LoggerFactory.getLogger(AbstractSassResolver.class);
 
-	private final ParameterInfoImpl m_params;
+	private final IPageParameters m_params;
 
 	private final IResourceDependencyList m_dependencyList;
 
@@ -60,7 +60,7 @@ abstract public class AbstractSassResolver<O> {
 
 	private O m_parameterFile;
 
-	public AbstractSassResolver(ParameterInfoImpl params, IResourceDependencyList dependencyList) {
+	public AbstractSassResolver(IPageParameters params, IResourceDependencyList dependencyList) {
 		m_params = params;
 		m_dependencyList = dependencyList;
 	}
@@ -225,7 +225,7 @@ abstract public class AbstractSassResolver<O> {
 		for(String name : m_params.getParameterNames()) {
 			if(name.startsWith("__"))
 				continue;
-			String[] values = m_params.getParameters(name);
+			String[] values = m_params.getStringArray(name);
 			if(null != values && values.length == 1) {
 				String value = values[0];
 				if(name.endsWith("$")) {

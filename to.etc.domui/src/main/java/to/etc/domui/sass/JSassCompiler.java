@@ -10,7 +10,7 @@ import io.bit3.jsass.importer.Import;
 import org.eclipse.jdt.annotation.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import to.etc.domui.parts.ParameterInfoImpl;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
@@ -25,7 +25,7 @@ import java.util.Collections;
 public class JSassCompiler implements ISassCompiler {
 	static private final Logger LOG = LoggerFactory.getLogger(JSassCompiler.class);
 
-	@Override public void compiler(String rurl, Writer output, @NonNull ParameterInfoImpl params, @NonNull IResourceDependencyList rdl) throws Exception {
+	@Override public void compiler(String rurl, Writer output, @NonNull IPageParameters params, @NonNull IResourceDependencyList rdl) throws Exception {
 		/*
 		 * Define resolvers: these resolve "filenames" in the scss to resources in the webapp.
 		 */
@@ -52,7 +52,7 @@ public class JSassCompiler implements ISassCompiler {
 		opt.setIndent("\t");
 		opt.setLinefeed("\n");
 
-		boolean map = params.getParameter("__nomap") == null;
+		boolean map = params.getString("__nomap", null) == null;
 		opt.setSourceMapEmbed(map);
 		if(! map) {
 			opt.setSourceMapContents(false);

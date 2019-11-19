@@ -43,6 +43,7 @@ import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.domui.util.resources.IResourceRef;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
@@ -56,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This is the main owner of all nodes; this represents all that is needed for a
@@ -193,6 +195,12 @@ final public class Page implements IQContextContainer {
 	private boolean m_renderAsXHTML;
 
 	/**
+	 * EXPERIMENTAL Render the page through a HTML template.
+	 */
+	@Nullable
+	private IResourceRef m_renderTemplate;
+
+	/**
 	 * If the page has gotten it's values injected this is set to true. This prevents injecting
 	 * a value twice which causes trouble for NEW objects (it creates two separate instances of
 	 * a new object).
@@ -214,6 +222,12 @@ final public class Page implements IQContextContainer {
 	@NonNull
 	private PagePhase m_phase = PagePhase.NULL;
 
+	/** The last node that was clicked, for doubleclick detection */
+	@Nullable
+	private NodeBase m_lastClickTarget;
+
+	private long m_lastClickTime;
+
 	/**
 	 * Nodes that are added to a render and that are removed by the Javascript framework are added here; this
 	 * will force them to be removed from the tree after any render without causing a delta.
@@ -226,6 +240,9 @@ final public class Page implements IQContextContainer {
 
 	@NonNull
 	private List<IExecute> m_beforeRequestListenerList = Collections.EMPTY_LIST;
+
+	@NonNull
+	private List<IExecute> m_destroyListenerList = new CopyOnWriteArrayList<>();
 
 	@NonNull
 	private List<IExecute> m_afterRenderList = Collections.EMPTY_LIST;
@@ -306,6 +323,13 @@ final public class Page implements IQContextContainer {
 	}
 
 	public final void internalOnDestroy() throws Exception {
+		for(IExecute listener : m_destroyListenerList) {
+			try {
+				listener.execute();
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
 		m_asyncLink.m_page = null;
 		UrlPage body = getBody();
 		body.internalOnDestroy();
@@ -861,6 +885,23 @@ final public class Page implements IQContextContainer {
 	}
 
 
+	/**
+	 * Registers a clicked node, and returns TRUE if we have a double click event.
+	 */
+	public boolean registerClick(NodeBase clicked) {
+		long cts = System.currentTimeMillis();
+		if(m_lastClickTarget == clicked) {
+			//-- within DBLCLICKTIME?
+			long dly = cts - m_lastClickTime;
+			m_lastClickTime = cts;
+			return dly <= DomApplication.get().getDblClickTime();
+		} else {
+			m_lastClickTarget = clicked;
+			m_lastClickTime = cts;
+			return false;
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Component focus handling.							*/
 	/*--------------------------------------------------------------*/
@@ -1067,6 +1108,18 @@ final public class Page implements IQContextContainer {
 		m_renderAsXHTML = renderAsXHTML;
 	}
 
+	public void setRenderTemplate(IResourceRef tmp) {
+		m_renderTemplate = tmp;
+	}
+
+	/**
+	 * Experimental: render the page through a template.
+	 */
+	@Nullable
+	public IResourceRef getRenderTemplate() {
+		return m_renderTemplate;
+	}
+
 	public void setDefaultFocusSource(@Nullable NodeBase node) {
 		m_defaultFocusSource = node;
 	}
@@ -1089,6 +1142,14 @@ final public class Page implements IQContextContainer {
 		if(m_beforeRequestListenerList.size() == 0)
 			m_beforeRequestListenerList = new ArrayList<IExecute>();
 		m_beforeRequestListenerList.add(x);
+	}
+
+	public void addDestroyListener(@NonNull IExecute listener) {
+		m_destroyListenerList.add(listener);
+	}
+
+	public void removeDestroyListener(@NonNull IExecute listener) {
+		m_destroyListenerList.remove(listener);
 	}
 
 	public void callRequestFinished() throws Exception {

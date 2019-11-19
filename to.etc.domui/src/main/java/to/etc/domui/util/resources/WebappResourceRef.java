@@ -31,12 +31,16 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 /**
+ * If a webapp resource can be found with a File this represents that resource. This
+ * only works for resources that are not inside jars; for those, for instance for
+ * web fragment resources, see {@link UrlWebappResourceRef}.
+ *
  * A full reference to a web app file (a file somewhere in the webapp's web files or WEB-INF directorty).
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 19, 2009
  */
-public class WebappResourceRef implements IResourceRef, IModifyableResource {
+final public class WebappResourceRef implements IResourceRef, IModifyableResource {
 	@NonNull
 	private File m_resource;
 

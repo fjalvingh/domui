@@ -1,0 +1,26 @@
+#cookie-msg {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	text-align: center;
+	padding: 30px 50px;
+	line-height: 1.5em;
+
+	background-color: #666;
+	color: white;
+	font-size: 16px;
+
+	a {
+		color: $primary;
+		text-decoration: underline;
+
+		&.btn-accept {
+			margin-left: 20px;
+			padding: 5px 10px;
+			border-radius: 5px;
+			background-color: $primary;
+			color: black;
+			text-decoration: none;
+		}
+	}
+}

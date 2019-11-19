@@ -109,18 +109,25 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	}
 
 	/**
-	 * Add a new restriction to the list of restrictions on the data. This will do "and" collapsing: when the node added is an "and"
+	 * Add a new restriction to the list of restrictions on the data. (incorrect: This will do "and" collapsing: when the node added is an "and"
 	 * it's nodes will be added directly to the list (because that already represents an and combinatory).
 	 */
 	protected void internalAdd(@NonNull QOperatorNode r) {
 		QOperatorNode restrictions = getRestrictions();
 		if(restrictions == null) {
-			setRestrictions(r); 						// Just set the single operation,
-		} else if(restrictions.getOperation() == m_combinator) {
-			//-- Already the proper combinator - add the node to it.
-			((QMultiNode) restrictions).add(r);
+			setRestrictions(r);                        // Just set the single operation,
+		} else if(restrictions.getOperation() == QOperation.AND || restrictions.getOperation() == QOperation.OR) {
+			((QMultiNode)restrictions).add(r);
+		//} else if(restrictions.getOperation() == m_combinator) {
+		//	//-- Already the proper combinator - add the node to it.
+		//	((QMultiNode) restrictions).add(r);
+		//} else {
+		//	//-- We need to replace the current restriction with a higher combinator node and add the items there.
+		//	QMultiNode comb = new QMultiNode(m_combinator);
+		//	comb.add(restrictions);
+		//	comb.add(r);
+		//	setRestrictions(comb);
 		} else {
-			//-- We need to replace the current restriction with a higher combinator node and add the items there.
 			QMultiNode comb = new QMultiNode(m_combinator);
 			comb.add(restrictions);
 			comb.add(r);

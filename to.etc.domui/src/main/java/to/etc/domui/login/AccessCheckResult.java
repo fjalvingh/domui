@@ -2,7 +2,6 @@ package to.etc.domui.login;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.annotations.UIRights;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.AbstractPage;
 
@@ -18,13 +17,13 @@ final public class AccessCheckResult {
 	private final PageAccessCheckResult m_result;
 
 	@Nullable
-	private final UIRights m_rights;
+	private final String[] m_rights;
 
 	private final List<UIMessage> m_messageList;
 
 	final private AbstractPage m_page;
 
-	private AccessCheckResult(PageAccessCheckResult result, UIRights rights, List<UIMessage> messageList, AbstractPage page) {
+	private AccessCheckResult(PageAccessCheckResult result, String[] rights, List<UIMessage> messageList, AbstractPage page) {
 		m_result = result;
 		m_rights = rights;
 		m_messageList = Collections.unmodifiableList(messageList);
@@ -41,7 +40,7 @@ final public class AccessCheckResult {
 		return m_result;
 	}
 
-	public UIRights getRights() {
+	public String[] getRights() {
 		return m_rights;
 	}
 
@@ -61,7 +60,7 @@ final public class AccessCheckResult {
 		return new AccessCheckResult(PageAccessCheckResult.NeedLogin);
 	}
 
-	public static AccessCheckResult refused(AbstractPage page, UIRights rights, List<UIMessage> errors) {
-		return new AccessCheckResult(PageAccessCheckResult.Accepted, rights, errors, page);
+	public static AccessCheckResult refused(AbstractPage page, String[] rights, List<UIMessage> errors) {
+		return new AccessCheckResult(PageAccessCheckResult.Refused, rights, errors, page);
 	}
 }

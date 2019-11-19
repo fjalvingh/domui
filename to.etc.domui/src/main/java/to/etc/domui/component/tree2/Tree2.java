@@ -369,6 +369,9 @@ public class Tree2<T> extends Div implements ITreeModelChangedListener<T> {
 					if(null != value) {
 						cellClicked(value, clinfo);
 					}
+					if(clinfo.isDoubleClick()) {
+						toggleNode(value);
+					}
 				}
 			});
 		}

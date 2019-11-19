@@ -357,7 +357,7 @@ var WebUI;
         fields["$pt"] = window.DomUIpageTag;
         fields["$cid"] = window.DomUICID;
         $.ajax({
-            url: window.location.href,
+            url: WebUI.getPostURL(),
             dataType: "*",
             data: fields,
             cache: false,
@@ -553,46 +553,46 @@ var WebUI;
     WebUI.popupSubmenuShow = popupSubmenuShow;
     function registerPopinClose(id) {
         _popinCloseList.push(id);
-        $(id).bind("mouseleave", popinMouseClose);
         if (_popinCloseList.length != 1)
             return;
         $(document.body).bind("keydown", popinKeyClose);
+        $(document.body).bind("mousedown", popinMouseClose);
     }
     WebUI.registerPopinClose = registerPopinClose;
     function popinClosed(id) {
         for (var i = 0; i < _popinCloseList.length; i++) {
             if (id === _popinCloseList[i]) {
-                $(id).unbind("mousedown", popinMouseClose);
                 _popinCloseList.splice(i, 1);
                 if (_popinCloseList.length == 0) {
                     $(document.body).unbind("keydown", popinKeyClose);
-                    $(document.body).unbind("beforeclick", popinBeforeClick);
+                    $(document.body).unbind("mousedown", popinMouseClose);
                 }
                 return;
             }
         }
     }
     WebUI.popinClosed = popinClosed;
-    function popinBeforeClick(ee1, obj, clickevt) {
-        for (var i = 0; i < _popinCloseList.length; i++) {
-            var id = _popinCloseList[i];
-            obj = $(obj);
-            var cl = obj.closest(id);
-            if (cl.size() > 0) {
-                $(id).unbind("mousedown", popinMouseClose);
-                _popinCloseList.splice(i, 1);
-                if (_popinCloseList.length == 0) {
-                    $(document.body).unbind("keydown", popinKeyClose);
-                    $(document.body).unbind("beforeclick", popinBeforeClick);
-                }
-                return;
-            }
-        }
-    }
-    WebUI.popinBeforeClick = popinBeforeClick;
-    function popinMouseClose() {
+    function popinMouseClose(ev) {
         if (WebUI.isUIBlocked())
             return;
+        try {
+            var target = $(ev.target);
+            for (var i = 0; i < _popinCloseList.length; i++) {
+                var id = _popinCloseList[i];
+                var el = $(id);
+                if (el) {
+                    if (target.closest(id).length == 0) {
+                        popinClosed(id);
+                        WebUI.scall(id.substring(1), "POPINCLOSE?", {});
+                    }
+                }
+            }
+        }
+        finally {
+        }
+    }
+    WebUI.popinMouseClose = popinMouseClose;
+    function popinCloseAll() {
         try {
             for (var i = 0; i < _popinCloseList.length; i++) {
                 var id = _popinCloseList[i];
@@ -605,11 +605,11 @@ var WebUI;
         }
         finally {
             _popinCloseList = [];
+            $(document.body).unbind("mousedown", WebUI.popinMouseClose);
             $(document.body).unbind("keydown", popinKeyClose);
-            $(document.body).unbind("beforeclick", popinBeforeClick);
         }
     }
-    WebUI.popinMouseClose = popinMouseClose;
+    WebUI.popinCloseAll = popinCloseAll;
     function popinKeyClose(evt) {
         if (!evt)
             evt = window.event;
@@ -619,7 +619,7 @@ var WebUI;
             evt.cancelBubble = true;
             if (evt.stopPropagation)
                 evt.stopPropagation();
-            popinMouseClose();
+            popinCloseAll();
         }
     }
     WebUI.popinKeyClose = popinKeyClose;
@@ -891,32 +891,10 @@ var WebUI;
         }
     }
     WebUI.FCKeditor_OnComplete = FCKeditor_OnComplete;
-    function initScrollableTableOld(id) {
-        $('#' + id + " table").fixedHeaderTable({});
-        var sbody = $('#' + id + " .fht-tbody");
-        sbody.scroll(function () {
-            var bh = $(sbody).height();
-            var st = $(sbody).scrollTop();
-            var tbl = $('#' + id + " .fht-table tbody");
-            var th = tbl.height();
-            var left = tbl.height() - bh - st;
-            if (left > 100) {
-                return;
-            }
-            var lastRec = sbody.find("tr[lastRow]");
-            if (lastRec.length != 0) {
-                return;
-            }
-            WebUI.scall(id, "LOADMORE", {});
-        });
-    }
-    WebUI.initScrollableTableOld = initScrollableTableOld;
     function scrollableTableReset(id, tblid) {
+        initScrollableTable(id, tblid);
         var tbl = $('#' + tblid);
         var container = $('#' + id);
-        tbl.floatThead('reflow');
-        WebUI.doCustomUpdates();
-        $.dbg('recreate');
         container.scrollTop(0);
     }
     WebUI.scrollableTableReset = scrollableTableReset;
@@ -924,32 +902,6 @@ var WebUI;
         var container = $('#' + id);
         var tbl = $('#' + tblid);
         WebUI.doCustomUpdates();
-        tbl.floatThead({
-            scrollContainer: function () {
-                return container;
-            },
-            getSizingRow: function ($table) {
-                var rows = $table.find('tbody tr:visible').get();
-                for (var i = 0; i < rows.length; i++) {
-                    var cells = $(rows[i]).find('td');
-                    var isInvalidRow = false;
-                    for (var i_1 = 0; i_1 < cells.get().length; i_1++) {
-                        if (Number($(cells[i_1]).attr('colspan')) > 1) {
-                            isInvalidRow = true;
-                        }
-                    }
-                    if (!isInvalidRow) {
-                        return cells;
-                    }
-                }
-                if (rows.length > 0) {
-                    return $(rows[0]).find('td');
-                }
-                else {
-                    return null;
-                }
-            }
-        });
         container.scroll(function () {
             var bh = $(container).height();
             var st = $(container).scrollTop();
@@ -4138,7 +4090,7 @@ var WebUI;
     WebUI.googleOnSignin = googleOnSignin;
 })(WebUI || (WebUI = {}));
 $(function () {
-    $.getScript("$js/domui-date-checker.js");
+    $.getScript(window['DomUIappURL'] + "$js/domui-date-checker.js");
 });
 function _block() {
     WebUI.blockUI();

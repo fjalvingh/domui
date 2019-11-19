@@ -2,10 +2,6 @@ package to.etc.domui.util.resources;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.util.DomUtil;
-import to.etc.util.FileTool;
-
-import java.io.File;
 
 /**
  * Handle $js/xxx resources, which are versionable.
@@ -62,39 +58,44 @@ public class VersionedJsResourceFactory implements IResourceFactory {
 	}
 
 	private IResourceRef tryVersionedResource(DomApplication da, String iname) throws Exception {
-		//-- 1. Try WebFile first
-		File f = da.getAppFile(iname);
-		if(f.exists() && f.isFile())
-			return new WebappResourceRef(f);
+		IResourceRef re = da.getAppFileOrResource(iname);
+		if(re.exists())
+			return re;
+		return null;
 
-		//-- 2. Try /resources/[name] in classpath
-		String name = "/resources/" + iname;
-		if(DomUtil.classResourceExists(getClass(), name))
-			return da.createClasspathReference(name);
-
-		//-- Try constructed from include set.
-		name = iname + ".inclspec";						// Perhaps we have an include specification?
-		f = da.getAppFile(name);
-		String inclset = null;
-
-		if(f.exists() && f.isFile()) {
-			inclset = FileTool.readFileAsString(f);
-		} else {
-			//-- 2. Try /resources/[name] in classpath
-			name = "/resources/" + iname + ".inclspec";
-			if(DomUtil.classResourceExists(getClass(), name)) {
-				inclset = FileTool.readResourceAsString(getClass(), name, "utf-8");
-			} else {
-				return null;
-			}
-		}
-
-		String root = "";
-		int pos = iname.lastIndexOf("/");
-		if(pos > 0) {
-			root = iname.substring(0, pos + 1);
-		}
-
-		return CompoundResourceRef.loadBySpec(da, root, inclset, iname);
+		////-- 1. Try WebFile first
+		//File f = da.getAppFile(iname);
+		//if(f.exists() && f.isFile())
+		//	return new WebappResourceRef(f);
+		//
+		////-- 2. Try /resources/[name] in classpath
+		//String name = "/resources/" + iname;
+		//if(DomUtil.classResourceExists(getClass(), name))
+		//	return da.createClasspathReference(name);
+		//
+		////-- Try constructed from include set.
+		//name = iname + ".inclspec";						// Perhaps we have an include specification?
+		//f = da.getAppFile(name);
+		//String inclset = null;
+		//
+		//if(f.exists() && f.isFile()) {
+		//	inclset = FileTool.readFileAsString(f);
+		//} else {
+		//	//-- 2. Try /resources/[name] in classpath
+		//	name = "/resources/" + iname + ".inclspec";
+		//	if(DomUtil.classResourceExists(getClass(), name)) {
+		//		inclset = FileTool.readResourceAsString(getClass(), name, "utf-8");
+		//	} else {
+		//		return null;
+		//	}
+		//}
+		//
+		//String root = "";
+		//int pos = iname.lastIndexOf("/");
+		//if(pos > 0) {
+		//	root = iname.substring(0, pos + 1);
+		//}
+		//
+		//return CompoundResourceRef.loadBySpec(da, root, inclset, iname);
 	}
 }

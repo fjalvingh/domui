@@ -124,8 +124,10 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 		m_imgWaiting.setDisplay(DisplayType.NONE);
 		add(m_imgWaiting);
 		m_input.addCssClass(cssBase("keyword"));
-		m_input.setMaxLength(40);
-		m_input.setSize(14);
+		if(m_input.getMaxLength() == 0)
+			m_input.setMaxLength(40);
+		if(m_input.getSize() == 0)
+			m_input.setSize(14);
 		add(m_input);
 
 		//m_input.setOnLookupTyping((component, done) -> handleLookupTyping(done));
@@ -135,8 +137,6 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	/**
 	 * Sent regularly whenever the search box is typed in. Causes a ValueChanged event which can then do
 	 * whatever lookup is needed.
-	 * @param ctx
-	 * @throws Exception
 	 */
 	public void webActionlookupTyping(IRequestContext ctx) throws Exception {
 		handleLookupTyping(false);
@@ -145,8 +145,6 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 	/**
 	 * Send when return is pressed in the search box. Should finalize the selected value, if
 	 * one is present.
-	 * @param ctx
-	 * @throws Exception
 	 */
 	public void webActionlookupTypingDone(IRequestContext ctx) throws Exception {
 		handleLookupTyping(true);
@@ -326,6 +324,22 @@ abstract public class SearchAsYouTypeBase<T> extends Div implements IForTarget {
 
 	@Nullable @Override protected String getFocusID() {
 		return m_input.getActualID();
+	}
+
+	public int getSize() {
+		return m_input.getSize();
+	}
+
+	public void setSize(int sz) {
+		m_input.setSize(sz);
+	}
+
+	public int getMaxLength() {
+		return m_input.getMaxLength();
+	}
+
+	public void setMaxLength(int l) {
+		m_input.setMaxLength(l);;
 	}
 
 }

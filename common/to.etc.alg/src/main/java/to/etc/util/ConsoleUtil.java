@@ -125,17 +125,20 @@ public class ConsoleUtil {
 		StringBuilder sb = new StringBuilder();
 		sb.append(BLUE);
 		append(sb, m_logFmt.format(new Date()), 12);
-		sb.append(' ');
-		sb.append(CYAN);
-		String name = Thread.currentThread().getName();
-		append(sb, name, 10);
-		sb.append(' ');
+		//sb.append(CYAN);
+		//String name = Thread.currentThread().getName();
+		//append(sb, name, 10);
+		//sb.append(' ');
 
 		for(int i = 0; i < segments.length; i++) {
 			String segment = segments[i];
 
 			if(i == segments.length - 1) {
-				//-- Last part: the message
+				//-- Last part: the message + thread
+				sb.append(CYAN);
+				String name = Thread.currentThread().getName();
+				append(sb, name, 10);
+
 				switch(type) {
 					default:
 						sb.append(WHITE);
@@ -151,6 +154,7 @@ public class ConsoleUtil {
 				}
 				sb.append(" ").append(segment.replace("\n", "\n  ")).append(RESET);
 			} else {
+				sb.append(' ');
 				sb.append(ROTCOLORS[i % ROTCOLORS.length]);
 				append(sb, segment, 15);
 			}

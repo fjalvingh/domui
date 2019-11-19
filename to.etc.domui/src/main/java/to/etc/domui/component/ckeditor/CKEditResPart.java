@@ -94,7 +94,7 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 		sb.append(".part");
 
 		//-- Finally: handle the command.
-		String cmd = param.getParameter("Command");
+		String cmd = param.getPageParameters().getString("Command", null);
 		if("init".equalsIgnoreCase(cmd))
 			sendInit(app, ifs, param);
 		else if("getfoldersandfiles".equalsIgnoreCase(cmd))
@@ -123,7 +123,7 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 	}
 
 	private String getPath(RequestContextImpl ctx, String name) throws Exception {
-		String rpath = ctx.getParameter(name);
+		String rpath = ctx.getPageParameters().getString(name, null);
 		if(rpath == null)
 			rpath = "";
 		while(rpath.startsWith("/"))

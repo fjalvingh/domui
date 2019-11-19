@@ -47,10 +47,6 @@ public class JsonWebActionFactory implements WebActionRegistry.IFactory {
 
 	/**
 	 * Render the response as a JSON object, by default.
-	 * @param calledMethod
-	 * @param ctx
-	 * @param response
-	 * @throws Exception
 	 */
 	static public void renderResponse(@NonNull Method calledMethod, @NonNull RequestContextImpl ctx, @Nullable Object response) throws Exception {
 		Writer out = ctx.getRequestResponse().getOutputWriter("application/javascript; charset=UTF-8", "utf-8");
@@ -80,7 +76,7 @@ class JsonWebAction implements IWebActionHandler {
 
 	@Override
 	public void handleWebAction(@NonNull NodeBase node, @NonNull RequestContextImpl context, boolean responseExpected) throws Exception {
-		String json = context.getParameter("json");						// Get required json parameter
+		String json = context.getPageParameters().getString("json", null);						// Get required json parameter
 		if(null == json)
 			throw new IllegalArgumentException("The request parameter 'json' is missing for web action method " + m_method);
 

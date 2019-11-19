@@ -67,7 +67,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	private boolean accepts(@NonNull IRequestContext ctx) {
 		return m_application.getUrlExtension().equals(ctx.getExtension())
 				|| ctx.getExtension().equals("obit")
-				|| (m_application.getRootPage() != null && ctx.getPageName() == null && ! m_application.isIgnoredUrlPrefix(ctx.getInputPath()))
+				|| (m_application.getRootPage() != null && ctx.getPageName() == null && ! m_application.isIgnoredUrlPrefix(ctx.getPageParameters().getInputPath()))
 				;
 	}
 
@@ -86,6 +86,10 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 */
 	static public void generateHttpRedirect(RequestContextImpl ctx, String to, String rsn) throws Exception {
 		to = appendPersistedParameters(to, ctx);
+		if(! to.startsWith("/") && ! to.startsWith("http")) {
+			to = "/" + ctx.getRequestResponse().getWebappContext() + to;
+		}
+
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
 			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
@@ -95,6 +99,9 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Generate an AJAX redirect command. Should be used by all COMMAND actions.
 	 */
 	static public void generateAjaxRedirect(RequestContextImpl ctx, String url) throws Exception {
+		if(! url.startsWith("/") && ! url.startsWith("http")) {
+			url = "/" + ctx.getRequestResponse().getWebappContext() + url;
+		}
 		if(LOG.isInfoEnabled())
 			LOG.info("redirecting to " + url);
 		url = appendPersistedParameters(url, ctx);

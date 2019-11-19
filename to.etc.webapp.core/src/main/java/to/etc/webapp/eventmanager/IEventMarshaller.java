@@ -17,11 +17,13 @@ public interface IEventMarshaller {
 
 	/**
 	 * Create event object from formated text
+	 *
+	 * @param evname
 	 * @param varchar
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable <T extends AppEventBase> T unmarshalEvent(@NonNull String varchar) throws Exception;
+	@Nullable <T extends AppEventBase> T unmarshalEvent(String evname, @NonNull String varchar) throws Exception;
 
 	/**
 	 * Convert formated string from provided event

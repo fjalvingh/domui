@@ -11,7 +11,7 @@ import to.etc.dbutil.DbLockKeeper;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
-import to.etc.webapp.eventmanager.VpEventManager;
+import to.etc.webapp.eventmanager.DbEventManager;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -317,7 +317,7 @@ public class TUtilTestProperties {
 			}
 
 			//-- Init common infrastructure
-			VpEventManager.initializeForTest();
+			DbEventManager.initializeForTest();
 			DbLockKeeper.init(m_rawDS);
 
 			String defaulttimeout = DeveloperOptions.isDeveloperWorkstation() ? null : "120";
