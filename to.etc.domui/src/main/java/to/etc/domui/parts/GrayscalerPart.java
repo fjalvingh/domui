@@ -3,9 +3,9 @@ package to.etc.domui.parts;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.parts.GrayscalerPart.Key;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.util.StringTool;
 
@@ -77,13 +77,9 @@ public class GrayscalerPart implements IBufferedPartFactory<Key> {
 
 	@Override
 	@NonNull
-	public Key decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
-		String icon = param.getParameter("icon");
-		if(null == icon)
-			throw new IllegalStateException("Missing icon parameter");
-
-		boolean isSprite = "true".equalsIgnoreCase(param.getParameter("sprite"));
-
+	public Key decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
+		String icon = param.getString("icon");
+		boolean isSprite = "true".equalsIgnoreCase(param.getString("sprite", null));
 		return new Key(icon, isSprite);
 	}
 

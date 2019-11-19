@@ -35,16 +35,25 @@ import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.dom.html.TextNode;
+import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.themes.ITheme;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.domui.util.resources.IResourceRef;
+import to.etc.template.JSTemplate;
+import to.etc.template.JSTemplateCompiler;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Visits the node tree in such a way that a valid html document is generated.
@@ -78,12 +87,198 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	@NonNull
 	private JavascriptStmt m_stateBuilder = new JavascriptStmt(m_stateJS);
 
+	private DomApplication m_application;
+
 	protected HtmlFullRenderer(@NonNull HtmlTagRenderer tagRenderer, @NonNull IBrowserOutput o) {
 		//		m_browserVersion = tagRenderer.getBrowser();
 		m_tagRenderer = tagRenderer;
 		m_o = o;
 		// 20090701 jal was ADDS which is WRONG - by definition a FULL render IS a full renderer... This caused SELECT tags to be rendered with domui_selected attributes instead of selected attributes.
 		setRenderMode(HtmlRenderMode.FULL);
+	}
+
+	/**
+	 * Main entrypoint: render the whole page.
+	 */
+	public void render(IRequestContext ctx, Page page) throws Exception {
+		m_ctx = ctx;
+		m_page = page;
+		m_application = DomApplication.get();
+		page.internalSetPhase(PagePhase.FULLRENDER);
+
+		page.setDefaultFocusSource(null);							// Full page's do not use the default focus calculation from a start point.
+
+		if(page.isRenderAsXHTML()) {
+			setXml(true);
+		}
+		IResourceRef rt = page.getRenderTemplate();
+		if(null == rt) {
+			renderFullPage();
+		} else {
+			renderTemplatePage(rt);
+		}
+		m_page.internalSetPhase(PagePhase.NULL);
+	}
+
+	private void renderTemplatePage(IResourceRef rt) throws Exception {
+		//-- Load the template.
+		JSTemplate template;
+		try(InputStream is = rt.getInputStream()) {
+			JSTemplateCompiler compiler = new JSTemplateCompiler();
+			template = compiler.compile(new InputStreamReader(is, "utf-8"), rt.toString());
+		}
+
+		Appendable a = new Appendable() {
+			@Override
+			public Appendable append(CharSequence csq) throws IOException {
+				m_o.writeRaw(csq);
+				return this;
+			}
+
+			@Override
+			public Appendable append(CharSequence csq, int start, int end) throws IOException {
+				m_o.writeRaw(csq.subSequence(start, end));
+				return this;
+			}
+
+			@Override
+			public Appendable append(char c) throws IOException {
+				m_o.writeRaw(String.valueOf(c));
+				return this;
+			}
+		};
+
+		Map<String, Object> map = new HashMap<>();
+		map.put("r", this);
+		map.put("appUrl", m_ctx.getRelativePath(""));
+		template.execute(a, map);
+	}
+
+	/**
+	 * Called by the template. This should render the page body, but with the body element itself as a "div".
+	 */
+	public void renderBody() throws Exception {
+		UrlPage body = m_page.getBody();
+		body.internalSetTag("div");
+		body.visit(this);
+		renderAfterBody();
+	}
+
+	/**
+	 * Render a DomUI page as a normal page.
+	 */
+	private void renderFullPage() throws Exception {
+		//		page.build();  jal 20100618 moved to users of full renderer; building and rendering are now separate concerns
+		renderHtmlDoctype();
+		renderHeadContent();
+		renderPageTitle();
+		o().closetag("head");
+
+		// Render rest ;-)
+		m_page.getBody().visit(this);
+		renderAfterBody();
+
+		o().closetag("html");
+	}
+
+	private void renderAfterBody() throws Exception {
+		/*
+		 * Render all attached Javascript in an onReady() function. This code will run
+		 * as soon as the body load has completed.
+		 */
+		o().tag("script");
+		o().endtag();
+		o().text("$(document).ready(function() {");
+
+		//-- If any component has a focus request issue that,
+		NodeBase f = m_page.getFocusComponent();
+		if(f != null) {
+			o().text("WebUI.focus('" + f.getActualID() + "');");
+			m_page.setFocusComponent(null);
+		}
+		if(getCreateJS().length() > 0) {
+			o().writeRaw(getCreateJS().toString());
+			//				o().text(m_createJS.toString());
+		}
+		StringBuilder sb = m_page.internalFlushAppendJS();
+		if(null != sb)
+			o().writeRaw(sb);
+		sb = m_page.internalFlushJavascriptStateChanges();
+		if(null != sb)
+			o().writeRaw(sb);
+
+		/*
+		 * We need polling if we have any of the keep alive options on, or when there is an async request.
+		 */
+		int pollinterval = m_application.calculatePollInterval(m_page.getConversation().isPollCallbackRequired());
+		if(pollinterval > 0) {
+			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
+		}
+		int autorefresh = m_application.getAutoRefreshPollInterval();
+		if(autorefresh > 0) {
+			o().writeRaw("WebUI.setHideExpired();");
+		}
+
+		//-- Add the page name as a parameter to the body, so that WebDriver tests can see which page is loaded.
+		o().writeRaw("WebUI.definePageName('" + m_page.getBody().getClass().getName() + "');");
+
+		//		int kit = ctx().getApplication().getKeepAliveInterval();
+		//		if(kit > 0) {
+		//			o().writeRaw("WebUI.startPingServer(" + kit + ");");
+		//		}
+
+		o().text("});");
+		o().closetag("script");
+	}
+
+	private void renderPageTitle() throws IOException {
+		//-- Title is a required entity in head.
+		String pageTitle = m_page.getBody().getTitle();
+		if(null == pageTitle) {
+			pageTitle = m_application.getDefaultPageTitle(m_page.getBody());
+			if(null == pageTitle) {
+				pageTitle = "DomUI Application";
+			}
+		}
+
+		o().tag("title");
+		o().endtag();
+		o().text(pageTitle);
+		o().closetag("title");
+	}
+
+	/**
+	 * Called from template.
+	 */
+	public void renderHeadContent() throws Exception {
+		o().writeRaw("<script>");
+		if(!isXml())
+			o().writeRaw("<!--\n");
+
+		genVar("DomUIpageTag", Integer.toString(m_page.getPageTag()));
+		String pb = m_page.getBody().getThemedResourceRURL("THEME/progressbar.gif");
+		if(null == pb)
+			throw new IllegalStateException("Required resource missing");
+		genVar("DomUIProgressURL", StringTool.strToJavascriptString(m_ctx.getRelativePath(pb), true));
+		genVar("DomUICID", StringTool.strToJavascriptString(m_page.getConversation().getFullId(), true));
+		genVar("DomUIDevel", m_ctx.getApplication().inDevelopmentMode() ? "true" : "false");
+		genVar("DomUIappURL", StringTool.strToJavascriptString(m_ctx.getRelativePath(""), true));
+
+		if(!isXml())
+			o().writeRaw("\n-->");
+		o().writeRaw("\n</script>\n");
+
+		// EXPERIMENTAL SVG/VML support
+		if(m_page.isAllowVectorGraphics()) {
+			if(m_ctx.getPageParameters().getBrowserVersion().isIE()) {
+				o().writeRaw("<style>v\\: * { behavior:url(#default#VML); display:inline-block;} </style>\n"); // Puke....
+				o().writeRaw("<xml:namespace ns=\"urn:schemas-microsoft-com:vml\" prefix=\"v\">\n");
+			}
+		}
+		// END EXPERIMENTAL
+
+		renderThemeCSS();
+		renderHeadContributors();
 	}
 
 	public HtmlTagRenderer getTagRenderer() {
@@ -237,9 +432,8 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	/**
 	 * Render the page's doctype.
-	 * @throws Exception
 	 */
-	protected void renderPageHeader() throws Exception {
+	protected void renderHtmlDoctype() throws Exception {
 		if(isXml()) {
 			o().writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/xhtml1-transitional.dtd\">\n" //
 				+ "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" //
@@ -328,121 +522,6 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 
 	private void genVar(String name, String val) throws Exception {
 		o().writeRaw("var " + name + "=" + val + ";\n");
-	}
-
-	/**
-	 * Main entrypoint: render the whole page.
-	 */
-	public void render(IRequestContext ctx, Page page) throws Exception {
-		m_ctx = ctx;
-		m_page = page;
-		page.internalSetPhase(PagePhase.FULLRENDER);
-
-		page.setDefaultFocusSource(null);							// Full page's do not use the default focus calculation from a start point.
-
-		if(page.isRenderAsXHTML()) {
-			setXml(true);
-		}
-//		page.build();  jal 20100618 moved to users of full renderer; building and rendering are now separate concerns
-
-		renderPageHeader();
-		o().writeRaw("<script>");
-		if(!isXml())
-			o().writeRaw("<!--\n");
-
-		genVar("DomUIpageTag", Integer.toString(page.getPageTag()));
-		DomApplication application = DomApplication.get();
-		String pb = m_page.getBody().getThemedResourceRURL("THEME/progressbar.gif");
-		if(null == pb)
-			throw new IllegalStateException("Required resource missing");
-		genVar("DomUIProgressURL", StringTool.strToJavascriptString(ctx.getRelativePath(pb), true));
-		genVar("DomUICID", StringTool.strToJavascriptString(page.getConversation().getFullId(), true));
-		genVar("DomUIDevel", ctx.getApplication().inDevelopmentMode() ? "true" : "false");
-		genVar("DomUIappURL", StringTool.strToJavascriptString(ctx.getRelativePath(""), true));
-
-		if(!isXml())
-			o().writeRaw("\n-->");
-		o().writeRaw("\n</script>\n");
-
-		// EXPERIMENTAL SVG/VML support
-		if(m_page.isAllowVectorGraphics()) {
-			if(ctx.getBrowserVersion().isIE()) {
-				o().writeRaw("<style>v\\: * { behavior:url(#default#VML); display:inline-block;} </style>\n"); // Puke....
-				o().writeRaw("<xml:namespace ns=\"urn:schemas-microsoft-com:vml\" prefix=\"v\">\n");
-			}
-		}
-		// END EXPERIMENTAL
-
-		renderThemeCSS();
-		renderHeadContributors();
-
-		//-- Title is a required entity in head.
-		String pageTitle = page.getBody().getTitle();
-		if(null == pageTitle) {
-			pageTitle = application.getDefaultPageTitle(page.getBody());
-			if(null == pageTitle) {
-				pageTitle = "DomUI Application";
-			}
-		}
-
-		o().tag("title");
-		o().endtag();
-		o().text(pageTitle);
-		o().closetag("title");
-		o().closetag("head");
-
-		// Render rest ;-)
-		page.getBody().visit(this);
-
-		/*
-		 * Render all attached Javascript in an onReady() function. This code will run
-		 * as soon as the body load has completed.
-		 */
-		o().tag("script");
-		o().endtag();
-		o().text("$(document).ready(function() {");
-
-		//-- If any component has a focus request issue that,
-		NodeBase f = page.getFocusComponent();
-		if(f != null) {
-			o().text("WebUI.focus('" + f.getActualID() + "');");
-			page.setFocusComponent(null);
-		}
-		if(getCreateJS().length() > 0) {
-			o().writeRaw(getCreateJS().toString());
-			//				o().text(m_createJS.toString());
-		}
-		StringBuilder sb = m_page.internalFlushAppendJS();
-		if(null != sb)
-			o().writeRaw(sb);
-		sb = m_page.internalFlushJavascriptStateChanges();
-		if(null != sb)
-			o().writeRaw(sb);
-
-		/*
-		 * We need polling if we have any of the keep alive options on, or when there is an async request.
-		 */
-		int pollinterval = application.calculatePollInterval(page.getConversation().isPollCallbackRequired());
-		if(pollinterval > 0) {
-			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
-		}
-		int autorefresh = application.getAutoRefreshPollInterval();
-		if(autorefresh > 0) {
-			o().writeRaw("WebUI.setHideExpired();");
-		}
-
-		//-- Add the page name as a parameter to the body, so that WebDriver tests can see which page is loaded.
-		o().writeRaw("WebUI.definePageName('" + page.getBody().getClass().getName() + "');");
-
-		//		int kit = ctx().getApplication().getKeepAliveInterval();
-		//		if(kit > 0) {
-		//			o().writeRaw("WebUI.startPingServer(" + kit + ");");
-		//		}
-
-		o().text("});");
-		o().closetag("script");
-		o().closetag("html");
-		page.internalSetPhase(PagePhase.NULL);
 	}
 
 	/**

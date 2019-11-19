@@ -59,7 +59,7 @@ abstract public class HeaderContributor {
 
 	abstract public boolean isOfflineCapable();
 
-	abstract public void contribute(IContributorRenderer r) throws Exception;
+	abstract public void contribute(@NonNull IContributorRenderer r) throws Exception;
 
 	@Override
 	abstract public int hashCode();

@@ -111,7 +111,7 @@ final public class GoogleIdentityLoginHandler {
 	}
 
 	public boolean onWebAction(IRequestContext context) {
-		String token = context.getParameter("token");
+		String token = context.getPageParameters().getString("token");
 
 		//-- Validate the token.
 		GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), JacksonFactory.getDefaultInstance())

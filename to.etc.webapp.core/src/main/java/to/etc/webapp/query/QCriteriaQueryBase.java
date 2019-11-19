@@ -57,7 +57,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 
 	/** The restrictions (where clause) in effect. */
 	@Nullable
-	private QOperatorNode m_restrictions;
+	private QOperatorNode m_restrictions = new QMultiNode(QOperation.AND);
 
 	@NonNull
 	private List<QOrder> m_order = Collections.EMPTY_LIST;

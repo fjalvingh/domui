@@ -3,12 +3,12 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
-
-public interface IPageParameters {
+public interface IPageParameters extends IBasicParameterContainer {
 	/**
 	 * Creates copy of current PageParameters.
 	 * Since modification of live page params is not allowed, in order to navigate to other page with similar set of params, use this method to get params template for new page navigation.
 	 */
+	@NonNull
 	PageParameters getUnlockedCopy();
 
 	/**
@@ -17,7 +17,7 @@ public interface IPageParameters {
 	 * @param name, the name of the parameter to be checked for.
 	 * @return true when the parameter exists, false otherwise.
 	 */
-	boolean hasParameter(String name);
+	boolean hasParameter(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as an int (primitive).
@@ -26,7 +26,7 @@ public interface IPageParameters {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as an int
 	 */
-	int getInt(String name);
+	int getInt(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as an int (primitive).
@@ -37,7 +37,7 @@ public interface IPageParameters {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as an int
 	 */
-	int getInt(String name, int df);
+	int getInt(@NonNull String name, int df);
 
 	/**
 	 * Gets the value for the specified parametername as a long (primitive).
@@ -47,7 +47,7 @@ public interface IPageParameters {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a long
 	 */
-	long getLong(String name);
+	long getLong(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as a long (primitive).
@@ -59,7 +59,7 @@ public interface IPageParameters {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a long
 	 */
-	long getLong(String name, long df);
+	long getLong(@NonNull String name, long df);
 
 	/**
 	 * Gets the value for the specified parametername as a boolean (primitive).
@@ -69,7 +69,7 @@ public interface IPageParameters {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a long
 	 */
-	boolean getBoolean(String name);
+	boolean getBoolean(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as a boolean (primitive).
@@ -81,7 +81,7 @@ public interface IPageParameters {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a boolean
 	 */
-	boolean getBoolean(String name, boolean df);
+	boolean getBoolean(@NonNull String name, boolean df);
 
 	/**
 	 * Gets the value for the specified parametername as a Long object.
@@ -92,7 +92,7 @@ public interface IPageParameters {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a Long
 	 */
-	Long getLongW(String name);
+	Long getLongW(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as a Long object.
@@ -105,7 +105,7 @@ public interface IPageParameters {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a Long
 	 */
-	Long getLongW(String name, long df);
+	Long getLongW(@NonNull String name, long df);
 
 	/**
 	 * Gets the value for the specified parametername as a Long object.
@@ -118,7 +118,7 @@ public interface IPageParameters {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a Long
 	 */
-	Long getLongW(String name, Long df);
+	Long getLongW(@NonNull String name, @Nullable Long df);
 
 	/**
 	 * Gets the value for the specified parametername as a String object.
@@ -128,7 +128,7 @@ public interface IPageParameters {
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a String
 	 */
-	@NonNull String getString(String name);
+	@NonNull String getString(@NonNull String name);
 
 	/**
 	 * Gets the value for the specified parametername as a String object.
@@ -139,13 +139,11 @@ public interface IPageParameters {
 	 * @param df, the default value to be returned, when the specified parameter does not exist.
 	 * @return the value as a String
 	 */
-	@Nullable String getString(String name, String df);
+	@Nullable String getString(@NonNull String name, @Nullable String df);
 
 	/**
 	 * Gets the value for the specified parametername as a String array.
 	 * When the parameter does not exist, a MissingParameterException is thrown.
-	 * This method is provided for legacy reasons only.
-	 * The domui framework discourages uses of parameter arrays.
 	 *
 	 * @param name, the name of the parameter who's value is to be retrieved.
 	 * @return the value as a String
@@ -155,23 +153,12 @@ public interface IPageParameters {
 	@Nullable String[] getStringArray(@NonNull String name, @Nullable String[] deflt);
 
 	/**
-	 * Gets all the names of the parameters this object is holding
-	 * @return the parameter names in an array
-	 */
-	@NonNull String[] getParameterNames();
-
-	@Nullable
-	String getUrlContextString();
-
-	/**
 	 * Compare this with another instance. Used to see that a new request has different parameters
 	 * than an earlier request.
 	 * <h2>remark</h2>
 	 * <p>We check the size of the maps; if they are equal we ONLY have to check that each key-value
 	 * pair in SOURCE exists in TARGET AND is the same. We don't need to check for "thingies in SRC
 	 * that do not occur in TGT" because that cannot happen if the map sizes are equal.</p>
-	 *
-	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override boolean equals(Object obj);
 
@@ -182,12 +169,5 @@ public interface IPageParameters {
 	 */
 	@NonNull String calculateHashString();
 
-	/**
-	 * Return the number of characters that this would take on an url.
-	 */
-	int getDataLength();
-
 	boolean isReadOnly();
-
-	int size();
 }

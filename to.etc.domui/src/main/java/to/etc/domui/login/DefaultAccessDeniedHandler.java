@@ -1,7 +1,6 @@
 package to.etc.domui.login;
 
 import org.eclipse.jdt.annotation.NonNull;
-import to.etc.domui.annotations.UIRights;
 import to.etc.domui.server.ApplicationRequestHandler;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
@@ -35,7 +34,7 @@ public class DefaultAccessDeniedHandler implements IAccessDeniedHandler {
 		if(result.getMessageList().size() > 0) {
 			failureReason = result.getMessageList().get(0).getMessage();
 		}
-		UIRights rann = result.getRights();
+		String[] rann = result.getRights();
 
 		if(null == failureReason) {
 			if(rann != null)
@@ -47,14 +46,14 @@ public class DefaultAccessDeniedHandler implements IAccessDeniedHandler {
 		//-- All required rights
 		int ix = 0;
 		if(null != rann) {
-			for(String r : rann.value()) {
+			for(String r : rann) {
 				sb.append("&r").append(ix).append("=");
 				ix++;
 				StringTool.encodeURLEncoded(sb, r);
 			}
-			String redirect = sb.toString();
-			ApplicationRequestHandler.generateHttpRedirect(ctx, redirect, "Access denied");
-			logSink.accept("Redirecting to " + redirect);
 		}
+		String redirect = sb.toString();
+		ApplicationRequestHandler.generateHttpRedirect(ctx, redirect, "Access denied");
+		logSink.accept("Redirecting to " + redirect);
 	}
 }

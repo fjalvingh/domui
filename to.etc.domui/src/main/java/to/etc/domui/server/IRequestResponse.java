@@ -20,7 +20,6 @@ public interface IRequestResponse {
 	/**
 	 * Must return the path part of a request URL. It contains both webapp context and relative path, but no host name etc. It is required to
 	 * start with a '/'.
-	 * @return
 	 */
 	@NonNull String getRequestURI();
 
@@ -37,15 +36,12 @@ public interface IRequestResponse {
 	 * The "remote" user ID from a server request, if present. This does <b>not</b> need to represent the
 	 * real logged-in user; it will however be filled if JSDK declarative security is used. This field is
 	 * null if DomUI internal login code is used.
-	 * @return
 	 */
 	@Nullable String getRemoteUser();
 
 	/**
 	 * Returns a wrapper for a {@link HttpSession}. If "create" is true the session will be
 	 * created if it does not exist in which case the call will never return null.
-	 * @param create
-	 * @return
 	 */
 	@Nullable IServerSession getServerSession(boolean create);
 
@@ -53,7 +49,6 @@ public interface IRequestResponse {
 	 * Return the base URL to the web application from the current requests. This uses hostname, protocol, portname
 	 * and web application context from the incoming requests and returns it. The returned URL is guaranteed to end
 	 * in a slash.
-	 * @return
 	 */
 	@NonNull String getApplicationURL();
 
@@ -63,7 +58,7 @@ public interface IRequestResponse {
 	@NonNull
 	String getHostName();
 
-	@NonNull String[] getParameters(@NonNull String name);
+	@Nullable String[] getParameters(@NonNull String name);
 
 	@Nullable String getParameter(@NonNull String name);
 
@@ -86,7 +81,6 @@ public interface IRequestResponse {
 	/**
 	 * Returns the webapp context as either an empty string for the ROOT context or a string starting without a slash and always ending
 	 * in one, like "viewpoint/".
-	 * @return
 	 */
 	@NonNull String getWebappContext();
 
@@ -98,14 +92,11 @@ public interface IRequestResponse {
 
 	/**
 	 * Send a redirect response to the client.
-	 * @param newUrl
 	 */
 	void redirect(@NonNull String newUrl) throws Exception;
 
 	/**
 	 * Send an error back to the client.
-	 * @param httpErrorCode
-	 * @param message
 	 */
 	void sendError(int httpErrorCode, @NonNull String message) throws Exception;
 }

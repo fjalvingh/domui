@@ -26,9 +26,9 @@ package to.etc.domui.parts;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 
@@ -51,7 +51,7 @@ public class PropBtnPart implements IBufferedPartFactory<ButtonPartKey> {
 	 * Decode the parameters for this button thingy.
 	 */
 	@Override
-	public @NonNull ButtonPartKey decodeKey(DomApplication application, @NonNull IExtendedParameterInfo info) throws Exception {
+	public @NonNull ButtonPartKey decodeKey(DomApplication application, @NonNull IPageParameters info) throws Exception {
 		return ButtonPartKey.decode(info);
 	}
 

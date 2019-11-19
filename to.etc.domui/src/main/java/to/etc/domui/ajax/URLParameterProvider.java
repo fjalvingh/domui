@@ -24,12 +24,12 @@
  */
 package to.etc.domui.ajax;
 
-import java.lang.annotation.*;
+import to.etc.domui.annotations.AjaxParam;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.util.RuntimeConversions;
+import to.etc.webapp.ajax.renderer.JSONParser;
 
-import to.etc.domui.annotations.*;
-import to.etc.domui.server.*;
-import to.etc.util.*;
-import to.etc.webapp.ajax.renderer.*;
+import java.lang.annotation.Annotation;
 
 public class URLParameterProvider implements IParameterProvider {
 	private final RequestContextImpl m_ctx;
@@ -39,8 +39,8 @@ public class URLParameterProvider implements IParameterProvider {
 	}
 
 	@Override
-	public Object findParameterValue(final Class< ? > targetcl, final Annotation[] annotations, final int paramIndex, final AjaxParam ap) throws Exception {
-		String[] pv = m_ctx.getParameters(ap.value()); // Parameter by name
+	public Object findParameterValue(Class< ? > targetcl, Annotation[] annotations, int paramIndex, AjaxParam ap) throws Exception {
+		String[] pv = m_ctx.getPageParameters().getStringArray(ap.value(), null); // Parameter by name
 		if(pv == null || pv.length == 0)
 			return NO_VALUE;
 		if(pv.length > 1)

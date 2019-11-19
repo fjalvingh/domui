@@ -160,13 +160,6 @@ public class TempFilePart implements IUnbufferedPartFactory {
 
 	/**
 	 * Saves blob into temporary file, register temporary file in provided context, and returns generated download link.
-	 * @param ctx
-	 * @param blob
-	 * @param mime
-	 * @param type
-	 * @param filename
-	 * @return
-	 * @throws Exception
 	 */
 	public static String getDownloadLink(@NonNull IRequestContext ctx, @NonNull Blob blob, String mime, String type, String filename) throws Exception {
 		File temp = File.createTempFile("tmp", ".tmp");
@@ -176,11 +169,6 @@ public class TempFilePart implements IUnbufferedPartFactory {
 
 	/**
 	 * Force the browser to download the specified file, by sending "location.href = (url-to-file)" to the browser.
-	 * @param sourcePage
-	 * @param target
-	 * @param mime
-	 * @param disposition
-	 * @param name
 	 */
 	public static void	createDownloadAction(@NonNull NodeBase sourcePage, @NonNull File target, @NonNull String mime, @NonNull Disposition disposition, @Nullable String name) {
 		String url = registerTempFile(target, mime, disposition, name);
@@ -189,10 +177,8 @@ public class TempFilePart implements IUnbufferedPartFactory {
 
 	@Override
 	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
-		String fkey = param.getParameter("key");
-		String fpw = param.getParameter("passkey");
-		if(fkey == null || fpw == null)
-			throw new ThingyNotFoundException("Invalid arguments.");
+		String fkey = param.getPageParameters().getString("key");
+		String fpw = param.getPageParameters().getString("passkey");
 
 		//-- Get info block from session.
 		FileInfo fi = (FileInfo) param.getSession().getAttribute("tempf-" + fkey);

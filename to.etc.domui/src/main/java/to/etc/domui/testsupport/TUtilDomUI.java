@@ -45,6 +45,7 @@ import to.etc.domui.state.WindowSession;
 
 import java.io.File;
 import java.io.StringWriter;
+import java.net.URL;
 
 public class TUtilDomUI {
 	static private volatile AppSession m_session;
@@ -62,6 +63,13 @@ public class TUtilDomUI {
 			@Override
 			public File getWebFileRoot() {
 				return new File("/tmp"); // FIXME Howto?
+			}
+
+			@NonNull
+			@Override
+			public URL getResourcePath(@NonNull String path) throws Exception {
+				File f = new File(getWebFileRoot(), path);
+				return f.toURL();
 			}
 		};
 		application.addHeaderContributor(HeaderContributor.loadStylesheet("font-awesome"), 11);
@@ -88,6 +96,13 @@ public class TUtilDomUI {
 				@Override
 				public File getWebFileRoot() {
 					return new File("/tmp"); // FIXME Howto?
+				}
+
+				@NonNull
+				@Override
+				public URL getResourcePath(@NonNull String path) throws Exception {
+					File f = new File(getWebFileRoot(), path);
+					return f.toURL();
 				}
 			};
 

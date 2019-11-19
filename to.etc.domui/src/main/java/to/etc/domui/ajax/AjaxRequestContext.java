@@ -126,7 +126,7 @@ public class AjaxRequestContext implements IRpcCallContext {
 			}
 
 			//-- This is a parameter-based call, i.e. the call parameters are URL parameters
-			String s = m_rctx.getParameter("_format"); // Format override present in request?
+			String s = m_rctx.getPageParameters().getString("_format", null); // Format override present in request?
 			ResponseFormat rf = null;
 			if(s != null)
 				rf = ResponseFormat.valueOf(s);
@@ -137,8 +137,6 @@ public class AjaxRequestContext implements IRpcCallContext {
 			sx.setUrl(getRctx().getRequestResponse().getRequestURI());
 			//			sx.setContext(this);
 			throw sx;
-		} finally {
-
 		}
 	}
 
@@ -146,7 +144,7 @@ public class AjaxRequestContext implements IRpcCallContext {
 	 * Handles a bulk (multicall) request.
 	 */
 	private void executeBulkRequest() throws Exception {
-		String json = m_rctx.getParameter("json");
+		String json = m_rctx.getPageParameters().getString("json", null);
 		if(json != null) {
 			m_callHandler.executeBulkJSON(this, json);
 			return;

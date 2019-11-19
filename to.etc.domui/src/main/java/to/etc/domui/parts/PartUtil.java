@@ -29,8 +29,10 @@ import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IParameterInfo;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.state.PageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.resources.IResourceDependencyList;
 import to.etc.domui.util.resources.IResourceRef;
@@ -49,21 +51,6 @@ import java.util.StringTokenizer;
 public class PartUtil {
 	private PartUtil() {}
 
-	static public int getInt(IParameterInfo param, String name, int def) {
-		String v = param.getParameter(name);
-		if(v == null)
-			return def;
-		v = v.trim();
-		if(v.length() == 0)
-			return def;
-		try {
-			return Integer.parseInt(v);
-		} catch(Exception x) {
-			return def;
-		}
-	}
-
-
 	static private boolean isa(String name, String ext) {
 		int pos = name.lastIndexOf('.');
 		if(pos == -1)
@@ -73,10 +60,6 @@ public class PartUtil {
 
 	/**
 	 * Loads a properties file from a resource string.
-	 * @param da
-	 * @param src
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	static public Properties loadProperties(DomApplication da, String src, IResourceDependencyList rdl) throws Exception {
@@ -103,13 +86,14 @@ public class PartUtil {
 		return in.substring(0, pos);
 	}
 
-	static public IParameterInfo getParameters(String in) {
+	@Nullable
+	static public IPageParameters getParameters(String in) {
 		if(in == null)
 			return null;
 		int pos = in.indexOf('?');
 		if(pos == -1)
 			return null;
-		return new ParameterInfoImpl(in.substring(pos + 1));
+		return PageParameters.decodeParameters(in.substring(pos + 1));
 	}
 
 	/**
@@ -118,7 +102,7 @@ public class PartUtil {
 	static public BufferedImage loadImage(DomApplication da, String in, @NonNull IResourceDependencyList rdl) throws Exception {
 		//-- Split input in URL and parameters (QD for generic retrieval of resources)
 		String image = getURI(in);
-		IParameterInfo param = getParameters(in);
+		IPageParameters param = getParameters(in);
 
 		IResourceRef ref = da.getResource(image, rdl);
 //		if(ref == null)
@@ -156,7 +140,7 @@ public class PartUtil {
 		}
 	}
 
-	private static BufferedImage loadSvg(DomApplication da, IResourceDependencyList rdl, String image, IParameterInfo param) throws Exception {
+	private static BufferedImage loadSvg(DomApplication da, IResourceDependencyList rdl, String image, IPageParameters param) throws Exception {
 		//-- 1. Get the input as a theme-replaced resource
 		String svg = da.internalGetThemeManager().getThemeReplacedString(rdl, image);
 
@@ -164,8 +148,8 @@ public class PartUtil {
 		BufferedImageTranscoder bit = new BufferedImageTranscoder();
 		TranscoderInput in = new TranscoderInput(new StringReader(svg));
 
-		int w = PartUtil.getInt(param, "w", -1);
-		int h = PartUtil.getInt(param, "h", -1);
+		int w = param.getInt("w", -1);
+		int h = param.getInt("h", -1);
 
 		if(w != -1 && h != -1) {
 			bit.addTranscodingHint(SVGAbstractTranscoder.KEY_WIDTH, Float.valueOf(w));

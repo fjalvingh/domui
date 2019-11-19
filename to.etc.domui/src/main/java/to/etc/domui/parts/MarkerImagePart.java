@@ -27,9 +27,9 @@ package to.etc.domui.parts;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
 import to.etc.domui.server.parts.IBufferedPartFactory;
 import to.etc.domui.server.parts.PartResponse;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.resources.IResourceDependencyList;
@@ -55,7 +55,7 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	private static final Color DEFAULT_COLOR = Color.GRAY;
 
 	@Override
-	public @NonNull MarkerImagePartKey decodeKey(DomApplication application, @NonNull IExtendedParameterInfo param) throws Exception {
+	public @NonNull MarkerImagePartKey decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
 		MarkerImagePartKey key = MarkerImagePartKey.decode(application, param);
 		return key;
 	}

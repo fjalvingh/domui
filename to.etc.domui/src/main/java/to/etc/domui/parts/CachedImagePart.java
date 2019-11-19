@@ -31,7 +31,6 @@ import to.etc.domui.caches.images.ImageCache;
 import to.etc.domui.caches.images.ImageKey;
 import to.etc.domui.server.ApplicationRequestHandler;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.server.parts.IUnbufferedPartFactory;
@@ -141,7 +140,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 
 		//-- Decode all permutations requested,
 		List<IImageConversionSpecifier> conversions = new ArrayList<IImageConversionSpecifier>(10);
-		decodeMutations(param, conversions);
+		decodeMutations(param.getPageParameters(), conversions);
 
 		//-- Get full image from the cache now;
 		FullImage fima = null;
@@ -166,8 +165,8 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 
 	protected void generateImage(RequestContextImpl ri, FullImage fima) throws Exception {
 		//-- Do we need a content-disposition header to force a filename/download?
-		String filename = ri.getParameter(PARAM_FILENAME);
-		String dis = ri.getParameter(PARAM_DISPOSITION);
+		String filename = ri.getPageParameters().getString(PARAM_FILENAME, null);
+		String dis = ri.getPageParameters().getString(PARAM_DISPOSITION, null);
 		if(dis != null || filename != null) {
 			StringBuilder sb = new StringBuilder();
 			if(dis == null)
@@ -199,17 +198,17 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 		}
 	}
 
-	protected void decodeMutations(IParameterInfo pin, List<IImageConversionSpecifier> list) throws Exception {
+	protected void decodeMutations(IPageParameters pin, List<IImageConversionSpecifier> list) throws Exception {
 		decodePage(pin, list);
 		decodeResize(pin, list);
 		decodeFormat(pin, list);
 	}
 
-	protected void decodeResize(IParameterInfo pin, List<IImageConversionSpecifier> ik) throws Exception {
+	protected void decodeResize(IPageParameters pin, List<IImageConversionSpecifier> ik) throws Exception {
 		boolean thumb = false;
-		String v = pin.getParameter(PARAM_RESIZE);
+		String v = pin.getString(PARAM_RESIZE, null);
 		if(v == null) {
-			v = pin.getParameter(PARAM_THUMBNAIL);
+			v = pin.getString(PARAM_THUMBNAIL, null);
 			if(v == null)
 				return;
 			thumb = true;
@@ -230,19 +229,17 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 
 	/**
 	 * If we have a parameter "page=xxx" add a page selector
-	 * @param ik
-	 * @throws Exception
 	 */
-	protected void decodePage(IParameterInfo pin, List<IImageConversionSpecifier> ik) throws Exception {
-		String v = pin.getParameter(PARAM_PAGE);
+	protected void decodePage(IPageParameters pin, List<IImageConversionSpecifier> ik) throws Exception {
+		String v = pin.getString(PARAM_PAGE, null);
 		if(v == null)
 			return;
 		int pnr = Integer.parseInt(v);
 		ik.add(new ImagePageSelect(pnr));
 	}
 
-	protected void decodeFormat(IParameterInfo pin, List<IImageConversionSpecifier> ik) throws Exception {
-		String v = pin.getParameter(PARAM_FORMAT);
+	protected void decodeFormat(IPageParameters pin, List<IImageConversionSpecifier> ik) throws Exception {
+		String v = pin.getString(PARAM_FORMAT, null);
 		if(v == null)
 			return;
 		String mime = v;

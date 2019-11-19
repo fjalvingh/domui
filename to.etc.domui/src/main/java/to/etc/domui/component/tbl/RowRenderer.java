@@ -194,7 +194,12 @@ import java.util.function.Predicate;
 			String label = cd.getColumnLabel();
 			if(! sortablemodel || ! isSortable(cd)) {
 				//-- Just add the span with label, if present. Span is needed to allow styling.
-				HeaderContainer.HeaderContainerCell cell = cc.add(new Span(label));
+				Div cellSpan = new Div();
+
+				HeaderContainer.HeaderContainerCell cell = cc.add(cellSpan);
+				cellSpan.add(new Span(label));
+				Div sp = new Div("ui-dt-sorticon");
+				cellSpan.add(sp);
 				th = cell.getTh();
 				col = cell.getCol();
 			} else {
@@ -909,8 +914,6 @@ import java.util.function.Predicate;
 	 * Called when the column size has been changed by the user, this stores the new sizes
 	 * in the column to be sure they are re-rendered with the same widths when paging
 	 * or re-rendering. In addition it calls the store method if configured.
-	 *
-	 * @param context
 	 */
 	@Override public void updateWidths(@NonNull TableModelTableBase<T> tbl, @NonNull RequestContextImpl context) throws Exception {
 		//-- Get the CSS widths for all heads.
@@ -919,7 +922,7 @@ import java.util.function.Predicate;
 		for(ColumnDef<T, ?> cd : getColumnList()) {
 			TH th = m_columnByThIdMap.get(cd);
 			if(null != th) {
-				String cw = context.getParameter("column_" + th.getActualID());
+				String cw = context.getPageParameters().getString("column_" + th.getActualID(), null);
 				if(null != cw) {
 					th.unchanged(() -> th.setWidth(cw));								// Update TH
 					list.add(new ColumnWidth<>(cd, index, cw));

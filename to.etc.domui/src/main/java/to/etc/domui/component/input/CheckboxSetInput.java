@@ -16,4 +16,17 @@ public class CheckboxSetInput<T> extends CheckboxSetInputBase<T, T> {
 	protected T listToValue(@NonNull T in) throws Exception {
 		return in;
 	}
+
+	@Override
+	public CheckboxSetInput<T> css(String... css) {
+		super.css(css);
+		return this;
+	}
+
+	@Override
+	public CheckboxSetInput<T> asButtons() {
+		super.asButtons();
+		return this;
+	}
+
 }

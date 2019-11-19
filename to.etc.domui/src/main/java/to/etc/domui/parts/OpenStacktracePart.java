@@ -13,7 +13,7 @@ import to.etc.domui.server.parts.IUnbufferedPartFactory;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 
-public class OpenStacktracePart implements IUnbufferedPartFactory {
+final public class OpenStacktracePart implements IUnbufferedPartFactory {
 	@Override
 	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
 		//-- Get the stacktrace element,
@@ -25,13 +25,13 @@ public class OpenStacktracePart implements IUnbufferedPartFactory {
 		r.setCharacterEncoding("utf-8");
 		PrintWriter w = r.getWriter();
 
-		String check = param.getParameter("check");
+		String check = param.getPageParameters().getString("check", null);
 		if(null != check) {
 			w.print("{\"reload\":");
 			w.print(Long.toString(ReloadingContextMaker.getLastReload()));
 			w.print(".0}");
 		} else {
-			String stk = param.getParameter("element");
+			String stk = param.getPageParameters().getString("element", null);
 			if(stk == null || stk.trim().length() == 0)
 				throw new IllegalArgumentException("Missing 'element' argument");
 

@@ -47,6 +47,7 @@ public class PostgresGenerator extends AbstractGenerator {
 		registerMapping(ColumnType.INTEGER, (a, c) -> a.append("integer"));
 		registerMapping(ColumnType.BIGINT, (a, c) -> a.append("bigint"));
 		registerMapping(ColumnType.BLOB, (a, c) -> a.append("oid"));
+		registerMapping(ColumnType.DOUBLE, (a, c) -> a.append("double precision"));
 
 		registerReservedWords("user");
 	}

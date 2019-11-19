@@ -37,7 +37,7 @@ public class DefaultPageAccessChecker implements IPageAccessChecker {
 	 */
 	@Override
 	public AccessCheckResult checkAccess(RequestContextImpl ctx, Page page, ConsumerEx<String> logerror) throws Exception {
-		if(ctx.getParameter("webuia") != null)
+		if(ctx.getPageParameters().getString("webuia", null) != null)
 			throw new IllegalStateException("Cannot be called for an AJAX request");
 		UrlPage body = page.getBody();							// The actual, instantiated and injected class - which is unbuilt, though
 		UIRights rann = body.getClass().getAnnotation(UIRights.class);		// Get class annotation
@@ -67,7 +67,7 @@ public class DefaultPageAccessChecker implements IPageAccessChecker {
 		/*
 		 * Access not allowed: redirect to error page.
 		 */
-		return AccessCheckResult.refused(page.getBody(), rann, errors);
+		return AccessCheckResult.refused(page.getBody(), rann == null ? new String[] {} : rann.value(), errors);
 	}
 
 	private boolean isAccessAllowed(UrlPage body, @Nullable UIRights rann, @Nullable IRightsCheckedManually rcm, IUser user) throws Exception {

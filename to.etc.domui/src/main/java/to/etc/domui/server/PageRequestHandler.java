@@ -23,12 +23,14 @@ import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.parts.IComponentUrlDataProvider;
+import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.ConversationDestroyedException;
 import to.etc.domui.state.IGotoAction;
 import to.etc.domui.state.INotReloadablePage;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
@@ -105,8 +107,8 @@ final public class PageRequestHandler {
 		/*
 		 * If this is a full render request the URL must contain a $CID... If not send a redirect after allocating a window.
 		 */
-		m_action = ctx.getParameter(Constants.PARAM_UIACTION);			// AJAX action request?
-		String cid = m_cid = ctx.getParameter(Constants.PARAM_CONVERSATION_ID);
+		m_action = ctx.getPageParameters().getString(Constants.PARAM_UIACTION, null);			// AJAX action request?
+		String cid = m_cid = ctx.getPageParameters().getString(Constants.PARAM_CONVERSATION_ID, null);
 		m_cida = cid == null ? null : CidPair.decodeLax(cid);
 
 		String pageName = ctx.getPageName();
@@ -166,9 +168,17 @@ final public class PageRequestHandler {
 		if(DomUtil.USERLOG.isDebugEnabled()) {
 			DomUtil.USERLOG.debug("\n\n\n========= DomUI request =================\nCID=" + m_cid + "\nAction=" + m_action + "\n");
 		}
-		if(!Constants.ACMD_ASYPOLL.equals(m_action))
+		if(!Constants.ACMD_ASYPOLL.equals(m_action)) {
 //			System.out.println("req: " + cid + " action " + action + ", " + m_ctx.getParameter(Constants.PARAM_UICOMPONENT));
 			logUser("Incoming request on " + m_cid + " action=" + m_action);
+			//HttpServerRequestResponse rr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
+			//Enumeration<String> en = rr.getRequest().getHeaderNames();
+			//while(en.hasMoreElements()) {
+			//	String name = en.nextElement();
+			//	System.out.println("header " + name + ": " + rr.getRequest().getHeader(name));
+			//}
+
+		}
 
 		//-- If this is an OBITUARY just mark the window as possibly gone, then exit;
 		if(Constants.ACMD_OBITUARY.equals(m_action)) {
@@ -183,9 +193,15 @@ final public class PageRequestHandler {
 			windowSession = m_ctx.getSession().findWindowSession(cida.getWindowId());
 		}
 		if(windowSession == null) {
-			//-- no session yet: create one and redirect to a new URL that contains it.
-			createSessionAndReload();
-			return;
+			//-- If this is a crawler we would render a page with a fake session
+			if(m_application.getIsCrawlerFunctor().apply(m_ctx)) {
+				windowSession = m_ctx.getSession().createWindowSession();
+				cida = new CidPair(windowSession.getWindowID(), ".x");
+			} else {
+				//-- no session yet: create one and redirect to a new URL that contains it.
+				createSessionAndReload();
+				return;
+			}
 		}
 		if(cida == null)										// Cannot happen, but make sure.
 			throw new IllegalStateException("Cannot happen: cida is null??");
@@ -264,8 +280,7 @@ final public class PageRequestHandler {
 	}
 
 	@NotNull private PageParameters getPageParameters(@Nullable ConversationContext conversation) {
-		PageParameters papa;
-		papa = PageParameters.createFrom(m_ctx);
+		PageParameters papa = PageParameters.createFrom(m_ctx.getPageParameters());
 
 		//-- If this request is a huge post request - get the huge post parameters.
 		String hpq = papa.getString(Constants.PARAM_POST_CONVERSATION_KEY, null);
@@ -478,7 +493,7 @@ final public class PageRequestHandler {
 	}
 
 	private boolean isPageTagStillValid(@NonNull Page page) throws Exception {
-		String s = m_ctx.getParameter(Constants.PARAM_PAGE_TAG);
+		String s = m_ctx.getPageParameters().getString(Constants.PARAM_PAGE_TAG, null);
 		if(s == null)
 			return true;							// No page tag -> assume OK!?
 
@@ -519,12 +534,9 @@ final public class PageRequestHandler {
 		 * Warning: do NOT access the WindowSession by findWindowSession: that updates the window touched
 		 * timestamp and causes obituary timeout handling to fail.
 		 */
-		int pageTag;
-		try {
-			pageTag = Integer.parseInt(m_ctx.getParameter(Constants.PARAM_PAGE_TAG));
-		} catch(Exception x) {
+		int pageTag = m_ctx.getPageParameters().getInt(Constants.PARAM_PAGE_TAG, -1);
+		if(-1 == pageTag)
 			throw new IllegalStateException("Missing or invalid $pt PageTAG in OBITUARY request");
-		}
 		CidPair cida = m_cida;
 		if(cida == null)
 			throw new IllegalStateException("Missing $cid in OBITUARY request");
@@ -584,7 +596,7 @@ final public class PageRequestHandler {
 				if(null != hs) {
 					m_ctx.internalSetWindowSession(windowSession);			// Should prevent issues when reloading
 
-					String newid = windowSession.internalAttemptReload(hs, m_runClass, PageParameters.createFrom(m_ctx), cida.getWindowId());
+					String newid = windowSession.internalAttemptReload(hs, m_runClass, PageParameters.createFrom(m_ctx.getPageParameters()), cida.getWindowId());
 					if(newid != null)
 						conversationId = newid;
 				}
@@ -597,7 +609,7 @@ final public class PageRequestHandler {
 		}
 
 		//-- 20121008 jal - if the code was sent through a POST - the data can be huge so we need a workaround for the get URL.
-		PageParameters pp = PageParameters.createFrom(m_ctx);
+		PageParameters pp = PageParameters.createFrom(m_ctx.getPageParameters());
 		if(m_ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) m_ctx.getRequestResponse();
 
@@ -609,15 +621,24 @@ final public class PageRequestHandler {
 		//-- END POST handling
 
 		StringBuilder sb = new StringBuilder(256);
+		String pageName = m_ctx.getPageName();
+		String path = m_ctx.getInputPath();
+		if(null != pageName) {
+			UrlAndParameters urlString = m_application.getPageUrlMapping().getUrlString((Class<? extends UrlPage>) Class.forName(pageName), pp);
+			if(null != urlString) {
+				path = urlString.getUrl();
+				pp = urlString.getPageParameters();
+			}
+		}
 
 		//			sb.append('/');
-		sb.append(m_ctx.getRelativePath(m_ctx.getInputPath()));
+		sb.append(m_ctx.getRelativePath(path));
 		sb.append('?');
 		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 		sb.append('=');
 		sb.append(windowSession.getWindowID());
 		sb.append(".").append(conversationId);
-		DomUtil.addUrlParameters(sb, m_ctx, false);
+		DomUtil.addUrlParameters(sb, pp, false);
 		ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.");
 		String expmsg = "Session " + m_cid + " has expired - starting a new session by redirecting to " + sb.toString();
 		logUser(expmsg);
@@ -735,7 +756,7 @@ final public class PageRequestHandler {
 		if(Constants.ACMD_ASYPOLL.equals(action)) {
 			m_inhibitlog = true;
 		} else if(targetComponent == null) {
-			String targetComponentID = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
+			String targetComponentID = m_ctx.getPageParameters().getString(Constants.PARAM_UICOMPONENT, null);
 			if(! PageUtil.isSafeToIgnoreUnknownNodeOnAction(action))
 				throw new IllegalStateException("Unknown node '" + targetComponentID + "' for action='" + action + "'");
 
@@ -842,7 +863,7 @@ final public class PageRequestHandler {
 	 */
 	@Nullable
 	private NodeBase getTargetComponent(Page page) {
-		String targetComponentID = m_ctx.getParameter(Constants.PARAM_UICOMPONENT);
+		String targetComponentID = m_ctx.getPageParameters().getString(Constants.PARAM_UICOMPONENT, null);
 		if(null == targetComponentID)
 			return null;
 
@@ -877,7 +898,7 @@ final public class PageRequestHandler {
 				throw new ProgrammerErrorException("The component " + wcomp + " must implement " + IComponentJsonProvider.class.getName() + " to be able to accept JSON data requests");
 
 			IComponentJsonProvider dp = (IComponentJsonProvider) wcomp;
-			PageParameters pp = PageParameters.createFromAll(m_ctx);
+			PageParameters pp = new PageParameters(m_ctx.getPageParameters());
 			Object value = dp.provideJsonData(pp);							// Let the component return something to render.
 			renderJsonLikeResponse(value);
 		} finally {
@@ -954,8 +975,9 @@ final public class PageRequestHandler {
 		long ts = System.nanoTime();
 
 		List<NodeBase> changed = new ArrayList<>();
-		for(String name : m_ctx.getParameterNames()) {
-			String[] values = m_ctx.getParameters(name); 			// Get the value;
+		IPageParameters pp = m_ctx.getPageParameters();
+		for(String name : pp.getParameterNames()) {
+			String[] values = pp.getStringArray(name);	 			// Get the value;
 			//-- Locate the component that the parameter is for;
 			if(name.startsWith("_")) {
 				NodeBase nb = page.findNodeByID(name); 				// Can we find this literally?
@@ -1017,7 +1039,7 @@ final public class PageRequestHandler {
 			DomUtil.USERLOG.debug(msg);
 		}
 
-		ClickInfo cli = new ClickInfo(m_ctx);
+		ClickInfo cli = new ClickInfo(m_ctx.getPageParameters(), page.registerClick(targetComponent));
 		targetComponent.internalOnClicked(cli);
 	}
 

@@ -3,14 +3,14 @@ package to.etc.domui.server.parts;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.parts.ParameterInfoProxy;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.IExtendedParameterInfo;
-import to.etc.domui.server.IParameterInfo;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.state.PageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.LRUHashMap;
+import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencyList;
 import to.etc.util.ByteBufferOutputStream;
 import to.etc.util.DeveloperOptions;
@@ -64,9 +64,9 @@ public class PartService {
 	private static class PartExecutionReference {
 		private final IPartFactory m_factory;
 
-		private final IExtendedParameterInfo m_info;
+		private final IPageParameters m_info;
 
-		public PartExecutionReference(IPartFactory factory, IExtendedParameterInfo info) {
+		public PartExecutionReference(IPartFactory factory, IPageParameters info) {
 			m_factory = factory;
 			m_info = info;
 		}
@@ -75,7 +75,7 @@ public class PartService {
 			return m_factory;
 		}
 
-		public IExtendedParameterInfo getInfo() {
+		public IPageParameters getInfo() {
 			return m_info;
 		}
 	}
@@ -89,8 +89,6 @@ public class PartService {
 
 	/**
 	 * Register a part which gets called when the specified matcher matches.
-	 * @param matcher
-	 * @param factory
 	 */
 	public synchronized void registerPart(IUrlMatcher matcher, IPartFactory factory) {
 		m_urlMatcherList = new ArrayList<>(m_urlMatcherList);
@@ -103,10 +101,9 @@ public class PartService {
 
 	/**
 	 * Detect whether this is an URL part, and if so render it.
-	 * @param ctx
 	 */
 	public boolean render(RequestContextImpl ctx) throws Exception {
-		PartExecutionReference executionReference = findPart(ctx);
+		PartExecutionReference executionReference = findPart(ctx.getPageParameters());
 		if(executionReference == null)
 			return false;
 
@@ -125,10 +122,13 @@ public class PartService {
 	 * Get the data for a part identified by the specified parameters. If the part
 	 * has not yet been generated it will be generated and then cached.
 	 */
-	public PartData getData(IExtendedParameterInfo parameters) throws Exception {
+	public PartData getData(IPageParameters parameters) throws Exception {
 		PartExecutionReference executionReference = findPart(parameters);
-		if(executionReference == null)
-			throw new ThingyNotFoundException("No part found for " + parameters);
+		if(executionReference == null) {
+			executionReference = checkResourcePart(parameters);
+			if(null == executionReference)
+				throw new ThingyNotFoundException("No part found for " + parameters);
+		}
 
 		IPartFactory factory = executionReference.getFactory();
 		if(factory instanceof IBufferedPartFactory) {
@@ -141,16 +141,19 @@ public class PartService {
 	}
 
 	@Nullable
-	private PartExecutionReference findPart(IExtendedParameterInfo parameters) {
+	private PartExecutionReference findPart(IPageParameters parameters) {
 		PartExecutionReference ref = checkClassBasedPart(parameters);
 		if(null != ref)
 			return ref;
 
-		return checkUrlPart(parameters);
+		ref = checkUrlPart(parameters);
+		if(null != ref)
+			return ref;
+		return null; // checkResourcePart(parameters);
 	}
 
 	@Nullable
-	private PartExecutionReference checkUrlPart(IExtendedParameterInfo parameter) {
+	private PartExecutionReference checkUrlPart(IPageParameters parameter) {
 		for(MatcherFactoryPair pair : getMatcherList()) {
 			if(pair.getMatcher().accepts(parameter)) {
 				return new PartExecutionReference(pair.getFactory(), parameter);
@@ -158,6 +161,19 @@ public class PartService {
 		}
 
 		return null;							// No matches
+	}
+
+	@Nullable
+	private PartExecutionReference checkResourcePart(IPageParameters xpi) {
+		String inputPath = xpi.getInputPath();
+		try {
+			IResourceRef res = m_application.getAppFileOrResource(inputPath);
+			if(res.exists()) {
+				return new PartExecutionReference(new InternalResourcePart(), xpi);
+			}
+		} catch(Exception x) {
+		}
+		return null;
 	}
 
 	/**
@@ -168,7 +184,7 @@ public class PartService {
 	 * a 404 exception is thrown.
 	 */
 	@Nullable
-	private PartExecutionReference checkClassBasedPart(IParameterInfo parameters) {
+	private PartExecutionReference checkClassBasedPart(IPageParameters parameters) {
 		String in = parameters.getInputPath();
 		String rest;
 		String segment;
@@ -192,13 +208,9 @@ public class PartService {
 			throw new ThingyNotFoundException("The part factory '" + segment + "' cannot be located.");
 		}
 
-		IExtendedParameterInfo infoProxy = new ParameterInfoProxy(parameters) {
-			@NonNull @Override public String getInputPath() {
-				return rest;
-			}
-		};
-
-		return new PartExecutionReference(factory, infoProxy);
+		PageParameters pp = new PageParameters(parameters)
+			.inputPath(rest);
+		return new PartExecutionReference(factory, pp);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -245,7 +257,7 @@ public class PartService {
 	 * @param ctx
 	 * @throws Exception
 	 */
-	private <K> void generate(IBufferedPartFactory<K> pf, RequestContextImpl ctx, IExtendedParameterInfo parameters) throws Exception {
+	private <K> void generate(IBufferedPartFactory<K> pf, RequestContextImpl ctx, IPageParameters parameters) throws Exception {
 		PartData cp = getCachedInstance2(pf, parameters);
 
 		//-- Generate the part
@@ -265,7 +277,7 @@ public class PartService {
 		}
 	}
 
-	private <K> PartData getCachedInstance2(final IBufferedPartFactory<K> pf, final IExtendedParameterInfo parameters) throws Exception {
+	private <K> PartData getCachedInstance2(final IBufferedPartFactory<K> pf, final IPageParameters parameters) throws Exception {
 		//-- Convert the data to a key object, then lookup;
 		K key = pf.decodeKey(m_application, parameters);
 		if(key == null)
