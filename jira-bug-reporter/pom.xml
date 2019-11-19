@@ -46,6 +46,14 @@
 					<groupId>com.google.code.findbugs</groupId>
 					<artifactId>jsr305</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpclient-cache</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.httpcomponents</groupId>
+					<artifactId>httpclient</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 

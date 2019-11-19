@@ -80,6 +80,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven-project-info-reports-plugin.version>2.9</maven-project-info-reports-plugin.version>
+        <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
     </properties>
 
     <modules>
@@ -99,6 +100,36 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin.version}</version>
+                <configuration>
+                    <rules>
+                        <DependencyConvergence/>
+                        <bannedDependencies>
+                            <excludes>
+                                <!-- IMPORTANT: Permanently ban known vulnerabilities -->
+                                <!-- Arbitrary remote code execution in Apache commons-collections
+									 https://issues.apache.org/jira/browse/COLLECTIONS-580
+									 https://blogs.apache.org/foundation/entry/apache_commons_statement_to_widespread
+								-->
+                                <exclude>commons-collections:commons-collections:[3.0,3.2.1]</exclude>
+                                <exclude>commons-collections:commons-collections:4.0</exclude>
+                            </excludes>
+                        </bannedDependencies>
+                    </rules>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>validate</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- experiment: try to make release work. What a buttfest. -->
             <!-- Needed to disable release profile from release plugin, see http://central.sonatype.org/pages/apache-maven.html -->
             <plugin>
