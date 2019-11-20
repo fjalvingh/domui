@@ -27,6 +27,8 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.state.IPageParameters;
 
+import java.util.Objects;
+
 /**
  * Extensible info class for a "click" event.
  *
@@ -56,7 +58,7 @@ final public class ClickInfo {
 
 	static private int decode(IPageParameters pp, String name) {
 		String s = pp.getString(name, "0");
-		int pos = s.indexOf('.');
+		int pos = Objects.requireNonNull(s).indexOf('.');
 		if(pos > 0) {
 			s = s.substring(0, pos);
 		}
