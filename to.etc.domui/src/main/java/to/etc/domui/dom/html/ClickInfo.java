@@ -50,8 +50,21 @@ final public class ClickInfo {
 		m_control = "true".equals(pi.getString("_controlKey", null));
 		m_alt = "true".equals(pi.getString("_altKey", null));
 		m_doubleClick = doubleClick;
-		m_pageX = pi.getInt("_pageX", 0);
-		m_pageY = pi.getInt("_pageY", 0);
+		m_pageX = decode(pi, "_pageX");
+		m_pageY = decode(pi, "_pageY");
+	}
+
+	static private int decode(IPageParameters pp, String name) {
+		String s = pp.getString(name, "0");
+		int pos = s.indexOf('.');
+		if(pos > 0) {
+			s = s.substring(0, pos);
+		}
+		try {
+			return Integer.parseInt(s);
+		} catch(Exception x) {
+			return 0;
+		}
 	}
 
 	public boolean isShift() {
