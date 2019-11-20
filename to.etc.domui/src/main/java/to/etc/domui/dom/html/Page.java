@@ -57,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * This is the main owner of all nodes; this represents all that is needed for a
@@ -241,6 +242,9 @@ final public class Page implements IQContextContainer {
 	private List<IExecute> m_beforeRequestListenerList = Collections.EMPTY_LIST;
 
 	@NonNull
+	private List<IExecute> m_destroyListenerList = new CopyOnWriteArrayList<>();
+
+	@NonNull
 	private List<IExecute> m_afterRenderList = Collections.EMPTY_LIST;
 
 	private List<Object> m_pageMessageList = new ArrayList<>();
@@ -319,6 +323,13 @@ final public class Page implements IQContextContainer {
 	}
 
 	public final void internalOnDestroy() throws Exception {
+		for(IExecute listener : m_destroyListenerList) {
+			try {
+				listener.execute();
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
 		m_asyncLink.m_page = null;
 		UrlPage body = getBody();
 		body.internalOnDestroy();
@@ -1131,6 +1142,14 @@ final public class Page implements IQContextContainer {
 		if(m_beforeRequestListenerList.size() == 0)
 			m_beforeRequestListenerList = new ArrayList<IExecute>();
 		m_beforeRequestListenerList.add(x);
+	}
+
+	public void addDestroyListener(@NonNull IExecute listener) {
+		m_destroyListenerList.add(listener);
+	}
+
+	public void removeDestroyListener(@NonNull IExecute listener) {
+		m_destroyListenerList.remove(listener);
 	}
 
 	public void callRequestFinished() throws Exception {
