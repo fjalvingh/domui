@@ -1,8 +1,10 @@
 package to.etc.domui.component.misc;
 
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
-import to.etc.util.*;
+import to.etc.domui.dom.css.DisplayType;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.NodeContainer;
+import to.etc.util.WrappedException;
 
 public class Flare extends Div {
 	/**
@@ -21,10 +23,6 @@ public class Flare extends Div {
 	/**
 	 * Get an instance of a flare for the current request. This creates the instance when
 	 * needed and appends it to the layout proper.
-	 * @param flareClass
-	 * @return
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
 	 */
 	static public <T extends Flare> T	get(NodeContainer parent, Class<T> flareClass) {
 		//-- 1. Add or get the flare.
@@ -62,16 +60,11 @@ public class Flare extends Div {
 	/**
 	 * When T, flare will vanish after 1.5 seconds automatically (default). When F the flare disappears
 	 * when the mouse is moved.
-	 * @return
 	 */
 	public boolean isAutoVanish() {
 		return m_autoVanish;
 	}
 
-	/**
-	 * @see #isAutoVanish()
-	 * @param autoVanish
-	 */
 	public void setAutoVanish(boolean autoVanish) {
 		m_autoVanish = autoVanish;
 	}

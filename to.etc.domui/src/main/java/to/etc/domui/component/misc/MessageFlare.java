@@ -25,7 +25,7 @@ public class MessageFlare extends Flare {
 	private MsgType m_type;
 
 	/**
-	 * Create message flare of {@link MsgType.ERROR} type.
+	 * Create message flare of ERROR type.
 	 * Message would stay on screen until any user mouse move.
 	 * To make it autoVanish or of other type, use {@link MessageFlare#MessageFlare(MsgType, boolean)}
 	 */
@@ -44,14 +44,27 @@ public class MessageFlare extends Flare {
 	/**
 	 * Create message flare.
 	 * @param type Type of message. See {@link MsgType}.
-	 * @param stay If T, message would stay on screen until any user mouse move. See {@link Flare#setAutoVanish(boolean)}
+	 * @param autoVanish If T, message would stay on screen until any user mouse move. See {@link Flare#setAutoVanish(boolean)}
 	 */
 	public MessageFlare(MsgType type, boolean autoVanish) {
 		m_type = type;
 		setAutoVanish(autoVanish);
 	}
 
-	private void renderType() {
+	@Override
+	public void createContent() throws Exception {
+		//Div content = new Div("ui-flare-content");
+		//add(content);
+		//
+		renderType(this);
+		Div msgContent = new Div("ui-flare-txt");
+		add(msgContent);
+		for(NodeBase nb: m_content) {
+			msgContent.add(nb);
+		}
+	}
+
+	private void renderType(Div content) {
 		switch(m_type){
 			case ERROR:
 				setCssClass("ui-flare ui-flare-msg ui-flare-error");
@@ -79,20 +92,10 @@ public class MessageFlare extends Flare {
 			default:
 				throw new IllegalStateException("Unknown msg type:" + m_type);
 		}
+		Div d = new Div("ui-flare-img");
+		content.add(d);
 		NodeBase icon = img.createNode();
-		//icon.setAlign(ImgAlign.LEFT);
-		add(icon);
-	}
-
-	@Override
-	public void createContent() throws Exception {
-		super.createContent();
-		renderType();
-		Div msgContent = new Div(); //extra div container to enable text alignment right
-		add(msgContent);
-		for(NodeBase nb: m_content) {
-			msgContent.add(nb);
-		}
+		d.add(icon);
 	}
 
 	/**
