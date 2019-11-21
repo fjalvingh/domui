@@ -16,8 +16,6 @@ import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriverService;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -52,9 +50,9 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			lang = nullChecked(Locale.US);
 		}
 
-		if(browser == BrowserModel.PHANTOMJS) {
-			return allocatePhantomjsInstance(lang);
-		}
+		//if(browser == BrowserModel.PHANTOMJS) {
+		//	return allocatePhantomjsInstance(lang);
+		//}
 
 		switch(type){
 			default:
@@ -145,34 +143,34 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return new RemoteWebDriver(new URL(url), caps);
 	}
 
-	private static WebDriver allocatePhantomjsInstance(Locale lang) throws Exception {
-		DesiredCapabilities capabilities = calculateCapabilities(BrowserModel.PHANTOMJS, lang);
-		capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, "true");
-
-		PhantomJSDriver wd;
-		if(false) {
-			wd = new PhantomJSDriver(capabilities);
-		} else {
-			/*
-			 * We must have anti-aliasing off for better testing. This should work for unices where Phantomjs has been
-			 * compiled with FontConfig support..
-			 */
-
-			//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
-			File dir = createFontConfigFile();
-			Map<String, String> env = new HashMap<>();
-			env.put("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
-
-			PhantomJSDriverService service = MyPhantomDriverService.createDefaultService(capabilities, env);
-			wd = new PhantomJSDriver(service, capabilities);
-		}
-
-		wd.manage().window().setSize(new Dimension(1280, 1024));
-		String browserName = wd.getCapabilities().getBrowserName();
-		String version = wd.getCapabilities().getVersion();
-		System.out.println("wd: allocated " + browserName + " " + version);
-		return wd;
-	}
+	//private static WebDriver allocatePhantomjsInstance(Locale lang) throws Exception {
+	//	DesiredCapabilities capabilities = calculateCapabilities(BrowserModel.PHANTOMJS, lang);
+	//	capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, "true");
+	//
+	//	PhantomJSDriver wd;
+	//	if(false) {
+	//		wd = new PhantomJSDriver(capabilities);
+	//	} else {
+	//		/*
+	//		 * We must have anti-aliasing off for better testing. This should work for unices where Phantomjs has been
+	//		 * compiled with FontConfig support..
+	//		 */
+	//
+	//		//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
+	//		File dir = createFontConfigFile();
+	//		Map<String, String> env = new HashMap<>();
+	//		env.put("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
+	//
+	//		PhantomJSDriverService service = MyPhantomDriverService.createDefaultService(capabilities, env);
+	//		wd = new PhantomJSDriver(service, capabilities);
+	//	}
+	//
+	//	wd.manage().window().setSize(new Dimension(1280, 1024));
+	//	String browserName = wd.getCapabilities().getBrowserName();
+	//	String version = wd.getCapabilities().getVersion();
+	//	System.out.println("wd: allocated " + browserName + " " + version);
+	//	return wd;
+	//}
 
 	@NonNull private static File createFontConfigFile() throws IOException {
 		//-- 1. Make a temp directory which will contain our fonts.conf
@@ -216,8 +214,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			case FIREFOX:
 				return getFirefoxCapabilities(lang);
 
-			case PHANTOMJS:
-				return getPhantomCapabilities(lang);
+			//case PHANTOMJS:
+			//	return getPhantomCapabilities(lang);
 
 			case CHROME:
 				return getChromeCapabilities(lang);
@@ -484,15 +482,13 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return options;
 	}
 
-
-	private static DesiredCapabilities getPhantomCapabilities(Locale lang) {
-		DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
-		String value = lang.getLanguage().toLowerCase();
-		capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_PAGE_CUSTOMHEADERS_PREFIX + "Accept-Language", value);
-		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
-		return capabilities;
-	}
-
+	//private static DesiredCapabilities getPhantomCapabilities(Locale lang) {
+	//	DesiredCapabilities capabilities = DesiredCapabilities.phantomjs();
+	//	String value = lang.getLanguage().toLowerCase();
+	//	capabilities.setCapability(PhantomJSDriverService.PHANTOMJS_PAGE_CUSTOMHEADERS_PREFIX + "Accept-Language", value);
+	//	capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+	//	return capabilities;
+	//}
 
 	@Nullable
 	public static IWebdriverScreenshotHelper getScreenshotHelper(WebDriverType webDriverType, BrowserModel browserModel) {

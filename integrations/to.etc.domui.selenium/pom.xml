@@ -76,6 +76,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>htmlunit-driver</artifactId>
+        </dependency>
+
 
         <!--&lt;!&ndash; https://mvnrepository.com/artifact/com.github.detro.ghostdriver/phantomjsdriver &ndash;&gt;-->
         <!--<dependency>-->

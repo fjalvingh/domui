@@ -203,7 +203,7 @@ final public class WebDriverConnector {
 
 		BrowserModel browserModel = BrowserModel.get(browserName);
 		WebDriverType webDriverType = getDriverType(remote);
-		boolean canTakeScreenshot = browserModel == BrowserModel.PHANTOMJS || webDriverType == WebDriverType.LOCAL || webDriverType == WebDriverType.REMOTE;
+		boolean canTakeScreenshot = /* browserModel == BrowserModel.PHANTOMJS || */ webDriverType == WebDriverType.LOCAL || webDriverType == WebDriverType.REMOTE;
 
 		WebDriver wp = WebDriverFactory.allocateInstance(webDriverType, browserModel, remote, null);
 

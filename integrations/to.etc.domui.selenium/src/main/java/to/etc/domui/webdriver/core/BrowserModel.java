@@ -12,7 +12,8 @@ public enum BrowserModel {
 	, IE11("ie11")
 	, EDGE14("edge-14")
 	, EDGE15("edge-15")
-	, PHANTOMJS("phantomjs");
+	//, PHANTOMJS("phantomjs")		// removed from selenium since it is unmaintained since 2014.
+	;
 
 	private final @NonNull
 	String m_code;
