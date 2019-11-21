@@ -106,10 +106,19 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 			return null;
 
 		//-- Convert the URL's value to the TYPE of the primary key, using URL converters.
-		Object pk = CompoundKeyConverter.INSTANCE.unmarshal(dc, m_pkMetaPmm.getActualType(), pkValue);
+		Object pk;
+		try {
+			pk = CompoundKeyConverter.INSTANCE.unmarshal(dc, m_pkMetaPmm.getActualType(), pkValue);
+		} catch(Exception x) {
+			throw new RuntimeException("URL parameter value='" + pkValue + "' cannot be converted to a PK for '" + m_entityClass + "'"
+				+ "\n- error: " + x.toString()
+				+ "\n- parameter " + m_name
+				+ "\n- page " + page.getClass());
+
+		}
 		if(pk == null)
 			throw new RuntimeException("URL parameter value='" + pkValue + "' converted to Null primary key value for entity class '" + m_entityClass + "' for URL parameter=" + m_name + " of page="
-				+ page.getClass() + ": ");
+				+ page.getClass());
 		return pk;
 	}
 
