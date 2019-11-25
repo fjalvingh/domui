@@ -10,6 +10,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
+import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.ColumnDef;
 import to.etc.domui.component.tbl.RowRenderer;
@@ -104,6 +105,9 @@ public class ExporterButtons {
 
 	static public <T> ExportButtonBuilder<T> from(Class<T> baseClass, SupplierEx<QCriteria<T>> supplier) {
 		return new ExportButtonBuilder<>(baseClass, supplier);
+	}
+	static public <T> ExportButtonBuilder<T> fromList(Class<T> baseClass, SupplierEx<List<T>> supplier) {
+		return new ExportButtonBuilder<>(MetaManager.findClassMeta(baseClass), supplier);
 	}
 
 	static public <T> ExportButtonBuilder<T> from(SearchPanel<T> panel) {
@@ -229,6 +233,13 @@ public class ExporterButtons {
 			m_criteriaSupplier = null;
 		}
 
+		public ExportButtonBuilder(ClassMetaModel classModel, SupplierEx<List<T>> fromSupplier) {
+			m_criteriaSupplier = null;
+			m_sourceSupplier = fromSupplier;
+			m_searchPanel = null;
+			m_classModel = classModel;
+		}
+
 		void addColumn(ExportColumnBuilder<T, ?> c) {
 			m_columnList.add(c);
 		}
@@ -321,7 +332,7 @@ public class ExporterButtons {
 			if(null == criteria) {
 				return;
 			}
-			String fileName = calculateFileName(criteria);
+			String fileName = calculateFileName(criteria.getBaseClass());
 			ConsumerEx<QCriteria<T>> customizer = m_customizer;
 			if(customizer != null)
 				customizer.accept(criteria);
@@ -331,29 +342,30 @@ public class ExporterButtons {
 
 		protected void executeExportFromList(NodeContainer targetNode, IExportFormat format) throws Exception {
 			QCriteria<T> criteria = getSelectionCriteria();
-			if(null == criteria) {
-				return;
-			}
 			SupplierEx<List<T>> sourceSupplier = m_sourceSupplier;
 			if(null == sourceSupplier)
 				return;
 			List<T> sourceRecords = sourceSupplier.get();
 			if(null == sourceRecords)
 				return;
-			String fileName = calculateFileName(criteria);
 			ConsumerEx<QCriteria<T>> customizer = m_customizer;
-			if(customizer != null)
+			if(customizer != null && criteria != null)
 				customizer.accept(criteria);
-			List<T> result = MetaManager.query(sourceRecords, criteria);
+			List<T> result = criteria == null ? sourceRecords : MetaManager.query(sourceRecords, criteria);
+			if(result.size() == 0) {
+				MsgBox.info(targetNode, "Er zijn geen resultaten om te exporteren.");
+				return;
+			}
+			Class<T> baseClass = criteria == null ? (Class<T>) result.get(0).getClass() : criteria.getBaseClass();
 
-			ExporterButtons.export(targetNode, criteria.getBaseClass(), result, format, calculateColumnList(), fileName);
+			String fileName = calculateFileName(baseClass);
+			ExporterButtons.export(targetNode, baseClass, result, format, calculateColumnList(), fileName);
 		}
 
-		private String calculateFileName(QCriteria<T> criteria) {
+		private String calculateFileName(@Nullable Class<?> baseClass) {
 			String fileName = m_fileName;
 			if(null == fileName) {
 				//-- Get table name
-				Class<T> baseClass = criteria.getBaseClass();
 				if(null != baseClass) {
 					ClassMetaModel classMeta = MetaManager.findClassMeta(baseClass);
 					String tableName = classMeta.getTableName();
@@ -383,7 +395,7 @@ public class ExporterButtons {
 				if(null != searchPanel) {
 					criteria = searchPanel.getCriteria();
 				} else {
-					throw new IllegalStateException("No panel nor criteria");
+					return null;
 				}
 			}
 			return criteria;
