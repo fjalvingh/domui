@@ -132,7 +132,8 @@ final public class DelayedActivitiesManager implements Runnable {
 			tr = m_executorThread;
 			runningActivity.getMonitor().cancel();				// Force cancel indication.
 		}
-		tr.interrupt();
+		if(null != tr)
+			tr.interrupt();
 		return true;
 	}
 

@@ -5,6 +5,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.tbl.ColumnDef;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueTransformer;
 import to.etc.webapp.nls.NlsContext;
@@ -92,6 +93,7 @@ final public class RowRendererCellWrapper<V> implements IExportColumn<V> {
 
 		Div dv = new Div();
 		cr.render(dv, value);
+		DomUtil.buildTree(dv);
 		if(dv.getChildCount() == 0)
 			return null;
 		return dv.getTextOnly();
