@@ -109,7 +109,8 @@ final public class HibernateConfigurator {
 	private final static Map<String, String> m_hibernateOptions = new HashMap<>();
 
 	@Nullable
-	private static Interceptor m_interceptor;
+	private static InterceptorFactory m_interceptorFactory;
+
 	/**
 	 * Defines the database update mode (hibernate.hbm2ddl.auto).
 	 *
@@ -272,7 +273,9 @@ final public class HibernateConfigurator {
 
 	static public void enableBeforeImages(boolean yes) {
 		requireUnconfigured();
+		requireEmptyInterceptor();
 		m_beforeImagesEnabled = yes;
+		m_interceptorFactory = x -> new BeforeImageInterceptor(x.getBeforeCache());
 	}
 
 	static public void enableObservableCollections(boolean yes) {
@@ -405,10 +408,6 @@ final public class HibernateConfigurator {
 
 		// Apply a CDI BeanManager ( for JPA event listeners )
 		//sessionFactoryBuilder.applyBeanManager( getBeanManager() );
-		Interceptor interceptor = m_interceptor;
-		if(interceptor != null) {
-			sessionFactoryBuilder.applyInterceptor(interceptor);
-		}
 
 		SessionFactoryImplementor sessionFactory = (SessionFactoryImplementor) sessionFactoryBuilder.build();
 		m_sessionFactory = sessionFactory;
@@ -426,11 +425,13 @@ final public class HibernateConfigurator {
 
 		//-- Start DomUI/WebApp.core initialization: generalized database layer
 		HibernateSessionMaker hsm;
-		if(m_beforeImagesEnabled) {
+		if(m_interceptorFactory != null) {
 			//-- We need the copy interceptor to handle these.
 			hsm = dc -> {
+				var interceptor = m_interceptorFactory.create(dc);
+				dc.setProperty(Interceptor.class, interceptor);
 				return m_sessionFactory.withOptions()
-					.interceptor(new BeforeImageInterceptor(dc.getBeforeCache()))
+					.interceptor(interceptor)
 					.openSession();
 				//return m_sessionFactory.openSession(new BeforeImageInterceptor(dc.getBeforeCache()));
 			};
@@ -475,8 +476,19 @@ final public class HibernateConfigurator {
 		m_allowHibernateHiloSequences = allowHibernateSuckySequences;
 	}
 
-	public static void setInterceptor(Interceptor interceptor) {
+	public static void setInterceptorFactory(InterceptorFactory interceptor) {
 		requireUnconfigured();
-		m_interceptor = interceptor;
+		requireEmptyInterceptor();
+		m_interceptorFactory = interceptor;
+	}
+
+	private static void requireEmptyInterceptor() {
+		if(m_interceptorFactory != null) {
+			throw new IllegalStateException("Interceptor factory already exits. Can't have more than one.");
+		}
+	}
+
+	public interface InterceptorFactory {
+		Interceptor create(BuggyHibernateBaseContext cx);
 	}
 }

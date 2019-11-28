@@ -257,4 +257,17 @@ public interface QDataContext extends AutoCloseable {
 	 */
 	@NonNull
 	<T> T reload(@NonNull T source) throws Exception;
+
+	/**
+	 * Generic container of values.
+	 * @param property
+	 * @param <T>
+	 * @return
+	 */
+	@Nullable
+	<T> T getProperty(Class<T> property);
+
+	<T> void setProperty(Class<T> tClass, T value);
+
+	<T> void removeProperty(Class<T> tClass);
 }

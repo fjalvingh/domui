@@ -28,7 +28,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A QDataContext proxy which allows queries to be sent to multiple rendering/selecting implementations. It delegates
@@ -43,6 +45,9 @@ abstract public class QAbstractDataContext implements QDataContext {
 	private List<IQDataContextListener> m_qDataContextListeners = new ArrayList<IQDataContextListener>();
 
 	private QDataContextFactory m_contextFactory;
+
+	private Map<Class<?>, Object> m_properties = new HashMap<>();
+
 
 	protected QAbstractDataContext(QDataContextFactory contextFactory) {
 		m_contextFactory = contextFactory;
@@ -225,5 +230,25 @@ abstract public class QAbstractDataContext implements QDataContext {
 	@Override
 	public void addListener(@NonNull IQDataContextListener qDataContextListener) {
 		m_qDataContextListeners.add(qDataContextListener);
+	}
+
+	@Nullable
+	@Override
+	public <T> T getProperty(Class<T> property) {
+		Object o = m_properties.get(property);
+		if(o != null && property.isAssignableFrom(o.getClass())) {
+			return (T) o;
+		}
+		return null;
+	}
+
+	@Override
+	public <T> void setProperty(Class<T> tClass, T value) {
+		m_properties.put(tClass, value);
+	}
+
+	@Override
+	public <T> void removeProperty(Class<T> tClass) {
+		m_properties.remove(tClass);
 	}
 }
