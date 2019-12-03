@@ -603,7 +603,12 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 			markNewSelection(old, false);
 		}
 		m_selectedValue = selectedValue;
-		expandNode(getModel().getParent(selectedValue));
-		markNewSelection(selectedValue, true);
+		if(null != selectedValue) {
+			T parent = getModel().getParent(selectedValue);
+			if(null != parent) {
+				expandNode(parent);
+			}
+			markNewSelection(selectedValue, true);
+		}
 	}
 }
