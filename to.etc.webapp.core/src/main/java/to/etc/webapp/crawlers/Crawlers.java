@@ -5,6 +5,7 @@ import to.etc.util.WrappedException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,7 +76,7 @@ final public class Crawlers {
 				try {
 					String javaSucksWithUselessFinalGarbage = NetTools.getRemoteHost(request);
 					hostName = javaSucksWithUselessFinalGarbage;
-					Boolean checked = m_validatedRemotes.computeIfAbsent(hostName, a -> checkDomain(bot, javaSucksWithUselessFinalGarbage));        // Calling those guys morons is an insult to morons.
+					Boolean checked = m_validatedRemotes.computeIfAbsent(hostName, a -> checkDomain(bot, javaSucksWithUselessFinalGarbage));
 					if(! checked)
 						System.err.println("SEO: assumed bot " + bot.getName() + "@" + hostName + " was refused access as a bot");
 					return checked;
@@ -89,6 +90,8 @@ final public class Crawlers {
 	}
 
 	private Boolean checkDomain(Bot bot, String hostName) {
+		if(bot.m_dnsNames.size() == 0)
+			return true;
 		try {
 			InetAddress addr = InetAddress.getByName(hostName);
 			if(addr.isSiteLocalAddress() || addr.isLoopbackAddress() || addr.isLinkLocalAddress())
@@ -116,6 +119,7 @@ final public class Crawlers {
 		INSTANCE.registerCrawler("Exabot", Set.of("exabot"), Set.of(".exalead.com"));
 		INSTANCE.registerCrawler("FaceBot", Set.of("facebookexternalhit"), Set.of(".facebook.com"));
 		INSTANCE.registerCrawler("Alexa", Set.of("ia_archiver"), Set.of(".amazonaws.com"));
+		INSTANCE.registerCrawler("MSNBot", Set.of("msnbot/"), Collections.emptySet());			// ms cannot validate. Good work.
 
 		//-- We do not include SOUGOU
 

@@ -61,6 +61,13 @@ public class BrowserVersion {
 	}
 
 	private void parse(String ua) {
+		if(null == ua) {
+			m_browserName = "(unknown)";
+			m_browserVersion = "0.0";
+			m_version = new int[] {0, 0};
+			return;
+		}
+
 		if(ua.contains("Trident/7.0")) {
 			handleIE11();
 			return;
