@@ -82,4 +82,11 @@ final public class Animations {
 			.next();
 	}
 
+	static public void shake(NodeBase node) {
+		node.appendStatement()
+			.select(node)
+			.append(".effect('shake')")
+			.next();
+	}
+
 }

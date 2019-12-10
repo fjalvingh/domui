@@ -26,9 +26,12 @@ package to.etc.util;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -46,6 +49,8 @@ import java.security.spec.X509EncodedKeySpec;
 public class SecurityUtils {
 
 	static private final SecureRandom RANDOM = new SecureRandom();
+
+	public static final String ENCRYPTION_CIPHER = "Blowfish";
 
 	static public String encodeToHex(PrivateKey privk) {
 		byte[] enc = privk.getEncoded();
@@ -253,4 +258,30 @@ public class SecurityUtils {
 			return false;
 		}
 	}
+
+	static public byte[] encryptStringToBytes(String input, String password) throws Exception {
+		SecretKeySpec skeyspec=new SecretKeySpec(password.getBytes(), ENCRYPTION_CIPHER);
+		Cipher cipher=Cipher.getInstance(ENCRYPTION_CIPHER);
+		cipher.init(Cipher.ENCRYPT_MODE, skeyspec);
+		return cipher.doFinal(input.getBytes(StandardCharsets.UTF_8));
+	}
+
+	static public String decryptStringFromBytes(byte[] data, String password) throws Exception {
+		SecretKeySpec skeyspec=new SecretKeySpec(password.getBytes(), ENCRYPTION_CIPHER);
+		Cipher cipher=Cipher.getInstance(ENCRYPTION_CIPHER);
+		cipher.init(Cipher.DECRYPT_MODE, skeyspec);
+		byte[] decrypted = cipher.doFinal(data);
+		return new String(decrypted, StandardCharsets.UTF_8);
+	}
+
+	static public String encryptString(String input, String password) throws Exception {
+		byte[] bytes = encryptStringToBytes(input, password);
+		return StringTool.encodeBase64ToString(bytes);
+	}
+
+	static public String decryptString(String input, String password) throws Exception {
+		byte[] bytes = StringTool.decodeBase64(input);
+		return decryptStringFromBytes(bytes, password);
+	}
+
 }
