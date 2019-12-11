@@ -66,7 +66,7 @@ public class JdbcDataContext implements QDataContext {
 	@NonNull
 	private List<IRunnable> m_commitHandlerList = Collections.EMPTY_LIST;
 
-	private Map<Class<?>, Object> m_properties = new HashMap<>();
+	private Map<Class<?>, Object> m_attributeMap = new HashMap<>();
 
 	public JdbcDataContext(QDataContextFactory factory, Connection dbc) {
 		m_factory = factory;
@@ -307,8 +307,8 @@ public class JdbcDataContext implements QDataContext {
 
 	@Nullable
 	@Override
-	public <T> T getProperty(Class<T> property) {
-		Object o = m_properties.get(property);
+	public <T> T getAttribute(Class<T> property) {
+		Object o = m_attributeMap.get(property);
 		if(o != null && property.isAssignableFrom(o.getClass())) {
 			return (T) o;
 		}
@@ -316,12 +316,7 @@ public class JdbcDataContext implements QDataContext {
 	}
 
 	@Override
-	public <T> void setProperty(Class<T> tClass, T value) {
-		m_properties.put(tClass, value);
-	}
-
-	@Override
-	public <T> void removeProperty(Class<T> tClass) {
-		m_properties.remove(tClass);
+	public <T> void setAttribute(Class<T> tClass, T value) {
+		m_attributeMap.put(tClass, value);
 	}
 }

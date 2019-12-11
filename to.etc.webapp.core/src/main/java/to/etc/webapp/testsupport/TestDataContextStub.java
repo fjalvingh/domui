@@ -190,17 +190,12 @@ public class TestDataContextStub implements QDataContext {
 
 	@Nullable
 	@Override
-	public <T> T getProperty(Class<T> property) {
+	public <T> T getAttribute(Class<T> property) {
 		return null;
 	}
 
 	@Override
-	public <T> void setProperty(Class<T> tClass, T value) {
-
-	}
-
-	@Override
-	public <T> void removeProperty(Class<T> tClass) {
+	public <T> void setAttribute(Class<T> tClass, T value) {
 
 	}
 }

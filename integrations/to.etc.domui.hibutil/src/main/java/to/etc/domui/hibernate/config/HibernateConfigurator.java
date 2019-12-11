@@ -429,7 +429,7 @@ final public class HibernateConfigurator {
 			//-- We need the copy interceptor to handle these.
 			hsm = dc -> {
 				var interceptor = m_interceptorFactory.create(dc);
-				dc.setProperty(Interceptor.class, interceptor);
+				dc.setAttribute(Interceptor.class, interceptor);
 				return m_sessionFactory.withOptions()
 					.interceptor(interceptor)
 					.openSession();

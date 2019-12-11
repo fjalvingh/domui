@@ -46,7 +46,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 
 	private QDataContextFactory m_contextFactory;
 
-	private Map<Class<?>, Object> m_properties = new HashMap<>();
+	private Map<Class<?>, Object> m_attributeMap = new HashMap<>();
 
 
 	protected QAbstractDataContext(QDataContextFactory contextFactory) {
@@ -234,8 +234,8 @@ abstract public class QAbstractDataContext implements QDataContext {
 
 	@Nullable
 	@Override
-	public <T> T getProperty(Class<T> property) {
-		Object o = m_properties.get(property);
+	public <T> T getAttribute(Class<T> property) {
+		Object o = m_attributeMap.get(property);
 		if(o != null && property.isAssignableFrom(o.getClass())) {
 			return (T) o;
 		}
@@ -243,12 +243,7 @@ abstract public class QAbstractDataContext implements QDataContext {
 	}
 
 	@Override
-	public <T> void setProperty(Class<T> tClass, T value) {
-		m_properties.put(tClass, value);
-	}
-
-	@Override
-	public <T> void removeProperty(Class<T> tClass) {
-		m_properties.remove(tClass);
+	public <T> void setAttribute(Class<T> tClass, T value) {
+		m_attributeMap.put(tClass, value);
 	}
 }

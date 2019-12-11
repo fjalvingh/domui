@@ -43,7 +43,6 @@ public interface QDataContext extends AutoCloseable {
 	/**
 	 * Returns the context source which created this DataContext. This context source is used to get
 	 * query listeners to execute when a query is done.
-	 * @return
 	 */
 	@NonNull
 	QDataContextFactory getFactory();
@@ -53,8 +52,6 @@ public interface QDataContext extends AutoCloseable {
 	 * to do with the very strained object model around the ViewPoint database code) this is the least invasive method
 	 * to allow for per-conversation shared contexts. Please do not replace this with any kind of wrapper/proxy based
 	 * solution; it will not work.
-	 *
-	 * @param on
 	 */
 	void setIgnoreClose(boolean on);
 
@@ -71,8 +68,6 @@ public interface QDataContext extends AutoCloseable {
 	 *
 	 * @param <T>	The return type for this query, a persistent class type
 	 * @param q		The selection criteria
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	<T> List<T> query(@NonNull QCriteria<T> q) throws Exception;
@@ -80,19 +75,12 @@ public interface QDataContext extends AutoCloseable {
 	/**
 	 * Execute the query specified by q, and expect and return at most 1 result. If the query has no
 	 * result this will return null. If more than one result is obtained this will throw an IllegalStateException.
-	 * @param <T>
-	 * @param q
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
 	<T> T queryOne(@NonNull QCriteria<T> q) throws Exception;
 
 	/**
 	 * Issue a selection query, where multiple fields or projections on fields are selected from a base class.
-	 * @param sel
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	List<Object[]> query(@NonNull QSelection< ? > sel) throws Exception;
@@ -100,20 +88,12 @@ public interface QDataContext extends AutoCloseable {
 	/**
 	 * Query a selection, and return the result in the specified proxied interface. Members in the interface must
 	 * be annotated with {@link QFld} annotations to define the order in the result set.
-	 * @param resultInterface
-	 * @param sel
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull <R> List<R> query(@NonNull Class<R> resultInterface, @NonNull QSelection<?> sel) throws Exception;
 
 	/**
 	 * Execute the selection query specified by q, and expect and return at most 1 result. If the query has no
 	 * result this will return null. If more than one result is obtained this will throw an IllegalStateException.
-	 * @param <T>
-	 * @param q
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
 	Object[] queryOne(@NonNull QSelection< ? > q) throws Exception;
@@ -138,7 +118,6 @@ public interface QDataContext extends AutoCloseable {
 	 * @param clz	The persistent class for which an instance is being sought.
 	 * @param pk	The PK for the instance required.
 	 * @return		Null if the instance does not exist, the actual and fully initialized instance (or proxy) otherwise.
-	 * @throws Exception
 	 */
 	@Nullable
 	<T> T find(@NonNull Class<T> clz, @NonNull Object pk) throws Exception;
@@ -152,7 +131,6 @@ public interface QDataContext extends AutoCloseable {
 	 * @param clz	The persistent class for which an instance is being sought.
 	 * @param pk	The PK for the instance required.
 	 * @return		The actual and fully initialized instance (or proxy).
-	 * @throws Exception
 	 */
 	@NonNull
 	<T> T get(@NonNull Class<T> clz, @NonNull Object pk) throws Exception;
@@ -164,8 +142,6 @@ public interface QDataContext extends AutoCloseable {
 	 * EXPERIMENTAL INTERFACE This retrieves the "original" copy of the specified instance (which must
 	 * be loaded inside this data context). The original copy contains the field instances as they were
 	 * before the record was loaded.
-	 * @param copy
-	 * @return
 	 */
 	@Nullable
 	<T> T original(@NonNull T copy);
@@ -189,7 +165,6 @@ public interface QDataContext extends AutoCloseable {
 	 * @param clz	The persistent class for which an instance is being sought.
 	 * @param pk	The PK for the instance required.
 	 * @return		Always returns an instance; it can be invalid when it does not really exist on the backing store.
-	 * @throws Exception
 	 */
 	@NonNull
 	<T> T getInstance(@NonNull Class<T> clz, @NonNull Object pk) throws Exception;
@@ -199,29 +174,21 @@ public interface QDataContext extends AutoCloseable {
 
 	/**
 	 * If the object was from an earlier database session reattach it to another, live session.
-	 * @param o
-	 * @throws Exception
 	 */
 	void attach(@NonNull Object o) throws Exception;
 
 	/**
 	 * Cause the object to be inserted in the database.
-	 * @param o
-	 * @throws Exception
 	 */
 	void save(@NonNull Object o) throws Exception;
 
 	/**
 	 * EXPERIMENTAL/NOT FINAL Refresh with latest content in the database.
-	 * @param o
-	 * @throws Exception
 	 */
 	void refresh(@NonNull Object o) throws Exception;
 
 	/**
 	 * Cause the object to be deleted from the database.
-	 * @param o
-	 * @throws Exception
 	 */
 	void delete(@NonNull Object o) throws Exception;
 
@@ -239,14 +206,11 @@ public interface QDataContext extends AutoCloseable {
 
 	/**
 	 * Add an action which should be executed after a succesful commit on this context.
-	 * @param cx
 	 */
 	void addCommitAction(@NonNull IRunnable cx);
 
 	/**
 	 * Add a listener to keep track of the events on an instance.
-	 *
-	 * @param testDataListener
 	 */
 	void addListener(@NonNull IQDataContextListener qDataContextListener);
 
@@ -260,14 +224,13 @@ public interface QDataContext extends AutoCloseable {
 
 	/**
 	 * Generic container of values.
-	 * @param property
-	 * @param <T>
-	 * @return
 	 */
 	@Nullable
-	<T> T getProperty(Class<T> property);
+	<T> T getAttribute(@NonNull Class<T> attributeType);
 
-	<T> void setProperty(Class<T> tClass, T value);
+	<T> void setAttribute(@NonNull Class<T> tClass, @Nullable T value);
 
-	<T> void removeProperty(Class<T> tClass);
+	default <T> void setAttribute(@NonNull T value) {
+		setAttribute((Class<T>) value.getClass(), value);
+	}
 }
