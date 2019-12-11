@@ -133,4 +133,20 @@ public class QDataContextWrapper implements QDataContext {
 	public QDataContext getWrapped() {
 		return m_source;
 	}
+
+	@Nullable
+	@Override
+	public <T> T getProperty(Class<T> property) {
+		return m_source.getProperty(property);
+	}
+
+	@Override
+	public <T> void setProperty(Class<T> tClass, T value) {
+		m_source.setProperty(tClass, value);
+	}
+
+	@Override
+	public <T> void removeProperty(Class<T> tClass) {
+		m_source.removeProperty(tClass);
+	}
 }

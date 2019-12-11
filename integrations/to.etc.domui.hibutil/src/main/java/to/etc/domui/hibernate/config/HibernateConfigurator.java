@@ -26,6 +26,8 @@ package to.etc.domui.hibernate.config;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+import org.hibernate.Interceptor;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
@@ -106,6 +108,9 @@ final public class HibernateConfigurator {
 
 	private final static Map<String, String> m_hibernateOptions = new HashMap<>();
 
+	@Nullable
+	private static InterceptorFactory m_interceptorFactory;
+
 	/**
 	 * Defines the database update mode (hibernate.hbm2ddl.auto).
 	 *
@@ -148,7 +153,7 @@ final public class HibernateConfigurator {
 	/*--------------------------------------------------------------*/
 
 	static public void setHibernateOption(String option, String value) {
-		configured();
+		requireUnconfigured();
 		m_hibernateOptions.put(option, value);
 	}
 
@@ -166,7 +171,7 @@ final public class HibernateConfigurator {
 	 * Return the Hibernate SessionFactory created by this code. Should not normally be used by common user code.
 	 */
 	public synchronized static SessionFactory getSessionFactory() {
-		unconfigured();
+		requireConfigured();
 		return m_sessionFactory;
 	}
 
@@ -181,7 +186,7 @@ final public class HibernateConfigurator {
 	 * Returns the data context factory wrapping the hibernate code.
 	 */
 	public synchronized static QDataContextFactory getDataContextFactory() {
-		unconfigured();
+		requireConfigured();
 		return m_contextSource;
 	}
 
@@ -192,7 +197,7 @@ final public class HibernateConfigurator {
 	/**
 	 * Abort if initialize() has already completed.
 	 */
-	static synchronized private void configured() {
+	static synchronized private void requireUnconfigured() {
 		if(null != m_sessionFactory)
 			throw new IllegalStateException("This method must be called BEFORE one of the 'initialize' methods gets called.");
 	}
@@ -200,7 +205,7 @@ final public class HibernateConfigurator {
 	/**
 	 * Abort if we have not yet initialize()d successfully.
 	 */
-	static synchronized private void unconfigured() {
+	static synchronized private void requireConfigured() {
 		if(null == m_sessionFactory)
 			throw new IllegalStateException("This method must be called AFTER one of the 'initialize' methods gets called.");
 	}
@@ -218,7 +223,7 @@ final public class HibernateConfigurator {
 	 * a list.
 	 */
 	static public void addClasses(Class<?>... classes) {
-		configured();
+		requireUnconfigured();
 		for(Class<?> clz : classes)
 			m_annotatedClassList.add(clz);
 	}
@@ -227,7 +232,7 @@ final public class HibernateConfigurator {
 	 * Set the "show sql" setting for hibernate. When called it overrides any "developer.properties" setting.
 	 */
 	static public void showSQL(boolean on) {
-		configured();
+		requireUnconfigured();
 		m_showSQL = Boolean.valueOf(on);
 	}
 
@@ -237,7 +242,7 @@ final public class HibernateConfigurator {
 	 * to the annotated classes' definition.
 	 */
 	static public void schemaUpdate(@NonNull Mode m) {
-		configured();
+		requireUnconfigured();
 		m_mode = m;
 	}
 
@@ -245,7 +250,7 @@ final public class HibernateConfigurator {
 	 * Register a DomUI {@link IQueryListener} that will be called when DomUI executes {@link QCriteria} queries.
 	 */
 	static public void registerQueryListener(IQueryListener ql) {
-		configured();
+		requireUnconfigured();
 		m_listeners.addQueryListener(ql);
 	}
 
@@ -262,17 +267,19 @@ final public class HibernateConfigurator {
 	 * By ordering your executors with the default ones you can control the order of acceptance for queries.
 	 */
 	static public void registerQueryExecutor(IQueryExecutorFactory qexecutor) {
-		configured();
+		requireUnconfigured();
 		m_handlers.register(qexecutor);
 	}
 
 	static public void enableBeforeImages(boolean yes) {
-		configured();
+		requireUnconfigured();
+		requireEmptyInterceptor();
 		m_beforeImagesEnabled = yes;
+		m_interceptorFactory = x -> new BeforeImageInterceptor(x.getBeforeCache());
 	}
 
 	static public void enableObservableCollections(boolean yes) {
-		configured();
+		requireUnconfigured();
 		m_observableEnabled = yes;
 	}
 
@@ -418,11 +425,13 @@ final public class HibernateConfigurator {
 
 		//-- Start DomUI/WebApp.core initialization: generalized database layer
 		HibernateSessionMaker hsm;
-		if(m_beforeImagesEnabled) {
+		if(m_interceptorFactory != null) {
 			//-- We need the copy interceptor to handle these.
 			hsm = dc -> {
+				var interceptor = m_interceptorFactory.create(dc);
+				dc.setProperty(Interceptor.class, interceptor);
 				return m_sessionFactory.withOptions()
-					.interceptor(new BeforeImageInterceptor(dc.getBeforeCache()))
+					.interceptor(interceptor)
 					.openSession();
 				//return m_sessionFactory.openSession(new BeforeImageInterceptor(dc.getBeforeCache()));
 			};
@@ -465,5 +474,21 @@ final public class HibernateConfigurator {
 	 */
 	public static void setAllowHiloSequences(boolean allowHibernateSuckySequences) {
 		m_allowHibernateHiloSequences = allowHibernateSuckySequences;
+	}
+
+	public static void setInterceptorFactory(InterceptorFactory interceptor) {
+		requireUnconfigured();
+		requireEmptyInterceptor();
+		m_interceptorFactory = interceptor;
+	}
+
+	private static void requireEmptyInterceptor() {
+		if(m_interceptorFactory != null) {
+			throw new IllegalStateException("Interceptor factory already exits. Can't have more than one.");
+		}
+	}
+
+	public interface InterceptorFactory {
+		Interceptor create(BuggyHibernateBaseContext cx);
 	}
 }

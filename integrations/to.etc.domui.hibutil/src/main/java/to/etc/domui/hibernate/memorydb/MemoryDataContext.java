@@ -1,5 +1,6 @@
 package to.etc.domui.hibernate.memorydb;
 
+import org.eclipse.jdt.annotation.Nullable;
 import org.hibernate.proxy.HibernateProxy;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.query.ICriteriaTableDef;
@@ -25,6 +26,8 @@ public class MemoryDataContext implements QDataContext {
 	private Map<Class<?>, Map<Object, Object>> m_entityPerTypeMap = new HashMap<>();
 
 	private int m_nextIntPk = Integer.MAX_VALUE;
+
+	private Map<Class<?>, Object> m_properties = new HashMap<>();
 
 	public MemoryDataContext(MemoryDb mdb) {
 		m_mdb = mdb;
@@ -316,4 +319,23 @@ public class MemoryDataContext implements QDataContext {
 		throw new IllegalStateException("Not implemented");
 	}
 
+	@Nullable
+	@Override
+	public <T> T getProperty(Class<T> property) {
+		Object o = m_properties.get(property);
+		if(o != null && property.isAssignableFrom(o.getClass())) {
+			return (T) o;
+		}
+		return null;
+	}
+
+	@Override
+	public <T> void setProperty(Class<T> tClass, T value) {
+		m_properties.put(tClass, value);
+	}
+
+	@Override
+	public <T> void removeProperty(Class<T> tClass) {
+		m_properties.remove(tClass);
+	}
 }
