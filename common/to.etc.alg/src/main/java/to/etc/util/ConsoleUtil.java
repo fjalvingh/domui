@@ -121,6 +121,8 @@ public class ConsoleUtil {
 		consoleLog(1, segments);
 	}
 
+	static private final int MAX_THREADNAME_LENGTH = 12;
+
 	static public void consoleLog(int type, String... segments) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(BLUE);
@@ -137,7 +139,9 @@ public class ConsoleUtil {
 				//-- Last part: the message + thread
 				sb.append(CYAN);
 				String name = Thread.currentThread().getName();
-				append(sb, name, 10);
+				if(name.length() > MAX_THREADNAME_LENGTH)
+					name = name.substring(name.length() - MAX_THREADNAME_LENGTH);
+				append(sb, name, MAX_THREADNAME_LENGTH);
 
 				switch(type) {
 					default:
