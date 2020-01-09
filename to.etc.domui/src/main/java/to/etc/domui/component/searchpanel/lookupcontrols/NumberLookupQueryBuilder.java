@@ -27,6 +27,12 @@ public class NumberLookupQueryBuilder implements ILookupQueryBuilder<NumberLooku
 	@Override public <T> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, @Nullable NumberLookupValue lookupValue) {
 		if(null == lookupValue)
 			return LookupQueryBuilderResult.EMPTY;
+
+		if (null != lookupValue.getLikeString()) {
+			appendCriteria(criteria, QOperation.LIKE, lookupValue.getLikeString());
+			return LookupQueryBuilderResult.VALID;
+		}
+
 		appendCriteria(criteria, lookupValue.getFromOperation(), lookupValue.getFrom());
 		QOperation op = lookupValue.getToOperation();
 		if(null != op)

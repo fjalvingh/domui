@@ -82,6 +82,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 /**
  * Thingy which creates a Hibernate Criteria thingy from a generic query. This is harder than
@@ -790,13 +791,22 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 			throw new IllegalStateException("Attempt to do a 'like' on a multi-column property: " + pmm);
 		String columnName = colar[0];
 		int dotix = name.lastIndexOf('.');
+		var property = Objects.requireNonNull(pmm.getClassModel().findProperty(name));
 		if(dotix == -1) {
 			//-- We need Hibernate metadata to find the column name....
-			m_last = Restrictions.sqlRestriction("{alias}." + columnName + " like ?", value, StringType.INSTANCE);
+			if ( Number.class.isAssignableFrom(property.getActualType()) && ((String) value).contains("%")) {
+				m_last = Restrictions.sqlRestriction("CAST({alias}." + columnName + " AS VARCHAR) like ?", value, StringType.INSTANCE);
+			} else {
+				m_last = Restrictions.sqlRestriction("{alias}." + columnName + " like ?", value, StringType.INSTANCE);
+			}
 			return;
 		}
-
-		String sql = "{" + name + "} like ?";
+		String sql;
+		if ( Number.class.isAssignableFrom(property.getActualType()) && ((String) value).contains("%")) {
+			sql = "CAST({" + name + "} AS VARCHAR) like ?";
+		} else {
+			sql = "{" + name + "} like ?";
+		}
 		m_last = new HibernateAliasedSqlCriterion(sql, value, StringType.INSTANCE);
 	}
 
