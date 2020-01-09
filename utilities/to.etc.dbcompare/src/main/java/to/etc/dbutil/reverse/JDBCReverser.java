@@ -464,14 +464,6 @@ public class JDBCReverser implements Reverser {
 
 				DbSchema fkSchema = findSchema(fkSchemaName);
 				DbSchema pkSchema = findSchema(pkSchemaName);
-				if(null == pkSchema) {
-					log("Missing schema '" + pkSchemaName + "' for table " + t);
-					continue;
-				}
-				if(null == fkSchema) {
-					log("Missing schema '" + fkSchemaName + "' for table " + t);
-					continue;
-				}
 
 				String fktname = rs.getString("FKTABLE_NAME");
 				String pktname = rs.getString("PKTABLE_NAME");
@@ -489,6 +481,14 @@ public class JDBCReverser implements Reverser {
 				int updr = rs.getInt("UPDATE_RULE");
 				int delr = rs.getInt("DELETE_RULE");
 
+				if(null == pkSchema) {
+					log("Missing schema '" + pkSchemaName + "' for table " + t + " in relation " + fkSchemaName + "." + fktname + " >- " + pkSchemaName + "." + pktname);
+					continue;
+				}
+				if(null == fkSchema) {
+					log("Missing schema '" + fkSchemaName + "' for table " + t + " in relation " + fkSchemaName + "." + fktname + " >- " + pkSchemaName + "." + pktname);
+					continue;
+				}
 				//-- Find FK table and column and PK column referred to
 				DbTable fkt = fkSchema.getTable(fktname);
 				DbColumn fkc = fkt.getColumn(fkcname);
