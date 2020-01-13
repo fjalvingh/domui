@@ -3,6 +3,7 @@ package to.etc.domui.util.importers;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -13,6 +14,8 @@ public interface IRowReader extends Iterable<IImportRow>, AutoCloseable {
 	IImportRow getHeaderRow() throws IOException;
 
 	int getSetCount();
+
+	List<IDatasetInfo> getSets() throws Exception;
 
 	void setSetIndex(int setIndex);
 

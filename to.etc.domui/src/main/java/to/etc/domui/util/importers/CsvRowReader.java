@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -291,6 +292,21 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	@Override public int getSetCount() {
 		return 1;
+	}
+
+	@Override
+	public List<IDatasetInfo> getSets() throws Exception {
+		return Collections.singletonList(new IDatasetInfo() {
+			@Override
+			public String getName() {
+				return "file";
+			}
+
+			@Override
+			public int getIndex() {
+				return 0;
+			}
+		});
 	}
 
 	@Override public void setSetIndex(int setIndex) {
