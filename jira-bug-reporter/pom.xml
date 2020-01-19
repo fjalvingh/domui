@@ -10,6 +10,13 @@
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 
+	<!--
+		jal 20200119 Project excluded from root pom because Atlassian keeps f***ing up
+		their dependencies. The crap below refers to an ancient version of platform (3.1.7)
+		which randomly appears and disappears from the repo's, apparently.
+		Maven: stable builds my ass, what a joke.
+	-->
+
 	<groupId>to.etc.domui</groupId>
 	<artifactId>jira-bug-reporter</artifactId>
 	<version>1.2-SNAPSHOT</version>
@@ -23,7 +30,7 @@
 		<repository>
 			<id>atlassian</id>
 			<name>Atlassian repo</name>
-			<url>https://maven.atlassian.com/content/repositories/atlassian-public</url>
+			<url>https://packages.atlassian.com/maven-public/</url>
 		</repository>
 		<repository>
 			<id>spring-crap</id>
