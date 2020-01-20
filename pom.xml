@@ -94,7 +94,10 @@
         <module>archetypes</module>
         <module>utilities</module>
 		<module>integrations</module>
+        <!--
+            jal 2020 Removed because Atlassian seems to make a mess of its dependencies.
 		<module>jira-bug-reporter</module>
+		-->
     </modules>
 
     <build>
