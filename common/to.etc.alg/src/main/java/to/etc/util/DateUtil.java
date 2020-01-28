@@ -30,6 +30,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -804,5 +807,14 @@ final public class DateUtil {
 			return false;
 		return date.getYear() >= 2999 - 1900;				// The incredible idiot that created getYear subtracts 1900 from it.
 	}
+
+	static public LocalDate localDateFromDate(@NonNull Date date) {
+		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+	}
+
+	static public LocalDateTime localDateTimeFromDate(@NonNull Date date) {
+		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
 }
+
 
