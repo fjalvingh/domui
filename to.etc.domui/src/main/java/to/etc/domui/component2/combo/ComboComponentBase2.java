@@ -46,6 +46,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IComboDataSet;
+import to.etc.domui.util.IExecute;
 import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.IValueTransformer;
@@ -115,6 +116,9 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 	private List<SmallImgButton> m_buttonList = Collections.EMPTY_LIST;
 
 	private boolean m_disableFocus;
+
+	@Nullable
+	private IExecute m_onSelectUpdated;
 
 	public ComboComponentBase2() {}
 
@@ -221,6 +225,7 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 				if(eq) {
 					o.setSelected(eq);
 					m_select.internalSetSelectedIndex(ix);
+					callSelectUpdated();
 					isvalidselection = true;
 				}
 			}
@@ -241,7 +246,15 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 				m_select.internalSetSelectedIndex(0);
 			} else
 				m_select.internalSetSelectedIndex(m_select.getSelectedIndex() + 1); // Increment selected index thingy
+			callSelectUpdated();
 		}
+	}
+
+	private void callSelectUpdated() throws Exception {
+		IExecute onSelectUpdated = m_onSelectUpdated;
+		if(null != onSelectUpdated)
+			onSelectUpdated.execute();
+
 	}
 
 	@Nullable
@@ -337,6 +350,11 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 				setEmptyOption(o); // Save this to mark it in-use.
 			}
 			m_select.setSelectedIndex(0);
+			try {
+				callSelectUpdated();
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
 			return;
 		}
 
@@ -344,6 +362,11 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 		if(getEmptyOption() != null)
 			ix++;
 		m_select.setSelectedIndex(ix);
+		try {
+			callSelectUpdated();
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
 	}
 
 	/**
@@ -726,5 +749,14 @@ public class ComboComponentBase2<T, V> extends AbstractDivControl<V> implements 
 
 	public void setDisableFocus(boolean disableFocus) {
 		m_disableFocus = disableFocus;
+	}
+
+	@Nullable
+	public IExecute getOnSelectUpdated() {
+		return m_onSelectUpdated;
+	}
+
+	public void setOnSelectUpdated(@Nullable IExecute onSelectUpdated) {
+		m_onSelectUpdated = onSelectUpdated;
 	}
 }
