@@ -88,6 +88,8 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	/** Name of logger factory configuration file */
 	//public static final String CONFIG_FILENAME = "etcLoggerConfig.xml";
 
+	private boolean m_initialized;
+
 
 	/**
 	 * Return the singleton of this class.
@@ -115,6 +117,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	@Override
 	@NonNull
 	public EtcLogger getLogger(@NonNull String key) {
+		initialize();
 		EtcLogger logger;
 		synchronized(LOGGERS) {
 			logger = LOGGERS.get(key);
@@ -124,6 +127,30 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 			}
 		}
 		return logger;
+	}
+
+	private synchronized void initialize() {
+		if(m_initialized)
+			return;
+		m_initialized = true;
+
+		System.out.println("[etclogger] Initializing");;
+		try {
+			String cfname = System.getProperty("LOGCONFIG");
+			if(null != cfname) {
+				File f = new File(cfname);
+				if(!f.exists()) {
+					System.err.println("[etclogger] Log config file " + f + " does not exist");
+					return;
+				}
+				initializeFromFile(f);
+				return;
+			}
+
+			initializeFromResource(CONFIG_RESOURCE, null);
+		} catch(Exception x) {
+			System.err.println("[etclogger] Initialization failed: " + x);
+		}
 	}
 
 	@Nullable

@@ -3,8 +3,10 @@
    <handler type="stdout">
       <format pattern="%d %p %mdc{loginId} %t [%l] %msg"/>
       <log level="WARN" name=""/>
+      <log level="NONE" name="org.hibernate.orm.deprecation"/>
       <log level="NONE" name="org.hibernate.internal.SessionImpl"/>
       <log level="NONE" name="org.hibernate.metamodel.internal.MetadataContext"/>
       <log level="NONE" name="org.hibernate.metamodel.internal.MetadataContext"/>
+      <log level="TRACE" name="org.apache.sshd.client.subsystem.sftp.impl.AbstractSftpClient"/>
    </handler>
 </config>
