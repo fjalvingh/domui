@@ -1,8 +1,11 @@
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
@@ -225,5 +228,35 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	@Override public void setHint(String hintText) {
 		setTitle(hintText);
+	}
+
+
+
+	@NonNull
+	static public <T> RadioGroup<T> createGroupFor(PropertyMetaModel<T> pmm, boolean editable, boolean asButtons) {
+		if(pmm == null)
+			throw new IllegalArgumentException("propertyMeta cannot be null");
+		Object[] vals = pmm.getDomainValues();
+		if(vals == null || vals.length == 0)
+			throw new IllegalArgumentException("The type of property " + pmm + " (" + pmm.getActualType() + ") is not known as a fixed-size domain type");
+
+		RadioGroup<T> rg = new RadioGroup<>();
+		ClassMetaModel ecmm = null;
+		for(Object o : vals) {
+			String label = pmm.getDomainValueLabel(NlsContext.getLocale(), o); // Label known to property?
+			if(label == null) {
+				if(ecmm == null)
+					ecmm = MetaManager.findClassMeta(pmm.getActualType()); // Try to get the property's type.
+				label = ecmm.getDomainLabel(NlsContext.getLocale(), o);
+				if(label == null)
+					label = o == null ? "" : o.toString();
+			}
+			rg.addButton(label, (T) o);
+		}
+
+		UIControlUtil.configure(rg, pmm, editable);
+		if(asButtons)
+			rg.asButtons();
+		return rg;
 	}
 }
