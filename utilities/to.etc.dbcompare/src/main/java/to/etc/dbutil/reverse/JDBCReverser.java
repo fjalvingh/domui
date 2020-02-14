@@ -605,8 +605,6 @@ public class JDBCReverser implements Reverser {
 	 */
 	@Nullable
 	public ColumnType decodeColumnType(@Nullable DbSchema schema, int sqltype, @Nullable String typename) {
-		if("text".equals(typename))
-			System.out.println();
 		ColumnType columnType = decodeColumnTypeByPlatformName(schema, sqltype, typename);
 		if(null != columnType)
 			return columnType;
