@@ -22,7 +22,9 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.EncodedKeySpec;
+import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.Arrays;
 
 /**
@@ -70,6 +72,34 @@ public class SshKeyUtils {
 		}
 		throw new KeyFormatException("Key format not recognised");
 	}
+
+	static public KeySpec decodeSshPublicKeySpec(String text) throws KeyFormatException {
+		try {
+			// Remove any newlines that can be the result of pasting.
+			text = text.replace("\r", "").replace("\n", "");
+			String[] split = text.split("\\s+");
+			if(split.length < 2)
+				throw new KeyFormatException("ssh key format not recognised");
+			if(SSH_RSA.equals(split[0])) {
+				byte[] data = StringTool.decodeBase64(split[1]);
+				try(DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data))) {
+					byte[] buf = readIntLenBytes(dis);			// ssh-rsa signature
+					if(buf.length != 7 || !Arrays.equals(buf, SSH_RSA.getBytes()))
+						throw new KeyFormatException("Expecting byte pattern ssh-rsa");
+					BigInteger exp = new BigInteger(readIntLenBytes(dis));
+					BigInteger mod = new BigInteger(readIntLenBytes(dis));
+					return new RSAPublicKeySpec(mod, exp);
+				}
+			}
+		} catch(Exception x) {
+			throw new KeyFormatException(x, "Failed to decode public key");
+		}
+		throw new KeyFormatException("Key format not recognised");
+	}
+
+
+
+
 
 	private static byte[] readIntLenBytes(DataInputStream dis) throws Exception {
 		int l = dis.readInt();						// length of public exponent

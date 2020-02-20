@@ -464,6 +464,9 @@ final public class FormBuilder {
 		@Nullable
 		protected BindReference<?, String> m_disabledMessageOnce;
 
+		@Nullable
+		protected IBidiBindingConverter<?, ?> m_converter;
+
 		public BuilderData(I instance, PropertyMetaModel<V> propertyMetaModel) {
 			m_instance = instance;
 			m_propertyMetaModel = propertyMetaModel;
@@ -891,6 +894,7 @@ final public class FormBuilder {
 
 
 	final public class UntypedControlBuilder<I> extends BuilderData<I, Object> {
+
 		public UntypedControlBuilder(I instance, PropertyMetaModel<?> propertyMeta) {
 			super(instance, (PropertyMetaModel<Object>) propertyMeta);
 		}
@@ -1055,6 +1059,12 @@ final public class FormBuilder {
 			return this;
 		}
 
+		@NonNull
+		public UntypedControlBuilder<I> converter(IBidiBindingConverter<?, ?> converter) {
+			m_converter = converter;
+			return this;
+		}
+
 		/**
 		 * Add the specified control. Since the control is manually created this code assumes that the
 		 * control is <b>properly configured</b> for it's task! This means that this code will not
@@ -1067,7 +1077,7 @@ final public class FormBuilder {
 			if(control.isMandatory()) {
 				m_mandatory = Boolean.TRUE;
 			}
-			addControl(this, (NodeBase) control, null);
+			addControl(this, (NodeBase) control, m_converter);
 			resetBuilder();
 		}
 

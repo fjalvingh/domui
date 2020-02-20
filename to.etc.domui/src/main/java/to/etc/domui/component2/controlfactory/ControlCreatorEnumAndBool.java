@@ -29,6 +29,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component2.combo.ComboFixed2;
 import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.RadioGroup;
 
 /**
  * Accepts both enum and bools and shows a combobox with the possible choices.
@@ -39,8 +40,6 @@ import to.etc.domui.dom.html.IControl;
 public class ControlCreatorEnumAndBool implements IControlCreator {
 	/**
 	 * Accept boolean, Boolean and Enum.
-	 *
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#accepts(to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public <T> int accepts(PropertyMetaModel<T> pmm, Class< ? extends IControl<T>> controlClass) {
@@ -52,15 +51,18 @@ public class ControlCreatorEnumAndBool implements IControlCreator {
 
 	/**
 	 * Create and init a ComboFixed combobox.
-	 *
-	 * @see to.etc.domui.component.controlfactory.PropertyControlFactory#createControl(to.etc.domui.util.IReadOnlyModel, to.etc.domui.component.meta.PropertyMetaModel, boolean)
 	 */
 	@Override
 	public <T, C extends IControl<T>> C createControl(@NonNull PropertyMetaModel<T> pmm, @Nullable Class<C> controlClass) {
-		ComboFixed2< ? > c = ComboFixed2.createComboFor(pmm, true);
-		if(pmm.getActualType() == boolean.class)
-			c.setMandatory(true);
+		Object[] domainValues = pmm.getDomainValues();
+		if(domainValues == null ||  domainValues.length > 5) {
+			ComboFixed2<?> c = ComboFixed2.createComboFor(pmm, true);
+			if(pmm.getActualType() == boolean.class)
+				c.setMandatory(true);
 
-		return (C) c;
+			return (C) c;
+		}
+
+		return (C) RadioGroup.createGroupFor(pmm, true, true);
 	}
 }
