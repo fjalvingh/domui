@@ -34,9 +34,9 @@ import java.util.*;
  * mean batch and session.
  */
 final public class GlobalPerformanceStore {
-	static private final String REQ_EXEC_TIME = "request-exec-time";
+	static public final String REQ_EXEC_TIME = "request-exec-time";
 
-	static private final String REQ_CONNALLOCS = "request-connection-allocations";
+	static public final String REQ_CONNALLOCS = "request-connection-allocations";
 
 	final private PerformanceStore m_store = new PerformanceCollector();
 

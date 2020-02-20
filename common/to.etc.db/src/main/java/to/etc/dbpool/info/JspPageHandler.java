@@ -24,15 +24,29 @@
  */
 package to.etc.dbpool.info;
 
-import java.io.*;
-import java.lang.reflect.*;
-import java.util.*;
+import to.etc.dbpool.ConnState;
+import to.etc.dbpool.ConnectionPool;
+import to.etc.dbpool.ConnectionProxy;
+import to.etc.dbpool.DbPoolUtil;
+import to.etc.dbpool.PoolManager;
+import to.etc.dbpool.PoolStats;
+import to.etc.dbpool.StatisticsRequestListener;
 
-import javax.script.*;
-import javax.servlet.http.*;
-import javax.servlet.jsp.*;
-
-import to.etc.dbpool.*;
+import javax.script.Bindings;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.JspWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class to reduce the horrible code in pool.jsp, without having to copy multiple
@@ -382,6 +396,8 @@ final public class JspPageHandler {
 			addMessage("?? Statistics not enabled??");
 	}
 
+
+
 	private String readResource(String name) throws IOException {
 		InputStream is = null;
 		try {
@@ -409,6 +425,15 @@ final public class JspPageHandler {
 			} catch(Exception x) {}
 		}
 	}
+
+	private boolean hasTemplate(String s) throws IOException {
+		InputStream is = getClass().getResourceAsStream(s + ".html");
+		if(null == is)
+			return false;
+		is.close();
+		return true;
+	}
+
 
 
 	/*--------------------------------------------------------------*/
@@ -677,7 +702,12 @@ final public class JspPageHandler {
 		List<PerfItem> iteml = m_globalStore.getItems(name);
 		expandTemplate2("jspPerfList", "plist", pl, "items", iteml); // Header.
 
-		expandTemplate2("perf-stmt-stmtcount", "plist", pl, "items", iteml);
+		//-- Do we have a specific template for this pi?
+		if(hasTemplate("perf-" + name)) {
+			expandTemplate2("perf-" + name, "plist", pl, "items", iteml);
+		} else {
+			expandTemplate2("perf-stmt-stmtcount", "plist", pl, "items", iteml);
+		}
 	}
 
 	/*--------------------------------------------------------------*/
