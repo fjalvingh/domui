@@ -7,6 +7,7 @@ import to.etc.function.BiFunctionEx;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
 import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.query.QNotFoundException;
 
 import java.lang.reflect.Method;
 import java.util.Map;
@@ -77,6 +78,8 @@ public class PagePropertyInjector implements IPagePropertyFactory {
 				return;
 			}
 			Object instance = m_calculator.apply(page, value);
+			if(null == instance && m_mandatory)
+				throw new QNotFoundException(m_name, value);
 			setValue(page, instance);
 		}
 	}
