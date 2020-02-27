@@ -429,7 +429,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 	 */
 	@Override
 	public void setMandatory(boolean mandatory) {
-		if(mandatory && !m_mandatory) {
+		if(mandatory != m_mandatory) {
 			//vmijic 20100326 - m_validated flag must be reset in case that component dynamically becomes mandatory (since it can happen that was setValue(null) while it not mandatory)
 			m_validated = false;
 		}
