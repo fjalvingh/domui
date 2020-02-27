@@ -7,18 +7,12 @@
 #- master-java11
 
 pool:
-  vmImage: 'Ubuntu-16.04'
+  vmImage: 'ubuntu-latest'
 
 steps:
 - checkout: self
   submodules: true
 - script: npm install chromedriver
-- task: JavaToolInstaller@0
-  inputs:
-    versionSpec: '11'
-    jdkArchitectureOption: 'x64'
-    jdkSourceOption: 'AzureStorage'
-    jdkDestinationDirectory: '/opt/jdk11'
 
 - task: Maven@3
   inputs:
