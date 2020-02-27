@@ -17,6 +17,8 @@ steps:
   inputs:
     versionSpec: '11'
     jdkArchitectureOption: 'x64'
+    jdkSourceOption: 'AzureStorage'
+    jdkDestinationDirectory: '/opt/jdk11'
 
 - task: Maven@3
   inputs:
