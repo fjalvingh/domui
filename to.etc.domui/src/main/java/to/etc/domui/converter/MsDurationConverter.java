@@ -170,6 +170,9 @@ public class MsDurationConverter implements IConverter<Long> {
 			sb.append(millis);
 			sb.append("ms");
 		}
+		if(sb.length() == 0) {
+			sb.append("0s");
+		}
 		return sb.toString();
 	}
 
