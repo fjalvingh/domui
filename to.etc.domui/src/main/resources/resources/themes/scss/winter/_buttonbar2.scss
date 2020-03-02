@@ -2,7 +2,7 @@
 .ui-bbar2 {
 
 }
-.ui-bbar2-h {
+.ui-bbar2-horizontal {
 	display: flex;
 	flex-direction: row;
 
@@ -19,8 +19,21 @@
 	}
 
 }
-.ui-bbar2-v {
+.ui-bbar2-vertical {
+	display: flex;
+	flex-direction: column;
 
+	.ui-bbar2-l, .ui-bbar2-r {
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+	}
+
+	.ui-bbar2-bc {
+		display: inline-block;
+		padding-bottom: 10px;
+	}
 }
 
 

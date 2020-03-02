@@ -26,6 +26,7 @@ package to.etc.domui.component2.buttons;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.layout.ButtonFactory;
@@ -42,7 +43,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
-	private boolean m_vertical;
+	@NonNull
+	private Direction m_direction = Direction.HORIZONTAL;
 
 	private Div m_left = new Div("ui-bbar2-l");
 
@@ -55,16 +57,27 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 
 	private boolean m_addRight;
 
-	public ButtonBar2() {
-		setCssClass("ui-bbar2");
-	}
-	public ButtonBar2(String css) {
-		setCssClass("ui-bbar2 " + css);
+	public enum Direction {
+		HORIZONTAL, VERTICAL
 	}
 
-	public ButtonBar2(boolean vertical) {
-		this();
-		m_vertical = vertical;
+	public ButtonBar2(@NonNull Direction dir, @Nullable String css) {
+		m_direction = dir;
+		if(null != css)
+			addCssClass(css);
+		addCssClass("ui-bbar2 ui-bbar2-" + dir.name().toLowerCase());
+	}
+
+	public ButtonBar2() {
+		this(Direction.HORIZONTAL, null);
+	}
+
+	public ButtonBar2(String css) {
+		this(Direction.HORIZONTAL, css);
+	}
+
+	public ButtonBar2(@NonNull Direction dir) {
+		this(dir, null);
 	}
 
 	@Override
@@ -73,7 +86,6 @@ public class ButtonBar2 extends Div implements IButtonBar, IButtonContainer {
 		m_right.removeAllChildren();
 		add(m_left);
 		add(m_right);
-		addCssClass(m_vertical ? "ui-bbar2-v" : "ui-bbar2-h");
 		m_list.sort(Comparator.comparing(Item::getOrder));
 		for(Item item : m_list) {
 			Div cont = new Div("ui-bbar2-bc");
