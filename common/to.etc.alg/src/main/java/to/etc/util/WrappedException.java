@@ -43,7 +43,7 @@ public class WrappedException extends RuntimeException {
 		super(cause.toString(), cause);
 	}
 
-	static public RuntimeException wrap(final Exception x) {
+	static public RuntimeException wrap(final Throwable x) {
 		if(x instanceof RuntimeException)
 			return (RuntimeException) x;
 		throw new WrappedException(x);

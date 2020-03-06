@@ -54,6 +54,16 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 			cursor: default;
 			background-color: $rbb-disabled-color;
 			border-color: $rbb-disabled-border-color;
+			display: none;
 		}
+		input[type="radio"][disabled="disabled"]:checked + label {
+			background-color: $rbb-common-color;
+			display: inline-block;
+		}
+
 	}
+	&.is-small .ui-rbb-item label {
+		padding: 1px 0.25em;
+	}
+
 }

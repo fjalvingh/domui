@@ -13,6 +13,9 @@
 		var pi = items.get(i);
 %>
 	<tr class="statrow <%= self.odd() %>">
+		<%
+		  print(">> " + pi.getData() );
+		%>
 		<td nowrap width="1%" align="right" valign="top" rowspan="2"><%= DbPoolUtil.strCommad(pi.getData().getExecutions()) %></td>
 		<td nowrap width="1%" align="right" valign="top" rowspan="2">
 			<%= DbPoolUtil.strNanoTime2(pi.getData().getTotalExecuteDuration() + pi.getData().getTotalFetchDuration()) %><br>

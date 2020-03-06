@@ -192,6 +192,11 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 			rb.setReadOnly(ro);
 		}
 		m_readOnly = ro;
+		if(ro) {
+			addCssClass("ui-ro");
+		} else {
+			removeCssClass("ui-ro");
+		}
 	}
 
 	@Override public boolean isDisabled() {
@@ -205,6 +210,11 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 			rb.setDisabled(d);
 		}
 		m_disabled = d;
+		if(d) {
+			addCssClass("ui-disabled");
+		} else {
+			removeCssClass("ui-disabled");
+		}
 	}
 
 	public static <T extends Enum<T>> RadioGroup<T> createFromEnum(Class<T> enumClass, T... ignored) {

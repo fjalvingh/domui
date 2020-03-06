@@ -31,7 +31,10 @@ import to.etc.domui.util.Msgs;
 
 import java.util.Locale;
 
-public class MsDurationConverter implements IConverter<Long> {
+/**
+ * Shows a remaining duration in ms into normal units up till seconds.
+ */
+public class DurationInMsConverter implements IConverter<Long> {
 	static private final long DAYS = 24 * 60 * 60;
 
 	static private final long HOURS = 60 * 60;
@@ -40,9 +43,30 @@ public class MsDurationConverter implements IConverter<Long> {
 	public String convertObjectToString(Locale loc, Long in) throws UIException {
 		if(in == null)
 			return "";
-		if(in.longValue() < 0)
-			return "";
-		return strDurationMillis(in.longValue());
+		long v = in.longValue() / 1000;			// v now in seconds
+		if(v <= 0)
+			return "0:00:00";
+
+		StringBuilder sb = new StringBuilder();
+		int days = (int) (v / DAYS);
+		if(days > 0) {
+			sb.append(days).append("D ");
+		}
+		v = v % DAYS;
+
+		int hours = (int) (v / HOURS);
+		sb.append(hours).append(':');
+		v = v % HOURS;
+		int mins = (int) (v / 60);
+		if(mins < 10)
+			sb.append('0');
+		sb.append(mins).append(':');
+
+		v = v % 60;
+		if(v < 10)
+			sb.append('0');
+		sb.append(v);
+		return sb.toString();
 	}
 
 	@Override
@@ -122,58 +146,5 @@ public class MsDurationConverter implements IConverter<Long> {
 		}
 	}
 
-	static public String strDurationMillis(long dlt) {
-		StringBuffer sb = new StringBuffer();
-
-		int millis = (int) (dlt % 1000); // Get milliseconds,
-		dlt /= 1000; // Now in seconds,
-
-		boolean sp = false;
-		if(dlt >= DAYS) {
-			sb.append(dlt / DAYS);
-			sb.append("D");
-			dlt %= DAYS;
-			sp = true;
-		}
-		if(dlt >= HOURS) {
-			long v = dlt / HOURS;
-			if(v != 0) {
-				if(sp)
-					sb.append(' ');
-				sb.append(v);
-				sb.append("u");
-				sp = true;
-			}
-			dlt %= HOURS;
-		}
-		if(dlt >= 60) {
-			long v = dlt / 60;
-			if(v != 0) {
-				if(sp)
-					sb.append(' ');
-				sb.append(v);
-				sb.append("m");
-				sp = true;
-			}
-			dlt %= 60;
-		}
-		if(dlt != 0) {
-			if(sp)
-				sb.append(' ');
-			sb.append(dlt);
-			sb.append("s");
-			sp = true;
-		}
-		if(millis != 0) {
-			if(sp)
-				sb.append(' ');
-			sb.append(millis);
-			sb.append("ms");
-		}
-		if(sb.length() == 0) {
-			sb.append("0s");
-		}
-		return sb.toString();
-	}
 
 }
