@@ -51,6 +51,10 @@ final public class NumberLookupValue {
 		return m_from;
 	}
 
+	@Nullable public String getLikeString() {
+		return m_likeString;
+	}
+
 	@NonNull public QOperation getFromOperation() {
 		return m_fromOperation;
 	}
