@@ -120,4 +120,16 @@ public class CheckboxButton extends AbstractDivControl<Boolean> {
 	public void immediate() {
 		m_cb.immediate();
 	}
+
+	@Override
+	public void setDisabled(boolean d) {
+		super.setDisabled(d);
+		m_cb.setDisabled(d);
+	}
+
+	@Override
+	public void setReadOnly(boolean ro) {
+		super.setReadOnly(ro);
+		m_cb.setReadOnly(ro);
+	}
 }
