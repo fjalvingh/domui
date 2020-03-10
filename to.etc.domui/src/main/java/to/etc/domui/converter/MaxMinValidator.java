@@ -31,18 +31,23 @@ import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.NlsContext;
 
+import java.math.BigDecimal;
 import java.text.NumberFormat;
 
 /**
  * This validator checks to see if a Number is between two <b>inclusive</b> bounds. Inclusive means:
  * if the number == max or the number == min it is allowed, i.e. the range is [min..max].
  */
-public class MaxMinValidator implements IValueValidator<Number> {
+public class MaxMinValidator implements IParameterizedValidator<Number> {
 	@NonNull
-	private Number m_max, m_min;
+	private Number m_max = 0l, m_min = 0l;
 
 	@Nullable
 	private final UIMessage m_msg;
+
+	public MaxMinValidator() {
+		m_msg = null;
+	}
 
 	/**
 	 * Create a validator comparing to these INCLUSIVE bounds.
@@ -97,5 +102,19 @@ public class MaxMinValidator implements IValueValidator<Number> {
 		} else {
 			throw new ValidationException(code, NumberFormat.getInstance(NlsContext.getLocale()).format(val));
 		}
+	}
+
+	@Override
+	public void setParameters(String[] parameters) {
+		switch(parameters.length) {
+			default:
+				throw new IllegalStateException("Invalid parameters: I need two numbers in the string (min, max)");
+
+			case 2:
+				m_min = new BigDecimal(parameters[0]);
+				m_max = new BigDecimal(parameters[1]);
+				break;
+		}
+
 	}
 }
