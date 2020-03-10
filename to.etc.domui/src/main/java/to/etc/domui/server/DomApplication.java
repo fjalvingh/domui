@@ -387,6 +387,8 @@ public abstract class DomApplication {
 		return c.isCrawler();
 	});
 
+	private int m_maxUploadSize = 100 * 1024 * 1024;
+
 	/**
 	 * A single request filter and it's priority in the filter list.
 	 *
@@ -2319,6 +2321,14 @@ public abstract class DomApplication {
 
 	public void setDefaultHintsOnControl(boolean defaultHintsOnControl) {
 		m_defaultHintsOnControl = defaultHintsOnControl;
+	}
+
+	public int getMaxUploadSize() {
+		return m_maxUploadSize;
+	}
+
+	public void setMaxUploadSize(int maxUploadSize) {
+		m_maxUploadSize = maxUploadSize;
 	}
 
 	public synchronized ScanResult getClasspathScanResult() {
