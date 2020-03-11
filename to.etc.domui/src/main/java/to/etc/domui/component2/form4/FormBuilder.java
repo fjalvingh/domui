@@ -4,8 +4,10 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.BindReference;
 import to.etc.domui.component.binding.IBidiBindingConverter;
+import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.impl.PropertyMetaModelWrapper;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component.misc.MsgBox;
@@ -298,11 +300,17 @@ final public class FormBuilder {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Form building code.									*/
 	/*--------------------------------------------------------------*/
+
+	/**
+	 * @param <I>		The record instance type.
+	 * @param <MV>		The property (model) value.
+	 * @param <UI>		The control's type, as a construct of all of the above.
+	 */
 	@NonNull
-	private <I, T, UI extends IControl<T>> UI controlMain(BuilderData<I, T> cb, @Nullable Class<UI> controlClass) throws Exception {
+	private <I, MV, CV, UI extends IControl<CV>> UI controlMain(BuilderData<I, MV> cb, @Nullable Class<UI> controlClass) throws Exception {
 		ControlCreatorRegistry builder = DomApplication.get().getControlCreatorRegistry();
-		PropertyMetaModel<T> pmm = cb.m_propertyMetaModel;
-		Class<?> controlType = pmm.getActualType();
+		PropertyMetaModel<MV> pmm = cb.m_propertyMetaModel;
+		PropertyMetaModel<CV> cpmm = null;
 		IBidiBindingConverter<?, ?> converter = cb.m_converter;
 		if(null != converter) {
 			//-- Determine the control type from the converter instance.
@@ -313,14 +321,31 @@ final public class FormBuilder {
 					if(pt.getRawType().getTypeName().equals(IBidiBindingConverter.class.getName())) {
 						Type[] tp = pt.getActualTypeArguments();
 						if(tp != null && tp.length >= 1) {
-							controlType = (Class<?>) tp[0];
+							Class<?> controlType = (Class<?>) tp[0];
+
+							//-- Now: create a wrapper around the meta model to alter the type
+							cpmm = new PropertyMetaModelWrapper<CV>((PropertyMetaModel<CV>) pmm) {
+								@NonNull
+								@Override
+								public ClassMetaModel getClassModel() {
+									return getWrappedModel().getClassModel();
+								}
+
+								@NonNull
+								@Override
+								public Class<CV> getActualType() {
+									return (Class<CV>) controlType;
+								}
+							};
 						}
 					}
 				}
 			}
 		}
+		if(cpmm == null)
+			cpmm = (PropertyMetaModel<CV>) pmm;
 
-		UI control = builder.createControl(pmm, controlClass);
+		UI control = builder.createControl(cpmm, controlClass);
 		addControl(cb, (NodeBase) control, converter);
 		resetBuilder();
 		return control;
