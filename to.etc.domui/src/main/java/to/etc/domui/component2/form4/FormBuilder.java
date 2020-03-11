@@ -23,6 +23,8 @@ import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.query.QField;
 
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.function.BiConsumer;
 
 /**
@@ -300,13 +302,31 @@ final public class FormBuilder {
 	private <I, T, UI extends IControl<T>> UI controlMain(BuilderData<I, T> cb, @Nullable Class<UI> controlClass) throws Exception {
 		ControlCreatorRegistry builder = DomApplication.get().getControlCreatorRegistry();
 		PropertyMetaModel<T> pmm = cb.m_propertyMetaModel;
+		Class<?> controlType = pmm.getActualType();
+		IBidiBindingConverter<?, ?> converter = cb.m_converter;
+		if(null != converter) {
+			//-- Determine the control type from the converter instance.
+			Type[] giAr = converter.getClass().getGenericInterfaces();
+			for(Type iface : giAr) {
+				if(iface instanceof ParameterizedType) {
+					ParameterizedType pt = (ParameterizedType) iface;
+					if(pt.getRawType().getTypeName().equals(IBidiBindingConverter.class.getName())) {
+						Type[] tp = pt.getActualTypeArguments();
+						if(tp != null && tp.length >= 1) {
+							controlType = (Class<?>) tp[0];
+						}
+					}
+				}
+			}
+		}
+
 		UI control = builder.createControl(pmm, controlClass);
-		addControl(cb, (NodeBase) control, null);
+		addControl(cb, (NodeBase) control, converter);
 		resetBuilder();
 		return control;
 	}
 
-	private <I, V> void addControl(BuilderData<I, V> builder,@NonNull NodeBase control, @Nullable IBidiBindingConverter<?, ?> conv) throws Exception {
+	private <I, V> void addControl(BuilderData<I, V> builder, @NonNull NodeBase control, @Nullable IBidiBindingConverter<?, ?> conv) throws Exception {
 		PropertyMetaModel<?> pmm = builder.m_propertyMetaModel;
 
 		if (control.getClass().getSimpleName().contains("TextArea")
