@@ -369,6 +369,23 @@ final public class DomUtil {
 		}
 	}
 
+	@NonNull
+	public static <T> T getDefaultValue(Class<?> actualType) {
+		if(actualType == int.class)
+			return (T) Integer.valueOf(0);
+		if(actualType == long.class)
+			return (T) Long.valueOf(0);
+		if(actualType == short.class)
+			return (T) Short.valueOf((short) 0);
+		if(actualType == char.class)
+			return (T) Character.valueOf(' ');
+		if(actualType == boolean.class)
+			return (T) Boolean.FALSE;
+		if(actualType == byte.class)
+			return (T) Byte.valueOf((byte)0);
+		throw new IllegalStateException("Unsupported primitive " + actualType);
+	}
+
 	/**
 	 * Resolve the property's value
 	 */

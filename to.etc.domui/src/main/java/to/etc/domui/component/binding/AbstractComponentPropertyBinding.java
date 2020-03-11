@@ -12,6 +12,8 @@ import to.etc.domui.util.IReadOnlyModel;
 import to.etc.domui.util.IValueAccessor;
 import to.etc.domui.util.IWriteOnlyModel;
 
+import java.util.Objects;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 1-4-18.
@@ -25,12 +27,10 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 	final protected PropertyMetaModel<CV> m_controlProperty;
 
 	/** The instance bound to */
-	//@Nullable
 	final private M m_instance;
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
-	//@Nullable
-	final private IValueAccessor<MV> m_instanceProperty;
+	final private PropertyMetaModel<MV> m_instanceProperty;
 
 	/**
 	 * The last value that was moved to the control. See the comment in moveModelToControl below.
@@ -48,11 +48,11 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 	@Nullable
 	private IReadOnlyModel<MV> m_getter;
 
-	protected AbstractComponentPropertyBinding(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor) {
-		m_control = control;
-		m_controlProperty = controlProperty;
-		m_instance = modelInstance;
-		m_instanceProperty = accessor;
+	protected AbstractComponentPropertyBinding(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, PropertyMetaModel<MV> accessor) {
+		m_control = Objects.requireNonNull(control, "Null control passed");
+		m_controlProperty = Objects.requireNonNull(controlProperty, "Null control property passed");
+		m_instance = Objects.requireNonNull(modelInstance, "Null model instance passed");
+		m_instanceProperty = Objects.requireNonNull(accessor, "Null model property passed");
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -60,7 +60,6 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 	/*----------------------------------------------------------------------*/
 	/**
 	 * If this binding is in error: return the message describing that error.
-	 * @return
 	 */
 	@Override
 	@Nullable
@@ -144,7 +143,7 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 		if(m_getter != null || setter != null) {
 			if(setter != null) {
 				try {
-					setter.getValue(value);
+					setter.setValue(value);
 				} catch(Exception x) {
 					if(value == null)
 						throw new BindingFailureException(x, "->model", this + ": Binding error moving null to the binding's 'set' lambda");
@@ -154,11 +153,17 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 			return;
 		}
 
-		IValueAccessor< ? > instanceProperty = m_instanceProperty;
+		PropertyMetaModel< ? > instanceProperty = m_instanceProperty;
 		if(null == instanceProperty)
 			throw new IllegalStateException("instance property cannot be null");
 		if(instanceProperty.isReadOnly())
 			throw new IllegalStateException(instanceProperty + ": You cannot set this read-only property");
+		if(instanceProperty.getActualType().isPrimitive() && value == null) {
+			//-- We cannot set a primitive to null, so do not set it. Important to not set the value
+			//-- because this should report the mandatory error that should be there.
+			//value = DomUtil.getDefaultValue(instanceProperty.getActualType());
+			return;
+		}
 		Object instance = m_instance;
 		if(null == instance)
 			throw new IllegalStateException("instance cannot be null");

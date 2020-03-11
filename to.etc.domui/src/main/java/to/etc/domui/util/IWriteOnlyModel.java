@@ -5,5 +5,5 @@ package to.etc.domui.util;
  * Created on 6-5-17.
  */
 public interface IWriteOnlyModel<T> {
-	void getValue(T value) throws Exception;
+	void setValue(T value) throws Exception;
 }

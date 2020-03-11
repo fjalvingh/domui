@@ -4,7 +4,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.util.IValueAccessor;
 import to.etc.function.FunctionEx;
 
 /**
@@ -19,7 +18,7 @@ public class ComponentPropertyBindingUni<C extends NodeBase, CV, M, MV> extends 
 	@Nullable
 	private FunctionEx<MV, CV> m_converter;
 
-	public ComponentPropertyBindingUni(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor, @Nullable FunctionEx<MV, CV> converter) {
+	public ComponentPropertyBindingUni(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, PropertyMetaModel<MV> accessor, @Nullable FunctionEx<MV, CV> converter) {
 		super(control, controlProperty, modelInstance, accessor);
 		m_converter = converter;
 	}

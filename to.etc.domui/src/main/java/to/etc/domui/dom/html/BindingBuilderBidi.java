@@ -11,7 +11,6 @@ import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.util.Documentation;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IValueAccessor;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QField;
 
@@ -89,14 +88,14 @@ final public class BindingBuilderBidi<CV> {
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property), converter);
 	}
 
-	public <T, MV> ComponentPropertyBindingBidi<?, CV, T, MV> to(@NonNull T instance, @NonNull IValueAccessor<MV> pmm) throws Exception {
+	public <T, MV> ComponentPropertyBindingBidi<?, CV, T, MV> to(@NonNull T instance, @NonNull PropertyMetaModel<MV> pmm) throws Exception {
 		return to(instance, pmm, null);
 	}
 
 	/**
 	 * Bind to a IValueAccessor and the given instance.
 	 */
-	public <T, MV> ComponentPropertyBindingBidi<?, CV, T, MV> to(@NonNull T instance, @NonNull IValueAccessor<MV> pmm, @Nullable IBidiBindingConverter<CV, MV> converter) throws Exception {
+	public <T, MV> ComponentPropertyBindingBidi<?, CV, T, MV> to(@NonNull T instance, @NonNull PropertyMetaModel<MV> pmm, @Nullable IBidiBindingConverter<CV, MV> converter) throws Exception {
 		if(instance == null || pmm == null)
 			throw new IllegalArgumentException("Parameters in a bind request CANNOT be null!");
 

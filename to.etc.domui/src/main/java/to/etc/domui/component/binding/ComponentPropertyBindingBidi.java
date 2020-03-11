@@ -32,7 +32,6 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.util.IValueAccessor;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.CodeException;
 
@@ -47,7 +46,7 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 	@Nullable
 	final private IBidiBindingConverter<CV, MV> m_converter;
 
-	public ComponentPropertyBindingBidi(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, IValueAccessor<MV> accessor, @Nullable IBidiBindingConverter<CV, MV> converter) {
+	public ComponentPropertyBindingBidi(C control, PropertyMetaModel<CV> controlProperty, M modelInstance, PropertyMetaModel<MV> accessor, @Nullable IBidiBindingConverter<CV, MV> converter) {
 		super(control, controlProperty, modelInstance, accessor);
 		m_converter = converter;
 	}

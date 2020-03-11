@@ -65,6 +65,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -471,17 +472,23 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			setMessage(UIMessage.error(Msgs.unexpectedException, x));
 			return;
 		}
-		m_input.setRawValue(converted == null ? "" : converted); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
+
+		String setval = converted == null ? "" : converted;
+		if(Objects.equals(m_input.getRawValue(), setval))
+			m_validated = false;
+		else if(isMandatory() && (converted == null || converted.isBlank()))
+			m_validated = true;
+		m_input.setRawValue(setval); // jal 20090821 If set to null for empty the value attribute will not be renderered, it must render a value as empty string
 
 		clearMessage();
 
-		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
-		if((converted == null || converted.trim().length() == 0) && isMandatory())
-			m_validated = false;
-		else {
-			m_validated = true;
-			m_validationResult = null;
-		}
+		//// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
+		//if((converted == null || converted.trim().length() == 0) && isMandatory())
+		//	m_validated = false;
+		//else {
+		//	m_validated = true;
+		//	m_validationResult = null;
+		//}
 	}
 
 	/**
