@@ -331,6 +331,7 @@ namespace WebUI {
 			txt = "De server is niet bereikbaar 1, status=" + status + ", " + request.statusText;
 		}
 		if(status === "parsererror") {
+			console.log("INVALID XML: ", txt);
 			alert("ERROR: DomUI server returned invalid XML");
 			let hr = window.location.href;					// Force reload
 			window.location.href = hr;

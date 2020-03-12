@@ -257,6 +257,7 @@ var WebUI;
             txt = "De server is niet bereikbaar 1, status=" + status + ", " + request.statusText;
         }
         if (status === "parsererror") {
+            console.log("INVALID XML: ", txt);
             alert("ERROR: DomUI server returned invalid XML");
             var hr = window.location.href;
             window.location.href = hr;
