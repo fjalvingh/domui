@@ -265,6 +265,10 @@ public class UIMessage {
 		return new UIMessage(null, null, MsgType.INFO, ref, code, param);
 	}
 
+	static public UIMessage info(@NonNull IBundleCode code, Object... param) {
+		return new UIMessage(null, null, MsgType.INFO, code, param);
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
