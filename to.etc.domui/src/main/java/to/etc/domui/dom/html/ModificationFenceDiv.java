@@ -85,4 +85,11 @@ public class ModificationFenceDiv extends Div implements IUserInputModifiedFence
 		m_modified = as;
 	}
 
+	public static ModificationFenceDiv wrap(NodeContainer content) {
+
+		ModificationFenceDiv wrapper = new ModificationFenceDiv();
+		wrapper.add(content);
+		return wrapper;
+	}
+
 }

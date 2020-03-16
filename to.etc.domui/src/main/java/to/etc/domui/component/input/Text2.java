@@ -90,7 +90,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 				return false;
 			}
 			m_validated = false;
-			DomUtil.setModifiedFlag(this);
+			DomUtil.setModifiedFlag(getParent(Text2.class));
 			return true;
 		}
 
