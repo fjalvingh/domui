@@ -60,10 +60,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Blob;
 import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -1819,77 +1816,38 @@ public class FileTool {
 	 * close (like writers or outputstreams) should NOT be closed by this method! They must be
 	 * closed using a normal close within the exception handler.
 	 * This list can also contain File objects; these files/directories will be deleted.
-	 * @param list
 	 */
 	static public void closeAll(Object... list) {
-		//-- Level 0 closes
-		int tox = 0;
-		for(Object v : list) {
+		StringBuilder sb = new StringBuilder();
+		for(Object o : list) {
 			try {
-				if(v instanceof Closeable) {
-					((Closeable) v).close();
-				} else if(v instanceof ResultSet) {
-					((ResultSet) v).close();
-				} else if(v instanceof File) {
-					File f = (File) v;
-					if(f.isFile())
-						f.delete();
-					else
-						FileTool.deleteDir(f);
-				} else if(v != null)
-					list[tox++] = v; // Keep, todo
+				tryClose(o);
 			} catch(Exception x) {
-				if(v == null) {
-					// v is already null and doesn't need to be closed anymore
-				} else {
-					LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
-				}
+				sb.append("Failed to close ").append(o).append(": ").append(x.toString()).append("\n");
+				StringTool.strStacktrace(sb, x);
 			}
 		}
+		if(sb.length() > 0)
+			throw new RuntimeException("Some resources failed to close:\n" + sb);
+	}
 
-		//-- Next level: statements..
-		int len = tox;
-		tox = 0;
-		for(int i = 0; i < len; i++) {
-			Object v = list[i];
-			try {
-				if(v instanceof Statement) {
-					((Statement) v).close();
-				} else
-					list[tox++] = v; // Keep, todo
-			} catch(Exception x) {
-				LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
+	static private void tryClose(Object v) throws Exception {
+		if(v instanceof AutoCloseable) {
+			((Closeable) v).close();
+		} else if(v instanceof File) {
+			File f = (File) v;
+			if(f.isFile())
+				f.delete();
+			else
+				FileTool.deleteDir(f);
+		} else {
+			Method m = ClassUtil.findMethod(v.getClass(), "close");
+			if(m == null) {
+				m = ClassUtil.findMethod(v.getClass(), "release");
 			}
-		}
-
-		//-- Last level: everything else.
-		len = tox;
-		tox = 0;
-		for(int i = 0; i < len; i++) {
-			Object v = list[i];
-			try {
-				if(v instanceof Connection) {
-					((Connection) v).close();
-					v = null;
-				} else {
-					Method m = ClassUtil.findMethod(v.getClass(), "close");
-					if(m == null) {
-						m = ClassUtil.findMethod(v.getClass(), "release");
-					}
-					if(m != null) {
-						m.invoke(v);
-						v = null;
-					}
-				}
-			} catch(Exception x) {
-				if(v == null) {
-					// v is already null and doesn't need to be closed anymore
-				} else {
-					LOG.trace("Cannot close resource " + v + " (a " + v.getClass() + "): " + x, x);
-				}
-			}
-
-			if(v != null) {
+			if(m != null) {
+				m.invoke(v);
+			} else {
 				StringTool.dumpErrorLocation(LOG, "UNKNOWN RESOURCE OF TYPE " + v.getClass() + " TO CLOSE PASSED TO FileTool.closeAll()!!!!\nFIX THIS IMMEDIATELY!!!!!!");
 			}
 		}
