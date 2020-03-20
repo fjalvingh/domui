@@ -1833,14 +1833,14 @@ public class FileTool {
 
 	static private void tryClose(Object v) throws Exception {
 		if(v instanceof AutoCloseable) {
-			((Closeable) v).close();
+			((AutoCloseable) v).close();
 		} else if(v instanceof File) {
 			File f = (File) v;
 			if(f.isFile())
 				f.delete();
 			else
 				FileTool.deleteDir(f);
-		} else {
+		} else if(v != null) {
 			Method m = ClassUtil.findMethod(v.getClass(), "close");
 			if(m == null) {
 				m = ClassUtil.findMethod(v.getClass(), "release");
