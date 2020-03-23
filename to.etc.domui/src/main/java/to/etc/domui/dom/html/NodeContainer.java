@@ -908,11 +908,20 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		printsize(new CssBase());
 	}
 
-	public void executeWithDialog(String what,IExecute exec) throws Exception {
+	/**
+	 * Wraps execution exception into ExceptionDialog, to keeps errors local on UI.
+	 * @param what
+	 * @param exec
+	 * @return T when no exception, otherwise F.
+	 * @throws Exception
+	 */
+	public boolean executeWithDialog(String what,IExecute exec) throws Exception {
 		try {
 			exec.execute();
+			return true;
 		} catch(Exception x) {
 			ExceptionDialog.create(this, what, x);
+			return false;
 		}
 	}
 }
