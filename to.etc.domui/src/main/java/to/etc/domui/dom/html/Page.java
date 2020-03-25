@@ -247,7 +247,10 @@ final public class Page implements IQContextContainer {
 	@NonNull
 	private List<IExecute> m_afterRenderList = Collections.EMPTY_LIST;
 
+	@Deprecated
 	private List<Object> m_pageMessageList = new ArrayList<>();
+
+	private List<IExecute> m_pageOnCallbackList = new ArrayList<>();
 
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -1286,9 +1289,42 @@ final public class Page implements IQContextContainer {
 		return m_asyncLink;
 	}
 
+	/**
+	 * Called from AsyncManager when a polled request comes in (i.e. auto page updates).
+	 */
+	public void internalPolledEntry() throws Exception {
+		List<IExecute> runList;
+		synchronized(this) {
+			if(m_pageOnCallbackList.size() == 0)
+				return;
+			runList = m_pageOnCallbackList;
+			m_pageOnCallbackList = new ArrayList<>();
+		}
+
+		List<Exception> errorList = new ArrayList<>(runList.size());
+		for(IExecute run : runList) {
+			try {
+				run.execute();
+			} catch(Exception x) {
+				errorList.add(x);
+			}
+		}
+		if(errorList.size() == 0)
+			return;
+		for(int i = 0; i < errorList.size(); i++) {
+			errorList.get(i).printStackTrace();
+		}
+
+		throw errorList.get(0);
+	}
+
+	private synchronized void addDelayedExecution(IExecute execute) {
+		m_pageOnCallbackList.add(execute);
+	}
+
 	static public final class AsyncMessageLink {
 		@Nullable
-		private Page m_page;
+		volatile private Page m_page;
 
 		public AsyncMessageLink(Page up) {
 			m_page = up;
@@ -1301,6 +1337,12 @@ final public class Page implements IQContextContainer {
 				return;
 			}
 			page.addPageMessage(message);
+		}
+
+		public void execute(@NonNull IExecute code) {
+			Page page = m_page;
+			if(null != page)
+				page.addDelayedExecution(code);
 		}
 	}
 }

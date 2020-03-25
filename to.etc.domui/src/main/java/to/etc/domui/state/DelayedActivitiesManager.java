@@ -355,6 +355,9 @@ final public class DelayedActivitiesManager implements Runnable {
 		if(! list.isEmpty())
 			applyToTree(list);
 
+		//-- Handle executable requests from background tasks
+		pg.internalPolledEntry();
+
 		//-- Handle PollThingy callbacks.
 		for(NodeContainer nc : new HashSet<>(m_pollSet)) {
 			if(nc.isAttached()) {
