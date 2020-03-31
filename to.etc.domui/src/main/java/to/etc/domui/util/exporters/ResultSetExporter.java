@@ -32,7 +32,7 @@ public class ResultSetExporter {
 			int numRows = rowCount + 1;
 
 			Sheet sheet = workbook.createSheet(sheetName);
-			if (numRows > ExcelFormat.getRowsLimit(m_format)) {
+			if (numRows > m_format.getMaxRowsLimit()) {
 				sheet.createRow(0).createCell(0).setCellValue("too much rows generated, unable to export: " + numRows);
 				return;
 			}
