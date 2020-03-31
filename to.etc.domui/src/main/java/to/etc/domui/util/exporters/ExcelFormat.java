@@ -5,6 +5,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.util.function.Supplier;
+
 /**
  * Denotes the supported Excel formats.
  *
@@ -12,18 +14,22 @@ import org.eclipse.jdt.annotation.Nullable;
  * Created on 26-10-17.
  */
 public enum ExcelFormat {
-	XLSX("xlsx", "Microsoft Office Excel (xlsx)", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-	, XLS("xls", "Microsoft Office Excel (xls)", "application/vnd.ms-excel")
+	XLSX("xlsx", "Microsoft Office Excel (xlsx)", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", () -> new XSSFWorkbook(), 65535)
+	, XLS("xls", "Microsoft Office Excel (xls)", "application/vnd.ms-excel", () -> new HSSFWorkbook(), 1048575)
 	;
 
 	private final String m_description;
 	private final String m_suffix;
 	private final String m_mimeType;
+	private final Supplier<Workbook> m_workbookFactory;
+	private final int m_maxRowsLimit;
 
-	ExcelFormat(String suffix, String description, String mimeType) {
+	ExcelFormat(String suffix, String description, String mimeType, Supplier<Workbook> workbookFactory, int maxRowsLimit) {
 		m_description = description;
 		m_suffix = suffix;
 		m_mimeType = mimeType;
+		m_workbookFactory = workbookFactory;
+		m_maxRowsLimit = maxRowsLimit;
 	}
 
 	public String getDescription() {
@@ -49,25 +55,11 @@ public enum ExcelFormat {
 		return null;
 	}
 
-	public static Workbook getWorkbook(ExcelFormat excelFileType) {
-		switch(excelFileType){
-			case XLS:
-				return new HSSFWorkbook();
-			case XLSX:
-				return new XSSFWorkbook();
-			default:
-				throw new IllegalArgumentException("Unsupported Excel file type: " + excelFileType);
-		}
+	public Workbook createWorkbook() {
+		return m_workbookFactory.get();
 	}
 
-	public static int getRowsLimit(ExcelFormat excelFileType) {
-		switch(excelFileType){
-			case XLS:
-				return 65535;
-			case XLSX:
-				return 1048575;
-			default:
-				throw new IllegalArgumentException("Unsupported Excel file type: " + excelFileType);
-		}
+	public int getMaxRowsLimit() {
+		return m_maxRowsLimit;
 	}
 }
