@@ -1,10 +1,16 @@
 package to.etc.domui.util.exporters;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import java.math.BigDecimal;
@@ -12,39 +18,76 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Basic exporter that dumps result set into workbook, as new sheet with specified name.
  */
 @NonNullByDefault
-public class ResultSetExporter {
+public class ResultSetExcelExporter {
 
 	private final ExcelFormat m_format;
 
-	public ResultSetExporter(ExcelFormat format) {
+	private final Map<String, CellStyle> m_styles = new HashMap<>();
+
+	public ResultSetExcelExporter(ExcelFormat format) {
 		m_format = format;
 	}
 
-	public void writeExcel(Workbook workbook, ResultSet rs, int rowCount, String sheetName) {
+	private CellStyle errorCs(Workbook workbook) {
+		String key = "error";
+		CellStyle cs = m_styles.get(key);
+		if (null == cs) {
+			cs = workbook.createCellStyle();
+			cs.setAlignment(HorizontalAlignment.LEFT);
+			cs.setIndention((short) 1);
+			cs.setFillForegroundColor(IndexedColors.RED.getIndex());
+			cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+			cs.setWrapText(false);
+			Font font = cloneFromDefault(workbook);
+			font.setItalic(true);
+			font.setColor(IndexedColors.DARK_RED.getIndex());
+			cs.setFont(font);
+			m_styles.put(key, cs);
+		}
+		return cs;
+	}
+
+	@NonNull
+	private Font cloneFromDefault(Workbook workbook) {
+		Font font = workbook.createFont();
+		Font defaultFont = workbook.getFontAt((short) 0);
+		font.setFontHeightInPoints(defaultFont.getFontHeightInPoints());
+		font.setFontName(defaultFont.getFontName());
+		font.setColor(defaultFont.getColor());
+		return font;
+	}
+
+	public void writeExcel(Workbook workbook, ResultSet rs, String sheetName) {
 		try {
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int numColumns = rsmd.getColumnCount();
-			int numRows = rowCount + 1;
 
 			Sheet sheet = workbook.createSheet(sheetName);
-			if (numRows > m_format.getMaxRowsLimit()) {
-				sheet.createRow(0).createCell(0).setCellValue("too much rows generated, unable to export: " + numRows);
-				return;
-			}
 
 			Row headerRow = sheet.createRow(0);
 			for (int i = 0; i < numColumns; i++) {
-				headerRow.createCell(i).setCellValue(rsmd.getColumnLabel(i + 1));
+				Cell headerCell = headerRow.createCell(i);
+				headerCell.setCellValue(rsmd.getColumnLabel(i + 1));
 			}
 
 			int rowNumber = 1;
 			while (rs.next()) {
-				Row row = sheet.createRow(rowNumber++);
+				if (rowNumber++ >= m_format.getMaxRowsLimit() - 1) {
+					Cell cell = sheet.createRow(1).createCell(0);
+					cell.setCellValue("too much rows generated, unable to export all, truncated results...!");
+					cell.setCellStyle(errorCs(workbook));
+					sheet.addMergedRegion(new CellRangeAddress(1,1, 0, 8));
+					sheet.createFreezePane(0, 2, 0, 3);
+					return;
+				}
+				Row row = sheet.createRow(rowNumber);
 				for (int colIx = 0; colIx < numColumns; colIx++) {
 					Cell cell = row.createCell(colIx);
 					setCellValue(cell, rsmd, rs, colIx + 1);
@@ -55,7 +98,6 @@ public class ResultSetExporter {
 					}
 				}
 			}
-
 			sheet.createFreezePane(0, 1, 0, 2);
 		} catch (SQLException e) {
 			System.out.println("Error while reading result set and writing to excel file!");
