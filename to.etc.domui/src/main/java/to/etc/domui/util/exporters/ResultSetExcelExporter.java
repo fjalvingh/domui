@@ -79,7 +79,7 @@ public class ResultSetExcelExporter {
 
 			int rowNumber = 1;
 			while (rs.next()) {
-				if (rowNumber++ >= m_format.getMaxRowsLimit() - 1) {
+				if (rowNumber >= m_format.getMaxRowsLimit()) {
 					Cell cell = sheet.createRow(1).createCell(0);
 					cell.setCellValue("too much rows generated, unable to export all, truncated results...!");
 					cell.setCellStyle(errorCs(workbook));
@@ -87,7 +87,7 @@ public class ResultSetExcelExporter {
 					sheet.createFreezePane(0, 2, 0, 3);
 					return;
 				}
-				Row row = sheet.createRow(rowNumber);
+				Row row = sheet.createRow(rowNumber++);
 				for (int colIx = 0; colIx < numColumns; colIx++) {
 					Cell cell = row.createCell(colIx);
 					setCellValue(cell, rsmd, rs, colIx + 1);
