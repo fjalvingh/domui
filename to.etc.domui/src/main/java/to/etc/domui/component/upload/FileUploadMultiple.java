@@ -240,7 +240,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 	}
 
 	private void validate() {
-		if(m_value == null && isMandatory()) {
+		if((m_value == null || m_value.isEmpty()) && isMandatory()) {
 			throw new ValidationException(Msgs.mandatory);
 		}
 	}

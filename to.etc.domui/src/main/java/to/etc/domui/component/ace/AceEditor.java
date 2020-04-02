@@ -7,6 +7,7 @@ import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
@@ -38,7 +39,7 @@ import java.util.function.Predicate;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 23-12-17.
  */
-public class AceEditor extends Div implements IControl<String>, IComponentJsonProvider {
+public class AceEditor extends Div implements IControl<String>, IComponentJsonProvider, IHasModifiedIndication {
 	static private String m_version = "1.2.9";
 
 	private int m_nextId;
@@ -64,6 +65,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	private boolean m_mandatory;
 
+	private boolean m_modified;
+
 	@Nullable
 	private IValueChanged<?> m_valueChanged;
 
@@ -71,6 +74,16 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	private Predicate<Character> m_prefixValidator;
 
 	private boolean m_completerDefined;
+
+	@Override
+	public boolean isModified() {
+		return m_modified;
+	}
+
+	@Override
+	public void setModified(boolean as) {
+		m_modified = as;
+	}
 
 	@FunctionalInterface
 	public interface ICompletionHandler {
@@ -191,6 +204,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			return;
 		markerClear();
 		m_value = value;
+		setModified(true);
 		if(isBuilt()) {
 			if(null == value)
 				value = "";
@@ -419,6 +433,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			return false;
 
 		m_value = value;
+		setModified(true);
 		return true;
 	}
 
