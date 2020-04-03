@@ -35,6 +35,8 @@ public class ResultSetExcelExporter {
 		m_format = format;
 	}
 
+	private boolean m_autoSizeCols = true;
+
 	private CellStyle errorCs(Workbook workbook) {
 		String key = "error";
 		CellStyle cs = m_styles.get(key);
@@ -99,6 +101,12 @@ public class ResultSetExcelExporter {
 				}
 			}
 			sheet.createFreezePane(0, 1, 0, 2);
+
+			if (m_autoSizeCols) {
+				for (int i = 0; i < numColumns; i++) {
+					sheet.autoSizeColumn(i);
+				}
+			}
 		} catch (SQLException e) {
 			System.out.println("Error while reading result set and writing to excel file!");
 			e.printStackTrace();
@@ -148,5 +156,13 @@ public class ResultSetExcelExporter {
 			case Types.NVARCHAR:
 				return true;
 		}
+	}
+
+	public boolean isAutoSizeCols() {
+		return m_autoSizeCols;
+	}
+
+	public void setAutoSizeCols(boolean autoSizeCols) {
+		this.m_autoSizeCols = autoSizeCols;
 	}
 }
