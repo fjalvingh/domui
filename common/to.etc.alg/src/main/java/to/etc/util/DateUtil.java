@@ -33,6 +33,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
@@ -818,6 +819,9 @@ final public class DateUtil {
 
 	static public Date toDate(@NonNull LocalDateTime ldt) {
 		return Date.from(ldt.atZone( ZoneId.systemDefault()).toInstant());
+	}
+	static public Date toDate(@NonNull ZonedDateTime ldt) {
+		return Date.from(ldt.toInstant());
 	}
 }
 
