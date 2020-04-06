@@ -1,6 +1,11 @@
 package to.etc.domui.util.exporters;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jdt.annotation.Nullable;
+
+import java.util.function.Supplier;
 
 /**
  * Denotes the supported Excel formats.
@@ -9,16 +14,22 @@ import org.eclipse.jdt.annotation.Nullable;
  * Created on 26-10-17.
  */
 public enum ExcelFormat {
-	XLSX("xlsx", "Microsoft Office Excel (xlsx)")
-	, XLS("xls", "Microsoft Office Excel (xls)")
+	XLSX("xlsx", "Microsoft Office Excel (xlsx)", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", () -> new XSSFWorkbook(), 65535)
+	, XLS("xls", "Microsoft Office Excel (xls)", "application/vnd.ms-excel", () -> new HSSFWorkbook(), 1048575)
 	;
 
 	private final String m_description;
 	private final String m_suffix;
+	private final String m_mimeType;
+	private final Supplier<Workbook> m_workbookFactory;
+	private final int m_maxRowsLimit;
 
-	ExcelFormat(String suffix, String description) {
+	ExcelFormat(String suffix, String description, String mimeType, Supplier<Workbook> workbookFactory, int maxRowsLimit) {
 		m_description = description;
 		m_suffix = suffix;
+		m_mimeType = mimeType;
+		m_workbookFactory = workbookFactory;
+		m_maxRowsLimit = maxRowsLimit;
 	}
 
 	public String getDescription() {
@@ -27,6 +38,10 @@ public enum ExcelFormat {
 
 	public String getSuffix() {
 		return m_suffix;
+	}
+
+	public String getMimeType() {
+		return m_mimeType;
 	}
 
 	@Nullable
@@ -38,5 +53,13 @@ public enum ExcelFormat {
 				return excelFormat;
 		}
 		return null;
+	}
+
+	public Workbook createWorkbook() {
+		return m_workbookFactory.get();
+	}
+
+	public int getMaxRowsLimit() {
+		return m_maxRowsLimit;
 	}
 }
