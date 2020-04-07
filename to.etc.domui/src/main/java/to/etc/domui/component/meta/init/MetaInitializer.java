@@ -10,7 +10,9 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.PathPropertyMetaModel;
 import to.etc.util.WrappedException;
+import to.etc.webapp.ProgrammerErrorException;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -236,10 +238,24 @@ public final class MetaInitializer {
 			ix = pos + 1;
 
 			PropertyMetaModel< ? > pmm = ccmm.findSimpleProperty(sub); // Find base property,
-			if(pmm == null)
-				throw new IllegalStateException("Invalid property path '" + name + "' on " + cmm + ": property '" + sub + "' on classMetaModel=" + ccmm + " does not exist");
-			acl.add(pmm); 										// Next access path,
-			ccmm = pmm.getValueModel(); 						// was: MetaManager.findClassMeta(pmm.getActualType());
+			if(pmm == null) {
+				ClassMetaModel childClassMeta = null;
+				if (ccmm.getActualClass().isAssignableFrom(List.class)) {
+					Type genericType = acl.get(acl.size()-1).getGenericActualType();
+					Class<?> childType = MetaManager.findCollectionType(genericType);
+					if(null == childType) {
+						throw new ProgrammerErrorException("The jokers that created Java's generics have erased the type of the collection, probably, so I cannot find the collection type of " + pmm);
+					}
+					childClassMeta = MetaManager.findClassMeta(childType);
+				}
+				if (null == childClassMeta) {
+					throw new IllegalStateException("Invalid property path '" + name + "' on " + cmm + ": property '" + sub + "' on classMetaModel=" + ccmm + " does not exist");
+				}
+				ccmm = childClassMeta;
+			} else {
+				acl.add(pmm);                                        // Next access path,
+				ccmm = pmm.getValueModel();                        // was: MetaManager.findClassMeta(pmm.getActualType());
+			}
 			if(ccmm == null) {
 				throw new IllegalStateException("Property '" + pmm + "' in path '" + name + "' has no value model: it's primitive or otherwise unusable");
 			}
