@@ -100,7 +100,7 @@ public class ExcelImportRow implements IImportRow {
 			try {
 				switch(m_cell.getCellTypeEnum()) {
 					default:
-						return m_cell.toString();
+						return trimAllWS(m_cell.toString());
 
 					case BLANK:
 						return "";
@@ -112,7 +112,7 @@ public class ExcelImportRow implements IImportRow {
 						return m_row.m_rr.convertDouble(m_cell.getNumericCellValue());
 						//return Double.toString(m_cell.getNumericCellValue());
 					case STRING:
-						return m_cell.getStringCellValue();
+						return trimAllWS(m_cell.getStringCellValue());
 
 					case _NONE:
 						return null;
