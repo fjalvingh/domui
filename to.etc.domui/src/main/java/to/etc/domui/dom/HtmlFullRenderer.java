@@ -536,4 +536,10 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		}
 		return m_createJS;
 	}
+
+	@NonNull
+	@Override
+	public Page getPage() {
+		return m_page;
+	}
 }

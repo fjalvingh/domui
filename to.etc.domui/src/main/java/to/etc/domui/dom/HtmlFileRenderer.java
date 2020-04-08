@@ -531,6 +531,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		return m_createJS;
 	}
 
+	@Override
 	public Page getPage() {
 		return m_page;
 	}

@@ -845,4 +845,10 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			iw.dec();
 		}
 	}
+
+	@NonNull
+	@Override
+	public Page getPage() {
+		return m_page;
+	}
 }
