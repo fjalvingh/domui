@@ -24,6 +24,7 @@
  */
 package to.etc.domui.hibernate.model;
 
+import org.apache.commons.lang3.tuple.Triple;
 import org.eclipse.jdt.annotation.NonNull;
 import org.hibernate.Criteria;
 import org.hibernate.FetchMode;
@@ -1021,19 +1022,21 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 	public void visitExistsSubquery(QExistsSubquery< ? > q) throws Exception {
 		String parentAlias = getCurrentAlias();
 		Class< ? > parentBaseClass = q.getParentQuery().getBaseClass();
-		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
 
-		//-- If we have a dotted name it can only be parent.parent.parent.childList like (with multiple parents). Parse all parents.
+		refactorToSubExistsIfNeeded(q);
+
+		PropertyMetaModel< ? > pmm = MetaManager.getPropertyMeta(parentBaseClass, q.getParentProperty());
 		String childListProperty = q.getParentProperty();
 		int ldot = childListProperty.lastIndexOf('.');
 		if(ldot != -1) {
+
 			//-- Join all parents, and get the last parent's reference and name
-			String last = parseSubcriteria(childListProperty, true);		// Create the join path;
-			String parentpath = childListProperty.substring(0, ldot);		// This now holds parent.parent.parent
-			childListProperty = childListProperty.substring(ldot + 1);		// And this childList
+			String last = parseSubcriteria(childListProperty, true);        // Create the join path;
+			String parentpath = childListProperty.substring(0, ldot);        // This now holds parent.parent.parent
+			childListProperty = childListProperty.substring(ldot + 1);        // And this childList
 
 			//-- We need a "new" parent class: the class that actually contains the "child" list...
-			PropertyMetaModel< ? > parentpm = MetaManager.getPropertyMeta(parentBaseClass, parentpath);
+			PropertyMetaModel<?> parentpm = MetaManager.getPropertyMeta(parentBaseClass, parentpath);
 			parentBaseClass = parentpm.getActualType();
 
 			//-- The above join will have created another alias to the joined table; this is the first part of the "last" reference (which is alias.property).
@@ -1094,8 +1097,9 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		m_rootClass = q.getBaseClass();
 		checkHibernateClass(m_rootClass);
 		m_currentCriteria = dc;
-		if(where != null)
+		if(where != null) {
 			where.visit(this);
+		}
 		if(m_last != null) {
 			dc.add(m_last);
 			m_last = null;
@@ -1104,6 +1108,64 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		m_currentCriteria = old;
 		m_rootClass = oldroot;
 		m_last = exists;
+	}
+
+	/**
+	 * In case that we specify exists sub query with multiple lists on exists sub query property path,
+	 * we refactor ongoing exists into 2 expressions. Current one we modify to just path until first encountered list property,
+	 * and from the rest of the path we add new exists as subexpression of current one.
+	 * @param q
+	 */
+	private void refactorToSubExistsIfNeeded(QExistsSubquery<?> q) {
+		//-- If we have a dotted name it can only be parent.parent.parent.childList like (with multiple parents). Parse all parents.
+		String existsSubqueryPropertyPath = q.getParentProperty();
+		if(existsSubqueryPropertyPath.indexOf('.') > -1) {
+			Class< ? > parentBaseClass = q.getParentQuery().getBaseClass();
+			Triple<String, Class<?>, String> headClassAndTail = splitAfterFirstList(parentBaseClass, existsSubqueryPropertyPath);
+			String headListExpression = headClassAndTail.getLeft();
+			Class<?> actualTypeOfFirstList = headClassAndTail.getMiddle();
+			String tailListExpression = headClassAndTail.getRight();
+			if(null != actualTypeOfFirstList && null != tailListExpression) {
+				QOperatorNode restrictions = q.getRestrictions();
+				QCriteria<?> newParent = QCriteria.create(actualTypeOfFirstList);
+				QExistsSubquery<?> subExistsQuery = new QExistsSubquery(newParent, actualTypeOfFirstList, tailListExpression);
+				subExistsQuery.setRestrictions(restrictions);
+				q.setRestrictions(subExistsQuery);
+				q.setParentProperty(headListExpression);
+			}
+		}
+	}
+
+	private Triple<String, Class< ? >, String> splitAfterFirstList(Class< ? > currentClass, String input) {
+		String path = null; // The full path currently reached, i.e. "id.version.id.product".
+		int ix = 0;
+		final int len = input.length();
+		while(ix < len) {
+			int pos = input.indexOf('.', ix); // Move to the NEXT dot,
+			String name;
+			if(pos == -1) {
+				return Triple.of(input, null, null);
+			} else {
+				name = input.substring(ix, pos);
+				ix = pos + 1;
+			}
+			path = path == null ? name : path + "." + name; // Full dotted path to the currently reached name
+
+			PropertyMetaModel<?> pmm = MetaManager.getPropertyMeta(currentClass, name);
+			if (null == pmm) {
+				throw new IllegalStateException("Unable to resolve pmm from " + currentClass + ", property " + name);
+			}
+			if(List.class.isAssignableFrom(pmm.getActualType())) {
+				java.lang.reflect.Type coltype = pmm.getGenericActualType();
+				if(coltype == null)
+					throw new ProgrammerErrorException("The property '" + path + "' has an undeterminable child type");
+				Class< ? > childtype = MetaManager.findCollectionType(coltype);
+				return Triple.of(path, childtype, ix < len ? input.substring(ix) : null);
+			} else {
+				currentClass = pmm.getActualType();
+			}
+		}
+		throw new IllegalStateException("Should not be possible to get here!?");
 	}
 
 	private String getCurrentAlias() {

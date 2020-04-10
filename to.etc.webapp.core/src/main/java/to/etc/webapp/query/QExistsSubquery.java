@@ -78,6 +78,10 @@ public class QExistsSubquery<T> extends QOperatorNode {
 		return m_parentProperty;
 	}
 
+	public void setParentProperty(String parentProperty) {
+		m_parentProperty = parentProperty;
+	}
+
 	public QOperatorNode getRestrictions() {
 		return m_restrictions;
 	}
