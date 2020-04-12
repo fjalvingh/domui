@@ -38,4 +38,17 @@ abstract public class AbstractImportColumn implements IImportColumn {
 
 		return new BigDecimal(stringValue);
 	}
+
+	/**
+	 * Uncrap the data inside an excel string row, which often contains all kinds of shitty spaces.
+	 */
+	@Nullable
+	public static String trimAllWS(String v) {
+		if(null == v)
+			return null;
+		v = v.replaceAll("(^\\h*)|(\\h*$)","");	// Replace all spaces, even nbsp's and others, sigh.
+		v = v.replaceAll("(\\h+)"," ");	// Replace all inner spaces with " "
+		return v;
+	}
+
 }

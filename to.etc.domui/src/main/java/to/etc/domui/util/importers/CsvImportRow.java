@@ -57,7 +57,7 @@ public class CsvImportRow implements IImportRow {
 		}
 
 		@Nullable @Override public String getStringValue() {
-			return m_columns.size() <= m_index ? null : m_columns.get(m_index);
+			return m_columns.size() <= m_index ? null : trimAllWS(m_columns.get(m_index));
 		}
 
 		@Nullable @Override public Date asDate() {
