@@ -10,11 +10,14 @@ import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "Employee")
@@ -50,6 +53,8 @@ public class Employee extends DbRecordBase<Long> {
 	private String m_fax;
 
 	private String m_email;
+
+	private List<Employee> m_reportsFrom = new ArrayList<>();
 
 	@Override
 	@Id
@@ -193,4 +198,14 @@ public class Employee extends DbRecordBase<Long> {
 	public void setDateHired(Date dateHired) {
 		m_dateHired = dateHired;
 	}
+
+	@OneToMany(mappedBy = "reportsTo")
+	public List<Employee> getReportsFrom() {
+		return m_reportsFrom;
+	}
+
+	public void setReportsFrom(List<Employee> reportsFrom) {
+		m_reportsFrom = reportsFrom;
+	}
+
 }

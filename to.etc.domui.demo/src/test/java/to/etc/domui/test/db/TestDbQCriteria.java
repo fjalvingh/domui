@@ -6,11 +6,16 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import to.etc.domui.derbydata.db.Album;
+import to.etc.domui.derbydata.db.Album_;
 import to.etc.domui.derbydata.db.Artist;
+import to.etc.domui.derbydata.db.Artist_;
 import to.etc.domui.derbydata.db.Customer;
 import to.etc.domui.derbydata.db.Employee;
+import to.etc.domui.derbydata.db.Employee_;
 import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.derbydata.db.InvoiceLine;
+import to.etc.domui.derbydata.db.Track;
+import to.etc.domui.derbydata.db.Track_;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QFld;
@@ -412,5 +417,138 @@ public class TestDbQCriteria {
 		Assert.assertEquals(3, ires.size());
 	}
 
+	@Test
+	public void testExistsWith2ListsInSubquery() throws Exception {
 
+		String titleOrComposerSubstring = "word";
+
+		QCriteria<Artist> q = QCriteria.create(Artist.class);
+		q.exists(Track.class, Artist_.albumList() + "." + Album_.trackList())
+			.or()
+			.ilike(Track_.composer(), "%" + titleOrComposerSubstring + "%")
+			.ilike(Track_.name(), "%" + titleOrComposerSubstring + "%");
+
+		Assert.assertEquals(
+			"FROM to.etc.domui.derbydata.db.Artist WHERE exists (select 1 from $[parent.albumList.trackList] where composer ilike '%word%' or name ilike '%word%')",
+			q.toString());
+
+		List<Artist> ires = dc().query(q);
+		Assert.assertSame(3, ires.size());
+	}
+
+	@Test
+	public void testExistsWith2ListsInSubquery2() throws Exception {
+
+		String titleOrComposerSubstring = "word";
+
+		QCriteria<Artist> q = QCriteria.create(Artist.class);
+		q.exists(Album.class, Artist_.albumList())
+			.exists(Track.class, Album_.trackList())
+			.or()
+			.ilike(Track_.composer(), "%" + titleOrComposerSubstring + "%")
+			.ilike(Track_.name(), "%" + titleOrComposerSubstring + "%");
+
+		Assert.assertEquals(
+			"FROM to.etc.domui.derbydata.db.Artist WHERE exists (select 1 from $[parent.albumList] where exists (select 1 from $[parent.trackList] where composer ilike '%word%' or name ilike '%word%'))",
+			q.toString());
+
+		List<Artist> ires = dc().query(q);
+		Assert.assertSame(3, ires.size());
+	}
+
+	@Test
+	public void testExistsWithListsAndJoinedPropInSubqueryExpression() throws Exception {
+
+		String namePart = "azz";
+
+		QCriteria<Album> q = QCriteria.create(Album.class);
+		q.exists(Track.class, Album_.trackList())
+			.or()
+			.ilike(Track_.genre().name(), "%" + namePart)
+			.ilike(Track_.genre().name(), namePart + "%");
+
+		Assert.assertEquals(
+			"FROM to.etc.domui.derbydata.db.Album WHERE exists (select 1 from $[parent.trackList] where genre.name ilike '%azz' or genre.name ilike 'azz%')",
+			q.toString());
+
+		List<Album> ires = dc().query(q);
+		Assert.assertSame(13, ires.size());
+	}
+
+	@Test
+	public void testExistsWithPropAndListsInSubquery() throws Exception {
+
+		String namePart = "a";
+
+		QCriteria<Album> q = QCriteria.create(Album.class);
+		q.exists(Album.class, Album_.artist() + "." + Artist_.albumList())
+			.or()
+			.ilike(Album_.title(), "%" + namePart)
+			.ilike(Album_.title(), namePart + "%");
+
+		Assert.assertEquals(
+			"FROM to.etc.domui.derbydata.db.Album WHERE exists (select 1 from $[parent.artist.albumList] where title ilike '%a' or title ilike 'a%')",
+			q.toString());
+
+		List<Album> ires = dc().query(q);
+		Assert.assertSame(102, ires.size());
+	}
+
+	@Test
+	public void testExistsWithPropPropPropAndListsInSubquery() throws Exception {
+
+		String namePart = "a";
+
+		QCriteria<Customer> q = QCriteria.create(Customer.class);
+		q.exists(Employee.class, "supportRepresentative.reportsTo.reportsFrom")
+			.or()
+			.ilike(Employee_.firstName(), "%" + namePart + "%")
+			.ilike(Employee_.lastName(), "%" + namePart + "%");
+
+		Assert.assertEquals(
+			"FROM to.etc.domui.derbydata.db.Customer WHERE exists (select 1 from $[parent.supportRepresentative.reportsTo.reportsFrom] where firstName ilike '%a%' or lastName ilike '%a%')",
+			q.toString());
+
+		List<Customer> ires = dc().query(q);
+		Assert.assertSame(59, ires.size());
+	}
+
+	@Test
+	public void testExistsWithListPropAndListsInSubquery() throws Exception {
+
+		String namePart = "a";
+
+		QCriteria<Employee> q = QCriteria.create(Employee.class);
+		q.exists(Employee.class, "reportsFrom.reportsTo.reportsFrom")
+			.or()
+			.ilike(Employee_.firstName(), "%" + namePart + "%")
+			.ilike(Employee_.lastName(), "%" + namePart + "%");
+
+		Assert.assertEquals(
+			"FROM to.etc.domui.derbydata.db.Employee WHERE exists (select 1 from $[parent.reportsFrom.reportsTo.reportsFrom] where firstName ilike '%a%' or lastName ilike '%a%')",
+			q.toString());
+
+		List<Employee> ires = dc().query(q);
+		Assert.assertSame(3, ires.size());
+	}
+
+	@Test
+	public void testExistsWithListPropAndListsInSubquery2() throws Exception {
+
+		String namePart = "a";
+
+		QCriteria<Employee> q = QCriteria.create(Employee.class);
+		q.exists(Employee.class, "reportsFrom")
+			.exists(Employee.class, "reportsTo.reportsFrom")
+			.or()
+			.ilike(Employee_.firstName(), "%" + namePart + "%")
+			.ilike(Employee_.lastName(), "%" + namePart + "%");
+
+		Assert.assertEquals(
+			"FROM to.etc.domui.derbydata.db.Employee WHERE exists (select 1 from $[parent.reportsFrom] where exists (select 1 from $[parent.reportsTo.reportsFrom] where firstName ilike '%a%' or lastName ilike '%a%'))",
+			q.toString());
+
+		List<Employee> ires = dc().query(q);
+		Assert.assertSame(3, ires.size());
+	}
 }
