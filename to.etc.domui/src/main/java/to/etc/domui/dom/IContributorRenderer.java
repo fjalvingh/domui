@@ -1,6 +1,7 @@
 package to.etc.domui.dom;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.IRequestContext;
 
 /**
@@ -11,6 +12,8 @@ public interface IContributorRenderer {
 	@NonNull IBrowserOutput o();
 
 	@NonNull IRequestContext ctx();
+
+	@NonNull Page getPage();
 
 	void renderLoadCSS(@NonNull String path,String... options) throws Exception;
 

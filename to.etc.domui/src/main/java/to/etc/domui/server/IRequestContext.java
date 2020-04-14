@@ -124,6 +124,16 @@ public interface IRequestContext {
 	//String getUrlContextString();
 
 	/**
+	 * The complete input URL without the JSDK context part and the query part. Specifically:
+	 * <ul>
+	 *	<li>The JSDK webapp context is always removed from the start, i.e. this is always the webapp-relative path</li>
+	 *	<li>The context NEVER starts with a slash</li>
+	 * </ul>
+	 */
+	@NonNull
+	String getInputPath();
+
+	/**
 	 * Returns the last part of the URL, provided that part has an extension. If not there is no page name.
 	 */
 	@Nullable
