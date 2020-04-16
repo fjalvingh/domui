@@ -3,6 +3,7 @@ package to.etc.domui.util.asyncdialog;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.misc.ExceptionDialog;
 import to.etc.parallelrunner.IAsyncCompletionListener;
 import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.domui.component.layout.Dialog;
@@ -35,8 +36,13 @@ final public class AsyncDialog {
 				dlg.close();
 				if(errorException == null) {
 					dlg.close();
-					if(null != onComplete)
-						onComplete.accept(task);
+					if(null != onComplete) {
+						try {
+							onComplete.accept(task);
+						} catch(Exception x) {
+							ExceptionDialog.create(addTo, "complete handler failed", x);
+						}
+					}
 				} else {
 					if(onError == null) {
 						if(errorException instanceof UIException) {
