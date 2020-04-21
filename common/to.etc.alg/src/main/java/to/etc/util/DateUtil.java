@@ -809,11 +809,11 @@ final public class DateUtil {
 		return date.getYear() >= 2999 - 1900;				// The incredible idiot that created getYear subtracts 1900 from it.
 	}
 
-	static public LocalDate localDateFromDate(@NonNull Date date) {
+	static public LocalDate toLocalDate(@NonNull Date date) {
 		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 
-	static public LocalDateTime localDateTimeFromDate(@NonNull Date date) {
+	static public LocalDateTime toLocalDateTime(@NonNull Date date) {
 		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 	}
 
