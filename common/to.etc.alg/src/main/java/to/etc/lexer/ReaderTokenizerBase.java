@@ -202,6 +202,25 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 					return scanUndottedNumber();
 				return scanNumber(); // Scan a number OR an IP address
 
+			case '-':
+				//-- Line-based comment?
+				if(LA(1) == '-') {
+					copy(2);
+					for(; ; ) {
+						c = LA();
+						if(c == '\n' || c == -1) { // Eof/eoln?
+							if(m_returnComment)
+								return T_COMMENT;
+							break;
+						}
+						copy(); // Always accept
+					}
+				} else {
+					accept(); // Single dash
+					append((char) c);
+					return c;
+				}
+				break;
 			case '/':
 				//-- Line-based comment?
 				if(LA(1) == '/') {
@@ -245,5 +264,11 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 
 	public void setScanUndottedNumbers(boolean scanUndottedNumbers) {
 		m_scanUndottedNumbers = scanUndottedNumbers;
+	}
+
+	public int laNextNonWs() throws IOException {
+		int i = 0;
+		while(Character.isWhitespace(LA(i))) i++;
+		return LA(i);
 	}
 }
