@@ -138,7 +138,27 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		m_buttonList.add(rb);
 		rb.setDisabled(m_disabled);
 		rb.setReadOnly(m_readOnly);
+		m_value = null;
+		if(isBuilt())
+			forceRebuild();
 		return rb;
+	}
+
+	public void clearButtons() {
+		m_buttonList.clear();
+		forceRebuild();
+	}
+
+	public void removeButton(T value) {
+		for(RadioButton<T> rb : m_buttonList) {
+			if(rb.getButtonValue() == value) {
+				m_buttonList.remove(rb);
+				forceRebuild();
+				if(m_value == value)
+					m_value = null;
+				return;
+			}
+		}
 	}
 
 	@Override
