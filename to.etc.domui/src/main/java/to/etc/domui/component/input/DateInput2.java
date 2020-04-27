@@ -95,13 +95,13 @@ public class DateInput2 extends Text2<Date> {
 	@Override
 	public void createContent() throws Exception {
 		super.createContent();
-		SmallImgButton sib = addButton(Icon.faCalendar, a -> { });
+		SmallImgButton sib = addButtonSmall(Icon.faCalendar, a -> { });
 		m_showCalendarButton = sib;
 		sib.setClicked(null);
 		sib.setOnClickJS("WebUI.showCalendar('" + internalGetInput().getActualID() + "'," + isWithTime() + ")");
 		internalGetInput().setSpecialAttribute("onblur", "WebUI.dateInputCheckInput(event);");
 		if(! m_hideTodayButton) {
-			SmallImgButton todayBtn = addButton(Icon.faCalendarCheckO, c -> {
+			SmallImgButton todayBtn = addButtonSmall(Icon.faCalendarCheckO, c -> {
 				Date currentDate = new Date();
 				if(!m_withTime) {
 					currentDate = DateUtil.truncateDate(currentDate);
