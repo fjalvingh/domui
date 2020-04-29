@@ -46,7 +46,10 @@ final public class PropertyInfo implements IPropertyAccessor {
 
 	final private Method	m_setter;
 
-	public PropertyInfo(String name, Method getter, Method setter) {
+	final private Class<?> m_resolvedPropertyType;
+
+	public PropertyInfo(String name, Method getter, Method setter, Class<?> resolvedPropertyType) {
+		m_resolvedPropertyType = resolvedPropertyType;
 		if(getter == null || name == null)
 			throw new IllegalStateException("Name or getter null not allowed");
 		m_name = name;
@@ -71,7 +74,7 @@ final public class PropertyInfo implements IPropertyAccessor {
 
 	@NonNull
 	public Class< ? > getActualType() {
-		return m_getter.getReturnType();
+		return m_resolvedPropertyType;
 	}
 
 	public Type getActualGenericType() {
