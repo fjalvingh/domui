@@ -776,6 +776,44 @@ final public class ClassUtil {
 	}
 
 
+	/**
+	 * Only works when the option
+	 * <pre>
+	 *     --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+	 * </pre>
+	 *
+	 * is added to the runtime, because the idiots defining Java 9 could not
+	 * get it into their tiny brain that there are legitimate reasons to
+	 * want to know the jars that build the classpath - despite their
+	 * horror of a module system.
+	 */
+	static public List<URL> findClassloaderURLs_JAVA11_ONLYWITHOPTION(Class<?> root) {
+		ClassLoader cl = root.getClassLoader();
+		List<URL> res = new ArrayList<>();
+		collectUrls(res, cl);
+		for(URL re : res) {
+			System.out.println(re.toString());
+		}
+		return res;
+	}
+
+	static private void collectUrls(List<URL> res, ClassLoader cl) {
+		try {
+			Field ucp = cl.getClass().getDeclaredField("ucp");		// Fuck the morons that fucked this up
+			ucp.setAccessible(true);
+			Object path = ucp.get(cl);										// Also hidden. Fuck them again.
+			Field listField = path.getClass().getDeclaredField("path");
+			listField.setAccessible(true);
+			List<URL> list = (List<URL>) listField.get(path);
+			res.addAll(list);
+		} catch(Exception x) {
+			x.printStackTrace();
+		}
+		ClassLoader parent = cl.getParent();
+		if(parent == null || parent == cl)
+			return;
+		collectUrls(res, parent);
+	}
 
 
 
