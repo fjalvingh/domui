@@ -374,6 +374,10 @@ final public class PoolConfig {
 		return m_checkConnection;
 	}
 
+	public void setCheckConnection(boolean checkConnection) {
+		m_checkConnection = checkConnection;
+	}
+
 	public boolean isSetlog() {
 		return m_setlog;
 	}
