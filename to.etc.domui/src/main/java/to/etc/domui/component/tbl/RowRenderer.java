@@ -198,6 +198,7 @@ import java.util.function.Predicate;
 
 				HeaderContainer.HeaderContainerCell cell = cc.add(cellSpan);
 				cellSpan.add(new Span(label));
+				cellSpan.setTitle(cd.getHint());
 				Div sp = new Div("ui-dt-sorticon");
 				cellSpan.add(sp);
 				th = cell.getTh();
@@ -213,6 +214,7 @@ import java.util.function.Predicate;
 				// Add the label;
 				if(!StringTool.isBlank(label))
 					cellSpan.add(new Span(label));
+				cellSpan.setTitle(cd.getHint());
 				final ColumnDef<T, ?> scd = cd;
 				th.setClicked((IClicked<TH>) b -> handleSortClick(b, scd));
 

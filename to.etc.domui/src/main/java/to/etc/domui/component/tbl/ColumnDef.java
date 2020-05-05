@@ -76,7 +76,7 @@ final public class ColumnDef<I, T> {
 	private ICellClicked<I> m_cellClicked;
 
 	@Nullable
-	private String m_renderHint;
+	private String m_hint;
 
 	/** @since 2014/1/2 T when this should create an editable component bound to the column's value. */
 	private boolean m_editable;
@@ -271,8 +271,8 @@ final public class ColumnDef<I, T> {
 	}
 
 	@Nullable
-	public String getRenderHint() {
-		return m_renderHint;
+	public String getHint() {
+		return m_hint;
 	}
 
 	@Nullable
@@ -411,12 +411,10 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the hint for a column.
-	 * @param hint
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> hint(@NonNull String hint) {
-		m_renderHint = hint;
+		m_hint = hint;
 		return this;
 	}
 
