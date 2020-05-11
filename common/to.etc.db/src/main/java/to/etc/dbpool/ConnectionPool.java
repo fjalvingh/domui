@@ -977,6 +977,11 @@ final public class ConnectionPool {
 		try {
 			if(!pe.getConnection().getAutoCommit())
 				pe.getConnection().rollback();
+
+			if(m_dbType == DbType.POSTGRES) {
+				resetPostgresConnection(pe.getConnection());
+			}
+
 			pe.getConnection().setAutoCommit(true);
 			ok = true;
 		} catch(SQLException ex) {
@@ -1032,6 +1037,13 @@ final public class ConnectionPool {
 
 			//-- If the code above was not OK we need to discard outside of the lock
 			discardEntry(pe);
+		}
+	}
+
+	private void resetPostgresConnection(Connection connection) throws SQLException {
+		connection.setAutoCommit(true);
+		try(Statement st = connection.createStatement()) {
+			st.executeUpdate("discard all");
 		}
 	}
 
@@ -1401,7 +1413,6 @@ final public class ConnectionPool {
 
 	/**
 	 * Callback from statement pxy when a call gets executed.
-	 * @param ppx
 	 */
 	void logExecution(final StatementProxy sp, final boolean batch, byte stmtType) {
 		writeStatement(sp, stmtType);
