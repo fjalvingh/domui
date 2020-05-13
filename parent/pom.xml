@@ -686,7 +686,7 @@
                     <systemPropertyVariables>
                         <webdriver.url>http://localhost:${jetty.http.port}/demo/</webdriver.url>
                         <domui.testui>true</domui.testui>
-                        <webdriver.hub>chrome-desktop</webdriver.hub>
+                        <webdriver.hub>chrome</webdriver.hub>
                     </systemPropertyVariables>
                 </configuration>
 
