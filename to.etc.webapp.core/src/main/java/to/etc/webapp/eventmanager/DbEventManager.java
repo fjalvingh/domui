@@ -370,6 +370,8 @@ public class DbEventManager implements Runnable {
 			try {
 				ps = dbc.prepareStatement(seq);
 				ps.executeUpdate();
+				ps.close();
+				dbc.commit();
 			} catch(Exception x) {
 				//-- ignore
 			}
