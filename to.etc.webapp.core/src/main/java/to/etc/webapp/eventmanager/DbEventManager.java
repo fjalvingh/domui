@@ -360,14 +360,19 @@ public class DbEventManager implements Runnable {
 					seq = "create sequence " + m_tableName + "_SQ start with 1 increment by 1";
 					break;
 			}
+
 			ps = dbc.prepareStatement(tbl);
 			ps.executeUpdate();
 			ps.close();
+			dbc.commit();
 
 			//-- Create the sequence,
-			ps = dbc.prepareStatement(seq);
-			ps.executeUpdate();
-			dbc.commit();
+			try {
+				ps = dbc.prepareStatement(seq);
+				ps.executeUpdate();
+			} catch(Exception x) {
+				//-- ignore
+			}
 		} catch(Exception x) {
 			String msg = x.toString().toLowerCase();
 
