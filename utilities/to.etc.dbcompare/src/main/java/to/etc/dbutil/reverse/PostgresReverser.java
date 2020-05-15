@@ -89,10 +89,17 @@ public class PostgresReverser extends JDBCReverser {
 		}
 	}
 
+	@Override protected void reverseSequences(Connection dbc, DbSchema schema) throws Exception {
+		if(dbc.getMetaData().getDatabaseMajorVersion() >= 10)
+			reverseSequencesNew(dbc, schema);
+		else
+			reverseSequencesOld(dbc, schema);
+	}
+
 	static private final String SEQSQL =
 		"select sequencename,data_type,start_value,min_value,max_value,increment_by,cache_size,last_value from pg_catalog.pg_sequences where schemaname=?";
 
-	@Override protected void reverseSequences(Connection dbc, DbSchema schema) throws Exception {
+	private void reverseSequencesNew(Connection dbc, DbSchema schema) throws Exception {
 		try(PreparedStatement ps = dbc.prepareStatement(SEQSQL)) {
 			ps.setString(1, schema.getName());
 			try(ResultSet rs = ps.executeQuery()) {
@@ -101,6 +108,22 @@ public class PostgresReverser extends JDBCReverser {
 				}
 			}
 		}
+	}
+
+	static private String SEQSQLOLD = "select sequence_name,data_type,start_value,minimum_value,maximum_value,increment,-1,-1"
+		+ " from information_schema.sequences"
+		+ " where sequence_schema = ?";
+
+	private void reverseSequencesOld(Connection dbc, DbSchema schema) throws Exception {
+		try(PreparedStatement ps = dbc.prepareStatement(SEQSQLOLD)) {
+			ps.setString(1, schema.getName());
+			try(ResultSet rs = ps.executeQuery()) {
+				while(rs.next()) {
+					reverseSequence(schema, rs);
+				}
+			}
+		}
+
 	}
 
 	private void reverseSequence(DbSchema schema, ResultSet rs) throws SQLException {
