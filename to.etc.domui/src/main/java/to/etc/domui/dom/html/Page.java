@@ -573,7 +573,7 @@ final public class Page implements IQContextContainer {
 	private final Map<String, IntRef> m_testIdMap = new HashMap<String, Page.IntRef>();
 
 	@NonNull
-	public String	allocateTestID(@NonNull String initial) {
+	public String allocateTestID(@NonNull String initial) {
 		IntRef ir = m_testIdMap.get(initial);
 		if(null == ir) {
 			ir = new IntRef();
@@ -582,6 +582,10 @@ final public class Page implements IQContextContainer {
 		}
 		int v = ++ir.m_value;
 		return initial + "_" +v;
+	}
+
+	public void dealocateTestId(@NonNull String testId) {
+		m_testIdMap.remove(testId);
 	}
 
 	public boolean isTestIDAllocated(@NonNull String id) {
