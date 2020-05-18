@@ -25,6 +25,9 @@ import java.util.List;
 final public class TabInstance implements IErrorMessageListener, ITabHandle {
 	private final TabPanelBase m_tabPanel;
 
+	@Nullable
+	private final String m_testId;
+
 	@NonNull
 	private NodeBase m_label;
 
@@ -73,6 +76,7 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 		m_onClose = b.getOnClose();
 		m_onDisplay = b.getOnDisplay();
 		m_onHide = b.getOnHide();
+		m_testId = b.getTestId();
 	}
 
 	public NodeBase getContent() {
@@ -245,5 +249,9 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 		m_content = content;
 		m_added = false;
 		m_tabPanel.updateContent(this, old);
+	}
+
+	@Nullable public String getTestId() {
+		return m_testId;
 	}
 }
