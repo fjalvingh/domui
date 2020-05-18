@@ -24,14 +24,26 @@
  */
 package to.etc.dbpool;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
-import javax.xml.parsers.*;
-
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class XmlSource extends PoolConfigSource {
+	@NonNull private final Properties m_extra;
 	static class DefaultErrorHandler implements ErrorHandler {
 		/** This string buffer receives error messages while the document gets parsed. */
 		private StringBuilder m_xmlerr_sb = new StringBuilder();
@@ -85,8 +97,9 @@ public class XmlSource extends PoolConfigSource {
 
 	private Node m_backup;
 
-	public XmlSource(File src, File back) {
+	public XmlSource(File src, File back, @NonNull Properties extra) {
 		super(src, back);
+		m_extra = extra;
 	}
 
 	private synchronized void init() throws Exception {
@@ -203,6 +216,8 @@ public class XmlSource extends PoolConfigSource {
 		}
 		if(v == null)
 			v = getValue(m_src, section, name);
+		if(v == null)
+			v = m_extra.getProperty(name);
 		return v;
 	}
 

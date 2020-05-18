@@ -51,6 +51,7 @@ final public class TestDB {
 					, "sa"
 					, ""
 					, null
+					, null
 				);
 
 				pool.initialize();
