@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 /**
@@ -194,50 +195,63 @@ final public class PoolManager {
 	 * this call the pool can be used but it operates in "unpooled" mode, meaning
 	 * that all allocated connections will be discarded after a close.
 	 */
-	public ConnectionPool definePool(final PoolConfigSource cs, final String id) throws SQLException {
+	public ConnectionPool definePool(PoolConfigSource cs, String id) throws SQLException {
 		PoolConfig pc = new PoolConfig(id, cs);
 		return definePool(id, pc);
 	}
 
-	public ConnectionPool definePool(final String id, final String driver, final String url, final String userid, final String password, final String driverpath) throws SQLException {
-		PoolConfig pc = new PoolConfig(driver, url, userid, password, driverpath);
-		return definePool(id, pc);
+	public ConnectionPool definePool(@NonNull String id, @NonNull String driver, @NonNull String url, @NonNull String userid, @NonNull String password, @Nullable String driverpath, @Nullable Properties extra) throws SQLException {
+		if(null == extra)
+			extra = new Properties();
+		SinglePoolPropertiesSource ps = new SinglePoolPropertiesSource(extra)
+			.property(PoolConfig.URL, url)
+			.property(PoolConfig.USERID, userid)
+			.property(PoolConfig.PASSWORD, password)
+			.property(PoolConfig.DRIVER, driver)
+			.property(PoolConfig.DRIVERPATH, driverpath)
+			;
+		return definePool(ps, id);
+	}
+
+	public ConnectionPool definePool(File poolfile, String id) throws Exception {
+		return definePool(poolfile, id, null);
 	}
 
 	/**
 	 * This defines a pool, taking it's config from a properties file.
-	 *
-	 * @param poolfile
-	 * @param id
-	 * @throws Exception
 	 */
-	public ConnectionPool definePool(final File poolfile, final String id) throws Exception {
-		PoolConfigSource cs = PoolConfigSource.create(poolfile);
+	public ConnectionPool definePool(File poolfile, String id, @Nullable Properties extra) throws Exception {
+		PoolConfigSource cs = PoolConfigSource.create(poolfile, extra);
 		return definePool(cs, id);
+	}
+
+	public ConnectionPool definePool(String id) throws Exception {
+		return definePool(id, (Properties) null);
 	}
 
 	/**
 	 * This defines a pool using the default poolfile ".dbpool.properties" stored
 	 * in the user's home directory. If no such file is found then an exception
 	 * is thrown.
-	 * @param id
-	 * @return
-	 * @throws Exception
 	 */
-	public ConnectionPool definePool(final String id) throws Exception {
+	public ConnectionPool definePool(String id, @Nullable Properties extra) throws Exception {
 		String uh = System.getProperty("user.home");
 		if(uh != null) {
 			File xf = new File(uh, ".dbpool.xml");
 			if(xf.exists()) {
-				return definePool(xf, id);
+				return definePool(xf, id, extra);
 			}
 
 			File pf = new File(uh, ".dbpool.properties");
 			if(pf.exists()) {
-				return definePool(pf, id);
+				return definePool(pf, id, extra);
 			}
 		}
 		throw new IllegalStateException("No default '.dbpool.properties' file found in your home directory (" + uh + ")");
+	}
+
+	public ConnectionPool initializePool(String id) throws Exception {
+		return initializePool(id, null);
 	}
 
 	/**
@@ -247,8 +261,8 @@ final public class PoolManager {
 	 * an exception occurs and the pool is deinitialized. After this call the
 	 * pool operates in pooled mode.
 	 */
-	public ConnectionPool initializePool(final String id) throws Exception {
-		ConnectionPool pool = definePool(id);
+	public ConnectionPool initializePool(String id, @Nullable Properties extra) throws Exception {
+		ConnectionPool pool = definePool(id, extra);
 		pool.initialize(); // Force initialization
 		return pool;
 	}
@@ -257,7 +271,6 @@ final public class PoolManager {
 	 * This combines defining and initializing a pool.
 	 * @param cs	The configsource to take definitions from
 	 * @param id	The ID of the pool to define.
-	 * @throws Exception
 	 */
 	public ConnectionPool initializePool(final PoolConfigSource cs, final String id) throws SQLException {
 		ConnectionPool p = definePool(cs, id); // Define the pool
@@ -265,16 +278,16 @@ final public class PoolManager {
 		return p;
 	}
 
+	public ConnectionPool initializePool(File poolfile, String id) throws Exception {
+		return initializePool(poolfile, id, null);
+	}
+
 	/**
 	 * This combines defining and initializing a pool, taking it's config from
 	 * a properties file.
-	 *
-	 * @param poolfile
-	 * @param id
-	 * @throws Exception
 	 */
-	public ConnectionPool initializePool(final File poolfile, final String id) throws Exception {
-		PoolConfigSource cs = PoolConfigSource.create(poolfile);
+	public ConnectionPool initializePool(File poolfile, String id, @Nullable Properties extra) throws Exception {
+		PoolConfigSource cs = PoolConfigSource.create(poolfile, extra);
 		return initializePool(cs, id);
 	}
 
@@ -310,8 +323,6 @@ final public class PoolManager {
 	 * held when called.
 	 * Since we can be called for an already destroyed pool make sure the pool in the map is the
 	 * one we're destroying...
-	 *
-	 * @param id
 	 */
 	//@GuardedBy("this")
 	synchronized boolean internalRemovePool(ConnectionPool cp) {

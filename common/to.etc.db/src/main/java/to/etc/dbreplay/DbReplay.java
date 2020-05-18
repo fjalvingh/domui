@@ -313,7 +313,7 @@ public class DbReplay {
 		if(m_dbHost != null) {
 			//-- Use command line invocation
 			String url = "jdbc:oracle:thin:@" + m_dbHost + ":1521:" + m_dbSid.toUpperCase();
-			m_pool = PoolManager.getInstance().definePool("db", "oracle.jdbc.driver.OracleDriver", url, m_dbUser, m_dbPass, m_driverPath == null ? null : m_driverPath.toString());
+			m_pool = PoolManager.getInstance().definePool("db", "oracle.jdbc.driver.OracleDriver", url, m_dbUser, m_dbPass, m_driverPath == null ? null : m_driverPath.toString(), null);
 		} else {
 			if(m_poolFile == null)
 				m_pool = PoolManager.getInstance().definePool(m_poolId);

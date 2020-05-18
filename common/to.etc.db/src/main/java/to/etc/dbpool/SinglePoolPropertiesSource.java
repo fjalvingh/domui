@@ -24,17 +24,30 @@
  */
 package to.etc.dbpool;
 
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.Properties;
 
-public class PropertiesSource extends PoolConfigSource {
-	final private Properties m_prop;
+/**
+ * Pool parameters as a set of properties but for a single pool, so that
+ * each property does not have the poolID as a prefix. I.e. we use maxconn
+ * instead of id.maxconn to specify max connections.
+ */
+public class SinglePoolPropertiesSource extends PoolConfigSource {
+	final private Properties m_prop = new Properties();
 
-	public PropertiesSource(Properties p) {
-		m_prop = p;
+	public SinglePoolPropertiesSource(@NonNull Properties p) {
+		m_prop.putAll(p);
 	}
 
 	@Override
 	public String getProperty(String section, String name) throws Exception {
-		return m_prop.getProperty(section + "." + name);
+		return m_prop.getProperty(name);
 	}
+
+	public SinglePoolPropertiesSource property(String name, String value) {
+		m_prop.setProperty(name, value);
+		return this;
+	}
+
 }
