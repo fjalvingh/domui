@@ -25,6 +25,7 @@
 package to.etc.dbpool;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.Properties;
 
@@ -45,8 +46,9 @@ public class SinglePoolPropertiesSource extends PoolConfigSource {
 		return m_prop.getProperty(name);
 	}
 
-	public SinglePoolPropertiesSource property(String name, String value) {
-		m_prop.setProperty(name, value);
+	public SinglePoolPropertiesSource property(@NonNull String name, @Nullable String value) {
+		if(null != value)
+			m_prop.setProperty(name, value);
 		return this;
 	}
 
