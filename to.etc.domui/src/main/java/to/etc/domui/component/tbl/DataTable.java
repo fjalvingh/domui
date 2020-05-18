@@ -1144,6 +1144,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	@Override
 	public void onRemoveFromPage(Page p) {
+		super.onRemoveFromPage(p);
 		silentThrows(()->{
 			DomUtil.walkTree(this, new IPerNode() {
 				@Override
