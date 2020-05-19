@@ -106,11 +106,11 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 		triple.add(acd)
 		acd.add(LinkButton("Delete", Icon.faMinus) {
 			if(node.isEmpty()) {
-				node.parent!!.conditions.remove(node)
+				deleteSimple()
 			} else {
 				MsgBox.yesNo(this, "Delete?", {
 					it: MsgBox ->
-					node.parent!!.conditions.remove(node)
+					deleteSimple()
 				})
 			}
 		})
@@ -122,6 +122,11 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 		})
 	}
 
+	private fun deleteSimple() {
+		val parent = node.parent!!
+		parent.remove(node)
+		parent.simplify()
+	}
 
 	private fun addCompound(operator: QOperation) {
 		val p = node.parent!!
@@ -270,6 +275,11 @@ class CoCompound<T, F>(val operation: QOperation) : CoNode<T, F>() {
 	fun remove(node: CoNode<T, F>) {
 		conditions.remove(node)
 		node.parent = null
+
+		//-- If this is the root node: never allow it to be empty
+		if(parent == null && conditions.size == 0) {
+			add(CoSimple())
+		}
 	}
 
 	fun level() : Int {
@@ -280,6 +290,31 @@ class CoCompound<T, F>(val operation: QOperation) : CoNode<T, F>() {
 			c++
 		}
 		return c
+	}
+
+	/**
+	 *
+	 */
+	fun simplify() {
+		val dad = parent ?: return
+		if(conditions.size == 1) {
+			var index = dad.conditions.indexOf(this)
+			dad.remove(this)
+			val sub = conditions[0]
+			if(sub is CoSimple) {
+				dad.add(index, sub)
+			} else if(sub is CoCompound) {
+				//-- The sub is a compound. Merge all terms in the parent's parent
+				dad.remove(sub)
+				for(condition in sub.conditions) {
+					dad.add(index++, condition)
+				}
+			} else {
+				error("Unknown nodetype")
+			}
+		} else if(conditions.size == 0) {
+			dad.remove(this)
+		}
 	}
 }
 
