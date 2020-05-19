@@ -1,6 +1,5 @@
 package to.etc.domui.component2.conditionpanel
 
-import to.etc.domui.component.buttons.DefaultButton
 import to.etc.domui.component.buttons.LinkButton
 import to.etc.domui.component.input.Text2
 import to.etc.domui.component.misc.Icon
@@ -103,9 +102,9 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 		operatorC.bind().to(node, "operation")
 
 		//-- Action
-//		val acd = Div("ui-copa-cmp-ac")
-//		add(acd)
-		triple.add(DefaultButton("", Icon.faMinus) {
+		val acd = Div("ui-copa-cmp-ac")
+		triple.add(acd)
+		acd.add(LinkButton("Delete", Icon.faMinus) {
 			if(node.isEmpty()) {
 				node.parent!!.conditions.remove(node)
 			} else {
@@ -115,6 +114,36 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 				})
 			}
 		})
+
+		val operator = if(node.parent!!.operation == QOperation.AND) QOperation.OR else QOperation.AND
+
+		acd.add(LinkButton(operator.name, Icon.faList) {
+			addCompound(operator)
+		})
+	}
+
+
+	private fun addCompound(operator: QOperation) {
+		val p = node.parent!!
+
+		//-- If the parent already has a node of the required join type -> move this node there.
+		for(condition in p.conditions) {
+			if(condition is CoCompound) {
+				if(condition.operation == operator) {
+					p.remove(node)
+					condition.add(node)
+					return
+				}
+			}
+		}
+
+		//-- We need a new one..
+		val nw = CoCompound<T,F>(operator)
+		val index = p.conditions.indexOf(node)
+		p.remove(node)
+		nw.add(node)
+		nw.add(CoSimple<T, F>())
+		p.add(index, nw)
 	}
 
 	private fun updateControls(valueContainer: Div, operationC: ComboLookup2<QOperation>, field: F?) {
@@ -232,6 +261,15 @@ class CoCompound<T, F>(val operation: QOperation) : CoNode<T, F>() {
 	fun add(node: CoNode<T, F>) {
 		conditions.add(node)
 		node.parent = this
+	}
+	fun add(index: Int, node: CoNode<T, F>) {
+		conditions.add(index, node)
+		node.parent = this
+	}
+
+	fun remove(node: CoNode<T, F>) {
+		conditions.remove(node)
+		node.parent = null
 	}
 
 	fun level() : Int {

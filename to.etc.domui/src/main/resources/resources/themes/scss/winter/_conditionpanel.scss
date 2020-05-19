@@ -12,6 +12,17 @@
 	flex-direction: row;
 	justify-content: left;
 }
+.ui-copa-cmp-ac {
+	padding: 0px 10px;
+	display: flex;
+	flex-direction: row;
+	justify-content: left;
+
+	.ui-lbtn {
+		padding-right: 10px;
+	}
+}
+
 
 /*** Compound panel ***/
 .ui-copa-grp {
