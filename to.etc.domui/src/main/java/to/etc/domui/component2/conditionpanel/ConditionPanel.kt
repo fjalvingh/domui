@@ -6,6 +6,7 @@ import to.etc.domui.databinding.observables.ObservableList
 import to.etc.domui.dom.html.Div
 import to.etc.domui.dom.html.IControl
 import to.etc.domui.dom.html.NodeBase
+import to.etc.domui.dom.html.Span
 import to.etc.webapp.query.QOperation
 import java.util.function.Supplier
 
@@ -129,10 +130,15 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 /**
  * UI for a list of conditions, contained of both compounds and comparisons.
  */
-open class CondUiCompound<T, F>(panel: ConditionPanel<T, F>, val node: CoCompound<T, F>) : CondUiBase<T, F>(panel, "ui-copa-list") {
-	private val container = Div("ui-copa-co-cont")
+open class CondUiCompound<T, F>(panel: ConditionPanel<T, F>, val node: CoCompound<T, F>) : CondUiBase<T, F>(panel, "ui-copa-grp") {
+	private val container = Div("ui-copa-grp-list")
 
 	override fun createContent() {
+		addCssClass("ui-copa-grp-l${node.level()}")
+
+		val andor = Div("ui-copa-grp-type ui-copa-grp-type-${node.operation.name.toLowerCase()}")
+		add(andor)
+		andor.add(Span(node.operation.name))
 		add(container)
 		for(condition in node.conditions) {
 			when(condition) {
@@ -160,6 +166,17 @@ class CoCompound<T, F>(val operation: QOperation) : CoNode<T, F>() {
 
 	fun add(node: CoNode<T, F>) {
 		conditions.add(node)
+		node.parent = this
+	}
+
+	fun level() : Int {
+		var c = 0
+		var cur = parent
+		while(cur != null) {
+			cur = cur.parent
+			c++
+		}
+		return c
 	}
 }
 

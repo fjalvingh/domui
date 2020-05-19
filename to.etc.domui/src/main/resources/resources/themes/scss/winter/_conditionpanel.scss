@@ -1,9 +1,49 @@
 .ui-copa {
 	padding: 0 10px;
 }
+
+/*** Simple panel ***/
+.ui-copa-cmp {
+	padding: 5px 0;
+}
+
 .ui-copa-cmp-c {
 	display: flex;
 	flex-direction: row;
 	justify-content: left;
+}
 
+/*** Compound panel ***/
+.ui-copa-grp {
+	padding: 10px;
+	display: flex;
+	flex-direction: row;
+	justify-content: left;
+
+	.ui-copa-grp-type {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: 10px;
+	}
+	.ui-copa-grp-type-and {
+	}
+
+	.ui-copa-grp-type-or {
+	}
+}
+
+$pastels: (
+	#ffb5e8, #b28dff
+	, #ff9cee, #c5a3ff
+	, #ffccf9, #d5aaff
+	, #aff8a8, #dcd3ff
+	, #85e3ff, #b5b9ff
+);
+
+@for $i from 1 through length($pastels) {
+	$color: nth($pastels, $i);
+	.ui-copa-grp-l#{$i - 1} {
+		background-color: $color;
+	}
 }
