@@ -18,9 +18,9 @@ interface IConditionModel<T, F> {
 }
 
 class ConditionPanel<T, F>(val model: IConditionModel<T, F>) : Div("ui-copa") {
-	val rootNode = CoCompound<T, F>(null)
+	var rootNode = CoCompound<T, F>(QOperation.AND)
 	val rootContainer = Div("ui-copa-root")
-	val rootCompound = CondUiCompound<T, F>(this, rootNode)
+//	val rootCompound = CondUiCompound<T, F>(this, rootNode)
 
 	/**
 	 * Factory to create a component to select a field; defaults to a ComboLookup2.
@@ -40,7 +40,7 @@ class ConditionPanel<T, F>(val model: IConditionModel<T, F>) : Div("ui-copa") {
 	override fun createContent() {
 		fixModel()
 		add(rootContainer)
-		rootContainer.add(rootCompound)
+		rootContainer.add(CondUiCompound(this, rootNode))
 	}
 
 	/**
@@ -48,7 +48,7 @@ class ConditionPanel<T, F>(val model: IConditionModel<T, F>) : Div("ui-copa") {
 	 */
 	fun fixModel() {
 		if(rootNode.conditions.size == 0) {
-			rootNode.conditions.add(CoSimple<T, F>(rootNode))
+			rootNode.conditions.add(CoSimple<T, F>())
 		}
 	}
 }
@@ -73,6 +73,8 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 		operatorC.isMandatory = true
 		triple.add(operatorC)
 		val valueContainer = triple.add(Div("ui-copa-cmp-val"))
+		currentField = node.field
+		currentOperation = node.operation
 
 		//-- Listeners
 		fieldC.setOnValueChanged {
@@ -82,6 +84,10 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 			updateControls(valueContainer, operatorC, fieldC.value)
 		}
 		updateControls(valueContainer, operatorC, node.field)
+
+		//-- Bindings
+		fieldC.bind().to(node, "field")
+		operatorC.bind().to(node, "operation")
 	}
 
 	private fun updateControls(valueContainer: Div, operationC: ComboLookup2<QOperation>, field: F?) {
@@ -145,16 +151,20 @@ open class CondUiCompound<T, F>(panel: ConditionPanel<T, F>, val node: CoCompoun
 	}
 }
 
-sealed class CoNode<T, F>(val parent: CoCompound<T, F>?) {}
-
-class CoCompound<T, F>(parent: CoCompound<T, F>?) : CoNode<T, F>(parent) {
-	val conditions = ObservableList<CoNode<T, F>>()
+sealed class CoNode<T, F>() {
+	var parent: CoCompound<T, F>? = null
 }
 
-class CoSimple<T, F>(parent: CoCompound<T, F>) : CoNode<T, F>(parent) {
-	var operation: QOperation? = null
-	var field: F? = null
-	var value: Any? = null
+class CoCompound<T, F>(val operation: QOperation) : CoNode<T, F>() {
+	val conditions = ObservableList<CoNode<T, F>>()
+
+	fun add(node: CoNode<T, F>) {
+		conditions.add(node)
+	}
+}
+
+class CoSimple<T, F>(var operation: QOperation?, var field: F?, var value: Any?) : CoNode<T, F>() {
+	constructor() : this(null, null, null)
 
 	fun isEmpty() : Boolean {
 		return operation == null || field == null || (value == null && !operation!!.isParameterLess())
