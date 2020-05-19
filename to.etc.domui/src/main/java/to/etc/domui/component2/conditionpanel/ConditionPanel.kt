@@ -1,8 +1,20 @@
 package to.etc.domui.component2.conditionpanel
 
+import to.etc.domui.component.buttons.DefaultButton
+import to.etc.domui.component.buttons.LinkButton
 import to.etc.domui.component.input.Text2
+import to.etc.domui.component.misc.Icon
+import to.etc.domui.component.misc.MessageFlare
+import to.etc.domui.component.misc.MsgBox
 import to.etc.domui.component2.combo.ComboLookup2
+import to.etc.domui.databinding.list.ListChangeAdd
+import to.etc.domui.databinding.list.ListChangeAssign
+import to.etc.domui.databinding.list.ListChangeDelete
+import to.etc.domui.databinding.list.ListChangeModify
+import to.etc.domui.databinding.list2.IListChangeListener
+import to.etc.domui.databinding.list2.IListChangeVisitor
 import to.etc.domui.databinding.observables.ObservableList
+import to.etc.domui.dom.errors.MsgType
 import to.etc.domui.dom.html.Div
 import to.etc.domui.dom.html.IControl
 import to.etc.domui.dom.html.NodeBase
@@ -89,6 +101,20 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 		//-- Bindings
 		fieldC.bind().to(node, "field")
 		operatorC.bind().to(node, "operation")
+
+		//-- Action
+//		val acd = Div("ui-copa-cmp-ac")
+//		add(acd)
+		triple.add(DefaultButton("", Icon.faMinus) {
+			if(node.isEmpty()) {
+				node.parent!!.conditions.remove(node)
+			} else {
+				MsgBox.yesNo(this, "Delete?", {
+					it: MsgBox ->
+					node.parent!!.conditions.remove(node)
+				})
+			}
+		})
 	}
 
 	private fun updateControls(valueContainer: Div, operationC: ComboLookup2<QOperation>, field: F?) {
@@ -141,19 +167,58 @@ open class CondUiCompound<T, F>(panel: ConditionPanel<T, F>, val node: CoCompoun
 		andor.add(Span(node.operation.name))
 		add(container)
 		for(condition in node.conditions) {
-			when(condition) {
-				is CoSimple -> renderSimple(condition)
-				is CoCompound -> renderCompound(condition)
+			container.add(createUi(condition))
+		}
+
+		//-- We finish with the "add" action
+		val acd = Div("ui-copa-grp-ac")
+		container.add(acd)
+		acd.add(LinkButton("Add a condition", Icon.faPlus) {
+			addCondition()
+		})
+
+		node.conditions.addChangeListener(IListChangeListener { event ->
+			for(change in event.getChanges()) {
+				change.visit(object: IListChangeVisitor<CoNode<T, F>> {
+					override fun visitAssign(assign: ListChangeAssign<CoNode<T, F>>) {
+						TODO("Not yet implemented")
+					}
+
+					override fun visitAdd(add: ListChangeAdd<CoNode<T, F>>) {
+						container.add(add.index, createUi(add.value))
+					}
+
+					override fun visitDelete(add: ListChangeDelete<CoNode<T, F>>) {
+						container.removeChild(add.index)
+					}
+
+					override fun visitModify(add: ListChangeModify<CoNode<T, F>>) {
+						TODO("Not yet implemented")
+					}
+				})
+			}
+		})
+
+	}
+
+	private fun addCondition() {
+		for(condition in node.conditions) {
+			if(condition is CoSimple) {
+				if(condition.isEmpty()) {
+					MessageFlare.display(this, MsgType.ERROR, "There is already an empty condition here, fill it in 1st")
+					return
+				}
 			}
 		}
+
+		node.add(CoSimple<T, F>())
 	}
 
-	private fun renderCompound(condition: CoCompound<T, F>) {
-		container.add(CondUiCompound(panel, condition))
-	}
-
-	private fun renderSimple(condition: CoSimple<T, F>) {
-		container.add(CondUiSimple(panel, condition))
+	private fun createUi(condition: CoNode<T, F>) : CondUiBase<T, F> {
+		return when(condition) {
+			is CoSimple -> CondUiSimple(panel, condition)
+			is CoCompound -> CondUiCompound(panel, condition)
+		}
 	}
 }
 
