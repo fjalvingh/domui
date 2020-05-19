@@ -80,6 +80,7 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 	override fun createContent() {
 		val triple = add(Div("ui-copa-cmp-c"))
 		val fieldC = panel.fieldSelectorFactory.get()
+		fieldC.isMandatory = true
 		triple.add(fieldC as NodeBase)
 		val operatorC = ComboLookup2<QOperation>()
 		operatorC.isMandatory = true
@@ -90,10 +91,10 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 
 		//-- Listeners
 		fieldC.setOnValueChanged {
-			updateControls(valueContainer, operatorC, fieldC.value)
+			updateControls(valueContainer, operatorC, safeValue(fieldC))
 		}
 		operatorC.setOnValueChanged {
-			updateControls(valueContainer, operatorC, fieldC.value)
+			updateControls(valueContainer, operatorC, safeValue(fieldC))
 		}
 		updateControls(valueContainer, operatorC, node.field)
 
@@ -126,6 +127,15 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 		val parent = node.parent!!
 		parent.remove(node)
 		parent.simplify()
+	}
+
+	private fun <T> safeValue(control: IControl<T>) : T? {
+		try {
+			return control.valueSafe
+		} catch(x: Exception) {
+			control.clearMessage()
+			return null
+		}
 	}
 
 	private fun addCompound(operator: QOperation) {

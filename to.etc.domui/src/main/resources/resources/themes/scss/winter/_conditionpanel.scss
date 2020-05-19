@@ -45,11 +45,11 @@
 }
 
 $pastels: (
-	#ffb5e8, #b28dff
+ 	#aff8a8, #dcd3ff
+	, #85e3ff, #b5b9ff
+	, #ffb5e8, #b28dff
 	, #ff9cee, #c5a3ff
 	, #ffccf9, #d5aaff
-	, #aff8a8, #dcd3ff
-	, #85e3ff, #b5b9ff
 );
 
 @for $i from 1 through length($pastels) {
