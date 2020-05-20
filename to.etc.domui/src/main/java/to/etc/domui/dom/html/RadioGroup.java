@@ -166,6 +166,26 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		return rg;
 	}
 
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(T... enums) {
+		ClassMetaModel metaModel = null;
+		List<ValueLabelPair<T>> l = new ArrayList<>();
+		for(T anEnum : enums) {
+			if(metaModel == null) {
+				metaModel = MetaManager.findClassMeta(anEnum.getClass());
+			}
+			String label = metaModel.getDomainLabel(NlsContext.getLocale(), anEnum);
+			if(label == null)
+				label = anEnum.name();
+			l.add(new ValueLabelPair<T>(anEnum, label));
+		}
+		Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+		var rg = new RadioGroup<T>();
+		for(ValueLabelPair<T> tValueLabelPair : l) {
+			rg.addButton(tValueLabelPair.getLabel(), tValueLabelPair.getValue());
+		}
+		return rg;
+	}
+
 	public void clearButtons() {
 		m_buttonList.clear();
 		forceRebuild();
