@@ -2,12 +2,14 @@ package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.misc.UIControlUtil;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.NlsContext;
 
@@ -142,6 +144,46 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		if(isBuilt())
 			forceRebuild();
 		return rb;
+	}
+
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(Class<T> clz, T... exceptions) {
+		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
+		T[] ar = clz.getEnumConstants();
+		for(T v : ar) {
+			if(!DomUtil.contains(exceptions, v)) {
+				String label = cmm.getDomainLabel(NlsContext.getLocale(), v);
+				if(label == null)
+					label = v.name();
+				l.add(new ValueLabelPair<T>(v, label));
+			}
+		}
+		Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+		var rg = new RadioGroup<T>();
+		for(ValueLabelPair<T> tValueLabelPair : l) {
+			rg.addButton(tValueLabelPair.getLabel(), tValueLabelPair.getValue());
+		}
+		return rg;
+	}
+
+	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(T... enums) {
+		ClassMetaModel metaModel = null;
+		List<ValueLabelPair<T>> l = new ArrayList<>();
+		for(T anEnum : enums) {
+			if(metaModel == null) {
+				metaModel = MetaManager.findClassMeta(anEnum.getClass());
+			}
+			String label = metaModel.getDomainLabel(NlsContext.getLocale(), anEnum);
+			if(label == null)
+				label = anEnum.name();
+			l.add(new ValueLabelPair<T>(anEnum, label));
+		}
+		Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+		var rg = new RadioGroup<T>();
+		for(ValueLabelPair<T> tValueLabelPair : l) {
+			rg.addButton(tValueLabelPair.getLabel(), tValueLabelPair.getValue());
+		}
+		return rg;
 	}
 
 	public void clearButtons() {
