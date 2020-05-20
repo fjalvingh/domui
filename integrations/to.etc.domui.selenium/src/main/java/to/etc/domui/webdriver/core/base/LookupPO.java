@@ -11,22 +11,19 @@ public class LookupPO extends BasePO {
 
 	private final String m_id;
 
-	private String m_colName;
-
-	public LookupPO(WebDriverConnector connector, String id, String colName) {
+	public LookupPO(WebDriverConnector connector, String id) {
 		super(connector);
 		m_id = id;
-		m_colName = colName;
 	}
 
-	public void setValue(String val) {
+	public void setValue(String val, String colName) {
 		var locator = wd().byId(m_id + "-lookup");
 		var wait = new WebDriverWait(wd().driver(), 10);
 		wd().wait(ExpectedConditions.elementToBeClickable(locator));
 		wd().cmd().click().on(locator);
 		wd().wait(locator);
 
-		var inputLocator = By.cssSelector(".ui-lui2-dlg *[testid='" + m_colName + "'] INPUT");
+		var inputLocator = By.cssSelector(".ui-lui2-dlg *[testid='" + colName + "'] INPUT");
 		if(!wd().isVisible(inputLocator)) {
 			wd().cmd().click().on(locator);
 		}
