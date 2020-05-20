@@ -60,7 +60,7 @@ class ConditionPanel<T, F>(val model: IConditionModel<T, F>) : Div("ui-copa") {
 	 */
 	fun fixModel() {
 		if(rootNode.conditions.size == 0) {
-			rootNode.conditions.add(CoSimple<T, F>())
+			rootNode.add(CoSimple<T, F>())
 		}
 	}
 }
@@ -185,6 +185,7 @@ open class CondUiSimple<T, F>(panel: ConditionPanel<T, F>, val node: CoSimple<T,
 				node.value = null
 			} else {
 				val valueControl = panel.fieldValueControlFactory.apply(field)
+				valueControl.isMandatory = true
 				valueContainer.add(valueControl as NodeBase)
 				valueControl.bind().to(this, "node.value")
 			}

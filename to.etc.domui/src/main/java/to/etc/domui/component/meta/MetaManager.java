@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.meta;
 
+import kotlin.reflect.KProperty0;
+import kotlin.reflect.KProperty1;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.ValueLabelPair;
@@ -105,8 +107,6 @@ final public class MetaManager {
 
 	/**
 	 * Get the metamodel for some metadata-defined object.
-	 * @param mc
-	 * @return
 	 */
 	@NonNull
 	static public ClassMetaModel findClassMeta(@NonNull IMetaClass mc) {
@@ -151,6 +151,24 @@ final public class MetaManager {
 		if(pmm == null)
 			throw new ProgrammerErrorException("The property '" + clz.getName() + "." + name + "' is not known.");
 		return pmm;
+	}
+
+	/**
+	 * Find metadata for a class-level Kotlin property.
+	 */
+	@NonNull
+	static public <V> PropertyMetaModel<V> getPropertyMeta(Class<?> clz, KProperty1<?, V> ref) {
+		return (PropertyMetaModel<V>) getPropertyMeta(clz, ref.getName());
+	}
+
+	/**
+	 * Find metadata for a property-only Kotlin property. These are properties that represent an actual instance
+	 * value inside them, and that instance cannot be obtained, sigh.
+	 */
+	public static <V> PropertyMetaModel<V> getPropertyMeta(KProperty0<V> propertyRef) {
+
+
+		return null;
 	}
 
 	@NonNull
@@ -982,4 +1000,5 @@ final public class MetaManager {
 		bd = bd.subtract(fraction);
 		return new MaxMinValidator(bd.negate(), bd);
 	}
+
 }
