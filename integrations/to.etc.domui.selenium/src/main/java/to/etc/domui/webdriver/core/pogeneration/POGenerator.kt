@@ -11,14 +11,14 @@ import to.etc.domui.util.DomUtil
 import to.etc.domui.util.DomUtil.IPerNode
 import java.util.concurrent.ConcurrentHashMap
 
-interface POFactory{
+interface POFactory<T : NodeBase> {
 	fun create(s: NodeBase) : POCodeGenerator
 }
 
 object POGeneration {
-	internal val generators: MutableMap<Class<*>, POFactory> = ConcurrentHashMap()
+	internal val generators: MutableMap<Class<*>, POFactory<out NodeBase>> = ConcurrentHashMap()
 
-	fun registerFactory(clazz: Class<*>, factory: POFactory) {
+	fun registerFactory(clazz: Class<*>, factory: POFactory<out NodeBase>) {
 		generators[clazz] = factory
 	}
 
