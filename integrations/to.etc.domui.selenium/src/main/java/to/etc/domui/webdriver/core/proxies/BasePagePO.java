@@ -1,4 +1,4 @@
-package to.etc.domui.webdriver.core.base;
+package to.etc.domui.webdriver.core.proxies;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -17,17 +17,19 @@ import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
 @NonNullByDefault
-public abstract class BasePagePO<T extends UrlPage> extends BasePO {
+public abstract class BasePagePO<T extends UrlPage> {
 
-	private final Class<T> m_clazz;
+	private WebDriverConnector m_wd;
+
+	private final Class<T> m_pageClass;
 
 	public BasePagePO(WebDriverConnector wd, Class<T> clazz) {
-		super(wd);
-		m_clazz = clazz;
+		m_wd = wd;
+		m_pageClass = clazz;
 	}
 
 	public void open(Object... parameters) throws Exception {
-		wd().openScreen(m_clazz, parameters);
+		wd().openScreen(m_pageClass, parameters);
 	}
 
 	public boolean isBrowserOnThisPage() {
@@ -35,21 +37,21 @@ public abstract class BasePagePO<T extends UrlPage> extends BasePO {
 		if(body == null) {
 			return false;
 		}
-		return body.getAttribute("pagename").equalsIgnoreCase(getClazz().getName());
+		return body.getAttribute("pagename").equalsIgnoreCase(getPageClass().getName());
 	}
 
-	public Map<String, String> getPageParameters() throws Exception{
+	public Map<String, String> getPageParameters() throws Exception {
 		wd().driver().getCurrentUrl();
 		var list = URLEncodedUtils.parse(new URI(wd().driver().getCurrentUrl()), StandardCharsets.UTF_8);
 		return list.stream().collect(toMap(NameValuePair::getName, NameValuePair::getValue));
 	}
 
-	public void waitUntilPageContains(String part) {
+	public void waitUntilPageUrlContains(String part) {
 		var wait = new WebDriverWait(wd().driver(), wd().getWaitInterval());
 		wait.until(ExpectedConditions.urlContains(part));
 	}
 
-	public void waitUntilPageDoesNotContain(String part) {
+	public void waitUntilPageUrlDoesNotContain(String part) {
 		var wait = new WebDriverWait(wd().driver(), wd().getWaitInterval());
 		wait.until(new UrlDoesNotContain(part));
 	}
@@ -58,7 +60,11 @@ public abstract class BasePagePO<T extends UrlPage> extends BasePO {
 		return wd().driver().getCurrentUrl();
 	}
 
-	protected Class<T> getClazz() {
-		return m_clazz;
+	protected Class<T> getPageClass() {
+		return m_pageClass;
+	}
+
+	protected WebDriverConnector wd() {
+		return m_wd;
 	}
 }

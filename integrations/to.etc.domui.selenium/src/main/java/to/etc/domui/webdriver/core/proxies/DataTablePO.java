@@ -1,4 +1,4 @@
-package to.etc.domui.webdriver.core.base;
+package to.etc.domui.webdriver.core.proxies;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openqa.selenium.By;
@@ -9,13 +9,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @NonNullByDefault
-public class DataTablePO extends BasePO {
-
-	private final String m_testId;
+public class DataTablePO extends ComponentPO {
 
 	public DataTablePO(WebDriverConnector connector, String testId) {
-		super(connector);
-		m_testId = testId;
+		super(connector, testId);
 	}
 
 	public int getNumberOfRows() {
@@ -23,7 +20,7 @@ public class DataTablePO extends BasePO {
 	}
 
 	private WebElement getTable() {
-		var table = wd().findElement(m_testId);
+		var table = wd().findElement(getTestId());
 		if(table == null) {
 			throw new IllegalStateException("cant find number list table");
 		}

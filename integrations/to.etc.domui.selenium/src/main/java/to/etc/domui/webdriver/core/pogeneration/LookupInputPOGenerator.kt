@@ -2,7 +2,7 @@ package to.etc.domui.webdriver.core.pogeneration
 
 import to.etc.domui.component2.lookupinput.LookupInput2
 import to.etc.domui.dom.html.NodeBase
-import to.etc.domui.webdriver.core.base.LookupPO
+import to.etc.domui.webdriver.core.proxies.LookupPO
 import to.etc.util.StringTool
 
 class LookupFactory : POFactory {
@@ -13,6 +13,6 @@ class LookupFactory : POFactory {
 
 class LookupGenerator(private val lookup: LookupInput2<*>): AbstractPOCodeGenerator() {
 	override fun run() {
-		members.add(GeneratedClassMember(StringTool.strDecapitlizedIntact(lookup.testID), LookupPO::class.java, POAccessModifier.PRIVATE, listOf("wd()", testId(lookup.testID))))
+		members.add(GeneratedClassMember(StringTool.strDecapitalizedIntact(lookup.testID), LookupPO::class.java, POAccessModifier.PRIVATE, listOf("wd()", testId(lookup.testID))))
 	}
 }

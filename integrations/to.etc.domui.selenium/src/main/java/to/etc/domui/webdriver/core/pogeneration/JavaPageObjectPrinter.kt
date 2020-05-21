@@ -2,7 +2,7 @@ package to.etc.domui.webdriver.core.pogeneration
 
 import org.eclipse.jdt.annotation.NonNullByDefault
 import to.etc.domui.webdriver.core.WebDriverConnector
-import to.etc.domui.webdriver.core.base.BasePO
+import to.etc.domui.webdriver.core.proxies.BasePO
 import to.etc.util.StringTool
 import java.lang.IllegalStateException
 import java.lang.StringBuilder
@@ -16,7 +16,7 @@ class JavaPageObjectPrinter(genClassModel: GeneratedClassModel) : PageObjectPrin
 	init {
 		m_actual = GeneratedClassModel(genClassModel.name, genClassModel.namespace, ArrayList(genClassModel.members), ArrayList(genClassModel.methods))
 		val toRemove = ArrayList<GeneratedClassMember>()
-		genClassModel.members.forEach{
+		genClassModel.members.forEach {
 			if(it.accessModifier == POAccessModifier.PRIVATE) {
 				m_actual.members.add(GeneratedClassMember("m_${it.name}", it.type, it.accessModifier, it.params))
 				toRemove.add(it)
@@ -47,7 +47,7 @@ class JavaPageObjectPrinter(genClassModel: GeneratedClassModel) : PageObjectPrin
 	}
 
 	private fun appendConstructor() {
-		sb.append("\tpublic ${actualClassName()}(WebDriverConnector wd) { \n \tsuper(wd); \n\t }")
+		sb.append("\tpublic ${actualClassName()}(WebDriverConnector wd) {\n\tsuper(wd);\n\t}")
 	}
 
 	private fun appendPackage() {
@@ -58,7 +58,7 @@ class JavaPageObjectPrinter(genClassModel: GeneratedClassModel) : PageObjectPrin
 		imports.add(BasePO::class.java.name)
 		imports.add(WebDriverConnector::class.java.name)
 		imports.add(NonNullByDefault::class.java.name)
-		m_actual.members.forEach{
+		m_actual.members.forEach {
 			val n = it.type.name;
 			if(!n.startsWith("java.lang")) {
 				imports.add(n)
@@ -69,14 +69,14 @@ class JavaPageObjectPrinter(genClassModel: GeneratedClassModel) : PageObjectPrin
 			if(n != null && !n.startsWith("java.lang")) {
 				imports.add(n)
 			}
-			it.parameters.forEach{ param->
+			it.parameters.forEach { param ->
 				val na = param.type.name;
 				if(na != null && !na.startsWith("java.lang")) {
 					imports.add(na)
 				}
 			}
 		}
-		imports.forEach{
+		imports.forEach {
 			sb.append("import $it;\n")
 		}
 		sb.append("\n")
@@ -96,12 +96,12 @@ class JavaPageObjectPrinter(genClassModel: GeneratedClassModel) : PageObjectPrin
 	}
 
 	private fun appendClassDeclaration() {
-		sb.append("@NonNullByDefault() \n")
+		sb.append("@NonNullByDefault()\n")
 		sb.append("public class ${actualClassName()} extends BasePO {\n")
 	}
 
 	private fun appendMembers() {
-		m_actual.members.forEach{
+		m_actual.members.forEach {
 			appendMember(it)
 		}
 	}
@@ -133,7 +133,7 @@ class JavaPageObjectPrinter(genClassModel: GeneratedClassModel) : PageObjectPrin
 	}
 
 	private fun appendMethods() {
-		m_actual.methods.forEach{
+		m_actual.methods.forEach {
 			appendMethod(it)
 		}
 	}
@@ -143,12 +143,12 @@ class JavaPageObjectPrinter(genClassModel: GeneratedClassModel) : PageObjectPrin
 		appendAccessModifier(it.accessModifier)
 		if(it.type == null) {
 			sb.append("void")
-		}else {
+		} else {
 			sb.append(it.type.simpleName)
 		}
 		sb.append(" ${clean(it.name)}(")
-		sb.append(it.parameters.stream().map{x-> "${x.type.simpleName} ${x.name}" } .collect(Collectors.joining(",")))
-		sb.append(") { \n")
+		sb.append(it.parameters.stream().map { x -> "${x.type.simpleName} ${x.name}" }.collect(Collectors.joining(",")))
+		sb.append(") {\n")
 		tab()
 		tab()
 		sb.append(it.body)

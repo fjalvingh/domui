@@ -1150,7 +1150,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 				@Override
 				public Object before(@NonNull NodeBase n) throws Exception {
 					if(n != null && n.getTestID() != null) {
-						p.dealocateTestId(n.getTestID());
+						p.deallocateTestId(n.getTestID());
 					}
 					return null;
 				}

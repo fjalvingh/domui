@@ -1,4 +1,4 @@
-package to.etc.domui.webdriver.core.base;
+package to.etc.domui.webdriver.core.proxies;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -11,11 +11,9 @@ import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
 @NonNullByDefault
-public class TabPO extends BasePO {
+public class TabPanelPO extends ComponentPO {
 	@Nullable
 	private String m_current;
-
-	private String m_id;
 
 	private Map<String, ? extends BasePO> m_tabs;
 
@@ -24,9 +22,8 @@ public class TabPO extends BasePO {
 	 * @param testId of the Tab
 	 * @param tabs list of configured tabs.
 	 */
-	public TabPO(WebDriverConnector wd, String testId, Map<String,? extends BasePO> tabs) {
-		super(wd);
-		m_id = testId;
+	public TabPanelPO(WebDriverConnector wd, String testId, Map<String,? extends BasePO> tabs) {
+		super(wd, testId);
 		m_tabs = tabs;
 	}
 
@@ -39,7 +36,7 @@ public class TabPO extends BasePO {
 	 */
 	public <T extends BasePO> T open(String testId) {
 		if(!testId.equals(m_current)) {
-			By locator = By.cssSelector(createTestId(m_id).concat(" ").concat(createTestId(testId)));
+			By locator = By.cssSelector(createTestIdSelector().concat(" ").concat(createTestIdSelector(testId)));
 			wd().cmd().click().on(locator);
 			wd().wait(locator);
 			m_current = testId;
@@ -52,7 +49,7 @@ public class TabPO extends BasePO {
 	}
 
 	public Pair<String, String> getCurrentlyOpenTab() {
-		var selected = wd().findElement(By.cssSelector(createTestId(m_id + " .ui-tab-sel")));
+		var selected = wd().findElement(By.cssSelector(createTestIdSelector()+ " .ui-tab-sel"));
 		if(selected == null) {
 			throw new IllegalStateException("Cant find selected tab?");
 		}
@@ -64,7 +61,7 @@ public class TabPO extends BasePO {
 	 * @returns a map, where key is the testId of the tab and value is the label.
 	 */
 	public Map<String, String> getTabs() {
-		var elements = wd().findElements(By.cssSelector(createTestId(m_id) + " .ui-tab-hdr li"));
+		var elements = wd().findElements(By.cssSelector(createTestIdSelector() + " .ui-tab-hdr li"));
 		return elements.stream().collect(toMap(x->x.getAttribute("testId"), x->x.getText()));
 	}
 

@@ -584,7 +584,7 @@ final public class Page implements IQContextContainer {
 		return initial + "_" +v;
 	}
 
-	public void dealocateTestId(@NonNull String testId) {
+	public void deallocateTestId(@NonNull String testId) {
 		m_testIdMap.remove(testId);
 	}
 

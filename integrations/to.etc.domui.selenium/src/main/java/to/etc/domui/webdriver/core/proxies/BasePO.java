@@ -1,6 +1,7 @@
-package to.etc.domui.webdriver.core.base;
+package to.etc.domui.webdriver.core.proxies;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.openqa.selenium.JavascriptExecutor;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 @NonNullByDefault
@@ -15,7 +16,10 @@ public abstract class BasePO {
 		return m_wd;
 	}
 
-	protected static String createTestId(String testId) {
-		return "*[testId='".concat(testId).concat("']");
+	protected JavascriptExecutor getJsExecutor() {
+		if(wd().driver() instanceof JavascriptExecutor) {
+			return (JavascriptExecutor) wd().driver();
+		}
+		throw new IllegalStateException("Browser does not support javascript");
 	}
 }
