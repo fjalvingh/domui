@@ -18,6 +18,7 @@ import to.etc.domui.dom.html.Div
 import to.etc.domui.dom.html.IControl
 import to.etc.domui.dom.html.NodeBase
 import to.etc.domui.dom.html.Span
+import to.etc.domui.util.IRenderInto
 import to.etc.webapp.query.QOperation
 import java.util.function.Supplier
 
@@ -39,7 +40,10 @@ class ConditionPanel<T, F>(val model: IConditionModel<T, F>) : Div("ui-copa") {
 	 */
 	var fieldSelectorFactory: Supplier<IControl<F>> = object: Supplier<IControl<F>> {
 		override fun get(): IControl<F> {
-			return ComboLookup2<F>(model.getFields(), "name")
+			val lo = ComboLookup2<F>(model.getFields())
+			lo.renderer = IRenderInto { node, va -> node.add(model.fieldName(va)) }
+			return lo
+
 		}
 	}
 
