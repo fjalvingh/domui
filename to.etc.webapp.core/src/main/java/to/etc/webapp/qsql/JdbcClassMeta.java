@@ -24,9 +24,15 @@
  */
 package to.etc.webapp.qsql;
 
-import java.util.*;
+import to.etc.util.ClassUtil;
+import to.etc.util.PropertyInfo;
 
-import to.etc.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Metadata for a JDBC accessible class.
@@ -128,9 +134,6 @@ public class JdbcClassMeta {
 
 	/**
 	 * Decode all metadata for this property.
-	 * @param pi
-	 * @return
-	 * @throws Exception
 	 */
 	private JdbcPropertyMeta evaluateProperty(PropertyInfo pi) throws Exception {
 		if(pi.getGetter() == null) // Writeonly not accepted

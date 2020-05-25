@@ -24,11 +24,12 @@ import java.util.Collection;
 @NonNullByDefault
 public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<DefaultClassMetaModel, DefaultPropertyMetaModel<?>> {
 	@Override public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm, @NonNull DefaultPropertyMetaModel<?> pmm) throws Exception {
-		Annotation[] annar = pmm.getDescriptor().getGetter().getAnnotations();
-		for(Annotation an : annar) {
-			String ana = an.annotationType().getName();
-			decodePropertyAnnotationByName(cmm, pmm, an, ana);
-			//decodePropertyAnnotation(colli, pmm, an);
+		for(Object aobj : pmm.getAnnotations()) {
+			if(aobj instanceof Annotation) {
+				Annotation an = (Annotation) aobj;
+				String ana = an.annotationType().getName();
+				decodePropertyAnnotationByName(cmm, pmm, an, ana);
+			}
 		}
 
 		//-- If we have a private field with the name it can have annotations too (Java sucks, and the idiots that allow this (hibernate, Spring) suck even more).
@@ -113,8 +114,6 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 	/**
 	 * Generically decode a JPA javax.persistence.Column annotation.
 	 * FIXME Currently only single-column properties are supported.
-	 * @param pmm
-	 * @param an
 	 */
 	protected void decodeJpaColumn(@NonNull DefaultPropertyMetaModel< ? > pmm, @NonNull final Annotation an) {
 		try {
@@ -152,8 +151,6 @@ public class MIBasicPropertyAnnotations implements IPropertyMetaProvider<Default
 
 	/**
 	 * Generically decode a JPA  javax.persistence.JoinColumn annotation.
-	 * @param pmm
-	 * @param an
 	 */
 	protected void decodeJpaJoinColumn(@NonNull DefaultPropertyMetaModel< ? > pmm, @NonNull final Annotation an) {
 		try {

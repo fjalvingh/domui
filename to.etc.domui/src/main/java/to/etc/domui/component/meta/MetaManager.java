@@ -187,44 +187,6 @@ final public class MetaManager {
 		return pmm;
 	}
 
-	///**
-	// * Handles the permission sets like "viewpermission" and "editpermission". If
-	// * the array contains null the field can be seen by all users. If it has a value
-	// * the first-level array is a set of ORs; the second level are ANDs. Meaning that
-	// * an array in the format:
-	// * <pre>
-	// * { {"admin"}
-	// * , {"editroles", "user"}
-	// * , {"tester"}
-	// * };
-	// * </pre>
-	// * this means that the field is visible for a user with the roles:
-	// * <pre>
-	// * 	"admin" OR "tester" OR ("editroles" AND "user")
-	// * </pre>
-	// */
-	//static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
-	//	if(roleset == null)
-	//		return true; // No restrictions
-	//
-	//	IUser user = UIContext.getCurrentUser();
-	//	if(null == user)
-	//		return false;
-	//	for(String[] orset : roleset) {
-	//		boolean ok = true;
-	//		for(String perm : orset) {
-	//			if(!user.hasRight(perm)) {
-	//				ok = false;
-	//				break;
-	//			}
-	//		}
-	//		//-- Were all "AND" conditions true then accept
-	//		if(ok)
-	//			return true;
-	//	}
-	//	return false;
-	//}
-
 	static private IRenderInto<?> createComboLabelRenderer(Class<? extends ILabelStringRenderer<?>> lsr) {
 		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
 		return (IRenderInto<Object>) (node, object) -> {

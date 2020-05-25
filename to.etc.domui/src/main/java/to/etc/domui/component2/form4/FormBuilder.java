@@ -1,5 +1,6 @@
 package to.etc.domui.component2.form4;
 
+import kotlin.reflect.KProperty0;
 import kotlin.reflect.KProperty1;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -259,14 +260,14 @@ final public class FormBuilder {
 	 * are available on the KProperty0 they are not in the correct form, so we would need to largely
 	 * re write the annotation discovery logic.
 	 */
-	//@NotNull
-	//public <V> TypedControlBuilder<?, V> property(@NonNull KProperty0<V> propertyRef) {
-	//	check();
-	//
-	//	TypedControlBuilder<?, V> builder = new TypedControlBuilder<>(MetaManager.getPropertyMeta(propertyRef));
-	//	m_currentBuilder = builder;
-	//	return builder;
-	//}
+	@NotNull
+	public <V> TypedControlBuilder<?, V> property(@NonNull KProperty0<V> propertyRef) {
+		check();
+
+		TypedControlBuilder<?, V> builder = new TypedControlBuilder<>(MetaManager.getPropertyMeta(propertyRef));
+		m_currentBuilder = builder;
+		return builder;
+	}
 
 	/**
 	 * Reference to a Kotlin property itself, i.e. ClassName::property.
