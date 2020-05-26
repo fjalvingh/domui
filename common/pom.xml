@@ -33,6 +33,7 @@
     <description>Common shared code</description>
 
     <modules>
+        <module>ecj-compiler</module>
         <module>annotations</module>
         <module>property-annotation-processor</module>
         <module>to.etc.logger</module>

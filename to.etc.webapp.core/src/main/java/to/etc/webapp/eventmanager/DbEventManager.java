@@ -52,6 +52,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeoutException;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * <h1>Overview</h1>
  * <p>This is an implementation of an event manager. It will handle two
@@ -424,7 +426,7 @@ public class DbEventManager implements Runnable {
 		if(inJUnitTestMode())
 			return;
 
-		synchronized(m_instance) {
+		synchronized(requireNonNull(m_instance)) {
 			if(m_handlerThread != null)
 				return;
 			m_handlerThread = new Thread(this);

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!--	<parent>-->
+<!--		<artifactId>common</artifactId>-->
+<!--		<groupId>to.etc</groupId>-->
+<!--		<version>1.2-SNAPSHOT</version>-->
+<!--	</parent>-->
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>to.etc</groupId>
+	<artifactId>ecj-compiler</artifactId>
+	<version>1.2-SNAPSHOT</version>
+
+	<name>DomUI # common # ecj compiler</name>
+	<description>The ecj compiler version to use for the build</description>
+
+	<!-- This horrible jokefest is needed to just get a jar inside Maven. What a trainwreck. -->
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-install-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>install-binary-ecj</id>
+						<goals>
+							<goal>install-file</goal>
+						</goals>
+						<phase>compile</phase>
+						<configuration>
+							<file>${basedir}/ecj-4.16M3.jar</file>
+							<repositoryLayout>default</repositoryLayout>
+							<groupId>org.eclipse.jdt</groupId>
+							<artifactId>ecj</artifactId>
+							<version>1.2-SNAPSHOT</version>
+							<packaging>jar</packaging>
+							<generatePom>false</generatePom>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+
+</project>
