@@ -41,11 +41,8 @@ import to.etc.util.PropertyInfo;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -54,10 +51,22 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	@NonNull
 	private final DefaultClassMetaModel m_classModel;
 
+	@NonNull
+	private final IPropertyModelAccessor<T> m_accessor;
+
+	@NonNull
+	private final Class<?> m_actualType;
+
+	@NonNull
+	private final Type m_genericActualType;
+
 	@Nullable
 	private ClassMetaModel m_valueModel;
 
-	private final PropertyInfo m_descriptor;
+	@NonNull
+	private String m_name;
+
+	//private final PropertyInfo m_descriptor;
 
 	private int m_length = -1;
 
@@ -122,32 +131,34 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	@NonNull
 	private List<SearchPropertyMetaModel> m_lookupFieldKeySearchProperties = Collections.EMPTY_LIST;
 
-	public DefaultPropertyMetaModel(@NonNull final DefaultClassMetaModel classModel, final PropertyInfo descriptor, ClassMetaModel valueModel) {
+	public DefaultPropertyMetaModel(@NonNull DefaultClassMetaModel classModel, PropertyInfo descriptor, ClassMetaModel valueModel) {
 		if(classModel == null)
 			throw new IllegalStateException("Cannot be null dude");
+		m_accessor = new JavaPropertyAccessor<>(descriptor);
 		m_valueModel = valueModel;
 		m_classModel = classModel;
-		m_descriptor = descriptor;
+		m_name = descriptor.getName();
+		m_actualType = descriptor.getActualType();
+		m_genericActualType = descriptor.getActualGenericType();
 		if(descriptor.getSetter() == null) {
 			setReadOnly(YesNoType.YES);
 		}
 	}
 
-
-	public DefaultPropertyMetaModel(@NonNull final DefaultClassMetaModel classModel, final PropertyInfo descriptor) {
+	public DefaultPropertyMetaModel(@NonNull DefaultClassMetaModel classModel, PropertyInfo descriptor) {
 		this(classModel, descriptor, null);
 	}
 
 	@NonNull
 	@Override
 	public String getName() {
-		return m_descriptor.getName();
+		return m_name;
 	}
 
 	@NonNull
 	@Override
 	public Class<T> getActualType() {
-		return (Class<T>) m_descriptor.getActualType();
+		return (Class<T>) m_actualType;
 	}
 
 	@Override
@@ -158,20 +169,15 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	@Override
 	public Type getGenericActualType() {
-		Method m = m_descriptor.getGetter();
-		return m.getGenericReturnType();
+		return m_genericActualType;
 	}
 
 	@Override
-	public void setValue(Object target, T value) throws Exception {
-		if(target == null)
-			throw new IllegalStateException("The 'target' object is null");
-		Method setter = m_descriptor.getSetter();
-		if(setter == null)
-			throw new IllegalAccessException("The property " + this + " is read-only.");
+	public void setValue(Object targetInstance, T value) throws Exception {
+		if(targetInstance == null)
+			throw new IllegalStateException("The 'target' instance object is null");
 		try {
-			setter.setAccessible(true);
-			setter.invoke(target, value);
+			m_accessor.setValue(targetInstance, value);
 		} catch(InvocationTargetException itx) {
 			Throwable c = itx.getCause();
 //			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
@@ -182,30 +188,21 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 			else
 				throw itx;
 		} catch(IllegalArgumentException x) {
-			throw new PropertyValueInvalidException(value, target, this);
+			throw new PropertyValueInvalidException(value, targetInstance, this);
 		} catch(Exception x) {
 //			System.err.println("(in calling " + setter + " with input object " + target + " and value " + value + ")");
 			throw x;
 		}
 	}
 
-	@Override public boolean isReadOnly() {
-		return m_descriptor.getSetter() == null || getReadOnly() == YesNoType.YES;
-	}
-
 	/**
 	 * Retrieve the value from this object. If the input object is null
 	 * this throws IllegalStateException.
-	 *
-	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
 	 */
 	@Override
-	public T getValue(Object in) throws Exception {
-		if(in == null)
-			throw new IllegalStateException("The 'input' object is null (getter method=" + m_descriptor.getGetter() + ")");
+	public T getValue(Object targetInstance) throws Exception {
 		try {
-			m_descriptor.getGetter().setAccessible(true);
-			return (T) m_descriptor.getGetter().invoke(in);
+			return m_accessor.getValue(targetInstance);
 		} catch(InvocationTargetException itx) {
 //			System.err.println(itx + " (in calling " + m_descriptor.getGetter() + " with input object " + in + ")");
 			Throwable c = itx.getCause();
@@ -217,10 +214,14 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 				throw itx;
 		} catch(Exception x) {
 			try {
-				System.err.println(x + " in calling " + m_descriptor.getGetter() + " with input object " + in);
+				System.err.println(x + " in calling getter for property " + m_name + " with input object " + targetInstance + "(" + m_accessor + ")");
 			} catch(Exception xx) {}
 			throw x;
 		}
+	}
+
+	@Override public boolean isReadOnly() {
+		return !m_accessor.isMutable() || getReadOnly() == YesNoType.YES;
 	}
 
 	@Override
@@ -240,7 +241,6 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	 * FIXME Needs to be filled in by some kind of factory, not in this thingy directly!!
 	 * For enum and boolean property types this returns the possible values for the domain. Booleans
 	 * always return Boolean.TRUE and Boolean.FALSE; enums return all enum values.
-	 * @return
 	 */
 	@Override
 	public Object[] getDomainValues() {
@@ -354,12 +354,9 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 
 	@Override
 	public String toString() {
-		return getClassModel().getActualClass().getName() + "." + m_descriptor.getName() + "[" + getActualType().getName() + "]";
+		return getClassModel().getActualClass().getName() + "." + m_name + "[" + getActualType().getName() + "]";
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Class< ? extends IRenderInto<T>> getLookupSelectedRenderer() {
 		return m_lookupFieldRenderer;
@@ -369,9 +366,6 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		m_lookupFieldRenderer = lookupFieldRenderer;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@NonNull
 	@Override
 	public List<DisplayPropertyMetaModel> getLookupSelectedProperties() {
@@ -382,9 +376,6 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		m_lookupFieldDisplayProperties = lookupFieldDisplayProperties;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@NonNull
 	public List<DisplayPropertyMetaModel> getLookupTableProperties() {
@@ -395,9 +386,6 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		m_lookupFieldTableProperties = lookupFieldTableProperties;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@NonNull
 	public List<SearchPropertyMetaModel> getLookupFieldSearchProperties() {
@@ -408,9 +396,6 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		m_lookupFieldSearchProperties = lookupFieldSearchProperties;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@NonNull
 	public List<SearchPropertyMetaModel> getLookupFieldKeySearchProperties() {
@@ -421,9 +406,6 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 		m_lookupFieldKeySearchProperties = lookupFieldKeySearchProperties;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Nullable
 	@Override
 	public String getComponentTypeHint() {
@@ -446,37 +428,20 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 	/**
 	 * This basic implementation returns annotations on the "getter" method of the property, if
 	 * available.
-	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotation(java.lang.Class)
 	 */
 	@Override
 	@Nullable
-	public <A> A getAnnotation(@NonNull Class<A> annclass) {
-		if(Annotation.class.isAssignableFrom(annclass) && m_descriptor != null && m_descriptor.getGetter() != null) {
-			Class< ? extends Annotation> aclz = (Class< ? extends Annotation>) annclass;
-
-			return (A) m_descriptor.getGetter().getAnnotation(aclz);
-		}
-		return null;
+	public <A> A getAnnotation(@NonNull Class<A> annClass) {
+		return m_accessor.getAnnotation(annClass);
 	}
 
 	/**
 	 * This basic implementation returns all annotations on the "getter" method of the property,
 	 * if available. It returns the empty list if nothing is found.
-	 * @see to.etc.domui.component.meta.PropertyMetaModel#getAnnotations()
 	 */
 	@Override
 	@NonNull
 	public List<Object> getAnnotations() {
-		if(m_descriptor != null && m_descriptor.getGetter() != null) {
-			@NonNull
-			List<Object> res = Arrays.asList((Object[]) m_descriptor.getGetter().getAnnotations());
-			return res;
-		}
-		return Collections.emptyList();
-	}
-
-	@NonNull
-	public PropertyInfo getDescriptor() {
-		return m_descriptor;
+		return m_accessor.getAnnotations();
 	}
 }

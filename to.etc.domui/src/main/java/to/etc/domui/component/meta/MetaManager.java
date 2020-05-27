@@ -24,6 +24,8 @@
  */
 package to.etc.domui.component.meta;
 
+import kotlin.reflect.KProperty0;
+import kotlin.reflect.KProperty1;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.input.ValueLabelPair;
@@ -105,8 +107,6 @@ final public class MetaManager {
 
 	/**
 	 * Get the metamodel for some metadata-defined object.
-	 * @param mc
-	 * @return
 	 */
 	@NonNull
 	static public ClassMetaModel findClassMeta(@NonNull IMetaClass mc) {
@@ -153,6 +153,24 @@ final public class MetaManager {
 		return pmm;
 	}
 
+	/**
+	 * Find metadata for a class-level Kotlin property.
+	 */
+	@NonNull
+	static public <V> PropertyMetaModel<V> getPropertyMeta(Class<?> clz, KProperty1<?, V> ref) {
+		return (PropertyMetaModel<V>) getPropertyMeta(clz, ref.getName());
+	}
+
+	/**
+	 * Find metadata for a property-only Kotlin property. These are properties that represent an actual instance
+	 * value inside them, and that instance cannot be obtained, sigh.
+	 */
+	public static <V> PropertyMetaModel<V> getPropertyMeta(KProperty0<V> propertyRef) {
+
+
+		return null;
+	}
+
 	@NonNull
 	static public <V> PropertyMetaModel<V> getPropertyMeta(Class<?> clz, QField<?, V> name) {
 		PropertyMetaModel<V> pmm = findPropertyMeta(clz, name);
@@ -168,44 +186,6 @@ final public class MetaManager {
 			throw new ProgrammerErrorException("The property '" + clz + "." + name + "' is not known.");
 		return pmm;
 	}
-
-	///**
-	// * Handles the permission sets like "viewpermission" and "editpermission". If
-	// * the array contains null the field can be seen by all users. If it has a value
-	// * the first-level array is a set of ORs; the second level are ANDs. Meaning that
-	// * an array in the format:
-	// * <pre>
-	// * { {"admin"}
-	// * , {"editroles", "user"}
-	// * , {"tester"}
-	// * };
-	// * </pre>
-	// * this means that the field is visible for a user with the roles:
-	// * <pre>
-	// * 	"admin" OR "tester" OR ("editroles" AND "user")
-	// * </pre>
-	// */
-	//static public boolean isAccessAllowed(String[][] roleset, IRequestContext ctx) {
-	//	if(roleset == null)
-	//		return true; // No restrictions
-	//
-	//	IUser user = UIContext.getCurrentUser();
-	//	if(null == user)
-	//		return false;
-	//	for(String[] orset : roleset) {
-	//		boolean ok = true;
-	//		for(String perm : orset) {
-	//			if(!user.hasRight(perm)) {
-	//				ok = false;
-	//				break;
-	//			}
-	//		}
-	//		//-- Were all "AND" conditions true then accept
-	//		if(ok)
-	//			return true;
-	//	}
-	//	return false;
-	//}
 
 	static private IRenderInto<?> createComboLabelRenderer(Class<? extends ILabelStringRenderer<?>> lsr) {
 		final ILabelStringRenderer<Object> lr = (ILabelStringRenderer<Object>) DomApplication.get().createInstance(lsr);
@@ -982,4 +962,5 @@ final public class MetaManager {
 		bd = bd.subtract(fraction);
 		return new MaxMinValidator(bd.negate(), bd);
 	}
+
 }

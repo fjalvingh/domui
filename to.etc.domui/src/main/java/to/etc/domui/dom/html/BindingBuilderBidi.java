@@ -64,10 +64,10 @@ final public class BindingBuilderBidi<CV> {
 		return to(ref.getInstance(), ref.getProperty(), converter);
 	}
 
-	public <M, MV> ComponentPropertyBindingBidi<?, CV, M, MV> to(@NonNull M instance, @NonNull String property) throws Exception {
+	public <M> ComponentPropertyBindingBidi<?, CV, M, ?> to(@NonNull M instance, @NonNull String property) throws Exception {
 		if(instance == null || property == null)
 			throw new IllegalArgumentException("The instance in a component bind request CANNOT be null!");
-		return to(instance, (PropertyMetaModel<MV>) MetaManager.getPropertyMeta(instance.getClass(), property));
+		return to(instance, (PropertyMetaModel<?>) MetaManager.getPropertyMeta(instance.getClass(), property));
 	}
 
 	public <M, MV> ComponentPropertyBindingBidi<?, CV, M, MV> to(@NonNull M instance, @NonNull String property, @Nullable IBidiBindingConverter<CV, MV> converter) throws Exception {

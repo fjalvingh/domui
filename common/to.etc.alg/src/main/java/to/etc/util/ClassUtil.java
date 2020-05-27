@@ -36,6 +36,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
@@ -232,7 +233,12 @@ final public class ClassUtil {
 			}
 			//			if(setter == null) jal 20100205 read-only properties should be allowed explicitly.
 			//				continue;
-			res.add(new PropertyInfo(name, i.getter, setter));
+
+			Class<?> resolvedPropertyType = findGenericGetterType(cl, i.getter);
+			if(resolvedPropertyType == null)
+				resolvedPropertyType = i.getter.getReturnType();
+
+			res.add(new PropertyInfo(name, i.getter, setter, resolvedPropertyType));
 		}
 		return res;
 	}
@@ -703,6 +709,112 @@ final public class ClassUtil {
 			calculateAllFields(all, clz.getSuperclass());
 		}
 	}
+
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Generics resolution methods.								*/
+	/*----------------------------------------------------------------------*/
+
+	@Nullable
+	public static Class<?> findGenericGetterType(Class<?> instanceClass, Method getter) {
+		Type grt = getter.getGenericReturnType();
+		if(grt instanceof Class) {
+			return (Class<?>) grt;
+		}
+
+		//-- If it is a method type parameter then we don't know the type.
+		for(TypeVariable<Method> typeParameter : getter.getTypeParameters()) {
+			if(typeParameter.toString().equals(grt.toString())) {
+				return null;
+			}
+		}
+
+		var dcl = findSubClassParameterType(instanceClass, getter.getDeclaringClass(), grt);
+		return dcl;
+	}
+
+	@Nullable
+	public static Class<?> findSubClassParameterType(Class<?> instanceClass, Class<?> classOfInterest, Type valueType) {
+		Map<Type, Type> typeMap = new HashMap<Type, Type>();
+		do {
+			extractTypeArguments(typeMap, instanceClass);
+			instanceClass = instanceClass.getSuperclass();
+			if(instanceClass == null)
+				return null;									// Subclass containing classOfInterest not found
+		} while(classOfInterest != instanceClass);
+
+		//ParameterizedType parameterizedType = (ParameterizedType) instanceClass.getGenericSuperclass();
+		Type actualType = valueType;
+		if(typeMap.containsKey(actualType)) {
+			actualType = typeMap.get(actualType);
+		}
+		if(actualType instanceof Class) {
+			return (Class<?>) actualType;
+		}
+		return null;
+	}
+
+
+	/**
+	 * Creates a map of (formal, actual) types for a class. The actual can also be a type name (like T).
+	 */
+	private static void extractTypeArguments(Map <Type, Type> typeMap, Class <?> clazz) {
+		Type genericSuperclass = clazz.getGenericSuperclass();
+		if(!(genericSuperclass instanceof ParameterizedType)) {
+			return;
+		}
+
+		ParameterizedType parameterizedType = (ParameterizedType) genericSuperclass;
+		Type[] typeParameter = ((Class<?>) parameterizedType.getRawType()).getTypeParameters();
+		Type[] actualTypeArgument = parameterizedType.getActualTypeArguments();
+		for(int i = 0; i < typeParameter.length; i++) {
+			if(typeMap.containsKey(actualTypeArgument[i])) {
+				actualTypeArgument[i] = typeMap.get(actualTypeArgument[i]);
+			}
+			typeMap.put(typeParameter[i], actualTypeArgument[i]);
+		}
+	}
+
+
+	/**
+	 * Only works when the option
+	 * <pre>
+	 *     --add-opens java.base/jdk.internal.loader=ALL-UNNAMED
+	 * </pre>
+	 *
+	 * is added to the runtime, because the idiots defining Java 9 could not
+	 * get it into their tiny brain that there are legitimate reasons to
+	 * want to know the jars that build the classpath - despite their
+	 * horror of a module system.
+	 */
+	static public List<URL> findClassloaderURLs_JAVA11_ONLYWITHOPTION(Class<?> root) {
+		ClassLoader cl = root.getClassLoader();
+		List<URL> res = new ArrayList<>();
+		collectUrls(res, cl);
+		for(URL re : res) {
+			System.out.println(re.toString());
+		}
+		return res;
+	}
+
+	static private void collectUrls(List<URL> res, ClassLoader cl) {
+		try {
+			Field ucp = cl.getClass().getDeclaredField("ucp");		// Fuck the morons that fucked this up
+			ucp.setAccessible(true);
+			Object path = ucp.get(cl);										// Also hidden. Fuck them again.
+			Field listField = path.getClass().getDeclaredField("path");
+			listField.setAccessible(true);
+			List<URL> list = (List<URL>) listField.get(path);
+			res.addAll(list);
+		} catch(Exception x) {
+			x.printStackTrace();
+		}
+		ClassLoader parent = cl.getParent();
+		if(parent == null || parent == cl)
+			return;
+		collectUrls(res, parent);
+	}
+
 
 
 }

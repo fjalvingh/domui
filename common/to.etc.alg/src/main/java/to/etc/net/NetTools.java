@@ -38,6 +38,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.URL;
 
 /**
@@ -459,4 +460,26 @@ final public class NetTools {
 		HttpCallException hcx = new HttpCallException(url, huc.getResponseCode(), huc.getResponseMessage());
 		return hcx;
 	}
+
+	static public boolean ping(InetAddress addr) {
+		//-- 1. Try isReachable
+		try {
+			if(addr.isReachable(5))
+				return true;
+		} catch(Exception x) {
+		}
+		return false;
+	}
+
+	static public boolean isPortOpen(InetAddress addr, int port) {
+		try(Socket s = new Socket(addr, port)) {
+			return true;
+		} catch (Exception x) {
+			return false;
+		}
+	}
+
+
+
+
 }

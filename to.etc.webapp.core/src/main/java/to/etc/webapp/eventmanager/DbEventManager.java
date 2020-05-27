@@ -48,6 +48,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.TimeoutException;
@@ -361,14 +362,21 @@ public class DbEventManager implements Runnable {
 					seq = "create sequence " + m_tableName + "_SQ start with 1 increment by 1";
 					break;
 			}
+
 			ps = dbc.prepareStatement(tbl);
 			ps.executeUpdate();
 			ps.close();
+			dbc.commit();
 
 			//-- Create the sequence,
-			ps = dbc.prepareStatement(seq);
-			ps.executeUpdate();
-			dbc.commit();
+			try {
+				ps = dbc.prepareStatement(seq);
+				ps.executeUpdate();
+				ps.close();
+				dbc.commit();
+			} catch(Exception x) {
+				//-- ignore
+			}
 		} catch(Exception x) {
 			String msg = x.toString().toLowerCase();
 
@@ -426,7 +434,7 @@ public class DbEventManager implements Runnable {
 		if(inJUnitTestMode())
 			return;
 
-		synchronized(requireNonNull(m_instance)) {
+		synchronized(Objects.requireNonNull(m_instance)) {
 			if(m_handlerThread != null)
 				return;
 			m_handlerThread = new Thread(this);

@@ -430,10 +430,6 @@ final public class ConnectionPool {
 		if(c().getBinaryLogFile() != null)
 			setFileLogging(c().getBinaryLogFile());
 
-		String plsqldebug = DbPoolUtil.getPlSqlDebug(getID());
-		if(null != plsqldebug)
-			addPlSqlDebugHandler(plsqldebug);
-
 		//-- Now initialize the rest of the parameters and try to allocate a connection for testing pps.
 		try {
 			if(c().isSetlog())
@@ -458,6 +454,9 @@ final public class ConnectionPool {
 
 					case ORACLE:
 						connectionStatisticsFactory = new OracleConnectionStatisticsFactory();
+						String plsqldebug = DbPoolUtil.getPlSqlDebug(getID());
+						if(null != plsqldebug)
+							addPlSqlDebugHandler(plsqldebug);
 						break;
 				}
 				m_connectionStatisticsFactory = connectionStatisticsFactory;
@@ -493,7 +492,6 @@ final public class ConnectionPool {
 	}
 
 	public void addPlSqlDebugHandler(@NonNull String plsqldebug) throws SQLException {
-
 		final HostAndPort hostAndPort = HostAndPort.parse(plsqldebug);
 
 		synchronized(this) {
@@ -977,6 +975,11 @@ final public class ConnectionPool {
 		try {
 			if(!pe.getConnection().getAutoCommit())
 				pe.getConnection().rollback();
+
+			if(m_dbType == DbType.POSTGRES) {
+				resetPostgresConnection(pe.getConnection());
+			}
+
 			pe.getConnection().setAutoCommit(true);
 			ok = true;
 		} catch(SQLException ex) {
@@ -1032,6 +1035,13 @@ final public class ConnectionPool {
 
 			//-- If the code above was not OK we need to discard outside of the lock
 			discardEntry(pe);
+		}
+	}
+
+	private void resetPostgresConnection(Connection connection) throws SQLException {
+		connection.setAutoCommit(true);
+		try(Statement st = connection.createStatement()) {
+			st.executeUpdate("discard all");
 		}
 	}
 
@@ -1401,7 +1411,6 @@ final public class ConnectionPool {
 
 	/**
 	 * Callback from statement pxy when a call gets executed.
-	 * @param ppx
 	 */
 	void logExecution(final StatementProxy sp, final boolean batch, byte stmtType) {
 		writeStatement(sp, stmtType);

@@ -50,10 +50,12 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 	final private List<SearchPropertyMetaModel> m_keySearchList = new ArrayList<SearchPropertyMetaModel>();
 
 	@Override public void provide(@NonNull MetaInitContext context, @NonNull DefaultClassMetaModel cmm, @NonNull DefaultPropertyMetaModel<?> pmm) throws Exception {
-		Annotation[] annar = pmm.getDescriptor().getGetter().getAnnotations();
-		for(Annotation an : annar) {
-			String ana = an.annotationType().getName();
-			decodePropertyAnnotation(cmm, pmm, an);
+		for(Object aobj : pmm.getAnnotations()) {
+			if(aobj instanceof Annotation) {
+				Annotation an = (Annotation) aobj;
+				String ana = an.annotationType().getName();
+				decodePropertyAnnotation(cmm, pmm, an);
+			}
 		}
 	}
 

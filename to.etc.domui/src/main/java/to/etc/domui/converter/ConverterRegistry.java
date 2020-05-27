@@ -64,6 +64,7 @@ public class ConverterRegistry {
 		setDefaultFactory(new DefaultConverterFactory());
 		register(new DomainListConverterFactory()); // Accepts anything having domain value list
 		register(new DateConverterFactory());
+		register(new LocalDateTimeConverterFactory());
 		register(new MoneyConverterFactory());
 		register(new NumberConverterFactory());
 		register(new DoubleFactory()); // Low-level Double converters (numeric only)
@@ -76,8 +77,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Get an instance of a given converter type. Instances are cached and reused.
-	 * @param clz
-	 * @return
 	 */
 	@NonNull
 	static public synchronized <X, T extends IConverter<X>> T getConverterInstance(@NonNull Class<T> clz) {
@@ -95,11 +94,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Convert a String value to some object, using the specified converter.
-	 * @param clz
-	 * @param loc
-	 * @param in
-	 * @return
-	 * @throws Exception
 	 */
 	static public <X, T extends IConverter<X>> X convertStringToValue(Class<T> clz, Locale loc, String in) throws Exception {
 		IConverter<X> c = getConverterInstance(clz);
@@ -108,11 +102,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Convert some object to a String value, using the specified converter.
-	 * @param clz
-	 * @param loc
-	 * @param in
-	 * @return
-	 * @throws Exception
 	 */
 	static public <X, T extends IConverter<X>> String convertValueToString(Class<T> clz, Locale loc, X in) throws Exception {
 		IConverter<X> c = getConverterInstance(clz);
@@ -121,11 +110,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Convert a String value to some object, using the specified converter. This uses the "current" locale.
-	 *
-	 * @param clz
-	 * @param in
-	 * @return
-	 * @throws Exception
 	 */
 	static public <X, T extends IConverter<X>> X convertStringToValue(Class<T> clz, String in) throws Exception {
 		T c = getConverterInstance(clz);
@@ -135,11 +119,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Convert some object to a String value, using the specified converter. This uses the "current" locale.
-	 *
-	 * @param clz
-	 * @param in
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	static public <X, T extends IConverter<X>> String convertValueToString(Class<T> clz, X in) throws Exception {
@@ -160,9 +139,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Register an URL converter for the specified class.
-	 *
-	 * @param totype
-	 * @param c
 	 */
 	static public synchronized <X> void registerURLConverter(Class<X> totype, IConverter<X> c) {
 		if(null != m_urlConverterMap.put(totype, c))
@@ -172,9 +148,6 @@ public class ConverterRegistry {
 	/**
 	 * Finds an URL converter for the specified target type. This walks the target type's hierarchy to
 	 * allow for supertypes and interfaces to be registered and found.
-	 *
-	 * @param totype
-	 * @return
 	 */
 	static private synchronized <X> IConverter<X> calculateURLConverter(Class<X> totype) {
 		Class< ? > ctype = totype;
@@ -218,8 +191,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Find an URL converter to convert to the given type.
-	 * @param totype
-	 * @return
 	 */
 	static public synchronized <X> IConverter<X> findURLConverter(Class<X> totype) {
 		IConverter<X> c = (IConverter<X>) m_urlConverterMap.get(totype);
@@ -232,10 +203,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Convert the URL string passed to some object value.
-	 * @param toType
-	 * @param svalue
-	 * @return
-	 * @throws Exception
 	 */
 	static public <X> X convertURLStringToValue(Class<X> toType, String svalue) throws Exception {
 		IConverter<X> c = findURLConverter(toType);
@@ -266,7 +233,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Return a thread-safe copy of the factory list.
-	 * @return
 	 */
 	static synchronized private List<IConverterFactory> getFactoryList() {
 		return m_factoryList;
@@ -275,8 +241,6 @@ public class ConverterRegistry {
 	/**
 	 * Returns the "default" converter factory, which returns the "factory of last resort"; this one converts
 	 * everything by using toString(), and does not convert anything back.
-	 *
-	 * @return
 	 */
 	static synchronized IConverterFactory getDefaultFactory() {
 		return m_defaultConverterFactory;
@@ -284,7 +248,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Replaces the default factory (converter of last resort) - USE WITH CARE, OR BETTER YET - DO NOT USE AT ALL!!
-	 * @param f
 	 */
 	static synchronized void setDefaultFactory(IConverterFactory f) {
 		if(f == null)
@@ -300,9 +263,6 @@ public class ConverterRegistry {
 	/**
 	 * Finds the best factory to use. Returns null if no factory was found.
 	 * <p>jal 20091118 Per-class factory cache removed because more than just class is used to determine the factory to use.</p>
-	 * @param clz
-	 * @param pmm
-	 * @return
 	 */
 	static private IConverterFactory findFactory(Class< ? > clz, PropertyMetaModel< ? > pmm) {
 		synchronized(ConverterRegistry.class) {
@@ -328,9 +288,6 @@ public class ConverterRegistry {
 	/**
 	 * Like {@link #findFactory(Class, PropertyMetaModel), but never returns null; this returns the default converter
 	 * factory if no specific one is found.
-	 * @param clz
-	 * @param pmm
-	 * @return
 	 */
 	static private IConverterFactory getFactory(Class< ? > clz, PropertyMetaModel< ? > pmm) {
 		IConverterFactory cf = findFactory(clz, pmm);
@@ -380,10 +337,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Convert the value which is for a given property to a presentation string.
-	 * @param <X>
-	 * @param pmm
-	 * @param value
-	 * @return
 	 */
 	static public <X> String convertToString(PropertyMetaModel<X> pmm, X value) {
 		IConverter<X> conv = getConverter(pmm.getActualType(), pmm);
@@ -392,8 +345,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Obtain the very best presentation converter we can find for the specified property.
-	 * @param pmm
-	 * @return
 	 */
 	static public <X> IConverter<X> findBestConverter(PropertyMetaModel<X> pmm) {
 		//-- User specified converters always override anything else.
@@ -428,8 +379,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Register a comparator for a given type.
-	 * @param valueClass
-	 * @param comp
 	 */
 	static synchronized public <T> void registerComparator(@NonNull Comparator<T> comp, Class< ? >... valueClass) {
 		m_comparatorMap = new HashMap<Class< ? >, Comparator< ? >>(m_comparatorMap);
@@ -441,13 +390,6 @@ public class ConverterRegistry {
 		return m_comparatorMap;
 	}
 
-	/**
-	 *
-	 * @param dataClass
-	 * @param property
-	 * @param descending
-	 * @return
-	 */
 	static public <T> Comparator<T> getComparator(@NonNull Class<T> dataClass, @NonNull String property, boolean descending) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(dataClass);
 		return (Comparator<T>) getComparator(cmm, property, descending);
@@ -488,8 +430,6 @@ public class ConverterRegistry {
 
 	/**
 	 * Find a comparator for a given type.
-	 * @param actualType
-	 * @return
 	 */
 	public static Comparator< ? > findComparatorForType(Class<?> actualType) {
 		Class<?> t = actualType;

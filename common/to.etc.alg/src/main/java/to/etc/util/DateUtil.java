@@ -30,6 +30,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -226,9 +227,6 @@ final public class DateUtil {
 	 * Decodes a time string, encoded as hh:mm:ss.mmmm where ss.mmmm are optional. If
 	 * the field is invalid this returns -1, else it returns the #of ms representing
 	 * the time.
-	 *
-	 * @param time
-	 * @return
 	 */
 	static public long decodeTime(String timestring) {
 		if(timestring == null)
@@ -809,20 +807,26 @@ final public class DateUtil {
 		return date.getYear() >= 2999 - 1900;				// The incredible idiot that created getYear subtracts 1900 from it.
 	}
 
-	static public LocalDate localDateFromDate(@NonNull Date date) {
+	static public LocalDate toLocalDate(@NonNull Date date) {
 		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 	}
 
-	static public LocalDateTime localDateTimeFromDate(@NonNull Date date) {
+	static public LocalDateTime toLocalDateTime(@NonNull Date date) {
 		return date.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+	}
+
+	static public LocalDateTime toLocalDateTime(long millis) {
+		return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis), TimeZone.getDefault().toZoneId());
 	}
 
 	static public Date toDate(@NonNull LocalDateTime ldt) {
 		return Date.from(ldt.atZone( ZoneId.systemDefault()).toInstant());
 	}
+
 	static public Date toDate(@NonNull ZonedDateTime ldt) {
 		return Date.from(ldt.toInstant());
 	}
+
 }
 
 

@@ -24,7 +24,7 @@
         <jdk.version>14</jdk.version>
         <ecj.version>3.21.0</ecj.version>
         <!--<ecj.version>3.13.102</ecj.version>-->
-        <kotlin.version>1.3.60</kotlin.version>
+        <kotlin.version>1.3.70</kotlin.version>
 
         <!-- Plugin versions -->
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
@@ -199,7 +199,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.10.3</version>
+                <version>2.11.0</version>
             </dependency>
 
             <dependency>
@@ -560,37 +560,37 @@
         </developer>
     </developers>
 
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>${jdk.version}</source>
-                    <target>${jdk.version}</target>
-                </configuration>
-            </plugin>
+<!--    <reporting>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-compiler-plugin</artifactId>-->
+<!--                <version>3.1</version>-->
+<!--                <configuration>-->
+<!--                    <source>${jdk.version}</source>-->
+<!--                    <target>${jdk.version}</target>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>${maven-project-info-reports-plugin.version}</version>
-                <!--<reportSets>-->
-                    <!--<reportSet>-->
-                        <!--<reports>-->
-                            <!--<report>index</report>-->
-                            <!--<report>dependencies</report>-->
-                        <!--</reports>-->
-                    <!--</reportSet>-->
-                <!--</reportSets>-->
-                <configuration>
-                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                </configuration>
-            </plugin>
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-project-info-reports-plugin</artifactId>-->
+<!--                <version>${maven-project-info-reports-plugin.version}</version>-->
+<!--                &lt;!&ndash;<reportSets>&ndash;&gt;-->
+<!--                    &lt;!&ndash;<reportSet>&ndash;&gt;-->
+<!--                        &lt;!&ndash;<reports>&ndash;&gt;-->
+<!--                            &lt;!&ndash;<report>index</report>&ndash;&gt;-->
+<!--                            &lt;!&ndash;<report>dependencies</report>&ndash;&gt;-->
+<!--                        &lt;!&ndash;</reports>&ndash;&gt;-->
+<!--                    &lt;!&ndash;</reportSet>&ndash;&gt;-->
+<!--                &lt;!&ndash;</reportSets>&ndash;&gt;-->
+<!--                <configuration>-->
+<!--                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
 
-        </plugins>
-    </reporting>
+<!--        </plugins>-->
+<!--    </reporting>-->
 
     <!-- Create a special profile to sign jars for release. -->
     <build>
@@ -688,7 +688,7 @@
                     <systemPropertyVariables>
                         <webdriver.url>http://localhost:${jetty.http.port}/demo/</webdriver.url>
                         <domui.testui>true</domui.testui>
-                        <webdriver.hub>chrome-desktop</webdriver.hub>
+                        <webdriver.hub>chrome</webdriver.hub>
                     </systemPropertyVariables>
                 </configuration>
 
@@ -726,6 +726,12 @@
                     <autoReleaseAfterClose>false</autoReleaseAfterClose>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <version>${kotlin.version}</version>
+            </plugin>
         </plugins>
 
         <pluginManagement>
@@ -733,6 +739,41 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
+                </plugin>
+
+                <!-- Kotlin support. Warning: kotlin must be before maven-compiler-plugin -->
+                <!-- see https://kotlinlang.org/docs/reference/using-maven.html -->
+                <plugin>
+                    <artifactId>kotlin-maven-plugin</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <version>${kotlin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>compile</id>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirs>
+                                    <!--									<sourceDir>${project.basedir}/src/main/kotlin</sourceDir>-->
+                                    <sourceDir>${project.basedir}/src/main/java</sourceDir>
+                                    <sourceDir>${project.basedir}/target/generated-sources/antlr4</sourceDir>
+                                </sourceDirs>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>test-compile</id>
+                            <goals>
+                                <goal>test-compile</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirs>
+                                    <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                                    <sourceDir>${project.basedir}/src/test/java</sourceDir>
+                                </sourceDirs>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
 
                 <plugin>
@@ -743,6 +784,7 @@
                         <compilerId>eclipse</compilerId>
                         <source>${jdk.version}</source>
                         <target>${jdk.version}</target>
+
                         <!-- Passing arguments is a trainwreck, see https://issues.apache.org/jira/browse/MCOMPILER-123 -->
                         <compilerArgs>
                             <arg>-properties</arg>
@@ -750,7 +792,7 @@
                             <arg>-enableJavadoc</arg>
                         </compilerArgs>
 
-                        <showWarnings>true</showWarnings>
+                        <showWarnings>false</showWarnings>
                         <showDeprecation>true</showDeprecation>
                     </configuration>
 
@@ -772,12 +814,6 @@
                             <artifactId>ecj-compiler</artifactId>
                             <version>1.2-SNAPSHOT</version>
                         </dependency>
-
-                        <!--                        <dependency>-->
-<!--                            <groupId>org.eclipse.jdt</groupId>-->
-<!--                            <artifactId>ecj</artifactId>-->
-<!--                            <version>${ecj.version}</version>-->
-<!--                        </dependency>-->
                     </dependencies>
                 </plugin>
 
