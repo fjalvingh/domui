@@ -132,11 +132,17 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	public RadioButton<T> addButton(String text, T value) {
+		return addButton(text, value, null);
+	}
+
+	public RadioButton<T> addButton(String text, T value, @Nullable String title) {
 		Div d = new Div("ui-rbb-item");
 		add(d);
 		RadioButton<T> rb = new RadioButton<>(value);
 		d.add(rb);
-		d.add(new Label(rb, text));
+		Label label = new Label(rb, text);
+		d.add(label);
+		label.setTitle(title);
 		m_buttonList.add(rb);
 		rb.setDisabled(m_disabled);
 		rb.setReadOnly(m_readOnly);
