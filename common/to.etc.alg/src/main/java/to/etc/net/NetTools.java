@@ -27,6 +27,7 @@ package to.etc.net;
 import org.eclipse.jdt.annotation.NonNull;
 import org.w3c.dom.Document;
 import to.etc.util.FileTool;
+import to.etc.util.ProcessTools;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.xml.DomTools;
@@ -479,7 +480,18 @@ final public class NetTools {
 		}
 	}
 
-
-
-
+	public static boolean canPing(String host) {
+		try{
+			String cmd = System.getProperty("os.name").startsWith("Windows") ?  "ping -n 1 " + host : "ping -c 1 " + host;
+			Process p = Runtime.getRuntime().exec(cmd);
+			p.waitFor();
+			if(p.exitValue() == 0) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch( Exception e ) {
+			return false;
+		}
+	}
 }
