@@ -27,6 +27,7 @@ package to.etc.net;
 import org.eclipse.jdt.annotation.NonNull;
 import org.w3c.dom.Document;
 import to.etc.util.FileTool;
+import to.etc.util.ProcessTools;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.xml.DomTools;
@@ -479,7 +480,22 @@ final public class NetTools {
 		}
 	}
 
-
-
-
+	/**
+	 * Standard java implementation InetAddress.isReachable uses ICMP to determine if a host is reachable
+	 * Problem is, on linux, /usr/bin/ping is owned by root and has +rws, so java runtime needs permission for ICMP on port 7.
+	 * Usually, we don't run java as root, so standard ways do not work.
+	 * @see java.net.InetAddress#isReachable(int)
+	 * @param host
+	 * @return if it can ping
+	 */
+	public static boolean pingWithProcess(String host) {
+		try{
+			String cmd = System.getProperty("os.name").startsWith("Windows") ?  "ping -n 1 " + host : "ping -c 1 " + host;
+			Process p = Runtime.getRuntime().exec(cmd);
+			p.waitFor();
+			return p.exitValue() == 0;
+		} catch( Exception e ) {
+			return false;
+		}
+	}
 }
