@@ -34,6 +34,47 @@ import java.sql.*;
  * Created on Nov 2, 2010
  */
 final public class PoolConfig {
+
+	public static final String USERID = "userid";
+
+	public static final String PASSWORD = "password";
+
+	public static final String CHECKSQL = "checksql";
+
+	public static final String CHECK = "check";
+
+	public static final String MAXCONN = "maxconn";
+
+	public static final String MINCONN = "minconn";
+
+	public static final String LOGSTREAM = "logstream";
+
+	public static final String SQLTRACE = "sqltrace";
+
+	public static final String URL = "url";
+
+	public static final String DRIVER = "driver";
+
+	public static final String DRIVERPATH = "driverpath";
+
+	public static final String PRINTEXCEPTIONS = "printexceptions";
+
+	public static final String SCAN = "scan";
+
+	public static final String LOGRSLOCATIONS = "logrslocations";
+
+	public static final String IGNOREUNCLOSED = "ignoreunclosed";
+
+	public static final String STATISTICS = "statistics";
+
+	public static final String LOGSTATEMENTS = "logstatements";
+
+	public static final String LOGALLOCATION = "logallocation";
+
+	public static final String LOGALLOCATIONSTACK = "logallocationstack";
+
+	public static final String BINARY_LOG = "binaryLog";
+
 	/** The max. #of connections that can be allocated before the pool blocks */
 	final private int m_max_conns;
 
@@ -204,17 +245,17 @@ final public class PoolConfig {
 		}
 	}
 
-	PoolConfig(String driver, String url, String userid, String passwd, String driverpath) throws SQLException {
-		m_url = url;
-		m_driverClassName = driver;
-		m_uid = userid;
-		m_pw = passwd;
-		m_checkConnection = false;
-		m_max_conns = 20;
-		m_min_conns = 5;
-		if(driverpath != null)
-			m_driverPath = new File(driverpath);
-	}
+	//PoolConfig(String driver, String url, String userid, String passwd, String driverpath) {
+	//	m_url = url;
+	//	m_driverClassName = driver;
+	//	m_uid = userid;
+	//	m_pw = passwd;
+	//	m_checkConnection = false;
+	//	m_max_conns = 20;
+	//	m_min_conns = 5;
+	//	if(driverpath != null)
+	//		m_driverPath = new File(driverpath);
+	//}
 
 	public PoolConfig(Template tpl) {
 		m_binaryLogFile = tpl.m_binaryLogFile;
@@ -242,33 +283,30 @@ final public class PoolConfig {
 
 	/**
 	 * Create a pool config for pool ID from the specified source. This does not check for errors yet.
-	 * @param id
-	 * @param cs
-	 * @return
 	 */
-	PoolConfig(final String id, final PoolConfigSource cs) {
+	PoolConfig(String id, PoolConfigSource cs) {
 		try {
-			m_url = cs.getProperty(id, "url"); // Get URL and other parameters,
+			m_url = cs.getProperty(id, URL); // Get URL and other parameters,
 			if(m_url == null)
 				throw new SQLException("Undefined Pool '" + id + "' in config " + cs);
-			m_driverClassName = cs.getProperty(id, "driver");
-			m_uid = cs.getProperty(id, "userid");
-			m_pw = cs.getProperty(id, "password");
-			m_checkSQL = cs.getProperty("checksql", null);
-			m_checkConnection = cs.getBool(id, "check", false);
-			m_setlog = cs.getBool(id, "logstream", false);
-			m_sqlTraceMode = cs.getBool(id, "sqltrace", false); // 20101102 Was 'trace'
-			int maxc = cs.getInt(id, "maxconn", 20);
-			int minc = cs.getInt(id, "minconn", 5);
+			m_driverClassName = cs.getProperty(id, DRIVER);
+			m_uid = cs.getProperty(id, USERID);
+			m_pw = cs.getProperty(id, PASSWORD);
+			m_checkSQL = cs.getProperty(id, CHECKSQL);
+			m_checkConnection = cs.getBool(id, CHECK, false);
+			m_setlog = cs.getBool(id, LOGSTREAM, false);
+			m_sqlTraceMode = cs.getBool(id, SQLTRACE, false); // 20101102 Was 'trace'
+			int maxc = cs.getInt(id, MAXCONN, 20);
+			int minc = cs.getInt(id, MINCONN, 5);
 			if(minc < 1)
 				minc = 1;
 			if(maxc < minc)
 				maxc = minc + 5;
 			m_min_conns = minc;
 			m_max_conns = maxc;
-			m_printExceptions = cs.getBool(id, "printexceptions", false);
+			m_printExceptions = cs.getBool(id, PRINTEXCEPTIONS, false);
 
-			String dp = cs.getProperty(id, "scan");
+			String dp = cs.getProperty(id, SCAN);
 			if(dp == null)
 				m_scanMode = ScanMode.ENABLED;
 			else if("enabled".equalsIgnoreCase(dp) || "on".equalsIgnoreCase(dp))
@@ -282,14 +320,14 @@ final public class PoolConfig {
 			} else
 				throw new IllegalStateException("Invalid 'scan' mode: must be enabled, disabled or warn.");
 
-			m_logResultSetLocations = cs.getBool(id, "logrslocations", m_logResultSetLocations); // Only override default if explicitly set.
-			m_ignoreUnclosed = cs.getBool(id, "ignoreunclosed", m_ignoreUnclosed); //ditto
-			m_collectStatistics = cs.getBool(id, "statistics", false);
-			m_logStatements = cs.getBool(id, "logstatements", false);
-			m_logAllocation = cs.getBool(id, "logallocation", false);
-			m_logAllocationStack = cs.getBool(id, "logallocationstack", false);
+			m_logResultSetLocations = cs.getBool(id, LOGRSLOCATIONS, m_logResultSetLocations); // Only override default if explicitly set.
+			m_ignoreUnclosed = cs.getBool(id, IGNOREUNCLOSED, m_ignoreUnclosed); //ditto
+			m_collectStatistics = cs.getBool(id, STATISTICS, false);
+			m_logStatements = cs.getBool(id, LOGSTATEMENTS, false);
+			m_logAllocation = cs.getBool(id, LOGALLOCATION, false);
+			m_logAllocationStack = cs.getBool(id, LOGALLOCATIONSTACK, false);
 
-			dp = cs.getProperty(id, "driverpath");
+			dp = cs.getProperty(id, DRIVERPATH);
 			if(dp != null) {
 				File f = new File(dp);
 				if(!f.exists()) {
@@ -299,7 +337,7 @@ final public class PoolConfig {
 				}
 				m_driverPath = f;
 			}
-			String bf = cs.getProperty(id, "binaryLog");
+			String bf = cs.getProperty(id, BINARY_LOG);
 			if(null != bf) {
 				m_binaryLogFile = new File(bf);
 			}
@@ -372,10 +410,6 @@ final public class PoolConfig {
 	 */
 	public boolean isCheckConnection() {
 		return m_checkConnection;
-	}
-
-	public void setCheckConnection(boolean checkConnection) {
-		m_checkConnection = checkConnection;
 	}
 
 	public boolean isSetlog() {

@@ -49,6 +49,9 @@ public enum Msgs implements IBundleCode {
 	btnDelete,
 	btnAdd,
 	btnEdit,
+
+	vInvalidEmail,
+
 	;
 
 	/** Error component panel header text: Info */

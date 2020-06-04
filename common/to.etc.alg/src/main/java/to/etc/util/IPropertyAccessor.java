@@ -42,7 +42,7 @@ public interface IPropertyAccessor {
 	@NonNull
 	Class< ? > getActualType();
 
-	@Nullable
+	@NonNull
 	Type getActualGenericType();
 
 	@Nullable

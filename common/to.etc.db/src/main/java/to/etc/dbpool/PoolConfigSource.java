@@ -24,7 +24,10 @@
  */
 package to.etc.dbpool;
 
-import java.io.*;
+import org.eclipse.jdt.annotation.Nullable;
+
+import java.io.File;
+import java.util.Properties;
 
 /**
  * Some thingy that can retrieve pool parameters.
@@ -88,11 +91,13 @@ abstract public class PoolConfigSource {
 		return m_src.toString();
 	}
 
-	static PoolConfigSource create(File f) {
+	static PoolConfigSource create(File f, @Nullable Properties extra) {
+		if(null == extra)
+			extra = new Properties();
 		String name = f.getName().toLowerCase();
 		if(name.endsWith(".xml")) {
-			return new XmlSource(f, new File(f.toString() + ".local"));
+			return new XmlSource(f, new File(f.toString() + ".local"), extra);
 		}
-		return new PropertiesSource(f, new File(f.toString() + ".local"));
+		return new PropertiesFileSource(f, new File(f.toString() + ".local"), extra);
 	}
 }

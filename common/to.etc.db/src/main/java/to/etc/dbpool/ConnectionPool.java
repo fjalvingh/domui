@@ -430,10 +430,6 @@ final public class ConnectionPool {
 		if(c().getBinaryLogFile() != null)
 			setFileLogging(c().getBinaryLogFile());
 
-		String plsqldebug = DbPoolUtil.getPlSqlDebug(getID());
-		if(null != plsqldebug)
-			addPlSqlDebugHandler(plsqldebug);
-
 		//-- Now initialize the rest of the parameters and try to allocate a connection for testing pps.
 		try {
 			if(c().isSetlog())
@@ -458,6 +454,9 @@ final public class ConnectionPool {
 
 					case ORACLE:
 						connectionStatisticsFactory = new OracleConnectionStatisticsFactory();
+						String plsqldebug = DbPoolUtil.getPlSqlDebug(getID());
+						if(null != plsqldebug)
+							addPlSqlDebugHandler(plsqldebug);
 						break;
 				}
 				m_connectionStatisticsFactory = connectionStatisticsFactory;
@@ -493,7 +492,6 @@ final public class ConnectionPool {
 	}
 
 	public void addPlSqlDebugHandler(@NonNull String plsqldebug) throws SQLException {
-
 		final HostAndPort hostAndPort = HostAndPort.parse(plsqldebug);
 
 		synchronized(this) {
