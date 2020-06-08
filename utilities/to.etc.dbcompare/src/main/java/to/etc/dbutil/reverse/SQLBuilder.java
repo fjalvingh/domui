@@ -740,7 +740,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 
 					case Types.DATE:
 					case Types.TIMESTAMP:
-						DateFormat df = new SimpleDateFormat("yyyymmdd HH:mm:ss");
+						DateFormat df = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
 						df.setLenient(true);
 						Date dt = df.parse(s);
 						ps.setTimestamp(m_index, new Timestamp(dt.getTime()));

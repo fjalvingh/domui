@@ -30,12 +30,12 @@ abstract public class AbstractExporter<T> extends AbstractAsyncDialogTask implem
 
 	public AbstractExporter(IExportFormat format) {
 		m_format = format;
-		m_outputName = "export-" + new SimpleDateFormat("yyyymmdd-HHmm").format(new Date()) + "." + format.extension();
+		m_outputName = "export-" + new SimpleDateFormat("yyyyMMdd-HHmm").format(new Date()) + "." + format.extension();
 	}
 
 	public AbstractExporter(IExportFormat format, String name) {
 		m_format = format;
-		m_outputName = name + " " + new SimpleDateFormat("yyyymmdd-HHmm").format(new Date()) + "." + format.extension();
+		m_outputName = name + " " + new SimpleDateFormat("yyyyMMdd-HHmm").format(new Date()) + "." + format.extension();
 	}
 
 	@Override protected void execute(@NonNull Progress progress) throws Exception {
