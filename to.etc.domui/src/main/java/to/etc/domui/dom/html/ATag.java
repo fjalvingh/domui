@@ -26,10 +26,14 @@ package to.etc.domui.dom.html;
 
 import to.etc.domui.util.*;
 
+import java.util.Objects;
+
 public class ATag extends NodeContainer {
 	private String m_href;
 
 	private String m_target;
+
+	private String m_name;
 
 	public ATag() {
 		super("a");
@@ -65,6 +69,17 @@ public class ATag extends NodeContainer {
 		if(DomUtil.isEqual(m_target, target))
 			return;
 		m_target = target;
+		changed();
+	}
+
+	public String getName() {
+		return m_name;
+	}
+
+	public void setName(String name) {
+		if(Objects.equals(name, m_name))
+			return;
+		m_name = name;
 		changed();
 	}
 }
