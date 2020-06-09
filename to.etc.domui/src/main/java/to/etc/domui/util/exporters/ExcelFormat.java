@@ -1,10 +1,14 @@
 package to.etc.domui.util.exporters;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jdt.annotation.Nullable;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.function.Supplier;
 
 /**
@@ -57,6 +61,15 @@ public enum ExcelFormat {
 
 	public Workbook createWorkbook() {
 		return m_workbookFactory.get();
+	}
+
+	public Workbook createWorkbook(InputStream is) {
+		try {
+			return WorkbookFactory.create(is);
+		} catch(IOException | InvalidFormatException e) {
+			e.printStackTrace();
+			throw new IllegalStateException("wrapped exception", e);
+		}
 	}
 
 	public int getMaxRowsLimit() {

@@ -112,24 +112,32 @@ public class ExcelWriterUtil {
 		CellStyle cs = style(key);
 		if (null == cs) {
 			cs = createCellStyle();
+			boolean hasBackgroundFill = false;
 			if (cs instanceof XSSFCellStyle) {
 				XSSFCellStyle xssfcs = (XSSFCellStyle) cs;
 				cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				xssfcs.setFillForegroundColor(new XSSFColor(xssfColor));
-			}else {
-				if (null != hssfColor) {
-					cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-					cs.setFillForegroundColor(hssfColor.index);
-				}
+				XSSFColor borderColor = new XSSFColor(Color.LIGHT_GRAY);
+				xssfcs.setBottomBorderColor(borderColor);
+				xssfcs.setLeftBorderColor(borderColor);
+				xssfcs.setRightBorderColor(borderColor);
+				xssfcs.setTopBorderColor(borderColor);
+				hasBackgroundFill = true;
+			}else if (null != hssfColor) {
+				cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+				cs.setFillForegroundColor(hssfColor.index);
+				cs.setBottomBorderColor(IndexedColors.GREY_25_PERCENT.index);
+				cs.setLeftBorderColor(IndexedColors.GREY_25_PERCENT.index);
+				cs.setRightBorderColor(IndexedColors.GREY_25_PERCENT.index);
+				cs.setTopBorderColor(IndexedColors.GREY_25_PERCENT.index);
+				hasBackgroundFill = true;
 			}
-			cs.setBorderTop(BorderStyle.valueOf(BorderStyle.THIN.getCode()));
-			cs.setBorderBottom(BorderStyle.valueOf(BorderStyle.THIN.getCode()));
-			cs.setBorderLeft(BorderStyle.valueOf(BorderStyle.THIN.getCode()));
-			cs.setBorderRight(BorderStyle.valueOf(BorderStyle.THIN.getCode()));
-			cs.setBottomBorderColor(IndexedColors.GREY_25_PERCENT.index);
-			cs.setLeftBorderColor(IndexedColors.GREY_25_PERCENT.index);
-			cs.setRightBorderColor(IndexedColors.GREY_25_PERCENT.index);
-			cs.setTopBorderColor(IndexedColors.GREY_25_PERCENT.index);
+			if (hasBackgroundFill) {
+				cs.setBorderTop(BorderStyle.THIN);
+				cs.setBorderBottom(BorderStyle.THIN);
+				cs.setBorderLeft(BorderStyle.THIN);
+				cs.setBorderRight(BorderStyle.THIN);
+			}
 			Font font = fontFor(fontStyles);
 			cs.setFont(font);
 			cs.setWrapText(wrapText);
