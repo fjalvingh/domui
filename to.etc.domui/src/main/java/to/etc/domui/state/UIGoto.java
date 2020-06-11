@@ -68,7 +68,7 @@ final public class UIGoto {
 	/**
 	 * Destroy the current page, and reload a fresh copy with fresh new parameters.
 	 */
-	static public void reload(@NonNull PageParameters pp) {
+	static public void reload(@NonNull IPageParameters pp) {
 		Page pg = UIContext.getCurrentPage();
 		Class< ? extends UrlPage> clz = pg.getBody().getClass();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
