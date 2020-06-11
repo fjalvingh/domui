@@ -993,6 +993,8 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o().attr("href", a.getHref());
 		if(a.getTarget() != null)
 			o().attr("target", a.getTarget());
+		if(a.getName() != null)
+			o().attr("name", a.getName());
 		renderTagend(a, m_o);
 	}
 

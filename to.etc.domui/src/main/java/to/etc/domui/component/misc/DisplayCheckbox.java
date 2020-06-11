@@ -45,6 +45,11 @@ public class DisplayCheckbox extends Img implements IDisplayControl<Boolean> {
 		setSrc("THEME/dspcb-off.png");
 	}
 
+	public DisplayCheckbox(@Nullable Boolean value) {
+		this();
+		setValue(value);
+	}
+
 	/**
 	 *
 	 * @see to.etc.domui.dom.html.IDisplayControl#getValue()
