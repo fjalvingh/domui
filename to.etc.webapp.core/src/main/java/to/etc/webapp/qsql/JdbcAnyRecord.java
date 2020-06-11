@@ -65,6 +65,7 @@ public class JdbcAnyRecord {
 				case Types.DECIMAL:
 				case Types.FLOAT:
 				case Types.DOUBLE:
+				case Types.BIGINT:
 					BigDecimal bd = rs.getBigDecimal(i);
 					set(name, bd);
 					break;
