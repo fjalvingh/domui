@@ -146,7 +146,6 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		m_buttonList.add(rb);
 		rb.setDisabled(m_disabled);
 		rb.setReadOnly(m_readOnly);
-		m_value = null;
 		if(isBuilt())
 			forceRebuild();
 		return rb;
