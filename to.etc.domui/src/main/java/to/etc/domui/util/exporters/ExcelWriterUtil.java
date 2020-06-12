@@ -22,7 +22,11 @@ import java.util.Map;
 @NonNullByDefault
 public class ExcelWriterUtil {
 
-	public enum FontStyle { BOLD("B"), ITALIC("I"), UNDERLINE("U"), Strikeout("S");
+	public enum FontStyle {
+		BOLD("B"),
+		ITALIC("I"),
+		UNDERLINE("U"),
+		Strikeout("S");
 
 		private String m_code;
 		FontStyle(String code) {
@@ -41,17 +45,17 @@ public class ExcelWriterUtil {
 
 	private final Map<String, Font> m_fonts = new HashMap<>();
 
+	private boolean m_autoSizeCols = true;
+
 	public ExcelWriterUtil(ExcelFormat format, Workbook workbook) {
 		m_format = format;
 		m_workbook = workbook;
 	}
 
-	private boolean m_autoSizeCols = true;
-
 	public CellStyle errorCs() {
 		String key = "error";
 		CellStyle cs = style(key);
-		if (null == cs) {
+		if(null == cs) {
 			cs = m_workbook.createCellStyle();
 			cs.setAlignment(HorizontalAlignment.LEFT);
 			cs.setIndention((short) 1);
@@ -74,7 +78,7 @@ public class ExcelWriterUtil {
 	public CellStyle defaultCs() {
 		String key = "default";
 		CellStyle cs = m_styles.get(key);
-		if (null == cs) {
+		if(null == cs) {
 			cs = createCellStyle();
 			cs.setFont(cloneFromDefault());
 			addStyle(key, cs);
@@ -89,7 +93,7 @@ public class ExcelWriterUtil {
 	public CellStyle boldCs() {
 		String key = "bold";
 		CellStyle cs = m_styles.get(key);
-		if (null == cs) {
+		if(null == cs) {
 			cs = createCellStyle();
 			cs.setFont(boldFont());
 			addStyle(key, cs);
@@ -100,20 +104,20 @@ public class ExcelWriterUtil {
 	/**
 	 * Custom style, enables setting the rich color (awt) in case of xssf model in use, or fallback to predefined indexed color in case of less rich hssf model.
 	 * Also enables standard font decoration and setting the wrap text option.
-	 * @param xssfColor
-	 * @param hssfColor
-	 * @param wrapText
-	 * @param fontStyles
+	 * @param xssfColor java.awt.Color that is used as template for XSSFColor that is constructed in case that XSSF model is in use
+	 * @param hssfColor alternative hssfColor in case that less rich HSSF model is in use
+	 * @param wrapText wraps the text if T
+	 * @param fontStyles set of font styles to be applied to this cell style
 	 * @return
 	 */
 	public CellStyle customCs(Color xssfColor, @Nullable IndexedColors hssfColor, boolean wrapText, FontStyle... fontStyles) {
 		String fontKey = fontKey(fontStyles);
 		String key = "xssf" + xssfColor + "hssf" + (null != hssfColor ? hssfColor.index : "") + wrapText + fontKey;
 		CellStyle cs = style(key);
-		if (null == cs) {
+		if(null == cs) {
 			cs = createCellStyle();
 			boolean hasBackgroundFill = false;
-			if (cs instanceof XSSFCellStyle) {
+			if(cs instanceof XSSFCellStyle) {
 				XSSFCellStyle xssfcs = (XSSFCellStyle) cs;
 				cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				xssfcs.setFillForegroundColor(new XSSFColor(xssfColor));
@@ -123,7 +127,7 @@ public class ExcelWriterUtil {
 				xssfcs.setRightBorderColor(borderColor);
 				xssfcs.setTopBorderColor(borderColor);
 				hasBackgroundFill = true;
-			}else if (null != hssfColor) {
+			}else if(null != hssfColor) {
 				cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 				cs.setFillForegroundColor(hssfColor.index);
 				cs.setBottomBorderColor(IndexedColors.GREY_25_PERCENT.index);
@@ -132,7 +136,7 @@ public class ExcelWriterUtil {
 				cs.setTopBorderColor(IndexedColors.GREY_25_PERCENT.index);
 				hasBackgroundFill = true;
 			}
-			if (hasBackgroundFill) {
+			if(hasBackgroundFill) {
 				cs.setBorderTop(BorderStyle.THIN);
 				cs.setBorderBottom(BorderStyle.THIN);
 				cs.setBorderLeft(BorderStyle.THIN);
@@ -159,7 +163,7 @@ public class ExcelWriterUtil {
 	public Font fontFor(FontStyle... fontStyles) {
 		String key = fontKey(fontStyles);
 		Font font = font(key);
-		if (null == font) {
+		if(null == font) {
 			font = cloneFromDefault();
 			for (FontStyle fs: fontStyles) {
 				switch (fs) {
@@ -197,11 +201,11 @@ public class ExcelWriterUtil {
 	}
 
 	private String fontKey(FontStyle... fontStyles) {
-		if (null == fontStyles) {
+		if(null == fontStyles) {
 			return "normal";
 		}
 		String fontKey = "fs";
-		if (null != fontStyles) {
+		if(null != fontStyles) {
 			for (FontStyle fs: fontStyles) {
 				fontKey += fs.getCode();
 			}
