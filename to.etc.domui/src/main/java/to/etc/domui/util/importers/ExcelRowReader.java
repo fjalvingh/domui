@@ -163,6 +163,10 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		return Objects.requireNonNull(m_currentSheet);
 	}
 
+	public String getSheetName() {
+		return getSheet().getSheetName();
+	}
+
 	@Override public long getSetSizeIndicator() {
 		return getSheet().getLastRowNum() - getSheet().getFirstRowNum();
 	}

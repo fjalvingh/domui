@@ -29,41 +29,11 @@ public class ResultSetExcelExporter {
 
 	private final ExcelFormat m_format;
 
-	private final Map<String, CellStyle> m_styles = new HashMap<>();
+	private final ExcelWriterUtil m_excelWriterUtil;
 
-	public ResultSetExcelExporter(ExcelFormat format) {
+	public ResultSetExcelExporter(ExcelFormat format, Workbook workbook) {
 		m_format = format;
-	}
-
-	private boolean m_autoSizeCols = true;
-
-	private CellStyle errorCs(Workbook workbook) {
-		String key = "error";
-		CellStyle cs = m_styles.get(key);
-		if (null == cs) {
-			cs = workbook.createCellStyle();
-			cs.setAlignment(HorizontalAlignment.LEFT);
-			cs.setIndention((short) 1);
-			cs.setFillForegroundColor(IndexedColors.RED.getIndex());
-			cs.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-			cs.setWrapText(false);
-			Font font = cloneFromDefault(workbook);
-			font.setItalic(true);
-			font.setColor(IndexedColors.DARK_RED.getIndex());
-			cs.setFont(font);
-			m_styles.put(key, cs);
-		}
-		return cs;
-	}
-
-	@NonNull
-	private Font cloneFromDefault(Workbook workbook) {
-		Font font = workbook.createFont();
-		Font defaultFont = workbook.getFontAt((short) 0);
-		font.setFontHeightInPoints(defaultFont.getFontHeightInPoints());
-		font.setFontName(defaultFont.getFontName());
-		font.setColor(defaultFont.getColor());
-		return font;
+		m_excelWriterUtil = new ExcelWriterUtil(format, workbook);
 	}
 
 	public void writeExcel(Workbook workbook, ResultSet rs, String sheetName) {
@@ -84,7 +54,7 @@ public class ResultSetExcelExporter {
 				if (rowNumber >= m_format.getMaxRowsLimit()) {
 					Cell cell = sheet.createRow(1).createCell(0);
 					cell.setCellValue("too much rows generated, unable to export all, truncated results...!");
-					cell.setCellStyle(errorCs(workbook));
+					cell.setCellStyle(m_excelWriterUtil.errorCs());
 					sheet.addMergedRegion(new CellRangeAddress(1,1, 0, 8));
 					sheet.createFreezePane(0, 2, 0, 3);
 					return;
@@ -102,7 +72,7 @@ public class ResultSetExcelExporter {
 			}
 			sheet.createFreezePane(0, 1, 0, 2);
 
-			if (m_autoSizeCols) {
+			if (m_excelWriterUtil.isAutoSizeCols()) {
 				for (int i = 0; i < numColumns; i++) {
 					sheet.autoSizeColumn(i);
 				}
@@ -156,13 +126,5 @@ public class ResultSetExcelExporter {
 			case Types.NVARCHAR:
 				return true;
 		}
-	}
-
-	public boolean isAutoSizeCols() {
-		return m_autoSizeCols;
-	}
-
-	public void setAutoSizeCols(boolean autoSizeCols) {
-		this.m_autoSizeCols = autoSizeCols;
 	}
 }
