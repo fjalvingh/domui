@@ -397,10 +397,14 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 	protected void cellClicked(@NonNull final T value, @NonNull ClickInfo clinfo) throws Exception {
 		if(isSelectable(value)) {
 			T selected = m_selectedValue;
-			if(null != selected)
-				markNewSelection(selected, false);
-			markNewSelection(value, true);
+			if(selected == value)
+				return;
+
 			m_selectedValue = value;
+			if(null != selected) {
+				markNewSelection(selected, false);
+			}
+			markNewSelection(value, true);
 		}
 
 		if(getCellClicked() != null)
@@ -455,8 +459,8 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 		return null;
 	}
 
-	protected boolean isSelected(@Nullable T node) {
-		return false;
+	protected boolean isSelected(T node) {
+		return node == m_selectedValue;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -599,10 +603,10 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 		if(old == selectedValue)
 			return;
 
+		m_selectedValue = selectedValue;
 		if(null != old) {
 			markNewSelection(old, false);
 		}
-		m_selectedValue = selectedValue;
 		if(null != selectedValue) {
 			T parent = getModel().getParent(selectedValue);
 			if(null != parent) {
