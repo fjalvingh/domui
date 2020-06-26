@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class NumberConverterFactory implements IConverterFactory {
 
-	static Map<Pair<NumericPresentation, Integer>, NumberConverter<BigDecimal>> BIG_DECIMAL_CONVERTERS = new ConcurrentHashMap<>();
+	static private Map<Pair<NumericPresentation, Integer>, NumberConverter<BigDecimal>> BIG_DECIMAL_CONVERTERS = new ConcurrentHashMap<>();
 
 	@Override
 	public int accept(Class< ? > clz, PropertyMetaModel< ? > pmm) {
