@@ -30,12 +30,12 @@ import to.etc.domui.util.DomUtil;
 import to.etc.util.Pair;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NumberConverterFactory implements IConverterFactory {
 
-	static Map<Pair<NumericPresentation, Integer>, NumberConverter<BigDecimal>> BIG_DECIMAL_CONVERTERS = new HashMap<>();
+	static Map<Pair<NumericPresentation, Integer>, NumberConverter<BigDecimal>> BIG_DECIMAL_CONVERTERS = new ConcurrentHashMap<>();
 
 	@Override
 	public int accept(Class< ? > clz, PropertyMetaModel< ? > pmm) {
@@ -64,16 +64,7 @@ public class NumberConverterFactory implements IConverterFactory {
 	 */
 	static public IConverter<BigDecimal> createBigDecimalNumberConverters(NumericPresentation np, int scale) {
 		Pair<NumericPresentation, Integer> key = new Pair<>(np, Integer.valueOf(scale));
-		NumberConverter<BigDecimal> bdConverter = BIG_DECIMAL_CONVERTERS.get(key);
-		if (null == bdConverter) {
-			synchronized(BIG_DECIMAL_CONVERTERS) {
-				bdConverter = BIG_DECIMAL_CONVERTERS.get(key);
-				if (null == bdConverter) {
-					bdConverter = new BigDecimalNumberConverter(np, scale);
-					BIG_DECIMAL_CONVERTERS.put(key, bdConverter);
-				}
-			}
-		}
+		NumberConverter<BigDecimal> bdConverter = BIG_DECIMAL_CONVERTERS.computeIfAbsent(key, aKey -> new BigDecimalNumberConverter(aKey.get1(), aKey.get2()));
 		return bdConverter;
 	}
 }
