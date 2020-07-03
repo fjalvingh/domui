@@ -313,7 +313,17 @@ public class DbEventManager implements Runnable {
 		t.printStackTrace();
 	}
 
-	public void stop() {
+	public static void stop() {
+		DbEventManager instance;
+		synchronized(DbEventManager.class) {
+			instance = m_instance;
+			if(instance == null)
+				return;
+		}
+		instance.stopInstance();
+	}
+
+	public void stopInstance() {
 		Thread ht;
 		synchronized(this) {
 			ht = m_handlerThread;

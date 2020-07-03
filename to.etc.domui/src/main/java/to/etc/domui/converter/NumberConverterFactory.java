@@ -24,10 +24,19 @@
  */
 package to.etc.domui.converter;
 
+import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.util.DomUtil;
+import to.etc.util.Pair;
+
+import java.math.BigDecimal;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NumberConverterFactory implements IConverterFactory {
+
+	static private Map<Pair<NumericPresentation, Integer>, NumberConverter<BigDecimal>> BIG_DECIMAL_CONVERTERS = new ConcurrentHashMap<>();
+
 	@Override
 	public int accept(Class< ? > clz, PropertyMetaModel< ? > pmm) {
 		if(pmm == null)
@@ -47,5 +56,15 @@ public class NumberConverterFactory implements IConverterFactory {
 	@Override
 	public <X, T extends IConverter<X>> T createConverter(Class<X> clz, PropertyMetaModel<X> pmm) {
 		return (T) new NumberConverter<>((Class<? extends Number>)clz, pmm.getNumericPresentation(), pmm.getScale() < 0 ? 0 : pmm.getScale());
+	}
+
+	/**
+	 * Returns reusable {@link BigDecimalNumberConverter} instance based on specified numeric presentation and scale.
+	 * @return
+	 */
+	static public IConverter<BigDecimal> createBigDecimalNumberConverters(NumericPresentation np, int scale) {
+		Pair<NumericPresentation, Integer> key = new Pair<>(np, Integer.valueOf(scale));
+		NumberConverter<BigDecimal> bdConverter = BIG_DECIMAL_CONVERTERS.computeIfAbsent(key, aKey -> new BigDecimalNumberConverter(aKey.get1(), aKey.get2()));
+		return bdConverter;
 	}
 }
