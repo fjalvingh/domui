@@ -31,6 +31,7 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IExecute;
+import to.etc.function.SupplierEx;
 import to.etc.net.HttpCallException;
 import to.etc.pater.IPaterContext;
 import to.etc.pater.Pater;
@@ -372,6 +373,17 @@ final public class WebDriverConnector {
 			.pollingEvery(getWaitInterval(), TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
 
 		return wait.until(exc);
+	}
+
+	public synchronized void wait(@NonNull SupplierEx<Boolean> condition) throws Exception {
+		var times = getWaitInterval() / 25;
+		for(var i = 0; i < times; i++) {
+			var v = condition.get();
+			if(Boolean.TRUE.equals(v)) {
+				break;
+			}
+			wait(25);
+		}
 	}
 
 	/**
@@ -2356,5 +2368,13 @@ final public class WebDriverConnector {
 	public Map<String, String> getComputedStyles(@NonNull WebElement element) {
 		return getComputedStyles(element, a -> true);
 
+	}
+
+	final public boolean isReadonly(By locator) {
+		return "true".equals(findAttribute(locator, "readonly"));
+	}
+
+	final public boolean isReadonly(String testId) {
+		return isReadonly(byId(testId));
 	}
 }

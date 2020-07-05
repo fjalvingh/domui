@@ -24,6 +24,7 @@ public class DefaultPopupOpener implements IPopupOpener {
 		//-- Move all extra stuff needed
 		String ttl = control.getDefaultTitle();
 		dlg.title(ttl);
+		dlg.setTestID(control.getTestID());
 
 		dlg.setQueryHandler(control.getQueryHandler());
 		dlg.setQueryManipulator(control);

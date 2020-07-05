@@ -147,6 +147,7 @@ public class TabPanelBase extends Div {
 		d.setCssClass("ui-tab-div");
 
 		Span dt = new Span();
+		li.setTestID(ti.getTestId());
 		d.add(dt);
 
 		IIconRef iconUrl = ti.getImage();
