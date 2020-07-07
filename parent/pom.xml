@@ -85,7 +85,7 @@
         <aspectj.version>1.9.1</aspectj.version>
 
         <!-- Versions needed for dependency convergence-->
-        <commons-beanutils.version>1.9.3</commons-beanutils.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-digester.version>2.1</commons-digester.version>
         <commons-lang.version>2.6</commons-lang.version>
