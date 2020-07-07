@@ -43,7 +43,7 @@
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
         <jshint-maven-plugin.version>1.6.0</jshint-maven-plugin.version>
         <minify-maven-plugin.version>1.7.4</minify-maven-plugin.version>
-        <enunciate-maven-plugin.version>2.6.0</enunciate-maven-plugin.version>
+        <enunciate-maven-plugin.version>2.13.1</enunciate-maven-plugin.version>
         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
         <maven-pldoc-plugin.version>3.0.13</maven-pldoc-plugin.version>
         <maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
