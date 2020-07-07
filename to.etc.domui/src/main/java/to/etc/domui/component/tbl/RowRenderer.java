@@ -153,12 +153,12 @@ import java.util.function.Predicate;
 		if(getSortColumn() == null) {
 			String dsp = model().getDefaultSortProperty();
 			getColumnList().setDefaultSortColumn(dsp);
+		} else {
+			ColumnDef<T, ?> column = getSortColumn();
+			if(null != column) {
+				setSortDescending(column.getSortable() == SortableType.SORTABLE_DESC);
+			}
 		}
-		ColumnDef<T, ?> column = getSortColumn();
-		if(null != column) {
-			setSortDescending(column.getSortable() == SortableType.SORTABLE_DESC);
-		}
-
 		String width = tbl.getWidth();
 		boolean fullWidth = width != null && width.contains("100%");
 		m_completed = true;

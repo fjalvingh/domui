@@ -80,7 +80,12 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		} else {
 			for(final ColumnDef< T, ? > scd : m_columnList) {
 				if(DomUtil.isEqual(scd.getPropertyName(), sort)) {
-					setSortColumn(scd, scd.getSortable());
+					SortableType sortable = scd.getSortable();
+					if(sortable == SortableType.SORTABLE_ASC) {				// Is the default?
+						if(m_metaModel.getDefaultSortDirection() == SortableType.SORTABLE_DESC)
+							sortable = SortableType.SORTABLE_DESC;
+					}
+					setSortColumn(scd, sortable);
 					break;
 				}
 			}

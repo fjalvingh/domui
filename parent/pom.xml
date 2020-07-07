@@ -36,13 +36,13 @@
         <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
-        <maven-failsafe-plugin.version>2.22.0</maven-failsafe-plugin.version>
+        <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <plexus-compiler-eclipse.version>2.8.5</plexus-compiler-eclipse.version>
         <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
         <jshint-maven-plugin.version>1.6.0</jshint-maven-plugin.version>
         <minify-maven-plugin.version>1.7.4</minify-maven-plugin.version>
-        <enunciate-maven-plugin.version>2.6.0</enunciate-maven-plugin.version>
+        <enunciate-maven-plugin.version>2.13.1</enunciate-maven-plugin.version>
         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
         <maven-pldoc-plugin.version>3.0.13</maven-pldoc-plugin.version>
         <maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
@@ -53,11 +53,11 @@
         <commons-codec.version>1.10</commons-codec.version>
         <commons-configuration.version>1.10</commons-configuration.version>
         <commons-fileupload.version>1.3.3</commons-fileupload.version>
-        <commons-io.version>2.5</commons-io.version>
+        <commons-io.version>2.7</commons-io.version>
         <commons-jcs.version>1.3</commons-jcs.version>
         <commons-lang3.version>3.9</commons-lang3.version>
 
-        <jackson.version>2.11.0</jackson.version>
+        <jackson.version>2.11.1</jackson.version>
 
         <javax.servlet.version>4.0.1</javax.servlet.version>
         <javax.el.version>1.1</javax.el.version>
@@ -70,7 +70,7 @@
         <gnu.regexp.version>1.1.4</gnu.regexp.version>
         <jetty.version>9.4.14.v20181114</jetty.version>
         <selenium.version>3.141.59</selenium.version>
-        <hsqldb.version>2.4.0</hsqldb.version>
+        <hsqldb.version>2.5.1</hsqldb.version>
 
         <jaxb.version>2.3.0</jaxb.version>
 
@@ -86,7 +86,7 @@
         <aspectj.version>1.9.1</aspectj.version>
 
         <!-- Versions needed for dependency convergence-->
-        <commons-beanutils.version>1.9.3</commons-beanutils.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <commons-collections.version>3.2.2</commons-collections.version>
         <commons-digester.version>2.1</commons-digester.version>
         <commons-lang.version>2.6</commons-lang.version>
@@ -681,7 +681,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${maven-failsafe-plugin.version}</version>
+                <version>2.22.2</version>
 
                 <!-- jal: pass webdriver.url to JUnit tests needing that -->
                 <configuration>
@@ -790,6 +790,7 @@
                             <arg>-properties</arg>
                             <arg>${project.basedir}/.settings/org.eclipse.jdt.core.prefs</arg>
                             <arg>-enableJavadoc</arg>
+                            <arg>-nowarn</arg>
                         </compilerArgs>
 
                         <showWarnings>true</showWarnings>
