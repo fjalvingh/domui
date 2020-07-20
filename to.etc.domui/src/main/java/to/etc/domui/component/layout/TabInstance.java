@@ -181,9 +181,6 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 
 	/**
 	 * Returns T if the node passed - or any of it's parents - is part of this content area.
-	 *
-	 * @param errorNode
-	 * @return
 	 */
 	final private boolean isPartOfContent(@Nullable NodeBase errorNode) {
 		while(errorNode != null) {

@@ -23,6 +23,10 @@ $tabpanel-selected-color: $tabpanel-tab-bg !default;
 		margin: 0 0 0 -16px;
 		padding: 0;
 
+		&.ui-tab-err > .ui-tab-div {
+			color: $errors_foreground !important;
+		}
+
 		& > .ui-tab-div {
 			color: #fff;
 			background: $tabpanel-tab-bg;
