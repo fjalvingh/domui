@@ -43,7 +43,7 @@ public class ResultSetExcelExporter {
 
 			Sheet sheet = workbook.createSheet(sheetName);
 
-			Row headerRow = sheet.createRow(0);
+			Row headerRow = sheet.createRow(1);
 			for (int i = 0; i < numColumns; i++) {
 				Cell headerCell = headerRow.createCell(i);
 				headerCell.setCellValue(rsmd.getColumnLabel(i + 1));
@@ -51,15 +51,15 @@ public class ResultSetExcelExporter {
 
 			int rowNumber = 1;
 			while (rs.next()) {
-				if (rowNumber >= m_format.getMaxRowsLimit()) {
-					Cell cell = sheet.createRow(1).createCell(0);
+				if (rowNumber >= m_format.getMaxRowsLimit() - 1) {
+					Cell cell = sheet.createRow(0).createCell(0);
 					cell.setCellValue("too much rows generated, unable to export all, truncated results...!");
 					cell.setCellStyle(m_excelWriterUtil.errorCs());
-					sheet.addMergedRegion(new CellRangeAddress(1,1, 0, 8));
-					sheet.createFreezePane(0, 2, 0, 3);
+					sheet.addMergedRegion(new CellRangeAddress(0,0, 0, numColumns -1));
+					sheet.createFreezePane(0, 2, 0, 2);
 					return;
 				}
-				Row row = sheet.createRow(rowNumber++);
+				Row row = sheet.createRow(++rowNumber);
 				for (int colIx = 0; colIx < numColumns; colIx++) {
 					Cell cell = row.createCell(colIx);
 					setCellValue(cell, rsmd, rs, colIx + 1);
@@ -70,7 +70,10 @@ public class ResultSetExcelExporter {
 					}
 				}
 			}
-			sheet.createFreezePane(0, 1, 0, 2);
+			Cell cell = sheet.createRow(0).createCell(0);
+			cell.setCellValue("Total exported rows: " + (rowNumber - 1));
+			sheet.addMergedRegion(new CellRangeAddress(0,0, 0, numColumns -1));
+			sheet.createFreezePane(0, 2, 0, 2);
 
 			if (m_excelWriterUtil.isAutoSizeCols()) {
 				for (int i = 0; i < numColumns; i++) {

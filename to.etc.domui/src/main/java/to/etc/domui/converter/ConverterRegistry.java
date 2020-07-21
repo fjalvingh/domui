@@ -65,6 +65,7 @@ public class ConverterRegistry {
 		register(new DomainListConverterFactory()); // Accepts anything having domain value list
 		register(new DateConverterFactory());
 		register(new LocalDateTimeConverterFactory());
+		register(new ZonedDateTimeConverterFactory());
 		register(new MoneyConverterFactory());
 		register(new NumberConverterFactory());
 		register(new DoubleFactory()); // Low-level Double converters (numeric only)
