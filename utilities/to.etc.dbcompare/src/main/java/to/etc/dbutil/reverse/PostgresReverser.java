@@ -291,6 +291,24 @@ public class PostgresReverser extends JDBCReverser {
 		if("bpchar".equals(typename))								// 8-(
 			typename = "char";
 
+		//-- The precision field for Postgres binary types like int32 holds a fscking 32, sign.
+		switch(daty) {
+			default:
+				break;
+
+			case Types.INTEGER:
+				prec = 10;
+				break;
+
+			case Types.SMALLINT:
+				prec = 5;
+				break;
+
+			case Types.BIGINT:
+				prec = 20;
+				break;
+		}
+
 		return super.createDbColumn(t, name, daty, typename, prec, scale, nulla, autoIncrement, ct);
 	}
 
