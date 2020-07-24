@@ -104,8 +104,8 @@ final public class FormBuilder {
 //		m_layouter = new TableFormLayouter(appender);
 	}
 
-	public FormBuilder(@NonNull IFormLayouter layout, @NonNull IAppender appender) {
-		m_appender = appender;
+	public FormBuilder(@NonNull IFormLayouter layout) {
+		m_appender = layout;
 		m_layouter = layout;
 	}
 
