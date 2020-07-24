@@ -1238,13 +1238,13 @@ class ClassWrapper {
 	}
 
 	public ColumnWrapper createListProperty(ColumnWrapper childsParentProperty) {
-		if(getSimpleName().equalsIgnoreCase("EAttribute")) {
-			if(childsParentProperty.getClassWrapper().getSimpleName().equalsIgnoreCase("ConfDatamartFact")) {
-				System.out.println("GOTCHA");
-			}
-
-			System.out.println("GOTCHA");
-		}
+		//if(getSimpleName().equalsIgnoreCase("EAttribute")) {
+		//	if(childsParentProperty.getClassWrapper().getSimpleName().equalsIgnoreCase("ConfDatamartFact")) {
+		//		System.out.println("GOTCHA");
+		//	}
+		//
+		//	System.out.println("GOTCHA");
+		//}
 		ColumnWrapper cw = createColumnWrapper();
 
 		//-- Type is List<T> where T is this-property's type.
