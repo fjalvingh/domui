@@ -719,6 +719,8 @@ class ClassWrapper {
 		}
 
 		for(ColumnWrapper cw : m_allColumnWrappers) {
+			if(cw.isInvalid())
+				continue;
 			if("DefinitionProductpartlist".equalsIgnoreCase(cw.getPropertyName())) {
 				System.out.println("GOTCHA");
 			}
