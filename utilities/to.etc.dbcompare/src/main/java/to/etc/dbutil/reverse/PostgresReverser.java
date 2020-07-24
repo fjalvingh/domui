@@ -220,15 +220,19 @@ public class PostgresReverser extends JDBCReverser {
 			prec = charLen;
 		String comment = rs.getString(i++);
 
+		boolean autoIncrement = typename.toLowerCase().contains("serial")
+			|| (deflt != null && deflt.toLowerCase().contains("nextval"))
+			;
+
 		ColumnType ct = decodeColumnType(t.getSchema(), daty, typename);
 		DbColumn c;
 		if(ct == null) {
-			c = reverseColumnUnknownType(rs, t, name, daty, typename, prec, scale, nullable, false);
+			c = reverseColumnUnknownType(rs, t, name, daty, typename, prec, scale, nullable, autoIncrement);
 			if(null == c) {
 				return null;
 			}
 		} else {
-			c = createDbColumn(t, name, daty, typename, prec, scale, nullable, false, ct);
+			c = createDbColumn(t, name, daty, typename, prec, scale, nullable, autoIncrement, ct);
 		}
 		c.setComment(comment);
 		c.setDefault(deflt);
