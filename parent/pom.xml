@@ -72,7 +72,7 @@
         <selenium.version>3.141.59</selenium.version>
         <hsqldb.version>2.5.1</hsqldb.version>
 
-        <jaxb.version>2.3.0</jaxb.version>
+        <jaxb.version>2.3.1</jaxb.version>
 
         <xml-apis.version>2.0.2</xml-apis.version>
         <com.ibm.icu.version>58.2</com.ibm.icu.version>
