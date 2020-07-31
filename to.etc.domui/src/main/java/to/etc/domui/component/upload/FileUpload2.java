@@ -299,9 +299,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		if(m_value == null)
 			return;
 		IClicked<FileUpload2> onClearClicked = getOnClearClicked();
-		if (null != onClearClicked) {
+		if(null != onClearClicked) {
 			onClearClicked.clicked(this);
-		}else {
+		} else {
 			forceClear();
 		}
 	}
