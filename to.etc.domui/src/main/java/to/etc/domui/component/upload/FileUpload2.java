@@ -35,6 +35,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
+import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
@@ -108,6 +109,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	@Nullable
 	private IIconRef m_clearButtonIcon = Icon.faWindowClose;
+
+	@Nullable
+	private IClicked<FileUpload2> m_onClearClicked;
 
 	public FileUpload2() {
 		m_allowedExtensions = new ArrayList<>();
@@ -294,6 +298,21 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	public void clear() throws Exception {
 		if(m_value == null)
 			return;
+		IClicked<FileUpload2> onClearClicked = getOnClearClicked();
+		if (null != onClearClicked) {
+			onClearClicked.clicked(this);
+		}else {
+			forceClear();
+		}
+	}
+
+	/**
+	 * Calling this would bypass optional onClearClicked handler, usually used in case that onClearClicked is satisfied or missing.
+	 * @throws Exception
+	 */
+	public void forceClear() throws Exception {
+		if(m_value == null)
+			return;
 		setValue(null);
 		IValueChanged<FileUpload2> onValueChanged = (IValueChanged<FileUpload2>) getOnValueChanged();
 		if(null != onValueChanged)
@@ -407,5 +426,15 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	@Override public void setHint(String hintText) {
 		setTitle(hintText);
 	}
+
+	@Nullable
+	public IClicked<FileUpload2> getOnClearClicked() {
+		return m_onClearClicked;
+	}
+
+	public void setOnClearClicked(@Nullable IClicked<FileUpload2> onClearClicked) {
+		m_onClearClicked = onClearClicked;
+	}
+
 }
 

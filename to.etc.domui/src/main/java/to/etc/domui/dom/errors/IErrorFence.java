@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * The fence over which errors cannot pass. An error fence maintains the
- * list of listerers that are interested in an error.
+ * list of listeners that are interested in an error.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Sep 29, 2008

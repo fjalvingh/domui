@@ -503,6 +503,7 @@ public enum Icon implements IIconRef {
 	faRssSquare("fa-rss-square"),
 	faRub("fa-rub"),
 	faSafari("fa-safari"),
+	faSave("fa-save"),
 	faScissors("fa-scissors"),
 	faScribd("fa-scribd"),
 	faSearch("fa-search"),
