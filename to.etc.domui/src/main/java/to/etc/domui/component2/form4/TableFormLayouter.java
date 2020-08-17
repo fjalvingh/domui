@@ -36,6 +36,10 @@ public class TableFormLayouter implements IFormLayouter {
 		m_appender = appender;
 	}
 
+	public TableFormLayouter(@NonNull NodeContainer nc) {
+		m_appender = nc::add;
+	}
+
 	@Override
 	public void setHorizontal(boolean horizontal) {
 		m_horizontal = horizontal;
@@ -170,5 +174,10 @@ public class TableFormLayouter implements IFormLayouter {
 		if(cell == null)
 			throw new IllegalStateException("Last control not known");
 		cell.add(what);
+	}
+
+	@Override
+	public void add(@NonNull NodeBase node) {
+		m_appender.add(node);
 	}
 }

@@ -94,4 +94,9 @@ public class ResponsiveFormLayouter implements IFormLayouter {
 			throw new IllegalStateException("No last control known");
 		container.add(what);
 	}
+
+	@Override
+	public void add(@NonNull NodeBase node) {
+		m_appender.add(node);
+	}
 }
