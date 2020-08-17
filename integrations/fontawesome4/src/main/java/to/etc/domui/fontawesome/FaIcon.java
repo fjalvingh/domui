@@ -500,6 +500,7 @@ public enum FaIcon implements IFontIconRef {
 	faRssSquare("fa-rss-square"),
 	faRub("fa-rub"),
 	faSafari("fa-safari"),
+	faSave("fa-save"),
 	faScissors("fa-scissors"),
 	faScribd("fa-scribd"),
 	faSearch("fa-search"),
