@@ -1514,6 +1514,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faFlask, FaIcon.faFlask);
 		Icon.setIcon(Icon.faFlickr, FaIcon.faFlickr);
 		Icon.setIcon(Icon.faFloppyO, FaIcon.faSave);
+		Icon.setIcon(Icon.faSave, FaIcon.faSave);
 		Icon.setIcon(Icon.faFolder, FaIcon.faFolder);
 		Icon.setIcon(Icon.faFolderO, FaIcon.faFolder);
 		Icon.setIcon(Icon.faFolderOpen, FaIcon.faFolderOpen);
