@@ -16,7 +16,7 @@ public class PostgresGenerator extends AbstractGenerator {
 		public void renderType(StringBuilder a, DbColumn c) {
 			int p = c.getPrecision();
 			int s = c.getScale();
-			if(s != 0) {
+			if(s > 0) {
 				a.append("numeric(" + p + "," + s + ")");
 				return;
 			}
