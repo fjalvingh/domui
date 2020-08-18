@@ -71,6 +71,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @NonNullByDefault
 final public class Page implements IQContextContainer {
+	static private final int MAX_DOMUI_NODES_PER_PAGE = 100_000;
+
 	/** Next ID# for unidded nodes. */
 	private int m_nextID = 1;
 
@@ -452,6 +454,8 @@ final public class Page implements IQContextContainer {
 		}
 		if(null != m_nodeMap.put(id, n))
 			throw new IllegalStateException("Duplicate node ID '" + id + "'!?!?");
+		if(m_nodeMap.size() > MAX_DOMUI_NODES_PER_PAGE)
+			throw new IllegalStateException("The page you are using is too big (it creates too many DOM nodes). Ask the developer to fix this issue.");
 		n.setPage(this);
 		n.onHeaderContributors(this);				// Ask the node for it's header contributors.
 		n.internalOnAddedToPage(this);
