@@ -186,6 +186,7 @@ public enum Icon implements IIconRef {
 	faConnectdevelop("fa-connectdevelop"),
 	faContao("fa-contao"),
 	faCopyright("fa-copyright"),
+	faCopy("fa-copy"),
 	faCreativeCommons("fa-creative-commons"),
 	faCreditCard("fa-credit-card"),
 	faCreditCardAlt("fa-credit-card-alt"),
