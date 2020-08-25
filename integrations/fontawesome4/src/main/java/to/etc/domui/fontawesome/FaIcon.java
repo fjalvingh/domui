@@ -183,6 +183,7 @@ public enum FaIcon implements IFontIconRef {
 	faConnectdevelop("fa-connectdevelop"),
 	faContao("fa-contao"),
 	faCopyright("fa-copyright"),
+	faCopy("fa-copy"),
 	faCreativeCommons("fa-creative-commons"),
 	faCreditCard("fa-credit-card"),
 	faCreditCardAlt("fa-credit-card-alt"),
