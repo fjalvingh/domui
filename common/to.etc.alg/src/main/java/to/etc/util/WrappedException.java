@@ -65,4 +65,27 @@ public class WrappedException extends RuntimeException {
 				return x;
 		}
 	}
+
+	public static Exception unwrap(Throwable x) {
+		if(x instanceof Exception)
+			return unwrap((Exception) x);
+
+		for(;;) {
+			if(x instanceof WrappedException) {
+				Throwable t = x.getCause();
+				if(!(t instanceof Exception)) // Can we unwrap?
+					break;
+				x = x.getCause();
+			} else if(x instanceof InvocationTargetException) {
+				Throwable t = x.getCause();
+				if(!(t instanceof Exception)) // Can we unwrap?
+					break; // No, keep wrapped
+				x = (Exception) x.getCause();
+			} else
+				break;
+		}
+		if(x instanceof Exception)
+			return unwrap((Exception) x);
+		return new WrappedException(x);
+	}
 }
