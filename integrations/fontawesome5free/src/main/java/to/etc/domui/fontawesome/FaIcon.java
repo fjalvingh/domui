@@ -1431,6 +1431,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faConnectdevelop, FaIcon.faConnectdevelop);
 		Icon.setIcon(Icon.faContao, FaIcon.faContao);
 		Icon.setIcon(Icon.faCopyright, FaIcon.faCopyright);
+		Icon.setIcon(Icon.faCopy, FaIcon.faCopy);
 		Icon.setIcon(Icon.faCreativeCommons, FaIcon.faCreativeCommons);
 		Icon.setIcon(Icon.faCreditCard, FaIcon.faCreditCard);
 		Icon.setIcon(Icon.faCreditCardAlt, FaIcon.faCreditCard);
