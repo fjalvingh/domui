@@ -36,6 +36,7 @@ public enum Theme implements IIconRef {
 	, ICON_RED_CROSS
 	, BTN_SAVE
 	, BTN_SHOW_DETAILS
+	, BTN_SHOW_LOOKUP
 	, BTN_SPECIAL_CHARS
 	, BTN_TODAY
 	, ICON_CLOSE
@@ -146,6 +147,7 @@ public enum Theme implements IIconRef {
 		update(ICON_RED_CROSS, Icon.of("THEME/btnRedCross.png"));
 		update(BTN_SAVE, Icon.of("THEME/btnSave.png"));
 		update(BTN_SHOW_DETAILS, Icon.of("THEME/btnShowDetails.png"));
+		update(BTN_SHOW_LOOKUP, Icon.of("THEME/btnShowLookup.png"));
 		update(BTN_SPECIAL_CHARS, Icon.of("THEME/btnSpecialChar.png"));
 		update(BTN_TODAY, Icon.of("THEME/btnToday.png"));
 		update(ICON_CLOSE, Icon.of("THEME/close.png"));
