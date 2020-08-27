@@ -158,12 +158,16 @@ public class FileTool {
 	/*	CODING:	Directory maintenance and bulk code.				*/
 	/*--------------------------------------------------------------*/
 	/**
+	 * OBSOLETE: old way that worked until we got mutlipe apps hosted in same web server with different users -> making same sub-paths inside
+	 * global tmp location causes permission issues.
+	 *
 	 * Returns the java.io.tmpdir directory. Throws an exception if it does not exist or
 	 * is inaccessible.
 	 *
 	 * @return
 	 */
-	static public File getTmpDir() {
+	@Deprecated
+	static public File getTmpDirLegacy() {
 		String v = System.getenv("java.io.tmpdir");
 		if(v == null)
 			v = "/tmp";
@@ -172,6 +176,16 @@ public class FileTool {
 			throw new IllegalStateException("The 'java.io.tmpdir' variable does not point to an existing directory (" + tmp + ")");
 		return tmp;
 	}
+
+	static public File getTmpDir() {
+		try {
+			File temp = File.createTempFile("locator", ".tmp");
+			return temp.getParentFile();
+		} catch(IOException e) {
+			throw new IllegalStateException("Unable to locate tmp dir location!", e);
+		}
+	}
+
 	static {
 		m_seed_ts = System.currentTimeMillis();
 	}
