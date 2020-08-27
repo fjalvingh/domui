@@ -47,7 +47,7 @@ jobs:
     #    uses a compiled language
 
     - run: |
-       cd java && mvn -q clean install
+       mvn -q clean install
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
