@@ -14,7 +14,7 @@ import to.etc.webapp.query.QDataContext;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 31-10-17.
  */
-abstract public class AbstractAsyncDialogTask implements IAsyncRunnable {
+abstract public class AbstractAsyncDialogTask implements IAsyncRunnable, AutoCloseable {
 	@Nullable
 	private QDataContext m_dc;
 
@@ -55,6 +55,15 @@ abstract public class AbstractAsyncDialogTask implements IAsyncRunnable {
 			lc = m_lc = new LogicContextImpl(dc());
 		}
 		return lc;
+	}
+
+	@Override
+	public void close() throws Exception {
+		QDataContext dc = m_dc;
+		if(dc != null) {
+			m_dc = null;
+			dc.close();
+		}
 	}
 
 	private boolean isDone() {
