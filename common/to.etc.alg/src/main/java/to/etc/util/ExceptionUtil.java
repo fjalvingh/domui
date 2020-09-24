@@ -5,6 +5,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.RunnableEx;
 import to.etc.function.SupplierEx;
 
+import java.sql.SQLException;
+import java.util.function.Function;
+
 /**
  * ExceptionUtil
  * A collection of utility methods for working with Exceptions
@@ -63,4 +66,31 @@ final public class ExceptionUtil {
 			return defaultValue;
 		}
 	}
+
+	/**
+	 * Walk an entire exception tree to find something specific, which is then returned.
+	 */
+	@Nullable
+	public static <T> T findException(Throwable in, Function<Throwable, T> matcher) {
+		T res = matcher.apply(in);
+		if(null != res)
+			return res;
+
+		if(in instanceof SQLException) {
+			SQLException sx = (SQLException) in;
+			SQLException next = sx.getNextException();
+			if(next != in && next != null) {
+				res = findException(next, matcher);
+				if(null != res)
+					return res;
+			}
+		}
+
+		Throwable cause = in.getCause();
+		if(cause != null && cause != in) {
+			return findException(cause, matcher);
+		}
+		return null;
+	}
+
 }
