@@ -64,6 +64,7 @@ $rbb-disabled-border-color: darken($rbb-disabled-color, 15%);
 	}
 	&.is-small .ui-rbb-item label {
 		padding: 1px 0.25em;
+		font-size: 0.75em;
 	}
 
 }
