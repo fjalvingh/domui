@@ -3,9 +3,8 @@ package to.etc.parallelrunner;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.FunctionEx;
 import to.etc.util.CancelledException;
-import to.etc.util.DependentTaskSource;
-import to.etc.util.DependentTaskSource.ITaskListener;
-import to.etc.util.DependentTaskSource.Task;
+import to.etc.parallelrunner.DependentTaskSource.ITaskListener;
+import to.etc.parallelrunner.DependentTaskSource.Task;
 import to.etc.util.Progress;
 
 import java.util.Collection;
@@ -17,23 +16,23 @@ import java.util.Objects;
  * Created on 26-2-19.
  */
 public class DependentTaskRunner<T extends IAsyncRunnable> {
-	private final DependentTaskSource<T> m_taskSource = new DependentTaskSource<>();
+	private final DependentTaskSource<T, SingleTaskExecutor<T>> m_taskSource = new DependentTaskSource<>(this::convertTaskToRunner);
 
-	private FunctionEx<List<Task<T>>, Task<T>> m_calculateBest = tasks -> tasks.get(0);
+	private FunctionEx<List<Task<T, SingleTaskExecutor<T>>>, Task<T, SingleTaskExecutor<T>>> m_calculateBest = tasks -> tasks.get(0);
 
 	private FunctionEx<T, Integer> m_priorityCalculator = t -> 10;
 
 	private Progress m_progress;
 
 	public DependentTaskRunner() {
-		m_taskSource.addListener(new ITaskListener<T>() {
+		m_taskSource.addListener(new ITaskListener<T, SingleTaskExecutor<T>>() {
 			@Override
-			public void onTaskStarted(Task<T> task) throws Exception {
+			public void onTaskStarted(Task<T, SingleTaskExecutor<T>> task) throws Exception {
 				DependentTaskRunner.this.onTaskStarted(task);
 			}
 
 			@Override
-			public void onTaskFinished(Task<T> task, @Nullable Exception failure) throws Exception {
+			public void onTaskFinished(Task<T, SingleTaskExecutor<T>> task, @Nullable Exception failure) throws Exception {
 				DependentTaskRunner.this.onFinish(task);
 			}
 		});
@@ -47,7 +46,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 		m_progress = pin;
 		pin.setTotalWork(m_taskSource.size());
 		for(;;) {
-			Task<T> task = m_taskSource.getNextRunnableBlocking(m_calculateBest);
+			Task<T, SingleTaskExecutor<T>> task = m_taskSource.getNextRunnableBlocking(m_calculateBest);
 			if(null == task)
 				break;
 			if(pin.isCancelled())
@@ -60,18 +59,22 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 		System.out.println("** All finished");
 
 		//-- All done; dump their log info
-		List<Task<T>> fl = getFinishedList();
-		for(Task<T> finished: fl) {
+		List<Task<T, SingleTaskExecutor<T>>> fl = getFinishedList();
+		for(Task<T, SingleTaskExecutor<T>> finished: fl) {
 			handleFinishedAfter(finished);
 		}
 
 		//-- Also dump info for all cancelled thingies.
-		for(Task<T> task: m_taskSource.getCancelledSet()) {
+		for(Task<T, SingleTaskExecutor<T>> task: m_taskSource.getCancelledSet()) {
 			handleCancelledAfter(task);
 		}
 	}
 
-	public void setCalculateBest(FunctionEx<List<Task<T>>, Task<T>> calculateBest) {
+	private SingleTaskExecutor<T> convertTaskToRunner(Task<T, SingleTaskExecutor<T>> task) {
+		return new SingleTaskExecutor<>(this, task);
+	}
+
+	public void setCalculateBest(FunctionEx<List<Task<T, SingleTaskExecutor<T>>>, Task<T, SingleTaskExecutor<T>>> calculateBest) {
 		m_calculateBest = calculateBest;
 	}
 
@@ -79,29 +82,29 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 		m_priorityCalculator = priorityCalculator;
 	}
 
-	private void scheduleTask(Task<T> tableTask) throws Exception {
+	private void scheduleTask(Task<T, SingleTaskExecutor<T>> tableTask) throws Exception {
 		AsyncWorker.getInstance().schedule("Run#" + tableTask.getItem().toString()
 			, tableTask
 			, (a, x) -> {}
 			, m_priorityCalculator.apply(tableTask.getItem()));
 	}
 
-	protected void onTaskStarted(Task<T> exec) {
+	protected void onTaskStarted(Task<T, SingleTaskExecutor<T>> exec) {
 	}
 
-	protected void onFinish(Task<T> dx) {
+	protected void onFinish(Task<T, SingleTaskExecutor<T>> dx) {
 	}
 
-	protected void handleCancelledAfter(Task<T> task) {
+	protected void handleCancelledAfter(Task<T, SingleTaskExecutor<T>> task) {
 	}
 
 	/**
 	 * Called with all finished tasks AFTER the complete run finishes.
 	 */
-	protected void handleFinishedAfter(Task<T> finished) {
+	protected void handleFinishedAfter(Task<T, SingleTaskExecutor<T>> finished) {
 	}
 
-	public synchronized List<Task<T>> getFinishedList() {
+	public synchronized List<Task<T, SingleTaskExecutor<T>>> getFinishedList() {
 		return m_taskSource.getAllExecutedTasks();
 	}
 
@@ -109,7 +112,36 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 		return Objects.requireNonNull(m_progress).isCancelled();
 	}
 
-	public synchronized List<Task<T>> getRunningTasks() {
+	public synchronized List<Task<T, SingleTaskExecutor<T>>> getRunningTasks() {
 		return m_taskSource.getRunning();
+	}
+
+
+	/**
+	 * The executor task which runs the payload and handles error and success registration.
+	 */
+	static public final class SingleTaskExecutor<V extends IAsyncRunnable> implements IAsyncRunnable {
+		private final DependentTaskRunner<V> m_runner;
+
+		private final Task<V, SingleTaskExecutor<V>> m_task;
+
+		public SingleTaskExecutor(DependentTaskRunner<V> runner, Task<V, SingleTaskExecutor<V>> task) {
+			m_runner = runner;
+			m_task = task;
+		}
+
+		@Override public void run(Progress p) throws Exception {
+			if(m_runner.isCancelled())
+				return;
+			m_task.run(p);
+		}
+
+		public Task<V, SingleTaskExecutor<V>> getTask() {
+			return m_task;
+		}
+
+		@Override public String toString() {
+			return m_task.getItem().toString();
+		}
 	}
 }
