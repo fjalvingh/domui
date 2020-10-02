@@ -229,6 +229,8 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			task.setStartTime(new Date());
 			executor.run(progress);
 		} catch(Exception x) {
+			System.err.println("ERROR " + task + ": " + x);
+			x.printStackTrace();
 			errorX = x;
 		} finally {
 			task.setEndTime(new Date());
