@@ -30,6 +30,8 @@ import to.etc.domui.util.bugs.Bug;
 import java.util.ArrayList;
 import java.util.List;
 
+import static to.etc.util.StringTool.isBlank;
+
 /**
  * Easier to use MsgBox using Builder pattern.
  *
@@ -346,8 +348,9 @@ final public class MsgBox2 extends Window {
 				break;
 		}
 		m_theImage = icon.createNode();
-		if(getWindowTitle() == null)
+		if(isBlank(getWindowTitle())) {
 			setWindowTitle(ttl);
+		}
 		setTestID("msgBox");
 		m_typeSet = true;
 		return this;
