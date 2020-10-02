@@ -3,6 +3,7 @@ package to.etc.util;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.FunctionEx;
+import to.etc.parallelrunner.IAsyncRunnable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,23 +30,42 @@ import java.util.stream.Collectors;
  * Created on 27-6-18.
  */
 @NonNullByDefault
-final public class DependentTaskSource<T> {
+final public class DependentTaskSource<T extends IAsyncRunnable> {
 	private final Map<T, Task<T>> m_taskMap = new HashMap<>();
 
 	private Set<Task<T>> m_todo = new HashSet<>();
 
+	/** Tasks returned by getNextRunnable and the like but for which run() has not yet been called. */
+	private Set<Task<T>> m_scheduled = new HashSet<>();
+
+	/** Tasks that are actually running */
 	private Set<Task<T>> m_running = new HashSet<>();
 
+	/** Tasks that ran but failed with an exception */
 	private Set<Task<T>> m_errorSet = new HashSet<>();
 
+	/** Tasks that never ran but were cancelled because some dependency failed */
 	private Set<Task<T>> m_cancelledSet = new HashSet<>();
 
 	private Set<Task<T>> m_doneSet = new HashSet<>();
 
+	private Set<Task<T>> m_allDoneSet = new HashSet<>();
+
 	private boolean m_cancelChildrenOnError;
+
+	private List<ITaskListener<T>> m_listeners = new ArrayList<>();
 
 	@Nullable
 	private List<Task<T>> m_runnableTasks;
+
+	public interface ITaskListener<V extends IAsyncRunnable> {
+		default void onTaskStarted(Task<V> task) throws Exception {}
+
+		default void onTaskFinished(Task<V> task, @Nullable Exception failure) throws Exception {}
+	}
+
+	public DependentTaskSource() {
+	}
 
 	public synchronized void addItem(T item, Collection<? extends T> itemChildren) {
 		if(m_runnableTasks != null)
@@ -105,7 +125,7 @@ final public class DependentTaskSource<T> {
 
 		Task<T> task = calculateBest == null ? tasks.get(0) : calculateBest.apply(tasks);
 		if(null != task)
-			task.start();
+			task.selected();
 		return task;
 	}
 
@@ -179,7 +199,7 @@ final public class DependentTaskSource<T> {
 	 */
 	public synchronized boolean isFinished() {
 		internalRunnableTasks();
-		return m_todo.isEmpty() && m_running.isEmpty();
+		return m_todo.isEmpty() && m_running.isEmpty() && m_scheduled.isEmpty();
 	}
 
 	public synchronized void waitFinished() throws InterruptedException {
@@ -190,12 +210,52 @@ final public class DependentTaskSource<T> {
 		}
 	}
 
+	/**
+	 * Get all tasks that were cancelled (because their dependencies failed to run).
+	 */
 	public synchronized Set<Task<T>> getCancelledSet() {
 		return new HashSet<>(m_cancelledSet);
 	}
 
+	/**
+	 * Returns the current set of successfully executed tasks.
+	 */
+	public synchronized List<Task<T>> getSuccessfulTasks() {
+		return new ArrayList<>(m_allDoneSet);
+	}
+
+	/**
+	 * Get all tasks that failed execution (this does not include cancelled tasks).
+	 */
+	public synchronized List<Task<T>> getFailedTasks() {
+		return new ArrayList<>(m_errorSet);
+	}
+
+	/**
+	 * Return all tasks that have actually run, either successfully or
+	 * unsuccessfully (again excluding cancelled ones).
+	 */
+	public synchronized List<Task<T>> getAllExecutedTasks() {
+		return new ArrayList<>(m_allDoneSet);
+	}
+
+	/**
+	 * Get all tasks that are currently executing.
+	 */
+	public synchronized List<Task<T>> getRunning() {
+		return new ArrayList<>(m_running);
+	}
+
 	private Task<T> task(T item) {
 		return m_taskMap.computeIfAbsent(item, a -> new Task<>(this, item));
+	}
+
+	public synchronized void addListener(ITaskListener<T> l) {
+		m_listeners.add(l);
+	}
+
+	private synchronized List<ITaskListener<T>> getListeners() {
+		return new ArrayList<>(m_listeners);
 	}
 
 	public void dumpDependencies() {
@@ -219,7 +279,7 @@ final public class DependentTaskSource<T> {
 		CANCELLED
 	}
 
-	public final static class Task<V> {
+	public final static class Task<V extends IAsyncRunnable> implements IAsyncRunnable {
 		private final DependentTaskSource<V> m_source;
 
 		private final V m_item;
@@ -239,32 +299,56 @@ final public class DependentTaskSource<T> {
 		@Nullable
 		private String m_error;
 
-		public Task(DependentTaskSource<V> source, V item) {
+		Task(DependentTaskSource<V> source, V item) {
 			m_source = source;
 			m_item = item;
 		}
 
-		public void start() {
+		/**
+		 * Called when this task has been returned. It removes the task from the list of runnable tasks
+		 * so that it cannot be returned again.
+		 */
+		void selected() {
 			synchronized(m_source) {
 				if(m_state != TaskState.NONE)
 					throw new IllegalStateException("The task " + this + " has already been started and is in state " + m_state);
 				m_state = TaskState.RUNNING;
 				m_source.m_todo.remove(this);
-				m_source.m_running.add(this);
+				m_source.m_scheduled.add(this);
 				Objects.requireNonNull(m_source.m_runnableTasks).remove(this);
 			}
 		}
 
-		public void completedSuccessfully() {
-			completed(null, null);
+		@Override
+		public void run(@Nullable Progress optionalProgress) {
+			Progress progress = optionalProgress == null ? new Progress("") : optionalProgress;
+
+			synchronized(m_source) {
+				if(! m_source.m_scheduled.remove(this))
+					throw new IllegalStateException("Running a task that is not yet returned by getNextRunnable() is not allowed (or perhaps you're running it twice)");
+				m_source.m_running.add(this);
+			}
+			Exception errorX = null;
+			try {
+				run(optionalProgress);
+			} catch(Exception x) {
+				errorX = x;
+			} finally {
+				completed(errorX, null);
+			}
 		}
 
-		public void completed(@Nullable Exception exception, @Nullable String errorMessage) {
+		//public void completedSuccessfully() {
+		//	completed(null, null);
+		//}
+
+		private void completed(@Nullable Exception exception, @Nullable String errorMessage) {
 			synchronized(m_source) {
 				if(m_state != TaskState.RUNNING)
 					throw new IllegalStateException("The task " + this + " can only be completed in RUNNING state but it is in state " + m_state);
 
 				m_source.m_running.remove(this);
+				m_source.m_allDoneSet.add(this);
 				if(! StringTool.isBlank(errorMessage) || exception != null) {
 					m_error = errorMessage;
 					m_exception = exception;
@@ -286,18 +370,6 @@ final public class DependentTaskSource<T> {
 						}
 					}
 				}
-				//
-				///*
-				// * At this point we need to have runnable items or we must be done, otherwise we are blocking
-				// * because there is a loop.
-				// */
-				//if(m_source.m_runnableTasks.size() == 0) {
-				//	if(m_source.m_running.size() == 0) {
-				//
-				//	}
-				//}
-				//
-				//
 				m_source.notifyAll();			// Some state changed, notify waiters
 			}
 		}
@@ -315,6 +387,7 @@ final public class DependentTaskSource<T> {
 					parent.m_failedTask = failedTask;
 					m_source.m_todo.remove(parent);
 					m_source.m_cancelledSet.add(parent);
+					m_source.m_allDoneSet.add(parent);
 
 					if(m_source.m_cancelChildrenOnError)
 						cancelChildren(failedTask);
@@ -335,6 +408,7 @@ final public class DependentTaskSource<T> {
 					m_source.m_todo.remove(child);
 					child.cancelChildren(failedTask);
 					m_source.m_cancelledSet.add(child);
+					m_source.m_allDoneSet.add(child);
 				}
 			}
 			m_children.clear();
