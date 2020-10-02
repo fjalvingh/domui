@@ -199,7 +199,7 @@ import java.util.function.Predicate;
 				HeaderContainer.HeaderContainerCell cell = cc.add(cellSpan);
 				cellSpan.add(new Span(label));
 				cellSpan.setTitle(cd.getHint());
-				Div sp = new Div("ui-dt-sorticon");
+				Div sp = new Div("ui-dt-sorticon ui-sort-na"); //sort-na = sort not applicable
 				cellSpan.add(sp);
 				th = cell.getTh();
 				col = cell.getCol();
