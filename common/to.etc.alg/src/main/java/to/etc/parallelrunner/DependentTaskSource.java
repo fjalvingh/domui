@@ -58,6 +58,8 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 
 	private List<ITaskListener<T, X>> m_listeners = new ArrayList<>();
 
+	private int m_maxParallel;
+
 	@Nullable
 	private List<Task<T, X>> m_runnableTasks;
 
@@ -143,13 +145,14 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 	 * so that it cannot be returned again.
 	 */
 	private void selectTask(Task<T, X> task) {
+		//System.out.println(">>>> selectTask " + task);
 		synchronized(this) {
 			if(task.m_state != TaskState.NONE)
 				throw new IllegalStateException("The task " + this + " has already been started and is in state " + task.m_state);
-			task.m_state = TaskState.RUNNING;
-			m_todo.remove(this);
+			task.m_state = TaskState.SCHEDULED;
+			m_todo.remove(task);
 			m_scheduled.add(task);
-			Objects.requireNonNull(m_runnableTasks).remove(this);
+			Objects.requireNonNull(m_runnableTasks).remove(task);
 		}
 	}
 
@@ -183,7 +186,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			m_runnableTasks = runnableTasks = new ArrayList<>();
 			calculateRunnableTasks();
 		} else if(runnableTasks.size() == 0) {
-			if(m_running.size() == 0) {
+			if(m_running.size() == 0 && m_scheduled.isEmpty()) {
 				if(m_todo.size() > 0)
 					throw new IllegalStateException("There are no tasks running, but none of the todo tasks became available");
 			}
@@ -211,9 +214,13 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 
 	private void runTask(Task<T, X> task, Progress progress) {
 		synchronized(this) {
-			if(!m_scheduled.remove(this))
+			if(!m_scheduled.remove(task))
 				throw new IllegalStateException("Running a task that is not yet returned by getNextRunnable() is not allowed (or perhaps you're running it twice)");
 			m_running.add(task);
+			int sz = m_running.size();
+			if(sz > m_maxParallel)
+				m_maxParallel = sz;
+			task.m_state = TaskState.RUNNING;
 		}
 		Exception errorX = null;
 		try {
@@ -307,6 +314,10 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		return new ArrayList<>(m_running);
 	}
 
+	public int getMaxParallel() {
+		return m_maxParallel;
+	}
+
 	private Task<T, X> task(T item) {
 		return m_taskMap.computeIfAbsent(item, a -> new Task<>(this, item));
 	}
@@ -334,6 +345,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 
 	public enum TaskState {
 		NONE,
+		SCHEDULED,
 		RUNNING,
 		COMPLETED,
 		FAILED,
@@ -447,6 +459,10 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 				}
 			}
 			m_children.clear();
+		}
+
+		public DependentTaskSource<V, X> getSource() {
+			return m_source;
 		}
 
 		public synchronized TaskState getState() {
