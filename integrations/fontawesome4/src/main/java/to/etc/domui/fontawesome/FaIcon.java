@@ -665,6 +665,7 @@ public enum FaIcon implements IFontIconRef {
 	faVolumeDown("fa-volume-down"),
 	faVolumeOff("fa-volume-off"),
 	faVolumeUp("fa-volume-up"),
+	faWarning("fa-warning"),
 	faWeibo("fa-weibo"),
 	faWeixin("fa-weixin"),
 	faWhatsapp("fa-whatsapp"),
