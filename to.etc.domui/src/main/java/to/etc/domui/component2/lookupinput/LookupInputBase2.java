@@ -329,7 +329,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 			openMessagePanel("ui-lui-result-none", Msgs.UI_KEYWORD_SEARCH_NO_MATCH);
 		} else if (size == 1 && ! isDisableSelectOne()){ 					//in case of single match select value
 			handleSetValue(model.getItems(0, 1).get(0));
-		} else if(size > 10) {
+		} else if(size > 100) {
 			String count = Integer.toString(size);
 			if(model instanceof ITruncateableDataModel) {
 				if(((ITruncateableDataModel) model).isTruncated())
