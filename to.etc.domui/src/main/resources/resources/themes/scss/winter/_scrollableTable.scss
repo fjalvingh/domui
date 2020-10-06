@@ -141,7 +141,9 @@ $data_tbl_lines_color: lighten($data_tbl_border_color, 20%);
             background-image: url(data:image/gif;base64,R0lGODlhFQAEAIAAACMtMP///yH5BAEAAAEALAAAAAAVAAQAAAINjB+gC+jP2ptn0WskLQA7);
             //background: url(sort-desc.png) no-repeat;
         }
-
+        &.ui-sort-na { //sort not applicable
+            display: none !important;
+        }
     }
 
     /*** Rows and columns ***/
