@@ -130,6 +130,8 @@ public class ColumnWrapper {
 	@Nullable
 	private ClassWrapper m_compoundPkWrapper;
 
+	private boolean m_invalid;
+
 	public ColumnWrapper(ClassWrapper cw) {
 		m_classWrapper = cw;
 	}
@@ -1215,7 +1217,7 @@ public class ColumnWrapper {
 
 				ClassWrapper childClass = g().findClassWrapper(m_classWrapper.getPackageName(), childName);
 				if(null == childClass) {
-					m_classWrapper.error(this + ": cannot locate child class " + childName);
+					error("cannot locate child class " + childName);
 					return;
 				}
 
@@ -1225,7 +1227,7 @@ public class ColumnWrapper {
 				} else {
 					childColumn = childClass.findDeletedProperty(mappedBy);
 					if(null == childColumn) {
-						m_classWrapper.error(this + ": cannot find mappedBy property '" + mappedBy + "' in child class " + childClass);
+						error("cannot find mappedBy property '" + mappedBy + "' in child class " + childClass);
 					} else {
 						m_classWrapper.info(this  + ": child property '" + mappedBy + "' deleted from " + childClass + ", deleting OneToMany");
 
@@ -1235,7 +1237,13 @@ public class ColumnWrapper {
 				return;
 			}
 		}
-		m_classWrapper.error(this + ": @OneToMany reference but property type is not correct (List<T>, but it is " + propertyType + ")");
+		error("@OneToMany reference but property type is not correct (List<T>, but it is " + propertyType + ")");
+	}
+
+	public void error(String s) {
+		setInvalid(true);
+		m_classWrapper.error(this + ": " + s);
+		m_classWrapper.deleteColumn(this);
 	}
 
 	public void resolveManyToOne() {
@@ -1425,4 +1433,11 @@ public class ColumnWrapper {
 			;
 	}
 
+	public boolean isInvalid() {
+		return m_invalid;
+	}
+
+	public void setInvalid(boolean invalid) {
+		m_invalid = invalid;
+	}
 }

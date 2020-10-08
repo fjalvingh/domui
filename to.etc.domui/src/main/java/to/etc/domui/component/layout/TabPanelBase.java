@@ -37,6 +37,7 @@ import to.etc.domui.dom.html.Li;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Span;
+import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
 
 import java.util.ArrayList;
@@ -69,7 +70,7 @@ public class TabPanelBase extends Div {
 	/**
 	 * In case that it is set through constructor TabPanel would mark tabs that contain errors in content
 	 */
-	private boolean m_markErrorTabs;
+	final private boolean m_markErrorTabs;
 
 	private ITabSelected m_onTabSelected;
 
@@ -88,6 +89,12 @@ public class TabPanelBase extends Div {
 	protected void renderTabPanels(NodeContainer labelcontainer, NodeContainer contentcontainer) throws Exception {
 		if(m_tabBuilder != null)
 			throw new IllegalStateException("A tab builder was created but build() was not called on it.");
+
+		if(isMarkErrorTabs()) {
+			ErrorMessageDiv nd = new ErrorMessageDiv(this, false);
+			add(0, nd);
+			Objects.requireNonNull(getErrorFence()).addErrorListener(nd);
+		}
 
 		m_contentContainer = contentcontainer;
 		m_labelContainer = labelcontainer;
@@ -265,6 +272,9 @@ public class TabPanelBase extends Div {
 			pos = m_tablist.size();
 		}
 		m_tablist.add(pos, ti);
+		if(m_markErrorTabs) {
+			DomUtil.getMessageFence(this).addErrorListener(ti);
+		}
 
 		m_tabBuilder = null;
 		if(isBuilt()) {
@@ -468,5 +478,9 @@ public class TabPanelBase extends Div {
 		old.replaceWith(tabInstance.getContent());
 		//tabInstance.getContent().setDisplay(DisplayType.BLOCK);
 		tabInstance.getContent().setDisplay(null);
+	}
+
+	protected boolean isMarkErrorTabs() {
+		return m_markErrorTabs;
 	}
 }

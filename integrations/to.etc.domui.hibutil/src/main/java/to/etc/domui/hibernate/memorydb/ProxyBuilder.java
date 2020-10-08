@@ -46,7 +46,7 @@ class ProxyBuilder {
 					return true;
 				}
 			});
-			proxyClass = pf.createClass();
+			proxyClass = (Class<Proxy>) pf.createClass();
 			m_proxyByClassMap.put(actualType, proxyClass);
 		}
 
@@ -83,7 +83,7 @@ class ProxyBuilder {
 					return true;
 				}
 			});
-			m_listProxyClass = listProxyClass = pf.createClass();
+			m_listProxyClass = listProxyClass = (Class<Proxy>) pf.createClass();
 		}
 		Proxy proxy = (Proxy) listProxyClass.newInstance();
 		proxy.setHandler(new MethodHandler() {

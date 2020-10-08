@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -435,11 +436,19 @@ abstract public class AbstractGenerator {
 			DbTable table = wrapper.getTable();
 			if(null == table)
 				return false;
-			if(table.getName().contains(onlyTable)) {
+			if(matchesTable(onlyTable, table.getName())) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	private boolean matchesTable(String pattern, String name) {
+		try {
+			return Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(name).matches();
+		} catch(Exception x) {
+			return name.toLowerCase().contains(pattern.toLowerCase());
+		}
 	}
 
 	private void generateProperties() throws Exception {

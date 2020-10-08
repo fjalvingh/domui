@@ -37,6 +37,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Modifier;
+import java.sql.SQLException;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2170,6 +2171,57 @@ public class StringTool {
 		}
 		return true;
 	}
+
+	private final static class ExceptionDup {
+		private final String m_message;
+
+		private int m_count = 1;
+
+		public ExceptionDup(String message) {
+			m_message = message;
+		}
+	}
+
+	static public String getAllExceptionTexts(Exception x) {
+		if(x instanceof SQLException) {
+			SQLException sx = (SQLException) x;
+
+			StringBuilder sb = new StringBuilder();
+			sb.append(sx.toString());
+
+			List<ExceptionDup> dups = new ArrayList<>();
+
+			for(;;) {
+				SQLException nx = sx.getNextException();
+				if(nx == null || nx == sx)
+					break;
+				addExceptionDup(dups, nx);
+				sx = nx;
+			}
+
+			for(ExceptionDup dup : dups) {
+				sb.append("\n- ").append(dup.m_message);
+				if(dup.m_count > 1) {
+					sb.append(" (repeated ").append(dup.m_count).append("x)");
+				}
+			}
+
+			return sb.toString();
+		}
+		return x.toString();
+	}
+
+	private static void addExceptionDup(List<ExceptionDup> dups, SQLException sx) {
+		String msg = sx.toString();
+		for(ExceptionDup dup : dups) {
+			if(dup.m_message.equals(msg)) {
+				dup.m_count++;
+				return;
+			}
+		}
+		dups.add(new ExceptionDup(msg));
+	}
+
 
 	/**
 	 * Workaround for Java bug delivering file:// instead of file:/// for

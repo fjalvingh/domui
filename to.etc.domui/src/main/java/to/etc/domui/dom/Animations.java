@@ -65,11 +65,17 @@ final public class Animations {
 	 * to slide up, then destroy a node.
 	 */
 	static public void slideUp(NodeBase node) {
+		slideUp(node, "");
+	}
+
+	/**
+	 * Slide the node UP, with specified js callback.
+	 */
+	static public void slideUp(NodeBase node, String jsCallback) {
 		node.getPage().addAfterRenderListener(new NodeFixer(node, DisplayType.NONE));
 		node.appendStatement()
 			.select(node)
-			.method("slideUp").end()
-			.endmethod()
+			.append(".slideUp(function() { " + jsCallback + " })")
 			.next();
 	}
 

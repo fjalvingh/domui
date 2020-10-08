@@ -18,8 +18,8 @@ import java.util.function.Supplier;
  * Created on 26-10-17.
  */
 public enum ExcelFormat {
-	XLSX("xlsx", "Microsoft Office Excel (xlsx)", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", () -> new XSSFWorkbook(), 65535)
-	, XLS("xls", "Microsoft Office Excel (xls)", "application/vnd.ms-excel", () -> new HSSFWorkbook(), 1048575)
+	XLSX("xlsx", "Microsoft Office Excel (xlsx)", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", () -> new XSSFWorkbook(), 1048575)
+	, XLS("xls", "Microsoft Office Excel (xls)", "application/vnd.ms-excel", () -> new HSSFWorkbook(), 65535)
 	;
 
 	private final String m_description;

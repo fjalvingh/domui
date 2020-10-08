@@ -301,6 +301,8 @@ public abstract class DomApplication {
 	@Nullable
 	private ScanResult m_scanResult;
 
+	private boolean m_scanClosed;
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
@@ -730,7 +732,11 @@ public abstract class DomApplication {
 		calculateUiTestMode(development);
 		runListenersStartInitialization();
 		m_pageUrlMapping.scan();
-		initialize(pp);
+		try {
+			initialize(pp);
+		} finally {
+			closeClasspathScanResult();
+		}
 
 		runListenersEndInitialization();
 		calculateRefreshInterval(development);
@@ -2334,6 +2340,8 @@ public abstract class DomApplication {
 	public synchronized ScanResult getClasspathScanResult() {
 		ScanResult result = m_scanResult;
 		if(null == result) {
+			if(m_scanClosed)
+				throw new IllegalStateException("Classpath scan results are only available during DomApplication.initialize()");
 			long ts = System.currentTimeMillis();
 			result = m_scanResult = new ClassGraph()
 				.enableAllInfo()
@@ -2342,6 +2350,14 @@ public abstract class DomApplication {
 			System.out.println("init: scanned classes in " + StringTool.strDurationMillis(ts));
 		}
 		return result;
+	}
+
+	public synchronized void closeClasspathScanResult() {
+		ScanResult result = m_scanResult;
+		if(null != result) {
+			result.close();
+		}
+		m_scanClosed = true;
 	}
 
 	public PageUrlMapping getPageUrlMapping() {

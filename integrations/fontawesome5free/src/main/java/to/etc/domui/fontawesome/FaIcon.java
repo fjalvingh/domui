@@ -1210,6 +1210,7 @@ public enum FaIcon implements IFontIconRef {
 	faWalking("fa-walking","fa"),
 	faWallet("fa-wallet","fa"),
 	faWarehouse("fa-warehouse","fa"),
+	faWarning("fa-warnning","fa"),
 	faWeebly("fa-weebly","fa"),
 	faWeibo("fa-weibo","fab"),
 	faWeight("fa-weight","fa"),
@@ -1431,6 +1432,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faConnectdevelop, FaIcon.faConnectdevelop);
 		Icon.setIcon(Icon.faContao, FaIcon.faContao);
 		Icon.setIcon(Icon.faCopyright, FaIcon.faCopyright);
+		Icon.setIcon(Icon.faCopy, FaIcon.faCopy);
 		Icon.setIcon(Icon.faCreativeCommons, FaIcon.faCreativeCommons);
 		Icon.setIcon(Icon.faCreditCard, FaIcon.faCreditCard);
 		Icon.setIcon(Icon.faCreditCardAlt, FaIcon.faCreditCard);
@@ -1514,6 +1516,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faFlask, FaIcon.faFlask);
 		Icon.setIcon(Icon.faFlickr, FaIcon.faFlickr);
 		Icon.setIcon(Icon.faFloppyO, FaIcon.faSave);
+		Icon.setIcon(Icon.faSave, FaIcon.faSave);
 		Icon.setIcon(Icon.faFolder, FaIcon.faFolder);
 		Icon.setIcon(Icon.faFolderO, FaIcon.faFolder);
 		Icon.setIcon(Icon.faFolderOpen, FaIcon.faFolderOpen);
@@ -1911,6 +1914,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faVolumeDown, FaIcon.faVolumeDown);
 		Icon.setIcon(Icon.faVolumeOff, FaIcon.faVolumeOff);
 		Icon.setIcon(Icon.faVolumeUp, FaIcon.faVolumeUp);
+		Icon.setIcon(Icon.faWarning, FaIcon.faWarning);
 		Icon.setIcon(Icon.faWeibo, FaIcon.faWeibo);
 		Icon.setIcon(Icon.faWeixin, FaIcon.faWeixin);
 		Icon.setIcon(Icon.faWhatsapp, FaIcon.faWhatsapp);

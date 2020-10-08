@@ -64,6 +64,8 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 	private boolean m_askedForErrors;
 
+	private int m_la1 = -2;
+
 	static public class CsvError {
 		private final ImporterErrorCodes m_code;
 
@@ -91,10 +93,26 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		return m_lastChar;
 	}
 
+	private int la1() throws IOException {
+		int la = m_la1;
+		if(la != -2)
+			return la;
+		int c = Objects.requireNonNull(m_r).read();
+		m_la1 = c;
+		return c;
+	}
+
 	private int accept() throws IOException {
 		if(m_eof)
 			return -1;
-		int c = Objects.requireNonNull(m_r).read();
+		int la = m_la1;
+		int c;
+		if(la != -2) {
+			c = la;
+			m_la1 = -2;
+		} else {
+			c = Objects.requireNonNull(m_r).read();
+		}
 		if(c == -1) {
 			m_eof = true;
 			m_lastChar = -1;
@@ -131,7 +149,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		m_columns.clear();
 		if(m_eof)
 			return false;
-		while(la() == '\n')									// Skip empty lines
+		while(la() == '\n' || (la() == '\r' && la1() == '\n'))									// Skip empty lines
 			accept();
 		for(;;) {
 			readField();
@@ -139,6 +157,14 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			if(c == -1)
 				break;
 			if(c == '\n') {
+				accept();
+				if(m_columns.size() > 0) {
+					break;
+				}
+				continue;
+			}
+			if(c == '\r' && la1() == '\n') {
+				accept();
 				accept();
 				if(m_columns.size() > 0) {
 					break;
@@ -182,7 +208,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			}
 
 			if(qc == 0) {
-				if(c == '\n' || c == m_fieldSeparator) {
+				if((c == '\n' || (c == '\r' && la1() == '\n')) || c == m_fieldSeparator) {
 					//-- End of record, end of field -> add content to list.
 					if(m_sb.length() == 0)
 						m_columns.add(null);								// ,, means null

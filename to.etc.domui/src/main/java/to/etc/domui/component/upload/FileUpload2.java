@@ -35,6 +35,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
+import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
@@ -109,6 +110,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	@Nullable
 	private IIconRef m_clearButtonIcon = Icon.faWindowClose;
 
+	@Nullable
+	private IClicked<FileUpload2> m_onClearClicked;
+
 	public FileUpload2() {
 		m_allowedExtensions = new ArrayList<>();
 	}
@@ -145,9 +149,9 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		valueD.add(value.getRemoteFileName());
 		IIconRef clearButtonIcon = m_clearButtonIcon;
 		if(clearButtonIcon != null) {
-			add(new DefaultButton("", clearButtonIcon, b -> clear()));
+			add(new DefaultButton("", clearButtonIcon, b -> clearClicked()));
 		} else {
-			add(new DefaultButton(m_clearButtonText, b -> clear()));
+			add(new DefaultButton(m_clearButtonText, b -> clearClicked()));
 		}
 	}
 
@@ -242,7 +246,6 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	/**
 	 * Internal: get the input type="file" thingy.
-	 * @return
 	 */
 	FileInput getInput() {
 		return m_input;
@@ -291,6 +294,20 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 		return m_value;
 	}
 
+	private void clearClicked() throws Exception {
+		if(m_value == null)
+			return;
+		IClicked<FileUpload2> onClearClicked = getOnClearClicked();
+		if(null != onClearClicked) {
+			onClearClicked.clicked(this);
+		} else {
+			clear();
+		}
+	}
+
+	/**
+	 * Clear the value of the control. WARNING If a file was present when calling this then the onChange listerer will be called!
+	 */
 	public void clear() throws Exception {
 		if(m_value == null)
 			return;
@@ -302,7 +319,6 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	/**
 	 * Return the space separated list of allowed file extensions.
-	 * @return
 	 */
 	public List<String> getAllowedExtensions() {
 		return m_allowedExtensions;
@@ -310,7 +326,6 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 
 	/**
 	 * Set the list of allowed file extensions.
-	 * @param allowedExtensions
 	 */
 	public void setAllowedExtensions(List<String> allowedExtensions) {
 		if(DomUtil.isEqual(allowedExtensions, m_allowedExtensions))
@@ -407,5 +422,20 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	@Override public void setHint(String hintText) {
 		setTitle(hintText);
 	}
+
+	/**
+	 * Set an alternative handler for the "clear" button. When this gets set the original
+	 * effect of pressing the clear button will not be executed, so the implementation
+	 * set here should call clear() itself if the value is to be cleared.
+	 */
+	@Nullable
+	public IClicked<FileUpload2> getOnClearClicked() {
+		return m_onClearClicked;
+	}
+
+	public void setOnClearClicked(@Nullable IClicked<FileUpload2> onClearClicked) {
+		m_onClearClicked = onClearClicked;
+	}
+
 }
 

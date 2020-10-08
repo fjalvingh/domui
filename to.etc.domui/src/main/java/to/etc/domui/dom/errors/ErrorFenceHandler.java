@@ -38,7 +38,7 @@ import java.util.List;
  * When controls or business logic encounters errors that need to be
  * reported back to the user they add an error to either a control (usually
  * for validation/conversion errors) or to the page itself (for errors where
- * there's no clear "location" where the problem has occured).
+ * there's no clear "location" where the problem has occurred).
  *
  * Making these errors visible is not the responsibility of a component, but
  * is delegated to one or more ErrorMessageListeners. These listeners get

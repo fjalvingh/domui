@@ -344,7 +344,7 @@ public final class DbLockKeeper {
 	 * Handle for a specific lock. Multiple handles can be distributed for a single lock.
 	 * This will only be the case when a lock is asked for the same thread multiple times.
 	 */
-	public static final class LockHandle {
+	public static final class LockHandle implements AutoCloseable {
 		private Lock m_lock;
 
 		private boolean m_released;
@@ -355,14 +355,22 @@ public final class DbLockKeeper {
 		}
 
 		/**
+		 * Use close() instead, and use try-with-resources to ensure the lock is freed.
+		 *
 		 * If this handle is the last/only handle for a lock the lock is released.
 		 * @throws Exception when exception with releasing the lock occurs.
 		 */
+		@Deprecated
 		public void release() {
 			if(m_released) // jal 20110821 Explicitly allow mutiple releases- better than not releasing at all.
 				return;
 			m_lock.release();
 			m_released = true;
+		}
+
+		@Override
+		public void close() throws Exception {
+			release();
 		}
 	}
 }

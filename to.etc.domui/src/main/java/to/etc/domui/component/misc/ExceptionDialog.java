@@ -66,10 +66,10 @@ final public class ExceptionDialog {
 	/**
 	 * Show an exception as an error dialog.
 	 */
-	static public void create(@NonNull NodeContainer container, @NonNull String message, @NonNull Exception x) throws Exception {
-		if(x instanceof ValidationException)
+	static public void create(@NonNull NodeContainer container, @NonNull String message, @NonNull Throwable xin) throws Exception {
+		if(xin instanceof ValidationException)
 			return;
-		x = WrappedException.unwrap(x);
+		Exception x = WrappedException.unwrap(xin);
 		ExceptionPresentation presentation = findExceptionMessage(x);
 		if(null == presentation) {
 			//-- A real unexpected exception.

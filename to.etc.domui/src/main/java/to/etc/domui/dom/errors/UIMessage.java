@@ -33,8 +33,10 @@ import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.CodeException;
 import to.etc.webapp.nls.IBundleCode;
+import to.etc.webapp.nls.NlsContext;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * A single error message for a component. The message consists of a message code and optional
@@ -79,6 +81,9 @@ public class UIMessage {
 
 	/** The message key is the bundle class' package name plus the message code, separated by a '.' */
 	final private String m_key;
+
+	/** Set in case that we like to show messages using some custom set locate, other than default one. */
+	private Locale m_customLocale;
 
 	/**
 	 * Create an error message container.
@@ -190,16 +195,32 @@ public class UIMessage {
 		return this;
 	}
 
+	@Nullable
+	public Locale getCustomLocale() {
+		return m_customLocale;
+	}
+
+	@NonNull
+	public UIMessage customLocale(@NonNull Locale locale) {
+		m_customLocale = locale;
+		return this;
+	}
+
 	/**
 	 * Returns the message part of the error message, properly localized for the request's locale.
 	 * @return
 	 */
 	@NonNull
 	public String getMessage() {
-		if(m_bundle != null)
-			return m_bundle.formatMessage(m_code, m_parameters);
+		Locale locale = m_customLocale;
+		if (null == locale) {
+			locale = NlsContext.getLocale();
+		}
+		if(m_bundle != null){
+			return m_bundle.formatMessage(locale, m_code, m_parameters);
+		}
 
-		return Msgs.BUNDLE.formatMessage(m_code, m_parameters);
+		return Msgs.BUNDLE.formatMessage(locale, m_code, m_parameters);
 	}
 
 	@NonNull
