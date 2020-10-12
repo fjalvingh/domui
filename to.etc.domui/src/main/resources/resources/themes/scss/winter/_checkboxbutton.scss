@@ -1,8 +1,10 @@
 @mixin can-toggle-branding (
 	$can-toggle-off-color: #777,
-	//$can-toggle-on-color: #5fc054,
-	$can-toggle-on-color: $alt-button-color,
-	$can-toggle-inactive-text: rgba(white, 0.5),
+	$can-toggle-button-off-color: rgba(#eef5ff, 0.9),
+	$can-toggle-off-inactive-text: rgba(white, 0.5),
+	$can-toggle-on-color: #eef5ff,
+	$can-toggle-button-on-color: $alt-button-color,
+	$can-toggle-on-inactive-text: rgba(black, 1),
 	$can-toggle-transition: cubic-bezier(0,1,0.5,1)
 ) {
 	input[type="checkbox"] {
@@ -14,17 +16,27 @@
 		&:focus ~ label, &:hover ~ label {
 			.ui-chkbb-sw {
 				background-color: $can-toggle-off-color;
-				&:after { color: darken($can-toggle-off-color, 10%); }
+				&:after {
+					color: darken($can-toggle-off-color, 10%);
+					background-color: $can-toggle-button-off-color
+				}
 			}
 		}
-		&:hover ~label { color: darken($can-toggle-off-color, 5%); }
+		&:hover ~label { color: lighten($can-toggle-off-color, 5%); }
 		&:checked {
 			~ label {
 				&:hover { color: darken($can-toggle-on-color, 3%); }
-
+                &:before { color: $can-toggle-off-inactive-text; }
 				.ui-chkbb-sw {
 					background-color: lighten($can-toggle-on-color, 5%);
-					&:after { color: darken($can-toggle-on-color, 5%); }
+					border-color: $can-toggle-button-on-color;
+					border-width: 1px;
+					border-style: solid;
+					&:before { color: $can-toggle-on-inactive-text; }
+					&:after {
+						color: $can-toggle-on-color;
+						background-color: $can-toggle-button-on-color
+					}
 				}
 			}
 
@@ -43,7 +55,7 @@
 		.ui-chkbb-sw {
 			transition: background-color 0.3s $can-toggle-transition;
 			background: lighten($can-toggle-off-color, 5%);
-			&:before { color: $can-toggle-inactive-text; }
+			&:before { color: $can-toggle-off-inactive-text; }
 			&:after {
 				// Autoprefixer choked here, so making the prefixes explicit
 				-webkit-transition: -webkit-transform 0.3s $can-toggle-transition;
@@ -78,7 +90,11 @@
 		&:checked {
 			~ label {
 				.ui-chkbb-sw {
-					&:after { transform: translate3d($can-toggle-width - ($can-toggle-switch-width + $can-toggle-offset),0,0); }
+					&:after {
+						transform: translate3d($can-toggle-width - ($can-toggle-switch-width + $can-toggle-offset),0,0);
+						top: 0px;
+						left: 0px;
+					}
 				}
 			}
 			&:focus, &:hover {
@@ -210,6 +226,19 @@
 	&.is-medium {
 		@include can-toggle-appearance
 		(
+						100px, // Toggle width
+						29px,  // Toggle height
+						3px,   // Toggle border radius
+						1px,   // Offset (distance btw switch and box)
+						14px,  // Label font size
+						12px,  // Switch font size
+						0 1px 1px rgba(black, 0.4) // Switch shadow on hover/focus
+		);
+	}
+
+	&.is-large {
+		@include can-toggle-appearance
+		(
 			134px, // Toggle width
 			36px,  // Toggle height
 			4px,   // Toggle border radius
@@ -220,7 +249,7 @@
 		);
 	}
 
-	&.is-large {
+	&.is-xlarge {
 		@include can-toggle-appearance
 		(
 			160px, // Toggle width
@@ -229,37 +258,6 @@
 			2px,   // Offset (distance btw switch and box)
 			14px,  // Label font size
 			14px,  // Switch font size
-			0 4px 4px rgba(black, 0.4) // Switch shadow on hover/focus
-		);
-	}
-
-	// Or re-brand the toggle for different applications
-	&.demo-rebrand-1 {
-		@include can-toggle-branding
-		(
-			#b53e74,  // Off state color
-			#3d9c72,  // On state color
-			rgba(white, 0.6),  // Off state text color
-			ease-in-out  // Transition timing function
-		);
-	}
-
-	&.demo-rebrand-2 {
-		@include can-toggle-branding
-		(
-			#444,  // Off state color
-			#69be28,  // On state color
-			rgba(white, 0.7),  // Off state text color
-			cubic-bezier(0.860, 0.000, 0.070, 1.000)  // Transition timing function
-		);
-		@include can-toggle-appearance
-		(
-			120px, // Toggle width
-			60px,  // Toggle height
-			60px,   // Toggle border radius
-			2px,   // Offset (distance btw switch and box)
-			13px,  // Label font size
-			13px,  // Switch font size
 			0 4px 4px rgba(black, 0.4) // Switch shadow on hover/focus
 		);
 	}
