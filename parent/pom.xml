@@ -80,7 +80,7 @@
         <vaadin.sass.compiler.version>1.0.0-SNAPSHOT</vaadin.sass.compiler.version>
 
         <!-- Test dependencies -->
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <allure.version>1.5.4</allure.version>
         <allure.maven.version>2.6</allure.maven.version>
         <aspectj.version>1.9.1</aspectj.version>
