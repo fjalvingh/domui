@@ -28,7 +28,7 @@
 				&:hover { color: darken($can-toggle-on-color, 3%); }
                 &:before { color: $can-toggle-off-inactive-text; }
 				.ui-chkbb-sw {
-					background-color: lighten($can-toggle-on-color, 5%);
+					background-color: $can-toggle-on-color;
 					border-color: $can-toggle-button-on-color;
 					border-width: 1px;
 					border-style: solid;
@@ -43,7 +43,7 @@
 			&:focus, &:hover {
 				~ label {
 					.ui-chkbb-sw {
-						background-color: $can-toggle-on-color;
+						background-color: lighten($can-toggle-on-color, 10%);
 						&:after { color: darken($can-toggle-on-color, 10%); }
 					}
 				}
@@ -93,7 +93,6 @@
 					&:after {
 						transform: translate3d($can-toggle-width - ($can-toggle-switch-width + $can-toggle-offset),0,0);
 						top: 0px;
-						left: 0px;
 					}
 				}
 			}
@@ -232,7 +231,7 @@
 						1px,   // Offset (distance btw switch and box)
 						14px,  // Label font size
 						12px,  // Switch font size
-						0 1px 1px rgba(black, 0.4) // Switch shadow on hover/focus
+						0 2px 2px rgba(black, 0.4) // Switch shadow on hover/focus
 		);
 	}
 
@@ -244,7 +243,7 @@
 			4px,   // Toggle border radius
 			2px,   // Offset (distance btw switch and box)
 			14px,  // Label font size
-			12px,  // Switch font size
+			14px,  // Switch font size
 			0 3px 3px rgba(black, 0.4) // Switch shadow on hover/focus
 		);
 	}
