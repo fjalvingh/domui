@@ -429,7 +429,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 				for(Task<V, X> parent : m_parents) {
 					parent.m_children.remove(this);
 
-					if(parent.m_state == TaskState.NONE) {
+					if(parent.m_state == TaskState.NONE || parent.m_state == TaskState.SCHEDULED) {
 						//-- Not yet failed -> fail it now.
 						parent.m_state = TaskState.CANCELLED;
 						parent.m_failedTask = failedTask;
