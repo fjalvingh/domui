@@ -38,5 +38,6 @@ public class DemoCheckbox extends UrlPage {
 		fb.label("Small").control(new CheckboxButton().css("is-small"));
 		fb.label("Medium").control(new CheckboxButton().css("is-medium"));
 		fb.label("Large").control(new CheckboxButton().css("is-large"));
+		fb.label("X-Large").control(new CheckboxButton().css("is-xlarge"));
 	}
 }
