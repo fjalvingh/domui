@@ -29,13 +29,16 @@
                 &:before { color: $can-toggle-off-inactive-text; }
 				.ui-chkbb-sw {
 					background-color: $can-toggle-on-color;
-					border-color: $can-toggle-button-on-color;
+					border-color: darken($can-toggle-button-on-color, 10%);
 					border-width: 1px;
 					border-style: solid;
 					&:before { color: $can-toggle-on-inactive-text; }
 					&:after {
 						color: $can-toggle-on-color;
-						background-color: $can-toggle-button-on-color
+						background-color: $can-toggle-button-on-color;
+						border-color: darken($can-toggle-button-on-color, 10%);
+						border-width: 1px;
+						border-style: solid;
 					}
 				}
 			}
@@ -69,15 +72,17 @@
 
 @mixin can-toggle-appearance
 (
-	$can-toggle-width: 90px,
-	$can-toggle-height: 31px,
-	$can-toggle-border-radius: 2px,
+	// By default we use is-medium size values
+	$can-toggle-width: 100px,
+	$can-toggle-height: 30px,
+	$can-toggle-border-radius: 4px,
 	$can-toggle-offset: 1px,
-	$can-toggle-label-font-size: 13px,
-	$can-toggle-switch-font-size: 10px,
+	$can-toggle-correction: 1px,
+	$can-toggle-label-font-size: 14px,
+	$can-toggle-switch-font-size: 12px,
 	$can-toggle-shadow: 0 2px 2px rgba(black, 0.4)
 ) {
-	$can-toggle-switch-width: $can-toggle-width/2;
+	$can-toggle-switch-width: ($can-toggle-width) / 2 - $can-toggle-offset;
 
 	input[type="checkbox"] {
 
@@ -91,8 +96,9 @@
 			~ label {
 				.ui-chkbb-sw {
 					&:after {
-						transform: translate3d($can-toggle-width - ($can-toggle-switch-width + $can-toggle-offset),0,0);
-						top: 0px;
+						transform: translate3d($can-toggle-width - $can-toggle-switch-width - $can-toggle-offset,0,0);
+						top: -$can-toggle-correction;
+						left: $can-toggle-correction;
 					}
 				}
 			}
@@ -125,9 +131,9 @@
 
 			&:after {
 				top: $can-toggle-offset; left: $can-toggle-offset;
-				border-radius: $can-toggle-border-radius/2;
-				width: $can-toggle-switch-width - $can-toggle-offset;
-				line-height: $can-toggle-height - ($can-toggle-offset*2);
+				border-radius: $can-toggle-border-radius - 1;
+				width: $can-toggle-switch-width;
+				line-height: $can-toggle-height - ($can-toggle-offset * 2);
 				font-size: $can-toggle-switch-font-size;
 			}
 
@@ -216,6 +222,7 @@
 			20px,  // Toggle height
 			2px,   // Toggle border radius
 			1px,   // Offset (distance btw switch and box)
+			1px,   // Correction of checked button
 			10px,  // Label font size
 			8px,  // Switch font size
 			0 1px 1px rgba(black, 0.4) // Switch shadow on hover/focus
@@ -225,13 +232,14 @@
 	&.is-medium {
 		@include can-toggle-appearance
 		(
-						100px, // Toggle width
-						29px,  // Toggle height
-						3px,   // Toggle border radius
-						1px,   // Offset (distance btw switch and box)
-						14px,  // Label font size
-						12px,  // Switch font size
-						0 2px 2px rgba(black, 0.4) // Switch shadow on hover/focus
+			100px, // Toggle width
+			30px,  // Toggle height
+			4px,   // Toggle border radius
+			1px,   // Offset (distance btw switch and box)
+			1px,   // Correction of checked button
+			14px,  // Label font size
+			12px,  // Switch font size
+			0 2px 2px rgba(black, 0.4) // Switch shadow on hover/focus
 		);
 	}
 
@@ -242,6 +250,7 @@
 			36px,  // Toggle height
 			4px,   // Toggle border radius
 			2px,   // Offset (distance btw switch and box)
+			0px,   // No correction needed
 			14px,  // Label font size
 			14px,  // Switch font size
 			0 3px 3px rgba(black, 0.4) // Switch shadow on hover/focus
@@ -255,6 +264,7 @@
 			50px,  // Toggle height
 			4px,   // Toggle border radius
 			2px,   // Offset (distance btw switch and box)
+			0px,   // No correction needed
 			14px,  // Label font size
 			14px,  // Switch font size
 			0 4px 4px rgba(black, 0.4) // Switch shadow on hover/focus
