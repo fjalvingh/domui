@@ -28,7 +28,8 @@
         <!-- Plugin versions -->
         <maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
         <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
-        <maven-surefire.version>2.22.0</maven-surefire.version>
+        <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
+        <maven-surefire.version>2.22.2</maven-surefire.version>
         <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
         <maven-war-plugin.version>3.0.0</maven-war-plugin.version>
         <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
@@ -36,7 +37,6 @@
         <maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
         <maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
         <maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
-        <maven-failsafe-plugin.version>2.22.2</maven-failsafe-plugin.version>
         <plexus-compiler-eclipse.version>2.8.5</plexus-compiler-eclipse.version>
         <findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
         <appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
@@ -45,6 +45,7 @@
         <enunciate-maven-plugin.version>2.13.1</enunciate-maven-plugin.version>
         <maven-antrun-plugin.version>1.8</maven-antrun-plugin.version>
         <maven-pldoc-plugin.version>3.0.13</maven-pldoc-plugin.version>
+        <maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
         <maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
 
         <bouncy.version>1.60</bouncy.version>
@@ -80,7 +81,7 @@
         <vaadin.sass.compiler.version>1.0.0-SNAPSHOT</vaadin.sass.compiler.version>
 
         <!-- Test dependencies -->
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <allure.version>1.5.4</allure.version>
         <allure.maven.version>2.6</allure.maven.version>
         <aspectj.version>1.9.1</aspectj.version>
@@ -599,7 +600,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>${maven.jar.plugin.version}</version>
 
                 <executions>
                     <execution>
