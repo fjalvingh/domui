@@ -228,6 +228,9 @@ final public class MsgBox2 extends Window {
 			if("100%".equals(content.getWidth()) && null == td.getWidth()) {
 				td.setWidth("100%");
 			}
+			if(content.isStretchHeight()) {
+				a.getParent().setStretchHeight(true);
+			}
 		} else {
 			DomUtil.renderHtmlString(td, m_theText);
 		}

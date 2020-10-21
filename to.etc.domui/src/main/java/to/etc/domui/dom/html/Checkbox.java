@@ -184,7 +184,7 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	/**
 	 * Do not use for Checkbox!!! There is a big bug in Internet Explorer where it does not
 	 * call onchange for checkboxes. A workaround has been added to DomUI, but it cannot be
-	 * made transparent. It is better to use {@link NodeContainer#setClicked(IClickBase)} to handle checkbox
+	 * made transparent. It is better to use {@link NodeBase#getClicked()} to handle checkbox
 	 * change events!
 	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
 	 */
@@ -201,7 +201,7 @@ public class Checkbox extends NodeBase implements INativeChangeListener, IContro
 	/**
 	 * Do not use for Checkbox!!! There is a big bug in Internet Explorer where it does not
 	 * call onchange for checkboxes. A workaround has been added to DomUI, but it cannot be
-	 * made transparant. It is better to use {@link #setClicked(IClickBase)} to handle checkbox
+	 * made transparant. It is better to use {@link NodeBase#setClicked(IClicked)} to handle checkbox
 	 * change events!
 	 * @see to.etc.domui.dom.html.IHasChangeListener#setOnValueChanged(to.etc.domui.dom.html.IValueChanged)
 	 */
