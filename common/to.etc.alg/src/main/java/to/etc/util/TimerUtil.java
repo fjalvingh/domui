@@ -23,7 +23,7 @@ final public class TimerUtil {
 			m_scheduler = scheduler = Executors.newScheduledThreadPool(2, new ThreadFactory() {
 				@Override
 				public Thread newThread(Runnable r) {
-					Thread t = new Thread();
+					Thread t = new Thread(r);
 					t.setName("timerThread");
 					t.setDaemon(true);
 					return t;
