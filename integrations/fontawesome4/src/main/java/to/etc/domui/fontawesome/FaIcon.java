@@ -508,6 +508,8 @@ public enum FaIcon implements IFontIconRef {
 	faSearchMinus("fa-search-minus"),
 	faSearchPlus("fa-search-plus"),
 	faSellsy("fa-sellsy"),
+	faSend("fa-send"),
+	faSendO("fa-send-o"),
 	faServer("fa-server"),
 	faShare("fa-share"),
 	faShareAlt("fa-share-alt"),

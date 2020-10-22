@@ -78,5 +78,8 @@ public class TabPanel extends TabPanelBase {
 		add(cont);
 		renderTabPanels(m_tabul, cont);
 		appendCreateJS(JavascriptUtil.disableSelection(m_tabul));
+		if(isStretchHeight()) {
+			cont.setStretchHeight(true);
+		}
 	}
 }

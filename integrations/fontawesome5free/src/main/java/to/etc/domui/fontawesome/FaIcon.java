@@ -941,6 +941,8 @@ public enum FaIcon implements IFontIconRef {
 	faSeedling("fa-seedling","fa"),
 	faSellcast("fa-sellcast","fab"),
 	faSellsy("fa-sellsy","fab"),
+	faSend("fa-send","fa"),
+	faSendO("fa-send-o","fa"),
 	faServer("fa-server","fa"),
 	faServicestack("fa-servicestack","fa"),
 	faShapes("fa-shapes","fa"),
@@ -1757,6 +1759,8 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faSearchMinus, FaIcon.faSearchMinus);
 		Icon.setIcon(Icon.faSearchPlus, FaIcon.faSearchPlus);
 		Icon.setIcon(Icon.faSellsy, FaIcon.faSellsy);
+		Icon.setIcon(Icon.faSend, FaIcon.faSend);
+		Icon.setIcon(Icon.faSendO, FaIcon.faSendO);
 		Icon.setIcon(Icon.faServer, FaIcon.faServer);
 		Icon.setIcon(Icon.faShare, FaIcon.faShare);
 		Icon.setIcon(Icon.faShareAlt, FaIcon.faShareAlt);
