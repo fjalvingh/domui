@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
+import to.etc.domui.component.layout.MessageLine;
 import to.etc.domui.component.misc.InternalParentTree;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.misc.MsgBox;
@@ -12,17 +13,22 @@ import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
 import to.etc.domui.dom.errors.IExceptionListener;
+import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IHasChangeListener;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
+import to.etc.domui.dom.html.SpiContainer;
+import to.etc.domui.dom.html.SpiPage;
+import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.parts.IComponentUrlDataProvider;
+import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
@@ -49,6 +55,7 @@ import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.IRebuildOnRefresh;
 import to.etc.domui.util.Msgs;
 import to.etc.function.ConsumerEx;
+import to.etc.util.ClassUtil;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -59,6 +66,8 @@ import to.etc.webapp.query.QContextManager;
 
 import javax.servlet.http.HttpSession;
 import java.io.Writer;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -267,6 +276,8 @@ final public class PageRequestHandler {
 			} else if(Constants.ACMD_PAGEDATA.equals(action)) {
 				//-- If this is a PAGEDATA request - handle that
 				runOutOfBoundAction(page, wcomp -> ((IComponentUrlDataProvider) wcomp).provideUrlData(m_ctx));
+			} else if(Constants.ACMD_LOADFRAGS.equals(action)) {
+				loadSpiFragments(page);
 			} else if(null != action) {
 				runAction(page, action);
 			} else if(papa != null) {
@@ -279,6 +290,154 @@ final public class PageRequestHandler {
 		}
 	}
 
+	/**
+	 * Called when a page has an url fragment, from the Javascript that loads the page. This should decode
+	 * the url fragment and load all content blocks in the spi page.
+	 */
+	private void loadSpiFragments(Page page) throws Exception {
+		String hashes = m_ctx.getPageParameters().getString("hashes", null);
+		if(null == hashes || hashes.isEmpty())
+			return;
+
+		//-- 1. Are we actually ON an SPI page?
+		UrlPage body = page.getBody();
+		if(! (body instanceof SpiPage)) {
+			logUser(page, "url fragment found on non-SPI page: " + hashes);
+			return;
+		}
+
+		long ts = System.nanoTime();
+		m_application.internalCallPageAction(m_ctx, page);
+		page.callRequestStarted();
+
+		try {
+			SpiPage spiPage = (SpiPage) body;
+			String[] segments = hashes.split(";");
+			for(String s: segments) {
+				loadSpiFragment(spiPage, s);
+			}
+			ConversationContext conversation = page.internalGetConversation();
+			if(null != conversation && conversation.isValid())
+				page.modelToControl();
+		} catch(ValidationException x) {
+			/*
+			 * When an action handler failed because it accessed a component which has a validation error
+			 * we just continue - the failed validation will have posted an error message.
+			 */
+			if(LOG.isDebugEnabled())
+				LOG.debug("rq: ignoring validation exception " + x);
+			page.modelToControl();
+		} catch(MsgException msg) {
+			MsgBox.error(page.getBody(), msg.getMessage());
+			logUser(page, "error message: " + msg.getMessage());
+			page.modelToControl();
+		} catch(Exception ex) {
+			if(handleActionException(page, null, ex))
+				return;
+		}
+		page.callRequestFinished();
+
+		if(PageUtil.m_logPerf && !m_inhibitlog) {
+			ts = System.nanoTime() - ts;
+			System.out.println("domui: loadSpiFragment load handling took " + StringTool.strNanoTime(ts));
+		}
+		if(!page.isDestroyed()) 								// jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
+			page.getConversation().processDelayedResults(page);
+
+		//-- Determine the response class to render; exit if we have a redirect,
+		WindowSession cm = m_ctx.getWindowSession();
+		if(cm.handleGoto(m_ctx, page, true))
+			return;
+
+		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
+		callNewPageBuiltListeners(page);
+		renderDeltaResponse(page, m_inhibitlog);
+	}
+
+	private void loadSpiFragment(SpiPage spiPage, String fragmentIdentifier) throws Exception {
+		if(fragmentIdentifier.startsWith("#"))
+			fragmentIdentifier = fragmentIdentifier.substring(1);
+		int pos = fragmentIdentifier.indexOf(':');
+		SpiContainer container;
+		String rurl;
+		if(pos == -1) {
+			container = spiPage.getContainers().get(0);
+			rurl = fragmentIdentifier;
+		} else {
+			String containerName = fragmentIdentifier.substring(0, pos);
+			container = spiPage.findSpiContainerByName(containerName);
+			if(null == container)
+				throw new ThingyNotFoundException("SPI container with name " + containerName + " is not present in this spi page");
+			rurl = fragmentIdentifier.substring(pos + 1);
+		}
+
+		container.getContainer().removeAllChildren();
+
+		SubPage subPage = createSubPage(spiPage, rurl);
+		container.getContainer().add(subPage);
+	}
+
+	private SubPage createSubPage(SpiPage spiPage, String rurl) throws Exception {
+		Target target = m_application.getPageUrlMapping().findTarget(rurl, new PageParameters());
+		if(null == target) {
+			throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known");
+		}
+
+		String targetPageName = target.getTargetPage();
+		SubPage subPage = createSpiPage(targetPageName);
+		if(null == subPage) {
+			throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known (no proper class)");
+		}
+		System.out.println(">>>> target " + subPage);
+		m_ctx.getApplication().getInjector().injectPageValues(subPage, nullChecked(target.getParameters()));
+
+
+
+
+
+		SubPage sp = new SubPage() {
+			@Override public void createContent() throws Exception {
+				add(new MessageLine(MsgType.INFO, "Loaded"));
+			}
+		};
+		return sp;
+	}
+
+	@Nullable
+	private SubPage createSpiPage(String pageName) throws Exception {
+		UrlPage p;
+		try {
+			Class<?> clz = ClassUtil.loadClass(getClass().getClassLoader(), pageName);
+			if(null == clz) {
+				logUser("Unknown Spi fragment class " + pageName);
+				return null;
+			}
+			if(! SubPage.class.isAssignableFrom(clz)) {
+				logUser("Spi fragment class is not a SubPage: " + pageName);
+				return null;
+			}
+			Constructor<?> constructor = clz.getConstructor();
+			return (SubPage) constructor.newInstance();
+		} catch(InvocationTargetException itx) {
+			Throwable c = itx.getCause();
+			if(c instanceof Exception)
+				throw (Exception) c;
+			else if(c instanceof Error)
+				throw (Error) c;
+			else
+				throw itx;
+		}
+	}
+
+
+
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Others														*/
+	/*----------------------------------------------------------------------*/
+	/**
+	 *
+	 */
 	@NotNull private PageParameters getPageParameters(@Nullable ConversationContext conversation) {
 		PageParameters papa = PageParameters.createFrom(m_ctx.getPageParameters());
 

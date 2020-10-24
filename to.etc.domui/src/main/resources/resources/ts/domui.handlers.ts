@@ -209,6 +209,32 @@ namespace WebUI {
 		}
 	}
 
+	/**
+	 * Called as soon as a page is loaded, this checks whether we have bookmarks (hash)
+	 * references in the page's location, and if so we check whether these need to be loaded
+	 * for each content area.
+	 */
+	export function loadSpiFragments() : void {
+		let hash = location.hash;
+		if(hash == "")
+			return;
+		let fields = {};
+		fields["webuia"] = "LOADFRAGS";
+		fields["webuic"] = document.body.id;
+		fields["$pt"] = (window as any).DomUIpageTag;
+		fields["$cid"] = (window as any).DomUICID;
+		fields["hashes"] = hash;
+		cancelPolling();
 
+		$.ajax({
+			url: WebUI.getPostURL(),
+			dataType: "*",
+			data: fields,
+			cache: false,
+			type: "GET",
+			success: handleResponse,
+			error: handleError
+		});
+	}
 }
 

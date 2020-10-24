@@ -2353,6 +2353,28 @@ var WebUI;
         }
     }
     WebUI.addPagerAccessKeys = addPagerAccessKeys;
+    function loadSpiFragments() {
+        var hash = location.hash;
+        if (hash == "")
+            return;
+        var fields = {};
+        fields["webuia"] = "LOADFRAGS";
+        fields["webuic"] = document.body.id;
+        fields["$pt"] = window.DomUIpageTag;
+        fields["$cid"] = window.DomUICID;
+        fields["hashes"] = hash;
+        WebUI.cancelPolling();
+        $.ajax({
+            url: WebUI.getPostURL(),
+            dataType: "*",
+            data: fields,
+            cache: false,
+            type: "GET",
+            success: WebUI.handleResponse,
+            error: WebUI.handleError
+        });
+    }
+    WebUI.loadSpiFragments = loadSpiFragments;
 })(WebUI || (WebUI = {}));
 (function ($) {
     if ($.browser.msie && $.browser.majorVersion < 10) {

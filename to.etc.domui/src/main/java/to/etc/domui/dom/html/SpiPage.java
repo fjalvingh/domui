@@ -1,10 +1,14 @@
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QDataContextFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -26,7 +30,7 @@ abstract public class SpiPage extends UrlPage {
 
 	@Override abstract public void createContent() throws Exception;
 
-	public void registerContainer(String containerName, NodeContainer container, Class<? extends SubPage> initialContent) {
+	public void registerContainer(@NonNull String containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent) {
 		if(!StringTool.isValidJavaIdentifier(containerName))
 			throw new IllegalStateException("Invalid container name: must follow the rules for a Java identifier");
 		if(null != m_containerMap.put(containerName.toLowerCase(), new SpiContainer(container, containerName, initialContent)))
@@ -47,5 +51,16 @@ abstract public class SpiPage extends UrlPage {
 
 	@NotNull @Override final public QDataContextFactory getSharedContextFactory(@NotNull String key) {
 		throw new IllegalStateException("You are not allowed to use a shared context for an SPI root page; that would cause the connection to last for the life time of the session!");
+	}
+
+	@NonNull
+	public List<SpiContainer> getContainers() {
+		return new ArrayList<>(m_containerMap.values());
+	}
+
+	@Nullable
+	public SpiContainer findSpiContainerByName(String name) {
+		name = name.toLowerCase();
+		return m_containerMap.get(name);
 	}
 }

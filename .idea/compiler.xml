@@ -104,4 +104,7 @@
       <module name="to.etc.webapp.core" options="-properties $PROJECT_DIR$/to.etc.webapp.core/.settings/org.eclipse.jdt.core.prefs -enableJavadoc" />
     </option>
   </component>
+  <component name="TypeScriptCompiler">
+    <option name="recompileOnChanges" value="true" />
+  </component>
 </project>

@@ -25,7 +25,7 @@
 package to.etc.domui.injector;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.state.IPageParameters;
 
 import java.util.List;
@@ -36,14 +36,14 @@ import java.util.Objects;
 final class PageInjectionList {
 	final private List<PropertyInjector> m_propInjectorList;
 
-	final private Class< ? extends UrlPage> m_pageClass;
+	final private Class<?> m_pageClass;
 
-	public PageInjectionList(Class< ? extends UrlPage> pageClass, List<PropertyInjector> propInjectorList) {
+	public PageInjectionList(Class<?> pageClass, List<PropertyInjector> propInjectorList) {
 		m_pageClass = Objects.requireNonNull(pageClass);
 		m_propInjectorList = Objects.requireNonNull(propInjectorList);
 	}
 
-	public Class< ? extends UrlPage> getPageClass() {
+	public Class<?> getPageClass() {
 		return m_pageClass;
 	}
 
@@ -51,7 +51,7 @@ final class PageInjectionList {
 	 * Inject into all page properties.
 	 * @param attributeMap A map that can be used to store things while injecting.
 	 */
-	public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
+	public void inject(AbstractPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
 		for(PropertyInjector pi : m_propInjectorList)
 			pi.inject(page, pp, attributeMap);
 	}
