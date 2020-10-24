@@ -291,7 +291,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 	@Override
 	@Nullable
 	public UploadItem getValueSafe() {
-		return m_value;
+		return DomUtil.getValueSafe(this);
 	}
 
 	private void clearClicked() throws Exception {

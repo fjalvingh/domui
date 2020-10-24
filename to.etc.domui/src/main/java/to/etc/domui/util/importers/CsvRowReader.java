@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -446,6 +449,9 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 
 		@Override public IImportRow next() {
 			CsvImportRow row = m_row;
+			if(!getErrorList().isEmpty()) {
+				throw new IllegalStateException("Parsing errors! :"+ m_errorList.stream().map(x->x.toString()).collect(Collectors.joining(", ")));
+			}
 			if(! m_nextAvailable || row == null)
 				throw new IllegalStateException("Calling next() after hasNext() returned false / missing call to hasNext()");
 			m_nextRead = false;
