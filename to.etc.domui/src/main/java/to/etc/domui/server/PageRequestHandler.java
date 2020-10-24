@@ -26,7 +26,6 @@ import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.parts.IComponentUrlDataProvider;
-import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.server.PageUrlMapping.UrlAndParameters;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
@@ -53,7 +52,6 @@ import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.IRebuildOnRefresh;
 import to.etc.domui.util.Msgs;
 import to.etc.function.ConsumerEx;
-import to.etc.util.ClassUtil;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -64,8 +62,6 @@ import to.etc.webapp.query.QContextManager;
 
 import javax.servlet.http.HttpSession;
 import java.io.Writer;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -371,54 +367,9 @@ final public class PageRequestHandler {
 
 		container.getContainer().removeAllChildren();
 
-		SubPage subPage = createSubPage(spiPage, rurl);
+		SubPage subPage = new SpiPageHelper(m_application).createSubPage(spiPage, rurl);
 		container.getContainer().add(subPage);
 	}
-
-	private SubPage createSubPage(SpiPage spiPage, String rurl) throws Exception {
-		Target target = m_application.getPageUrlMapping().findTarget(rurl, new PageParameters());
-		if(null == target) {
-			throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known");
-		}
-
-		String targetPageName = target.getTargetPage();
-		SubPage subPage = createSpiPage(targetPageName);
-		if(null == subPage) {
-			throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known (no proper class)");
-		}
-		System.out.println(">>>> target " + subPage);
-		m_ctx.getApplication().getInjector().injectPageValues(subPage, nullChecked(target.getParameters()));
-		return subPage;
-	}
-
-	@Nullable
-	private SubPage createSpiPage(String pageName) throws Exception {
-		UrlPage p;
-		try {
-			Class<?> clz = ClassUtil.loadClass(getClass().getClassLoader(), pageName);
-			if(null == clz) {
-				logUser("Unknown Spi fragment class " + pageName);
-				return null;
-			}
-			if(! SubPage.class.isAssignableFrom(clz)) {
-				logUser("Spi fragment class is not a SubPage: " + pageName);
-				return null;
-			}
-			Constructor<?> constructor = clz.getConstructor();
-			return (SubPage) constructor.newInstance();
-		} catch(InvocationTargetException itx) {
-			Throwable c = itx.getCause();
-			if(c instanceof Exception)
-				throw (Exception) c;
-			else if(c instanceof Error)
-				throw (Error) c;
-			else
-				throw itx;
-		}
-	}
-
-
-
 
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Others														*/

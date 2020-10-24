@@ -1,6 +1,7 @@
 package to.etc.domui.dom.html;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.util.ISpiContainerName;
 
 /**
  * Describes a SPI "Content Area" inside a SpiPage.
@@ -12,11 +13,11 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 final public class SpiContainer {
 	private final NodeContainer m_container;
 
-	private final String m_containerName;
+	private final ISpiContainerName m_containerName;
 
 	private final Class<? extends SubPage> m_initialContent;
 
-	public SpiContainer(NodeContainer container, String containerName, Class<? extends SubPage> initialContent) {
+	public SpiContainer(NodeContainer container, ISpiContainerName containerName, Class<? extends SubPage> initialContent) {
 		m_container = container;
 		m_containerName = containerName;
 		m_initialContent = initialContent;
@@ -26,7 +27,7 @@ final public class SpiContainer {
 		return m_container;
 	}
 
-	public String getContainerName() {
+	public ISpiContainerName getContainerName() {
 		return m_containerName;
 	}
 

@@ -29,7 +29,13 @@ import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.SpiContainer;
+import to.etc.domui.dom.html.SpiPage;
+import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.SpiPageHelper;
+import to.etc.domui.util.ISpiContainerName;
 import to.etc.domui.util.Msgs;
 
 import java.util.ArrayList;
@@ -47,7 +53,8 @@ final public class UIGoto {
 
 	static public final String PAGE_ACTION = "uigoto.action";
 
-	private UIGoto() {}
+	private UIGoto() {
+	}
 
 	static private WindowSession context() {
 		return UIContext.getRequestContext().getWindowSession();
@@ -60,7 +67,7 @@ final public class UIGoto {
 	 */
 	static public void reload() {
 		Page pg = UIContext.getCurrentPage();
-		Class< ? extends UrlPage> clz = pg.getBody().getClass();
+		Class<? extends UrlPage> clz = pg.getBody().getClass();
 		IPageParameters pp = pg.getPageParameters();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
@@ -70,7 +77,7 @@ final public class UIGoto {
 	 */
 	static public void reload(@NonNull IPageParameters pp) {
 		Page pg = UIContext.getCurrentPage();
-		Class< ? extends UrlPage> clz = pg.getBody().getClass();
+		Class<? extends UrlPage> clz = pg.getBody().getClass();
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
 	}
 
@@ -119,7 +126,7 @@ final public class UIGoto {
 	/**
 	 * Push (shelve) the current page, then move to a new page. The page is parameterless, and is started in a NEW ConversationContext.
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz) {
+	static public void moveSub(final Class<? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.SUB, clz, null, null, null);
@@ -128,7 +135,7 @@ final public class UIGoto {
 	/**
 	 * Push (shelve) the current page, then move to a new page. The page is started in a NEW ConversationContext.
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz, final IPageParameters pp) {
+	static public void moveSub(final Class<? extends UrlPage> clz, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.SUB, clz, null, null, pp);
@@ -137,7 +144,7 @@ final public class UIGoto {
 	/**
 	 * Push (shelve) the current page, then move to a new page. The page is started in a NEW ConversationContext.
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz, final Object... param) {
+	static public void moveSub(final Class<? extends UrlPage> clz, final Object... param) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		PageParameters pp;
@@ -152,7 +159,7 @@ final public class UIGoto {
 	 * Push (shelve) the current page, then move to a new page. The page JOINS the conversation context passed; if the page does not accept
 	 * that conversation an exception is thrown.
 	 */
-	static public void moveSub(final Class< ? extends UrlPage> clz, final ConversationContext cc, final IPageParameters pp) {
+	static public void moveSub(final Class<? extends UrlPage> clz, final ConversationContext cc, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		if(cc == null)
@@ -163,7 +170,7 @@ final public class UIGoto {
 	/**
 	 * Clear the entire shelf, then goto a new page. The page uses a NEW ConversationContext.
 	 */
-	static public void moveNew(final Class< ? extends UrlPage> clz, final IPageParameters pp) {
+	static public void moveNew(final Class<? extends UrlPage> clz, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, pp);
@@ -172,7 +179,7 @@ final public class UIGoto {
 	/**
 	 * Clear the entire shelf, then goto a new page. The page uses a NEW ConversationContext.
 	 */
-	static public void moveNew(final Class< ? extends UrlPage> clz, Object... param) {
+	static public void moveNew(final Class<? extends UrlPage> clz, Object... param) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		PageParameters pp;
@@ -186,7 +193,7 @@ final public class UIGoto {
 	/**
 	 * Clear the entire shelve, then goto a new page. The page uses a NEW ConversationContext.
 	 */
-	static public void moveNew(final Class< ? extends UrlPage> clz) {
+	static public void moveNew(final Class<? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.NEW, clz, null, null, null);
@@ -195,7 +202,7 @@ final public class UIGoto {
 	/**
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 */
-	static public void replace(final Class< ? extends UrlPage> clz) {
+	static public void replace(final Class<? extends UrlPage> clz) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, null);
@@ -204,7 +211,7 @@ final public class UIGoto {
 	/**
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 */
-	static public void replace(final Class< ? extends UrlPage> clz, final IPageParameters pp) {
+	static public void replace(final Class<? extends UrlPage> clz, final IPageParameters pp) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
@@ -214,7 +221,7 @@ final public class UIGoto {
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 * On the new page show the specified message as an UI message.
 	 */
-	static public final void replace(Page pg, final Class< ? extends UrlPage> clz, final IPageParameters pp, UIMessage msg) {
+	static public final void replace(Page pg, final Class<? extends UrlPage> clz, final IPageParameters pp, UIMessage msg) {
 		if(clz == null)
 			throw new IllegalArgumentException("The class to move-to cannot be null");
 		List<UIMessage> msgl = new ArrayList<UIMessage>(1);
@@ -285,4 +292,36 @@ final public class UIGoto {
 		replace(pg.getBody().getClass(), pp); // Destroy the current page, and replace with a new one. This will also destroy
 	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	SPI interface calls.										*/
+	/*----------------------------------------------------------------------*/
+
+	static public void moveSub(ISpiContainerName name, Class<? extends SubPage> spiPage, Object... param) throws Exception {
+		PageParameters pp;
+		if(param == null || param.length == 0)
+			pp = null;
+		else
+			pp = new PageParameters(param);
+		moveSub(name, spiPage, pp);
+	}
+
+	static public void moveSub(ISpiContainerName name, Class<? extends SubPage> spiClass, PageParameters pp) throws Exception {
+		Page currentPage = UIContext.getCurrentPage();
+		UrlPage body = currentPage.getBody();
+		if(!(body instanceof SpiPage)) {
+			throw new IllegalStateException("The current page is not a SpiPage");
+		}
+		SpiPage spiPage = (SpiPage) body;
+		SpiContainer container = spiPage.findSpiContainerByName(name.name());
+		if(null == container)
+			throw new IllegalArgumentException("SPI Page " + body.getClass().getName() + " does not have a container named " + name.name());
+
+		container.getContainer().removeAllChildren();
+
+		DomApplication app = DomApplication.get();
+		SubPage subPage = new SpiPageHelper(app).createSpiPage(spiClass);
+		app.getInjector().injectPageValues(subPage, pp);
+
+		container.getContainer().add(subPage);
+	}
 }

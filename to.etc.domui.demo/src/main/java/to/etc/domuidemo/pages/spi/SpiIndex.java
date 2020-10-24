@@ -18,6 +18,6 @@ public class SpiIndex extends SpiPage {
 		add(new PageHeader());
 		Div content = new Div();
 		add(content);
-		registerContainer("c", content, WelcomeSpi.class);
+		registerContainer(SpiTarget.Main, content, WelcomeSpi.class);
 	}
 }

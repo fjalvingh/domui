@@ -3,6 +3,7 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import to.etc.domui.util.ISpiContainerName;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QDataContextFactory;
 
@@ -35,10 +36,10 @@ abstract public class SpiPage extends UrlPage {
 
 	@Override abstract public void createContent() throws Exception;
 
-	public void registerContainer(@NonNull String containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent) {
-		if(!StringTool.isValidJavaIdentifier(containerName))
+	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent) {
+		if(!StringTool.isValidJavaIdentifier(containerName.name()))
 			throw new IllegalStateException("Invalid container name: must follow the rules for a Java identifier");
-		if(null != m_containerMap.put(containerName.toLowerCase(), new SpiContainer(container, containerName, initialContent)))
+		if(null != m_containerMap.put(containerName.name().toLowerCase(), new SpiContainer(container, containerName, initialContent)))
 			throw new IllegalStateException("Duplicate container name: " + containerName);
 	}
 

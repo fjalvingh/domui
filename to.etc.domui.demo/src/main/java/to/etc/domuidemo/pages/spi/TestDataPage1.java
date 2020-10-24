@@ -7,6 +7,7 @@ import to.etc.domui.component.tbl.RowRenderer;
 import to.etc.domui.component.tbl.SimpleSearchModel;
 import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.dom.html.SubPage;
+import to.etc.domui.state.UIGoto;
 import to.etc.webapp.query.QCriteria;
 
 /**
@@ -25,6 +26,9 @@ public class TestDataPage1 extends SubPage {
 		rr.column("billingAddress").label("Address");
 		rr.column("billingCity").label("City");
 		rr.column("total").label("Amount");
+
+		rr.setRowClicked(rowval -> UIGoto.moveSub(SpiTarget.Main, TestEditPage1.class, "id", rowval.getId()));
+
 		DataTable<Invoice> dt = new DataTable<>(sm, rr);
 		dt.setPageSize(25);
 		add(new DataPager(dt));
