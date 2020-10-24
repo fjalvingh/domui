@@ -112,6 +112,7 @@ namespace WebUI {
 	}
 
 	export function onDocumentReady(): void {
+		$(window).bind('hashchange', WebUI.handleHashChange);
 		checkBrowser();
 		WebUI.handleCalendarChanges();
 		if((window as any).DomUIDevel)
@@ -209,6 +210,8 @@ namespace WebUI {
 		}
 	}
 
+	var _lastUrlFragment : string;
+
 	/**
 	 * Called as soon as a page is loaded, this checks whether we have bookmarks (hash)
 	 * references in the page's location, and if so we check whether these need to be loaded
@@ -218,6 +221,8 @@ namespace WebUI {
 		let hash = location.hash;
 		if(hash == "")
 			return;
+		if(hash == _lastUrlFragment)
+			return;
 		let fields = {};
 		fields["webuia"] = "LOADFRAGS";
 		fields["webuic"] = document.body.id;
@@ -225,6 +230,7 @@ namespace WebUI {
 		fields["$cid"] = (window as any).DomUICID;
 		fields["hashes"] = hash;
 		cancelPolling();
+		_lastUrlFragment = hash;
 
 		$.ajax({
 			url: WebUI.getPostURL(),
@@ -235,6 +241,13 @@ namespace WebUI {
 			success: handleResponse,
 			error: handleError
 		});
+	}
+
+	/**
+	 * Called when the URL hash value changes, this calls the server to reload the page.
+	 */
+	export function handleHashChange() : void {
+		loadSpiFragments();
 	}
 }
 
