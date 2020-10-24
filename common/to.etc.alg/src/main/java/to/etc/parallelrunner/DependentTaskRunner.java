@@ -34,6 +34,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 			@Override
 			public void onTaskFinished(Task<T, SingleTaskExecutor<T>> task, @Nullable Exception failure) throws Exception {
 				DependentTaskRunner.this.onFinish(task);
+				m_progress.increment(1.0);
 			}
 		});
 	}
