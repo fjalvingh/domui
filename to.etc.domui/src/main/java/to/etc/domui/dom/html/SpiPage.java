@@ -22,6 +22,11 @@ import java.util.Map.Entry;
  * of SubPage, and are put inside those content area's by swapping out
  * earlier content with new content.
  *
+ * <h2>Relevant documentation</h2>
+ * <ul>
+ *     <li>https://stackoverflow.com/questions/26088849/url-fragment-allowed-characters</li>
+ * </ul>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 24-10-20.
  */

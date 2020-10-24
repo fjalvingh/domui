@@ -5,7 +5,6 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
-import to.etc.domui.component.layout.MessageLine;
 import to.etc.domui.component.misc.InternalParentTree;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component.misc.MsgBox;
@@ -13,7 +12,6 @@ import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
 import to.etc.domui.dom.errors.IExceptionListener;
-import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.IHasChangeListener;
@@ -390,17 +388,7 @@ final public class PageRequestHandler {
 		}
 		System.out.println(">>>> target " + subPage);
 		m_ctx.getApplication().getInjector().injectPageValues(subPage, nullChecked(target.getParameters()));
-
-
-
-
-
-		SubPage sp = new SubPage() {
-			@Override public void createContent() throws Exception {
-				add(new MessageLine(MsgType.INFO, "Loaded"));
-			}
-		};
-		return sp;
+		return subPage;
 	}
 
 	@Nullable
