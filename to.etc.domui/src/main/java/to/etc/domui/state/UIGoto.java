@@ -37,6 +37,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.SpiPageHelper;
 import to.etc.domui.util.ISpiContainerName;
 import to.etc.domui.util.Msgs;
+import to.etc.util.StringTool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -319,9 +320,15 @@ final public class UIGoto {
 		container.getContainer().removeAllChildren();
 
 		DomApplication app = DomApplication.get();
-		SubPage subPage = new SpiPageHelper(app).createSpiPage(spiClass);
+		SpiPageHelper helper = new SpiPageHelper(app);
+		SubPage subPage = helper.createSpiPage(spiClass);
 		app.getInjector().injectPageValues(subPage, pp);
 
 		container.getContainer().add(subPage);
+		container.setCurrentPage(spiClass);
+		container.setCurrentParameters(pp);
+
+		String hashes = helper.getContainerHashes(spiPage);
+		spiPage.appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(hashes, true) + ");");
 	}
 }

@@ -243,6 +243,10 @@ namespace WebUI {
 		});
 	}
 
+	export function spiUpdateHashes(hashes: string) : void {
+		location.hash = "#" + hashes;
+	}
+
 	/**
 	 * Called when the URL hash value changes, this calls the server to reload the page.
 	 */

@@ -1,15 +1,19 @@
 package to.etc.domui.server;
 
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.annotations.UIPage;
+import to.etc.domui.dom.html.SpiContainer;
 import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.server.PageUrlMapping.Target;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.util.ClassUtil;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 import static to.etc.domui.util.DomUtil.nullChecked;
 
@@ -68,4 +72,51 @@ public class SpiPageHelper {
 				throw itx;
 		}
 	}
+
+	public String getContainerHashes(SpiPage page) {
+		StringBuilder sb = new StringBuilder();
+		List<SpiContainer> containerList = page.getContainers();
+		for(SpiContainer container : containerList) {
+			String hash = calculateContainerHash(container);
+			if(null != hash) {
+				if(sb.length() > 0)
+					sb.append(';');
+				if(containerList.size() > 1) {
+					sb.append(container.getContainerName().name()).append(":");
+				}
+				sb.append(hash);
+			}
+		}
+		return sb.toString();
+	}
+
+	@Nullable
+	private String calculateContainerHash(SpiContainer container) {
+		Class<? extends SubPage> currentPage = container.getCurrentPage();
+		if(currentPage == null)
+			return null;
+		UIPage annotation = currentPage.getAnnotation(UIPage.class);
+		if(null == annotation)
+			throw new IllegalStateException("Missing " + UIPage.class.getName() + " annotation on SPI fragment class " + currentPage.getName());
+		String value = annotation.value();
+
+		String[] segments = value.split("/");
+		StringBuilder sb = new StringBuilder();
+		for(String segment : segments) {
+			if(sb.length() > 0)
+				sb.append('/');
+			if(segment.startsWith("{") && segment.endsWith("}")) {
+				String name = segment.substring(1, segment.length() - 1);
+				IPageParameters pp = container.getCurrentParameters();
+				String val = pp == null ? null : pp.getString(name, null);
+				if(val == null)
+					throw new IllegalStateException("SpiFragment " + currentPage.getName() + " missing actual parameter value for parameter " + name);
+				sb.append(val);
+			} else {
+				sb.append(segment);
+			}
+		}
+		return sb.toString();
+	}
+
 }

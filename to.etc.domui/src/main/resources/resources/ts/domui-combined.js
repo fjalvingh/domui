@@ -2380,6 +2380,10 @@ var WebUI;
         });
     }
     WebUI.loadSpiFragments = loadSpiFragments;
+    function spiUpdateHashes(hashes) {
+        location.hash = "#" + hashes;
+    }
+    WebUI.spiUpdateHashes = spiUpdateHashes;
     function handleHashChange() {
         loadSpiFragments();
     }
