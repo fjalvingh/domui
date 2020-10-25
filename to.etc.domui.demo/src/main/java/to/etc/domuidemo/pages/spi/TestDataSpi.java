@@ -15,7 +15,7 @@ import to.etc.webapp.query.QCriteria;
  * Created on 24-10-20.
  */
 @UIPage("test")
-public class TestDataPage1 extends SubPage {
+public class TestDataSpi extends SubPage {
 	@Override public void createContent() throws Exception {
 		QCriteria<Invoice> q = QCriteria.create(Invoice.class);
 		SimpleSearchModel<Invoice> sm = new SimpleSearchModel<>(this, q);
@@ -27,7 +27,7 @@ public class TestDataPage1 extends SubPage {
 		rr.column("billingCity").label("City");
 		rr.column("total").label("Amount");
 
-		rr.setRowClicked(rowval -> UIGoto.moveSub(SpiTarget.Main, TestEditPage1.class, "id", rowval.getId()));
+		rr.setRowClicked(rowval -> UIGoto.moveSub(SpiTarget.Main, TestEditSpi.class, "id", rowval.getId()));
 
 		DataTable<Invoice> dt = new DataTable<>(sm, rr);
 		dt.setPageSize(25);

@@ -15,7 +15,7 @@ import to.etc.domui.dom.html.SubPage;
  * Created on 24-10-20.
  */
 @UIPage("invoice/{id}")
-public class TestEditPage1 extends SubPage {
+public class TestEditSpi extends SubPage {
 	@UIReinject
 	private Invoice m_invoice;
 

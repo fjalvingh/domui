@@ -3,6 +3,8 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.SpiPageHelper;
 import to.etc.domui.util.ISpiContainerName;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QDataContextFactory;
@@ -52,6 +54,11 @@ abstract public class SpiPage extends UrlPage {
 			SubPage subPage = container.getInitialContent().newInstance();
 			container.getContainer().add(subPage);
 		}
+
+		SpiPageHelper helper = new SpiPageHelper(DomApplication.get());
+		String hashes = helper.getContainerHashes(this);
+		appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(hashes, true) + ");");
+
 		super.afterCreateContent();
 	}
 
