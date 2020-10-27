@@ -37,16 +37,21 @@ $highlight2_bg: lighten($highlight_bg, 20%) !default;
 $errors_background: #a9c5f1 !default;
 $errors_border: #ff0000 !default; 			// red
 $errors_foreground: #ff0000 !default;		// red
+$errors_transparent: rgba(red($errors_border), green($errors_border), blue($errors_border), 0.25) !default;
 
 $errors_input_background: #ffe5e5 !default;	// error bg for input component
 
 $warnings_background: #fffeee !default; // light yellow
 $warnings_foreground: yellow !default;
-$warnings_border: #fffeee !default;
+$warnings_border: goldenrod !default;
+$warnings_transparent: rgba(red($warnings_border), green($warnings_border), blue($warnings_border), 0.25) !default;
 
 $info_bg: #e4eeff !default;		// blueish light
 $info_fg: #4075db !default;
 $info_border: #4075db !default;
+$info_transparent: rgba(red($info_border), green($info_border), blue($info_border), 0.25) !default;
+
+$white_transparent: rgba(255, 255, 255, 0.25) !default;
 
 $header_bg: #7c7c7c !default;
 $main_color: #43b761 !default; 				//Main green
