@@ -138,6 +138,24 @@ public class ComboFixed2<T> extends ComboComponentBase2<ValueLabelPair<T>, T> {
 	}
 
 	/**
+	 * Create a combo for all members of an enum, except for specified exceptions. It uses converter to calculate labels.
+	 */
+	static public <T extends Enum<T>> ComboFixed2<T> createEnumCombo(IObjectToStringConverter<T> converter, Class<T> clz, T... exceptions) {
+		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
+		T[] ar = clz.getEnumConstants();
+		for(T v : ar) {
+			if(!DomUtil.contains(exceptions, v)) {
+				String label = converter.convertObjectToString(NlsContext.getLocale(), v);
+				if(label == null)
+					label = v.name();
+				l.add(new ValueLabelPair<T>(v, label));
+			}
+		}
+		Collections.sort(l, (a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel()));
+		return new ComboFixed2<T>(l);
+	}
+
+	/**
 	 * Returns a combo for all of the list-of-value items for the specified property.
 	 */
 	static public <T extends Enum<T>> ComboFixed2<T> createEnumCombo(Class< ? > base, String property) {

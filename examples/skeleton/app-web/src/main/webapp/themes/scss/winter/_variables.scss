@@ -37,16 +37,21 @@ $highlight2_bg: lighten($highlight_bg, 20%);
 $errors_background: #a9c5f1;
 $errors_border: #ff0000; 			// red
 $errors_foreground: #ff0000;		// red
+$errors_transparent: rgba(red($errors_border), green($errors_border), blue($errors_border), 0.25);
 
 $errors_input_background: #ffe5e5;	// error bg for input component
 
 $warnings_background: #fffeee; // light yellow
 $warnings_foreground: yellow;
-$warnings_border: #fffeee;
+$warnings_border: goldenrod;
+$warnings_transparent: rgba(red($warnings_border), green($warnings_border), blue($warnings_border), 0.25);
 
 $info_bg: #e4eeff;		// blueish light
 $info_fg: #4075db;
 $info_border: #4075db;
+$info_transparent: rgba(red($info_border), green($info_border), blue($info_border), 0.25);
+
+$white_transparent: rgba(255, 255, 255, 0.25);
 
 $header_bg: #7c7c7c;
 $main_color: #43b761; 				//Main green
