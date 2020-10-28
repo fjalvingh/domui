@@ -514,7 +514,7 @@ abstract public class AbstractGenerator {
 		a.append(")");
 
 		renderUpdateRule(a, dr, dr.getUpdateAction());
-		renderDeleteRule(a, dr, dr.getUpdateAction());
+		renderDeleteRule(a, dr, dr.getDeleteAction());
 		l.add(a.toString());
 	}
 
