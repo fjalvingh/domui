@@ -77,23 +77,34 @@ public class JDBCReverser implements Reverser {
 			schemaSet.clear();
 			schemaSet.add(schema);
 			initialize(dbc, schemaSet);
+			System.out.println("Reversing tables");
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
+				System.out.println("Reversing sequences");
 				reverseSequences(dbc, schemaSet);
+				System.out.println("Reversing columns");
 				reverseColumns(dbc, schemaSet);
 				int ncols = 0;
 				for(DbTable t : schema.getTables()) {
 					ncols += t.getColumnList().size();
 				}
 //				msg("Loaded " + ncols + " columns");
+				System.out.println("Reversing indices");
 				reverseIndexes(dbc, schemaSet);
+				System.out.println("Reversing primary keys");
 				reversePrimaryKeys(dbc, schemaSet);
+				System.out.println("Reversing relations");
 				reverseRelations(dbc, schemaSet);
+				System.out.println("Reversing views");
 				reverseViews(dbc, schema);
+				System.out.println("Reversing prodecures");
 				reverseProcedures(dbc, schema);
+				System.out.println("Reversing packages");
 				reversePackages(dbc, schema);
+				System.out.println("Reversing triggers");
 				reverseTriggers(dbc, schema);
+				System.out.println("Reversing constraints");
 				reverseConstraints(dbc, schemaSet);
 
 				afterLoad(dbc, schema);
