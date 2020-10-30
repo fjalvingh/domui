@@ -9,4 +9,7 @@ public enum ReverserOption {
 	ReverseColumns,
 	ReverseRelations,
 	ReverseSequences,
+	ReverseViews,
+	ReverseProdecures,
+	ReverseConstraints,
 }

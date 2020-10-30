@@ -29,6 +29,8 @@ public interface Reverser {
 
 	@NonNull Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaName, boolean lazily) throws Exception;
 
+	boolean hasOption(ReverserOption... options);
+
 	void lazy(@NonNull IExec what);
 
 	boolean typeHasPrecision(@NonNull DbColumn column);
