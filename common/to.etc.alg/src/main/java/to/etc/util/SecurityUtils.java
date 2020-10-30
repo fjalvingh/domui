@@ -30,6 +30,7 @@ import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
@@ -41,6 +42,7 @@ import java.security.SecureRandom;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -221,6 +223,20 @@ public class SecurityUtils {
 		}
 	}
 
+	/**
+	 * Returns the hash string generated based on md5 encoded as bas 36 string -> produces hash of 25 length, lowercase.
+	 * @param in
+	 * @return
+	 */
+	static public String getMd5HashBase36(@NonNull String in) {
+		try {
+			byte[] md5Hash = md5Hash(in.getBytes("UTF-8"));
+			String hexStr = StringTool.toHex(md5Hash);
+			return new BigInteger(hexStr, 16).toString( 36 ).toLowerCase();
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
 
 	static public byte[] createSalt(int bytes) {
 		byte[] salt = new byte[bytes];
