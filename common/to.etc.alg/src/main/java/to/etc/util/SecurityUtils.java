@@ -238,6 +238,14 @@ public class SecurityUtils {
 		}
 	}
 
+	static public String convertHexToBase36(@NonNull String hexStr) {
+		try {
+			return new BigInteger(hexStr, 16).toString( 36 ).toLowerCase();
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
+		}
+	}
+
 	static public byte[] createSalt(int bytes) {
 		byte[] salt = new byte[bytes];
 		RANDOM.nextBytes(salt);
