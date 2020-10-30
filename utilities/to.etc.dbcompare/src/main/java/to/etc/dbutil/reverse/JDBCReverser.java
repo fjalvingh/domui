@@ -147,10 +147,14 @@ public class JDBCReverser implements Reverser {
 				schemaSet.add(schema);
 			}
 			initialize(dbc, schemaSet);
+			System.out.println("Reversing tables");
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
+				System.out.println("Reversing sequences");
 				reverseSequences(dbc, schemaSet);
+
+				System.out.println("Reversing columns");
 				reverseColumns(dbc, schemaSet);
 				int ncols = 0;
 				for(DbSchema schema : schemaSet) {
@@ -160,13 +164,19 @@ public class JDBCReverser implements Reverser {
 				}
 
 				msg("Loaded " + ncols + " columns");
+				System.out.println("Reversing indices");
 				reverseIndexes(dbc, schemaSet);
+
+				System.out.println("Reversing primary keys");
 				reversePrimaryKeys(dbc, schemaSet);
+
+				System.out.println("Reversing relations");
 				reverseRelations(dbc, schemaSet);
 //				reverseViews(dbc, schema);
 //				reverseProcedures(dbc, schema);
 //				reversePackages(dbc, schema);
 //				reverseTriggers(dbc, schema);
+				System.out.println("Reversing constraints");
 				reverseConstraints(dbc, schemaSet);
 //
 //				afterLoad(dbc, schema);
@@ -215,9 +225,20 @@ public class JDBCReverser implements Reverser {
 	}
 
 	public void reverseColumns(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
+		int tables = 0;
+		int columns = 0;
+		int reportcount  = 0;
 		for(DbSchema schema : schemaSet) {
-			for(DbTable t : schema.getTables())
+			for(DbTable t : schema.getTables()) {
 				reverseColumns(dbc, t);
+				columns += t.getColumnList().size();
+				tables++;
+				reportcount += t.getColumnList().size();
+				if(reportcount++ >= 1000) {
+					System.out.println("Reversing columns: table " + tables + ", column count " + columns);
+					reportcount = 0;
+				}
+			}
 		}
 	}
 
