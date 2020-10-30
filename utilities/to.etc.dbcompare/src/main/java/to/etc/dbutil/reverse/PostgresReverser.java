@@ -27,8 +27,8 @@ public class PostgresReverser extends JDBCReverser {
 
 	private Map<String, DbDomain> m_domainMap = new HashMap<>();
 
-	public PostgresReverser(DataSource dbc) {
-		super(dbc);
+	public PostgresReverser(DataSource dbc, Set<ReverserOption> optionSet) {
+		super(dbc, optionSet);
 	}
 
 	@Override public String getDefaultSchemaName() throws Exception {

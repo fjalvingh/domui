@@ -37,12 +37,20 @@ import java.util.Set;
 public class JDBCReverser implements Reverser {
 	private DataSource m_ds;
 
+	private final Set<ReverserOption> m_optionSet;
+
 //	private DatabaseMetaData m_dmd;
 
 	private Set<DbSchema> m_schemaSet = new HashSet<>();
 
-	public JDBCReverser(DataSource dbc) {
+	public JDBCReverser(DataSource dbc, Set<ReverserOption> optionSet) {
 		m_ds = dbc;
+		m_optionSet = optionSet;
+	}
+
+	public boolean hasOption(ReverserOption option) {
+		return m_optionSet.isEmpty() || m_optionSet.contains(option);
+
 	}
 
 	@Override

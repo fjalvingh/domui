@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Connection;
+import java.util.HashSet;
 
 public class Database {
 	private String m_poolid;
@@ -104,7 +105,6 @@ public class Database {
 
 	/**
 	 * Reverse-engineer a db: read all metadata from the db.
-	 * @throws Exception
 	 */
 	public void reverse(String schemaname) throws Exception {
 		//-- Get the correct db reverser depending on db type.
@@ -118,7 +118,7 @@ public class Database {
 	}
 
 	public Reverser getReverser() throws Exception {
-		return ReverserRegistry.findReverser(ds());
+		return ReverserRegistry.findReverser(ds(), new HashSet<>());
 	}
 
 

@@ -1,12 +1,11 @@
 package to.etc.dbutil.reverse;
 
-import to.etc.util.FileTool;
-
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ReverserRegistry {
 	static private List<ReverserFactory> m_factories = new ArrayList<ReverserFactory>();
@@ -15,19 +14,19 @@ public class ReverserRegistry {
 		m_factories.add(f);
 	}
 
-	static public synchronized Reverser findReverser(DataSource ds) throws Exception {
+	static public synchronized Reverser findReverser(DataSource ds, Set<ReverserOption> optionSet) throws Exception {
 		try(Connection dbc = ds.getConnection()) {
 			DatabaseMetaData dmd = dbc.getMetaData();
 			for(ReverserFactory f : m_factories) {
 				try {
-					Reverser r = f.createReverser(ds, dmd);
+					Reverser r = f.createReverser(ds, dmd, optionSet);
 					if(r != null)
 						return r;
 				} catch(Exception x) {
 				}
 			}
 		}
-		return new JDBCReverser(ds);
+		return new JDBCReverser(ds, optionSet);
 	}
 
 	static {
@@ -36,9 +35,9 @@ public class ReverserRegistry {
 		 */
 		register(new ReverserFactory() {
 			@Override
-			public Reverser createReverser(DataSource dbc, DatabaseMetaData dmd) throws Exception {
+			public Reverser createReverser(DataSource dbc, DatabaseMetaData dmd, Set<ReverserOption> optionSet) throws Exception {
 				if(dmd.getDatabaseProductName().toLowerCase().contains("oracle"))
-					return new OracleReverser(dbc);
+					return new OracleReverser(dbc, optionSet);
 				return null;
 			}
 
@@ -46,9 +45,9 @@ public class ReverserRegistry {
 
 		register(new ReverserFactory() {
 			@Override
-			public Reverser createReverser(DataSource dbc, DatabaseMetaData dmd) throws Exception {
+			public Reverser createReverser(DataSource dbc, DatabaseMetaData dmd, Set<ReverserOption> optionSet) throws Exception {
 				if(dmd.getDatabaseProductName().toLowerCase().contains("postgres"))
-					return new PostgresReverser(dbc);
+					return new PostgresReverser(dbc, optionSet);
 				return null;
 			}
 		});
