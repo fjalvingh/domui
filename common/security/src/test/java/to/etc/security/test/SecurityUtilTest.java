@@ -56,6 +56,5 @@ public class SecurityUtilTest {
 	@Test
 	public void testConvertHexToBase36() {
 		assertThat(SecurityUtils.convertHexToBase36("67799e3c8745c1f89678a99b2f6f04be"), is("64j9gzm117qpdopa4x12iflj2"));
-		//assertThat(SecurityUtils.convertHexToBase36("2b58e14d72cce3966185f4b7d733daf8"), is("64j9gzm117qpdopa4x12iflj2"));
 	}
 }
