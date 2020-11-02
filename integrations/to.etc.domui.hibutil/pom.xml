@@ -18,7 +18,7 @@
 
     <properties>
         <hibernate.core.version>5.2.10.Final</hibernate.core.version>
-        <javassist.version>3.23.1-GA</javassist.version>
+        <javassist.version>3.27.0-GA</javassist.version>
     </properties>
 
     <dependencies>
