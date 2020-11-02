@@ -21,7 +21,7 @@
         <!-- JDK properties -->
         <source.jdk.version>1.8</source.jdk.version>
         <target.jdk.version>1.8</target.jdk.version>
-        <ecj.version>3.12.3</ecj.version>
+        <ecj.version>3.23.0</ecj.version>
 
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
 
