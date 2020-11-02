@@ -62,7 +62,7 @@
 
         <javax.servlet.version>4.0.1</javax.servlet.version>
         <javax.el.version>1.1</javax.el.version>
-        <javax.servlet.jsp.version>2.0</javax.servlet.jsp.version>
+        <javax.servlet.jsp.version>2.2</javax.servlet.jsp.version>
 
         <rhino.version>1.7.7</rhino.version>
         <jcharts.version>0.7.5</jcharts.version>
