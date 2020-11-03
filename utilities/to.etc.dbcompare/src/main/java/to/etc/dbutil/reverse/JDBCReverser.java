@@ -541,6 +541,7 @@ public class JDBCReverser implements Reverser {
 	protected void reverseRelations(@NonNull Connection dbc, DbTable t, boolean appendalways) throws Exception {
 		ResultSet rs = null;
 		try {
+			int count = 0;
 			String name = null;
 			rs = dbc.getMetaData().getExportedKeys(null, t.getSchema().getName(), t.getName());
 			int lastord = -1;
@@ -583,6 +584,7 @@ public class JDBCReverser implements Reverser {
 
 				//-- If this is a new sequence start a new relation else add to current,
 				if(lastord == -1 || ord <= lastord) {
+					count++;
 					//-- New relation.
 					rel = new DbRelation(t, fkt, decodeUpdateInt(updr), decodeUpdateInt(delr));
 					lastord = ord;
@@ -597,6 +599,7 @@ public class JDBCReverser implements Reverser {
 					rel.setName(name);
 				rel.addPair(pkc, fkc);
 			}
+			System.out.println("reverser: got " + count + " relations");
 		} finally {
 			try {
 				if(rs != null)
