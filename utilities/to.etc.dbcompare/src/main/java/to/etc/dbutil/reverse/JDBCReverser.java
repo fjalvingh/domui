@@ -20,7 +20,6 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.Types;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +49,7 @@ public class JDBCReverser implements Reverser {
 	}
 
 	public boolean hasOptionRaw(ReverserOption... options) {
-		System.out.println("dbg: " + m_optionSet);
+		//System.out.println("dbg: " + m_optionSet);
 		if(m_optionSet.isEmpty())
 			return true;
 		for(ReverserOption option : options) {
@@ -64,7 +63,7 @@ public class JDBCReverser implements Reverser {
 	@Override
 	public boolean hasOption(ReverserOption... options) {
 		boolean v = hasOptionRaw(options);
-		System.out.println("debug: hasOption " + Arrays.toString(options) + " is " + v);
+		//System.out.println("debug: hasOption " + Arrays.toString(options) + " is " + v);
 		return v;
 	}
 
