@@ -24,13 +24,19 @@
  */
 package to.etc.domui.component.tbl;
 
-import java.util.*;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.dom.html.NodeBase;
+import to.etc.webapp.query.QContextManager;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
+import to.etc.webapp.query.QSelection;
 
-import to.etc.domui.dom.html.*;
-import to.etc.webapp.query.*;
+import java.util.List;
 
+@NonNullByDefault
 public class DefaultQueryHandler<T> implements IQueryHandler<T> {
-	private QDataContextFactory m_dcf;
+	final private QDataContextFactory m_dcf;
 
 	public DefaultQueryHandler(NodeBase b) {
 		m_dcf = QContextManager.getDataContextFactory(QContextManager.DEFAULT, b.getPage().getConversation());
@@ -38,13 +44,14 @@ public class DefaultQueryHandler<T> implements IQueryHandler<T> {
 
 	@Override
 	public List<T> query(QCriteria<T> q) throws Exception {
-		QDataContext dc = m_dcf.getDataContext();
-		try {
+		try(QDataContext dc = m_dcf.getDataContext()) {
 			return dc.query(q);
-		} finally {
-			try {
-				dc.close();
-			} catch(Exception x) {}
+		}
+	}
+
+	@Override public List<Object[]> query(QSelection<T> q) throws Exception {
+		try(QDataContext dc = m_dcf.getDataContext()) {
+			return dc.query(q);
 		}
 	}
 }

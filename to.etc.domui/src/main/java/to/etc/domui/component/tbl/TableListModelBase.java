@@ -125,7 +125,6 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 
 	/**
 	 * Delete the object at the specified index.
-	 * @param index
 	 */
 	@Override
 	public T delete(int index) throws Exception {
@@ -159,10 +158,6 @@ abstract public class TableListModelBase<T> extends TableModelBase<T> implements
 
 	/**
 	 * Convenience method to move an item from index <i>from</i> to index <i>to</i>.
-	 *
-	 * @param to
-	 * @param from
-	 * @throws Exception
 	 */
 	public void move(int to, int from) throws Exception {
 		if(m_comparator != null)

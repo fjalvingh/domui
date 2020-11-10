@@ -219,6 +219,7 @@ public class DataPager1 extends Div implements IDataTablePager {
 		if(m_buttonDiv == null)
 			return;
 
+		m_table.build();							// 20191003 jal Make sure the DataTable is built to prevent multiple queries- one for the pager, then the second when the datatable knows its sort order
 		int cp = m_table.getCurrentPage();
 		int np = m_table.getPageCount();
 		int rowsAsked = -1;

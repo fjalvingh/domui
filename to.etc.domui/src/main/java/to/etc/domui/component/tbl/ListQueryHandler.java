@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QSelection;
 
 import java.util.List;
 
@@ -23,5 +24,9 @@ public class ListQueryHandler<T> implements IQueryHandler<T> {
 	@NonNull @Override public List<T> query(@NonNull QCriteria<T> q) throws Exception {
 		List<T> filter = MetaManager.query(m_list, q);
 		return filter;
+	}
+
+	@Override public List<Object[]> query(QSelection<T> q) throws Exception {
+		throw new IllegalStateException("Not implemented");
 	}
 }

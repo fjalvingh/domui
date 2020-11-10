@@ -35,5 +35,5 @@ package to.etc.domui.component.ckeditor;
  * Created on Dec 9, 2013
  */
 public enum CKToolbarSet {
-	TXTONLY, BASIC, DOMUI, FULL,
+	TXTONLY, BASIC, BASICPLUS, DOMUI, FULL,
 }
