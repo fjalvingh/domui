@@ -3,9 +3,13 @@ package to.etc.security.test;
 import org.junit.Assert;
 import org.junit.Test;
 import to.etc.security.SshKeyUtils;
+import to.etc.util.SecurityUtils;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -44,4 +48,13 @@ public class SecurityUtilTest {
 		//Assert.assertEquals(PUB_SSH, s);
 	}
 
+	@Test
+	public void testGetMd5HashBase36() {
+		assertThat(SecurityUtils.getMd5HashBase36("bla bla bla"), is("ad75l5xoxr9samzdjjg5l4may"));
+	}
+
+	@Test
+	public void testConvertHexToBase36() {
+		assertThat(SecurityUtils.convertHexToBase36("67799e3c8745c1f89678a99b2f6f04be"), is("64j9gzm117qpdopa4x12iflj2"));
+	}
 }
