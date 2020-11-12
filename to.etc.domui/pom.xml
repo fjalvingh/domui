@@ -31,6 +31,7 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
         <dependency>
             <groupId>javax.servlet</groupId>
@@ -49,6 +50,7 @@
             <groupId>to.etc.domui</groupId>
             <artifactId>to.etc.logger</artifactId>
         </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation -->
         <dependency>
             <groupId>org.eclipse.jdt</groupId>
@@ -80,6 +82,11 @@
         <dependency>
             <groupId>io.github.classgraph</groupId>
             <artifactId>classgraph</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>io.reactivex.rxjava3</groupId>
+            <artifactId>rxjava</artifactId>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.mozilla/rhino -->

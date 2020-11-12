@@ -288,6 +288,13 @@
                 <version>${com.ibm.icu.version}</version>
             </dependency>
 
+            <!-- rxjava support (experimental) -->
+            <dependency>
+                <groupId>io.reactivex.rxjava3</groupId>
+                <artifactId>rxjava</artifactId>
+                <version>3.0.7</version>
+            </dependency>
+
             <!-- Logging -->
             <dependency>
                 <groupId>org.slf4j</groupId>
