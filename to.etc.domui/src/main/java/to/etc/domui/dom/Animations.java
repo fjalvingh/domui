@@ -95,4 +95,33 @@ final public class Animations {
 			.next();
 	}
 
+	static public void bounce(NodeBase node) {
+		node.appendStatement()
+			.select(node)
+			.append(".effect('bounce')")
+			.next();
+	}
+
+	/**
+	 * Does pulsate effect.
+	 * @param node
+	 * @param times if 0 it uses default behavior for pulsate.
+	 */
+	static public void pulsate(NodeBase node, int times) {
+		String timesOption = "";
+		if(times > 0) {
+			timesOption = ", " + times;
+		}
+		node.appendStatement()
+			.select(node)
+			.append(".effect('pulsate'").append(timesOption).append(")")
+			.next();
+	}
+
+	static public void scrollIntoView(NodeBase node) {
+		node.appendStatement()
+			.select(node)
+			.append("[0].scrollIntoView()")
+			.next();
+	}
 }
