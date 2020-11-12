@@ -1151,12 +1151,18 @@ final public class Page implements IQContextContainer {
 		m_beforeRequestListenerList.add(x);
 	}
 
+	public void removeBeforeRequestListener(@NonNull IExecute x) {
+		if(!m_beforeRequestListenerList.remove(x))
+			System.out.println("PAGE: removal of beforeRequestListener failed (" + x + ")");
+	}
+
 	public void addDestroyListener(@NonNull IExecute listener) {
 		m_destroyListenerList.add(listener);
 	}
 
 	public void removeDestroyListener(@NonNull IExecute listener) {
-		m_destroyListenerList.remove(listener);
+		if(! m_destroyListenerList.remove(listener))
+			System.out.println("PAGE: removal of destroyListener failed (" + listener + ")");
 	}
 
 	public void callRequestFinished() throws Exception {

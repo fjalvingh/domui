@@ -4,6 +4,7 @@ import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.util.IExecute;
 import to.etc.util.StringTool;
 
 import java.util.ArrayList;
@@ -28,17 +29,13 @@ final public class PageScheduler extends Scheduler {
 		return new PageScheduler(page);
 	}
 
-
-
+	/**
+	 * Create a worker for the specified scheduling chain. Each schedule action gets its own
+	 * worker.
+	 */
 	@Override
 	public Worker createWorker() {
-		DomUIPageWorker w = (DomUIPageWorker) m_page.getConversation().getAttribute("rx$worker");
-		if(null == w) {
-			w = new DomUIPageWorker(m_page);
-			m_page.getConversation().setAttribute("rx$worker", w);
-		}
-		w.incUseCount();
-		return w;
+		return new DomUIPageWorker(m_page);
 	}
 
 	/**
@@ -46,18 +43,22 @@ final public class PageScheduler extends Scheduler {
 	 * when the page has been activated, for instance because of a PollingDiv.
 	 */
 	static private final class DomUIPageWorker extends Worker {
-		static public final boolean DEBUG = true;
+		static public final boolean DEBUG = false;
 
 		private final List<PageWork> m_workList = new ArrayList<>();
 
 		private final Page m_page;
 
-		private int m_useCount;
+		private boolean m_disposed;
+
+		private final IExecute m_destroyListener = this::dispose;
+
+		private final IExecute m_requestListener = this::sync;
 
 		public DomUIPageWorker(Page page) {
 			m_page = page;
-			m_page.addDestroyListener(this::dispose);
-			m_page.addBeforeRequestListener(this::sync);
+			m_page.addDestroyListener(m_destroyListener);
+			m_page.addBeforeRequestListener(m_requestListener);
 		}
 
 		/**
@@ -97,8 +98,8 @@ final public class PageScheduler extends Scheduler {
 			long ets = System.currentTimeMillis() + timeUnit.toMillis(l);			// Find execution time.
 			PageWork w = new PageWork(this, runnable, ets);
 			synchronized(this) {
-				d("Got work " + runnable);
-				if(m_useCount == 0) {
+				d("Got work " + runnable.getClass());
+				if(m_disposed) {
 					d("But I am disposed");
 					return Disposable.disposed();
 				}
@@ -123,25 +124,24 @@ final public class PageScheduler extends Scheduler {
 			}
 			List<PageWork> todo;
 			synchronized(this) {
-				if(m_useCount == 0)
+				if(m_disposed) {
+					d("Dispose called but already disposed");
 					return;
-				m_useCount--;
+				}
 				todo = new ArrayList<>(m_workList);
 				m_workList.clear();
+				m_disposed = true;
 			}
 			for(PageWork pageWork : todo) {
 				pageWork.dispose();
 			}
-			//m_page.removeDestroyListener(this::dispose);
+			m_page.removeDestroyListener(m_destroyListener);
+			m_page.removeBeforeRequestListener(m_requestListener);
 		}
 
 		@Override
 		public synchronized boolean isDisposed() {
-			return m_useCount == 0;
-		}
-
-		public synchronized void incUseCount() {
-			m_useCount++;
+			return m_disposed;
 		}
 	}
 
