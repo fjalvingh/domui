@@ -46,7 +46,7 @@ final public class PageScheduler extends Scheduler {
 	 * when the page has been activated, for instance because of a PollingDiv.
 	 */
 	static private final class DomUIPageWorker extends Worker {
-		static private final boolean DEBUG = false;
+		static public final boolean DEBUG = true;
 
 		private final List<PageWork> m_workList = new ArrayList<>();
 
@@ -64,13 +64,13 @@ final public class PageScheduler extends Scheduler {
 		 * Called when we're entering page context: this processes all queued work.
 		 */
 		private void sync() {
-			if(m_workList.size() == 0)
-				return;
-
 			long cts = System.currentTimeMillis();
-			List<PageWork> todoList = new ArrayList<>();
+			List<PageWork> todoList;
 			synchronized(this) {
 				d("PAGESCHEDULER: work size=" + m_workList.size());
+				if(m_workList.size() == 0)
+					return;
+				todoList = new ArrayList<>();
 				while(m_workList.size() > 0) {
 					PageWork w = m_workList.get(0);
 					if(w.getExecuteWhen() > cts) {
@@ -86,19 +86,20 @@ final public class PageScheduler extends Scheduler {
 			}
 		}
 
-		private void d(String s) {
+		static private void d(String s) {
 			if(DEBUG)
-				System.out.println(s);
+				System.out.println("PAGESCHEDULER: " + s);
 		}
 
 		@Override
 		public Disposable schedule(Runnable runnable, long l, TimeUnit timeUnit) {
+			d("schedule called");
 			long ets = System.currentTimeMillis() + timeUnit.toMillis(l);			// Find execution time.
 			PageWork w = new PageWork(this, runnable, ets);
 			synchronized(this) {
-				d("PAGESCHEDULER: Got work " + runnable);
+				d("Got work " + runnable);
 				if(m_useCount == 0) {
-					d("PAGESCHEDULER: But I am disposed");
+					d("But I am disposed");
 					return Disposable.disposed();
 				}
 
@@ -117,13 +118,19 @@ final public class PageScheduler extends Scheduler {
 
 		@Override
 		public void dispose() {
-			if(DEBUG)
+			if(DEBUG) {
 				StringTool.dumpLocation("DISPOSE CALLED");
+			}
+			List<PageWork> todo;
 			synchronized(this) {
 				if(m_useCount == 0)
 					return;
 				m_useCount--;
+				todo = new ArrayList<>(m_workList);
 				m_workList.clear();
+			}
+			for(PageWork pageWork : todo) {
+				pageWork.dispose();
 			}
 			//m_page.removeDestroyListener(this::dispose);
 		}
@@ -163,6 +170,7 @@ final public class PageScheduler extends Scheduler {
 
 		@Override
 		public void dispose() {
+			DomUIPageWorker.d("pagework dispose called");
 			synchronized(m_worker) {
 				if(m_disposed)
 					return;

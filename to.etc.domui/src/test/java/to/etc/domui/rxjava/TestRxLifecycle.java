@@ -2,6 +2,7 @@ package to.etc.domui.rxjava;
 
 import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.PublishSubject;
 import org.junit.Test;
@@ -25,11 +26,16 @@ public class TestRxLifecycle {
 
 		Observable<String> s20 = s10.observeOn(Schedulers.io());
 
-		s20.subscribe(a -> {
+		Observable<String> s30 = s20.doOnDispose(() -> {
+			System.out.println("Dispose called");
+		});
+
+		Disposable subscribe = s30.subscribe(a -> {
 			System.out.println(">> result: " + a);
 		});
 
 		ps.onNext("Hello");
 		Thread.sleep(2000);
+		subscribe.dispose();
 	}
 }
