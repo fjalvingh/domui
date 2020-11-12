@@ -22,7 +22,6 @@ public class RxTimePage extends UrlPage {
 		d.setOverflow(Overflow.AUTO);
 
 		RxTimer.getTicker()
-			.to()
 			.observeOn(PageScheduler.on(this))
 			.doOnSubscribe(a -> {
 				append(d, "Subscribed");
