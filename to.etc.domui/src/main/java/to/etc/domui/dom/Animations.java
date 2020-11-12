@@ -121,7 +121,7 @@ final public class Animations {
 	static public void scrollIntoView(NodeBase node) {
 		node.appendStatement()
 			.select(node)
-			.append("[0].scrollIntoView()")
+			.append("[0].scrollIntoViewIfNeeded()")
 			.next();
 	}
 }
