@@ -104,7 +104,7 @@ final public class Animations {
 
 	/**
 	 * Does pulsate effect.
-	 * @param node
+	 * @param node target node
 	 * @param times if 0 it uses default behavior for pulsate.
 	 */
 	static public void pulsate(NodeBase node, int times) {
@@ -121,7 +121,7 @@ final public class Animations {
 	static public void scrollIntoView(NodeBase node) {
 		node.appendStatement()
 			.select(node)
-			.append("[0].scrollIntoView()")
+			.append("[0].scrollIntoViewIfNeeded()")
 			.next();
 	}
 }

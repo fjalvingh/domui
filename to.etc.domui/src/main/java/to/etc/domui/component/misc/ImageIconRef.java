@@ -53,7 +53,7 @@ final public class ImageIconRef implements IIconRef {
 		else if(ext.isEmpty()) {
 			return new FontIcon(path).css(cssClasses);
 		} else {
-			return new ImgIcon(path);
+			return new ImgIcon(path).css(cssClasses);
 		}
 	}
 
