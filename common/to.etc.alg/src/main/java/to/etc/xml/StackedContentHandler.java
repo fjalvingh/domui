@@ -4,6 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
+import to.etc.function.IExecute;
 import to.etc.util.WrappedException;
 
 import java.util.ArrayList;
@@ -20,11 +21,6 @@ public class StackedContentHandler implements ContentHandler {
 	private final List<Level> m_stack = new ArrayList<>();
 
 	private final List<Elem> m_elementStack = new ArrayList<>();
-
-	@FunctionalInterface	// Idiots.
-	public interface IExecute {
-		void execute() throws Exception;
-	}
 
 	private final Map<String, IExecute> m_onPathMap = new HashMap<>();
 

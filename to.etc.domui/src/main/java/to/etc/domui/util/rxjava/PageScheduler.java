@@ -4,7 +4,7 @@ import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.Disposable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 
 import java.util.ArrayList;

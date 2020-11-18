@@ -1,4 +1,4 @@
-package to.etc.domui.util;
+package to.etc.function;
 
 @FunctionalInterface
 public interface IExecute {

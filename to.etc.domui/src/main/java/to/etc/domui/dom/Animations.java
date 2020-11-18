@@ -4,7 +4,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>

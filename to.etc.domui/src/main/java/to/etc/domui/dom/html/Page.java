@@ -41,7 +41,7 @@ import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.SubConversationContext;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.util.WrappedException;

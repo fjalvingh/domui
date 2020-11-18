@@ -46,7 +46,7 @@ import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IReturnPressed;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.ProgrammerErrorException;

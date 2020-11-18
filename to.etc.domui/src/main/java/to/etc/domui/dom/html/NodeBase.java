@@ -62,7 +62,7 @@ import to.etc.domui.util.IDragHandler;
 import to.etc.domui.util.IDraggable;
 import to.etc.domui.util.IDropHandler;
 import to.etc.domui.util.IDropTargetable;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;

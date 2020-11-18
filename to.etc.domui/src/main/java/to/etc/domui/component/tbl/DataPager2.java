@@ -34,7 +34,7 @@ import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.Span;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.IBundleCode;
