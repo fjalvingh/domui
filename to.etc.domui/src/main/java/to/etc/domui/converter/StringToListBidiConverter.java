@@ -52,7 +52,7 @@ final public class StringToListBidiConverter implements IBidiBindingConverter<St
 		StringBuilder sb = new StringBuilder();
 		int qc = 0;
 		int i = 0;
-		while(i < sb.length()) {
+		while(i < value.length()) {
 			char c = value.charAt(i++);
 			if(qc == 0) {
 				//-- Not in quote
