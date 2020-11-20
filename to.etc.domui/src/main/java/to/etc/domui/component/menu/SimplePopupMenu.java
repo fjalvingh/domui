@@ -1,6 +1,7 @@
 package to.etc.domui.component.menu;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.component.menu.PopupMenu.Item;
 import to.etc.domui.component.menu.PopupMenu.Submenu;
 import to.etc.domui.component.misc.IIconRef;
@@ -22,7 +23,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 5, 2011
  */
-public class SimplePopupMenu extends Div {
+public class SimplePopupMenu extends FloatingDiv {
 	private PopupMenu m_source;
 
 	private String m_menuTitle;
@@ -31,6 +32,8 @@ public class SimplePopupMenu extends Div {
 	private NodeBase m_relativeTo;
 
 	private Object m_targetObject;
+
+	private String stylePrefix;
 
 	final private List<Item> m_actionList;
 
@@ -67,28 +70,24 @@ public class SimplePopupMenu extends Div {
 		m_relativeTo = relativeTo;
 	}
 
-	SimplePopupMenu(@NonNull NodeBase b, PopupMenu pm, List<Item> actionList, Object target) {
+	SimplePopupMenu(@NonNull NodeBase b, PopupMenu pm, List<Item> actionList, Object target, String stylePrefix, boolean modal) {
+		super(modal);
 		m_actionList = Collections.unmodifiableList(actionList);
 		m_targetObject = target;
 		m_relativeTo = b;
 		m_source = pm;
+		this.stylePrefix = stylePrefix;
 	}
 
 	@Override
 	public void createContent() throws Exception {
-		setCssClass("ui-pmnu");
+		setCssClass(stylePrefix);
 
 		Div root = new Div();
 		add(root);
-		root.setCssClass("ui-pmnu-sm");
+		root.setCssClass(stylePrefix + "-sm");
 
-		String menuTitle = m_menuTitle;
-		if(null != menuTitle) {
-			Div ttl = new Div();
-			root.add(ttl);
-			ttl.setCssClass("ui-pmnu-ttl");
-			ttl.add(menuTitle);
-		}
+		addMenuTitle(root);
 
 		Div items = new Div();
 		root.add(items);
@@ -106,15 +105,25 @@ public class SimplePopupMenu extends Div {
 		appendCreateJS("WebUI.popupMenuShow('#" + getRelativeTo().getActualID() + "', '#" + getActualID() + "');");
 	}
 
+	private void addMenuTitle(Div root) {
+		String menuTitle = m_menuTitle;
+		if(null != menuTitle) {
+			Div ttl = new Div();
+			root.add(ttl);
+			ttl.setCssClass(stylePrefix + "-ttl");
+			ttl.add(menuTitle);
+		}
+	}
+
 	private void setSubmenuSelected(Div selectDiv, boolean on, int level) {
 		Img img = selectDiv.getChildren(Img.class).get(0);
 		if(on) {
-//			selectDiv.addCssClass("ui-pmnu-subsel");
-			selectDiv.addCssClass("ui-pmnu-sm" + level);
+//			selectDiv.addCssClass(stylePrefix + "-subsel");
+			selectDiv.addCssClass(stylePrefix + "-sm" + level);
 			img.setSrc("THEME/pmnu-submenu-close.png");
 		} else {
-//			selectDiv.removeCssClass("ui-pmnu-subsel");
-			selectDiv.removeCssClass("ui-pmnu-sm" + level);
+//			selectDiv.removeCssClass(stylePrefix + "-subsel");
+			selectDiv.removeCssClass(stylePrefix + "-sm" + level);
 			img.setSrc("THEME/pmnu-submenu-open.png");
 		}
 	}
@@ -141,13 +150,11 @@ public class SimplePopupMenu extends Div {
 
 		//-- Now add the new level,
 		Div root = new Div();
-		add(root);
+		selectDiv.add(root);
 
-		root.setCssClass("ui-pmnu-sm ui-pmnu-sm" + (m_stack.size() + 1));
-		Div ttl = new Div();
-		root.add(ttl);
-		ttl.setCssClass("ui-pmnu-ttl");
-		ttl.add(m_menuTitle == null ? "\u00a0" : m_menuTitle);
+		root.setCssClass(stylePrefix + "-sm " + stylePrefix + "-sm" + (m_stack.size() + 1));
+
+		addMenuTitle(root);
 
 		Div items = new Div();
 		root.add(items);
@@ -195,13 +202,13 @@ public class SimplePopupMenu extends Div {
 	private Div renderItem(@NonNull NodeContainer into, String text, String hint, IIconRef icon, boolean disabled) {
 		Div d = new Div();
 		into.add(d);
-		d.setCssClass("ui-pmnu-action " + (disabled ? "ui-pmnu-disabled" : "ui-pmnu-enabled"));
+		d.setCssClass(stylePrefix + "-action " + (disabled ? stylePrefix + "-disabled" : stylePrefix + "-enabled"));
 		if(null != icon) {
 			NodeBase node = icon.createNode();
-			node.addCssClass("ui-pmnu-icon");
+			node.addCssClass(stylePrefix + "-icon");
 			d.add(node);
 		}
-		d.add(new Span("ui-pmnu-icon", text));
+		d.add(new Span(stylePrefix + "-icon", text));
 		if(null != hint)
 			d.setTitle(hint);
 		return d;
@@ -254,7 +261,9 @@ public class SimplePopupMenu extends Div {
 	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		System.out.println("SimplePopupMenu: received " + action);
 		if("POPINCLOSE?".equals(action)) {
-			closeMenu();
+			if (!getSource().isPermanent()) {
+				closeMenu();
+			}
 		} else
 			super.componentHandleWebAction(ctx, action);
 	}
@@ -269,6 +278,11 @@ public class SimplePopupMenu extends Div {
 
 	protected void clearPopinIf() {
 		getPage().clearPopIn();
+	}
+
+	@Override
+	public void closePressed() {
+		closeMenu();
 	}
 
 }
