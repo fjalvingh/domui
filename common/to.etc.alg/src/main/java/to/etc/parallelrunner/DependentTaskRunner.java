@@ -134,7 +134,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 		@Override public void run(Progress p) throws Exception {
 			if(m_runner.isCancelled())
 				return;
-			m_task.run(p);
+			m_task.getItem().run(p);
 		}
 
 		public Task<V, SingleTaskExecutor<V>> getTask() {
