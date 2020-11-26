@@ -27,7 +27,7 @@ package to.etc.domui.injector;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.CompoundKeyConverter;
-import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.state.IPageParameters;
 import to.etc.util.PropertyInfo;
 import to.etc.webapp.query.QDataContext;
@@ -70,7 +70,7 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 		return m_mandatory;
 	}
 
-	protected String getParameterValue(UrlPage page, IPageParameters papa) throws Exception {
+	protected String getParameterValue(AbstractPage page, IPageParameters papa) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = papa.getString(m_name, null);
 		if(pv == null) {
@@ -84,7 +84,7 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 	/**
 	 * Create a new instance.
 	 */
-	protected Object createNew(final UrlPage page) {
+	protected Object createNew(AbstractPage page) {
 		try {
 			return m_entityClass.newInstance();
 		} catch(Exception x) {
@@ -95,11 +95,11 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 	/**
 	 * Returns T if the request is to create a new instance.
 	 */
-	protected boolean isNew(final UrlPage page, final IPageParameters papa, String value) throws Exception {
+	protected boolean isNew(AbstractPage page, final IPageParameters papa, String value) throws Exception {
 		return "NEW".equals(value);
 	}
 
-	protected Object getKeyInstance(QDataContext dc, final UrlPage page, String pkValue) throws Exception {
+	protected Object getKeyInstance(QDataContext dc, AbstractPage page, String pkValue) throws Exception {
 		// if the parametervalue has no value and the type of the key is Number, we treet it like no parameter was filled in
 		// the mandatorycheck will be done some later
 		if(Number.class.isAssignableFrom(m_pkMetaPmm.getActualType()) && pkValue != null && pkValue.length() == 0)
@@ -123,7 +123,7 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 	}
 
 	@Override
-	public void inject(@NonNull final UrlPage page, @NonNull final IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
+	public void inject(@NonNull AbstractPage page, @NonNull final IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = getParameterValue(page, papa);
 		if(pv == null)

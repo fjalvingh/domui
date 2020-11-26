@@ -92,7 +92,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
-			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
+			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + " + location.hash);\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
 	}
 
 	/**

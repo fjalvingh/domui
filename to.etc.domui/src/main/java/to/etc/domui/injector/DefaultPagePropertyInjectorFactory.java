@@ -2,7 +2,6 @@ package to.etc.domui.injector;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.ClassUtil;
 import to.etc.util.PropertyInfo;
 
@@ -69,7 +68,7 @@ public class DefaultPagePropertyInjectorFactory implements IPageInjectorCalculat
 	 * Checks all properties of a page and returns a list of Injectors to use to inject values into
 	 * those properties, if needed.
 	 */
-	@Override public void calculatePageInjectors(Map<String, PropertyInjector> registrationMap, Class<? extends UrlPage> pageClass) {
+	@Override public void calculatePageInjectors(Map<String, PropertyInjector> registrationMap, Class<?> pageClass) {
 		List<PropertyInfo> propertyList = ClassUtil.getProperties(pageClass);
 		for(PropertyInfo pi : propertyList) {
 			if(! registrationMap.containsKey(pi.getName())) {

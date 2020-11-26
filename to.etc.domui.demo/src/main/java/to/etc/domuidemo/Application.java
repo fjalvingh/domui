@@ -15,6 +15,7 @@ import to.etc.domui.dom.header.FaviconContributor;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.ConfigParameters;
 import to.etc.domui.server.DomApplication;
@@ -115,7 +116,7 @@ public class Application extends DomApplication {
 	}
 
 	void onNewPage(final UrlPage p) throws Exception {
-		if(p instanceof SourcePage || p instanceof FormDesigner)
+		if(p instanceof SourcePage || p instanceof FormDesigner || p instanceof SpiPage)
 			return;
 
 		if(null != DomUtil.findComponentInTree(p, BreadCrumb.class))

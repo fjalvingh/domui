@@ -25,12 +25,12 @@
 package to.etc.domui.injector;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.state.IPageParameters;
 
 @NonNullByDefault
 public interface IPageInjector {
 	void registerFactory(int urgency, IPagePropertyFactory injector);
 
-	void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception;
+	void injectPageValues(final AbstractPage page, final IPageParameters papa) throws Exception;
 }

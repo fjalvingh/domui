@@ -2267,6 +2267,7 @@ var WebUI;
         return Number(val);
     }
     function onDocumentReady() {
+        $(window).bind('hashchange', WebUI.handleHashChange);
         checkBrowser();
         WebUI.handleCalendarChanges();
         if (window.DomUIDevel)
@@ -2353,6 +2354,40 @@ var WebUI;
         }
     }
     WebUI.addPagerAccessKeys = addPagerAccessKeys;
+    var _lastUrlFragment;
+    function loadSpiFragments() {
+        var hash = location.hash;
+        if (hash == "")
+            return;
+        if (hash == _lastUrlFragment)
+            return;
+        var fields = {};
+        fields["webuia"] = "LOADFRAGS";
+        fields["webuic"] = document.body.id;
+        fields["$pt"] = window.DomUIpageTag;
+        fields["$cid"] = window.DomUICID;
+        fields["hashes"] = hash;
+        WebUI.cancelPolling();
+        _lastUrlFragment = hash;
+        $.ajax({
+            url: WebUI.getPostURL(),
+            dataType: "*",
+            data: fields,
+            cache: false,
+            type: "GET",
+            success: WebUI.handleResponse,
+            error: WebUI.handleError
+        });
+    }
+    WebUI.loadSpiFragments = loadSpiFragments;
+    function spiUpdateHashes(hashes) {
+        location.hash = "#" + hashes;
+    }
+    WebUI.spiUpdateHashes = spiUpdateHashes;
+    function handleHashChange() {
+        loadSpiFragments();
+    }
+    WebUI.handleHashChange = handleHashChange;
 })(WebUI || (WebUI = {}));
 (function ($) {
     if ($.browser.msie && $.browser.majorVersion < 10) {

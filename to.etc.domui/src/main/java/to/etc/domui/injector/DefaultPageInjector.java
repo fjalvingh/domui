@@ -27,6 +27,7 @@ package to.etc.domui.injector;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
 
@@ -73,7 +74,7 @@ final public class DefaultPageInjector implements IPageInjector {
 		m_defaultPageInjectorFactory.registerFactory(urgency, injector);
 	}
 
-	final public PageInjectionList calculateInjectors(Class<? extends UrlPage> page) {
+	final public PageInjectionList calculateInjectors(Class<?> page) {
 		Map<String, PropertyInjector> propInjectorMap = new HashMap<>();
 		for(IPageInjectorCalculator injector : getPageInjectorList()) {
 			injector.calculatePageInjectors(propInjectorMap, page);
@@ -100,7 +101,7 @@ final public class DefaultPageInjector implements IPageInjector {
 	/**
 	 * Find the page injectors to use for the page. This uses the cache.
 	 */
-	private synchronized PageInjectionList findPageInjector(Class< ? extends UrlPage> page) {
+	private synchronized PageInjectionList findPageInjector(Class<?> page) {
 		String cn = page.getClass().getCanonicalName();
 		PageInjectionList pij = m_injectorMap.get(cn);
 		if(pij != null) {
@@ -119,7 +120,7 @@ final public class DefaultPageInjector implements IPageInjector {
 	 * and injects any stuff it finds. This version only handles the @UIUrlParameter annotation.
 	 */
 	@Override
-	public void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception {
+	public void injectPageValues(AbstractPage page, final IPageParameters papa) throws Exception {
 		PageInjectionList pij = findPageInjector(page.getClass());
 		Map<String, Object> attributeMap = new HashMap<>();
 		pij.inject(page, papa, attributeMap);

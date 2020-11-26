@@ -226,6 +226,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		//		if(kit > 0) {
 		//			o().writeRaw("WebUI.startPingServer(" + kit + ");");
 		//		}
+		o().writeRaw("WebUI.loadSpiFragments();");
 
 		o().text("});");
 		o().closetag("script");

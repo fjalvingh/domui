@@ -1,7 +1,7 @@
 package to.etc.domui.injector;
 
 import to.etc.domui.annotations.UIUrlContext;
-import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IUrlContextDecoder;
 import to.etc.domui.state.IPageParameters;
@@ -34,7 +34,7 @@ final public class UrlContextPropertyInjector implements IPagePropertyFactory {
 			throw new ProgrammerErrorException("Property " + propertyInfo + " annotated with @UIUrlContext but it has no setter");
 		Class<?> actualType = propertyInfo.getActualType();
 		return new PropertyInjector(propertyInfo) {
-			@Override public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
+			@Override public void inject(AbstractPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
 				Map<String, Object> map = (Map<String, Object>) attributeMap.computeIfAbsent(UrlContextPropertyInjector.class.getName(), a -> {
 					String urlContextString = pp.getUrlContextString();
 					if(null == urlContextString) {

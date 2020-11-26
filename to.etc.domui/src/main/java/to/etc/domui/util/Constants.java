@@ -53,6 +53,8 @@ public class Constants {
 
 	static public final String ACMD_VALUE_CHANGED = "vchange";
 
+	static public final String ACMD_LOADFRAGS = "LOADFRAGS";
+
 	/** Added to fix bug# 917: idiot IE does not handle onchange on checkbox. */
 	static public final String ACMD_CLICKANDCHANGE = "clickandvchange";
 
