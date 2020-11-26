@@ -109,8 +109,10 @@ public class SpiPageHelper {
 				String name = segment.substring(1, segment.length() - 1);
 				IPageParameters pp = container.getCurrentParameters();
 				String val = pp == null ? null : pp.getString(name, null);
-				if(val == null)
-					throw new IllegalStateException("SpiFragment " + currentPage.getName() + " missing actual parameter value for parameter " + name);
+				if(val == null) {
+					val = "";
+					//throw new IllegalStateException("SpiFragment " + currentPage.getName() + " missing actual parameter value for parameter " + name);
+				}
 				sb.append(val);
 			} else {
 				sb.append(segment);
