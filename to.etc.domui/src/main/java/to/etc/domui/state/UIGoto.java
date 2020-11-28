@@ -297,16 +297,16 @@ final public class UIGoto {
 	/*	CODING:	SPI interface calls.										*/
 	/*----------------------------------------------------------------------*/
 
-	static public void moveSub(ISpiContainerName name, Class<? extends SubPage> spiPage, Object... param) throws Exception {
+	static public void moveSub(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiPage, Object... param) throws Exception {
 		PageParameters pp;
-		if(param == null || param.length == 0)
-			pp = null;
+		if(param == null)
+			pp = new PageParameters();
 		else
 			pp = new PageParameters(param);
 		moveSub(name, spiPage, pp);
 	}
 
-	static public void moveSub(ISpiContainerName name, Class<? extends SubPage> spiClass, PageParameters pp) throws Exception {
+	static public void moveSub(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @NonNull PageParameters pp) throws Exception {
 		Page currentPage = UIContext.getCurrentPage();
 		UrlPage body = currentPage.getBody();
 		if(!(body instanceof SpiPage)) {
