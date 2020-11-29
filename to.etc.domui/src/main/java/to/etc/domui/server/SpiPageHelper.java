@@ -10,6 +10,7 @@ import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.util.ClassUtil;
+import to.etc.util.StringTool;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -113,7 +114,7 @@ public class SpiPageHelper {
 					val = "";
 					//throw new IllegalStateException("SpiFragment " + currentPage.getName() + " missing actual parameter value for parameter " + name);
 				}
-				sb.append(val);
+				sb.append(StringTool.encodeURLEncoded(val));
 			} else {
 				sb.append(segment);
 			}

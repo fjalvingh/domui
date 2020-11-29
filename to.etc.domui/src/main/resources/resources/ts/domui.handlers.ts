@@ -223,6 +223,10 @@ namespace WebUI {
 			return;
 		if(hash == _lastUrlFragment)
 			return;
+
+		//-- The hash is not percent-decoded for some non-obvious reason (see https://developer.mozilla.org/en-US/docs/Web/API/Location/hash)
+		hash = decodeURIComponent(hash);
+
 		let fields = {};
 		fields["webuia"] = "LOADFRAGS";
 		fields["webuic"] = document.body.id;
