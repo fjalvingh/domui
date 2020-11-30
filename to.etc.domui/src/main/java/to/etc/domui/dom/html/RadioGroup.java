@@ -131,6 +131,18 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		return vc;
 	}
 
+	@Override
+	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+		m_onValueChanged = onValueChanged;
+		if(null != onValueChanged) {
+			List<RadioButton<?>> deepChildren =(List<RadioButton<?>>) (Object)getDeepChildren(RadioButton.class);		// What a trainwreck.
+			for(RadioButton<?> deepChild : deepChildren) {
+				deepChild.setClicked(clickednode -> {});
+			}
+		}
+	}
+
+
 	public RadioButton<T> addButton(String text, T value) {
 		return addButton(text, value, null);
 	}
@@ -146,6 +158,10 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		m_buttonList.add(rb);
 		rb.setDisabled(m_disabled);
 		rb.setReadOnly(m_readOnly);
+		IValueChanged<?> ovc = m_onValueChanged;
+		if(null != ovc)
+			rb.setClicked(clickednode -> {});				// Force an event
+
 		if(isBuilt())
 			forceRebuild();
 		return rb;
@@ -206,11 +222,6 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 				return;
 			}
 		}
-	}
-
-	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
-		m_onValueChanged = onValueChanged;
 	}
 
 	public boolean isImmediate() {

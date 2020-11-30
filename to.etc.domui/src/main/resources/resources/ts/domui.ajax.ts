@@ -113,6 +113,7 @@ namespace WebUI {
 
 	export function clicked(h, id : string, evt: any) {
 		//-- Trigger the before-clicked event on body
+		// console.debug("clicked " + id);
 		$(document.body).trigger("beforeclick", [$("#" + id), evt]);
 
 		// Collect all input, then create input.
