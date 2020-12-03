@@ -372,9 +372,6 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		private Exception m_exception;
 
 		@Nullable
-		private String m_error;
-
-		@Nullable
 		private X m_executor;
 
 		@Nullable
@@ -494,18 +491,11 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		}
 
 		@Nullable
-		public synchronized String getUserError() {
-			return m_error;
-		}
-
-		@Nullable
 		public synchronized String getErrorMessage() {
-			String error = m_error;
-			if(null != error)
-				return error;
 			Exception exception = m_exception;
-			if(null != exception)
+			if(null != exception) {
 				return exception.toString();
+			}
 			return null;
 		}
 
