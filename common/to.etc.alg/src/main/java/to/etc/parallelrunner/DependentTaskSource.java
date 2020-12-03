@@ -69,7 +69,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		default void onTaskStarted(Task<V, X> task) throws Exception {
 		}
 
-		default void onTaskFinished(Task<V, X> task, @Nullable Exception failure) throws Exception {
+		default void onTaskFinished(Task<V, X> task, @Nullable Throwable failure) throws Exception {
 		}
 	}
 
@@ -222,13 +222,13 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 				m_maxParallel = sz;
 			task.m_state = TaskState.RUNNING;
 		}
-		Exception errorX = null;
+		Throwable errorX = null;
 		try {
 			X executor = m_executorFactory.apply(task);
 			task.setExecutor(executor);
 			task.setStartTime(new Date());
 			executor.run(progress);
-		} catch(Exception x) {
+		} catch(Exception | Error x) {
 			System.err.println("ERROR " + task + ": " + x);
 			x.printStackTrace();
 			errorX = x;
@@ -238,7 +238,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		}
 	}
 
-	private void handleCompletedTask(Task<T, X> task, @Nullable Exception exception) {
+	private void handleCompletedTask(Task<T, X> task, @Nullable Throwable exception) {
 		task.completed(exception);								// ORDERED Mark the task itself as done so that the listener can be called
 		m_listeners.forEach(a -> ExceptionUtil.silentFails(() -> a.onTaskFinished(task, exception)));
 
@@ -369,7 +369,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		private Task<V, X> m_failedTask;
 
 		@Nullable
-		private Exception m_exception;
+		private Throwable m_exception;
 
 		@Nullable
 		private X m_executor;
@@ -391,7 +391,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			m_source.runTask(this, progress);
 		}
 
-		private void completed(@Nullable Exception exception) {
+		private void completed(@Nullable Throwable exception) {
 			//-- Part 1: set the task itself to completed state
 			synchronized(m_source) {
 				if(m_state != TaskState.RUNNING)
@@ -486,13 +486,13 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		}
 
 		@Nullable
-		public synchronized Exception getException() {
+		public synchronized Throwable getException() {
 			return m_exception;
 		}
 
 		@Nullable
 		public synchronized String getErrorMessage() {
-			Exception exception = m_exception;
+			Throwable exception = m_exception;
 			if(null != exception) {
 				return exception.toString();
 			}
