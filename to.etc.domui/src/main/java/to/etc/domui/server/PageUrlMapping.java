@@ -13,6 +13,7 @@ import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
+import to.etc.util.StringTool;
 
 import java.beans.Introspector;
 import java.util.HashMap;
@@ -303,7 +304,7 @@ final public class PageUrlMapping {
 
 			level = m_byName.get("");						// Variable level present?
 			if(null != level) {
-				paramValues.put(this, segment);				// Assign the value for this level
+				paramValues.put(this, StringTool.decodeURLEncoded(segment));				// Assign the value for this level
 				return level;
 			}
 			return null;

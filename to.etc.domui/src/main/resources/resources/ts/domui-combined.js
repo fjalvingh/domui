@@ -2361,7 +2361,6 @@ var WebUI;
             return;
         if (hash == _lastUrlFragment)
             return;
-        hash = decodeURIComponent(hash);
         var fields = {};
         fields["webuia"] = "LOADFRAGS";
         fields["webuic"] = document.body.id;
