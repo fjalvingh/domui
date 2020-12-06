@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.server.PageUrlMapping.PageSubtype;
 import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
@@ -146,7 +147,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		/*
 		 * Is the input known to the URL mapper?
 		 */
-		Target target = app.getPageUrlMapping().findTarget(urlin, m_parameterWrapper);
+		Target target = app.getPageUrlMapping().findTarget(PageSubtype.UrlPage, urlin, m_parameterWrapper);
 		if(null != target) {
 			m_pageName = target.getTargetPage();
 			m_parameterWrapper = target.getParameters();

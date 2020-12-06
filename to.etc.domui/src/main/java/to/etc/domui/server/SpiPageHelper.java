@@ -5,6 +5,7 @@ import to.etc.domui.annotations.UIPage;
 import to.etc.domui.dom.html.SpiContainer;
 import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.SubPage;
+import to.etc.domui.server.PageUrlMapping.PageSubtype;
 import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
@@ -30,7 +31,7 @@ public class SpiPageHelper {
 	}
 
 	SubPage createSubPage(SpiPage spiPage, String rurl) throws Exception {
-		Target target = m_application.getPageUrlMapping().findTarget(rurl, new PageParameters());
+		Target target = m_application.getPageUrlMapping().findTarget(PageSubtype.SubPage, rurl, new PageParameters());
 		if(null == target) {
 			throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known");
 		}
