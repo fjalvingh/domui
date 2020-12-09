@@ -406,6 +406,18 @@ final public class DateUtil {
 		return new Date(cal.getTimeInMillis());
 	}
 
+	static public Date yearEndDate(int year) {
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.HOUR_OF_DAY, 23);
+		cal.set(Calendar.MINUTE, 59);
+		cal.set(Calendar.SECOND, 59);
+		cal.set(Calendar.MILLISECOND, 999);
+		cal.set(Calendar.YEAR, year);
+		cal.set(Calendar.MONTH, 11);
+		cal.set(Calendar.DAY_OF_MONTH, 31);
+		return new Date(cal.getTimeInMillis());
+	}
+
 	static public Date calculateDurationEndInSec(Date start, int durationInSeconds) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(start);
