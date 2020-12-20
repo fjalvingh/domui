@@ -1047,6 +1047,8 @@ public abstract class DomApplication {
 	}
 
 	public synchronized int calculatePollInterval(boolean pollCallbackRequired) {
+		if(! DeveloperOptions.getBool("domui.polling", true))
+			return 0;
 		int pollinterval = Integer.MAX_VALUE;
 		if(m_keepAliveInterval > 0)
 			pollinterval = m_keepAliveInterval;
