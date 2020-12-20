@@ -724,8 +724,18 @@ final public class Page implements IQContextContainer {
 		}
 		getFloatingStack().add(window); // Add on top (defines order)
 
+		//-- Find the closest SubPage, or Body.
+		NodeContainer nc = originalParent;
+		for(;;) {
+			if(nc instanceof SubPage)
+				break;
+			if(nc == getBody())
+				break;
+			nc = nc.getParent();
+		}
+
 		//-- Add the floater to the body,
-		getBody().internalAdd(Integer.MAX_VALUE, window); // Add to body,
+		nc.internalAdd(Integer.MAX_VALUE, window); // Add to body,
 	}
 
 	/**
