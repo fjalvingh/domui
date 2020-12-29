@@ -235,6 +235,10 @@ public class SimpleSearchModelLazy<T extends IIdentifyable<K>, K> extends TableM
 
 			QSelection<T> qsel = QSelection.create(baseClass);
 			qsel.selectProperty("id");							// By definition
+			String sort = m_sort;
+			if (sort != null && !"id".equalsIgnoreCase(sort)) {
+				qsel.selectProperty(sort);
+			}
 			QOperatorNode restrictions = query.getRestrictions();
 			qsel.setRestrictions(restrictions == null ? null : restrictions.dup());
 			qsel.limit(queryLimit);
