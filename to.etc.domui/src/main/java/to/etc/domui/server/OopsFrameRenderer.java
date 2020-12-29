@@ -57,7 +57,7 @@ public class OopsFrameRenderer {
 
 		StringBuilder sb = new StringBuilder();
 		dumpException(sb, x);
-		dataMap.put("stacktrace", sb.toString());
+		dataMap.put("stacktrace", StringTool.htmlStringize(sb.toString()));
 		dataMap.put("message", StringTool.htmlStringize(x.toString()));
 		dataMap.put("ctx", ctx);
 		ExceptionUtil util = new ExceptionUtil(ctx);
@@ -87,7 +87,7 @@ public class OopsFrameRenderer {
 			if(cause == null || cause == curr)
 				break;
 
-			a.append("\n\n     Caused by ").append(cause.toString()).append("\n");
+			a.append("\n\n     Caused by ").append(StringTool.htmlStringize(cause.toString())).append("\n");
 			dumpSingle(a, cause, allset);
 			curr = cause;
 		}
@@ -119,7 +119,7 @@ public class OopsFrameRenderer {
 			while(sx.getNextException() != null) {
 				sx = sx.getNextException();
 				sb.append("SQL NextException: ");
-				sb.append(sx.toString());
+				sb.append(StringTool.htmlStringize(sx.toString()));
 				sb.append("<br>");
 			}
 		}
@@ -147,7 +147,7 @@ public class OopsFrameRenderer {
 			name = ste.getClassName().replace('.', '/') + ".java@" + ste.getMethodName();
 		else
 			name = ste.getClassName().replace('.', '/') + ".java#" + ste.getLineNumber();
-		sb.append(name);
+		sb.append(StringTool.htmlStringize(name));
 		sb.append("')\">");
 		sb.append(ste.toString()).append("</a><br>");
 	}

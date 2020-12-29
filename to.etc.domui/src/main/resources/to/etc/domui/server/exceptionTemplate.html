@@ -174,16 +174,16 @@ startTrying();
 		<table cellspacing="1" cellpadding="1" border="0">
 			<tr>
 				<td class="exc-tbl-lbl">URL</td>
-				<td class="exc-tbl-v"><%= ctx.getRequestResponse().getRequestURI() %>
+				<td class="exc-tbl-v"><%= util.q(ctx.getRequestResponse().getRequestURI()) %>
 				</td>
 			</tr>
 			<tr>
 				<td class="exc-tbl-lbl">Exception type</td>
-				<td class="exc-tbl-v exc-exception-type"><%= x.getClass().getName() %></td>
+				<td class="exc-tbl-v exc-exception-type"><%= util.q(x.getClass().getName()) %></td>
 			</tr>
 			<tr>
 				<td class="exc-tbl-lbl">Message</td>
-				<td class="exc-tbl-v exc-exception-message"><pre><%= x.getMessage() %>
+				<td class="exc-tbl-v exc-exception-message"><pre><%= util.q(x.getMessage()) %>
 </pre></td>
 			</tr>
 			<tr>
@@ -216,10 +216,10 @@ startTrying();
 				var item = llist.get(i);
 		%>
 			<tr>		
-				<td nowrap="nowrap">-<%= item.time() %></td>
-				<td nowrap="nowrap"><%= item.cid %></td>
-				<td nowrap="nowrap"><%= util.lastName(item.page) %></td>
-				<td><%= item.text %></td>
+				<td nowrap="nowrap">-<%= util.q(item.time()) %></td>
+				<td nowrap="nowrap"><%= util.q(item.cid) %></td>
+				<td nowrap="nowrap"><%= util.q(util.lastName(item.page)) %></td>
+				<td><%= util.q(item.text) %></td>
 			</tr>
 		<% } %>		
 		</table>
