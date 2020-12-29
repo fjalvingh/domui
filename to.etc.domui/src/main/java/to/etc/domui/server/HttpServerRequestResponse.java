@@ -17,9 +17,9 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class HttpServerRequestResponse implements IRequestResponse {
 	@NonNull
@@ -105,7 +105,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 //		}
 
 		//-- Check all parameters for xss issues
-		Map<String, String[]> paramMap = new HashMap<>();
+		Map<String, String[]> paramMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		realrequest.getParameterMap().forEach((name, values) -> {
 			name = XssChecker.stripXSS(name);
 			if(values != null) {
@@ -113,12 +113,12 @@ public class HttpServerRequestResponse implements IRequestResponse {
 					values[i] = XssChecker.stripXSS(values[i]);
 				}
 			}
-			paramMap.put(name.toLowerCase(), values);
+			paramMap.put(name, values);
 		});
 
-		Map<String, List<String>> headerMap = new HashMap<>();
+		Map<String, List<String>> headerMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		for(Enumeration<String> e = realrequest.getHeaderNames(); e.hasMoreElements();) {
-			String hn = XssChecker.stripXSS(e.nextElement()).toLowerCase();
+			String hn = XssChecker.stripXSS(e.nextElement());
 			Enumeration<String> headers = realrequest.getHeaders(hn);
 			if(null != headers) {
 				while(headers.hasMoreElements()) {
@@ -144,7 +144,10 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Override
 	@NonNull
 	public String getUserAgent() {
-		return m_request.getHeader("user-agent");
+		String header = getHeader("user-agent");
+		if(null == header)
+			return "";
+		return header;
 	}
 
 	@Override
@@ -183,7 +186,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Override
 	@Nullable
 	public String getParameter(@NonNull String name) {
-		String[] strings = m_parameterMap.get(name.toLowerCase());
+		String[] strings = m_parameterMap.get(name);
 		if(strings != null && strings.length == 1) {
 			return strings[0];
 		}
@@ -193,7 +196,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Override
 	@Nullable
 	public String[] getParameters(@NonNull String name) {
-		return m_parameterMap.get(name.toLowerCase());
+		return m_parameterMap.get(name);
 	}
 
 	@Override
@@ -208,12 +211,12 @@ public class HttpServerRequestResponse implements IRequestResponse {
 
 	@Nullable
 	public List<String> getHeaders(String name) {
-		return m_headerMap.get(name.toLowerCase());
+		return m_headerMap.get(name);
 	}
 
 	@Nullable
 	public String getHeader(String name) {
-		List<String> strings = m_headerMap.get(name.toLowerCase());
+		List<String> strings = m_headerMap.get(name);
 		if(strings != null && strings.size() == 1) {
 			return strings.get(0);
 		}
