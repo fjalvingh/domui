@@ -15,6 +15,11 @@ import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HttpServerRequestResponse implements IRequestResponse {
 	@NonNull
@@ -26,24 +31,31 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@NonNull
 	final private String m_webappContext;
 
+	private Map<String, String[]> m_parameterMap;
+
+	private Map<String, List<String>> m_headerMap;
+
 	private IServerSession m_serverSession;
 
-	private HttpServerRequestResponse(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull String webappContext) {
+	private HttpServerRequestResponse(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull String webappContext, Map<String, String[]> parameterMap,
+		Map<String, List<String>> headerMap) {
 		m_request = request;
 		m_response = response;
 		m_webappContext = webappContext;
+		m_parameterMap = parameterMap;
+		m_headerMap = headerMap;
 	}
 
 	@Override
 	@NonNull
 	public String getRequestURI() {
-		return m_request.getRequestURI();
+		return XssChecker.stripXSS(m_request.getRequestURI());
 	}
 
 	@Override
 	@NonNull
 	public String getQueryString() {
-		return m_request.getQueryString();
+		return XssChecker.stripXSS(m_request.getQueryString());
 	}
 
 	@NonNull
@@ -92,7 +104,32 @@ public class HttpServerRequestResponse implements IRequestResponse {
 //			}
 //		}
 
-		return new HttpServerRequestResponse(realrequest, response, webapp);
+		//-- Check all parameters for xss issues
+		Map<String, String[]> paramMap = new HashMap<>();
+		realrequest.getParameterMap().forEach((name, values) -> {
+			name = XssChecker.stripXSS(name);
+			if(values != null) {
+				for(int i = 0; i < values.length; i++) {
+					values[i] = XssChecker.stripXSS(values[i]);
+				}
+			}
+			paramMap.put(name.toLowerCase(), values);
+		});
+
+		Map<String, List<String>> headerMap = new HashMap<>();
+		for(Enumeration<String> e = realrequest.getHeaderNames(); e.hasMoreElements();) {
+			String hn = XssChecker.stripXSS(e.nextElement()).toLowerCase();
+			Enumeration<String> headers = realrequest.getHeaders(hn);
+			if(null != headers) {
+				while(headers.hasMoreElements()) {
+					String value = XssChecker.stripXSS(headers.nextElement());
+					List<String> list = headerMap.computeIfAbsent(hn, a -> new ArrayList<>());
+					list.add(value);
+				}
+			}
+		}
+
+		return new HttpServerRequestResponse(realrequest, response, webapp, paramMap, headerMap);
 	}
 
 	@Override
@@ -118,7 +155,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 			return appUrl;
 		}
 
-		return NetTools.getApplicationURL(getRequest());
+		return XssChecker.stripXSS(NetTools.getApplicationURL(getRequest()));
 	}
 
 	@Override
@@ -131,7 +168,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 				return appUrl;
 			return appUrl.substring(0, ix + 1);
 		}
-		return NetTools.getHostURL(getRequest());
+		return XssChecker.stripXSS(NetTools.getHostURL(getRequest()));
 	}
 
 	@Override
@@ -143,36 +180,48 @@ public class HttpServerRequestResponse implements IRequestResponse {
 		return NetTools.getHostName(m_request);
 	}
 
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getParameter(java.lang.String)
-	 */
 	@Override
 	@Nullable
 	public String getParameter(@NonNull String name) {
-		return getRequest().getParameter(name);
+		String[] strings = m_parameterMap.get(name.toLowerCase());
+		if(strings != null && strings.length == 1) {
+			return strings[0];
+		}
+		return null;
 	}
 
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getParameters(java.lang.String)
-	 */
 	@Override
 	@Nullable
 	public String[] getParameters(@NonNull String name) {
-		return getRequest().getParameterValues(name);
+		return m_parameterMap.get(name.toLowerCase());
 	}
 
-	/**
-	 * @see to.etc.domui.server.IRequestContext#getParameterNames()
-	 */
 	@Override
 	@NonNull
 	public String[] getParameterNames() {
-		return (String[]) getRequest().getParameterMap().keySet().toArray(new String[getRequest().getParameterMap().size()]);
+		return (String[]) m_parameterMap.keySet().toArray(new String[m_parameterMap.size()]);
+	}
+
+	public List<String> getHeaderNames() {
+		return new ArrayList<>(m_headerMap.keySet());
+	}
+
+	@Nullable
+	public List<String> getHeaders(String name) {
+		return m_headerMap.get(name.toLowerCase());
+	}
+
+	@Nullable
+	public String getHeader(String name) {
+		List<String> strings = m_headerMap.get(name.toLowerCase());
+		if(strings != null && strings.size() == 1) {
+			return strings.get(0);
+		}
+		return null;
 	}
 
 	/**
 	 * Returns the names of all file parameters.
-	 * @return
 	 */
 	@Override
 	@NonNull

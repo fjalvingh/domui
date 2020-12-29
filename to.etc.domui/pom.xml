@@ -120,6 +120,12 @@
             <artifactId>jsass</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.owasp.esapi/esapi -->
+        <dependency>
+            <groupId>org.owasp.esapi</groupId>
+            <artifactId>esapi</artifactId>
+        </dependency>
+
         <!-- Batik -->
 <!--        <dependency>-->
 <!--            <groupId>org.apache.xmlgraphics</groupId>-->

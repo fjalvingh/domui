@@ -89,6 +89,8 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(! to.startsWith("/") && ! to.startsWith("http")) {
 			to = "/" + ctx.getRequestResponse().getWebappContext() + to;
 		}
+		if(XssChecker.isXss(to))
+			throw new IllegalStateException("Invalid TO url generated");
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
@@ -102,6 +104,8 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(! url.startsWith("/") && ! url.startsWith("http")) {
 			url = "/" + ctx.getRequestResponse().getWebappContext() + url;
 		}
+		if(XssChecker.isXss(url))
+			throw new IllegalStateException("Invalid TO url generated");
 		if(LOG.isInfoEnabled())
 			LOG.info("redirecting to " + url);
 		url = appendPersistedParameters(url, ctx);
