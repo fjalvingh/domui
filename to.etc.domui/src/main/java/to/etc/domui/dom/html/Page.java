@@ -1166,13 +1166,13 @@ final public class Page implements IQContextContainer {
 	}
 
 	public void callRequestFinished() throws Exception {
-		for(IExecute x: m_afterRequestListenerList) {
+		for(IExecute x: new ArrayList<>(m_afterRequestListenerList)) {
 			x.execute();
 		}
 	}
 
 	public void callRequestStarted() throws Exception {
-		for(IExecute x : m_beforeRequestListenerList) {
+		for(IExecute x : new ArrayList<>(m_beforeRequestListenerList)) {
 			x.execute();
 		}
 	}

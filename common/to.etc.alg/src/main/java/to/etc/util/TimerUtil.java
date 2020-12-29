@@ -19,7 +19,7 @@ final public class TimerUtil {
 	private TimerUtil() {
 	}
 
-	static private final ScheduledExecutorService getScheduler() {
+	static private synchronized ScheduledExecutorService getScheduler() {
 		ScheduledExecutorService scheduler = m_scheduler;
 		if(null == scheduler) {
 			m_scheduler = scheduler = Executors.newScheduledThreadPool(2, new ThreadFactory() {
@@ -60,6 +60,13 @@ final public class TimerUtil {
 	}
 
 	static public void shutdownNow() {
-		getScheduler().shutdownNow();
+		ScheduledExecutorService scheduler;
+		synchronized(TimerUtil.class) {
+			scheduler = m_scheduler;
+			if(null == scheduler)
+				return;
+			m_scheduler = null;
+		}
+		scheduler.shutdownNow();
 	}
 }
