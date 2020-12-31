@@ -34,6 +34,7 @@ import to.etc.domui.dom.IBrowserOutput;
 import to.etc.domui.dom.PrettyXmlOutputWriter;
 import to.etc.domui.parts.ComponentPartRenderer;
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.server.IRequestResponse;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.server.parts.IUnbufferedPartFactory;
 import to.etc.domui.state.UIContext;
@@ -106,6 +107,10 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 	}
 
 	private IBrowserOutput defaultHeader(RequestContextImpl ctx, String cmd, String rtype, String path) throws Exception {
+		//-- Output all headers
+		IRequestResponse rr = ctx.getRequestResponse();
+		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+
 		Writer outputWriter = ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8");
 		IBrowserOutput w = new PrettyXmlOutputWriter(outputWriter);
 		w.tag("Connector");
@@ -187,6 +192,10 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 	}
 
 	private void sendInit(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx) throws Exception {
+		//-- Output all headers
+		IRequestResponse rr = ctx.getRequestResponse();
+		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+
 		IBrowserOutput w = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		w.tag("Connector");
 		w.endtag();

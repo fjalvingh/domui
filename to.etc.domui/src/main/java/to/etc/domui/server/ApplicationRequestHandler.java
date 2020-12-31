@@ -92,6 +92,10 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(XssChecker.isXss(to))
 			throw new IllegalStateException("Invalid TO url generated");
 
+		//-- Output all headers
+		IRequestResponse rr = ctx.getRequestResponse();
+		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
 			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + ");\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
@@ -109,6 +113,10 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(LOG.isInfoEnabled())
 			LOG.info("redirecting to " + url);
 		url = appendPersistedParameters(url, ctx);
+
+		//-- Output all headers
+		IRequestResponse rr = ctx.getRequestResponse();
+		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("redirect");

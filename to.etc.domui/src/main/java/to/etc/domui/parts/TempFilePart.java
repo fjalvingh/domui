@@ -188,6 +188,7 @@ public class TempFilePart implements IUnbufferedPartFactory {
 		//-- Present: render to output.
 		if(fi.getDisposition() != null)
 			param.getRequestResponse().addHeader("Content-Disposition", fi.getDisposition());
+		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> param.getRequestResponse().addHeader(header, value));
 		OutputStream os = param.getRequestResponse().getOutputStream(fi.getMime(), null, (int) fi.getSource().length());
 		InputStream	is	= new FileInputStream(fi.getSource());
 		try {

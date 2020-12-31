@@ -145,6 +145,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -339,6 +340,13 @@ public abstract class DomApplication {
 	private Map<String, Object> m_attributeMap = new ConcurrentHashMap<>();
 
 	/**
+	 * This contains all HTTP headers that should be sent with each page. It can be
+	 * overridden by setting the same page header a second time.
+	 */
+	@NonNull
+	private volatile Map<String, String> m_defaultSiteHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+	/**
 	 * When > 0, TextArea components will automatically have their maxByteLength property
 	 * set to this value when they are created by a property factory. This should be set
 	 * to 4000 when a system uses Oracle <= 11.
@@ -472,6 +480,8 @@ public abstract class DomApplication {
 		addRequestHandler(new ApplicationRequestHandler(this), 50);			// .ui and related
 		addRequestHandler(new AjaxRequestHandler(this), 20);		// .xaja ajax calls.
 
+		addDefaultHttpHeaders();
+
 		addUIStateListener(new IDomUIStateListener() {
 			@Override public void onPageCreated(@NonNull Page page) throws Exception {
 				synchronized(this) {
@@ -485,6 +495,14 @@ public abstract class DomApplication {
 				}
 			}
 		});
+	}
+
+	private void addDefaultHttpHeaders() {
+		addDefaultHTTPHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
+		addDefaultHTTPHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
+		addDefaultHTTPHeader("X-Frame-Options", "deny");	// 20201231 Do not allow us to be used in iframe
+
+
 	}
 
 	protected void registerControlFactories() {
@@ -935,6 +953,24 @@ public abstract class DomApplication {
 
 	public String getJQueryVersion() {
 		return m_jQueryVersion;
+	}
+
+	/**
+	 * Add a default HTTP header to all responses.
+	 */
+	public void addDefaultHTTPHeader(String headerName, String value) {
+		Map<String, String> map = m_defaultSiteHeaderMap;
+		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		newMap.putAll(map);
+		newMap.put(headerName, value);
+		m_defaultSiteHeaderMap = newMap;
+	}
+
+	/**
+	 * All http headers that should be sent with each response.
+	 */
+	public Map<String, String> getDefaultHTTPHeaderMap() {
+		return m_defaultSiteHeaderMap;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1570,13 +1606,6 @@ public abstract class DomApplication {
 		}
 	}
 
-	/**
-	 *
-	 * @param <T>
-	 * @param key
-	 * @param maker
-	 * @return
-	 */
 	@NonNull
 	public <T> List<T> getCachedList(final IListMaker<T> maker) throws Exception {
 		if(!(maker instanceof ICachedListMaker<?>)) {

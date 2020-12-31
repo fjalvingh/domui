@@ -40,6 +40,7 @@ public class OopsFrameRenderer {
 			HttpServletResponse resp = srr.getResponse();
 			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);				// Fail with proper response code.
 		}
+		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 
 		ThemeManager themeManager = ctx.getApplication().internalGetThemeManager();
 
