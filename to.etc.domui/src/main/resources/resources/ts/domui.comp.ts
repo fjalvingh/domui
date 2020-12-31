@@ -20,7 +20,7 @@ namespace WebUI {
 	}
 
 	export function oddChar(obj) {
-		WebUI.toClip(obj.innerHTML);
+		WebUI.copyTextToClipboard(obj.innerHTML);
 	}
 
 	export function popupMenuShow(refid, menu): void {

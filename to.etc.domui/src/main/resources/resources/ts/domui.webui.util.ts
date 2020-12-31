@@ -216,31 +216,6 @@ namespace WebUI {
 		return false;
 	}
 
-
-	export function toClip(value: any): void {
-		let w = (window as any);
-		if(w.clipboardData) {
-			// the IE-way
-			w.clipboardData.setData("Text", value);
-		} else if(w.netscape) {
-			if(value.createTextRange) {
-				let range = value.createTextRange();
-				if(range /*&& BodyLoaded == 1 */)
-					range.execCommand('Copy');
-			} else {
-				let flashcopier = 'flashcopier';
-				if(!document.getElementById(flashcopier)) {
-					let divholder = document.createElement('div');
-					divholder.id = flashcopier;
-					document.body.appendChild(divholder);
-				}
-				document.getElementById(flashcopier).innerHTML = '';
-				let divinfo = '<embed src="$js/_clipboard.swf" FlashVars="clipboard=' + encodeURIComponent(value) + '" width="0" height="0" type="application/x-shockwave-flash"></embed>';
-				document.getElementById(flashcopier).innerHTML = divinfo;
-			}
-		}
-	}
-
 	/**
 	 * Format a NLS message containing {0} and {1} markers and the like into
 	 * a real message.

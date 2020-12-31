@@ -527,7 +527,7 @@ var WebUI;
     }
     WebUI.oddCharAndClickCallback = oddCharAndClickCallback;
     function oddChar(obj) {
-        WebUI.toClip(obj.innerHTML);
+        WebUI.copyTextToClipboard(obj.innerHTML);
     }
     WebUI.oddChar = oddChar;
     function popupMenuShow(refid, menu) {
@@ -3293,31 +3293,6 @@ var WebUI;
         return false;
     }
     WebUI.isBrowserClosed = isBrowserClosed;
-    function toClip(value) {
-        var w = window;
-        if (w.clipboardData) {
-            w.clipboardData.setData("Text", value);
-        }
-        else if (w.netscape) {
-            if (value.createTextRange) {
-                var range = value.createTextRange();
-                if (range)
-                    range.execCommand('Copy');
-            }
-            else {
-                var flashcopier = 'flashcopier';
-                if (!document.getElementById(flashcopier)) {
-                    var divholder = document.createElement('div');
-                    divholder.id = flashcopier;
-                    document.body.appendChild(divholder);
-                }
-                document.getElementById(flashcopier).innerHTML = '';
-                var divinfo = '<embed src="$js/_clipboard.swf" FlashVars="clipboard=' + encodeURIComponent(value) + '" width="0" height="0" type="application/x-shockwave-flash"></embed>';
-                document.getElementById(flashcopier).innerHTML = divinfo;
-            }
-        }
-    }
-    WebUI.toClip = toClip;
     function format(message) {
         var rest = [];
         for (var _i = 1; _i < arguments.length; _i++) {
