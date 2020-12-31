@@ -500,9 +500,14 @@ public abstract class DomApplication {
 	private void addDefaultHttpHeaders() {
 		addDefaultHTTPHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
 		addDefaultHTTPHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
-		addDefaultHTTPHeader("X-Frame-Options", "deny");	// 20201231 Do not allow us to be used in iframe
+		addDefaultHTTPHeader("X-Frame-Options", "sameorigin");	// 20201231 Do not allow us to be used in iframe. Do not set to none because the FileUploads will no longer work.
 
+		//-- Cache-control headers by default for pages
+		addDefaultHTTPHeader("Pragma", "no-cache");
+		addDefaultHTTPHeader("Cache-Control", "no-cache, must-revalidate, no-store");
+		addDefaultHTTPHeader("Expires", "Mon, 8 Aug 2006 10:00:00 GMT");
 
+		addDefaultHTTPHeader("X-Content-Type-Options", "nosniff");	// Make sure the browser always obeys the actual content type for a document
 	}
 
 	protected void registerControlFactories() {
