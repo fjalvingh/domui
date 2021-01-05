@@ -288,26 +288,28 @@ final public class PageRequestHandler {
 	 */
 	private void loadSpiFragments(Page page) throws Exception {
 		String hashes = m_ctx.getPageParameters().getString("hashes", null);
-		if(null == hashes || hashes.isEmpty())
-			return;
+		//if(null == hashes || hashes.isEmpty())
+		//	return;
 
 		//-- 1. Are we actually ON an SPI page?
 		UrlPage body = page.getBody();
-		if(! (body instanceof SpiPage)) {
-			logUser(page, "url fragment found on non-SPI page: " + hashes);
-			return;
-		}
+		//if(! (body instanceof SpiPage)) {
+		//	//logUser(page, "url fragment found on non-SPI page: " + hashes);
+		//	return;
+		//}
 
 		long ts = System.nanoTime();
 		m_application.internalCallPageAction(m_ctx, page);
 		page.callRequestStarted();
 
 		try {
-			SpiPage spiPage = (SpiPage) body;
-			new SpiPageHelper(m_application).loadSpiFragmentFromHashes(spiPage, hashes);
-			ConversationContext conversation = page.internalGetConversation();
-			if(null != conversation && conversation.isValid())
-				page.modelToControl();
+			if(body instanceof SpiPage) {
+				SpiPage spiPage = (SpiPage) body;
+				new SpiPageHelper(m_application).loadSpiFragmentFromHashes(spiPage, hashes);
+				ConversationContext conversation = page.internalGetConversation();
+				if(null != conversation && conversation.isValid())
+					page.modelToControl();
+			}
 		} catch(ValidationException x) {
 			/*
 			 * When an action handler failed because it accessed a component which has a validation error

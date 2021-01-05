@@ -219,8 +219,8 @@ namespace WebUI {
 	 */
 	export function loadSpiFragments() : void {
 		let hash = location.hash;
-		if(hash == "")
-			return;
+		// if(hash == "")
+		// 	return;
 		if(hash == _lastUrlFragment)
 			return;
 

@@ -3,10 +3,7 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.SpiPageHelper;
 import to.etc.domui.state.IPageParameters;
-import to.etc.domui.util.Constants;
 import to.etc.domui.util.ISpiContainerName;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QDataContextFactory;
@@ -15,8 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static to.etc.domui.util.DomUtil.nullChecked;
 
 /**
  * This is the base class to extend for SPI applications. This base class
@@ -56,25 +51,33 @@ abstract public class SpiPage extends UrlPage {
 		if(m_containerMap.size() == 0)
 			throw new IllegalStateException("You need to register content containers using registerContainer inside your createContent method");
 
-		//-- Do we have a hash from the session (login)
-		String hashes = (String) getPage().getConversation().getWindowSession().getAttribute(Constants.APPSESSION_FRAGMENT);
-		if(hashes != null && hashes.length() != 0) {
-			getPage().getConversation().getWindowSession().setAttribute(Constants.APPSESSION_FRAGMENT, null);
-			new SpiPageHelper(DomApplication.get()).loadSpiFragmentFromHashes(this, hashes);
-		} else {
-			for(SpiContainer container : m_containerMap.values()) {
-				SubPage subPage = container.getInitialContent().newInstance();
-				IPageParameters pp = container.getInitialContentParameters();
-				if(null != pp) {
-					DomApplication.get().getInjector().injectPageValues(subPage, nullChecked(pp));
-				}
-				container.setPage(subPage, pp);
-			}
-		}
+		////-- Do we have a hash from the session (login)
+		//String hashes = (String) getPage().getConversation().getWindowSession().getAttribute(Constants.APPSESSION_FRAGMENT);
+		//if(hashes != null && hashes.length() != 0) {
+		//	getPage().getConversation().getWindowSession().setAttribute(Constants.APPSESSION_FRAGMENT, null);
+		//	new SpiPageHelper(DomApplication.get()).loadSpiFragmentFromHashes(this, hashes);
+		//} else {
+		//	for(SpiContainer container : m_containerMap.values()) {
+		//		SubPage subPage = container.getInitialContent().newInstance();
+		//		IPageParameters pp = container.getInitialContentParameters();
+		//		if(null != pp) {
+		//			DomApplication.get().getInjector().injectPageValues(subPage, nullChecked(pp));
+		//		}
+		//		container.setPage(subPage, pp);
+		//	}
+		//}
+		//
 
-		SpiPageHelper helper = new SpiPageHelper(DomApplication.get());
-		String newHashes = helper.getContainerHashes(this);
-		appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(newHashes, true) + ");");
+		/*
+		 * jal 20210105 We will have initialized the page here with the default content, because we had an
+		 * initial page request. This however is wrong.. If the page was opened with a set of hashes to
+		 * start with the hashes will be sent later with an AJAX request. This request uses the #urlFragment hash
+		 * in the browser to load the requested pages. But here we mess up that URL...
+		 */
+		//SpiPageHelper helper = new SpiPageHelper(DomApplication.get());
+		//String newHashes = helper.getContainerHashes(this);
+		//appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(newHashes, true) + ");");
+		appendJavascript("WebUI.loadSpiFragments();");
 
 		super.afterCreateContent();
 	}

@@ -2357,8 +2357,6 @@ var WebUI;
     var _lastUrlFragment;
     function loadSpiFragments() {
         var hash = location.hash;
-        if (hash == "")
-            return;
         if (hash == _lastUrlFragment)
             return;
         var fields = {};
@@ -3736,16 +3734,8 @@ var WebUI;
         if (rname.startsWith('redirect')) {
             WebUI.blockUI();
             var to = xml.documentElement.getAttribute('url');
-            if (rname == "redirectWithHash") {
-                var hash = location.hash;
-                if (hash != null && hash.length != 0) {
-                    if (to.indexOf('?') != -1) {
-                        to += "&$bookmarks=" + encodeURIComponent(hash);
-                    }
-                    else {
-                        to += "?$bookmarks=" + encodeURIComponent(hash);
-                    }
-                }
+            if (to.indexOf('#') == -1) {
+                to += window.location.hash;
             }
             log("Redirecting to- " + to);
             if (!$.browser.msie && !$.browser.ieedge) {
@@ -3756,7 +3746,7 @@ var WebUI;
                 catch (xxx) {
                 }
             }
-            window.location = to;
+            window.location.replace(to);
             return;
         }
         else if (rname == 'expiredOnPollasy') {

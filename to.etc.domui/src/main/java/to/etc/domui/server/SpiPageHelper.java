@@ -37,9 +37,21 @@ public class SpiPageHelper {
 	public void loadSpiFragmentFromHashes(SpiPage spiPage, String hashes) throws Exception {
 		if(hashes.startsWith("#"))
 			hashes = hashes.substring(1);
-		String[] segments = hashes.split(";");
-		for(String s: segments) {
-			loadSpiFragment(spiPage, s);
+		if(hashes.length() == 0) {
+			//-- Initial content
+			for(SpiContainer container : spiPage.getContainers()) {
+				SubPage subPage = container.getInitialContent().newInstance();
+				IPageParameters pp = container.getInitialContentParameters();
+				if(null != pp) {
+					DomApplication.get().getInjector().injectPageValues(subPage, nullChecked(pp));
+				}
+				container.setPage(subPage, pp);
+			}
+		} else {
+			String[] segments = hashes.split(";");
+			for(String s : segments) {
+				loadSpiFragment(spiPage, s);
+			}
 		}
 	}
 

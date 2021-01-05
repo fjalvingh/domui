@@ -87,17 +87,23 @@
 		if(rname.startsWith('redirect')) {
 			WebUI.blockUI();
 			let to = xml.documentElement.getAttribute('url');
-			if(rname == "redirectWithHash") {
-				let hash = location.hash;
-				if(hash != null && hash.length != 0) {
-					//-- We have bookmark parameters; add them as a parameter to the URL.
-					if(to.indexOf('?') != -1) {
-						to += "&$bookmarks=" + encodeURIComponent(hash);
-					} else {
-						to += "?$bookmarks=" + encodeURIComponent(hash);
-					}
-				}
+			// if(rname == "redirectWithHash") {
+			// 	let hash = location.hash;
+			// 	if(hash != null && hash.length != 0) {
+			// 		//-- We have bookmark parameters; add them as a parameter to the URL.
+			// 		if(to.indexOf('?') != -1) {
+			// 			to += "&$bookmarks=" + encodeURIComponent(hash);
+			// 		} else {
+			// 			to += "?$bookmarks=" + encodeURIComponent(hash);
+			// 		}
+			// 	}
+			// }
+
+			if(to.indexOf('#') == -1) {
+				//-- No #urlFragment: keep the current one
+				to += window.location.hash;
 			}
+
 			log("Redirecting to- " + to);
 
 			if(!$.browser.msie && !$.browser.ieedge) {
@@ -118,7 +124,8 @@
 			// 	hash = to.substring(ix);
 			// 	to = to.substring(0, ix);
 			// }
-			window.location = to;
+			window.location.replace(to);
+			// window.location = to;
 			// window.location.hash = hash;
 			return;
 		} else if(rname == 'expiredOnPollasy') {
