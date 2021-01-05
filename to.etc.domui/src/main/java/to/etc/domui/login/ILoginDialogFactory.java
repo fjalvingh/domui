@@ -24,6 +24,9 @@
  */
 package to.etc.domui.login;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * This must be used when the application uses demand-based logins. It provides a function
  * which returns the URL of the login page, and it has a function which defines the URL of
@@ -39,19 +42,16 @@ public interface ILoginDialogFactory {
 	 * this page must also redirect to the specified target URL.
 	 * The URL returned <b>must</b> be an URL relative to the webapp root or the
 	 * properly defined name of a Page class.
-	 *
-	 * @param originalTarget
-	 * @return
 	 */
-	String getLoginRURL(String originalTarget);
+	@NonNull
+	String getLoginRURL(@NonNull String originalTarget);
 
 	/**
 	 * Must return the RURL of the page/JSP to use as an "access denied" page. The
 	 * URL returned here must be a webapp relative URL. The resource accessed there
 	 * will get the failed page class AND the list of rights that is needed to access
 	 * that page as parameters.
-	 *
-	 * @return
 	 */
+	@Nullable
 	String getAccessDeniedURL();
 }

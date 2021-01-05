@@ -81,10 +81,14 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		return true;
 	}
 
+	static public void generateHttpRedirect(RequestContextImpl ctx, String to, String rsn) throws Exception {
+		generateHttpRedirect(ctx, to, rsn, false);
+	}
+
 	/**
 	 * Sends a redirect as a 304 MOVED command. This should be done for all full-requests.
 	 */
-	static public void generateHttpRedirect(RequestContextImpl ctx, String to, String rsn) throws Exception {
+	static public void generateHttpRedirect(RequestContextImpl ctx, String to, String rsn, boolean hashToParameter) throws Exception {
 		to = appendPersistedParameters(to, ctx);
 		if(! to.startsWith("/") && ! to.startsWith("http")) {
 			to = "/" + ctx.getRequestResponse().getWebappContext() + to;
@@ -96,15 +100,48 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		IRequestResponse rr = ctx.getRequestResponse();
 		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
 
+		String extra = "";
+		if(hashToParameter) {
+			String sepa = to.contains("?") ? "&" : "?";
+			extra = "+ \"" + sepa + "$bookmarks=\" + encodeURIComponent(location.hash)";
+		}
+
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
+		String locationUpdate = "location.replace(" + StringTool.strToJavascriptString(to, true) + extra + " + location.hash);\n";
+		//System.out.println(">>> location: " + locationUpdate);
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
-			+ "location.replace(" + StringTool.strToJavascriptString(to, true) + " + location.hash);\n" + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
+			+ locationUpdate + "--></script>\n" + "</head><body>" + rsn + "</body></html>\n");
 	}
+
+	///**
+	// * Send a special redirect command used for logins. This redirect gets handled by the
+	// * browser and adds the hash parameters (the thingies after the #) to the redirect URL.
+	// */
+	//static public void generateLoginRedirect(RequestContextImpl ctx, String url) throws Exception {
+	//	if(! url.startsWith("/") && ! url.startsWith("http")) {
+	//		url = "/" + ctx.getRequestResponse().getWebappContext() + url;
+	//	}
+	//	if(XssChecker.isXss(url))
+	//		throw new IllegalStateException("Invalid TO url generated");
+	//	if(LOG.isInfoEnabled())
+	//		LOG.info("redirecting to login URL " + url);
+	//	url = appendPersistedParameters(url, ctx);
+	//
+	//	//-- Output all headers
+	//	IRequestResponse rr = ctx.getRequestResponse();
+	//	DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+	//
+	//	IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
+	//	out.tag("redirectWithHash");
+	//	out.attr("url", url);
+	//	out.endAndCloseXmltag();
+	//
+	//}
 
 	/**
 	 * Generate an AJAX redirect command. Should be used by all COMMAND actions.
 	 */
-	static public void generateAjaxRedirect(RequestContextImpl ctx, String url) throws Exception {
+	static public void generateAjaxRedirect(RequestContextImpl ctx, String url, boolean hashToParameter) throws Exception {
 		if(! url.startsWith("/") && ! url.startsWith("http")) {
 			url = "/" + ctx.getRequestResponse().getWebappContext() + url;
 		}

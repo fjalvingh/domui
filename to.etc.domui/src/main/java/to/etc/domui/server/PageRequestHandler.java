@@ -18,9 +18,7 @@ import to.etc.domui.dom.html.IHasChangeListener;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
-import to.etc.domui.dom.html.SpiContainer;
 import to.etc.domui.dom.html.SpiPage;
-import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.login.IAccessDeniedHandler;
@@ -306,10 +304,7 @@ final public class PageRequestHandler {
 
 		try {
 			SpiPage spiPage = (SpiPage) body;
-			String[] segments = hashes.split(";");
-			for(String s: segments) {
-				loadSpiFragment(spiPage, s);
-			}
+			new SpiPageHelper(m_application).loadSpiFragmentFromHashes(spiPage, hashes);
 			ConversationContext conversation = page.internalGetConversation();
 			if(null != conversation && conversation.isValid())
 				page.modelToControl();
@@ -349,26 +344,7 @@ final public class PageRequestHandler {
 	}
 
 	private void loadSpiFragment(SpiPage spiPage, String fragmentIdentifier) throws Exception {
-		if(fragmentIdentifier.startsWith("#"))
-			fragmentIdentifier = fragmentIdentifier.substring(1);
-		int pos = fragmentIdentifier.indexOf(':');
-		SpiContainer container;
-		String rurl;
-		if(pos == -1) {
-			container = spiPage.getContainers().get(0);
-			rurl = fragmentIdentifier;
-		} else {
-			String containerName = fragmentIdentifier.substring(0, pos);
-			container = spiPage.findSpiContainerByName(containerName);
-			if(null == container)
-				throw new ThingyNotFoundException("SPI container with name " + containerName + " is not present in this spi page");
-			rurl = fragmentIdentifier.substring(pos + 1);
-		}
-
-		container.getContainer().removeAllChildren();
-
-		SubPage subPage = new SpiPageHelper(m_application).createSubPage(spiPage, rurl);
-		container.getContainer().add(subPage);
+		new SpiPageHelper(m_application).loadSpiFragment(spiPage, fragmentIdentifier);
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -530,7 +506,7 @@ final public class PageRequestHandler {
 		if(x instanceof NotLoggedInException) { // Better than repeating code in separate exception handlers.
 			String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
 			if(url != null) {
-				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to be logged in");
+				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to log in", true);
 				return true;
 			}
 		}
@@ -744,7 +720,7 @@ final public class PageRequestHandler {
 		sb.append(windowSession.getWindowID());
 		sb.append(".").append(conversationId);
 		DomUtil.addUrlParameters(sb, pp, false);
-		ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.");
+		ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.", false);
 		String expmsg = "Session " + m_cid + " has expired - starting a new session by redirecting to " + sb.toString();
 		logUser(expmsg);
 		if(DomUtil.USERLOG.isDebugEnabled())
@@ -830,7 +806,7 @@ final public class PageRequestHandler {
 		if(x instanceof NotLoggedInException) { // FIXME Fugly. Generalize this kind of exception handling somewhere.
 			String url = m_application.handleNotLoggedInException(m_ctx, (NotLoggedInException) x);
 			if(url != null) {
-				ApplicationRequestHandler.generateAjaxRedirect(m_ctx, url);
+				ApplicationRequestHandler.generateAjaxRedirect(m_ctx, url, true);
 				return true;
 			}
 		}
@@ -888,7 +864,7 @@ final public class PageRequestHandler {
 		} catch(NotLoggedInException x) { 						// FIXME Fugly. Generalize this kind of exception handling somewhere.
 			String url = m_application.handleNotLoggedInException(m_ctx, x);
 			if(url != null) {
-				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to be logged in");
+				ApplicationRequestHandler.generateHttpRedirect(m_ctx, url, "You need to log in", true);
 			}
 		} catch(Exception x) {
 			logUser(page, "Delta render failed: " + x);
@@ -1037,7 +1013,7 @@ final public class PageRequestHandler {
 		sb.append('=');
 		sb.append(cm.getWindowID());
 		sb.append(".x"); // Dummy conversation ID
-		ApplicationRequestHandler.generateAjaxRedirect(m_ctx, sb.toString());
+		ApplicationRequestHandler.generateAjaxRedirect(m_ctx, sb.toString(), true);
 	}
 
 	/**

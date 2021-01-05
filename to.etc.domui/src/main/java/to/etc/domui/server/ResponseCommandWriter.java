@@ -91,7 +91,7 @@ public class ResponseCommandWriter {
 
 		//-- Make this an absolute URL by appending the webapp path
 		target = ctx.getRelativePath(target);
-		ApplicationRequestHandler.generateHttpRedirect(ctx, target, "You need to login before accessing this function");
+		ApplicationRequestHandler.generateHttpRedirect(ctx, target, "You need to log in", true);
 	}
 
 	/**

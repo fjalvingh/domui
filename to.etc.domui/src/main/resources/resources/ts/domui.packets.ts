@@ -84,10 +84,21 @@
 	function executeXML(xml) : void {
 		// -- If this is a REDIRECT document -> redirect main page
 		const rname = xml.documentElement.tagName;
-		if(rname == 'redirect') {
+		if(rname.startsWith('redirect')) {
 			WebUI.blockUI();
-			log("Redirecting- ");
-			const to = xml.documentElement.getAttribute('url');
+			let to = xml.documentElement.getAttribute('url');
+			if(rname == "redirectWithHash") {
+				let hash = location.hash;
+				if(hash != null && hash.length != 0) {
+					//-- We have bookmark parameters; add them as a parameter to the URL.
+					if(to.indexOf('?') != -1) {
+						to += "&$bookmarks=" + encodeURIComponent(hash);
+					} else {
+						to += "?$bookmarks=" + encodeURIComponent(hash);
+					}
+				}
+			}
+			log("Redirecting to- " + to);
 
 			if(!$.browser.msie && !$.browser.ieedge) {
 				//-- jal 20130129 For large documents, redirecting "inside" an existing document causes huge problems, the
@@ -100,7 +111,15 @@
 					// jal 20130626 Suddenly Firefox no longer allows this. Deep, deep sigh.
 				}
 			}
-			window.location.href = to;
+
+			// let ix = to.indexOf('#');
+			// let hash = "";
+			// if(ix != -1) {
+			// 	hash = to.substring(ix);
+			// 	to = to.substring(0, ix);
+			// }
+			window.location = to;
+			// window.location.hash = hash;
 			return;
 		} else if(rname == 'expiredOnPollasy') {
 			return; 						// do nothing actually, page is in process of redirecting to some other page and we need to ignore responses on obsolete pollasy calls...

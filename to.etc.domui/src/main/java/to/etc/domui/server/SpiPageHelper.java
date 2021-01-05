@@ -30,7 +30,50 @@ public class SpiPageHelper {
 		m_application = application;
 	}
 
-	SubPage createSubPage(SpiPage spiPage, String rurl) throws Exception {
+	/**
+	 * Enter with a complete hash string, which can optionally start with a '#'. It loads
+	 * all container parts (separated by semicolon).
+	 */
+	public void loadSpiFragmentFromHashes(SpiPage spiPage, String hashes) throws Exception {
+		if(hashes.startsWith("#"))
+			hashes = hashes.substring(1);
+		String[] segments = hashes.split(";");
+		for(String s: segments) {
+			loadSpiFragment(spiPage, s);
+		}
+	}
+
+	/**
+	 * Load a single SPI page from a part of the urlFragment. This part can have two formats:
+	 * <ul>
+	 *     <li>containerName:rurl</li>
+	 *     <li>rurl</li>
+	 * </ul>
+	 * If a container name is present that container will be looked up and initialized from
+	 * the url part passed. If no container name is present the first container in the spi
+	 * page will be loaded.
+	 */
+	public void loadSpiFragment(SpiPage spiPage, String fragmentIdentifier) throws Exception {
+		if(fragmentIdentifier.startsWith("#"))
+			fragmentIdentifier = fragmentIdentifier.substring(1);
+		int pos = fragmentIdentifier.indexOf(':');
+		SpiContainer container;
+		String rurl;
+		if(pos == -1) {
+			container = spiPage.getContainers().get(0);
+			rurl = fragmentIdentifier;
+		} else {
+			String containerName = fragmentIdentifier.substring(0, pos);
+			container = spiPage.findSpiContainerByName(containerName);
+			if(null == container)
+				throw new ThingyNotFoundException("SPI container with name " + containerName + " is not present in this spi page");
+			rurl = fragmentIdentifier.substring(pos + 1);
+		}
+
+		loadSubPage(container, rurl);
+	}
+
+	private void loadSubPage(SpiContainer container, String rurl) throws Exception {
 		Target target = m_application.getPageUrlMapping().findTarget(PageSubtype.SubPage, rurl, new PageParameters());
 		if(null == target) {
 			throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known");
@@ -43,7 +86,8 @@ public class SpiPageHelper {
 		}
 		System.out.println(">>>> target " + subPage);
 		m_application.getInjector().injectPageValues(subPage, nullChecked(target.getParameters()));
-		return subPage;
+
+		container.setPage(subPage, target.getParameters());
 	}
 
 	@Nullable

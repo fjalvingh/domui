@@ -1,5 +1,6 @@
 package to.etc.domui.dom.html;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.state.IPageParameters;
@@ -19,20 +20,23 @@ final public class SpiContainer {
 
 	private final Class<? extends SubPage> m_initialContent;
 
+	@Nullable private IPageParameters m_initialContentParameters;
+
 	@Nullable
 	private Class<? extends SubPage> m_currentPage;
 
 	@Nullable
 	private IPageParameters m_currentParameters;
 
-	public SpiContainer(NodeContainer container, ISpiContainerName containerName, Class<? extends SubPage> initialContent) {
+	public SpiContainer(NodeContainer container, ISpiContainerName containerName, Class<? extends SubPage> initialContent, @Nullable IPageParameters initialContentParameters) {
 		m_container = container;
 		m_containerName = containerName;
 		m_initialContent = initialContent;
 		m_currentPage = initialContent;
+		m_initialContentParameters = initialContentParameters;
 	}
 
-	public NodeContainer getContainer() {
+	private NodeContainer getContainer() {
 		return m_container;
 	}
 
@@ -44,12 +48,23 @@ final public class SpiContainer {
 		return m_initialContent;
 	}
 
+	@Nullable public IPageParameters getInitialContentParameters() {
+		return m_initialContentParameters;
+	}
+
 	@Nullable public synchronized Class<? extends SubPage> getCurrentPage() {
 		return m_currentPage;
 	}
 
-	public synchronized void setCurrentPage(@Nullable Class<? extends SubPage> currentPage) {
+	private synchronized void setCurrentPage(@Nullable Class<? extends SubPage> currentPage) {
 		m_currentPage = currentPage;
+	}
+
+	public void setPage(@NonNull SubPage content, @Nullable IPageParameters pp) {
+		getContainer().removeAllChildren();
+		getContainer().add(content);
+		setCurrentPage(content.getClass());
+		setCurrentParameters(pp);
 	}
 
 	@Nullable public synchronized IPageParameters getCurrentParameters() {

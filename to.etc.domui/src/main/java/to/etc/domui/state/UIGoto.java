@@ -317,16 +317,15 @@ final public class UIGoto {
 		if(null == container)
 			throw new IllegalArgumentException("SPI Page " + body.getClass().getName() + " does not have a container named " + name.name());
 
-		container.getContainer().removeAllChildren();
-
 		DomApplication app = DomApplication.get();
 		SpiPageHelper helper = new SpiPageHelper(app);
 		SubPage subPage = helper.createSpiPage(spiClass);
 		app.getInjector().injectPageValues(subPage, pp);
 
-		container.getContainer().add(subPage);
-		container.setCurrentPage(spiClass);
-		container.setCurrentParameters(pp);
+		container.setPage(subPage, pp);
+		//container.getContainer().add(subPage);
+		//container.setCurrentPage(spiClass);
+		//container.setCurrentParameters(pp);
 
 		String hashes = helper.getContainerHashes(spiPage);
 		spiPage.appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(hashes, true) + ");");

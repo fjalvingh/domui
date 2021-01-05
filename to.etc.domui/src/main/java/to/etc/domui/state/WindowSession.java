@@ -570,7 +570,7 @@ final public class WindowSession {
 
 	private void generateRedirect(@NonNull final RequestContextImpl ctx, @NonNull final String url, boolean ajax) throws Exception {
 		if(ajax)
-			ApplicationRequestHandler.generateAjaxRedirect(ctx, url);
+			ApplicationRequestHandler.generateAjaxRedirect(ctx, url, false);
 		else
 			ApplicationRequestHandler.generateHttpRedirect(ctx, url, "Redirecting");
 	}

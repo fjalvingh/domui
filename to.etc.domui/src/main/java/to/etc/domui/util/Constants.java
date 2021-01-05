@@ -76,4 +76,6 @@ public class Constants {
 
 	public static final String PARAM_UICOMPONENT = "webuic";
 
+	public static final String APPSESSION_FRAGMENT = "urlFragment";
+
 }

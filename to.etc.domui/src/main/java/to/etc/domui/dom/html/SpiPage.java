@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.SpiPageHelper;
+import to.etc.domui.state.IPageParameters;
+import to.etc.domui.util.Constants;
 import to.etc.domui.util.ISpiContainerName;
 import to.etc.util.StringTool;
 import to.etc.webapp.query.QDataContextFactory;
@@ -13,7 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+
+import static to.etc.domui.util.DomUtil.nullChecked;
 
 /**
  * This is the base class to extend for SPI applications. This base class
@@ -39,25 +42,39 @@ abstract public class SpiPage extends UrlPage {
 	@Override abstract public void createContent() throws Exception;
 
 	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent) {
+		registerContainer(containerName, container, initialContent, null);
+	}
+
+	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent, @Nullable IPageParameters initialContentParameters) {
 		if(!StringTool.isValidJavaIdentifier(containerName.name()))
 			throw new IllegalStateException("Invalid container name: must follow the rules for a Java identifier");
-		if(null != m_containerMap.put(containerName.name().toLowerCase(), new SpiContainer(container, containerName, initialContent)))
+		if(null != m_containerMap.put(containerName.name().toLowerCase(), new SpiContainer(container, containerName, initialContent, initialContentParameters)))
 			throw new IllegalStateException("Duplicate container name: " + containerName);
 	}
 
 	@Override protected void afterCreateContent() throws Exception {
 		if(m_containerMap.size() == 0)
 			throw new IllegalStateException("You need to register content containers using registerContainer inside your createContent method");
-		for(Entry<String, SpiContainer> entry : m_containerMap.entrySet()) {
-			String name = entry.getKey();
-			SpiContainer container = entry.getValue();
-			SubPage subPage = container.getInitialContent().newInstance();
-			container.getContainer().add(subPage);
+
+		//-- Do we have a hash from the session (login)
+		String hashes = (String) getPage().getConversation().getWindowSession().getAttribute(Constants.APPSESSION_FRAGMENT);
+		if(hashes != null && hashes.length() != 0) {
+			getPage().getConversation().getWindowSession().setAttribute(Constants.APPSESSION_FRAGMENT, null);
+			new SpiPageHelper(DomApplication.get()).loadSpiFragmentFromHashes(this, hashes);
+		} else {
+			for(SpiContainer container : m_containerMap.values()) {
+				SubPage subPage = container.getInitialContent().newInstance();
+				IPageParameters pp = container.getInitialContentParameters();
+				if(null != pp) {
+					DomApplication.get().getInjector().injectPageValues(subPage, nullChecked(pp));
+				}
+				container.setPage(subPage, pp);
+			}
 		}
 
 		SpiPageHelper helper = new SpiPageHelper(DomApplication.get());
-		String hashes = helper.getContainerHashes(this);
-		appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(hashes, true) + ");");
+		String newHashes = helper.getContainerHashes(this);
+		appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(newHashes, true) + ");");
 
 		super.afterCreateContent();
 	}

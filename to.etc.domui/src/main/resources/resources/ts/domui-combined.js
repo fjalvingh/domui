@@ -3733,10 +3733,21 @@ var WebUI;
     }
     function executeXML(xml) {
         var rname = xml.documentElement.tagName;
-        if (rname == 'redirect') {
+        if (rname.startsWith('redirect')) {
             WebUI.blockUI();
-            log("Redirecting- ");
             var to = xml.documentElement.getAttribute('url');
+            if (rname == "redirectWithHash") {
+                var hash = location.hash;
+                if (hash != null && hash.length != 0) {
+                    if (to.indexOf('?') != -1) {
+                        to += "&$bookmarks=" + encodeURIComponent(hash);
+                    }
+                    else {
+                        to += "?$bookmarks=" + encodeURIComponent(hash);
+                    }
+                }
+            }
+            log("Redirecting to- " + to);
             if (!$.browser.msie && !$.browser.ieedge) {
                 try {
                     document.write('<html></html>');
@@ -3745,7 +3756,7 @@ var WebUI;
                 catch (xxx) {
                 }
             }
-            window.location.href = to;
+            window.location = to;
             return;
         }
         else if (rname == 'expiredOnPollasy') {

@@ -33,6 +33,7 @@ import to.etc.domui.converter.CompoundKeyConverter;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.server.BrowserVersion;
+import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -445,7 +446,7 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 	static public PageParameters createFrom(IPageParameters old) {
 		PageParameters pp = new PageParameters(old, name -> {
 			char c = name.charAt(0);
-			return c != '_' && c != '$' && !name.startsWith("webui");
+			return !name.equals(Constants.PARAM_CONVERSATION_ID) && c != '_' && !name.startsWith("webui");
 		});
 		return pp;
 	}
