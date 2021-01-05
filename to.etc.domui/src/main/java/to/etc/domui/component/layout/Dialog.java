@@ -30,7 +30,7 @@ import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.themes.Theme;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.domui.util.Msgs;
 
 /**

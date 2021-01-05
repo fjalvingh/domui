@@ -69,7 +69,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		default void onTaskStarted(Task<V, X> task) throws Exception {
 		}
 
-		default void onTaskFinished(Task<V, X> task, @Nullable Exception failure) throws Exception {
+		default void onTaskFinished(Task<V, X> task, @Nullable Throwable failure) throws Exception {
 		}
 	}
 
@@ -222,13 +222,13 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 				m_maxParallel = sz;
 			task.m_state = TaskState.RUNNING;
 		}
-		Exception errorX = null;
+		Throwable errorX = null;
 		try {
 			X executor = m_executorFactory.apply(task);
 			task.setExecutor(executor);
 			task.setStartTime(new Date());
 			executor.run(progress);
-		} catch(Exception x) {
+		} catch(Exception | Error x) {
 			System.err.println("ERROR " + task + ": " + x);
 			x.printStackTrace();
 			errorX = x;
@@ -238,7 +238,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		}
 	}
 
-	private void handleCompletedTask(Task<T, X> task, @Nullable Exception exception) {
+	private void handleCompletedTask(Task<T, X> task, @Nullable Throwable exception) {
 		task.completed(exception);								// ORDERED Mark the task itself as done so that the listener can be called
 		m_listeners.forEach(a -> ExceptionUtil.silentFails(() -> a.onTaskFinished(task, exception)));
 
@@ -369,10 +369,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		private Task<V, X> m_failedTask;
 
 		@Nullable
-		private Exception m_exception;
-
-		@Nullable
-		private String m_error;
+		private Throwable m_exception;
 
 		@Nullable
 		private X m_executor;
@@ -394,12 +391,13 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			m_source.runTask(this, progress);
 		}
 
-		private void completed(@Nullable Exception exception) {
+		private void completed(@Nullable Throwable exception) {
 			//-- Part 1: set the task itself to completed state
 			synchronized(m_source) {
 				if(m_state != TaskState.RUNNING)
 					throw new IllegalStateException("The task " + this + " can only be completed in RUNNING state but it is in state " + m_state);
 				if(exception != null) {
+					System.out.println("Task " + this + " failed, cancelling parents");
 					m_exception = exception;
 					m_state = TaskState.FAILED;
 
@@ -427,6 +425,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		private void failParents(Task<V, X> failedTask) {
 			synchronized(m_source) {
 				for(Task<V, X> parent : m_parents) {
+					System.out.println("Setting parent " + parent + " to failed");
 					parent.m_children.remove(this);
 
 					if(parent.m_state == TaskState.NONE || parent.m_state == TaskState.SCHEDULED) {
@@ -441,6 +440,8 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 							cancelChildren(failedTask);
 
 						parent.failParents(failedTask);
+					} else {
+						System.out.println("Setting parent " + parent + " to failed was not needed: it was already " + parent.m_state);
 					}
 				}
 			}
@@ -485,23 +486,16 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		}
 
 		@Nullable
-		public synchronized Exception getException() {
+		public synchronized Throwable getException() {
 			return m_exception;
 		}
 
 		@Nullable
-		public synchronized String getUserError() {
-			return m_error;
-		}
-
-		@Nullable
 		public synchronized String getErrorMessage() {
-			String error = m_error;
-			if(null != error)
-				return error;
-			Exception exception = m_exception;
-			if(null != exception)
+			Throwable exception = m_exception;
+			if(null != exception) {
 				return exception.toString();
+			}
 			return null;
 		}
 

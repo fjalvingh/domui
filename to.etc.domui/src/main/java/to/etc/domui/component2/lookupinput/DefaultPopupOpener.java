@@ -6,7 +6,7 @@ import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component2.lookupinput.LookupInputBase2.IPopupOpener;
 import to.etc.domui.dom.html.IClicked;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 
 public class DefaultPopupOpener implements IPopupOpener {
 

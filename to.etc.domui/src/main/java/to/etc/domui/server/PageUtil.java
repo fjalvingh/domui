@@ -35,6 +35,8 @@ final public class PageUtil {
 		page.internalDeltaBuild();
 		// /ORDERED
 
+		IRequestResponse rr = ctx.getRequestResponse();
+		page.getHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 
 		long ts = System.nanoTime();

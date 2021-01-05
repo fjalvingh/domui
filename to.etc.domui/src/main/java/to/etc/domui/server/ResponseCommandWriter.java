@@ -24,11 +24,18 @@ public class ResponseCommandWriter {
 	public ResponseCommandWriter() {
 	}
 
+	private void renderHeaders(RequestContextImpl ctx) {
+		IRequestResponse rr = ctx.getRequestResponse();
+		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+	}
+
 	/**
 	 * Generates an EXPIRED message when the page here does not correspond with
 	 * the page currently in the browser. This causes the browser to do a reload.
 	 */
 	public void generateExpired(RequestContextImpl ctx, String message) throws Exception {
+		renderHeaders(ctx);
+
 		//-- We stay on the same page. Render tree delta as response
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("expired");
@@ -43,6 +50,7 @@ public class ResponseCommandWriter {
 
 	public void generateEmptyDelta(RequestContextImpl ctx) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
+		renderHeaders(ctx);
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("delta");
 		out.endtag();
@@ -55,6 +63,7 @@ public class ResponseCommandWriter {
 	 */
 	public void generateExpiredPollasy(RequestContextImpl ctx) throws Exception {
 		//-- We stay on the same page. Render tree delta as response
+		renderHeaders(ctx);
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("expiredOnPollasy");
 		out.endtag();

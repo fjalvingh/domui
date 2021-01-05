@@ -2010,8 +2010,6 @@
 			} else {
 				this.ui.focus();
 				this.ui.withoutCss(); // disable style="" attr inserting in mozzila's designMode
-				// when click <Cut>, <Copy> or <Paste> got "Access to XPConnect service denied" code: "1011"
-				// in Firefox untrusted JavaScript is not allowed to access the clipboard
 				try {
 					this.editorDoc.execCommand(cmd, false, args);
 				} catch(e) {

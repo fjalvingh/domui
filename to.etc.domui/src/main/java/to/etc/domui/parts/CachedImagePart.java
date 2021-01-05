@@ -178,6 +178,7 @@ public class CachedImagePart implements IUnbufferedPartFactory {
 				sb.append(filename);
 			}
 			ri.getRequestResponse().addHeader("Content-Disposition", sb.toString());
+			DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> ri.getRequestResponse().addHeader(header, value));
 		}
 
 		OutputStream os = ri.getRequestResponse().getOutputStream(fima.getInfo().getMime(), null, fima.getSource().getSize());

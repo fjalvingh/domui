@@ -7,7 +7,7 @@ import to.etc.domui.component.searchpanel.lookupcontrols.ILookupQueryBuilder;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.webapp.query.QField;
 
 /**

@@ -11,7 +11,7 @@ import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.component2.form4.FormBuilder;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.CodeException;
 import to.etc.webapp.query.QContextManager;

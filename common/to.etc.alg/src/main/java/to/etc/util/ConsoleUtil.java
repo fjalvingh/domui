@@ -11,6 +11,8 @@ import java.util.Date;
 public class ConsoleUtil {
 	static private final FastDateFormat m_logFmt = FastDateFormat.getInstance("HH:mm:ss.SSS");
 
+	static private int m_logOrder;
+
 	static public String getLogTime() {
 		return m_logFmt.format(new Date());
 	}
@@ -123,10 +125,14 @@ public class ConsoleUtil {
 
 	static private final int MAX_THREADNAME_LENGTH = 12;
 
+	static private synchronized int getLogOrder() {
+		return ++m_logOrder;
+	}
+
 	static public void consoleLog(int type, String... segments) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(BLUE);
-		append(sb, m_logFmt.format(new Date()), 12);
+		append(sb, m_logFmt.format(new Date()) + "/" + getLogOrder(), 18);
 		//sb.append(CYAN);
 		//String name = Thread.currentThread().getName();
 		//append(sb, name, 10);

@@ -128,7 +128,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		m_parameterWrapper = new RequestContextParameters(this);
 
 		//-- ViewPoint sends malconstructed URLs containing duplicated slashes.
-		String urlin = rr.getRequestURI();
+		String urlin = XssChecker.stripXSS(rr.getRequestURI());
 		while(urlin.startsWith("/"))
 			urlin = urlin.substring(1);
 
