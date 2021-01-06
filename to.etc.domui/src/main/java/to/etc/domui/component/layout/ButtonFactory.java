@@ -31,6 +31,7 @@ public class ButtonFactory implements IButtonBar {
 		m_container = container;
 	}
 
+	@Override
 	public void addButton(@NonNull NodeBase button, int order) {
 		m_container.addButton(button, order);
 	}
