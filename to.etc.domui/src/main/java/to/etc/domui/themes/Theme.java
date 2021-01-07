@@ -74,6 +74,8 @@ public enum Theme implements IIconRef {
 	, ICON_DSPCB_ON
 	, ISCT_EMPTY
 	, ISCT_ERASE
+	, ICON_SELECT_ALL
+	, ICON_SELECT_NONE
 	;
 
 	static private Map<Theme, IIconRef> m_iconMap = new ConcurrentHashMap<>();
@@ -158,5 +160,7 @@ public enum Theme implements IIconRef {
 		update(ICON_MINI_INFO, Icon.of("THEME/mini-info.png"));
 		update(ICON_PROGRESSBAR, Icon.of("THEME/progressbar.gif"));
 		update(ICON_RESIZE, Icon.of("THEME/resize.png"));
+		update(ICON_SELECT_ALL, Icon.of("THEME/dpr-select-all.png"));
+		update(ICON_SELECT_NONE, Icon.of("THEME/dpr-select-none.png"));
 	}
 }
