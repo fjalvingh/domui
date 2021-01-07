@@ -236,4 +236,14 @@ public final class ByteArrayUtil {
 			}
 		}
 	}
+
+	static public int indexOf(byte[] data, int off, int len, byte val) {
+		while(off < len) {
+			if(data[off] == val) {
+				return off;
+			}
+			off++;
+		}
+		return -1;
+	}
 }
