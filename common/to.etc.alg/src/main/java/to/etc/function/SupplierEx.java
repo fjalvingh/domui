@@ -1,7 +1,5 @@
 package to.etc.function;
 
-import org.eclipse.jdt.annotation.Nullable;
-
 /**
  * Version of Supplier which allows for exceptions, replacing the version
  * written by Oracle's morons 8-(.
@@ -10,10 +8,9 @@ import org.eclipse.jdt.annotation.Nullable;
  */
 public interface SupplierEx<T> {
 	/**
-	 * Gets a result.
+	 * Gets a result. Deliberately left without nullity specification.
 	 *
 	 * @return a result
 	 */
-	@Nullable
 	T get() throws Exception;
 }
