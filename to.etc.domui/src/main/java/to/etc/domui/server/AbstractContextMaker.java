@@ -42,7 +42,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 abstract public class AbstractContextMaker implements IContextMaker {
-	private static final String LOCALE_PARAM = "___locale";
+	public static final String LOCALE_PARAM = "___locale";
 
 	@Override
 	abstract public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception;
