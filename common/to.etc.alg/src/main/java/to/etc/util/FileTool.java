@@ -160,9 +160,8 @@ public class FileTool {
 	 * Returns the java.io.tmpdir directory. Throws an exception if it does not exist or
 	 * is inaccessible.
 	 */
-	@Deprecated
 	static public File getTmpDir() {
-		String v = System.getenv("java.io.tmpdir");
+		String v = System.getProperty("java.io.tmpdir");
 		if(v == null)
 			v = "/tmp";
 		File tmp = new File(v);
@@ -170,18 +169,6 @@ public class FileTool {
 			throw new IllegalStateException("The 'java.io.tmpdir' variable does not point to an existing directory (" + tmp + ")");
 		return tmp;
 	}
-
-
-	// jal 20210127 This is incorrect: it does not create the location of the tmp directory, but creates a new file every time it gets called.
-	//static public File getTmpDir() {
-	//	try {
-	//		File temp = File.createTempFile("locator", ".tmp");
-	//		return temp.getParentFile();
-	//	} catch(IOException e) {
-	//		throw new IllegalStateException("Unable to locate tmp dir location!", e);
-	//	}
-	//}
-
 	static {
 		m_seed_ts = System.currentTimeMillis();
 	}
