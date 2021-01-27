@@ -34,7 +34,6 @@ import to.etc.xml.DomTools;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -158,16 +157,11 @@ public class FileTool {
 	/*	CODING:	Directory maintenance and bulk code.				*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * OBSOLETE: old way that worked until we got mutlipe apps hosted in same web server with different users -> making same sub-paths inside
-	 * global tmp location causes permission issues.
-	 *
 	 * Returns the java.io.tmpdir directory. Throws an exception if it does not exist or
 	 * is inaccessible.
-	 *
-	 * @return
 	 */
 	@Deprecated
-	static public File getTmpDirLegacy() {
+	static public File getTmpDir() {
 		String v = System.getenv("java.io.tmpdir");
 		if(v == null)
 			v = "/tmp";
@@ -177,14 +171,16 @@ public class FileTool {
 		return tmp;
 	}
 
-	static public File getTmpDir() {
-		try {
-			File temp = File.createTempFile("locator", ".tmp");
-			return temp.getParentFile();
-		} catch(IOException e) {
-			throw new IllegalStateException("Unable to locate tmp dir location!", e);
-		}
-	}
+
+	// jal 20210127 This is incorrect: it does not create the location of the tmp directory, but creates a new file every time it gets called.
+	//static public File getTmpDir() {
+	//	try {
+	//		File temp = File.createTempFile("locator", ".tmp");
+	//		return temp.getParentFile();
+	//	} catch(IOException e) {
+	//		throw new IllegalStateException("Unable to locate tmp dir location!", e);
+	//	}
+	//}
 
 	static {
 		m_seed_ts = System.currentTimeMillis();
