@@ -330,7 +330,9 @@ public class MailBuilder {
 		}
 		m.setSubject(m_subject);
 		m.setBody(m_text_sb.toString());
-		m.setHtmlBody(m_html_sb.toString());
+		if(!"".equals(m_html_sb.toString())) {
+			m.setHtmlBody(m_html_sb.toString());
+		}
 		for(Attachment a: m_attachmentList)
 			m.addAttachment(a);
 		m.send();
@@ -341,7 +343,9 @@ public class MailBuilder {
 		Message m = new Message();
 		m.setSubject(m_subject);
 		m.setBody(m_text_sb.toString());
-		m.setHtmlBody(m_html_sb.toString());
+		if(!"".equals(m_html_sb.toString())) {
+			m.setHtmlBody(m_html_sb.toString());
+		}
 		for(Attachment a : m_attachmentList)
 			m.addAttachment(a);
 		return m;
