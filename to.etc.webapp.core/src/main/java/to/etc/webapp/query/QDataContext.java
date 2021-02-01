@@ -233,4 +233,12 @@ public interface QDataContext extends AutoCloseable {
 	default <T> void setAttribute(@NonNull T value) {
 		setAttribute((Class<T>) value.getClass(), value);
 	}
+
+	/**
+	 * Does flush of current changes in transaction to the database.
+	 * Can be used only with Hibernate really, defaults to no op.
+	 */
+	default void flushIfPossible() {
+	}
+
 }
