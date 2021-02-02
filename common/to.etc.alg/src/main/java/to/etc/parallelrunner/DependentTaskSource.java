@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.FunctionEx;
 import to.etc.util.ExceptionUtil;
+import to.etc.util.MessageException;
 import to.etc.util.Progress;
 import to.etc.util.WrappedException;
 
@@ -229,8 +230,12 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			task.setStartTime(new Date());
 			executor.run(progress);
 		} catch(Exception | Error x) {
-			System.err.println("ERROR " + task + ": " + x);
-			x.printStackTrace();
+			if(x instanceof MessageException) {
+				System.err.println("ERROR " + task + ": " + x.getMessage());
+			} else {
+				System.err.println("ERROR " + task + ": " + x);
+				x.printStackTrace();
+			}
 			errorX = x;
 		} finally {
 			task.setEndTime(new Date());
@@ -397,11 +402,11 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 				if(m_state != TaskState.RUNNING)
 					throw new IllegalStateException("The task " + this + " can only be completed in RUNNING state but it is in state " + m_state);
 				if(exception != null) {
-					System.out.println("Task " + this + " failed, cancelling parents");
+					//System.out.println("Task " + this + " failed, cancelling parents");
 					m_exception = exception;
 					m_state = TaskState.FAILED;
 
-					failParents(this);
+					cancelParents(this);
 				} else {
 					m_state = TaskState.COMPLETED;
 
@@ -422,10 +427,10 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		/**
 		 * Cancel all parents (and optionally their children) that are not active yet.
 		 */
-		private void failParents(Task<V, X> failedTask) {
+		private void cancelParents(Task<V, X> failedTask) {
 			synchronized(m_source) {
 				for(Task<V, X> parent : m_parents) {
-					System.out.println("Setting parent " + parent + " to failed");
+					//System.out.println("Setting parent " + parent + " to failed");
 					parent.m_children.remove(this);
 
 					if(parent.m_state == TaskState.NONE || parent.m_state == TaskState.SCHEDULED) {
@@ -439,9 +444,9 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 						if(m_source.m_cancelChildrenOnError)
 							cancelChildren(failedTask);
 
-						parent.failParents(failedTask);
+						parent.cancelParents(failedTask);
 					} else {
-						System.out.println("Setting parent " + parent + " to failed was not needed: it was already " + parent.m_state);
+						//System.out.println("Setting parent " + parent + " to cancelled was not needed: it was already " + parent.m_state);
 					}
 				}
 			}
