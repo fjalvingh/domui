@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.net.HttpCallException;
 import to.etc.pater.IPaterContext;
 import to.etc.pater.Pater;

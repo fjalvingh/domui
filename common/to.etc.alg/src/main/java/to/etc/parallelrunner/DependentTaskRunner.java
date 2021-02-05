@@ -24,7 +24,10 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 
 	private Progress m_progress;
 
-	public DependentTaskRunner() {
+	private AsyncWorker m_executor;
+
+	public DependentTaskRunner(AsyncWorker executor) {
+		m_executor = executor;
 		m_taskSource.addListener(new ITaskListener<T, SingleTaskExecutor<T>>() {
 			@Override
 			public void onTaskStarted(Task<T, SingleTaskExecutor<T>> task) throws Exception {
@@ -32,7 +35,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 			}
 
 			@Override
-			public void onTaskFinished(Task<T, SingleTaskExecutor<T>> task, @Nullable Exception failure) throws Exception {
+			public void onTaskFinished(Task<T, SingleTaskExecutor<T>> task, @Nullable Throwable failure) throws Exception {
 				DependentTaskRunner.this.onFinish(task);
 				m_progress.increment(1.0);
 			}
@@ -84,7 +87,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 	}
 
 	private void scheduleTask(Task<T, SingleTaskExecutor<T>> tableTask) throws Exception {
-		AsyncWorker.getInstance().schedule("Run#" + tableTask.getItem().toString()
+		m_executor.schedule("Run#" + tableTask.getItem().toString()
 			, tableTask
 			, (a, x) -> {}
 			, m_priorityCalculator.apply(tableTask.getItem()));

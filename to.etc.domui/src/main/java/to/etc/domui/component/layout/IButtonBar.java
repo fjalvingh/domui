@@ -7,6 +7,7 @@ import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.menu.IUIAction;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.webapp.nls.IBundleCode;
 
 public interface IButtonBar {
@@ -56,6 +57,8 @@ public interface IButtonBar {
 	default DefaultButton addButton(IBundleCode txt, IClicked<DefaultButton> click, int order) {
 		return addButton(txt.getString(), click, order);
 	}
+
+	void addButton(@NonNull NodeBase item, int order);
 
 	@NonNull
 	DefaultButton addBackButton(String txt, IIconRef icon);

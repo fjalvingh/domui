@@ -41,9 +41,9 @@ import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.SubConversationContext;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IExecute;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
+import to.etc.function.IExecute;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
@@ -57,6 +57,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -254,6 +255,13 @@ final public class Page implements IQContextContainer {
 
 	private List<IExecute> m_pageOnCallbackList = new ArrayList<>();
 
+	/**
+	 * Contains all http headers that need to be sent for this page. When the Page
+	 * is created this is filled with the headers set in {@link DomApplication#getDefaultHTTPHeaderMap()},
+	 * and it can after be manipulated by a page before being used.
+	 */
+	private Map<String, String> m_HTTPHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
@@ -262,16 +270,18 @@ final public class Page implements IQContextContainer {
 		pageContent.setErrorFence(); // The body ALWAYS accepts ANY errors.
 
 		//-- Localize calendar resources
-		String res = DomApplication.get().findLocalizedResourceName("$js/calendarnls", ".js", NlsContext.getLocale());
+		DomApplication app = DomApplication.get();
+		String res = app.findLocalizedResourceName("$js/calendarnls", ".js", NlsContext.getLocale());
 		if(res == null)
 			throw new IllegalStateException("internal: missing calendar NLS resource $js/calendarnls{nls}.js");
 		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
 
 		//-- Localize DomUI resources
-		res = DomApplication.get().findLocalizedResourceName("$js/domuinls", ".js", NlsContext.getLocale());
+		res = app.findLocalizedResourceName("$js/domuinls", ".js", NlsContext.getLocale());
 		if(res == null)
 			throw new IllegalStateException("internal: missing domui NLS resource $js/domuinls{nls}.js");
 		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
+		m_HTTPHeaderMap.putAll(app.getDefaultHTTPHeaderMap());
 	}
 
 
@@ -672,6 +682,22 @@ final public class Page implements IQContextContainer {
 		} finally {
 			internalSetPhase(PagePhase.NULL);
 		}
+	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	http protocol headers										*/
+	/*----------------------------------------------------------------------*/
+
+	public void addHTTPHeader(@NonNull String header, @Nullable String value) {
+		if(null == value)
+			m_HTTPHeaderMap.remove(header);
+		else
+			m_HTTPHeaderMap.put(header, value);
+	}
+
+	@NonNull
+	public Map<String, String> getHTTPHeaderMap() {
+		return m_HTTPHeaderMap;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1151,22 +1177,28 @@ final public class Page implements IQContextContainer {
 		m_beforeRequestListenerList.add(x);
 	}
 
+	public void removeBeforeRequestListener(@NonNull IExecute x) {
+		if(!m_beforeRequestListenerList.remove(x))
+			System.out.println("PAGE: removal of beforeRequestListener failed (" + x + ")");
+	}
+
 	public void addDestroyListener(@NonNull IExecute listener) {
 		m_destroyListenerList.add(listener);
 	}
 
 	public void removeDestroyListener(@NonNull IExecute listener) {
-		m_destroyListenerList.remove(listener);
+		if(! m_destroyListenerList.remove(listener))
+			System.out.println("PAGE: removal of destroyListener failed (" + listener + ")");
 	}
 
 	public void callRequestFinished() throws Exception {
-		for(IExecute x: m_afterRequestListenerList) {
+		for(IExecute x: new ArrayList<>(m_afterRequestListenerList)) {
 			x.execute();
 		}
 	}
 
 	public void callRequestStarted() throws Exception {
-		for(IExecute x : m_beforeRequestListenerList) {
+		for(IExecute x : new ArrayList<>(m_beforeRequestListenerList)) {
 			x.execute();
 		}
 	}

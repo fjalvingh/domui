@@ -1,10 +1,12 @@
 package to.etc.dbutil.schema;
 
+import java.io.Serializable;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 27-11-18.
  */
-public class DbSequence {
+public class DbSequence implements Serializable {
 	final private DbSchema m_schema;
 
 	final private String m_name;

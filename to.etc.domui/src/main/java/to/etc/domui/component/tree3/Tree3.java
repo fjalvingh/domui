@@ -30,6 +30,7 @@ import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.tbl.ICellClicked;
+import to.etc.domui.component.tbl.ICellClicked2;
 import to.etc.domui.component.tree.INodePredicate;
 import to.etc.domui.component.tree.ITreeModel;
 import to.etc.domui.component.tree.ITreeModelChangedListener;
@@ -79,10 +80,14 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 
 	private ICellClicked<T> m_cellClicked;
 
+	private ICellClicked2<T> m_cellClicked2;
+
 	private INodePredicate<T> m_nodeSelectablePredicate;
 
 	@Nullable
 	private T m_selectedValue;
+
+	private boolean m_enableDoubleclickExpand = true;
 
 	public Tree3() {
 		setCssClass("ui-tree3");
@@ -371,7 +376,7 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 					if(null != value) {
 						cellClicked(value, clinfo);
 					}
-					if(clinfo.isDoubleClick()) {
+					if(m_enableDoubleclickExpand && clinfo.isDoubleClick()) {
 						toggleNode(value);
 					}
 				}
@@ -397,18 +402,22 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 	protected void cellClicked(@NonNull final T value, @NonNull ClickInfo clinfo) throws Exception {
 		if(isSelectable(value)) {
 			T selected = m_selectedValue;
-			if(selected == value)
-				return;
+			if(selected != value) {
 
-			m_selectedValue = value;
-			if(null != selected) {
-				markNewSelection(selected, false);
+				m_selectedValue = value;
+				if(null != selected) {
+					markNewSelection(selected, false);
+				}
+				markNewSelection(value, true);
 			}
-			markNewSelection(value, true);
 		}
 
-		if(getCellClicked() != null)
-			getCellClicked().cellClicked(value);
+		ICellClicked2<T> c2 = getCellClicked2();
+		if(null != c2)
+			c2.cellClicked(value, clinfo);
+		ICellClicked<T> cl = getCellClicked();
+		if(cl != null)
+			cl.cellClicked(value);
 	}
 
 	/**
@@ -423,7 +432,7 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 
 
 	protected boolean isSelectable(@Nullable T node) throws Exception {
-		if(getCellClicked() == null)
+		if(getCellClicked() == null && getCellClicked2() == null)
 			return false;
 		if(m_nodeSelectablePredicate == null)
 			return true;
@@ -614,5 +623,21 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 			}
 			markNewSelection(selectedValue, true);
 		}
+	}
+
+	public ICellClicked2<T> getCellClicked2() {
+		return m_cellClicked2;
+	}
+
+	public void setCellClicked2(ICellClicked2<T> cellClicked2) {
+		m_cellClicked2 = cellClicked2;
+	}
+
+	public boolean isEnableDoubleclickExpand() {
+		return m_enableDoubleclickExpand;
+	}
+
+	public void setEnableDoubleclickExpand(boolean enableDoubleclickExpand) {
+		m_enableDoubleclickExpand = enableDoubleclickExpand;
 	}
 }

@@ -123,6 +123,14 @@ final public class QQueryUtils {
 		return 0;
 	}
 
+	public static <K, T extends IIdentifyable<K>> int queryCount(@NonNull QDataContext dc, @NonNull QSelection<T> q) throws Exception {
+		Object[] count = dc.queryOne(q);
+		if(count != null && count.length > 0) {
+			return ((Number) count[0]).intValue();
+		}
+		return 0;
+	}
+
 //	interface myData {
 //		@QFld(1)
 //		int count();

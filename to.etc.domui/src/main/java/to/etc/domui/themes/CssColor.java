@@ -49,6 +49,10 @@ final public class CssColor {
 	/** HSL when calculated */
 	private double m_h, m_hsl_s, m_hsl_l, m_hsv_v, m_hsv_s;
 
+	public CssColor(float rin, float gin, float bin) {
+		this((int) (rin + 0.5), (int) (gin + 0.5), (int) (bin + 0.5));
+	}
+
 	public CssColor(double rin, double gin, double bin) {
 		this((int) (rin + 0.5), (int) (gin + 0.5), (int) (bin + 0.5));
 	}

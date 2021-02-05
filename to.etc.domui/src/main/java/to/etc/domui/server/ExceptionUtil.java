@@ -64,6 +64,12 @@ final public class ExceptionUtil {
 		return sb.toString();
 	}
 
+	public String q(String in) {
+		if(in == null)
+			return "";
+		return StringTool.htmlStringize(in);
+	}
+
 	@NonNull
 	public List<UserLogItem> getUserLog() {
 		AppSession session = m_ctx.getSession();

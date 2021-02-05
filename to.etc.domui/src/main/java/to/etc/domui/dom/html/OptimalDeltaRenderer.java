@@ -226,15 +226,6 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		o().tag("eval");
 		o().endtag();
 
-		//-- Render all component-requested Javascript code for this phase
-		o().text(m_fullRenderer.getCreateJS().toString());
-		StringBuilder sb = m_page.internalFlushAppendJS();
-		if(null != sb)
-			o().text(sb.toString());
-		sb = m_page.internalFlushJavascriptStateChanges();
-		if(null != sb)
-			o().writeRaw(sb);
-
 		//-- If we have a special calculate focus request (Window created) - calculate it
 		NodeBase focusComponent = m_page.getFocusComponent();
 		if(m_page.getDefaultFocusSource() != null && focusComponent == null) {
@@ -245,12 +236,26 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		//-- If a component has requested focus - do it.
 		focusComponent = m_page.getFocusComponent();
 		if(focusComponent != null) {
-			String focusID = focusComponent.getFocusID();
-			if(null != focusID) {
-				o().text("WebUI.focus('" + focusID + "');");
+			if(focusComponent instanceof IManualFocus) {
+				((IManualFocus) focusComponent).handleFocus();
+			} else {
+				String focusID = focusComponent.getFocusID();
+				if(null != focusID) {
+					o().text("WebUI.focus('" + focusID + "');");
+				}
 			}
 			m_page.setFocusComponent(null);
 		}
+
+		//-- Render all component-requested Javascript code for this phase
+		o().text(m_fullRenderer.getCreateJS().toString());
+		StringBuilder sb = m_page.internalFlushAppendJS();
+		if(null != sb)
+			o().text(sb.toString());
+		sb = m_page.internalFlushJavascriptStateChanges();
+		if(null != sb)
+			o().writeRaw(sb);
+
 
 		//-- Handle delayed stuff...
 		int pollinterval = DomApplication.get().calculatePollInterval(m_page.getConversation().isPollCallbackRequired());

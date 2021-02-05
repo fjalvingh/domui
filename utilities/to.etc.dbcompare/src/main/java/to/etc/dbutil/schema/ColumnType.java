@@ -22,6 +22,7 @@ public class ColumnType implements Serializable {
 	static public final ColumnType NUMBER = new ColumnType("number", Types.NUMERIC, true, true, "numeric", "number");
 
 	static public final ColumnType VARCHAR = new ColumnType("varchar", Types.VARCHAR, true, false, "varchar2", "varchar", "character varying");
+	static public final ColumnType NVARCHAR = new ColumnType("nvarchar", Types.NVARCHAR, true, false, "nvarchar2", "nvarchar");
 
 	static public final ColumnType CHAR = new ColumnType("char", Types.CHAR, true, false, "char", "character");
 
@@ -37,6 +38,7 @@ public class ColumnType implements Serializable {
 
 	static public final ColumnType DATE = new ColumnType("date", Types.DATE, false, false, "date");
 
+	static public final ColumnType TINYINT = new ColumnType("int16", Types.TINYINT, false, false, "tinyint");
 	static public final ColumnType BIGINT = new ColumnType("int64", Types.BIGINT, false, false, "bigint");
 
 	static public final ColumnType INTEGER = new ColumnType("int32", Types.INTEGER, false, false, "integer", "int");

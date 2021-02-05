@@ -118,13 +118,13 @@ public class ComponentPartRenderer {
 		sb.append("/");
 		sb.append(b.getActualID());
 
-
-		if(ctx instanceof RequestContextImpl) {
-			IServerSession hs = ctx.getServerSession(true);
-			if(null == hs)
-				throw new IllegalStateException("?");
-			String sessid = hs.getId();
-			sb.append(";jsessionid=").append(sessid);
-		}
+		// jal 20201231 Removed because it seems like this should no longer be used, and it is a security issue.
+		//if(ctx instanceof RequestContextImpl) {
+		//	IServerSession hs = ctx.getServerSession(true);
+		//	if(null == hs)
+		//		throw new IllegalStateException("?");
+		//	String sessid = hs.getId();
+		//	sb.append(";jsessionid=").append(sessid);
+		//}
 	}
 }

@@ -126,8 +126,8 @@ final public class PageRequestHandler {
 
 	public void executeRequest() throws Exception {
 		m_ctx.getRequestResponse().setNoCache();			// All replies may not be cached at all!!
-		m_ctx.getRequestResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
-		m_ctx.getRequestResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
+		//m_ctx.getRequestResponse().addHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
+		//m_ctx.getRequestResponse().addHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
 
 		handleMain();
 		m_ctx.getSession().dump();							// Log session info if enabled
@@ -350,12 +350,17 @@ final public class PageRequestHandler {
 			// END ORDERED
 
 			//-- Start the main rendering process. Determine the browser type.
+			//-- Output all headers
+			IRequestResponse rr = m_ctx.getRequestResponse();
+			page.getHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+
 			Writer w;
 			if(page.isRenderAsXHTML()) {
 				w = m_ctx.getOutputWriter("application/xhtml+xml; charset=UTF-8", "utf-8");
 			} else {
 				w = m_ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8");
 			}
+
 			IBrowserOutput out = new PrettyXmlOutputWriter(w);
 
 			HtmlFullRenderer hr = m_application.findRendererFor(m_ctx.getBrowserVersion(), out);
@@ -546,6 +551,8 @@ final public class PageRequestHandler {
 		m_ctx.getSession().internalObituaryReceived(cida.getWindowId(), pageTag);
 
 		//-- Send an empty response because IE will actually act on it sometimes.
+		IRequestResponse rr = m_ctx.getRequestResponse();
+		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
 		m_ctx.getOutputWriter("text/html", "utf-8");
 	}
 
@@ -900,7 +907,7 @@ final public class PageRequestHandler {
 			IComponentJsonProvider dp = (IComponentJsonProvider) wcomp;
 			PageParameters pp = new PageParameters(m_ctx.getPageParameters());
 			Object value = dp.provideJsonData(pp);							// Let the component return something to render.
-			renderJsonLikeResponse(value);
+			renderJsonLikeResponse(page, value);
 		} finally {
 			page.callRequestFinished();
 			page.setTheCurrentNode(null);
@@ -910,7 +917,9 @@ final public class PageRequestHandler {
 	@NonNull
 	final private JSONRegistry m_jsonRegistry = new JSONRegistry();
 
-	private void renderJsonLikeResponse(@NonNull Object value) throws Exception {
+	private void renderJsonLikeResponse(Page page, @NonNull Object value) throws Exception {
+		IRequestResponse rr = m_ctx.getRequestResponse();
+		page.getHTTPHeaderMap().forEach((header, val) -> rr.addHeader(header, val));
 		Writer w = m_ctx.getOutputWriter("application/javascript", "utf-8");
 		if(value instanceof String) {
 			//-- String return: we'll assume this is a javascript response by itself.

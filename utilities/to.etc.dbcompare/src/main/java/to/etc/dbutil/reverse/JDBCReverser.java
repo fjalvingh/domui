@@ -37,12 +37,34 @@ import java.util.Set;
 public class JDBCReverser implements Reverser {
 	private DataSource m_ds;
 
+	private final Set<ReverserOption> m_optionSet;
+
 //	private DatabaseMetaData m_dmd;
 
 	private Set<DbSchema> m_schemaSet = new HashSet<>();
 
-	public JDBCReverser(DataSource dbc) {
+	public JDBCReverser(DataSource dbc, Set<ReverserOption> optionSet) {
 		m_ds = dbc;
+		m_optionSet = optionSet;
+	}
+
+	public boolean hasOptionRaw(ReverserOption... options) {
+		//System.out.println("dbg: " + m_optionSet);
+		if(m_optionSet.isEmpty())
+			return true;
+		for(ReverserOption option : options) {
+			if(m_optionSet.contains(option)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public boolean hasOption(ReverserOption... options) {
+		boolean v = hasOptionRaw(options);
+		//System.out.println("debug: hasOption " + Arrays.toString(options) + " is " + v);
+		return v;
 	}
 
 	@Override
@@ -77,24 +99,51 @@ public class JDBCReverser implements Reverser {
 			schemaSet.clear();
 			schemaSet.add(schema);
 			initialize(dbc, schemaSet);
+			System.out.println("Reversing tables");
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
-				reverseSequences(dbc, schemaSet);
-				reverseColumns(dbc, schemaSet);
-				int ncols = 0;
-				for(DbTable t : schema.getTables()) {
-					ncols += t.getColumnList().size();
+				if(hasOption(ReverserOption.ReverseSequences)) {
+					System.out.println("Reversing sequences");
+					reverseSequences(dbc, schemaSet);
 				}
-//				msg("Loaded " + ncols + " columns");
-				reverseIndexes(dbc, schemaSet);
-				reversePrimaryKeys(dbc, schemaSet);
-				reverseRelations(dbc, schemaSet);
-				reverseViews(dbc, schema);
-				reverseProcedures(dbc, schema);
-				reversePackages(dbc, schema);
-				reverseTriggers(dbc, schema);
-				reverseConstraints(dbc, schemaSet);
+				if(hasOption(ReverserOption.ReverseColumns, ReverserOption.ReverseIndexes, ReverserOption.ReverseRelations, ReverserOption.ReverseConstraints)) {
+					System.out.println("Reversing columns");
+					reverseColumns(dbc, schemaSet);
+					//int ncols = 0;
+					//for(DbTable t : schema.getTables()) {
+					//	ncols += t.getColumnList().size();
+					//}
+//					msg("Loaded " + ncols + " columns");
+				}
+				if(hasOption(ReverserOption.ReverseIndexes)) {
+					System.out.println("Reversing indices");
+					reverseIndexes(dbc, schemaSet);
+				}
+				if(hasOption(ReverserOption.ReverseColumns)) {
+					System.out.println("Reversing primary keys");
+					reversePrimaryKeys(dbc, schemaSet);
+				}
+				if(hasOption(ReverserOption.ReverseRelations)) {
+					System.out.println("Reversing relations");
+					reverseRelations(dbc, schemaSet);
+				}
+				if(hasOption(ReverserOption.ReverseViews)) {
+					System.out.println("Reversing views");
+					reverseViews(dbc, schema);
+				}
+				if(hasOption(ReverserOption.ReverseProdecures)) {
+					System.out.println("Reversing procedures");
+					reverseProcedures(dbc, schema);
+					System.out.println("Reversing packages");
+					reversePackages(dbc, schema);
+					System.out.println("Reversing triggers");
+					reverseTriggers(dbc, schema);
+				}
+				if(hasOption(ReverserOption.ReverseConstraints)) {
+					System.out.println("Reversing constraints");
+					reverseConstraints(dbc, schemaSet);
+				}
 
 				afterLoad(dbc, schema);
 			}
@@ -136,27 +185,49 @@ public class JDBCReverser implements Reverser {
 				schemaSet.add(schema);
 			}
 			initialize(dbc, schemaSet);
+			System.out.println("Reversing tables");
 			reverseTables(dbc, schemaSet);
 
 			if(!lazily) {
-				reverseSequences(dbc, schemaSet);
-				reverseColumns(dbc, schemaSet);
-				int ncols = 0;
-				for(DbSchema schema : schemaSet) {
-					for(DbTable table : schema.getTables()) {
-						ncols += table.getColumnList().size();
-					}
+				if(hasOption(ReverserOption.ReverseSequences)) {
+					System.out.println("Reversing sequences");
+					reverseSequences(dbc, schemaSet);
 				}
 
-				msg("Loaded " + ncols + " columns");
-				reverseIndexes(dbc, schemaSet);
-				reversePrimaryKeys(dbc, schemaSet);
-				reverseRelations(dbc, schemaSet);
+				if(hasOption(ReverserOption.ReverseColumns, ReverserOption.ReverseIndexes, ReverserOption.ReverseRelations, ReverserOption.ReverseConstraints)) {
+					System.out.println("Reversing columns");
+					reverseColumns(dbc, schemaSet);
+					int ncols = 0;
+					for(DbSchema schema : schemaSet) {
+						for(DbTable table : schema.getTables()) {
+							ncols += table.getColumnList().size();
+						}
+					}
+
+					msg("Loaded " + ncols + " columns");
+				}
+				if(hasOption(ReverserOption.ReverseIndexes)) {
+					System.out.println("Reversing indices");
+					reverseIndexes(dbc, schemaSet);
+				}
+
+				if(hasOption(ReverserOption.ReverseColumns)) {
+					System.out.println("Reversing primary keys");
+					reversePrimaryKeys(dbc, schemaSet);
+				}
+
+				if(hasOption(ReverserOption.ReverseRelations)) {
+					System.out.println("Reversing relations");
+					reverseRelations(dbc, schemaSet);
+				}
 //				reverseViews(dbc, schema);
 //				reverseProcedures(dbc, schema);
 //				reversePackages(dbc, schema);
 //				reverseTriggers(dbc, schema);
-				reverseConstraints(dbc, schemaSet);
+				if(hasOption(ReverserOption.ReverseConstraints)) {
+					System.out.println("Reversing constraints");
+					reverseConstraints(dbc, schemaSet);
+				}
 //
 //				afterLoad(dbc, schema);
 			}
@@ -204,9 +275,20 @@ public class JDBCReverser implements Reverser {
 	}
 
 	public void reverseColumns(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
+		int tables = 0;
+		int columns = 0;
+		int reportcount  = 0;
 		for(DbSchema schema : schemaSet) {
-			for(DbTable t : schema.getTables())
+			for(DbTable t : schema.getTables()) {
 				reverseColumns(dbc, t);
+				columns += t.getColumnList().size();
+				tables++;
+				reportcount += t.getColumnList().size();
+				if(reportcount++ >= 1000) {
+					System.out.println("Reversing columns: table " + tables + ", column count " + columns);
+					reportcount = 0;
+				}
+			}
 		}
 	}
 
@@ -358,6 +440,10 @@ public class JDBCReverser implements Reverser {
 
 	@Override
 	public void reverseIndexes(@NonNull Connection dbc, DbTable t) throws Exception {
+		if(! hasOption(ReverserOption.ReverseIndexes)) {
+			t.setIndexMap(new HashMap<>());
+			return;
+		}
 		ResultSet rs = null;
 		Map<String, DbIndex> indexMap = new HashMap<String, DbIndex>();
 		try {
@@ -454,6 +540,7 @@ public class JDBCReverser implements Reverser {
 	protected void reverseRelations(@NonNull Connection dbc, DbTable t, boolean appendalways) throws Exception {
 		ResultSet rs = null;
 		try {
+			int count = 0;
 			String name = null;
 			rs = dbc.getMetaData().getExportedKeys(null, t.getSchema().getName(), t.getName());
 			int lastord = -1;
@@ -496,6 +583,7 @@ public class JDBCReverser implements Reverser {
 
 				//-- If this is a new sequence start a new relation else add to current,
 				if(lastord == -1 || ord <= lastord) {
+					count++;
 					//-- New relation.
 					rel = new DbRelation(t, fkt, decodeUpdateInt(updr), decodeUpdateInt(delr));
 					lastord = ord;
@@ -510,6 +598,7 @@ public class JDBCReverser implements Reverser {
 					rel.setName(name);
 				rel.addPair(pkc, fkc);
 			}
+			System.out.println("reverser: got " + count + " relations");
 		} finally {
 			try {
 				if(rs != null)

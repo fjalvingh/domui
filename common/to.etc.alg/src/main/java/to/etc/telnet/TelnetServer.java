@@ -339,6 +339,17 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 		wall(s);
 	}
 
+	public void terminateAndWait() throws Exception {
+		releaseResources();
+		var t = m_thread;
+		if(t != null) {
+			t.join(5_000);
+			if(t.isAlive()) {
+				t.interrupt();
+			}
+		}
+	}
+
 
 
 	/*--------------------------------------------------------------*/

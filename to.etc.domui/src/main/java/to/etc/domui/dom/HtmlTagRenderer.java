@@ -165,9 +165,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 * For browsers that have trouble with attribute updates (Microsoft's sinking flagship of course) this
 	 * can be used to postphone setting node attributes until after the delta has been applied to the DOM; it
 	 * executes attribute updates using Javascript at the end of a delta update.
-	 *
-	 * @param nodeID
-	 * @param pairs
 	 */
 	protected void addDelayedAttrs(NodeBase n, String... pairs) {
 		if(pairs.length == 0)
@@ -199,9 +196,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	/**
 	 * Render the "disabled" attribute. Override for shitware.
-	 * @param n
-	 * @param disabled
-	 * @throws IOException
 	 */
 	protected void renderDisabled(NodeBase n, boolean disabled) throws IOException {
 		if(isFullRender() && ! disabled)
@@ -211,9 +205,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	/**
 	 * Render the "checked" attribute. Override for shitware.
-	 * @param n
-	 * @param checked
-	 * @throws IOException
 	 */
 	protected void renderChecked(NodeBase n, boolean checked) throws IOException {
 		if(isFullRender() && !checked)
@@ -652,15 +643,13 @@ public class HtmlTagRenderer implements INodeVisitor {
 	/*	CODING:	Core node rendering.								*/
 	/*--------------------------------------------------------------*/
 	public void basicNodeRender(final NodeBase b, final IBrowserOutput o) throws Exception {
-		basicNodeRender(b, o, false);
+		basicNodeRender(b, o, false, null);
 	}
 
 	/**
 	 * Basic rendering of a node. This renders the tag and all shared attributes.
-	 * @param o
-	 * @throws Exception
 	 */
-	public void basicNodeRender(final NodeBase b, final IBrowserOutput o, boolean inhibitevents) throws Exception {
+	public void basicNodeRender(final NodeBase b, final IBrowserOutput o, boolean inhibitevents, @Nullable Boolean makeClickReturn) throws Exception {
 		renderTag(b, o);
 		if(m_tagless)
 			o.attr("select", "#" + b.getActualID()); 			// Always has an ID
@@ -736,7 +725,15 @@ public class HtmlTagRenderer implements INodeVisitor {
 			return;
 
 		if(b.internalNeedClickHandler()) {
-			o.attr("onclick", sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)").toString());
+			StringBuilder a = sb().append("return WebUI.clicked(this, '").append(b.getActualID()).append("', event)");
+			if(makeClickReturn != null) {
+				if(makeClickReturn) {
+					a.append("|| true");
+				} else {
+					a.append("&& false");
+				}
+			}
+			o.attr("onclick", a.toString());
 		} else if(b.getOnClickJS() != null) {
 			o.attr("onclick", b.getOnClickJS());
 		}
@@ -950,7 +947,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitTR(final TR n) throws Exception {
-		basicNodeRender(n, m_o);
+		basicNodeRender(n, m_o, false, Boolean.TRUE);
 		renderTagend(n, m_o);
 	}
 
@@ -1103,7 +1100,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	@SuppressWarnings("deprecation")
 	@Override
 	public void visitCheckbox(final Checkbox n) throws Exception {
-		basicNodeRender(n, m_o, true);
+		basicNodeRender(n, m_o, true, null);
 		renderType("checkbox");
 		o().attr("name", n.getActualID());
 		renderDisabled(n, n.isDisabled()); // 20091110 jal Checkboxes do not have a readonly attribute.
@@ -1137,7 +1134,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	 */
 	@Override
 	public void visitRadioButton(final RadioButton< ? > n) throws Exception {
-		basicNodeRender(n, m_o, true);
+		basicNodeRender(n, m_o, true, null);
 		renderType("radio");
 		//		m_o.attr("value", n.getActualID());
 		if(n.getName() != null)

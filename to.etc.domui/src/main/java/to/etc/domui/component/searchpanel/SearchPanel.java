@@ -54,7 +54,7 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;

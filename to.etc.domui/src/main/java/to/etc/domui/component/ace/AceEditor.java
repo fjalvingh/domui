@@ -8,6 +8,7 @@ import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.IHasModifiedIndication;
+import to.etc.domui.dom.html.IManualFocus;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
@@ -39,7 +40,7 @@ import java.util.function.Predicate;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 23-12-17.
  */
-public class AceEditor extends Div implements IControl<String>, IComponentJsonProvider, IHasModifiedIndication {
+public class AceEditor extends Div implements IControl<String>, IComponentJsonProvider, IHasModifiedIndication, IManualFocus {
 	static private String m_version = "1.2.9";
 
 	private int m_nextId;
@@ -96,6 +97,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	@Override public void createContent() throws Exception {
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
+		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
@@ -775,6 +777,10 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		}
 	}
 
+	@Override
+	public void handleFocus() throws Exception {
+		callMethod("focus");
+	}
 
 	@Override public void setHint(String hintText) {
 		//setTitle(hintText);

@@ -48,7 +48,7 @@ import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.domui.util.LookupInputPropertyRenderer;
 import to.etc.domui.util.Msgs;
 import to.etc.util.RuntimeConversions;

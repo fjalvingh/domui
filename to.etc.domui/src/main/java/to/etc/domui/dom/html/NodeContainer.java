@@ -37,7 +37,7 @@ import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.logic.errors.ProblemModel;
 import to.etc.domui.logic.errors.ProblemReporter;
 import to.etc.domui.util.DomUtil;
-import to.etc.domui.util.IExecute;
+import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
 
 import java.util.ArrayList;

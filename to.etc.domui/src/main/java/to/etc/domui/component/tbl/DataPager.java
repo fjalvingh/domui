@@ -99,8 +99,10 @@ final public class DataPager extends Div implements IDataTableChangeListener {
 		m_pager.addButton(sib);
 	}
 
-	public void addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
-		addButton(new SmallImgButton(img, clicked));
+	public SmallImgButton addButton(@NonNull IIconRef img, @NonNull IClicked<SmallImgButton> clicked) {
+		SmallImgButton sib = new SmallImgButton(img, clicked);
+		addButton(sib);
+		return sib;
 	}
 
 	public synchronized static void setPagerFactory(@NonNull Function<PageableTabularComponentBase<?>, IDataTablePager> pagerFactory) {

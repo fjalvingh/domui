@@ -41,8 +41,8 @@ import java.util.Set;
  * Created on Nov 14, 2007
  */
 public class OracleReverser extends JDBCReverser {
-	public OracleReverser(DataSource dbc) {
-		super(dbc);
+	public OracleReverser(DataSource dbc, Set<ReverserOption> optionSet) {
+		super(dbc, optionSet);
 	}
 
 	@Override
