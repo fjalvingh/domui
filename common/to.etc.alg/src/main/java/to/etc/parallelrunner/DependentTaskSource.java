@@ -314,6 +314,10 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 		return new ArrayList<>(m_allDoneSet);
 	}
 
+	public synchronized List<Task<T, X>> getAllTasks() {
+		return new ArrayList<>(m_taskMap.values());
+	}
+
 	/**
 	 * Get all tasks that are currently executing.
 	 */

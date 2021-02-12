@@ -108,6 +108,10 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 	protected void handleFinishedAfter(Task<T, SingleTaskExecutor<T>> finished) {
 	}
 
+	public List<Task<T, SingleTaskExecutor<T>>> getAllTasks() {
+		return m_taskSource.getAllTasks();
+	}
+
 	public synchronized List<Task<T, SingleTaskExecutor<T>>> getFinishedList() {
 		return m_taskSource.getAllExecutedTasks();
 	}
