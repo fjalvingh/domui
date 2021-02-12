@@ -29,7 +29,6 @@ import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
-import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -398,7 +397,7 @@ public class SmtpTransport {
 
 	static public void main(String[] args) {
 		String mailTo = "yourmail@itris.nl";
-		String imagePath = "/home/path";
+//		String imagePath = "c:\\Temp";
 		try {
 			MailBuilder mb = new MailBuilder();
 			mb.initialize("Run mailBuilder");
@@ -406,7 +405,7 @@ public class SmtpTransport {
 			mb.appendHTML("<p>This is <b>HTML</b> text</p>");
 			
 			//add attachment?
-			mb.image("image.jpg", new File(imagePath), "image/jpeg");
+//			mb.image("formatEmail.png", new File(imagePath), "image/jpeg");
 			
 			mb.send(new SmtpTransport("localhost"), new Address("itris@info.nl", "itris@info.nl"), new Address(mailTo, mailTo));
 		} catch(Exception x) {
