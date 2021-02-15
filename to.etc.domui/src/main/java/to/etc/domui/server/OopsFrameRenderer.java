@@ -58,7 +58,7 @@ public class OopsFrameRenderer {
 
 		StringBuilder sb = new StringBuilder();
 		dumpException(sb, x);
-		dataMap.put("stacktrace", StringTool.htmlStringize(sb.toString()));
+		dataMap.put("stacktrace", sb.toString());
 		dataMap.put("message", StringTool.htmlStringize(x.toString()));
 		dataMap.put("ctx", ctx);
 		ExceptionUtil util = new ExceptionUtil(ctx);
