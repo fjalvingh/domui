@@ -9,6 +9,12 @@ import java.io.OutputStream;
  * Created on 16-02-21.
  */
 public class InputStreamWrapper extends InputStream {
+	private final InputStream m_wrapped;
+
+	public InputStreamWrapper(InputStream wrapped) {
+		m_wrapped = wrapped;
+	}
+
 	@Override
 	public int read() throws IOException {
 		return m_wrapped.read();
@@ -62,12 +68,6 @@ public class InputStreamWrapper extends InputStream {
 	@Override
 	public long transferTo(OutputStream out) throws IOException {
 		return m_wrapped.transferTo(out);
-	}
-
-	private final InputStream m_wrapped;
-
-	public InputStreamWrapper(InputStream wrapped) {
-		m_wrapped = wrapped;
 	}
 
 	@Override
