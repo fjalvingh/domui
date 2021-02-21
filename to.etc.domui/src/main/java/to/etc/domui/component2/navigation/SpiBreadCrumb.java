@@ -30,7 +30,7 @@ import java.util.List;
  * Created on 2021-02-21.
  */
 @NonNullByDefault
-public class SpiBreadCrumb2 extends Div implements IListChangeListener<IItem> {
+public class SpiBreadCrumb extends Div implements IListChangeListener<IItem> {
 	@Nullable
 	private List<IItem> m_value;
 
@@ -40,7 +40,7 @@ public class SpiBreadCrumb2 extends Div implements IListChangeListener<IItem> {
 	@Nullable
 	private Runnable m_deleteListener;
 
-	public SpiBreadCrumb2(ISpiContainerName containerName) {
+	public SpiBreadCrumb(ISpiContainerName containerName) {
 		m_containerName = containerName;
 	}
 
