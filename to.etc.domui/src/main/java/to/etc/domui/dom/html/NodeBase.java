@@ -1693,7 +1693,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public void onAddedToPage(final Page p) {}
 
 	//@OverridingMethodsMustInvokeSuper
-	public void onRemoveFromPage(final Page p) {}
+	public void onRemoveFromPage(@NonNull Page p) {}
 
 	public void onHeaderContributors(final Page page) {}
 

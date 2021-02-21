@@ -249,8 +249,16 @@ final public class SpiContainer {
 		}
 	}
 
-	public void addShelfListener(IExecute onChange) {
-		m_shelfChangedListeners.add(new WeakReference<>(onChange));
+	/**
+	 * Add a listener, and return a method that can be called to remove it again.
+	 */
+	public Runnable addShelfListener(IExecute onChange) {
+		WeakReference<IExecute> wr = new WeakReference<>(onChange);
+		m_shelfChangedListeners.add(wr);
+
+		return () -> {
+			m_shelfChangedListeners.remove(wr);
+		};
 	}
 
 	public void removeShelfListener(IExecute onChange) {

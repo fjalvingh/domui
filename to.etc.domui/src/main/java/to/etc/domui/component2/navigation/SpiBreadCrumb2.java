@@ -11,6 +11,7 @@ import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Li;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.Ul;
@@ -37,7 +38,7 @@ public class SpiBreadCrumb2 extends Div implements IListChangeListener<IItem> {
 
 	/** When set the listener has been allocated */
 	@Nullable
-	private IExecute m_shelfChangeListener;
+	private Runnable m_deleteListener;
 
 	public SpiBreadCrumb2(ISpiContainerName containerName) {
 		m_containerName = containerName;
@@ -49,10 +50,9 @@ public class SpiBreadCrumb2 extends Div implements IListChangeListener<IItem> {
 		SpiContainer container = spiPage.getSpiContainer(m_containerName);
 
 		//-- Make sure a listener is registered so that we can redraw when history changes. */
-		if(m_shelfChangeListener == null) {
+		if(m_deleteListener == null) {
 			IExecute shelfListener = () -> forceRebuild();
-			m_shelfChangeListener = shelfListener;
-			container.addShelfListener(shelfListener);
+			m_deleteListener = container.addShelfListener(shelfListener);
 		}
 
 		addCssClass("ui-brcr2");
@@ -64,6 +64,17 @@ public class SpiBreadCrumb2 extends Div implements IListChangeListener<IItem> {
 		for(int i = 0; i < shelf.size(); i++) {
 			ISpiShelvedEntry item = shelf.get(i);
 			renderItem(cont, item, i == shelf.size() - 1);
+		}
+	}
+
+	/**
+	 * Make sure to delete the listener if we're discarded!
+	 */
+	@Override public void onRemoveFromPage(Page p) {
+		Runnable listener = m_deleteListener;
+		m_deleteListener = null;
+		if(null != listener) {
+			listener.run();
 		}
 	}
 
