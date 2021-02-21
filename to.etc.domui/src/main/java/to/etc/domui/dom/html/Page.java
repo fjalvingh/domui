@@ -1257,10 +1257,13 @@ final public class Page implements IQContextContainer {
 	public void discardRemovedSubPages() {
 		for(SubPage subPage : getRemovedSubPages()) {
 			SubConversationContext scs = subPage.getConversation();
-			try {
-				getConversation().removeAndDestroySubConversation(scs);
-			} catch(Exception x) {
-				x.printStackTrace();
+			if(scs.getShelvedIn() == null) {
+				//-- Only destroy subpages that are not part of an SPI container (they might be stacked on the shelf)
+				try {
+					getConversation().removeAndDestroySubConversation(scs);
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
 			}
 		}
 		getRemovedSubPages().clear();

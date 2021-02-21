@@ -2,7 +2,7 @@ package to.etc.domui.server;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIPage;
-import to.etc.domui.dom.html.SpiContainer;
+import to.etc.domui.spi.SpiContainer;
 import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.server.PageUrlMapping.PageSubtype;
