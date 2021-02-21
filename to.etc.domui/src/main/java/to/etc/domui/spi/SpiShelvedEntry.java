@@ -7,6 +7,8 @@ import to.etc.domui.component.layout.IBreadCrumbTitler;
 import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.state.IPageParameters;
 
+import java.util.Objects;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 21-02-21.
@@ -55,9 +57,9 @@ final public class SpiShelvedEntry implements ISpiShelvedEntry {
 		return null;
 	}
 
-	public boolean isForPage(Class<? extends SubPage> spiClass, IPageParameters parameters) {
+	public boolean isForPage(Class<? extends SubPage> spiClass, @Nullable IPageParameters parameters) {
 		return spiClass == m_page.getClass()
-			&& parameters.equals(m_parameters);
+			&& Objects.equals(parameters, m_parameters);
 	}
 
 	@Override public void discard() {

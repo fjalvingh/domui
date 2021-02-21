@@ -124,10 +124,11 @@ final public class SpiContainer {
 		int i = m_shelf.size();
 		for(;;) {
 			i--;
-			if(i >= index) {
-				ISpiShelvedEntry entry = m_shelf.remove(i);
-				entry.discard();
+			if(i < index) {
+				break;
 			}
+			ISpiShelvedEntry entry = m_shelf.remove(i);
+			entry.discard();
 		}
 	}
 
@@ -201,6 +202,38 @@ final public class SpiContainer {
 		m_spiPage.appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(hashes, true) + ");");
 	}
 
+	/**
+	 * Make sure the initial content is at shelf index 0.
+	 */
+	private void shelveInitial() throws Exception {
+		if(m_shelf.size() > 0) {
+			ISpiShelvedEntry e0 = m_shelf.get(0);
+			if(isInitial(e0))
+				return;
+		}
+		SpiShelvedEntry se = createSubPage(getInitialContent(), getInitialContentParameters());
+		m_shelf.add(0, se);
+	}
+
+	private SpiShelvedEntry createSubPage(Class<? extends SubPage> clz, @Nullable IPageParameters pp) throws Exception {
+		if(null == pp)
+			pp = new PageParameters();
+		DomApplication app = DomApplication.get();
+		SpiPageHelper helper = new SpiPageHelper(app);
+		SubPage subPage = helper.createSpiPage(clz);
+		app.getInjector().injectPageValues(subPage, pp);
+		SpiShelvedEntry e = new SpiShelvedEntry(this, subPage, pp);
+		return e;
+	}
+
+	private boolean isInitial(ISpiShelvedEntry e) {
+		if(e instanceof SpiShelvedEntry) {
+			SpiShelvedEntry se = (SpiShelvedEntry) e;
+			return se.isForPage(getInitialContent(), getInitialContentParameters());
+		}
+		return false;
+	}
+
 
 	/**
 	 * Replace the current topmost page in the container with a new page. The old page gets destroyed, so
@@ -208,7 +241,10 @@ final public class SpiContainer {
 	 * is unwound till that page before the replace takes place; in that case the "old" entry on the stack
 	 * will also be destroyed and be replaced with a new fresh page.
 	 */
-	public void replace(Class<? extends SubPage> spiClass, PageParameters pp) throws Exception {
+	public void replace(Class<? extends SubPage> spiClass, @Nullable IPageParameters pp) throws Exception {
+		if(null == pp)
+			pp = new PageParameters();
+
 		int index = findShelfEntry(spiClass, pp);
 		if(index != -1) {
 			//-- This page is already on the stack... Roll back to that entry 1st
@@ -227,8 +263,9 @@ final public class SpiContainer {
 	/**
 	 * Clear the entire shelf, and start completely anew with a fresh page on top.
 	 */
-	public void moveNew(Class<? extends SubPage> spiClass, PageParameters pp) throws Exception {
-		clearShelf(0);										// Kill everything
+	public void moveNew(Class<? extends SubPage> spiClass, @Nullable IPageParameters pp) throws Exception {
+		shelveInitial();
+		clearShelf(1);
 		handleMoveSub(spiClass, pp);
 	}
 
@@ -285,6 +322,7 @@ final public class SpiContainer {
 	 * Called from shelf items when a breadcrumb wants the thing to become selected.
 	 */
 	public void selectShelvedEntry(ISpiShelvedEntry shelvedEntry) throws Exception {
+		shelveInitial();
 		int index = m_shelf.indexOf(shelvedEntry);				// Can we find the thing?
 		if(index == -1) {
 			//-- Not found. We cannot do anything, really.
@@ -294,5 +332,10 @@ final public class SpiContainer {
 
 		clearShelf(index + 1);							// Clear all that is above
 		shelvedEntry.activate(this);
+	}
+
+	public void moveInitialContent() throws Exception {
+		shelveInitial();
+		moveNew(getInitialContent(), getInitialContentParameters());
 	}
 }

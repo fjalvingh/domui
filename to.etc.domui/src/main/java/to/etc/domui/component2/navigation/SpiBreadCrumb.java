@@ -2,11 +2,6 @@ package to.etc.domui.component2.navigation;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component2.navigation.BreadCrumb2.IItem;
-import to.etc.domui.databinding.list2.IListChangeListener;
-import to.etc.domui.databinding.list2.ListChangeEvent;
-import to.etc.domui.databinding.observables.IObservableList;
-import to.etc.domui.databinding.observables.ObservableList;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Li;
@@ -17,6 +12,7 @@ import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.Ul;
 import to.etc.domui.spi.ISpiShelvedEntry;
 import to.etc.domui.spi.SpiContainer;
+import to.etc.domui.state.UIGoto;
 import to.etc.domui.util.ISpiContainerName;
 import to.etc.function.IExecute;
 
@@ -30,18 +26,36 @@ import java.util.List;
  * Created on 2021-02-21.
  */
 @NonNullByDefault
-public class SpiBreadCrumb extends Div implements IListChangeListener<IItem> {
-	@Nullable
-	private List<IItem> m_value;
-
+public class SpiBreadCrumb extends Div {
 	final private ISpiContainerName m_containerName;
+
+	private SpiBreadcrumbMode m_mode;
 
 	/** When set the listener has been allocated */
 	@Nullable
 	private Runnable m_deleteListener;
 
+	@Nullable
+	private String m_homeItemName;
+
+	@Nullable
+	private NodeBase m_homeIcon;
+
+	public enum SpiBreadcrumbMode {
+		/** Make the "initial" page of the container always visible as the 1st element in the breadcrumb */
+		INITIAL,
+		NONE
+	}
+
 	public SpiBreadCrumb(ISpiContainerName containerName) {
+		this(containerName, SpiBreadcrumbMode.INITIAL, "Home", null);
+	}
+
+	public SpiBreadCrumb(ISpiContainerName containerName, SpiBreadcrumbMode mode, @Nullable String homeItemName, @Nullable NodeBase homeIcon) {
 		m_containerName = containerName;
+		m_mode = mode;
+		m_homeItemName = homeItemName;
+		m_homeIcon = homeIcon;
 	}
 
 	@Override
@@ -61,6 +75,10 @@ public class SpiBreadCrumb extends Div implements IListChangeListener<IItem> {
 		add(cont);
 
 		List<ISpiShelvedEntry> shelf = container.getShelf();
+		if(m_mode == SpiBreadcrumbMode.INITIAL) {
+			renderHomeItem(cont, shelf.size() == 0);
+		}
+
 		for(int i = 0; i < shelf.size(); i++) {
 			ISpiShelvedEntry item = shelf.get(i);
 			renderItem(cont, item, i == shelf.size() - 1);
@@ -99,26 +117,27 @@ public class SpiBreadCrumb extends Div implements IListChangeListener<IItem> {
 		a.setTitle(item.getTitle());
 	}
 
-	@Nullable
-	public List<IItem> getValue() {
-		return m_value;
+	private void renderHomeItem(Ul cont, boolean active) {
+		Li li = new Li();
+		cont.add(li);
+		if(active)
+			li.addCssClass("ui-brcr2-a");
+		ATag a = new ATag();
+		li.add(a);
+		a.setClicked(v -> {
+			SpiPage spiPage = getParent(SpiPage.class);                    // We MUST be a part of a SPI page of course
+			SpiContainer container = spiPage.getSpiContainer(m_containerName);
+			UIGoto.moveNew(m_containerName, container.getInitialContent(), container.getInitialContentParameters());
+		});
+		NodeBase icon = m_homeIcon;
+		if(null != icon) {
+			Span sp = new Span();
+			a.add(sp);
+			sp.addCssClass("ui-brcr2-i");
+			sp.add(icon);
+		}
+		a.add(m_homeItemName);
+		//a.setTitle(item.getTitle());
 	}
 
-	public void setValue(@Nullable List<IItem> value) {
-		List<IItem> old = m_value;
-		if(old instanceof IObservableList) {
-			((ObservableList<IItem>) old).removeChangeListener(this);
-		}
-		if(old != m_value) {                    // Do not use structural equals because it will be expensive
-			forceRebuild();
-		}
-		m_value = value;
-		if(value instanceof IObservableList) {
-			((IObservableList<IItem>) value).addChangeListener(this);
-		}
-	}
-
-	@Override public void handleChange(ListChangeEvent<IItem> event) throws Exception {
-		forceRebuild();
-	}
 }

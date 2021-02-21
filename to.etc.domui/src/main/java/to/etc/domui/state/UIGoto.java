@@ -25,6 +25,7 @@
 package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.errors.UIMessage;
@@ -311,7 +312,7 @@ final public class UIGoto {
 	 * Move to a new page, and put the previous one on the stack. If the "new page" is actually stacked already
 	 * the stack is rewound back.
 	 */
-	static public void moveSub(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @NonNull PageParameters pp) throws Exception {
+	static public void moveSub(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @NonNull IPageParameters pp) throws Exception {
 		SpiContainer container = getSpiContainer(name);
 		container.handleMoveSub(spiClass, pp);
 	}
@@ -336,7 +337,7 @@ final public class UIGoto {
 	 * is unwound till that page before the replace takes place; in that case the "old" entry on the stack
 	 * will also be destroyed and be replaced with a new fresh page.
 	 */
-	static public void replace(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @NonNull PageParameters pp) throws Exception {
+	static public void replace(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @Nullable IPageParameters pp) throws Exception {
 		SpiContainer container = getSpiContainer(name);
 		container.replace(spiClass, pp);
 	}
@@ -344,7 +345,7 @@ final public class UIGoto {
 	/**
 	 * Clear the entire shelf, and start completely anew with a fresh page on top.
 	 */
-	static public void moveNew(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @NonNull PageParameters pp) throws Exception {
+	static public void moveNew(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @Nullable IPageParameters pp) throws Exception {
 		SpiContainer container = getSpiContainer(name);
 		container.moveNew(spiClass, pp);
 	}
