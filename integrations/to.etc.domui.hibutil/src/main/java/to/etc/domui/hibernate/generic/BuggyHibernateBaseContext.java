@@ -315,4 +315,19 @@ public class BuggyHibernateBaseContext extends QAbstractDataContext implements Q
 	}
 
 	public void conversationNew(AbstractConversationContext cc) throws Exception {}
+
+	/**
+	 * Since we use Hibernate in manual flush mode (since we can not keep db connections open), it by default postpones all command to the commit.
+	 * That means it would always do inserts first, and deletes last. That causes exceptions if child objects that have unique constraints within parent,
+	 * when we replace old child with new one with same unique constraint value.
+	 * That is why we need to flushing manually to force the changes to db after deletes, to make sure these happen first.
+	 */
+	@Override
+	public void flushIfPossible() {
+		if(null == m_session) {
+			throw new IllegalStateException("You cannot use flush when session is not initialized yet!");
+		}else {
+			m_session.flush();
+		}
+	}
 }
