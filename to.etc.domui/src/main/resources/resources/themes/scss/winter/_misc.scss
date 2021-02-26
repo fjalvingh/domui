@@ -28,8 +28,9 @@ div.ui-ipa img {
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 	-webkit-border-radius: 10px;
-	background: url(bg-expl.png) repeat-x;
+	background: linear-gradient(0deg, rgba(218,239,244,1) 0%, rgba(151,212,233,1) 100%);
 	color: black;
+	max-width: 600px;
 }
 
 /* AsyncContainer */
