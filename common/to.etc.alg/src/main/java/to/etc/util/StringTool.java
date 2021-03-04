@@ -3064,5 +3064,16 @@ public class StringTool {
 		}
 		return null;
 	}
+
+	static public boolean isWindows() {
+		String os = System.getProperty("os.name").toLowerCase();
+		return os.contains("win");
+	}
+
+	static public boolean isLinux() {
+		return "linux".equalsIgnoreCase(System.getProperty("os.name"));
+	}
+
+
 }
 

@@ -129,9 +129,14 @@ public class ConsoleUtil {
 		return ++m_logOrder;
 	}
 
+	static private void appendColor(StringBuilder sb, String color) {
+		if(StringTool.isLinux())
+			sb.append(color);
+	}
+
 	static public void consoleLog(int type, String... segments) {
 		StringBuilder sb = new StringBuilder();
-		sb.append(BLUE);
+		appendColor(sb, BLUE);
 		append(sb, m_logFmt.format(new Date()) + "/" + getLogOrder(), 18);
 		//sb.append(CYAN);
 		//String name = Thread.currentThread().getName();
@@ -143,7 +148,7 @@ public class ConsoleUtil {
 
 			if(i == segments.length - 1) {
 				//-- Last part: the message + thread
-				sb.append(CYAN);
+				appendColor(sb, CYAN);
 				String name = Thread.currentThread().getName();
 				if(name.length() > MAX_THREADNAME_LENGTH)
 					name = name.substring(name.length() - MAX_THREADNAME_LENGTH);
@@ -151,21 +156,22 @@ public class ConsoleUtil {
 
 				switch(type) {
 					default:
-						sb.append(WHITE);
+						appendColor(sb, WHITE);
 						break;
 
 					case 1:
-						sb.append(YELLOW);
+						appendColor(sb, YELLOW);
 						break;
 
 					case 2:
-						sb.append(RED);
+						appendColor(sb, RED);
 						break;
 				}
-				sb.append(" ").append(segment.replace("\n", "\n  ")).append(RESET);
+				sb.append(" ").append(segment.replace("\n", "\n  "));
+				appendColor(sb, RESET);
 			} else {
 				sb.append(' ');
-				sb.append(ROTCOLORS[i % ROTCOLORS.length]);
+				appendColor(sb, ROTCOLORS[i % ROTCOLORS.length]);
 				append(sb, segment, 15);
 			}
 		}
