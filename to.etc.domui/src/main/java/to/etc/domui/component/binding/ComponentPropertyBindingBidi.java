@@ -60,6 +60,10 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 		return m_bindError;
 	}
 
+	public void setBindError(UIMessage error) {
+		m_bindError = error;
+	}
+
 	/**
 	 * Calculate the list of changes made to controls, as part one of the controlToModel
 	 * process. Each control whose value changed will be registered in a list of
