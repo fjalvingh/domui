@@ -169,6 +169,7 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 			lang = editor.lang.backgrounds;
 
 		if (!tab) {
+			tabName = 'info';
 			tab = dialogDefinition.getContents('info');
 			if(! tab)
 				return;
@@ -306,6 +307,41 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 			}
 		};
 
+		// The size select field
+		var backgroundSize = {
+			type: 'select',
+			label: 'Size',
+			id: 'backgroundSize',
+			items:
+				[
+					[ 'Auto', 'auto' ],
+					[ 'Cover', 'cover' ],
+					[ 'Contain', 'contain' ]
+				],
+			setup: setupCells(function (selectedElement) {
+				return selectedElement.getStyle('background-size');
+			}),
+			onChange: function() {
+				var stylesInput = this.getDialog().getContentElement('advanced', 'advStyles');
+
+				if (stylesInput) {
+					stylesInput.updateStyle('background-size', this.getValue());
+				}
+			},
+			commit: function (data, selectedElement) {
+				var element = selectedElement || data,
+					value = this.getValue(),
+					oBackground = this.getDialog().getContentElement(tabName, "background"),
+					background = oBackground && oBackground.getValue();
+
+				if (value && background)
+					element.setStyle('background-size', value);
+				else
+					element.removeStyle('background-size'); // it doesn't really work for the table
+			}
+		};
+
+
 		// The background-color field
 		var backgroundColor = {
 			type: 'hbox',
@@ -407,6 +443,7 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 			textInput.requiredContent = 'td[background];th[background]';
 			backgroundPosition.requiredContent = 'td[background];th[background]';
 			backgroundRepeat.requiredContent = 'td[background];th[background]';
+			backgroundSize.requiredContent = 'td[background];th[background]';
 			backgroundColor.requiredContent = 'td[background];th[background]';
 		}
 		else
@@ -414,11 +451,12 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 			textInput.requiredContent = 'table[background]';
 			backgroundPosition.requiredContent = 'table[background]';
 			backgroundRepeat.requiredContent = 'table[background]';
+			backgroundSize.requiredContent = 'table[background]';
 			backgroundColor.requiredContent = 'table[background]';
 		}
 
 		// Add the elements to the dialog
-		if (tabName == 'advanced')
+		if (tabName == 'advanced' || tabName == 'info')
 		{
 			// Two rows
 			tab.add(textInput);
@@ -431,8 +469,8 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 			});
 			tab.add({
 				type: 'hbox',
-				widths: ['50%', '50%'],
-				children: [backgroundAttachment /*, backgroundColor */]
+				widths: ['', '100px'],
+				children: [backgroundAttachment, backgroundSize /*, backgroundColor */]
 			});
 		}
 		else
