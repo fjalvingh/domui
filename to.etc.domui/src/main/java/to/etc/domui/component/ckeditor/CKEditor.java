@@ -148,7 +148,7 @@ public class CKEditor extends Div implements IControl<String> {
 		switch (m_toolbarSet) {
 			case DOMUI:
 			case FULL:
-				sb.append(", extraPlugins : 'domuiimage,domuioddchar,justify,colorbutton,smiley,font'\n");
+				sb.append(", extraPlugins : 'domuiimage,domuioddchar,justify,colorbutton,smiley,font,backgrounds'\n");
 				break;
 			case BASIC:
 			case BASICPLUS:
