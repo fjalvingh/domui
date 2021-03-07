@@ -41,7 +41,13 @@ $.extend(CkeditorDomUIImage, {
 	 * Method that is exected when some image url needs to be added to editor (usually as rendered response from domui handler)
 	 */
 	addImage : function(ckId, imageUrl){
-		var oEditor = CKEDITOR.instances[ckId];
+		let oEditor = window['_ck' + ckId];
+		if(! oEditor) {
+			alert('Cannot locate editor');
+			return;
+		}
+
+		// var oEditor = CKEDITOR.instances[ckId];
 		var elem = new CKEDITOR.dom.element('img', oEditor.document);
 		elem.setAttribute('src', imageUrl);
 		oEditor.insertElement(elem);

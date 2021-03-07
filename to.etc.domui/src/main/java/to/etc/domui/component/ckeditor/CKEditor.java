@@ -25,7 +25,9 @@
 package to.etc.domui.component.ckeditor;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.htmleditor.IEditorFileSystem;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.meta.MetaManager;
@@ -46,6 +48,8 @@ import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
+import to.etc.function.ConsumerEx;
+import to.etc.function.IExecute;
 import to.etc.util.StringTool;
 import to.etc.webapp.nls.NlsContext;
 
@@ -72,8 +76,11 @@ public class CKEditor extends Div implements IControl<String> {
 
 	private IEditorFileSystem m_fileSystem; //not in use?
 
+	//@Nullable
+	//private IClicked<NodeBase> m_onDomuiImageClicked;
+
 	@Nullable
-	private IClicked<NodeBase> m_onDomuiImageClicked;
+	private ConsumerEx<CKImageSelectionContext> m_imageSelectorFactory;
 
 	@Nullable
 	private IClicked<NodeBase> m_onDomuiOddCharsClicked;
@@ -100,6 +107,50 @@ public class CKEditor extends Div implements IControl<String> {
 	private int m_maxLengthEditor = -1;    // Default -1 means unlimited size
 
 	private boolean m_showCharCounter;
+
+	public enum CKImageInsertType {
+		IMAGE,
+		BACKGROUND
+	}
+
+	@NonNullByDefault
+	public final class CKImageSelectionContext {
+		private final CKImageInsertType m_type;
+
+		private final INotify<String> m_onSelected;
+
+		private final IExecute m_onCancel;
+
+		public CKImageSelectionContext(CKImageInsertType type, INotify<String> onSelected, IExecute onCancel) {
+			m_type = type;
+			m_onSelected = onSelected;
+			m_onCancel = onCancel;
+		}
+
+		/**
+		 * The type of insert action we're performing.
+		 */
+		public CKImageInsertType getType() {
+			return m_type;
+		}
+
+		/**
+		 * The dialog must call this with the image URL of the selected
+		 * image, which must be resolvable in the editor's context, of course. It
+		 * can be a partial URL relative to the current page.
+		 */
+		public INotify<String> getOnSelected() {
+			return m_onSelected;
+		}
+
+		/**
+		 * This <b>must</b> be called if the selection action is cancelled, to
+		 * let the editor know nothing will happen!!
+		 */
+		public IExecute getOnCancel() {
+			return m_onCancel;
+		}
+	}
 
 	public CKEditor() {
 		setCssClass("ui-cked");
@@ -318,17 +369,18 @@ public class CKEditor extends Div implements IControl<String> {
 	}
 
 	private void selectImage(@NonNull RequestContextImpl ctx) throws Exception {
-		IClicked<NodeBase> clicked = m_onDomuiImageClicked;
-		if(clicked == null) {
+		ConsumerEx<CKImageSelectionContext> factory = m_imageSelectorFactory;
+		if(null == factory) {
 			MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
 				@Override
 				public void onAnswer(@NonNull MsgBoxButton result) {
 					renderCancelImage();
 				}
 			});
-		} else {
-			clicked.clicked(this);
+			return;
 		}
+		CKImageSelectionContext context = new CKImageSelectionContext(CKImageInsertType.IMAGE, this::renderImageSelected, this::renderCancelImage);
+		factory.accept(context);
 	}
 
 	private void oddChars(@NonNull RequestContextImpl ctx) throws Exception {
@@ -348,11 +400,11 @@ public class CKEditor extends Div implements IControl<String> {
 		}
 	}
 
-	public void renderImageSelected(@NonNull String url) {
+	private void renderImageSelected(@NonNull String url) {
 		appendJavascript("CkeditorDomUIImage.addImage('" + getActualID() + "', '" + url + "');");
 	}
 
-	public void renderCancelImage() {
+	private void renderCancelImage() {
 		appendJavascript("CkeditorDomUIImage.cancel('" + getActualID() + "');");
 	}
 
@@ -364,13 +416,12 @@ public class CKEditor extends Div implements IControl<String> {
 		appendJavascript("CkeditorDomUIOddChar.addString('" + getActualID() + "', '" + input + "');");
 	}
 
-	@Nullable
-	public IClicked<NodeBase> getOnDomuiImageClicked() {
-		return m_onDomuiImageClicked;
+	@Nullable public ConsumerEx<CKImageSelectionContext> getImageSelectorFactory() {
+		return m_imageSelectorFactory;
 	}
 
-	public void setOnDomuiImageClicked(@NonNull IClicked<NodeBase> onDomuiImageClicked) {
-		m_onDomuiImageClicked = onDomuiImageClicked;
+	public void setImageSelectorFactory(@Nullable ConsumerEx<CKImageSelectionContext> imageSelectorFactory) {
+		m_imageSelectorFactory = imageSelectorFactory;
 	}
 
 	@Nullable
@@ -510,17 +561,18 @@ public class CKEditor extends Div implements IControl<String> {
 		}
 
 		private void selectImage(@NonNull RequestContextImpl ctx) throws Exception {
-			IClicked<NodeBase> clicked = m_onDomuiImageClicked;
-			if(clicked == null) {
+			ConsumerEx<CKImageSelectionContext> factory = m_imageSelectorFactory;
+			if(null == factory) {
 				MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
 					@Override
-					public void onAnswer(MsgBoxButton result) throws Exception {
+					public void onAnswer(@NonNull MsgBoxButton result) {
 						renderCancelImage();
 					}
 				});
-			} else {
-				clicked.clicked(this);
+				return;
 			}
+			CKImageSelectionContext context = new CKImageSelectionContext(CKImageInsertType.IMAGE, this::renderImageSelected, this::renderCancelImage);
+			factory.accept(context);
 		}
 
 		private void oddChars(@NonNull RequestContextImpl ctx) throws Exception {
