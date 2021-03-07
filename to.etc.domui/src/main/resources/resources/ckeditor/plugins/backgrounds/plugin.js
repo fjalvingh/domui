@@ -148,7 +148,7 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 			editor = ev.editor,
 			colorDialog = editor.plugins.colordialog,
 			tabName = '';
-		alert('dialogDef ' + dialogName);
+		// alert('dialogDef ' + dialogName);
 
 		// Check if it's one of the dialogs that we want to modify and note the proper tab name.
 		if ( dialogName == 'table' || dialogName == 'tableProperties' )
@@ -208,6 +208,28 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 				label : editor.lang.common.browseServer,
 				requiredContent : textInput.requiredContent
 			};
+
+		var selectButton = {
+			type: 'button',
+			id: 'selectBgBtn',
+			label: 'Select',
+			onClick: function() {
+				let actualId = editor.name;
+				let dialog = this.getDialog();
+
+				//-- Register callback to use when image is selected
+				let cbId = WebUI.registerCallback(actualId, function(image) {
+					let txti = dialog.getContentElement("info", "background");
+					txti.setValue(image);
+				});
+
+				// call domui
+				WebUI.scall(actualId, "CKBACKGROUNDIMAGE", {
+					_ckId : actualId,
+					_callback: cbId
+				});
+			}
+		};
 
 		// The position field
 		var backgroundPosition = {
@@ -401,6 +423,7 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 			// Two rows
 			tab.add(textInput);
 			tab.add(browseButton);
+			tab.add(selectButton);
 			tab.add({
 				type: 'hbox',
 				widths: ['', '100px'],
@@ -416,6 +439,7 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 		{
 			// In the cell dialog add it as a single row
 			browseButton.style = 'display:inline-block;margin-top:10px;';
+			tab.add(selectButton);
 			tab.add({
 				type : 'hbox',
 				widths: [ '', '100px'],

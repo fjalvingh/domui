@@ -368,6 +368,21 @@ public class CKEditor extends Div implements IControl<String> {
 			super.componentHandleWebAction(ctx, action);
 	}
 
+	public void webActionCKBACKGROUNDIMAGE(@NonNull RequestContextImpl ctx) throws Exception {
+		ConsumerEx<CKImageSelectionContext> factory = m_imageSelectorFactory;
+		if(null == factory) {
+			MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
+				@Override
+				public void onAnswer(@NonNull MsgBoxButton result) {
+					renderCancelImage();
+				}
+			});
+			return;
+		}
+		CKImageSelectionContext context = new CKImageSelectionContext(CKImageInsertType.BACKGROUND, this::renderImageSelected, this::renderCancelImage);
+		factory.accept(context);
+	}
+
 	private void selectImage(@NonNull RequestContextImpl ctx) throws Exception {
 		ConsumerEx<CKImageSelectionContext> factory = m_imageSelectorFactory;
 		if(null == factory) {
@@ -534,7 +549,7 @@ public class CKEditor extends Div implements IControl<String> {
 		setValue(value);
 	}
 
-	final private class CkEditorArea extends TextArea {
+	final public class CkEditorArea extends TextArea {
 		@Override public void setValue(String v) {
 			internalSetValue(v);
 		}
@@ -558,6 +573,28 @@ public class CKEditor extends Div implements IControl<String> {
 				oddChars(ctx);
 			else
 				super.componentHandleWebAction(ctx, action);
+		}
+
+		public void webActionCKBACKGROUNDIMAGE(@NonNull RequestContextImpl ctx) throws Exception {
+			ConsumerEx<CKImageSelectionContext> factory = m_imageSelectorFactory;
+			if(null == factory) {
+				MsgBox.message(this, Type.ERROR, "No image picker is defined", new IAnswer() {
+					@Override
+					public void onAnswer(@NonNull MsgBoxButton result) {
+						renderCancelImage();
+					}
+				});
+				return;
+			}
+			String cbId = ctx.getPageParameters().getString("_callback");
+			if(null == cbId)
+				throw new IllegalStateException("No _callback specified for background image select");
+
+			CKImageSelectionContext context = new CKImageSelectionContext(CKImageInsertType.BACKGROUND, image -> {
+				appendJavascript("WebUI.callCallBack('" + cbId + "', '" + image + "');");
+
+			}, this::renderCancelImage);
+			factory.accept(context);
 		}
 
 		private void selectImage(@NonNull RequestContextImpl ctx) throws Exception {
@@ -586,6 +623,7 @@ public class CKEditor extends Div implements IControl<String> {
 				clicked.clicked(this);
 			}
 		}
+
 
 		public void renderImageSelected(@NonNull String url) {
 			appendJavascript("CkeditorDomUIImage.addImage('" + getActualID() + "', '" + url + "');");
