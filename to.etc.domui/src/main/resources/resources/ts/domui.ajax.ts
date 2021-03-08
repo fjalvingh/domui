@@ -48,10 +48,6 @@ namespace WebUI {
 					throw "Cannot locate editor with id=" + sel.id;
 				val = editor.getData();
 			} else {
-//				if($.browser.msie) { // The MS idiots remove newlines from value....
-//					val = sel.innerText;
-//					//alert("inner value="+sel.innerText);
-//				} else
 				val = sel.value;
 			}
 			fields[sel.id] = val;

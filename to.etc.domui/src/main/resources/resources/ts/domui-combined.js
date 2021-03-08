@@ -441,23 +441,19 @@ var WebUI;
 var WebUI;
 (function (WebUI) {
     function isReallyIE7() {
-        var doc = document;
-        return ($.browser.msie && parseInt($.browser.version) == 7 && (!doc.documentMode || doc.documentMode == 7));
+        return false;
     }
     WebUI.isReallyIE7 = isReallyIE7;
     function isIE8orIE8c() {
-        var doc = document;
-        return ($.browser.msie && (parseInt($.browser.version) == 8 || (parseInt($.browser.version) == 7 && doc.documentMode == 8)));
+        return false;
     }
     WebUI.isIE8orIE8c = isIE8orIE8c;
     function isNormalIE9plus() {
-        var doc = document;
-        return ($.browser.msie && parseInt($.browser.version) >= 9 && doc.documentMode >= 9);
+        return false;
     }
     WebUI.isNormalIE9plus = isNormalIE9plus;
     function isIE8orNewer() {
-        var doc = document;
-        return ($.browser.msie && (parseInt($.browser.version) >= 8 || (parseInt($.browser.version) == 7 && doc.documentMode >= 8)));
+        return false;
     }
     WebUI.isIE8orNewer = isIE8orNewer;
 })(WebUI || (WebUI = {}));
@@ -1171,15 +1167,8 @@ var WebUI;
             this._maxMinutes = (this._endHour - this._startHour) * 60;
             var tblheight;
             var tbl;
-            if ($.browser.msie) {
-                tbl = $("table.ui-wa-bgtbl", this._rootdiv).get()[0];
-                tblheight = tbl.clientHeight;
-                tbl = $(".ui-wa-bgtbl tbody", this._rootdiv).get()[0];
-            }
-            else {
-                tbl = $(".ui-wa-bgtbl tbody", this._rootdiv).get()[0];
-                tblheight = tbl.clientHeight;
-            }
+            tbl = $(".ui-wa-bgtbl tbody", this._rootdiv).get()[0];
+            tblheight = tbl.clientHeight;
             var tr = undefined;
             for (var i = 0; i < tbl.childNodes.length; i++) {
                 tr = tbl.childNodes[i];
@@ -2278,12 +2267,6 @@ var WebUI;
         if (this._browserChecked)
             return;
         this._browserChecked = true;
-        if ($.browser.msie && $.browser.majorVersion < 8) {
-            if ($.cookie("domuiie") == null) {
-                alert(WebUI.format(WebUI._T.sysUnsupported, $.browser.majorVersion));
-                $.cookie("domuiie", "true", {});
-            }
-        }
     }
     var _debugLastKeypress;
     var _debugMouseTarget;
@@ -2355,30 +2338,7 @@ var WebUI;
     WebUI.addPagerAccessKeys = addPagerAccessKeys;
 })(WebUI || (WebUI = {}));
 (function ($) {
-    if ($.browser.msie && $.browser.majorVersion < 10) {
-        $.dbg = function (a, b, c, d, e) {
-            if (window.console == undefined)
-                return;
-            switch (arguments.length) {
-                default:
-                    window.console.log(a);
-                    return;
-                case 2:
-                    window.console.log(a, b);
-                    return;
-                case 3:
-                    window.console.log(a, b, c);
-                    return;
-                case 4:
-                    window.console.log(a, b, c, d);
-                    return;
-                case 5:
-                    window.console.log(a, b, c, d, e);
-                    return;
-            }
-        };
-    }
-    else if (window.console != undefined) {
+    if (window.console != undefined) {
         if (window.console.debug != undefined) {
             $.dbg = function () {
                 window.console.debug.apply(window.console, arguments);
@@ -2676,18 +2636,7 @@ var WebUI;
         if (divPopup) {
             $(divPopup).fadeOut(200);
         }
-        if ($.browser.msie) {
-            window.setTimeout(function () {
-                try {
-                    node.parentNode.style.zIndex = node.style.zIndex;
-                }
-                catch (e) {
-                }
-            }, 200);
-        }
-        else {
-            node.parentNode.style.zIndex = node.style.zIndex;
-        }
+        node.parentNode.style.zIndex = node.style.zIndex;
     }
     WebUI.hideLookupTypingPopup = hideLookupTypingPopup;
     function showLookupTypingPopupIfStillFocusedAndFixZIndex(id) {
@@ -2824,12 +2773,7 @@ var WebUI;
     }
     WebUI.backgroundPrint = backgroundPrint;
     function framePrint(frmname) {
-        if (jQuery.browser.msie) {
-            documentPrintIE(frmname);
-        }
-        else {
-            documentPrintNonIE(frmname);
-        }
+        documentPrintNonIE(frmname);
     }
     WebUI.framePrint = framePrint;
     function documentPrintIE(frmname) {
@@ -3186,22 +3130,10 @@ var WebUI;
     function focus(id) {
         var n = document.getElementById(id);
         if (n) {
-            if ($.browser.msie) {
-                setTimeout(function () {
-                    try {
-                        $('body').focus();
-                        n.focus();
-                    }
-                    catch (e) {
-                    }
-                }, 100);
+            try {
+                n.focus();
             }
-            else {
-                try {
-                    n.focus();
-                }
-                catch (e) {
-                }
+            catch (e) {
             }
         }
     }
@@ -3323,21 +3255,11 @@ var WebUI;
     }
     WebUI.disableSelection = disableSelection;
     function disableSelect(id) {
-        if ($.browser.msie) {
-            $('#' + id).disableSelection();
-        }
-        else {
-            $('#' + id).addClass("ui-selection-disable");
-        }
+        $('#' + id).addClass("ui-selection-disable");
     }
     WebUI.disableSelect = disableSelect;
     function enableSelect(id) {
-        if ($.browser.msie) {
-            $('#' + id).enableSelection();
-        }
-        else {
-            $('#' + id).removeClass("ui-selection-disable");
-        }
+        $('#' + id).removeClass("ui-selection-disable");
     }
     WebUI.enableSelect = enableSelect;
     function nearestID(elem) {
@@ -3442,11 +3364,6 @@ var WebUI;
             }
             else {
                 var newPos = $(elem).position().top + parent.scrollTop;
-                if ($.browser.msie && parseInt($.browser.version) < 11) {
-                    if ($(elem).height() == 0) {
-                        newPos = newPos - 15;
-                    }
-                }
                 if (offset) {
                     newPos = newPos - offset;
                 }
@@ -3456,9 +3373,6 @@ var WebUI;
     }
     WebUI.scrollMeToTop = scrollMeToTop;
     function makeOptionVisible(elemId, offset) {
-        if ($.browser.msie) {
-            return;
-        }
         var elem = document.getElementById(elemId);
         if (!elem) {
             return;
@@ -3577,17 +3491,6 @@ var WebUI;
             elemDeltaHeight = elemDeltaHeight + 1;
         }
         $(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
-        if ($.browser.msie && $.browser.version.substring(0, 1) == "7") {
-            if (elem.scrollWidth > elem.offsetWidth) {
-                $(elem).height($(elem).height() - 20);
-                if ($(elem).css('overflow-y') == 'hidden') {
-                    if (elem.scrollHeight > elem.offsetHeight) {
-                        $(elem).css({ 'overflow-y': 'auto' });
-                    }
-                }
-                return;
-            }
-        }
     }
     WebUI.stretchHeightOnNode = stretchHeightOnNode;
     function loadStylesheet(path) {
@@ -3702,13 +3605,11 @@ var WebUI;
             WebUI.blockUI();
             log("Redirecting- ");
             var to = xml.documentElement.getAttribute('url');
-            if (!$.browser.msie && !$.browser.ieedge) {
-                try {
-                    document.write('<html></html>');
-                    document.close();
-                }
-                catch (xxx) {
-                }
+            try {
+                document.write('<html></html>');
+                document.close();
+            }
+            catch (xxx) {
             }
             window.location.href = to;
             return;
@@ -3840,11 +3741,11 @@ var WebUI;
             var dest = $(queryString)[0];
             var names = [];
             for (var ai = 0; ai < dest.attributes.length; ai++) {
-                names[ai] = $.trim(dest.attributes[ai].name);
+                names[ai] = dest.attributes[ai].name.trim();
             }
             var src = cmdNode;
             for (var ai = 0, attr = ''; ai < src.attributes.length; ai++) {
-                var a = src.attributes[ai], n = $.trim(a.name), v_1 = $.trim(a.value);
+                var a = src.attributes[ai], n = a.name.trim(), v_1 = a.value.trim();
                 if (n == 'select' || n.substring(0, 2) == 'on')
                     continue;
                 if (n.substring(0, 6) == 'domjs_') {
@@ -3866,11 +3767,6 @@ var WebUI;
                 if (n == 'style') {
                     dest.style.cssText = v_1;
                     dest.setAttribute(n, v_1);
-                    if ($.browser.msie && $.browser.version.substring(0, 1) == "7") {
-                        if ((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v_1.indexOf('visibility') != -1 && v_1.indexOf('hidden') == -1) || (v_1.indexOf('display') != -1 && v_1.indexOf('none') == -1))) {
-                            WebUI.refreshElement(dest.id);
-                        }
-                    }
                 }
                 else {
                     if (dest.tagName.toLowerCase() == 'select' && n == 'class' && $.browser.mozilla) {
@@ -3903,7 +3799,7 @@ var WebUI;
         }
     }
     function postProcess() {
-        if (!$.browser.opera && !$.browser.msie)
+        if (!$.browser.opera)
             return;
         $('select:taconiteTag').each(function () {
             $('option:taconiteTag', this).each(function () {
@@ -3946,46 +3842,16 @@ var WebUI;
     }
     function createElement(node, cdataWrap) {
         var e, tag = node.tagName.toLowerCase();
-        if ($.browser.msie && !WebUI.isNormalIE9plus()) {
-            var type = node.getAttribute('type');
-            if (tag == 'table'
-                || type == 'radio'
-                || type == 'checkbox'
-                || tag == 'button'
-                || (tag == 'select' && node
-                    .getAttribute('multiple'))) {
-                var xxa = void 0;
-                try {
-                    xxa = copyAttrs(null, node, true);
-                    e = document.createElement('<' + tag + ' '
-                        + xxa + '>');
-                }
-                catch (xx) {
-                    alert('err= ' + xx + ', ' + tag + ", " + xxa);
-                }
-            }
-        }
         if (!e) {
             e = document.createElement(tag);
             copyAttrs(e, node, false);
         }
-        if ($.browser.msie && tag == 'td') {
-            var colspan = node.getAttribute('colspan');
-            if (colspan)
-                e.colSpan = parseInt(colspan);
+        for (var i = 0, max = node.childNodes.length; i < max; i++) {
+            var child = createNode(node.childNodes[i], cdataWrap);
+            if (child)
+                e.appendChild(child);
         }
-        if ($.browser.msie && !e.canHaveChildren) {
-            if (node.childNodes.length > 0)
-                e.text = node.text;
-        }
-        else {
-            for (var i = 0, max = node.childNodes.length; i < max; i++) {
-                var child = createNode(node.childNodes[i], cdataWrap);
-                if (child)
-                    e.appendChild(child);
-            }
-        }
-        if ($.browser.msie || $.browser.opera) {
+        if ($.browser.opera) {
             if (tag == 'select'
                 || (tag == 'option' && node
                     .getAttribute('selected')))
@@ -3995,7 +3861,7 @@ var WebUI;
     }
     function copyAttrs(dest, src, inline) {
         for (var i = 0, attr = ''; i < src.attributes.length; i++) {
-            var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
+            var a = src.attributes[i], n = a.name.trim(), v = a.value.trim();
             if (inline) {
                 if (n.substring(0, 6) == 'domjs_') {
                     alert('Unsupported domjs_ attribute in INLINE mode: ' + n);
@@ -4019,16 +3885,13 @@ var WebUI;
                     throw ex;
                 }
             }
-            else if (v != "" && dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
+            else if (v != "" && dest && ($.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
                 try {
                     if (v.indexOf("javascript:") == 0)
-                        v = $.trim(v.substring(11));
+                        v = v.substring(11).trim();
                     var fntext = v.indexOf("return") >= 0 || v.trim().substring(0, 1) === "{" ? v : "return " + v;
                     var se = void 0;
-                    if ($.browser.msie && $.browser.majorVersion < 9)
-                        se = new Function(fntext);
-                    else
-                        se = new Function("event", fntext);
+                    se = new Function("event", fntext);
                     dest[n] = se;
                 }
                 catch (x) {
@@ -4079,16 +3942,22 @@ $(window).bind('beforeunload', function () {
     WebUI.beforeUnload();
     return undefined;
 });
+(function ($) {
+    if (!$.browser && 1.9 <= parseFloat($.fn.jquery)) {
+        var a = { ua: "", webkit: false, msie: false, mobile: "", browserArray: [], browser: "", version: 1.0 };
+        navigator && navigator.userAgent && (a.ua = navigator.userAgent, a.webkit = /WebKit/i.test(a.ua), a.browserArray = "MSIE Chrome Opera Kindle Silk BlackBerry PlayBook Android Safari Mozilla Nokia".split(" "), /Sony[^ ]*/i.test(a.ua) ? a.mobile = "Sony" : /RIM Tablet/i.test(a.ua) ? a.mobile = "RIM Tablet" : /BlackBerry/i.test(a.ua) ? a.mobile = "BlackBerry" : /iPhone/i.test(a.ua) ? a.mobile = "iPhone" : /iPad/i.test(a.ua) ? a.mobile = "iPad" : /iPod/i.test(a.ua) ? a.mobile = "iPod" : /Opera Mini/i.test(a.ua) ? a.mobile = "Opera Mini" : /IEMobile/i.test(a.ua) ? a.mobile = "IEMobile" : /BB[0-9]{1,}; Touch/i.test(a.ua) ? a.mobile = "BlackBerry" : /Nokia/i.test(a.ua) ? a.mobile = "Nokia" : /Android/i.test(a.ua) && (a.mobile = "Android"), /MSIE|Trident/i.test(a.ua) ? (a.browser = "MSIE", a.version = /MSIE/i.test(navigator.userAgent) && 0 < parseFloat(a.ua.split("MSIE")[1].replace(/[^0-9\.]/g, "")) ? parseFloat(a.ua.split("MSIE")[1].replace(/[^0-9\.]/g, "")) : 99.99, /Trident/i.test(a.ua) && /rv:([0-9]{1,}[\.0-9]{0,})/.test(a.ua) && (a.version = parseFloat(a.ua.match(/rv:([0-9]{1,}[\.0-9]{0,})/)[1].replace(/[^0-9\.]/g, "")))) : /Chrome/.test(a.ua) ? (a.browser = "Chrome", a.version = parseFloat(a.ua.split("Chrome/")[1].split("Safari")[0].replace(/[^0-9\.]/g, ""))) : /Opera/.test(a.ua) ? (a.browser = "Opera", a.version = parseFloat(a.ua.split("Version/")[1].replace(/[^0-9\.]/g, ""))) : /Kindle|Silk|KFTT|KFOT|KFJWA|KFJWI|KFSOWI|KFTHWA|KFTHWI|KFAPWA|KFAPWI/i.test(a.ua) ? (a.mobile = "Kindle", /Silk/i.test(a.ua) ? (a.browser = "Silk", a.version = parseFloat(a.ua.split("Silk/")[1].split("Safari")[0].replace(/[^0-9\.]/g, ""))) : /Kindle/i.test(a.ua) && /Version/i.test(a.ua) && (a.browser = "Kindle", a.version = parseFloat(a.ua.split("Version/")[1].split("Safari")[0].replace(/[^0-9\.]/g, "")))) : /BlackBerry/.test(a.ua) ? (a.browser = "BlackBerry", a.version = parseFloat(a.ua.split("/")[1].replace(/[^0-9\.]/g, ""))) : /PlayBook/.test(a.ua) ? (a.browser = "PlayBook", a.version = parseFloat(a.ua.split("Version/")[1].split("Safari")[0].replace(/[^0-9\.]/g, ""))) : /BB[0-9]{1,}; Touch/.test(a.ua) ? (a.browser = "Blackberry", a.version = parseFloat(a.ua.split("Version/")[1].split("Safari")[0].replace(/[^0-9\.]/g, ""))) : /Android/.test(a.ua) ? (a.browser = "Android", a.version = parseFloat(a.ua.split("Version/")[1].split("Safari")[0].replace(/[^0-9\.]/g, ""))) : /Safari/.test(a.ua) ? (a.browser = "Safari", a.version = parseFloat(a.ua.split("Version/")[1].split("Safari")[0].replace(/[^0-9\.]/g, ""))) : /Firefox/.test(a.ua) ? (a.browser = "Mozilla", a.version = parseFloat(a.ua.split("Firefox/")[1].replace(/[^0-9\.]/g, ""))) : /Nokia/.test(a.ua) && (a.browser = "Nokia", a.version = parseFloat(a.ua.split("Browser")[1].replace(/[^0-9\.]/g, ""))));
+        if (a.browser)
+            for (var b in a.browserArray)
+                a[a.browserArray[b].toLowerCase()] = a.browser == a.browserArray[b];
+        $.extend(!0, $.browser = {}, a);
+    }
+})(jQuery);
 {
     try {
         var v = $.browser.version.split(".");
         $.browser.majorVersion = parseInt(v[0], 10);
         $.browser.minorVersion = parseInt(v[1], 10);
-        if (navigator.appName == 'Netscape') {
-            var ua = navigator.userAgent;
-            if (ua.indexOf("Trident/") != -1)
-                $.browser.msie = true;
-        }
+        $.browser.msie = false;
         if (/Edge/.test(navigator.userAgent)) {
             $.browser.ieedge = true;
         }

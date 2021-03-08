@@ -89,7 +89,7 @@
 			log("Redirecting- ");
 			const to = xml.documentElement.getAttribute('url');
 
-			if(!$.browser.msie && !$.browser.ieedge) {
+			// if(!$.browser.msie && !$.browser.ieedge) {
 				//-- jal 20130129 For large documents, redirecting "inside" an existing document causes huge problems, the
 				// jquery loops in the "source" document while the new one is loading. This part "clears" the existing document
 				// causing an ugly white screen while loading - but the loading now always works..
@@ -99,7 +99,7 @@
 				} catch(xxx) {
 					// jal 20130626 Suddenly Firefox no longer allows this. Deep, deep sigh.
 				}
-			}
+			// }
 			window.location.href = to;
 			return;
 		} else if(rname == 'expiredOnPollasy') {
@@ -254,12 +254,12 @@
 
 			const names = [];
 			for(let ai = 0; ai < dest.attributes.length; ai++) {
-				names[ai] = $.trim(dest.attributes[ai].name);
+				names[ai] = dest.attributes[ai].name.trim();
 			}
 
 			const src = cmdNode;
 			for(let ai = 0, attr = ''; ai < src.attributes.length; ai++) {
-				const a = src.attributes[ai], n = $.trim(a.name), v = $.trim(a.value);
+				const a = src.attributes[ai], n = a.name.trim(), v = a.value.trim();
 				if(n == 'select' || n.substring(0, 2) == 'on')
 					continue;
 				if(n.substring(0, 6) == 'domjs_') {
@@ -281,11 +281,11 @@
 					dest.style.cssText = v;
 					dest.setAttribute(n, v);
 					//We need this dirty fix for IE7 to force height recalculation of divs that has just become visible (IE7 sometimes fails to calculate height that stays 0!).
-					if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
-						if((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))) {
-							WebUI.refreshElement(dest.id);
-						}
-					}
+					// if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
+					// 	if((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))) {
+					// 		WebUI.refreshElement(dest.id);
+					// 	}
+					// }
 				} else {
 					//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
 //								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
@@ -318,7 +318,7 @@
 	}
 
 	function postProcess() {
-		if(!$.browser.opera && !$.browser.msie)
+		if(!$.browser.opera /* && !$.browser.msie */)
 			return;
 		$('select:taconiteTag').each(function() {
 			$('option:taconiteTag', this).each(function() {
@@ -368,48 +368,48 @@
 	function createElement(node, cdataWrap: string) {
 		var e, tag = node.tagName.toLowerCase();
 		// some elements in IE need to be created with attrs inline
-		if($.browser.msie && !WebUI.isNormalIE9plus()) {
-			var type = node.getAttribute('type');
-			if(tag == 'table'
-				|| type == 'radio'
-				|| type == 'checkbox'
-				|| tag == 'button'
-				|| (tag == 'select' && node
-					.getAttribute('multiple'))) {
-				let xxa;
-				try {
-					xxa = copyAttrs(null, node, true);
-					e = document.createElement('<' + tag + ' '
-						+ xxa + '>');
-				} catch(xx) {
-					alert('err= ' + xx + ', ' + tag + ", " + xxa);
-				}
-			}
-		}
+		// if($.browser.msie && !WebUI.isNormalIE9plus()) {
+		// 	var type = node.getAttribute('type');
+		// 	if(tag == 'table'
+		// 		|| type == 'radio'
+		// 		|| type == 'checkbox'
+		// 		|| tag == 'button'
+		// 		|| (tag == 'select' && node
+		// 			.getAttribute('multiple'))) {
+		// 		let xxa;
+		// 		try {
+		// 			xxa = copyAttrs(null, node, true);
+		// 			e = document.createElement('<' + tag + ' '
+		// 				+ xxa + '>');
+		// 		} catch(xx) {
+		// 			alert('err= ' + xx + ', ' + tag + ", " + xxa);
+		// 		}
+		// 	}
+		// }
 		if(!e) {
 			e = document.createElement(tag);
 			copyAttrs(e, node, false);
 		}
 
 		// IE fix; colspan must be explicitly set
-		if($.browser.msie && tag == 'td') {
-			var colspan = node.getAttribute('colspan');
-			if(colspan)
-				e.colSpan = parseInt(colspan);
-		}
+		// if($.browser.msie && tag == 'td') {
+		// 	var colspan = node.getAttribute('colspan');
+		// 	if(colspan)
+		// 		e.colSpan = parseInt(colspan);
+		// }
 
 		// IE fix; script tag not allowed to have children
-		if($.browser.msie && !e.canHaveChildren) {
-			if(node.childNodes.length > 0)
-				e.text = node.text;
-		} else {
+		// if($.browser.msie && !e.canHaveChildren) {
+		// 	if(node.childNodes.length > 0)
+		// 		e.text = node.text;
+		// } else {
 			for(var i = 0, max = node.childNodes.length; i < max; i++) {
 				var child = createNode(node.childNodes[i], cdataWrap);
 				if(child)
 					e.appendChild(child);
 			}
-		}
-		if($.browser.msie || $.browser.opera) {
+		// }
+		if(/*$.browser.msie || */ $.browser.opera) {
 			if(tag == 'select'
 				|| (tag == 'option' && node
 					.getAttribute('selected')))
@@ -420,7 +420,7 @@
 
 	function copyAttrs(dest, src, inline) {
 		for(var i = 0, attr = ''; i < src.attributes.length; i++) {
-			var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
+			var a = src.attributes[i], n = a.name.trim(), v = a.value.trim();
 
 //					if(n.substring(0, 2) == 'on' && ! this._xxxw) {
 //						this._xxxw = true;
@@ -451,16 +451,16 @@
 					throw ex;
 				}
 
-			} else if(v != "" && dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
+			} else if(v != "" && dest && (/*$.browser.msie || */ $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
 				try {
 					if(v.indexOf("javascript:") == 0)
-						v = $.trim(v.substring(11));
+						v = v.substring(11).trim();
 					var fntext = v.indexOf("return") >= 0 || v.trim().substring(0, 1) === "{" ? v : "return " + v;		// for now accept everything that at least does a return.
 
 					let se;
-					if($.browser.msie && $.browser.majorVersion < 9)
-						se = new Function(fntext);
-					else
+					// if($.browser.msie && $.browser.majorVersion < 9)
+					// 	se = new Function(fntext);
+					// else
 						se = new Function("event", fntext);
 					dest[n] = se;
 

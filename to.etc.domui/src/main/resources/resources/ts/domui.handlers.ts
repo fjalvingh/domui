@@ -124,14 +124,14 @@ namespace WebUI {
 			return;
 		this._browserChecked = true;
 
-		//-- We do not support IE 7 and lower anymore.
-		if($.browser.msie && $.browser.majorVersion < 8) {
-			//-- Did we already report that warning this session?
-			if($.cookie("domuiie") == null) {
-				alert(WebUI.format(WebUI._T.sysUnsupported, $.browser.majorVersion));
-				$.cookie("domuiie", "true", {});
-			}
-		}
+		// //-- We do not support IE 7 and lower anymore.
+		// if($.browser.msie && $.browser.majorVersion < 8) {
+		// 	//-- Did we already report that warning this session?
+		// 	if($.cookie("domuiie") == null) {
+		// 		alert(WebUI.format(WebUI._T.sysUnsupported, $.browser.majorVersion));
+		// 		$.cookie("domuiie", "true", {});
+		// 	}
+		// }
 	}
 
 	let _debugLastKeypress: number;
