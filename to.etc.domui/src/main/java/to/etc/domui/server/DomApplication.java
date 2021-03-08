@@ -304,6 +304,8 @@ public abstract class DomApplication {
 
 	private boolean m_scanClosed;
 
+	private Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
@@ -507,6 +509,8 @@ public abstract class DomApplication {
 		addDefaultHTTPHeader("Expires", "Mon, 8 Aug 2006 10:00:00 GMT");
 
 		addDefaultHTTPHeader("X-Content-Type-Options", "nosniff");	// Make sure the browser always obeys the actual content type for a document
+
+		addDefaultResourceHeader("X-Content-Type-Options", "nosniff");	// Make sure the browser always obeys the actual content type for a document
 	}
 
 	protected void registerControlFactories() {
@@ -970,11 +974,23 @@ public abstract class DomApplication {
 		m_defaultSiteHeaderMap = newMap;
 	}
 
+	public void addDefaultResourceHeader(String headerName, String value) {
+		Map<String, String> map = m_defaultSiteResourceHeaderMap;
+		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		newMap.putAll(map);
+		newMap.put(headerName, value);
+		m_defaultSiteResourceHeaderMap = newMap;
+	}
+
 	/**
 	 * All http headers that should be sent with each response.
 	 */
 	public Map<String, String> getDefaultHTTPHeaderMap() {
 		return m_defaultSiteHeaderMap;
+	}
+
+	public Map<String, String> getDefaultSiteResourceHeaderMap() {
+		return m_defaultSiteResourceHeaderMap;
 	}
 
 	/*--------------------------------------------------------------*/
