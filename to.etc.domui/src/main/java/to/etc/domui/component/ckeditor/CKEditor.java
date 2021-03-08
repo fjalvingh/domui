@@ -35,6 +35,7 @@ import to.etc.domui.component.misc.MsgBoxButton;
 import to.etc.domui.component.misc.OddCharacters;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.css.VisibilityType;
+import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IControl;
@@ -42,6 +43,7 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
@@ -99,6 +101,11 @@ public class CKEditor extends Div implements IControl<String> {
 		m_area.setCssClass("ui-ckeditor");
 		m_area.setVisibility(VisibilityType.HIDDEN);
 	}
+
+	static public void initialize(UrlPage page) {
+		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
+	}
+
 
 	/**
 	 * <p>To create the editor we need to replace the core code. We add a textarea having the ID and a
