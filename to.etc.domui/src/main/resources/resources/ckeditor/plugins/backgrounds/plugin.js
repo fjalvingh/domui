@@ -213,7 +213,7 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 		var selectButton = {
 			type: 'button',
 			id: 'selectBgBtn',
-			label: 'Select',
+			label: 'Select Image',
 			onClick: function() {
 				let actualId = editor.name;
 				let dialog = this.getDialog();
