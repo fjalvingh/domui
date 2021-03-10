@@ -141,7 +141,7 @@ final public class PageUrlMapping {
 			String name = varMap.get(level);
 			if(null == name)
 				throw new IllegalStateException("No name stored for level " + level);
-			pp.setObject(name, (Object) value);
+			pp.setParameterValues(name, new String[] {value});
 		});
 
 		return new Target(targetPage, pp);

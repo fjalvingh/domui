@@ -43,7 +43,10 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.server.XssChecker;
+import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.util.StringTool;
@@ -551,24 +554,37 @@ public class CKEditor extends Div implements IControl<String> {
 			appendJavascript("CkeditorDomUIOddChar.addString('" + getActualID() + "', '" + input + "');");
 		}
 
+		/**
+		 * Accept the data from the editor. We need special handling because the html editor
+		 * can have image tags what would normally be filtered by the XSS handlers. So in here
+		 * we use the raw, unfiltered data and handle the xss filtering by ourselves.
+		 */
 		@Override
-		public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
+		public boolean acceptRequestParameter(@NonNull String[] cookedValues, @NonNull IPageParameters allParameters) throws Exception {
 			if(isDisabled()) {
 				return false;
 			}
+			String[] rawValues = allParameters.getRawUnsafeParameterValues(getActualID());
+			if(null == rawValues || rawValues.length == 0) {
+				return super.acceptRequestParameter(cookedValues);
+			}
 
-			for(int i = 0; i < values.length; i++) {
-				String s = values[i];
-				StringBuilder sb = new StringBuilder();
+			String[] newValues = new String[rawValues.length];
+			StringBuilder sb = new StringBuilder();
+			XssChecker xssChecker = DomApplication.get().getXssChecker();
+			for(int i = 0; i < rawValues.length; i++) {
+				String s = rawValues[i];
 				try {
+					sb.setLength(0);
 					StringTool.entitiesToUnicode(sb, s, true);
-					values[i] = sb.toString();
+					s = xssChecker.stripXSS(sb.toString(), XssChecker.F_ALLOWLOCALSRC);
+					newValues[i] = s;
 				} catch(Exception e) {
 					e.printStackTrace();
-					values[i] = e.toString();
+					newValues[i] = "";
 				}
 			}
-			return super.acceptRequestParameter(values);
+			return super.acceptRequestParameter(newValues);
 		}
 	}
 

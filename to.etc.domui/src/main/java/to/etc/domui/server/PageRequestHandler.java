@@ -1068,7 +1068,7 @@ final public class PageRequestHandler {
 				NodeBase nb = page.findNodeByID(name); 				// Can we find this literally?
 				if(nb != null) {
 					//-- Try to bind this value to the component.
-					if(nb.acceptRequestParameter(values)) { 		// Make the thingy accept the parameter(s)
+					if(nb.acceptRequestParameter(values, pp)) { 		// Make the thingy accept the parameter(s)
 						//-- This thing has changed.
 						if(nb instanceof IHasChangeListener) { 		// Can have a value changed thingy?
 							IHasChangeListener ch = (IHasChangeListener) nb;

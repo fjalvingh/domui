@@ -102,18 +102,18 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 
 	@Nullable
 	@Override
-	public Object getObject(@NonNull String name) {
-		return getContainer().getObject(name);
+	public String[] getParameterValues(@NonNull String name) {
+		return getContainer().getParameterValues(name);
 	}
 
 	@Nullable
-	public Object setObject(@NonNull String name, @Nullable Object val) {
-		return getContainer().setObject(name, val);
+	public String[] setParameterValues(@NonNull String name, @Nullable String[] val) {
+		return getContainer().setParameterValues(name, val);
 	}
 
 	@Override
 	public boolean hasParameter(String name) {
-		return getContainer().getObject(name) != null;
+		return getParameterValues(name) != null;
 	}
 
 	public void setReadOnly() {
@@ -136,7 +136,7 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 	public void removeByName(Predicate<String> what) {
 		for(String parameterName : getContainer().getParameterNames()) {
 			if(what.test(parameterName)) {
-				setObject(parameterName, null);
+				setParameterValues(parameterName, null);
 			}
 		}
 	}
@@ -179,7 +179,8 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 					pk = k.getClass().getName();
 					pk = pk.substring(pk.lastIndexOf('.') + 1);
 				}
-				setObject(pk, String.valueOf(key));
+
+				setOneParameterValue(pk, String.valueOf(key));
 			}
 		}
 	}
@@ -193,14 +194,16 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 			return;
 
 		if(o instanceof IIdentifyable< ? >) {
-			setObject(k, String.valueOf(((IIdentifyable< ? >) o).getId()));
+			setOneParameterValue(k, String.valueOf(((IIdentifyable< ? >) o).getId()));
 			return;
 		}
 
 		if(o instanceof String[]) {
 			String[] ar = (String[]) o;
 			if(ar.length > 0)
-				setObject(k, ar);
+				setParameterValues(k, ar);
+			else
+				setParameterValues(k, null);
 			return;
 		}
 
@@ -225,7 +228,7 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 
 		if(keyval == null)
 			keyval = String.valueOf(o);
-		setObject(k, keyval);
+		setOneParameterValue(k, keyval);
 	}
 
 	/**
@@ -249,11 +252,11 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 		} else if(value instanceof Boolean) {
 			s = value.toString();
 		} else if(value instanceof String[]) {
-			setObject(name, (String[]) value);
+			setParameterValues(name, (String[]) value);
 			return;
 		} else
 			throw new IllegalStateException("Cannot convert a " + value.getClass() + " to an URL parameter yet - parameter converters not implemented yet");
-		setObject(name, s);
+		setOneParameterValue(name, s);
 	}
 
 	public PageParameters parameter(String name, Object value) {
@@ -268,7 +271,15 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 	 */
 	public void removeParameter(String name) {
 		writeable();
-		Object v = setObject(name, null);
+		setParameterValues(name, null);
+	}
+
+	private void setOneParameterValue(String name, @Nullable String value) {
+		if(null == value) {
+			setParameterValues(name, null);
+		} else {
+			setParameterValues(name, new String[] {value});
+		}
 	}
 
 	///**
@@ -360,7 +371,7 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 					throw new IllegalArgumentException("Expected name=value pair, but found:" + nameValue);
 				}
 				if(parts.length == 2) {
-					pp.setObject(parts[0], parts[1]); 						// Add as single string
+					pp.setOneParameterValue(parts[0], parts[1]); 						// Add as single string
 				}
 				//empty params are ignored but with no exception
 			}
@@ -379,7 +390,7 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 			if(source.hasParameter(name)) {
 				source.removeParameter(name);
 			}
-			Object object = changes.getObject(name);
+			String[] object = changes.getParameterValues(name);
 			if(null != object)
 				source.addParameter(name, object);
 		}
@@ -430,7 +441,8 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 		setUrlContextString(source.getUrlContextString());
 		for(String parameterName : source.getParameterNames()) {
 			if(acceptName.test(parameterName)) {
-				setObject(parameterName, source.getObject(parameterName));
+				setParameterValues(parameterName, source.getParameterValues(parameterName));
+				getContainer().setRawUnsafeParameterValues(parameterName, source.getRawUnsafeParameterValues(parameterName));
 			}
 		}
 

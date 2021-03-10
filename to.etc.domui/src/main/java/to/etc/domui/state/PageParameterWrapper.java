@@ -42,8 +42,14 @@ public class PageParameterWrapper implements IPageParameters {
 	 */
 	@Override
 	@Nullable
-	public Object getObject(@NonNull String name) {
-		return m_container.getObject(name);
+	public String[] getParameterValues(@NonNull String name) {
+		return m_container.getParameterValues(name);
+	}
+
+	@Nullable
+	@Override
+	public String[] getRawUnsafeParameterValues(String name) {
+		return m_container.getRawUnsafeParameterValues(name);
 	}
 
 	/**
@@ -83,12 +89,9 @@ public class PageParameterWrapper implements IPageParameters {
 	 */
 	@Nullable
 	protected String	getOne(String name) {
-		Object v = getObject(name);
-		if(null == v)
+		String[] ar = getParameterValues(name);
+		if(null == ar)
 			return null;
-		if(v instanceof String)
-			return (String) v;
-		String[] ar = (String[]) v;
 		if(ar.length == 0)		// Questionable: allow 0-size array and treat as empty; rationale: this parameter would not actually occur on the url.
 			return null;
 		if(ar.length == 1)
@@ -96,9 +99,6 @@ public class PageParameterWrapper implements IPageParameters {
 
 		System.err.println("PARAMERROR Multiple parameter values for " + name + ", input URL=" + getInputPath());
 		return ar[0];
-
-
-		//throw new MultipleParameterException(name); // There can be only oneeeeee.. </highlander>
 	}
 
 	/**
@@ -114,7 +114,7 @@ public class PageParameterWrapper implements IPageParameters {
 
 	@Override
 	public boolean hasParameter(String name) {
-		return getObject(name) != null;
+		return getParameterValues(name) != null;
 	}
 
 
@@ -247,15 +247,23 @@ public class PageParameterWrapper implements IPageParameters {
 	@Override
 	@Nullable
 	public String[] getStringArray(@NonNull String name, @Nullable String[] deflt) {
-		Object var = getObject(name);
-		if(null != var) {
-			if(var instanceof String)
-				return new String[]{(String) var};
-			String[] ar = (String[]) var;
+		String[] ar = getParameterValues(name);
+		if(null != ar) {
 			if(ar.length >= 0)
 				return ar;
 		}
 		return deflt;
+	}
+
+	@Override
+	@Nullable
+	public String[] getRawUnsafeStringArray(@NonNull String name) {
+		String[] ar = m_container.getRawUnsafeParameterValues(name);
+		if(null != ar) {
+			if(ar.length >= 0)
+				return ar;
+		}
+		return null;
 	}
 
 	@Override
@@ -273,17 +281,11 @@ public class PageParameterWrapper implements IPageParameters {
 			List<String> names = new ArrayList<String>(m_container.getParameterNames());		// Dup all keys
 			Collections.sort(names);										// Sort alphabetically
 			for(String name : names) {
-				Object val = m_container.getObject(name);
-				if(null != val) {
-					if(val instanceof String[]) {
-						String[] allv = (String[]) val;
-						Arrays.sort(allv);									// Sort all values alphabetically.
-						for(String s : allv) {
-							md.update(s.getBytes("utf-8"));
-							md.update((byte) 0xa);
-						}
-					} else {
-						md.update(val.toString().getBytes("utf-8"));
+				String[] ar = m_container.getParameterValues(name);
+				if(null != ar) {
+					Arrays.sort(ar);									// Sort all values alphabetically.
+					for(String s : ar) {
+						md.update(s.getBytes("utf-8"));
 						md.update((byte) 0xa);
 					}
 				}
@@ -327,53 +329,46 @@ public class PageParameterWrapper implements IPageParameters {
 		//-- Must render explicitly now because array toString method does not print members
 		StringBuilder sb = new StringBuilder();
 		for(String parameterName : getParameterNames()) {
-			Object value = getObject(parameterName);
-			if(value instanceof String) {
-				if(sb.length() > 0)
-					sb.append("&");
-				sb.append(parameterName).append('=').append(value);
-			} else if(value instanceof String[]) {
-				String[] vals = (String[]) value;
-				for(String s : vals) {
+			String[] value = getParameterValues(parameterName);
+			if(null != value) {
+				for(String s : (String[]) value) {
 					if(sb.length() > 0)
 						sb.append("&");
 					sb.append(parameterName).append('=').append(s);
 				}
-			} else {
-				throw new IllegalStateException("Unexpected object in parameter map: " + value);
 			}
 		}
 		return "Parameters: " + sb.toString();
 	}
 
-	/**
-	 * Convert the parameters to a properly escaped URL string.
-	 */
-	public String toEscapedURL() {
-		StringBuilder sb = new StringBuilder();
-		for(String name : getParameterNames()) {
-			Object value = getObject(name);
-			if(value instanceof List) {
-				List<String> list = (List<String>) value;
-				for(String s : list) {
-					if(sb.length() > 0)
-						sb.append('&');
-					sb.append(StringTool.encodeURLEncoded(name));
-					sb.append('=');
-					if(null != s)
-						sb.append(StringTool.encodeURLEncoded((String) s));
-				}
-			} else {
-				if(sb.length() > 0)
-					sb.append('&');
-				sb.append(StringTool.encodeURLEncoded(name));
-				sb.append('=');
-				if(null != value)
-					sb.append(StringTool.encodeURLEncoded((String) value));
-			}
-		}
-		return sb.toString();
-	}
+	///**
+	// * Convert the parameters to a properly escaped URL string.
+	// */
+	//public String toEscapedURL() {
+	//	StringBuilder sb = new StringBuilder();
+	//	for(String name : getParameterNames()) {
+	//		String[] value = getParameterValues(name);
+	//		if(value instanceof List) {
+	//			List<String> list = (List<String>) value;
+	//			for(String s : list) {
+	//				if(sb.length() > 0)
+	//					sb.append('&');
+	//				sb.append(StringTool.encodeURLEncoded(name));
+	//				sb.append('=');
+	//				if(null != s)
+	//					sb.append(StringTool.encodeURLEncoded((String) s));
+	//			}
+	//		} else {
+	//			if(sb.length() > 0)
+	//				sb.append('&');
+	//			sb.append(StringTool.encodeURLEncoded(name));
+	//			sb.append('=');
+	//			if(null != value)
+	//				sb.append(StringTool.encodeURLEncoded((String) value));
+	//		}
+	//	}
+	//	return sb.toString();
+	//}
 
 
 	@Override
@@ -393,35 +388,33 @@ public class PageParameterWrapper implements IPageParameters {
 		Set<String> parameterNames = getParameterNames();
 		parameterNames.addAll(a.getParameterNames());
 		for(String name : parameterNames) {
-			Object oval = a.getObject(name);
-			Object val = getObject(name);
+			String[] oval = a.getParameterValues(name);
+			String[] val = getParameterValues(name);
 			if(!compValues(oval, val))
 				return false;
 		}
 		return Objects.equals(getUrlContextString(), a.getUrlContextString());
 	}
 
-	private boolean compValues(@Nullable Object oval, @Nullable Object val) {
-		if(oval instanceof String && val instanceof String) {
-			return oval.equals(val);
-		}
-		if(oval instanceof String[] && val instanceof String[]) {
-			String[] a = (String[]) oval;
-			String[] b = (String[]) val;
-			if(a.length != b.length)
-				return false;
-			//-- walk through the entire array, same order of members is not necessary to be equal
-			for(String av : a) {
-				boolean found = false;
-				for(String bv : b) {
-					if(DomUtil.isEqual(av, bv)) {
-						found = true;
-						break;
-					}
+	private boolean compValues(@Nullable String[] a, @Nullable String[] b) {
+		if(a == null) {
+			return b == null;
+		} else if(b == null)
+			return false;
+		if(a.length != b.length)
+			return false;
+
+		//-- walk through the entire array, same order of members is not necessary to be equal
+		for(String av : a) {
+			boolean found = false;
+			for(String bv : b) {
+				if(DomUtil.isEqual(av, bv)) {
+					found = true;
+					break;
 				}
-				if(!found)
-					return false;
 			}
+			if(!found)
+				return false;
 		}
 		return true;
 	}

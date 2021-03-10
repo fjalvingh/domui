@@ -14,7 +14,9 @@ import java.util.Set;
  * Created on 25-10-19.
  */
 public class MapParameterContainer implements IBasicParameterContainer {
-	private final Map<String, Object> m_map = new HashMap<>();
+	private final Map<String, String[]> m_safeParametersMap = new HashMap<>();
+
+	private final Map<String, String[]> m_unsafeParametersMap = new HashMap<>();
 
 	@NonNull
 	private String m_urlContextString = "";
@@ -31,33 +33,53 @@ public class MapParameterContainer implements IBasicParameterContainer {
 	@Nullable
 	private String m_themeName;
 
+	public MapParameterContainer() {
+	}
+
 	@Nullable
 	@Override
-	public Object getObject(String name) {
-		return m_map.get(name);
+	public String[] getParameterValues(String name) {
+		return m_safeParametersMap.get(name);
+	}
+
+	@Nullable
+	@Override
+	public String[] getRawUnsafeParameterValues(String name) {
+		return m_unsafeParametersMap.get(name);
 	}
 
 	@Override
 	public int size() {
-		return m_map.size();
+		return m_safeParametersMap.size();
 	}
 
 	@NonNull
 	@Override
 	public Set<String> getParameterNames() {
-		return new HashSet<>(m_map.keySet());
+		return new HashSet<>(m_safeParametersMap.keySet());
 	}
 
 	@Nullable
-	public Object setObject(@NonNull String name, @Nullable Object object) {
-		Object old;
-		if(object == null)
-			old = m_map.remove(name);
-		else
-			old = m_map.put(name, object);
+	public String[] setParameterValues(@NonNull String name, @Nullable String[] object) {
+		String[] old;
+		if(object == null) {
+			old = m_safeParametersMap.remove(name);
+			m_unsafeParametersMap.remove(name);
+		} else {
+			old = m_safeParametersMap.put(name, object);
+			m_unsafeParametersMap.put(name, object);
+		}
 		decreaseLength(old);
 		increaseLength(object);
 		return old;
+	}
+
+	public void setRawUnsafeParameterValues(@NonNull String name, @Nullable String[] object) {
+		if(object == null) {
+			m_unsafeParametersMap.remove(name);
+		} else {
+			m_unsafeParametersMap.put(name, object);
+		}
 	}
 
 	@Nullable
@@ -103,7 +125,7 @@ public class MapParameterContainer implements IBasicParameterContainer {
 
 		if(m_dataLength != that.m_dataLength)
 			return false;
-		if(!m_map.equals(that.m_map))
+		if(!m_safeParametersMap.equals(that.m_safeParametersMap))
 			return false;
 		if(!m_urlContextString.equals(that.m_urlContextString))
 			return false;
@@ -116,7 +138,7 @@ public class MapParameterContainer implements IBasicParameterContainer {
 
 	@Override
 	public int hashCode() {
-		int result = m_map.hashCode();
+		int result = m_safeParametersMap.hashCode();
 		result = 31 * result + m_urlContextString.hashCode();
 		result = 31 * result + m_dataLength;
 		result = 31 * result + m_inputPath.hashCode();
@@ -161,7 +183,7 @@ public class MapParameterContainer implements IBasicParameterContainer {
 	}
 
 	public void clear() {
-		m_map.clear();
+		m_safeParametersMap.clear();
 		m_dataLength = 0;
 	}
 }
