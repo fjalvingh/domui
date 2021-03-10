@@ -23,6 +23,8 @@ public interface IRequestResponse {
 	 */
 	@NonNull String getRequestURI();
 
+	XssChecker getXssChecker();
+
 	@NonNull String getQueryString();
 
 	/**
@@ -59,6 +61,11 @@ public interface IRequestResponse {
 	String getHostName();
 
 	@Nullable String[] getParameters(@NonNull String name);
+
+	/**
+	 * UNSAFE Get the raw, non-XSS checked values of a parameter.
+	 */
+	@Nullable String[] getRawUnsafeParameters(@NonNull String name);
 
 	@Nullable String getParameter(@NonNull String name);
 

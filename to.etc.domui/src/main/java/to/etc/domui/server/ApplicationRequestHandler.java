@@ -89,11 +89,11 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(! to.startsWith("/") && ! to.startsWith("http")) {
 			to = "/" + ctx.getRequestResponse().getWebappContext() + to;
 		}
-		if(XssChecker.isXss(to))
+		IRequestResponse rr = ctx.getRequestResponse();
+		if(rr.getXssChecker().isXss(to))
 			throw new IllegalStateException("Invalid TO url generated");
 
 		//-- Output all headers
-		IRequestResponse rr = ctx.getRequestResponse();
 		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
@@ -108,14 +108,14 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		if(! url.startsWith("/") && ! url.startsWith("http")) {
 			url = "/" + ctx.getRequestResponse().getWebappContext() + url;
 		}
-		if(XssChecker.isXss(url))
+		IRequestResponse rr = ctx.getRequestResponse();
+		if(rr.getXssChecker().isXss(url))
 			throw new IllegalStateException("Invalid TO url generated");
 		if(LOG.isInfoEnabled())
 			LOG.info("redirecting to " + url);
 		url = appendPersistedParameters(url, ctx);
 
 		//-- Output all headers
-		IRequestResponse rr = ctx.getRequestResponse();
 		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));

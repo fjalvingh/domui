@@ -27,14 +27,15 @@ public class RequestContextParameterContainer implements IBasicParameterContaine
 
 	@Nullable
 	@Override
-	public Object getObject(String name) {
+	public String[] getParameterValues(String name) {
 		String[] parameters = m_ctx.getRequestResponse().getParameters(name);
-		if(null == parameters)
-			return null;
-		if(parameters.length == 1)
-			return parameters[0];
-		else
-			return parameters;
+		return parameters;
+	}
+
+	@Nullable
+	@Override
+	public String[] getRawUnsafeParameterValues(String name) {
+		return m_ctx.getRequestResponse().getRawUnsafeParameters(name);
 	}
 
 	@Override

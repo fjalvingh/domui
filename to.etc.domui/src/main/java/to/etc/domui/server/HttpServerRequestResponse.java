@@ -35,27 +35,39 @@ public class HttpServerRequestResponse implements IRequestResponse {
 
 	private Map<String, List<String>> m_headerMap;
 
+	private XssChecker m_xssChecker;
+
+	/** These are the raw, unchecked parameters from the request. These can contain XSS attacks and other horrors! */
+	private Map<String, String[]> m_unsafeParamMap;
+
 	private IServerSession m_serverSession;
 
 	private HttpServerRequestResponse(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull String webappContext, Map<String, String[]> parameterMap,
-		Map<String, List<String>> headerMap) {
+		Map<String, List<String>> headerMap, XssChecker xssChecker, Map<String, String[]> unsafeParamMap) {
 		m_request = request;
 		m_response = response;
 		m_webappContext = webappContext;
 		m_parameterMap = parameterMap;
 		m_headerMap = headerMap;
+		m_xssChecker = xssChecker;
+		m_unsafeParamMap = unsafeParamMap;
 	}
 
 	@Override
 	@NonNull
 	public String getRequestURI() {
-		return XssChecker.stripXSS(m_request.getRequestURI());
+		return m_xssChecker.stripXSS(m_request.getRequestURI());
+	}
+
+	@Override
+	public XssChecker getXssChecker() {
+		return m_xssChecker;
 	}
 
 	@Override
 	@NonNull
 	public String getQueryString() {
-		return XssChecker.stripXSS(m_request.getQueryString());
+		return m_xssChecker.stripXSS(m_request.getQueryString());
 	}
 
 	@NonNull
@@ -105,12 +117,15 @@ public class HttpServerRequestResponse implements IRequestResponse {
 //		}
 
 		//-- Check all parameters for xss issues
+		XssChecker xssChecker = application.getXssChecker();
 		Map<String, String[]> paramMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		Map<String, String[]> unsafeParamMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		realrequest.getParameterMap().forEach((name, values) -> {
-			name = XssChecker.stripXSS(name);
+			name = xssChecker.stripXSS(name);
+			unsafeParamMap.put(name, values);
 			if(values != null) {
 				for(int i = 0; i < values.length; i++) {
-					values[i] = XssChecker.stripXSS(values[i]);
+					values[i] = xssChecker.stripXSS(values[i]);
 				}
 			}
 			paramMap.put(name, values);
@@ -118,18 +133,18 @@ public class HttpServerRequestResponse implements IRequestResponse {
 
 		Map<String, List<String>> headerMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		for(Enumeration<String> e = realrequest.getHeaderNames(); e.hasMoreElements();) {
-			String hn = XssChecker.stripXSS(e.nextElement());
+			String hn = xssChecker.stripXSS(e.nextElement());
 			Enumeration<String> headers = realrequest.getHeaders(hn);
 			if(null != headers) {
 				while(headers.hasMoreElements()) {
-					String value = XssChecker.stripXSS(headers.nextElement());
+					String value = xssChecker.stripXSS(headers.nextElement());
 					List<String> list = headerMap.computeIfAbsent(hn, a -> new ArrayList<>());
 					list.add(value);
 				}
 			}
 		}
 
-		return new HttpServerRequestResponse(realrequest, response, webapp, paramMap, headerMap);
+		return new HttpServerRequestResponse(realrequest, response, webapp, paramMap, headerMap, xssChecker, unsafeParamMap);
 	}
 
 	@Override
@@ -158,7 +173,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 			return appUrl;
 		}
 
-		return XssChecker.stripXSS(NetTools.getApplicationURL(getRequest()));
+		return m_xssChecker.stripXSS(NetTools.getApplicationURL(getRequest()));
 	}
 
 	@Override
@@ -171,7 +186,7 @@ public class HttpServerRequestResponse implements IRequestResponse {
 				return appUrl;
 			return appUrl.substring(0, ix + 1);
 		}
-		return XssChecker.stripXSS(NetTools.getHostURL(getRequest()));
+		return m_xssChecker.stripXSS(NetTools.getHostURL(getRequest()));
 	}
 
 	@Override
@@ -197,6 +212,12 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@Nullable
 	public String[] getParameters(@NonNull String name) {
 		return m_parameterMap.get(name);
+	}
+
+	@Nullable
+	@Override
+	public String[] getRawUnsafeParameters(@NonNull String name) {
+		return m_unsafeParamMap.get(name);
 	}
 
 	@Override
