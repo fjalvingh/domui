@@ -349,4 +349,14 @@ final public class UIGoto {
 		SpiContainer container = getSpiContainer(name);
 		container.moveNew(spiClass, pp);
 	}
+
+	static public void moveNew(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiPage, Object... param) throws Exception {
+		PageParameters pp;
+		if(param == null)
+			pp = new PageParameters();
+		else
+			pp = new PageParameters(param);
+
+		moveNew(name, spiPage, pp);
+	}
 }
