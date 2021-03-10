@@ -260,9 +260,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	/**
 	 * Try to locate the WindowSession with the specified ID in this HttpSession. Returns
 	 * null if not found.
-	 *
-	 * @param wid
-	 * @return
 	 */
 	@Nullable
 	final public synchronized WindowSession findWindowSession(@NonNull final String wid) {

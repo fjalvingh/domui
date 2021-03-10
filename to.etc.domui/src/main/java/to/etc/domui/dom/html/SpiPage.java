@@ -37,11 +37,11 @@ abstract public class SpiPage extends UrlPage {
 
 	@Override abstract public void createContent() throws Exception;
 
-	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent) {
+	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent) throws Exception {
 		registerContainer(containerName, container, initialContent, null);
 	}
 
-	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent, @Nullable IPageParameters initialContentParameters) {
+	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent, @Nullable IPageParameters initialContentParameters) throws Exception {
 		if(!StringTool.isValidJavaIdentifier(containerName.name()))
 			throw new IllegalStateException("Invalid container name: must follow the rules for a Java identifier");
 		if(null != m_containerMap.put(containerName.name().toLowerCase(), new SpiContainer(this, container, containerName, initialContent, initialContentParameters)))

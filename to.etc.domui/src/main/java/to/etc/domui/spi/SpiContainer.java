@@ -49,13 +49,14 @@ final public class SpiContainer {
 
 	private List<WeakReference<IExecute>> m_shelfChangedListeners = new ArrayList<>();
 
-	public SpiContainer(SpiPage spiPage, NodeContainer container, ISpiContainerName containerName, Class<? extends SubPage> initialContent, @Nullable IPageParameters initialContentParameters) {
+	public SpiContainer(SpiPage spiPage, NodeContainer container, ISpiContainerName containerName, Class<? extends SubPage> initialContent, @Nullable IPageParameters initialContentParameters) throws Exception {
 		m_spiPage = spiPage;
 		m_container = container;
 		m_containerName = containerName;
 		m_initialContent = initialContent;
 		m_currentPage = initialContent;
 		m_initialContentParameters = initialContentParameters;
+		shelveInitial();
 	}
 
 	private NodeContainer getContainer() {
