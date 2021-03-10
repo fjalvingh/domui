@@ -332,6 +332,7 @@ final public class SpiContainer {
 
 		clearShelf(index + 1);							// Clear all that is above
 		shelvedEntry.activate(this);
+		callListeners();
 	}
 
 	public void moveInitialContent() throws Exception {

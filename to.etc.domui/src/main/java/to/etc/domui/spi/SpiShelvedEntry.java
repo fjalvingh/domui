@@ -58,8 +58,12 @@ final public class SpiShelvedEntry implements ISpiShelvedEntry {
 	}
 
 	public boolean isForPage(Class<? extends SubPage> spiClass, @Nullable IPageParameters parameters) {
-		return spiClass == m_page.getClass()
-			&& Objects.equals(parameters, m_parameters);
+		if(spiClass != m_page.getClass())
+			return false;
+		if(parameters == null) {
+			return m_parameters == null || m_parameters.size() == 0;
+		}
+		return Objects.equals(parameters, m_parameters);
 	}
 
 	@Override public void discard() {
