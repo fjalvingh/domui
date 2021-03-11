@@ -352,7 +352,7 @@ public class CKEditor extends Div implements IControl<String> {
 	}
 
 	public void renderImageSelected(@NonNull String url) {
-		appendJavascript("CkeditorDomUIImage.addImage('" + getActualID() + "', '" + url + "');");
+		m_area.renderImageSelected(url);
 	}
 
 	public void renderCancelImage() {
