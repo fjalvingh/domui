@@ -22,7 +22,7 @@ to.etc.domui/src/resources/themes/blue/style.theme.css.bak
 *.versionsBackup
 *.releaseBackup
 release.properties
-
+to.etc.domui/src/main/resources/resources/ts/node_modules/
 out
 target
 *.log

@@ -1,5 +1,5 @@
-/// <reference types="jquery" />
-/// <reference types="jqueryui" />
+/// <reference types="./node_modules/@types/jquery" />
+/// <reference types="./node_modules/@types/jqueryui" />
 /// <reference path="domui.jquery.d.ts" />
 // <reference path="domui.webui.d.ts" />
 /// <reference path="domui.webui.ts" />

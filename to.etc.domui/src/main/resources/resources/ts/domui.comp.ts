@@ -1,5 +1,5 @@
-/// <reference types="jquery" />
-/// <reference types="jqueryui" />
+/// <reference types="./node_modules/@types/jquery" />
+/// <reference types="./node_modules/@types/jqueryui" />
 
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.ts" />
@@ -181,8 +181,8 @@ namespace WebUI {
 		let hdrs = $(tbl).find(".ui-dt-th");
 		let list = {};
 		for(let i = 0; i < hdrs.length; i++) {
-			let wid = hdrs[i].style.width;
-			list["column_" + hdrs[i].id] = hdrs[i].style.width;
+			let wid = (hdrs[i] as any).style.width;
+			list["column_" + hdrs[i].id] = (hdrs[i] as any).style.width;
 		}
 		WebUI.scall(compId, "COLWIDTHS", list);
 		console.log("Change event", tbl);

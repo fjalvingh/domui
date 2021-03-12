@@ -1,5 +1,5 @@
-/// <reference types="jquery" />
-/// <reference types="jqueryui" />
+/// <reference types="./node_modules/@types/jquery" />
+/// <reference types="./node_modules/@types/jqueryui" />
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.ts" />
 
@@ -258,14 +258,14 @@
 			}
 
 			const src = cmdNode;
-			for(let ai = 0, attr = ''; ai < src.attributes.length; ai++) {
-				const a = src.attributes[ai], n = a.name.trim(), v = a.value.trim();
-				if(n == 'select' || n.substring(0, 2) == 'on')
+			for(let attributeIndex = 0; attributeIndex < src.attributes.length; attributeIndex++) {
+				const attribute = src.attributes[attributeIndex], attributeName = attribute.name.trim(), value = attribute.value.trim();
+				if(attributeName == 'select' || attributeName.substring(0, 2) == 'on')
 					continue;
-				if(n.substring(0, 6) == 'domjs_') {
+				if(attributeName.substring(0, 6) == 'domjs_') {
 					let s;
 					try {
-						s = "dest." + n.substring(6) + " = " + v;
+						s = "dest." + attributeName.substring(6) + " = " + value;
 						eval(s);
 						continue;
 					} catch(ex) {
@@ -273,13 +273,13 @@
 						throw ex;
 					}
 				}
-				if(v == '---') { // drop attribute request?
-					dest.removeAttribute(n);
+				if(value == '---') { // drop attribute request?
+					dest.removeAttribute(attributeName);
 					continue;
 				}
-				if(n == 'style') { // IE workaround
-					dest.style.cssText = v;
-					dest.setAttribute(n, v);
+				if(attributeName == 'style') { // IE workaround
+					dest.style.cssText = value;
+					dest.setAttribute(attributeName, value);
 					//We need this dirty fix for IE7 to force height recalculation of divs that has just become visible (IE7 sometimes fails to calculate height that stays 0!).
 					// if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
 					// 	if((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))) {
@@ -290,18 +290,22 @@
 					//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
 //								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
 
-					if(dest.tagName.toLowerCase() == 'select' && n == 'class' && $.browser.mozilla) {
-						dest.className = v;
+					if(dest.tagName.toLowerCase() == 'select' && attributeName == 'class' && $.browser.mozilla) {
+						dest.className = value;
 						let ele = dest as any;
 						let old = ele.selectedIndex;
 						ele.selectedIndex = 1;			// jal 20100720 Fixes problem where setting BG color on select removes the dropdown button image
 						ele.selectedIndex = old;
-					} else if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
-						$(queryString).removeAttr(n);
-						removeValueFromArray(names, n);
+					} else if(value == "" && ("checked" == attributeName || "selected" == attributeName || "disabled" == attributeName || "readonly" == attributeName)) {
+						var jqAttribute = $(queryString);
+						jqAttribute.attr(attributeName, false)
+						jqAttribute.prop(attributeName, false);
+						removeValueFromArray(names, attributeName);
 					} else {
-						$(queryString).attr(n, v);
-						removeValueFromArray(names, n);
+						var jqAttribute = $(queryString);
+						jqAttribute.attr(attributeName, value);
+						jqAttribute.prop(attributeName, value);
+						removeValueFromArray(names, attributeName);
 					}
 				}
 			}
