@@ -1309,9 +1309,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Out-of-bound data request for a component. This is not allowed to change the state of the tree as no delta
 	 * response will be returned. The action itself must decide on a response.
-	 * @param ctx
-	 * @param action
-	 * @throws Exception
 	 */
 	public void componentHandleWebDataRequest(@NonNull final RequestContextImpl ctx, @NonNull String action) throws Exception {
 		action = "webData" + action;
@@ -1330,8 +1327,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * changed then return TRUE; this will cause the component's
 	 * onValueChange handler to be called.
 	 */
-	public boolean acceptRequestParameter(@NonNull final String[] values) throws Exception {
+	protected boolean acceptRequestParameter(@NonNull final String[] values) throws Exception {
 		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
+	}
+
+	/**
+	 * See {@link #acceptRequestParameter(String[])}, this is the actual thing called which can be used to access
+	 * the whole parameter set.
+	 */
+	public boolean acceptRequestParameter(@NonNull final String[] values, @NonNull IPageParameters allParameters) throws Exception {
+		return acceptRequestParameter(values);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -1340,8 +1345,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Return an URL to a data stream generator for this component. The component must implement
 	 * {@link IComponentUrlDataProvider} to handle the data request.
-	 * @param pp
-	 * @return
 	 */
 	@NonNull
 	public String getComponentDataURL(@Nullable IPageParameters pp) {

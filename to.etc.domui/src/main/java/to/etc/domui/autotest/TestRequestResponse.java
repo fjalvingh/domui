@@ -2,8 +2,10 @@ package to.etc.domui.autotest;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import to.etc.domui.server.IRequestResponse;
 import to.etc.domui.server.IServerSession;
+import to.etc.domui.server.XssChecker;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.upload.UploadItem;
@@ -61,6 +63,8 @@ public class TestRequestResponse implements IRequestResponse {
 	@NonNull
 	final private String m_queryString;
 
+	final private XssChecker m_xssChecker = new XssChecker();
+
 	public TestRequestResponse(@NonNull TestServerSession session, @NonNull IDomUITestInfo info, @NonNull String requestURI, @NonNull String queryString) {
 		m_testInfo = info;
 		m_requestURI = requestURI;
@@ -69,7 +73,6 @@ public class TestRequestResponse implements IRequestResponse {
 		PageParameters pp = PageParameters.decodeParameters(queryString);
 		initParameters(pp);
 	}
-
 
 	public TestRequestResponse(@NonNull TestServerSession session, @NonNull IDomUITestInfo info, @NonNull String requestURI, @NonNull PageParameters parameters) {
 		m_testInfo = info;
@@ -86,6 +89,10 @@ public class TestRequestResponse implements IRequestResponse {
 			String[] vals = parameters.getStringArray(name);
 			m_parameterMap.put(name, vals);
 		}
+	}
+
+	@Override public XssChecker getXssChecker() {
+		return m_xssChecker;
 	}
 
 	@Override
@@ -128,6 +135,11 @@ public class TestRequestResponse implements IRequestResponse {
 	public String[] getParameters(@NonNull String name) {
 		String[] vals = (String[]) m_parameterMap.get(name);
 		return null == vals ? new String[0] : vals;
+	}
+
+	@Nullable
+	@Override public String[] getRawUnsafeParameters(@NotNull String name) {
+		return getParameters(name);
 	}
 
 	@Override
@@ -300,7 +312,7 @@ public class TestRequestResponse implements IRequestResponse {
 		//-- We should have encoding and type.
 		ct = ct.toLowerCase();
 		if(ct.contains("text") || ct.contains("xml") || ct.contains("javascript")) {
-			String str = new String(os.toByteArray(), enc);
+			String str = os.toString(enc);
 			return str;
 		}
 

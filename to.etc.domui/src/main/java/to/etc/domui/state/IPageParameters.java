@@ -150,6 +150,16 @@ public interface IPageParameters extends IBasicParameterContainer {
 	 */
 	@NonNull String[] getStringArray(@NonNull String name);
 
+	/**
+	 * DANGEROUS: Get the raw, unchecked parameter values directly from the request. These
+	 * are UNCHECKED for XSS attacks, so anyone calling this NEEDS TO DO THAT BY THEMSELVES!!
+	 * You would not normally call this method <b>at all</b>, but use {@link #getStringArray(String)} of
+	 * course. The only reason to call this is for components that actually <b>do</b> expect XSS sensitive
+	 * data in their values, like CKEditor - which expects &lt;img src=....&gt; tags in its input. These
+	 * components ARE REQUIRED to still check for xss attacks, but now by themselves!!
+	 */
+	@Nullable String[] getRawUnsafeStringArray(@NonNull String name);
+
 	@Nullable String[] getStringArray(@NonNull String name, @Nullable String[] deflt);
 
 	/**

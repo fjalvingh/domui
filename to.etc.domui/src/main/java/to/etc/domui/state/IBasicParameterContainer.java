@@ -13,10 +13,16 @@ import java.util.Set;
 @NonNullByDefault
 public interface IBasicParameterContainer {
 	/**
-	 * Return either a String or a String[], depending on the #of values for a parameter.
+	 * Returns all XSS checked parameter values.
 	 */
 	@Nullable
-	Object getObject(String name);
+	String[] getParameterValues(String name);
+
+	/**
+	 * Returns the raw, non-XSS checked parameter values.
+	 */
+	@Nullable
+	String[] getRawUnsafeParameterValues(String name);
 
 	/**
 	 * Get the #of parameters in the container.
