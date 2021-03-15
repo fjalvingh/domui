@@ -32,5 +32,5 @@ import to.etc.domui.state.IPageParameters;
 public interface IPageInjector {
 	void registerFactory(int urgency, IPagePropertyFactory injector);
 
-	void injectPageValues(final AbstractPage page, final IPageParameters papa) throws Exception;
+	void injectPageValues(AbstractPage page, IPageParameters papa) throws Exception;
 }

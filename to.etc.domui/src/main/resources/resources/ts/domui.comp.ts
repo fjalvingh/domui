@@ -14,6 +14,47 @@ namespace WebUI {
 
 	let FCKeditor_fixLayout;
 
+
+	/**
+	 * Ajax Callbacks are Javascript methods that are registered by name, associated
+	 * with a component, and that can be called from Server code using that name.
+	 */
+	class AxCallBack {
+		id: string;
+		componentId: String;
+		callbackMethod: (...args) => void;
+
+		constructor(id: string, comp: string, cb: (...args) => void) {
+			this.id = id;
+			this.componentId = comp;
+			this.callbackMethod = cb;
+		}
+	}
+
+	let _callbackMap = {};
+
+	let _callbackIdCount = 1;
+
+	/**
+	 * Register a callback method that can be called at a later time by server
+	 * code. The callback is identified by name.
+	 */
+	export function registerCallback(componentId: string, callbackMethod: (...args) => void) : string {
+		let cbid = "cb" + _callbackIdCount++;
+		_callbackMap[cbid] = new AxCallBack(cbid, componentId, callbackMethod);
+		return cbid;
+	}
+
+	export function callCallBack(callbackId: string, ...args) {
+		let cb = _callbackMap[callbackId] as AxCallBack;
+		if(! cb) {
+			console.log("error: Missing callback " + callbackId);
+			return;
+		}
+		delete _callbackMap[callbackId];
+		cb.callbackMethod(args);
+	}
+
 	export function oddCharAndClickCallback(nodeId, clickId): void {
 		oddChar(document.getElementById(nodeId));
 		document.getElementById(clickId).click();

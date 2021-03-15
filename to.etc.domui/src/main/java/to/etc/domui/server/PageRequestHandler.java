@@ -642,9 +642,9 @@ final public class PageRequestHandler {
 		if(m_action != null) {
 			if(INotReloadablePage.class.isAssignableFrom(m_runClass)) {
 				nonReloadableExpiredDetected = true;
-			} else {
+			} else if(Constants.ACMD_ASYPOLL.equals(m_action)) {
 				// In auto refresh: do not send the "expired" message, but let the refresh handle this.
-				if(m_application.getAutoRefreshPollInterval() <= 0) {
+				if(false && m_application.getAutoRefreshPollInterval() <= 0) {
 					String msg = Msgs.BUNDLE.getString(Msgs.S_EXPIRED);
 					m_commandWriter.generateExpired(m_ctx, msg);
 					logUser(msg);
@@ -722,7 +722,12 @@ final public class PageRequestHandler {
 		sb.append(windowSession.getWindowID());
 		sb.append(".").append(conversationId);
 		DomUtil.addUrlParameters(sb, pp, false);
-		ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.", false);
+		if(m_action == null) {
+			ApplicationRequestHandler.generateHttpRedirect(m_ctx, sb.toString(), "Your session has expired. Starting a new session.", false);
+		} else {
+			ApplicationRequestHandler.generateAjaxRedirect(m_ctx, sb.toString(), false);
+
+		}
 		String expmsg = "Session " + m_cid + " has expired - starting a new session by redirecting to " + sb.toString();
 		logUser(expmsg);
 		if(DomUtil.USERLOG.isDebugEnabled())

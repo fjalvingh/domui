@@ -521,6 +521,36 @@ var WebUI;
     var _popinCloseList = [];
     var _fckEditorIDs = [];
     var FCKeditor_fixLayout;
+    var AxCallBack = (function () {
+        function AxCallBack(id, comp, cb) {
+            this.id = id;
+            this.componentId = comp;
+            this.callbackMethod = cb;
+        }
+        return AxCallBack;
+    }());
+    var _callbackMap = {};
+    var _callbackIdCount = 1;
+    function registerCallback(componentId, callbackMethod) {
+        var cbid = "cb" + _callbackIdCount++;
+        _callbackMap[cbid] = new AxCallBack(cbid, componentId, callbackMethod);
+        return cbid;
+    }
+    WebUI.registerCallback = registerCallback;
+    function callCallBack(callbackId) {
+        var args = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            args[_i - 1] = arguments[_i];
+        }
+        var cb = _callbackMap[callbackId];
+        if (!cb) {
+            console.log("error: Missing callback " + callbackId);
+            return;
+        }
+        delete _callbackMap[callbackId];
+        cb.callbackMethod(args);
+    }
+    WebUI.callCallBack = callCallBack;
     function oddCharAndClickCallback(nodeId, clickId) {
         oddChar(document.getElementById(nodeId));
         document.getElementById(clickId).click();

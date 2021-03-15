@@ -25,19 +25,17 @@
 package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.misc.MessageFlare;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.Page;
-import to.etc.domui.dom.html.SpiContainer;
 import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.domui.server.DomApplication;
-import to.etc.domui.server.SpiPageHelper;
+import to.etc.domui.spi.SpiContainer;
 import to.etc.domui.util.ISpiContainerName;
 import to.etc.domui.util.Msgs;
-import to.etc.util.StringTool;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -297,6 +295,10 @@ final public class UIGoto {
 	/*	CODING:	SPI interface calls.										*/
 	/*----------------------------------------------------------------------*/
 
+	/**
+	 * Move to a new page, and put the previous one on the stack. If the "new page" is actually stacked already
+	 * the stack is rewound back.
+	 */
 	static public void moveSub(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiPage, Object... param) throws Exception {
 		PageParameters pp;
 		if(param == null)
@@ -306,7 +308,17 @@ final public class UIGoto {
 		moveSub(name, spiPage, pp);
 	}
 
-	static public void moveSub(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @NonNull PageParameters pp) throws Exception {
+	/**
+	 * Move to a new page, and put the previous one on the stack. If the "new page" is actually stacked already
+	 * the stack is rewound back.
+	 */
+	static public void moveSub(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @NonNull IPageParameters pp) throws Exception {
+		SpiContainer container = getSpiContainer(name);
+		container.handleMoveSub(spiClass, pp);
+	}
+
+	@NonNull
+	private static SpiContainer getSpiContainer(@NonNull ISpiContainerName name) {
 		Page currentPage = UIContext.getCurrentPage();
 		UrlPage body = currentPage.getBody();
 		if(!(body instanceof SpiPage)) {
@@ -316,18 +328,35 @@ final public class UIGoto {
 		SpiContainer container = spiPage.findSpiContainerByName(name.name());
 		if(null == container)
 			throw new IllegalArgumentException("SPI Page " + body.getClass().getName() + " does not have a container named " + name.name());
+		return container;
+	}
 
-		DomApplication app = DomApplication.get();
-		SpiPageHelper helper = new SpiPageHelper(app);
-		SubPage subPage = helper.createSpiPage(spiClass);
-		app.getInjector().injectPageValues(subPage, pp);
+	/**
+	 * Replace the current topmost page in the container with a new page. The old page gets destroyed, so
+	 * the stack size remains the same. If the page to replace is already on the stack then the stack
+	 * is unwound till that page before the replace takes place; in that case the "old" entry on the stack
+	 * will also be destroyed and be replaced with a new fresh page.
+	 */
+	static public void replace(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @Nullable IPageParameters pp) throws Exception {
+		SpiContainer container = getSpiContainer(name);
+		container.replace(spiClass, pp);
+	}
 
-		container.setPage(subPage, pp);
-		//container.getContainer().add(subPage);
-		//container.setCurrentPage(spiClass);
-		//container.setCurrentParameters(pp);
+	/**
+	 * Clear the entire shelf, and start completely anew with a fresh page on top.
+	 */
+	static public void moveNew(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiClass, @Nullable IPageParameters pp) throws Exception {
+		SpiContainer container = getSpiContainer(name);
+		container.moveNew(spiClass, pp);
+	}
 
-		String hashes = helper.getContainerHashes(spiPage);
-		spiPage.appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(hashes, true) + ");");
+	static public void moveNew(@NonNull ISpiContainerName name, @NonNull Class<? extends SubPage> spiPage, Object... param) throws Exception {
+		PageParameters pp;
+		if(param == null)
+			pp = new PageParameters();
+		else
+			pp = new PageParameters(param);
+
+		moveNew(name, spiPage, pp);
 	}
 }

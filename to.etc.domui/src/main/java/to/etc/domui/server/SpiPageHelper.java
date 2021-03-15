@@ -2,11 +2,11 @@ package to.etc.domui.server;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIPage;
-import to.etc.domui.dom.html.SpiContainer;
 import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.SubPage;
 import to.etc.domui.server.PageUrlMapping.PageSubtype;
 import to.etc.domui.server.PageUrlMapping.Target;
+import to.etc.domui.spi.SpiContainer;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
@@ -40,12 +40,7 @@ public class SpiPageHelper {
 		if(hashes.length() == 0) {
 			//-- Initial content
 			for(SpiContainer container : spiPage.getContainers()) {
-				SubPage subPage = container.getInitialContent().newInstance();
-				IPageParameters pp = container.getInitialContentParameters();
-				if(null != pp) {
-					DomApplication.get().getInjector().injectPageValues(subPage, nullChecked(pp));
-				}
-				container.setPage(subPage, pp);
+				container.moveInitialContent();
 			}
 		} else {
 			String[] segments = hashes.split(";");

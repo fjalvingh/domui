@@ -3,6 +3,7 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import to.etc.domui.spi.SpiContainer;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.util.ISpiContainerName;
 import to.etc.util.StringTool;
@@ -36,14 +37,14 @@ abstract public class SpiPage extends UrlPage {
 
 	@Override abstract public void createContent() throws Exception;
 
-	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent) {
+	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent) throws Exception {
 		registerContainer(containerName, container, initialContent, null);
 	}
 
-	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent, @Nullable IPageParameters initialContentParameters) {
+	public void registerContainer(@NonNull ISpiContainerName containerName, @NonNull NodeContainer container, @NonNull Class<? extends SubPage> initialContent, @Nullable IPageParameters initialContentParameters) throws Exception {
 		if(!StringTool.isValidJavaIdentifier(containerName.name()))
 			throw new IllegalStateException("Invalid container name: must follow the rules for a Java identifier");
-		if(null != m_containerMap.put(containerName.name().toLowerCase(), new SpiContainer(container, containerName, initialContent, initialContentParameters)))
+		if(null != m_containerMap.put(containerName.name().toLowerCase(), new SpiContainer(this, container, containerName, initialContent, initialContentParameters)))
 			throw new IllegalStateException("Duplicate container name: " + containerName);
 	}
 
@@ -95,5 +96,12 @@ abstract public class SpiPage extends UrlPage {
 	public SpiContainer findSpiContainerByName(String name) {
 		name = name.toLowerCase();
 		return m_containerMap.get(name);
+	}
+
+	public SpiContainer getSpiContainer(ISpiContainerName name) {
+		SpiContainer container = findSpiContainerByName(name.name());
+		if(null == container)
+			throw new IllegalArgumentException("SPI Page " + getClass().getName() + " does not have a container named " + name.name());
+		return container;
 	}
 }
