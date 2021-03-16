@@ -3744,14 +3744,14 @@ var WebUI;
                 names[ai] = dest.attributes[ai].name.trim();
             }
             var src = cmdNode;
-            for (var ai = 0, attr = ''; ai < src.attributes.length; ai++) {
-                var a = src.attributes[ai], n = a.name.trim(), v_1 = a.value.trim();
-                if (n == 'select' || n.substring(0, 2) == 'on')
+            for (var attributeIndex = 0; attributeIndex < src.attributes.length; attributeIndex++) {
+                var attribute = src.attributes[attributeIndex], attributeName = attribute.name.trim(), value = attribute.value.trim();
+                if (attributeName == 'select' || attributeName.substring(0, 2) == 'on')
                     continue;
-                if (n.substring(0, 6) == 'domjs_') {
+                if (attributeName.substring(0, 6) == 'domjs_') {
                     var s = void 0;
                     try {
-                        s = "dest." + n.substring(6) + " = " + v_1;
+                        s = "dest." + attributeName.substring(6) + " = " + value;
                         eval(s);
                         continue;
                     }
@@ -3760,29 +3760,33 @@ var WebUI;
                         throw ex;
                     }
                 }
-                if (v_1 == '---') {
-                    dest.removeAttribute(n);
+                if (value == '---') {
+                    dest.removeAttribute(attributeName);
                     continue;
                 }
-                if (n == 'style') {
-                    dest.style.cssText = v_1;
-                    dest.setAttribute(n, v_1);
+                if (attributeName == 'style') {
+                    dest.style.cssText = value;
+                    dest.setAttribute(attributeName, value);
                 }
                 else {
-                    if (dest.tagName.toLowerCase() == 'select' && n == 'class' && $.browser.mozilla) {
-                        dest.className = v_1;
+                    if (dest.tagName.toLowerCase() == 'select' && attributeName == 'class' && $.browser.mozilla) {
+                        dest.className = value;
                         var ele = dest;
                         var old = ele.selectedIndex;
                         ele.selectedIndex = 1;
                         ele.selectedIndex = old;
                     }
-                    else if (v_1 == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
-                        $(queryString).removeAttr(n);
-                        removeValueFromArray(names, n);
+                    else if (value == "" && ("checked" == attributeName || "selected" == attributeName || "disabled" == attributeName || "readonly" == attributeName)) {
+                        var jqAttribute = $(queryString);
+                        jqAttribute.attr(attributeName, false);
+                        jqAttribute.prop(attributeName, false);
+                        removeValueFromArray(names, attributeName);
                     }
                     else {
-                        $(queryString).attr(n, v_1);
-                        removeValueFromArray(names, n);
+                        var jqAttribute = $(queryString);
+                        jqAttribute.attr(attributeName, value);
+                        jqAttribute.prop(attributeName, value);
+                        removeValueFromArray(names, attributeName);
                     }
                 }
             }

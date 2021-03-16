@@ -1,0 +1,17 @@
+{
+  "name": "domui-ts",
+  "version": "1.0.0",
+  "description": "DomUI TypeScript",
+  "scripts": {
+    "compile": "./node_modules/.bin/tsc --allowjs --project ./tsconfig.json"
+  },
+  "author": "",
+  "license": "LGPL-2.1 License",
+  "dependencies": {
+    "@types/jquery": "^2.0.56",
+    "@types/jqueryui": "^1.12.15"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.3"
+  }
+}

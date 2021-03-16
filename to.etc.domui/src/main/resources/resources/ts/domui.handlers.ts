@@ -160,7 +160,7 @@ namespace WebUI {
 //			if(WebUI._NOMOVE)
 //				return;
 //			console.debug("move ", e);
-			_debugMouseTarget = e.target; // e.srcElement || e.originalTarget;
+			_debugMouseTarget = e.target as HTMLElement; // e.srcElement || e.originalTarget;
 		});
 	}
 
