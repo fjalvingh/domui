@@ -311,7 +311,7 @@ namespace WebUI {
 	export function handleResponse(data, state): void {
 		clearErrorAsy();
 		// if (false && window.console && window.console.debug)
-		// 	console.debug("data is ", data);
+		console.log("data is ", data);
 		$.webui(data);
 	}
 
@@ -468,6 +468,11 @@ namespace WebUI {
 			data: fields,
 			cache: false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
+			converters: { //bugfix: when special bytes are present, handlers are not called.
+				'text xml': function (f) {
+					return f;
+				}
+			},
 			success: handleResponse,
 			error: handleErrorAsy
 		});

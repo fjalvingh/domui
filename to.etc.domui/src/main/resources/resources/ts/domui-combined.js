@@ -244,6 +244,7 @@ var WebUI;
     WebUI.valuechanged = valuechanged;
     function handleResponse(data, state) {
         clearErrorAsy();
+        console.log("data is ", data);
         $.webui(data);
     }
     WebUI.handleResponse = handleResponse;
@@ -363,6 +364,11 @@ var WebUI;
             data: fields,
             cache: false,
             global: false,
+            converters: {
+                'text xml': function (f) {
+                    return f;
+                }
+            },
             success: handleResponse,
             error: handleErrorAsy
         });
