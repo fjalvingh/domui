@@ -24,7 +24,11 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.function.ConsumerEx;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QEventListenerSet;
+import to.etc.webapp.query.QQueryExecutorRegistry;
 
 /**
  * Utterly basic Source for Hibernate connections without any lifecycle management.
@@ -33,20 +37,18 @@ import to.etc.webapp.query.*;
  * Created on Jun 25, 2008
  */
 public class HibernateDataContextFactory extends AbstractHibernateContextFactory {
-	public HibernateDataContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry handlers) {
-		super(eventSet, sessionMaker, handlers);
+	public HibernateDataContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry handlers, @Nullable ConsumerEx<QDataContext> onContextCreated) {
+		super(eventSet, sessionMaker, handlers, onContextCreated);
 	}
 
-	public HibernateDataContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker) {
-		super(eventSet, sessionMaker);
+	public HibernateDataContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, @Nullable ConsumerEx<QDataContext> onContextCreated) {
+		super(eventSet, sessionMaker, onContextCreated);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#getDataContext()
-	 */
 	@Override
 	public QDataContext getDataContext() throws Exception {
-		return new HibernateQDataContext(this, getSessionMaker());
+		HibernateQDataContext dc = new HibernateQDataContext(this, getSessionMaker());
+		getOnContextCreated().accept(dc);
+		return dc;
 	}
 }
