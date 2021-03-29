@@ -25,29 +25,29 @@
 package to.etc.domui.hibernate.generic;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.function.ConsumerEx;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QEventListenerSet;
 import to.etc.webapp.query.QQueryExecutorRegistry;
 
 public class HibernateLongSessionContextFactory extends AbstractHibernateContextFactory {
-	public HibernateLongSessionContextFactory(@NonNull QEventListenerSet eventSet, @NonNull HibernateSessionMaker sessionMaker, @NonNull QQueryExecutorRegistry handlers) {
-		super(eventSet, sessionMaker, handlers);
+	public HibernateLongSessionContextFactory(@NonNull QEventListenerSet eventSet, @NonNull HibernateSessionMaker sessionMaker, @NonNull QQueryExecutorRegistry handlers, @Nullable ConsumerEx<QDataContext> onContextCreated) {
+		super(eventSet, sessionMaker, handlers, onContextCreated);
 	}
 
-	public HibernateLongSessionContextFactory(@NonNull QEventListenerSet eventSet, @NonNull HibernateSessionMaker sessionMaker) {
-		super(eventSet, sessionMaker);
+	public HibernateLongSessionContextFactory(@NonNull QEventListenerSet eventSet, @NonNull HibernateSessionMaker sessionMaker, @Nullable ConsumerEx<QDataContext> onContextCreated) {
+		super(eventSet, sessionMaker, onContextCreated);
 	}
 
 //	public HibernateLongSessionContextFactory(HibernateSessionMaker sessionMaker) {
 //		super(sessionMaker);
 //	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#getDataContext()
-	 */
 	@Override
 	public QDataContext getDataContext() throws Exception {
-		return new HibernateLongSessionContext(this, getSessionMaker());
+		HibernateLongSessionContext dc = new HibernateLongSessionContext(this, getSessionMaker());
+		getOnContextCreated().accept(dc);
+		return dc;
 	}
 }

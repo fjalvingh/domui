@@ -24,7 +24,13 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.function.ConsumerEx;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QDataContextFactory;
+import to.etc.webapp.query.QEventListenerSet;
+import to.etc.webapp.query.QQueryExecutorRegistry;
 
 abstract public class AbstractHibernateContextFactory implements QDataContextFactory {
 	private HibernateSessionMaker m_sessionMaker;
@@ -33,44 +39,34 @@ abstract public class AbstractHibernateContextFactory implements QDataContextFac
 
 	private QQueryExecutorRegistry m_handlers;
 
+	final private ConsumerEx<QDataContext> m_onContextCreated;
+
 	static private QQueryExecutorRegistry m_default = new QQueryExecutorRegistry();
 
 	static {
 		m_default.register(HibernateQueryExecutor.FACTORY);
 	}
 
-	public AbstractHibernateContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry handlers) {
+	public AbstractHibernateContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry handlers, @Nullable ConsumerEx<QDataContext> onContextCreated) {
 		m_eventSet = eventSet;
 		m_sessionMaker = sessionMaker;
 		m_handlers = handlers;
+		m_onContextCreated = onContextCreated == null ? a -> {} : onContextCreated;
 	}
 
-	public AbstractHibernateContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker) {
+	public AbstractHibernateContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, @Nullable ConsumerEx<QDataContext> onContextCreated) {
 		m_eventSet = eventSet;
 		m_sessionMaker = sessionMaker;
 		m_handlers = m_default;
-	}
-
-	public AbstractHibernateContextFactory(HibernateSessionMaker sessionMaker) {
-		m_eventSet = new QEventListenerSet();
-		m_sessionMaker = sessionMaker;
-		m_handlers = m_default;
+		m_onContextCreated = onContextCreated == null ? a -> {} : onContextCreated;
 	}
 
 	protected HibernateSessionMaker getSessionMaker() {
 		return m_sessionMaker;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#getDataContext()
-	 */
 	abstract public QDataContext getDataContext() throws Exception;
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#getEventListeners()
-	 */
 	public QEventListenerSet getEventListeners() {
 		return m_eventSet;
 	}
@@ -78,5 +74,10 @@ abstract public class AbstractHibernateContextFactory implements QDataContextFac
 	@Override
 	public QQueryExecutorRegistry getQueryHandlerList() {
 		return m_handlers;
+	}
+
+	@NonNull
+	protected ConsumerEx<QDataContext> getOnContextCreated() {
+		return m_onContextCreated;
 	}
 }

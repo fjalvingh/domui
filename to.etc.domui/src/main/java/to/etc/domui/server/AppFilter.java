@@ -189,6 +189,11 @@ public class AppFilter implements Filter {
 
 		initLogConfig(approot, config.getInitParameter("logpath"));
 
+		if(DeveloperOptions.isDeveloperWorkstation() ) {
+			config.getServletContext().getSessionCookieConfig().setHttpOnly(false);
+			config.getServletContext().getSessionCookieConfig().setSecure(false);
+		}
+
 		try {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
 

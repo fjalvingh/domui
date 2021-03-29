@@ -18,11 +18,11 @@ namespace WebUI {
 	}
 
 	export function framePrint(frmname: string) : void {
-		if (jQuery.browser.msie) {
-			documentPrintIE(frmname);
-		} else {
+		// if (jQuery.browser.msie) {
+		// 	documentPrintIE(frmname);
+		// } else {
 			documentPrintNonIE(frmname);
-		}
+		// }
 	}
 
 	export function documentPrintIE(frmname: string) : void {

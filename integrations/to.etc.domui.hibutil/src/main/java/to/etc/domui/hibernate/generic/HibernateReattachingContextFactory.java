@@ -24,7 +24,11 @@
  */
 package to.etc.domui.hibernate.generic;
 
-import to.etc.webapp.query.*;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.function.ConsumerEx;
+import to.etc.webapp.query.QDataContext;
+import to.etc.webapp.query.QEventListenerSet;
+import to.etc.webapp.query.QQueryExecutorRegistry;
 
 /**
  * This is a factory which creates contexts which reattach all their objects when the
@@ -34,20 +38,18 @@ import to.etc.webapp.query.*;
  * Created on Jul 15, 2009
  */
 public class HibernateReattachingContextFactory extends AbstractHibernateContextFactory {
-	public HibernateReattachingContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry handlers) {
-		super(eventSet, sessionMaker, handlers);
+	public HibernateReattachingContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, QQueryExecutorRegistry handlers, @Nullable ConsumerEx<QDataContext> onContextCreated) {
+		super(eventSet, sessionMaker, handlers, onContextCreated);
 	}
 
-	public HibernateReattachingContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker) {
-		super(eventSet, sessionMaker);
+	public HibernateReattachingContextFactory(QEventListenerSet eventSet, HibernateSessionMaker sessionMaker, @Nullable ConsumerEx<QDataContext> onContextCreated) {
+		super(eventSet, sessionMaker, onContextCreated);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.webapp.query.QDataContextFactory#getDataContext()
-	 */
 	@Override
 	public QDataContext getDataContext() throws Exception {
-		return new HibernateReattachingDataContext(this, getSessionMaker());
+		HibernateReattachingDataContext dc = new HibernateReattachingDataContext(this, getSessionMaker());
+		getOnContextCreated().accept(dc);
+		return dc;
 	}
 }

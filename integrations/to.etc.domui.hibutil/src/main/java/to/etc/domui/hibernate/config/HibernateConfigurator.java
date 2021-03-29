@@ -428,8 +428,9 @@ final public class HibernateConfigurator {
 		if(m_interceptorFactory != null) {
 			//-- We need the copy interceptor to handle these.
 			hsm = dc -> {
-				var interceptor = m_interceptorFactory.create(dc);
-				dc.setAttribute(Interceptor.class, interceptor);
+				Interceptor interceptor = dc.getAttribute(Interceptor.class);
+				//var interceptor = m_interceptorFactory.create(dc);
+				//dc.setAttribute(Interceptor.class, interceptor);
 				return m_sessionFactory.withOptions()
 					.interceptor(interceptor)
 					.openSession();
@@ -445,8 +446,19 @@ final public class HibernateConfigurator {
 			m_handlers.register(HibernateQueryExecutor.FACTORY);
 		}
 
-		m_contextSource = new HibernateLongSessionContextFactory(m_listeners, hsm, m_handlers);
+		m_contextSource = new HibernateLongSessionContextFactory(m_listeners, hsm, m_handlers, HibernateConfigurator::onContextCreated);
 		System.out.println("domui: Hibernate initialization took a whopping " + StringTool.strNanoTime(System.nanoTime() - ts));
+	}
+
+	/**
+	 * Called whenever a QDataContext is created, this adds whatever is needed to the QDataContext.
+	 */
+	private static void onContextCreated(QDataContext dc) {
+		InterceptorFactory factory = m_interceptorFactory;
+		if(null != factory) {
+			var interceptor = factory.create((BuggyHibernateBaseContext) dc);
+			dc.setAttribute(Interceptor.class, interceptor);
+		}
 	}
 
 	/**

@@ -110,6 +110,7 @@ public class PartService {
 		IPartFactory factory = executionReference.getFactory();
 		if(factory instanceof IUnbufferedPartFactory) {
 			IUnbufferedPartFactory upf = (IUnbufferedPartFactory) factory;
+			DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 			upf.generate(getApplication(), executionReference.getInfo().getInputPath(), ctx);
 		} else if(factory instanceof IBufferedPartFactory) {
 			generate((IBufferedPartFactory<?>) factory, ctx, executionReference.getInfo());
@@ -253,9 +254,6 @@ public class PartService {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Helper which handles possible cached buffered parts.
-	 * @param pf
-	 * @param ctx
-	 * @throws Exception
 	 */
 	private <K> void generate(IBufferedPartFactory<K> pf, RequestContextImpl ctx, IPageParameters parameters) throws Exception {
 		PartData cp = getCachedInstance2(pf, parameters);
@@ -265,6 +263,8 @@ public class PartService {
 		if(cp.getCacheTime() > 0 && m_allowExpires) {
 			ctx.getRequestResponse().setExpiry(cp.getCacheTime());
 		}
+		DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
+
 		try {
 			os = ctx.getRequestResponse().getOutputStream(cp.getContentType(), null, cp.getSize());
 			for(byte[] data : cp.getData())

@@ -135,15 +135,15 @@ namespace WebUI {
 			//-- First find the background table height. This is on the table in IE (tbody has size 0, sigh) and on tbody in firefox
 			var tblheight;
 			var tbl;
-			if($.browser.msie) {
-				tbl = $("table.ui-wa-bgtbl", this._rootdiv).get()[0];
-				tblheight = tbl.clientHeight;
+			// if($.browser.msie) {
+			// 	tbl = $("table.ui-wa-bgtbl", this._rootdiv).get()[0];
+			// 	tblheight = tbl.clientHeight;
+			// 	tbl = $(".ui-wa-bgtbl tbody", this._rootdiv).get()[0];
+			//
+			// } else {
 				tbl = $(".ui-wa-bgtbl tbody", this._rootdiv).get()[0];
-
-			} else {
-				tbl = $(".ui-wa-bgtbl tbody", this._rootdiv).get()[0];
 				tblheight = tbl.clientHeight;
-			}
+			// }
 			var tr = undefined;
 			for(var i = 0; i < tbl.childNodes.length; i++) {
 				tr = tbl.childNodes[i];

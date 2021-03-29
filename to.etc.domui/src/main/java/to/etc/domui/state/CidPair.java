@@ -13,6 +13,20 @@ final public class CidPair {
 	public CidPair(@NonNull String windowId, @NonNull String conversationId) {
 		m_windowId = windowId;
 		m_conversationId = conversationId;
+
+		if(! isValid(windowId))
+			throw new IllegalStateException("Invalid window ID in CID");	// Do not show the ID - can be a XSS attack
+		if(! isValid(conversationId))
+			throw new IllegalStateException("Invalid conversation ID in CID");	// Do not show the ID - can be a XSS attack
+	}
+
+	private boolean isValid(String thing) {
+		for(int i = thing.length(); --i >= 0;) {
+			char c = thing.charAt(i);
+			if(c != '_' && ! Character.isLetterOrDigit(c))
+				return false;
+		}
+		return true;
 	}
 
 	@NonNull

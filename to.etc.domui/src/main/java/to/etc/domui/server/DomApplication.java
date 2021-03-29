@@ -163,7 +163,7 @@ public abstract class DomApplication {
 	static private final String[][] JQUERYSETS = {                                                //
 		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},                                //
 		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
-
+		{"3.6.0", "jquery-3.6.0", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 	};
 
 	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
@@ -307,10 +307,11 @@ public abstract class DomApplication {
 
 	private boolean m_scanClosed;
 
+	private Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
-	 * @return
 	 */
 	@Nullable
 	abstract public Class<? extends UrlPage> getRootPage();
@@ -433,7 +434,7 @@ public abstract class DomApplication {
 	 */
 	public DomApplication() {
 		//-- Handle jQuery version.
-		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "1.10.2");
+		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "3.6.0");
 		String[] jqdata = null;
 		for(String[] jqd : JQUERYSETS) {
 			if(jqd[0].equalsIgnoreCase(jqversion)) {
@@ -511,6 +512,8 @@ public abstract class DomApplication {
 		addDefaultHTTPHeader("Expires", "Mon, 8 Aug 2006 10:00:00 GMT");
 
 		addDefaultHTTPHeader("X-Content-Type-Options", "nosniff");	// Make sure the browser always obeys the actual content type for a document
+
+		addDefaultResourceHeader("X-Content-Type-Options", "nosniff");	// Make sure the browser always obeys the actual content type for a document
 	}
 
 	protected void registerControlFactories() {
@@ -982,11 +985,23 @@ public abstract class DomApplication {
 		m_defaultSiteHeaderMap = newMap;
 	}
 
+	public void addDefaultResourceHeader(String headerName, String value) {
+		Map<String, String> map = m_defaultSiteResourceHeaderMap;
+		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		newMap.putAll(map);
+		newMap.put(headerName, value);
+		m_defaultSiteResourceHeaderMap = newMap;
+	}
+
 	/**
 	 * All http headers that should be sent with each response.
 	 */
 	public Map<String, String> getDefaultHTTPHeaderMap() {
 		return m_defaultSiteHeaderMap;
+	}
+
+	public Map<String, String> getDefaultSiteResourceHeaderMap() {
+		return m_defaultSiteResourceHeaderMap;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -995,7 +1010,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Get the action registry for  {@link NodeBase#componentHandleWebAction(RequestContextImpl, String)} requests.
-	 * @return
 	 */
 	@NonNull
 	public WebActionRegistry getWebActionRegistry() {
@@ -1016,9 +1030,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Creates the appropriate full renderer for the specified browser version.
-	 * @param bv
-	 * @param o
-	 * @return
 	 */
 	public HtmlFullRenderer findRendererFor(BrowserVersion bv, final IBrowserOutput o) {
 		boolean tm = isUiTestMode();
@@ -1239,9 +1250,10 @@ public abstract class DomApplication {
 		//-- Localized calendar resources are added per-page.
 
 		/*
-		 * FIXME Same as above, this is for loading the CKEditor.
+		 * CKEditor default js removed because it is old and has vulnerabilities. Use CKEditor.initialize
+		 * on pages using it.
 		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
+		//addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
 	}
 
 	/**
@@ -1250,9 +1262,6 @@ public abstract class DomApplication {
 	 * which is mostly important for Javascript ones; higher order items are written later than
 	 * lower order items. All DomUI required Javascript code has orders < 0; user code should
 	 * start at 0 and go up.
-	 *
-	 * @param hc
-	 * @param order
 	 */
 	final public synchronized void addHeaderContributor(final HeaderContributor hc, int order) {
 		for(HeaderContributorEntry hce : m_orderedContributorList) {
@@ -1273,8 +1282,6 @@ public abstract class DomApplication {
 	 * errors will not be visible. If such a page encounters an error it will call this method; the default
 	 * implementation will add an ErrorPanel as the first component in the Body; this panel will then
 	 * accept and render the errors.
-	 *
-	 * @param page
 	 */
 	public void addDefaultErrorComponent(final NodeContainer page) {
 		ErrorPanel panel = new ErrorPanel();
