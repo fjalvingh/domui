@@ -27,7 +27,7 @@ final public class XssChecker {
 		// vbscript:...
 		Pattern.compile("vbscript:", Pattern.CASE_INSENSITIVE),
 		// onload(...)=...
-		Pattern.compile("onload(.*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL)
+		Pattern.compile("onload(\\s*?)=", Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL)
 	};
 
 	private XssChecker() {}
