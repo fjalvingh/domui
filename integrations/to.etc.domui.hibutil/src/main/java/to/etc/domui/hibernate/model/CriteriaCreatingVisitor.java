@@ -220,16 +220,27 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 		visitOrderList(qc.getOrder());
 
 		//-- 2. Handle limits and start: applicable to root criterion only
-		if(qc.getLimit() > 0)
-			m_rootCriteria.setMaxResults(qc.getLimit());
-		if(qc.getStart() > 0) {
-			m_rootCriteria.setFirstResult(qc.getStart());
-		}
-		if(qc.getTimeout() > 0)
-			m_rootCriteria.setTimeout(qc.getTimeout());
+		handleLimits(qc);
 
 		//-- 3. Handle fetch.
 		handleFetch(qc);
+	}
+
+	/**
+	 * Handle limits and start: applicable to root criterion only
+	 *
+	 * @param n
+	 */
+	private void handleLimits(QCriteriaQueryBase<?, ?> n) {
+		if(n.getLimit() > 0) {
+			m_rootCriteria.setMaxResults(n.getLimit());
+		}
+		if(n.getStart() > 0) {
+			m_rootCriteria.setFirstResult(n.getStart());
+		}
+		if(n.getTimeout() > 0) {
+			m_rootCriteria.setTimeout(n.getTimeout());
+		}
 	}
 
 	/**
@@ -1281,6 +1292,9 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 			throw new IllegalStateException("Unsupported current: " + m_currentCriteria);
 		visitRestrictionsBase(s);
 		visitOrderList(s.getOrder());
+
+		//-- 2. Handle limits and start: applicable to root criterion only
+		handleLimits(s);
 
 		//-- 3. Handle fetch.
 		handleFetch(s);
