@@ -240,8 +240,6 @@ public class DbEventManager implements Runnable {
 
 	/**
 	 * Get the instance.
-	 *
-	 * @return
 	 */
 	static synchronized public DbEventManager getInstance() {
 		ThreadLocal<DbEventManager> tl = m_testInstances;
@@ -256,7 +254,7 @@ public class DbEventManager implements Runnable {
 			em = m_instance;
 		}
 		if(null == em)
-			throw new IllegalStateException("The VpEventManager has not been initialized");
+			throw new IllegalStateException("The " + DbEventManager.class.getSimpleName() + " has not been initialized");
 		return em;
 	}
 
