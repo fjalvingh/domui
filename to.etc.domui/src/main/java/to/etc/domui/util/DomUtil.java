@@ -555,8 +555,8 @@ final public class DomUtil {
 
 	static public void addUrlParameters(final StringBuilder sb, final IRequestContext ctx, boolean first) {
 		for(String name : ctx.getPageParameters().getParameterNames()) {
-			if(name.equals(Constants.PARAM_CONVERSATION_ID))
-				continue;
+			//if(name.equals(Constants.PARAM_CONVERSATION_ID))
+			//	continue;
 			String[] parameters = ctx.getPageParameters().getStringArray(name, null);
 			if(null == parameters)
 				continue;
@@ -581,8 +581,8 @@ final public class DomUtil {
 		if(ctx == null)
 			return;
 		for(String name : ctx.getParameterNames()) {
-			if(name.equals(Constants.PARAM_CONVERSATION_ID))
-				continue;
+			//if(name.equals(Constants.PARAM_CONVERSATION_ID))
+			//	continue;
 			if(skipset.contains(name))
 				continue;
 			String[] values = ctx.getStringArray(name);
