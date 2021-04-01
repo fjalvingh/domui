@@ -129,6 +129,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			if(attrChangeList == Collections.EMPTY_LIST)
 				attrChangeList = new ArrayList<>();
 			attrChangeList.add(n);
+			n.internalSetHasChangedAttributes(false);
 		}
 
 		void addDelete(NodeBase b) {
