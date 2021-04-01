@@ -282,13 +282,13 @@
 				if(value.indexOf("javascript:") == 0)
 					value = value.substring(11).trim();
 				value = value.trim();
-				var fntext = value.indexOf("return") >= 0 || value.substring(0, 1) === "{" ? value : "return " + value;		// for now accept everything that at least does a return.
+				if(value == "") {
+					delete dest[attributeName];
+					return;
+				}
 
-				let se;
-				// if($.browser.msie && $.browser.majorVersion < 9)
-				// 	se = new Function(fntext);
-				// else
-				se = new Function("event", fntext);
+				var fntext = value.indexOf("return") >= 0 || value.substring(0, 1) === "{" ? value : "return " + value;		// for now accept everything that at least does a return.
+				let se = new Function("event", fntext);
 				dest[attributeName] = se;
 			} catch(x) {
 				alert('DomUI: Cannot set EVENT ' + attributeName + " as " + value + ' on ' + dest + ": " + x);
@@ -297,7 +297,7 @@
 		}
 
 		if(attributeName.substring(0, 6) == 'domjs_') {
-			let s;
+			let s = undefined;
 			try {
 				s = "dest." + attributeName.substring(6) + " = " + value;
 				eval(s);

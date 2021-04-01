@@ -3768,9 +3768,12 @@ var WebUI;
                 if (value.indexOf("javascript:") == 0)
                     value = value.substring(11).trim();
                 value = value.trim();
+                if (value == "") {
+                    delete dest[attributeName];
+                    return;
+                }
                 var fntext = value.indexOf("return") >= 0 || value.substring(0, 1) === "{" ? value : "return " + value;
-                var se = void 0;
-                se = new Function("event", fntext);
+                var se = new Function("event", fntext);
                 dest[attributeName] = se;
             }
             catch (x) {
@@ -3779,7 +3782,7 @@ var WebUI;
             return;
         }
         if (attributeName.substring(0, 6) == 'domjs_') {
-            var s = void 0;
+            var s = undefined;
             try {
                 s = "dest." + attributeName.substring(6) + " = " + value;
                 eval(s);
