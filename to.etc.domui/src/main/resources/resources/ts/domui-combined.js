@@ -3746,49 +3746,9 @@ var WebUI;
             var src = cmdNode;
             for (var attributeIndex = 0; attributeIndex < src.attributes.length; attributeIndex++) {
                 var attribute = src.attributes[attributeIndex], attributeName = attribute.name.trim(), value = attribute.value.trim();
-                if (attributeName == 'select' || attributeName.substring(0, 2) == 'on')
+                if (attributeName == 'select')
                     continue;
-                if (attributeName.substring(0, 6) == 'domjs_') {
-                    var s = void 0;
-                    try {
-                        s = "dest." + attributeName.substring(6) + " = " + value;
-                        eval(s);
-                        continue;
-                    }
-                    catch (ex) {
-                        alert('domjs_ eval failed: ' + ex + ", value=" + s);
-                        throw ex;
-                    }
-                }
-                if (value == '---') {
-                    dest.removeAttribute(attributeName);
-                    continue;
-                }
-                if (attributeName == 'style') {
-                    dest.style.cssText = value;
-                    dest.setAttribute(attributeName, value);
-                }
-                else {
-                    if (dest.tagName.toLowerCase() == 'select' && attributeName == 'class' && $.browser.mozilla) {
-                        dest.className = value;
-                        var ele = dest;
-                        var old = ele.selectedIndex;
-                        ele.selectedIndex = 1;
-                        ele.selectedIndex = old;
-                    }
-                    else if (value == "" && ("checked" == attributeName || "selected" == attributeName || "disabled" == attributeName || "readonly" == attributeName)) {
-                        var jqAttribute = $(queryString);
-                        jqAttribute.attr(attributeName, false);
-                        jqAttribute.prop(attributeName, false);
-                        removeValueFromArray(names, attributeName);
-                    }
-                    else {
-                        var jqAttribute = $(queryString);
-                        jqAttribute.attr(attributeName, value);
-                        jqAttribute.prop(attributeName, value);
-                        removeValueFromArray(names, attributeName);
-                    }
-                }
+                handleChangeSingleAttribute(dest, names, attributeName, value, queryString);
             }
             for (var ai = 0; ai < names.length; ai++) {
                 var a = names[ai];
@@ -3800,6 +3760,63 @@ var WebUI;
         catch (ex) {
             alert('changeTagAttr failed: ' + ex);
             throw ex;
+        }
+    }
+    function handleChangeSingleAttribute(dest, names, attributeName, value, queryString) {
+        if (attributeName.substring(0, 2) == 'on') {
+            try {
+                if (value.indexOf("javascript:") == 0)
+                    value = value.substring(11).trim();
+                value = value.trim();
+                var fntext = value.indexOf("return") >= 0 || value.substring(0, 1) === "{" ? value : "return " + value;
+                var se = void 0;
+                se = new Function("event", fntext);
+                dest[attributeName] = se;
+            }
+            catch (x) {
+                alert('DomUI: Cannot set EVENT ' + attributeName + " as " + value + ' on ' + dest + ": " + x);
+            }
+            return;
+        }
+        if (attributeName.substring(0, 6) == 'domjs_') {
+            var s = void 0;
+            try {
+                s = "dest." + attributeName.substring(6) + " = " + value;
+                eval(s);
+                return;
+            }
+            catch (ex) {
+                alert('domjs_ eval failed: ' + ex + ", value=" + s);
+                throw ex;
+            }
+        }
+        if (value == '---') {
+            dest.removeAttribute(attributeName);
+            return;
+        }
+        if (attributeName == 'style') {
+            dest.style.cssText = value;
+            dest.setAttribute(attributeName, value);
+            return;
+        }
+        if (dest.tagName.toLowerCase() == 'select' && attributeName == 'class' && $.browser.mozilla) {
+            dest.className = value;
+            var ele = dest;
+            var old = ele.selectedIndex;
+            ele.selectedIndex = 1;
+            ele.selectedIndex = old;
+        }
+        else if (value == "" && ("checked" == attributeName || "selected" == attributeName || "disabled" == attributeName || "readonly" == attributeName)) {
+            var jqAttribute = $(queryString);
+            jqAttribute.attr(attributeName, false);
+            jqAttribute.prop(attributeName, false);
+            removeValueFromArray(names, attributeName);
+        }
+        else {
+            var jqAttribute = $(queryString);
+            jqAttribute.attr(attributeName, value);
+            jqAttribute.prop(attributeName, value);
+            removeValueFromArray(names, attributeName);
         }
     }
     function postProcess() {

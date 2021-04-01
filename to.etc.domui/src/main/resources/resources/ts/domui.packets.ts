@@ -260,54 +260,9 @@
 			const src = cmdNode;
 			for(let attributeIndex = 0; attributeIndex < src.attributes.length; attributeIndex++) {
 				const attribute = src.attributes[attributeIndex], attributeName = attribute.name.trim(), value = attribute.value.trim();
-				if(attributeName == 'select' || attributeName.substring(0, 2) == 'on')
+				if(attributeName == 'select')
 					continue;
-				if(attributeName.substring(0, 6) == 'domjs_') {
-					let s;
-					try {
-						s = "dest." + attributeName.substring(6) + " = " + value;
-						eval(s);
-						continue;
-					} catch(ex) {
-						alert('domjs_ eval failed: ' + ex + ", value=" + s);
-						throw ex;
-					}
-				}
-				if(value == '---') { // drop attribute request?
-					dest.removeAttribute(attributeName);
-					continue;
-				}
-				if(attributeName == 'style') { // IE workaround
-					dest.style.cssText = value;
-					dest.setAttribute(attributeName, value);
-					//We need this dirty fix for IE7 to force height recalculation of divs that has just become visible (IE7 sometimes fails to calculate height that stays 0!).
-					// if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
-					// 	if((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))) {
-					// 		WebUI.refreshElement(dest.id);
-					// 	}
-					// }
-				} else {
-					//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
-//								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
-
-					if(dest.tagName.toLowerCase() == 'select' && attributeName == 'class' && $.browser.mozilla) {
-						dest.className = value;
-						let ele = dest as any;
-						let old = ele.selectedIndex;
-						ele.selectedIndex = 1;			// jal 20100720 Fixes problem where setting BG color on select removes the dropdown button image
-						ele.selectedIndex = old;
-					} else if(value == "" && ("checked" == attributeName || "selected" == attributeName || "disabled" == attributeName || "readonly" == attributeName)) {
-						var jqAttribute = $(queryString);
-						jqAttribute.attr(attributeName, false)
-						jqAttribute.prop(attributeName, false);
-						removeValueFromArray(names, attributeName);
-					} else {
-						var jqAttribute = $(queryString);
-						jqAttribute.attr(attributeName, value);
-						jqAttribute.prop(attributeName, value);
-						removeValueFromArray(names, attributeName);
-					}
-				}
+				handleChangeSingleAttribute(dest, names, attributeName, value, queryString);
 			}
 			for(let ai = 0; ai < names.length; ai++) {
 				let a = names[ai];
@@ -318,6 +273,76 @@
 		} catch(ex) {
 			alert('changeTagAttr failed: ' + ex);
 			throw ex;
+		}
+	}
+
+	function handleChangeSingleAttribute(dest: any, names: string[], attributeName: string, value: any, queryString: string) : void {
+		if(attributeName.substring(0, 2) == 'on') {	// new 2021/04/01, not a joke
+			try {
+				if(value.indexOf("javascript:") == 0)
+					value = value.substring(11).trim();
+				value = value.trim();
+				var fntext = value.indexOf("return") >= 0 || value.substring(0, 1) === "{" ? value : "return " + value;		// for now accept everything that at least does a return.
+
+				let se;
+				// if($.browser.msie && $.browser.majorVersion < 9)
+				// 	se = new Function(fntext);
+				// else
+				se = new Function("event", fntext);
+				dest[attributeName] = se;
+			} catch(x) {
+				alert('DomUI: Cannot set EVENT ' + attributeName + " as " + value + ' on ' + dest + ": " + x);
+			}
+			return;
+		}
+
+		if(attributeName.substring(0, 6) == 'domjs_') {
+			let s;
+			try {
+				s = "dest." + attributeName.substring(6) + " = " + value;
+				eval(s);
+				return;
+			} catch(ex) {
+				alert('domjs_ eval failed: ' + ex + ", value=" + s);
+				throw ex;
+			}
+		}
+
+		if(value == '---') { // drop attribute request?
+			dest.removeAttribute(attributeName);
+			return;
+		}
+
+		if (attributeName == 'style') { // IE workaround
+			dest.style.cssText = value;
+			dest.setAttribute(attributeName, value);
+			//We need this dirty fix for IE7 to force height recalculation of divs that has just become visible (IE7 sometimes fails to calculate height that stays 0!).
+			// if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
+			// 	if((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))) {
+			// 		WebUI.refreshElement(dest.id);
+			// 	}
+			// }
+			return;
+		}
+		//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+//								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
+
+		if (dest.tagName.toLowerCase() == 'select' && attributeName == 'class' && $.browser.mozilla) {
+			dest.className = value;
+			let ele = dest as any;
+			let old = ele.selectedIndex;
+			ele.selectedIndex = 1;			// jal 20100720 Fixes problem where setting BG color on select removes the dropdown button image
+			ele.selectedIndex = old;
+		} else if (value == "" && ("checked" == attributeName || "selected" == attributeName || "disabled" == attributeName || "readonly" == attributeName)) {
+			let jqAttribute = $(queryString);
+			jqAttribute.attr(attributeName, false)
+			jqAttribute.prop(attributeName, false);
+			removeValueFromArray(names, attributeName);
+		} else {
+			let jqAttribute = $(queryString);
+			jqAttribute.attr(attributeName, value);
+			jqAttribute.prop(attributeName, value);
+			removeValueFromArray(names, attributeName);
 		}
 	}
 

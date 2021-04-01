@@ -19,14 +19,14 @@ public class AddRemoveClickHandlerPage extends UrlPage {
 
 		DefaultButton addB = new DefaultButton("Add handler", a -> {
 			testB.setClicked(b -> MsgBox.info(this, "Clicked"));
-			testB.addCssClass("addtest");
+			//testB.addCssClass("addtest");
 		});
 		add(addB);
 
 		add(new VerticalSpacer(20));
 		DefaultButton delB = new DefaultButton("Delete handler", a -> {
 			testB.setClicked(null);
-			testB.removeCssClass("addtest");
+			//testB.removeCssClass("addtest");
 		});
 		add(delB);
 	}
