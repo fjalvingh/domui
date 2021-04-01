@@ -882,7 +882,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Return the click handler for this node, or null if none is associated with it.
-	 * @return
 	 */
 	@Nullable
 	public IClickBase< ? > getClicked() {
@@ -893,10 +892,13 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * Set a click handler for this node. This will be attached to the Javascript "onclick" handler for
 	 * this node and will fire when the node is clicked. If more information around the click is needed
 	 * use {@link #setClicked2(IClicked2)}.
-	 * @param clicked
 	 */
 	public void setClicked(@Nullable final IClicked< ? > clicked) {
+		if(m_clicked == clicked)
+			return;
 		m_clicked = clicked;
+		changed();
+
 	}
 
 	/**
@@ -905,7 +907,10 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * at click time. Only one of setClicked / setClicked2 can be active at any one time.
 	 */
 	public void setClicked2(IClicked2<?> clicked) {
+		if(m_clicked == clicked)
+			return;
 		m_clicked = clicked;
+		changed();
 	}
 
 	/**
@@ -913,7 +918,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * rendered as a Javascript "onclick". For instance the LookupForm returns false for this, so
 	 * that it can override the "clicked" property to be called when the lookupform's SEARCH button
 	 * is pressed.
-	 * @return
 	 */
 	public boolean internalNeedClickHandler() {
 		return getClicked() != null;
@@ -921,7 +925,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Get whatever user object is set into this node as set by {@link #setUserObject(Object)}.
-	 * @return
 	 */
 	@Nullable
 	public Object getUserObject() {
@@ -930,7 +933,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Set some user object into this node.
-	 * @param userObject
 	 */
 	public void setUserObject(@Nullable final Object userObject) {
 		m_userObject = userObject;
@@ -939,7 +941,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/*----------- Test IDs -------------*/
 	/**
 	 * When set this causes a "testid" attribute to be rendered on the node. This ID can then be used for selenium tests et al.
-	 * @return
 	 */
 	public String getTestID() {
 		return m_testID;
