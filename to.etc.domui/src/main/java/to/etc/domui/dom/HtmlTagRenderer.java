@@ -1011,8 +1011,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	private void renderType(final String t) throws Exception {
-		if(isAttrRender()) // Cannot replace on existing node.
-			return;
 		o().attr("type", t);
 	}
 
