@@ -24,9 +24,12 @@ public interface ILogTypedSink {
 	ILogTypedSink SYSLOG = new ILogTypedSink() {
 		@Override
 		public void logRecord(@NonNull LogType t, @Nullable Throwable exception, @NonNull String line) {
-			ConsoleUtil.consoleLog(t.name(), line);
-			if(null != exception)
+			if(null == exception) {
+				ConsoleUtil.consoleLog(t.name(), line);
+			} else {
+				ConsoleUtil.consoleError(t.name(), line);
 				ConsoleUtil.consoleError(StringTool.strStacktrace(exception));
+			}
 		}
 	};
 
