@@ -583,12 +583,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 		if(c.getGridColumn() != null) {
 			a.append("grid-column:");
-			a.append(c.getGridColumn() + "");
+			a.append(c.getGridColumn());
 			a.append(';');
 		}
 		if(c.getGridRow() != null) {
 			a.append("grid-row:");
-			a.append(c.getGridRow() + "");
+			a.append(c.getGridRow());
 			a.append(';');
 		}
 	}
