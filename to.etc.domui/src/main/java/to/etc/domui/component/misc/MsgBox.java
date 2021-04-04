@@ -287,6 +287,16 @@ public class MsgBox extends Window {
 		message(dad, Type.INFO, string);
 	}
 
+	/**
+	 * Display some information; Call the onAnswer handler when 'Ok' is clicked.
+	 * @param dad
+	 * @param string
+	 * @param onAnswer
+	 */
+	public static void info(NodeBase dad, String string, final IAnswer onAnswer) {
+		message(dad, MsgBox.Type.INFO, string, onAnswer);
+	}
+
 	public static void warning(NodeBase dad, NodeContainer string) {
 		message(dad, Type.WARNING, string);
 	}
