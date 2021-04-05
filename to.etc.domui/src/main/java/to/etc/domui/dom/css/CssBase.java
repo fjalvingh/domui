@@ -157,6 +157,10 @@ public class CssBase {
 	
 	private TextTransformType m_transform;
 
+	private String m_gridColumn;
+
+	private String m_gridRow;
+
 	public String getCachedStyle() {
 		return m_cachedStyle;
 	}
@@ -870,6 +874,28 @@ public class CssBase {
 		if(!DomUtil.isEqual(m_transform, transform))
 			changed();
 		m_transform = transform;
+	}
+
+	public String getGridColumn() {
+		return m_gridColumn;
+	}
+
+	public void setGridColumn(String gridColumn) {
+		if(DomUtil.isEqual(m_gridColumn, gridColumn))
+			return;
+		changed();
+		m_gridColumn = gridColumn;
+	}
+
+	public String getGridRow() {
+		return m_gridRow;
+	}
+
+	public void setGridRow(String gridRow) {
+		if(DomUtil.isEqual(m_gridRow, gridRow))
+			return;
+		changed();
+		m_gridRow = gridRow;
 	}
 
 }
