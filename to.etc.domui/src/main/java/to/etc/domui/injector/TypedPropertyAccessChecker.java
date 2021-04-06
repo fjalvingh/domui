@@ -7,7 +7,9 @@ import to.etc.webapp.ProgrammerErrorException;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Access checker which uses the type of the value to check access to it.
@@ -18,11 +20,17 @@ import java.util.Map;
 public class TypedPropertyAccessChecker implements IInjectedPropertyAccessChecker {
 	private Map<Class<?>, ITypedValueAccessChecker<?>> m_checkerMap = Collections.emptyMap();
 
+	private List<ITypedValueAccessChecker<Object>> m_anyCheckerList = new CopyOnWriteArrayList<>();
+
 	public synchronized <T> void register(Class<T> clz, ITypedValueAccessChecker<T> check) {
 		Map<Class<?>, ITypedValueAccessChecker<?>> map = new HashMap<>(m_checkerMap);
 		if(map.put(clz, check) != null)
 			throw new ProgrammerErrorException("Duplicate typed access checker for class " + clz.getName());
 		m_checkerMap = Collections.unmodifiableMap(map);
+	}
+
+	public void registerAny(ITypedValueAccessChecker<Object> checker) {
+		m_anyCheckerList.add(checker);
 	}
 
 	private synchronized Map<Class<?>, ITypedValueAccessChecker<?>> getCheckerMap() {
@@ -39,9 +47,14 @@ public class TypedPropertyAccessChecker implements IInjectedPropertyAccessChecke
 			return true;
 
 		ITypedValueAccessChecker<T> checker = findClassChecker(value.getClass());
-		if(null == checker)
-			return false;
-		return checker.isAccessAllowed(info, page, (T) value);
+		if(null != checker) {
+			return checker.isAccessAllowed(info, page, (T) value);
+		}
+		for(ITypedValueAccessChecker<Object> any : m_anyCheckerList) {
+			if(any.isAccessAllowed(info, page, value))
+				return true;
+		}
+		return false;
 	}
 
 	@Nullable
