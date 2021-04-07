@@ -363,6 +363,11 @@ var WebUI;
             data: fields,
             cache: false,
             global: false,
+            converters: {
+                'text xml': function (f) {
+                    return f;
+                }
+            },
             success: handleResponse,
             error: handleErrorAsy
         });
