@@ -23,7 +23,7 @@
 		<!-- JDK properties -->
 		<jdk.version>11</jdk.version>
 		<ecj.version>3.20.0</ecj.version>
-		<kotlin.version>1.4.30</kotlin.version>
+		<kotlin.version>1.4.32</kotlin.version>
 
 		<!-- Plugin versions -->
 		<maven-javadoc-plugin.version>3.0.1</maven-javadoc-plugin.version>
@@ -182,7 +182,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>28.1-jre</version>
+				<version>29.0-jre</version>
 
 				<exclusions>
 					<exclusion>
