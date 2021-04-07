@@ -34,7 +34,7 @@
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-core</artifactId>
-            <version>3.4.0</version>
+            <version>3.20.2</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/args4j/args4j -->
