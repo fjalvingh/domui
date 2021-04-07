@@ -496,7 +496,8 @@
 				} catch(x) {
 					alert('DomUI: Cannot set EVENT ' + n + " as " + v + ' on ' + dest + ": " + x);
 				}
-			} else if(n == 'style') { // IE workaround
+			} else if(n == '' +
+				'style') { // IE workaround
 				dest.style.cssText = v;
 				dest.setAttribute(n, v);
 			} else {
