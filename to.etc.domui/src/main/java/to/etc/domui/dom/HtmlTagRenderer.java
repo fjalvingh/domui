@@ -580,6 +580,17 @@ public class HtmlTagRenderer implements INodeVisitor {
 			a.append(c.getTransform().name().toLowerCase());
 			a.append(';');
 		}
+
+		if(c.getGridColumn() != null) {
+			a.append("grid-column:");
+			a.append(c.getGridColumn());
+			a.append(';');
+		}
+		if(c.getGridRow() != null) {
+			a.append("grid-row:");
+			a.append(c.getGridRow());
+			a.append(';');
+		}
 	}
 
 	static private String border(final StringBuilder a, final int w, final String s, final String c) {
