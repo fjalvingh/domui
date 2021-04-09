@@ -23,7 +23,7 @@ public interface IEventMarshaller {
 	 * @return
 	 * @throws Exception
 	 */
-	@Nullable <T extends AppEventBase> T unmarshalEvent(String evname, @NonNull String varchar) throws Exception;
+	@Nullable <T extends AppEventBase> T unmarshalEvent(@NonNull String evname, @NonNull String varchar) throws Exception;
 
 	/**
 	 * Convert formated string from provided event

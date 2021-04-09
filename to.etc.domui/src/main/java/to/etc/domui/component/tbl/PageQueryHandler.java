@@ -3,6 +3,7 @@ package to.etc.domui.component.tbl;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QSelection;
 
 import java.util.List;
 
@@ -22,6 +23,10 @@ final public class PageQueryHandler<T> implements IQueryHandler<T> {
 
 	@Override
 	public List<T> query(QCriteria<T> q) throws Exception {
+		return m_source.getSharedContext().query(q);
+	}
+
+	@Override public List<Object[]> query(QSelection<T> q) throws Exception {
 		return m_source.getSharedContext().query(q);
 	}
 }

@@ -22,7 +22,7 @@
  * can be found at http://www.domui.org/
  * The contact for the project is Frits Jalvingh <jal@etc.to>.
  */
-package to.etc.domui.component2.lookupinput;
+	package to.etc.domui.component2.lookupinput;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -44,7 +44,7 @@ import to.etc.domui.server.IRequestContext;
  */
 public class SearchInput2 extends Div implements IForTarget {
 	@NonNull
-	final private Input m_keySearch = new Input();
+	final private Input m_keySearch = createKeySearch();
 
 	@Nullable
 	private IValueChanged<SearchInput2> m_onLookupTyping;
@@ -142,4 +142,18 @@ public class SearchInput2 extends Div implements IForTarget {
 		if(null != returnPressed)
 			((IReturnPressed<NodeBase>) returnPressed).returnPressed(this);
 	}
+
+	/**
+	 * Sets a placeholder text in a text input.
+	 *
+	 * @param placeHolder text to be set.
+	 */
+	public void setPlaceHolder(String placeHolder) {
+		m_keySearch.setPlaceHolder(placeHolder);
+	}
+
+	protected Input createKeySearch() {
+		return new Input();
+	}
+
 }

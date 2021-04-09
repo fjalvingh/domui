@@ -30,7 +30,7 @@ import static java.util.Objects.requireNonNull;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-2-18.
  */
-final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements IControl<T> {
+public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements IControl<T> {
 	@Nullable
 	private T m_value;
 
@@ -158,7 +158,7 @@ final public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements 
 	}
 
 	@NonNull
-	private IObjectToStringConverter<T> getActualConverter() {
+	protected IObjectToStringConverter<T> getActualConverter() {
 		IObjectToStringConverter<T> converter = m_actualConverter;
 		if(null == converter) {
 			converter = m_actualConverter = calculateHandler();

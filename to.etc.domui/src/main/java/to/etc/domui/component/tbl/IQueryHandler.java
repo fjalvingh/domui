@@ -26,9 +26,12 @@ package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QSelection;
 
 import java.util.List;
 
 public interface IQueryHandler<T> {
 	@NonNull List<T> query(@NonNull QCriteria<T> q) throws Exception;
+
+	@NonNull List<Object[]> query(@NonNull QSelection<T> q) throws Exception;
 }
