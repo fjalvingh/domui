@@ -53,6 +53,10 @@
 
 .ui-flw-bc {
 	width: 100%;
+
+	.ui-bb-middle .ui-button:first-of-type {
+		margin-left: 10px;
+	}
 }
 
 .ui-flw-bc .ui-bb-middle {
