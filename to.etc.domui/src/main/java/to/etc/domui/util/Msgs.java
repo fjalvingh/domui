@@ -50,6 +50,7 @@ public enum Msgs implements IBundleCode {
 	btnAdd,
 	btnEdit,
 
+	vInvalidRegex,
 	vInvalidEmail,
 
 	;
@@ -150,9 +151,6 @@ public enum Msgs implements IBundleCode {
 
 	/** Value out of range */
 	public static String V_OUT_OF_RANGE = "v.out.of.range";
-
-	/** Invalid not regex */
-	public static String V_INVALID_REGEX = "v.invalid.regex";
 
 	/** Invalid value */
 	public static String V_INVALID = "v.invalid";

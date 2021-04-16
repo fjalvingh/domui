@@ -52,7 +52,7 @@ final public class AsyncDialog {
 		IAsyncCompletionListener result = new IAsyncCompletionListener() {
 			@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
 				dlg.close();
-				if(errorException == null && !cancelled) {
+				if(errorException == null) {
 					dlg.close();
 					if(null != onComplete) {
 						try {
@@ -62,9 +62,6 @@ final public class AsyncDialog {
 						}
 					}
 				} else {
-					if(null == errorException && cancelled) {
-						errorException = new CancelledException();
-					}
 					Exception aErrorException = Objects.requireNonNull(errorException);
 					if(onError == null) {
 						if(aErrorException instanceof UIException) {
