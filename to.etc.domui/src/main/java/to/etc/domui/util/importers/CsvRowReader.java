@@ -13,9 +13,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -115,6 +112,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			m_la1 = -2;
 		} else {
 			c = Objects.requireNonNull(m_r).read();
+			m_charNumber++;
 		}
 		if(c == -1) {
 			m_eof = true;
@@ -176,7 +174,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			}
 
 			if(la() != m_fieldSeparator) {
-				error(ImporterErrorCodes.csvExpectingSeparator);
+				error(ImporterErrorCodes.csvExpectingSeparator, (char) la());
 				nextLine();
 				m_columns.clear();
 			} else {
@@ -450,7 +448,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 		@Override public IImportRow next() {
 			CsvImportRow row = m_row;
 			if(!getErrorList().isEmpty()) {
-				throw new IllegalStateException("Parsing errors! :"+ m_errorList.stream().map(x->x.toString()).collect(Collectors.joining(", ")));
+				throw new ImportValueException("CSV File format error at " + getErrorList().get(0).toString());
 			}
 			if(! m_nextAvailable || row == null)
 				throw new IllegalStateException("Calling next() after hasNext() returned false / missing call to hasNext()");
