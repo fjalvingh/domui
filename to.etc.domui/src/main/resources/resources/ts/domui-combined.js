@@ -1,3 +1,18 @@
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        if (typeof b !== "function" && b !== null)
+            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var WebUI;
 (function (WebUI) {
     var _inputFieldList = [];
@@ -2092,7 +2107,7 @@ var WebUI;
         }
         if (!iframe) {
             if (jQuery.browser.msie && !WebUI.isNormalIE9plus()) {
-                iframe = document.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(event)">');
+                iframe = document.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(tgt.id, event)">');
                 document.body.appendChild(iframe);
             }
             else {
@@ -2105,7 +2120,7 @@ var WebUI;
                 iframe.style.height = "0px";
                 iframe.style.border = "none";
                 iframe.onload = function () {
-                    updateUpload(iframe.contentDocument);
+                    updateUpload(tgt.id, iframe.contentDocument);
                 };
                 document.body.appendChild(iframe);
             }
@@ -2121,7 +2136,7 @@ var WebUI;
         WebUI.blockUI();
     }
     WebUI.fileUploadChange = fileUploadChange;
-    function ieUpdateUpload(e) {
+    function ieUpdateUpload(id, e) {
         var iframe = document.getElementById('webuiif');
         var xml;
         var cw = iframe.contentWindow;
@@ -2152,16 +2167,21 @@ var WebUI;
         }
         else
             alert('IE error: something again changed in xml source structure of the iframe, sigh');
-        updateUpload(xml, iframe);
+        updateUpload(id, xml, iframe);
     }
     WebUI.ieUpdateUpload = ieUpdateUpload;
-    function updateUpload(doc, ifr) {
+    function updateUpload(id, doc, ifr) {
         try {
-            $.executeXML(doc);
+            $.executeXML2(true, doc);
         }
         catch (x) {
-            alert(x);
-            throw x;
+            if (x instanceof BodyTooLargeException) {
+                alert('The upload has been refused by the server. It might be too large');
+            }
+            else {
+                alert('The upload has been refused by the server: ' + x.message);
+            }
+            WebUI.scall(id, "UPLOADCANCEL", { "error": x.message });
         }
         finally {
             WebUI.unblockUI();
@@ -3531,6 +3551,34 @@ var WebUI;
     }
     WebUI.preventSelection = preventSelection;
 })(WebUI || (WebUI = {}));
+var ResponseException = (function (_super) {
+    __extends(ResponseException, _super);
+    function ResponseException(message) {
+        return _super.call(this, message) || this;
+    }
+    return ResponseException;
+}(Error));
+var SessionLostException = (function (_super) {
+    __extends(SessionLostException, _super);
+    function SessionLostException(message) {
+        return _super.call(this, message) || this;
+    }
+    return SessionLostException;
+}(ResponseException));
+var BodyTooLargeException = (function (_super) {
+    __extends(BodyTooLargeException, _super);
+    function BodyTooLargeException(message) {
+        return _super.call(this, message) || this;
+    }
+    return BodyTooLargeException;
+}(ResponseException));
+var BodyParseException = (function (_super) {
+    __extends(BodyParseException, _super);
+    function BodyParseException(message) {
+        return _super.call(this, message) || this;
+    }
+    return BodyParseException;
+}(ResponseException));
 (function ($) {
     $.webui = function (xml) {
         processDoc(xml);
@@ -3605,6 +3653,9 @@ var WebUI;
         executeXML(xml);
     }
     function executeXML(xml) {
+        executeXML2(false, xml);
+    }
+    function executeXML2(doexceptions, xml) {
         var rname = xml.documentElement.tagName;
         if (rname == 'redirect') {
             WebUI.blockUI();
@@ -3644,12 +3695,15 @@ var WebUI;
             window.location.href = hr;
             return;
         }
-        process(xml.documentElement.childNodes);
+        process(doexceptions, xml.documentElement.childNodes);
     }
     $.executeXML = function (xml) {
         executeXML(xml);
     };
-    function process(commands) {
+    $.executeXML2 = function (doex, xml) {
+        executeXML2(doex, xml);
+    };
+    function process(doexceptions, commands) {
         var param = {
             postProcess: false
         };
@@ -3657,16 +3711,18 @@ var WebUI;
             if (commands[i].nodeType != 1)
                 continue;
             var cmdNode = commands[i];
-            if (!executeNode(cmdNode, param)) {
+            if (!executeNode(doexceptions, cmdNode, param)) {
                 return;
             }
         }
         if (param.postProcess)
             postProcess();
     }
-    function executeNode(cmdNode, param) {
+    function executeNode(doexceptions, cmdNode, param) {
         var cmd = cmdNode.tagName;
         if (cmd == "parsererror") {
+            if (doexceptions)
+                throw new BodyParseException("The server response could not be parsed: " + cmdNode.innerText);
             alert("The server response could not be parsed: " + cmdNode.innerText);
             window.location.href = window.location.href;
             return false;
@@ -3695,6 +3751,19 @@ var WebUI;
         if (!q) {
             if (cmd == 'style')
                 return true;
+            if (doexceptions) {
+                var content = "unknown";
+                try {
+                    content = cmdNode.innerHTML.toLowerCase();
+                }
+                catch (x) {
+                    content = "(failed to get)";
+                }
+                if (content.includes("413") && content.includes("large")) {
+                    throw new BodyTooLargeException("Content body too large");
+                }
+                throw new SessionLostException("The server seems to have lost the session");
+            }
             alert('The server seems to have lost this page.. Reloading the page with fresh data');
             window.location.href = window.location.href;
             return false;
@@ -3927,7 +3996,8 @@ var WebUI;
                     alert('DomUI: Cannot set EVENT ' + n + " as " + v + ' on ' + dest + ": " + x);
                 }
             }
-            else if (n == 'style') {
+            else if (n == '' +
+                'style') {
                 dest.style.cssText = v;
                 dest.setAttribute(n, v);
             }

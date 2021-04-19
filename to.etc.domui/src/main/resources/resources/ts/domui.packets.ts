@@ -2,6 +2,29 @@
 /// <reference types="jqueryui" />
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.ts" />
+class ResponseException extends Error {
+	constructor(message: string) {
+		super(message);
+	}
+}
+
+class SessionLostException extends ResponseException {
+	constructor(message: string) {
+		super(message);
+	}
+}
+
+class BodyTooLargeException extends ResponseException {
+	constructor(message: string) {
+		super(message);
+	}
+}
+
+class BodyParseException extends ResponseException {
+	constructor(message: string) {
+		super(message);
+	}
+}
 
 (function($: any) {
 	$.webui = function(xml) {
@@ -82,6 +105,10 @@
 	}
 
 	function executeXML(xml) : void {
+		executeXML2(false, xml);
+	}
+
+	function executeXML2(doexceptions: boolean, xml: any) : void {
 		// -- If this is a REDIRECT document -> redirect main page
 		const rname = xml.documentElement.tagName;
 		if(rname == 'redirect') {
@@ -127,15 +154,18 @@
 		}
 
 		// let t = new Date().getTime();
-		process(xml.documentElement.childNodes);
+		process(doexceptions, xml.documentElement.childNodes);
 	}
 
 	$.executeXML = function(xml) {
 		executeXML(xml);
 	};
+	$.executeXML2 = function(doex, xml) {
+		executeXML2(doex, xml);
+	}
 
 	// -- process the commands
-	function process(commands: any[]) : void {
+	function process(doexceptions: boolean, commands: any[]) : void {
 		const param = {
 			postProcess: false
 		};
@@ -143,7 +173,7 @@
 			if(commands[i].nodeType != 1)
 				continue; // commands are elements
 			let cmdNode = commands[i];
-			if(! executeNode(cmdNode, param)) {
+			if(! executeNode(doexceptions, cmdNode, param)) {
 				return;
 			}
 		}
@@ -153,9 +183,12 @@
 			postProcess();
 	}
 
-	function executeNode(cmdNode: any, param: any) : boolean {
+
+	function executeNode(doexceptions: boolean, cmdNode: any, param: any) : boolean {
 		let cmd = cmdNode.tagName;
 		if(cmd == "parsererror") { // Chrome
+			if(doexceptions)
+				throw new BodyParseException("The server response could not be parsed: " + cmdNode.innerText)
 			alert("The server response could not be parsed: " + cmdNode.innerText);
 			window.location.href = window.location.href;
 			return false;
@@ -190,6 +223,20 @@
 				return true;
 
 			//-- Node sans select-> we are in trouble -> this is probably a server error/response. Report session error, then reload. (Marc, 20111017)
+			if(doexceptions) {
+				let content = "unknown";
+				try {
+					content = cmdNode.innerHTML.toLowerCase();
+				} catch(x) {
+					content = "(failed to get)";
+				}
+				if(content.includes("413") && content.includes("large")) {
+					throw new BodyTooLargeException("Content body too large");
+				}
+				throw new SessionLostException("The server seems to have lost the session");
+			}
+
+			// console.debug("inner: ", cmdNode.innerHTML)
 			alert('The server seems to have lost this page.. Reloading the page with fresh data');
 			window.location.href = window.location.href;
 			return false;

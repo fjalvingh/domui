@@ -67,7 +67,7 @@ namespace WebUI {
 		if (!iframe) {
 			if(jQuery.browser.msie && ! WebUI.isNormalIE9plus()) {			// MicroMorons report ie9 for ie7 emulation of course
 				// -- IE's below 8 of course have trouble. What else.
-				iframe = document.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(event)">') as HTMLIFrameElement;
+				iframe = document.createElement('<iframe name="webuiif" id="webuiif" src="#" style="display:none; width:0; height:0; border:none" onload="WebUI.ieUpdateUpload(tgt.id, event)">') as HTMLIFrameElement;
 				document.body.appendChild(iframe);
 			} else {
 				iframe = document.createElement('iframe');
@@ -79,7 +79,7 @@ namespace WebUI {
 				iframe.style.height = "0px";
 				iframe.style.border = "none";
 				iframe.onload = function() {
-					updateUpload(iframe.contentDocument);
+					updateUpload(tgt.id, iframe.contentDocument);
 				};
 				document.body.appendChild(iframe);
 			}
@@ -150,7 +150,7 @@ namespace WebUI {
 	 *
 	 * @param e
 	 */
-	export function ieUpdateUpload(e) { // Piece of crap
+	export function ieUpdateUpload(id, e) { // Piece of crap
 		var iframe = document.getElementById('webuiif') as HTMLIFrameElement;
 		var xml;
 		let cw = iframe.contentWindow as any;
@@ -179,15 +179,19 @@ namespace WebUI {
 		} else
 			alert('IE error: something again changed in xml source structure of the iframe, sigh');
 
-		updateUpload(xml, iframe);
+		updateUpload(id, xml, iframe);
 	}
 
-	export function updateUpload(doc, ifr?) {
+	export function updateUpload(id, doc, ifr?) {
 		try {
-			$.executeXML(doc);
+			$.executeXML2(true, doc);
 		} catch (x) {
-			alert(x);
-			throw x;
+			if(x instanceof BodyTooLargeException) {
+				alert('The upload has been refused by the server. It might be too large');
+			} else {
+				alert('The upload has been refused by the server: ' + x.message);
+			}
+			WebUI.scall(id, "UPLOADCANCEL", {"error" : x.message})
 		} finally {
 			WebUI.unblockUI();
 		}
