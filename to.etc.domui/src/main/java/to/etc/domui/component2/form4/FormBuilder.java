@@ -25,6 +25,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
+import to.etc.webapp.nls.IBundle;
 import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.query.QField;
 
@@ -296,6 +297,10 @@ final public class FormBuilder {
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Propertyless items.											*/
 	/*----------------------------------------------------------------------*/
+
+	public ItemBuilder label(IBundleCode code) {
+		return label(code.getString());
+	}
 
 	public ItemBuilder label(@Nullable String label) {
 		check();

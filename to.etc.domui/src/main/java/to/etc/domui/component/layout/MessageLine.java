@@ -7,6 +7,7 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.Span;
 import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.IBundleCode;
 
 /**
  * Forms a simple error message line with a small icon and a text (which may contain basic html).
@@ -23,6 +24,10 @@ public class MessageLine extends Div {
 
 	@Nullable
 	final private String m_icon;
+
+	public MessageLine(@NonNull MsgType type, @NonNull IBundleCode code) {
+		this(type, code.getString());
+	}
 
 	public MessageLine(@NonNull MsgType type, @NonNull String text) {
 		m_type = type;

@@ -10,6 +10,7 @@ import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.css.TextAlign;
 import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.query.QField;
 
 import java.util.function.Predicate;
@@ -298,6 +299,11 @@ final public class ColumnDef<I, T> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Chainable setters.									*/
 	/*--------------------------------------------------------------*/
+
+	@NonNull
+	public ColumnDef<I, T> label(IBundleCode code) {
+		return label(code.getString());
+	}
 
 	/**
 	 * Set the column header's label.
