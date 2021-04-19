@@ -40,6 +40,8 @@ import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.util.Progress;
 import to.etc.util.StringTool;
 
+import java.util.concurrent.CancellationException;
+
 final public class AsyncContainer extends Div {
 	@NonNull
 	final private IAsyncRunnable m_runnable;
@@ -100,13 +102,17 @@ final public class AsyncContainer extends Div {
 			@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
 				//-- If we've got an exception replace the contents with the exception message.
 				if(errorException != null) {
-					errorException.printStackTrace();
-					StringBuilder sb = new StringBuilder(8192);
-					StringTool.strStacktrace(sb, errorException);
-					String s = sb.toString();
-					s = s.replace("\n", "<br/>\n");
+					if(errorException instanceof CancellationException) {
+						MsgBox.error(AsyncContainer.this.getParent(), Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED_MSG));
+					} else {
+						errorException.printStackTrace();
+						StringBuilder sb = new StringBuilder(8192);
+						StringTool.strStacktrace(sb, errorException);
+						String s = sb.toString();
+						s = s.replace("\n", "<br/>\n");
 
-					MsgBox.error(AsyncContainer.this.getParent(), "Exception while creating result for asynchronous task:<br/>" + s);
+						MsgBox.error(AsyncContainer.this.getParent(), "Exception while creating result for asynchronous task:<br/>" + s);
+					}
 					return;
 				}
 

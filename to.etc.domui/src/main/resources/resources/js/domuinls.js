@@ -8,10 +8,11 @@ WebUI._T.sysUnsupported = "Internet Explorer {0} is no longer supported. You can
 WebUI._T.sysPollFailTitle = "Server unreachable";
 WebUI._T.sysPollFailMsg = "Server unreachable: status=";
 WebUI._T.sysPollFailCont= "Waiting for the server to return....";
-
+WebUI._T.sessionSeemsLost = "The server seems to have lost your session; reloading the page";
 
 //-- Upload.
 WebUI._T.uploadType = "The file type {0} is not allowed; allowed are {1}";
+WebUI._T.bodyTooLarge = "The upload was refused; the file is probably too large.";
 
 //-- Bulk upload
 WebUI._T.buplPending='Pending';

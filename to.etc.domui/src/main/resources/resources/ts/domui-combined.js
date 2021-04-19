@@ -3760,11 +3760,11 @@ var BodyParseException = (function (_super) {
                     content = "(failed to get)";
                 }
                 if (content.includes("413") && content.includes("large")) {
-                    throw new BodyTooLargeException("Content body too large");
+                    throw new BodyTooLargeException(WebUI._T.bodyTooLarge);
                 }
-                throw new SessionLostException("The server seems to have lost the session");
+                throw new SessionLostException(WebUI._T.sessionSeemsLost);
             }
-            alert('The server seems to have lost this page.. Reloading the page with fresh data');
+            alert(WebUI._T.sessionSeemsLost);
             window.location.href = window.location.href;
             return false;
         }
