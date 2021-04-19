@@ -14,6 +14,8 @@ WebUI._T.sessionSeemsLost = "De server lijkt uw sessie te zijn vergeten; de pagi
 //-- Upload.
 WebUI._T.uploadType = "Het bestandsformaat {0} is niet toegestaan; gebruik {1}";
 WebUI._T.bodyTooLarge = "De upload is geweigerd; het bestand is te groot.";
+WebUI._T.uploadFailedUnknown = 'De upload is geweigerd door de server. Wellicht is het bestand te groot.';
+WebUI._T.uploadFailedBecause = 'Upload geweigerd: ';
 
 //-- Bulk upload
 WebUI._T.buplPending='Wachten';

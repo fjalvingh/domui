@@ -14,6 +14,9 @@ WebUI._T.sessionSeemsLost = "The server seems to have lost your session; reloadi
 WebUI._T.uploadType = "The file type {0} is not allowed; allowed are {1}";
 WebUI._T.bodyTooLarge = "The upload was refused; the file is probably too large.";
 
+WebUI._T.uploadFailedUnknown = 'The upload has been refused by the server. It might be too large';
+WebUI._T.uploadFailedBecause = 'The upload has been refused by the server: ';
+
 //-- Bulk upload
 WebUI._T.buplPending='Pending';
 WebUI._T.buplRunning='Uploading';

@@ -187,11 +187,13 @@ namespace WebUI {
 			$.executeXML2(true, doc);
 		} catch (x) {
 			if(x instanceof BodyTooLargeException) {
-				alert('The upload has been refused by the server. It might be too large');
+				alert(WebUI._T.uploadFailedUnknown);
+			} else if(x instanceof Error) {
+				alert(WebUI._T.uploadFailedBecause + x.message);
 			} else {
-				alert('The upload has been refused by the server: ' + x.message);
+				alert(WebUI._T.uploadFailedBecause + x);
 			}
-			WebUI.scall(id, "UPLOADCANCEL", {"error" : x.message})
+			WebUI.scall(id, "UPLOADCANCEL", {"error" : x.toString()})
 		} finally {
 			WebUI.unblockUI();
 		}
