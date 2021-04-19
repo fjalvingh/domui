@@ -161,7 +161,7 @@ public class FileUpload extends Div implements IUploadAcceptingComponent, IContr
 			sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
 			f.setAction(sb.toString());
 
-			FileInput fi = new FileInput();
+			FileInput fi = new FileInput(s -> forceRebuild());
 			f.add(fi);
 			// Prevent IE 11 to submit form on keypress on file input
 			fi.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");

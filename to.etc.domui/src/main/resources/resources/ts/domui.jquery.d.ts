@@ -21,6 +21,7 @@ interface JQuery {
 interface JQueryStatic {
 	webui(xml: any): void;
 	executeXML(xml: any): void;
+	executeXML2(doexceptions: boolean, xml: any): void;
 
 	expr: any;
 	browser: any;
@@ -28,3 +29,4 @@ interface JQueryStatic {
 
 	cookie(name: string, value?: any, options?: any): any;
 }
+

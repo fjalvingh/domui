@@ -24,15 +24,21 @@
  */
 package to.etc.domui.dom.html;
 
-import to.etc.domui.dom.errors.*;
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.dom.errors.INodeErrorDelegate;
+import to.etc.domui.server.RequestContextImpl;
+import to.etc.function.ConsumerEx;
 
 public class FileInput extends NodeBase implements IHasChangeListener, INodeErrorDelegate {
 	private IValueChanged< ? > m_onValueChanged;
 
 	private boolean m_disabled;
 
-	public FileInput() {
+	private ConsumerEx<String> m_uploadCancelled;
+
+	public FileInput(ConsumerEx<String> onUploadCancelled) {
 		super("input");
+		m_uploadCancelled = onUploadCancelled;
 	}
 
 	@Override
@@ -62,5 +68,14 @@ public class FileInput extends NodeBase implements IHasChangeListener, INodeErro
 
 	public void setDisabled(boolean disabled) {
 		m_disabled = disabled;
+	}
+
+	/**
+	 * Called when an upload failed.
+	 */
+	public void webActionUPLOADCANCEL(@NonNull RequestContextImpl context) throws Exception {
+		ConsumerEx<String> uploadCancelled = m_uploadCancelled;
+		if(null != uploadCancelled)
+			uploadCancelled.accept(context.getPageParameters().getString("error"));
 	}
 }

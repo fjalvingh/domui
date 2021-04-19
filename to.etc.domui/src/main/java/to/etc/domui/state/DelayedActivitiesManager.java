@@ -29,12 +29,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.delayed.AsyncContainer;
-import to.etc.domui.component.delayed.IActivity;
-import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.state.DelayedActivityInfo.State;
+import to.etc.parallelrunner.IAsyncRunnable;
+import to.etc.util.CancelledException;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,7 +49,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Oct 7, 2008
  */
-final public class DelayedActivitiesManager implements Runnable {
+final public class DelayedActivitiesManager {
 	private static final Logger LOG = LoggerFactory.getLogger(DelayedActivitiesManager.class);
 
 	private Thread m_executorThread;
@@ -95,45 +95,56 @@ final public class DelayedActivitiesManager implements Runnable {
 		}
 	}
 
-	public void cancelActivity(IActivity a) {
-		DelayedActivityInfo d = null;
-		synchronized(this) {
-			for(DelayedActivityInfo dai : m_pendingQueue) {
-				if(dai.getActivity() == a) {
-					d = dai;
-					break;
-				}
-			}
-		}
-		if(d == null)
-			throw new IllegalStateException("Activity is not scheduled");
-		cancelActivity(d);
-	}
+	//public void cancelActivity(IActivity a) {
+	//	DelayedActivityInfo d = null;
+	//	synchronized(this) {
+	//		for(DelayedActivityInfo dai : m_pendingQueue) {
+	//			if(dai.getActivity() == a) {
+	//				d = dai;
+	//				break;
+	//			}
+	//		}
+	//	}
+	//	if(d == null)
+	//		throw new IllegalStateException("Activity is not scheduled");
+	//	cancelActivity(d);
+	//}
 
 	/**
 	 * Cancels an activity, if possible. If the thing is pending it gets removed. If it is
 	 * executing we try to cancel the executor.
+	 * If the cancel worked the cancelled activity will get a callback indicating that
+	 * it was cancelled. If the activity completed before it could be cancelled it
+	 * does NOT get this cancellation thing- but a completion event instead.
 	 */
 	public boolean cancelActivity(@NonNull DelayedActivityInfo dai) {
 		Thread tr;
 
 		synchronized(this) {
+			//-- If it has not yet ran: remove it from the queue...
 			if(m_pendingQueue.remove(dai)) {
-				dai.getContainer().confirmCancelled();
+				m_completionQueue.add(dai);						// This should cause a cancelled callback to take place
+				dai.finished(new CancelledException());			// Cancelled and finished
 				return true;
 			}
 
+			//-- Always mark it as cancelled
+			dai.cancelled();
+
 			//-- Is this thingy currently running?
 			DelayedActivityInfo runningActivity = m_runningActivity;
-			if(runningActivity != dai || runningActivity == null)
+			tr = m_executorThread;
+			if(runningActivity != dai || runningActivity == null || tr == null) {
+				//-- Not in queue but also not running -> this is a bug.
+				if(! m_completionQueue.contains(dai))
+					m_completionQueue.add(dai);					// Make sure it gets called back
 				return false;
+			}
 
 			//-- The activity is currently running. Try to abort the task && thread.
-			tr = m_executorThread;
 			runningActivity.getMonitor().cancel();				// Force cancel indication.
 		}
-		if(null != tr)
-			tr.interrupt();
+		tr.interrupt();
 		return true;
 	}
 
@@ -144,7 +155,7 @@ final public class DelayedActivitiesManager implements Runnable {
 	 * all activities currently active, and returns (and removes) all activities
 	 * that have completed.
 	 */
-	private List<DelayedActivityInfo> getState() {
+	private List<DelayedActivityInfo> getAllActivities() {
 		//		System.out.println("$$$$$ getState called.");
 		synchronized(this) {
 			List<DelayedActivityInfo> result = new ArrayList<>(5);
@@ -172,19 +183,18 @@ final public class DelayedActivitiesManager implements Runnable {
 	public boolean start() {
 		Thread t;
 		synchronized(this) {
-			if(m_executorThread != null) // Active thread?
-				return true; // Begone.
+			if(m_executorThread != null)					// Active thread?
+				return true;
 
 			//-- Must a thread be started?
-			if(m_pendingQueue.size() == 0) // Pending requests?
-				return false; // Nope -> begone
+			if(m_pendingQueue.size() == 0) 					// Pending requests?
+				return false;
 
 			//-- Prepare to start the executor.
-			m_executorThread = new Thread(this);
+			t = m_executorThread = new Thread(() -> run());
 			m_executorThread.setName("xc");
 			m_executorThread.setDaemon(true);
 			m_executorThread.setPriority(Thread.MIN_PRIORITY);
-			t = m_executorThread; // Prevent naked access to m_ variable even though it is untouched by other code.
 		}
 		t.start();
 		return true;
@@ -238,7 +248,7 @@ final public class DelayedActivitiesManager implements Runnable {
 		//-- Do our utmost to kill the task, not gently.
 		try {
 			if(pendingcorpse != null)
-				pendingcorpse.getMonitor().cancel(); // Forcefully cancel;
+				pendingcorpse.getMonitor().cancel();	// Forcefully cancel;
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
@@ -257,32 +267,40 @@ final public class DelayedActivitiesManager implements Runnable {
 	/*	CODING:	Executor thread.									*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Main action runnert. This is the thread's executor function. While the manager is
+	 * Main action runner. This is the thread's executor function. While the manager is
 	 * active this will execute activities in the PENDING queue one by one until the queue
 	 * is empty. If that happens it will commit suicide. This suicidal act will not invalidate
 	 * the manager; at any time can new actions be posted and a new thread be started.
 	 */
-	@Override
-	public void run() {
+	private void run() {
 		try {
 			for(;;) {
 				//-- Are we attempting to die?
 				DelayedActivityInfo dai;
 				synchronized(this) {
-					if(m_terminated) 				// Manager is deadish?
-						return; 					// Just quit immediately (nothing is currently running)
-
-					//-- Anything to do?
-					if(m_pendingQueue.size() == 0) {	// Something queued still?
-						//-- Nope. We can stop properly.
-						return;
+					if(m_terminated || m_pendingQueue.size() == 0) {
+						/*
+						 * Terminate means the page died, so we have nothing to do
+						 * anymore. There is no way to report back the results of
+						 * cancellation.
+						 */
+						m_pendingQueue.clear();
+						m_executorThread = null;		// Prevent race - important
+						return;							// Quit and terminate thread
 					}
 
 					//-- Schedule for a new execute.
 					dai = m_pendingQueue.remove(0); 	// Get and remove from pending queue
 					m_runningActivity = dai; 			// Make this the running dude
 				}
-				execute(dai);
+
+				try {
+					execute(dai);
+				} finally {
+					synchronized(this) {
+						m_runningActivity = null;
+					}
+				}
 			}
 		} catch(Exception x) {
 			//-- Do not report trouble if the manager is in the process of dying
@@ -292,50 +310,33 @@ final public class DelayedActivitiesManager implements Runnable {
 			}
 		} finally {
 			/*
-			 * Be very, very certain that we handle state @ thread termination properly.
+			 * Be very, very certain that we handle state @ thread
+			 * termination properly. Watch out though: we still need
+			 * to clear this when terminating inside the atomic block
+			 * there to prevent a race.
 			 */
 			synchronized(this) {
-				m_executorThread = null; // I'm gone...
+				m_executorThread = null;
 			}
 		}
 	}
 
 	/**
-	 * Execute the action and handle it's result.
+	 * Execute the action and handle its result.
 	 */
 	private void execute(DelayedActivityInfo dai) {
-		Exception errorx = null;
 		try {
-			dai.checkIsPageConnected();
-			dai.callBeforeListeners();
-			dai.getActivity().run(dai.getMonitor());
-		} catch(Exception x) {
-			if(!(x instanceof InterruptedException)) {
-				errorx = x;
-				if (LOG.isDebugEnabled()) {
-					LOG.debug("Exception in async activity", x);
-				}
-			}
+			dai.execute();
 		} finally {
-			dai.callAfterListeners();
-		}
-
-		//-- The activity has stopped. Register it for callback on the next page poll, so that it's result handler can be called.
-		synchronized(this) {
-			dai.finished(errorx);
-			dai.setState(State.DONE);
-			m_runningActivity = null; 		// Nothing is running anymore.
-			if(m_terminated)				// Fondling a corpse? Ignore the result.
-				return;
-
-			//-- We're still alive; post the result in the done queue and awake listeners quickly.
-			m_completionQueue.add(dai);		// Append to completion queue for access by whatever.
-			wakeupListeners(1000);
+			synchronized(this) {
+				m_completionQueue.add(dai);		// Append to completion queue for access by whatever.
+				wakeupListeners(1000);
+			}
 		}
 	}
 
 	/**
-	 * Apply all activity changes to the page. The page is either in "full render" or "delta render" modus.
+	 * Apply all activity changes to the page. The page is either in "full render" or "delta render" mode.
 	 */
 	private void applyToTree(List<DelayedActivityInfo> infoList) throws Exception {
 		//-- Handle progress reporting
@@ -351,7 +352,7 @@ final public class DelayedActivitiesManager implements Runnable {
 	}
 
 	public void processDelayedResults(Page pg) throws Exception {
-		List<DelayedActivityInfo> list = getState();
+		List<DelayedActivityInfo> list = getAllActivities();
 		if(! list.isEmpty())
 			applyToTree(list);
 
@@ -374,9 +375,6 @@ final public class DelayedActivitiesManager implements Runnable {
 	 * update the screen. This is not an asy action by itself (it starts no threads) but
 	 * it will cause the poll handler to start, and will use the same response mechanism
 	 * as the asy callback code.
-	 *
-	 * @param <T>
-	 * @param nc
 	 */
 	public <T extends NodeContainer & IPolledForUpdate> void registerPoller(T nc) {
 		m_pollSet.add(nc);
@@ -384,18 +382,8 @@ final public class DelayedActivitiesManager implements Runnable {
 
 	/**
 	 * Deregister a node from the poll-regularly queue.
-	 * @param <T>
-	 * @param nc
 	 */
 	public <T extends NodeBase & IPolledForUpdate> void unregisterPoller(T nc) {
 		m_pollSet.remove(nc);
 	}
-
-	//	/**
-	//	 * Set (or reset) continuous polling at least [interval] times apart, in milliseconds.
-	//	 * @param interval
-	//	 */
-	//	public void setContinuousPolling(int interval) {
-	//		m_continuousPollingInterval = interval;
-	//	}
 }

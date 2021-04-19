@@ -181,7 +181,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 				btn.add(buttonText);
 			}
 
-			FileInput input = m_input = new FileInput();
+			FileInput input = m_input = new FileInput(s -> forceRebuild());
 			f.add(input);
 			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
 			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
@@ -215,7 +215,7 @@ public class FileUpload2 extends Div implements IUploadAcceptingComponent, ICont
 				btn.add(buttonText);
 			}
 
-			FileInput input = m_input = new FileInput();
+			FileInput input = m_input = new FileInput(s -> forceRebuild());
 			f.add(input);
 			input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");
 			input.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");
