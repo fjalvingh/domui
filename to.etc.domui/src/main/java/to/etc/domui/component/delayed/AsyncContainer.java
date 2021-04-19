@@ -204,9 +204,9 @@ final public class AsyncContainer extends Div {
 		}
 	}
 
-	public void confirmCancelled() {
-		setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
-	}
+	//public void confirmCancelled() {
+	//	setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
+	//}
 
 	public boolean isAbortable() {
 		return m_abortable;

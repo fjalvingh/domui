@@ -26,19 +26,27 @@ package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.delayed.AsyncContainer;
 import to.etc.domui.component.delayed.IAsyncListener;
-import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.domui.server.DomApplication;
+import to.etc.parallelrunner.IAsyncRunnable;
+import to.etc.util.CancelledException;
 import to.etc.util.Progress;
+import to.etc.util.WrappedException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CancellationException;
 
 final public class DelayedActivityInfo {
+	private static final Logger LOG = LoggerFactory.getLogger(DelayedActivitiesManager.class);
+
 	public enum State {
 		WAITING,
 		RUNNING,
+		CANCELLED,
 		DONE
 	}
 
@@ -52,15 +60,45 @@ final public class DelayedActivityInfo {
 
 	private Exception m_exception;
 
-	@NonNull private State m_state = State.WAITING;
+	@NonNull
+	private State m_state = State.WAITING;
 
 	@NonNull
-	final private Map<IAsyncListener< ? >, Object> m_listenerDataMap = new HashMap<IAsyncListener< ? >, Object>();
+	final private Map<IAsyncListener<?>, Object> m_listenerDataMap = new HashMap<IAsyncListener<?>, Object>();
 
 	protected DelayedActivityInfo(@NonNull DelayedActivitiesManager manager, @NonNull IAsyncRunnable activity, @NonNull AsyncContainer ac) {
 		m_activity = activity;
 		m_manager = manager;
 		m_container = ac;
+	}
+
+	void execute() {
+		Exception errorx = null;
+		try {
+			checkIsPageConnected();
+			callBeforeListeners();
+			getActivity().run(getMonitor());
+		} catch(InterruptedException ix) {
+			//-- Were we cancelled?
+			synchronized(m_manager) {
+				if(m_state == State.CANCELLED) {
+					errorx = new CancelledException();
+				} else {
+					errorx = ix;						// Really interrupted
+				}
+			}
+		} catch(Exception x) {
+			errorx = x;
+			if(LOG.isDebugEnabled()) {
+				LOG.debug("Exception in async activity", x);
+			}
+		} catch(Error x) {
+			LOG.error("ERROR in async activity", x);
+			errorx = new WrappedException(x);
+		} finally {
+			finished(errorx);
+			callAfterListeners();
+		}
 	}
 
 	public IAsyncRunnable getActivity() {
@@ -84,13 +122,19 @@ final public class DelayedActivityInfo {
 		}
 	}
 
-	public void finished(@Nullable Exception errorx) {
+	void finished(@Nullable Exception errorx) {
 		synchronized(m_manager) {
 			m_state = State.DONE;
 			m_exception = errorx;
 		}
 	}
 
+	void cancelled() {
+		synchronized(m_manager) {
+			m_state = State.CANCELLED;
+			m_exception = new CancellationException();
+		}
+	}
 
 	public Exception getException() {
 		synchronized(m_manager) {
@@ -109,14 +153,11 @@ final public class DelayedActivityInfo {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handling listeners.									*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * Call the "scheduled" listeners and store their context.
-	 * @throws Exception
 	 */
 	void callScheduled() throws Exception {
-		//-- 1. Call all listeners.
-		for(IAsyncListener< ? > al : m_container.getPage().getApplication().getAsyncListenerList()) {
+		for(IAsyncListener<?> al : m_container.getPage().getApplication().getAsyncListenerList()) {
 			handleListenerScheduled(al);
 		}
 	}
@@ -127,7 +168,7 @@ final public class DelayedActivityInfo {
 	}
 
 	public void callBeforeListeners() throws Exception {
-		for(IAsyncListener< ? > al : DomApplication.get().getAsyncListenerList()) {
+		for(IAsyncListener<?> al : DomApplication.get().getAsyncListenerList()) {
 			handleListenerBefore(al);
 		}
 	}
@@ -138,14 +179,14 @@ final public class DelayedActivityInfo {
 	}
 
 	public void callAfterListeners() {
-		for(IAsyncListener< ? > al : DomApplication.get().getAsyncListenerList()) {
+		for(IAsyncListener<?> al : DomApplication.get().getAsyncListenerList()) {
 			handleListenerAfter(al);
 		}
 	}
 
 	private <T> void handleListenerAfter(IAsyncListener<T> al) {
 		try {
-			T context = (T) m_listenerDataMap.get(al);// Any data stored by scheduler
+			T context = (T) m_listenerDataMap.get(al);
 			al.onActivityEnd(m_activity, context);
 		} catch(Exception x) {
 			System.err.println("Ignored exception in IAsyncListener#onEnd: " + x);
