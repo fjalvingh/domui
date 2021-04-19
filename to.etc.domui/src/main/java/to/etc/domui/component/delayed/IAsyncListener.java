@@ -21,9 +21,15 @@ public interface IAsyncListener<T> {
 	 * @throws Exception
 	 */
 	@Nullable
-	T onActivityScheduled(@NonNull IAsyncRunnable runnable) throws Exception;
+	default T onActivityScheduled(@NonNull IAsyncRunnable runnable) throws Exception {
+		return null;
+	}
 
-	void onActivityStart(@NonNull IAsyncRunnable runnable, @Nullable T contextData) throws Exception;
+	default void onActivityStart(@NonNull IAsyncRunnable runnable, @Nullable T contextData) throws Exception {
 
-	void onActivityEnd(@NonNull IAsyncRunnable runnable, @Nullable T contextData) throws Exception;
+	}
+
+	default void onActivityEnd(@NonNull IAsyncRunnable runnable, @Nullable T contextData) throws Exception {
+
+	}
 }

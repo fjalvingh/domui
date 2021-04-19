@@ -61,6 +61,8 @@ final public class AsyncContainer extends Div {
 	 */
 	private String m_busyMarkerSrc = "THEME/asy-container-busy.gif";
 
+	private DefaultButton m_cancelButton;
+
 	public AsyncContainer(@NonNull IAsyncRunnable arunnable) {
 		this(arunnable, null);
 	}
@@ -139,12 +141,16 @@ final public class AsyncContainer extends Div {
 		m_progress = new Div();
 		add(m_progress);
 		if(isAbortable()) {
-			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, b -> {
-				cancel();
-				b.setDisabled(true);
+			m_cancelButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, b -> {
+				doCancel();
 			});
-			add(db);
+			add(m_cancelButton);
 		}
+	}
+
+	public void doCancel() {
+		cancel();
+		m_cancelButton.setDisabled(true);
 	}
 
 	void cancel() {
