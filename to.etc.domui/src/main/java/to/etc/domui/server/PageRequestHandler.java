@@ -751,8 +751,11 @@ final public class PageRequestHandler {
 			targetComponent = page.getTheCurrentControl();
 			System.out.println("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
 		}
-		if(targetComponent == null || !targetComponent.isAttached())
-			throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
+		if(targetComponent == null || !targetComponent.isAttached()) {
+			//throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
+			System.err.println("INTERNAL: Cannot determine node to report exception /on/:" + x);
+			return false;
+		}
 
 		if(!xl.handleException(m_ctx, page, targetComponent, nx))
 			throw x;

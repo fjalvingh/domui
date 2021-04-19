@@ -131,8 +131,10 @@ final public class DelayedActivityInfo {
 
 	void cancelled() {
 		synchronized(m_manager) {
-			m_state = State.CANCELLED;
-			m_exception = new CancellationException();
+			if(m_state == State.RUNNING || m_state == State.WAITING) {
+				m_state = State.CANCELLED;
+				m_exception = new CancellationException();
+			}
 		}
 	}
 
