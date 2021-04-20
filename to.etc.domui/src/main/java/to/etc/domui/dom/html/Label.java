@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.binding.ComponentPropertyBindingUni;
 import to.etc.util.WrappedException;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Objects;
 
@@ -44,6 +45,10 @@ public class Label extends NodeContainer {
 
 	public Label() {
 		super("label");
+	}
+
+	public Label(IBundleCode code) {
+		this(code.getString());
 	}
 
 	public Label(@Nullable String text) {
