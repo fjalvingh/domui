@@ -100,6 +100,11 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		m_value = newval;
 	}
 
+	@Nullable
+	protected T internalGetValue() {
+		return m_value;
+	}
+
 	final public T getBindValue() {
 		validateBindValue();
 		return m_value;
