@@ -268,7 +268,7 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>4.0.4</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -283,6 +283,8 @@
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/domui.git.properties</generateGitPropertiesFilename>
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <offline>true</offline>
+                    <useNativeGit>true</useNativeGit>
                 </configuration>
             </plugin>
 
