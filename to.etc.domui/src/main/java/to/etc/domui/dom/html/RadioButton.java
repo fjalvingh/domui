@@ -139,7 +139,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 			}
 		} else {
 			//-- This one was unchecked. If it is the currently selected value too set it to null
-			if(g.getValue() == getButtonValue())
+			if(g.internalGetValue() == getButtonValue())
 				g.internalSetValue(null);
 		}
 	}
