@@ -3761,7 +3761,7 @@ var WebUI;
     }
     function executeXML(xml) {
         var rname = xml.documentElement.tagName;
-        if (rname.startsWith('redirect')) {
+        if (rname.match('^redirect')) {
             WebUI.blockUI();
             var to = xml.documentElement.getAttribute('url');
             if (to.indexOf('#') == -1) {

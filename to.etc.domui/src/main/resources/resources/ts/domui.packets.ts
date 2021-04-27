@@ -84,7 +84,7 @@
 	function executeXML(xml) : void {
 		// -- If this is a REDIRECT document -> redirect main page
 		const rname = xml.documentElement.tagName;
-		if(rname.startsWith('redirect')) {
+		if(rname.match('^redirect')) {
 			WebUI.blockUI();
 			let to = xml.documentElement.getAttribute('url');
 			// if(rname == "redirectWithHash") {
