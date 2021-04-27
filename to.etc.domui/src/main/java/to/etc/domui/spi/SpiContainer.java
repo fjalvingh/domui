@@ -12,6 +12,7 @@ import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.PageUrlMapping.PageSubtype;
 import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.server.SpiPageHelper;
+import to.etc.domui.state.ConversationState;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.SubConversationContext;
@@ -135,8 +136,16 @@ final public class SpiContainer {
 
 		//-- Page already existed; restore it.
 		clearShelf(index + 1);							// Destroy all pages "below" the new one
-		ISpiShelvedEntry entry = m_shelf.get(index);
-		subPage = ((SpiShelvedEntry) entry).getPage();
+		SpiShelvedEntry entry = (SpiShelvedEntry) m_shelf.get(index);
+		subPage = entry.getPage();
+		ConversationState cvState = subPage.getConversation().getState();
+		if(cvState == ConversationState.DESTROYED) {
+			//-- The page has been destroyed. Re-create the thing.
+			Page.spilog("SubPage " + subPage.getClass().getSimpleName() + " was destroyed earlier; reloading");
+			SpiShelvedEntry newShelfEntry = createSubPage(subPage.getClass(), entry.getParameters());
+			m_shelf.set(index, newShelfEntry);
+			subPage = newShelfEntry.getPage();
+		}
 
 		Page.spilog("set shelved " + subPage.getClass().getSimpleName());
 		subPage.getConversation().setShelvedIn(this);				// Mark as managed by this container
@@ -144,16 +153,6 @@ final public class SpiContainer {
 		String hashes = helper.getContainerHashes(m_spiPage);
 		m_spiPage.appendJavascript("WebUI.spiUpdateHashes(" + StringTool.strToJavascriptString(hashes, true) + ");");
 		callListeners();
-
-		//
-		//SubPage subPage = createSpiPage(targetPageName);
-		//if(null == subPage) {
-		//	throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known (no proper class)");
-		//}
-		//System.out.println(">>>> target " + subPage);
-		//m_application.getInjector().injectPageValues(subPage, nullChecked(target.getParameters()));
-		//
-		//setPage(subPage, target.getParameters());
 	}
 
 
@@ -229,8 +228,18 @@ final public class SpiContainer {
 			//-- Page already existed; restore it.
 			clearShelf(index + 1);							// Destroy all pages "below" the new one
 
-			ISpiShelvedEntry entry = m_shelf.get(index);
-			subPage = ((SpiShelvedEntry) entry).getPage();
+			SpiShelvedEntry entry = (SpiShelvedEntry) m_shelf.get(index);
+			subPage = entry.getPage();
+
+			ConversationState cvState = subPage.getConversation().getState();
+			if(cvState == ConversationState.DESTROYED) {
+				Page.spilog("Recreating destroyed page " + subPage.getClass().getSimpleName());
+				//-- The page has been destroyed. Re-create the thing.
+				Page.spilog("SubPage " + subPage.getClass().getSimpleName() + " was destroyed earlier; reloading");
+				SpiShelvedEntry newShelfEntry = createSubPage(subPage.getClass(), entry.getParameters());
+				m_shelf.set(index, newShelfEntry);
+				subPage = newShelfEntry.getPage();
+			}
 		}
 
 		Page.spilog("set shelved " + spiClass.getSimpleName());
@@ -283,12 +292,18 @@ final public class SpiContainer {
 	private SpiShelvedEntry createSubPage(Class<? extends SubPage> clz, @Nullable IPageParameters pp) throws Exception {
 		if(null == pp)
 			pp = new PageParameters();
+		SubPage subPage = createSubPageInstance(clz, pp);
+		SpiShelvedEntry e = new SpiShelvedEntry(this, subPage, pp);
+		return e;
+	}
+
+	@NonNull
+	private SubPage createSubPageInstance(Class<? extends SubPage> clz, @NonNull IPageParameters pp) throws Exception {
 		DomApplication app = DomApplication.get();
 		SpiPageHelper helper = new SpiPageHelper(app);
 		SubPage subPage = helper.createSpiPage(clz);
 		app.getInjector().injectPageValues(subPage, pp);
-		SpiShelvedEntry e = new SpiShelvedEntry(this, subPage, pp);
-		return e;
+		return subPage;
 	}
 
 	private boolean isInitial(ISpiShelvedEntry e) {

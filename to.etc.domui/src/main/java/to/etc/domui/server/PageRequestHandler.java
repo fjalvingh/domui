@@ -50,6 +50,7 @@ import to.etc.domui.util.INewPageInstantiated;
 import to.etc.domui.util.IRebuildOnRefresh;
 import to.etc.domui.util.Msgs;
 import to.etc.function.ConsumerEx;
+import to.etc.util.DeveloperOptions;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
@@ -941,9 +942,12 @@ final public class PageRequestHandler {
 		}
 	}
 
+	static private boolean LOGUSER = DeveloperOptions.getBool("domui.loguser", false);
+
 	private void logUser(String string) {
 		m_ctx.getSession().log(new UserLogItem(m_cid, m_runClass.getName(), null, null, string));
-		System.out.println("lu>> " + string);
+		if(LOGUSER)
+			System.out.println("lu>> " + string);
 	}
 
 	private void logUser(Page page, String string) {

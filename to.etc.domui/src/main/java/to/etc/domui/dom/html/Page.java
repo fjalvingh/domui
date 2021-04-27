@@ -44,6 +44,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.function.IExecute;
+import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
@@ -1400,7 +1401,10 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
+	static private boolean LOGSPI = DeveloperOptions.getBool("domui.logspi", false);
+
 	public static void spilog(String s) {
-		System.out.println("spi>> " + s);
+		if(LOGSPI)
+			System.out.println("spi>> " + s);
 	}
 }

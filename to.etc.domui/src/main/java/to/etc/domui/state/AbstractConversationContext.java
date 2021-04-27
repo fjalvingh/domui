@@ -63,7 +63,7 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 	}
 
 	@NonNull
-	ConversationState getState() {
+	public ConversationState getState() {
 		return m_state;
 	}
 
