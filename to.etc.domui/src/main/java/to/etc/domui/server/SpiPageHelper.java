@@ -4,11 +4,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.annotations.UIPage;
 import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.SubPage;
-import to.etc.domui.server.PageUrlMapping.PageSubtype;
-import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.spi.SpiContainer;
 import to.etc.domui.state.IPageParameters;
-import to.etc.domui.state.PageParameters;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.util.ClassUtil;
 import to.etc.util.StringTool;
@@ -16,8 +13,6 @@ import to.etc.util.StringTool;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-
-import static to.etc.domui.util.DomUtil.nullChecked;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -76,26 +71,27 @@ public class SpiPageHelper {
 				throw new ThingyNotFoundException("SPI container with name " + containerName + " is not present in this spi page");
 			rurl = fragmentIdentifier.substring(pos + 1);
 		}
+		container.loadSubPage(rurl);
 
-		loadSubPage(container, rurl);
+		//loadSubPage(container, rurl);
 	}
 
-	private void loadSubPage(SpiContainer container, String rurl) throws Exception {
-		Target target = m_application.getPageUrlMapping().findTarget(PageSubtype.SubPage, rurl, new PageParameters());
-		if(null == target) {
-			throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known");
-		}
-
-		String targetPageName = target.getTargetPage();
-		SubPage subPage = createSpiPage(targetPageName);
-		if(null == subPage) {
-			throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known (no proper class)");
-		}
-		System.out.println(">>>> target " + subPage);
-		m_application.getInjector().injectPageValues(subPage, nullChecked(target.getParameters()));
-
-		container.setPage(subPage, target.getParameters());
-	}
+	//private void loadSubPage(SpiContainer container, String rurl) throws Exception {
+	//	Target target = m_application.getPageUrlMapping().findTarget(PageSubtype.SubPage, rurl, new PageParameters());
+	//	if(null == target) {
+	//		throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known");
+	//	}
+	//
+	//	String targetPageName = target.getTargetPage();
+	//	SubPage subPage = createSpiPage(targetPageName);
+	//	if(null == subPage) {
+	//		throw new ThingyNotFoundException("Spi fragment with identifier=" + rurl + " is not known (no proper class)");
+	//	}
+	//	System.out.println(">>>> target " + subPage);
+	//	m_application.getInjector().injectPageValues(subPage, nullChecked(target.getParameters()));
+	//
+	//	container.setPage(subPage, target.getParameters());
+	//}
 
 	@Nullable
 	SubPage createSpiPage(String pageName) throws Exception {

@@ -47,6 +47,16 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 		m_manager = m;
 	}
 
+	/**
+	 * Subpages allow "resurrection" of destroyed contexts when a page having an existing
+	 * subpage is being redrawn. This is the case when a SubPage is being used not as an
+	 * SPI target but really as a content part of something (not managed by the SPI shelf
+	 * in a SpiContainer).
+	 */
+	void clear() {
+		m_map.clear();
+		m_manager = null;
+	}
 
 	protected void destroy() {
 		m_manager = null;

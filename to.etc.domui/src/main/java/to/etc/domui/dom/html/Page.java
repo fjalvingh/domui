@@ -44,6 +44,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.function.IExecute;
+import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.core.IRunnable;
 import to.etc.webapp.nls.NlsContext;
@@ -284,7 +285,6 @@ final public class Page implements IQContextContainer {
 		m_HTTPHeaderMap.putAll(app.getDefaultHTTPHeaderMap());
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Phase handling (debug internals)					*/
 	/*--------------------------------------------------------------*/
@@ -480,11 +480,15 @@ final public class Page implements IQContextContainer {
 			getConversation().addSubConversation(sp.getConversation());
 			m_removedSubPages.remove(sp);				// If we removed it earlier- unremove it (keeping its conversation state)
 
+			long ts = System.nanoTime();
 			try {
 				DomApplication.get().getSubPageInjector().inject(sp);
 			} catch(Exception x) {
+				System.err.println("ERROR: SubPage injection failed for page " + n.getClass().getSimpleName() + ": " + x);
 				throw WrappedException.wrap(x);
 			}
+			ts = System.nanoTime() - ts;
+			spilog("injecting " + n.getClass().getSimpleName() + " took " + StringTool.strNanoTime(ts));
 		}
 
 		//-- Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
@@ -1258,6 +1262,7 @@ final public class Page implements IQContextContainer {
 		for(SubPage subPage : getRemovedSubPages()) {
 			SubConversationContext scs = subPage.getConversation();
 			if(scs.getShelvedIn() == null) {
+				spilog("destroying context for " + subPage.getClass().getSimpleName());
 				//-- Only destroy subpages that are not part of an SPI container (they might be stacked on the shelf)
 				try {
 					getConversation().removeAndDestroySubConversation(scs);
@@ -1393,5 +1398,9 @@ final public class Page implements IQContextContainer {
 			if(null != page)
 				page.addDelayedExecution(code);
 		}
+	}
+
+	public static void spilog(String s) {
+		System.out.println("spi>> " + s);
 	}
 }

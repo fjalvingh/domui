@@ -26,4 +26,9 @@ public class SubConversationContext extends AbstractConversationContext implemen
 	public void setShelvedIn(@Nullable SpiContainer shelvedIn) {
 		m_shelvedIn = shelvedIn;
 	}
+
+	@Override void internalDestroy(boolean sessionDestroyed) throws Exception {
+		super.internalDestroy(sessionDestroyed);
+		m_state = ConversationState.DETACHED;
+	}
 }
