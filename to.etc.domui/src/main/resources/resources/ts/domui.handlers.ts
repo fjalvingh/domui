@@ -247,15 +247,23 @@ namespace WebUI {
 		});
 	}
 
+	var spiWasUpdate = false;
+
 	export function spiUpdateHashes(hashes: string) : void {
-		location.hash = "#" + hashes;
+		if(location.hash != "#" + hashes) {
+			location.hash = "#" + hashes;
+			spiWasUpdate = true;
+		}
 	}
 
 	/**
 	 * Called when the URL hash value changes, this calls the server to reload the page.
 	 */
 	export function handleHashChange() : void {
-		loadSpiFragments();
+		if(! spiWasUpdate) {
+			loadSpiFragments();
+		}
+		spiWasUpdate = false;
 	}
 }
 

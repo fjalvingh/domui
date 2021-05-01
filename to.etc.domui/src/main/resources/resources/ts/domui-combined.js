@@ -2408,12 +2408,19 @@ var WebUI;
         });
     }
     WebUI.loadSpiFragments = loadSpiFragments;
+    var spiWasUpdate = false;
     function spiUpdateHashes(hashes) {
-        location.hash = "#" + hashes;
+        if (location.hash != "#" + hashes) {
+            location.hash = "#" + hashes;
+            spiWasUpdate = true;
+        }
     }
     WebUI.spiUpdateHashes = spiUpdateHashes;
     function handleHashChange() {
-        loadSpiFragments();
+        if (!spiWasUpdate) {
+            loadSpiFragments();
+        }
+        spiWasUpdate = false;
     }
     WebUI.handleHashChange = handleHashChange;
 })(WebUI || (WebUI = {}));
