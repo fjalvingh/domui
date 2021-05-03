@@ -1,8 +1,8 @@
 package to.etc.domuidemo.pages.cddb;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.layout.ContentPanel;
 import to.etc.domui.component.searchpanel.SearchPanel;
 import to.etc.domui.component.tbl.DataPager;
@@ -65,7 +65,8 @@ final public class AlbumListPage extends UrlPage {
 		}
 	}
 
-	@NotNull private RowRenderer<Album> getRowRenderer() {
+	@NonNull
+	private RowRenderer<Album> getRowRenderer() {
 		RowRenderer<Album> rr = new RowRenderer<>(Album.class);
 		rr.column(Album_.title()).width(20).ascending();
 		rr.column(Album_.artist().name()).width(20).sortdefault().ascending();

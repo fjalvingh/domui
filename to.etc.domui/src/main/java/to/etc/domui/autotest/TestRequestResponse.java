@@ -2,7 +2,6 @@ package to.etc.domui.autotest;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import to.etc.domui.server.IRequestResponse;
 import to.etc.domui.server.IServerSession;
 import to.etc.domui.server.XssChecker;
@@ -138,7 +137,7 @@ public class TestRequestResponse implements IRequestResponse {
 	}
 
 	@Nullable
-	@Override public String[] getRawUnsafeParameters(@NotNull String name) {
+	@Override public String[] getRawUnsafeParameters(@NonNull String name) {
 		return getParameters(name);
 	}
 

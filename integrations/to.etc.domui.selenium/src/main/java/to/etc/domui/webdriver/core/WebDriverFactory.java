@@ -3,7 +3,6 @@ package to.etc.domui.webdriver.core;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.UnexpectedAlertBehaviour;
@@ -256,7 +255,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		}
 	}
 
-	@NotNull private static WebDriver allocateIEDriver(BrowserModel browser, Locale lang) {
+	@NonNull private static WebDriver allocateIEDriver(BrowserModel browser, Locale lang) {
 		InternetExplorerDriver wd = new InternetExplorerDriver(getIECapabilities(browser, lang));
 		String browserName = wd.getCapabilities().getBrowserName();
 		String version = wd.getCapabilities().getVersion();
@@ -264,7 +263,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return wd;
 	}
 
-	@NotNull private static WebDriver allocateFirefoxDriver(Locale lang) throws IOException {
+	@NonNull private static WebDriver allocateFirefoxDriver(Locale lang) throws IOException {
 		FirefoxOptions fo = new FirefoxOptions();
 
 		////-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
@@ -472,7 +471,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return capabilities;
 	}
 
-	@NotNull private static ChromeOptions getCommonChromeOptions(Locale lang) {
+	@NonNull private static ChromeOptions getCommonChromeOptions(Locale lang) {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments(
 			"test-type");                    // This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."

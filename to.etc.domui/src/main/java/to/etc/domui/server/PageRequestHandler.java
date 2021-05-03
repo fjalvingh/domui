@@ -3,7 +3,6 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import to.etc.domui.component.misc.InternalParentTree;
 import to.etc.domui.component.misc.MessageFlare;
@@ -279,7 +278,8 @@ final public class PageRequestHandler {
 		}
 	}
 
-	@NotNull private PageParameters getPageParameters(@Nullable ConversationContext conversation) {
+	@NonNull
+	private PageParameters getPageParameters(@Nullable ConversationContext conversation) {
 		PageParameters papa = PageParameters.createFrom(m_ctx.getPageParameters());
 
 		//-- If this request is a huge post request - get the huge post parameters.
