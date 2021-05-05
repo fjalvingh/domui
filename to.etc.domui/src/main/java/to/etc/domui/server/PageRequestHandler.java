@@ -196,7 +196,7 @@ final public class PageRequestHandler {
 			//-- If this is a crawler we would render a page with a fake session
 			if(m_application.getIsCrawlerFunctor().apply(m_ctx)) {
 				windowSession = m_ctx.getSession().createWindowSession();
-				cida = new CidPair(windowSession.getWindowID(), ".x");
+				cida = new CidPair(windowSession.getWindowID(), "x");
 			} else {
 				//-- no session yet: create one and redirect to a new URL that contains it.
 				createSessionAndReload();
