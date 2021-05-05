@@ -304,8 +304,6 @@ final public class PageRequestHandler {
 			if(DomUtil.USERLOG.isDebugEnabled())
 				DomUtil.USERLOG.debug(m_cid + ": Full render of page " + page);
 
-			injectPageProperties(page, papa);
-
 			/*
 			 * This is a (new) page request. We need to check rights on the page before
 			 * it is presented. The rights check is moved here (since 2013/01/24) because
@@ -318,6 +316,8 @@ final public class PageRequestHandler {
 			 */
 			if(!checkAccess(windowSession, page))
 				return;
+
+			injectPageProperties(page, papa);
 
 			m_application.callUIStateListeners(sl -> sl.onBeforeFullRender(m_ctx, page));
 
