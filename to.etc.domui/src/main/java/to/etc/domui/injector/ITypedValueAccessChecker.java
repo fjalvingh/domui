@@ -2,6 +2,7 @@ package to.etc.domui.injector;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.AbstractPage;
+import to.etc.domui.login.AccessCheckResult;
 import to.etc.util.PropertyInfo;
 
 /**
@@ -9,5 +10,5 @@ import to.etc.util.PropertyInfo;
  * Created on 20-12-18.
  */
 public interface ITypedValueAccessChecker<T> {
-	boolean isAccessAllowed(PropertyInfo info, AbstractPage page, @NonNull T value) throws Exception;
+	AccessCheckResult isAccessAllowed(PropertyInfo info, AbstractPage page, @NonNull T value) throws Exception;
 }

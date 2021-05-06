@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.CompoundKeyConverter;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.state.IPageParameters;
 import to.etc.util.PropertyInfo;
 import to.etc.webapp.query.QDataContext;
@@ -123,11 +124,11 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 	}
 
 	@Override
-	public void inject(@NonNull final UrlPage page, @NonNull final IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
+	public AccessCheckResult inject(@NonNull final UrlPage page, @NonNull final IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = getParameterValue(page, papa);
 		if(pv == null)
-			return;
+			return AccessCheckResult.accepted();
 
 		//-- 2. Handle the constant 'NEW'.
 		Object value;
@@ -140,7 +141,7 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 				if(m_mandatory) {
 					throw new QNotFoundException(m_entityClass, pk);
 				}
-				return;
+				return AccessCheckResult.accepted();
 			} else {
 				value = dc.find(m_entityClass, pk);
 				if(value == null && m_mandatory) {
@@ -148,6 +149,6 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 				}
 			}
 		}
-		setValue(page, value);
+		return setValue(page, value);
 	}
 }

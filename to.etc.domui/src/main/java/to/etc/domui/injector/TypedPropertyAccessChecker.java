@@ -2,6 +2,8 @@ package to.etc.domui.injector;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.AbstractPage;
+import to.etc.domui.login.AccessCheckResult;
+import to.etc.domui.login.PageAccessCheckResult;
 import to.etc.util.PropertyInfo;
 import to.etc.webapp.ProgrammerErrorException;
 
@@ -38,23 +40,26 @@ public class TypedPropertyAccessChecker implements IInjectedPropertyAccessChecke
 	}
 
 	@Override
-	public boolean isAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
+	public AccessCheckResult isAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
 		return checkAccessSigh(info, page, value);
 	}
 
-	private <T> boolean checkAccessSigh(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
+	private <T> AccessCheckResult checkAccessSigh(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
 		if(null == value)
-			return true;
+			return AccessCheckResult.accepted();
 
 		ITypedValueAccessChecker<T> checker = findClassChecker(value.getClass());
 		if(null != checker) {
 			return checker.isAccessAllowed(info, page, (T) value);
 		}
+		AccessCheckResult acr = null;
 		for(ITypedValueAccessChecker<Object> any : m_anyCheckerList) {
-			if(any.isAccessAllowed(info, page, value))
-				return true;
+			acr = any.isAccessAllowed(info, page, value);
+			if(acr.getResult() == PageAccessCheckResult.Accepted) {
+				return acr;
+			}
 		}
-		return false;
+		return acr;
 	}
 
 	@Nullable

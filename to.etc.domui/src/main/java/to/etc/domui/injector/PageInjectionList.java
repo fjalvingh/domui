@@ -26,6 +26,8 @@ package to.etc.domui.injector;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.AccessCheckResult;
+import to.etc.domui.login.PageAccessCheckResult;
 import to.etc.domui.state.IPageParameters;
 
 import java.util.List;
@@ -51,8 +53,13 @@ final class PageInjectionList {
 	 * Inject into all page properties.
 	 * @param attributeMap A map that can be used to store things while injecting.
 	 */
-	public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
-		for(PropertyInjector pi : m_propInjectorList)
-			pi.inject(page, pp, attributeMap);
+	public AccessCheckResult inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
+		for(PropertyInjector pi : m_propInjectorList) {
+			AccessCheckResult acr = pi.inject(page, pp, attributeMap);
+			if(acr.getResult() == PageAccessCheckResult.Refused) {
+				return acr;
+			}
+		}
+		return AccessCheckResult.accepted();
 	}
 }
