@@ -2,6 +2,7 @@ package to.etc.domui.injector;
 
 import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.state.IPageParameters;
 import to.etc.function.BiFunctionEx;
 import to.etc.util.ClassUtil;
@@ -69,18 +70,18 @@ public class PagePropertyInjector implements IPagePropertyFactory {
 			m_mandatory = mandatory;
 		}
 
-		@Override public void inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
+		@Override public AccessCheckResult inject(UrlPage page, IPageParameters pp, Map<String, Object> attributeMap) throws Exception {
 			String value = pp.getString(m_name, null);
 			if(null == value) {
 				if(m_mandatory)
 					throw new IllegalArgumentException("The page " + page.getClass() + " REQUIRES the URL parameter " + m_name);
 				//setValue(page, null);
-				return;
+				return AccessCheckResult.accepted();
 			}
 			Object instance = m_calculator.apply(page, value);
 			if(null == instance && m_mandatory)
 				throw new QNotFoundException(m_name, value);
-			setValue(page, instance);
+			return setValue(page, instance);
 		}
 	}
 }

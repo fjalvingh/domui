@@ -27,6 +27,7 @@ package to.etc.domui.injector;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.state.IPageParameters;
 import to.etc.util.PropertyInfo;
 
@@ -56,13 +57,13 @@ final public class UrlParameterInjector extends PropertyInjector {
 	 * Effects the actual injection of an URL parameter to a value.
 	 */
 	@Override
-	public void inject(@NonNull final UrlPage page, final @NonNull IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
+	public AccessCheckResult inject(@NonNull final UrlPage page, final @NonNull IPageParameters papa, Map<String, Object> attributeMap) throws Exception {
 		//-- 1. Get the URL parameter's value.
 		String pv = papa.getString(m_name, null);
 		if(pv == null) {
 			if(m_mandatory)
 				throw new IllegalArgumentException("The page " + page.getClass() + " REQUIRES the URL parameter " + m_name);
-			return;
+			return AccessCheckResult.accepted();
 		}
 
 		//-- 2. Convert the thing to the appropriate type.
@@ -76,7 +77,7 @@ final public class UrlParameterInjector extends PropertyInjector {
 
 		//-- 3. Insert the value.
 		try {
-			getPropertySetter().invoke(page, value);
+			return setValue(page, value);
 		} catch(Exception x) {
 			throw new RuntimeException("Cannot SET the value '" + value + "' converted from the string '" + pv + "' to type=" + type + ", for URL parameter=" + m_name + " of page="
 				+ page.getClass() + ": " + x, x);

@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.state.IPageParameters;
 
 import java.util.ArrayList;
@@ -117,12 +118,13 @@ final public class DefaultPageInjector implements IPageInjector {
 	/**
 	 * This scans the page for properties that are to be injected. It scans for properties on the Page's UrlPage class
 	 * and injects any stuff it finds. This version only handles the @UIUrlParameter annotation.
+	 * Returns the AccessCheckResult with details on injected objects access checks.
 	 */
 	@Override
-	public void injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception {
+	public AccessCheckResult injectPageValues(final UrlPage page, final IPageParameters papa) throws Exception {
 		PageInjectionList pij = findPageInjector(page.getClass());
 		Map<String, Object> attributeMap = new HashMap<>();
-		pij.inject(page, papa, attributeMap);
+		return pij.inject(page, papa, attributeMap);
 	}
 
 	@NonNullByDefault

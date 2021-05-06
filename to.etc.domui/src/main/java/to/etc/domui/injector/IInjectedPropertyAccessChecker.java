@@ -3,6 +3,7 @@ package to.etc.domui.injector;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.AbstractPage;
+import to.etc.domui.login.AccessCheckResult;
 import to.etc.util.PropertyInfo;
 
 /**
@@ -13,5 +14,5 @@ import to.etc.util.PropertyInfo;
  */
 @NonNullByDefault
 public interface IInjectedPropertyAccessChecker {
-	boolean isAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception;
+	AccessCheckResult isAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception;
 }

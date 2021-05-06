@@ -29,6 +29,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.AbstractPage;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.login.AccessCheckResult;
+import to.etc.domui.login.PageAccessCheckResult;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.state.IPageParameters;
 import to.etc.util.PropertyInfo;
@@ -45,7 +47,7 @@ import java.util.Objects;
 public abstract class PropertyInjector {
 	private final PropertyInfo m_propertyInfo;
 
-	public abstract void inject(@NonNull UrlPage page, @NonNull IPageParameters pp, @NonNull Map<String, Object> attributeMap) throws Exception;
+	public abstract AccessCheckResult inject(@NonNull UrlPage page, @NonNull IPageParameters pp, @NonNull Map<String, Object> attributeMap) throws Exception;
 
 	public PropertyInjector(@NonNull PropertyInfo info) {
 		m_propertyInfo = info;
@@ -62,24 +64,30 @@ public abstract class PropertyInjector {
 	/**
 	 * Once the value is determined this injects it, after a check whether the value is allowed
 	 * according to the rights checkers registered.
+	 *
+	 * If rights check is refused we return refused details, and we not set the property value.
 	 */
-	protected void setValue(@NonNull AbstractPage instance, @Nullable Object value) throws Exception {
-		if(! isValueAllowed(instance, value))
-			throw new IllegalDataValueException(m_propertyInfo);
+	protected AccessCheckResult setValue(@NonNull AbstractPage instance, @Nullable Object value) throws Exception {
+		AccessCheckResult acr = isValueAllowed(instance, value);
+		if(acr.getResult() == PageAccessCheckResult.Refused) {
+			return acr;
+		}
 
 		try {
 			getPropertySetter().invoke(instance, value);
 		} catch(Exception x) {
 			throw new WrappedException("Cannot SET the entity '" + value + "' for property=" + m_propertyInfo.getName() + " of page=" + instance.getClass() + ": " + x, x);
 		}
+		return acr;
 	}
 
-	private boolean isValueAllowed(AbstractPage instance, @Nullable Object value) throws Exception {
+	private AccessCheckResult isValueAllowed(AbstractPage instance, @Nullable Object value) throws Exception {
 		for(IInjectedPropertyAccessChecker checker : DomApplication.get().getInjectedPropertyAccessCheckerList()) {
-			if(! checker.isAccessAllowed(m_propertyInfo, instance, value)) {
-				return false;
+			AccessCheckResult acr = checker.isAccessAllowed(m_propertyInfo, instance, value);
+			if(acr.getResult() == PageAccessCheckResult.Refused) {
+				return acr;
 			}
 		}
-		return true;
+		return AccessCheckResult.accepted();
 	}
 }
