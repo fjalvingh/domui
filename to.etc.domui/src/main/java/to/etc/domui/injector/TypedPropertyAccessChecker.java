@@ -38,23 +38,34 @@ public class TypedPropertyAccessChecker implements IInjectedPropertyAccessChecke
 	}
 
 	@Override
-	public boolean isAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
-		return checkAccessSigh(info, page, value);
+	public void checkAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
+		checkAccessInternal(info, page, value);
 	}
 
-	private <T> boolean checkAccessSigh(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
+	private <T> void checkAccessInternal(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
 		if(null == value)
-			return true;
+			return;
 
 		ITypedValueAccessChecker<T> checker = findClassChecker(value.getClass());
 		if(null != checker) {
-			return checker.isAccessAllowed(info, page, (T) value);
+			checker.checkAccessAllowed(info, page, (T) value);
+			return;
 		}
+		//Checks if any of registered access checkers can grant the access. If none can grant it, we abort with first access check exception that was delivered by checkers.
+		AccessCheckException firstException = null;
 		for(ITypedValueAccessChecker<Object> any : m_anyCheckerList) {
-			if(any.isAccessAllowed(info, page, value))
-				return true;
+			try{
+				any.checkAccessAllowed(info, page, value);
+				return;
+			}catch (AccessCheckException x) {
+				if(null == firstException) {
+					firstException = x;
+				}
+			}
 		}
-		return false;
+		if(null != firstException) {
+			throw firstException;
+		}
 	}
 
 	@Nullable
