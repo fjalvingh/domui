@@ -18,6 +18,7 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.injector.AccessCheckException;
 import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.parts.IComponentJsonProvider;
@@ -304,7 +305,9 @@ final public class PageRequestHandler {
 			if(DomUtil.USERLOG.isDebugEnabled())
 				DomUtil.USERLOG.debug(m_cid + ": Full render of page " + page);
 
-			injectPageProperties(page, papa);
+			if(! injectPageProperties(windowSession, page, papa)) {
+				return;
+			}
 
 			/*
 			 * This is a (new) page request. We need to check rights on the page before
@@ -316,7 +319,7 @@ final public class PageRequestHandler {
 			 * user to check it's rights against the page's required rights.
 			 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
 			 */
-			if(!checkAccess(windowSession, page))
+			if(! checkAccess(windowSession, page))
 				return;
 
 			m_application.callUIStateListeners(sl -> sl.onBeforeFullRender(m_ctx, page));
@@ -462,7 +465,7 @@ final public class PageRequestHandler {
 		}
 	}
 
-	private void injectPageProperties(Page page, @NonNull PageParameters papa) throws Exception {
+	private boolean injectPageProperties(WindowSession windowSession, Page page, @NonNull PageParameters papa) throws Exception {
 		if(page.getBody() instanceof IRebuildOnRefresh) {                // Must fully refresh?
 			page.getBody().forceRebuild();                                // Cleanout state
 			page.setInjected(false);
@@ -473,10 +476,18 @@ final public class PageRequestHandler {
 		} else {
 			logUser("Full page render");
 		}
-		if(!page.isInjected()) {
-			m_ctx.getApplication().getInjector().injectPageValues(page.getBody(), nullChecked(papa));
-			page.setInjected(true);
+		if(page.isInjected()) {
+			return true;
 		}
+		try {
+			m_ctx.getApplication().getInjector().injectPageValues(page.getBody(), nullChecked(papa));
+		}catch(AccessCheckException x) {
+			if(! handleAccessCheckResult(windowSession, x.getAccessResult())) {
+				return false;
+			}
+		}
+		page.setInjected(true);
+		return true;
 	}
 
 	private void handleSessionUIMessages(WindowSession windowSession, Page page) throws Exception {
@@ -829,6 +840,10 @@ final public class PageRequestHandler {
 	 */
 	private boolean checkAccess(WindowSession windowSession, Page page) throws Exception {
 		AccessCheckResult result = m_application.getPageAccessChecker().checkAccess(m_ctx, page, a -> logUser(a));
+		return handleAccessCheckResult(windowSession, result);
+	}
+
+	private boolean handleAccessCheckResult(WindowSession windowSession, AccessCheckResult result) throws Exception {
 		switch(result.getResult()) {
 			default:
 				throw new IllegalArgumentException(result + "?");
