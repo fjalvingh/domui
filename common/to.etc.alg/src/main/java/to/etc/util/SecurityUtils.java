@@ -24,6 +24,7 @@
  */
 package to.etc.util;
 
+import org.apache.commons.codec.binary.Hex;
 import org.eclipse.jdt.annotation.NonNull;
 
 import javax.crypto.Cipher;
@@ -42,7 +43,6 @@ import java.security.SecureRandom;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -52,7 +52,7 @@ public class SecurityUtils {
 
 	static private final SecureRandom RANDOM = new SecureRandom();
 
-	public static final String ENCRYPTION_CIPHER = "Blowfish";
+	private enum Algorythm { Blowfish, AES }
 
 	static public String encodeToHex(PrivateKey privk) {
 		byte[] enc = privk.getEncoded();
@@ -283,29 +283,49 @@ public class SecurityUtils {
 		}
 	}
 
-	static public byte[] encryptStringToBytes(String input, String password) throws Exception {
-		SecretKeySpec skeyspec=new SecretKeySpec(password.getBytes(), ENCRYPTION_CIPHER);
-		Cipher cipher=Cipher.getInstance(ENCRYPTION_CIPHER);
+	static private byte[] encryptStringToBytes(String input, String password, Algorythm algorythm) throws Exception {
+		SecretKeySpec skeyspec=new SecretKeySpec(password.getBytes(), algorythm.name());
+		Cipher cipher=Cipher.getInstance(algorythm.name());
 		cipher.init(Cipher.ENCRYPT_MODE, skeyspec);
 		return cipher.doFinal(input.getBytes(StandardCharsets.UTF_8));
 	}
 
-	static public String decryptStringFromBytes(byte[] data, String password) throws Exception {
-		SecretKeySpec skeyspec=new SecretKeySpec(password.getBytes(), ENCRYPTION_CIPHER);
-		Cipher cipher=Cipher.getInstance(ENCRYPTION_CIPHER);
+	static private String decryptStringFromBytes(byte[] data, String password, Algorythm algorythm) throws Exception {
+		SecretKeySpec skeyspec=new SecretKeySpec(password.getBytes(), algorythm.name());
+		Cipher cipher=Cipher.getInstance(algorythm.name());
 		cipher.init(Cipher.DECRYPT_MODE, skeyspec);
 		byte[] decrypted = cipher.doFinal(data);
 		return new String(decrypted, StandardCharsets.UTF_8);
 	}
 
 	static public String encryptString(String input, String password) throws Exception {
-		byte[] bytes = encryptStringToBytes(input, password);
+		byte[] bytes = encryptStringToBytes(input, password, Algorythm.Blowfish);
 		return StringTool.encodeBase64ToString(bytes);
 	}
 
 	static public String decryptString(String input, String password) throws Exception {
 		byte[] bytes = StringTool.decodeBase64(input);
-		return decryptStringFromBytes(bytes, password);
+		return decryptStringFromBytes(bytes, password, Algorythm.Blowfish);
+	}
+
+	static public String encryptStringAes(String input, String password) throws Exception {
+		byte[] bytes = encryptStringToBytes(input, password, Algorythm.AES);
+		return StringTool.encodeBase64ToString(bytes);
+	}
+
+	static public String decryptStringAes(String input, String password) throws Exception {
+		byte[] bytes = StringTool.decodeBase64(input);
+		return decryptStringFromBytes(bytes, password, Algorythm.AES);
+	}
+
+	static public String encryptStringAesHex(String input, String password) throws Exception {
+		byte[] bytes = encryptStringToBytes(input, password, Algorythm.AES);
+		return Hex.encodeHexString(bytes);
+	}
+
+	static public String decryptStringAesHex(String input, String password) throws Exception {
+		byte[] bytes = Hex.decodeHex(input.toCharArray());
+		return decryptStringFromBytes(bytes, password, Algorythm.AES);
 	}
 
 }
