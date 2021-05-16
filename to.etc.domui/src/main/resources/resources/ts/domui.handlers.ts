@@ -221,6 +221,7 @@ namespace WebUI {
 		let hash = location.hash;
 		// if(hash == "")
 		// 	return;
+		console.debug("loadSpiFragments: hash=" + hash + ", prev=" + _lastUrlFragment);
 		if(hash == _lastUrlFragment)
 			return;
 
@@ -249,10 +250,19 @@ namespace WebUI {
 
 	var spiWasUpdate = false;
 
+	/**
+	 * Called when the SERVER wants to update the hashes inside the browser - but has already
+	 * loaded the appropriate pages. If the hashes actually changed then the hash will be set
+	 * but with a flag signaling the "change hash" handler that no SPI load is needed.
+	 */
 	export function spiUpdateHashes(hashes: string) : void {
 		if(location.hash != "#" + hashes) {
+			console.debug("spiUpdateHashes: new hashes=" + hashes + ", old=" + location.hash + "; updating browser hash");
 			location.hash = "#" + hashes;
 			spiWasUpdate = true;
+			_lastUrlFragment = '#' + hashes;
+		} else {
+			console.debug("spiUpdateHashes: new hashes=" + hashes + "are same as current hashes, not updated");
 		}
 	}
 
@@ -261,7 +271,10 @@ namespace WebUI {
 	 */
 	export function handleHashChange() : void {
 		if(! spiWasUpdate) {
+			console.debug("handleHashChange: loading spi fragments (was not a SPI update)");
 			loadSpiFragments();
+		} else {
+			console.debug("handleHashChange: skipping load for SPI fragments (hash=" + location.hash +")");
 		}
 		spiWasUpdate = false;
 	}

@@ -22,7 +22,6 @@ import to.etc.function.IExecute;
 import to.etc.util.ClassUtil;
 import to.etc.util.StringTool;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +52,7 @@ final public class SpiContainer {
 
 	private List<ISpiShelvedEntry> m_shelf = new ArrayList<>();
 
-	private List<WeakReference<IExecute>> m_shelfChangedListeners = new ArrayList<>();
+	private List<IExecute> m_shelfChangedListeners = new ArrayList<>();
 
 	private DomApplication m_application = DomApplication.get();
 
@@ -351,17 +350,12 @@ final public class SpiContainer {
 
 	private void callListeners() {
 		for(int i = m_shelfChangedListeners.size() - 1; i >= 0; i--) {
-			WeakReference<IExecute> l = m_shelfChangedListeners.get(i);
-			IExecute old = l.get();
-			if(old == null) {
-				m_shelfChangedListeners.remove(i);
-			} else {
-				try {
-					old.execute();
-				} catch(Exception x) {
-					System.err.println("Exception on shelf changed listener: " + x);
-					x.printStackTrace();
-				}
+			IExecute old = m_shelfChangedListeners.get(i);
+			try {
+				old.execute();
+			} catch(Exception x) {
+				System.err.println("Exception on shelf changed listener: " + x);
+				x.printStackTrace();
 			}
 		}
 	}
@@ -370,21 +364,19 @@ final public class SpiContainer {
 	 * Add a listener, and return a method that can be called to remove it again.
 	 */
 	public Runnable addShelfListener(IExecute onChange) {
-		WeakReference<IExecute> wr = new WeakReference<>(onChange);
-		m_shelfChangedListeners.add(wr);
+		m_shelfChangedListeners.add(onChange);
+		System.out.println("BREADCRUMB: Adding shelf listener");
 
 		return () -> {
-			m_shelfChangedListeners.remove(wr);
+			m_shelfChangedListeners.remove(onChange);
+			System.out.println("BREADCRUMB: Removing shelf listener");
 		};
 	}
 
 	public void removeShelfListener(IExecute onChange) {
 		for(int i = m_shelfChangedListeners.size() - 1; i >= 0; i--) {
-			WeakReference<IExecute> l = m_shelfChangedListeners.get(i);
-			IExecute old = l.get();
-			if(old == null) {
-				m_shelfChangedListeners.remove(i);
-			} else if(old == onChange) {
+			IExecute old = m_shelfChangedListeners.get(i);
+			if(old == onChange) {
 				m_shelfChangedListeners.remove(i);
 				return;
 			}

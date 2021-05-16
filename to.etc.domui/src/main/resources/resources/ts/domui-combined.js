@@ -2387,6 +2387,7 @@ var WebUI;
     var _lastUrlFragment;
     function loadSpiFragments() {
         var hash = location.hash;
+        console.debug("loadSpiFragments: hash=" + hash + ", prev=" + _lastUrlFragment);
         if (hash == _lastUrlFragment)
             return;
         var fields = {};
@@ -2411,14 +2412,23 @@ var WebUI;
     var spiWasUpdate = false;
     function spiUpdateHashes(hashes) {
         if (location.hash != "#" + hashes) {
+            console.debug("spiUpdateHashes: new hashes=" + hashes + ", old=" + location.hash + "; updating browser hash");
             location.hash = "#" + hashes;
             spiWasUpdate = true;
+            _lastUrlFragment = '#' + hashes;
+        }
+        else {
+            console.debug("spiUpdateHashes: new hashes=" + hashes + "are same as current hashes, not updated");
         }
     }
     WebUI.spiUpdateHashes = spiUpdateHashes;
     function handleHashChange() {
         if (!spiWasUpdate) {
+            console.debug("handleHashChange: loading spi fragments (was not a SPI update)");
             loadSpiFragments();
+        }
+        else {
+            console.debug("handleHashChange: skipping load for SPI fragments (hash=" + location.hash + ")");
         }
         spiWasUpdate = false;
     }
