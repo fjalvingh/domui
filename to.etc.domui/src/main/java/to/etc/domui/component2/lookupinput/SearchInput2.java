@@ -122,8 +122,6 @@ public class SearchInput2 extends Div implements IForTarget {
 	/**
 	 * Sent regularly whenever the search box is typed in. Causes a ValueChanged event which can then do
 	 * whatever lookup is needed.
-	 * @param ctx
-	 * @throws Exception
 	 */
 	public void webActionlookupTyping(IRequestContext ctx) throws Exception {
 		IValueChanged<SearchInput2> lookupTyping = getOnLookupTyping();
@@ -134,19 +132,17 @@ public class SearchInput2 extends Div implements IForTarget {
 	/**
 	 * Send when return is pressed in the search box. Should finalize the selected value, if
 	 * one is present.
-	 * @param ctx
-	 * @throws Exception
 	 */
 	public void webActionlookupTypingDone(IRequestContext ctx) throws Exception {
 		IReturnPressed< ? extends NodeBase> returnPressed = getReturnPressed();
 		if(null != returnPressed)
 			((IReturnPressed<NodeBase>) returnPressed).returnPressed(this);
+		else
+			webActionlookupTyping(ctx);						// Make sure that an ENTER also counts as some data entered.
 	}
 
 	/**
 	 * Sets a placeholder text in a text input.
-	 *
-	 * @param placeHolder text to be set.
 	 */
 	public void setPlaceHolder(String placeHolder) {
 		m_keySearch.setPlaceHolder(placeHolder);
