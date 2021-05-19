@@ -350,6 +350,25 @@ public abstract class DomApplication {
 	@NonNull
 	private volatile Map<String, String> m_defaultSiteHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
+	@NonNull
+	private final Map<String, Function<Map<String, String>, Map<String, String>>> m_pageHeaderTransformations = new HashMap<>();
+
+	protected <T extends UrlPage> void registerPageHeaderTransformations(Class<T> pageClass, Function<Map<String, String>, Map<String, String>> transformation) {
+		m_pageHeaderTransformations.put(pageClass.getName(), transformation);
+		System.err.println("Page " + pageClass.getName() + " registered for Response Header transformations");
+	}
+
+	public Map<String, String> applyPageHeaderTransformations(@Nullable String pageClassName, Map<String, String> headers) {
+		if(null == pageClassName) {
+			return headers;
+		}
+		Function<Map<String, String>, Map<String, String>> transformation = m_pageHeaderTransformations.get(pageClassName);
+		if(null == transformation) {
+			return headers;
+		}
+		return transformation.apply(headers);
+	}
+
 	/**
 	 * When > 0, TextArea components will automatically have their maxByteLength property
 	 * set to this value when they are created by a property factory. This should be set
