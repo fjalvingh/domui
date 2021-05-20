@@ -117,7 +117,8 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		url = appendPersistedParameters(url, ctx);
 
 		//-- Output all headers
-		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+		DomApplication domApplication = DomApplication.get();
+		domApplication.applyPageHeaderTransformations(ctx.getPageName(), domApplication.getDefaultHTTPHeaderMap()).forEach((header, value) -> rr.addHeader(header, value));
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("redirect");
