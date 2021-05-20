@@ -55,24 +55,7 @@ public class AccessDeniedPage extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		//-- Can we get the classname?
-		String cname = getPage().getPageParameters().getString(PARAM_TARGET_PAGE);
-		String pageName = "...";
-		if(cname != null) {
-			//-- Try to load the class to access it's meta
-			Class< ? > clz = null;
-			try {
-				clz = DomApplication.get().loadPageClass(cname);
-			} catch(Exception x) {}
-			if(clz == null)
-				pageName = cname;
-			else {
-				String s = DomUtil.calcPageTitle(clz);
-				if(s == null)
-					s = DomUtil.calcPageLabel(clz);
-				if(s != null)
-					pageName = s;
-			}
-		}
+		String pageName = getTargetPageName();
 
 		CaptionedPanel ep = new CaptionedPanel(Msgs.BUNDLE.getString(Msgs.LOGIN_ACCESS_TITLE));
 		add(ep);
@@ -117,6 +100,28 @@ public class AccessDeniedPage extends UrlPage {
 			d.add(link);
 			link.setText(Msgs.BUNDLE.getString(Msgs.LOGIN_TO_INDEX));
 		}
+	}
+
+	protected String getTargetPageName() {
+		String cname = getPage().getPageParameters().getString(PARAM_TARGET_PAGE);
+		String pageName = "...";
+		if(cname != null) {
+			//-- Try to load the class to access it's meta
+			Class< ? > clz = null;
+			try {
+				clz = DomApplication.get().loadPageClass(cname);
+			} catch(Exception x) {}
+			if(clz == null)
+				pageName = cname;
+			else {
+				String s = DomUtil.calcPageTitle(clz);
+				if(s == null)
+					s = DomUtil.calcPageLabel(clz);
+				if(s != null)
+					pageName = s;
+			}
+		}
+		return pageName;
 	}
 
 	/**
