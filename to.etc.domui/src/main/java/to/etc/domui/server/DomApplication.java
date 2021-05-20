@@ -367,19 +367,7 @@ public abstract class DomApplication {
 	 */
 	protected <T extends UrlPage> void registerPageHeaderTransformations(Class<T> pageClass, BiConsumerEx<Map<String, String>, UrlPage> transformation) {
 		m_pageHeaderTransformations.put(pageClass.getName(), transformation);
-		//System.err.println("Page " + pageClass.getName() + " registered for Response Header transformations");
 	}
-
-	//public Map<String, String> applyPageHeaderTransformations(@Nullable String pageClassName, Map<String, String> headers) {
-	//	if(null == pageClassName) {
-	//		return headers;
-	//	}
-	//	Function<Map<String, String>, Map<String, String>> transformation = m_pageHeaderTransformations.get(pageClassName);
-	//	if(null == transformation) {
-	//		return headers;
-	//	}
-	//	return transformation.apply(headers);
-	//}
 
 	public Map<String, String> applyPageHeaderTransformations(@Nullable String pageClassName, @Nullable UrlPage currentPage) throws Exception {
 		Map<String, String> map = getDefaultHTTPHeaderMap();

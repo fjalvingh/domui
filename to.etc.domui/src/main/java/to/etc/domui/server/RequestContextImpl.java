@@ -494,8 +494,6 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	public void renderResponseHeaders(@Nullable UrlPage currentPage) throws Exception {
 		m_application.applyPageHeaderTransformations(getPageName(), currentPage).forEach((header, value) -> getRequestResponse().addHeader(header, value));
-		//DomApplication domApplication = DomApplication.get();
-		//domApplication.applyPageHeaderTransformations(ctx.getPageName(), domApplication.getDefaultHTTPHeaderMap()).forEach((header, value) -> rr.addHeader(header, value));
 	}
 
 	/**
