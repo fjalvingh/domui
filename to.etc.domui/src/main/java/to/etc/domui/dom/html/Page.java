@@ -281,7 +281,7 @@ final public class Page implements IQContextContainer {
 		if(res == null)
 			throw new IllegalStateException("internal: missing domui NLS resource $js/domuinls{nls}.js");
 		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
-		m_HTTPHeaderMap.putAll(app.getDefaultHTTPHeaderMap());
+		m_HTTPHeaderMap.putAll(app.applyPageHeaderTransformations(pageContent.getClass().getName(), app.getDefaultHTTPHeaderMap()));
 	}
 
 

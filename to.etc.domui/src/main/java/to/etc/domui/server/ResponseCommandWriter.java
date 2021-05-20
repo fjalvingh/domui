@@ -26,7 +26,8 @@ public class ResponseCommandWriter {
 
 	private void renderHeaders(RequestContextImpl ctx) {
 		IRequestResponse rr = ctx.getRequestResponse();
-		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+		DomApplication domApplication = DomApplication.get();
+		domApplication.applyPageHeaderTransformations(ctx.getPageName(), domApplication.getDefaultHTTPHeaderMap()).forEach((header, value) -> rr.addHeader(header, value));
 	}
 
 	/**
