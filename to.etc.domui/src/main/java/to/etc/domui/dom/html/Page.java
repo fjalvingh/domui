@@ -57,7 +57,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -255,12 +254,12 @@ final public class Page implements IQContextContainer {
 
 	private List<IExecute> m_pageOnCallbackList = new ArrayList<>();
 
-	/**
-	 * Contains all http headers that need to be sent for this page. When the Page
-	 * is created this is filled with the headers set in {@link DomApplication#getDefaultHTTPHeaderMap()},
-	 * and it can after be manipulated by a page before being used.
-	 */
-	private Map<String, String> m_HTTPHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	///**
+	// * Contains all http headers that need to be sent for this page. When the Page
+	// * is created this is filled with the headers set in {@link DomApplication#getDefaultHTTPHeaderMap()},
+	// * and it can after be manipulated by a page before being used.
+	// */
+	//private Map<String, String> m_HTTPHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -281,7 +280,7 @@ final public class Page implements IQContextContainer {
 		if(res == null)
 			throw new IllegalStateException("internal: missing domui NLS resource $js/domuinls{nls}.js");
 		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
-		m_HTTPHeaderMap.putAll(app.applyPageHeaderTransformations(pageContent.getClass().getName(), app.getDefaultHTTPHeaderMap()));
+		//m_HTTPHeaderMap.putAll(app.applyPageHeaderTransformations(pageContent.getClass().getName(), app.getDefaultHTTPHeaderMap()));
 	}
 
 
@@ -688,17 +687,17 @@ final public class Page implements IQContextContainer {
 	/*	CODING:	http protocol headers										*/
 	/*----------------------------------------------------------------------*/
 
-	public void addHTTPHeader(@NonNull String header, @Nullable String value) {
-		if(null == value)
-			m_HTTPHeaderMap.remove(header);
-		else
-			m_HTTPHeaderMap.put(header, value);
-	}
-
-	@NonNull
-	public Map<String, String> getHTTPHeaderMap() {
-		return m_HTTPHeaderMap;
-	}
+	//public void addHTTPHeader(@NonNull String header, @Nullable String value) {
+	//	if(null == value)
+	//		m_HTTPHeaderMap.remove(header);
+	//	else
+	//		m_HTTPHeaderMap.put(header, value);
+	//}
+	//
+	//@NonNull
+	//public Map<String, String> getHTTPHeaderMap() {
+	//	return m_HTTPHeaderMap;
+	//}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle the floating window stack.					*/

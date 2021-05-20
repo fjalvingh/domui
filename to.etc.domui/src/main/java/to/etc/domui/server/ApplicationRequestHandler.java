@@ -94,8 +94,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 			throw new IllegalStateException("Invalid TO url generated");
 
 		//-- Output all headers
-		DomApplication domApplication = DomApplication.get();
-		domApplication.applyPageHeaderTransformations(ctx.getPageName(), domApplication.getDefaultHTTPHeaderMap()).forEach((header, value) -> rr.addHeader(header, value));
+		ctx.renderResponseHeaders(null);							// We do not have a page instance here.
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/html; charset=UTF-8", "utf-8"));
 		out.writeRaw("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">\n" + "<html><head><script language=\"javascript\"><!--\n"
@@ -117,8 +116,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		url = appendPersistedParameters(url, ctx);
 
 		//-- Output all headers
-		DomApplication domApplication = DomApplication.get();
-		domApplication.applyPageHeaderTransformations(ctx.getPageName(), domApplication.getDefaultHTTPHeaderMap()).forEach((header, value) -> rr.addHeader(header, value));
+		ctx.renderResponseHeaders(null);
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("redirect");
