@@ -27,6 +27,7 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.Page;
+import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
@@ -489,6 +490,12 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		m_sw = new StringWriter(8192);
 		m_outWriter = m_sw;
 		return m_outWriter;
+	}
+
+	public void renderResponseHeaders(@Nullable UrlPage currentPage) throws Exception {
+		m_application.applyPageHeaderTransformations(getPageName(), currentPage).forEach((header, value) -> getRequestResponse().addHeader(header, value));
+		//DomApplication domApplication = DomApplication.get();
+		//domApplication.applyPageHeaderTransformations(ctx.getPageName(), domApplication.getDefaultHTTPHeaderMap()).forEach((header, value) -> rr.addHeader(header, value));
 	}
 
 	/**
