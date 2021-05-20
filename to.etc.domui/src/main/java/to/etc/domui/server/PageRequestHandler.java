@@ -189,15 +189,19 @@ final public class PageRequestHandler {
 		// ORDERED!!! Must be kept BELOW the OBITUARY check
 		WindowSession windowSession = null;
 		CidPair cida = m_cida;
+		LOG.debug("cida: " + cida);
 		if(cida != null) {
 			windowSession = m_ctx.getSession().findWindowSession(cida.getWindowId());
 		}
 		if(windowSession == null) {
+			LOG.debug("windowSession == null");
 			//-- If this is a crawler we would render a page with a fake session
 			if(m_application.getIsCrawlerFunctor().apply(m_ctx)) {
+				LOG.debug("IsCrawler");
 				windowSession = m_ctx.getSession().createWindowSession();
 				cida = new CidPair(windowSession.getWindowID(), "x");
 			} else {
+				LOG.debug("createSessionAndReload");
 				//-- no session yet: create one and redirect to a new URL that contains it.
 				createSessionAndReload();
 				return;
