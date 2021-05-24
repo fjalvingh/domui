@@ -261,6 +261,8 @@ final public class Page implements IQContextContainer {
 	// */
 	//private Map<String, String> m_HTTPHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
+	private boolean m_forceLeavePage;
+
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
 		m_rootContent = pageContent;
@@ -1033,6 +1035,14 @@ final public class Page implements IQContextContainer {
 	 */
 	@Nullable
 	public StringBuilder internalFlushJavascriptStateChanges() throws Exception {
+		if(canLeaveCurrentPage(false)) {
+			if(m_rootContent instanceof IPageWithNavigationCheck) {
+				m_rootContent.appendJavascript("window.onbeforeunload = null;");
+			}
+		}else {
+			//seems to be hardcoded message in browsers, so text that we return here is ignored.
+			m_rootContent.appendJavascript("window.onbeforeunload = function() { return \"You have unsaved changes on page.\"};");
+		}
 		if(m_javaScriptStateChangedSet.size() == 0)
 			return null;
 
@@ -1379,5 +1389,32 @@ final public class Page implements IQContextContainer {
 			if(null != page)
 				page.addDelayedExecution(code);
 		}
+	}
+
+	/**
+	 * Checks if page can be left.
+	 * @return
+	 */
+	public boolean canLeaveCurrentPage(boolean handleNavigationWhenModified) {
+		if(m_forceLeavePage) {
+			return true;
+		}
+		if(m_rootContent instanceof IPageWithNavigationCheck) {
+			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
+			boolean hasModification = pageWithNavigationCheck.hasModification();
+			if(hasModification && handleNavigationWhenModified) {
+				pageWithNavigationCheck.handleNavigationOnModified();
+			}
+			return !hasModification;
+		}else {
+			return true;
+		}
+	}
+
+	/**
+	 * Forces page leave flag, it would ignore page leave check on url page level.
+	 */
+	public void setForceLeavePage() {
+		m_forceLeavePage = true;
 	}
 }

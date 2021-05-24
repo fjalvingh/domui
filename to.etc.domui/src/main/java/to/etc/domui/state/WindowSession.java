@@ -368,6 +368,9 @@ final public class WindowSession {
 		//		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
 		if(getTargetMode() == null)
 			return false;
+		if(! currentpg.canLeaveCurrentPage(true)) {
+			return false;
+		}
 		if(getTargetMode() == MoveMode.BACK) {
 			// Back requested-> move back, then.
 			handleMoveBack(ctx, currentpg, ajax);
