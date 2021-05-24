@@ -190,8 +190,13 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 			ce.accept(v, null);
 			result.addAll(v.getResult());
 			TypeElement asType = (TypeElement) ce;
-			DeclaredType sup = (DeclaredType) asType.getSuperclass();
-			ce = sup == null ? null : sup.asElement();
+			TypeMirror superclass = asType.getSuperclass();
+			if(superclass instanceof DeclaredType) {
+				DeclaredType sup = (DeclaredType) superclass;
+				ce = sup == null ? null : sup.asElement();
+			} else {
+				break;
+			}
 		}
 		return result;
 	}
