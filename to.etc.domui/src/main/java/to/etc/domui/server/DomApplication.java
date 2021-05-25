@@ -42,6 +42,8 @@ import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.component.layout.title.BasePageTitleBar;
 import to.etc.domui.component.misc.Icon;
+import to.etc.domui.component.misc.MsgBox2;
+import to.etc.domui.component.misc.MsgBox2.IAnswer2;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.HtmlTagRenderer;
@@ -83,7 +85,9 @@ import to.etc.domui.state.AppSession;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.DelayedActivitiesManager;
 import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
+import to.etc.domui.state.UIRedirectContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.subinjector.ISubPageInjector;
 import to.etc.domui.subinjector.SubPageInjector;
@@ -309,6 +313,26 @@ public abstract class DomApplication {
 	private boolean m_scanClosed;
 
 	private volatile Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
+
+	/**
+	 * Default handling of leaving the page with unsaved changes.
+	 * @param ctx
+	 * @param page
+	 * @throws Exception
+	 */
+	public void handleNavigationOnModified(UIRedirectContext ctx, UrlPage page) throws Exception {
+		MsgBox2
+			.on(page)
+			.title("Leave page?")
+			.warning("Changes you made may not be saved.")
+			.button("Cancel", Integer.valueOf(1))
+			.button("Leave", Integer.valueOf(2))
+			.onAnswer((IAnswer2) answer -> {
+				if(Integer.valueOf(2).equals(answer)) {
+					UIContext.getCurrentConversation().getWindowSession().handleGotoOnNavigationCheck(ctx);
+				}
+			});
+	}
 
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's

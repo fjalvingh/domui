@@ -359,17 +359,35 @@ final public class WindowSession {
 	}
 
 	/**
-	 * This checks whether a new page is to be made resident, instead of the
-	 * current page.
+	 * This checks whether a new page is to be made resident, instead of the current page.
 	 *
 	 * @param currentpg		The page that is <b>current</b> (the one that issued the MOVE command).
 	 */
 	public boolean handleGoto(@NonNull final RequestContextImpl ctx, @NonNull final Page currentpg, boolean ajax) throws Exception {
+		return internalHandleGoto(ctx, getTargetMode(), currentpg, ajax, true);
+	}
+
+	/**
+	 * This gets called after navigation was postponed once on page registered to check exit navigation for existing unsaved changes.
+	 *
+	 * @param redirectCtx redirect details
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean handleGotoOnNavigationCheck(@NonNull final UIRedirectContext redirectCtx) throws Exception {
+		return internalHandleGoto(redirectCtx.getCtx(), redirectCtx.getTargetMode(), redirectCtx.getTo(), redirectCtx.isAjax(), false);
+	}
+
+	private boolean internalHandleGoto(@NonNull final RequestContextImpl ctx, @Nullable MoveMode targetMode, @NonNull final Page currentpg, boolean ajax, boolean checkNavigation) throws Exception {
 		//		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
-		if(getTargetMode() == null)
+		if(targetMode == null)
 			return false;
-		if(! currentpg.canLeaveCurrentPage(true)) {
-			return false;
+		m_targetMode = targetMode;
+		if(checkNavigation) {
+			UIRedirectContext redirectCtx = new UIRedirectContext(ctx, targetMode, currentpg, ajax);
+			if(! currentpg.internalCanLeaveCurrentPageByDomui(redirectCtx)) {
+				return false;
+			}
 		}
 		if(getTargetMode() == MoveMode.BACK) {
 			// Back requested-> move back, then.
