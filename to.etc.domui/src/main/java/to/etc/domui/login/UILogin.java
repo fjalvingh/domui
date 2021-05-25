@@ -3,6 +3,7 @@ package to.etc.domui.login;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.MDC;
 import to.etc.domui.server.HttpServerRequestResponse;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.IServerSession;
@@ -55,6 +56,7 @@ final public class UILogin {
 		if(null == user) {
 			m_impersonator.set(null);
 		}
+		MDC.put(to.etc.log.EtcMDCAdapter.LOGINID, null == user ? null : user.getLoginID());
 	}
 
 	/**

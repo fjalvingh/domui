@@ -306,7 +306,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * are always close together in time. For now we do not mark a WindowSession as possibly deleted
 	 * if it's previous request is before but close to the obituary's request.</p>
 	 *
-	 * @param cm			The WindowSession for which the obituary was received.
+	 * @param cid			The WindowSession for which the obituary was received.
 	 * @param obitPageTag	The page tag of the page that has died.
 	 * @throws Exception
 	 */
