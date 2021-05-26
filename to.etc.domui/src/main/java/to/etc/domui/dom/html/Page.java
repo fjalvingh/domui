@@ -40,6 +40,7 @@ import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.SubConversationContext;
 import to.etc.domui.state.UIContext;
+import to.etc.domui.state.UIRedirectContext;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
@@ -260,8 +261,6 @@ final public class Page implements IQContextContainer {
 	// * and it can after be manipulated by a page before being used.
 	// */
 	//private Map<String, String> m_HTTPHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-	private boolean m_forceLeavePage;
 
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -877,6 +876,15 @@ final public class Page implements IQContextContainer {
 
 	@Nullable
 	public StringBuilder internalFlushAppendJS() {
+		System.out.println("---internalFlushAppendJS");
+		if(internalCanLeaveCurrentPageByBrowser()) {
+			if(m_rootContent instanceof IPageWithNavigationCheck) {
+				m_rootContent.appendJavascript("WebUI.setCheckLeavePage(false);");
+			}
+		}else {
+			m_rootContent.appendJavascript("WebUI.setCheckLeavePage(true);");
+		}
+
 		StringBuilder sb = m_appendJS;
 		m_appendJS = null;
 		return sb;
@@ -1035,14 +1043,6 @@ final public class Page implements IQContextContainer {
 	 */
 	@Nullable
 	public StringBuilder internalFlushJavascriptStateChanges() throws Exception {
-		if(canLeaveCurrentPage(false)) {
-			if(m_rootContent instanceof IPageWithNavigationCheck) {
-				m_rootContent.appendJavascript("window.onbeforeunload = null;");
-			}
-		}else {
-			//seems to be hardcoded message in browsers, so text that we return here is ignored.
-			m_rootContent.appendJavascript("window.onbeforeunload = function() { return \"You have unsaved changes on page.\"};");
-		}
 		if(m_javaScriptStateChangedSet.size() == 0)
 			return null;
 
@@ -1392,29 +1392,38 @@ final public class Page implements IQContextContainer {
 	}
 
 	/**
-	 * Checks if page can be left.
+	 * Checks if page can be left caused by browser navigation.
 	 * @return
 	 */
-	public boolean canLeaveCurrentPage(boolean handleNavigationWhenModified) {
-		if(m_forceLeavePage) {
-			return true;
-		}
+	public boolean internalCanLeaveCurrentPageByBrowser() {
 		if(m_rootContent instanceof IPageWithNavigationCheck) {
 			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
 			boolean hasModification = pageWithNavigationCheck.hasModification();
-			if(hasModification && handleNavigationWhenModified) {
-				pageWithNavigationCheck.handleNavigationOnModified();
-			}
 			return !hasModification;
-		}else {
+		} else {
 			return true;
 		}
 	}
 
 	/**
-	 * Forces page leave flag, it would ignore page leave check on url page level.
+	 * Checks if page can be left caused by domui navigation.
+	 * @return
 	 */
-	public void setForceLeavePage() {
-		m_forceLeavePage = true;
+	public boolean internalCanLeaveCurrentPageByDomui(UIRedirectContext redirectContext) throws Exception {
+		if(m_rootContent instanceof IPageWithNavigationCheck) {
+			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
+			boolean hasModification = pageWithNavigationCheck.hasModification();
+			if(! hasModification) {
+				return true;
+			}
+			if(m_rootContent instanceof IPageWithDomuiNavigationCheck) {
+				((IPageWithDomuiNavigationCheck) m_rootContent).handleNavigationOnModified(redirectContext);
+			}else {
+				DomApplication.get().handleNavigationOnModified(redirectContext, this.getBody());
+			}
+			return false;
+		} else {
+			return true;
+		}
 	}
 }

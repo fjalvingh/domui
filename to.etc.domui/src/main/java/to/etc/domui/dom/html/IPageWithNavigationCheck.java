@@ -1,19 +1,13 @@
 package to.etc.domui.dom.html;
 
 /**
- * UrlPage that implements it would be called to check if page leave navigation can be performed.
+ * Marks the UrlPage for check if user can leave the page with unsaved data, for both browser and domui (UIGoto) navigation.
  */
 public interface IPageWithNavigationCheck {
 
 	/**
-	 * Returns if page has modifications that should prevent navigation.
+	 * Returns if page has modifications that should be checked before allowing of leaving the page.
 	 * @return
 	 */
 	boolean hasModification();
-
-	/**
-	 * Call to let user handle how to resolve the navigation on modified screen data.
-	 * @return
-	 */
-	void handleNavigationOnModified();
 }
