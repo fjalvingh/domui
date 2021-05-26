@@ -876,6 +876,15 @@ final public class Page implements IQContextContainer {
 
 	@Nullable
 	public StringBuilder internalFlushAppendJS() {
+		System.out.println("---internalFlushAppendJS");
+		if(internalCanLeaveCurrentPageByBrowser()) {
+			if(m_rootContent instanceof IPageWithNavigationCheck) {
+				m_rootContent.appendJavascript("WebUI.setCheckLeavePage(false);");
+			}
+		}else {
+			m_rootContent.appendJavascript("WebUI.setCheckLeavePage(true);");
+		}
+
 		StringBuilder sb = m_appendJS;
 		m_appendJS = null;
 		return sb;
@@ -1034,14 +1043,6 @@ final public class Page implements IQContextContainer {
 	 */
 	@Nullable
 	public StringBuilder internalFlushJavascriptStateChanges() throws Exception {
-		if(internalCanLeaveCurrentPageByBrowser()) {
-			if(m_rootContent instanceof IPageWithNavigationCheck) {
-				m_rootContent.appendJavascript("window.onbeforeunload = null;");
-			}
-		}else {
-			//seems to be hardcoded message in browsers, so text that we return here is ignored.
-			m_rootContent.appendJavascript("window.onbeforeunload = function() { return \"You have unsaved changes on page.\"};");
-		}
 		if(m_javaScriptStateChangedSet.size() == 0)
 			return null;
 
