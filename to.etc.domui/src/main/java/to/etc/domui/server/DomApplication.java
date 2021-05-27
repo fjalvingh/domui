@@ -326,7 +326,7 @@ public abstract class DomApplication {
 			.on(page)
 			.title(Msgs.leavePageQuestion.getString())
 			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
-			.button(Msgs.EDLG_CANCEL, Integer.valueOf(1))
+			.button(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Integer.valueOf(1))
 			.button(Msgs.leave.getString(), Integer.valueOf(2))
 			.onAnswer((IAnswer2) answer -> {
 				if(Integer.valueOf(2).equals(answer)) {
