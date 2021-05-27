@@ -364,28 +364,39 @@ final public class WindowSession {
 	 * @param currentpg		The page that is <b>current</b> (the one that issued the MOVE command).
 	 */
 	public boolean handleGoto(@NonNull final RequestContextImpl ctx, @NonNull final Page currentpg, boolean ajax) throws Exception {
-		return internalHandleGoto(ctx, getTargetMode(), currentpg, ajax, true);
+		UIGotoContext gotoCtx = new UIGotoContext(getTargetPageClass(), getTargetPageParameters(), getTargetConversationClass(), getTargetConversation(), getTargetMode(), m_targetURL, ajax);
+		return internalHandleGoto(ctx, gotoCtx, currentpg, true);
 	}
 
 	/**
 	 * This gets called after navigation was postponed once on page registered to check exit navigation for existing unsaved changes.
 	 *
-	 * @param redirectCtx redirect details
+	 * @param ctx
+	 * @param gotoCtx postponed goto context that we are re-invoking
+	 * @param page
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean handleGotoOnNavigationCheck(@NonNull final UIRedirectContext redirectCtx) throws Exception {
-		return internalHandleGoto(redirectCtx.getCtx(), redirectCtx.getTargetMode(), redirectCtx.getTo(), redirectCtx.isAjax(), false);
+	public boolean handleGotoOnNavigationCheck(@NonNull final RequestContextImpl ctx, @NonNull final UIGotoContext gotoCtx, Page page) throws Exception {
+		return internalHandleGoto(ctx, gotoCtx, page, false);
 	}
 
-	private boolean internalHandleGoto(@NonNull final RequestContextImpl ctx, @Nullable MoveMode targetMode, @NonNull final Page currentpg, boolean ajax, boolean checkNavigation) throws Exception {
+	private boolean internalHandleGoto(@NonNull final RequestContextImpl ctx, @NonNull final UIGotoContext gotoCtx, @NonNull final Page currentpg, boolean checkNavigation) throws Exception {
 		//		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
-		if(targetMode == null)
+		m_targetMode = gotoCtx.getTargetMode();
+		m_targetPageClass = gotoCtx.getTargetPageClass();
+		m_targetPageParameters = gotoCtx.getTargetPageParameters();
+		m_targetConversationClass = gotoCtx.getTargetConversationClass();
+		m_targetConversation = gotoCtx.getTargetConversation();
+		m_targetURL = gotoCtx.getTargetURL();
+		boolean ajax = gotoCtx.isAjax();
+
+		if(m_targetMode == null) {
 			return false;
-		m_targetMode = targetMode;
+		}
+
 		if(checkNavigation) {
-			UIRedirectContext redirectCtx = new UIRedirectContext(ctx, targetMode, currentpg, ajax);
-			if(! currentpg.internalCanLeaveCurrentPageByDomui(redirectCtx)) {
+			if(! currentpg.internalCanLeaveCurrentPageByDomui(gotoCtx)) {
 				return false;
 			}
 		}

@@ -40,7 +40,7 @@ import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.SubConversationContext;
 import to.etc.domui.state.UIContext;
-import to.etc.domui.state.UIRedirectContext;
+import to.etc.domui.state.UIGotoContext;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
@@ -876,7 +876,6 @@ final public class Page implements IQContextContainer {
 
 	@Nullable
 	public StringBuilder internalFlushAppendJS() {
-		System.out.println("---internalFlushAppendJS");
 		if(internalCanLeaveCurrentPageByBrowser()) {
 			if(m_rootContent instanceof IPageWithNavigationCheck) {
 				m_rootContent.appendJavascript("WebUI.setCheckLeavePage(false);");
@@ -1409,7 +1408,7 @@ final public class Page implements IQContextContainer {
 	 * Checks if page can be left caused by domui navigation.
 	 * @return
 	 */
-	public boolean internalCanLeaveCurrentPageByDomui(UIRedirectContext redirectContext) throws Exception {
+	public boolean internalCanLeaveCurrentPageByDomui(UIGotoContext gotoCtx) throws Exception {
 		if(m_rootContent instanceof IPageWithNavigationCheck) {
 			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
 			boolean hasModification = pageWithNavigationCheck.hasModification();
@@ -1417,9 +1416,9 @@ final public class Page implements IQContextContainer {
 				return true;
 			}
 			if(m_rootContent instanceof IPageWithDomuiNavigationCheck) {
-				((IPageWithDomuiNavigationCheck) m_rootContent).handleNavigationOnModified(redirectContext);
+				((IPageWithDomuiNavigationCheck) m_rootContent).handleNavigationOnModified(gotoCtx);
 			}else {
-				DomApplication.get().handleNavigationOnModified(redirectContext, this.getBody());
+				DomApplication.get().handleNavigationOnModified(gotoCtx, this.getBody());
 			}
 			return false;
 		} else {

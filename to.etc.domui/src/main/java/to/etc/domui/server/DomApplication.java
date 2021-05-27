@@ -87,7 +87,7 @@ import to.etc.domui.state.DelayedActivitiesManager;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
-import to.etc.domui.state.UIRedirectContext;
+import to.etc.domui.state.UIGotoContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.subinjector.ISubPageInjector;
 import to.etc.domui.subinjector.SubPageInjector;
@@ -111,6 +111,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.ICachedListMaker;
 import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.INewPageInstantiated;
+import to.etc.domui.util.Msgs;
 import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.ClassRefResourceFactory;
 import to.etc.domui.util.resources.ClasspathInventory;
@@ -316,20 +317,20 @@ public abstract class DomApplication {
 
 	/**
 	 * Default handling of leaving the page with unsaved changes.
-	 * @param ctx
+	 * @param gotoCtx
 	 * @param page
 	 * @throws Exception
 	 */
-	public void handleNavigationOnModified(UIRedirectContext ctx, UrlPage page) throws Exception {
+	public void handleNavigationOnModified(UIGotoContext gotoCtx, UrlPage page) throws Exception {
 		MsgBox2
 			.on(page)
-			.title("Leave page?")
-			.warning("Changes you made may not be saved.")
-			.button("Cancel", Integer.valueOf(1))
-			.button("Leave", Integer.valueOf(2))
+			.title(Msgs.leavePageQuestion.getString())
+			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
+			.button(Msgs.EDLG_CANCEL, Integer.valueOf(1))
+			.button(Msgs.leave.getString(), Integer.valueOf(2))
 			.onAnswer((IAnswer2) answer -> {
 				if(Integer.valueOf(2).equals(answer)) {
-					UIContext.getCurrentConversation().getWindowSession().handleGotoOnNavigationCheck(ctx);
+					UIContext.getCurrentConversation().getWindowSession().handleGotoOnNavigationCheck((RequestContextImpl) UIContext.getRequestContext(), gotoCtx, page.getPage());
 				}
 			});
 	}
