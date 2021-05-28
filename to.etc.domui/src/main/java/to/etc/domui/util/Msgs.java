@@ -53,6 +53,10 @@ public enum Msgs implements IBundleCode {
 	vInvalidRegex,
 	vInvalidEmail,
 
+/** Leave page dialog */
+	leavePageQuestion,
+	changesYouMadeMayNotBeSaved,
+	leave,
 	;
 
 	/** Error component panel header text: Info */

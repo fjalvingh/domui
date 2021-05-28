@@ -40,6 +40,7 @@ import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.SubConversationContext;
 import to.etc.domui.state.UIContext;
+import to.etc.domui.state.UIGotoContext;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
@@ -875,6 +876,14 @@ final public class Page implements IQContextContainer {
 
 	@Nullable
 	public StringBuilder internalFlushAppendJS() {
+		if(internalCanLeaveCurrentPageByBrowser()) {
+			if(m_rootContent instanceof IPageWithNavigationCheck) {
+				m_rootContent.appendJavascript("WebUI.setCheckLeavePage(false);");
+			}
+		}else {
+			m_rootContent.appendJavascript("WebUI.setCheckLeavePage(true);");
+		}
+
 		StringBuilder sb = m_appendJS;
 		m_appendJS = null;
 		return sb;
@@ -1378,6 +1387,42 @@ final public class Page implements IQContextContainer {
 			Page page = m_page;
 			if(null != page)
 				page.addDelayedExecution(code);
+		}
+	}
+
+	/**
+	 * Checks if page can be left caused by browser navigation.
+	 * @return
+	 */
+	public boolean internalCanLeaveCurrentPageByBrowser() {
+		if(m_rootContent instanceof IPageWithNavigationCheck) {
+			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
+			boolean hasModification = pageWithNavigationCheck.hasModification();
+			return !hasModification;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Checks if page can be left caused by domui navigation.
+	 * @return
+	 */
+	public boolean internalCanLeaveCurrentPageByDomui(UIGotoContext gotoCtx) throws Exception {
+		if(m_rootContent instanceof IPageWithNavigationCheck) {
+			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
+			boolean hasModification = pageWithNavigationCheck.hasModification();
+			if(! hasModification) {
+				return true;
+			}
+			if(m_rootContent instanceof IPageWithDomuiNavigationCheck) {
+				((IPageWithDomuiNavigationCheck) m_rootContent).handleNavigationOnModified(gotoCtx);
+			}else {
+				DomApplication.get().handleNavigationOnModified(gotoCtx, this.getBody());
+			}
+			return false;
+		} else {
+			return true;
 		}
 	}
 }
