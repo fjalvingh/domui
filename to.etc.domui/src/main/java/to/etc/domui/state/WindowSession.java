@@ -359,15 +359,47 @@ final public class WindowSession {
 	}
 
 	/**
-	 * This checks whether a new page is to be made resident, instead of the
-	 * current page.
+	 * This checks whether a new page is to be made resident, instead of the current page.
 	 *
 	 * @param currentpg		The page that is <b>current</b> (the one that issued the MOVE command).
 	 */
 	public boolean handleGoto(@NonNull final RequestContextImpl ctx, @NonNull final Page currentpg, boolean ajax) throws Exception {
+		UIGotoContext gotoCtx = new UIGotoContext(getTargetPageClass(), getTargetPageParameters(), getTargetConversationClass(), getTargetConversation(), getTargetMode(), m_targetURL, ajax);
+		return internalHandleGoto(ctx, gotoCtx, currentpg, true);
+	}
+
+	/**
+	 * This gets called after navigation was postponed once on page registered to check exit navigation for existing unsaved changes.
+	 *
+	 * @param ctx
+	 * @param gotoCtx postponed goto context that we are re-invoking
+	 * @param page
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean handleGotoOnNavigationCheck(@NonNull final RequestContextImpl ctx, @NonNull final UIGotoContext gotoCtx, Page page) throws Exception {
+		return internalHandleGoto(ctx, gotoCtx, page, false);
+	}
+
+	private boolean internalHandleGoto(@NonNull final RequestContextImpl ctx, @NonNull final UIGotoContext gotoCtx, @NonNull final Page currentpg, boolean checkNavigation) throws Exception {
 		//		System.out.println("GOTO: currentpg=" + currentpg + ", shelved=" + currentpg.isShelved());
-		if(getTargetMode() == null)
+		m_targetMode = gotoCtx.getTargetMode();
+		m_targetPageClass = gotoCtx.getTargetPageClass();
+		m_targetPageParameters = gotoCtx.getTargetPageParameters();
+		m_targetConversationClass = gotoCtx.getTargetConversationClass();
+		m_targetConversation = gotoCtx.getTargetConversation();
+		m_targetURL = gotoCtx.getTargetURL();
+		boolean ajax = gotoCtx.isAjax();
+
+		if(m_targetMode == null) {
 			return false;
+		}
+
+		if(checkNavigation) {
+			if(! currentpg.internalCanLeaveCurrentPageByDomui(gotoCtx)) {
+				return false;
+			}
+		}
 		if(getTargetMode() == MoveMode.BACK) {
 			// Back requested-> move back, then.
 			handleMoveBack(ctx, currentpg, ajax);
