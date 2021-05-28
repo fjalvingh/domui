@@ -1392,7 +1392,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Checks if page can be left caused by browser navigation.
-	 * @return
 	 */
 	public boolean internalCanLeaveCurrentPageByBrowser() {
 		if(m_rootContent instanceof IPageWithNavigationCheck) {
@@ -1406,7 +1405,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Checks if page can be left caused by domui navigation.
-	 * @return
 	 */
 	public boolean internalCanLeaveCurrentPageByDomui(UIGotoContext gotoCtx) throws Exception {
 		if(m_rootContent instanceof IPageWithNavigationCheck) {

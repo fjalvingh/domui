@@ -10,7 +10,6 @@ public interface IPageWithDomuiNavigationCheck extends IPageWithNavigationCheck 
 
 	/**
 	 * Implements page specific code how user can handle navigation on modified screen data.
-	 * @return
 	 */
 	void handleNavigationOnModified(@NonNull UIGotoContext gotoCtx);
 }

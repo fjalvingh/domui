@@ -371,11 +371,7 @@ final public class WindowSession {
 	/**
 	 * This gets called after navigation was postponed once on page registered to check exit navigation for existing unsaved changes.
 	 *
-	 * @param ctx
 	 * @param gotoCtx postponed goto context that we are re-invoking
-	 * @param page
-	 * @return
-	 * @throws Exception
 	 */
 	public boolean handleGotoOnNavigationCheck(@NonNull final RequestContextImpl ctx, @NonNull final UIGotoContext gotoCtx, Page page) throws Exception {
 		return internalHandleGoto(ctx, gotoCtx, page, false);

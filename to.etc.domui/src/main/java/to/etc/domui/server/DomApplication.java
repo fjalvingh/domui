@@ -317,9 +317,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Default handling of leaving the page with unsaved changes.
-	 * @param gotoCtx
-	 * @param page
-	 * @throws Exception
 	 */
 	public void handleNavigationOnModified(UIGotoContext gotoCtx, UrlPage page) throws Exception {
 		MsgBox2
