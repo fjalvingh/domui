@@ -768,6 +768,7 @@
 				<groupId>org.jetbrains.kotlin</groupId>
 				<version>${kotlin.version}</version>
 			</plugin>
+
 		</plugins>
 
 		<pluginManagement>
@@ -775,6 +776,14 @@
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-dependency-plugin</artifactId>
+				</plugin>
+
+				<plugin>
+					<groupId>com.github.eirslett</groupId>
+					<artifactId>frontend-maven-plugin</artifactId>
+					<!-- Use the latest released version:
+					https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
+					<version>1.11.0</version>
 				</plugin>
 
 				<!-- Kotlin support. Warning: kotlin must be before maven-compiler-plugin -->

@@ -1,310 +1,422 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>to.etc.domui</groupId>
-        <artifactId>to.etc.domui.parent</artifactId>
-        <version>1.2-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
-    </parent>
+	<parent>
+		<groupId>to.etc.domui</groupId>
+		<artifactId>to.etc.domui.parent</artifactId>
+		<version>1.2-SNAPSHOT</version>
+		<relativePath>../parent</relativePath>
+	</parent>
 
-    <artifactId>to.etc.domui</artifactId>
-    <version>1.2-SNAPSHOT</version>
-    <packaging>jar</packaging>
+	<artifactId>to.etc.domui</artifactId>
+	<version>1.2-SNAPSHOT</version>
+	<packaging>jar</packaging>
 
-    <name>domui :: domui-core</name>
-    <description>The DomUI user interface library :: main codebase</description>
-    <inceptionYear>2017</inceptionYear>
+	<name>domui :: domui-core</name>
+	<description>The DomUI user interface library :: main codebase</description>
+	<inceptionYear>2017</inceptionYear>
 
-    <dependencies>
-        <!-- Kotlin -->
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jdk8</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-reflect</artifactId>
-        </dependency>
+	<dependencies>
+		<!-- Kotlin -->
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-stdlib-jdk8</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jetbrains.kotlin</groupId>
+			<artifactId>kotlin-reflect</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>el-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>jsp-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.logger</artifactId>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.el</groupId>
+			<artifactId>el-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>jsp-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.logger</artifactId>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation -->
-        <dependency>
-            <groupId>org.eclipse.jdt</groupId>
-            <artifactId>org.eclipse.jdt.annotation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.alg</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.db</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>to.etc.domui</groupId>
-            <artifactId>to.etc.webapp.core</artifactId>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/org.eclipse.jdt/org.eclipse.jdt.annotation -->
+		<dependency>
+			<groupId>org.eclipse.jdt</groupId>
+			<artifactId>org.eclipse.jdt.annotation</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.alg</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.db</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>to.etc.domui</groupId>
+			<artifactId>to.etc.webapp.core</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>com.google.api-client</groupId>
-            <artifactId>google-api-client</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>com.google.api-client</groupId>
+			<artifactId>google-api-client</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>io.github.classgraph</groupId>
-            <artifactId>classgraph</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>io.github.classgraph</groupId>
+			<artifactId>classgraph</artifactId>
+		</dependency>
 
-        <dependency>
-            <groupId>io.reactivex.rxjava3</groupId>
-            <artifactId>rxjava</artifactId>
-        </dependency>
+		<dependency>
+			<groupId>io.reactivex.rxjava3</groupId>
+			<artifactId>rxjava</artifactId>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.mozilla/rhino -->
-        <dependency>
-            <groupId>org.mozilla</groupId>
-            <artifactId>rhino</artifactId>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/org.mozilla/rhino -->
+		<dependency>
+			<groupId>org.mozilla</groupId>
+			<artifactId>rhino</artifactId>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/jcharts/jcharts -->
-        <dependency>
-            <groupId>jcharts</groupId>
-            <artifactId>jcharts</artifactId>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/jcharts/jcharts -->
+		<dependency>
+			<groupId>jcharts</groupId>
+			<artifactId>jcharts</artifactId>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
-        <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi-ooxml</artifactId>
-            <version>3.17</version>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>3.17</version>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/io.bit3/jsass -->
-        <dependency>
-            <groupId>io.bit3</groupId>
-            <artifactId>jsass</artifactId>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/io.bit3/jsass -->
+		<dependency>
+			<groupId>io.bit3</groupId>
+			<artifactId>jsass</artifactId>
+		</dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.owasp.esapi/esapi -->
-<!--        <dependency>-->
-<!--            <groupId>org.owasp.esapi</groupId>-->
-<!--            <artifactId>esapi</artifactId>-->
-<!--        </dependency>-->
+		<!-- https://mvnrepository.com/artifact/org.owasp.esapi/esapi -->
+		<!--        <dependency>-->
+		<!--            <groupId>org.owasp.esapi</groupId>-->
+		<!--            <artifactId>esapi</artifactId>-->
+		<!--        </dependency>-->
 
-        <!-- Batik -->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-awt-util</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-bridge</artifactId>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis-ext</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-css</artifactId>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis-ext</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-dom</artifactId>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis-ext</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-gvt</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-parser</artifactId>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis-ext</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-script</artifactId>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>org.apache.xmlgraphics</groupId>-->
-<!--                    <artifactId>batik-js</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis-ext</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-svg-dom</artifactId>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis-ext</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-transcoder</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis-ext</artifactId>
-                </exclusion>
-                <!-- Below contains org.w3c.dom definitions which is not allowed after java 9 -->
-                <exclusion>
-                    <groupId>org.apache.xmlgraphics</groupId>
-                    <artifactId>batik-ext</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
+		<!-- Batik -->
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-awt-util</artifactId>-->
+		<!--        </dependency>-->
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-bridge</artifactId>-->
+		<!--            <exclusions>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis</artifactId>-->
+		<!--                </exclusion>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis-ext</artifactId>-->
+		<!--                </exclusion>-->
+		<!--            </exclusions>-->
+		<!--        </dependency>-->
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-css</artifactId>-->
+		<!--            <exclusions>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis</artifactId>-->
+		<!--                </exclusion>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis-ext</artifactId>-->
+		<!--                </exclusion>-->
+		<!--            </exclusions>-->
+		<!--        </dependency>-->
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-dom</artifactId>-->
+		<!--            <exclusions>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis</artifactId>-->
+		<!--                </exclusion>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis-ext</artifactId>-->
+		<!--                </exclusion>-->
+		<!--            </exclusions>-->
+		<!--        </dependency>-->
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-gvt</artifactId>-->
+		<!--        </dependency>-->
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-parser</artifactId>-->
+		<!--            <exclusions>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis</artifactId>-->
+		<!--                </exclusion>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis-ext</artifactId>-->
+		<!--                </exclusion>-->
+		<!--            </exclusions>-->
+		<!--        </dependency>-->
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-script</artifactId>-->
+		<!--            <exclusions>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--                    <artifactId>batik-js</artifactId>-->
+		<!--                </exclusion>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis</artifactId>-->
+		<!--                </exclusion>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis-ext</artifactId>-->
+		<!--                </exclusion>-->
+		<!--            </exclusions>-->
+		<!--        </dependency>-->
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-svg-dom</artifactId>-->
+		<!--            <exclusions>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis</artifactId>-->
+		<!--                </exclusion>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis-ext</artifactId>-->
+		<!--                </exclusion>-->
+		<!--            </exclusions>-->
+		<!--        </dependency>-->
+		<dependency>
+			<groupId>org.apache.xmlgraphics</groupId>
+			<artifactId>batik-transcoder</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis-ext</artifactId>
+				</exclusion>
+				<!-- Below contains org.w3c.dom definitions which is not allowed after java 9 -->
+				<exclusion>
+					<groupId>org.apache.xmlgraphics</groupId>
+					<artifactId>batik-ext</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xalan</groupId>
+					<artifactId>xalan</artifactId>
+				</exclusion>
 
-            </exclusions>
-        </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-util</artifactId>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis-ext</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            <groupId>org.apache.xmlgraphics</groupId>-->
-<!--            <artifactId>batik-xml</artifactId>-->
-<!--            <exclusions>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis</artifactId>-->
-<!--                </exclusion>-->
-<!--                <exclusion>-->
-<!--                    <groupId>xml-apis</groupId>-->
-<!--                    <artifactId>xml-apis-ext</artifactId>-->
-<!--                </exclusion>-->
-<!--            </exclusions>-->
-<!--        </dependency>-->
+			</exclusions>
+		</dependency>
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-util</artifactId>-->
+		<!--            <exclusions>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis</artifactId>-->
+		<!--                </exclusion>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis-ext</artifactId>-->
+		<!--                </exclusion>-->
+		<!--            </exclusions>-->
+		<!--        </dependency>-->
+		<!--        <dependency>-->
+		<!--            <groupId>org.apache.xmlgraphics</groupId>-->
+		<!--            <artifactId>batik-xml</artifactId>-->
+		<!--            <exclusions>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis</artifactId>-->
+		<!--                </exclusion>-->
+		<!--                <exclusion>-->
+		<!--                    <groupId>xml-apis</groupId>-->
+		<!--                    <artifactId>xml-apis-ext</artifactId>-->
+		<!--                </exclusion>-->
+		<!--            </exclusions>-->
+		<!--        </dependency>-->
 
-        <!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
-        <dependency>
-            <groupId>net.htmlparser.jericho</groupId>
-            <artifactId>jericho-html</artifactId>
-        </dependency>
+		<!-- https://mvnrepository.com/artifact/net.htmlparser.jericho/jericho-html -->
+		<dependency>
+			<groupId>net.htmlparser.jericho</groupId>
+			<artifactId>jericho-html</artifactId>
+		</dependency>
 
-        <!-- Java 9 / JUnit -->
-<!--        <dependency>-->
-<!--            &lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
-<!--            <groupId>javax.xml.bind</groupId>-->
-<!--            <artifactId>jaxb-api</artifactId>-->
-<!--        </dependency>-->
-<!--        <dependency>-->
-<!--            &lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
-<!--            <groupId>org.glassfish.jaxb</groupId>-->
-<!--            <artifactId>jaxb-runtime</artifactId>-->
-<!--            <version>${jaxb.version}</version>-->
-<!--        </dependency>-->
-        <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1</version>
-        </dependency>
+		<!-- Java 9 / JUnit -->
+		<!--        <dependency>-->
+		<!--            &lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
+		<!--            <groupId>javax.xml.bind</groupId>-->
+		<!--            <artifactId>jaxb-api</artifactId>-->
+		<!--        </dependency>-->
+		<!--        <dependency>-->
+		<!--            &lt;!&ndash;<scope>test</scope>&ndash;&gt;-->
+		<!--            <groupId>org.glassfish.jaxb</groupId>-->
+		<!--            <artifactId>jaxb-runtime</artifactId>-->
+		<!--            <version>${jaxb.version}</version>-->
+		<!--        </dependency>-->
+		<dependency>
+			<groupId>javax.activation</groupId>
+			<artifactId>activation</artifactId>
+			<version>1.1</version>
+		</dependency>
 
-        <!-- Test dependencies  -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>compile</scope>
-        </dependency>
-    </dependencies>
+		<!-- Test dependencies  -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.github.eirslett</groupId>
+				<artifactId>frontend-maven-plugin</artifactId>
+				<!-- Use the latest released version:
+				https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
+
+				<executions>
+					<execution>
+						<id>install node and npm</id>
+						<goals>
+							<goal>install-node-and-npm</goal>
+						</goals>
+						<configuration>
+							<!-- See https://nodejs.org/en/download/ for latest node and npm (lts) versions -->
+							<nodeVersion>v8.11.1</nodeVersion>
+							<npmVersion>5.6.0</npmVersion>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>npm install</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<!-- Optional configuration which provides for running any npm command -->
+						<configuration>
+							<arguments>install</arguments>
+						</configuration>
+					</execution>
+
+					<execution>
+						<id>npm run compile-typescript</id>
+						<goals>
+							<goal>npm</goal>
+						</goals>
+						<configuration>
+							<arguments>run compile-typescript</arguments>
+						</configuration>
+					</execution>
+
+<!--					<execution>-->
+<!--						<id>npm run build</id>-->
+<!--						<goals>-->
+<!--							<goal>npm</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<arguments>run build</arguments>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+
+<!--					<execution>-->
+<!--						<id>bower install</id>-->
+<!--						<goals>-->
+<!--							<goal>bower</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<arguments>install</arguments>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+
+<!--					<execution>-->
+<!--						<id>jspm install</id>-->
+<!--						<goals>-->
+<!--							<goal>jspm</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<arguments>&#45;&#45;version</arguments>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+
+<!--					<execution>-->
+<!--						<id>grunt build</id>-->
+<!--						<goals>-->
+<!--							<goal>grunt</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<arguments>&#45;&#45;no-color</arguments>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+
+<!--					<execution>-->
+<!--						<id>gulp build</id>-->
+<!--						<phase>generate-resources</phase>-->
+<!--						<goals>-->
+<!--							<goal>gulp</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<environmentVariables>-->
+<!--								<NODE_ENV>production</NODE_ENV>-->
+<!--							</environmentVariables>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+
+<!--					<execution>-->
+<!--						<id>javascript tests</id>-->
+<!--						<goals>-->
+<!--							<goal>karma</goal>-->
+<!--						</goals>-->
+<!--						<configuration>-->
+<!--							<karmaConfPath>src/test/javascript/karma.conf.ci.js</karmaConfPath>-->
+<!--						</configuration>-->
+<!--					</execution>-->
+				</executions>
+
+			</plugin>
+
+		</plugins>
+	</build>
 </project>

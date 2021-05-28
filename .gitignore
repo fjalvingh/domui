@@ -23,6 +23,9 @@ to.etc.domui/src/resources/themes/blue/style.theme.css.bak
 *.releaseBackup
 release.properties
 
+node
+node_modules
+
 out
 target
 *.log
