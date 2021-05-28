@@ -25,6 +25,7 @@ release.properties
 
 node
 node_modules
+domui-combined.js*
 
 out
 target
