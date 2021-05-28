@@ -25,7 +25,7 @@ namespace WebUI {
 
 	export function doCustomUpdates(): void {
 		$('.floatThead-wrapper').each(
-			function(index, node) {
+			function (index, node) {
 				$(node).attr('stretch', $(node).find('>:first-child').attr('stretch'));
 			}
 		);
@@ -37,25 +37,25 @@ namespace WebUI {
 		$("textarea[mxlength], textarea[maxbytes]")
 			.unbind("input.domui")
 			.unbind("propertychange.domui")
-			.bind('input.domui propertychange.domui', function() {
+			.bind('input.domui propertychange.domui', function () {
 				let maxLength = attrNumber(this, 'mxlength');				// Use mxlength because Chrome improperly implements maxlength (issue 252613)
 				let maxBytes = attrNumber(this, 'maxbytes');
 				let val = $(this).val() as string;
 				let newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
-				if(maxBytes < 0) {
-					if(maxLength < 0)
+				if (maxBytes < 0) {
+					if (maxLength < 0)
 						return;
-				} else if(maxLength < 0) {
+				} else if (maxLength < 0) {
 					maxLength = maxBytes;
 				}
 
-				if(val.length + newlines > maxLength) {
+				if (val.length + newlines > maxLength) {
 					val = val.substring(0, maxLength - newlines);
 					$(this).val(val);
 				}
-				if(maxBytes > 0) {
+				if (maxBytes > 0) {
 					let cutoff = WebUI.truncateUtfBytes(val, maxBytes);
-					if(cutoff < val.length) {
+					if (cutoff < val.length) {
 						val = val.substring(0, cutoff);
 						$(this).val(val);
 					}
@@ -65,8 +65,8 @@ namespace WebUI {
 		//-- Limit textarea size on key presses
 		$("textarea[mxlength], textarea[maxbytes]")
 			.unbind("keypress.domui")
-			.bind('keypress.domui', function(evt) {
-				if(evt.which == 0 || evt.which == 8)
+			.bind('keypress.domui', function (evt) {
+				if (evt.which == 0 || evt.which == 8)
 					return true;
 
 				//-- Is the thing too long already?
@@ -74,31 +74,31 @@ namespace WebUI {
 				let maxBytes = attrNumber(this, 'maxbytes');
 				let val = $(this).val() as string;
 				let newlines = (val.match(/\r\n/g) || []).length;				// Count the #of 2-char newlines, as they will be replaced by 1 newline character
-				if(maxBytes < 0) {
-					if(maxLength < 0)
+				if (maxBytes < 0) {
+					if (maxLength < 0)
 						return true;
-				} else if(maxLength < 0) {
+				} else if (maxLength < 0) {
 					maxLength = maxBytes;
 				}
-				if(val.length - newlines >= maxLength)							// Too many chars -> not allowed
+				if (val.length - newlines >= maxLength)							// Too many chars -> not allowed
 					return false;
-				if(maxBytes > 0) {
+				if (maxBytes > 0) {
 					let bytes = WebUI.utf8Length(val);
-					if(bytes >= maxBytes)
+					if (bytes >= maxBytes)
 						return false;
 				}
 				return true;
 			});
 
 		//custom updates may fire several times in sequence, se we fire custom contributors only after it gets steady for a while (500ms)
-		if(_customUpdatesContributorsTimerID) {
+		if (_customUpdatesContributorsTimerID) {
 			window.clearTimeout(_customUpdatesContributorsTimerID);
 			_customUpdatesContributorsTimerID = null;
 		}
-		_customUpdatesContributorsTimerID = window.setTimeout(function() {
+		_customUpdatesContributorsTimerID = window.setTimeout(function () {
 			try {
 				_customUpdatesContributors.fire()
-			} catch(ex) {
+			} catch (ex) {
 			}
 		}, 500);
 		//$('.ui-dt-ovflw-tbl').floatThead('reflow');
@@ -106,7 +106,7 @@ namespace WebUI {
 
 	function attrNumber(elem, name: string): number {
 		let val = $(elem).attr(name);
-		if(typeof val == 'undefined')
+		if (typeof val == 'undefined')
 			return -1;
 		return Number(val);
 	}
@@ -114,13 +114,13 @@ namespace WebUI {
 	export function onDocumentReady(): void {
 		checkBrowser();
 		WebUI.handleCalendarChanges();
-		if((window as any).DomUIDevel)
+		if ((window as any).DomUIDevel)
 			handleDevelopmentMode();
 		doCustomUpdates();
 	}
 
 	function checkBrowser(): void {
-		if(this._browserChecked)
+		if (this._browserChecked)
 			return;
 		this._browserChecked = true;
 
@@ -138,25 +138,25 @@ namespace WebUI {
 	let _debugMouseTarget: HTMLElement;
 
 	export function handleDevelopmentMode(): void {
-		$(document).bind("keydown", function(e) {
-			if(e.keyCode != 192)
+		$(document).bind("keydown", function (e) {
+			if (e.keyCode != 192)
 				return;
 
 			let t = new Date().getTime();
-			if(!_debugLastKeypress || (t - _debugLastKeypress) > 250) {
+			if (!_debugLastKeypress || (t - _debugLastKeypress) > 250) {
 				_debugLastKeypress = t;
 				return;
 			}
 
 			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
 			let id = WebUI.nearestID(_debugMouseTarget);
-			if(!id) {
+			if (!id) {
 				id = document.body.id;
 			}
 
 			WebUI.scall(id, "DEVTREE", {});
 		});
-		$(document.body).bind("mousemove", function(e) {
+		$(document.body).bind("mousemove", function (e) {
 //			if(WebUI._NOMOVE)
 //				return;
 //			console.debug("move ", e);
@@ -167,11 +167,11 @@ namespace WebUI {
 	/** *************** Debug thingy - it can be used internaly for debuging javascript ;) ************** */
 	export function debug(debugId: string, posX: number, posY: number, debugInfoHtml: any) {
 		//Be aware that debugId must not start with digit when using FF! Just lost 1 hour to learn this...
-		if("0123456789".indexOf(debugId.charAt(0)) > -1) {
+		if ("0123456789".indexOf(debugId.charAt(0)) > -1) {
 			alert("debugId(" + debugId + ") starts with digit! Please use different one!");
 		}
 		let debugPanel = document.getElementById(debugId);
-		if(null == debugPanel) {
+		if (null == debugPanel) {
 			debugPanel = document.createElement(debugId);
 			$(debugPanel).attr('id', debugId);
 			$(debugPanel).css('position', 'absolute');
@@ -194,27 +194,28 @@ namespace WebUI {
 			PAGE_UP: 33,
 			PAGE_DOWN: 34
 		};
-		if($('div.ui-dp-btns').size() > 0) {
-			if(e.altKey) {
-				if(e.keyCode == KEY.HOME) {
+		if ($('div.ui-dp-btns').size() > 0) {
+			if (e.altKey) {
+				if (e.keyCode == KEY.HOME) {
 					$("div.ui-dp-btns > a:nth-child(1)").click();
-				} else if(e.keyCode == KEY.PAGE_UP) {
+				} else if (e.keyCode == KEY.PAGE_UP) {
 					$("div.ui-dp-btns > a:nth-child(2)").click();
-				} else if(e.keyCode == KEY.PAGE_DOWN) {
+				} else if (e.keyCode == KEY.PAGE_DOWN) {
 					$("div.ui-dp-btns > a:nth-child(3)").click();
-				} else if(e.keyCode == KEY.END) {
+				} else if (e.keyCode == KEY.END) {
 					$("div.ui-dp-btns > a:nth-child(4)").click();
 				}
 			}
 		}
 	}
 
-	var _checkLeavePage = false;
+	let _checkLeavePage = false;
+
 	const beforeUnloadListener = (event) => {
-		if(_checkLeavePage) {
+		if (_checkLeavePage) {
 			event.preventDefault();
 			return event.returnValue = "Are you sure you want to exit?";
-		}else {
+		} else {
 			delete event['returnValue'];
 		}
 	};

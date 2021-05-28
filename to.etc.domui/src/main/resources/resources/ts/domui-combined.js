@@ -2364,6 +2364,21 @@ var WebUI;
         }
     }
     WebUI.addPagerAccessKeys = addPagerAccessKeys;
+    var _checkLeavePage = false;
+    var beforeUnloadListener = function (event) {
+        if (_checkLeavePage) {
+            event.preventDefault();
+            return event.returnValue = "Are you sure you want to exit?";
+        }
+        else {
+            delete event['returnValue'];
+        }
+    };
+    window.addEventListener('beforeunload', beforeUnloadListener);
+    function setCheckLeavePage(v) {
+        _checkLeavePage = v;
+    }
+    WebUI.setCheckLeavePage = setCheckLeavePage;
 })(WebUI || (WebUI = {}));
 (function ($) {
     if (window.console != undefined) {
