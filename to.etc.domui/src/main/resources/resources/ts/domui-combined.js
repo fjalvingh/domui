@@ -2176,12 +2176,15 @@ var WebUI;
         }
         catch (x) {
             if (x instanceof BodyTooLargeException) {
-                alert('The upload has been refused by the server. It might be too large');
+                alert(WebUI._T.uploadFailedUnknown);
+            }
+            else if (x instanceof Error) {
+                alert(WebUI._T.uploadFailedBecause + x.message);
             }
             else {
-                alert('The upload has been refused by the server: ' + x.message);
+                alert(WebUI._T.uploadFailedBecause + x);
             }
-            WebUI.scall(id, "UPLOADCANCEL", { "error": x.message });
+            WebUI.scall(id, "UPLOADCANCEL", { "error": x.toString() });
         }
         finally {
             WebUI.unblockUI();
@@ -2361,22 +2364,6 @@ var WebUI;
         }
     }
     WebUI.addPagerAccessKeys = addPagerAccessKeys;
-
-    var _checkLeavePage = false;
-    const beforeUnloadListener = (event) => {
-        if(_checkLeavePage) {
-            event.preventDefault();
-            return event.returnValue = "Are you sure you want to exit?";
-        }else {
-            delete event['returnValue'];
-        }
-    };
-    window.addEventListener('beforeunload', beforeUnloadListener);
-
-    function setCheckLeavePage(v) {
-        _checkLeavePage = v;
-    }
-    WebUI.setCheckLeavePage = setCheckLeavePage;
 })(WebUI || (WebUI = {}));
 (function ($) {
     if (window.console != undefined) {
