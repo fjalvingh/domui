@@ -209,6 +209,19 @@ namespace WebUI {
 		}
 	}
 
+	var _checkLeavePage = false;
+	const beforeUnloadListener = (event) => {
+		if(_checkLeavePage) {
+			event.preventDefault();
+			return event.returnValue = "Are you sure you want to exit?";
+		}else {
+			delete event['returnValue'];
+		}
+	};
+	window.addEventListener('beforeunload', beforeUnloadListener);
 
+	export function setCheckLeavePage(v): void {
+		_checkLeavePage = v;
+	}
 }
 
