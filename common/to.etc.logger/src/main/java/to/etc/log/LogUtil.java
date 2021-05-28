@@ -84,4 +84,21 @@ class LogUtil {
 				is.close();
 		}
 	}
+
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Directory maintenance and bulk code.				*/
+	/*--------------------------------------------------------------*/
+	/**
+	 * Returns the java.io.tmpdir directory. Throws an exception if it does not exist or
+	 * is inaccessible.
+	 */
+	static public File getTmpDir() {
+		String v = System.getProperty("java.io.tmpdir");
+		if(v == null)
+			v = "/tmp";
+		File tmp = new File(v);
+		if(!tmp.exists() || !tmp.isDirectory())
+			throw new IllegalStateException("The 'java.io.tmpdir' variable does not point to an existing directory (" + tmp + ")");
+		return tmp;
+	}
 }

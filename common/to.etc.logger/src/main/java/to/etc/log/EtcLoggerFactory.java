@@ -40,6 +40,7 @@ import java.util.Map;
  * Created on Oct 30, 2012
  */
 final public class EtcLoggerFactory implements ILoggerFactory {
+
 	static public final String DEFAULT_CONFIG_FILENAME = "etclogger.config.xml";
 
 	static public final String CONFIG_RESOURCE = "/to/etc/log/" + DEFAULT_CONFIG_FILENAME;
@@ -60,11 +61,11 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	/** Root config file for logger configuration. */
 	@Nullable
-	private File m_writableConfig;
+	private File m_writableConfig = new File(LogUtil.getTmpDir(), DEFAULT_CONFIG_FILENAME);
 
 	/** Log dir where all logger are doing output. */
 	@NonNull
-	private File m_logDir = new File("/tmp");
+	private File m_logDir = LogUtil.getTmpDir();
 
 	/** logLocation stored value inside config file. */
 	@Nullable
@@ -72,11 +73,11 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	/** Contains loaded Logger instances. */
 	@NonNull
-	private final Map<String, EtcLogger> LOGGERS = new HashMap<String, EtcLogger>();
+	private final Map<String, EtcLogger> LOGGERS = new HashMap<>();
 
 	/** Contains handler instances - logger instances behavior definition. */
 	@NonNull
-	private List<ILogHandler> m_handlers = new ArrayList<ILogHandler>();
+	private List<ILogHandler> m_handlers = new ArrayList<>();
 
 	@NonNull
 	private Object m_handlersLock = new Object();
@@ -85,11 +86,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	@NonNull
 	private static final Level DEFAULT_LEVEL = Level.ERROR;
 
-	/** Name of logger factory configuration file */
-	//public static final String CONFIG_FILENAME = "etcLoggerConfig.xml";
-
 	private boolean m_initialized;
-
 
 	/**
 	 * Return the singleton of this class.
@@ -147,7 +144,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 				return;
 			}
 
-			initializeFromResource(CONFIG_RESOURCE, null);
+			initializeFromResource(CONFIG_RESOURCE, m_writableConfig);
 		} catch(Exception x) {
 			System.err.println("[etclogger] Initialization failed: " + x);
 		}
@@ -245,6 +242,16 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	public boolean canSave() {
 		File writableConfig = m_writableConfig;
+		try{
+			if(null != writableConfig) {
+				writableConfig.getParentFile().mkdirs();
+				if(! writableConfig.canWrite()) {
+					writableConfig.createNewFile();
+				}
+			}
+		}catch(Exception ex) {
+			//ignore
+		}
 		return null != writableConfig && writableConfig.canWrite();
 	}
 
@@ -297,11 +304,6 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		}
 	}
 
-	//@NonNull
-	//public String getRootDir() {
-	//	return new File(m_configFile, CONFIG_FILENAME).getAbsolutePath();
-	//}
-
 	@NonNull
 	public File getLogDir() {
 		return m_logDir;
@@ -346,14 +348,14 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 						}
 					} while(checkNext);
 					logLocation = logLocation.replace("/", File.separator);
+					m_logDir = new File(logLocation).getAbsoluteFile();
+					System.out.println(getClass().getName() + " - log dir configured to : " + m_logDir.getAbsolutePath());
 				} catch(Exception ex) {
 					System.out.println(
 						"Etc logger - problem in resolving logger configuration location from loaded default config: "
 							+ m_logDirOriginalConfigured + ".\nUsing default location: "
 							+ logLocation);
 				}
-				m_logDir = new File(logLocation).getAbsoluteFile();
-				m_logDir.mkdirs();
 			}
 		}
 		NodeList handlerNodes = doc.getElementsByTagName("handler");
@@ -404,31 +406,6 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	private List<ILogHandler> getHandlers() {
 		synchronized(m_handlersLock) {
 			return m_handlers;
-		}
-	}
-
-	private void preInitialize() {
-		try {
-			String configXml = LogUtil.readResourceAsString(EtcLoggerFactory.class, CONFIG_RESOURCE, "utf-8");
-			loadConfigFromXml(configXml);
-		} catch(Exception e) {
-			//this should not happen -> we load design time created resource - it must be valid
-			System.err.println(EtcLoggerFactory.class.getName() + " INITIALIZATION FAILED");
-			e.printStackTrace();
-		}
-
-		initLogDir();
-	}
-
-	private void initLogDir() {
-		try {
-			String s = System.getProperty("java.io.tmpdir");
-			if(null == s)
-				s = "/tmp";
-			File tmpDir = m_logDir = new File(s);
-			tmpDir.mkdirs();
-		} catch(Exception x) {
-			System.err.println(EtcLoggerFactory.class.getName() + " FAILED TO INIT LOG PATH AS " + m_logDir);
 		}
 	}
 
