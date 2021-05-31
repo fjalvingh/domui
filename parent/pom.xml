@@ -66,7 +66,7 @@
 
 		<rhino.version>1.7.7</rhino.version>
 		<jcharts.version>0.7.5</jcharts.version>
-		<batik.version>1.8</batik.version>
+		<batik.version>1.14</batik.version>
 		<jericho.version>3.4</jericho.version>
 		<gnu.regexp.version>1.1.4</gnu.regexp.version>
 		<jetty.version>9.4.14.v20181114</jetty.version>
