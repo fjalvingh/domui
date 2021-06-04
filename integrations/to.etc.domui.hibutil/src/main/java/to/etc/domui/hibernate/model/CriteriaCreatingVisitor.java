@@ -793,7 +793,11 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 			throw new IllegalStateException("Attempt to do a 'like' on a multi-column property: " + pmm);
 		String columnName = colar[0];
 		int dotix = name.lastIndexOf('.');
-		var property = Objects.requireNonNull(pmm.getClassModel().findProperty(name));
+		String propertyName = name;
+		if(dotix > -1) {
+			propertyName = name.substring(dotix + 1);
+		}
+		var property = Objects.requireNonNull(pmm.getClassModel().findProperty(propertyName));
 		if(dotix == -1) {
 			//-- We need Hibernate metadata to find the column name....
 			if (RuntimeConversions.isNumeric(property.getActualType()) && ((String) value).contains("%")) {
