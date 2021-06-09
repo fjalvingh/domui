@@ -215,6 +215,13 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		System.out.println(getClass().getName() + " initialized from file " + configFile);
 	}
 
+	/**
+	 * Initialize the logger config from the given xml config.
+	 */
+	public synchronized void initializeFromConfigXml(@NonNull String configXml) throws Exception {
+		loadConfigFromXml(configXml);
+		System.out.println(getClass().getName() + " initialized from " + configXml);
+	}
 
 	public synchronized void loadConfigFromXml(@NonNull String configXml) throws Exception {
 		StringReader sr = null;
