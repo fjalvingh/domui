@@ -119,6 +119,15 @@ div.ui-sortable {
 	display: flex;
 	flex-direction: row;
 }
+th.ui-dt-th.ui-numeric {
+	div {
+		display: flex;
+		justify-content: flex-end !important;
+		flex-direction: row;
+		flex-wrap: nowrap;
+	}
+}
+
 
 .ui-sortable span {
 	//margin-left: 10px;
