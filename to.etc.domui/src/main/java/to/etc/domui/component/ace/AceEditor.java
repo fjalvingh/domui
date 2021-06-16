@@ -14,6 +14,7 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.state.IPageParameters;
+import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
@@ -206,7 +207,6 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			return;
 		markerClear();
 		m_value = value;
-		setModified(true);
 		if(isBuilt()) {
 			if(null == value)
 				value = "";
@@ -435,7 +435,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			return false;
 
 		m_value = value;
-		setModified(true);
+		DomUtil.setModifiedFlag(this);
 		return true;
 	}
 
