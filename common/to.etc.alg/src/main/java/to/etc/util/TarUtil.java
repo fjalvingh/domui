@@ -102,13 +102,22 @@ public class TarUtil {
 			}
 			if(withFileAttributes) {
 				final Path path = file.toPath();
-				UserPrincipal owner = service.lookupPrincipalByName(entry.getUserName());
-				Files.setOwner(path, owner);
+				String userName = entry.getUserName();
+				if(null != userName) {
+					UserPrincipal owner = service.lookupPrincipalByName(userName);
+					Files.setOwner(path, owner);
+				}
 
-				GroupPrincipal group = service.lookupPrincipalByGroupName(entry.getGroupName());
-				Files.getFileAttributeView(path, PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS).setGroup(group);
+				String groupName = entry.getGroupName();
+				if(null != groupName) {
+					GroupPrincipal group = service.lookupPrincipalByGroupName(groupName);
+					Files.getFileAttributeView(path, PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS).setGroup(group);
+				}
 
-				Files.setPosixFilePermissions(path, PosixFilePermissionUtil.posixFilePermissions(entry.getMode()));
+				final int mode = entry.getMode();
+				if(mode > 0) {
+					Files.setPosixFilePermissions(path, PosixFilePermissionUtil.posixFilePermissions(mode));
+				}
 			}
 		}
 	}
