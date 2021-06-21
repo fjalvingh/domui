@@ -1,7 +1,7 @@
 package to.etc.domui.derbydata.init;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
 import to.etc.util.DeveloperOptions;
@@ -35,7 +35,8 @@ final public class TestDB {
 		return getPool(path);
 	}
 
-	@NotNull private static ConnectionPool getPool(String path) throws Exception {
+	@NonNull
+	private static ConnectionPool getPool(String path) throws Exception {
 		ConnectionPool pool = m_pool;
 		if(null == pool) {
 			String poolid = DeveloperOptions.getString("domuidemo.poolid"); // Is a poolid defined in .developer.proeprties? Then use that,

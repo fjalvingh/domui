@@ -1,8 +1,8 @@
 package to.etc.domui.component2.navigation;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.component2.navigation.BreadCrumb2.IItem;
 import to.etc.domui.databinding.list2.IListChangeListener;
@@ -68,20 +68,24 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 
 
 		@Nullable
-		@Override public NodeBase getIcon() {
+		@Override
+		public NodeBase getIcon() {
 			return m_icon;
 		}
 
-		@Override public String getName() {
+		@Override
+		public String getName() {
 			return m_name;
 		}
 
 		@Nullable
-		@Override public String getTitle() {
+		@Override
+		public String getTitle() {
 			return m_title;
 		}
 
-		@Override public void clicked(IItem item) throws Exception {
+		@Override
+		public void clicked(IItem item) throws Exception {
 			ConsumerEx<IItem> clicked = m_clicked;
 			if(clicked != null) {
 				clicked.accept(item);
@@ -103,6 +107,7 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 	static public BreadCrumb2 createPageCrumb(@Nullable String homeName) {
 		return createPageCrumb(homeName, true);
 	}
+
 	static public BreadCrumb2 createPageCrumb(@Nullable String homeName, boolean withBack) {
 		List<IItem> list = getPageStacktems(homeName);
 
@@ -124,7 +129,8 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 		return bc;
 	}
 
-	@NotNull public static List<IItem> getPageStacktems(@Nullable String homeName) {
+	@NonNull
+	public static List<IItem> getPageStacktems(@Nullable String homeName) {
 		List<IItem> list = new ArrayList<>();
 		WindowSession cm = UIContext.getRequestContext().getWindowSession();
 
@@ -162,7 +168,8 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 		return list;
 	}
 
-	@Override public void createContent() throws Exception {
+	@Override
+	public void createContent() throws Exception {
 		addCssClass("ui-brcr2");
 
 		Ul cont = new Ul();
@@ -209,7 +216,7 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 		if(old instanceof IObservableList) {
 			((ObservableList<IItem>) old).removeChangeListener(this);
 		}
-		if(old != m_value) {					// Do not use structural equals because it will be expensive
+		if(old != m_value) {                    // Do not use structural equals because it will be expensive
 			forceRebuild();
 		}
 		m_value = value;
@@ -218,7 +225,8 @@ public class BreadCrumb2 extends Div implements IListChangeListener<IItem> {
 		}
 	}
 
-	@Override public void handleChange(ListChangeEvent<IItem> event) throws Exception {
+	@Override
+	public void handleChange(ListChangeEvent<IItem> event) throws Exception {
 		forceRebuild();
 	}
 }

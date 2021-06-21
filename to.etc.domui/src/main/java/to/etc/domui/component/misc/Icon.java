@@ -1,5 +1,6 @@
 package to.etc.domui.component.misc;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.jetbrains.annotations.NotNull;
 import to.etc.domui.dom.html.NodeBase;
@@ -738,7 +739,8 @@ public enum Icon implements IIconRef {
 		return icon.createNode(cssClasses);
 	}
 
-	@NotNull private IIconRef getRef() {
+	@NonNull
+	private IIconRef getRef() {
 		IIconRef icon = m_map.get(this);
 		if(null == icon)
 			throw new IllegalStateException("Missing icon implementation for Icon." + this.name());

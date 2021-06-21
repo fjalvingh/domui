@@ -24,9 +24,11 @@ public class ResponseCommandWriter {
 	public ResponseCommandWriter() {
 	}
 
-	private void renderHeaders(RequestContextImpl ctx) {
+	private void renderHeaders(RequestContextImpl ctx) throws Exception {
 		IRequestResponse rr = ctx.getRequestResponse();
-		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+		DomApplication domApplication = DomApplication.get();
+		ctx.renderResponseHeaders(null);
+		//domApplication.applyPageHeaderTransformations(ctx.getPageName(), domApplication.getDefaultHTTPHeaderMap()).forEach((header, value) -> rr.addHeader(header, value));
 	}
 
 	/**

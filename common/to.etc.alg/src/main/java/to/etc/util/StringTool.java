@@ -1699,30 +1699,12 @@ public class StringTool {
 	}
 
 
-	static public void main(final String[] args) {
-		try {
-			//			int	res	= compareStrings(args[0], args[1]);
-			//			System.out.println("Result is "+res);
-			//			System.out.println(strCommad(0));
-			//			System.out.println(strCommad(10));
-			//			System.out.println(strCommad(112));
-			//			System.out.println(strCommad(1234));
-			//			System.out.println(strCommad(10234));
-			//			System.out.println(strCommad(101221));
-			//			System.out.println(strCommad(1065432));
-			//
-			//			StringWriter	sw = new StringWriter();
-			//			strToJavascriptString(sw, "Dit is \"de beste\" oplossing\nzij de beste 'man'; ze kost \u20a3 20,00", false);
-			//			System.out.println(sw.getBuffer());
+	static public void main(final String[] args) throws Exception {
+		byte[] data = new byte[127];
+		StringBuilder sb = new StringBuilder();
+		dumpData(sb, data, 0, data.length);
+		System.out.println(sb.toString());
 
-			String s = strToJavascriptString("accu\\'s vervangen", false);
-			System.out.println(s);
-
-		} catch(Throwable x) {
-			System.out.println("Fatal: " + x.toString());
-			x.printStackTrace();
-
-		}
 	}
 
 

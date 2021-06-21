@@ -181,8 +181,8 @@ namespace WebUI {
 		let hdrs = $(tbl).find(".ui-dt-th");
 		let list = {};
 		for(let i = 0; i < hdrs.length; i++) {
-			let wid = hdrs[i].style.width;
-			list["column_" + hdrs[i].id] = hdrs[i].style.width;
+			let wid = (hdrs[i] as HTMLElement).style.width;
+			list["column_" + hdrs[i].id] = (hdrs[i] as HTMLElement).style.width;
 		}
 		WebUI.scall(compId, "COLWIDTHS", list);
 		console.log("Change event", tbl);

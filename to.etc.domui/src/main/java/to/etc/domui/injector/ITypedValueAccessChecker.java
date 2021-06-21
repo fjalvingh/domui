@@ -9,5 +9,5 @@ import to.etc.util.PropertyInfo;
  * Created on 20-12-18.
  */
 public interface ITypedValueAccessChecker<T> {
-	boolean isAccessAllowed(PropertyInfo info, AbstractPage page, @NonNull T value) throws Exception;
+	void checkAccessAllowed(PropertyInfo info, AbstractPage page, @NonNull T value) throws Exception;
 }

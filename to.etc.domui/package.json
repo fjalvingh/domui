@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "DomUI TypeScript",
   "scripts": {
-    "compile": "./node_modules/.bin/tsc --allowjs --project src/main/resources/resources/ts/tsconfig.json",
-    "compile-typescript": "tsc"
+    "compile-typescript": "tsc --allowjs --project src/main/resources/resources/ts/tsconfig.json"
   },
   "author": "",
   "license": "LGPL-2.1 License",

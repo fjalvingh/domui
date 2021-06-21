@@ -1207,7 +1207,7 @@ final public class WebDriverConnector {
 		return this;
 	}
 
-	@NotNull private String calculatePageURL(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object[] parameters) {
+	@NonNull private String calculatePageURL(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object[] parameters) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(m_applicationURL);
 		sb.append(clz.getName());

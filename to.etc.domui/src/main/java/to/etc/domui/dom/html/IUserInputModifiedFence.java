@@ -38,4 +38,12 @@ public interface IUserInputModifiedFence extends IHasModifiedIndication {
 	 * Used to notify fence component in case when its modified flag is being set for first time.
 	 */
 	void onModifyFlagRaised();
+
+	/**
+	 * If we like to receive events on subsequent modifications after fence is already marked as modified, override with returning T.
+	 * @return
+	 */
+	default boolean receiveNewModifications() {
+		return false;
+	}
 }
