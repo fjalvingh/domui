@@ -23,6 +23,8 @@ import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.UserPrincipal;
 import java.nio.file.attribute.UserPrincipalLookupService;
 
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 public class TarUtil {
 
 	private static final Logger LOG = LoggerFactory.getLogger(TarUtil.class);
@@ -103,13 +105,13 @@ public class TarUtil {
 			if(withFileAttributes) {
 				final Path path = file.toPath();
 				String userName = entry.getUserName();
-				if(null != userName) {
+				if(! isBlank(userName)) {
 					UserPrincipal owner = service.lookupPrincipalByName(userName);
 					Files.setOwner(path, owner);
 				}
 
 				String groupName = entry.getGroupName();
-				if(null != groupName) {
+				if(! isBlank(groupName)) {
 					GroupPrincipal group = service.lookupPrincipalByGroupName(groupName);
 					Files.getFileAttributeView(path, PosixFileAttributeView.class, LinkOption.NOFOLLOW_LINKS).setGroup(group);
 				}
