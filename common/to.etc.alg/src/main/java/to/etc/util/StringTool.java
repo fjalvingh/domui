@@ -3056,6 +3056,25 @@ public class StringTool {
 		return "linux".equalsIgnoreCase(System.getProperty("os.name"));
 	}
 
+	static public String stripInvalidUnicode(String in) {
+		StringBuilder sb = new StringBuilder(in.length());
+		stripInvalidUnicode(sb, in);
+		return sb.toString();
+	}
+
+	public static void stripInvalidUnicode(StringBuilder sb, CharSequence in) {
+		int len = in.length();
+		for(int i = 0; i < len; i++) {
+			char c = in.charAt(i);
+			if(c == 0x0a || c == 0x0d) {
+				sb.append(c);
+			} else if(c < 32) {
+				// -- ignore
+			} else if(Character.isDefined(c)) {
+				sb.append(c);
+			}
+		}
+	}
 
 }
 
