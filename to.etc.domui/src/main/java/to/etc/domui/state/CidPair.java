@@ -14,10 +14,14 @@ final public class CidPair {
 		m_windowId = windowId;
 		m_conversationId = conversationId;
 
-		if(! isValid(windowId))
-			throw new IllegalStateException("Invalid window ID in CID");	// Do not show the ID - can be a XSS attack
-		if(! isValid(conversationId))
-			throw new IllegalStateException("Invalid conversation ID in CID");	// Do not show the ID - can be a XSS attack
+		if(! isValid(windowId)) {
+			System.err.println("Invalid window ID in $CID " + windowId + "." + conversationId);
+			throw new IllegalStateException("Invalid window ID in CID");    // Do not show the ID - can be a XSS attack
+		}
+		if(! isValid(conversationId)) {
+			System.err.println("Invalid conversation ID in $CID " + windowId + "." + conversationId);
+			throw new IllegalStateException("Invalid conversation ID in CID");    // Do not show the ID - can be a XSS attack
+		}
 	}
 
 	private boolean isValid(String thing) {
