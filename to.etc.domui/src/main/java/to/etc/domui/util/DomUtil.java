@@ -1734,10 +1734,11 @@ final public class DomUtil {
 				((IHasModifiedIndication) n).setModified(true);
 			}
 			if(n instanceof IUserInputModifiedFence) {
-				if(!wasModifiedBefore) {
-					((IUserInputModifiedFence) n).onModifyFlagRaised();
+				IUserInputModifiedFence fenceNode = (IUserInputModifiedFence) n;
+				if(! wasModifiedBefore || fenceNode.receiveNewModifications()) {
+					fenceNode.onModifyFlagRaised();
 				}
-				if(((IUserInputModifiedFence) n).isFinalUserInputModifiedFence()) {
+				if(fenceNode.isFinalUserInputModifiedFence()) {
 					return;
 				}
 			}
