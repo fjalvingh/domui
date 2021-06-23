@@ -89,7 +89,8 @@ public class HttpServerRequestResponse implements IRequestResponse {
 	@NonNull
 	static public HttpServerRequestResponse create(@NonNull DomApplication application, @NonNull HttpServletRequest request, @NonNull HttpServletResponse response) {
 		String webapp = request.getContextPath();
-		if(webapp == null)
+		System.out.println(">>>> contextpath <<" + webapp + ">>");
+		if(webapp == null || webapp.trim().length() == 0)
 			webapp = "";
 		else {
 			if(webapp.startsWith("/"))
