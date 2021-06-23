@@ -1,5 +1,7 @@
 //@import url('https://fonts.googleapis.com/css?family=Fira+Mono|Josefin+Sans:400,400i,600,600i&subset=latin-ext');
 
+$jsass-void: null;
+
 @import 'parameters';					// This must be present for all that follows
 @import "_custominit.scss";				// Meant for customers to override stylesheet data.
 
