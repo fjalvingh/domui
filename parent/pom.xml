@@ -76,7 +76,7 @@
 		<jaxb.version>2.3.0</jaxb.version>
 
 		<xml-apis.version>2.0.2</xml-apis.version>
-		<com.ibm.icu.version>58.2</com.ibm.icu.version>
+		<com.ibm.icu.version>69.1</com.ibm.icu.version>
 
 		<vaadin.sass.compiler.version>1.0.0-SNAPSHOT</vaadin.sass.compiler.version>
 
@@ -85,6 +85,7 @@
 		<allure.version>1.5.4</allure.version>
 		<allure.maven.version>2.6</allure.maven.version>
 		<aspectj.version>1.9.1</aspectj.version>
+		<graal.version>21.1.0</graal.version>
 
 		<!-- Versions needed for dependency convergence-->
 		<commons-beanutils.version>1.9.4</commons-beanutils.version>
@@ -563,6 +564,17 @@
 				<artifactId>parallelgzip</artifactId>
 				<version>1.0.3</version>
 				<optional>true</optional>
+			</dependency>
+
+			<dependency>
+				<groupId>org.graalvm.js</groupId>
+				<artifactId>js</artifactId>
+				<version>${graal.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.graalvm.js</groupId>
+				<artifactId>js-scriptengine</artifactId>
+				<version>${graal.version}</version>
 			</dependency>
 
 			<!-- Security -->
