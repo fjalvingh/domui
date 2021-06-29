@@ -1,14 +1,16 @@
 package to.etc.template;
 
+import com.oracle.truffle.js.scriptengine.GraalJSScriptEngine;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.graalvm.polyglot.Context;
+import org.graalvm.polyglot.HostAccess;
 import to.etc.util.FileTool;
 
 import javax.script.Compilable;
 import javax.script.CompiledScript;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.BufferedReader;
 import java.io.File;
@@ -197,6 +199,14 @@ public class JSTemplateCompiler {
 	}
 
 
+	protected ScriptEngine createScriptEngine() {
+		return GraalJSScriptEngine.create(null,
+			Context.newBuilder("js")
+				.allowHostAccess(HostAccess.ALL)
+				.allowHostClassLookup(s -> true)
+				.option("js.ecmascript-version", "2021"));
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Compiling the javascript.							*/
 	/*--------------------------------------------------------------*/
@@ -205,11 +215,7 @@ public class JSTemplateCompiler {
 	 * @throws Exception
 	 */
 	private JSTemplate compile() throws Exception {
-		//-- Get a Javascript compiler.
-		ScriptEngineManager sem = new ScriptEngineManager();
-		ScriptEngine jsengine = sem.getEngineByName("js");
-		if(!(jsengine instanceof Compilable))
-			throw new IllegalStateException("Got Javascript engine " + jsengine + " which cannot compile Javascripts!?");
+		ScriptEngine jsengine = createScriptEngine();
 		Compilable	compiler = (Compilable) jsengine;
 
 		jsengine.getBindings(ScriptContext.ENGINE_SCOPE).put(ScriptEngine.FILENAME, m_source);
