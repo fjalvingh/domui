@@ -27,9 +27,7 @@ package to.etc.domui.trouble;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.state.UIContext;
-import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
-import to.etc.util.StringTool;
 
 /**
  * Thrown when access control is specified on a page but the user is not logged in.
@@ -61,7 +59,7 @@ final public class NotLoggedInException extends RuntimeException {
 		StringBuilder sb = new StringBuilder(256);
 		sb.append(ctx.getRelativePath(ctx.getPageParameters().getInputPath()));
 
-		DomUtil.addUrlParameters(sb, page.getPageParameters(), false);
+		DomUtil.addUrlParameters(sb, page.getPageParameters(), true);
 
 		return new NotLoggedInException(sb.toString()); 			// Force login exception.
 	}
