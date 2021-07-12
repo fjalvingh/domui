@@ -312,12 +312,11 @@
                         <port>${jetty.http.port}</port>
                     </httpConnector>
 
-                    <webAppConfig>
+                    <webApp>
                         <contextPath>/demo</contextPath>
-                    </webAppConfig>
+                    </webApp>
 
                 </configuration>
-
 
                 <!--<configuration>-->
                     <!--&lt;!&ndash; Enable TestUI mode on the server to make Selenium tests run. &ndash;&gt;-->
