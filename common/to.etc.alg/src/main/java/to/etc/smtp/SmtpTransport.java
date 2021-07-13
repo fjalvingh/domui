@@ -339,9 +339,73 @@ public class SmtpTransport {
 
 	private void writeAddress(OutputStream os, Address a) throws Exception {
 		if(! StringTool.isBlank(a.getName())) {
-			write(os, "\"" + a.getName() + "\" ");
+			if(false) {
+				write(os, "\"" + a.getName() + "\" ");
+			} else {
+				write(os, "\"");
+				writeMimeWordName(os, a.getName());
+				write(os, "\"");
+			}
 		}
 		write(os, "<" + a.getEmail() + ">");
+	}
+
+	private void writeMimeWordName(OutputStream os, String text) throws Exception {
+		if(! hasUnicode(text)) {
+			write(os, text);
+			return;
+		}
+
+		/*
+		 * Split
+		 */
+		StringBuilder sb = new StringBuilder();
+		int index = 0;
+		int len = text.length();
+		sb.append("=?utf-8?q?");						// Encoded-word using Q encoding (see rfc 2047)
+
+		while(index < len) {
+			if(sb.length() > 60) {
+				sb.append("?=");								// Finish current encoded-word
+				write(os, sb.toString());
+				sb.setLength(0);
+				sb.append("=?utf-8?q?");						// Encoded-word using Q encoding (see rfc 2047)
+			}
+
+			int c = text.charAt(index++) & 0xffff;
+			if(Character.isLetterOrDigit(c)) {
+				sb.append((char)c);
+			} else if(c < 0x80) {
+				sb.append('=').append(hex(c));
+			} else if(c <= 0x7ff) {
+				sb
+					.append('=').append(hex(((c >> 6) & 0x1f) | 0b11000000))
+					.append("=").append(hex((c & 0x3f) | 0b10000000))
+				;
+			} else {
+				sb
+					.append('=').append(hex(((c >> 12) & 0xf) | 0b11100000))
+					.append("=").append(hex(((c >> 6) & 0x3f) | 0b10000000))
+					.append("=").append(hex(c & 0x3f | 0b10000000))
+				;
+			}
+		}
+		sb.append("?=");
+		write(os, sb.toString());
+	}
+
+	private String hex(int c) {
+		return "" + Character.forDigit((c >> 4) & 0xf, 16) +
+			Character.forDigit(c & 0xf, 16);
+	}
+
+	private boolean hasUnicode(String text) {
+		for(int i = text.length(); --i >= 0;) {
+			int c = text.charAt(i) & 0xffff;
+			if(c > 127)
+				return true;
+		}
+		return false;
 	}
 
 	private void sendAddressList(InputStream is, OutputStream os, String hdr, List<Address> al) throws Exception {
@@ -395,9 +459,16 @@ public class SmtpTransport {
 		return new Message(this);
 	}
 
-	static public void main(String[] args) {
-		String mailTo = "yourmail@itris.nl";
-//		String imagePath = "c:\\Temp";
+	static public void main(String[] args) throws Exception {
+		if(false) {
+			SmtpTransport t = new SmtpTransport("localhost");
+			t.writeMimeWordName(System.out, "Frits \u20ac Jal");
+			return;
+		}
+
+
+		String mailTo = "jal@etc.to";
+		String imagePath = "/home/jal/again.jpg";
 		try {
 			MailBuilder mb = new MailBuilder();
 			mb.initialize("Run mailBuilder");
@@ -406,8 +477,10 @@ public class SmtpTransport {
 			
 			//add attachment?
 //			mb.image("formatEmail.png", new File(imagePath), "image/jpeg");
-			
-			mb.send(new SmtpTransport("localhost"), new Address("itris@info.nl", "itris@info.nl"), new Address(mailTo, mailTo));
+
+			Address from = new Address("itris@info.nl", "Mailer \u20ac daemon");
+			Address to = new Address(mailTo, "Frits \u20acJalvingh");
+			mb.send(new SmtpTransport("localhost"), from, to);
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
