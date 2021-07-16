@@ -1611,13 +1611,13 @@ final public class DomUtil {
 		 * will not be called for this node. Returning any other value will stop the node traversal process
 		 * and return that value to the caller of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
 		 */
-		Object before(@NonNull NodeBase n) throws Exception;
+		@Nullable Object before(@NonNull NodeBase n) throws Exception;
 
 		/**
 		 * Called when all child nodes of the specified node have been traversed. When this returns a non-null
 		 * value this will terminate the tree walk and return that value to the called of {@link DomUtil#walkTree(NodeBase, IPerNode)}.
 		 */
-		Object after(@NonNull NodeBase n) throws Exception;
+		@Nullable Object after(@NonNull NodeBase n) throws Exception;
 	}
 
 	/**
