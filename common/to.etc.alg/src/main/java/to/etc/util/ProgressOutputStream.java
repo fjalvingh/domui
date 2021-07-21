@@ -51,6 +51,11 @@ public class ProgressOutputStream extends OutputStream {
 	}
 
 	@Override
+	public void flush() throws IOException {
+		m_out.flush();
+	}
+
+	@Override
 	public void close() throws IOException {
 		m_out.close();
 		notifyProgress(0, true);
