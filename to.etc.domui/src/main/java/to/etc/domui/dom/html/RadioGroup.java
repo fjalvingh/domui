@@ -167,6 +167,10 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		if(null != ovc)
 			rb.setClicked(clickednode -> {});				// Force an event
 
+		if(null != m_value) {
+			rb.setChecked(MetaManager.areObjectsEqual(m_value, rb.getButtonValue()));
+		}
+
 		if(isBuilt())
 			forceRebuild();
 		return rb;

@@ -304,6 +304,10 @@ public class NumericUtil {
 					System.out.println(pmm + ": WRONG SCALE on int types! Detected (scale :" + scale + ") is changed to 0!");
 				scale = 0;
 			}
+			if((DomUtil.isFloatOrWrapper(type) || DomUtil.isDoubleOrWrapper(type)) && scale == -1) {
+				//when we have undefined scale for decimal types, we keep it to some reasonable generic scale, lets use 5
+				scale = 5;
+			}
 			IConverter<T> c = createNumberConverter(type, np, scale);
 			node.setConverter(c);
 		}
