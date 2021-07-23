@@ -234,7 +234,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 				System.out.println("ERROR " + task + ": " + x.getMessage());
 			} else {
 				System.out.println("ERROR " + task + ": " + x);
-				x.printStackTrace();
+				x.printStackTrace(System.out);
 			}
 			errorX = x;
 		} finally {
