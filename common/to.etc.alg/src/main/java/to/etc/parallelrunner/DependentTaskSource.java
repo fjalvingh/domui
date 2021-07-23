@@ -231,10 +231,10 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			executor.run(progress);
 		} catch(Exception | Error x) {
 			if(x instanceof MessageException) {
-				System.err.println("ERROR " + task + ": " + x.getMessage());
+				System.out.println("ERROR " + task + ": " + x.getMessage());
 			} else {
-				System.err.println("ERROR " + task + ": " + x);
-				x.printStackTrace();
+				System.out.println("ERROR " + task + ": " + x);
+				x.printStackTrace(System.out);
 			}
 			errorX = x;
 		} finally {
