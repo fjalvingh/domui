@@ -24,11 +24,23 @@
  */
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.input.TextStr;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
+import to.etc.domui.component.misc.MsgBox2;
 import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
+
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
+
+import static to.etc.util.StringTool.isBlank;
 
 /**
  * A Dialog that is used to input single value of type &lt;T&gt;, using input control of type &lt;C&gt;.
@@ -194,5 +206,52 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 
 	public void setLabel(String label) {
 		m_label = label;
+	}
+
+	/**
+	 * Delete confirmation dialog that asks for input value confirmation (in blood) before action is accepted.
+	 */
+	public static Dialog confirmDeleteInBlood(String title, String confirmValue, String controlLabel, Predicate<String> onConfirm) {
+		return confirmInBlood(title, "Incorrect input, can't delete data!", new TextStr(), confirmValue, (v1, v2) -> v1.equals(v2), controlLabel, "Delete", Icon.of("img/btnSkull.png"), onConfirm);
+	}
+
+	/**
+	 * Action confirmation dialog that also asks for input reason.
+	 */
+	public static Dialog confirmWithReason(String title, int maxLen, int size, String actionBtnTitle, IIconRef actionButtonIcon, Predicate<String> onConfirm) {
+		TextStr input = new TextStr();
+		input.setMandatory(true);
+		input.setMaxLength(maxLen);
+		input.setSize(size);
+
+		return confirmInBlood(title, "", input, "", (v1, v2) -> !isBlank(v2), "Reason:", actionBtnTitle, actionButtonIcon, onConfirm);
+	}
+
+	/**
+	 * Generic confirmation dialog that asks for input confirmation before action is proceeded.
+	 */
+	public static <T, C extends NodeBase & IControl<T>> Dialog confirmInBlood(String title, String nonConfirmedInputMsg, C inputControl, T confirmValue, BiPredicate<T, T> confirmCheck, String controlLabel, String actionBtnTitle, IIconRef actionButtonIcon, Predicate<T> onConfirm) {
+		return new InputDialog<T, C>(inputControl, title, controlLabel) {
+
+			@NonNull
+			@Override
+			protected DefaultButton createSaveButton() {
+				return createSaveButton(actionBtnTitle, actionButtonIcon).css("is-danger is-outlined");
+			}
+
+			@Override
+			protected boolean onValidateData(@Nullable T data) throws Exception {
+				boolean ok = confirmCheck.test(confirmValue, data);
+				if(! ok) {
+					MsgBox2.on(this).error(nonConfirmedInputMsg);
+				}
+				return ok;
+			}
+
+			@Override
+			protected boolean onSaveData(@Nullable T data) throws Exception {
+				return onConfirm.test(data);
+			}
+		};
 	}
 }
