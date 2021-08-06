@@ -45,6 +45,7 @@ import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.server.RequestContextImpl;
+import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.JavascriptUtil;
 import to.etc.domui.util.Msgs;
@@ -116,12 +117,22 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		ISelectionModel<T> sm = getSelectionModel();
 		if(null == sm)
 			return;
-		int ct = sm.getSelectionCount();
-		if(0 == ct && sm.isMultiSelect()) {
-			sm.selectAll(getModel());
-		} else {
-			sm.clearSelection();
+		if(isDisplayReadonlySelection()) {
+			return;
 		}
+		if(sm.isMultiSelect()) {
+			//in case of multiselection, if not all visible items in model are selected, add to selection, otherwise do clean of selection
+			ITableModel<T> model = getModel();
+			boolean performSelect = sm.getSelectionCount() == 0;
+			if(! performSelect) {
+				performSelect = model.getItems(0, model.getRows()).stream().anyMatch(it -> !sm.isSelected(it));
+			}
+			if(performSelect) {
+				sm.selectAll(model);
+				return;
+			}
+		}
+		sm.clearSelection();
 	};
 
 
@@ -263,7 +274,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		if(m_multiSelectMode) {
 			HeaderContainer.HeaderContainerCell cell = hc.add("");
 			TH headerCell = cell.getTh();
-			headerCell.add(new Img("THEME/dspcb-on.png"));
+			headerCell.add(Theme.ICON_DSPCB_ON.createNode());
 			headerCell.setTestID("dt_select_all");
 			headerCell.setClicked(m_headerSelectClickHandler);
 			headerCell.setCssClass("ui-clickable");
@@ -661,7 +672,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		if(selectionModel instanceof IAcceptable) {
 			selectable = ((IAcceptable<T>) selectionModel).acceptable(rowInstance);
 		}
-		if(selectable) {
+		if(selectable && !isDisplayReadonlySelection()) {
 			cb.setClicked2(new IClicked2<Checkbox>() {
 				@Override
 				public void clicked(@NonNull Checkbox clickednode, @NonNull ClickInfo info) throws Exception {
