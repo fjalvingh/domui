@@ -36,9 +36,10 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.function.PredicateEx;
+import to.etc.function.RunnableEx;
 
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 
 import static to.etc.util.StringTool.isBlank;
 
@@ -211,14 +212,24 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	/**
 	 * Delete confirmation dialog that asks for input value confirmation (in blood) before action is accepted.
 	 */
-	public static Dialog confirmDeleteInBlood(String title, String confirmValue, String controlLabel, Predicate<String> onConfirm) {
+	public static Dialog confirmDeleteInBlood(String title, String confirmValue, String controlLabel, PredicateEx<String> onConfirm) {
 		return confirmInBlood(title, "Incorrect input, can't delete data!", new TextStr(), confirmValue, (v1, v2) -> v1.equals(v2), controlLabel, "Delete", Icon.of("img/btnSkull.png"), onConfirm);
+	}
+
+	/**
+	 * Delete confirmation dialog that asks for input value confirmation (in blood) before action is accepted.
+	 */
+	public static Dialog confirmDeleteInBlood(String title, String confirmValue, String controlLabel, RunnableEx onConfirm) {
+		return confirmDeleteInBlood(title, confirmValue, controlLabel, it -> {
+			onConfirm.run();
+			return true;
+		});
 	}
 
 	/**
 	 * Action confirmation dialog that also asks for input reason.
 	 */
-	public static Dialog confirmWithReason(String title, int maxLen, int size, String actionBtnTitle, IIconRef actionButtonIcon, Predicate<String> onConfirm) {
+	public static Dialog confirmWithReason(String title, int maxLen, int size, String actionBtnTitle, IIconRef actionButtonIcon, PredicateEx<String> onConfirm) {
 		TextStr input = new TextStr();
 		input.setMandatory(true);
 		input.setMaxLength(maxLen);
@@ -230,7 +241,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	/**
 	 * Generic confirmation dialog that asks for input confirmation before action is proceeded.
 	 */
-	public static <T, C extends NodeBase & IControl<T>> Dialog confirmInBlood(String title, String nonConfirmedInputMsg, C inputControl, T confirmValue, BiPredicate<T, T> confirmCheck, String controlLabel, String actionBtnTitle, IIconRef actionButtonIcon, Predicate<T> onConfirm) {
+	public static <T, C extends NodeBase & IControl<T>> Dialog confirmInBlood(String title, String nonConfirmedInputMsg, C inputControl, T confirmValue, BiPredicate<T, T> confirmCheck, String controlLabel, String actionBtnTitle, IIconRef actionButtonIcon, PredicateEx<T> onConfirm) {
 		return new InputDialog<T, C>(inputControl, title, controlLabel) {
 
 			@NonNull
