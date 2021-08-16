@@ -36,6 +36,8 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.Msgs;
 import to.etc.function.PredicateEx;
 import to.etc.function.RunnableEx;
 
@@ -213,7 +215,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 	 * Delete confirmation dialog that asks for input value confirmation (in blood) before action is accepted.
 	 */
 	public static Dialog confirmDeleteInBlood(String title, String confirmValue, String controlLabel, PredicateEx<String> onConfirm) {
-		return confirmInBlood(title, "Incorrect input, can't delete data!", new TextStr(), confirmValue, (v1, v2) -> v1.equals(v2), controlLabel, "Delete", Icon.of("img/btnSkull.png"), onConfirm);
+		return confirmInBlood(title, Msgs.incorrectInputCantDeleteData.getString(), new TextStr(), confirmValue, (v1, v2) -> v1.equals(v2), controlLabel, Msgs.btnDelete.getString(), Theme.BTN_SKULL, onConfirm);
 	}
 
 	/**
@@ -235,7 +237,7 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 		input.setMaxLength(maxLen);
 		input.setSize(size);
 
-		return confirmInBlood(title, "", input, "", (v1, v2) -> !isBlank(v2), "Reason:", actionBtnTitle, actionButtonIcon, onConfirm);
+		return confirmInBlood(title, "", input, "", (v1, v2) -> !isBlank(v2), Msgs.reason.toString() + ":", actionBtnTitle, actionButtonIcon, onConfirm);
 	}
 
 	/**

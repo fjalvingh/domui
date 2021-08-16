@@ -57,6 +57,10 @@ public enum Msgs implements IBundleCode {
 	leavePageQuestion,
 	changesYouMadeMayNotBeSaved,
 	leave,
+
+/** Confirmation in blood */
+	incorrectInputCantDeleteData,
+	reason,
 	;
 
 	/** Error component panel header text: Info */
