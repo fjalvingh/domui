@@ -105,7 +105,18 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 	public void clearSelection() throws Exception {
 		if(m_selectedSet.size() == 0)
 			return;
-		m_selectedSet.clear();
+		final IAcceptable<T> removable = m_removable;
+		if(null == removable) {
+			m_selectedSet.clear();
+		}else {
+			Set<T> toRemove = new HashSet<>();
+			m_selectedSet.forEach( item -> {
+				if(removable.acceptable(item)) {
+					toRemove.add(item);
+				}
+			});
+			m_selectedSet.removeAll(toRemove);
+		}
 		callSelectionAllChanged();
 	}
 
