@@ -122,7 +122,11 @@ public class HttpServerRequestResponse implements IRequestResponse {
 		Map<String, String[]> unsafeParamMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		realrequest.getParameterMap().forEach((name, values) -> {
 			name = xssChecker.stripXSS(name);
-			unsafeParamMap.put(name, values);
+
+			String[] rawValues = new String[values.length];
+			System.arraycopy(values, 0, rawValues, 0, values.length);
+			unsafeParamMap.put(name, rawValues);
+
 			if(values != null) {
 				for(int i = 0; i < values.length; i++) {
 					values[i] = xssChecker.stripXSS(values[i]);

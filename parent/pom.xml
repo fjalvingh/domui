@@ -48,7 +48,7 @@
 		<maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
 		<maven-eclipse-lifecycle-mapping-plugin.version>1.0.0</maven-eclipse-lifecycle-mapping-plugin.version>
 
-		<bouncy.version>1.60</bouncy.version>
+		<bouncy.version>1.67</bouncy.version>
 		<org.slf4j.version>1.7.31</org.slf4j.version>
 		<cglib.version>2.2</cglib.version>
 		<commons-codec.version>1.10</commons-codec.version>
