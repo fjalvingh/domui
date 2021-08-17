@@ -3,7 +3,6 @@ package to.etc.domui.webdriver.core;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -1136,6 +1135,7 @@ final public class WebDriverConnector {
 		checkSize();
 
 		String sb = calculatePageURL(locale, clz, parameters);
+		System.out.println("webdriver: navigate to " + sb);
 		m_driver.navigate().to(sb);
 		checkSize();
 
