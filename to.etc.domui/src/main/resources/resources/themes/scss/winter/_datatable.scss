@@ -173,6 +173,10 @@ th.ui-dt-th.ui-numeric {
 	@include overflow-ellipsis();
 }
 
+.ui-dt-row > td.wrap {
+	white-space: unset;
+}
+
 .ui-odd {
 }
 
