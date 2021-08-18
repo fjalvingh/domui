@@ -25,7 +25,9 @@ public class ProgressInputStream extends InputStream {
 	public ProgressInputStream(InputStream inputStream, int expectedSize, int notifyChunk) {
 		m_in = inputStream;
 		m_expectedSize = expectedSize;
-		m_notifyChunk = notifyChunk;
+		if(notifyChunk > 0) {
+			m_notifyChunk = notifyChunk;
+		}
 	}
 
 	public ProgressInputStream(InputStream inputStream) {
