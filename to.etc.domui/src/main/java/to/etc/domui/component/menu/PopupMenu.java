@@ -17,6 +17,26 @@ import java.util.List;
  * Created on Feb 6, 2011
  */
 public class PopupMenu {
+
+	/**
+	 * Indicates that menu is not closed when mouse is not over it.
+	 */
+	private boolean permanent;
+
+	private String stylePrefix;
+
+	private boolean modal;
+
+	public PopupMenu() {
+		this(false, "ui-pmnu", false);
+	}
+
+	public PopupMenu(boolean permanent, String stylePrefix, boolean modal) {
+		this.permanent = permanent;
+		this.stylePrefix = stylePrefix;
+		this.modal = modal;
+	}
+
 	public static class Item {
 		private IIconRef m_icon;
 
@@ -99,6 +119,10 @@ public class PopupMenu {
 			m_itemList.add(new Item(icon, caption, null, false, clk, this));
 		}
 
+		public void addItem(@NonNull Item item) {
+			m_itemList.add(item);
+		}
+
 		public void addMenu(@NonNull String caption, IIconRef icon, String hint, boolean disabled, Object target) {
 			m_itemList.add(new Submenu(icon, caption, hint, disabled, target, this));
 		}
@@ -125,7 +149,11 @@ public class PopupMenu {
 	}
 
 	public void addItem(@NonNull String caption, IIconRef icon, IClicked<NodeBase> clk) {
-		m_actionList.add(new Item(icon, caption, null, false, clk, null));
+		addItem(caption, icon, null, false, clk);
+	}
+
+	public void addItem(Item item) {
+		m_actionList.add(item);
 	}
 
 	@NonNull
@@ -133,6 +161,11 @@ public class PopupMenu {
 		Submenu submenu = new Submenu(icon, caption, hint, disabled, target, null);
 		m_actionList.add(submenu);
 		return submenu;
+	}
+
+	@NonNull
+	public Submenu addMenu(@NonNull String caption) {
+		return addMenu(caption, null, null, false, null);
 	}
 
 	public <T> void show(NodeBase ref, T target) {
@@ -145,7 +178,7 @@ public class PopupMenu {
 			}
 		}
 
-		SimplePopupMenu sp = new SimplePopupMenu(ref, this, m_actionList, target);
+		SimplePopupMenu sp = new SimplePopupMenu(ref, this, m_actionList, target, stylePrefix, modal);
 		ref.getPage().setPopIn(sp);
 		ref.getPage().getBody().add(0, sp);
 	}
@@ -153,4 +186,13 @@ public class PopupMenu {
 	public void show(NodeBase ref) {
 		show(ref, null);
 	}
+
+	public boolean isPermanent() {
+		return permanent;
+	}
+
+	public boolean hasItems() {
+		return m_actionList.size() > 0;
+	}
+
 }

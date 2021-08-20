@@ -29,6 +29,9 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.IShelvedListener;
@@ -37,15 +40,19 @@ import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
+import to.etc.webapp.query.QOperatorNode;
 import to.etc.webapp.query.QOrder;
+import to.etc.webapp.query.QSelection;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
- *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2008
  */
@@ -111,6 +118,22 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/** The max. #of rows to return before truncating. */
 	private int m_maxRowCount;
 
+	/**
+	 * When set, the thing calculates the actual row count if the initial query overflows.
+	 */
+	private boolean m_calculateActualRowCount;
+
+	/**
+	 * If available (determined by {@link #m_calculateActualRowCount}, the actual row count.
+	 */
+	@Nullable
+	private Integer m_actualRowCount;
+
+	@Nullable
+	private List<QOrder> m_criteriaSortOrder;
+
+	private final Map<Object, T> m_byPkMap = new HashMap<>();
+
 	public final static class SortHelper<T> implements ISortHelper<T> {
 		private final String m_columnName;
 
@@ -132,10 +155,9 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	/**
 	 * Implementation of ISortHelper that can be used when sort is specified by sort column comparator.
-	 * @param <T>
 	 */
 	@NonNullByDefault
-	public final static class ByComparatorSortHelper<T> implements ISortHelper<T>{
+	public final static class ByComparatorSortHelper<T> implements ISortHelper<T> {
 
 		private final String m_columnKey;
 
@@ -143,10 +165,8 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 		/**
 		 * Specify column key and comparator.
-		 * @param columnKey
-		 * @param comparator
 		 */
-		public ByComparatorSortHelper(String columnKey, Comparator<T> comparator){
+		public ByComparatorSortHelper(String columnKey, Comparator<T> comparator) {
 			m_columnKey = columnKey;
 			m_comparator = comparator;
 		}
@@ -158,11 +178,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		}
 	}
 
-	/**
-	 * EXPERIMENTAL INTERFACE
-	 * @param contextSourceNode
-	 * @param qc
-	 */
 	public SimpleSearchModel(@NonNull NodeBase contextSourceNode, @NonNull QCriteria<T> qc) {
 		m_query = qc;
 		m_contextSourceNode = contextSourceNode;
@@ -173,8 +188,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	/**
 	 * Use {@link SimpleSearchModel#SimpleSearchModel(IQueryHandler, QCriteria) instead!
-	 * @param ss
-	 * @param qc
 	 */
 	public SimpleSearchModel(@NonNull QDataContextFactory ss, @NonNull QCriteria<T> qc) {
 		m_query = qc;
@@ -215,10 +228,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and setters.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 *
-	 * @param refreshAfterShelve
-	 */
 	public void setRefreshAfterShelve(boolean refreshAfterShelve) {
 		m_refreshAfterShelve = refreshAfterShelve;
 	}
@@ -230,10 +239,23 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/**
 	 * Return the current result row limit. When &lt;= 0 the result will have a  default
 	 * limit.
-	 * @return
 	 */
 	public int getMaxRowCount() {
 		return m_maxRowCount;
+	}
+
+	public boolean isCalculateActualRowCount() {
+		return m_calculateActualRowCount;
+	}
+
+	public void setCalculateActualRowCount(boolean calculateActualRowCount) {
+		m_calculateActualRowCount = calculateActualRowCount;
+	}
+
+	@Override
+	@Nullable
+	public Integer getActualRowCount() {
+		return m_actualRowCount;
 	}
 
 	/**
@@ -246,8 +268,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 	/**
 	 * Allocate and return a datacontext, if the query definition requires one.
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	private QDataContext getQueryContext() throws Exception {
@@ -266,7 +286,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 		int queryLimit = getMaxRowCount() > 0 ? getMaxRowCount() : ITableModel.DEFAULT_MAX_SIZE;
 		QCriteria<T> query = m_query;
-		if (null != query && query.getLimit() > 0) {
+		if(null != query && query.getLimit() > 0) {
 			queryLimit = query.getLimit();
 		}
 		queryLimit++; // Increment by 1: if that amount is returned we know we have overflowed.
@@ -275,7 +295,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		Comparator<T> sortComparator = m_sortComparator;
 		if(null != sortComparator) {
 			//custom sort requires more data fetch for in-memory sort
-			if (queryLimit <= ITableModel.IN_MEMORY_FILTER_OR_SORT_MAX_SIZE) {
+			if(queryLimit <= ITableModel.IN_MEMORY_FILTER_OR_SORT_MAX_SIZE) {
 				queryLimit = ITableModel.IN_MEMORY_FILTER_OR_SORT_MAX_SIZE + 1;
 			}
 		}
@@ -299,36 +319,105 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 				qc.limit(oldLimit);
 			} else
 				throw new IllegalStateException("No query and no query functor- no idea how to create the result..");
+
+			if(null != sortComparator) {
+				if(getWorkResult().size() == queryLimit) {
+					//more results than expected, we can't do in-memory sorting, for now we report into sys err, see later about reporting in UI as well
+					System.err.println("Unable to do proper in-memory sorting since query fetch more than " + (queryLimit - 1) + " rows!");
+				}
+				if(m_desc) {
+					getWorkResult().sort(Collections.reverseOrder(sortComparator));
+				} else {
+					getWorkResult().sort(sortComparator);
+				}
+				if(getWorkResult().size() > resultLimit) {
+					m_workResult = getWorkResult().subList(0, resultLimit + 1);
+				}
+			}
+			if(getWorkResult().size() >= resultLimit) {
+				getWorkResult().remove(getWorkResult().size() - 1);
+				m_truncated = true;
+
+				if(m_calculateActualRowCount && m_queryFunctor == null) {
+					//-- We must calculate a rowcount doing a count query 8-(
+					m_actualRowCount = calculateActualRowCount(dc);
+				}
+			} else {
+				m_truncated = false;
+				m_actualRowCount = getWorkResult().size();					// We actually know the result count
+			}
+			updatePkMap();
+
+			if(LOG.isDebugEnabled()) {
+				ts = System.nanoTime() - ts;
+				LOG.debug("db: persistence framework query and materialize took " + StringTool.strNanoTime(ts));
+			}
 		} finally {
 			try {
 				if(dc != null)
 					dc.close();
 			} catch(Exception x) {}
 		}
-		if (null != sortComparator){
-			if (getWorkResult().size() == queryLimit){
-				//more results than expected, we can't do in-memory sorting, for now we report into sys err, see later about reporting in UI as well
-				System.err.println("Unable to do proper in-memory sorting since query fetch more than " + (queryLimit - 1) + " rows!");
-			}
-			if (m_desc) {
-				getWorkResult().sort(Collections.reverseOrder(sortComparator));
-			}else{
-				getWorkResult().sort(sortComparator);
-			}
-			if (getWorkResult().size() > resultLimit) {
-				m_workResult = getWorkResult().subList(0, resultLimit + 1);
-			}
-		}
-		if(getWorkResult().size() >= resultLimit) {
-			getWorkResult().remove(getWorkResult().size() - 1);
-			m_truncated = true;
-		} else
-			m_truncated = false;
+	}
 
-		if(LOG.isDebugEnabled()) {
-			ts = System.nanoTime() - ts;
-			LOG.debug("db: persistence framework query and materialize took " + StringTool.strNanoTime(ts));
+	/**
+	 * Collect, if possible, all PK fields from the data shown in the pkMap.
+	 */
+	private void updatePkMap() {
+		List<T> workResult = getWorkResult();
+		m_byPkMap.clear();
+		if(workResult.size() == 0) {
+			return;
 		}
+
+		//-- Use the first result to determine a primary key.
+		T first = workResult.get(0);
+		if(null == first) {
+			return;
+		}
+		ClassMetaModel cmm = MetaManager.findClassMeta(first.getClass());
+		PropertyMetaModel<?> pk = cmm.getPrimaryKey();
+		if(null == pk) {
+			return;
+		}
+		for(T item : workResult) {
+			try {
+				Object id = pk.getValue(item);
+				m_byPkMap.put(id, item);
+			} catch(Exception x) {
+				System.out.println("SimpleSearchModel: failed to get PK from " + pk + ": " + x);
+			}
+		}
+	}
+
+	@Nullable
+	private Integer calculateActualRowCount(@Nullable QDataContext dc) throws Exception {
+		QCriteria<T> query = Objects.requireNonNull(m_query);
+		QSelection<T> sel = QSelection.create(query.getBaseClass());
+
+		//-- Clone the restrictions.
+		QOperatorNode restrictions = query.getRestrictions();
+		if(null != restrictions) {
+			sel.setRestrictions(restrictions.dup());
+		}
+		sel.count("id");
+		IQueryHandler<T> queryHandler = m_queryHandler;
+		Object[] objects;
+		if(null != queryHandler) {
+			List<Object[]> res = queryHandler.query(sel);
+			if(res.size() != 1)
+				return null;
+			objects = res.get(0);
+		} else if(null != dc) {
+			objects = dc.queryOne(sel);
+		} else
+			throw new IllegalStateException("I have no idea how to query");
+		if(null == objects)
+			return null;
+		Long l = (Long) objects[0];
+		if(null == l)
+			return null;
+		return l.intValue();
 	}
 
 	protected void handleQuerySorting(QCriteria<T> qc) {
@@ -346,16 +435,12 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		//-- We're not sorting.
 	}
 
-	@Nullable
-	private List<QOrder> m_criteriaSortOrder;
-
 	/**
 	 * Return a criteria for this search which can then be manipulated for sorting. Warning: the
 	 * current implementation allows changing the root's order by ONLY(!). Once altered the
 	 * new criteria must be set using {@link #setCriteria(QCriteria)}.
 	 *
 	 * FIXME This urgently needs to duplicate the query instead of messing around with the original!
-	 * @return
 	 */
 	@NonNull
 	public QCriteria<T> getCriteria() {
@@ -448,25 +533,121 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		return getWorkResult().subList(start, end);
 	}
 
-	@Override
-	public T findRowObject(String key) throws Exception {
-		throw new IllegalStateException("Not implemented");
-	}
-
-	@Override
-	public String getRowKey(int row) throws Exception {
-		throw new IllegalStateException("Not implemented");
-	}
-
 	public void clear() {
 		m_workResult = null;
 		m_workRefreshed = null;
 	}
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	IKeyedTableModel implementation.							*/
+	/*----------------------------------------------------------------------*/
+
+
+	@Nullable
+	@Override
+	public T findRowObject(Object key) throws Exception {
+		return m_byPkMap.get(key);
+	}
+
+	@Override
+	public Object getRowKey(int row) throws Exception {
+		if(row < 0 || row >= getRows()) {
+			throw new IllegalStateException("The row number " + row + " must be >= 0 and < " + getRows());
+		}
+		T item = getWorkResult().get(row);
+		if(null == item) {
+			return null;
+		}
+		PropertyMetaModel<?> pk = MetaManager.findClassMeta(item.getClass()).getPrimaryKey();
+		if(null == pk)
+			return null;
+		return pk.getValue(item);
+	}
+
+	/**
+	 * If the specified object is present in this model/should be present in this model
+	 * then update it from the database, and send an update event to all listeners.
+	 */
+	@Override public void updateByKey(Object key) throws Exception {
+		QCriteria<T> query = m_query;
+		if(null == query) {
+			//-- Only works with QCriteria because we need a base type
+			return;
+		}
+		Class<T> baseClass = query.getBaseClass();
+		if(null == baseClass) {
+			//-- If we have a generic base/programmed query we have no metadata
+			return;
+		}
+
+		PropertyMetaModel<?> pk = MetaManager.findClassMeta(baseClass).getPrimaryKey();
+		if(null == pk) {
+			//-- Without a PK field we have no way to augment the criteria
+			return;
+		}
+		QCriteria<T> newQuery = QCriteria.create(baseClass);
+		QOperatorNode restrictions = query.getRestrictions();
+		if(null != restrictions) {
+			QOperatorNode copy = restrictions.dup();
+			newQuery.setRestrictions(copy);
+		}
+		newQuery.eq(pk.getName(), key);					// Add a where id = value, so the query returns 0 or 1 result quickly (indexed by PK)
+
+		//-- 1. Do a query with this primary key.
+		T recordInstance;
+		if(m_queryHandler != null) {
+			List<T> result = m_queryHandler.query(newQuery);
+			if(result.size() == 0) {
+				recordInstance = null;
+			} else if(result.size() == 1) {
+				recordInstance = result.get(0);
+			} else
+				throw new IllegalStateException("The query-by-PK returned " + result.size() + " results!?\n- query is " + newQuery);
+		} else {
+			QDataContext dc = getQueryContext(); // Allocate data context if needed.
+			recordInstance = dc.queryOne(newQuery);
+		}
+
+		//-- If recordInstance is null: remove it from this model if we're containing the thingy
+		T currentItem = m_byPkMap.get(key);
+		if(null == recordInstance) {
+			if(null == currentItem) {
+				//-- It was not present, so we're happy and have nothing to do
+				return;
+			}
+			int index = getWorkResult().indexOf(currentItem);			// Find in the list
+			if(index < 0) {
+				//-- Already removed -> begone
+				return;
+			}
+			m_byPkMap.remove(key);
+			delete(index);
+			return;
+		}
+
+		if(currentItem == null) {
+			//-- We have a new one... Add it. FIXME: I cannot properly implement sort order easily
+			if(getRows() >= getMaxRowCount()) {						// Already too large -> do not add
+				return;
+			}
+			add(getRows(), recordInstance);							// Add it as the last item
+			m_byPkMap.put(key, recordInstance);
+			return;
+		}
+
+		//-- The changed one is in the model currently -> refresh, then update
+		int index = getWorkResult().indexOf(currentItem);			// Find in the list
+		if(index < 0)
+			return;
+		if(m_queryHandler == null) {
+			getQueryContext().refresh(currentItem);
+		}
+		modified(index);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	SortableTableModel implementation.					*/
 	/*--------------------------------------------------------------*/
-
 	/**
 	 * When called this does a re-query using the specified sort property.
 	 */
@@ -479,7 +660,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		m_sort = key;
 		setSortComparator(null, null);
 		QCriteria<T> query = m_query;
-		if (null != query){
+		if(null != query) {
 			query.getOrder().clear();
 		}
 		fireModelSorted();
@@ -495,7 +676,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		m_desc = descending;
 		m_sort = null;
 		QCriteria<T> query = m_query;
-		if (null != query){
+		if(null != query) {
 			query.getOrder().clear();
 		}
 		setSortComparator(sortComparator, sortComparatorKey);
@@ -519,8 +700,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/**
 	 * When the component is shelved we discard all results. This causes a requery when
 	 * unshelved (when accessed).
-	 *
-	 * @see to.etc.domui.util.IShelvedListener#onShelve()
 	 */
 	@Override
 	public void onShelve() throws Exception {

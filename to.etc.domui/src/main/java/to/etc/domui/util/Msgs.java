@@ -45,6 +45,7 @@ public enum Msgs implements IBundleCode {
 	uiPagerRecordCount,
 	uiPagerOverflow2,
 	uiWarningHeader,
+	uiPagerActualCount,
 
 	btnDelete,
 	btnAdd,

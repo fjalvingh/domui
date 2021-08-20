@@ -33,6 +33,11 @@ CKEDITOR.editorConfig = function( config ) {
    	   	['Bold','Italic','Underline','Strike','-','Cut','Copy','Paste','-','Undo','Redo'],
    	   	['Styles','Format','Font','FontSize']
     ] ;
+
+	config.toolbar_BASICPLUS = [
+   	   	['Bold','Italic','Underline','Strike','-','Cut','Copy','Paste','-','Undo','Redo','-','NumberedList','BulletedList','Outdent','Indent'],
+   	   	['Link','Unlink','-','HorizontalRule']
+    ] ;
 	
 	config.toolbar_FULL = [
    	   	['Bold','Italic','Underline','Strike','-','Cut','Copy','Paste','-','Undo','Redo','-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-','NumberedList','BulletedList','Outdent','Indent'],
@@ -66,5 +71,5 @@ CKEDITOR.editorConfig = function( config ) {
 	//config.uiColor = '#AADC6E';
 	
 	// Using an HTML color name.
-	//config.uiColor = 'Gold';	
+	//config.uiColor = 'Gold';
 };

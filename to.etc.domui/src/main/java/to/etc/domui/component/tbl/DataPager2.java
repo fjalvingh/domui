@@ -151,6 +151,10 @@ final public class DataPager2 extends Div implements IDataTablePager {
 	private void redraw() throws Exception {
 		if(! isBuilt())
 			return;
+		m_table.build();							// 20191003 jal Make sure the DataTable is built to prevent multiple queries- one for the pager, then the second when the datatable knows its sort order
+		if(! isBuilt())								// If we're unbuilt as result of the table redraw -> return and let the retry handle us
+			return;
+
 		Div bd = m_buttonDiv;
 		int np = m_table.getPageCount();
 		if(np <= 1) {
@@ -229,6 +233,7 @@ final public class DataPager2 extends Div implements IDataTablePager {
 
 		bd.add(m_nextBtn);
 
+		bd.add("\u00a0\u00a0");
 		for(@NonNull SmallImgButton sib : m_extraButtonList) {
 			bd.add(sib);
 		}
@@ -238,11 +243,19 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		reco.add(Msgs.uiPagerRecordCount.format(m_table.getResultCount()));
 		bd.add(reco);
 		if(m_table.isTruncated()) {
+			//-- If we have an actual row count- show it
+			ITableModel<?> model = m_table.getModel();
+			if(model instanceof ITruncateableDataModel) {
+				Integer rowCount = ((ITruncateableDataModel) model).getActualRowCount();
+				if(null != rowCount) {
+					reco.add(" " + Msgs.uiPagerActualCount.format(rowCount));
+				}
+			}
+
 			Div node = new Div("ui-dp2-trunc");
 			bd.add(node);
 			node.setTitle(Msgs.uiPagerOverflow2.getString());
 		}
-
 	}
 
 
@@ -265,34 +278,6 @@ final public class DataPager2 extends Div implements IDataTablePager {
 		}
 		return ci;
 	}
-
-//	private void redrawSelectionButtons() throws Exception {
-//		//-- Show/hide the "show selection" button
-//		final ISelectableTableComponent<Object> dt = (ISelectableTableComponent<Object>) getSelectableTable();
-//		if(null == dt)
-//			throw new IllegalStateException("Null selectable table?");
-//
-//		if(isNeedSelectionButton()) {
-//			if(m_showSelectionBtn == null) {
-//				m_showSelectionBtn = new SmallImgButton(Icon.of("THEME/dpr-select-on.png"));
-//				m_buttonDiv.add(4, m_showSelectionBtn); // Always after last navigation button
-//				m_showSelectionBtn.setClicked(new IClicked<NodeBase>() {
-//					@Override
-//					public void clicked(@NonNull NodeBase clickednode) throws Exception {
-//						dt.setShowSelection(true);
-//						clickednode.remove();
-//						m_showSelectionBtn = null;
-//					}
-//				});
-//				m_showSelectionBtn.setTitle(Msgs.BUNDLE.getString("ui.dpr.selections"));
-//			}
-//		} else {
-//			if(m_showSelectionBtn != null) {
-//				m_showSelectionBtn.remove();
-//				m_showSelectionBtn = null;
-//			}
-//		}
-//	}
 
 	public Div getButtonDiv() {
 		return m_buttonDiv;
