@@ -3,7 +3,9 @@ package to.etc.domui.util.exporters;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.webapp.query.QField;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -19,6 +21,14 @@ public class PropertyExportColumn<T> implements IExportColumn<T> {
 	public PropertyExportColumn(PropertyMetaModel<T> pmm, String label) {
 		m_pmm = pmm;
 		m_label = label;
+	}
+
+	public <R> PropertyExportColumn(QField<R, T> qField, String label) {
+		this(MetaManager.findClassMeta(qField.getRootClass()).getProperty(qField), label);
+	}
+
+	public <R> PropertyExportColumn(QField<R, T> qField) {
+		this(MetaManager.findClassMeta(qField.getRootClass()).getProperty(qField));
 	}
 
 	public PropertyExportColumn(PropertyMetaModel<T> pmm) {
