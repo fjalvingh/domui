@@ -6,7 +6,6 @@ import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.eclipse.jdt.annotation.Nullable;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,6 +13,9 @@ import java.io.OutputStream;
 import java.util.function.Consumer;
 
 public class CompressedTarUtil {
+
+	/** Buffer size that we use for ParallelGZIP constructors. It eliminates need of using extra wrapped buffer streams. */
+	private static final int BUFFER_SIZE = 1024 * 1024;
 
 	public static void createCompressedTarArchive(OutputStream os, File rootLocation, String... entryPaths) throws IOException {
 		internalCreateCompressedTarArchive(os, -1, -1, null, null, rootLocation, entryPaths);
@@ -31,7 +33,7 @@ public class CompressedTarUtil {
 		if(estimatedSize > -1 && (null != sizeProgress || null != percentageProgress)) {
 			//we create intermediate progress monitor stream
 			try(
-				ParallelGZIPOutputStream pigzos = new ParallelGZIPOutputStream(os);
+				ParallelGZIPOutputStream pigzos = new ParallelGZIPOutputStream(os, BUFFER_SIZE);
 				ProgressOutputStream pos = new ProgressOutputStream(pigzos, estimatedSize, reportChunk);
 				TarArchiveOutputStream tarOs = new TarArchiveOutputStream(pos)
 			) {
@@ -46,7 +48,7 @@ public class CompressedTarUtil {
 		}else {
 			//we go without intermediate progress monitor stream
 			try(
-				ParallelGZIPOutputStream pigzos = new ParallelGZIPOutputStream(os);
+				ParallelGZIPOutputStream pigzos = new ParallelGZIPOutputStream(os, BUFFER_SIZE);
 				TarArchiveOutputStream tarOs = new TarArchiveOutputStream(pigzos)
 			) {
 				TarUtil.createTarArchive(tarOs, rootLocation, entryPaths);
@@ -68,34 +70,28 @@ public class CompressedTarUtil {
 
 	private static void internalExtractCompressedTarArchive(InputStream is, File extractLocation, int estimatedSize, int reportChunk, @Nullable Consumer<Long> sizeProgress, @Nullable Consumer<Integer> percentageProgress) throws IOException {
 		//we have to wrap BufferedInputStream if needed, since downstream streams work optimal with BufferedInputStream
-		if(is instanceof BufferedInputStream) {
-			if(estimatedSize > -1 && (null != sizeProgress || null != percentageProgress)) {
-				//we create intermediate progress monitor stream
-				try(
-					ParallelGZIPInputStream pigzis = new ParallelGZIPInputStream(is);
-					ProgressInputStream pis = new ProgressInputStream(pigzis, estimatedSize, reportChunk);
-					TarArchiveInputStream tarIs = new TarArchiveInputStream(pis)
-				) {
-					if(null != sizeProgress) {
-						pis.addOnSizeListener(sizeProgress);
-					}
-					if(null != percentageProgress) {
-						pis.addOnPercentListener(percentageProgress);
-					}
-					TarUtil.extractTarArchive(tarIs, extractLocation);
+		if(estimatedSize > -1 && (null != sizeProgress || null != percentageProgress)) {
+			//we create intermediate progress monitor stream
+			try(
+				ParallelGZIPInputStream pigzis = new ParallelGZIPInputStream(is, BUFFER_SIZE);
+				ProgressInputStream pis = new ProgressInputStream(pigzis, estimatedSize, reportChunk);
+				TarArchiveInputStream tarIs = new TarArchiveInputStream(pis)
+			) {
+				if(null != sizeProgress) {
+					pis.addOnSizeListener(sizeProgress);
 				}
-			}else {
-				//we go without intermediate progress monitor stream
-				try(
-					ParallelGZIPInputStream pigzis = new ParallelGZIPInputStream(is);
-					TarArchiveInputStream tarIs = new TarArchiveInputStream(pigzis)
-				) {
-					TarUtil.extractTarArchive(tarIs, extractLocation);
+				if(null != percentageProgress) {
+					pis.addOnPercentListener(percentageProgress);
 				}
+				TarUtil.extractTarArchive(tarIs, extractLocation);
 			}
 		}else {
-			try(BufferedInputStream bis = new BufferedInputStream(is)) {
-				internalExtractCompressedTarArchive(bis, extractLocation, estimatedSize, reportChunk, sizeProgress, percentageProgress);
+			//we go without intermediate progress monitor stream
+			try(
+				ParallelGZIPInputStream pigzis = new ParallelGZIPInputStream(is, BUFFER_SIZE);
+				TarArchiveInputStream tarIs = new TarArchiveInputStream(pigzis)
+			) {
+				TarUtil.extractTarArchive(tarIs, extractLocation);
 			}
 		}
 	}
