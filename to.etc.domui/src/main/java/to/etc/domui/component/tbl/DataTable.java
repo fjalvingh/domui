@@ -94,9 +94,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	@Nullable
 	private NodeBase m_emptyMessage;
 
-	/** This will control the display of readonly checkboxes, in case the items are 'not acceptable' but selection is enabled. */
-	private boolean m_displayReadonlySelection = true;
-
 	/** When T, the header of the table is always shown, even if the list of results is empty. */
 	private boolean m_showHeaderAlways;
 
@@ -117,7 +114,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		ISelectionModel<T> sm = getSelectionModel();
 		if(null == sm)
 			return;
-		if(isDisplayReadonlySelection()) {
+		if(isDisabled()) {
 			return;
 		}
 		if(sm.isMultiSelect()) {
@@ -672,7 +669,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		if(selectionModel instanceof IAcceptable) {
 			selectable = ((IAcceptable<T>) selectionModel).acceptable(rowInstance);
 		}
-		if(selectable && !isDisplayReadonlySelection()) {
+		if(selectable && !isDisabled()) {
 			cb.setClicked2(new IClicked2<Checkbox>() {
 				@Override
 				public void clicked(@NonNull Checkbox clickednode, @NonNull ClickInfo info) throws Exception {
@@ -1016,17 +1013,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		for(TableRowSet<T> tableRowSet : m_visibleItemList) {
 			updateSelectionChanged(tableRowSet.getInstance(), tableRowSet, sm.isSelected(tableRowSet.getInstance()));
 		}
-	}
-
-	public boolean isDisplayReadonlySelection() {
-		return m_displayReadonlySelection;
-	}
-
-	public void setDisplayReadonlySelection(boolean displayReadonlySelection) {
-		if(m_displayReadonlySelection == displayReadonlySelection)
-			return;
-		m_displayReadonlySelection = displayReadonlySelection;
-		forceRebuild();
 	}
 
 	/**
