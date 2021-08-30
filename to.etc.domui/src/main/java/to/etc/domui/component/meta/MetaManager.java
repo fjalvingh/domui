@@ -681,6 +681,10 @@ final public class MetaManager {
 
 				if(rc.isAssignableFrom(frpmm.getActualType()))
 					return true;
+			}else if(t instanceof QField) {
+				if(((QField<?, ?>)t).getName().equals(frpmm.getName())) {
+					return true;
+				}
 			}
 		}
 		return false;
