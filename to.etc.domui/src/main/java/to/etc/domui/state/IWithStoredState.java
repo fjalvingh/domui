@@ -3,8 +3,8 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 @NonNullByDefault
-public interface IWithStoredState {
-	Object storeState();
+public interface IWithStoredState<T> {
+	T storeState();
 
-	void loadState(Object state) throws Exception;
+	void loadState(T state) throws Exception;
 }
