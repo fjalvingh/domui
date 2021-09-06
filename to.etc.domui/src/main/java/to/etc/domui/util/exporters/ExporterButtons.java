@@ -401,6 +401,52 @@ public class ExporterButtons {
 			return criteria;
 		}
 
+		private void addExportColumn(List<ColumnDef<?, ?>> exportList) {
+			List<String> list = new ArrayList<>();
+			for (IExportColumn<?> iExportColumn : m_columnList) {
+				list.add(iExportColumn.getLabel());;
+			}
+
+			for (ColumnDef<?, ?> columnDef : exportList) {
+				if (!list.contains(columnDef.getColumnLabel()))
+					appendColumn((ColumnDef<T, ?>) columnDef);
+			}
+			exportList.clear();
+		}
+
+		private void removeColumn(ColumnDef<T, ?> c) {
+			RowRendererCellWrapper<Object> w = RowRendererCellWrapper.create(c);
+			m_columnList.removeIf(iExportColumn -> Objects.equals(iExportColumn.getLabel(), Objects.requireNonNull(w).getLabel()));
+		}
+
+		private void removeUncheckedColumns(List<ColumnDef<?, ?>> uncheckedExportList) {
+			for (ColumnDef<?, ?> columnDef : uncheckedExportList) {
+				removeColumn((ColumnDef<T, ?>) columnDef);
+			}
+			uncheckedExportList.clear();
+		}
+
+		public DefaultButton configurableBuild(List<ColumnDef<?, ?>> exportList,  List<ColumnDef<?, ?>> uncheckedExportList) {
+			DefaultButton button = new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO);
+			button.setClicked(ab -> {
+
+				addExportColumn(exportList);
+
+				if (uncheckedExportList.size() > 0) {
+					removeUncheckedColumns(uncheckedExportList);
+				}
+
+				showFormatPopup(format -> {
+					if(m_sourceSupplier != null) {
+						executeExportFromList(ab.getParent(), format);
+					} else {
+						executeExportByQuery(ab.getParent(), format);
+					}
+				}, ab);
+			});
+			return button;
+		}
+
 		public DefaultButton build() {
 			DefaultButton button = new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO);
 			button.setClicked(ab -> {
