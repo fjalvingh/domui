@@ -24,6 +24,9 @@ final public class BatchUtil {
 	 * @throws SQLException
 	 */
 	public static <K extends Number, T extends IIdentifyable<K>> boolean bulkDelete(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items) throws SQLException {
+		if(items.isEmpty()) {
+			return false;
+		}
 		final PropertyMetaModel<?> pkPmm = cmm.getPrimaryKey();
 		if(null == pkPmm) {
 			throw new IllegalArgumentException("Unsupported working with class models that do not have PK columns! For " + cmm.getTableName() + " fund no PK!");
@@ -46,7 +49,9 @@ final public class BatchUtil {
 	 * @throws Exception
 	 */
 	public static <K, T extends IIdentifyable<K>> int bulkInsert(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items, QField<T, ?>... fields) throws Exception {
-
+		if(items.isEmpty()) {
+			return 0;
+		}
 		PropertyMetaModel<?>[] props = new PropertyMetaModel<?>[fields.length];
 		Arrays.stream(fields).map(it -> cmm.getProperty(it)).collect(Collectors.toList()).toArray(props);
 
