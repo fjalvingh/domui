@@ -29,6 +29,8 @@ public class TarUtil {
 
 	private static final Logger LOG = LoggerFactory.getLogger(TarUtil.class);
 
+	private static final int BUFFER_SIZE = 1024 * 1024;
+
 	public static void createTarArchive(TarArchiveOutputStream tarOs, File rootLocation, String... entriesPaths) throws IOException {
 		if(!rootLocation.exists() || !rootLocation.isDirectory()) {
 			throw new IllegalArgumentException("rootLocation must exist and needs to directory: " + rootLocation.getAbsolutePath());
@@ -69,9 +71,8 @@ public class TarUtil {
 		if(entry.isFile()) {
 			try(
 				FileInputStream fis = new FileInputStream(entry);
-				BufferedInputStream bis = new BufferedInputStream(fis);
 			) {
-				IOUtils.copy(bis, tarArchive);
+				IOUtils.copy(fis, tarArchive, BUFFER_SIZE);
 				tarArchive.closeArchiveEntry();
 			}
 		} else if(entry.isDirectory()) {
@@ -97,7 +98,7 @@ public class TarUtil {
 			}
 			if(! entry.isDirectory()) {
 				try(FileOutputStream fos = new FileOutputStream(file)) {
-					IOUtils.copy(tarIs, fos);
+					IOUtils.copy(tarIs, fos, BUFFER_SIZE);
 				}
 			}else {
 				file.mkdir();
