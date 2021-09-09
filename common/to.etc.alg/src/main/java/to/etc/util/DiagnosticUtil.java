@@ -1,8 +1,8 @@
 package to.etc.util;
 
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.eclipse.jdt.annotation.NonNull;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -36,7 +36,7 @@ public final class DiagnosticUtil {
 	private static final String SUB_MAP = "_subMap";
 
 	@NonNull
-	private static final ThreadLocal<SimpleDateFormat> DF = new ThreadLocal<>().withInitial(() -> new SimpleDateFormat("HH:mm:ss.SSS"));
+	private static final FastDateFormat DF = FastDateFormat.getInstance("HH:mm:ss.SSS");
 
 	private DiagnosticUtil() {}
 
@@ -137,7 +137,7 @@ public final class DiagnosticUtil {
 		Long nanoDuration = startDateAndNanoDurationPair.get2();
 		long convertedDuration = unit.convert(nanoDuration, TimeUnit.NANOSECONDS);
 		if (!skipZeroDurations || convertedDuration > 0) {
-			report.put(key + " started at " + DF.get().format(startDateAndNanoDurationPair.get1()), convertedDuration);
+			report.put(key + " started at " + DF.format(startDateAndNanoDurationPair.get1()), convertedDuration);
 		}
 	}
 

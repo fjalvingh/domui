@@ -29,11 +29,11 @@ final public class BatchUtil {
 		}
 		final PropertyMetaModel<?> pkPmm = cmm.getPrimaryKey();
 		if(null == pkPmm) {
-			throw new IllegalArgumentException("Unsupported working with class models that do not have PK columns! For " + cmm.getTableName() + " fund no PK!");
+			throw new IllegalArgumentException("Found no PK for " + cmm.getTableName() + " !");
 		}
 		String[] pkCols = pkPmm.getColumnNames();
 		if(pkCols.length != 1) {
-			throw new IllegalArgumentException("Unsupported working with class models that use Composite PK columns! For " + cmm.getTableName() + " fund PK: " + pkCols);
+			throw new IllegalArgumentException("Table: " + cmm.getTableName() + " has composite PK: " + pkCols + ". Composite PK is not supported!");
 		}
 		String pkCol = pkCols[0];
 		boolean result = true;
