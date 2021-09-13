@@ -39,6 +39,10 @@ public class CalculationUtil {
 
 	static private final String[]			LONGNAMES	= SYMS.getMonths();
 
+	static private final int MIN_YEAR = 1800;
+
+	static private final int MAX_YEAR=2999;
+
 	private CalculationUtil() {
 	}
 
@@ -269,7 +273,7 @@ public class CalculationUtil {
 			n3 += 2000;
 		}
 		ix = skippy(s, len, ix); // Temove any trailing shit
-		if(ix < len || n3 > 2200 || nch == 0) // Not completely consumed, year way too big, no year?
+		if(ix < len || n3 > MAX_YEAR || nch == 0) // Not completely consumed, year way too big, no year?
 			return null;
 
 		//-- The string was parsed. Decode the month,
@@ -285,7 +289,7 @@ public class CalculationUtil {
 		}
 
 		//-- At this point we must have a valid month number (1..12)
-		if(n2 < 1 || n2 > 12 || n3 < 1800)
+		if(n2 < 1 || n2 > 12 || n3 < MIN_YEAR)
 			return null;
 		return makeDateRAW(n3, n2, n1);
 	}
@@ -298,7 +302,7 @@ public class CalculationUtil {
 	}
 
 	static public Date makeDateRAW(int year, int month, int day) {
-		if(year >= 1800 && year <= 2200 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+		if(year >= MIN_YEAR && year <= MAX_YEAR && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
 			//-- Finally- make a date :-/
 			Calendar cal = new GregorianCalendar(year, month - 1, day, 0, 0, 0);
 
