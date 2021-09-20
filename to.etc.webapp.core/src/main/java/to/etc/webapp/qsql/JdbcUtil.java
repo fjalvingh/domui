@@ -311,7 +311,7 @@ final public class JdbcUtil {
 
 	public static void setParameter(@NonNull PreparedStatement ps, @Nullable Object val, int px) throws SQLException {
 		if(val == null)
-			ps.setString(px, null);
+			ps.setNull(px, Types.NULL);
 		else if(val instanceof String) {
 			ps.setString(px, ((String) val));
 		} else if(val instanceof Long) {

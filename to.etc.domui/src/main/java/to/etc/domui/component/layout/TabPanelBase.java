@@ -483,4 +483,11 @@ public class TabPanelBase extends Div {
 	protected boolean isMarkErrorTabs() {
 		return m_markErrorTabs;
 	}
+
+	public void removeAllTabs() {
+		m_tablist.clear();
+		if(isBuilt()) {
+			forceRebuild();
+		}
+	}
 }

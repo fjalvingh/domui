@@ -1,6 +1,8 @@
 package to.etc.util;
 
-import java.text.SimpleDateFormat;
+import org.apache.commons.lang3.time.FastDateFormat;
+import org.eclipse.jdt.annotation.NonNull;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,14 +28,17 @@ import java.util.concurrent.TimeUnit;
  *
  * If initLog is not called, called log methods are ignored, and report returns null result.
  */
-public class DiagnosticUtil {
+public final class DiagnosticUtil {
 
 	private static ThreadLocal<Map<String, Object>> diagnostic = new ThreadLocal<>();
 	private static ThreadLocal<Boolean> diagnosticEnabled = new ThreadLocal<>();
 
 	private static final String SUB_MAP = "_subMap";
 
-	private static final SimpleDateFormat DF = new SimpleDateFormat("HH:mm:ss.SSS");
+	@NonNull
+	private static final FastDateFormat DF = FastDateFormat.getInstance("HH:mm:ss.SSS");
+
+	private DiagnosticUtil() {}
 
 	private static Map<String, Object> getMap() {
 		Map<String, Object> map = diagnostic.get();
