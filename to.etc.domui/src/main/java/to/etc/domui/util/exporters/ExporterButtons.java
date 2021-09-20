@@ -218,6 +218,10 @@ public class ExporterButtons {
 
 		private String m_fileName;
 
+		private String m_buttonName;
+
+		private IExportFormat m_forceFormat;
+
 		@Nullable
 		private SupplierEx<List<T>> m_sourceSupplier;
 
@@ -271,6 +275,14 @@ public class ExporterButtons {
 			return new ExportColumnBuilder<>(this, (PropertyMetaModel<Object>) m_classModel.getProperty(name));
 		}
 
+		public ExportButtonBuilder<T> columns(List<String> columns) {
+			for(String column : columns) {
+				PropertyMetaModel<?> property = m_classModel.getProperty(column);
+				addColumn(new ExportColumnBuilder<>(this, property));
+			}
+			return this;
+		}
+
 		public ExportButtonBuilder<T> fileName(String name) {
 			m_fileName = name;
 			return this;
@@ -288,6 +300,21 @@ public class ExporterButtons {
 
 		public ExportButtonBuilder<T> customizer(ConsumerEx<QCriteria<T>> c) {
 			m_customizer = c;
+			return this;
+		}
+
+		public ExportButtonBuilder<T> buttonName(String name) {
+			m_buttonName = name;
+			return this;
+		}
+
+		public ExportButtonBuilder<T> forceFormat(IExportFormat format) {
+			m_forceFormat = format;
+			return this;
+		}
+
+		public ExportButtonBuilder<T> forceFormat(String ext) {
+			m_forceFormat = ExportFormatRegistry.getFormat(ext);
 			return this;
 		}
 
@@ -402,16 +429,27 @@ public class ExporterButtons {
 		}
 
 		public DefaultButton build() {
-			DefaultButton button = new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO);
+			String buttonName = m_buttonName == null ? Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON) : m_buttonName;
+			DefaultButton button = new DefaultButton(buttonName, Icon.faFileExcelO);
 			button.setClicked(ab -> {
-				showFormatPopup(format -> {
+				IExportFormat forceFormat = m_forceFormat;
+				if(null == forceFormat) {
+					showFormatPopup(format -> {
+						if(m_sourceSupplier != null) {
+							executeExportFromList(ab.getParent(), format);
+						} else {
+							executeExportByQuery(ab.getParent(), format);
+						}
+					}, ab);
+				} else {
 					if(m_sourceSupplier != null) {
-						executeExportFromList(ab.getParent(), format);
+						executeExportFromList(ab.getParent(), forceFormat);
 					} else {
-						executeExportByQuery(ab.getParent(), format);
+						executeExportByQuery(ab.getParent(), forceFormat);
 					}
-				}, ab);
+				}
 			});
+
 			return button;
 		}
 	}
