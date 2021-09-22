@@ -283,6 +283,12 @@ abstract public class QRestrictor<T, R extends QRestrictor<T, R>> {
 	}
 
 	@NonNull
+	public <V> R in(@NonNull QField<T, V> property, @NonNull QSelection<?> selection) {
+		add(QRestriction.in(property.getName(), selection));
+		return (R) this;
+	}
+
+	@NonNull
 	public <V> R in(@NonNull @GProperty String property, QSelection<?> selection) {
 		add(QRestriction.in(property, selection));
 		return (R) this;

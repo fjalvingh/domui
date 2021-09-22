@@ -109,6 +109,13 @@ public class QCriteria<T> extends QCriteriaQueryBase<T, QCriteria<T>> {
 
 	@NonNull
 	@Override
+	public <V> QCriteria<T> in(@NonNull QField<T, V> property, QSelection<?> selection) {
+		super.in(property, selection);
+		return this;
+	}
+
+	@NonNull
+	@Override
 	public <V> QCriteria<T> in(@NonNull @GProperty String property, QSelection<?> selection) {
 		super.in(property, selection);
 		return this;
