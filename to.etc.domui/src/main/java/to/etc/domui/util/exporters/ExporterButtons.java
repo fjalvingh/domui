@@ -85,7 +85,7 @@ public class ExporterButtons {
 		});
 	}
 
-	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<IExportColumn<?>> columns, String fileName) {
+	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<? extends IExportColumn<?>> columns, String fileName) {
 		ListExporterTask<T> exporterTask = new ListExporterTask<>(xf, baseClass, list, columns);
 		AsyncDialog.runInDialog(node, exporterTask, "Export", true, task -> {
 			File target = Objects.requireNonNull(task.getOutputFile());
@@ -132,13 +132,13 @@ public class ExporterButtons {
 	}
 
 	static private class ListExporterTask<T> extends AbstractExporter<T> {
-		final private List<IExportColumn<?>> m_columns;
+		final private List<? extends IExportColumn<?>> m_columns;
 
 		private final Class<T> m_baseClass;
 
 		private final List<T> m_list;
 
-		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<IExportColumn<?>> columns) {
+		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<? extends IExportColumn<?>> columns) {
 			super(format);
 			m_baseClass = baseClass;
 			m_list = list;

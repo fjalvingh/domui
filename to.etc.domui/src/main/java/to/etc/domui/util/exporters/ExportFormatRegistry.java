@@ -25,6 +25,13 @@ public class ExportFormatRegistry {
 		return m_list;
 	}
 
+	static public synchronized IExportFormat getByExt(String extension) {
+		return getExportFormats().stream()
+			.filter(a -> a.extension().equals(extension))
+			.findFirst()
+			.orElseThrow(() -> new IllegalArgumentException("Unknown format " + extension));
+	}
+
 	static {
 		register(new AbstractExportFormat("xls", "Microsoft Office Excel (old)") {
 			@Override public IExportWriter<?> createWriter(@NonNull File out) {

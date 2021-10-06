@@ -12,13 +12,13 @@ import java.util.List;
 public class ListExporter<T> extends AbstractObjectExporter<T> {
 	private final IExportWriter<T>	m_exportWriter;
 
-	private final List<IExportColumn<?>> m_columnList;
+	private final List<? extends IExportColumn<?>> m_columnList;
 
 	private final Class<T> m_baseClass;
 
 	private final List<T> m_list;
 
-	public ListExporter(Class<T> baseClass, @NonNull List<T> list, @NonNull IExportWriter<T> writer, List<IExportColumn<?>> columns) {
+	public ListExporter(Class<T> baseClass, @NonNull List<T> list, @NonNull IExportWriter<T> writer, List<? extends IExportColumn<?>> columns) {
 		m_baseClass = baseClass;
 		m_list = list;
 		m_exportWriter = writer;
