@@ -25,4 +25,11 @@ public class StringLikeSearchMatchUtilTest {
 		Assert.assertFalse("Unsuccessful match", util.compareLike("bcd", "%Ab%cd%"));
 		Assert.assertFalse("Unsuccessful match", util.compareLike("bcAbeAbcd", "abcd%"));
 	}
+
+	@Test
+	public void testWithNewLines() throws Exception {
+		StringLikeSearchMatchUtil util = new StringLikeSearchMatchUtil();
+		Assert.assertTrue("Successful match", util.compareLike("RfC VERA: inBezitBegindatum, inBezitEinddatum, soortBezit, detailsoortBezit.\nRfC VERA", "RfC VERA: inBezitBegindatum, inBezitEinddatum, soortBezit, detailsoortBezit.%RfC VERA"));
+	}
+
 }

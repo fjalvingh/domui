@@ -45,6 +45,31 @@ final public class BatchUtil {
 	}
 
 	/**
+	 * Does bulk delete using JDBC.
+	 * In case that except is T, it deletes all other records.
+	 * Otherwise it deletes specified records.
+	 * Use it when performance matters ;)
+	 * @throws SQLException
+	 */
+	public static <K extends Number, T extends IIdentifyable<K>> boolean bulkDelete(@NonNull Connection con, ClassMetaModel cmm, boolean except, @NonNull List<Long> ids) throws SQLException {
+		if(ids.isEmpty() && !except) {
+			return false;
+		}
+		final PropertyMetaModel<?> pkPmm = cmm.getPrimaryKey();
+		if(null == pkPmm) {
+			throw new IllegalArgumentException("Found no PK for " + cmm.getTableName() + " !");
+		}
+		String[] pkCols = pkPmm.getColumnNames();
+		if(pkCols.length != 1) {
+			throw new IllegalArgumentException("Table: " + cmm.getTableName() + " has composite PK: " + pkCols + ". Composite PK is not supported!");
+		}
+		String pkCol = pkCols[0];
+		String idsValues = ids.stream().map(it -> "" + it).collect(Collectors.joining(","));
+		String notPart = except ? "not " : "";
+		return JdbcUtil.executeStatement(con, "delete from " + cmm.getTableName() + " where " + notPart + pkCol + " in (" + idsValues + ")");
+	}
+
+	/**
 	 * Does bulk insert using JDBC. Use it when performance matters ;)
 	 * @throws Exception
 	 */
