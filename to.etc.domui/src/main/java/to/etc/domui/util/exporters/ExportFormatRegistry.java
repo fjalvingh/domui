@@ -25,11 +25,11 @@ public class ExportFormatRegistry {
 		return m_list;
 	}
 
-	public static IExportFormat getFormat(String ext) {
+	static public synchronized IExportFormat getByExt(String extension) {
 		return getExportFormats().stream()
-			.filter(a -> a.extension().equalsIgnoreCase(ext))
+			.filter(a -> a.extension().equals(extension))
 			.findFirst()
-			.orElseThrow();
+			.orElseThrow(() -> new IllegalArgumentException("Unknown format " + extension));
 	}
 
 	static {

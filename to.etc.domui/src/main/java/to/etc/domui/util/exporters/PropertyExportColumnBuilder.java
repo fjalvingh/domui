@@ -2,6 +2,7 @@ package to.etc.domui.util.exporters;
 
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
+import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,15 @@ public class PropertyExportColumnBuilder {
 
 	public PropertyExportColumnBuilder add(String property, String label) {
 		m_list.add(new PropertyExportColumn<>(m_model.getProperty(property), label));
+		return this;
+	}
+
+	public PropertyExportColumnBuilder add(QField<?, ?> field) {
+		add(field.getName());
+		return this;
+	}
+	public PropertyExportColumnBuilder add(QField<?, ?> field, String label) {
+		add(field.getName(), label);
 		return this;
 	}
 
