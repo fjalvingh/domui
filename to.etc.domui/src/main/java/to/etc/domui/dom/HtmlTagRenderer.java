@@ -37,6 +37,7 @@ import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
+import to.etc.domui.dom.html.HR;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IFrame;
@@ -1288,6 +1289,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitBR(final BR n) throws Exception {
+		basicNodeRender(n, o());
+		renderTagend(n, o());
+	}
+
+	@Override
+	public void visitHR(final HR n) throws Exception {
 		basicNodeRender(n, o());
 		renderTagend(n, o());
 	}
