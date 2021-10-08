@@ -231,6 +231,8 @@ final public class Page implements IQContextContainer {
 
 	private long m_lastClickTime;
 
+	private boolean m_allowTooManyNodes;
+
 	/**
 	 * Nodes that are added to a render and that are removed by the Javascript framework are added here; this
 	 * will force them to be removed from the tree after any render without causing a delta.
@@ -465,7 +467,7 @@ final public class Page implements IQContextContainer {
 		}
 		if(null != m_nodeMap.put(id, n))
 			throw new IllegalStateException("Duplicate node ID '" + id + "'!?!?");
-		if(m_nodeMap.size() > MAX_DOMUI_NODES_PER_PAGE)
+		if(! m_allowTooManyNodes && m_nodeMap.size() > MAX_DOMUI_NODES_PER_PAGE)
 			throw new IllegalStateException("The page you are using is too big (it creates too many DOM nodes). Ask the developer to fix this issue.");
 		n.setPage(this);
 		n.onHeaderContributors(this);                // Ask the node for it's header contributors.
@@ -1427,5 +1429,12 @@ final public class Page implements IQContextContainer {
 		} else {
 			return true;
 		}
+	}
+
+	/**
+	 * Do not use, you will OOM the server just like that!!
+	 */
+	public void internalSetAllowTooManyNodes(boolean allowTooManyNodes) {
+		m_allowTooManyNodes = allowTooManyNodes;
 	}
 }
