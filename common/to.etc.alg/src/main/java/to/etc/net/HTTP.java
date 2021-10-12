@@ -2,6 +2,7 @@ package to.etc.net;
 
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpClient.Version;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -24,6 +25,7 @@ final public class HTTP {
 			m_client = client = HttpClient.newBuilder()
 				.executor(ex)
 				.followRedirects(Redirect.NORMAL)
+				.version(Version.HTTP_1_1)
 				.build();
 		}
 		return client;
