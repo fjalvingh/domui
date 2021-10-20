@@ -127,7 +127,7 @@ final public class MsgBox2 extends Window {
 
 	private MsgBoxButton	m_assumedOkButton;
 
-	private MsgBoxButton 	m_assumedCancelButton = MsgBoxButton.CANCEL;
+	private MsgBoxButton 	m_assumedCancelButton = MsgBoxButton.CANCEL; //for now we keep it always CANCEL, later if needed we could expose some setter to it
 
 	@NonNull
 	private List<InputPair> m_inputList = new ArrayList<>();
@@ -451,8 +451,6 @@ final public class MsgBox2 extends Window {
 		btn.setTestID(mbb.name());
 		if(m_theButtons.size() == 0) {
 			m_assumedOkButton = mbb;
-		} else {
-			m_assumedCancelButton = mbb;
 		}
 		m_theButtons.add(btn);
 		return this;
