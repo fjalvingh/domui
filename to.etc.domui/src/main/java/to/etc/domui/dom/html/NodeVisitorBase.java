@@ -159,6 +159,11 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	@Override
+	public void visitHR(HR n) throws Exception {
+		sub(n);
+	}
+
+	@Override
 	public void visitTextArea(TextArea n) throws Exception {
 		sub(n);
 	}
