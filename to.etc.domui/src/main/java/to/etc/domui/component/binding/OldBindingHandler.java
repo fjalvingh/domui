@@ -4,9 +4,11 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.dom.errors.UIMessage;
+import to.etc.domui.dom.html.IBindingRegion;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.DomUtil.IPerNode;
 import to.etc.domui.util.IValueAccessor;
 
 import java.util.ArrayList;
@@ -85,6 +87,9 @@ final public class OldBindingHandler {
 		DomUtil.walkTreeUndelegated(root, new DomUtil.IPerNode() {
 			@Override
 			public Object before(NodeBase n) throws Exception {
+				if(n instanceof IBindingRegion && n != root)
+					return IPerNode.SKIP;
+
 				List<IBinding> list = n.getBindingList();
 				if(null != list) {
 					List<UIMessage> bindErrorList= new ArrayList<>();

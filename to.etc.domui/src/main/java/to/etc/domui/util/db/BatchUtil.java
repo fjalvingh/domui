@@ -53,7 +53,7 @@ final public class BatchUtil {
 		boolean result = true;
 		for(List<K> idsChunk: Iterables.partition(ids, chunkSize)) {
 			String idsPlaceholders = idsChunk.stream().map(it -> "?").collect(Collectors.joining(","));
-			Object[] idsValues = idsChunk.toArray(new Object[ids.size()]);
+			Object[] idsValues = idsChunk.toArray(new Object[idsChunk.size()]);
 			String notPart = except ? "not " : "";
 			result = result && JdbcUtil.executeStatement(con, "delete from " + cmm.getTableName() + " where " + notPart + pkCol + " in (" + idsPlaceholders + ")", idsValues);
 		}
