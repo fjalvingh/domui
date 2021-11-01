@@ -76,7 +76,7 @@
 		<jaxb.version>2.3.0</jaxb.version>
 
 		<xml-apis.version>2.0.2</xml-apis.version>
-		<com.ibm.icu.version>58.2</com.ibm.icu.version>
+		<com.ibm.icu.version>70.1</com.ibm.icu.version>
 
 		<vaadin.sass.compiler.version>1.0.0-SNAPSHOT</vaadin.sass.compiler.version>
 
