@@ -3,6 +3,7 @@ package to.etc.util;
 import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.Date;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -12,6 +13,12 @@ public class ConsoleUtil {
 	static private final FastDateFormat m_logFmt = FastDateFormat.getInstance("HH:mm:ss.SSS");
 
 	static private int m_logOrder;
+
+	public interface ILogListener {
+		void consoleLog(Date now, int type, String... segments) throws Exception;
+	}
+
+	static private final CopyOnWriteArrayList<ILogListener> m_listeners = new CopyOnWriteArrayList<>();
 
 	static public String getLogTime() {
 		return m_logFmt.format(new Date());
@@ -135,13 +142,18 @@ public class ConsoleUtil {
 	}
 
 	static public void consoleLog(int type, String... segments) {
+		Date now = new Date();
+		for(ILogListener l : m_listeners) {
+			try {
+				l.consoleLog(now, type, segments);
+			} catch(Exception x) {
+				x.printStackTrace();
+			}
+		}
+
 		StringBuilder sb = new StringBuilder();
 		appendColor(sb, BLUE);
-		append(sb, m_logFmt.format(new Date()) + "/" + getLogOrder(), 18);
-		//sb.append(CYAN);
-		//String name = Thread.currentThread().getName();
-		//append(sb, name, 10);
-		//sb.append(' ');
+		append(sb, m_logFmt.format(now) + "/" + getLogOrder(), 18);
 
 		for(int i = 0; i < segments.length; i++) {
 			String segment = segments[i];
@@ -188,5 +200,9 @@ public class ConsoleUtil {
 			while(sb.length() < sbl)
 				sb.append(' ');
 		}
+	}
+
+	static public void addListener(ILogListener l) {
+		m_listeners.add(l);
 	}
 }
