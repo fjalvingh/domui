@@ -18,7 +18,7 @@ public class ConsoleUtil {
 	static private boolean m_isConsole = System.console() != null;
 
 	public interface ILogListener {
-		void consoleLog(Date now, int type, String... segments) throws Exception;
+		void consoleLog(Date now, int type, @Nullable Throwable exception, String... segments) throws Exception;
 	}
 
 	static private final CopyOnWriteArrayList<ILogListener> m_listeners = new CopyOnWriteArrayList<>();
@@ -160,7 +160,7 @@ public class ConsoleUtil {
 		Date now = new Date();
 		for(ILogListener l : m_listeners) {
 			try {
-				l.consoleLog(now, type, segments);
+				l.consoleLog(now, type, exception, segments);
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
