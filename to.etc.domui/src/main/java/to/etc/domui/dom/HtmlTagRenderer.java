@@ -31,6 +31,7 @@ import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.Canvas;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Col;
 import to.etc.domui.dom.html.ColGroup;
@@ -805,6 +806,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getDropMode() != null) {
 			o().attr("uidropmode", n.getDropMode().name());
 		}
+		renderTagend(n, m_o);
+	}
+
+	@Override
+	public void visitCanvas(Canvas n) throws Exception {
+		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
 

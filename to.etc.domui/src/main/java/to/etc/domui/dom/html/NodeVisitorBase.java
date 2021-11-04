@@ -36,6 +36,11 @@ public class NodeVisitorBase implements INodeVisitor {
 	}
 
 	@Override
+	public void visitCanvas(Canvas c) throws Exception {
+		sub(c);
+	}
+
+	@Override
 	public void visitSpan(Span n) throws Exception {
 		sub(n);
 	}

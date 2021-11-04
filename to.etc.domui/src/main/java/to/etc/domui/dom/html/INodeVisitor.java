@@ -106,4 +106,6 @@ public interface INodeVisitor {
 	void visitVideo(Video n) throws Exception;
 
 	void visitSource(Source source) throws Exception;
+
+	void visitCanvas(Canvas c) throws Exception;
 }
