@@ -299,9 +299,16 @@ public class Progress {
 	/**
 	 * Set the current amount of work.
 	 * @param work
-	 * @param name
 	 */
 	public void setTotalWork(double work) {
+		setTotalWork(work, null);
+	}
+
+	/**
+	 * Set the current amount of work.
+	 * @param work int for convenience
+	 */
+	public void setTotalWork(int work) {
 		setTotalWork(work, null);
 	}
 
@@ -334,6 +341,16 @@ public class Progress {
 	 * @param now
 	 */
 	public void setCompleted(double now) {
+		checkCancelled();
+		setCompleted(now, null);
+	}
+
+	/**
+	 * Set the amount of work completed. It can only be set to a valid value, and it can
+	 * only advance, not go back.
+	 * @param now int for convenience
+	 */
+	public void setCompleted(int now) {
 		checkCancelled();
 		setCompleted(now, null);
 	}
