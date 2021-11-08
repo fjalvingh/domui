@@ -33,7 +33,7 @@ final public class StyleBinding implements IBinding {
 	@Nullable
 	private String m_previousStyle;
 
-	StyleBinding(@NonNull StyleBinder styleBinder, @NonNull NodeBase component) {
+	public StyleBinding(@NonNull StyleBinder styleBinder, @NonNull NodeBase component) {
 		m_styleBinder = styleBinder;
 		m_component = component;
 	}

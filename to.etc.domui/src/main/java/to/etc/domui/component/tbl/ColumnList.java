@@ -245,7 +245,12 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 		return scd;
 	}
 
-//	/**
+	@NonNull
+	Class<T> getActualClass() {
+		return m_actualClass;
+	}
+
+	//	/**
 //	 *
 //	 * @param clz
 //	 * @param property
