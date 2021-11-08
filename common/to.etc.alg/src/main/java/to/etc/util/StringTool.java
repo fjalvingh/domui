@@ -3088,5 +3088,18 @@ public class StringTool {
 		}
 	}
 
+	@Nullable
+	static public String xmlDeStringize(final String is) {
+		if(is == null || "null".equals(is))
+			return null;
+		return is
+			.replace("&gt;", ">")
+			.replace("&lt;", "<")
+			.replace("&amp;", "&")
+			.replace("&quot;", "\"")
+			.replace("&apos;", "'");
+	}
+
 }
+
 
