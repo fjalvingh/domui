@@ -359,7 +359,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Add the child at the end of the list, and return the child.
 	 */
 	@NonNull
-	final public <T extends NodeBase> T add(@NonNull T nd) {
+	public <T extends NodeBase> T add(@NonNull T nd) {
 		add(Integer.MAX_VALUE, nd);
 		return nd;
 	}
@@ -386,7 +386,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Add the child at the specified index in the child list.
 	 */
 	@NonNull
-	final public <T extends NodeBase> T add(int index, @NonNull T nd) {
+	public <T extends NodeBase> T add(int index, @NonNull T nd) {
 		/*
 		 * Nodes that *must* be added to the body should delegate there immediately.
 		 */
@@ -448,7 +448,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 * Add a #text node.
 	 */
 	@NonNull
-	final public NodeContainer add(@Nullable final String txt) {
+	public NodeContainer add(@Nullable final String txt) {
 		if(txt != null && txt.length() > 0)
 			add(new TextNode(txt));
 		return this;

@@ -47,6 +47,7 @@ public enum Msgs implements IBundleCode {
 	uiWarningHeader,
 
 	btnDelete,
+	btnDeleteYesNo,
 	btnAdd,
 	btnEdit,
 
