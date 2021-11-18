@@ -19,6 +19,7 @@ $form-label-color: #363636 !default;
 	display: inline-block;
 	margin: 0 10px 8px 0;
 }
+
 .ui-f5-lbl > label {
 	color: $form-label-color;
 	font-weight: $form-label-weight;
@@ -30,9 +31,14 @@ $form-label-color: #363636 !default;
 	flex-direction: column;
 	justify-items: flex-start;
 }
+
 .ui-f5-lbl-v {
 	display: inline-block;
 	min-width: $form-label-width;
+}
+
+.ui-fix-lbl-width .ui-f5-lbl-v {
+	max-width: $form-label-width;
 }
 
 .ui-f5-pair-v {

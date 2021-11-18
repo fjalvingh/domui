@@ -2,7 +2,8 @@
 @import "variables";
 
 /* AccessDeniedPage */
-.ui-acd-ttl {}
+.ui-acd-ttl {
+}
 
 /* InfoPanel FIXME Move to own file */
 .ui-ipa {
@@ -28,7 +29,7 @@ div.ui-ipa img {
 	-moz-border-radius: 10px;
 	border-radius: 10px;
 	-webkit-border-radius: 10px;
-	background: linear-gradient(0deg, rgba(218,239,244,1) 0%, rgba(151,212,233,1) 100%);
+	background: linear-gradient(0deg, rgba(218, 239, 244, 1) 0%, rgba(151, 212, 233, 1) 100%);
 	color: black;
 	max-width: 600px;
 }
@@ -43,11 +44,11 @@ div.ui-ipa img {
 }
 
 div.ui-asc div {
-	height:15px;
+	height: 15px;
 }
 
 /* SplitPanel (simple version) layout thingy */
-.ui-sp,.ui-sp-c {
+.ui-sp, .ui-sp-c {
 	vertical-align: top;
 }
 
@@ -63,6 +64,11 @@ div.ui-asc div {
 
 .ui-txt-b {
 	font-weight: bold;
+}
+
+.ui-flex-baseline {
+	display: flex;
+	align-items: baseline;
 }
 
 /* For printable div used style */
@@ -92,13 +98,13 @@ div.ui-asc div {
 
 /* We to ensure that body is taking whole page and we have to neutralize negative margins */
 body.ui-stretch-body {
-/*?	height: calc(100% - 2 * <%= margins_main %>); */
+	/*?	height: calc(100% - 2 * <%= margins_main %>); */
 }
 
 /*** Display data table ***/
 .ui-dd-table {
-/*?	font-size: <%= data_tbl_font_size %>; */
-/*?	margin-bottom: <%= margins_main %>; */
+	/*?	font-size: <%= data_tbl_font_size %>; */
+	/*?	margin-bottom: <%= margins_main %>; */
 	border: 1px solid #aaaaaa;
 	border-left: 0px;
 }
@@ -112,6 +118,7 @@ body.ui-stretch-body {
 .ui-dd-table > tbody > tr:nth-child(even) {
 	background-color: rgba(160, 160, 160, 0.2);
 }
+
 .ui-dd-table THEAD TH {
 	font-weight: bold;
 	padding: 3px;
@@ -133,18 +140,23 @@ table.ui-tbl-spaced td, tbody.ui-tbl-spaced td {
 .dso-remove-bottom-margin {
 	margin-bottom: 0px !important;
 }
+
 .dso-add-bottom-margin {
-/*?	margin-bottom: <%= margins_main %> !important; */
+	/*?	margin-bottom: <%= margins_main %> !important; */
 }
+
 .dso-remove-top-margin {
 	margin-top: 0px !important;
 }
-.dso-cell-with-text-and-input {}
+
+.dso-cell-with-text-and-input {
+}
 
 /** Default cursor */
 .ui-cur-default {
 	cursor: default !important;
 }
+
 .ui-color-link {
 	color: $link_color !important;
 }
