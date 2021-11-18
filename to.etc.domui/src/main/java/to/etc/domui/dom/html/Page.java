@@ -601,6 +601,10 @@ final public class Page implements IQContextContainer {
 		return initial + "_" + v;
 	}
 
+	public void dealocateTestId(@NonNull String testId) {
+		m_testIdMap.remove(testId);
+	}
+
 	public boolean isTestIDAllocated(@NonNull String id) {
 		return m_testIdMap.get(id) != null;
 	}

@@ -37,6 +37,7 @@ import to.etc.domui.dom.html.IClicked;
 import to.etc.domui.dom.html.IClicked2;
 import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.TBody;
 import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TH;
@@ -47,12 +48,15 @@ import to.etc.domui.dom.html.TextNode;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.DomUtil.IPerNode;
 import to.etc.domui.util.JavascriptUtil;
 import to.etc.domui.util.Msgs;
 import to.etc.util.DeveloperOptions;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static to.etc.util.ExceptionUtil.silentThrows;
 
 /**
  * DataTable which allows rendering of multiple rows per data element. Originally created
@@ -1133,5 +1137,26 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	}
 
 	@Override public void setHint(String hintText) {
+	}
+
+	@Override
+	public void onRemoveFromPage(Page p) {
+		super.onRemoveFromPage(p);
+		silentThrows(()->{
+			DomUtil.walkTree(this, new IPerNode() {
+				@Override
+				public Object before(@NonNull NodeBase n) throws Exception {
+					if(n != null && n.getTestID() != null) {
+						p.dealocateTestId(n.getTestID());
+					}
+					return null;
+				}
+
+				@Override
+				public Object after(@NonNull NodeBase n) throws Exception {
+					return null;
+				}
+			});
+		});
 	}
 }

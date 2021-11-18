@@ -2982,6 +2982,30 @@ public class StringTool {
 		return Character.toUpperCase(c) + name.substring(1).toLowerCase();
 	}
 
+	@NonNull
+	public static String strCapitalizedIntact(@NonNull String name) {
+		if(name.length() == 0)
+			return name;
+		char c = name.charAt(0);
+		return Character.toUpperCase(c) + name.substring(1);
+	}
+
+	@NonNull
+	public static String strDecapitlized(@NonNull String name) {
+		if(name.length() == 0)
+			return name;
+		char c = name.charAt(0);
+		return Character.toLowerCase(c) + name.substring(1).toLowerCase();
+	}
+
+	@NonNull
+	public static String strDecapitlizedIntact(@NonNull String name) {
+		if(name.length() == 0)
+			return name;
+		char c = name.charAt(0);
+		return Character.toLowerCase(c) + name.substring(1);
+	}
+
 	/**
 	 * Checks whether a given text is too big for the maximum varchar2 database field
 	 */
