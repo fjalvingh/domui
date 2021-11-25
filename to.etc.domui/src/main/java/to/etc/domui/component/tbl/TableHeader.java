@@ -13,8 +13,10 @@ import to.etc.domui.dom.html.TR;
  * Created on 1/26/15.
  */
 @NonNullByDefault
-abstract public class TableHeader extends TR {
-	@Override abstract public void createContent() throws Exception;
+public class TableHeader extends TR {
+	@Override
+	public void createContent() throws Exception {
+	}
 
 	public TH addHeader() {
 		TH th = new TH();
