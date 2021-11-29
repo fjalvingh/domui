@@ -4,6 +4,7 @@ import kotlin.reflect.KProperty1;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.binding.CalculatedBinding;
 import to.etc.domui.component.binding.StyleBinding;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -274,9 +275,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		if(cd.getSortHelper() != null)
 			return true;
 
-		if(null != cd.getSortProperty())
-			return true;
-		return false;
+		return null != cd.getSortProperty();
 	}
 
 	/**
@@ -385,7 +384,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		Div sp = sortSpans[index];
 		if(null == sp)
 			throw new IllegalStateException("Missing sort image for column " + scd);
-		switch(sortOrder){
+		switch(sortOrder) {
 			default:
 				sp.removeCssClass("ui-sort-a ui-sort-d");
 				sp.addCssClass("ui-sort-n");
@@ -533,23 +532,29 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			}
 			DisplaySpan<X> ds = new DisplaySpan<>(pmm.getActualType(), null);
 			cell.add(ds);
-			ds.bind().to(instance, pmm);                    // Bind value to model
+			if(cd.isRerenderOnBind()) {
+				CalculatedBinding.bindForced(ds, () -> pmm.getValue(instance));
+			} else {
+				ds.bind().to(instance, pmm);                    // Bind value to model
+			}
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
-				ds.setRenderer(new IRenderInto<X>() {
-					@Override
-					public void render(@NonNull NodeContainer node, @NonNull X object) throws Exception {
-						contentRenderer.render(node, object);
-					}
-
-					/**
-					 * Wrap the renderer so we can pass the "instance" to it.
-					 */
-					@Override
-					public void renderOpt(@NonNull NodeContainer node, @Nullable X object) throws Exception {
-						contentRenderer.renderOpt(node, object); //, instance);
-					}
-				});
+				ds.setRenderer(createContentRendererForSpan(contentRenderer));
+				//
+				//ds.setRenderer(new IRenderInto<X>() {
+				//	@Override
+				//	public void render(@NonNull NodeContainer node, @NonNull X object) throws Exception {
+				//		contentRenderer.render(node, object);
+				//	}
+				//
+				//	/**
+				//	 * Wrap the renderer, so we can pass the "instance" to it.
+				//	 */
+				//	@Override
+				//	public void renderOpt(@NonNull NodeContainer node, @Nullable X object) throws Exception {
+				//		contentRenderer.renderOpt(node, object); //, instance);
+				//	}
+				//});
 			} else {
 				if(converter != null) {
 					ds.setConverter(converter);
@@ -558,11 +563,54 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			applyNumericCssClass(cell, cd);
 		} else if(contentRenderer != null) {
 			//-- No property but a content renderer -> let it take care of binding itself as we cannot.
+			DisplaySpan<X> ds = new DisplaySpan<X>((Class<X>) getActualClass());
+			ds.setRenderer(createContentRendererForSpan(contentRenderer));
 			X value = cd.getColumnValue(instance);
-			contentRenderer.renderOpt(cell, value);
+			if(cd.isRerenderOnBind()) {
+				if(cd.isRerenderOnBind()) {
+					CalculatedBinding.bindForced(ds, () -> instance);
+				} else {
+					ds.setValue((X) instance);
+				}
+			} else {
+				ds.setValue(value);
+			}
+			cell.add(ds);
+			//contentRenderer.renderOpt(cell, value);
 		} else {
 			throw new IllegalStateException("? Don't know how to render " + cd);
 		}
+	}
+
+	public final static class StaticBindThing<X> {
+		@Nullable
+		private final X m_thing;
+
+		public StaticBindThing(@Nullable X thing) {
+			m_thing = thing;
+		}
+
+		@Nullable
+		public X getThing() {
+			return m_thing;
+		}
+	}
+
+	private <X> IRenderInto<X> createContentRendererForSpan(IRenderInto<X> contentRenderer) {
+		return new IRenderInto<X>() {
+			@Override
+			public void render(@NonNull NodeContainer node, @NonNull X object) throws Exception {
+				contentRenderer.render(node, object);
+			}
+
+			/**
+			 * Wrap the renderer, so we can pass the "instance" to it.
+			 */
+			@Override
+			public void renderOpt(@NonNull NodeContainer node, @Nullable X object) throws Exception {
+				contentRenderer.renderOpt(node, object); //, instance);
+			}
+		};
 	}
 
 	private void applyNumericCssClass(NodeContainer cell, ColumnDef<T, ?> cd) {

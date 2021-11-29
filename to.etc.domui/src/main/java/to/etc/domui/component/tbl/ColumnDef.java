@@ -91,6 +91,8 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private ColumnStyleBindingBuilder<I, T> m_columnStyleBinding;
 
+	private boolean m_rerenderOnBind;
+
 	ColumnDef(@NonNull ColumnList<I> cdl, @NonNull Class<T> valueClass) {
 		m_actualClass = valueClass;
 		m_columnType = valueClass;
@@ -255,7 +257,8 @@ final public class ColumnDef<I, T> {
 		return m_cellClicked;
 	}
 
-	@Nullable public Predicate<I> getShowCellClickedWhen() {
+	@Nullable
+	public Predicate<I> getShowCellClickedWhen() {
 		return m_showCellClickedWhen;
 	}
 
@@ -339,7 +342,6 @@ final public class ColumnDef<I, T> {
 		m_showCellClickedWhen = showWhen;
 		return this;
 	}
-
 
 	/**
 	 * Set the node content renderer.
@@ -481,6 +483,20 @@ final public class ColumnDef<I, T> {
 		return this;
 	}
 
+	public boolean isRerenderOnBind() {
+		return m_rerenderOnBind;
+	}
+
+	public ColumnDef<I, T> rerenderOnBind() {
+		m_rerenderOnBind = true;
+		return this;
+	}
+
+	public ColumnDef<I, T> rerenderOnBind(boolean yes) {
+		m_rerenderOnBind = yes;
+		return this;
+	}
+
 	/**
 	 * Return the control factory to create the control to use to show the column's value.
 	 */
@@ -498,6 +514,7 @@ final public class ColumnDef<I, T> {
 		ColumnStyleBindingBuilder<I, T> csb = new ColumnStyleBindingBuilder<I, T>(this, style);
 		return csb;
 	}
+
 	void styleBindingComplete(ColumnStyleBindingBuilder<I, T> csb) {
 		m_columnStyleBinding = csb;
 	}

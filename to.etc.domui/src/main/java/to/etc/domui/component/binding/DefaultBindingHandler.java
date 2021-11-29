@@ -15,8 +15,10 @@ import java.util.List;
  */
 @NonNullByDefault
 public class DefaultBindingHandler implements IBindingHandler {
-	static public final IBindingHandlerFactory	FACTORY = new IBindingHandlerFactory() {
-		@NonNull @Override public IBindingHandler getBindingHandler(@NonNull NodeBase node) {
+	static public final IBindingHandlerFactory FACTORY = new IBindingHandlerFactory() {
+		@NonNull
+		@Override
+		public IBindingHandler getBindingHandler(@NonNull NodeBase node) {
 			return new DefaultBindingHandler(node);
 		}
 	};
@@ -30,8 +32,6 @@ public class DefaultBindingHandler implements IBindingHandler {
 	/**
 	 * System helper method to move all bindings from control into the model (called at request start). This
 	 * detects all bindings that changed, and then moves them in the correct order.
-	 *
-	 * @throws Exception
 	 */
 	@Override
 	public void controlToModel() throws Exception {
@@ -52,9 +52,8 @@ public class DefaultBindingHandler implements IBindingHandler {
 	 *     <li>Deeper components <i>before</i> higher components</li>
 	 *     <li>Components earlier in DOM order earlier in the list (i.e. top to bottom)</li>
 	 * </ul>
-	 * @throws Exception
 	 */
-	private List<BindingValuePair<?>>  collectChangedBindings() throws Exception {
+	private List<BindingValuePair<?>> collectChangedBindings() throws Exception {
 		List<BindingValuePair<?>> result = new ArrayList<>();
 
 		DomUtil.walkTreeUndelegated(m_rootNode, new DomUtil.IPerNode() {
@@ -83,10 +82,8 @@ public class DefaultBindingHandler implements IBindingHandler {
 
 	/**
 	 * Move all bindings from model to control (called at request end). We move data from parent nodes
-	 * before the data for it's children is moved. This should allow components to use binding internally
+	 * before the data for its children is moved. This should allow components to use binding internally
 	 * too.
-	 *
-	 * @throws Exception
 	 */
 	@Override
 	public void modelToControl() throws Exception {

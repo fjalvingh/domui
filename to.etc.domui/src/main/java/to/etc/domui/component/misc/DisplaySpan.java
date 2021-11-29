@@ -72,10 +72,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		this(valueClass, null);
 	}
 
-	/**
-	 * @param valueClass
-	 * @param value
-	 */
 	public DisplaySpan(@NonNull Class<T> valueClass, @Nullable T value) {
 		m_valueClass = valueClass;
 		m_value = value;
@@ -86,7 +82,9 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		m_value = literal;
 	}
 
-	@NonNull @Override public Class<T> getActualType() {
+	@NonNull
+	@Override
+	public Class<T> getActualType() {
 		return m_valueClass;
 	}
 
@@ -95,7 +93,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	 * <ul>
 	 *	<li>If the value is null leave the cell with the "empty" value.</li>
 	 * </ul>If a converter is present it MUST convert the value, and it's result is shown.</li>
-	 * @see to.etc.domui.dom.html.NodeBase#createContent()
 	 */
 	@Override
 	public void createContent() throws Exception {
@@ -148,7 +145,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		 * will create a toString renderer if all else fails..
 		 */
 		IRenderInto<T> ncr = (IRenderInto<T>) MetaManager.createDefaultComboRenderer(null, cmm);
-		ncr.render( this, val);
+		ncr.render(this, val);
 		if(getChildCount() == 0 && m_emptyString != null)
 			setText(m_emptyString);
 	}
@@ -163,10 +160,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	}
 
 	/**
-	 * See {@link IConvertable#getConverter()}.
 	 * This returns null if no converter has been set. It also returns null if a default converter is used.
-	 *
-	 * @return
 	 */
 	@Override
 	@Nullable
@@ -174,10 +168,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		return m_converter;
 	}
 
-	/**
-	 * See {@link IConvertable#setConverter(IConverter)}.
-	 * @param converter
-	 */
 	@Override
 	public void setConverter(@Nullable IConverter<T> converter) {
 		if(m_renderer != null && converter != null)
@@ -187,7 +177,6 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 
 	/**
 	 * The content renderer to use. <b>This gets called only if no converter is set</b>.
-	 * @return
 	 */
 	@Nullable
 	public IRenderInto<T> getRenderer() {
@@ -215,19 +204,12 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IDisplayControl interface.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	@Nullable
 	public T getValue() {
 		return m_value;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.dom.html.IDisplayControl#setValue(java.lang.Object)
-	 */
 	@Override
 	public void setValue(@Nullable T v) {
 		if(DomUtil.isEqual(m_value, v)) {
@@ -238,28 +220,26 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		forceRebuild();
 	}
 
-	public void defineFrom(@NonNull PropertyMetaModel< ? > pmm) {
+	public void defineFrom(@NonNull PropertyMetaModel<?> pmm) {
 		UIControlUtil.configureHint(this, pmm);
 	}
 
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return null;
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IControl implementation.							*/
 	/*--------------------------------------------------------------*/
-	/**
-	 * {@inheritDoc}
-	 * @see to.etc.domui.dom.html.IHasChangeListener#getOnValueChanged()
-	 */
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IValueChanged<?> getOnValueChanged() {
 		return null;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		//FIXME 20120802 vmijic - currently we prevent exception throwing since it raises lot of issues in pages that are using this code, introduced by switching readonly instances of components by DisplayValue...
 		//throw new UnsupportedOperationException("Display control");
 	}
@@ -275,7 +255,8 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	}
 
 	@Override
-	public void setReadOnly(boolean ro) {}
+	public void setReadOnly(boolean ro) {
+	}
 
 	@Override
 	public boolean isDisabled() {
@@ -288,12 +269,15 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	}
 
 	@Override
-	public void setMandatory(boolean ro) {}
+	public void setMandatory(boolean ro) {
+	}
 
 	@Override
-	public void setDisabled(boolean d) {}
+	public void setDisabled(boolean d) {
+	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 }
