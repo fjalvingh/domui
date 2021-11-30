@@ -1,6 +1,7 @@
 package to.etc.domui.component.plotly.traces;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import to.etc.domui.util.javascript.JsonBuilder;
 
 import java.util.Date;
 
@@ -67,5 +68,13 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 	public PlTimeSeriesTrace name(String name) {
 		setName(name);
 		return this;
+	}
+
+	@Override
+	public void render(JsonBuilder b) throws Exception {
+		b.obj();
+		renderBase(b);
+
+		b.objEnd();
 	}
 }

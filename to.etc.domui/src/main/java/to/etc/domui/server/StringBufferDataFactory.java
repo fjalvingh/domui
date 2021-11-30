@@ -13,7 +13,7 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 30-11-21.
  */
-public class StringBufferDataFactory implements IDataFactory {
+public class StringBufferDataFactory implements IDataFactory, Appendable {
 	private final static int BUFFER_SIZE = 8192;
 
 	private final String m_contentType;
@@ -27,33 +27,6 @@ public class StringBufferDataFactory implements IDataFactory {
 	public StringBufferDataFactory(String contentType) {
 		m_contentType = contentType;
 		m_bufferList.add(new char[BUFFER_SIZE]);
-	}
-
-	public StringBufferDataFactory append(CharSequence cs) {
-		int len = cs.length();
-		int soff = 0;
-		while(len > 0) {
-			int remaining = BUFFER_SIZE - m_bufferOffset;
-			if(remaining == 0) {
-				m_bufferList.add(new char[BUFFER_SIZE]);
-				m_bufferIndex++;
-				m_bufferOffset = 0;
-				remaining = BUFFER_SIZE;
-			}
-
-			if(remaining > len) {
-				remaining = len;
-			}
-			char[] buf = m_bufferList.get(m_bufferIndex);
-			int off = m_bufferOffset;
-			int end = off + remaining;
-			while(off < end) {
-				buf[off++] = cs.charAt(soff++);
-			}
-			m_bufferOffset = off;
-			len -= remaining;
-		}
-		return this;
 	}
 
 	public void clear() {
@@ -76,5 +49,47 @@ public class StringBufferDataFactory implements IDataFactory {
 			outputWriter.write(chars);
 		}
 		outputWriter.write(m_bufferList.get(m_bufferList.size() - 1), 0, m_bufferOffset);
+	}
+
+	@Override
+	public StringBufferDataFactory append(CharSequence cs) {
+		return append(cs, 0, cs.length());
+	}
+
+	@Override
+	public StringBufferDataFactory append(CharSequence cs, int soff, int send) {
+		while(soff < send) {
+			int len = send - soff;
+			int remaining = BUFFER_SIZE - m_bufferOffset;
+			if(remaining == 0) {
+				m_bufferList.add(new char[BUFFER_SIZE]);
+				m_bufferIndex++;
+				m_bufferOffset = 0;
+				remaining = BUFFER_SIZE;
+			}
+
+			if(remaining > len) {
+				remaining = len;
+			}
+			char[] buf = m_bufferList.get(m_bufferIndex);
+			int off = m_bufferOffset;
+			int end = off + remaining;
+			while(off < end) {
+				buf[off++] = cs.charAt(soff++);
+			}
+			m_bufferOffset = off;
+		}
+		return this;
+	}
+
+	@Override
+	public Appendable append(char c) {
+		if(m_bufferOffset >= BUFFER_SIZE) {
+			m_bufferList.add(new char[BUFFER_SIZE]);
+			m_bufferIndex++;
+			m_bufferOffset = 0;
+		}
+		m_bufferList.get(m_bufferIndex)[m_bufferOffset++] = c;
+		return this;
 	}
 }

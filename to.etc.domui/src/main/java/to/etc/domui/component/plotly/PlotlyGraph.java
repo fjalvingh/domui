@@ -6,6 +6,7 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.server.StringBufferDataFactory;
 import to.etc.domui.state.IPageParameters;
+import to.etc.domui.util.javascript.JsonBuilder;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 
@@ -52,16 +53,24 @@ public class PlotlyGraph extends Div implements IComponentJsonProvider {
 		try(QDataContext dc = QContextManager.createUnmanagedContext()) {
 			IPlotlyDataset dataset = source.createDataset(dc);
 			StringBufferDataFactory sb = new StringBufferDataFactory("application/json");
-			renderDataset(sb, dataset);
+			JsonBuilder b = new JsonBuilder(sb);
+			renderDataset(b, dataset);
+			b.close();
 			return sb;
 		}
 	}
 
-	private void renderDataset(StringBufferDataFactory sb, IPlotlyDataset dataset) {
-		sb.append("{'data':[");
-		sb.append("], 'layout': {");
-		sb.append("}");
-		sb.append("}");
+	private void renderDataset(JsonBuilder b, IPlotlyDataset dataset) throws Exception {
+		b.obj();
+		b.objField("data");
+		b.array();
+		b.arrayEnd();
+
+		b.objField("layout");
+		b.obj();
+
+		b.objEnd();
+		b.objEnd();
 	}
 
 }
