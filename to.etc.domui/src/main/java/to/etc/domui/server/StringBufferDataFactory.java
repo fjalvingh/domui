@@ -92,4 +92,14 @@ public class StringBufferDataFactory implements IDataFactory, Appendable {
 		m_bufferList.get(m_bufferIndex)[m_bufferOffset++] = c;
 		return this;
 	}
+
+	public String asString() {
+		StringBuilder sb = new StringBuilder(length());
+		for(int i = 0; i < m_bufferList.size() - 1; i++) {
+			char[] chars = m_bufferList.get(i);
+			sb.append(chars);
+		}
+		sb.append(m_bufferList.get(m_bufferList.size() - 1), 0, m_bufferOffset);
+		return sb.toString();
+	}
 }

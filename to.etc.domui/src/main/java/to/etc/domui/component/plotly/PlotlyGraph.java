@@ -57,7 +57,9 @@ public class PlotlyGraph extends Div implements IComponentJsonProvider {
 			StringBufferDataFactory sb = new StringBufferDataFactory("text/json");
 			JsonBuilder b = new JsonBuilder(sb);
 			renderDataset(b, dataset);
+
 			b.close();
+			System.out.println(sb.asString());
 			return sb;
 		}
 	}

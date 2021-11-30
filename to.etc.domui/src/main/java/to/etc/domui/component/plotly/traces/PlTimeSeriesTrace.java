@@ -3,6 +3,9 @@ package to.etc.domui.component.plotly.traces;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.util.javascript.JsonBuilder;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -26,9 +29,22 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 
 	public PlTimeSeriesTrace add(long date, double value) {
 		grow(1);
-		int ix = m_size++;
-		m_valueAr[ix] = value;
-		m_timeAr[ix] = date;
+		int index = Arrays.binarySearch(m_timeAr, 0, m_size, date);
+		if(index < 0) {
+			index = -(index + 1);
+
+			//-- Make room at this index
+			for(int i = m_size; i > index; --i) {
+				m_timeAr[i] = m_timeAr[i - 1];
+				m_valueAr[i] = m_valueAr[i - 1];
+			}
+			m_timeAr[index] = date;
+			m_valueAr[index] = value;
+		} else {
+			//-- Date exists; add the values
+			m_valueAr[index] += value;
+		}
+		m_size++;
 		return this;
 	}
 
@@ -77,9 +93,10 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 
 		b.objField("x");
 		b.array();
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");			// Format for plotly times
 		for(int i = 0; i < m_size; i++) {
 			long l = m_timeAr[i];
-			b.item(l);
+			b.item(df.format(l));
 		}
 		b.arrayEnd();
 
