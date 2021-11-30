@@ -5,7 +5,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import to.etc.domui.component.meta.MetaProperty;
 import to.etc.domui.component.meta.YesNoType;
-import to.etc.domui.util.DomUtil;
 import to.etc.log.handler.EtcLogFormat;
 
 import java.util.ArrayList;
@@ -20,7 +19,7 @@ public class Handler {
 
 	public static final String pFILE = "file";
 
-	private String m_format;
+	private EtcLogFormat m_format = EtcLogFormat.DEFAULT;
 
 	public static final String pFORMAT = "format";
 
@@ -33,7 +32,6 @@ public class Handler {
 	public static final String pFILTERS = "filters";
 
 	public Handler(HandlerType type, String file) {
-		super();
 		m_type = type;
 		m_file = file;
 	}
@@ -58,11 +56,11 @@ public class Handler {
 
 	@MetaProperty(length = 150, required = YesNoType.NO, displaySize = 100)
 	public String getFormat() {
-		return m_format;
+		return m_format.getFormat();
 	}
 
 	public void setFormat(String format) {
-		m_format = format;
+		m_format = new EtcLogFormat(format, m_format.getTimeFormat());
 	}
 
 	public List<Matcher> getMatchers() {
@@ -94,11 +92,12 @@ public class Handler {
 		if(m_type != HandlerType.STDOUT) {
 			handlerNode.setAttribute("file", m_file);
 		}
-		if(!DomUtil.isBlank(getFormat()) && !EtcLogFormat.DEFAULT.equalsIgnoreCase(getFormat())) {
-			Element formatNode = doc.createElement("format");
-			handlerNode.appendChild(formatNode);
-			formatNode.setAttribute("pattern", getFormat());
-		}
+		//if(!DomUtil.isBlank(getFormat()) && !EtcLogFormat.DEFAULT.equalsIgnoreCase(getFormat())) {
+		Element formatNode = doc.createElement("format");
+		handlerNode.appendChild(formatNode);
+		formatNode.setAttribute("pattern", m_format.getFormat());                // Duplication
+		formatNode.setAttribute("timeformat", m_format.getTimeFormat());
+		//}
 		for(Matcher matcher : m_matchers) {
 			Element logNode = doc.createElement("log");
 			handlerNode.appendChild(logNode);

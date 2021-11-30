@@ -27,34 +27,34 @@ class FileLogHandler implements ILogHandler {
 	 * Defines where to write log output.
 	 */
 	@Nullable
-	private final String					m_out;
+	private final String m_out;
 
 	@Nullable
-	private final File						m_logRoot;
+	private final File m_logRoot;
 
 	/**
 	 * Defines matchers to calculate on which logger handler applies. To apply on logger, matcher closest to logger name must match with logEvent.
 	 */
 	@NonNull
-	private final List<LogMatcher>			m_matchers	= new ArrayList<LogMatcher>();
+	private final List<LogMatcher> m_matchers = new ArrayList<LogMatcher>();
 
 	/**
 	 * Defines filters on which handler applies. To apply on logger, all filters must be matched.
 	 */
 	@NonNull
-	private List<LogFilter>					m_filters	= Collections.EMPTY_LIST;
+	private List<LogFilter> m_filters = Collections.EMPTY_LIST;
 
 	/**
 	 * Keeps list of loggers that are marked as handled by handler.
 	 */
 	@NonNull
-	private final Map<EtcLogger, Boolean[]>	m_loggers	= new HashMap<EtcLogger, Boolean[]>();
+	private final Map<EtcLogger, Boolean[]> m_loggers = new HashMap<EtcLogger, Boolean[]>();
 
 	@NonNull
-	private final Object					m_writeLock	= new Object();
+	private final Object m_writeLock = new Object();
 
-	@Nullable
-	private EtcLogFormat					m_format	= null;
+	@NonNull
+	private EtcLogFormat m_format = EtcLogFormat.DEFAULT;
 
 	public FileLogHandler(@NonNull File logRoot, @Nullable String out) {
 		m_logRoot = logRoot;
@@ -101,7 +101,7 @@ class FileLogHandler implements ILogHandler {
 	}
 
 	private void log(@NonNull EtcLogEvent event) {
-		String line = EtcLogFormatter.format(event, m_format != null ? m_format.getFormat() : EtcLogFormat.DEFAULT, getLogPartFromFilters());
+		String line = m_format.format(event, getLogPartFromFilters());
 
 		synchronized(m_writeLock) {
 			if(m_out == null) {
@@ -210,17 +210,13 @@ class FileLogHandler implements ILogHandler {
 			} else if("filter".equals(node.getNodeName())) {
 				addFilter(LogFilter.createFromXml(node));
 			} else if("format".equals(node.getNodeName())) {
-				addFormat(EtcLogFormat.createFromXml(node));
+				setFormat(EtcLogFormat.createFromXml(node));
 			}
 		}
 	}
 
-	private void addFormat(@NonNull EtcLogFormat format) throws LoggerConfigException {
-		if(m_format != null) {
-			throw new EtcLoggerFactory.LoggerConfigException("Multiple format definitions found in log handler.");
-		} else {
-			m_format = format;
-		}
+	private void setFormat(@NonNull EtcLogFormat format) throws LoggerConfigException {
+		m_format = format;
 	}
 
 	@NonNull
