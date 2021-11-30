@@ -6,7 +6,7 @@
 //import WebUI from "domui.webui.util";
 
 namespace Plotly {
-	export declare function newPlot(id, data, layout);
+	export declare function newPlot(id, data, layout, config);
 }
 
 namespace WebUI {
@@ -532,7 +532,8 @@ namespace WebUI {
 			let data = response['data'];
 			let layout = response['layout'];
 			if(data != null && layout != null) {
-				Plotly.newPlot(id, data, layout);
+				let config = {responsive: true};
+				Plotly.newPlot(id, data, layout, config);
 			}
 		});
 	}

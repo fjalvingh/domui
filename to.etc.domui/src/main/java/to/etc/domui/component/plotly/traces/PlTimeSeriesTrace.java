@@ -27,6 +27,8 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 
 	private int m_size;
 
+	private TimeSeriesType m_timeType = TimeSeriesType.Date;
+
 	public PlTimeSeriesTrace add(long date, double value) {
 		grow(1);
 		int index = Arrays.binarySearch(m_timeAr, 0, m_size, date);
@@ -86,12 +88,22 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 		return this;
 	}
 
+	public PlTimeSeriesTrace dateTime() {
+		m_timeType = TimeSeriesType.DateTime;
+		return this;
+	}
+
+	public PlTimeSeriesTrace date() {
+		m_timeType = TimeSeriesType.Date;
+		return this;
+	}
+
 	@Override
 	public void render(JsonBuilder b) throws Exception {
 		renderBase(b);
 
 		b.objArrayField("x");
-		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");			// Format for plotly times
+		DateFormat df = new SimpleDateFormat(m_timeType == TimeSeriesType.DateTime ? "yyyy-MM-dd HH:mm:ss" : "yyyy-MM-dd");			// Format for plotly times
 		for(int i = 0; i < m_size; i++) {
 			long l = m_timeAr[i];
 			b.item(df.format(l));

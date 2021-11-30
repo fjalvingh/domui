@@ -6,6 +6,7 @@ import to.etc.domui.component.plotly.IPlotlyDataset;
 import to.etc.domui.component.plotly.PlotlyDataSet;
 import to.etc.domui.component.plotly.PlotlyGraph;
 import to.etc.domui.component.plotly.traces.PlTimeSeriesTrace;
+import to.etc.domui.component.plotly.traces.TraceMode;
 import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.UrlPage;
@@ -44,7 +45,7 @@ public class Plotly1 extends UrlPage {
 				.collect(Collectors.groupingBy(this::getMonth, Collectors.toList()));
 			;
 
-			PlTimeSeriesTrace invoices = ds.addTimeSeries("Invoices");
+			PlTimeSeriesTrace invoices = ds.addTimeSeries("Invoices").mode(TraceMode.MarkersAndLines);
 			perMonth.forEach((date, invoice) -> invoices.add(date, invoices.getSize()));
 
 			//-- Second series of tracks per month
