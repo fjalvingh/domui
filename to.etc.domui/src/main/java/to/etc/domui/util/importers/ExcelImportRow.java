@@ -5,6 +5,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.DateUtil;
 import to.etc.webapp.query.QNotFoundException;
 
 import java.math.BigDecimal;
@@ -115,7 +116,7 @@ public class ExcelImportRow implements IImportRow {
 
 					case NUMERIC:
 						try {
-							SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+							SimpleDateFormat sdf = new SimpleDateFormat(DateUtil.DATE_MASK);
 							return sdf.format(m_cell.getDateCellValue());
 						} catch(Exception e) {
 							return m_row.m_rr.convertDouble(m_cell.getNumericCellValue());
