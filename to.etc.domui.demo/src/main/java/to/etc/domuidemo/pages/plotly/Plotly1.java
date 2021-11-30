@@ -56,7 +56,7 @@ public class Plotly1 extends UrlPage {
 			});
 
 			ds.xAxis().title("Time");
-			ds.title("Sales over time");
+			ds.title("Sales over time").titleFont().size(25).color("#ff00ff");
 
 			return ds;
 		}
