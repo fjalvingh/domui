@@ -26,6 +26,10 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	private PlFont m_titleFont = new PlFont();
 
+	private Boolean m_showLegend;
+
+	private boolean m_legendHorizontal;
+
 	public PlTimeSeriesTrace	addTimeSeries(String name) {
 		PlTimeSeriesTrace tst = new PlTimeSeriesTrace().name(name);
 		m_traceList.add(tst);
@@ -48,6 +52,12 @@ public class PlotlyDataSet implements IPlotlyDataset {
 		if(! m_titleFont.isEmpty()) {
 			b.objObjField("titlefont");
 			m_titleFont.render(b);
+			b.objEnd();
+		}
+		b.objField("showlegend", m_showLegend);
+		if(m_legendHorizontal) {
+			b.objObjField("legend");
+			b.objField("orientation", "h");
 			b.objEnd();
 		}
 
@@ -78,6 +88,16 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	public PlFont titleFont() {
 		return m_titleFont;
+	}
+
+	public PlotlyDataSet showLegend(boolean on) {
+		m_showLegend = on;
+		return this;
+	}
+
+	public PlotlyDataSet legendHorizontal() {
+		m_legendHorizontal = true;
+		return this;
 	}
 
 	static public void renderColor(JsonBuilder b, String field, String color) throws IOException {
