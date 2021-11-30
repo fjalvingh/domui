@@ -68,6 +68,12 @@ public class JsonBuilder implements AutoCloseable {
 		return this;
 	}
 
+	public JsonBuilder objFieldOpt(String fieldName, @Nullable String value) throws IOException {
+		if(value != null)
+			objField(fieldName, value);
+		return this;
+	}
+
 	public JsonBuilder objField(String fieldName, @Nullable String value) throws IOException {
 		ensureObject();
 		next();
@@ -86,6 +92,17 @@ public class JsonBuilder implements AutoCloseable {
 		return this;
 	}
 
+	public JsonBuilder objField(String fieldName, Integer value) throws IOException {
+		if(null == value)
+			return this;
+		ensureObject();
+		next();
+		string(fieldName);
+		m_sb.append(':');
+		m_sb.append(value.toString());
+		return this;
+	}
+
 	public JsonBuilder objField(String fieldName, long value) throws IOException {
 		ensureObject();
 		next();
@@ -95,12 +112,43 @@ public class JsonBuilder implements AutoCloseable {
 		return this;
 	}
 
+	public JsonBuilder objField(String fieldName, Long value) throws IOException {
+		if(null == value)
+			return this;
+		ensureObject();
+		next();
+		string(fieldName);
+		m_sb.append(':');
+		m_sb.append(value.toString());
+		return this;
+	}
+
 	public JsonBuilder objField(String fieldName, double value) throws IOException {
 		ensureObject();
 		next();
 		string(fieldName);
 		m_sb.append(':');
 		m_sb.append(Double.toString(value));
+		return this;
+	}
+
+	public JsonBuilder objField(String fieldName, boolean value) throws IOException {
+		ensureObject();
+		next();
+		string(fieldName);
+		m_sb.append(':');
+		m_sb.append(Boolean.toString(value));
+		return this;
+	}
+
+	public JsonBuilder objField(String fieldName, Boolean value) throws IOException {
+		if(null == value)
+			return this;
+		ensureObject();
+		next();
+		string(fieldName);
+		m_sb.append(':');
+		m_sb.append(value.toString());
 		return this;
 	}
 

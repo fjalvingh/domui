@@ -55,6 +55,9 @@ public class Plotly1 extends UrlPage {
 				tracks.add(date, sum);
 			});
 
+			ds.xAxis().title("Time");
+			ds.title("Sales over time");
+
 			return ds;
 		}
 

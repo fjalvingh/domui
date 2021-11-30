@@ -1,10 +1,12 @@
 package to.etc.domui.component.plotly;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.plotly.layout.PlAxis;
 import to.etc.domui.component.plotly.traces.IPlotlyTrace;
 import to.etc.domui.component.plotly.traces.PlTimeSeriesTrace;
 import to.etc.domui.util.javascript.JsonBuilder;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,12 @@ import java.util.List;
  */
 public class PlotlyDataSet implements IPlotlyDataset {
 	private List<IPlotlyTrace> m_traceList = new ArrayList<>();
+
+	private PlAxis m_xAxis = new PlAxis();
+
+	private PlAxis m_yAxis = new PlAxis();
+
+	private String m_title;
 
 	public PlTimeSeriesTrace	addTimeSeries(String name) {
 		PlTimeSeriesTrace tst = new PlTimeSeriesTrace().name(name);
@@ -33,8 +41,38 @@ public class PlotlyDataSet implements IPlotlyDataset {
 		b.arrayEnd();
 
 		b.objObjField("layout");
+		b.objFieldOpt("title", m_title);
 
-		b.objEnd();
-		b.objEnd();
+		b.objObjField("xaxis");
+		m_xAxis.render(b);
+		b.objEnd();						// xaxis
+
+		b.objObjField("yaxis");
+		m_yAxis.render(b);
+		b.objEnd();						// xaxis
+
+		b.objEnd();				// layout
+		b.objEnd();				// root object
+	}
+
+	public PlAxis xAxis() {
+		return m_xAxis;
+	}
+
+	public PlAxis yAxis() {
+		return m_yAxis;
+	}
+
+	public PlotlyDataSet title(String title) {
+		m_title = title;
+		return this;
+	}
+
+	static public void renderColor(JsonBuilder b, String field, String color) throws IOException {
+		if(null == color || color.length() == 0)
+			return;
+		if(! color.startsWith("#"))
+			color = "#" + color;
+		b.objField(field, color);
 	}
 }
