@@ -36,19 +36,35 @@ public class JsonBuilder implements AutoCloseable {
 	}
 
 	public JsonBuilder obj() throws IOException {
+		if(m_stack.size() != 0) {
+			throw new IllegalStateException("Only valid as 1st item");
+		}
 		push(Stacked.Object);
 		m_sb.append('{');
 		return this;
 	}
 
 	/**
-	 * Starts a field for an object without a value part; the next call must define the value.
+	 * Starts a field for an object which defines an object
 	 */
-	public JsonBuilder objField(String fieldName) throws IOException {
+	public JsonBuilder objObjField(String fieldName) throws IOException {
 		ensureObject();
 		next();
 		string(fieldName);
-		m_sb.append(':');
+		m_sb.append(":{");
+		push(Stacked.Object);
+		return this;
+	}
+
+	/**
+	 * Create an object field of type array.
+	 */
+	public JsonBuilder objArrayField(String fieldName) throws Exception {
+		ensureObject();
+		next();
+		string(fieldName);
+		m_sb.append(":[");
+		push(Stacked.Array);
 		return this;
 	}
 
@@ -105,6 +121,9 @@ public class JsonBuilder implements AutoCloseable {
 	}
 
 	public JsonBuilder array() throws IOException {
+		if(m_stack.size() != 0) {
+			throw new IllegalStateException("Only valid as 1st item");
+		}
 		push(Stacked.Array);
 		m_sb.append('[');
 		return this;
@@ -113,6 +132,22 @@ public class JsonBuilder implements AutoCloseable {
 	public JsonBuilder arrayEnd() throws IOException {
 		pop(Stacked.Array);
 		m_sb.append(']');
+		return this;
+	}
+
+	public JsonBuilder itemArray() throws IOException {
+		ensureArray();
+		next();
+		m_sb.append('[');
+		push(Stacked.Array);
+		return this;
+	}
+
+	public JsonBuilder itemObj() throws IOException {
+		ensureArray();
+		next();
+		m_sb.append('{');
+		push(Stacked.Object);
 		return this;
 	}
 

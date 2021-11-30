@@ -24,15 +24,15 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	@Override
 	public void render(@NonNull JsonBuilder b) throws Exception {
 		b.obj();
-		b.objField("data");
-		b.array();
+		b.objArrayField("data");
 		for(IPlotlyTrace trace : m_traceList) {
+			b.itemObj();
 			trace.render(b);
+			b.objEnd();
 		}
 		b.arrayEnd();
 
-		b.objField("layout");
-		b.obj();
+		b.objObjField("layout");
 
 		b.objEnd();
 		b.objEnd();

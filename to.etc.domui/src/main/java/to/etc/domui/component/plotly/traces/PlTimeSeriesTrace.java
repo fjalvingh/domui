@@ -88,11 +88,9 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 
 	@Override
 	public void render(JsonBuilder b) throws Exception {
-		b.obj();
 		renderBase(b);
 
-		b.objField("x");
-		b.array();
+		b.objArrayField("x");
 		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");			// Format for plotly times
 		for(int i = 0; i < m_size; i++) {
 			long l = m_timeAr[i];
@@ -100,14 +98,11 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 		}
 		b.arrayEnd();
 
-		b.objField("y");
-		b.array();
+		b.objArrayField("y");
 		for(int i = 0; i < m_size; i++) {
 			double l = m_valueAr[i];
 			b.item(l);
 		}
 		b.arrayEnd();
-
-		b.objEnd();
 	}
 }

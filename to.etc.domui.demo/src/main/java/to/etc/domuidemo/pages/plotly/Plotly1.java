@@ -46,6 +46,14 @@ public class Plotly1 extends UrlPage {
 
 			PlTimeSeriesTrace invoices = ds.addTimeSeries("Invoices");
 			perMonth.forEach((date, invoice) -> invoices.add(date, invoices.getSize()));
+
+			//-- Second series of tracks per month
+			PlTimeSeriesTrace tracks = ds.addTimeSeries("Tracks");
+			perMonth.forEach((date, invoice) -> {
+				Integer sum = invoice.stream().map(a -> a.getInvoiceLines().size()).reduce(0, Integer::sum);
+				tracks.add(date, sum);
+			});
+
 			return ds;
 		}
 
