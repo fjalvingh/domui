@@ -24,7 +24,6 @@ import to.etc.domui.themes.Theme;
 import to.etc.domui.util.Msgs;
 import to.etc.log.EtcLoggerFactory;
 import to.etc.log.Level;
-import to.etc.log.handler.EtcLogFormat;
 import to.etc.log.handler.LogFilterType;
 import to.etc.webapp.nls.BundleRef;
 
@@ -112,9 +111,6 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 			} else if("format".equals(node.getNodeName())) {
 				handler.setFormat(loadFormat(node));
 			}
-		}
-		if(handler.getFormat() == null) {
-			handler.setFormat(EtcLogFormat.DEFAULT);
 		}
 		return handler;
 	}

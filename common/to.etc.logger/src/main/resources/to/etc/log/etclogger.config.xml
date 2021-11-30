@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config logLocation="%user.home%/logs">
    <handler type="stdout">
-      <format pattern="%d %p %mdc{loginId} %t [%l] %msg"/>
+<!--      <format pattern="%d %p %mdc{loginId} %t [%l] %msg" timeformat="DD/HH:mm:ss"/>-->
+      <format pattern="%d %p %msg" timeformat="dd/HH:mm:ss"/>
       <log level="WARN" name=""/>
       <log level="NONE" name="org.hibernate.orm.deprecation"/>
       <log level="NONE" name="org.hibernate.internal.SessionImpl"/>

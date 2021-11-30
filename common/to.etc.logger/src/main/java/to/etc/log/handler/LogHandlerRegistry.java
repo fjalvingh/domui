@@ -23,30 +23,25 @@ public class LogHandlerRegistry {
 	/**
 	 * Factory for {@link ILogHandler} instance.
 	 *
-	 *
 	 * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
 	 * Created on Nov 8, 2012
 	 */
 	public interface ILogHandlerFactory {
 		/**
 		 * Creates {@link ILogHandler} from specified xml definition. Uses logDir as preferred location for created log outputs, if such are created by handler.
-		 * @param logDir
-		 * @param handlerNode
-		 * @return
-		 * @throws LoggerConfigException
 		 */
 		@NonNull
 		ILogHandler createInstance(@NonNull File logDir, @NonNull Node handlerNode) throws LoggerConfigException;
 	}
 
 	@NonNull
-	private final Map<String, ILogHandlerFactory>	m_makerRegistry	= new HashMap<String, ILogHandlerFactory>();
+	private final Map<String, ILogHandlerFactory> m_makerRegistry = new HashMap<String, ILogHandlerFactory>();
 
 	/**
 	 * The unique instance of this class.
 	 */
 	@NonNull
-	private static final LogHandlerRegistry		SINGLETON		= new LogHandlerRegistry();
+	private static final LogHandlerRegistry SINGLETON = new LogHandlerRegistry();
 
 	/**
 	 * Return the singleton of this class.
@@ -60,8 +55,6 @@ public class LogHandlerRegistry {
 
 	/**
 	 * Register {@link ILogHandlerFactory} for specified String type.
-	 * @param type
-	 * @param handlerFactory
 	 */
 	public synchronized void register(@NonNull String type, @NonNull ILogHandlerFactory handlerFactory) {
 		m_makerRegistry.put(type, handlerFactory);
@@ -85,11 +78,6 @@ public class LogHandlerRegistry {
 	/**
 	 * Creates {@link ILogHandler} instance based on registered factory for specified type.
 	 * NOTE: this should not be used directly - meant to be used only internally by {@link EtcLoggerFactory}. But left public since logger factory is not in same package.
-	 * @param type
-	 * @param logDir
-	 * @param handlerNode
-	 * @return
-	 * @throws LoggerConfigException
 	 */
 	@NonNull
 	public synchronized ILogHandler createHandler(@NonNull String type, @NonNull File logDir, @NonNull Node handlerNode) throws LoggerConfigException {
@@ -104,10 +92,6 @@ public class LogHandlerRegistry {
 	/**
 	 * Creates default handler.
 	 * NOTE: this should not be used directly - meant to be used only internally by {@link EtcLoggerFactory}. But left public since logger factory is not in same package.
-	 *
-	 * @param rootDir
-	 * @param level
-	 * @return
 	 */
 	@NonNull
 	public ILogHandler createDefaultHandler(@NonNull File rootDir, @NonNull Level level) {
