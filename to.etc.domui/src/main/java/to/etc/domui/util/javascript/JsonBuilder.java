@@ -36,7 +36,6 @@ public class JsonBuilder implements AutoCloseable {
 	}
 
 	public JsonBuilder obj() throws IOException {
-		next();
 		push(Stacked.Object);
 		m_sb.append('{');
 		return this;
@@ -106,7 +105,6 @@ public class JsonBuilder implements AutoCloseable {
 	}
 
 	public JsonBuilder array() throws IOException {
-		next();
 		push(Stacked.Array);
 		m_sb.append('[');
 		return this;

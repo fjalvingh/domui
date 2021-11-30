@@ -1,0 +1,62 @@
+package to.etc.domuidemo.pages.plotly;
+
+import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.plotly.IPlotlyDataSource;
+import to.etc.domui.component.plotly.IPlotlyDataset;
+import to.etc.domui.component.plotly.PlotlyDataSet;
+import to.etc.domui.component.plotly.PlotlyGraph;
+import to.etc.domui.component.plotly.traces.PlTimeSeriesTrace;
+import to.etc.domui.derbydata.db.Invoice;
+import to.etc.domui.dom.html.HTag;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.util.DateUtil;
+import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QDataContext;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+/**
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on 30-11-21.
+ */
+public class Plotly1 extends UrlPage {
+	@Override
+	public void createContent() throws Exception {
+		PlotlyGraph.initialize(this);
+		add(new HTag(1, "A Plotly graph"));
+
+		PlotlyGraph graph = new PlotlyGraph();
+		add(graph);
+		graph.setHeight("500px");
+		graph.setSource(new PlotlySource1());
+	}
+
+	static public final class PlotlySource1 implements IPlotlyDataSource {
+		@NonNull
+		@Override
+		public IPlotlyDataset createDataset(@NonNull QDataContext dc) throws Exception {
+			PlotlyDataSet ds = new PlotlyDataSet();
+			Map<Date, List<Invoice>> perMonth = dc.query(QCriteria.create(Invoice.class)).stream()
+				.collect(Collectors.groupingBy(this::getMonth, Collectors.toList()));
+			;
+
+			PlTimeSeriesTrace invoices = ds.addTimeSeries("Invoices");
+			perMonth.forEach((date, invoice) -> invoices.add(date, invoices.getSize()));
+			return ds;
+		}
+
+		private Date getMonth(Invoice i) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(i.getInvoiceDate());
+			DateUtil.clearTime(cal);
+			cal.set(Calendar.DAY_OF_MONTH, 1);
+			return cal.getTime();
+		}
+	}
+
+
+}

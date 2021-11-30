@@ -47,6 +47,7 @@ import to.etc.domuidemo.pages.overview.misc.DemoMsgBox;
 import to.etc.domuidemo.pages.overview.misc.SvgIconPage;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
 import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
+import to.etc.domuidemo.pages.plotly.Plotly1;
 import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
 import to.etc.domuidemo.pages.special.ace.AcePage;
 
@@ -154,5 +155,9 @@ public class ComponentListPage extends MenuPage {
 		f.addLink(DemoObservableListPage.class, "Database relation IObservableList binding");
 		f.addLink(EditableTablePage.class, "Editable table using data binding and a model");
 		//f.addLink(InvoiceListPage.class, "Editable table using data binding and a model");
+
+		f = new ListFragment("Plotly");
+		main.add(f);
+		f.addLink(Plotly1.class, "Plotly time series demo");
 	}
 }

@@ -75,6 +75,22 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 		b.obj();
 		renderBase(b);
 
+		b.objField("x");
+		b.array();
+		for(int i = 0; i < m_size; i++) {
+			long l = m_timeAr[i];
+			b.item(l);
+		}
+		b.arrayEnd();
+
+		b.objField("y");
+		b.array();
+		for(int i = 0; i < m_size; i++) {
+			double l = m_valueAr[i];
+			b.item(l);
+		}
+		b.arrayEnd();
+
 		b.objEnd();
 	}
 }

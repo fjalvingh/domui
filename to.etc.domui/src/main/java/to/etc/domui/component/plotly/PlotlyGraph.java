@@ -2,7 +2,9 @@ package to.etc.domui.component.plotly;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.server.StringBufferDataFactory;
 import to.etc.domui.state.IPageParameters;
@@ -52,7 +54,7 @@ public class PlotlyGraph extends Div implements IComponentJsonProvider {
 
 		try(QDataContext dc = QContextManager.createUnmanagedContext()) {
 			IPlotlyDataset dataset = source.createDataset(dc);
-			StringBufferDataFactory sb = new StringBufferDataFactory("application/json");
+			StringBufferDataFactory sb = new StringBufferDataFactory("text/json");
 			JsonBuilder b = new JsonBuilder(sb);
 			renderDataset(b, dataset);
 			b.close();
@@ -61,16 +63,11 @@ public class PlotlyGraph extends Div implements IComponentJsonProvider {
 	}
 
 	private void renderDataset(JsonBuilder b, IPlotlyDataset dataset) throws Exception {
-		b.obj();
-		b.objField("data");
-		b.array();
-		b.arrayEnd();
+		dataset.render(b);
+	}
 
-		b.objField("layout");
-		b.obj();
-
-		b.objEnd();
-		b.objEnd();
+	static public final void initialize(NodeContainer what) {
+		what.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdn.plot.ly/plotly-latest.min.js"), 10);
 	}
 
 }

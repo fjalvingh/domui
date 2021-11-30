@@ -1,7 +1,9 @@
 package to.etc.domui.component.plotly;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.plotly.traces.IPlotlyTrace;
 import to.etc.domui.component.plotly.traces.PlTimeSeriesTrace;
+import to.etc.domui.util.javascript.JsonBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +21,20 @@ public class PlotlyDataSet implements IPlotlyDataset {
 		return tst;
 	}
 
+	@Override
+	public void render(@NonNull JsonBuilder b) throws Exception {
+		b.obj();
+		b.objField("data");
+		b.array();
+		for(IPlotlyTrace trace : m_traceList) {
+			trace.render(b);
+		}
+		b.arrayEnd();
 
+		b.objField("layout");
+		b.obj();
 
-
+		b.objEnd();
+		b.objEnd();
+	}
 }
