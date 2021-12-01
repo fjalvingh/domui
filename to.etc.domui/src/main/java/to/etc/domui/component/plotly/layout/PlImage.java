@@ -18,6 +18,8 @@ import java.io.IOException;
  * coordinate for an image for it to be visible; that top would be (0, 1) normally.
  * </p>
  *
+ * See here for some details: https://stackoverflow.com/questions/50111539/plotly-background-images
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 01-12-21.
  */

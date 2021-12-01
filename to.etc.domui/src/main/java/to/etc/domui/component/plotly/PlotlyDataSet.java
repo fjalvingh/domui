@@ -2,9 +2,11 @@ package to.etc.domui.component.plotly;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.plotly.layout.PlAxis;
+import to.etc.domui.component.plotly.layout.PlBarMode;
 import to.etc.domui.component.plotly.layout.PlFont;
 import to.etc.domui.component.plotly.layout.PlImage;
 import to.etc.domui.component.plotly.traces.IPlotlyTrace;
+import to.etc.domui.component.plotly.traces.PlLabelValueTrace;
 import to.etc.domui.component.plotly.traces.PlTimeSeriesTrace;
 import to.etc.domui.util.javascript.JsonBuilder;
 
@@ -31,12 +33,20 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	private boolean m_legendHorizontal;
 
+	private PlBarMode m_barMode;
+
 	final private List<PlImage> m_imageList = new ArrayList<>(4);
 
 	public PlTimeSeriesTrace	addTimeSeries(String name) {
 		PlTimeSeriesTrace tst = new PlTimeSeriesTrace().name(name);
 		m_traceList.add(tst);
 		return tst;
+	}
+
+	public PlLabelValueTrace addLabeledSeries(String name) {
+		PlLabelValueTrace t = new PlLabelValueTrace().name(name);
+		m_traceList.add(t);
+		return t;
 	}
 
 	@Override
@@ -52,6 +62,9 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 		b.objObjField("layout");
 		b.objFieldOpt("title", m_title);
+		PlBarMode barMode = m_barMode;
+		if(barMode != null)
+			b.objField("barmode", barMode.name().toLowerCase());
 		if(! m_titleFont.isEmpty()) {
 			b.objObjField("titlefont");
 			m_titleFont.render(b);
@@ -117,6 +130,11 @@ public class PlotlyDataSet implements IPlotlyDataset {
 		PlImage image = new PlImage();
 		m_imageList.add(image);
 		return image;
+	}
+
+	public PlotlyDataSet barMode(PlBarMode mode) {
+		m_barMode = mode;
+		return this;
 	}
 
 	static public void renderColor(JsonBuilder b, String field, String color) throws IOException {

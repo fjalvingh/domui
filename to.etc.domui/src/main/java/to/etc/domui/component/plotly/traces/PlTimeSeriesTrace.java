@@ -117,4 +117,9 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 		}
 		b.arrayEnd();
 	}
+
+	public PlTimeSeriesTrace type(TraceType type) {
+		super.setType(type);
+		return this;
+	}
 }
