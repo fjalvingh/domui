@@ -3,6 +3,7 @@ package to.etc.domui.component.plotly;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.component.plotly.layout.PlAxis;
 import to.etc.domui.component.plotly.layout.PlFont;
+import to.etc.domui.component.plotly.layout.PlImage;
 import to.etc.domui.component.plotly.traces.IPlotlyTrace;
 import to.etc.domui.component.plotly.traces.PlTimeSeriesTrace;
 import to.etc.domui.util.javascript.JsonBuilder;
@@ -29,6 +30,8 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	private Boolean m_showLegend;
 
 	private boolean m_legendHorizontal;
+
+	final private List<PlImage> m_imageList = new ArrayList<>(4);
 
 	public PlTimeSeriesTrace	addTimeSeries(String name) {
 		PlTimeSeriesTrace tst = new PlTimeSeriesTrace().name(name);
@@ -59,6 +62,16 @@ public class PlotlyDataSet implements IPlotlyDataset {
 			b.objObjField("legend");
 			b.objField("orientation", "h");
 			b.objEnd();
+		}
+
+		if(m_imageList.size() > 0) {
+			b.objArrayField("images");
+			for(PlImage image : m_imageList) {
+				b.itemObj();
+				image.render(b);
+				b.objEnd();
+			}
+			b.arrayEnd();
 		}
 
 		b.objObjField("xaxis");
@@ -98,6 +111,12 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	public PlotlyDataSet legendHorizontal() {
 		m_legendHorizontal = true;
 		return this;
+	}
+
+	public PlImage image() {
+		PlImage image = new PlImage();
+		m_imageList.add(image);
+		return image;
 	}
 
 	static public void renderColor(JsonBuilder b, String field, String color) throws IOException {

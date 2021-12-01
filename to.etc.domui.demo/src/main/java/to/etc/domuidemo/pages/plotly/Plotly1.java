@@ -32,7 +32,7 @@ public class Plotly1 extends UrlPage {
 
 		PlotlyGraph graph = new PlotlyGraph();
 		add(graph);
-		graph.setHeight("500px");
+		graph.setHeight("1000px");
 		graph.setSource(new PlotlySource1());
 	}
 
@@ -57,7 +57,7 @@ public class Plotly1 extends UrlPage {
 
 			ds.xAxis().title("Time");
 			ds.title("Sales over time").titleFont().size(25).color("#ff00ff");
-
+			ds.image().bgImage("img/plotly-logo.png", 0.3, 1.0, 0.1);
 			return ds;
 		}
 
