@@ -8,6 +8,7 @@ import to.etc.domui.component.plotly.PlotlyDataSet;
 import to.etc.domui.component.plotly.PlotlyGraph;
 import to.etc.domui.component.plotly.traces.PlLabelValueTrace;
 import to.etc.domui.component.plotly.traces.PlPieTrace;
+import to.etc.domui.component.plotly.traces.PlTextPosition;
 import to.etc.domui.derbydata.db.Employee;
 import to.etc.domui.derbydata.db.Invoice;
 import to.etc.domui.dom.css.DisplayType;
@@ -57,10 +58,6 @@ public class PlotlyPie1 extends UrlPage {
 		graph.setWidth("600px");
 		graph.setDisplay(DisplayType.INLINE_BLOCK);
 		graph.setSource(new PlotlyManyPies());
-
-
-
-
 	}
 
 	/**
@@ -90,6 +87,10 @@ public class PlotlyPie1 extends UrlPage {
 			if(m_hole > 0.0) {
 				// Let's add an annotation inside that hole...
 				ds.addAnnotation(0.5, 0.5, "Team").font().size(20).color("#99aaff");
+
+				//-- And let's take the texts outside
+				pie.autoMargin().textPosition(PlTextPosition.Outside);
+
 			}
 			return ds;
 		}
