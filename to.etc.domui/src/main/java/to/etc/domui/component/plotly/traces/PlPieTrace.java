@@ -9,6 +9,8 @@ import to.etc.domui.util.javascript.JsonBuilder;
  * Created on 02-12-21.
  */
 public class PlPieTrace extends AbstractLabelValueTrace<PlPieTrace> {
+	private double m_hole;
+
 	public PlPieTrace() {
 		setType(TraceType.Pie);
 	}
@@ -30,10 +32,26 @@ public class PlPieTrace extends AbstractLabelValueTrace<PlPieTrace> {
 			b.item(l);
 		}
 		b.arrayEnd();
+		if(m_hole > 0.0D) {
+			b.objField("hole", m_hole);
+		}
 	}
 
 	public PlPieTrace type(TraceType type) {
 		super.setType(type);
+		return this;
+	}
+
+	public double getHole() {
+		return m_hole;
+	}
+
+	/**
+	 * Set to a value between 0 and 1, this defines a hole inside the pie chart, turning
+	 * it into a donut chart.
+	 */
+	public PlPieTrace hole(double hole) {
+		m_hole = hole;
 		return this;
 	}
 }

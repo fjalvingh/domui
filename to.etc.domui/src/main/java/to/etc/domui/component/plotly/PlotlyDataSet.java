@@ -1,6 +1,7 @@
 package to.etc.domui.component.plotly;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.domui.component.plotly.layout.PlAnnotation;
 import to.etc.domui.component.plotly.layout.PlAxis;
 import to.etc.domui.component.plotly.layout.PlBarMode;
 import to.etc.domui.component.plotly.layout.PlFont;
@@ -22,6 +23,10 @@ import java.util.List;
 public class PlotlyDataSet implements IPlotlyDataset {
 	private List<IPlotlyTrace> m_traceList = new ArrayList<>();
 
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Layout object properties.									*/
+	/*----------------------------------------------------------------------*/
+
 	private PlAxis m_xAxis = new PlAxis();
 
 	private PlAxis m_yAxis = new PlAxis();
@@ -37,6 +42,8 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	private PlBarMode m_barMode;
 
 	final private List<PlImage> m_imageList = new ArrayList<>(4);
+
+	final private List<PlAnnotation> m_annotationList = new ArrayList<>(4);
 
 	/**
 	 * Add a time series trace, where every pair is a [date, value]. The date
@@ -114,6 +121,16 @@ public class PlotlyDataSet implements IPlotlyDataset {
 		m_yAxis.render(b);
 		b.objEnd();						// xaxis
 
+		if(m_annotationList.size() > 0) {
+			b.objArrayField("annotations");
+			for(PlAnnotation ann : m_annotationList) {
+				b.itemObj();
+				ann.render(b);
+				b.objEnd();
+			}
+			b.arrayEnd();				// annotations
+		}
+
 		b.objEnd();				// layout
 		b.objEnd();				// root object
 	}
@@ -153,6 +170,20 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	public PlotlyDataSet barMode(PlBarMode mode) {
 		m_barMode = mode;
+		return this;
+	}
+
+	/**
+	 * Add an annotation and return the annotation object to be further configured.
+	 */
+	public PlAnnotation addAnnotation(double x, double y, String text) {
+		PlAnnotation ann = new PlAnnotation(x, y, text);
+		m_annotationList.add(ann);
+		return ann;
+	}
+
+	public PlotlyDataSet annotation(double x, double y, String text) {
+		addAnnotation(x, y, text);
 		return this;
 	}
 
