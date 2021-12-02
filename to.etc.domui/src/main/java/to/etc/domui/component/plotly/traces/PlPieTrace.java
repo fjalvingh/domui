@@ -11,6 +11,12 @@ import to.etc.domui.util.javascript.JsonBuilder;
 public class PlPieTrace extends AbstractLabelValueTrace<PlPieTrace> {
 	private double m_hole;
 
+	private int m_domainX;
+
+	private int m_domainY;
+
+	private boolean m_hasDomain;
+
 	public PlPieTrace() {
 		setType(TraceType.Pie);
 	}
@@ -35,6 +41,12 @@ public class PlPieTrace extends AbstractLabelValueTrace<PlPieTrace> {
 		if(m_hole > 0.0D) {
 			b.objField("hole", m_hole);
 		}
+		if(m_hasDomain) {
+			b.objObjField("domain");
+			b.objField("column", m_domainX);
+			b.objField("row", m_domainY);
+			b.objEnd();
+		}
 	}
 
 	public PlPieTrace type(TraceType type) {
@@ -46,12 +58,27 @@ public class PlPieTrace extends AbstractLabelValueTrace<PlPieTrace> {
 		return m_hole;
 	}
 
+	public int getDomainX() {
+		return m_domainX;
+	}
+
+	public int getDomainY() {
+		return m_domainY;
+	}
+
 	/**
 	 * Set to a value between 0 and 1, this defines a hole inside the pie chart, turning
 	 * it into a donut chart.
 	 */
 	public PlPieTrace hole(double hole) {
 		m_hole = hole;
+		return this;
+	}
+
+	public PlPieTrace domain(int x, int y) {
+		m_domainX = x;
+		m_domainY = y;
+		m_hasDomain = true;
 		return this;
 	}
 }

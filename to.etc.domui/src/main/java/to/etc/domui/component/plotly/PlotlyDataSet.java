@@ -45,6 +45,10 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	final private List<PlAnnotation> m_annotationList = new ArrayList<>(4);
 
+	private int m_gridRows;
+
+	private int m_gridColumns;
+
 	/**
 	 * Add a time series trace, where every pair is a [date, value]. The date
 	 * can be either just a date or a timestamp, defined by the timeMode setting
@@ -83,6 +87,16 @@ public class PlotlyDataSet implements IPlotlyDataset {
 			b.itemObj();
 			trace.render(b);
 			b.objEnd();
+
+			if(trace instanceof PlPieTrace) {
+				PlPieTrace pt = (PlPieTrace) trace;
+				if(pt.getDomainX() > 0 && pt.getDomainX() >= m_gridColumns) {
+					m_gridColumns = pt.getDomainX() + 1;
+				}
+				if(pt.getDomainY() > 0 && pt.getDomainY() >= m_gridRows) {
+					m_gridRows = pt.getDomainY() + 1;
+				}
+			}
 		}
 		b.arrayEnd();
 
@@ -129,6 +143,17 @@ public class PlotlyDataSet implements IPlotlyDataset {
 				b.objEnd();
 			}
 			b.arrayEnd();				// annotations
+		}
+
+		if(m_gridRows > 0 || m_gridColumns > 0) {
+			if(m_gridRows == 0)
+				m_gridRows = 1;
+			if(m_gridColumns == 0)
+				m_gridColumns = 1;
+			b.objObjField("grid");
+			b.objField("rows", m_gridRows);
+			b.objField("columns", m_gridColumns);
+			b.objEnd();
 		}
 
 		b.objEnd();				// layout
@@ -184,6 +209,12 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	public PlotlyDataSet annotation(double x, double y, String text) {
 		addAnnotation(x, y, text);
+		return this;
+	}
+
+	public PlotlyDataSet grid(int columns, int rows) {
+		m_gridColumns = columns;
+		m_gridRows = rows;
 		return this;
 	}
 
