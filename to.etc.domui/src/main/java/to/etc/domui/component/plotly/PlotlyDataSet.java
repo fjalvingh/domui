@@ -270,9 +270,22 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	private static String fixColor(String color) {
 		if(null == color || color.length() == 0)
 			return null;
+		for(int i = color.length(); --i >= 0;) {
+			char c = color.charAt(i);
+			if(! isDigit(c))
+				return color;
+		}
 		if(!color.startsWith("#"))
 			color = "#" + color;
 		return color;
+	}
+
+	static private boolean isDigit(char c) {
+		if(c >= '0' && c <= '9')
+			return true;
+		if(c >= 'A' && c <= 'F')
+			return true;
+		return c >= 'a' && c <= 'f';
 	}
 
 	public PlotlyDataSet colorWay(List<String> colors) {
@@ -300,4 +313,8 @@ public class PlotlyDataSet implements IPlotlyDataset {
 		return this;
 	}
 
+	public void addTrace(IPlotlyTrace trace) {
+		m_traceList.add(trace);
+
+	}
 }

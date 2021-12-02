@@ -22,7 +22,7 @@ public class PlotlySunburst extends UrlPage {
 	@Override
 	public void createContent() throws Exception {
 		PlotlyGraph.initialize(this);
-		add(new HTag(1, "Plotly - Pie charts"));
+		add(new HTag(1, "Plotly - Sunburst chart"));
 
 		PlotlyGraph graph = new PlotlyGraph();
 		add(graph);
@@ -52,5 +52,4 @@ public class PlotlySunburst extends UrlPage {
 			return ds;
 		}
 	}
-
 }
