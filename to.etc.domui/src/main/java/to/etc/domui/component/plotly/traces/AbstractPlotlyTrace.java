@@ -1,18 +1,16 @@
 package to.etc.domui.component.plotly.traces;
 
-import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.plotly.layout.PlLine;
 import to.etc.domui.util.javascript.JsonBuilder;
+
+import java.io.IOException;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 30-11-21.
  */
-abstract class AbstractPlotlyTrace {
+abstract class AbstractPlotlyTrace<T extends AbstractPlotlyTrace<T>> extends AbstractBasicTrace<T> {
 	protected TraceMode m_traceMode = TraceMode.Lines;
-
-	@Nullable
-	protected String m_name;
 
 	protected TraceType m_type = TraceType.Scatter;
 
@@ -26,15 +24,6 @@ abstract class AbstractPlotlyTrace {
 		m_traceMode = traceMode;
 	}
 
-	@Nullable
-	public String getName() {
-		return m_name;
-	}
-
-	public void setName(@Nullable String name) {
-		m_name = name;
-	}
-
 	public TraceType getType() {
 		return m_type;
 	}
@@ -43,7 +32,9 @@ abstract class AbstractPlotlyTrace {
 		m_type = type;
 	}
 
-	protected void renderBase(JsonBuilder b) throws Exception {
+	@Override
+	protected void renderBase(JsonBuilder b) throws IOException {
+		super.renderBase(b);
 		if(null != m_traceMode) {
 			switch(m_traceMode) {
 				default:

@@ -1,6 +1,7 @@
 package to.etc.domui.component.plotly;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.plotly.layout.PlAnnotation;
 import to.etc.domui.component.plotly.layout.PlAxis;
 import to.etc.domui.component.plotly.layout.PlBarMode;
@@ -9,11 +10,13 @@ import to.etc.domui.component.plotly.layout.PlImage;
 import to.etc.domui.component.plotly.traces.IPlotlyTrace;
 import to.etc.domui.component.plotly.traces.PlLabelValueTrace;
 import to.etc.domui.component.plotly.traces.PlPieTrace;
+import to.etc.domui.component.plotly.traces.PlSunBurstTrace;
 import to.etc.domui.component.plotly.traces.PlTimeSeriesTrace;
 import to.etc.domui.util.javascript.JsonBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -45,6 +48,12 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	final private List<PlAnnotation> m_annotationList = new ArrayList<>(4);
 
+	final private List<String> m_colorWay = new ArrayList<>();
+
+	final private List<String> m_sunburstColorWay = new ArrayList<>();
+
+	private boolean m_extendSunburstColorway;
+
 	private int m_gridRows;
 
 	private int m_gridColumns;
@@ -54,7 +63,7 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	 * can be either just a date or a timestamp, defined by the timeMode setting
 	 * of the trace.
 	 */
-	public PlTimeSeriesTrace	addTimeSeries(String name) {
+	public PlTimeSeriesTrace addTimeSeries(String name) {
 		PlTimeSeriesTrace tst = new PlTimeSeriesTrace().name(name);
 		m_traceList.add(tst);
 		return tst;
@@ -75,6 +84,12 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	 */
 	public PlPieTrace addPie() {
 		PlPieTrace t = new PlPieTrace();
+		m_traceList.add(t);
+		return t;
+	}
+
+	public PlSunBurstTrace addSunburst() {
+		PlSunBurstTrace t = new PlSunBurstTrace();
 		m_traceList.add(t);
 		return t;
 	}
@@ -105,7 +120,7 @@ public class PlotlyDataSet implements IPlotlyDataset {
 		PlBarMode barMode = m_barMode;
 		if(barMode != null)
 			b.objField("barmode", barMode.name().toLowerCase());
-		if(! m_titleFont.isEmpty()) {
+		if(!m_titleFont.isEmpty()) {
 			b.objObjField("titlefont");
 			m_titleFont.render(b);
 			b.objEnd();
@@ -129,11 +144,11 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 		b.objObjField("xaxis");
 		m_xAxis.render(b);
-		b.objEnd();						// xaxis
+		b.objEnd();                        // xaxis
 
 		b.objObjField("yaxis");
 		m_yAxis.render(b);
-		b.objEnd();						// xaxis
+		b.objEnd();                        // xaxis
 
 		if(m_annotationList.size() > 0) {
 			b.objArrayField("annotations");
@@ -142,7 +157,7 @@ public class PlotlyDataSet implements IPlotlyDataset {
 				ann.render(b);
 				b.objEnd();
 			}
-			b.arrayEnd();				// annotations
+			b.arrayEnd();                // annotations
 		}
 
 		if(m_gridRows > 0 || m_gridColumns > 0) {
@@ -156,8 +171,34 @@ public class PlotlyDataSet implements IPlotlyDataset {
 			b.objEnd();
 		}
 
-		b.objEnd();				// layout
-		b.objEnd();				// root object
+		if(m_colorWay.size() > 0) {
+			b.objArrayField("colorway");
+			for(String s : m_colorWay) {
+				b.item(fixColor(s));
+			}
+			b.arrayEnd();
+		}
+		if(m_sunburstColorWay.size() > 0) {
+			b.objArrayField("sunburstcolorway");
+			for(String s : m_sunburstColorWay) {
+				b.item(fixColor(s));
+			}
+			b.arrayEnd();
+		}
+		if(m_extendSunburstColorway)
+			b.objField("extendsunburstcolorway", true);
+
+
+		//b.objField("extendsunburstcolorway", true);
+		//b.objArrayField("sunburstcolorway");
+		//for(String s : Arrays.asList("#636efa", "#EF553B", "#00cc96", "#ab63fa", "#19d3f3",
+		//	"#e763fa", "#FECB52", "#FFA15A", "#FF6692", "#B6E880")) {
+		//	b.item(s);
+		//}
+		//b.arrayEnd();
+
+		b.objEnd();                // layout
+		b.objEnd();                // root object
 	}
 
 	public PlAxis xAxis() {
@@ -219,10 +260,44 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	}
 
 	static public void renderColor(JsonBuilder b, String field, String color) throws IOException {
-		if(null == color || color.length() == 0)
+		color = fixColor(color);
+		if(color == null)
 			return;
-		if(! color.startsWith("#"))
-			color = "#" + color;
 		b.objField(field, color);
 	}
+
+	@Nullable
+	private static String fixColor(String color) {
+		if(null == color || color.length() == 0)
+			return null;
+		if(!color.startsWith("#"))
+			color = "#" + color;
+		return color;
+	}
+
+	public PlotlyDataSet colorWay(List<String> colors) {
+		m_colorWay.addAll(colors);
+		return this;
+	}
+
+	public PlotlyDataSet colorWay(String... colors) {
+		colorWay(Arrays.asList(colors));
+		return this;
+	}
+
+	public PlotlyDataSet sunburstColorWay(List<String> colors) {
+		m_sunburstColorWay.addAll(colors);
+		return this;
+	}
+
+	public PlotlyDataSet sunburstColorWay(String... colors) {
+		sunburstColorWay(Arrays.asList(colors));
+		return this;
+	}
+
+	public PlotlyDataSet extendSunburstColorway() {
+		m_extendSunburstColorway = true;
+		return this;
+	}
+
 }

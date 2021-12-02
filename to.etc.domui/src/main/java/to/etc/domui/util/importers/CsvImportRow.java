@@ -26,11 +26,13 @@ public class CsvImportRow implements IImportRow {
 		m_reader = reader;
 	}
 
-	@Override public int getColumnCount() {
+	@Override
+	public int getColumnCount() {
 		return m_columns.size();
 	}
 
-	@Override public IImportColumn get(int index) throws IOException {
+	@Override
+	public IImportColumn get(int index) throws IOException {
 		//if(index < 0 || index >= m_columns.size())
 		//	throw new IllegalStateException("Column index invalid: must be between 0 and " + m_columns.size());
 		while(index >= m_colWrappers.size()) {
@@ -39,7 +41,9 @@ public class CsvImportRow implements IImportRow {
 		return m_colWrappers.get(index);
 	}
 
-	@NonNull @Override public IImportColumn get(String name) throws IOException {
+	@NonNull
+	@Override
+	public IImportColumn get(String name) throws IOException {
 		int index = m_reader.getColumnIndex(name);
 		if(index == -1)
 			throw new IOException("The column with the name '" + name + "' does not exist");
@@ -49,23 +53,29 @@ public class CsvImportRow implements IImportRow {
 	private class Col extends AbstractImportColumn implements IImportColumn {
 		private final int m_index;
 
-		@Nullable private final String m_name;
+		@Nullable
+		private final String m_name;
 
 		public Col(int index, @Nullable String name) {
 			m_index = index;
 			m_name = name;
 		}
 
-		@Nullable @Override public String getStringValue() {
+		@Nullable
+		@Override
+		public String getStringValue() {
 			return m_columns.size() <= m_index ? null : trimAllWS(m_columns.get(m_index));
 		}
 
-		@Nullable @Override public Date asDate() {
+		@Nullable
+		@Override
+		public Date asDate() {
 			throw new IllegalStateException("Not implemented yet");
 		}
 
 		@Nullable
-		@Override public String getName() {
+		@Override
+		public String getName() {
 			return m_name;
 		}
 	}

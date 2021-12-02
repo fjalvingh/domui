@@ -6,7 +6,7 @@ import java.util.Arrays;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 02-12-21.
  */
-abstract public class AbstractLabelValueTrace<T extends AbstractLabelValueTrace<T>> extends AbstractPlotlyTrace implements IPlotlyTrace {
+abstract public class AbstractLabelValueTrace<T extends AbstractLabelValueTrace<T>> extends AbstractPlotlyTrace<T> implements IPlotlyTrace {
 	static private final int INITIAL_SIZE = 512;
 
 	static private final int INCREMENT_SIZE = 512;
@@ -69,11 +69,6 @@ abstract public class AbstractLabelValueTrace<T extends AbstractLabelValueTrace<
 
 	public T mode(TraceMode mode) {
 		m_traceMode = mode;
-		return (T) this;
-	}
-
-	public T name(String name) {
-		setName(name);
 		return (T) this;
 	}
 }

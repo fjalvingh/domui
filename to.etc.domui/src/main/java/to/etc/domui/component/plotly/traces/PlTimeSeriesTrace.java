@@ -15,7 +15,7 @@ import java.util.Date;
  * Created on 30-11-21.
  */
 @NonNullByDefault
-final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlotlyTrace {
+final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTrace> implements IPlotlyTrace {
 	static private final int INITIAL_SIZE = 512;
 
 	static private final int INCREMENT_SIZE = 512;
@@ -80,11 +80,6 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace implements IPlo
 
 	public PlTimeSeriesTrace mode(TraceMode mode) {
 		m_traceMode = mode;
-		return this;
-	}
-
-	public PlTimeSeriesTrace name(String name) {
-		setName(name);
 		return this;
 	}
 
