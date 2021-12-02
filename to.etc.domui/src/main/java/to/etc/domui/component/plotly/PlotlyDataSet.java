@@ -7,6 +7,7 @@ import to.etc.domui.component.plotly.layout.PlFont;
 import to.etc.domui.component.plotly.layout.PlImage;
 import to.etc.domui.component.plotly.traces.IPlotlyTrace;
 import to.etc.domui.component.plotly.traces.PlLabelValueTrace;
+import to.etc.domui.component.plotly.traces.PlPieTrace;
 import to.etc.domui.component.plotly.traces.PlTimeSeriesTrace;
 import to.etc.domui.util.javascript.JsonBuilder;
 
@@ -37,14 +38,32 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	final private List<PlImage> m_imageList = new ArrayList<>(4);
 
+	/**
+	 * Add a time series trace, where every pair is a [date, value]. The date
+	 * can be either just a date or a timestamp, defined by the timeMode setting
+	 * of the trace.
+	 */
 	public PlTimeSeriesTrace	addTimeSeries(String name) {
 		PlTimeSeriesTrace tst = new PlTimeSeriesTrace().name(name);
 		m_traceList.add(tst);
 		return tst;
 	}
 
+	/**
+	 * Add a trace containing [String, value] pairs, used for bar charts or scatter
+	 * plots (no time series).
+	 */
 	public PlLabelValueTrace addLabeledSeries(String name) {
 		PlLabelValueTrace t = new PlLabelValueTrace().name(name);
+		m_traceList.add(t);
+		return t;
+	}
+
+	/**
+	 * Add a pie dataset, using [string, value] pairs of data.
+	 */
+	public PlPieTrace addPie() {
+		PlPieTrace t = new PlPieTrace();
 		m_traceList.add(t);
 		return t;
 	}

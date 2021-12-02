@@ -10,14 +10,13 @@ import to.etc.domui.component.plotly.traces.PlLabelValueTrace;
 import to.etc.domui.component.plotly.traces.TraceType;
 import to.etc.domui.derbydata.db.Employee;
 import to.etc.domui.derbydata.db.Invoice;
+import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.DateUtil;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,12 +34,14 @@ public class PlotlyStackedBar extends UrlPage {
 
 		PlotlyGraph graph = new PlotlyGraph();
 		add(graph);
-		graph.setHeight("1000px");
+		graph.setHeight("400px");
+		graph.setWidth("400px");
+		graph.setDisplay(DisplayType.INLINE_BLOCK);
 		graph.setSource(new PlotlySource1());
 	}
 
 	/**
-	 * Sales per
+	 * Sales per employee per year as a stacked bar per employee.
 	 */
 	static public final class PlotlySource1 implements IPlotlyDataSource {
 		@NonNull
@@ -48,7 +49,7 @@ public class PlotlyStackedBar extends UrlPage {
 		public IPlotlyDataset createDataset(@NonNull QDataContext dc) throws Exception {
 			PlotlyDataSet ds = new PlotlyDataSet();
 			Map<Employee, List<Invoice>> invPerEmployee = dc.query(QCriteria.create(Invoice.class)).stream()
-				.collect(Collectors.groupingBy(a -> a.getCustomer().getSupportRepresentative(), Collectors.toList()));
+				.collect(Collectors.groupingBy(a -> a.getCustomer().getSupportRepresentative(), Collectors.toList()))
 			;
 
 			Map<Employee, Map<Integer, List<Invoice>>> pymap = new HashMap<>();
@@ -67,19 +68,11 @@ public class PlotlyStackedBar extends UrlPage {
 					series.add(employee == null ? "Unknown" : employee.getLastName(), list.size());
 				});
 			});
-			ds.barMode(PlBarMode.Stack);
+			ds.barMode(PlBarMode.Stack);				// IMPORTANT <-- makes the bars stack
 			ds.xAxis().title("Employee");
 			ds.title("Sales per year per employee").titleFont().size(25).color("#ff00ff");
 			ds.image().bgImage("img/plotly-logo.png", 0.3, 1.0, 0.1);
 			return ds;
-		}
-
-		private Date getMonth(Invoice i) {
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(i.getInvoiceDate());
-			DateUtil.clearTime(cal);
-			cal.set(Calendar.DAY_OF_MONTH, 1);
-			return cal.getTime();
 		}
 	}
 

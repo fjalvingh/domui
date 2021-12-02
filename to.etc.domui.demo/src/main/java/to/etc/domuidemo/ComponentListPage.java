@@ -48,6 +48,7 @@ import to.etc.domuidemo.pages.overview.misc.SvgIconPage;
 import to.etc.domuidemo.pages.overview.tree.DemoTree;
 import to.etc.domuidemo.pages.overview.tree2.Tree2DemoPage;
 import to.etc.domuidemo.pages.plotly.Plotly1;
+import to.etc.domuidemo.pages.plotly.PlotlyPie1;
 import to.etc.domuidemo.pages.plotly.PlotlyStackedBar;
 import to.etc.domuidemo.pages.searchpanel.SearchPanelMenuPage;
 import to.etc.domuidemo.pages.special.ace.AcePage;
@@ -161,5 +162,6 @@ public class ComponentListPage extends MenuPage {
 		main.add(f);
 		f.addLink(Plotly1.class, "Plotly time series demo");
 		f.addLink(PlotlyStackedBar.class, "Plotly stacked bar demo");
+		f.addLink(PlotlyPie1.class, "Pie chart");
 	}
 }
