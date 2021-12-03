@@ -27,9 +27,13 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTra
 
 	private int m_size;
 
+	private int m_zeroCount;
+
 	private TimeSeriesType m_timeType = TimeSeriesType.Date;
 
 	public PlTimeSeriesTrace add(long date, double value) {
+		if(value == 0.0D)
+			m_zeroCount++;
 		grow(1);
 		int index = Arrays.binarySearch(m_timeAr, 0, m_size, date);
 		if(index < 0) {
@@ -116,5 +120,12 @@ final public class PlTimeSeriesTrace extends AbstractPlotlyTrace<PlTimeSeriesTra
 	public PlTimeSeriesTrace type(TraceType type) {
 		super.setType(type);
 		return this;
+	}
+
+	/**
+	 * Returns true if all values added are zero.
+	 */
+	public boolean isAllZero() {
+		return m_zeroCount == m_size;
 	}
 }
