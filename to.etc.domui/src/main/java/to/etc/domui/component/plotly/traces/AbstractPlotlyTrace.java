@@ -16,6 +16,10 @@ abstract class AbstractPlotlyTrace<T extends AbstractPlotlyTrace<T>> extends Abs
 
 	private PlLine m_line = new PlLine();
 
+	private PlFillMode m_fill;
+
+	private String m_stackGroup;
+
 	public TraceMode getTraceMode() {
 		return m_traceMode;
 	}
@@ -68,6 +72,13 @@ abstract class AbstractPlotlyTrace<T extends AbstractPlotlyTrace<T>> extends Abs
 		if(m_type != null) {
 			b.objField("type", m_type.name().toLowerCase());
 		}
+		if(m_fill != null) {
+			b.objField("fill", m_fill.name().toLowerCase());
+		}
+		String g = m_stackGroup;
+		if(null != g) {
+			b.objField("stackgroup", g);
+		}
 
 		if(! m_line.isEmpty()) {
 			b.objObjField("line");
@@ -81,5 +92,15 @@ abstract class AbstractPlotlyTrace<T extends AbstractPlotlyTrace<T>> extends Abs
 	 */
 	public PlLine line() {
 		return m_line;
+	}
+
+	public T fill(PlFillMode mode) {
+		m_fill = mode;
+		return (T) this;
+	}
+
+	public T stackGroup(String g) {
+		m_stackGroup = g;
+		return (T) this;
 	}
 }

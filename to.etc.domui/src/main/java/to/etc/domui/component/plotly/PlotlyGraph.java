@@ -64,6 +64,12 @@ public class PlotlyGraph extends Div implements IComponentJsonProvider {
 		}
 	}
 
+	public PlotlyGraph size(int w, int h) {
+		setWidth(w + "px");
+		setHeight(h + "px");
+		return this;
+	}
+
 	private void renderDataset(JsonBuilder b, IPlotlyDataset dataset) throws Exception {
 		dataset.render(b);
 	}
