@@ -8,6 +8,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.webapp.query.QNotFoundException;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -38,13 +39,15 @@ public class ExcelImportRow implements IImportRow {
 		return m_headerNames.get(index);
 	}
 
-	@Override public int getColumnCount() {
+	@Override
+	public int getColumnCount() {
 		short cell = m_row.getLastCellNum();
 		return cell < 0 ? 0 : cell;
 		//return cell /* + 1 jal 20190204 removed, last cell number seems 1 based */ ;
 	}
 
-	@Override public IImportColumn get(int index) {
+	@Override
+	public IImportColumn get(int index) {
 		String headerName = getHeaderName(index);
 		if(null == headerName)
 			headerName = "COL" + index;
@@ -62,7 +65,7 @@ public class ExcelImportRow implements IImportRow {
 	@Override
 	public IImportColumn get(String name) {
 		int index = -1;
-		for(int i = m_headerNames.size(); --i >= 0;) {
+		for(int i = m_headerNames.size(); --i >= 0; ) {
 			if(m_headerNames.get(i).equals(name)) {
 				if(index == -1)
 					index = i;
@@ -96,9 +99,11 @@ public class ExcelImportRow implements IImportRow {
 			return m_name;
 		}
 
-		@Nullable @Override public String getStringValue() {
+		@Nullable
+		@Override
+		public String getStringValue() {
 			try {
-				switch(m_cell.getCellTypeEnum()) {
+				switch(m_cell.getCellTypeEnum()){
 					default:
 						return trimAllWS(m_cell.toString());
 
@@ -109,8 +114,20 @@ public class ExcelImportRow implements IImportRow {
 						return String.valueOf(m_cell.getBooleanCellValue());
 
 					case NUMERIC:
+						DateFormat forceStringDateFormat = m_row.m_rr.getForceStringDateFormat();
+						if(null != forceStringDateFormat) {
+							try {
+								Date dt = m_cell.getDateCellValue();
+								if(dt != null) {
+									return forceStringDateFormat.format(dt);
+								}
+							} catch(Exception x) {
+								//-- Apparently not a date, so just continue
+							}
+						}
+
 						return m_row.m_rr.convertDouble(m_cell.getNumericCellValue());
-						//return Double.toString(m_cell.getNumericCellValue());
+
 					case STRING:
 						return trimAllWS(m_cell.getStringCellValue());
 
@@ -119,19 +136,68 @@ public class ExcelImportRow implements IImportRow {
 				}
 
 			} catch(Exception x) {
-				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress()+ "] " + x.toString());
+				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress() + "] " + x.toString());
 				//throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress().getRow()+ ", " + m_cell.getAddress().getColumn() + "] " + x.toString());
 			}
 		}
 
 		@Nullable
-		@Override public Date asDate() {
-			return m_cell.getDateCellValue();
+		@Override
+		public Date asDate() {
+			try {
+				return m_cell.getDateCellValue();
+			} catch(Exception x) {
+				//-- Try to convert if possible
+			}
+			DateFormat ddf = m_row.m_rr.getDefaultDateFormat();
+			String stringValue = getStringValue();
+			if(null == ddf)
+				throw new ImportValueException("The value " + stringValue + " cannot be converted to a date");
+			if(stringValue == null)
+				return null;
+			stringValue = stringValue.trim();
+			if(stringValue.isEmpty())
+				return null;
+			try {
+				return ddf.parse(stringValue);
+			} catch(Exception x) {
+				throw new ImportValueException("The value " + stringValue + " cannot be converted to a date");
+			}
 		}
 
-		@Nullable @Override public BigDecimal getDecimal() {
+		/**
+		 * For Excel this uses the value Excel uses as the date unless the field is a string or number,
+		 * in which case we will try to parse that as the format specified.
+		 */
+		@Nullable
+		@Override
+		public Date asDate(@NonNull String dateFormat) {
 			try {
-				switch(m_cell.getCellTypeEnum()) {
+				Date date = m_cell.getDateCellValue();
+				return date;
+			} catch(Exception x) {
+				//-- Ignore errors
+			}
+
+			String stringValue = getStringValue();
+			if(null == stringValue)
+				return null;
+			stringValue = stringValue.trim();
+			if(stringValue.isEmpty())
+				return null;
+			DateFormat df = m_row.m_rr.getDateFormat(dateFormat);
+			try {
+				return df.parse(stringValue);
+			} catch(Exception x) {
+				throw new ImportValueException("Invalid date '" + stringValue + "' using date format '" + dateFormat + ";");
+			}
+		}
+
+		@Nullable
+		@Override
+		public BigDecimal getDecimal() {
+			try {
+				switch(m_cell.getCellTypeEnum()){
 					default:
 						throw new IllegalStateException("Unknown cell type: " + m_cell.getCellTypeEnum());
 
@@ -144,6 +210,7 @@ public class ExcelImportRow implements IImportRow {
 
 					case NUMERIC:
 						return new BigDecimal(m_cell.getNumericCellValue());
+
 					case STRING:
 						String value = m_cell.getStringCellValue();
 						if(value == null)
@@ -162,7 +229,7 @@ public class ExcelImportRow implements IImportRow {
 					base = null;
 				}
 
-				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress()+ "], value '" + base + "': " + x.toString());
+				throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress() + "], value '" + base + "': " + x.toString());
 				//throw new ImportValueException(x, "@[" + m_cell.getSheet().getSheetName() + ":" + m_cell.getAddress().getRow()+ ", " + m_cell.getAddress().getColumn() + "] " + x.toString());
 			}
 		}
