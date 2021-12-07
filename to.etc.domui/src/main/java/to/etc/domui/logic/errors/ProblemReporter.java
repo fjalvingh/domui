@@ -125,7 +125,6 @@ public class ProblemReporter {
 			handleClaimError(existingErrorSet, newErrorSet, n);
 		}
 
-
 		//-- All messages that could be claimed are claimed now. Add the rest as "global" messages
 		for(ProblemInstance pi : newErrorSet) {
 			if(!inExistingSet(existingErrorSet, null, pi)) {
@@ -161,9 +160,6 @@ public class ProblemReporter {
 	/**
 	 * For the component, find all bindings on it and check each for errors to be reported. If no error
 	 * is found at all the component's error state is cleared.
-	 * @param existingErrorSet
-	 * @param newErrorSet
-	 * @param n
 	 */
 	private void handleClaimError(Set<UIMessage> existingErrorSet, ProblemSet newErrorSet, @NonNull NodeBase n) {
 		//-- Get the errors on all bindings to this component.
@@ -172,11 +168,11 @@ public class ProblemReporter {
 		if(all.size() == 0) {
 			if(bindingMessageList.size() == 0) {
 				if(DEBUG)
-					System.out.println("    er: "+desc(n)+" component error cleared");
+					System.out.println("    er: " + desc(n) + " component error cleared");
 				n.setMessage(null);
 			}
 			if(DEBUG)
-				System.out.println("    er: "+desc(n)+" 0 claimed, "+bindingMessageList.size()+" bind errors - not reporting");
+				System.out.println("    er: " + desc(n) + " 0 claimed, " + bindingMessageList.size() + " bind errors - not reporting");
 			return;
 		}
 
@@ -189,26 +185,27 @@ public class ProblemReporter {
 
 	private void moveMessageToComponent(Set<UIMessage> existingErrorSet, @NonNull NodeBase n, List<ProblemInstance> all) {
 		//IErrorFence fence = DomUtil.getMessageFence(n);
-		for(ProblemInstance pi: all) {
+		for(ProblemInstance pi : all) {
 			if(!inExistingSet(existingErrorSet, n, pi)) {
 				//-- Needs to be added.
 				UIMessage ui = UIMessage.create(n, pi);
 				//if(n.getMessage() == null) { // jal 20150721
 				n.setMessage(ui);
 				if(DEBUG)
-					System.out.println("    er: "+desc(n)+" component set to "+ui);
+					System.out.println("    er: " + desc(n) + " component set to " + ui);
 				//}
 				//fence.addMessage(ui);			// jal 20171024 causes duplicate message because component also registers with fence
 				if(DEBUG)
-					System.out.println("    er: " + desc(n) + " added " + ui+" to fence");
+					System.out.println("    er: " + desc(n) + " added " + ui + " to fence");
 			} else {
 				if(DEBUG)
-					System.out.println("    er: "+desc(n)+" existing error "+pi+" already shown");
+					System.out.println("    er: " + desc(n) + " existing error " + pi + " already shown");
 			}
 		}
 	}
 
-	@NonNull private List<UIMessage> collectBindingErrorsFromComponent(ProblemSet newErrorSet, @NonNull NodeBase n, List<ProblemInstance> all) {
+	@NonNull
+	private List<UIMessage> collectBindingErrorsFromComponent(ProblemSet newErrorSet, @NonNull NodeBase n, List<ProblemInstance> all) {
 		List<IBinding> bindingList = n.getBindingList();
 		if(null == bindingList)
 			return Collections.emptyList();
@@ -227,7 +224,7 @@ public class ProblemReporter {
 	}
 
 	static private String desc(NodeBase n) {
-		return "'"+n.getComponentInfo()+"' ("+n.getActualID()+")";
+		return "'" + n.getComponentInfo() + "' (" + n.getActualID() + ")";
 	}
 
 	/**
@@ -255,12 +252,12 @@ public class ProblemReporter {
 	 */
 	private void getErrorsOnBoundProperty(ProblemSet newErrorSet, @NonNull List<ProblemInstance> all, @NonNull NodeBase n, @NonNull ComponentPropertyBindingBidi<?, ?, ?, ?> binding) {
 		Object instance = binding.getInstance();
-		if(null == instance)								// Not an instance binding -> no errors here
+		if(null == instance)                                // Not an instance binding -> no errors here
 			return;
-		IValueAccessor< ? > property = binding.getInstanceProperty();
-		if(null == property)								// Not bound to property -> done
+		IValueAccessor<?> property = binding.getInstanceProperty();
+		if(null == property)                                // Not bound to property -> done
 			return;
-		Collection<ProblemInstance> errors = newErrorSet.remove(instance, property);	// Get and remove errors for this binding
+		Collection<ProblemInstance> errors = newErrorSet.remove(instance, property);    // Get and remove errors for this binding
 		all.addAll(errors);
 	}
 }

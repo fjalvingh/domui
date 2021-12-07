@@ -26,6 +26,8 @@ package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.databinding.list.ListChangeAdd;
 import to.etc.domui.databinding.list.ListChangeAssign;
 import to.etc.domui.databinding.list.ListChangeDelete;
@@ -47,6 +49,8 @@ import java.util.Collections;
 import java.util.List;
 
 abstract public class TableModelTableBase<T> extends Div implements ITableModelListener<T>, IListChangeListener<T> {
+	private static final Logger LOG = LoggerFactory.getLogger(TableModelTableBase.class);
+
 	@Nullable
 	private ITableModel<T> m_model;
 
@@ -99,7 +103,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 			try {
 				l.modelChanged(this, old, nw);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("modelChanged: " + x, x);
 			}
 		}
 	}
@@ -109,7 +113,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 			try {
 				l.pageChanged(this);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("pageChanged: " + x, x);
 			}
 		}
 	}
@@ -119,7 +123,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 			try {
 				l.selectionUIChanged(this);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("selectionUIChanged: " + x, x);
 			}
 		}
 	}

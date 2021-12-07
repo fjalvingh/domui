@@ -26,6 +26,8 @@ package to.etc.domui.util.upload;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -40,6 +42,8 @@ import java.io.File;
  * Created on Jan 12, 2011
  */
 final public class UploadItem {
+	static private final Logger LOG = LoggerFactory.getLogger(UploadItem.class);
+
 	private String m_fieldName;
 
 	private String m_contentType;
@@ -190,7 +194,7 @@ final public class UploadItem {
 		if(m_backingFile == null)
 			return;
 		try {
-			System.out.println("Releasing unclaimed FILE upload: " + getName() + ", " + getSize() + " @" + getFile());
+			LOG.info("Releasing unclaimed FILE upload: " + getName() + ", " + getSize() + " @" + getFile());
 			m_backingFile.delete();
 			m_backingFile = null;
 		} catch(Exception x) {}

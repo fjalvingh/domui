@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -28,7 +30,8 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on May 11, 2012
  */
-final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
+final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
+	static private final Logger LOG = LoggerFactory.getLogger(ColumnDefList.class);
 
 	static public final String NUMERIC_CSS_CLASS = "ui-numeric";
 
@@ -36,10 +39,10 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	final private ClassMetaModel m_metaModel;
 
 	@NonNull
-	final private List<SimpleColumnDef< ? >> m_columnList = new ArrayList<SimpleColumnDef< ? >>();
+	final private List<SimpleColumnDef<?>> m_columnList = new ArrayList<SimpleColumnDef<?>>();
 
 	@Nullable
-	private SimpleColumnDef< ? > m_sortColumn;
+	private SimpleColumnDef<?> m_sortColumn;
 
 	@NonNull
 	final private Class<T> m_rootClass;
@@ -54,7 +57,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		return m_columnList.size();
 	}
 
-	public void add(@NonNull SimpleColumnDef< ? > cd) {
+	public void add(@NonNull SimpleColumnDef<?> cd) {
 		if(null == cd)
 			throw new IllegalArgumentException("Cannot be null");
 		m_columnList.add(cd);
@@ -66,15 +69,15 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	@NonNull
-	public SimpleColumnDef< ? > get(int ix) {
+	public SimpleColumnDef<?> get(int ix) {
 		if(ix < 0 || ix >= m_columnList.size())
 			throw new IndexOutOfBoundsException("Column " + ix + " does not exist");
 		return m_columnList.get(ix);
 	}
 
 	@Nullable
-	public SimpleColumnDef< ? > findColumn(@NonNull String propertyName) {
-		for(final SimpleColumnDef< ? > scd : m_columnList) {
+	public SimpleColumnDef<?> findColumn(@NonNull String propertyName) {
+		for(final SimpleColumnDef<?> scd : m_columnList) {
 			if(DomUtil.isEqual(scd.getPropertyName(), propertyName)) {
 				return scd;
 			}
@@ -90,19 +93,18 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		if(null == sort) {
 			m_sortColumn = null;
 		} else {
-			SimpleColumnDef< ? > scd = findColumn(sort);
+			SimpleColumnDef<?> scd = findColumn(sort);
 			if(null != scd)
 				setSortColumn(scd);
 		}
 	}
-
 
 //	public void setSortColumn(@Nullable SimpleColumnDef< ? > cd, @Nullable SortableType type) {
 //		m_sortColumn = cd;
 //		m_sortDescending = type == SortableType.SORTABLE_DESC;
 //	}
 
-	public void setSortColumn(@Nullable SimpleColumnDef< ? > cd) {
+	public void setSortColumn(@Nullable SimpleColumnDef<?> cd) {
 		m_sortColumn = cd;
 	}
 
@@ -142,9 +144,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		SortableType sort = null;
 		ISortHelper<T> sortHelper = null;
 		boolean defaultsort = false;
-		IRenderInto< ? > nodeRenderer = null;
-		Class< ? > nrclass = null;
-		ICellClicked< ? > clickHandler = null;
+		IRenderInto<?> nodeRenderer = null;
+		Class<?> nrclass = null;
+		ICellClicked<?> clickHandler = null;
 
 		for(final Object val : cols) {
 			if(property == null) { // Always must start with a property.
@@ -192,17 +194,17 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 						caption = DomUtil.nlsLabel(s.substring(1));
 						break;
 				}
-			} else if(val instanceof IConverter< ? >)
+			} else if(val instanceof IConverter<?>)
 				conv = (IConverter<R>) val;
-			else if(val instanceof IRenderInto< ? >)
-				nodeRenderer = (IRenderInto< ? >) val;
-			else if(val instanceof ICellClicked< ? >)
-				clickHandler = (ICellClicked< ? >) val;
+			else if(val instanceof IRenderInto<?>)
+				nodeRenderer = (IRenderInto<?>) val;
+			else if(val instanceof ICellClicked<?>)
+				clickHandler = (ICellClicked<?>) val;
 			else if(val instanceof ISortHelper) {
 				sortHelper = (ISortHelper<T>) val;
 				if(sort == null)
 					sort = SortableType.SORTABLE_ASC;
-			} else if(val instanceof Class< ? >) {
+			} else if(val instanceof Class<?>) {
 				final Class<R> c = (Class<R>) val;
 				if(IRenderInto.class.isAssignableFrom(c))
 					nrclass = c;
@@ -218,7 +220,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		internalAddProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler, defaultsort, sortHelper);
 	}
 
-	static private IRenderInto< ? > tryRenderer(final IRenderInto< ? > nodeRenderer, final Class< ? > nrclass) {
+	static private IRenderInto<?> tryRenderer(final IRenderInto<?> nodeRenderer, final Class<?> nrclass) {
 		if(nodeRenderer != null) {
 			if(nrclass != null)
 				throw new IllegalArgumentException("Both a NodeContentRenderer instance AND a class specified: " + nodeRenderer + " + " + nrclass);
@@ -226,14 +228,14 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 		if(nrclass == null)
 			return null;
-		return (IRenderInto< ? >) DomApplication.get().createInstance(nrclass);
+		return (IRenderInto<?>) DomApplication.get().createInstance(nrclass);
 	}
 
 	static private <R> IConverter<R> tryConverter(final Class<R> cclz, final IConverter<R> ins) {
 		if(cclz != null) {
 			if(ins != null)
 				throw new IllegalArgumentException("Both a IConverter class AND an instance specified: " + cclz + " and " + ins);
-			return ConverterRegistry.getConverterInstance((Class< ? extends IConverter<R>>) cclz);
+			return ConverterRegistry.getConverterInstance((Class<? extends IConverter<R>>) cclz);
 		}
 		return ins;
 	}
@@ -242,9 +244,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * Internal worker to add a field using the specified optional modifiers.
 	 */
 	private <R> void internalAddProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz,
- final String caption, final String cssclass,
-		final IRenderInto< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort,
- ISortHelper<?> sortHelper) {
+		final String caption, final String cssclass,
+		final IRenderInto<?> nodeRenderer, final Class<?> nrclass, final Boolean nowrap, SortableType sort, ICellClicked<?> clickHandler, boolean defaultsort,
+		ISortHelper<?> sortHelper) {
 		if(property == null)
 			throw new IllegalStateException("? property name is empty?!");
 
@@ -253,7 +255,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		 */
 		if(property.length() == 0) {
 			//-- We have the full class as the type of the model.
-			SimpleColumnDef<T> cd = new SimpleColumnDef<T>(this, m_rootClass);			// We are the root class.
+			SimpleColumnDef<T> cd = new SimpleColumnDef<T>(this, m_rootClass);            // We are the root class.
 			add(cd);
 			cd.setWidth(width);
 			cd.setCssClass(cssclass);
@@ -267,20 +269,20 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 
 		//-- Property must refer a property, so get it;
-		final PropertyMetaModel< ? > pmm = m_metaModel.findProperty(property);
+		final PropertyMetaModel<?> pmm = m_metaModel.findProperty(property);
 		if(pmm == null)
 			throw new IllegalArgumentException("Undefined property path: '" + property + "' in classModel=" + m_metaModel);
 
 		//-- If a NodeRenderer is present we always use that, so property expansion is unwanted.
-		final IRenderInto< ? > ncr = tryRenderer(nodeRenderer, nrclass);
+		final IRenderInto<?> ncr = tryRenderer(nodeRenderer, nrclass);
 		if(ncr != null) {
 			defineRendererProperty(property, width, conv, convclz, caption, cssclass, nodeRenderer, nrclass, nowrap, sort, clickHandler, defaultsort, sortHelper, pmm);
 			return;
 		}
 
 		//-- This is a property to display. Expand it into DisplayProperties to get the #of columns to append.
-		final ExpandedDisplayProperty< ? > xdpt = ExpandedDisplayProperty.expandProperty(pmm);
-		final List<ExpandedDisplayProperty< ? >> flat = new ArrayList<ExpandedDisplayProperty< ? >>();
+		final ExpandedDisplayProperty<?> xdpt = ExpandedDisplayProperty.expandProperty(pmm);
+		final List<ExpandedDisplayProperty<?>> flat = new ArrayList<ExpandedDisplayProperty<?>>();
 		ExpandedDisplayProperty.flatten(flat, xdpt); // Expand any compounds;
 
 		//-- If we have >1 columns here we cannot apply many of the parameters, so error on them
@@ -294,7 +296,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 
 		//-- And finally: add all columns ;-)
-		for(final ExpandedDisplayProperty< ? > xdp : flat) {
+		for(final ExpandedDisplayProperty<?> xdp : flat) {
 			if(xdp.getName() == null)
 				throw new IllegalStateException("All columns MUST have some name");
 
@@ -305,7 +307,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 
 	private <V, R> boolean defineFromExpandedItem(final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass, final Boolean nowrap,
 		SortableType sort,
-		ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper<?> sortHelper, final ExpandedDisplayProperty<V> xdp) {
+		ICellClicked<?> clickHandler, boolean defaultsort, ISortHelper<?> sortHelper, final ExpandedDisplayProperty<V> xdp) {
 		if(xdp.getName() == null)
 			throw new IllegalStateException("All columns MUST have some name");
 
@@ -321,14 +323,14 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			scd.setSortable(sort);
 		else
 			scd.setSortable(xdp.getSortable());
-		scd.setSortHelper(sortHelper); 									// All sort actions here are QUESTIONABLE - what happens for multiple expanded columns?!
+		scd.setSortHelper(sortHelper);                                    // All sort actions here are QUESTIONABLE - what happens for multiple expanded columns?!
 		if(defaultsort) {
 			setSortColumn(scd);
 		}
 
 		defaultsort = false;
 		scd.setColumnLabel(caption == null ? xdp.getDefaultLabel() : caption);
-		scd.setValueTransformer(xdp); 									// Thing which can obtain the value from the property
+		scd.setValueTransformer(xdp);                                    // Thing which can obtain the value from the property
 		scd.setPresentationConverter((IConverter<V>) tryConverter(convclz, conv));
 		if(scd.getPresentationConverter() == null && xdp.getConverter() != null)
 			scd.setPresentationConverter(xdp.getConverter());
@@ -337,7 +339,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			 * Try to get a converter for this, if needed.
 			 */
 			if(xdp.getActualType() != String.class) {
-				final IConverter< ? > c = ConverterRegistry.getConverter((Class<Object>) xdp.getActualType(), (PropertyMetaModel<Object>) xdp);
+				final IConverter<?> c = ConverterRegistry.getConverter((Class<Object>) xdp.getActualType(), (PropertyMetaModel<Object>) xdp);
 				scd.setPresentationConverter((IConverter<V>) c);
 			}
 		}
@@ -355,7 +357,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	}
 
 	private <V, R> void defineRendererProperty(final String property, final String width, final IConverter<R> conv, final Class<R> convclz, final String caption, final String cssclass,
-		final IRenderInto< ? > nodeRenderer, final Class< ? > nrclass, final Boolean nowrap, SortableType sort, ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper<?> sortHelper,
+		final IRenderInto<?> nodeRenderer, final Class<?> nrclass, final Boolean nowrap, SortableType sort, ICellClicked<?> clickHandler, boolean defaultsort, ISortHelper<?> sortHelper,
 		final PropertyMetaModel<V> pmm) {
 		final SimpleColumnDef<V> cd = new SimpleColumnDef<V>(this, pmm);
 		add(cd);
@@ -383,15 +385,15 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		}
 	}
 
-	private <V, R> SortableType defineClassProperty(final IConverter<R> conv, final Class<R> convclz, final IRenderInto< ? > nodeRenderer, final Class< ? > nrclass, SortableType sort,
-		ICellClicked< ? > clickHandler, boolean defaultsort, ISortHelper<?> sortHelper, SimpleColumnDef<V> cd) {
+	private <V, R> SortableType defineClassProperty(final IConverter<R> conv, final Class<R> convclz, final IRenderInto<?> nodeRenderer, final Class<?> nrclass, SortableType sort,
+		ICellClicked<?> clickHandler, boolean defaultsort, ISortHelper<?> sortHelper, SimpleColumnDef<V> cd) {
 		cd.setContentRenderer((IRenderInto<V>) tryRenderer(nodeRenderer, nrclass));
 		cd.setPropertyName("");
 		cd.setPresentationConverter((IConverter<V>) tryConverter(convclz, conv));
 
 		//-- We can only sort on this by using a sort helper....
 		if(sort != null && (sort == SortableType.SORTABLE_ASC || sort == SortableType.SORTABLE_DESC) && sortHelper == null) {
-			System.out.println("ERROR: Attempt to define column without property name as sortable"); // FIXME Must become exception.
+			LOG.error("ERROR: Attempt to define column without property name as sortable"); // FIXME Must become exception.
 		} else {
 			if(sort == null)
 				sort = SortableType.UNKNOWN;
@@ -412,10 +414,11 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	public void addDefaultColumns() {
 		final List<DisplayPropertyMetaModel> dpl = m_metaModel.getTableDisplayProperties();
 		if(dpl.size() == 0)
-			throw new IllegalStateException("The list-of-columns to show is empty, and the class " + m_metaModel.getActualClass() + " has no @MetaObject definition defining a set of columns as default table columns, so there.");
-		List<ExpandedDisplayProperty< ? >> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, m_metaModel, null);
+			throw new IllegalStateException(
+				"The list-of-columns to show is empty, and the class " + m_metaModel.getActualClass() + " has no @MetaObject definition defining a set of columns as default table columns, so there.");
+		List<ExpandedDisplayProperty<?>> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, m_metaModel, null);
 		xdpl = ExpandedDisplayProperty.flatten(xdpl); // Flatten the list: expand any compounds.
-		for(final ExpandedDisplayProperty< ? > xdp : xdpl) {
+		for(final ExpandedDisplayProperty<?> xdp : xdpl) {
 			addExpandedDisplayProp(xdp);
 		}
 	}
@@ -445,7 +448,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		int totpix = 0;
 		int ntoass = 0; // #columns that need a width
 		int totdw = 0; // Total display width of all unassigned columns.
-		for(final SimpleColumnDef< ? > scd : m_columnList) {
+		for(final SimpleColumnDef<?> scd : m_columnList) {
 			String cwidth = scd.getWidth();
 			if(cwidth == null || cwidth.length() == 0) {
 				ntoass++;
@@ -477,7 +480,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 			}
 
 			//-- Reassign the percentage left over all unassigned columns. Do it streaming, to ensure we reach 100%
-			for(final SimpleColumnDef< ? > scd : m_columnList) {
+			for(final SimpleColumnDef<?> scd : m_columnList) {
 				String width = scd.getWidth();
 				if(width == null || width.length() == 0) {
 					//-- Calculate a size factor, then use it to assign
@@ -497,16 +500,16 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 */
 	@Override
 	@NonNull
-	public Iterator<SimpleColumnDef< ? >> iterator() {
+	public Iterator<SimpleColumnDef<?>> iterator() {
 		return m_columnList.iterator();
 	}
 
-	public int indexOf(@NonNull SimpleColumnDef< ? > scd) {
+	public int indexOf(@NonNull SimpleColumnDef<?> scd) {
 		return m_columnList.indexOf(scd);
 	}
 
 	@Nullable
-	public SimpleColumnDef< ? > getSortColumn() {
+	public SimpleColumnDef<?> getSortColumn() {
 		return m_sortColumn;
 	}
 
@@ -523,6 +526,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Typeful column definition code.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Add and return the column definition for a column on the specified property. Because Java still has no
 	 * first-class properties (sigh) you need to pass in the property's type to get a typeful column. If you
@@ -552,8 +556,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @return
 	 */
 	@NonNull
-	public SimpleColumnDef< ? > column(@NonNull @GProperty String property) {
-		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
+	public SimpleColumnDef<?> column(@NonNull @GProperty String property) {
+		PropertyMetaModel<?> pmm = model().getProperty(property);            // Get the appropriate model
 		return createColumnDef(pmm);
 	}
 
@@ -588,8 +592,8 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	 * @return
 	 */
 	@NonNull
-	public ExpandedColumnDef< ? > expand(@NonNull @GProperty String property) {
-		PropertyMetaModel< ? > pmm = model().getProperty(property);			// Get the appropriate model
+	public ExpandedColumnDef<?> expand(@NonNull @GProperty String property) {
+		PropertyMetaModel<?> pmm = model().getProperty(property);            // Get the appropriate model
 		return createExpandedColumnDef(pmm);
 	}
 
@@ -601,9 +605,9 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 	@NonNull
 	private <V> ExpandedColumnDef<V> createExpandedColumnDef(@NonNull PropertyMetaModel<V> pmm) {
 		//-- Try to see what the column expands to
-		final ExpandedDisplayProperty< ? > xdpt = ExpandedDisplayProperty.expandProperty(pmm);
-		final List<ExpandedDisplayProperty< ? >> flat = new ArrayList<ExpandedDisplayProperty< ? >>();
-		ExpandedDisplayProperty.flatten(flat, xdpt); 									// Expand any compounds;
+		final ExpandedDisplayProperty<?> xdpt = ExpandedDisplayProperty.expandProperty(pmm);
+		final List<ExpandedDisplayProperty<?>> flat = new ArrayList<ExpandedDisplayProperty<?>>();
+		ExpandedDisplayProperty.flatten(flat, xdpt);                                    // Expand any compounds;
 		if(flat.size() == 0)
 			throw new IllegalStateException("Expansion for property " + pmm + " resulted in 0 columns!?");
 
@@ -614,10 +618,10 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef< ? >> {
 		 * on synthetic column definitions because they cannot be "spread" over the individual columns.
 		 */
 		ExpandedColumnDef<V> xcd = new ExpandedColumnDef<V>(this, pmm.getActualType(), pmm.getName());
-		for(final ExpandedDisplayProperty< ? > xdp : flat) {
+		for(final ExpandedDisplayProperty<?> xdp : flat) {
 			if(xdp.getName() == null)
 				throw new IllegalStateException("All columns MUST have some name");
-			SimpleColumnDef< ? > ccd = addExpandedDisplayProp(xdp);
+			SimpleColumnDef<?> ccd = addExpandedDisplayProp(xdp);
 			xcd.addExpanded(ccd);
 		}
 		return xcd;

@@ -13,6 +13,8 @@ import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.StartTagType;
 import net.htmlparser.jericho.Tag;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.util.StringTool;
 
 import java.io.IOException;
@@ -29,6 +31,8 @@ import java.util.Set;
  * Created on Feb 26, 2013
  */
 final public class HtmlUtil {
+	private static final Logger LOG = LoggerFactory.getLogger(HtmlUtil.class);
+
 	private HtmlUtil() {}
 
 	private static final Set<String> VALID_ELEMENT_NAMES = new HashSet<String>(Arrays.asList(HTMLElementName.BR, HTMLElementName.P, HTMLElementName.B, HTMLElementName.I,
@@ -106,7 +110,7 @@ final public class HtmlUtil {
 				input = input.substring(0, input.length() - WS2.length());
 			return input;
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("HtmlUtil.compact error: " + x, x);
 			return input;
 		}
 	}

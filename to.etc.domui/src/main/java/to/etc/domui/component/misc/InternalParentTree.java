@@ -26,6 +26,8 @@ package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
@@ -57,6 +59,8 @@ import java.util.List;
  * Created on Dec 28, 2010
  */
 public class InternalParentTree extends Div {
+	static private final Logger LOG = LoggerFactory.getLogger(InternalParentTree.class);
+
 	private static final String PMS = ". Please make sure you use the latest plugin version always.";
 
 	private NodeBase m_touched;
@@ -92,7 +96,7 @@ public class InternalParentTree extends Div {
 		//-- Run all parents.
 		TBody b = list.addTable();
 
-		for(NodeBase nb = m_touched; nb != null;) {
+		for(NodeBase nb = m_touched; nb != null; ) {
 			renderComponentLine(b, nb);
 
 			if(!nb.hasParent())
@@ -124,7 +128,6 @@ public class InternalParentTree extends Div {
 		}
 		td.add(new Img("THEME/" + icon));
 
-
 		//-- If applicable: component creation location
 		StackTraceElement[] allocSt = node.getAllocationTracepoint();
 		StackTraceElement created = null;
@@ -141,7 +144,7 @@ public class InternalParentTree extends Div {
 
 		td.add(nn);
 		if(null != created) {
-			StackTraceElement morons = created;			// Pathetic.
+			StackTraceElement morons = created;            // Pathetic.
 			td.addCssClass("ui-ipt-link");
 			td.setTitle("Open the location where the component is created");
 			td.setClicked(clickednode -> openSource(morons));
@@ -196,14 +199,13 @@ public class InternalParentTree extends Div {
 				if(ste.getMethodName().equals("<init>"))
 					continue;
 			}
-			if(ste.getMethodName().equals("<init>")){
+			if(ste.getMethodName().equals("<init>")) {
 				continue;
 			}
 			res.add(ste);
 		}
 		return res;
 	}
-
 
 	/**
 	 * Show a stacktrace window with the ability to open the source for that element.
@@ -309,16 +311,15 @@ public class InternalParentTree extends Div {
 
 			case REFUSED:
 				if(isOldPortInUse()) {
-					return "None of your running Eclipse instances wanted to open the page. It looks like " +	//
+					return "None of your running Eclipse instances wanted to open the page. It looks like " +    //
 						"you have at least one Eclipse installation that uses the old version of the plugin, which is not compatible. " + //
 						"Please update the DomUI plugin to the latest version using Help -> Check for updates in all your running Eclipses"; //
 				} else {
-					return "An unexpected error has occurred: none of the running Eclipse installations " +	//
+					return "An unexpected error has occurred: none of the running Eclipse installations " +    //
 						"recognized this web application. Please report this as a bug.";
 				}
 		}
 	}
-
 
 	protected void openSource(StackTraceElement ste) {
 		NodeBase body = getPage().getBody();
@@ -372,9 +373,9 @@ public class InternalParentTree extends Div {
 		}
 
 		//-- Nothing worked. Distill some meaning of why not.
-		System.out.println("DomUI: cannot connect to Eclipse on localhost ports 5051..5060. See " + URL);
+		LOG.error("DomUI: cannot connect to Eclipse on localhost ports 5051..5060. See " + URL);
 		if(nconnects > 0) {
-			return new CommandResponse(AnswerType.REFUSED, null);					// We had connects but all refused.
+			return new CommandResponse(AnswerType.REFUSED, null);                    // We had connects but all refused.
 		}
 		return new CommandResponse(AnswerType.NOCONNECTION, null);
 	}
@@ -398,7 +399,10 @@ public class InternalParentTree extends Div {
 	}
 
 	public enum AnswerType {
-		NOCONNECTION, REFUSED, ERROR, SUCCESS
+		NOCONNECTION,
+		REFUSED,
+		ERROR,
+		SUCCESS
 	}
 
 	static public class CommandResponse {
@@ -429,10 +433,6 @@ public class InternalParentTree extends Div {
 
 	/**
 	 * New-style command sending: send a SELECT [webapp] COMMAND url and wait for Eclipse to answer.
-	 * @param port
-	 * @param webappRoot
-	 * @param name
-	 * @return
 	 */
 	@NonNull
 	static private CommandResponse tryPortCommand(int port, @NonNull String webappRoot, @NonNull String name) {
@@ -441,7 +441,7 @@ public class InternalParentTree extends Div {
 		try {
 			s = new Socket("127.0.0.1", port);
 		} catch(Exception x) {
-			System.out.println("DomUI: connect to Eclipse on socket "+port+" failed: "+x);
+			LOG.info("DomUI: connect to Eclipse on socket " + port + " failed: " + x);
 			return new CommandResponse(AnswerType.NOCONNECTION, null);
 		}
 
@@ -475,7 +475,7 @@ public class InternalParentTree extends Div {
 			baos.close();
 
 			String response = new String(baos.toByteArray(), "utf-8");
-			System.out.println("DomUI Eclipse: response=" + response);
+			LOG.debug("DomUI Eclipse: response=" + response);
 
 			//-- If response ends in lf strip it
 			while(response.length() > 0 && response.charAt(response.length() - 1) == '\n')
@@ -503,8 +503,7 @@ public class InternalParentTree extends Div {
 				return new CommandResponse(AnswerType.REFUSED, rest);
 			}
 		} catch(Exception x) {
-			System.out.println("DomUI: eclipse data exchange failed with " + x);
-			x.printStackTrace();
+			LOG.error("DomUI: eclipse data exchange failed with " + x, x);
 
 			//-- We return refused, because this might not be the right eclipse anyway.
 			return new CommandResponse(AnswerType.REFUSED, x.toString());
@@ -513,9 +512,9 @@ public class InternalParentTree extends Div {
 			try {
 				if(s != null)
 					s.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
-
 
 }

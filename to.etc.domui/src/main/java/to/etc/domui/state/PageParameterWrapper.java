@@ -3,6 +3,8 @@ package to.etc.domui.state;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.trouble.MissingParameterException;
 import to.etc.domui.trouble.UnusableParameterException;
@@ -26,6 +28,8 @@ import java.util.Set;
  */
 @NonNullByDefault
 public class PageParameterWrapper implements IPageParameters {
+	static private final Logger LOG = LoggerFactory.getLogger(PageParameterWrapper.class);
+
 	private IBasicParameterContainer m_container;
 
 	public PageParameterWrapper(IBasicParameterContainer container) {
@@ -97,7 +101,7 @@ public class PageParameterWrapper implements IPageParameters {
 		if(ar.length == 1)
 			return ar[0];
 
-		System.err.println("PARAMERROR Multiple parameter values for " + name + " urlin=" + getInputPath());
+		LOG.error("PARAMERROR Multiple parameter values for " + name + " urlin=" + getInputPath());
 		return ar[0];
 	}
 

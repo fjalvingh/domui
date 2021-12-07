@@ -2,6 +2,8 @@ package to.etc.domui.autotest;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
@@ -39,6 +41,8 @@ import java.util.Set;
  * Created on Oct 2, 2013
  */
 public class DomuiPageTester implements IDomUITestInfo {
+	private static final Logger LOG = LoggerFactory.getLogger(DomuiPageTester.class);
+
 	private static class PageRef {
 		@NonNull
 		private final Class< ? extends UrlPage> m_pageClass;
@@ -485,7 +489,7 @@ public class DomuiPageTester implements IDomUITestInfo {
 			try {
 				ctx.discard();
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("error in interaction: " + x, x);
 			}
 			UIContext.internalClear();
 		}

@@ -24,17 +24,20 @@
  */
 package to.etc.domui.component.dynaima;
 
+import org.jCharts.Chart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.dynaima.BarCharter.BarCharterParameters;
+import to.etc.domui.component.dynaima.PieCharter.PieCharterProperties;
+import to.etc.sjit.ImaTool;
+
 import java.awt.*;
-import java.awt.image.*;
-import java.io.*;
-
-import org.jCharts.*;
-
-import to.etc.domui.component.dynaima.BarCharter.*;
-import to.etc.domui.component.dynaima.PieCharter.*;
-import to.etc.sjit.*;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
 
 public class JGraphChartSource implements IBufferedImageSource {
+	static private final Logger LOG = LoggerFactory.getLogger(JGraphChartSource.class);
+
 	private Chart m_chart;
 
 	private ICharterHelper m_helper;
@@ -60,7 +63,7 @@ public class JGraphChartSource implements IBufferedImageSource {
 			m_helper.finish();
 			m_helper = null;
 		}
-		System.out.println("DYNAIMA: Generating jGraph graph");
+		LOG.info("DYNAIMA: Generating jGraph graph");
 		BufferedImage bufferedImage = null;
 
 		//---if we use an ImageMap, we already have rendered the chart by the time we get here so,
@@ -102,7 +105,7 @@ public class JGraphChartSource implements IBufferedImageSource {
 		m_helper = c;
 		return c;
 	}
-	
+
 	public BarCharter createBarChart(ChartDimensions chartDimensions, String buckettitle, String valuetitle) {
 		BarCharter c = new BarCharter(this, chartDimensions, buckettitle, valuetitle);
 		m_helper = c;

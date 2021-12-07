@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.WrappedException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,8 +68,7 @@ public enum ExcelFormat {
 		try {
 			return WorkbookFactory.create(is);
 		} catch(IOException | InvalidFormatException e) {
-			e.printStackTrace();
-			throw new IllegalStateException("wrapped exception", e);
+			throw WrappedException.wrap(e);
 		}
 	}
 

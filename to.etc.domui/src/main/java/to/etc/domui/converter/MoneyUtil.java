@@ -273,8 +273,6 @@ public class MoneyUtil {
 	/**
 	 * Deprecated - do not use double for monetary amounts -
 	 * Renders as a full value [C -###,###,###.##], but removes the fraction if it is all zeroes.
-	 * @param v
-	 * @return
 	 */
 	@Deprecated
 	static public String renderTruncatedWithSign(double v) {
@@ -283,8 +281,6 @@ public class MoneyUtil {
 
 	/**
 	 * Renders as a full value [C -###,###,###.##], but removes the fraction if it is all zeroes.
-	 * @param v
-	 * @return
 	 */
 	static public String renderTruncatedWithSign(BigDecimal v) {
 		return render(v, true, true, true);
@@ -300,8 +296,6 @@ public class MoneyUtil {
 
 	/**
 	 * Deprecated - do not use double for monetary amounts.
-	 * @param value
-	 * @return
 	 */
 	@Deprecated
 	public static double roundValue(double value) {
@@ -318,10 +312,6 @@ public class MoneyUtil {
 	 * This operation compares two double values for equality.
 	 * Because floating point calculations may involve rounding, calculated double values may not be accurate, so we need to compare with certain tolerance.
 	 * Since we are using rounding of monetary calculations with predefined precisions, we reuse same tolerance here, so both specified double values are compared as rounded monetary values.
-	 *
-	 * @param value1
-	 * @param value2
-	 * @return
 	 */
 	public static boolean areRoundedValuesEqual(double value1, double value2) {
 		return (roundValue(value1) == roundValue(value2));
@@ -333,8 +323,6 @@ public class MoneyUtil {
 
 	/**
 	 * Checks if specified amount is zero value, when built-in rounding mode and scale are applied.
-	 * @param value
-	 * @return
 	 */
 	public static boolean isRoundedAsZero(@NonNull BigDecimal value) {
 		return (roundValue(BigDecimal.ZERO).equals(roundValue(value)));

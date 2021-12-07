@@ -158,7 +158,7 @@ abstract public class AbstractSassResolver<O> {
 			if(null != ref) {
 				return ref;
 			}
-			System.out.println("SCSS resolve for " + original + " - FAILED");
+			LOG.error("SCSS resolve for " + original + " - FAILED");
 			return null;                                // Not found
 		} finally {
 			ts = System.nanoTime() - ts;
@@ -192,7 +192,7 @@ abstract public class AbstractSassResolver<O> {
 		} catch(ThingyNotFoundException tnf) {				// Normal exception if resource cannot be located.
 			return null;
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("Invalid REF: " + x);
 			return null;
 		}
 	}

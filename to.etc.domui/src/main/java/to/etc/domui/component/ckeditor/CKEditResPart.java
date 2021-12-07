@@ -25,6 +25,8 @@
 package to.etc.domui.component.ckeditor;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.htmleditor.EditorFile;
 import to.etc.domui.component.htmleditor.EditorFolder;
 import to.etc.domui.component.htmleditor.EditorResourceType;
@@ -58,6 +60,8 @@ import java.util.List;
  * Created on Oct 1, 2008
  */
 public class CKEditResPart implements IUnbufferedPartFactory {
+	static private final Logger LOG = LoggerFactory.getLogger(CKEditResPart.class);
+
 	static private final ThreadLocal<DateFormat> m_format = new ThreadLocal<DateFormat>();
 
 	static private DateFormat getFormatter() {
@@ -71,8 +75,8 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 
 	@Override
 	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
-		System.out.println("QS=" + param.getRequestResponse().getQueryString());
-		System.out.println("RURL=" + rurl);
+		LOG.info("QS=" + param.getRequestResponse().getQueryString());
+		LOG.info("RURL=" + rurl);
 
 		ComponentPartRenderer cpr = new ComponentPartRenderer();
 		cpr.initialize(app, param, rurl); // Decode input to get to the component in question.

@@ -21,15 +21,17 @@ public class DefaultAsyncCompletionListener implements IAsyncCompletionListener 
 	public DefaultAsyncCompletionListener(NodeContainer parent) {
 		this(parent, null);
 	}
+
 	public DefaultAsyncCompletionListener(NodeContainer parent, IAsyncCompletionListener chained) {
 		m_parent = parent;
 		m_chained = chained;
 	}
 
-	@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
+	@Override
+	public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
 		//-- If we've got an exception replace the contents with the exception message.
-		if(errorException != null && ! (errorException instanceof CancelledException)) {
-			errorException.printStackTrace();
+		if(errorException != null && !(errorException instanceof CancelledException)) {
+			//errorException.printStackTrace();
 			StringBuilder sb = new StringBuilder(8192);
 			StringTool.strStacktrace(sb, errorException);
 			String s = sb.toString();

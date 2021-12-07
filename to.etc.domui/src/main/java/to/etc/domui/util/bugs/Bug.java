@@ -26,6 +26,8 @@ package to.etc.domui.util.bugs;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.janitor.Janitor;
 import to.etc.domui.util.janitor.JanitorTask;
@@ -48,6 +50,7 @@ import java.util.concurrent.Executor;
  * Created on Jun 18, 2010
  */
 final public class Bug {
+	static private final Logger LOG = LoggerFactory.getLogger(Bug.class);
 
 	static private final ThreadLocal<List<IBugListener>> m_threadListener = new ThreadLocal<>();
 
@@ -70,13 +73,14 @@ final public class Bug {
 	@Nullable
 	private static Executor m_executor;
 
-	private Bug() {}
+	private Bug() {
+	}
 
 	/**
 	 * Show a bug using the specified message.
 	 */
 	static public void bug(@NonNull String message) {
-		BugItem	bi = new BugItem(message);
+		BugItem bi = new BugItem(message);
 		postBug(bi);
 	}
 
@@ -96,10 +100,10 @@ final public class Bug {
 	}
 
 	private static void postBug(BugItem bi) {
-		if(isRateLimited(bi))										// Ignore if we're receiving too many.
+		if(isRateLimited(bi))                                        // Ignore if we're receiving too many.
 			return;
 
-		addContributions(bi);										// Let all contributors contribute
+		addContributions(bi);                                        // Let all contributors contribute
 
 		List<IBugListener> threadListeners = getThreadListeners();
 		report(threadListeners, bi);
@@ -112,22 +116,23 @@ final public class Bug {
 		}
 		if(true || (gll.size() == 0 && threadListeners.size() == 0)) {
 			//-- No one listens -> report to console.
-			System.out.println(bi.toString());
+			LOG.error(bi.toString());
 			Throwable x = bi.getException();
 			if(null != x) {
-				x.printStackTrace();
+				LOG.error("Failed to post bug: " + x, x);
 			}
 		}
 	}
 
 	/**
 	 * Checks whether this issue is rate-limited, i.e. it occurs too often.
+	 *
 	 * @return T if the issue should not be reported again.
 	 */
 	private static boolean isRateLimited(BugItem item) {
-		if(item.getSeverity() != BugSeverity.PANIC)				// Only PANICs are rate-limited
+		if(item.getSeverity() != BugSeverity.PANIC)                // Only PANICs are rate-limited
 			return false;
-		if(m_maxDuplicates <= 0)								// Rate-limiting disabled?
+		if(m_maxDuplicates <= 0)                                // Rate-limiting disabled?
 			return false;
 
 		String hash = item.getHash();
@@ -144,10 +149,10 @@ final public class Bug {
 			try {
 				contributor.onContribute(bi);
 			} catch(Exception x) {
-				System.err.println("=== Exception in BUG contributor ===");
-				System.err.println("Listener class   : " + contributor.getClass().getName());
-				System.err.println("Listener toString: " + contributor.toString());
-				x.printStackTrace();
+				LOG.error("=== Exception in BUG contributor ==="
+					+ "\nListener class   : " + contributor.getClass().getName()
+					+ "\nListener toString: " + contributor.toString()
+					, x);
 			}
 		}
 	}
@@ -157,10 +162,10 @@ final public class Bug {
 			try {
 				listener.bugSignaled(bi);
 			} catch(Exception x) {
-				System.err.println("=== Exception in BUG listener ===");
-				System.err.println("Listener class   : " + listener.getClass().getName());
-				System.err.println("Listener toString: " + listener.toString());
-				x.printStackTrace();
+				LOG.error("=== Exception in BUG listener ==="
+						+ "\nListener class   : " + listener.getClass().getName()
+						+ "\nListener toString: " + listener.toString()
+					, x);
 			}
 		}
 	}
@@ -183,7 +188,7 @@ final public class Bug {
 	 */
 	static public synchronized void removeGlobalListener(IBugListener listener) {
 		List<IBugListener> listeners = m_listeners;
-		if(! listeners.contains(listener))
+		if(!listeners.contains(listener))
 			return;
 		listeners = new ArrayList<>(listeners);
 		listeners.remove(listener);
@@ -208,16 +213,16 @@ final public class Bug {
 		List<IBugListener> list = getThreadListeners();
 		if(list.contains(l))
 			return;
-		list = new ArrayList<>(list);							// Copy
+		list = new ArrayList<>(list);                            // Copy
 		list.add(l);
 		m_threadListener.set(list);
 	}
 
 	static public void removeThreadListener(@NonNull IBugListener listener) {
 		List<IBugListener> list = getThreadListeners();
-		if(! list.contains(listener))
+		if(!list.contains(listener))
 			return;
-		list = new ArrayList<>(list);							// Copy
+		list = new ArrayList<>(list);                            // Copy
 		list.remove(listener);
 		m_threadListener.set(list);
 	}
@@ -233,7 +238,7 @@ final public class Bug {
 
 	static public synchronized void removeContributor(IBugInfoContributor contributor) {
 		List<IBugInfoContributor> contributors = m_contributors;
-		if(! contributors.contains(contributor))
+		if(!contributors.contains(contributor))
 			return;
 		contributors = new ArrayList<>(contributors);
 		contributors.remove(contributor);
@@ -269,7 +274,8 @@ final public class Bug {
 		m_initialized = true;
 
 		Janitor.getJanitor().addTask(sweepintervalInHours * 60, sweepintervalInHours * 60, "BugDups", new JanitorTask() {
-			@Override public void run() {
+			@Override
+			public void run() {
 				Executor executor = m_executor;
 				if(null == executor) {
 					sweep();
@@ -296,7 +302,7 @@ final public class Bug {
 	public static void sweep() {
 		List<TodoItem> todoList = new ArrayList<>();
 		long cts = System.currentTimeMillis();
-		long expire = cts - 2 * 24 * ONE_HOUR_IN_MILLIS;		// Expire everything that did not occur again in 2 days
+		long expire = cts - 2 * 24 * ONE_HOUR_IN_MILLIS;        // Expire everything that did not occur again in 2 days
 		synchronized(Bug.class) {
 			long last = m_lastSweepTime;
 			m_lastSweepTime = cts;
@@ -333,10 +339,10 @@ final public class Bug {
 					try {
 						((IBugListenerEx) listener).reportRepeats(item.m_hash, item.m_since, item.m_count);
 					} catch(Exception x) {
-						System.err.println("=== Exception in BUG listener ===");
-						System.err.println("Listener class   : " + listener.getClass().getName());
-						System.err.println("Listener toString: " + listener.toString());
-						x.printStackTrace();
+						LOG.error("=== Exception in BUG contributor ==="
+								+ "\nListener class   : " + listener.getClass().getName()
+								+ "\nListener toString: " + listener.toString()
+							, x);
 					}
 				}
 			}

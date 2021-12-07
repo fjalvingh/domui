@@ -223,7 +223,6 @@ final public class PageRequestHandler {
 				if(LOG.isDebugEnabled())
 					LOG.debug(msg);
 				logUser(msg);
-				System.out.println(msg);
 				m_commandWriter.generateEmptyDelta(m_ctx);
 				return;											// jal 20121122 Must return after sending that delta or the document is invalid!!
 			}
@@ -460,11 +459,11 @@ final public class PageRequestHandler {
 			logUser("Session exception: " + x);
 			sendUnexpectedLogoutMessageToUser("The session has been invalidated; perhaps you have logged out in another window?");
 		} catch(Exception xxx) {
-			System.err.println("Double exception in handling full page build exception");
-			System.err.println("Original exception: " + x);
-			System.err.println("Second one on forceRebuild: " + xxx);
-			x.printStackTrace();
-			xxx.printStackTrace();
+			LOG.error("Double exception in handling full page build exception"
+				+	"]nOriginal exception: " + x
+				+	"Second one on forceRebuild: " + xxx
+				, x);
+			LOG.error("Second exception", xxx);
 		}
 	}
 
@@ -758,8 +757,7 @@ final public class PageRequestHandler {
 		try {
 			page.modelToControl();
 		} catch(Exception xxx) {
-			System.out.println("Double exception on modelToControl: " + xxx);
-			xxx.printStackTrace();
+			LOG.error("Double exception on modelToControl: " + xxx, xxx);
 		}
 
 		E nx = (E) ex;
@@ -768,11 +766,11 @@ final public class PageRequestHandler {
 			throw x; 										// Move on, nothing to see here,
 		if(targetComponent != null && !targetComponent.isAttached()) {
 			targetComponent = page.getTheCurrentControl();
-			System.out.println("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
+			LOG.error("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
 		}
 		if(targetComponent == null || !targetComponent.isAttached()) {
 			//throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
-			System.err.println("INTERNAL: Cannot determine node to report exception /on/:" + x);
+			LOG.error("INTERNAL: Cannot determine node to report exception /on/:" + x);
 			return false;
 		}
 
@@ -790,7 +788,7 @@ final public class PageRequestHandler {
 				throw new IllegalStateException("Unknown node '" + targetComponentID + "' for action='" + action + "'");
 
 			logUser(page, "Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
-			System.out.println("Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
+			LOG.warn("Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
 			m_inhibitlog = true;
 		} else if(Constants.ACMD_CLICKED.equals(action)) {
 			handleClicked(page, targetComponent);
@@ -1106,8 +1104,7 @@ final public class PageRequestHandler {
 		try {
 			m_applicationRequestHandler.getOopsRenderer().renderOopsFrame(m_ctx, x);
 		} catch(Exception oopx) {
-			System.out.println("Exception while rendering exception page!!?? " + oopx);
-			oopx.printStackTrace();
+			LOG.error("Exception while rendering exception page!!?? " + oopx, oopx);
 			if(x instanceof Error) {
 				throw (Error) x;
 			} else {
