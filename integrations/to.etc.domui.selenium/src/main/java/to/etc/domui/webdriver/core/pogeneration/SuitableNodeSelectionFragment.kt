@@ -1,6 +1,8 @@
 package to.etc.domui.webdriver.core.pogeneration
 
 import to.etc.domui.component.buttons.DefaultButton
+import to.etc.domui.component.layout.Window
+import to.etc.domui.component.misc.MsgBox2
 import to.etc.domui.component.tbl.DataTable
 import to.etc.domui.component.tbl.InstanceSelectionModel
 import to.etc.domui.component.tbl.RowRenderer
@@ -10,9 +12,33 @@ import to.etc.domui.databinding.observables.ObservableList
 import to.etc.domui.dom.html.Div
 import to.etc.domui.dom.html.NodeBase
 import to.etc.domui.dom.html.Pre
+import to.etc.domui.server.ITestUiCodeGeneratorListener
 import to.etc.domui.util.DomUtil
 
 class SuitableNodeSelectionFragment(private val gen: POGenerator) : Div() {
+
+	companion object {
+		@JvmStatic
+		val defaultTestUiGenerator = object : ITestUiCodeGeneratorListener {
+			override fun isShownFor(node: NodeBase): Boolean {
+				val body = node.page.body
+				val children = body.getDeepChildren(Window::class.java)
+				return children.any { "pageObjectGeneration" == it.testID }
+			}
+
+			override fun showFor(node: NodeBase) {
+				val body = node.page.body
+				val generator = POGenerator(body)
+				val frag = SuitableNodeSelectionFragment(generator)
+				frag.isStretchHeight = true
+				val dlg = MsgBox2.on(body)
+				dlg.content(frag).title("Page object generation")
+				dlg.resizable()
+				dlg.size(900, 500)
+				dlg.testID = "pageObjectGeneration"
+			}
+		}
+	}
 
 	val ism = InstanceSelectionModel<NodeBase>(true)
 	var packageName: String = gen.page.javaClass.packageName
@@ -54,6 +80,7 @@ class SuitableNodeSelectionFragment(private val gen: POGenerator) : Div() {
 			DomUtil.clipboardCopy(btn, code)
 		}
 	}
+
 	fun isCopyDisabled(): Boolean {
 		return code == null
 	}

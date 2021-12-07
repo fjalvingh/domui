@@ -64,6 +64,8 @@ public class Constants {
 
 	static public final String ACMD_DEVTREE = "DEVTREE";
 
+	static public final String ACMD_TESTGEN = "TESTGEN";
+
 	static public final String ACMD_NOTIFY_CLIENT_POSITION_AND_SIZE = "notifyClientPositionAndSize";
 
 	static public final String ACDM_NOTIFY_PAGE = "notifyPage";
