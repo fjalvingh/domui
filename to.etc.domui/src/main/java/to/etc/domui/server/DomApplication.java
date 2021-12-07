@@ -1846,8 +1846,7 @@ public abstract class DomApplication {
 			try {
 				usl.onPageCreated(pg);
 			} catch(Exception x) {
-				System.err.println("Exception in DomUI state listener " + usl + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception in DomUI state listener " + usl + ": " + x, x);
 			}
 		}
 	}
@@ -1860,16 +1859,14 @@ public abstract class DomApplication {
 			try {
 				npi.pageDestroyed(pg.getBody());
 			} catch(Exception x) {
-				System.err.println("Exception while destroying page " + pg + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception while destroying page " + pg + ": " + x, x);
 			}
 		}
 		for(IDomUIStateListener usl : getUIStateListeners()) {
 			try {
 				usl.onPageDestroyed(pg);
 			} catch(Exception x) {
-				System.err.println("Exception in DomUI state listener " + usl + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception in DomUI state listener " + usl + ": " + x, x);
 			}
 		}
 	}

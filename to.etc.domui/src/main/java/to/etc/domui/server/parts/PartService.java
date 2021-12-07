@@ -325,7 +325,7 @@ public class PartService {
 		pf.generate(pr, m_application, key, rdl);
 		String mime = pr.getMime();
 		if(mime == null) {
-			System.err.println("The part " + pf + " did not set a MIME type, key=" + key + ", using octet-stream");
+			LOG.error("The part " + pf + " did not set a MIME type, key=" + key + ", using octet-stream");
 			mime = "application/octet-stream";
 		}
 		os.close();

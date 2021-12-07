@@ -2,8 +2,12 @@ package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final public class CidPair {
+	static private final Logger LOG = LoggerFactory.getLogger(CidPair.class);
+
 	@NonNull
 	final private String m_windowId;
 
@@ -15,11 +19,11 @@ final public class CidPair {
 		m_conversationId = conversationId;
 
 		if(! isValid(windowId)) {
-			System.err.println("Invalid window ID in $CID " + windowId + "." + conversationId);
+			LOG.error("Invalid window ID in $CID " + windowId + "." + conversationId);
 			throw new IllegalStateException("Invalid window ID in CID");    // Do not show the ID - can be a XSS attack
 		}
 		if(! isValid(conversationId)) {
-			System.err.println("Invalid conversation ID in $CID " + windowId + "." + conversationId);
+			LOG.error("Invalid conversation ID in $CID " + windowId + "." + conversationId);
 			throw new IllegalStateException("Invalid conversation ID in CID");    // Do not show the ID - can be a XSS attack
 		}
 	}

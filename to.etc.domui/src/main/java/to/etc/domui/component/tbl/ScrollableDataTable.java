@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.html.Checkbox;
@@ -34,7 +36,9 @@ import java.util.List;
  */
 @Deprecated
 final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
-	static private final boolean DEBUG = true;
+	static private final Logger LOG = LoggerFactory.getLogger(ScrollableDataTable.class);
+
+	static private final boolean DEBUG = false;
 
 	private IRowRenderer<T> m_rowRenderer;
 
@@ -155,12 +159,12 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	private void loadMoreData() throws Exception {
 		if(m_allRendered) {
-			System.err.println("domui: ScrollableDataTable got unexpected loadMoreData");
+			LOG.error("domui: ScrollableDataTable got unexpected loadMoreData");
 			return;
 		}
 		int rows = getModel().getRows();
 		if(m_nextIndexToLoad >= rows) {
-			System.err.println("domui: ScrollableDataTable got unexpected loadMoreData and allrendered is false!?");
+			LOG.error("domui: ScrollableDataTable got unexpected loadMoreData and allrendered is false!?");
 			return;
 		}
 

@@ -234,8 +234,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 				//pg.getBody().onDestroy();
 			} catch(Exception x) {
 				if(! sessionDestroyed) {
-					System.err.println("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x);
-					x.printStackTrace();
+					LOG.error("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x, x);
 				}
 			}
 		}
@@ -301,8 +300,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 		try {
 			pg.internalOnDestroy();
 		} catch(Exception x) {
-			System.err.println("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x);
-			x.printStackTrace();
+			LOG.error("Exception in page " + pg.getBody() + "'s onDestroy handler: " + x, x);
 		}
 		m_pageMap.remove(pg.getBody().getClass().getName());
 		getWindowSession().getApplication().callPageDestroyedListeners(pg);

@@ -305,8 +305,7 @@ final public class DelayedActivitiesManager {
 		} catch(Exception x) {
 			//-- Do not report trouble if the manager is in the process of dying
 			if(!isTerminated()) {
-				System.err.println("FATAL Exception in DelayedActivitiesManager.run()!??!?!?!?\nAsy tasks WILL NOT COMPLETE anymore.");
-				x.printStackTrace();
+				LOG.error("FATAL Exception in DelayedActivitiesManager.run()!??!?!?!?\nAsy tasks WILL NOT COMPLETE anymore.", x);
 			}
 		} finally {
 			/*
@@ -345,7 +344,7 @@ final public class DelayedActivitiesManager {
 			try {
 				c.updateProgress(dai);
 			} catch(Exception x) {
-				System.err.println("Async action update exception: " + x);
+				LOG.error("Async action update exception: " + x, x);
 				x.printStackTrace();
 			}
 		}

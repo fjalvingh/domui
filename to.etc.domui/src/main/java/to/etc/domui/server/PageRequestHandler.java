@@ -459,11 +459,11 @@ final public class PageRequestHandler {
 			logUser("Session exception: " + x);
 			sendUnexpectedLogoutMessageToUser("The session has been invalidated; perhaps you have logged out in another window?");
 		} catch(Exception xxx) {
-			System.err.println("Double exception in handling full page build exception");
-			System.err.println("Original exception: " + x);
-			System.err.println("Second one on forceRebuild: " + xxx);
-			x.printStackTrace();
-			xxx.printStackTrace();
+			LOG.error("Double exception in handling full page build exception"
+				+	"]nOriginal exception: " + x
+				+	"Second one on forceRebuild: " + xxx
+				, x);
+			LOG.error("Second exception", xxx);
 		}
 	}
 

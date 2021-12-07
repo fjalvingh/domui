@@ -1084,18 +1084,16 @@ final public class WindowSession {
 							conversationId = cc.getId();
 					}
 				} catch(NotLoggedInException x) {
-					System.err.println("domui: developer page reload failed because a login is needed");
+					LOG.info("domui: developer page reload failed because a login is needed");
 				} catch(Exception x) {
-					System.err.println("domui: developer page reload failed: " + x);
-					x.printStackTrace();
+					LOG.error("domui: developer page reload failed: " + x, x);
 					LOG.info("Cannot reload " + sp.getClassName() + ": " + x);
 				}
 			}
 			saveWindowState();								// Save new window's state
 			return conversationId;
 		} catch(Exception x) {
-			System.err.println("domui: developer reload failed: " + x);
-			x.printStackTrace();
+			LOG.warn("domui: developer reload failed: " + x, x);
 			return null;
 		} finally {
 			internalDetachConversations();

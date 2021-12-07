@@ -135,7 +135,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	 * @param <T>
 	 */
 	@NonNullByDefault
-	public final static class ByComparatorSortHelper<T> implements ISortHelper<T>{
+	public final static class ByComparatorSortHelper<T> implements ISortHelper<T> {
 
 		private final String m_columnKey;
 
@@ -146,7 +146,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		 * @param columnKey
 		 * @param comparator
 		 */
-		public ByComparatorSortHelper(String columnKey, Comparator<T> comparator){
+		public ByComparatorSortHelper(String columnKey, Comparator<T> comparator) {
 			m_columnKey = columnKey;
 			m_comparator = comparator;
 		}
@@ -215,6 +215,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and setters.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 * @param refreshAfterShelve
@@ -259,14 +260,13 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		throw new IllegalStateException("No sessionSource and no contextSourceNode present - I do not know how to allocate a QDataContext");
 	}
 
-
 	final private void execQuery() throws Exception {
 		long ts = System.nanoTime();
 		QDataContext dc = null;
 
 		int queryLimit = getMaxRowCount() > 0 ? getMaxRowCount() : ITableModel.DEFAULT_MAX_SIZE;
 		QCriteria<T> query = m_query;
-		if (null != query && query.getLimit() > 0) {
+		if(null != query && query.getLimit() > 0) {
 			queryLimit = query.getLimit();
 		}
 		queryLimit++; // Increment by 1: if that amount is returned we know we have overflowed.
@@ -275,7 +275,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		Comparator<T> sortComparator = m_sortComparator;
 		if(null != sortComparator) {
 			//custom sort requires more data fetch for in-memory sort
-			if (queryLimit <= ITableModel.IN_MEMORY_FILTER_OR_SORT_MAX_SIZE) {
+			if(queryLimit <= ITableModel.IN_MEMORY_FILTER_OR_SORT_MAX_SIZE) {
 				queryLimit = ITableModel.IN_MEMORY_FILTER_OR_SORT_MAX_SIZE + 1;
 			}
 		}
@@ -303,19 +303,20 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 			try {
 				if(dc != null)
 					dc.close();
-			} catch(Exception x) {}
-		}
-		if (null != sortComparator){
-			if (getWorkResult().size() == queryLimit){
-				//more results than expected, we can't do in-memory sorting, for now we report into sys err, see later about reporting in UI as well
-				System.err.println("Unable to do proper in-memory sorting since query fetch more than " + (queryLimit - 1) + " rows!");
+			} catch(Exception x) {
 			}
-			if (m_desc) {
+		}
+		if(null != sortComparator) {
+			if(getWorkResult().size() == queryLimit) {
+				//more results than expected, we can't do in-memory sorting, for now we report into sys err, see later about reporting in UI as well
+				LOG.error("Unable to do proper in-memory sorting since query fetch more than " + (queryLimit - 1) + " rows!");
+			}
+			if(m_desc) {
 				getWorkResult().sort(Collections.reverseOrder(sortComparator));
-			}else{
+			} else {
 				getWorkResult().sort(sortComparator);
 			}
-			if (getWorkResult().size() > resultLimit) {
+			if(getWorkResult().size() > resultLimit) {
 				m_workResult = getWorkResult().subList(0, resultLimit + 1);
 			}
 		}
@@ -362,7 +363,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		QCriteria<T> query = m_query;
 		if(null == query)
 			throw new IllegalStateException("This model is not using a QCriteria query.");
-		m_criteriaSortOrder = new ArrayList<>(query.getOrder());		// Store the current query.
+		m_criteriaSortOrder = new ArrayList<>(query.getOrder());        // Store the current query.
 		query.getOrder().clear();
 		return query;
 	}
@@ -386,7 +387,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		try {
 			fireModelChanged();
 		} catch(Exception x) {
-			throw WrappedException.wrap(x);						// 8-(
+			throw WrappedException.wrap(x);                        // 8-(
 		}
 	}
 
@@ -479,7 +480,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		m_sort = key;
 		setSortComparator(null, null);
 		QCriteria<T> query = m_query;
-		if (null != query){
+		if(null != query) {
 			query.getOrder().clear();
 		}
 		fireModelSorted();
@@ -495,7 +496,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		m_desc = descending;
 		m_sort = null;
 		QCriteria<T> query = m_query;
-		if (null != query){
+		if(null != query) {
 			query.getOrder().clear();
 		}
 		setSortComparator(sortComparator, sortComparatorKey);
@@ -516,6 +517,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IShelveListener implementation.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * When the component is shelved we discard all results. This causes a requery when
 	 * unshelved (when accessed).
@@ -529,8 +531,8 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	}
 
 	@Override
-	public void onUnshelve() throws Exception {}
-
+	public void onUnshelve() throws Exception {
+	}
 
 	@Override
 	public void refresh() {

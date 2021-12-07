@@ -994,7 +994,7 @@ final public class DomUtil {
 				SQLException sx = (SQLException) curr;
 				while(sx.getNextException() != null) {
 					sx = sx.getNextException();
-					System.err.println("SQL NextException: " + sx);
+					USERLOG.error("SQL NextException: " + sx);
 				}
 			}
 		}

@@ -26,6 +26,8 @@ package to.etc.domui.component.delayed;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.css.DisplayType;
@@ -43,6 +45,8 @@ import to.etc.util.StringTool;
 import java.util.concurrent.CancellationException;
 
 final public class AsyncContainer extends Div {
+	static private final Logger LOG = LoggerFactory.getLogger(AsyncContainer.class);
+
 	@NonNull
 	final private IAsyncRunnable m_runnable;
 
@@ -204,8 +208,7 @@ final public class AsyncContainer extends Div {
 			try {
 				remove();								// Remove myself *after* this all.
 			} catch(Exception x) {
-				System.err.println("Could not remove AsyncContainer: " + x);
-				x.printStackTrace();
+				LOG.error("Could not remove AsyncContainer: " + x);
 			}
 		}
 	}

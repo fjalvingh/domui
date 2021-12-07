@@ -25,6 +25,8 @@
 package to.etc.domui.component.upload;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.parts.ComponentPartRenderer;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.PageUtil;
@@ -39,6 +41,8 @@ import to.etc.domui.trouble.ThingyNotFoundException;
  * Created on Oct 14, 2008
  */
 public class UploadPart implements IUnbufferedPartFactory {
+	static private final Logger LOG = LoggerFactory.getLogger(UploadPart.class);
+
 	@Override
 	public void generate(@NonNull DomApplication app, @NonNull String rurl, @NonNull RequestContextImpl param) throws Exception {
 		try {
@@ -57,7 +61,7 @@ public class UploadPart implements IUnbufferedPartFactory {
 			}
 		} catch(ThingyNotFoundException x) {
 			//-- Page seems to have gone in the meanwhile
-			System.err.println("domui: upload target " + rurl + " has gone while the upload commenced");
+			LOG.error("domui: upload target " + rurl + " has gone while the upload commenced");
 			param.getRequestResponse().sendError(404, x.getMessage());
 		} catch(Exception x) {
 			x.printStackTrace();

@@ -25,6 +25,8 @@
 package to.etc.domui.parts;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.parts.IBufferedPartFactory;
@@ -52,10 +54,13 @@ import java.io.InputStream;
  * Created on Nov 1, 2011
  */
 public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey> {
+	static private final Logger LOG = LoggerFactory.getLogger(MarkerImagePart.class);
+
 	private static final Color DEFAULT_COLOR = Color.GRAY;
 
 	@Override
-	public @NonNull MarkerImagePartKey decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
+	public @NonNull
+	MarkerImagePartKey decodeKey(DomApplication application, @NonNull IPageParameters param) throws Exception {
 		MarkerImagePartKey key = MarkerImagePartKey.decode(application, param);
 		return key;
 	}
@@ -82,7 +87,8 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 			try {
 				if(is != null)
 					is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -95,7 +101,7 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 
 	private static String getURL(String icon, String caption, String color) {
 		if(null != icon && icon.startsWith("THEME/")) {
-			System.err.println("BAD ICON SPEC: " + icon);
+			LOG.error("BAD ICON SPEC: " + icon);
 			throw new IllegalStateException("BAD ICON SPEC: " + icon);
 		}
 
@@ -110,7 +116,7 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 
 	private static String getURL(String icon, String caption, String color, String font, int size, String spec) {
 		if(null != icon && icon.startsWith("THEME/")) {
-			System.err.println("BAD ICON SPEC: " + icon);
+			LOG.error("BAD ICON SPEC: " + icon);
 			throw new IllegalStateException("BAD ICON SPEC: " + icon);
 		}
 		StringBuilder sb = new StringBuilder();
@@ -129,7 +135,6 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	/**
 	 * Dynamically add background image for emptyMarker.
 	 * Background image have small magnifier icon (THEME/icon-search.png)
-	 * @return
 	 */
 	public static String getBackgroundIconOnly() {
 		return getBackgroundImage(null, null, null);
@@ -138,9 +143,6 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	/**
 	 * Dynamically add background image for emptyMarker.
 	 * Background image will have only defined icon
-	 *
-	 * @param icon
-	 * @return
 	 */
 	public static String getBackgroundIconOnly(String icon) {
 		return getBackgroundImage(icon, null, null);
@@ -149,9 +151,6 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	/**
 	 * Dynamically add background image for emptyMarker.
 	 * Background image have small magnifier icon and and defined text (caption)
-	 *
-	 * @param caption
-	 * @return
 	 */
 	public static String getBackgroundImage(String caption) {
 		return getBackgroundImage(null, caption, null);
@@ -160,10 +159,6 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	/**
 	 * Dynamically add background image for emptyMarker.
 	 * Background image have small defined icon and and defined text (caption)
-	 *
-	 * @param icon
-	 * @param caption
-	 * @return
 	 */
 	public static String getBackgroundImage(String icon, String caption) {
 		return getBackgroundImage(icon, caption, null);
@@ -172,10 +167,6 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 	/**
 	 * Dynamically add background image for emptyMarker.
 	 * Background image have small defined icon and and defined text (caption) in defined color
-	 * @param icon
-	 * @param caption
-	 * @param color
-	 * @return
 	 */
 	public static String getBackgroundImage(String icon, String caption, String color) {
 		String url = UIContext.getRequestContext().getRelativePath(getURL(icon, caption, color));
@@ -189,8 +180,6 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 
 	/**
 	 * Draw background image with icon and caption
-	 * @param icon
-	 * @return
 	 */
 	private BufferedImage drawImage(@NonNull BufferedImage icon, MarkerImagePartKey key) {
 		BufferedImage bufferedImage = new BufferedImage(200, 20, Transparency.TRANSLUCENT);
@@ -255,8 +244,6 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 
 	/**
 	 * Add opacity to image
-	 * @param alpha
-	 * @return
 	 */
 	private AlphaComposite makeComposite(float alpha) {
 		int type = AlphaComposite.SRC_OVER;
@@ -265,12 +252,6 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 
 	/**
 	 * Draw String on canvas.
-	 *
-	 * @param g
-	 * @param textValue
-	 * @param x  X coordinate.
-	 * @param y  Y coordinate. Top of text
-	 * @param stringColor
 	 */
 	private void drawText(Graphics2D g, Font font, String textValue, int x, int y, Color stringColor) {
 		Font oldFont = g.getFont();
@@ -284,6 +265,5 @@ public class MarkerImagePart implements IBufferedPartFactory<MarkerImagePartKey>
 		g.setColor(old);
 		g.setFont(oldFont);
 	}
-
 
 }

@@ -191,8 +191,7 @@ final public class DelayedActivityInfo {
 			T context = (T) m_listenerDataMap.get(al);
 			al.onActivityEnd(m_activity, context);
 		} catch(Exception x) {
-			System.err.println("Ignored exception in IAsyncListener#onEnd: " + x);
-			x.printStackTrace();
+			LOG.warn("Ignored exception in IAsyncListener#onEnd: " + x, x);
 		}
 	}
 
@@ -200,8 +199,7 @@ final public class DelayedActivityInfo {
 		try {
 			m_container.getPage();
 		} catch(IllegalStateException x) {
-			System.err.println("Ignored exception when container is not connected to page, something is about to fail because of " + x);
-			x.printStackTrace();
+			LOG.warn("Ignored exception when container is not connected to page, something is about to fail because of " + x, x);
 		}
 	}
 }
