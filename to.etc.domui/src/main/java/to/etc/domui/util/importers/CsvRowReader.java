@@ -8,10 +8,14 @@ import to.etc.util.WrappedException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -65,6 +69,11 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	private boolean m_askedForErrors;
 
 	private int m_la1 = -2;
+
+	@Nullable
+	private DateFormat m_dateFormat;
+
+	private final Map<String, DateFormat> m_dateFormatMap = new HashMap<>();
 
 	static public class CsvError {
 		private final ImporterErrorCodes m_code;
@@ -421,6 +430,30 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	public CsvRowReader multiLine() {
 		m_multiLine = true;
 		return this;
+	}
+
+	public CsvRowReader dateFormat(String dateFormat) {
+		DateFormat f = m_dateFormat = new SimpleDateFormat(dateFormat);
+		f.setLenient(false);
+		return this;
+	}
+
+	@Override
+	public void setDateFormat(String dateFormat) {
+		dateFormat(dateFormat);
+	}
+
+	@Nullable
+	public DateFormat getDateFormat() {
+		return m_dateFormat;
+	}
+
+	public DateFormat getDateFormat(String dateFormat) {
+		return m_dateFormatMap.computeIfAbsent(dateFormat, a -> {
+			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+			sdf.setLenient(false);
+			return sdf;
+		});
 	}
 
 	public CsvRowReader skipCr(boolean skip) {

@@ -868,7 +868,7 @@ final public class DomUtil {
 						if(count < maxcol) {
 							if(tr.getChildCount() == 0) {
 								//--??? Childless row?! Cannot do anything with this...
-								System.out.println("?? Silly empty row in table");
+								USERLOG.error("?? Silly empty row in table");
 								//								throw new IllegalStateException("Table has a row without any TD's in it.");
 							} else {
 								TD td = (TD) tr.getChild(tr.getChildCount() - 1);
@@ -983,7 +983,7 @@ final public class DomUtil {
 	}
 
 	static public void dumpException(final Exception x) {
-		x.printStackTrace();
+		USERLOG.error("Exception: " + x, x);
 
 		Throwable next = null;
 		for(Throwable curr = x; curr != null; curr = next) {
@@ -995,7 +995,7 @@ final public class DomUtil {
 				SQLException sx = (SQLException) curr;
 				while(sx.getNextException() != null) {
 					sx = sx.getNextException();
-					System.err.println("SQL NextException: " + sx);
+					USERLOG.error("SQL NextException: " + sx);
 				}
 			}
 		}

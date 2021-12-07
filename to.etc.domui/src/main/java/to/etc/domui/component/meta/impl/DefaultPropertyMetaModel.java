@@ -26,6 +26,8 @@ package to.etc.domui.component.meta.impl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.input.IQueryManipulator;
 import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -48,6 +50,8 @@ import java.util.List;
 import java.util.Locale;
 
 public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> implements PropertyMetaModel<T> {
+	static private final Logger LOG = LoggerFactory.getLogger(DefaultPropertyMetaModel.class);
+
 	@NonNull
 	private final DefaultClassMetaModel m_classModel;
 
@@ -214,7 +218,7 @@ public class DefaultPropertyMetaModel<T> extends BasicPropertyMetaModel<T> imple
 				throw itx;
 		} catch(Exception x) {
 			try {
-				System.err.println(x + " in calling getter for property " + m_name + " with input object " + targetInstance + "(" + m_accessor + ")");
+				LOG.error(x + " in calling getter for property " + m_name + " with input object " + targetInstance + "(" + m_accessor + ")");
 			} catch(Exception xx) {}
 			throw x;
 		}

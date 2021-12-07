@@ -24,15 +24,26 @@
  */
 package to.etc.domui.util.db;
 
-import java.lang.reflect.*;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
+import to.etc.domui.component.meta.PropertyMetaModel;
+import to.etc.domui.component.meta.YesNoType;
+import to.etc.domui.util.IValueAccessor;
+import to.etc.util.StringTool;
+import to.etc.webapp.query.QDataContext;
 
-import to.etc.domui.component.meta.*;
-import to.etc.domui.util.*;
-import to.etc.util.*;
-import to.etc.webapp.query.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 abstract public class QBasicModelCopier implements IModelCopier {
+	static private final Logger LOG = LoggerFactory.getLogger(QBasicModelCopier.class);
+
 	@Override
 	abstract public <T> boolean isUnloadedParent(T source, PropertyMetaModel< ? > pmm) throws Exception;
 
@@ -45,7 +56,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 	/**
 	 * Make sure the data context is not a shared one.
-	 * @param dc
 	 */
 	static public void assertPrivateContext(QDataContext dc) {
 	// FIXME Need to find a way to mark the context as shared
@@ -104,7 +114,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 		/**
 		 * Add the object to the pending save list, to be saved in order of addition.
-		 * @param o
 		 */
 		public void save(Object source, Object copy) {
 			for(InstancePair ip : m_saveList) {
@@ -163,9 +172,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	/**
 	 * Does the actual save of a new object into the database context. This can be overridden when the
 	 * persistence framework fscks up the save process (Cough "Hibernate" Cough)...
-	 * @param ci
-	 * @param instance
-	 * @throws Exception
 	 */
 	protected void save(CopyInfo ci, Object instance) throws Exception {
 		ci.getTargetDC().save(instance);
@@ -173,7 +179,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 	/**
 	 * Do a shallow copy of the instance. This only copies all public fields.
-	 * @see to.etc.domui.util.db.IModelCopier#copyInstanceShallow(to.etc.webapp.query.QDataContext, java.lang.Object)
 	 */
 	@Override
 	public <T> T copyInstanceShallow(QDataContext dc, T source) throws Exception {
@@ -219,15 +224,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		return copy;
 	}
 
-	/**
-	 *
-	 * @param <T>
-	 * @param targetdc
-	 * @param sourcedc
-	 * @param source
-	 * @return
-	 * @throws Exception
-	 */
 	@Override
 	public <T> T copyInstanceDeep(QDataContext targetdc, QDataContext sourcedc, T source) throws Exception {
 		CopyInfo ci = new CopyInfo(targetdc, sourcedc);
@@ -248,7 +244,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		}
 
 		ts = System.nanoTime() - ts;
-		System.out.println("Q: created 'save' copy of " + identify(source) + ". " + ci.getNCopied() + " copied, " + ci.m_nNew + " added and " + ci.m_nChanged + " changed records in "
+		LOG.info("Q: created 'save' copy of " + identify(source) + ". " + ci.getNCopied() + " copied, " + ci.m_nNew + " added and " + ci.m_nChanged + " changed records in "
 			+ StringTool.strNanoTime(ts));
 		return res;
 	}
@@ -261,12 +257,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	 *	<li>The record itself, if new, must be saved</li>
 	 *	<li>Any child record must be saved.</li>
 	 * </ol>
-	 * @param <T>
-	 * @param targetdc
-	 * @param donemap
-	 * @param source
-	 * @return
-	 * @throws Exception
 	 */
 	private <T> T internalCopy(CopyInfo donemap, T source) throws Exception {
 		//-- 1. If the instance we're doing is part of the done set exit to prevent infinite loop
@@ -333,14 +323,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	 * code takes care to ensure that parent properties are saved BEFORE the class they occur in, and that
 	 * child properties are saved ONLY when their parent has been saved. It fails when the graph has a cycle
 	 * of new nodes - which should not normally occur.
-	 *
-	 * @param <T>
-	 * @param targetdc
-	 * @param donemap
-	 * @param source
-	 * @param copy
-	 * @param cmm
-	 * @throws Exception
 	 */
 	private <T> void copyProperties(CopyInfo donemap, T source, T copy, ClassMetaModel cmm, QPersistentObjectState pos, boolean copyisnew) throws Exception {
 		/*
@@ -360,7 +342,7 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 			case DELETED:
 				//-- FIXME What to do now!?
-				System.out.println("HELP! Deleted object in object graph " + identify(source));
+				LOG.error("HELP! Deleted object in object graph " + identify(source));
 				return;
 
 			case DIRTY:
@@ -433,16 +415,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 		}
 	}
 
-	/**
-	 *
-	 * @param <T>
-	 * @param targetdc
-	 * @param donemap
-	 * @param source
-	 * @param copy
-	 * @param pmm
-	 * @throws Exception
-	 */
 	private <T> void copyChildListProperty(CopyInfo donemap, T source, T copy, PropertyMetaModel< ? > pmm) throws Exception {
 		//-- If this list is not yet present (lazily loaded and not-loaded) exit- it cannot have changed
 		if(isUnloadedChildList(source, pmm)) {
@@ -505,9 +477,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 				//				donemap.save(di);
 				dlist.add(di);
 			} else {
-				if(spk.equals(new Long(1100063029))) {
-					System.out.println("GOTCHA");
-				}
 				Object di = dpkmap.remove(spk); // Does this same record exist @ destination?
 				if(di != null) {
 					donemap.log("existing child " + identify(si) + " copying properties to " + identify(di));
@@ -536,11 +505,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 
 	/**
 	 * Handles the deep copy of a parent property.
-	 * @param dc
-	 * @param donemap
-	 * @param source
-	 * @param pmm
-	 * @throws Exception
 	 */
 	private <T> void copyParentProperty(CopyInfo donemap, T source, T copy, PropertyMetaModel< ? > pmm) throws Exception {
 		//-- Upward reference. If this is a lazy proxy that is NOT instantiated (clean) we do nothing, else we load and copy.
@@ -590,8 +554,6 @@ abstract public class QBasicModelCopier implements IModelCopier {
 	/**
 	 * Checks to see if the object passed (which is a 'TARGET' object just loaded from the DB) exists in source, and is deleted there. If so
 	 * delete the object here too.
-	 * @param donemap
-	 * @param obj
 	 */
 	private void possiblyDeletedRecordInSource(CopyInfo donemap, Object obj) throws Exception {
 		if(obj == null)

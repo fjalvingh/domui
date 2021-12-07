@@ -773,7 +773,7 @@ public abstract class DomApplication {
 			try {
 				l.sessionCreated(this, aps);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Session registration failed: " + x, x);
 			}
 		}
 	}
@@ -1841,8 +1841,7 @@ public abstract class DomApplication {
 			try {
 				usl.onPageCreated(pg);
 			} catch(Exception x) {
-				System.err.println("Exception in DomUI state listener " + usl + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception in DomUI state listener " + usl + ": " + x, x);
 			}
 		}
 	}
@@ -1855,16 +1854,14 @@ public abstract class DomApplication {
 			try {
 				npi.pageDestroyed(pg.getBody());
 			} catch(Exception x) {
-				System.err.println("Exception while destroying page " + pg + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception while destroying page " + pg + ": " + x, x);
 			}
 		}
 		for(IDomUIStateListener usl : getUIStateListeners()) {
 			try {
 				usl.onPageDestroyed(pg);
 			} catch(Exception x) {
-				System.err.println("Exception in DomUI state listener " + usl + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception in DomUI state listener " + usl + ": " + x, x);
 			}
 		}
 	}
@@ -2261,7 +2258,7 @@ public abstract class DomApplication {
 			try {
 				sl.windowSessionCreated(ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2271,7 +2268,7 @@ public abstract class DomApplication {
 			try {
 				sl.windowSessionDestroyed(ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2281,7 +2278,7 @@ public abstract class DomApplication {
 			try {
 				sl.conversationCreated(ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2291,7 +2288,7 @@ public abstract class DomApplication {
 			try {
 				sl.conversationDestroyed(ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2301,7 +2298,7 @@ public abstract class DomApplication {
 			try {
 				sl.onBeforeFullRender(ctx, ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2311,7 +2308,7 @@ public abstract class DomApplication {
 			try {
 				sl.onBeforePageAction(ctx, ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2321,7 +2318,7 @@ public abstract class DomApplication {
 			try {
 				sl.onAfterPage(ctx, ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2331,7 +2328,7 @@ public abstract class DomApplication {
 			try {
 				it.accept(sl);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2370,8 +2367,6 @@ public abstract class DomApplication {
 	/**
 	 * Returns the class for UrlPage that is Access Denied page handler.
 	 * Page itself is filled by default parameters, for specifics please look at default {@link AccessDeniedPage}.
-	 *
-	 * @return
 	 */
 	@NonNull
 	public <T extends UrlPage> Class<T> getAccessDeniedPageClass() {
@@ -2469,7 +2464,7 @@ public abstract class DomApplication {
 				.enableAllInfo()
 				.scan();
 			ts = System.currentTimeMillis() - ts;
-			System.out.println("init: scanned classes in " + StringTool.strDurationMillis(ts));
+			LOG.info("init: scanned classes in " + StringTool.strDurationMillis(ts));
 		}
 		return result;
 	}

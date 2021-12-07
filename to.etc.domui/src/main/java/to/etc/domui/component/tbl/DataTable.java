@@ -26,6 +26,8 @@ package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.MiniLogger;
 import to.etc.domui.dom.html.Checkbox;
@@ -70,6 +72,8 @@ import static to.etc.util.ExceptionUtil.silentThrows;
  * Created on 7/29/16.
  */
 final public class DataTable<T> extends PageableTabularComponentBase<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
+	static private final Logger LOG = LoggerFactory.getLogger(DataTable.class);
+
 	private MiniLogger m_ml = new MiniLogger(40);
 
 	private Table m_table = new Table();
@@ -812,7 +816,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			handleOddEven(rrow);
 			firePageChanged();
 		} catch(Exception x) {
-			System.err.println("Last DataTable actions:\n" + m_ml.getData());
+			LOG.error("Last DataTable actions:\n" + m_ml.getData());
 			throw x;
 		}
 	}
@@ -897,10 +901,10 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			handleOddEven(rrow);
 			firePageChanged();
 		} catch(IndexOutOfBoundsException x) {
-			System.err.println("Last DataTable actions:\n" + m_ml.getData());
+			LOG.error("Last DataTable actions:\n" + m_ml.getData());
 			throw new RuntimeException("Bug 7153 rowDelete index error " + x.getMessage() + "\n" + m_ml.getData(), x);
 		} catch(Exception x) {
-			System.err.println("Last DataTable actions:\n" + m_ml.getData());
+			LOG.error("Last DataTable actions:\n" + m_ml.getData());
 			throw x;
 		}
 	}
@@ -908,8 +912,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * For all VisibleItems, this marks all of their rows as odd/even, starting at the specified index
 	 * till the end of the visible range.
-	 *
-	 * @param index
 	 */
 	private void handleOddEven(int index) {
 		for(int ix = index; ix < m_visibleItemList.size(); ix++) {
@@ -920,8 +922,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * Merely force a full redraw of the appropriate row.
-	 *
-	 * @see ITableModelListener#rowModified(ITableModel, int, Object)
 	 */
 	@Override
 	public void rowModified(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
@@ -948,7 +948,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			cc.setParent(tr);
 			renderRow(tr, cc, index, value);
 		} catch(Exception x) {
-			System.err.println("Last DataTable actions:\n" + m_ml.getData());
+			LOG.error("Last DataTable actions:\n" + m_ml.getData());
 			throw x;
 		}
 	}

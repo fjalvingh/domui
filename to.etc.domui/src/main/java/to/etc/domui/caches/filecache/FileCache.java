@@ -24,6 +24,9 @@
  */
 package to.etc.domui.caches.filecache;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,6 +46,8 @@ import java.util.Map;
  * Created on Nov 30, 2009
  */
 public class FileCache {
+	static private final Logger LOG = LoggerFactory.getLogger(FileCache.class);
+
 	private File m_cacheRoot;
 
 	/** Max size in cached files (10GB default) */
@@ -163,8 +168,7 @@ public class FileCache {
 					return;
 			}
 		} catch(Exception x) {
-			System.out.println("FileCache: reaper got exception " + x);
-			x.printStackTrace();
+			LOG.error("FileCache: reaper got exception " + x, x);
 		} finally {
 			synchronized(this) {
 				m_reaperRunning = false;

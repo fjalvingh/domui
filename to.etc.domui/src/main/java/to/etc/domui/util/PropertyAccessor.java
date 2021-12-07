@@ -24,10 +24,13 @@
  */
 package to.etc.domui.util;
 
-import to.etc.domui.component.meta.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
-import java.beans.*;
-import java.lang.reflect.*;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * Should be unused. Pending removal.
@@ -39,7 +42,10 @@ import java.lang.reflect.*;
  */
 @Deprecated
 final public class PropertyAccessor<T> implements IValueAccessor<T> {
+	static private final Logger LOG = LoggerFactory.getLogger(PropertyAccessor.class);
+
 	private PropertyMetaModel<T> m_pmm;
+
 	private Method m_readm;
 
 	private Method m_writem;
@@ -76,8 +82,6 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 	/**
 	 * Retrieve the value from this object. If the input object is null
 	 * this throws NPE.
-	 *
-	 * @see to.etc.domui.util.IValueTransformer#getValue(java.lang.Object)
 	 */
 	@Override
 	public T getValue(Object in) throws Exception {
@@ -86,7 +90,7 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 		try {
 			return (T) m_readm.invoke(in);
 		} catch(InvocationTargetException itx) {
-			System.err.println("(in calling " + m_readm + " with input object " + in + ")");
+			LOG.error("(in calling " + m_readm + " with input object " + in + ")");
 			Throwable c = itx.getCause();
 			if(c instanceof Exception)
 				throw (Exception) c;
@@ -95,12 +99,13 @@ final public class PropertyAccessor<T> implements IValueAccessor<T> {
 			else
 				throw itx;
 		} catch(Exception x) {
-			System.err.println("in calling " + m_readm + " with input object " + in);
+			LOG.error("in calling " + m_readm + " with input object " + in);
 			throw x;
 		}
 	}
 
-	@Override public boolean isReadOnly() {
+	@Override
+	public boolean isReadOnly() {
 		return m_writem != null;
 	}
 }

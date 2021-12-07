@@ -26,6 +26,8 @@ package to.etc.domui.component.input;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.MetaUtils;
 import to.etc.domui.component.meta.NumericPresentation;
@@ -70,6 +72,8 @@ import java.util.regex.Pattern;
  */
 @Deprecated
 public class Text<T> extends Input implements IControl<T>, IHasModifiedIndication, IConvertable<T>, ITypedControl<T> {
+	private static final Logger LOG = LoggerFactory.getLogger(Text.class);
+
 	/** The type of class that is expected. This is the return type of the getValue() call for a validated item */
 	@NonNull
 	private Class<T> m_inputClass;
@@ -240,7 +244,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		} catch(RuntimeConversionException x) {
 			throw new ValidationException(Msgs.notValid, raw);
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("Unexpected: " + x, x);
 			throw new ValidationException(Msgs.unexpectedException, x);
 		}
 	}
@@ -396,7 +400,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return;
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("setValue error: " + x, x);
 			setMessage(UIMessage.error(Msgs.unexpectedException, x));
 			return;
 		}

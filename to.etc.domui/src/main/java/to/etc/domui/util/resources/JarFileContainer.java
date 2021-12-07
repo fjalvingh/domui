@@ -3,6 +3,8 @@ package to.etc.domui.util.resources;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.server.reloader.Reloader;
 import to.etc.util.FileTool;
 
@@ -26,7 +28,10 @@ import java.util.zip.ZipInputStream;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 26-10-17.
  */
-@NonNullByDefault final public class JarFileContainer implements IFileContainer {
+@NonNullByDefault
+final public class JarFileContainer implements IFileContainer {
+	static private final Logger LOG = LoggerFactory.getLogger(JarFileContainer.class);
+
 	private final File m_file;
 
 	private long m_tsModified;
@@ -78,11 +83,12 @@ import java.util.zip.ZipInputStream;
 			//-- All oldNames are marked as DELETED
 			oldNames.forEach(name -> m_fileMap.get(name).update(-1, -1));
 		} catch(Exception xz) {
-			System.out.println("domui: failed to scan " + m_file + ": " + xz);
+			LOG.error("domui: failed to scan " + m_file + ": " + xz);
 		}
 	}
 
-	@Override public List<String> getInventory() {
+	@Override
+	public List<String> getInventory() {
 		reloadIfChanged();
 		return new ArrayList<>(m_fileMap.keySet());
 	}
@@ -130,7 +136,7 @@ import java.util.zip.ZipInputStream;
 				if(ze == null)
 					break;
 				String fn = ze.getName();
-				if((fn.startsWith(path) && ! fn.endsWith(".class")) || fn.equals(name)) {
+				if((fn.startsWith(path) && !fn.endsWith(".class")) || fn.equals(name)) {
 					//-- Load this thingy.
 					byte[][] buffers = FileTool.loadByteBuffers(zis);
 					if(fn.equals(name)) {

@@ -204,7 +204,7 @@ final public class WindowSession {
 			try {
 				cc.internalDetach();
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Detach exception: " + x, x);
 			}
 		}
 	}
@@ -1014,7 +1014,7 @@ final public class WindowSession {
 
 				}
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("shelve end failed: " + x, x);
 			}
 		}
 	}
@@ -1024,7 +1024,7 @@ final public class WindowSession {
 	/*	CODING:	Developer mode save/restore state during reloads.	*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Get all of the pages from the shelve stack, and return them as a string based structure for later reload.
+	 * Get all the pages from the shelf stack, and return them as a string based structure for later reload.
 	 */
 	@NonNull
 	List<SavedPage> getSavedPageList() {
@@ -1048,7 +1048,7 @@ final public class WindowSession {
 		if(null != sw) {
 			hs.removeAttribute(oldWindowId);								// Remove this after restore
 			list = sw.getPageList();
-			System.out.println("arh: reload " + oldWindowId + " using session state " + sw);
+			LOG.info("arh: reload " + oldWindowId + " using session state " + sw);
 		} else {
 			//-- Can we get it from the state file?
 			if(!m_developerMode)
@@ -1065,7 +1065,7 @@ final public class WindowSession {
 			} finally {
 				FileTool.closeAll(f);										// Always remove the file
 			}
-			System.out.println("arh: reload " + oldWindowId + " using file " + f + ", " + list);
+			LOG.info("arh: reload " + oldWindowId + " using file " + f + ", " + list);
 		}
 
 		String conversationId = null;
@@ -1084,18 +1084,16 @@ final public class WindowSession {
 							conversationId = cc.getId();
 					}
 				} catch(NotLoggedInException x) {
-					System.err.println("domui: developer page reload failed because a login is needed");
+					LOG.info("domui: developer page reload failed because a login is needed");
 				} catch(Exception x) {
-					System.err.println("domui: developer page reload failed: " + x);
-					x.printStackTrace();
+					LOG.error("domui: developer page reload failed: " + x, x);
 					LOG.info("Cannot reload " + sp.getClassName() + ": " + x);
 				}
 			}
 			saveWindowState();								// Save new window's state
 			return conversationId;
 		} catch(Exception x) {
-			System.err.println("domui: developer reload failed: " + x);
-			x.printStackTrace();
+			LOG.warn("domui: developer reload failed: " + x, x);
 			return null;
 		} finally {
 			internalDetachConversations();

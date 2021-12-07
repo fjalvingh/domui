@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -70,7 +71,38 @@ public class CsvImportRow implements IImportRow {
 		@Nullable
 		@Override
 		public Date asDate() {
-			throw new IllegalStateException("Not implemented yet");
+			DateFormat df = m_reader.getDateFormat();
+			if(null == df)
+				throw new IllegalStateException("Date format for CSV file is not set. Either set it on the reader, or use asDate(String) with a format.");
+			String stringValue = getStringValue();
+			if(null == stringValue)
+				return null;
+			stringValue = stringValue.trim();
+			if(stringValue.length() == 0)
+				return null;
+			try {
+				return df.parse(stringValue);
+			} catch(Exception x) {
+				throw new ImportValueException("Invalid date: " + stringValue);
+			}
+		}
+
+		@Nullable
+		@Override
+		public Date asDate(String dateFormat) {
+			String stringValue = getStringValue();
+			if(null == stringValue)
+				return null;
+			stringValue = stringValue.trim();
+			if(stringValue.length() == 0)
+				return null;
+
+			DateFormat sdf = m_reader.getDateFormat(dateFormat);
+			try {
+				return sdf.parse(stringValue);
+			} catch(Exception x) {
+				throw new ImportValueException("Invalid date: " + stringValue);
+			}
 		}
 
 		@Nullable

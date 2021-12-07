@@ -24,12 +24,22 @@
  */
 package to.etc.domui.util.upload;
 
-import java.io.*;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.util.FileTool;
 
-import javax.servlet.http.*;
-
-import to.etc.util.*;
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This is a file upload parser which parses input type=file
@@ -49,6 +59,8 @@ import to.etc.util.*;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class UploadParser {
+	private static final Logger LOG = LoggerFactory.getLogger(UploadParser.class);
+
 	static private final String MULTIPART = "multipart/";
 
 	//    static private final String MULTIPART_FORM_DATA = "multipart/form-data";
@@ -81,8 +93,6 @@ public class UploadParser {
 
 	/**
 	 * Returns T if the request is encoded as multipart (i.e. file upload).
-	 * @param req
-	 * @return
 	 */
 	public static final boolean isMultipartContent(HttpServletRequest req) {
 		if(!"POST".equalsIgnoreCase(req.getMethod())) // Must be post method
@@ -155,7 +165,7 @@ public class UploadParser {
 			try {
 				ui.discard();
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("discardItems failed: " + x, x);
 			}
 		}
 	}

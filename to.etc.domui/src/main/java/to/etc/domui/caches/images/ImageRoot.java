@@ -26,6 +26,8 @@ package to.etc.domui.caches.images;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +41,8 @@ import java.util.List;
  * Created on Oct 2, 2008
  */
 final class ImageRoot {
+	static private final Logger LOG = LoggerFactory.getLogger(ImageRoot.class);
+
 	@NonNull
 	private ImageCache m_cache;
 
@@ -193,7 +197,6 @@ final class ImageRoot {
 	/**
 	 * LOCKS THIS: Called when a new source version has been found, this discards all instances
 	 * currently in the list and returns the original list.
-	 * @return
 	 */
 	//@GuardedBy("this")
 	synchronized void checkVersionLong(CacheChange cc, long currentversion) {
@@ -210,16 +213,14 @@ final class ImageRoot {
 			try {
 				cc.addDeletedFragment(ii); // Account for deleting this instance
 			} catch(Exception x) {
-				System.err.println("Exception while release()ing " + ii + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception while release()ing " + ii + ": " + x, x);
 			}
 		}
 	}
 
 	/**
 	 * Called when the cache has (already) deleted this instance. We need to remove it from this root, and we need to
-	 * release it's resources.
-	 * @param cif
+	 * release its resources.
 	 */
 	public void lruInstanceDeleted(CachedImageFragment cif) {
 		synchronized(this) {

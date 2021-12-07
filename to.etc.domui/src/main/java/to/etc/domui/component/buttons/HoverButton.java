@@ -3,6 +3,8 @@ package to.etc.domui.component.buttons;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.image.Dimension;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.IActionControl;
@@ -28,6 +30,8 @@ import to.etc.domui.server.DomApplication;
  */
 @NonNullByDefault
 final public class HoverButton extends Button implements IActionControl {
+	static private final Logger LOG = LoggerFactory.getLogger(HoverButton.class);
+
 	public enum Size {
 		/** Standard 16x16 button */
 		SMALL,
@@ -73,7 +77,7 @@ final public class HoverButton extends Button implements IActionControl {
 		int totalWidth = dimension.getWidth();
 		int width = totalWidth / 3;
 		if(width * 3 != totalWidth || width < dimension.getHeight() - 4)
-			System.err.println("ERROR: Resource " + getBackgroundImage() + " for a hover button must have 3 images in width: 1x normal, 1x hover, 1x disabled; it seems wrong");
+			LOG.error("ERROR: Resource " + getBackgroundImage() + " for a hover button must have 3 images in width: 1x normal, 1x hover, 1x disabled; it seems wrong");
 
 		setWidth(width + "px");
 		setHeight(dimension.getHeight() + "px");

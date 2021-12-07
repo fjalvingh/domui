@@ -26,6 +26,8 @@ package to.etc.domui.component.ckeditor;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.htmleditor.IEditorFileSystem;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.misc.MsgBox;
@@ -43,8 +45,8 @@ import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.TextArea;
-import to.etc.domui.server.DomApplication;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.server.XssChecker;
 import to.etc.domui.state.IPageParameters;
@@ -66,6 +68,8 @@ import java.util.Objects;
  * Refactored on Dec 07, 2013 - made it for CKEditor
  */
 public class CKEditor extends Div implements IControl<String> {
+	static private final Logger LOG = LoggerFactory.getLogger(CKEditor.class);
+
 	private final CkEditorArea m_area = new CkEditorArea();
 
 	@Nullable
@@ -200,7 +204,6 @@ public class CKEditor extends Div implements IControl<String> {
 		try {
 			StringTool.strToJavascriptString(sb, value, true);
 		} catch(Exception x) {
-			x.printStackTrace(); // Checked exceptions are idiotic
 		}
 		sb.append(";");
 	}
@@ -444,7 +447,7 @@ public class CKEditor extends Div implements IControl<String> {
 					s = xssChecker.stripXSS(sb.toString(), XssChecker.F_ALLOWLOCALSRC);
 					newValues[i] = s;
 				} catch(Exception e) {
-					e.printStackTrace();
+					LOG.error("Error stripping XSS", e);
 					newValues[i] = "";
 				}
 			}

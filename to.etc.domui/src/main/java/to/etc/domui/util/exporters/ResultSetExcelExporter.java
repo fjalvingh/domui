@@ -1,31 +1,27 @@
 package to.etc.domui.util.exporters;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Basic exporter that dumps result set into workbook, as new sheet with specified name.
  */
 @NonNullByDefault
 public class ResultSetExcelExporter {
+	static private final Logger LOG = LoggerFactory.getLogger(ResultSetExcelExporter.class);
 
 	private final ExcelFormat m_format;
 
@@ -81,8 +77,7 @@ public class ResultSetExcelExporter {
 				}
 			}
 		} catch (SQLException e) {
-			System.out.println("Error while reading result set and writing to excel file!");
-			e.printStackTrace();
+			LOG.error("Error while reading result set and writing to excel file!", e);
 		}
 	}
 

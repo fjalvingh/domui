@@ -25,6 +25,8 @@
 package to.etc.domui.caches.images;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.caches.FileImageRetriever;
 import to.etc.domui.caches.filecache.FileCache;
 import to.etc.domui.caches.filecache.FileCacheRef;
@@ -136,6 +138,8 @@ import java.util.Map;
  * Created on Oct 2, 2008
  */
 public class ImageCache {
+	static private final Logger LOG = LoggerFactory.getLogger(ImageCache.class);
+
 	static private ImageCache m_instance;
 
 	/** The images file cache. */
@@ -288,10 +292,6 @@ public class ImageCache {
 		}
 	}
 
-	static void d(String s) {
-		System.out.println(s);
-	}
-
 	private interface ISpecTask {
 		Object executeTask(ImageTask task, Object args) throws Exception;
 	}
@@ -300,10 +300,6 @@ public class ImageCache {
 	 * Handle ImageTask related actions. This does all of the cache-locking related work
 	 * around an ImageTask, and handles all administrative details /after/ the task
 	 * completes.
-	 *
-	 * @param key
-	 * @param t
-	 * @throws Exception
 	 */
 	private Object executeTask(ImageKey key, ISpecTask t, Object args) throws Exception {
 		ImageTask it = getImageTask(key);
@@ -480,7 +476,7 @@ public class ImageCache {
 					}
 				}
 			}
-			System.out.println("ImageCache: reaped " + count + " image instances totalling " + size + " bytes");
+			LOG.info("ImageCache: reaped " + count + " image instances totalling " + size + " bytes");
 		}
 
 		//-- Now, while we're out of the lock make the ImageRoot's discard their data.
@@ -491,7 +487,6 @@ public class ImageCache {
 
 	/**
 	 * Return the amount of memory currently used in the cache system.
-	 * @return
 	 */
 	public synchronized long getUsedMemory() {
 		return m_currentMemorySize;
@@ -503,7 +498,6 @@ public class ImageCache {
 
 	/**
 	 * Links the entry at the most recently used position of the LRU chain.
-	 * @param e
 	 */
 	private void link(CachedImageFragment e) {
 		unlink(e); // Make sure we're unlinked

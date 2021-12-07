@@ -24,6 +24,8 @@
  */
 package to.etc.domui.themes;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.util.StringTool;
 
 import java.util.ArrayList;
@@ -37,6 +39,8 @@ import java.util.Random;
  * Created on Jan 4, 2011
  */
 final public class CssColor {
+	static private final Logger LOG = LoggerFactory.getLogger(CssColor.class);
+
 	final private int m_r;
 
 	final private int m_g;
@@ -77,7 +81,7 @@ final public class CssColor {
 		try {
 			iv = Integer.parseInt(rgb, 16);
 		} catch(Exception x) {
-			System.out.println("Invalid color value: " + rgbin);
+			LOG.error("Invalid color value: " + rgbin);
 			iv = 0x3388ee; // Invalid color signal value.
 		}
 

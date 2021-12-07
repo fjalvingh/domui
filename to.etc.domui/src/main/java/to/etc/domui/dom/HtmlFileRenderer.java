@@ -1,6 +1,8 @@
 package to.etc.domui.dom;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.misc.LiteralXhtml;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.header.HeaderContributorEntry;
@@ -46,6 +48,8 @@ import static java.util.Objects.requireNonNull;
  * Created on 9-3-18.
  */
 public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRenderer {
+	static private final Logger LOG = LoggerFactory.getLogger(HtmlFileRenderer.class);
+
 	private final NodeContainer m_rootNode;
 
 	private final Page m_page;
@@ -428,7 +432,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	protected void renderResourceAsText(String resourceName) throws Exception {
 		IResourceRef resource = DomApplication.get().getResource(resourceName, new ResourceDependencyList());
 		if(! resource.exists()) {
-			System.out.println(resourceName + ": image resource not found");
+			LOG.info(resourceName + ": image resource not found");
 			return;
 		}
 		try(InputStream is = requireNonNull(resource.getInputStream())) {

@@ -2,6 +2,8 @@ package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.css.Overflow;
 import to.etc.domui.dom.html.Checkbox;
@@ -34,7 +36,9 @@ import java.util.List;
  */
 @Deprecated
 final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> implements ISelectionListener<T>, ISelectableTableComponent<T> {
-	static private final boolean DEBUG = true;
+	static private final Logger LOG = LoggerFactory.getLogger(ScrollableDataTable.class);
+
+	static private final boolean DEBUG = false;
 
 	private IRowRenderer<T> m_rowRenderer;
 
@@ -70,7 +74,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	final private IClicked<TH> m_headerSelectClickHandler = new IClicked<TH>() {
 		@Override
 		public void clicked(@NonNull TH clickednode) throws Exception {
-			if (isDisabled()){
+			if(isDisabled()) {
 				return;
 			}
 			ISelectionModel<T> sm = getSelectionModel();
@@ -87,7 +91,6 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	private boolean m_redrawn;
 
-
 	public ScrollableDataTable(@NonNull ITableModel<T> m, @NonNull IRowRenderer<T> r) {
 		super(m);
 		m_rowRenderer = r;
@@ -101,7 +104,8 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		super(m);
 	}
 
-	public ScrollableDataTable() {}
+	public ScrollableDataTable() {
+	}
 
 	@Override
 	public void createContent() throws Exception {
@@ -155,12 +159,12 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 	private void loadMoreData() throws Exception {
 		if(m_allRendered) {
-			System.err.println("domui: ScrollableDataTable got unexpected loadMoreData");
+			LOG.error("domui: ScrollableDataTable got unexpected loadMoreData");
 			return;
 		}
 		int rows = getModel().getRows();
 		if(m_nextIndexToLoad >= rows) {
-			System.err.println("domui: ScrollableDataTable got unexpected loadMoreData and allrendered is false!?");
+			LOG.error("domui: ScrollableDataTable got unexpected loadMoreData and allrendered is false!?");
 			return;
 		}
 
@@ -189,11 +193,11 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			renderFinalRow();
 		}
 		if(DEBUG)
-			System.out.println("rendered till "+ m_nextIndexToLoad);
+			System.out.println("rendered till " + m_nextIndexToLoad);
 	}
 
 	private void rerender() throws Exception {
-		if(! isBuilt() || m_dataBody == null)
+		if(!isBuilt() || m_dataBody == null)
 			return;
 		m_nextIndexToLoad = 0;
 		m_dataBody.removeAllChildren();
@@ -208,7 +212,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		if(null == dataBody)
 			throw new IllegalStateException("No data body?");
 		if(dataBody.getChildCount() > 0) {
-			TR row = dataBody.getRow(dataBody.getChildCount()-1);
+			TR row = dataBody.getRow(dataBody.getChildCount() - 1);
 			row.setSpecialAttribute("lastRow", "true");
 		}
 
@@ -274,7 +278,6 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		m_rowRenderer.renderHeader(this, hc);
 	}
 
-
 	/**
 	 * Removes any data table, and presents the "no results found" div.
 	 */
@@ -301,6 +304,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Row rendering & select click handling.				*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * DO NOT OVERRIDE - DEPRECATED FOR EXTERNAL USE!!
 	 * Renders row content into specified row.
@@ -359,14 +363,14 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 				handleSelectClicky(instance, clinfo, null);
 				return; // Do NOT fire on selection clickies.
 			} else {
-				if(! selectionModel.isMultiSelect()) {
+				if(!selectionModel.isMultiSelect()) {
 					handleSelectClicky(instance, clinfo, null);
 				}
 			}
 		}
 
 		//-- If this has a click handler- fire it.
-		ICellClicked< ? > rowClicked = m_rowRenderer.getRowClicked();
+		ICellClicked<?> rowClicked = m_rowRenderer.getRowClicked();
 		if(null != rowClicked)
 			((ICellClicked<T>) rowClicked).cellClicked(instance);
 	}
@@ -387,7 +391,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	 * Handle a click that is meant to select/deselect the item(s). It handles ctrl+click as "toggle selection",
 	 * and shift+click as "toggle everything between this and the last one".
 	 *
-	 * @param setTo		When null toggle, else set to specific.
+	 * @param setTo        When null toggle, else set to specific.
 	 */
 	private void handleSelectClicky(@NonNull T instance, @NonNull ClickInfo clinfo, @Nullable Boolean setTo) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
@@ -410,7 +414,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			}
 			index++;
 		}
-		if(itemindex == -1) 						// Ignore when thingy not found
+		if(itemindex == -1)                        // Ignore when thingy not found
 			return;
 
 		//-- Is a previous location set? If not: just toggle the current and retain the location.
@@ -432,7 +436,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		}
 
 		//-- Now toggle all instances, in batches, to prevent loading 1000+ records that cannot be gc'd.
-		for(int i = sl; i < el;) {
+		for(int i = sl; i < el; ) {
 			int ex = i + 50;
 			if(ex > el)
 				ex = el;
@@ -452,6 +456,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Selection UI update handling.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Updates the "selection" state of the specified local row#.
 	 */
@@ -551,6 +556,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ITableModelListener implementation					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when there are sweeping changes to the model. It forces a complete re-render of the table.
 	 */
@@ -560,7 +566,8 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		fireModelChanged(null, model);
 	}
 
-	@Override public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
+	@Override
+	public void rowsSorted(@NonNull ITableModel<T> model) throws Exception {
 		modelChanged(model);
 	}
 
@@ -578,17 +585,17 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	public void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		if(!isBuilt())
 			return;
-		calcIndices(); 								// Calculate visible nodes
+		calcIndices();                                // Calculate visible nodes
 		if(DEBUG)
-			System.out.println("dd: add@ "+index+", eix="+ m_nextIndexToLoad);
-		if(index < 0 || (index >= m_nextIndexToLoad && m_nextIndexToLoad >= m_batchSize)) { 			// Outside visible bounds & no need to load more
+			System.out.println("dd: add@ " + index + ", eix=" + m_nextIndexToLoad);
+		if(index < 0 || (index >= m_nextIndexToLoad && m_nextIndexToLoad >= m_batchSize)) {            // Outside visible bounds & no need to load more
 			firePageChanged();
 			return;
 		}
 
 		//-- What relative row?
 		setResults();
-		int rrow = index; 							// This is the location within the child array
+		int rrow = index;                            // This is the location within the child array
 		ColumnContainer<T> cc = new ColumnContainer<>(this);
 		TR tr = new TR();
 		m_dataBody.add(rrow, tr);
@@ -602,7 +609,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			if(m_visibleItemList.size() > m_nextIndexToLoad) {
 				m_nextIndexToLoad = m_visibleItemList.size();
 				if(DEBUG)
-					System.out.println("dd: nextIndexToLoad set to "+m_nextIndexToLoad);
+					System.out.println("dd: nextIndexToLoad set to " + m_nextIndexToLoad);
 			}
 		} else if(m_visibleItemList.size() > m_nextIndexToLoad && m_nextIndexToLoad >= m_batchSize) {
 			//-- Delete the last row.
@@ -629,17 +636,17 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 
 		//-- We need the indices of the OLD data, so DO NOT RECALCULATE - the model size has changed.
 		if(DEBUG)
-			System.out.println("dd: delete index="+index+", eix="+ m_nextIndexToLoad);
-		if(index < 0 || index >= m_nextIndexToLoad) { 			// Outside visible bounds
-			calcIndices(); 							// Calculate visible nodes
+			System.out.println("dd: delete index=" + index + ", eix=" + m_nextIndexToLoad);
+		if(index < 0 || index >= m_nextIndexToLoad) {            // Outside visible bounds
+			calcIndices();                            // Calculate visible nodes
 			firePageChanged();
 			return;
 		}
-		int rrow = index; 							// This is the location within the child array
-		m_dataBody.removeChild(rrow); 				// Discard this one;
+		int rrow = index;                            // This is the location within the child array
+		m_dataBody.removeChild(rrow);                // Discard this one;
 		m_visibleItemList.remove(rrow);
 		if(m_dataBody.getChildCount() == 0) {
-			calcIndices(); 							// Calculate visible nodes
+			calcIndices();                            // Calculate visible nodes
 			setNoResults();
 			firePageChanged();
 			return;
@@ -651,30 +658,31 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 			TR tr = new TR();
 			cc.setParent(tr);
 
-			T mi = getModelItem(m_nextIndexToLoad -1);	// Because of delete the item to show has become "visible" in the model @ the last index
+			T mi = getModelItem(m_nextIndexToLoad - 1);    // Because of delete the item to show has become "visible" in the model @ the last index
 			if(DEBUG)
-				System.out.println("dd: Add item#"+ m_nextIndexToLoad +" @ "+(m_nextIndexToLoad -1));
-			m_dataBody.add(m_nextIndexToLoad -1, tr);
-			renderRow(tr, cc, m_nextIndexToLoad -1, mi);
-			m_visibleItemList.add(m_nextIndexToLoad -1, mi);
+				System.out.println("dd: Add item#" + m_nextIndexToLoad + " @ " + (m_nextIndexToLoad - 1));
+			m_dataBody.add(m_nextIndexToLoad - 1, tr);
+			renderRow(tr, cc, m_nextIndexToLoad - 1, mi);
+			m_visibleItemList.add(m_nextIndexToLoad - 1, mi);
 		}
 		if(m_nextIndexToLoad > getModel().getRows()) {
 			m_nextIndexToLoad = getModel().getRows();
 			if(DEBUG)
-				System.out.println("dd: decrement size of loaded data eix="+ m_nextIndexToLoad);
+				System.out.println("dd: decrement size of loaded data eix=" + m_nextIndexToLoad);
 		}
 		while(m_visibleItemList.size() > m_nextIndexToLoad) {
 			m_visibleItemList.remove(m_visibleItemList.size() - 1);
 		}
 
 		if(DEBUG)
-			System.out.println("dd: sizes "+getModel().getRows()+" "+m_dataBody.getChildCount()+", "+m_visibleItemList.size()+", eix="+ m_nextIndexToLoad);
-		calcIndices(); 								// Calculate visible nodes
+			System.out.println("dd: sizes " + getModel().getRows() + " " + m_dataBody.getChildCount() + ", " + m_visibleItemList.size() + ", eix=" + m_nextIndexToLoad);
+		calcIndices();                                // Calculate visible nodes
 		handleOddEven(rrow);
 		firePageChanged();
 	}
 
-	private void calcIndices() {}
+	private void calcIndices() {
+	}
 
 	private void handleOddEven(int index) {
 		for(int ix = index; ix < m_dataBody.getChildCount(); ix++) {
@@ -699,11 +707,11 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	public void rowModified(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
 		if(!isBuilt())
 			return;
-		if(index < 0 || index >= m_nextIndexToLoad) 	// Outside visible bounds
+		if(index < 0 || index >= m_nextIndexToLoad)    // Outside visible bounds
 			return;
-		int rrow = index; 								// This is the location within the child array
-		TR tr = (TR) m_dataBody.getChild(rrow); 		// The visible row there
-		tr.removeAllChildren(); 						// Discard current contents.
+		int rrow = index;                                // This is the location within the child array
+		TR tr = (TR) m_dataBody.getChild(rrow);        // The visible row there
+		tr.removeAllChildren();                        // Discard current contents.
 		m_visibleItemList.set(rrow, value);
 
 		ColumnContainer<T> cc = new ColumnContainer<T>(this);
@@ -740,6 +748,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	ISelectionListener.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when a selection event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
@@ -761,6 +770,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handling selections.								*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
@@ -798,7 +808,8 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		return cb;
 	}
 
-	@Override public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
+	@Override
+	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
 		if("LOADMORE".equals(action)) {
 			loadMoreData();
 			return;
@@ -819,6 +830,7 @@ final public class ScrollableDataTable<T> extends SelectableTabularComponent<T> 
 		m_batchSize = batchSize;
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 	}
 }

@@ -6,6 +6,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.exporters.ExcelFormat;
 import to.etc.util.FileTool;
 import to.etc.util.WrappedException;
@@ -14,14 +15,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -45,6 +50,18 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 
 	private final NumberFormat m_doubleFormatter;
 
+	private final Map<String, DateFormat> m_dateFormatMap = new HashMap<>();
+
+	@Nullable
+	private DateFormat m_defaultDateFormat;
+
+	/**
+	 * When set all fields read by getValueAsString() will return this date format string
+	 * if Excel has the idea the field was a date.
+	 */
+	@Nullable
+	private DateFormat m_forceStringDateFormat;
+
 	public ExcelRowReader(File file) throws Exception {
 		String suffix = FileTool.getFileExtension(file.getName());
 		ExcelFormat format = ExcelFormat.byExtension(suffix);
@@ -60,16 +77,36 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
 	}
 
-	public String convertDouble(double value) {
-		return m_doubleFormatter.format(value);
-	}
-
 	public ExcelRowReader(InputStream is, ExcelFormat format) throws Exception {
 		m_inputStream = is;
 		m_format = format;
 		m_workbook = openWorkbook();
 		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(Locale.US);
 		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
+	}
+
+	/**
+	 * When set all fields read by getValueAsString() will return this date format string
+	 * if Excel has the idea the field was a date. This means that a call to getString()
+	 * might return something that looks different in the Excel file itself!
+	 */
+	public ExcelRowReader forceStringDateFormat(String dateFormat) {
+		m_forceStringDateFormat = new SimpleDateFormat(dateFormat);
+		return this;
+	}
+
+	@Override
+	public void setDateFormat(String dateFormat) {
+		m_defaultDateFormat = new SimpleDateFormat(dateFormat);
+	}
+
+	@Nullable
+	DateFormat getDefaultDateFormat() {
+		return m_defaultDateFormat;
+	}
+
+	public String convertDouble(double value) {
+		return m_doubleFormatter.format(value);
 	}
 
 	@NonNull
@@ -98,7 +135,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	}
 
 	private Workbook openWorkbook() throws IOException {
-		switch(m_format) {
+		switch(m_format){
 			default:
 				throw new IllegalStateException("Unhandled Excel format " + m_format);
 			case XLS:
@@ -201,6 +238,19 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 
 	public int getHeaderRowCount() {
 		return m_headerRowCount;
+	}
+
+	public DateFormat getDateFormat(String dateFormat) {
+		return m_dateFormatMap.computeIfAbsent(dateFormat, a -> {
+			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+			sdf.setLenient(false);
+			return sdf;
+		});
+	}
+
+	@Nullable
+	DateFormat getForceStringDateFormat() {
+		return m_forceStringDateFormat;
 	}
 
 	private class RowIterator implements Iterator<IImportRow> {

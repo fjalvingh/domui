@@ -3,6 +3,8 @@ package to.etc.domui.component.misc;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.misc.MsgBox2.Type;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.Pre;
@@ -28,6 +30,8 @@ import java.util.function.Function;
  */
 @NonNullByDefault
 final public class ExceptionDialog {
+	private static final Logger LOG = LoggerFactory.getLogger(ExceptionDialog.class);
+
 	/**
 	 * Registered ways to translate an exception to some comprehensible message.
 	 */
@@ -73,7 +77,7 @@ final public class ExceptionDialog {
 		ExceptionPresentation presentation = findExceptionMessage(x);
 		if(null == presentation) {
 			//-- A real unexpected exception.
-			x.printStackTrace();
+			LOG.error("ExceptionDialog: " + x, x);
 			StringBuilder sb = new StringBuilder();
 			StringTool.strStacktrace(sb, x);
 			Pre pre = new Pre();

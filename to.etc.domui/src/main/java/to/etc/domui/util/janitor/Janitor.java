@@ -24,9 +24,11 @@
  */
 package to.etc.domui.util.janitor;
 
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import org.slf4j.*;
+import java.util.ArrayList;
+import java.util.Date;
 
 
 /**
@@ -295,7 +297,6 @@ public class Janitor implements Runnable {
 			}
 			terminialize();
 		} catch(Throwable t) {
-			t.printStackTrace();
 			LOG.error("FATAL exception in mainloop: " + t.getMessage(), t);
 		} finally {
 			m_thread_isrunning = false;
@@ -311,17 +312,15 @@ public class Janitor implements Runnable {
 		try {
 			m_t_last_sched_run = getTime(); // Get scheduler run time,
 
-			if(!handleJobQueue()) // Check all finished stuff in the job queue.
-			{
+			if(!handleJobQueue()) {
 				//-- No slots... How long ago did the scheduler run?
 				if(m_t_freeslot - getSchedTime() > 10 * 60 * 1000) {
-					System.out.println("Janitor: No jobs have completed in 10 minutes; cannot schedule!!");
-					LOG.info("WARNING: NO JANITOR JOBS COMPLETED IN 10 MINUTES!!");
+					LOG.error("Janitor: No jobs have completed in 10 minutes; cannot schedule!!");
 				}
 			} else
 				m_t_freeslot = getSchedTime();
 		} catch(Throwable x) {
-			LOG.warn("ERROR! Janitor exception catched: " + x.toString());
+			LOG.error("Janitor exception caught: " + x.toString());
 		}
 	}
 

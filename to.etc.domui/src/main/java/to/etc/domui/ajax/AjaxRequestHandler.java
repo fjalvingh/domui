@@ -199,7 +199,6 @@ public class AjaxRequestHandler implements IFilterRequestHandler {
 			} catch(Exception x) {
 				if(ok)
 					throw x;
-				x.printStackTrace(); // First exception present; just print the finalizer exception.
 			}
 		}
 	}
