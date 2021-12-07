@@ -1,10 +1,15 @@
 package to.etc.domui.component.misc;
 
-import to.etc.domui.component.layout.*;
-import to.etc.domui.dom.css.*;
-import to.etc.domui.dom.html.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import to.etc.domui.component.layout.Window;
+import to.etc.domui.dom.css.Overflow;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.NodeBase;
 
 public class DebugWindow extends Window {
+	static private final Logger LOG = LoggerFactory.getLogger(DebugWindow.class);
+
 	public DebugWindow() {
 		super(false, true, "Debug");
 	}
@@ -40,7 +45,7 @@ public class DebugWindow extends Window {
 			try {
 				w.build();
 			} catch(Exception xx) {
-				xx.printStackTrace();
+				LOG.error("Failed to create DebugWindow", xx);
 			}
 		}
 

@@ -191,7 +191,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 				try {
 					ll.reloaded(m_reloader.getReloadingLoader());
 				} catch(Exception x) {
-					x.printStackTrace();
+					LOG.error("Reload failed for " + ll + ": " + x, x);
 				}
 			}
 

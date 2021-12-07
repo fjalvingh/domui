@@ -119,7 +119,7 @@ final public class Bug {
 			LOG.error(bi.toString());
 			Throwable x = bi.getException();
 			if(null != x) {
-				x.printStackTrace();
+				LOG.error("Failed to post bug: " + x, x);
 			}
 		}
 	}

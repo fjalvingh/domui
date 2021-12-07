@@ -26,6 +26,8 @@ package to.etc.domui.dom.errors;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
@@ -61,6 +63,8 @@ import java.util.List;
  * shown.
  */
 public class ErrorFenceHandler implements IErrorFence {
+	private static final Logger LOG = LoggerFactory.getLogger(ErrorFenceHandler.class);
+
 	private NodeContainer m_container;
 
 	/**
@@ -122,7 +126,7 @@ public class ErrorFenceHandler implements IErrorFence {
 			try {
 				eml.errorMessageAdded(uim);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Exception in error listener: " + x, x);
 			}
 		}
 	}
@@ -138,7 +142,7 @@ public class ErrorFenceHandler implements IErrorFence {
 			try {
 				eml.errorMessageRemoved(uim);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Error in removing error fence message: " + x, x);
 			}
 		}
 	}

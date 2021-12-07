@@ -2,6 +2,8 @@ package to.etc.domui.server;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.login.IUser;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.IPageParameters;
@@ -25,6 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 final public class ExceptionUtil {
+	private static final Logger LOG = LoggerFactory.getLogger(ExceptionUtil.class);
+
 	@NonNull
 	final private RequestContextImpl m_ctx;
 
@@ -171,7 +175,7 @@ final public class ExceptionUtil {
 		try {
 			BulkMailer.getInstance().store(m);
 		} catch(Exception xxx) {
-			xxx.printStackTrace();
+			LOG.error("renderEmail failed: " + x, x);
 		}
 
 	}

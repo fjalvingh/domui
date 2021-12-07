@@ -245,7 +245,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 			try {
 				destroySubConversation(subContext);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Failed to destroy conversation " + subContext, x);
 			}
 		}
 		m_subConversationSet.clear();

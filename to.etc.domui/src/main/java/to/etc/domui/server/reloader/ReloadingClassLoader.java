@@ -144,8 +144,7 @@ public class ReloadingClassLoader extends URLClassLoader {
 				try {
 					scanForForResourceWatches(loadClass);
 				} catch(Exception e) {
-					e.printStackTrace();
-					LOG.warn("Class " + name + " cannot watch resources");
+					LOG.error("Class " + name + " cannot watch resources");
 				}
 			}
 			return loadClass;                                    // Delegate to the rootLoader.

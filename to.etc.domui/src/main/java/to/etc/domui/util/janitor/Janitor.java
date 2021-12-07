@@ -297,7 +297,6 @@ public class Janitor implements Runnable {
 			}
 			terminialize();
 		} catch(Throwable t) {
-			t.printStackTrace();
 			LOG.error("FATAL exception in mainloop: " + t.getMessage(), t);
 		} finally {
 			m_thread_isrunning = false;

@@ -28,6 +28,8 @@ import kotlin.reflect.KProperty0;
 import kotlin.reflect.KProperty1;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.input.ValueLabelPair;
 import to.etc.domui.component.meta.impl.DisplayPropertyMetaModel;
 import to.etc.domui.component.meta.impl.ExpandedDisplayProperty;
@@ -40,6 +42,7 @@ import to.etc.domui.converter.IValueValidator;
 import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.PropertyComparator;
 import to.etc.domui.server.DomApplication;
+import to.etc.domui.state.DelayedActivitiesManager;
 import to.etc.domui.util.DisplayPropertyNodeContentRenderer;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.ILabelStringRenderer;
@@ -80,6 +83,8 @@ import java.util.stream.Collectors;
  * Created on Jun 16, 2008
  */
 final public class MetaManager {
+	private static final Logger LOG = LoggerFactory.getLogger(MetaManager.class);
+
 	/**
 	 * Used for lazy loaded formula fields as handler
 	 */
@@ -312,7 +317,7 @@ final public class MetaManager {
 					return false;
 				return DomUtil.isEqual(pka, pkb);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("MetaManager.areObjectEqual: " + x, x);
 				return false;
 			}
 		}
@@ -788,7 +793,7 @@ final public class MetaManager {
 					opmm.setValue(target, opmm.getValue(source));
 				} catch(Exception e) {
 					// This is safe to try/catch since it would actually never happen, it only force us to have throwing of Exception otherwise ;)
-					e.printStackTrace();
+					LOG.error(e.toString(), e);
 				}
 			}
 		}

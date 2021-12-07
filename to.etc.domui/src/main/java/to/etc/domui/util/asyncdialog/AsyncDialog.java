@@ -2,17 +2,18 @@ package to.etc.domui.util.asyncdialog;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.delayed.AsyncContainer;
+import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.component.misc.ExceptionDialog;
-import to.etc.parallelrunner.IAsyncCompletionListener;
-import to.etc.parallelrunner.IAsyncRunnable;
-import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.trouble.UIException;
 import to.etc.function.ConsumerEx;
-import to.etc.util.CancelledException;
+import to.etc.parallelrunner.IAsyncCompletionListener;
+import to.etc.parallelrunner.IAsyncRunnable;
 
 import java.util.Objects;
 
@@ -26,6 +27,8 @@ import static to.etc.domui.component.layout.FloatingDiv.RSN_CLOSE;
  * Created on 1/13/15.
  */
 final public class AsyncDialog {
+	static private final Logger LOG = LoggerFactory.getLogger(AsyncDialog.class);
+
 	private AsyncDialog() {
 	}
 
@@ -68,7 +71,7 @@ final public class AsyncDialog {
 							MsgBox.error(addTo, aErrorException.getMessage());
 						} else {
 							MsgBox.error(addTo, aErrorException.toString());
-							aErrorException.printStackTrace();
+							LOG.error("Error in async command: " + aErrorException, aErrorException);
 						}
 					} else {
 						onError.accept(aErrorException);

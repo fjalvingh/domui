@@ -34,7 +34,6 @@ public class OopsFrameRenderer {
 	private JSTemplate m_exceptionTemplate;
 
 	public void renderOopsFrame(RequestContextImpl ctx, Throwable x) throws Exception {
-		x.printStackTrace();
 		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
 			HttpServletResponse resp = srr.getResponse();

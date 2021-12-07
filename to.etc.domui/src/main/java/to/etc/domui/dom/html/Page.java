@@ -349,7 +349,7 @@ final public class Page implements IQContextContainer {
 			try {
 				listener.execute();
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Listener failed: " + x, x);
 			}
 		}
 		m_asyncLink.m_page = null;
@@ -1269,7 +1269,7 @@ final public class Page implements IQContextContainer {
 			try {
 				getConversation().removeAndDestroySubConversation(scs);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Subpage discard failed: " + x, x);
 			}
 		}
 		getRemovedSubPages().clear();
@@ -1367,7 +1367,7 @@ final public class Page implements IQContextContainer {
 		if(errorList.size() == 0)
 			return;
 		for(int i = 0; i < errorList.size(); i++) {
-			errorList.get(i).printStackTrace();
+			LOG.error("Errors during async poll: ", errorList.get(i));
 		}
 
 		throw errorList.get(0);

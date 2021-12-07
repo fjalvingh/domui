@@ -89,7 +89,6 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 				try {
 					((IConversationStateListener) o).conversationAttached(this);
 				} catch(Exception x) {
-					x.printStackTrace();
 					LOG.error("In calling attach listener", x);
 				}
 			}
@@ -110,7 +109,6 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 				try {
 					((IConversationStateListener) o).conversationDetached(this);
 				} catch(Exception x) {
-					x.printStackTrace();
 					LOG.error("In calling detach listener", x);
 				}
 			}
@@ -139,7 +137,6 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 					((IConversationStateListener) o).conversationDestroyed(this);
 				} catch(Exception x) {
 					if(! sessionDestroyed) {
-						x.printStackTrace();
 						LOG.error("In calling destroy listener", x);
 					}
 				}
@@ -191,7 +188,6 @@ abstract public class AbstractConversationContext implements IQContextContainer 
 				try {
 					((IConversationStateListener) old).conversationDetached(this);
 				} catch(Exception x) {
-					x.printStackTrace();
 					LOG.error("In calling detach listener", x);
 				}
 			}

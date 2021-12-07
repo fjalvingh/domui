@@ -204,7 +204,7 @@ final public class WindowSession {
 			try {
 				cc.internalDetach();
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Detach exception: " + x, x);
 			}
 		}
 	}
@@ -1014,7 +1014,7 @@ final public class WindowSession {
 
 				}
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("shelve end failed: " + x, x);
 			}
 		}
 	}

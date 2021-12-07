@@ -275,7 +275,7 @@ final public class UILogin {
 				try {
 					l.userLogout(user);
 				} catch(Exception x) {
-					x.printStackTrace();
+					LOG.error("LoginListener error: " + x, x);
 				}
 			}
 
@@ -287,7 +287,7 @@ final public class UILogin {
 				hs.invalidate();
 			} catch(Exception x) {
 				//-- Invalidating 2ce causes a useless exception.
-				x.printStackTrace();
+				LOG.error(x.toString(), x);
 			}
 		}
 	}

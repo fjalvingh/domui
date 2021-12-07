@@ -250,7 +250,7 @@ final public class DelayedActivitiesManager {
 			if(pendingcorpse != null)
 				pendingcorpse.getMonitor().cancel();	// Forcefully cancel;
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("Failed to cancel activity: " + x, x);
 		}
 
 		//-- Signal the thread
@@ -259,7 +259,7 @@ final public class DelayedActivitiesManager {
 				killme.interrupt();
 			}
 		} catch(Exception x) {
-			x.printStackTrace();
+			//-- Ignore, nothing can be done
 		}
 	}
 
@@ -345,7 +345,6 @@ final public class DelayedActivitiesManager {
 				c.updateProgress(dai);
 			} catch(Exception x) {
 				LOG.error("Async action update exception: " + x, x);
-				x.printStackTrace();
 			}
 		}
 	}

@@ -5,6 +5,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.webapp.query.QNotFoundException;
 
 import java.math.BigDecimal;
@@ -18,6 +20,8 @@ import java.util.List;
  */
 @NonNullByDefault
 public class ExcelImportRow implements IImportRow {
+	private static final Logger LOG = LoggerFactory.getLogger(ExcelImportRow.class);
+
 	final private ExcelRowReader m_rr;
 
 	final private Row m_row;
@@ -221,7 +225,7 @@ public class ExcelImportRow implements IImportRow {
 						return new BigDecimal(value);
 				}
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Excel Import row exception: " + x, x);
 				String base;
 				try {
 					base = m_cell.getStringCellValue();

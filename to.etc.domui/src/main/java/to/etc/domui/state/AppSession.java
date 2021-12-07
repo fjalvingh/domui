@@ -410,7 +410,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 				try {
 					((IAppSessionBindingListener) value).unboundFromSession(this, name);
 				} catch(Exception x) {
-					x.printStackTrace();
+					LOG.error("Failure in unbind: " + x);
 				}
 			}
 		}

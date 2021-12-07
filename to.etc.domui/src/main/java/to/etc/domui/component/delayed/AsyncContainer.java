@@ -103,13 +103,14 @@ final public class AsyncContainer extends Div {
 		};
 
 		m_resultListener = new IAsyncCompletionListener() {
-			@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
+			@Override
+			public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
 				//-- If we've got an exception replace the contents with the exception message.
 				if(errorException != null) {
 					if(errorException instanceof CancellationException) {
 						MsgBox.error(AsyncContainer.this.getParent(), Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED_MSG));
 					} else {
-						errorException.printStackTrace();
+						//LOG.error("Error in async command: " + errorException, errorException);
 						StringBuilder sb = new StringBuilder(8192);
 						StringTool.strStacktrace(sb, errorException);
 						String s = sb.toString();
@@ -132,7 +133,7 @@ final public class AsyncContainer extends Div {
 				}
 
 				//-- Now replace AsyncContainer with the result
-				replaceWith(res); 					// Replace this node with another one.
+				replaceWith(res);                    // Replace this node with another one.
 			}
 		};
 	}
@@ -206,7 +207,7 @@ final public class AsyncContainer extends Div {
 			//dai.getActivity().onCompleted(dai.getMonitor().isCancelled(), dai.getException());
 		} finally {
 			try {
-				remove();								// Remove myself *after* this all.
+				remove();                                // Remove myself *after* this all.
 			} catch(Exception x) {
 				LOG.error("Could not remove AsyncContainer: " + x);
 			}

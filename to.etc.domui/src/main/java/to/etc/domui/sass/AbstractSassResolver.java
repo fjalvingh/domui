@@ -192,7 +192,7 @@ abstract public class AbstractSassResolver<O> {
 		} catch(ThingyNotFoundException tnf) {				// Normal exception if resource cannot be located.
 			return null;
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("Invalid REF: " + x);
 			return null;
 		}
 	}

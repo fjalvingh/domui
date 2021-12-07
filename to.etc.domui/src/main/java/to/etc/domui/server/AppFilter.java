@@ -160,7 +160,7 @@ public class AppFilter implements Filter {
 			DomUtil.dumpExceptionIfSevere(x);
 			throw new WrappedException(x); // checked exceptions are idiotic
 		} catch(Error x) {
-			x.printStackTrace();
+			LOG.error("Request error: " + x, x);
 			throw x;
 		}
 	}

@@ -982,7 +982,7 @@ final public class DomUtil {
 	}
 
 	static public void dumpException(final Exception x) {
-		x.printStackTrace();
+		USERLOG.error("Exception: " + x, x);
 
 		Throwable next = null;
 		for(Throwable curr = x; curr != null; curr = next) {

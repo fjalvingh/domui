@@ -2,6 +2,8 @@ package to.etc.domui.server;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.util.Constants;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +18,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class ServerClientRegistry {
+	private static final Logger LOG = LoggerFactory.getLogger(ServerClientRegistry.class);
+
 	@NonNull
 	static final private ServerClientRegistry m_instance = new ServerClientRegistry();
 
@@ -177,7 +181,7 @@ public class ServerClientRegistry {
 				c.update(ts);
 			}
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("Failed to register client: " + x, x);
 		}
 	}
 

@@ -64,7 +64,7 @@ public class UploadPart implements IUnbufferedPartFactory {
 			LOG.error("domui: upload target " + rurl + " has gone while the upload commenced");
 			param.getRequestResponse().sendError(404, x.getMessage());
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("UploadPart failed: " + x, x);
 			throw x;
 		}
 	}
