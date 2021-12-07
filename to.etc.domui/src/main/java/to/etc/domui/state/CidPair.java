@@ -18,20 +18,20 @@ final public class CidPair {
 		m_windowId = windowId;
 		m_conversationId = conversationId;
 
-		if(! isValid(windowId)) {
+		if(!isValid(windowId)) {
 			LOG.error("Invalid window ID in $CID " + windowId + "." + conversationId);
 			throw new IllegalStateException("Invalid window ID in CID");    // Do not show the ID - can be a XSS attack
 		}
-		if(! isValid(conversationId)) {
+		if(!isValid(conversationId)) {
 			LOG.error("Invalid conversation ID in $CID " + windowId + "." + conversationId);
 			throw new IllegalStateException("Invalid conversation ID in CID");    // Do not show the ID - can be a XSS attack
 		}
 	}
 
 	private boolean isValid(String thing) {
-		for(int i = thing.length(); --i >= 0;) {
+		for(int i = thing.length(); --i >= 0; ) {
 			char c = thing.charAt(i);
-			if(c != '_' && ! Character.isLetterOrDigit(c))
+			if(c != '_' && !Character.isLetterOrDigit(c))
 				return false;
 		}
 		return true;
@@ -67,7 +67,8 @@ final public class CidPair {
 		return new CidPair(param.substring(0, pos), param.substring(pos + 1));
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return m_windowId + "." + m_conversationId;
 	}
 }

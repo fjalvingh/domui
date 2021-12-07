@@ -1024,7 +1024,7 @@ final public class WindowSession {
 	/*	CODING:	Developer mode save/restore state during reloads.	*/
 	/*--------------------------------------------------------------*/
 	/**
-	 * Get all of the pages from the shelve stack, and return them as a string based structure for later reload.
+	 * Get all the pages from the shelf stack, and return them as a string based structure for later reload.
 	 */
 	@NonNull
 	List<SavedPage> getSavedPageList() {
