@@ -36,6 +36,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * EXPERIMENTAL A record read from the database. Stores all (usable) attributes as a map of values.
@@ -123,6 +124,10 @@ public class JdbcAnyRecord {
 		if(v == null)
 			return defaultValue; // FIXME Should throw column not found exception.
 		return RuntimeConversions.convertTo(v, type);
+	}
+
+	public Set<String> getAllColumnNames() {
+		return m_valueMap.keySet();
 	}
 
 }

@@ -945,6 +945,12 @@ final public class PageRequestHandler {
 
 	private void renderJsonLikeResponse(Page page, @NonNull Object value) throws Exception {
 		m_ctx.renderResponseHeaders(page.getBody());
+		if(value instanceof IDataFactory) {
+			IDataFactory factory = (IDataFactory) value;
+			factory.renderOutput(m_ctx);
+			return;
+		}
+
 		Writer w = m_ctx.getOutputWriter("application/javascript", "utf-8");
 		if(value instanceof String) {
 			//-- String return: we'll assume this is a javascript response by itself.

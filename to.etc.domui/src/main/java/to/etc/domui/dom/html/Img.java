@@ -72,7 +72,6 @@ public class Img extends NodeBase implements IActionControl {
 	/**
 	 * Creates an image with the specified source. This should be an absolute web resource path.  If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
-	 * @param src
 	 */
 	public Img(String src) {
 		this();
@@ -83,7 +82,6 @@ public class Img extends NodeBase implements IActionControl {
 	/**
 	 * Creates an image with the specified source. This should be an absolute web resource path.  If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
-	 * @param src
 	 */
 	public Img(Class<?> base, String src) {
 		this();
@@ -113,7 +111,6 @@ public class Img extends NodeBase implements IActionControl {
 
 	/**
 	 * Return the current "alt" string of the image.
-	 * @return
 	 */
 	public String getAlt() {
 		return m_alt;
@@ -121,7 +118,6 @@ public class Img extends NodeBase implements IActionControl {
 
 	/**
 	 * Set the "alt" string of the image.
-	 * @param alt
 	 */
 	public void setAlt(String alt) {
 		if(!DomUtil.isEqual(alt, m_alt))
@@ -131,7 +127,6 @@ public class Img extends NodeBase implements IActionControl {
 
 	/**
 	 * Get the current source for the image as an absolute web app path.
-	 * @return
 	 */
 	public String getSrc() {
 		return m_src;
@@ -140,7 +135,6 @@ public class Img extends NodeBase implements IActionControl {
 	/**
 	 * Set the source for this image as an absolute web app path. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
-	 * @param src
 	 */
 	public void setSrc(String src) {
 		if(!DomUtil.isEqual(src, m_src))
@@ -150,8 +144,6 @@ public class Img extends NodeBase implements IActionControl {
 
 	/**
 	 * Set the source as a Java resource based off the given class.
-	 * @param base
-	 * @param resurl
 	 */
 	public void setSrc(Class<?> base, String resurl) {
 		String s = DomUtil.getJavaResourceRURL(base, resurl);
@@ -210,7 +202,8 @@ public class Img extends NodeBase implements IActionControl {
 		}
 	}
 
-	@Override public void setClicked2(IClicked2<?> clicked) {
+	@Override
+	public void setClicked2(IClicked2<?> clicked) {
 		super.setClicked2(clicked);
 		if(null != clicked) {
 			addCssClass("ui-clickable");
@@ -253,7 +246,8 @@ public class Img extends NodeBase implements IActionControl {
 		changed();
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 }

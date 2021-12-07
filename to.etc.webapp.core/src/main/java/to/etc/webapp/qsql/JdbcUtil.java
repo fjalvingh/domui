@@ -69,7 +69,8 @@ import java.util.List;
 final public class JdbcUtil {
 	static public final Logger LOG = LoggerFactory.getLogger(JdbcUtil.class);
 
-	private JdbcUtil() {}
+	private JdbcUtil() {
+	}
 
 	static public void setLong(@NonNull PreparedStatement ps, int index, Long value) throws SQLException {
 		if(value == null)
@@ -135,7 +136,6 @@ final public class JdbcUtil {
 		}
 	}
 
-
 	static public void setString(@NonNull PreparedStatement ps, int index, String value) throws SQLException {
 		if(value == null || value.trim().length() == 0)
 			ps.setNull(index, Types.VARCHAR);
@@ -161,7 +161,7 @@ final public class JdbcUtil {
 			ps.setString(index, value.booleanValue() ? "Y" : "N");
 	}
 
-	static public void setFK(@NonNull PreparedStatement ps, int index, @Nullable IIdentifyable< ? extends Number> foreigner) throws SQLException {
+	static public void setFK(@NonNull PreparedStatement ps, int index, @Nullable IIdentifyable<? extends Number> foreigner) throws SQLException {
 		if(foreigner == null)
 			ps.setNull(index, Types.NUMERIC);
 		else {
@@ -189,7 +189,7 @@ final public class JdbcUtil {
 			setParameters(ps, 1, params);
 			logDebug("selectOne", select, params);
 			rs = ps.executeQuery();
-			if(! rs.next())
+			if(!rs.next())
 				return null;
 			Object res = null;
 			if(clz == String.class)
@@ -223,7 +223,8 @@ final public class JdbcUtil {
 				String res = "(cannot obtain value)";
 				try {
 					res = rs.getString(1);
-				} catch(Exception xx) {}
+				} catch(Exception xx) {
+				}
 				throw new SQLException("Cannot convert '" + res + "' to internal representation " + clz + ": " + x, x);
 			}
 			throw x;
@@ -280,7 +281,8 @@ final public class JdbcUtil {
 				String res = "(cannot obtain value)";
 				try {
 					res = rs.getString(1);
-				} catch(Exception xx) {}
+				} catch(Exception xx) {
+				}
 				throw new SQLException("Cannot convert '" + res + "' to internal representation " + clz + ": " + x, x);
 			}
 			throw x;
@@ -295,13 +297,13 @@ final public class JdbcUtil {
 		for(int i = 0; i < params.length; i++) {
 			Object val = params[i];
 			int px = i + startindex;
-			if(val instanceof JdbcOutParam< ? >) {
+			if(val instanceof JdbcOutParam<?>) {
 				if(!(ps instanceof CallableStatement)) {
 					throw new IllegalArgumentException("expected CallableStatement instead of PreparedStatement for OUT/IN OUT param function/procedure call!");
 				}
-				((CallableStatement) ps).registerOutParameter(px, calcSQLTypeFor(((JdbcOutParam< ? >) val).getClassType()));
-				if(val instanceof JdbcInOutParam< ? >) {
-					setParameter(ps, ((JdbcInOutParam< ? >) val).getValue(), px);
+				((CallableStatement) ps).registerOutParameter(px, calcSQLTypeFor(((JdbcOutParam<?>) val).getClassType()));
+				if(val instanceof JdbcInOutParam<?>) {
+					setParameter(ps, ((JdbcInOutParam<?>) val).getValue(), px);
 				}
 			} else {
 				setParameter(ps, val, px);
@@ -345,11 +347,11 @@ final public class JdbcUtil {
 			return;
 		for(int i = 0; i < params.length; i++) {
 			Object val = params[i];
-			if(val instanceof JdbcOutParam< ? >) {
+			if(val instanceof JdbcOutParam<?>) {
 				if(!(ps instanceof CallableStatement)) {
 					throw new IllegalArgumentException("expected CallableStatement instead of PreparedStatement for OUT/IN OUT param function/procedure call!");
 				}
-				setOutParamValue((CallableStatement) ps, startindex + i, ((JdbcOutParam< ? >) val).getClassType(), (JdbcOutParam< ? >) val);
+				setOutParamValue((CallableStatement) ps, startindex + i, ((JdbcOutParam<?>) val).getClassType(), (JdbcOutParam<?>) val);
 			}
 		}
 	}
@@ -404,7 +406,7 @@ final public class JdbcUtil {
 		return a;
 	}
 
-	static private int calcSQLTypeFor(@NonNull Class< ? > rt) {
+	static private int calcSQLTypeFor(@NonNull Class<?> rt) {
 		if(rt == String.class)
 			return Types.VARCHAR;
 		else if(rt == Integer.class || rt == int.class || rt == Long.class || rt == long.class || rt == BigDecimal.class || rt == Double.class || rt == double.class)
@@ -442,6 +444,18 @@ final public class JdbcUtil {
 		}
 	}
 
+	public static int executeUpdate(@NonNull Connection dbc, @NonNull String sql, Object... args) throws SQLException {
+		PreparedStatement ps = null;
+		try {
+			ps = dbc.prepareStatement(sql);
+			setParameters(ps, 1, args);
+			logDebug("executeUpdate", sql, args);
+			return ps.executeUpdate();
+		} finally {
+			FileTool.closeAll(ps);
+		}
+	}
+
 	/**
 	 * Provides interface to execute SQL as {@link CallableStatement} that is UPDATING DATA and also possibly return some values.
 	 * Out values should be specified as {@link JdbcOutParam}.
@@ -461,7 +475,8 @@ final public class JdbcUtil {
 			response.append("Expected sql that starts with \"begin\" and ends with \"end;\", for example : begin insert into table1(colA, colB, colC) values (?,?,?) returning colId into ? ; end;\n");
 			response.append("Found sql: ").append(sql).append("\n");
 			response
-				.append("In case that intention is to just execute CallableStatement that does not explicitly do updates (i.e. to execute stored procedure), please use {@link JdbcUtil#executeStatement} or {@link JdbcUtil#oracleSpCall} methods.");
+				.append(
+					"In case that intention is to just execute CallableStatement that does not explicitly do updates (i.e. to execute stored procedure), please use {@link JdbcUtil#executeStatement} or {@link JdbcUtil#oracleSpCall} methods.");
 			throw new IllegalArgumentException(response.toString());
 		}
 		CallableStatement cs = null;
@@ -573,7 +588,7 @@ final public class JdbcUtil {
 		}
 	}
 
-	private static <T> void setOutParamValue(@NonNull CallableStatement ps, int index, @NonNull Class<T> rtype, @NonNull JdbcOutParam< ? > pOutParam) throws SQLException {
+	private static <T> void setOutParamValue(@NonNull CallableStatement ps, int index, @NonNull Class<T> rtype, @NonNull JdbcOutParam<?> pOutParam) throws SQLException {
 		JdbcOutParam<T> outParam = (JdbcOutParam<T>) pOutParam;
 		outParam.setValue(readPsValue(ps, index, rtype));
 	}
@@ -646,8 +661,8 @@ final public class JdbcUtil {
 
 				if(DatabaseMetaData.importedKeyCascade == cascade) {
 					//-- This cascades the children. Check if any of the children have undeleteable items, recursively. First collect all childs.
-					List<String>	fklist = new ArrayList<String>();
-					ps = dbc.prepareStatement("select "+pkColumn+" from "+fkTable+" where "+fkColumn+"=?");
+					List<String> fklist = new ArrayList<String>();
+					ps = dbc.prepareStatement("select " + pkColumn + " from " + fkTable + " where " + fkColumn + "=?");
 					ps.setString(1, primaryKey);
 					rs2 = ps.executeQuery();
 					while(rs2.next()) {
@@ -668,7 +683,7 @@ final public class JdbcUtil {
 					ps.setString(1, primaryKey);
 					rs2 = ps.executeQuery();
 					if(rs2.next()) {
-						return fkTable;									// Has dependent record in this table -> exit.
+						return fkTable;                                    // Has dependent record in this table -> exit.
 					}
 					rs2.close();
 					ps.close();
@@ -728,10 +743,10 @@ final public class JdbcUtil {
 			return "[Blob]";
 		} else if(val instanceof Clob) {
 			return "[Clob]";
-		} else if(val instanceof JdbcOutParam< ? >) {
-			return "[JdbcOutParam] class = " + ((JdbcOutParam< ? >) val).getClass();
-		} else if(val instanceof JdbcInOutParam< ? >) {
-			return "[JdbcInParam] " + getDebugParamValue(((JdbcOutParam< ? >) val).getValue());
+		} else if(val instanceof JdbcOutParam<?>) {
+			return "[JdbcOutParam] class = " + ((JdbcOutParam<?>) val).getClass();
+		} else if(val instanceof JdbcInOutParam<?>) {
+			return "[JdbcInParam] " + getDebugParamValue(((JdbcOutParam<?>) val).getValue());
 		} else {
 			return "[unknown type!]";
 		}
@@ -740,7 +755,7 @@ final public class JdbcUtil {
 	@Nullable
 	public static Long readLong(@NonNull ResultSet rs, @NonNull String colName) throws SQLException {
 		Long value = rs.getLong(colName);
-		if (rs.wasNull()){
+		if(rs.wasNull()) {
 			return null;
 		}
 		return value;
@@ -749,7 +764,7 @@ final public class JdbcUtil {
 	@Nullable
 	public static Integer readInt(@NonNull ResultSet rs, @NonNull String colName) throws SQLException {
 		Integer value = rs.getInt(colName);
-		if (rs.wasNull()){
+		if(rs.wasNull()) {
 			return null;
 		}
 		return value;
@@ -764,7 +779,6 @@ final public class JdbcUtil {
 	public static java.util.Date readDate(@NonNull ResultSet rs, int index) throws SQLException {
 		return DateUtil.sqlToUtilDate(rs.getDate(index));
 	}
-
 
 	@Nullable
 	public static java.util.Date readTimestamp(@NonNull ResultSet rs, int colIndex) throws SQLException {

@@ -265,7 +265,7 @@ public class ConverterRegistry {
 	 * Finds the best factory to use. Returns null if no factory was found.
 	 * <p>jal 20091118 Per-class factory cache removed because more than just class is used to determine the factory to use.</p>
 	 */
-	static private IConverterFactory findFactory(Class< ? > clz, PropertyMetaModel< ? > pmm) {
+	static private IConverterFactory findFactory(Class<?> clz, PropertyMetaModel<?> pmm) {
 		synchronized(ConverterRegistry.class) {
 			//-- Scan teh full list, and build a list-of-factories-accepting-this-class during it,
 			List<IConverterFactory> flist = new ArrayList<IConverterFactory>();

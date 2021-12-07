@@ -202,7 +202,7 @@ namespace WebUI {
 			success: function(data, state) {
 				response = data;
 				if(callback) {
-					callback(JSON.parse(data));
+					callback(data);
 				}
 			},
 			error: handleError

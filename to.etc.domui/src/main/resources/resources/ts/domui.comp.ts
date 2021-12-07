@@ -5,6 +5,10 @@
 /// <reference path="domui.webui.ts" />
 //import WebUI from "domui.webui.util";
 
+namespace Plotly {
+	export declare function newPlot(id, data, layout, config);
+}
+
 namespace WebUI {
 	let _selectStart = undefined;
 
@@ -193,9 +197,6 @@ namespace WebUI {
 
 	/**
 	 * Register ckeditor for extra handling that is set in CKeditor_OnComplete.
-	 *
-	 * @param id
-	 * @param ckeInstance
 	 */
 	export function registerCkEditorId(id, ckeInstance): void {
 		_ckEditorMap[id] = [ckeInstance, null];
@@ -203,8 +204,6 @@ namespace WebUI {
 
 	/**
 	 * Unregister ckeditor and removes handlings bound to it.
-	 *
-	 * @param id
 	 */
 	export function unregisterCkEditorId(id): void {
 		try {
@@ -524,6 +523,19 @@ namespace WebUI {
 			WebUI.scall(id, "LOADMORE", {});
 		});
 
+	}
+
+	export function plotlyComponent(id: string) {
+		let pnl = $('#' + id);
+		pnl.addClass('ui-plotly-empty');
+		DomUI.jsoncall(id, {}, function(response) {
+			let data = response['data'];
+			let layout = response['layout'];
+			if(data != null && layout != null) {
+				let config = {responsive: true};
+				Plotly.newPlot(id, data, layout, config);
+			}
+		});
 	}
 
 	class closeOnClick {
