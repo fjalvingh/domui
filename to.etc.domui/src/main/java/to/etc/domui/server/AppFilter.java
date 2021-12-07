@@ -107,7 +107,7 @@ public class AppFilter implements Filter {
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
 			if(LOG.isDebugEnabled()) {
-				System.out.println("--- Request entering the server");
+				LOG.debug("--- Request entering the server");
 
 				Enumeration<String> enu = rq.getHeaderNames();
 				while(enu.hasMoreElements()) {
@@ -118,9 +118,9 @@ public class AppFilter implements Filter {
 						System.out.println("header: " + name + ": " + val);
 					}
 				}
-				System.out.println("uri " + rq.getRequestURI());
-				System.out.println("url " + rq.getRequestURL());
-				System.out.println("localName " + rq.getLocalName());
+				LOG.debug("uri " + rq.getRequestURI());
+				LOG.debug("url " + rq.getRequestURL());
+				LOG.debug("localName " + rq.getLocalName());
 			}
 
 			HttpServletResponse response = (HttpServletResponse) res;
@@ -198,7 +198,7 @@ public class AppFilter implements Filter {
 			m_logRequest = DeveloperOptions.getBool("domui.logurl", false);
 
 			//-- Get the root for all files in the webapp
-			System.out.println("WebApp root=" + approot);
+			LOG.info("WebApp root=" + approot);
 			if(!approot.exists() || !approot.isDirectory())
 				throw new IllegalStateException("Internal: cannot get webapp root directory");
 

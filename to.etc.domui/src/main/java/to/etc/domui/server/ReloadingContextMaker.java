@@ -66,7 +66,6 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 	static private long m_lastReloadTime;
 
-
 	public ReloadingContextMaker(@NonNull String applicationClassName, @NonNull ConfigParameters pp, @Nullable String patterns, @Nullable String patternsWatchOnly) throws Exception {
 		super(pp);
 		m_instance = this;
@@ -75,7 +74,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		m_reloader = new Reloader(patterns, patternsWatchOnly);
 		System.out.println("DomUI: We are running in DEVELOPMENT mode. This will be VERY slow when used in a production environment.");
 
-		checkReload(); 										// Initial: force load and init of Application object.
+		checkReload();                                        // Initial: force load and init of Application object.
 	}
 
 	static public synchronized void addReloadListener(IReloadListener l) {
@@ -87,7 +86,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		return m_reloadListener;
 	}
 
-	static public Class< ? > loadClass(String name) throws Exception {
+	static public Class<?> loadClass(String name) throws Exception {
 		if(m_instance != null) {
 			return m_instance.getReloader().getReloadingLoader().loadClass(name);
 		}
@@ -179,7 +178,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 
 		//-- Check to see if the application has changed
 		reloaded();
-		Class< ? > clz;
+		Class<?> clz;
 		try {
 			clz = m_reloader.loadApplication(m_applicationClassName);
 		} catch(ClassNotFoundException x) {
@@ -196,7 +195,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 				}
 			}
 
-			Class< ? > oclz = m_application.getClass();
+			Class<?> oclz = m_application.getClass();
 			System.out.println("OLD app = " + oclz + ", loaded by " + oclz.getClassLoader());
 			System.out.println("NEW app = " + clz + ", loaded by " + clz.getClassLoader());
 			if(clz.isAssignableFrom(oclz))
@@ -209,9 +208,8 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		m_application = createApplication();
 	}
 
-
 	private DomApplication createApplication() throws Exception {
-		Class< ? > clz;
+		Class<?> clz;
 		try {
 			clz = m_reloader.loadApplication(m_applicationClassName);
 		} catch(ClassNotFoundException x) {
@@ -229,7 +227,7 @@ public class ReloadingContextMaker extends AbstractContextMaker {
 		} catch(Exception x) {
 			System.out.println("DomApplication classloader: " + DomApplication.class.getClassLoader());
 			System.out.println("Instance classloader: " + clz.getClassLoader());
-			Class< ? > pc = clz.getSuperclass();
+			Class<?> pc = clz.getSuperclass();
 			System.out.println("Instance superclass=" + pc);
 			System.out.println("Instance superclass classloader: " + pc.getClassLoader());
 

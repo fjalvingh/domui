@@ -2,6 +2,8 @@ package to.etc.domui.util.modelcopier;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -26,7 +28,9 @@ import java.util.Stack;
  * Created on Jan 9, 2013
  */
 public class ModelCopier {
-//	@NonNull
+	static private final Logger LOG = LoggerFactory.getLogger(ModelCopier.class);
+
+	//	@NonNull
 //	final private QDataContext m_sds;
 
 	@NonNull
@@ -36,7 +40,7 @@ public class ModelCopier {
 	final private ILogSink m_sink;
 
 	@NonNull
-	final Map<Class< ? >, EntityDef< ? >> m_defMap = new HashMap<>();
+	final Map<Class<?>, EntityDef<?>> m_defMap = new HashMap<>();
 
 	private StringBuilder m_pathSb = new StringBuilder();
 
@@ -107,14 +111,14 @@ public class ModelCopier {
 
 	/** Maps known/located/created instances in dest by key. */
 	@NonNull
-	private Map<InstanceKey< ? >, Object> m_destInstanceMap = new HashMap<>();
+	private Map<InstanceKey<?>, Object> m_destInstanceMap = new HashMap<>();
 
 	/** Maps known/located/created instances in src by key. */
 	@NonNull
-	private Map<InstanceKey< ? >, Object> m_srcInstanceMap = new HashMap<>();
+	private Map<InstanceKey<?>, Object> m_srcInstanceMap = new HashMap<>();
 
 	@NonNull
-	private Stack<InstanceKey< ? >> m_currentFindSet = new Stack<InstanceKey< ? >>();
+	private Stack<InstanceKey<?>> m_currentFindSet = new Stack<InstanceKey<?>>();
 
 	/**
 	 * This tries to make a copy of the object, by recursively implementing the search rules for each of
@@ -144,8 +148,8 @@ public class ModelCopier {
 //			return null;
 
 		//-- Create the instance key.
-		EntityDef<T>	ed = (EntityDef<T>) getDefinition(src.getClass());
-		if(! ed.isCopy())								// May forget copy?
+		EntityDef<T> ed = (EntityDef<T>) getDefinition(src.getClass());
+		if(!ed.isCopy())                                // May forget copy?
 			return null;
 		InstanceKey<T> key = ed.getInstanceKey(src);
 
@@ -173,13 +177,13 @@ public class ModelCopier {
 
 	private <T> void updateProperties(InstanceKey<T> key, T di) throws Exception {
 		EntityDef<T> ed = key.getEntity();
-		List<PropertyMetaModel< ? >> pl = ed.getMetaModel().getProperties();
-		List<PropertyMetaModel< ? >> childList = new ArrayList<>();
+		List<PropertyMetaModel<?>> pl = ed.getMetaModel().getProperties();
+		List<PropertyMetaModel<?>> childList = new ArrayList<>();
 		T si = key.getSourceInstance();
 		if(null == si)
 			throw new IllegalStateException("No source instance for key " + key);
 
-		for(PropertyMetaModel< ? > pmm : pl) {
+		for(PropertyMetaModel<?> pmm : pl) {
 			switch(pmm.getRelationType()){
 				default:
 					break;
@@ -199,7 +203,7 @@ public class ModelCopier {
 			}
 		}
 
-		for(PropertyMetaModel< ? > pmm : childList) {
+		for(PropertyMetaModel<?> pmm : childList) {
 
 		}
 
@@ -207,9 +211,6 @@ public class ModelCopier {
 
 	/**
 	 * This either locates or creates the specified instance in dest.
-	 * @param key
-	 * @return
-	 * @throws Exception
 	 */
 	public <T> T destCreate(@NonNull InstanceKey<T> key) throws Exception {
 		T di = destLocate(key);
@@ -240,19 +241,19 @@ public class ModelCopier {
 			throw new IllegalStateException(key + ": source instance is null??");
 
 		m_currentFindSet.add(key);
-		System.out.println("mc: creating " + key + " (" + m_currentPath + ")");
-		di = ed.createInstance();					// Create a new, empty instance
-		m_destInstanceMap.put(key, di);				// Store created one
+		LOG.info("mc: creating " + key + " (" + m_currentPath + ")");
+		di = ed.createInstance();                    // Create a new, empty instance
+		m_destInstanceMap.put(key, di);                // Store created one
 		copyProperties(ed, di, src, key);
 		m_currentFindSet.remove(key);
 		return di;
 	}
 
 	private <T, I> void copyProperties(@NonNull EntityDef<T> ed, @NonNull T di, @NonNull T si, @NonNull InstanceKey<T> key) throws Exception {
-		List<PropertyMetaModel< ? >> pl = ed.getMetaModel().getProperties();
-		List<PropertyMetaModel< ? >> childList = new ArrayList<>();
+		List<PropertyMetaModel<?>> pl = ed.getMetaModel().getProperties();
+		List<PropertyMetaModel<?>> childList = new ArrayList<>();
 
-		for(PropertyMetaModel< ? > pmm : pl) {
+		for(PropertyMetaModel<?> pmm : pl) {
 			switch(pmm.getRelationType()){
 				default:
 					throw new IllegalStateException(pmm.getRelationType() + ": ??");
@@ -301,7 +302,7 @@ public class ModelCopier {
 //		}
 
 		//-- Now handle all child relations.
-		for(PropertyMetaModel< ? > pmm : childList) {
+		for(PropertyMetaModel<?> pmm : childList) {
 			//-- Only works for list.
 			if(!List.class.isAssignableFrom(pmm.getActualType()))
 				throw new IllegalStateException(pmm + ": unsupported child relation container type");
@@ -319,25 +320,25 @@ public class ModelCopier {
 			return;
 		}
 
-		X sval = pmm.getValue(si);					// Get value of parent in instance
+		X sval = pmm.getValue(si);                    // Get value of parent in instance
 		X dval = pmm.getValue(di);
 
 		if(sval != null) {
 			//-- We need to create dest instances, so make sure a dval list is present
 			if(dval == null) {
-				dval = (X) new ArrayList<I>();		// Oh brother.
-				pmm.setValue(di, dval);				// Set a value in dest.
+				dval = (X) new ArrayList<I>();        // Oh brother.
+				pmm.setValue(di, dval);                // Set a value in dest.
 			}
 
 			//-- Find the contained entity and it's definition
-			Type	ct = pmm.getGenericActualType();		// Get contained type (I)
+			Type ct = pmm.getGenericActualType();        // Get contained type (I)
 			Class<I> itemtype = (Class<I>) MetaManager.findCollectionType(ct);
 			if(null == itemtype)
 				throw new IllegalStateException("Cannot get collection type");
 			getDefinition(itemtype);
 
 			//-- Party time....
-			for(I srci: sval) {
+			for(I srci : sval) {
 				I dsti = copyInstance(srci);
 				dval.add(dsti);
 			}
@@ -356,10 +357,10 @@ public class ModelCopier {
 			return;
 		}
 
-		X val = pmm.getValue(si);					// Get value of parent in instance
+		X val = pmm.getValue(si);                    // Get value of parent in instance
 		if(val != null) {
 			//-- Find the entity definition for this
-			EntityDef<X>	ped = getDefinition(pmm.getActualType());
+			EntityDef<X> ped = getDefinition(pmm.getActualType());
 			InstanceKey<X> vk = ped.getInstanceKey(val);
 			val = destCreate(vk);
 		}
@@ -401,7 +402,7 @@ public class ModelCopier {
 			Object kv = key.getValue(ix);
 
 			if(kv instanceof InstanceKey) {
-				InstanceKey< ? > altk = (InstanceKey< ? >) kv;
+				InstanceKey<?> altk = (InstanceKey<?>) kv;
 				kv = destCreate(altk);
 				if(null == kv) {
 					throw new IllegalStateException("Cannot locate key entity for field '" + name + "': " + altk);
@@ -440,12 +441,12 @@ public class ModelCopier {
 		return m_ignorePathSet.contains(m_currentPath);
 	}
 
-	private static boolean isExcepted(@NonNull Set<Object> exceptSet, @NonNull PropertyMetaModel< ? > frpmm) {
+	private static boolean isExcepted(@NonNull Set<Object> exceptSet, @NonNull PropertyMetaModel<?> frpmm) {
 		if(exceptSet.contains(frpmm.getName()))
 			return true;
 		for(Object t : exceptSet) {
 			if(t == Class.class) {
-				Class< ? > rc = (Class< ? >) t;
+				Class<?> rc = (Class<?>) t;
 
 				if(rc.isAssignableFrom(frpmm.getActualType()))
 					return true;
@@ -453,6 +454,5 @@ public class ModelCopier {
 		}
 		return false;
 	}
-
 
 }

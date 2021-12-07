@@ -1048,7 +1048,7 @@ final public class WindowSession {
 		if(null != sw) {
 			hs.removeAttribute(oldWindowId);								// Remove this after restore
 			list = sw.getPageList();
-			System.out.println("arh: reload " + oldWindowId + " using session state " + sw);
+			LOG.info("arh: reload " + oldWindowId + " using session state " + sw);
 		} else {
 			//-- Can we get it from the state file?
 			if(!m_developerMode)
@@ -1065,7 +1065,7 @@ final public class WindowSession {
 			} finally {
 				FileTool.closeAll(f);										// Always remove the file
 			}
-			System.out.println("arh: reload " + oldWindowId + " using file " + f + ", " + list);
+			LOG.info("arh: reload " + oldWindowId + " using file " + f + ", " + list);
 		}
 
 		String conversationId = null;

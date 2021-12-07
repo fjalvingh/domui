@@ -2474,7 +2474,7 @@ public abstract class DomApplication {
 				.enableAllInfo()
 				.scan();
 			ts = System.currentTimeMillis() - ts;
-			System.out.println("init: scanned classes in " + StringTool.strDurationMillis(ts));
+			LOG.info("init: scanned classes in " + StringTool.strDurationMillis(ts));
 		}
 		return result;
 	}

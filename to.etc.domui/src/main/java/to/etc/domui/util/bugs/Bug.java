@@ -26,6 +26,8 @@ package to.etc.domui.util.bugs;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.util.janitor.Janitor;
 import to.etc.domui.util.janitor.JanitorTask;
@@ -48,6 +50,7 @@ import java.util.concurrent.Executor;
  * Created on Jun 18, 2010
  */
 final public class Bug {
+	static private final Logger LOG = LoggerFactory.getLogger(Bug.class);
 
 	static private final ThreadLocal<List<IBugListener>> m_threadListener = new ThreadLocal<>();
 
@@ -112,7 +115,7 @@ final public class Bug {
 		}
 		if(true || (gll.size() == 0 && threadListeners.size() == 0)) {
 			//-- No one listens -> report to console.
-			System.out.println(bi.toString());
+			LOG.error(bi.toString());
 			Throwable x = bi.getException();
 			if(null != x) {
 				x.printStackTrace();
@@ -122,6 +125,7 @@ final public class Bug {
 
 	/**
 	 * Checks whether this issue is rate-limited, i.e. it occurs too often.
+	 *
 	 * @return T if the issue should not be reported again.
 	 */
 	private static boolean isRateLimited(BugItem item) {

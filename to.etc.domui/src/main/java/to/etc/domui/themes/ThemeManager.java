@@ -26,6 +26,8 @@ package to.etc.domui.themes;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
@@ -55,6 +57,8 @@ import java.util.Map;
  * Created on Apr 27, 2011
  */
 final public class ThemeManager {
+	static private final Logger LOG = LoggerFactory.getLogger(ThemeManager.class);
+
 	static private final long OLD_THEME_TIME = 5 * 60 * 1000;
 
 	final private DomApplication m_application;
@@ -197,7 +201,7 @@ final public class ThemeManager {
 		long ts = System.nanoTime();
 		IResourceRef ires = m_application.getResource(resourceURL, rdl);			// Get the template source file
 		if(!ires.exists()) {
-			System.out.println(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
+			LOG.error(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
 			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + resourceURL + ", ref=" + ires);
 		}
 
@@ -214,7 +218,7 @@ final public class ThemeManager {
 		//-- 2. Get a reader.
 		InputStream is = ires.getInputStream();
 		if(is == null) {
-			System.out.println(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
+			LOG.error(">>>> RESOURCE ERROR: " + resourceURL + ", ref=" + ires);
 			throw new ThingyNotFoundException("Unexpected: cannot get input stream for IResourceRef rurl=" + resourceURL + ", ref=" + ires);
 		}
 		try {
@@ -225,9 +229,9 @@ final public class ThemeManager {
 			rtc.execute(sb, r, resourceURL, ss);
 			ts = System.nanoTime() - ts;
 			if(bv != null)
-				System.out.println("theme-replace: " + resourceURL + " for " + bv.getBrowserName() + ":" + bv.getMajorVersion() + " took " + StringTool.strNanoTime(ts));
+				LOG.debug("theme-replace: " + resourceURL + " for " + bv.getBrowserName() + ":" + bv.getMajorVersion() + " took " + StringTool.strNanoTime(ts));
 			else
-				System.out.println("theme-replace: " + resourceURL + " for all browsers took " + StringTool.strNanoTime(ts));
+				LOG.debug("theme-replace: " + resourceURL + " for all browsers took " + StringTool.strNanoTime(ts));
 			return sb.toString();
 		} finally {
 			try {

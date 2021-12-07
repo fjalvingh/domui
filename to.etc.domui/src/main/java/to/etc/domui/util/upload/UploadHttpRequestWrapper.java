@@ -90,10 +90,7 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 						parammap.put(name, v);
 					}
 					v.add(fi.getValue());
-					System.out.println("~~ form item name=" + name);
 				} else {
-					//-- This is some kind of FILE thingy..
-					//				System.out.println("~~ file item name=" + name);
 					List<UploadItem> v = filemap.get(name);
 					if(v == null) {
 						v = new ArrayList<>(5);
@@ -177,7 +174,8 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 			for(UploadItem ui : uiar) {
 				try {
 					ui.discard();
-				} catch(Exception x) {}
+				} catch(Exception x) {
+				}
 			}
 		}
 	}

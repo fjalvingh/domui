@@ -27,6 +27,8 @@ package to.etc.domui.themes.fragmented;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.server.BrowserVersion;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.themes.DefaultThemeVariant;
@@ -65,7 +67,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
  * <ul>
  *	<li>A style sheet containing all css for all components.</li>
  *	<li>A set of icons that are used by that stylesheet</li>
- 	<li>A color definition consisting of icons and .js files that contain stylesheet resources of a given color.</li>
+ <li>A color definition consisting of icons and .js files that contain stylesheet resources of a given color.</li>
  *	<li>A variant that allows addressing a separate stylesheet for the theme.</li>
  * </ul>
  *
@@ -103,6 +105,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
  */
 @NonNullByDefault
 public class FragmentedThemeFactory {
+	static private final Logger LOG = LoggerFactory.getLogger(FragmentedThemeFactory.class);
+
 	static private final IThemeFactory INSTANCE = new IThemeFactory() {
 		@NonNull
 		@Override
@@ -111,11 +115,15 @@ public class FragmentedThemeFactory {
 			return stf.createTheme();
 		}
 
-		@NonNull @Override public String getFactoryName() {
+		@NonNull
+		@Override
+		public String getFactoryName() {
 			return "fragmented";
 		}
 
-		@NonNull @Override public String getDefaultThemeName() {
+		@NonNull
+		@Override
+		public String getDefaultThemeName() {
 			return getFactoryName() + "-domui-orange-domui";
 		}
 	};
@@ -139,6 +147,7 @@ public class FragmentedThemeFactory {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Instance creation.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Constructor for a factory instance that will generate the ITheme.
 	 */
@@ -175,7 +184,7 @@ public class FragmentedThemeFactory {
 		loadStyleInfo();
 		ResourceDependencies rd = m_rdl.createDependencies();
 
-		m_searchList.add("$themes/css-all");					// 20130327 jal the "all" theme dir contains stuff shared over all themes.
+		m_searchList.add("$themes/css-all");                    // 20130327 jal the "all" theme dir contains stuff shared over all themes.
 		return new FragmentedThemeStore(m_application, m_themeName, nullChecked(m_stylesheet).getBytes("utf-8"), executor(), m_searchList, rd);
 	}
 
@@ -183,7 +192,7 @@ public class FragmentedThemeFactory {
 		//-- Split theme name into css/icons/color
 		String[] ar = m_themeName.split("-");
 		if(ar.length != 4 && ar.length != 5)
-			throw new StyleException("The theme name '" + m_themeName + "' is invalid for "+getClass()+": expecting styleName/icon/color/variant");
+			throw new StyleException("The theme name '" + m_themeName + "' is invalid for " + getClass() + ": expecting styleName/icon/color/variant");
 		String styleName = ar[1];
 		String iconName = ar[2];
 		String colorName = ar[3];
@@ -197,6 +206,7 @@ public class FragmentedThemeFactory {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Stylesheet (css) theme set loading.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Load all theme style (css) related info. The styleName is a folder name inside themes/; that
 	 * folder <b>must</b> contain a "style.props.js" property file and contains multiple xxxx.frag.css
@@ -206,12 +216,12 @@ public class FragmentedThemeFactory {
 	 * @throws Exception
 	 */
 	protected void loadStyle(String styleName, String variant) throws Exception {
-		if(! variant.equals(DefaultThemeVariant.INSTANCE.getVariantName()))
+		if(!variant.equals(DefaultThemeVariant.INSTANCE.getVariantName()))
 			styleName += "-" + variant;
 
 		loadClear();
 		setInheritence("internalInheritStyle");
-		internalInheritStyle(styleName); 						// Use that same name to load this set.
+		internalInheritStyle(styleName);                        // Use that same name to load this set.
 
 		//-- Now load all stylesheet fragments (.frag.css)
 		StringBuilder sb = new StringBuilder(65536);
@@ -227,7 +237,7 @@ public class FragmentedThemeFactory {
 		if(m_inheritanceStack.contains(dirname))
 			throw new StyleException(m_themeName + ": style set '" + styleName + "' is used before (cyclic loop in styles, or double inheritance)");
 		m_inheritanceStack.add(0, dirname);
-		m_searchList.add(0, dirname); 							// Style sets are part of the search path
+		m_searchList.add(0, dirname);                            // Style sets are part of the search path
 
 		//-- The style.props.js file is mandatory at least;
 		loadScript("$" + dirname + "/style.props.js");
@@ -236,6 +246,7 @@ public class FragmentedThemeFactory {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Icon set loading.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Load all icon related info. Each icon set is in a separate folder inside
 	 * the "themes" structure; each folder is required to hold icon.props.js and
@@ -254,14 +265,14 @@ public class FragmentedThemeFactory {
 		loadClear();
 		setInheritence("internalInheritIcon");
 
-		if(! DefaultThemeVariant.INSTANCE.getVariantName().equals(variant)) {
+		if(!DefaultThemeVariant.INSTANCE.getVariantName().equals(variant)) {
 			String dirname = normalizeName("themes/" + iconName + "-icons-" + variant);
 			if(m_inheritanceStack.contains(dirname))
 				throw new StyleException(m_themeName + ": icon variant set '" + dirname + "' is used before (cyclic loop in styles, or double inheritance)");
 			m_inheritanceStack.add(0, dirname);
 			m_searchList.add(0, dirname);
 		}
-		internalInheritIcon(iconName);						// Use that same name to load this set.
+		internalInheritIcon(iconName);                        // Use that same name to load this set.
 
 		//-- An icon set can have fragmented properties too - so load those.
 		loadFragments("iconset:" + iconName, ".props.js", "icon.props.js");
@@ -279,7 +290,7 @@ public class FragmentedThemeFactory {
 		if(m_inheritanceStack.contains(dirname))
 			throw new StyleException(m_themeName + ": icon set '" + iconName + "' is used before (cyclic loop in styles, or double inheritance)");
 		m_inheritanceStack.add(0, dirname);
-		m_searchList.add(0, dirname); 							// Icon sets are part of the search path
+		m_searchList.add(0, dirname);                            // Icon sets are part of the search path
 
 		//-- The icon.props.js file is mandatory at least;
 		loadScript("$" + dirname + "/icon.props.js");
@@ -288,6 +299,7 @@ public class FragmentedThemeFactory {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Color set loading.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Load everything related to colors. Results in the current {@link IScriptScope} being
 	 * filled with all color properties.
@@ -298,7 +310,7 @@ public class FragmentedThemeFactory {
 	protected void loadColors(String colorName) throws Exception {
 		loadClear();
 		setInheritence("internalInheritColor");
-		internalInheritColor(colorName); 						// Use that same name to load this set.
+		internalInheritColor(colorName);                        // Use that same name to load this set.
 	}
 
 	/**
@@ -322,6 +334,7 @@ public class FragmentedThemeFactory {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Loading sets of properties and fragments.			*/
 	/*--------------------------------------------------------------*/
+
 	/** During load of a set, this defines the inheritance stack of the loaded item. When style a EXTENDS style B etc, this starts with the base class (b) and ends with the topmost one (A). */
 	private List<String> m_inheritanceStack = new ArrayList<String>();
 
@@ -343,7 +356,6 @@ public class FragmentedThemeFactory {
 	 * Defines the implementation of the "inherit" method which causes inheritance to work. The
 	 * method name must be an accessible method in this class accepting a single String as
 	 * parameter.
-	 * @param methodname
 	 */
 	private void setInheritence(String methodname) throws Exception {
 		executor().put("collector", this);
@@ -352,8 +364,6 @@ public class FragmentedThemeFactory {
 
 	/**
 	 * Load the specified resource as a Javascript thingy.
-	 * @param pname
-	 * @throws Exception
 	 */
 	private void loadScript(String pname) throws Exception {
 		IResourceRef ires = findRef(m_rdl, pname);
@@ -362,7 +372,7 @@ public class FragmentedThemeFactory {
 		InputStream is = ires.getInputStream();
 		if(null == is)
 			throw new StyleException("The " + pname + " file is not found.");
-		System.out.println("css: loading " + pname + " as " + ires);
+		LOG.info("css: loading " + pname + " as " + ires);
 		try {
 			//-- Execute Javascript;
 			Reader r = new InputStreamReader(is, "utf-8");
@@ -370,13 +380,13 @@ public class FragmentedThemeFactory {
 		} finally {
 			try {
 				is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/**
 	 * Walks the inheritance stack, and loads all fragments present there as properties too.
-	 * @throws Exception
 	 */
 	private void loadFragments(String setname, String fragmentSuffix, String ignoreName) throws Exception {
 		long ts = System.nanoTime();
@@ -394,7 +404,7 @@ public class FragmentedThemeFactory {
 			count++;
 		}
 		ts = System.nanoTime() - ts;
-		System.out.println("css: loading " + setname + "+: loaded " + count + " fragments took " + StringTool.strNanoTime(ts));
+		LOG.info("css: loading " + setname + "+: loaded " + count + " fragments took " + StringTool.strNanoTime(ts));
 	}
 
 	private String normalizeName(String name) {
@@ -422,7 +432,8 @@ public class FragmentedThemeFactory {
 		NONE
 
 		/** Try to expand every fragment by calling the template expander, but use original source as result, not the expanded template */
-		, CHECK
+		,
+		CHECK
 	}
 
 	/**
@@ -435,9 +446,6 @@ public class FragmentedThemeFactory {
 	 * easily overridden by a file in the same directory with the exact same name.
 	 *
 	 * <p>The loadType decides whether the content of each fragment is expanded or not.</p>
-	 *
-	 * @throws Exception
-	 *
 	 */
 	private void getFragments(StringBuilder target, List<String> directory, String suffix, Check loadType, IResourceDependencyList rdl) throws Exception {
 		long ts = System.nanoTime();
@@ -453,16 +461,11 @@ public class FragmentedThemeFactory {
 			count++;
 		}
 		ts = System.nanoTime() - ts;
-		System.out.println("css: theme '" + m_themeName + "' loading " + directory + "+: loaded " + count + " fragments took " + StringTool.strNanoTime(ts));
+		LOG.info("css: theme '" + m_themeName + "' loading " + directory + "+: loaded " + count + " fragments took " + StringTool.strNanoTime(ts));
 	}
 
 	/**
 	 * Load and append the specified concrete fragment.
-	 * @param target
-	 * @param fullPathName
-	 * @param loadType
-	 * @param rdl
-	 * @throws Exception
 	 */
 	private void appendFragment(StringBuilder target, String fullPathName, Check loadType, IResourceDependencyList rdl) throws Exception {
 		IResourceRef ires = findRef(rdl, fullPathName);
@@ -492,7 +495,8 @@ public class FragmentedThemeFactory {
 		} finally {
 			try {
 				is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -501,7 +505,8 @@ public class FragmentedThemeFactory {
 		try {
 			IResourceRef ires = m_application.getResource(rurl, rdl); // Get the source file, abort if not found
 			return ires;
-		} catch(ThingyNotFoundException x) {}
+		} catch(ThingyNotFoundException x) {
+		}
 		return null;
 	}
 
@@ -509,7 +514,6 @@ public class FragmentedThemeFactory {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Collecting an inheritance stack of fragments.		*/
 	/*--------------------------------------------------------------*/
-
 
 	public List<String> collectFragments(List<String> directoryStack, String suffix) throws Exception {
 		if(!suffix.startsWith("."))
@@ -534,7 +538,6 @@ public class FragmentedThemeFactory {
 		return res;
 	}
 
-
 	/**
 	 * Walk the inheritance tree from baseclass to superclass, and collect
 	 * all fragments by name; in the process remove all duplicates.
@@ -555,8 +558,8 @@ public class FragmentedThemeFactory {
 	 */
 	private void collectFragments(Map<String, String> nameSet, String inh) {
 		String pkgres = "resources/" + inh;
-		List<String>	kns = ClasspathInventory.getInstance().getPackageInventory(pkgres);
-		for(String s: kns)
+		List<String> kns = ClasspathInventory.getInstance().getPackageInventory(pkgres);
+		for(String s : kns)
 			nameSet.put(s, inh);
 
 		//-- Scan webapp path

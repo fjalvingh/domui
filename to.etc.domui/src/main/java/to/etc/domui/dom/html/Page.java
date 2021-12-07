@@ -27,6 +27,8 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.component.misc.WindowParameters;
@@ -72,6 +74,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @NonNullByDefault
 final public class Page implements IQContextContainer {
+	static private final Logger LOG = LoggerFactory.getLogger(Page.class);
+
 	static private final int MAX_DOMUI_NODES_PER_PAGE = 100_000;
 
 	/** Next ID# for unidded nodes. */
@@ -1194,7 +1198,7 @@ final public class Page implements IQContextContainer {
 
 	public void removeBeforeRequestListener(@NonNull IExecute x) {
 		if(!m_beforeRequestListenerList.remove(x))
-			System.out.println("PAGE: removal of beforeRequestListener failed (" + x + ")");
+			LOG.error("PAGE: removal of beforeRequestListener failed (" + x + ")");
 	}
 
 	public void addDestroyListener(@NonNull IExecute listener) {
@@ -1203,7 +1207,7 @@ final public class Page implements IQContextContainer {
 
 	public void removeDestroyListener(@NonNull IExecute listener) {
 		if(!m_destroyListenerList.remove(listener))
-			System.out.println("PAGE: removal of destroyListener failed (" + listener + ")");
+			LOG.error("PAGE: removal of destroyListener failed (" + listener + ")");
 	}
 
 	public void callRequestFinished() throws Exception {

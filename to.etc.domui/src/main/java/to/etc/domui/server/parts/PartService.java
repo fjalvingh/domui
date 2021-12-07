@@ -3,6 +3,8 @@ package to.etc.domui.server.parts;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.IPageParameters;
@@ -27,6 +29,7 @@ import java.util.Map;
  */
 @NonNullByDefault
 public class PartService {
+	static private final Logger LOG = LoggerFactory.getLogger(PartService.class);
 
 	public static final String PART_SUFFIX = ".part";
 
@@ -307,7 +310,7 @@ public class PartService {
 		if(cp != null /* && m_application.inDevelopmentMode() */) {
 			if(cp.getDependencies() != null) {
 				if(cp.getDependencies().isModified()) {
-					System.out.println("parts: part " + key + " has changed. Reloading..");
+					LOG.info("parts: part " + key + " has changed. Reloading..");
 					cp = null;
 				}
 			}

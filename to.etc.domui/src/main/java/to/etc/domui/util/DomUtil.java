@@ -867,7 +867,7 @@ final public class DomUtil {
 						if(count < maxcol) {
 							if(tr.getChildCount() == 0) {
 								//--??? Childless row?! Cannot do anything with this...
-								System.out.println("?? Silly empty row in table");
+								USERLOG.error("?? Silly empty row in table");
 								//								throw new IllegalStateException("Table has a row without any TD's in it.");
 							} else {
 								TD td = (TD) tr.getChild(tr.getChildCount() - 1);

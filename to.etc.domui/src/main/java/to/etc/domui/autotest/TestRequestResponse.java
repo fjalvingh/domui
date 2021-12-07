@@ -2,6 +2,8 @@ package to.etc.domui.autotest;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.server.IRequestResponse;
 import to.etc.domui.server.IServerSession;
 import to.etc.domui.server.XssChecker;
@@ -24,6 +26,8 @@ import java.util.Map;
  * Created on Oct 9, 2013
  */
 public class TestRequestResponse implements IRequestResponse {
+	static private final Logger LOG = LoggerFactory.getLogger(TestRequestResponse.class);
+
 	@NonNull
 	final private IDomUITestInfo m_testInfo;
 
@@ -315,7 +319,7 @@ public class TestRequestResponse implements IRequestResponse {
 			return str;
 		}
 
-		System.out.println("Unknown text document type: " + ct + " encoding " + enc);
+		LOG.error("Unknown text document type: " + ct + " encoding " + enc);
 		return null;
 	}
 

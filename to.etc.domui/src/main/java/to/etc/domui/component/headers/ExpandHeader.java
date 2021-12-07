@@ -2,6 +2,8 @@ package to.etc.domui.component.headers;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.HoverButton;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.layout.MessageLine;
@@ -29,6 +31,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
  * Created on 9/18/15.
  */
 public class ExpandHeader extends Div {
+	static private final Logger LOG = LoggerFactory.getLogger(ExpandHeader.class);
+
 	@Nullable
 	private String m_caption;
 
@@ -130,7 +134,7 @@ public class ExpandHeader extends Div {
 	private void toggleMenu() {
 		HamburgerMenu menu = m_menu;
 		if(null == menu || menu.isClosed()) {
-			System.out.println("Rendering menu");
+			LOG.info("Rendering menu");
 			m_menu = menu = new HamburgerMenu(m_actionList);
 			nullChecked(m_hamburgerButton).appendAfterMe(menu);
 			menu.setOnSelection(action -> {
