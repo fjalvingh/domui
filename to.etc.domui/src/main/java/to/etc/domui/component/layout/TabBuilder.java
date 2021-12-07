@@ -3,6 +3,7 @@ package to.etc.domui.component.layout;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.NodeBase;
@@ -44,6 +45,9 @@ final public class TabBuilder {
 	@Nullable
 	private INotify<ITabHandle> m_onHide;
 
+	@Nullable
+	private String m_testId;
+
 	TabBuilder(TabPanelBase tabPanelBase) {
 		m_tabPanel = tabPanelBase;
 	}
@@ -70,6 +74,11 @@ final public class TabBuilder {
 
 	public TabBuilder image(@NonNull IIconRef image) {
 		m_image = image;
+		return this;
+	}
+
+	public TabBuilder testId(@NotNull String testId) {
+		m_testId = testId;
 		return this;
 	}
 
@@ -127,6 +136,11 @@ final public class TabBuilder {
 
 	@NonNull
 	public ITabHandle build() {
+		if(m_testId != null) {
+			if(m_content != null) {
+				m_content.setTestID(m_testId + "_tc");
+			}
+		}
 		return m_tabPanel.add(this);
 	}
 
@@ -152,5 +166,10 @@ final public class TabBuilder {
 
 	public boolean isClosable() {
 		return m_closable;
+	}
+
+	@Nullable
+	public String getTestId() {
+		return m_testId;
 	}
 }
