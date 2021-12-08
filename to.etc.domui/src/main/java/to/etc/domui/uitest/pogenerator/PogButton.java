@@ -7,10 +7,8 @@ import to.etc.domui.dom.html.NodeBase;
  * Created on 08-12-21.
  */
 public class PogButton extends AbstractPoProxyGenerator implements IPoProxyGenerator {
-	private final NodeBase m_node;
-
 	public PogButton(NodeBase node) {
-		m_node = node;
+		super(node);
 	}
 
 	@Override
@@ -25,7 +23,7 @@ public class PogButton extends AbstractPoProxyGenerator implements IPoProxyGener
 		PoMethod getter = rc.addMethod(field.getType(), "get" + methodName);
 		getter.appendLazyInit(field, variable -> {
 			getter.append(variable).append(" = ").append("new ");
-			getter.appendType(rc, field.getType()).append("(this, ").appendString(baseName).append(");").nl();
+			getter.appendType(rc, field.getType()).append("(this, ").append(getSelector().selectorAsCode()).append(");").nl();
 		});
 	}
 }

@@ -1,9 +1,12 @@
 package to.etc.domui.uitest.pogenerator;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 08-12-21.
  */
+@NonNullByDefault
 public interface IPoProxyGenerator {
 	static public final String PROXYPACKAGE = "to.etc.domui.webdriver.poproxies";
 
@@ -16,4 +19,6 @@ public interface IPoProxyGenerator {
 	void prepare(PoGeneratorContext context) throws Exception;
 
 	void generateCode(PoGeneratorContext context) throws Exception;
+
+	void updateSelector(IPoSelector selector);
 }

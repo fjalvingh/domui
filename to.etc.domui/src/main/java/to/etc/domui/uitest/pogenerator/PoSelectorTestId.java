@@ -7,8 +7,14 @@ package to.etc.domui.uitest.pogenerator;
  * Created on 08-12-21.
  */
 public class PoSelectorTestId implements IPoSelector {
+	private final String m_testId;
 
+	public PoSelectorTestId(String testID) {
+		m_testId = testID;
+	}
 
-
-
+	@Override
+	public String selectorAsCode() {
+		return "By.cssSelector(\"*[testId='" + m_testId + "']\")";
+	}
 }
