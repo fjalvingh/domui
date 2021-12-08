@@ -51,7 +51,21 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		append("public class ").append(n.getClassName()).append(" ");
 		PoClass baseClass = n.getBaseClass();
 		if(null != baseClass) {
-			append("extends ").appendType(n, baseClass.getPackageName(), baseClass.getClassName()).append(" ");
+			append("extends ").appendType(n, baseClass.getPackageName(), baseClass.getClassName());
+
+			List<PoClass> pl = baseClass.getGenericParameterList();
+			if(pl.size() > 0) {
+				append("<");
+				for(int i = 0; i < pl.size(); i++) {
+					PoClass poClass = pl.get(i);
+					if(i > 0)
+						append(", ");
+					appendType(n, poClass.getPackageName(), poClass.getClassName());
+				}
+
+				append(">");
+			}
+			append(" ");
 		}
 		List<Pair<String, String>> interfaceList = n.getInterfaceList();
 		if(interfaceList.size() > 0) {

@@ -46,6 +46,13 @@ final public class PoGeneratorRegistry {
 		return factory.apply(ctx, node);
 	}
 
+	/**
+	 * A generator that just presents the node itself as something.
+	 */
+	static public IPoProxyGenerator getDisplayTextGenerator(PoGeneratorContext context, NodeBase from) {
+		return new PogSimple(from, "CpNodeAsText");
+	}
+
 	static {
 		register(DefaultButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
 		register(Text.class, (ctx, node) -> new PogSimple(node, "CpText"));

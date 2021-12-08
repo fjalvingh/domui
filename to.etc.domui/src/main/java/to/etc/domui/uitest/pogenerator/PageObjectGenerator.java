@@ -4,7 +4,6 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.util.FileTool;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,18 +19,8 @@ public class PageObjectGenerator {
 		m_context = new PoGeneratorContext(page);
 	}
 
-	/**
-	 * Walks all nodes, and creates proxy generators for every recognized thing in the
-	 * tree.
-	 */
-	public List<IPoProxyGenerator> createGenerators() throws Exception {
-		List<IPoProxyGenerator> list = new ArrayList<>();
-		m_context.createGenerators(list, m_context.getPage());
-		return list;
-	}
-
 	public String generateAll(boolean asFiles) throws Exception {
-		List<IPoProxyGenerator> generators = createGenerators();
+		List<IPoProxyGenerator> generators = m_context.createGenerators(m_context.getPage());
 		for(IPoProxyGenerator generator : generators) {
 			generator.prepare(m_context);
 		}

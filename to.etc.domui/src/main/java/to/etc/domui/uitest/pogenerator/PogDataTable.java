@@ -2,6 +2,8 @@ package to.etc.domui.uitest.pogenerator;
 
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
 import to.etc.domui.dom.html.TH;
 import to.etc.domui.dom.html.THead;
 import to.etc.domui.dom.html.TR;
@@ -19,8 +21,6 @@ import java.util.List;
  * Created on 08-12-21yhggg.
  */
 final public class PogDataTable extends AbstractPoProxyGenerator implements IPoAcceptNullTestid {
-	static private final PoClass TABLEBASE = new PoClass(PROXYPACKAGE, "CpDataTableBase");
-
 	static private final Pair<String, String> COLUMNCLASS = new Pair<>(PROXYPACKAGE, "CpDataTableColumn");
 
 	private List<Col> m_colList = new ArrayList<>();
@@ -37,20 +37,35 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 			? "Tbl" + context.nextCounter()
 			: context.getRootClass().getBaseName(m_node.getTestID());
 
-		//-- Generate the table class
-		String tableClassName = context.getRootClass().getClassName() + m_baseName;
-		PoClass tableClass = context.addClass(new PoClass(context.getRootClass().getPackageName(), tableClassName, TABLEBASE));
-
 		//-- Generate a row class
-		String rowClassName = context.getRootClass().getClassName() + m_baseName;
+		String rowClassName = context.getRootClass().getClassName() + m_baseName + "Row";
 		PoClass rowClass = context.addClass(rowClassName, null, Collections.emptyList());
+
+		//-- Generate the table class
+		PoClass baseClass = new PoClass(PROXYPACKAGE, "CpDataTableBase");
+		baseClass.addGenericParameter(rowClass);
+
+		String tableClassName = context.getRootClass().getClassName() + m_baseName;
+		PoClass tableClass = context.addClass(new PoClass(context.getRootClass().getPackageName(), tableClassName, baseClass));
 
 		//-- Generate thingies per column
 		for(int i = 0; i < m_colList.size(); i++) {
 			Col col = m_colList.get(i);
 			generateTableClassColumn(context, tableClass, col, i);
-
+			generateRowClassColumn(context, rowClass, col, i);
 		}
+	}
+
+	private void generateRowClassColumn(PoGeneratorContext context, PoClass pc, Col col, int index) throws Exception {
+		String fieldName = PoGeneratorContext.fieldName(col.getColumnName());
+		String methodName = PoGeneratorContext.methodName(col.getColumnName());
+
+		PoField field = pc.addField(COLUMNCLASS, fieldName);
+		PoMethod getter = pc.addMethod(field.getType(), methodName);
+		getter.appendLazyInit(field, variable -> {
+			getter.append(variable).append(" = ").append("new ");
+			getter.appendType(pc, field.getType()).append("(this, ").append(Integer.toString(index)).append(");").nl();
+		});
 	}
 
 	/**
@@ -68,29 +83,66 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 		});
 	}
 
+	/**
+	 * Detect the structure of the datatable, its columns, and what is in each column and row.
+	 */
 	@Override
 	public boolean acceptChildren(PoGeneratorContext context) throws Exception {
 		NodeContainer nc = (NodeContainer) m_node;
 		List<Table> tables = nc.getChildren(Table.class);
 		if(tables.size() == 0) {
-			context.error("The data table is empty; fill it to generate its content model");
+			context.error(m_node, "The data table is empty; fill it to generate its content model");
 			return false;
 		} else if(tables.size() > 1) {
-			context.error("?? > 1 table in data table??");
+			context.error(m_node, "?? > 1 table in data table??");
 		}
 		Table tbl = tables.get(0);
 
 		List<THead> heads = tbl.getChildren(THead.class);
 		if(heads.size() > 1) {
-			context.error("Too many THEAD items in DataTable");
+			context.error(m_node, "Too many THEAD items in DataTable");
 		} else if(heads.size() == 0) {
-			context.error("No data in table, cannot really do anything");
+			context.error(m_node, "No data in table, cannot really do anything");
 			return false;
 		}
 		THead head = heads.get(0);
 		m_colList = scanColumnNames(context, head);
+		if(m_colList.size() == 0) {
+			context.error(m_node, "No columns recognized");
+			return false;
+		}
 
+		//-- Ok, we have columns; now try to calculate a content model for each column by looking at all rows.
+		TBody body = tbl.getBody();
+
+		boolean warned = false;
+		for(TR row : body.getChildren(TR.class)) {
+			List<TD> children = row.getChildren(TD.class);
+			for(int i = 0; i < children.size(); i++) {
+				TD td = children.get(i);
+
+				if(i >= m_colList.size()) {
+					//-- We have a td without a th -> bugger. For now error it and ignore.
+					if(! warned) {
+						warned = true;
+						context.error(m_node, "Row has a column (index=" + i + ") for which we have no header - ignoring that column");
+					}
+				} else {
+					scanContentModel(context, td, m_colList.get(i));
+				}
+			}
+		}
 		return true;
+	}
+
+	/**
+	 * Scans the TD for components.
+	 */
+	private void scanContentModel(PoGeneratorContext context, TD td, Col col) throws Exception {
+		List<IPoProxyGenerator> generators = context.createGenerators(td);
+		col.addGeneratorSet(generators);
+
+
 	}
 
 	private List<Col> scanColumnNames(PoGeneratorContext context, THead head) {
@@ -110,9 +162,6 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 			col.setColumnName(calculateColumnName(col, i));
 		}
 		return colList;
-
-
-
 	}
 
 	private String calculateColumnName(Col col, int index) {
@@ -150,6 +199,8 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 
 		private String m_columnName;
 
+		private List<List<IPoProxyGenerator>> m_perRowContentList = new ArrayList<>();
+
 		public void add(TH th) {
 			m_header.add(th);
 		}
@@ -164,6 +215,14 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 
 		public List<TH> getHeader() {
 			return m_header;
+		}
+
+		public void addGeneratorSet(List<IPoProxyGenerator> generators) {
+			m_perRowContentList.add(generators);
+		}
+
+		public List<List<IPoProxyGenerator>> getPerRowContentList() {
+			return m_perRowContentList;
 		}
 	}
 }

@@ -48,6 +48,15 @@ public class PoGeneratorContext {
 	}
 
 	/**
+	 * Walks all nodes, and creates proxy generators for every recognized thing in the
+	 * tree.
+	 */
+	public List<IPoProxyGenerator> createGenerators(NodeContainer nc) throws Exception {
+		List<IPoProxyGenerator> list = new ArrayList<>();
+		createGenerators(list, nc);
+		return list;
+	}
+	/**
 	 * Recursively walk all children of a node and detect generateable controls.
 	 */
 	public void createGenerators(List<IPoProxyGenerator> list, NodeContainer nc) throws Exception {
@@ -100,6 +109,11 @@ public class PoGeneratorContext {
 	public void error(String text) {
 		m_errorList.add(text);
 	}
+
+	public void error(NodeBase b, String text) {
+		m_errorList.add(b + ": " + text);
+	}
+
 
 	public List<String> getErrorList() {
 		return m_errorList;

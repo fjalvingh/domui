@@ -47,6 +47,8 @@ final public class PoClass {
 
 	private boolean m_markGenerated;
 
+	private final List<PoClass> m_genericParameterList = new ArrayList<>();
+
 	public PoClass(String packageName, String className, @Nullable PoClass baseClass, List<Pair<String, String>> interfaceList) {
 		m_packageName = packageName;
 		m_className = className;
@@ -68,6 +70,9 @@ final public class PoClass {
 		m_interfaceList = Collections.emptyList();
 	}
 
+	public void addGenericParameter(PoClass clz) {
+		m_genericParameterList.add(clz);
+	}
 
 	public String getBaseName(NodeBase node) {
 		String testID = node.getTestID();
@@ -191,6 +196,10 @@ final public class PoClass {
 		return m_importSet;
 	}
 
+	public List<PoClass> getGenericParameterList() {
+		return m_genericParameterList;
+	}
+
 	public boolean isMarkGenerated() {
 		return m_markGenerated;
 	}
@@ -198,4 +207,5 @@ final public class PoClass {
 	public boolean hasImport(String fullName) {
 		return m_importSet.contains(fullName);
 	}
+
 }
