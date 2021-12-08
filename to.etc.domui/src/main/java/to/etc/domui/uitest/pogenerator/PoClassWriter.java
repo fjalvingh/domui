@@ -1,27 +1,20 @@
 package to.etc.domui.uitest.pogenerator;
 
-import to.etc.util.IndentWriter;
 import to.etc.util.Pair;
 
-import java.io.StringWriter;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 08-12-21.
  */
-public class PoClassWriter implements IPoModelVisitor {
-	private final IndentWriter m_writer;
-
-	private final StringWriter m_sw;
-
+public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModelVisitor {
 	private PoClass m_currentClass;
 
 	static private final Pair<String, String> GENERATED = new Pair<>("javax.annotation.processing", "Generated");
 
 	public PoClassWriter() {
-		m_sw = new StringWriter(8192);
-		m_writer = new IndentWriter(m_sw);
 	}
 
 	@Override
@@ -81,12 +74,67 @@ public class PoClassWriter implements IPoModelVisitor {
 				.append(";").nl();
 			nl();
 		}
+		nl();
+
+		//-- Constructor
+
+
+		//-- Methods.
+		for(PoMethod poMethod : n.getMethodList()) {
+			renderMethod(n, poMethod);
+		}
 
 
 
 		//-- end of class
 		dec();
 		append("}").nl().nl();
+	}
+
+	private void renderMethod(PoClass n, PoMethod poMethod) throws Exception {
+		appendModifiers(poMethod.getModifierSet());
+		Pair<String, String> returnType = poMethod.getReturnType();
+		if(null == returnType) {
+			append("void ");
+		} else {
+			appendType(n, returnType).append(" ");
+		}
+		append(poMethod.getMethodName());
+		append("(");
+		List<PoMethodParameter> parameterList = poMethod.getParameterList();
+		for(int i = 0; i < parameterList.size(); i++) {
+			PoMethodParameter parameter = parameterList.get(i);
+			if(i > 0)
+				append(", ");
+			appendType(n, parameter.getType());
+			append(" ");
+			append(parameter.getParameterName());
+		}
+
+		append(") throws Exception {").nl();
+		inc();
+		append(poMethod.getResult());
+		dec();
+		append("}").nl().nl();
+	}
+
+	private PoClassWriter appendModifiers(Set<Modifier> modifierSet) throws Exception {
+		if(modifierSet.size() == 0) {
+			append("public ");
+			return this;
+		}
+
+		if(modifierSet.contains(Modifier.Final)) {
+			append("final ");
+		}
+		if(modifierSet.contains(Modifier.Public)) {
+			append("public ");
+		} else if(modifierSet.contains(Modifier.Protected)) {
+			append("protected ");
+		} else if(modifierSet.contains(Modifier.Private)) {
+			append("private ");
+		}
+		return this;
 	}
 
 	@Override
@@ -99,47 +147,4 @@ public class PoClassWriter implements IPoModelVisitor {
 
 	}
 
-	public PoClassWriter append(String s) throws Exception {
-		m_writer.append(s);
-		return this;
-	}
-
-	public PoClassWriter nl() throws Exception {
-		m_writer.append("\n");
-		return this;
-	}
-
-
-	public PoClassWriter inc() {
-		m_writer.inc();
-		return this;
-	}
-
-	public PoClassWriter dec() {
-		m_writer.dec();
-		return this;
-	}
-
-	private PoClassWriter appendType(PoClass clz, Pair<String, String> type) throws Exception {
-		append(getTypeName(clz, type.get1(), type.get2()));
-		return this;
-	}
-
-	private PoClassWriter appendType(PoClass clz, String packageName, String typeName) throws Exception {
-		append(getTypeName(clz, packageName, typeName));
-		return this;
-	}
-
-	private String getTypeName(PoClass clz, String packageName, String typeName) {
-		if(packageName.length() == 0)
-			return typeName;
-		String fullName = packageName + "." + typeName;
-		if(clz.hasImport(fullName))
-			return typeName;
-		return fullName;
-	}
-
-	public String getResult() {
-		return m_sw.getBuffer().toString();
-	}
 }

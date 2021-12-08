@@ -59,9 +59,10 @@ final public class PoClass {
 		return this;
 	}
 
-	public PoClass addField(String typePackage, String typeName, String fieldName) {
-		add(new PoField(this, typePackage, typeName, fieldName));
-		return this;
+	public PoField addField(String typePackage, String typeName, String fieldName) {
+		PoField field = new PoField(this, typePackage, typeName, fieldName);
+		add(field);
+		return field;
 	}
 
 	public PoClass addField(String fullType, String fieldName) {
@@ -75,6 +76,15 @@ final public class PoClass {
 			add(new PoField(this, packageName, typeName, fieldName));
 		}
 		return this;
+	}
+
+	/**
+	 * Add a method. The method is returned so that it can be further configured.
+	 */
+	public PoMethod addMethod(@Nullable Pair<String, String> returnType, String name, Modifier... modifiers) {
+		PoMethod m = new PoMethod(this, returnType, name, modifiers);
+		m_methodList.add(m);
+		return m;
 	}
 
 	public void visit(IPoModelVisitor v) throws Exception {

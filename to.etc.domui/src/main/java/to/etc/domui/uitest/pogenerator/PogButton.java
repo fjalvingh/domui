@@ -20,7 +20,13 @@ public class PogButton extends AbstractPoProxyGenerator implements IPoProxyGener
 
 		String testID = m_node.getTestID();
 		String fieldName = context.getNameFromTestID(testID, NameMode.FIELD);
+		String methodName = context.getNameFromTestID(testID, NameMode.BASE);
 
-		rc.addField(PROXYPACKAGE, "ButtonPO", fieldName);
+		PoField field = rc.addField(PROXYPACKAGE, "ButtonPO", fieldName);
+		PoMethod getter = rc.addMethod(field.getType(), "get" + methodName);
+		getter.appendLazyInit(field, variable -> {
+			getter.append(variable).append(" = ").append("new ");
+			getter.appendType(rc, field.getType()).append("(this, ").appendString(testID).append(");").nl();
+		});
 	}
 }

@@ -23,15 +23,21 @@ public class PoGeneratorContext {
 
 	private final PoClass m_rootClass;
 
+	private final PoClass m_emptyClass;
+
 	public PoGeneratorContext(UrlPage page) {
 		m_page = page;
 
 		//-- Create the root class: the class representing this page.
 		String pkg = calculatePageTestclassPackageName(page);
 		String name = calculatePageTestclassName(page);
-		PoClass clz = new PoClass(pkg, name, null, Collections.emptyList());
+		PoClass clz = new PoClass(pkg, name + "Base", null, Collections.emptyList());
 		m_rootClass = clz;
 		m_classList.add(clz);
+
+		//-- The empty class for extending the PO
+		m_emptyClass = new PoClass(pkg, name, clz, Collections.emptyList());
+		m_classList.add(m_emptyClass);
 	}
 
 	/**
@@ -87,7 +93,7 @@ public class PoGeneratorContext {
 	}
 
 	public enum NameMode {
-		FIELD, METHOD
+		FIELD, METHOD, BASE
 	}
 
 	public String getNameFromTestID(String testId, NameMode mode) {
@@ -105,6 +111,9 @@ public class PoGeneratorContext {
 			case METHOD:
 				//-- Return as-is but with the 1st letter always uppercase.
 				return methodName(testId);
+
+			case BASE:
+				return fieldName(testId);
 		}
 	}
 

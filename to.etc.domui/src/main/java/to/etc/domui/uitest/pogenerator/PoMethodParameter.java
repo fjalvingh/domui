@@ -8,25 +8,17 @@ import to.etc.util.Pair;
  * Created on 08-12-21.
  */
 @NonNullByDefault
-final public class PoField {
-	private final PoClass m_poClass;
-
-	/** The package name, or the empty string if not in a package */
+final public class PoMethodParameter {
 	private final String m_packageName;
 
 	private final String m_typeName;
 
-	private final String m_fieldName;
+	private final String m_parameterName;
 
-	public PoField(PoClass poClass, String packageName, String typeName, String fieldName) {
-		m_poClass = poClass;
+	public PoMethodParameter(String packageName, String typeName, String parameterName) {
 		m_packageName = packageName;
 		m_typeName = typeName;
-		m_fieldName = fieldName;
-	}
-
-	public PoClass getPoClass() {
-		return m_poClass;
+		m_parameterName = parameterName;
 	}
 
 	public String getPackageName() {
@@ -37,15 +29,11 @@ final public class PoField {
 		return m_typeName;
 	}
 
-	public String getFieldName() {
-		return m_fieldName;
+	public String getParameterName() {
+		return m_parameterName;
 	}
 
 	public Pair<String, String> getType() {
 		return new Pair<>(getPackageName(), getTypeName());
-	}
-
-	public void visit(IPoModelVisitor v) throws Exception {
-		v.visitField(this);
 	}
 }
