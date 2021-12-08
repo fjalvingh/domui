@@ -1,18 +1,28 @@
-package to.etc.domui.webdriver.core.pogeneration
+package to.etc.domui.uitest.pogenerator
 
-import to.etc.domui.component.input.Text2
-import to.etc.domui.dom.html.NodeBase
-import to.etc.domui.dom.html.NodeContainer
-import to.etc.domui.webdriver.core.pogeneration.POGeneration.generators
 import to.etc.domui.component.buttons.DefaultButton
+import to.etc.domui.component.input.Text2
 import to.etc.domui.component2.lookupinput.LookupInput2
 import to.etc.domui.dom.html.Button
+import to.etc.domui.dom.html.NodeBase
+import to.etc.domui.dom.html.NodeContainer
+import to.etc.domui.uitest.pogenerator.POGeneration.generators
 import to.etc.domui.util.DomUtil
 import to.etc.domui.util.DomUtil.IPerNode
 import java.util.concurrent.ConcurrentHashMap
 
-interface POFactory{
-	fun create(s: NodeBase) : POCodeGenerator
+object POConstants {
+	/** The package for all webdriver interface classes */
+	const val WEBDRIVER_PACKAGE = "to.etc.domui.webdriver.core"
+
+	const val CONNECTOR_CLASS = "WebDriverConnector"
+
+	const val PROXYPACKAGE = "to.etc.domui.webdriver.core"
+
+}
+
+interface POFactory {
+	fun create(s: NodeBase): POCodeGenerator
 }
 
 object POGeneration {
@@ -62,14 +72,15 @@ class POGenerator(val page: NodeContainer) {
 		})
 		return suitableNodes
 	}
-	fun generated(list: Collection<NodeBase>, className: String? = null, namespace: String? = null, printerFactory: (GeneratedClassModel) -> PageObjectPrinter = {cm -> JavaPageObjectPrinter(cm)}): String {
+
+	fun generated(list: Collection<NodeBase>, className: String? = null, namespace: String? = null, printerFactory: (GeneratedClassModel) -> PageObjectPrinter = { cm -> JavaPageObjectPrinter(cm) }): String {
 		val cname = className ?: page.javaClass.simpleName
 		val packageName = namespace ?: page.javaClass.packageName;
 		val classModel = GeneratedClassModel(cname, packageName)
-		list.forEach{
+		list.forEach {
 			val generatorFactory = generators[it.javaClass]
 			if(generatorFactory != null) {
-				val generator =  generatorFactory.create(it)
+				val generator = generatorFactory.create(it)
 				generator.run()
 				classModel.members.addAll(generator.classMembers())
 				classModel.methods.addAll(generator.classMethods())
@@ -87,9 +98,12 @@ abstract class POCodeGenerator {
 	abstract fun classMethods(): List<GeneratedClassMethod>
 }
 
-data class GeneratedClassModel(val name: String, val namespace: String, val members: MutableList<GeneratedClassMember> = ArrayList<GeneratedClassMember>(), val methods: MutableList<GeneratedClassMethod> = ArrayList<GeneratedClassMethod>())
+data class GeneratedClassModel(val name: String, val packageName: String, val members: MutableList<GeneratedClassMember> = ArrayList<GeneratedClassMember>(), val methods: MutableList<GeneratedClassMethod> = ArrayList<GeneratedClassMethod>())
+
 data class GeneratedParameter(internal val name: String, internal val type: Class<*>)
+
 data class GeneratedClassMember(internal val name: String, internal val type: Class<*>, internal val accessModifier: POAccessModifier, internal val params: List<String>)
+
 data class GeneratedClassMethod(internal val name: String, internal val type: Class<*>?, internal val accessModifier: POAccessModifier, internal val body: String, internal val parameters: MutableList<GeneratedParameter> = ArrayList())
 
 enum class POAccessModifier {
@@ -113,7 +127,7 @@ abstract class AbstractPOCodeGenerator : POCodeGenerator() {
 	}
 
 	protected fun fixme(): String {
-		return "FIXME" //the idea is that this string will clearly state to the programer they need to fix this. well, it will not compile anyway.
+		return "FIXME" 							//the idea is that this string will clearly state to the developers they need to fix this. well, it will not compile anyway.
 	}
 
 	override fun examineChildren(): Boolean {

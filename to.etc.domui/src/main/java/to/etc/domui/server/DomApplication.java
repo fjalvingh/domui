@@ -314,9 +314,6 @@ public abstract class DomApplication {
 
 	private volatile Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
 
-	@Nullable
-	private ITestUiCodeGeneratorListener m_testUiCodeGeneratorListener;
-
 	/**
 	 * Default handling of leaving the page with unsaved changes.
 	 */
@@ -2479,15 +2476,6 @@ public abstract class DomApplication {
 
 	public PageUrlMapping getPageUrlMapping() {
 		return m_pageUrlMapping;
-	}
-
-	@Nullable
-	public ITestUiCodeGeneratorListener getTestUiCodeGeneratorListener() {
-		return m_testUiCodeGeneratorListener;
-	}
-
-	public void setTestUiCodeGeneratorListener(@Nullable ITestUiCodeGeneratorListener testUiCodeGeneratorListener) {
-		m_testUiCodeGeneratorListener = testUiCodeGeneratorListener;
 	}
 
 	static {

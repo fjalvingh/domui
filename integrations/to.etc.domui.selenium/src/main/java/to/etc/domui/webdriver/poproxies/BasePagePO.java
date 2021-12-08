@@ -1,4 +1,4 @@
-package to.etc.domui.webdriver.core.proxies;
+package to.etc.domui.webdriver.poproxies;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;

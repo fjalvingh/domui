@@ -43,6 +43,7 @@ import to.etc.domui.trouble.NotLoggedInException;
 import to.etc.domui.trouble.SessionInvalidException;
 import to.etc.domui.trouble.ThingyNotFoundException;
 import to.etc.domui.trouble.ValidationException;
+import to.etc.domui.uitest.pogenerator.PoGenerator;
 import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.INewPageInstantiated;
@@ -1060,10 +1061,7 @@ final public class PageRequestHandler {
 	}
 
 	private void handleTestUiCodeGeneratorShow(Page page, NodeBase targetComponent) {
-		ITestUiCodeGeneratorListener testUiCodeGeneratorListener = m_application.getTestUiCodeGeneratorListener();
-		if(null != testUiCodeGeneratorListener && !testUiCodeGeneratorListener.isShownFor(targetComponent)) {
-			testUiCodeGeneratorListener.showFor(targetComponent);
-		}
+		PoGenerator.onGeneratePO(page.getBody());
 	}
 
 	/**

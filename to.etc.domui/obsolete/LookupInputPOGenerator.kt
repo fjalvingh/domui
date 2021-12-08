@@ -1,4 +1,4 @@
-package to.etc.domui.webdriver.core.pogeneration
+package to.etc.domui.uitest.pogenerator
 
 import to.etc.domui.component2.lookupinput.LookupInput2
 import to.etc.domui.dom.html.NodeBase

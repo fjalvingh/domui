@@ -1,4 +1,4 @@
-package to.etc.domui.webdriver.core.pogeneration
+package to.etc.domui.uitest.pogenerator
 
 import org.eclipse.jdt.annotation.NonNullByDefault
 import to.etc.domui.webdriver.core.WebDriverConnector
@@ -14,7 +14,7 @@ class JavaPageObjectPrinter(genClassModel: GeneratedClassModel) : PageObjectPrin
 	private val imports = HashSet<String>();
 
 	init {
-		m_actual = GeneratedClassModel(genClassModel.name, genClassModel.namespace, ArrayList(genClassModel.members), ArrayList(genClassModel.methods))
+		m_actual = GeneratedClassModel(genClassModel.name, genClassModel.packageName, ArrayList(genClassModel.members), ArrayList(genClassModel.methods))
 		val toRemove = ArrayList<GeneratedClassMember>()
 		genClassModel.members.forEach {
 			if(it.accessModifier == POAccessModifier.PRIVATE) {
@@ -51,7 +51,7 @@ class JavaPageObjectPrinter(genClassModel: GeneratedClassModel) : PageObjectPrin
 	}
 
 	private fun appendPackage() {
-		sb.append("package ${m_actual.namespace};\n\n");
+		sb.append("package ${m_actual.packageName};\n\n");
 	}
 
 	private fun appendImports() {

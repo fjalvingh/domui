@@ -1,4 +1,4 @@
-package to.etc.domui.webdriver.core.proxies;
+package to.etc.domui.webdriver.poproxies;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openqa.selenium.JavascriptExecutor;

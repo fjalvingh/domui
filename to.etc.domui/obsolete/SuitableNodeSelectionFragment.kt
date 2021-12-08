@@ -1,4 +1,4 @@
-package to.etc.domui.webdriver.core.pogeneration
+package to.etc.domui.uitest.pogenerator
 
 import to.etc.domui.component.buttons.DefaultButton
 import to.etc.domui.component.layout.Window
