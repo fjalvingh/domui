@@ -6,6 +6,7 @@ import to.etc.domui.component.misc.MsgBox2.Type;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.Pre;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.util.DeveloperOptions;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -13,11 +14,13 @@ import to.etc.domui.dom.html.UrlPage;
  */
 final public class PoGenerator {
 	static public void onGeneratePO(UrlPage page) {
+		if(!DeveloperOptions.isDeveloperWorkstation())
+			return;
 		PageObjectGenerator pg = new PageObjectGenerator(page);
 
 		String result;
 		try {
-			result = pg.generateAll();
+			result = pg.generateAll(true);
 		} catch(Exception x) {
 			ExceptionDialog.createIgnore(page, "Failed to generate PO model", x);
 			return;

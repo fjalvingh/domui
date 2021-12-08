@@ -37,10 +37,10 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		}
 
 		nl();
-		//for(String s : n.getImportSet()) {
-		//	append("import ").append(s).append(";").nl();
-		//}
-		//nl();
+		for(String s : n.getImportSet()) {
+			append("import ").append(s).append(";").nl();
+		}
+		nl();
 
 		//-- Write the class
 		if(n.isMarkGenerated()) {

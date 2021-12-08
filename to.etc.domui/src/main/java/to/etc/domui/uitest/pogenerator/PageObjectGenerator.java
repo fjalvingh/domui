@@ -1,7 +1,9 @@
 package to.etc.domui.uitest.pogenerator;
 
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.util.FileTool;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class PageObjectGenerator {
 		return list;
 	}
 
-	public String generateAll() throws Exception {
+	public String generateAll(boolean asFiles) throws Exception {
 		List<IPoProxyGenerator> generators = createGenerators();
 		for(IPoProxyGenerator generator : generators) {
 			generator.prepare(m_context);
@@ -43,6 +45,33 @@ public class PageObjectGenerator {
 			poClass.visit(cw);
 		}
 
-		return cw.getResult();
+		StringBuilder res = new StringBuilder();
+		if(asFiles) {
+			File tmpDir = new File(FileTool.getTmpDir(), "pageobjects");
+			tmpDir.mkdirs();
+
+			res.append("Files are generated at ").append(tmpDir).append("\n\n");
+
+			if(tmpDir.exists()) {
+				FileTool.dirEmpty(tmpDir);
+
+				for(PoClass poClass : classList) {
+					generateClassFile(tmpDir, poClass);
+				}
+			}
+		}
+
+		res.append(cw.getResult());
+		return res.toString();
+	}
+
+	private void generateClassFile(File tmpDir, PoClass poClass) throws Exception {
+		String packageName = poClass.getPackageName();
+		File targetDir = new File(tmpDir, packageName.replace('.', '/'));
+		targetDir.mkdirs();
+		PoClassWriter cw = new PoClassWriter();
+		poClass.visit(cw);
+		File classFile = new File(targetDir, poClass.getClassName() + ".java");
+		FileTool.writeFileFromString(classFile, cw.getResult(), "UTF-8");
 	}
 }
