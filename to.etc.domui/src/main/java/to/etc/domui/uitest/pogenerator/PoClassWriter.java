@@ -46,6 +46,7 @@ public class PoClassWriter implements IPoModelVisitor {
 		for(String s : n.getImportSet()) {
 			append("import ").append(s).append(";").nl();
 		}
+		nl();
 
 		//-- Write the class
 		if(n.isMarkGenerated()) {
@@ -73,7 +74,11 @@ public class PoClassWriter implements IPoModelVisitor {
 
 		//-- Fields
 		for(PoField poField : n.getFieldList()) {
-			append("private final ").appendType(n, poField.getPackageName(), poField.getFieldName()).append(" ").append(poField.getFieldName()).append(";").nl();
+			append("private final ")
+				.appendType(n, poField.getPackageName(), poField.getTypeName())
+				.append(" ")
+				.append(poField.getFieldName())
+				.append(";").nl();
 			nl();
 		}
 

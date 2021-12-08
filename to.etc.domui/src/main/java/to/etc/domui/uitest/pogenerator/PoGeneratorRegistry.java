@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.function.BiFunctionEx;
 
@@ -33,4 +34,9 @@ final public class PoGeneratorRegistry {
 			return null;
 		return factory.apply(ctx, node);
 	}
+
+	static {
+		register(DefaultButton.class, (ctx, node) -> new PogButton(node));
+	}
+
 }

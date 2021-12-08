@@ -25,6 +25,7 @@ final public class PoGenerator {
 
 		Div content = new Div();
 		Pre pre = new Pre();
+		content.add(pre);
 		pre.add(result);
 
 		MsgBox2.on(page)

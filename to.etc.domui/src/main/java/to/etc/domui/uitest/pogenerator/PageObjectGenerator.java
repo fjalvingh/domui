@@ -10,6 +10,8 @@ import java.util.List;
  * Created on 08-12-21.
  */
 public class PageObjectGenerator {
+	static public final String PROXYPACKAGE = "to.etc.domui.webdriver.poproxies";
+
 	private final PoGeneratorContext m_context;
 
 	public PageObjectGenerator(UrlPage page) {

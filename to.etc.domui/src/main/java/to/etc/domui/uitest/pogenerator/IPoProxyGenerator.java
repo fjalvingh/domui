@@ -5,13 +5,13 @@ package to.etc.domui.uitest.pogenerator;
  * Created on 08-12-21.
  */
 public interface IPoProxyGenerator {
+	static public final String PROXYPACKAGE = "to.etc.domui.webdriver.poproxies";
+
 	/**
 	 * This allows the generator to see if there is content inside it that
 	 * it wants to have generated.
 	 */
 	void acceptChildren() throws Exception;
-
-	void generate(PoGeneratorContext context) throws Exception;
 
 	void prepare(PoGeneratorContext context) throws Exception;
 

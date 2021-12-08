@@ -58,7 +58,7 @@ public class PoGeneratorContext {
 
 	static public String calculatePageTestclassName(UrlPage page) {
 		Class<? extends UrlPage> pc = page.getClass();
-		return pc.getSimpleName() + "PO";
+		return "PO" + pc.getSimpleName();							// Prefix with PO to not always have them popup if you enter a normal page class.
 	}
 
 	public UrlPage getPage() {
@@ -72,4 +72,78 @@ public class PoGeneratorContext {
 	public List<PoClass> getClassList() {
 		return m_classList;
 	}
+
+	static private String clean(String str) {
+		return str
+			.replace(" ", "_")
+			.replace("-", "_")
+			.replace("=", "")
+			.replace("(", "")
+			.replace(")", "")
+			.replace("*", "")
+			.replace(";", "")
+			.replace("/", "")
+			.replace("\\", "");
+	}
+
+	public enum NameMode {
+		FIELD, METHOD
+	}
+
+	public String getNameFromTestID(String testId, NameMode mode) {
+		testId = clean(testId);
+		if(testId.length() == 0)
+			throw new IllegalStateException("No/empty testID");
+		switch(mode) {
+			default:
+				throw new IllegalStateException(mode + "??");			// Java's "architects" are a bunch of morons.
+
+			case FIELD:
+				//-- return as m_ with all leading uppercase chars lowercased.
+				return "m_" + fieldName(testId);
+
+			case METHOD:
+				//-- Return as-is but with the 1st letter always uppercase.
+				return methodName(testId);
+		}
+	}
+
+	private String methodName(String testId) {
+		if(Character.isUpperCase(testId.charAt(0)))
+			return removeUnderscores(testId);
+		return removeUnderscores(Character.toUpperCase(testId.charAt(0)) + testId.substring(1));
+	}
+
+	private String fieldName(String testId) {
+		if(Character.isLowerCase(testId.charAt(0)))
+			return removeUnderscores(testId);
+		StringBuilder sb = new StringBuilder(testId.length());
+		for(int i = 0; i < testId.length(); i++) {
+			char c = testId.charAt(i);
+			if(Character.isLowerCase(c)) {
+				sb.append(testId.substring(i));
+				break;
+			}
+			sb.append(Character.toLowerCase(c));
+		}
+		return removeUnderscores(sb.toString());
+	}
+
+	private String removeUnderscores(String s) {
+		StringBuilder sb = new StringBuilder(s.length());
+		boolean upcase = false;
+		for(int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if(c == '_') {
+				upcase = true;
+			} else if(upcase) {
+				sb.append(Character.toUpperCase(c));
+				upcase = false;
+			} else {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
+
 }
