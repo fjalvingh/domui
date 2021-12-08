@@ -19,7 +19,8 @@ abstract public class AbstractPoProxyGenerator implements IPoProxyGenerator {
 	}
 
 	@Override
-	public void acceptChildren() throws Exception {
+	public boolean acceptChildren(PoGeneratorContext ctx) throws Exception {
+		return true;
 	}
 
 	@Override

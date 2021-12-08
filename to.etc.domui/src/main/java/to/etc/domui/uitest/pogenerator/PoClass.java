@@ -6,6 +6,7 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +53,21 @@ final public class PoClass {
 		m_baseClass = baseClass;
 		m_interfaceList = interfaceList;
 	}
+
+	public PoClass(String packageName, String className) {
+		m_packageName = packageName;
+		m_className = className;
+		m_baseClass = null;
+		m_interfaceList = Collections.emptyList();
+	}
+
+	public PoClass(String packageName, String className, @Nullable PoClass baseClass) {
+		m_packageName = packageName;
+		m_className = className;
+		m_baseClass = baseClass;
+		m_interfaceList = Collections.emptyList();
+	}
+
 
 	public String getBaseName(NodeBase node) {
 		String testID = node.getTestID();

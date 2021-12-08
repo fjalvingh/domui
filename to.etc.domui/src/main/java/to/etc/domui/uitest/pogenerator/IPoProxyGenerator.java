@@ -14,7 +14,7 @@ public interface IPoProxyGenerator {
 	 * This allows the generator to see if there is content inside it that
 	 * it wants to have generated.
 	 */
-	void acceptChildren() throws Exception;
+	boolean acceptChildren(PoGeneratorContext ctx) throws Exception;
 
 	void prepare(PoGeneratorContext context) throws Exception;
 

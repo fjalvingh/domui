@@ -12,6 +12,7 @@ import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.DisplaySpan;
+import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.dom.html.NodeBase;
@@ -57,5 +58,8 @@ final public class PoGeneratorRegistry {
 		register(ComboLookup2.class, (ctx, node) -> new PogSimple(node, "CpComboLookup2"));
 		register(DisplaySpan.class, (ctx, node) -> new PogSimple(node, "CpDisplaySpan"));
 		register(TextArea.class, (ctx, node) -> new PogSimple(node, "CpTextArea"));
+
+		register(DataTable.class, (ctx, node) -> new PogDataTable(node));
+
 	}
 }

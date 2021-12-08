@@ -1,9 +1,11 @@
 package to.etc.domui.uitest.pogenerator;
 
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +30,8 @@ public class PoGeneratorContext {
 
 	private final List<String> m_errorList = new ArrayList<>();
 
+	private int m_counter;
+
 	public PoGeneratorContext(UrlPage page) {
 		m_page = page;
 
@@ -51,11 +55,12 @@ public class PoGeneratorContext {
 			IPoProxyGenerator generator = PoGeneratorRegistry.find(this, nb);
 			if(generator != null) {
 				String testID = nb.getTestID();				// For now do not accept things without a testid
-				if(null == testID) {
+				if(null == testID && ! (generator instanceof IPoAcceptNullTestid)) {
 					error("Component with a null testID (null): " + nb);
 				} else {
 					list.add(generator);
-					generator.acceptChildren();             // If it wants to let the generator play with its children
+					if(! generator.acceptChildren(this))	// If it wants to let the generator play with its children
+						return;
 				}
 			} else {
 				if(nb instanceof IControl) {				// This should have a proxy
@@ -100,6 +105,25 @@ public class PoGeneratorContext {
 		return m_errorList;
 	}
 
+	public PoClass addClass(String packageName, String className, @Nullable PoClass baseClass, List<Pair<String, String>> ifaces) {
+		PoClass pc = new PoClass(packageName, className, baseClass, ifaces);
+		m_classList.add(pc);
+		return pc;
+	}
+
+	public PoClass addClass(String className, @Nullable PoClass baseClass, List<Pair<String, String>> ifaces) {
+		return addClass(m_rootClass.getPackageName(), className, baseClass, ifaces);
+	}
+
+	public PoClass addClass(PoClass clz) {
+		m_classList.add(clz);
+		return clz;
+	}
+
+	public int nextCounter() {
+		return ++m_counter;
+	}
+
 	static public String clean(String str) {
 		return str
 			.replace(" ", "_")
@@ -107,6 +131,7 @@ public class PoGeneratorContext {
 			.replace("=", "")
 			.replace("(", "")
 			.replace(")", "")
+			.replace("?", "")
 			.replace("*", "")
 			.replace(";", "")
 			.replace("/", "")
@@ -156,4 +181,7 @@ public class PoGeneratorContext {
 		return sb.toString();
 	}
 
+	static public String makeName(String from) {
+		return removeUnderscores(clean(from));
+	}
 }
