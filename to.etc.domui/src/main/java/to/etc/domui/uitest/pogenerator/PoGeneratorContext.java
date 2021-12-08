@@ -6,7 +6,9 @@ import to.etc.domui.dom.html.UrlPage;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This defines the context for generation, and receives all
@@ -24,6 +26,8 @@ public class PoGeneratorContext {
 	private final PoClass m_rootClass;
 
 	private final PoClass m_emptyClass;
+
+	private final Set<String> m_baseNamesUsedSet = new HashSet<>();
 
 	public PoGeneratorContext(UrlPage page) {
 		m_page = page;
@@ -92,50 +96,41 @@ public class PoGeneratorContext {
 			.replace("\\", "");
 	}
 
-	public enum NameMode {
-		FIELD, METHOD, BASE
-	}
-
-	public String getNameFromTestID(String testId, NameMode mode) {
-		testId = clean(testId);
-		if(testId.length() == 0)
-			throw new IllegalStateException("No/empty testID");
-		switch(mode) {
-			default:
-				throw new IllegalStateException(mode + "??");			// Java's "architects" are a bunch of morons.
-
-			case FIELD:
-				//-- return as m_ with all leading uppercase chars lowercased.
-				return "m_" + fieldName(testId);
-
-			case METHOD:
-				//-- Return as-is but with the 1st letter always uppercase.
-				return methodName(testId);
-
-			case BASE:
-				return fieldName(testId);
+	public String getBaseName(String testId) {
+		String baseName = removeUnderscores(clean(testId));
+		String tryName = baseName;
+		for(int i = 0; i < 10; i++) {
+			if(m_baseNamesUsedSet.add(tryName))
+				return tryName;
+			tryName = baseName + i;
 		}
+		throw new IllegalStateException("Out of names to try for " + testId);
 	}
 
-	private String methodName(String testId) {
-		if(Character.isUpperCase(testId.charAt(0)))
-			return removeUnderscores(testId);
-		return removeUnderscores(Character.toUpperCase(testId.charAt(0)) + testId.substring(1));
+	public String methodName(String baseName) {
+		if(Character.isUpperCase(baseName.charAt(0)))
+			return baseName;
+		return Character.toUpperCase(baseName.charAt(0)) + baseName.substring(1);
 	}
 
-	private String fieldName(String testId) {
-		if(Character.isLowerCase(testId.charAt(0)))
-			return removeUnderscores(testId);
-		StringBuilder sb = new StringBuilder(testId.length());
-		for(int i = 0; i < testId.length(); i++) {
-			char c = testId.charAt(i);
+	public String propertyName(String baseName) {
+		if(Character.isLowerCase(baseName.charAt(0)))
+			return baseName;
+		StringBuilder sb = new StringBuilder(baseName.length());
+		for(int i = 0; i < baseName.length(); i++) {
+			char c = baseName.charAt(i);
 			if(Character.isLowerCase(c)) {
-				sb.append(testId.substring(i));
+				sb.append(baseName.substring(i));
 				break;
 			}
 			sb.append(Character.toLowerCase(c));
 		}
-		return removeUnderscores(sb.toString());
+		return sb.toString();
+
+	}
+
+	public String fieldName(String baseName) {
+		return "m_" + propertyName(baseName);
 	}
 
 	private String removeUnderscores(String s) {

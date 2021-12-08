@@ -2,6 +2,7 @@ package to.etc.domui.uitest.pogenerator;
 
 import to.etc.util.Pair;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
@@ -23,23 +24,23 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		append("package ").append(n.getPackageName()).append(";\n");
 
 		//-- Collect all needed imports
-		for(PoField poField : n.getFieldList()) {
-			n.addImport(poField.getPackageName(), poField.getTypeName());
-		}
-		for(PoMethod poMethod : n.getMethodList()) {
-			for(Pair<String, String> pair : poMethod.getImportList()) {
-				n.addImport(pair.get1(), pair.get2());
-			}
-		}
+		//for(PoField poField : n.getFieldList()) {
+		//	n.addImport(poField.getPackageName(), poField.getTypeName());
+		//}
+		//for(PoMethod poMethod : n.getMethodList()) {
+		//	for(Pair<String, String> pair : poMethod.getImportList()) {
+		//		n.addImport(pair.get1(), pair.get2());
+		//	}
+		//}
 		if(n.isMarkGenerated()) {
 			n.addImport(GENERATED);
 		}
 
 		nl();
-		for(String s : n.getImportSet()) {
-			append("import ").append(s).append(";").nl();
-		}
-		nl();
+		//for(String s : n.getImportSet()) {
+		//	append("import ").append(s).append(";").nl();
+		//}
+		//nl();
 
 		//-- Write the class
 		if(n.isMarkGenerated()) {
@@ -52,9 +53,10 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		if(null != baseClass) {
 			append("extends ").appendType(n, baseClass.getPackageName(), baseClass.getClassName()).append(" ");
 		}
-		if(n.getInterfaceList().size() > 0) {
+		List<Pair<String, String>> interfaceList = n.getInterfaceList();
+		if(interfaceList.size() > 0) {
+			interfaceList.sort(Comparator.comparing(Pair::get2));
 			append("implements ");
-			List<Pair<String, String>> interfaceList = n.getInterfaceList();
 			for(int i = 0; i < interfaceList.size(); i++) {
 				Pair<String, String> s = interfaceList.get(i);
 				if(i > 0)
@@ -66,7 +68,9 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		inc();
 
 		//-- Fields
-		for(PoField poField : n.getFieldList()) {
+		List<PoField> fieldList = n.getFieldList();
+		fieldList.sort(Comparator.comparing(PoField::getFieldName));
+		for(PoField poField : fieldList) {
 			append("private final ")
 				.appendType(n, poField.getPackageName(), poField.getTypeName())
 				.append(" ")
@@ -80,11 +84,11 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 
 
 		//-- Methods.
-		for(PoMethod poMethod : n.getMethodList()) {
+		List<PoMethod> methodList = n.getMethodList();
+		methodList.sort(Comparator.comparing(PoMethod::getMethodName));
+		for(PoMethod poMethod : methodList) {
 			renderMethod(n, poMethod);
 		}
-
-
 
 		//-- end of class
 		dec();
