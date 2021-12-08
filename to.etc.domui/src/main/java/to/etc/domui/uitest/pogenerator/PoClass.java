@@ -5,6 +5,7 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.Pair;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -40,6 +41,8 @@ final public class PoClass {
 	 */
 	private Set<String> m_singleNameImport = new TreeSet<>();
 
+	private final Set<String> m_baseNamesUsedSet = new HashSet<>();
+
 	private boolean m_markGenerated;
 
 	public PoClass(String packageName, String className, @Nullable PoClass baseClass, List<Pair<String, String>> interfaceList) {
@@ -47,6 +50,22 @@ final public class PoClass {
 		m_className = className;
 		m_baseClass = baseClass;
 		m_interfaceList = interfaceList;
+	}
+
+	public String getBaseName(String testId) {
+		String baseName = PoGeneratorContext.removeUnderscores(PoGeneratorContext.clean(testId));
+		String tryName = baseName;
+		for(int i = 0; i < 10; i++) {
+			if(m_baseNamesUsedSet.add(tryName))
+				return tryName;
+			tryName = baseName + i;
+		}
+		throw new IllegalStateException("Out of names to try for " + testId);
+	}
+	
+	public PoClass generated() {
+		m_markGenerated = true;
+		return this;
 	}
 
 	public PoClass add(PoMethod method) {

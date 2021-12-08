@@ -15,9 +15,9 @@ public class PogButton extends AbstractPoProxyGenerator implements IPoProxyGener
 	public void generateCode(PoGeneratorContext context) throws Exception {
 		PoClass rc = context.getRootClass();
 
-		String baseName = context.getBaseName(m_node.getTestID());
-		String fieldName = context.fieldName(baseName);
-		String methodName = context.methodName(baseName);
+		String baseName = rc.getBaseName(m_node.getTestID());
+		String fieldName = PoGeneratorContext.fieldName(baseName);
+		String methodName = PoGeneratorContext.methodName(baseName);
 
 		PoField field = rc.addField(PROXYPACKAGE, "ButtonPO", fieldName);
 		PoMethod getter = rc.addMethod(field.getType(), "get" + methodName);

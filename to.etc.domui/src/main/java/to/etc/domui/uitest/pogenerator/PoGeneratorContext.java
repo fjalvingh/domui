@@ -6,9 +6,7 @@ import to.etc.domui.dom.html.UrlPage;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This defines the context for generation, and receives all
@@ -27,15 +25,13 @@ public class PoGeneratorContext {
 
 	private final PoClass m_emptyClass;
 
-	private final Set<String> m_baseNamesUsedSet = new HashSet<>();
-
 	public PoGeneratorContext(UrlPage page) {
 		m_page = page;
 
 		//-- Create the root class: the class representing this page.
 		String pkg = calculatePageTestclassPackageName(page);
 		String name = calculatePageTestclassName(page);
-		PoClass clz = new PoClass(pkg, name + "Base", null, Collections.emptyList());
+		PoClass clz = new PoClass(pkg, name + "Base", null, Collections.emptyList()).generated();
 		m_rootClass = clz;
 		m_classList.add(clz);
 
@@ -83,7 +79,7 @@ public class PoGeneratorContext {
 		return m_classList;
 	}
 
-	static private String clean(String str) {
+	static public String clean(String str) {
 		return str
 			.replace(" ", "_")
 			.replace("-", "_")
@@ -96,24 +92,13 @@ public class PoGeneratorContext {
 			.replace("\\", "");
 	}
 
-	public String getBaseName(String testId) {
-		String baseName = removeUnderscores(clean(testId));
-		String tryName = baseName;
-		for(int i = 0; i < 10; i++) {
-			if(m_baseNamesUsedSet.add(tryName))
-				return tryName;
-			tryName = baseName + i;
-		}
-		throw new IllegalStateException("Out of names to try for " + testId);
-	}
-
-	public String methodName(String baseName) {
+	static public String methodName(String baseName) {
 		if(Character.isUpperCase(baseName.charAt(0)))
 			return baseName;
 		return Character.toUpperCase(baseName.charAt(0)) + baseName.substring(1);
 	}
 
-	public String propertyName(String baseName) {
+	static public String propertyName(String baseName) {
 		if(Character.isLowerCase(baseName.charAt(0)))
 			return baseName;
 		StringBuilder sb = new StringBuilder(baseName.length());
@@ -129,11 +114,11 @@ public class PoGeneratorContext {
 
 	}
 
-	public String fieldName(String baseName) {
+	static public String fieldName(String baseName) {
 		return "m_" + propertyName(baseName);
 	}
 
-	private String removeUnderscores(String s) {
+	static public String removeUnderscores(String s) {
 		StringBuilder sb = new StringBuilder(s.length());
 		boolean upcase = false;
 		for(int i = 0; i < s.length(); i++) {
