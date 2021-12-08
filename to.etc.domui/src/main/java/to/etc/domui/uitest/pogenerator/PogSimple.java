@@ -1,14 +1,25 @@
 package to.etc.domui.uitest.pogenerator;
 
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.util.Pair;
 
 /**
+ * A basic thing that generates just the reference to the specific proxy class.
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 08-12-21.
  */
-public class PogButton extends AbstractPoProxyGenerator implements IPoProxyGenerator {
-	public PogButton(NodeBase node) {
+final public class PogSimple extends AbstractPoProxyGenerator implements IPoProxyGenerator {
+	private final Pair<String, String> m_poClass;
+
+	public PogSimple(NodeBase node, Pair<String, String> poClass) {
 		super(node);
+		m_poClass = poClass;
+	}
+
+	public PogSimple(NodeBase node, String poClassName) {
+		super(node);
+		m_poClass = new Pair<>(PROXYPACKAGE, poClassName);
 	}
 
 	@Override
@@ -19,7 +30,7 @@ public class PogButton extends AbstractPoProxyGenerator implements IPoProxyGener
 		String fieldName = PoGeneratorContext.fieldName(baseName);
 		String methodName = PoGeneratorContext.methodName(baseName);
 
-		PoField field = rc.addField(PROXYPACKAGE, "ButtonPO", fieldName);
+		PoField field = rc.addField(m_poClass, fieldName);
 		PoMethod getter = rc.addMethod(field.getType(), "get" + methodName);
 		getter.appendLazyInit(field, variable -> {
 			getter.append(variable).append(" = ").append("new ");

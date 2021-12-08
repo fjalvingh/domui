@@ -65,6 +65,10 @@ public class PageObjectGenerator {
 		return res.toString();
 	}
 
+	public PoGeneratorContext getContext() {
+		return m_context;
+	}
+
 	private void generateClassFile(File tmpDir, PoClass poClass) throws Exception {
 		String packageName = poClass.getPackageName();
 		File targetDir = new File(tmpDir, packageName.replace('.', '/'));

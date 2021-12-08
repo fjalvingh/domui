@@ -2,6 +2,7 @@ package to.etc.domui.uitest.pogenerator;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.dom.html.NodeBase;
 import to.etc.util.Pair;
 
 import java.util.ArrayList;
@@ -52,6 +53,13 @@ final public class PoClass {
 		m_interfaceList = interfaceList;
 	}
 
+	public String getBaseName(NodeBase node) {
+		String testID = node.getTestID();
+		if(null == testID)
+			throw new IllegalStateException("Node " + node + " does not have a testID");
+		return getBaseName(testID);
+	}
+
 	public String getBaseName(String testId) {
 		String baseName = PoGeneratorContext.removeUnderscores(PoGeneratorContext.clean(testId));
 		String tryName = baseName;
@@ -62,7 +70,7 @@ final public class PoClass {
 		}
 		throw new IllegalStateException("Out of names to try for " + testId);
 	}
-	
+
 	public PoClass generated() {
 		m_markGenerated = true;
 		return this;
@@ -82,6 +90,10 @@ final public class PoClass {
 		PoField field = new PoField(this, typePackage, typeName, fieldName);
 		add(field);
 		return field;
+	}
+
+	public PoField addField(Pair<String, String> type, String fieldName) {
+		return addField(type.get1(), type.get2(), fieldName);
 	}
 
 	public PoClass addField(String fullType, String fieldName) {

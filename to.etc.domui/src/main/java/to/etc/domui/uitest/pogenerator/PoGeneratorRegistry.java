@@ -5,7 +5,17 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.buttons.LinkButton;
+import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.input.ComboLookup;
+import to.etc.domui.component.input.LookupInput;
+import to.etc.domui.component.input.Text;
+import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.misc.DisplaySpan;
+import to.etc.domui.component2.combo.ComboLookup2;
+import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.TextArea;
 import to.etc.function.BiFunctionEx;
 
 import java.util.Map;
@@ -36,7 +46,16 @@ final public class PoGeneratorRegistry {
 	}
 
 	static {
-		register(DefaultButton.class, (ctx, node) -> new PogButton(node));
+		register(DefaultButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
+		register(Text.class, (ctx, node) -> new PogSimple(node, "CpText"));
+		register(Text2.class, (ctx, node) -> new PogSimple(node, "CpText2"));
+		register(LookupInput2.class, (ctx, node) -> new PogSimple(node, "CpLookupInput2"));
+		register(LookupInput.class, (ctx, node) -> new PogSimple(node, "CpLookupInput"));
+		register(LinkButton.class, (ctx, node) -> new PogSimple(node, "CpLinkButton"));
+		register(SmallImgButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
+		register(ComboLookup.class, (ctx, node) -> new PogSimple(node, "CpComboLookup"));
+		register(ComboLookup2.class, (ctx, node) -> new PogSimple(node, "CpComboLookup2"));
+		register(DisplaySpan.class, (ctx, node) -> new PogSimple(node, "CpDisplaySpan"));
+		register(TextArea.class, (ctx, node) -> new PogSimple(node, "CpTextArea"));
 	}
-
 }

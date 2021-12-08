@@ -1,5 +1,6 @@
 package to.etc.domui.uitest.pogenerator;
 
+import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
@@ -25,6 +26,8 @@ public class PoGeneratorContext {
 
 	private final PoClass m_emptyClass;
 
+	private final List<String> m_errorList = new ArrayList<>();
+
 	public PoGeneratorContext(UrlPage page) {
 		m_page = page;
 
@@ -47,11 +50,21 @@ public class PoGeneratorContext {
 		for(NodeBase nb : nc) {
 			IPoProxyGenerator generator = PoGeneratorRegistry.find(this, nb);
 			if(generator != null) {
-				list.add(generator);
-				generator.acceptChildren();                // If it wants to let the generator play with its children
-			} else if(nb instanceof NodeContainer) {
-				//-- Nothing here; walk the children.
-				createGenerators(list, (NodeContainer) nb);
+				String testID = nb.getTestID();				// For now do not accept things without a testid
+				if(null == testID) {
+					error("Component with a null testID (null): " + nb);
+				} else {
+					list.add(generator);
+					generator.acceptChildren();             // If it wants to let the generator play with its children
+				}
+			} else {
+				if(nb instanceof IControl) {				// This should have a proxy
+					error("No factory for component: " + nb);
+				}
+				if(nb instanceof NodeContainer) {
+					//-- Nothing here; walk the children.
+					createGenerators(list, (NodeContainer) nb);
+				}
 			}
 		}
 	}
@@ -77,6 +90,14 @@ public class PoGeneratorContext {
 
 	public List<PoClass> getClassList() {
 		return m_classList;
+	}
+
+	public void error(String text) {
+		m_errorList.add(text);
+	}
+
+	public List<String> getErrorList() {
+		return m_errorList;
 	}
 
 	static public String clean(String str) {
