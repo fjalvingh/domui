@@ -74,6 +74,9 @@ public class AppFilter implements Filter {
 	static private String m_appContext;
 
 	@Nullable
+	static private Boolean m_isProductionMode;
+
+	@Nullable
 	static private IRequestResponseWrapper m_ioWrapper;
 
 	/**
@@ -88,6 +91,11 @@ public class AppFilter implements Filter {
 
 	static public synchronized void setIoWrapper(@NonNull IRequestResponseWrapper ww) {
 		m_ioWrapper = ww;
+	}
+
+	@Nullable
+	public static Boolean isProductionMode() {
+		return m_isProductionMode;
 	}
 
 	@Override
@@ -189,7 +197,7 @@ public class AppFilter implements Filter {
 
 		initLogConfig(approot, config.getInitParameter("logpath"));
 
-		if(DeveloperOptions.isDeveloperWorkstation() ) {
+		if(DeveloperOptions.isDeveloperWorkstation()) {
 			config.getServletContext().getSessionCookieConfig().setHttpOnly(false);
 			config.getServletContext().getSessionCookieConfig().setSecure(false);
 		}
@@ -220,15 +228,20 @@ public class AppFilter implements Filter {
 
 			//-- Are we running in development mode?
 			String domUiReload = DeveloperOptions.getString("domui.reload");
-			String autoload = domUiReload != null ? domUiReload : m_config.getString("auto-reload"); 			// Allow override of web.xml values.
+			String autoload = domUiReload != null ? domUiReload : m_config.getString("auto-reload");            // Allow override of web.xml values.
 
 			//these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Found bundles and MetaData will be reloaded only.
 			String autoloadWatchOnly = m_config.getString("auto-reload-watch-only");
 
-			if(DeveloperOptions.isDeveloperWorkstation() && DeveloperOptions.getBool("domui.developer", true) && autoload != null && autoload.trim().length() > 0)
+			if(DeveloperOptions.isDeveloperWorkstation() && DeveloperOptions.getBool("domui.developer", true) && autoload != null && autoload.trim().length() > 0) {
 				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload, autoloadWatchOnly);
-			else
+				if(null == m_isProductionMode)
+					m_isProductionMode = false;
+			} else {
 				m_contextMaker = new NormalContextMaker(m_applicationClassName, m_config);
+				if(null == m_isProductionMode)
+					m_isProductionMode = true;
+			}
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
 			throw x;
