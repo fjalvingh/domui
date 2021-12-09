@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
 abstract public class AbstractContextMaker implements IContextMaker {
 	static private final Logger LOG = LoggerFactory.getLogger(AbstractContextMaker.class);
 
-	private static final String LOCALE_PARAM = "___locale";
+	public static final String LOCALE_PARAM = "___locale";
 
 	@Override
 	abstract public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception;
