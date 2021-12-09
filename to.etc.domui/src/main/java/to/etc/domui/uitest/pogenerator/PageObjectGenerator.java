@@ -20,12 +20,12 @@ public class PageObjectGenerator {
 	}
 
 	public String generateAll(boolean asFiles) throws Exception {
-		List<IPoProxyGenerator> generators = m_context.createGenerators(m_context.getPage());
-		for(IPoProxyGenerator generator : generators) {
-			generator.prepare(m_context);
+		List<NodeGeneratorPair> generators = m_context.createGenerators(m_context.getPage());
+		for(NodeGeneratorPair pair : generators) {
+			pair.getGenerator().prepare(m_context);
 		}
-		for(IPoProxyGenerator generator : generators) {
-			generator.generateCode(m_context);
+		for(NodeGeneratorPair pair : generators) {
+			generateCode(pair, m_context.getRootClass());
 		}
 
 		PoClassWriter cw = new PoClassWriter();
@@ -52,6 +52,16 @@ public class PageObjectGenerator {
 
 		res.append(cw.getResult());
 		return res.toString();
+	}
+
+	private void generateCode(NodeGeneratorPair pair, PoClass rc) throws Exception {
+		String baseName;
+		if(pair.getGenerator() instanceof IPoAcceptNullTestid) {
+			baseName = ((IPoAcceptNullTestid) pair.getGenerator()).getProposedBaseName(m_context, pair.getNode());
+		} else {
+			baseName = rc.getBaseName(pair.getNode());
+		}
+		pair.getGenerator().generateCode(m_context, m_context.getRootClass(), baseName);
 	}
 
 	public PoGeneratorContext getContext() {

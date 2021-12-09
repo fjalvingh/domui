@@ -12,10 +12,7 @@ public class PogButton extends AbstractPoProxyGenerator implements IPoProxyGener
 	}
 
 	@Override
-	public void generateCode(PoGeneratorContext context) throws Exception {
-		PoClass rc = context.getRootClass();
-
-		String baseName = rc.getBaseName(m_node);
+	public void generateCode(PoGeneratorContext context, PoClass rc, String baseName) throws Exception {
 		String fieldName = PoGeneratorContext.fieldName(baseName);
 		String methodName = PoGeneratorContext.methodName(baseName);
 
@@ -25,5 +22,10 @@ public class PogButton extends AbstractPoProxyGenerator implements IPoProxyGener
 			getter.append(variable).append(" = ").append("new ");
 			getter.appendType(rc, field.getType()).append("(this, ").append(getSelector().selectorAsCode()).append(");").nl();
 		});
+	}
+
+	@Override
+	public String identifier() {
+		return "Button";
 	}
 }

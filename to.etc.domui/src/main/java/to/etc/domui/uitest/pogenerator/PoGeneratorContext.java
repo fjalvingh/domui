@@ -51,15 +51,16 @@ public class PoGeneratorContext {
 	 * Walks all nodes, and creates proxy generators for every recognized thing in the
 	 * tree.
 	 */
-	public List<IPoProxyGenerator> createGenerators(NodeContainer nc) throws Exception {
-		List<IPoProxyGenerator> list = new ArrayList<>();
+	public List<NodeGeneratorPair> createGenerators(NodeContainer nc) throws Exception {
+		List<NodeGeneratorPair> list = new ArrayList<>();
 		createGenerators(list, nc);
 		return list;
 	}
+
 	/**
 	 * Recursively walk all children of a node and detect generateable controls.
 	 */
-	public void createGenerators(List<IPoProxyGenerator> list, NodeContainer nc) throws Exception {
+	public void createGenerators(List<NodeGeneratorPair> list, NodeContainer nc) throws Exception {
 		for(NodeBase nb : nc) {
 			IPoProxyGenerator generator = PoGeneratorRegistry.find(this, nb);
 			if(generator != null) {
@@ -67,7 +68,7 @@ public class PoGeneratorContext {
 				if(null == testID && ! (generator instanceof IPoAcceptNullTestid)) {
 					error("Component with a null testID (null): " + nb);
 				} else {
-					list.add(generator);
+					list.add(new NodeGeneratorPair(nb, generator));
 					if(! generator.acceptChildren(this))	// If it wants to let the generator play with its children
 						return;
 				}

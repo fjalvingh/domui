@@ -1,5 +1,6 @@
 package to.etc.domui.uitest.pogenerator;
 
+import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.TBody;
@@ -12,7 +13,12 @@ import to.etc.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Recognizes a data table, and gives accessors for the column things inside it.
@@ -32,11 +38,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 	}
 
 	@Override
-	public void generateCode(PoGeneratorContext context) throws Exception {
-		String baseName = m_baseName = m_node.getTestID() == null
-			? "Tbl" + context.nextCounter()
-			: context.getRootClass().getBaseName(m_node.getTestID());
-
+	public void generateCode(PoGeneratorContext context, PoClass pc, String baseName) throws Exception {
 		//-- Generate a row class
 		String rowClassName = context.getRootClass().getClassName() + m_baseName + "Row";
 		PoClass rowClass = context.addClass(rowClassName, null, Collections.emptyList());
@@ -56,16 +58,76 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 		}
 	}
 
-	private void generateRowClassColumn(PoGeneratorContext context, PoClass pc, Col col, int index) throws Exception {
-		String fieldName = PoGeneratorContext.fieldName(col.getColumnName());
-		String methodName = PoGeneratorContext.methodName(col.getColumnName());
+	/**
+	 * Create a base name in case the testid is null.
+	 */
+	@NonNull
+	@Override
+	public String getProposedBaseName(PoGeneratorContext context, NodeBase node) {
+		String baseName = m_baseName = m_node.getTestID() == null
+			? "Tbl" + context.nextCounter()
+			: context.getRootClass().getBaseName(m_node.getTestID());
+		return baseName;
+	}
 
-		PoField field = pc.addField(COLUMNCLASS, fieldName);
-		PoMethod getter = pc.addMethod(field.getType(), methodName);
-		getter.appendLazyInit(field, variable -> {
-			getter.append(variable).append(" = ").append("new ");
-			getter.appendType(pc, field.getType()).append("(this, ").append(Integer.toString(index)).append(");").nl();
-		});
+	/**
+	 * Generate the column accessor(s) for a single column. The accessor accesses whatever is hidden in the cell.
+	 * We can have multiple controls inside a column, and a separate accessor method will be generated for each of
+	 * them as good as it gets.
+	 */
+	private void generateRowClassColumn(PoGeneratorContext context, PoClass pc, Col col, int index) throws Exception {
+		String baseName = col.getColumnName();
+
+		List<IPoProxyGenerator> controlList = col.getContentModelList();
+		if(controlList.size() == 0) {
+			context.error(m_node, "Column " + col + " has no content model, it is not generated");
+			return;
+		}
+
+		boolean uniqueNames = hasUniqueNames(controlList);
+
+		for(int i = 0; i < controlList.size(); i++) {
+			IPoProxyGenerator pg = controlList.get(i);
+
+			/*
+			 * Calculate a name as follows:
+			 * If we are the ONLY control in the cell: use the name of the column, nothing more (i.e. col2).
+			 * If we are the nth but names are unique: use column name + control identifier (i.e. col2Button).
+			 * If names are not unique then use column name + control identifier + sequence #.
+			 */
+			String controlBaseName;
+			if(controlList.size() == 1) {
+				controlBaseName = baseName;
+			} else if(uniqueNames) {
+				controlBaseName = pg.identifier();
+			} else {
+				controlBaseName = baseName + pg.identifier() + index;
+			}
+
+			generateCellControl(context, pc, col, index, pg, controlBaseName);
+		}
+	}
+
+	private void generateCellControl(PoGeneratorContext context, PoClass pc, Col col, int index, IPoProxyGenerator pg, String baseName) throws Exception {
+		pg.generateCode(context, pc, baseName);
+	}
+
+	/**
+	 * Return the selector expression needed for the control proxy for a control
+	 * inside a table cell. The selector asks the row for a base selector.
+	 * FIXME We need a way to uniquely identify a control inside a cell using its testID.
+	 */
+	private String getCellControlSelector(Col col, IPoProxyGenerator pg) {
+		return "() -> columnControlSelector(" + col.getIndex() + ", \"fixme-control-testid-in-row-" + pg + "\")";
+	}
+
+	private boolean hasUniqueNames(List<IPoProxyGenerator> list) {
+		Set<String> nameSet = new HashSet<>();
+		for(IPoProxyGenerator pg : list) {
+			if(! nameSet.add(pg.identifier()))
+				return false;
+		}
+		return true;
 	}
 
 	/**
@@ -82,6 +144,11 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 			getter.appendType(pc, field.getType()).append("(this, ").append(Integer.toString(index)).append(");").nl();
 		});
 	}
+
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Detection part - calculate how it looks						*/
+	/*----------------------------------------------------------------------*/
 
 	/**
 	 * Detect the structure of the datatable, its columns, and what is in each column and row.
@@ -115,6 +182,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 		//-- Ok, we have columns; now try to calculate a content model for each column by looking at all rows.
 		TBody body = tbl.getBody();
 
+		//-- Scan the content model for each cell and collect them per column.
 		boolean warned = false;
 		for(TR row : body.getChildren(TR.class)) {
 			List<TD> children = row.getChildren(TD.class);
@@ -132,17 +200,44 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 				}
 			}
 		}
+
+		//-- Now, for each column, try to find out the final content model.
+		for(Col col : m_colList) {
+			calculateCellContentModel(context, col);
+		}
 		return true;
+	}
+
+	/**
+	 * This code assumes more or less the same content model in each cell, and assumes
+	 * similar pg's would be the same in the cell. This is error prone, and probably should
+	 * be merged on a better testid (one that does not change per row).
+	 */
+	private void calculateCellContentModel(PoGeneratorContext context, Col col) throws Exception {
+		Map<String, List<IPoProxyGenerator>> perTypeMap = new HashMap<>();
+
+		for(List<IPoProxyGenerator> list : col.getPerRowContentList()) {
+			for(IPoProxyGenerator pg : list) {
+				perTypeMap.computeIfAbsent(pg.identifier(), a -> new ArrayList<>()).add(pg);
+			}
+		}
+		if(perTypeMap.size() == 0) {
+			//-- No content model found. Just get a "cell content" model.
+			col.addContentModel(PoGeneratorRegistry.getDisplayTextGenerator(context, m_node));		// FIXME Node is odd
+		} else {
+			//-- Use the actual models
+			for(List<IPoProxyGenerator> pgl : perTypeMap.values()) {
+				col.addContentModel(pgl.get(0));
+			}
+		}
 	}
 
 	/**
 	 * Scans the TD for components.
 	 */
 	private void scanContentModel(PoGeneratorContext context, TD td, Col col) throws Exception {
-		List<IPoProxyGenerator> generators = context.createGenerators(td);
-		col.addGeneratorSet(generators);
-
-
+		List<NodeGeneratorPair> generators = context.createGenerators(td);
+		col.addGeneratorSet(generators.stream().map(a -> a.getGenerator()).collect(Collectors.toList()));
 	}
 
 	private List<Col> scanColumnNames(PoGeneratorContext context, THead head) {
@@ -156,10 +251,11 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 			}
 		}
 
-		//-- We should now have all columns in the table, with their headers. Calculate column names for each.
+		//-- We should now have all columns in the table, with their headers. Calculate column names and indices for each.
 		for(int i = 0; i < colList.size(); i++) {
 			Col col = colList.get(i);
 			col.setColumnName(calculateColumnName(col, i));
+			col.setIndex(i);
 		}
 		return colList;
 	}
@@ -194,12 +290,21 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 		return currentHeadIndex;
 	}
 
+	@Override
+	public String identifier() {
+		return "DataTable";
+	}
+
 	static private final class Col {
 		private List<TH> m_header = new ArrayList<>(3);
 
 		private String m_columnName;
 
 		private List<List<IPoProxyGenerator>> m_perRowContentList = new ArrayList<>();
+
+		private List<IPoProxyGenerator> m_contentModelList = new ArrayList<>();
+
+		private int m_index;
 
 		public void add(TH th) {
 			m_header.add(th);
@@ -223,6 +328,22 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 
 		public List<List<IPoProxyGenerator>> getPerRowContentList() {
 			return m_perRowContentList;
+		}
+
+		public void addContentModel(IPoProxyGenerator pg) {
+			m_contentModelList.add(pg);
+		}
+
+		public List<IPoProxyGenerator> getContentModelList() {
+			return m_contentModelList;
+		}
+
+		public int getIndex() {
+			return m_index;
+		}
+
+		public void setIndex(int index) {
+			m_index = index;
 		}
 	}
 }

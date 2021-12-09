@@ -23,10 +23,7 @@ final public class PogSimple extends AbstractPoProxyGenerator implements IPoProx
 	}
 
 	@Override
-	public void generateCode(PoGeneratorContext context) throws Exception {
-		PoClass rc = context.getRootClass();
-
-		String baseName = rc.getBaseName(m_node);
+	public void generateCode(PoGeneratorContext context, PoClass rc, String baseName) throws Exception {
 		String fieldName = PoGeneratorContext.fieldName(baseName);
 		String methodName = PoGeneratorContext.methodName(baseName);
 
@@ -36,5 +33,10 @@ final public class PogSimple extends AbstractPoProxyGenerator implements IPoProx
 			getter.append(variable).append(" = ").append("new ");
 			getter.appendType(rc, field.getType()).append("(this, ").append(getSelector().selectorAsCode()).append(");").nl();
 		});
+	}
+
+	@Override
+	public String identifier() {
+		return m_poClass.get2();
 	}
 }

@@ -18,7 +18,9 @@ public interface IPoProxyGenerator {
 
 	void prepare(PoGeneratorContext context) throws Exception;
 
-	void generateCode(PoGeneratorContext context) throws Exception;
+	void generateCode(PoGeneratorContext context, PoClass intoClass, String baseName) throws Exception;
 
 	void updateSelector(IPoSelector selector);
+
+	String identifier();
 }
