@@ -2,7 +2,6 @@ package to.etc.domui.uitest.pogenerator;
 
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
-import to.etc.util.Pair;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ import java.util.List;
  * Created on 08-12-21.
  */
 final public class PogSimple extends AbstractPoProxyGenerator implements IPoProxyGenerator {
-	private final Pair<String, String> m_poClass;
+	private final RefType m_poClass;
 
 	private final AllowEmbedded m_embedded;
 
@@ -22,13 +21,13 @@ final public class PogSimple extends AbstractPoProxyGenerator implements IPoProx
 		DisallowEmbedded
 	}
 
-	public PogSimple(NodeBase node, Pair<String, String> poClass) {
+	public PogSimple(NodeBase node, RefType poClass) {
 		super(node);
 		m_poClass = poClass;
 		m_embedded = AllowEmbedded.AllowEmbedded;
 	}
 
-	public PogSimple(NodeBase node, Pair<String, String> poClass, AllowEmbedded embedded) {
+	public PogSimple(NodeBase node, RefType poClass, AllowEmbedded embedded) {
 		super(node);
 		m_poClass = poClass;
 		m_embedded = embedded;
@@ -36,13 +35,13 @@ final public class PogSimple extends AbstractPoProxyGenerator implements IPoProx
 
 	public PogSimple(NodeBase node, String poClassName) {
 		super(node);
-		m_poClass = new Pair<>(PROXYPACKAGE, poClassName);
+		m_poClass = new RefType(PROXYPACKAGE, poClassName);
 		m_embedded = AllowEmbedded.AllowEmbedded;
 	}
 
 	public PogSimple(NodeBase node, String poClassName, AllowEmbedded embedded) {
 		super(node);
-		m_poClass = new Pair<>(PROXYPACKAGE, poClassName);
+		m_poClass = new RefType(PROXYPACKAGE, poClassName);
 		m_embedded = embedded;
 	}
 
@@ -80,6 +79,6 @@ final public class PogSimple extends AbstractPoProxyGenerator implements IPoProx
 
 	@Override
 	public String identifier() {
-		return m_poClass.get2();
+		return m_poClass.getTypeName();
 	}
 }

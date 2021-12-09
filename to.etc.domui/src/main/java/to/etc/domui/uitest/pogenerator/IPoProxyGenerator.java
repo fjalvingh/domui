@@ -22,5 +22,6 @@ public interface IPoProxyGenerator {
 
 	void generateCode(PoGeneratorContext context, PoClass intoClass, String baseName, IPoSelector selector) throws Exception;
 
+	@Deprecated
 	String identifier();
 }

@@ -5,7 +5,6 @@ import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
-import to.etc.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,13 +126,13 @@ public class PoGeneratorContext {
 		return m_errorList;
 	}
 
-	public PoClass addClass(String packageName, String className, @Nullable PoClass baseClass, List<Pair<String, String>> ifaces) {
+	public PoClass addClass(String packageName, String className, @Nullable PoClass baseClass, List<RefType> ifaces) {
 		PoClass pc = new PoClass(packageName, className, baseClass, ifaces);
 		m_classList.add(pc);
 		return pc;
 	}
 
-	public PoClass addClass(String className, @Nullable PoClass baseClass, List<Pair<String, String>> ifaces) {
+	public PoClass addClass(String className, @Nullable PoClass baseClass, List<RefType> ifaces) {
 		return addClass(m_rootClass.getPackageName(), className, baseClass, ifaces);
 	}
 

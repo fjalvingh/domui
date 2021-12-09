@@ -28,9 +28,9 @@ final public class PoMethod extends BodyWriter<PoMethod> {
 	private final List<Pair<String, String>> m_importList = new ArrayList<>();
 
 	@Nullable
-	private Pair<String, String> m_returnType;
+	private RefType m_returnType;
 
-	public PoMethod(PoClass poClass, @Nullable Pair<String, String> returnType, String methodName, Modifier... modifiers) {
+	public PoMethod(PoClass poClass, @Nullable RefType returnType, String methodName, Modifier... modifiers) {
 		m_poClass = poClass;
 		m_methodName = methodName;
 		m_returnType = returnType;
@@ -41,8 +41,8 @@ final public class PoMethod extends BodyWriter<PoMethod> {
 		}
 	}
 
-	public PoMethod addParameter(Pair<String, String> type, String name) {
-		m_parameterList.add(new PoMethodParameter(type.get1(), type.get2(), name));
+	public PoMethod addParameter(RefType type, String name) {
+		m_parameterList.add(new PoMethodParameter(type, name));
 		return this;
 	}
 
@@ -72,7 +72,7 @@ final public class PoMethod extends BodyWriter<PoMethod> {
 	}
 
 	@Nullable
-	public Pair<String, String> getReturnType() {
+	public RefType getReturnType() {
 		return m_returnType;
 	}
 

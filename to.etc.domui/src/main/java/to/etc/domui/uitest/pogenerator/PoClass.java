@@ -3,7 +3,6 @@ package to.etc.domui.uitest.pogenerator;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
-import to.etc.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 /**
  * Represents a class to be generated.
@@ -27,7 +27,7 @@ final public class PoClass {
 	@Nullable
 	private final PoClass m_baseClass;
 
-	private final List<Pair<String, String>> m_interfaceList;
+	private final List<RefType> m_interfaceList;
 
 	private final List<PoField> m_fieldList = new ArrayList<>();
 
@@ -49,7 +49,7 @@ final public class PoClass {
 
 	private final List<PoClass> m_genericParameterList = new ArrayList<>();
 
-	public PoClass(String packageName, String className, @Nullable PoClass baseClass, List<Pair<String, String>> interfaceList) {
+	public PoClass(String packageName, String className, @Nullable PoClass baseClass, List<RefType> interfaceList) {
 		m_packageName = packageName;
 		m_className = className;
 		m_baseClass = baseClass;
@@ -107,25 +107,30 @@ final public class PoClass {
 		return this;
 	}
 
-	public PoField addField(String typePackage, String typeName, String fieldName) {
-		PoField field = new PoField(this, typePackage, typeName, fieldName);
+	public PoField addField(String packageName, String typeName, String fieldName) {
+		RefType rt = new RefType(packageName, typeName);
+		PoField field = new PoField(this, rt, fieldName);
 		add(field);
 		return field;
 	}
 
-	public PoField addField(Pair<String, String> type, String fieldName) {
-		return addField(type.get1(), type.get2(), fieldName);
+	public PoField addField(RefType type, String fieldName) {
+		PoField field = new PoField(this, type, fieldName);
+		add(field);
+		return field;
 	}
 
 	public PoClass addField(String fullType, String fieldName) {
 		int ix = fullType.lastIndexOf('.');
 		if(ix == -1) {
-			add(new PoField(this, "", fullType, fieldName));
+			RefType rt = new RefType("", fullType);
+			add(new PoField(this, rt, fieldName));
 		} else {
 			String packageName = fullType.substring(0, ix);
 			String typeName = fullType.substring(ix + 1);
+			RefType rt = new RefType(packageName, typeName);
 			addImport(packageName, typeName);
-			add(new PoField(this, packageName, typeName, fieldName));
+			add(new PoField(this, rt, fieldName));
 		}
 		return this;
 	}
@@ -133,7 +138,7 @@ final public class PoClass {
 	/**
 	 * Add a method. The method is returned so that it can be further configured.
 	 */
-	public PoMethod addMethod(@Nullable Pair<String, String> returnType, String name, Modifier... modifiers) {
+	public PoMethod addMethod(@Nullable RefType returnType, String name, Modifier... modifiers) {
 		PoMethod m = new PoMethod(this, returnType, name, modifiers);
 		m_methodList.add(m);
 		return m;
@@ -156,7 +161,7 @@ final public class PoClass {
 		return m_baseClass;
 	}
 
-	public List<Pair<String, String>> getInterfaceList() {
+	public List<RefType> getInterfaceList() {
 		return m_interfaceList;
 	}
 
@@ -168,8 +173,8 @@ final public class PoClass {
 		return m_methodList;
 	}
 
-	public PoClass addImport(Pair<String, String> type) {
-		addImport(type.get1(), type.get2());
+	public PoClass addImport(RefType type) {
+		addImport(type.getPackageName(), type.getTypeName());
 		return this;
 	}
 
@@ -208,7 +213,11 @@ final public class PoClass {
 		return m_importSet.contains(fullName);
 	}
 
-	public Pair<String, String> asType() {
-		return new Pair<>(getPackageName(), getClassName());
+	public RefType asType() {
+		List<String> plist = getGenericParameterList().stream()
+			.map(a -> a.asType().asTypeString())
+			.collect(Collectors.toList());
+
+		return new RefType(getPackageName(), getClassName(), plist);
 	}
 }

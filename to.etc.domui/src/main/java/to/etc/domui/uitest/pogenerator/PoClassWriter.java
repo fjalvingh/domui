@@ -3,6 +3,7 @@ package to.etc.domui.uitest.pogenerator;
 import to.etc.util.Pair;
 
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -13,7 +14,7 @@ import java.util.Set;
 public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModelVisitor {
 	private PoClass m_currentClass;
 
-	static private final Pair<String, String> GENERATED = new Pair<>("javax.annotation.processing", "Generated");
+	static private final RefType GENERATED = new RefType("javax.annotation.processing", "Generated");
 
 	public PoClassWriter() {
 	}
@@ -44,14 +45,15 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 
 		//-- Write the class
 		if(n.isMarkGenerated()) {
-			append("@").appendType(n, "javax.annotation.processing", "Generated").nl();
+			append("@").appendType(n, GENERATED);
+			append("(\"").append("Generated on " + new Date() + "\")").nl();
 		}
 
 		//-- Class header
 		append("public class ").append(n.getClassName()).append(" ");
 		PoClass baseClass = n.getBaseClass();
 		if(null != baseClass) {
-			append("extends ").appendType(n, baseClass.getPackageName(), baseClass.getClassName());
+			append("extends ").appendType(n, baseClass.asType());
 
 			List<PoClass> pl = baseClass.getGenericParameterList();
 			if(pl.size() > 0) {
@@ -60,19 +62,19 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 					PoClass poClass = pl.get(i);
 					if(i > 0)
 						append(", ");
-					appendType(n, poClass.getPackageName(), poClass.getClassName());
+					appendType(n, poClass.asType());
 				}
 
 				append(">");
 			}
 			append(" ");
 		}
-		List<Pair<String, String>> interfaceList = n.getInterfaceList();
+		List<RefType> interfaceList = n.getInterfaceList();
 		if(interfaceList.size() > 0) {
-			interfaceList.sort(Comparator.comparing(Pair::get2));
+			interfaceList.sort(Comparator.comparing(RefType::asTypeString));
 			append("implements ");
 			for(int i = 0; i < interfaceList.size(); i++) {
-				Pair<String, String> s = interfaceList.get(i);
+				RefType s = interfaceList.get(i);
 				if(i > 0)
 					append(", ");
 				appendType(n, s);
@@ -85,8 +87,8 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		List<PoField> fieldList = n.getFieldList();
 		fieldList.sort(Comparator.comparing(PoField::getFieldName));
 		for(PoField poField : fieldList) {
-			append("private final ")
-				.appendType(n, poField.getPackageName(), poField.getTypeName())
+			append("private ")
+				.appendType(n, poField.getType())
 				.append(" ")
 				.append(poField.getFieldName())
 				.append(";").nl();
@@ -111,7 +113,7 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 
 	private void renderMethod(PoClass n, PoMethod poMethod) throws Exception {
 		appendModifiers(poMethod.getModifierSet());
-		Pair<String, String> returnType = poMethod.getReturnType();
+		RefType returnType = poMethod.getReturnType();
 		if(null == returnType) {
 			append("void ");
 		} else {

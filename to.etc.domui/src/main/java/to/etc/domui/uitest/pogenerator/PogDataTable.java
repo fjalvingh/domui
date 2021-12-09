@@ -26,7 +26,7 @@ import java.util.Map.Entry;
  * Created on 08-12-21yhggg.
  */
 final public class PogDataTable extends AbstractPoProxyGenerator {
-	static private final Pair<String, String> COLUMNCLASS = new Pair<>(PROXYPACKAGE, "CpDataTableColumn");
+	static private final RefType COLUMNCLASS = new RefType(PROXYPACKAGE, "CpDataTableColumn");
 
 	private List<Col> m_colList = new ArrayList<>();
 
@@ -43,7 +43,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		PoClass rowClass = context.addClass(rowClassName, null, Collections.emptyList());
 
 		//-- Generate the table class
-		PoClass baseClass = new PoClass(PROXYPACKAGE, "CpDataTableBase");
+		PoClass baseClass = new PoClass(PROXYPACKAGE, "CpDataTable");
 		baseClass.addGenericParameter(rowClass);
 
 		//-- Generate the accessor in the provided class (the accessor to the CpDataTable

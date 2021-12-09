@@ -1,7 +1,6 @@
 package to.etc.domui.uitest.pogenerator;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import to.etc.util.Pair;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -12,16 +11,13 @@ final public class PoField {
 	private final PoClass m_poClass;
 
 	/** The package name, or the empty string if not in a package */
-	private final String m_packageName;
-
-	private final String m_typeName;
+	private final RefType m_type;
 
 	private final String m_fieldName;
 
-	public PoField(PoClass poClass, String packageName, String typeName, String fieldName) {
+	public PoField(PoClass poClass, RefType type, String fieldName) {
 		m_poClass = poClass;
-		m_packageName = packageName;
-		m_typeName = typeName;
+		m_type = type;
 		m_fieldName = fieldName;
 	}
 
@@ -29,20 +25,12 @@ final public class PoField {
 		return m_poClass;
 	}
 
-	public String getPackageName() {
-		return m_packageName;
-	}
-
-	public String getTypeName() {
-		return m_typeName;
-	}
-
 	public String getFieldName() {
 		return m_fieldName;
 	}
 
-	public Pair<String, String> getType() {
-		return new Pair<>(getPackageName(), getTypeName());
+	public RefType getType() {
+		return m_type;
 	}
 
 	public void visit(IPoModelVisitor v) throws Exception {

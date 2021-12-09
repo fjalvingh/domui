@@ -1,7 +1,6 @@
 package to.etc.domui.uitest.pogenerator;
 
 import to.etc.util.IndentWriter;
-import to.etc.util.Pair;
 import to.etc.util.StringTool;
 
 import java.io.StringWriter;
@@ -41,23 +40,13 @@ public class BodyWriter<T extends BodyWriter<T>> {
 		return m_sw.getBuffer().toString();
 	}
 
-	protected T appendType(PoClass clz, Pair<String, String> type) throws Exception {
-		append(getTypeName(clz, type.get1(), type.get2()));
+	protected T appendType(PoClass clz, RefType type) throws Exception {
+		append(getTypeName(clz, type));
 		return (T) this;
 	}
 
-	protected T appendType(PoClass clz, String packageName, String typeName) throws Exception {
-		append(getTypeName(clz, packageName, typeName));
-		return (T) this;
-	}
-
-	protected String getTypeName(PoClass clz, String packageName, String typeName) {
-		if(packageName.length() == 0)
-			return typeName;
-		String fullName = packageName + "." + typeName;
-		if(clz.hasImport(fullName))
-			return typeName;
-		return fullName;
+	protected String getTypeName(PoClass clz, RefType type) {
+		return type.asTypeString();
 	}
 
 	protected T appendString(String s) throws Exception {
