@@ -216,6 +216,20 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		//	appendCreateJS(JavascriptUtil.disableSelection(this)); // Needed to prevent ctrl+click in IE doing clipboard-select, because preventDefault does not work there of course.
 	}
 
+	@Override
+	public void onAddedToPage(Page p) {
+		if(getTestID() != null)
+			return;
+		String key = "DataTableIX";
+		Integer val = (Integer) p.getAttribute(key);
+		if(null == val) {
+			val = 1;
+		}
+		setCalculcatedId("dt_" + val);
+		val = val + 1;
+		p.setAttribute(key, val);
+	}
+
 	@SuppressWarnings("deprecation")
 	private void setResults() throws Exception {
 		if(m_errorDiv != null) {

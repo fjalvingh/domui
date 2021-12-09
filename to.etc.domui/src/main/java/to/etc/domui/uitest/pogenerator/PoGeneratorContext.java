@@ -67,8 +67,8 @@ public class PoGeneratorContext {
 				GeneratorAccepted acceptance = generator.acceptChildren(this);
 				if(acceptance == GeneratorAccepted.Accepted) {		// If it wants to let the generator play with its children
 					String testID = nb.getTestID();					// For now do not accept things without a testid
-					if(null == testID && ! (generator instanceof IPoAcceptNullTestid)) {
-						error("Component with a null testID (null): " + nb);
+					if(null == testID) {
+						error("Component with a null testID not generated: " + nb);
 					} else {
 						list.add(new NodeGeneratorPair(nb, generator));
 					}
@@ -147,17 +147,16 @@ public class PoGeneratorContext {
 	}
 
 	static public String clean(String str) {
-		return str
-			.replace(" ", "_")
-			.replace("-", "_")
-			.replace("=", "")
-			.replace("(", "")
-			.replace(")", "")
-			.replace("?", "")
-			.replace("*", "")
-			.replace(";", "")
-			.replace("/", "")
-			.replace("\\", "");
+		StringBuilder sb = new StringBuilder(str.length());
+		for(int i = 0; i < str.length(); i++) {
+			char c = str.charAt(i);
+			if(c == '_' || Character.isLetterOrDigit(c)) {
+				sb.append(c);
+			} else if(c == '-') {
+				sb.append('_');
+			}
+		}
+		return sb.toString();
 	}
 
 	static public String methodName(String baseName) {

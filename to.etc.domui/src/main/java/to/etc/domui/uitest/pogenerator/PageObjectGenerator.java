@@ -56,12 +56,7 @@ public class PageObjectGenerator {
 	}
 
 	private void generateCode(NodeGeneratorPair pair, PoClass rc) throws Exception {
-		String baseName;
-		if(pair.getGenerator() instanceof IPoAcceptNullTestid) {
-			baseName = ((IPoAcceptNullTestid) pair.getGenerator()).getProposedBaseName(m_context, pair.getNode());
-		} else {
-			baseName = rc.getBaseName(pair.getNode());
-		}
+		String baseName = rc.getBaseName(pair.getNode());
 		String testID = Objects.requireNonNull(pair.getNode().getTestID(), "Unexpected: testID should not be null here ever");
 		pair.getGenerator().generateCode(m_context, m_context.getRootClass(), baseName, new PoSelectorTestId(testID));
 	}

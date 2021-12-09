@@ -10,15 +10,14 @@ import to.etc.domui.dom.html.THead;
 import to.etc.domui.dom.html.TR;
 import to.etc.domui.dom.html.Table;
 import to.etc.util.Pair;
+import to.etc.util.StringTool;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * Recognizes a data table, and gives accessors for the column things inside it.
@@ -26,7 +25,7 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 08-12-21yhggg.
  */
-final public class PogDataTable extends AbstractPoProxyGenerator implements IPoAcceptNullTestid {
+final public class PogDataTable extends AbstractPoProxyGenerator {
 	static private final Pair<String, String> COLUMNCLASS = new Pair<>(PROXYPACKAGE, "CpDataTableColumn");
 
 	private List<Col> m_colList = new ArrayList<>();
@@ -69,17 +68,17 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 		}
 	}
 
-	/**
-	 * Create a base name in case the testid is null.
-	 */
-	@NonNull
-	@Override
-	public String getProposedBaseName(PoGeneratorContext context, NodeBase node) {
-		String baseName = m_baseName = m_node.getTestID() == null
-			? "Tbl" + context.nextCounter()
-			: context.getRootClass().getBaseName(m_node.getTestID());
-		return baseName;
-	}
+	///**
+	// * Create a base name in case the testid is null.
+	// */
+	//@NonNull
+	//@Override
+	//public String getProposedBaseName(PoGeneratorContext context, NodeBase node) {
+	//	String baseName = m_baseName = m_node.getTestID() == null
+	//		? "Tbl" + context.nextCounter()
+	//		: context.getRootClass().getBaseName(m_node.getTestID());
+	//	return baseName;
+	//}
 
 	/**
 	 * Generate the column accessor(s) for a single column. The accessor accesses whatever is hidden in the cell.
@@ -97,7 +96,6 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 			return;
 		}
 
-		boolean uniqueNames = hasUniqueNames(controlList);
 		for(int i = 0; i < controlList.size(); i++) {
 			Pair<String, IPoProxyGenerator> pair = controlList.get(i);
 			IPoProxyGenerator pg = pair.get2();
@@ -112,10 +110,8 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 			String controlBaseName;
 			if(controlList.size() == 1) {
 				controlBaseName = baseName;
-			} else if(uniqueNames) {
-				controlBaseName = baseName;
 			} else {
-				controlBaseName = baseName + pc.getBaseName(testId) + index;
+				controlBaseName = baseName + StringTool.strCapitalizedIntact(pc.getBaseName(testId));
 			}
 
 			generateCellControl(context, pc, col, index, pg, controlBaseName, testId);
@@ -124,24 +120,6 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 
 	private void generateCellControl(PoGeneratorContext context, PoClass pc, Col col, int index, IPoProxyGenerator pg, String baseName, String testId) throws Exception {
 		pg.generateCode(context, pc, baseName, new PoSelectorCellComponent(index, testId));
-	}
-
-	/**
-	 * Return the selector expression needed for the control proxy for a control
-	 * inside a table cell. The selector asks the row for a base selector.
-	 * FIXME We need a way to uniquely identify a control inside a cell using its testID.
-	 */
-	private String getCellControlSelector(Col col, IPoProxyGenerator pg) {
-		return "() -> columnControlSelector(" + col.getIndex() + ", \"fixme-control-testid-in-row-" + pg + "\")";
-	}
-
-	private boolean hasUniqueNames(List<Pair<String, IPoProxyGenerator>> list) {
-		Set<String> nameSet = new HashSet<>();
-		for(Pair<String, IPoProxyGenerator> pg : list) {
-			if(! nameSet.add(pg.get1()))
-				return false;
-		}
-		return true;
 	}
 
 	/**
