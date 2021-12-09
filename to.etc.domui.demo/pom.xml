@@ -221,7 +221,7 @@
             -->
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>copy-resources</id>
@@ -268,7 +268,7 @@
             <plugin>
                 <groupId>pl.project13.maven</groupId>
                 <artifactId>git-commit-id-plugin</artifactId>
-                <version>2.2.1</version>
+                <version>4.0.4</version>
                 <executions>
                     <execution>
                         <id>get-the-git-infos</id>
@@ -283,6 +283,8 @@
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.outputDirectory}/domui.git.properties</generateGitPropertiesFilename>
                     <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <offline>true</offline>
+                    <useNativeGit>true</useNativeGit>
                 </configuration>
             </plugin>
 
@@ -310,12 +312,11 @@
                         <port>${jetty.http.port}</port>
                     </httpConnector>
 
-                    <webAppConfig>
+                    <webApp>
                         <contextPath>/demo</contextPath>
-                    </webAppConfig>
+                    </webApp>
 
                 </configuration>
-
 
                 <!--<configuration>-->
                     <!--&lt;!&ndash; Enable TestUI mode on the server to make Selenium tests run. &ndash;&gt;-->

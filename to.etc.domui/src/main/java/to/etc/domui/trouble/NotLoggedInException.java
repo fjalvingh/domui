@@ -27,9 +27,7 @@ package to.etc.domui.trouble;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.state.UIContext;
-import to.etc.domui.util.Constants;
 import to.etc.domui.util.DomUtil;
-import to.etc.util.StringTool;
 
 /**
  * Thrown when access control is specified on a page but the user is not logged in.
@@ -61,26 +59,7 @@ final public class NotLoggedInException extends RuntimeException {
 		StringBuilder sb = new StringBuilder(256);
 		sb.append(ctx.getRelativePath(ctx.getPageParameters().getInputPath()));
 
-		int len = sb.length();
-		try {
-			sb.append('?');
-			StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
-			sb.append('=');
-			String sessionID = ctx.getWindowSession().getWindowID();
-			sb.append(sessionID);
-			// FIXME Not having a page here is VERY questionable!!!
-			if(page != null) {
-				sb.append('.').append(page.getConversation().getId());
-				DomUtil.addUrlParameters(sb, page.getPageParameters(), false);
-			} else {
-				sb.append(".x");                                        // Dummy conversation ID
-			}
-		} catch(Exception x) {
-			//-- Allow not having a window session
-			sb.setLength(len);							// Remove crud added by failed code
-			if(null != page)
-				DomUtil.addUrlParameters(sb, page.getPageParameters(), true);
-		}
+		DomUtil.addUrlParameters(sb, page.getPageParameters(), true);
 
 		return new NotLoggedInException(sb.toString()); 			// Force login exception.
 	}

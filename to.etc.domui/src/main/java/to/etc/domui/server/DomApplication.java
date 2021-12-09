@@ -42,6 +42,8 @@ import to.etc.domui.component.layout.ErrorPanel;
 import to.etc.domui.component.layout.title.AppPageTitleBar;
 import to.etc.domui.component.layout.title.BasePageTitleBar;
 import to.etc.domui.component.misc.Icon;
+import to.etc.domui.component.misc.MsgBox2;
+import to.etc.domui.component.misc.MsgBox2.IAnswer2;
 import to.etc.domui.component2.controlfactory.ControlCreatorRegistry;
 import to.etc.domui.dom.HtmlFullRenderer;
 import to.etc.domui.dom.HtmlTagRenderer;
@@ -83,7 +85,9 @@ import to.etc.domui.state.AppSession;
 import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.DelayedActivitiesManager;
 import to.etc.domui.state.PageParameters;
+import to.etc.domui.state.UIContext;
 import to.etc.domui.state.UIGoto;
+import to.etc.domui.state.UIGotoContext;
 import to.etc.domui.state.WindowSession;
 import to.etc.domui.subinjector.ISubPageInjector;
 import to.etc.domui.subinjector.SubPageInjector;
@@ -107,6 +111,7 @@ import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.ICachedListMaker;
 import to.etc.domui.util.IListMaker;
 import to.etc.domui.util.INewPageInstantiated;
+import to.etc.domui.util.Msgs;
 import to.etc.domui.util.js.IScriptScope;
 import to.etc.domui.util.resources.ClassRefResourceFactory;
 import to.etc.domui.util.resources.ClasspathInventory;
@@ -122,6 +127,7 @@ import to.etc.domui.util.resources.SimpleResourceFactory;
 import to.etc.domui.util.resources.UrlWebappResourceRef;
 import to.etc.domui.util.resources.VersionedJsResourceFactory;
 import to.etc.domui.util.resources.WebappResourceRef;
+import to.etc.function.BiConsumerEx;
 import to.etc.function.ConsumerEx;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
@@ -163,7 +169,7 @@ public abstract class DomApplication {
 	static private final String[][] JQUERYSETS = {                                                //
 		{"1.4.4", "jquery-1.4.4", "jquery.js", "jquery-ui.js"},                                //
 		{"1.10.2", "jquery-1.10.2", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
-
+		{"3.6.0", "jquery-3.6.0", "jquery.js", "jquery-ui.js", "jquery-migrate.js"},        //
 	};
 
 	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
@@ -307,10 +313,28 @@ public abstract class DomApplication {
 
 	private boolean m_scanClosed;
 
+	private volatile Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
+
+	/**
+	 * Default handling of leaving the page with unsaved changes.
+	 */
+	public void handleNavigationOnModified(UIGotoContext gotoCtx, UrlPage page) throws Exception {
+		MsgBox2
+			.on(page)
+			.title(Msgs.leavePageQuestion.getString())
+			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
+			.button(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Integer.valueOf(1))
+			.button(Msgs.leave.getString(), Integer.valueOf(2))
+			.onAnswer((IAnswer2) answer -> {
+				if(Integer.valueOf(2).equals(answer)) {
+					UIContext.getCurrentConversation().getWindowSession().handleGotoOnNavigationCheck((RequestContextImpl) UIContext.getRequestContext(), gotoCtx, page.getPage());
+				}
+			});
+	}
+
 	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
-	 * @return
 	 */
 	@Nullable
 	abstract public Class<? extends UrlPage> getRootPage();
@@ -348,6 +372,39 @@ public abstract class DomApplication {
 	 */
 	@NonNull
 	private volatile Map<String, String> m_defaultSiteHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+	@NonNull
+	private final Map<String, BiConsumerEx<Map<String, String>, UrlPage>> m_pageHeaderTransformations = new ConcurrentHashMap<>();
+
+	/**
+	 * When pages need specific HTTP headers to be present (for instance they need an x-frame-options specific for that
+	 * page) you need a page header transformer.
+	 * The transformer gets called for your page at any time headers need to be generated for
+	 * your page. This can be even before the page actually exists!
+	 *
+	 * The transformer gets called with the page instance (if it exists, otherwise it will be null) and a header
+	 * map. You must alter the header map so that it represents the headers you want sent.
+	 *
+	 * The header map is case-independent automatically.
+	 */
+	protected <T extends UrlPage> void registerPageHeaderTransformations(Class<T> pageClass, BiConsumerEx<Map<String, String>, UrlPage> transformation) {
+		m_pageHeaderTransformations.put(pageClass.getName(), transformation);
+	}
+
+	public Map<String, String> applyPageHeaderTransformations(@Nullable String pageClassName, @Nullable UrlPage currentPage) throws Exception {
+		Map<String, String> map = getDefaultHTTPHeaderMap();
+		if(null == pageClassName) {
+			return map;
+		}
+		BiConsumerEx<Map<String, String>, UrlPage> transformation = m_pageHeaderTransformations.get(pageClassName);
+		if(null == transformation) {
+			return map;
+		}
+		TreeMap<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);	// We need headers to be case independent. Hide that.
+		newMap.putAll(map);										// Copy all default headers
+		transformation.accept(newMap, currentPage);				// Let the transformation do all it wants.
+		return newMap;
+	}
 
 	/**
 	 * When > 0, TextArea components will automatically have their maxByteLength property
@@ -411,7 +468,8 @@ public abstract class DomApplication {
 	static final private class FilterRef {
 		final private int m_score;
 
-		@NonNull final private IFilterRequestHandler m_handler;
+		@NonNull
+		final private IFilterRequestHandler m_handler;
 
 		public FilterRef(@NonNull IFilterRequestHandler handler, int score) {
 			m_handler = handler;
@@ -433,7 +491,7 @@ public abstract class DomApplication {
 	 */
 	public DomApplication() {
 		//-- Handle jQuery version.
-		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "1.10.2");
+		String jqversion = DeveloperOptions.getString("domui.jqueryversion", "3.6.0");
 		String[] jqdata = null;
 		for(String[] jqd : JQUERYSETS) {
 			if(jqd[0].equalsIgnoreCase(jqversion)) {
@@ -480,19 +538,21 @@ public abstract class DomApplication {
 
 		//-- Register default request handlers.
 		addRequestHandler(m_partHandler, 80);
-		addRequestHandler(new ApplicationRequestHandler(this), 50);			// .ui and related
-		addRequestHandler(new AjaxRequestHandler(this), 20);		// .xaja ajax calls.
+		addRequestHandler(new ApplicationRequestHandler(this), 50);            // .ui and related
+		addRequestHandler(new AjaxRequestHandler(this), 20);        // .xaja ajax calls.
 
 		addDefaultHttpHeaders();
 
 		addUIStateListener(new IDomUIStateListener() {
-			@Override public void onPageCreated(@NonNull Page page) throws Exception {
+			@Override
+			public void onPageCreated(@NonNull Page page) throws Exception {
 				synchronized(this) {
 					m_activePageList.add(page);
 				}
 			}
 
-			@Override public void onPageDestroyed(@NonNull Page page) throws Exception {
+			@Override
+			public void onPageDestroyed(@NonNull Page page) throws Exception {
 				synchronized(this) {
 					m_activePageList.remove(page);
 				}
@@ -501,16 +561,18 @@ public abstract class DomApplication {
 	}
 
 	private void addDefaultHttpHeaders() {
-		addDefaultHTTPHeader("X-UA-Compatible", "IE=edge");	// 20110329 jal Force to highest supported mode for DomUI code.
-		addDefaultHTTPHeader("X-XSS-Protection", "0");		// 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
-		addDefaultHTTPHeader("X-Frame-Options", "sameorigin");	// 20201231 Do not allow us to be used in iframe. Do not set to none because the FileUploads will no longer work.
+		addDefaultHTTPHeader("X-UA-Compatible", "IE=edge");    // 20110329 jal Force to highest supported mode for DomUI code.
+		addDefaultHTTPHeader("X-XSS-Protection", "0");        // 20130124 jal Disable IE XSS filter, to prevent the idiot thing from seeing the CID as a piece of script 8-(
+		addDefaultHTTPHeader("X-Frame-Options", "sameorigin");    // 20201231 Do not allow us to be used in iframe. Do not set to none because the FileUploads will no longer work.
 
 		//-- Cache-control headers by default for pages
 		addDefaultHTTPHeader("Pragma", "no-cache");
 		addDefaultHTTPHeader("Cache-Control", "no-cache, must-revalidate, no-store");
 		addDefaultHTTPHeader("Expires", "Mon, 8 Aug 2006 10:00:00 GMT");
 
-		addDefaultHTTPHeader("X-Content-Type-Options", "nosniff");	// Make sure the browser always obeys the actual content type for a document
+		addDefaultHTTPHeader("X-Content-Type-Options", "nosniff");    // Make sure the browser always obeys the actual content type for a document
+
+		addDefaultResourceHeader("X-Content-Type-Options", "nosniff");    // Make sure the browser always obeys the actual content type for a document
 	}
 
 	protected void registerControlFactories() {
@@ -611,14 +673,16 @@ public abstract class DomApplication {
 	/**
 	 * If an explicit app URL is set this returns the context part of that URL, without any slashes.
 	 */
-	@Nullable public String getApplicationContext() {
+	@Nullable
+	public String getApplicationContext() {
 		return m_applicationContext;
 	}
 
 	/**
 	 * FIXME Calculate a webapp context name.
 	 */
-	@NonNull public String getContextFromApp() {
+	@NonNull
+	public String getContextFromApp() {
 		String context = getApplicationContext();
 		if(null != context)
 			return context;
@@ -632,7 +696,8 @@ public abstract class DomApplication {
 	/**
 	 * If an explicit app URL is set this returns the hostname from that URL, to use for cookies and so.
 	 */
-	@Nullable public String getHostName() {
+	@Nullable
+	public String getHostName() {
 		return m_hostName;
 	}
 
@@ -640,7 +705,8 @@ public abstract class DomApplication {
 	 * If the application URL has been set manually this returns that URL.
 	 * @return
 	 */
-	@Nullable public String getApplicationURL() {
+	@Nullable
+	public String getApplicationURL() {
 		return m_applicationURL;
 	}
 
@@ -707,7 +773,7 @@ public abstract class DomApplication {
 			try {
 				l.sessionCreated(this, aps);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Session registration failed: " + x, x);
 			}
 		}
 	}
@@ -773,7 +839,7 @@ public abstract class DomApplication {
 
 	private void checkIconPackInitialization() {
 		boolean reg = false;
-		boolean test = false;							// FIXME Horrible
+		boolean test = false;                            // FIXME Horrible
 		for(HeaderContributorEntry hce : getHeaderContributorList()) {
 			if(hce.getContributor().toString().contains("font-awesome") || hce.getContributor().toString().contains("fontawesome")) {
 				if(hce.getContributor().toString().contains("font-awesome-test"))
@@ -781,15 +847,15 @@ public abstract class DomApplication {
 				reg = true;
 			}
 		}
-		if(! reg) {
+		if(!reg) {
 			throw new ProgrammerErrorException("FATAL: No FontAwesome version registered\n"
 				+ "DomUI uses FontAwesome for some of its standard icons. You need to include the version of FontAwesome you"
 				+ " want to use by including one of domui's fontawesome (Maven) modules in your project, and then register "
 				+ " it with a call to it"
 			);
 		}
-		if(! test)
-			Icon.initialize();									// Make sure all default icons have an impl
+		if(!test)
+			Icon.initialize();                                    // Make sure all default icons have an impl
 	}
 
 	/**
@@ -927,7 +993,8 @@ public abstract class DomApplication {
 		return id;
 	}
 
-	@NonNull final Class<?> loadApplicationClass(@NonNull final String name) throws ClassNotFoundException {
+	@NonNull
+	final Class<?> loadApplicationClass(@NonNull final String name) throws ClassNotFoundException {
 		/*
 		 * jal 20081030 Code below is very wrong. When the application is not reloaded due to a
 		 * change the classloader passed at init time does not change. But a new classloader will
@@ -979,14 +1046,29 @@ public abstract class DomApplication {
 		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		newMap.putAll(map);
 		newMap.put(headerName, value);
-		m_defaultSiteHeaderMap = newMap;
+		m_defaultSiteHeaderMap = Collections.unmodifiableMap(newMap);
+	}
+
+	public void addDefaultResourceHeader(String headerName, String value) {
+		Map<String, String> map = m_defaultSiteResourceHeaderMap;
+		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		newMap.putAll(map);
+		newMap.put(headerName, value);
+		m_defaultSiteResourceHeaderMap = Collections.unmodifiableMap(newMap);
 	}
 
 	/**
-	 * All http headers that should be sent with each response.
+	 * All http headers that should be sent with each response, as an unmodifyable map.
 	 */
 	public Map<String, String> getDefaultHTTPHeaderMap() {
 		return m_defaultSiteHeaderMap;
+	}
+
+	/**
+	 * All http headers that should be sent with site data resources, as an unmodifyable map.
+	 */
+	public Map<String, String> getDefaultSiteResourceHeaderMap() {
+		return m_defaultSiteResourceHeaderMap;
 	}
 
 	/*--------------------------------------------------------------*/
@@ -995,7 +1077,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Get the action registry for  {@link NodeBase#componentHandleWebAction(RequestContextImpl, String)} requests.
-	 * @return
 	 */
 	@NonNull
 	public WebActionRegistry getWebActionRegistry() {
@@ -1016,9 +1097,6 @@ public abstract class DomApplication {
 
 	/**
 	 * Creates the appropriate full renderer for the specified browser version.
-	 * @param bv
-	 * @param o
-	 * @return
 	 */
 	public HtmlFullRenderer findRendererFor(BrowserVersion bv, final IBrowserOutput o) {
 		boolean tm = isUiTestMode();
@@ -1194,7 +1272,8 @@ public abstract class DomApplication {
 		m_showProblemTemplate = showProblemTemplate;
 	}
 
-	@NonNull public IBindingHandlerFactory getBindingHandlerFactory() {
+	@NonNull
+	public IBindingHandlerFactory getBindingHandlerFactory() {
 		return m_bindingHandlerFactory;
 	}
 
@@ -1241,9 +1320,10 @@ public abstract class DomApplication {
 		//-- Localized calendar resources are added per-page.
 
 		/*
-		 * FIXME Same as above, this is for loading the CKEditor.
+		 * CKEditor default js removed because it is old and has vulnerabilities. Use CKEditor.initialize
+		 * on pages using it.
 		 */
-		addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
+		//addHeaderContributor(HeaderContributor.loadJavascript("$ckeditor/ckeditor.js"), -760);
 	}
 
 	/**
@@ -1252,9 +1332,6 @@ public abstract class DomApplication {
 	 * which is mostly important for Javascript ones; higher order items are written later than
 	 * lower order items. All DomUI required Javascript code has orders < 0; user code should
 	 * start at 0 and go up.
-	 *
-	 * @param hc
-	 * @param order
 	 */
 	final public synchronized void addHeaderContributor(final HeaderContributor hc, int order) {
 		for(HeaderContributorEntry hce : m_orderedContributorList) {
@@ -1275,8 +1352,6 @@ public abstract class DomApplication {
 	 * errors will not be visible. If such a page encounters an error it will call this method; the default
 	 * implementation will add an ErrorPanel as the first component in the Body; this panel will then
 	 * accept and render the errors.
-	 *
-	 * @param page
 	 */
 	public void addDefaultErrorComponent(final NodeContainer page) {
 		ErrorPanel panel = new ErrorPanel();
@@ -1308,7 +1383,8 @@ public abstract class DomApplication {
 	/**
 	 * Return the component that knows everything you ever wanted to know about controls - but were afraid to ask...
 	 */
-	@NonNull final public ControlBuilder getControlBuilder() {
+	@NonNull
+	final public ControlBuilder getControlBuilder() {
 		return m_controlBuilder;
 	}
 
@@ -1528,7 +1604,7 @@ public abstract class DomApplication {
 
 
 		//-- No factory. Return class/file reference.
-		IResourceRef r =  getAppFileOrResource(name);
+		IResourceRef r = getAppFileOrResource(name);
 		rdl.add(r);
 		return r;
 
@@ -1772,8 +1848,7 @@ public abstract class DomApplication {
 			try {
 				usl.onPageCreated(pg);
 			} catch(Exception x) {
-				System.err.println("Exception in DomUI state listener " + usl + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception in DomUI state listener " + usl + ": " + x, x);
 			}
 		}
 	}
@@ -1786,16 +1861,14 @@ public abstract class DomApplication {
 			try {
 				npi.pageDestroyed(pg.getBody());
 			} catch(Exception x) {
-				System.err.println("Exception while destroying page " + pg + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception while destroying page " + pg + ": " + x, x);
 			}
 		}
 		for(IDomUIStateListener usl : getUIStateListeners()) {
 			try {
 				usl.onPageDestroyed(pg);
 			} catch(Exception x) {
-				System.err.println("Exception in DomUI state listener " + usl + ": " + x);
-				x.printStackTrace();
+				LOG.error("Exception in DomUI state listener " + usl + ": " + x, x);
 			}
 		}
 	}
@@ -1845,7 +1918,8 @@ public abstract class DomApplication {
 		m_pageAccessChecker = pageAccessChecker;
 	}
 
-	@NonNull public IAccessDeniedHandler getAccessDeniedHandler() {
+	@NonNull
+	public IAccessDeniedHandler getAccessDeniedHandler() {
 		return m_accessDeniedHandler;
 	}
 
@@ -1881,10 +1955,10 @@ public abstract class DomApplication {
 	public String handleNotLoggedInException(RequestContextImpl ci, NotLoggedInException x) {
 		ILoginDialogFactory ldf = ci.getApplication().getLoginDialogFactory();
 		if(ldf == null)
-			return null;											// Nothing can be done- I don't know how to log in.
+			return null;                                            // Nothing can be done- I don't know how to log in.
 
 		//-- Redirect to the LOGIN page, passing the current page to return back to.
-		String target = ldf.getLoginRURL(x.getURL());				// Create a RURL to move to.
+		String target = ldf.getLoginRURL(x.getURL());                // Create a RURL to move to.
 		if(target == null)
 			throw new IllegalStateException("The Login Dialog Handler=" + ldf + " returned an invalid URL for the login dialog.");
 
@@ -1909,7 +1983,8 @@ public abstract class DomApplication {
 		m_injectedPropertyAccessCheckerList = Collections.unmodifiableList(m_injectedPropertyAccessCheckerList);
 	}
 
-	@NonNull public synchronized List<IInjectedPropertyAccessChecker> getInjectedPropertyAccessCheckerList() {
+	@NonNull
+	public synchronized List<IInjectedPropertyAccessChecker> getInjectedPropertyAccessCheckerList() {
 		return m_injectedPropertyAccessCheckerList;
 	}
 
@@ -2062,7 +2137,8 @@ public abstract class DomApplication {
 	 * Gets the application-default theme string. This will become part of all themed resource URLs
 	 * and is interpreted by the theme factory to resolve resources.
 	 */
-	@NonNull final public String getDefaultThemeName() {
+	@NonNull
+	final public String getDefaultThemeName() {
 		return m_defaultTheme;
 	}
 
@@ -2073,7 +2149,8 @@ public abstract class DomApplication {
 		m_themeApplicationProperties.put(name, value);
 	}
 
-	@Nullable final public String getThemeProperty(@NonNull String name) {
+	@Nullable
+	final public String getThemeProperty(@NonNull String name) {
 		return m_themeApplicationProperties.get(name);
 	}
 
@@ -2153,7 +2230,7 @@ public abstract class DomApplication {
 	public synchronized void setKeepAliveInterval(int keepAliveInterval) {
 		if(!DeveloperOptions.getBool("domui.log", false)
 			&& (DeveloperOptions.getBool("domui.autorefresh", true) || DeveloperOptions.getBool("domui.keepalive", false))
-			) {
+		) {
 			// If "autorefresh" has been disabled do not use keepalive either.
 			m_keepAliveInterval = keepAliveInterval;
 		}
@@ -2188,7 +2265,7 @@ public abstract class DomApplication {
 			try {
 				sl.windowSessionCreated(ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2198,7 +2275,7 @@ public abstract class DomApplication {
 			try {
 				sl.windowSessionDestroyed(ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2208,7 +2285,7 @@ public abstract class DomApplication {
 			try {
 				sl.conversationCreated(ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2218,7 +2295,7 @@ public abstract class DomApplication {
 			try {
 				sl.conversationDestroyed(ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2228,7 +2305,7 @@ public abstract class DomApplication {
 			try {
 				sl.onBeforeFullRender(ctx, ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2238,7 +2315,7 @@ public abstract class DomApplication {
 			try {
 				sl.onBeforePageAction(ctx, ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2248,7 +2325,7 @@ public abstract class DomApplication {
 			try {
 				sl.onAfterPage(ctx, ws);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2258,7 +2335,7 @@ public abstract class DomApplication {
 			try {
 				it.accept(sl);
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("State listener failed: " + x, x);
 			}
 		}
 	}
@@ -2297,8 +2374,6 @@ public abstract class DomApplication {
 	/**
 	 * Returns the class for UrlPage that is Access Denied page handler.
 	 * Page itself is filled by default parameters, for specifics please look at default {@link AccessDeniedPage}.
-	 *
-	 * @return
 	 */
 	@NonNull
 	public <T extends UrlPage> Class<T> getAccessDeniedPageClass() {
@@ -2317,7 +2392,8 @@ public abstract class DomApplication {
 		THEME_FACTORIES.put(factory.getFactoryName(), factory);
 	}
 
-	@NonNull public static IThemeFactory getFactoryFromThemeName(String name) {
+	@NonNull
+	public static IThemeFactory getFactoryFromThemeName(String name) {
 		int pos = name.indexOf('-');
 		if(pos == -1)
 			throw new IllegalArgumentException("Missing - in theme name '" + name + "'");
@@ -2329,7 +2405,7 @@ public abstract class DomApplication {
 	}
 
 	public void addPersistedParameter(String name) {
-		if(! name.startsWith("_") && ! name.startsWith("$"))
+		if(!name.startsWith("_") && !name.startsWith("$"))
 			throw new IllegalStateException("Persisted parameters must start with _ or $");
 		synchronized(this) {
 			m_persistentParameterSet = new HashSet<>(m_persistentParameterSet);
@@ -2337,7 +2413,8 @@ public abstract class DomApplication {
 		}
 	}
 
-	@NonNull public Set<String> getPersistentParameterSet() {
+	@NonNull
+	public Set<String> getPersistentParameterSet() {
 		return m_persistentParameterSet;
 	}
 
@@ -2394,7 +2471,7 @@ public abstract class DomApplication {
 				.enableAllInfo()
 				.scan();
 			ts = System.currentTimeMillis() - ts;
-			System.out.println("init: scanned classes in " + StringTool.strDurationMillis(ts));
+			LOG.info("init: scanned classes in " + StringTool.strDurationMillis(ts));
 		}
 		return result;
 	}

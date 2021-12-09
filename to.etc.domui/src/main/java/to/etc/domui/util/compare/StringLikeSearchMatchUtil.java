@@ -60,7 +60,7 @@ public class StringLikeSearchMatchUtil {
 				}
 
 			}
-			m = Pattern.compile(sb.toString()).matcher("");		// What incredible idiot made this matcher() function!?
+			m = Pattern.compile(sb.toString(), Pattern.DOTALL).matcher("");		// What incredible idiot made this matcher() function!?
 			m_likeMatcherCache.put(match, m);
 		}
 		return m.reset(val).matches();

@@ -34,7 +34,6 @@ public class OopsFrameRenderer {
 	private JSTemplate m_exceptionTemplate;
 
 	public void renderOopsFrame(RequestContextImpl ctx, Throwable x) throws Exception {
-		x.printStackTrace();
 		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
 			HttpServletResponse resp = srr.getResponse();
@@ -58,7 +57,7 @@ public class OopsFrameRenderer {
 
 		StringBuilder sb = new StringBuilder();
 		dumpException(sb, x);
-		dataMap.put("stacktrace", StringTool.htmlStringize(sb.toString()));
+		dataMap.put("stacktrace", sb.toString());
 		dataMap.put("message", StringTool.htmlStringize(x.toString()));
 		dataMap.put("ctx", ctx);
 		ExceptionUtil util = new ExceptionUtil(ctx);

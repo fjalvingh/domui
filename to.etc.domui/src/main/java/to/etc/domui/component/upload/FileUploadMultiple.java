@@ -164,7 +164,7 @@ public class FileUploadMultiple extends Div implements IUploadAcceptingComponent
 		sb.append("?uniq=" + System.currentTimeMillis()); // Uniq the URL to prevent IE's caching.
 		f.setAction(sb.toString());
 
-		FileInput input = m_input = new FileInput();
+		FileInput input = m_input = new FileInput(s -> forceRebuild());
 		f.add(input);
 		input.setSpecialAttribute("multiple", "multiple");
 		input.setSpecialAttribute("onkeypress", "WebUI.preventIE11DefaultAction(event)");

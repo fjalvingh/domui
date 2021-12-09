@@ -19,7 +19,6 @@ import to.etc.domui.log.tailer.ServerLogPage;
 import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.log.EtcLoggerFactory;
-import to.etc.log.handler.EtcLogFormat;
 import to.etc.webapp.nls.BundleRef;
 
 import java.util.List;
@@ -52,11 +51,11 @@ public class ConfigPart extends Div {
 		m_model = new SimpleListModel<Handler>(m_handlers);
 
 		BasicRowRenderer<Handler> rr = new BasicRowRenderer<Handler>(Handler.class, m_cols);
-		rr.addColumns("", "^follow", "%10", new IRenderInto<Handler>(){
+		rr.addColumns("", "^follow", "%10", new IRenderInto<Handler>() {
 			@Override
 			public void render(@NonNull NodeContainer node, @NonNull final Handler handler) throws Exception {
-				if (handler != null && handler.getType() == HandlerType.FILE){
-					node.add(new LinkButton("follow", new IClicked<LinkButton>(){
+				if(handler != null && handler.getType() == HandlerType.FILE) {
+					node.add(new LinkButton("follow", new IClicked<LinkButton>() {
 						@Override
 						public void clicked(@NonNull LinkButton clickednode) throws Exception {
 							ServerLogPage.moveSub(constructLogPath(handler.getFile()));
@@ -90,8 +89,8 @@ public class ConfigPart extends Div {
 		add(getButtonBar());
 	}
 
-	public @NonNull
-	ButtonBar getButtonBar() {
+	@NonNull
+	public ButtonBar getButtonBar() {
 		if(m_buttonBar == null) {
 			m_buttonBar = new ButtonBar();
 		}
@@ -111,10 +110,9 @@ public class ConfigPart extends Div {
 		});
 	}
 
-	protected @NonNull
-	Handler initializeNewInstance() {
+	@NonNull
+	protected Handler initializeNewInstance() {
 		Handler handler = new Handler(HandlerType.FILE, "logger1");
-		handler.setFormat(EtcLogFormat.DEFAULT);
 		return handler;
 	}
 

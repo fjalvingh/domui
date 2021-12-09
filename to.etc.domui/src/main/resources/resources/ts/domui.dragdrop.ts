@@ -243,7 +243,7 @@ namespace WebUI {
 			if(!types)
 				continue;
 			var def = new DropInfo();
-			def._dropTarget = drop; // Store the objects' DOM node,
+			def._dropTarget = drop as HTMLElement; // Store the objects' DOM node,
 			def._position = WebUI.getAbsolutePosition(drop);
 			def._width = drop.clientWidth;
 			def._height = drop.clientHeight;

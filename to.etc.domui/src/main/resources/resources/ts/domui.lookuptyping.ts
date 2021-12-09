@@ -232,18 +232,18 @@ namespace WebUI {
 			$(divPopup).fadeOut(200);
 		}
 		//fix z-index to one saved in input node
-		if($.browser.msie) {
-			//IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit...
-			window.setTimeout(function() {
-				try {
-					(node.parentNode as HTMLElement).style.zIndex = node.style.zIndex;
-				} catch(e) { /*just ignore */
-				}
-			}, 200);
-		} else {
+		// if($.browser.msie) {
+		// 	//IE kills event stack (click is canceled) when z index is set during onblur event handler... So, we need to postpone it a bit...
+		// 	window.setTimeout(function() {
+		// 		try {
+		// 			(node.parentNode as HTMLElement).style.zIndex = node.style.zIndex;
+		// 		} catch(e) { /*just ignore */
+		// 		}
+		// 	}, 200);
+		// } else {
 			//Other browsers dont suffer of this problem, and we can set z index instantly
 			(node.parentNode as HTMLElement).style.zIndex = node.style.zIndex;
-		}
+		// }
 	}
 
 	export function showLookupTypingPopupIfStillFocusedAndFixZIndex(id: string) {

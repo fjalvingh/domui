@@ -7,6 +7,7 @@ import to.etc.domui.component.event.INotify;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TextNode;
+import to.etc.webapp.nls.IBundleCode;
 
 /**
  * TabBuilder used for building tabs.
@@ -45,6 +46,11 @@ final public class TabBuilder {
 
 	TabBuilder(TabPanelBase tabPanelBase) {
 		m_tabPanel = tabPanelBase;
+	}
+
+
+	public TabBuilder label(@NonNull IBundleCode code) {
+		return label(code.getString());
 	}
 
 	public TabBuilder label(@NonNull String label) {

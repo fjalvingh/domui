@@ -147,7 +147,7 @@ public class ImageSelectControl extends Div implements IUploadAcceptingComponent
 			sb.append("?uniq=" + System.currentTimeMillis());	// Uniq the URL to prevent IE's caching.
 			f.setAction(sb.toString());
 
-			FileInput fi = new FileInput();
+			FileInput fi = new FileInput(s -> {forceRebuild();});
 			m_input = fi;
 			f.add(fi);
 			fi.setSpecialAttribute("onchange", "WebUI.fileUploadChange(event)");

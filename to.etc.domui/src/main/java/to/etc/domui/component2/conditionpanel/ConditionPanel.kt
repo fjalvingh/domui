@@ -230,7 +230,7 @@ open class CondUiCompound<T, F>(panel: ConditionPanel<T, F>, val node: CoCompoun
 			for(change in event.getChanges()) {
 				change.visit(object: IListChangeVisitor<CoNode<T, F>> {
 					override fun visitAssign(assign: ListChangeAssign<CoNode<T, F>>) {
-						TODO("Not yet implemented")
+						error("Not yet implemented")
 					}
 
 					override fun visitAdd(add: ListChangeAdd<CoNode<T, F>>) {
@@ -242,7 +242,7 @@ open class CondUiCompound<T, F>(panel: ConditionPanel<T, F>, val node: CoCompoun
 					}
 
 					override fun visitModify(add: ListChangeModify<CoNode<T, F>>) {
-						TODO("Not yet implemented")
+						error("Not yet implemented")
 					}
 				})
 			}

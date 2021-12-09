@@ -98,7 +98,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 			throw new IllegalStateException("Invalid TO url generated");
 
 		//-- Output all headers
-		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+		ctx.renderResponseHeaders(null);							// We do not have a page instance here.
 
 		String extra = "";
 		//if(hashToParameter) {
@@ -153,7 +153,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 		url = appendPersistedParameters(url, ctx);
 
 		//-- Output all headers
-		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+		ctx.renderResponseHeaders(null);
 
 		IBrowserOutput out = new PrettyXmlOutputWriter(ctx.getOutputWriter("text/xml; charset=UTF-8", "utf-8"));
 		out.tag("redirect");

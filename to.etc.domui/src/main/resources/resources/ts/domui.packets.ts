@@ -2,6 +2,29 @@
 /// <reference types="jqueryui" />
 /// <reference path="domui.jquery.d.ts" />
 /// <reference path="domui.webui.ts" />
+class ResponseException extends Error {
+	constructor(message: string) {
+		super(message);
+	}
+}
+
+class SessionLostException extends ResponseException {
+	constructor(message: string) {
+		super(message);
+	}
+}
+
+class BodyTooLargeException extends ResponseException {
+	constructor(message: string) {
+		super(message);
+	}
+}
+
+class BodyParseException extends ResponseException {
+	constructor(message: string) {
+		super(message);
+	}
+}
 
 (function($: any) {
 	$.webui = function(xml) {
@@ -82,6 +105,10 @@
 	}
 
 	function executeXML(xml) : void {
+		executeXML2(false, xml);
+	}
+
+	function executeXML2(doexceptions: boolean, xml: any) : void {
 		// -- If this is a REDIRECT document -> redirect main page
 		const rname = xml.documentElement.tagName;
 		if(rname.match('^redirect')) {
@@ -106,7 +133,7 @@
 
 			log("Redirecting to- " + to);
 
-			if(!$.browser.msie && !$.browser.ieedge) {
+			// if(!$.browser.msie && !$.browser.ieedge) {
 				//-- jal 20130129 For large documents, redirecting "inside" an existing document causes huge problems, the
 				// jquery loops in the "source" document while the new one is loading. This part "clears" the existing document
 				// causing an ugly white screen while loading - but the loading now always works..
@@ -116,7 +143,7 @@
 				} catch(xxx) {
 					// jal 20130626 Suddenly Firefox no longer allows this. Deep, deep sigh.
 				}
-			}
+			// }
 
 			// let ix = to.indexOf('#');
 			// let hash = "";
@@ -153,15 +180,18 @@
 		}
 
 		// let t = new Date().getTime();
-		process(xml.documentElement.childNodes);
+		process(doexceptions, xml.documentElement.childNodes);
 	}
 
 	$.executeXML = function(xml) {
 		executeXML(xml);
 	};
+	$.executeXML2 = function(doex, xml) {
+		executeXML2(doex, xml);
+	}
 
 	// -- process the commands
-	function process(commands: any[]) : void {
+	function process(doexceptions: boolean, commands: any[]) : void {
 		const param = {
 			postProcess: false
 		};
@@ -169,7 +199,7 @@
 			if(commands[i].nodeType != 1)
 				continue; // commands are elements
 			let cmdNode = commands[i];
-			if(! executeNode(cmdNode, param)) {
+			if(! executeNode(doexceptions, cmdNode, param)) {
 				return;
 			}
 		}
@@ -179,9 +209,12 @@
 			postProcess();
 	}
 
-	function executeNode(cmdNode: any, param: any) : boolean {
+
+	function executeNode(doexceptions: boolean, cmdNode: any, param: any) : boolean {
 		let cmd = cmdNode.tagName;
 		if(cmd == "parsererror") { // Chrome
+			if(doexceptions)
+				throw new BodyParseException("The server response could not be parsed: " + cmdNode.innerText)
 			alert("The server response could not be parsed: " + cmdNode.innerText);
 			window.location.href = window.location.href;
 			return false;
@@ -216,7 +249,21 @@
 				return true;
 
 			//-- Node sans select-> we are in trouble -> this is probably a server error/response. Report session error, then reload. (Marc, 20111017)
-			alert('The server seems to have lost this page.. Reloading the page with fresh data');
+			if(doexceptions) {
+				let content = "unknown";
+				try {
+					content = cmdNode.innerHTML.toLowerCase();
+				} catch(x) {
+					content = "(failed to get)";
+				}
+				if(content.includes("413") && content.includes("large")) {
+					throw new BodyTooLargeException(WebUI._T.bodyTooLarge);
+				}
+				throw new SessionLostException(WebUI._T.sessionSeemsLost);
+			}
+
+			// console.debug("inner: ", cmdNode.innerHTML)
+			alert(WebUI._T.sessionSeemsLost);
 			window.location.href = window.location.href;
 			return false;
 		}
@@ -280,56 +327,15 @@
 
 			const names = [];
 			for(let ai = 0; ai < dest.attributes.length; ai++) {
-				names[ai] = $.trim(dest.attributes[ai].name);
+				names[ai] = dest.attributes[ai].name.trim();
 			}
 
 			const src = cmdNode;
-			for(let ai = 0, attr = ''; ai < src.attributes.length; ai++) {
-				const a = src.attributes[ai], n = $.trim(a.name), v = $.trim(a.value);
-				if(n == 'select' || n.substring(0, 2) == 'on')
+			for(let attributeIndex = 0; attributeIndex < src.attributes.length; attributeIndex++) {
+				const attribute = src.attributes[attributeIndex], attributeName = attribute.name.trim(), value = attribute.value.trim();
+				if(attributeName == 'select')
 					continue;
-				if(n.substring(0, 6) == 'domjs_') {
-					let s;
-					try {
-						s = "dest." + n.substring(6) + " = " + v;
-						eval(s);
-						continue;
-					} catch(ex) {
-						alert('domjs_ eval failed: ' + ex + ", value=" + s);
-						throw ex;
-					}
-				}
-				if(v == '---') { // drop attribute request?
-					dest.removeAttribute(n);
-					continue;
-				}
-				if(n == 'style') { // IE workaround
-					dest.style.cssText = v;
-					dest.setAttribute(n, v);
-					//We need this dirty fix for IE7 to force height recalculation of divs that has just become visible (IE7 sometimes fails to calculate height that stays 0!).
-					if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
-						if((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))) {
-							WebUI.refreshElement(dest.id);
-						}
-					}
-				} else {
-					//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
-//								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
-
-					if(dest.tagName.toLowerCase() == 'select' && n == 'class' && $.browser.mozilla) {
-						dest.className = v;
-						let ele = dest as any;
-						let old = ele.selectedIndex;
-						ele.selectedIndex = 1;			// jal 20100720 Fixes problem where setting BG color on select removes the dropdown button image
-						ele.selectedIndex = old;
-					} else if(v == "" && ("checked" == n || "selected" == n || "disabled" == n || "readonly" == n)) {
-						$(queryString).removeAttr(n);
-						removeValueFromArray(names, n);
-					} else {
-						$(queryString).attr(n, v);
-						removeValueFromArray(names, n);
-					}
-				}
+				handleChangeSingleAttribute(dest, names, attributeName, value, queryString);
 			}
 			for(let ai = 0; ai < names.length; ai++) {
 				let a = names[ai];
@@ -343,8 +349,78 @@
 		}
 	}
 
+	function handleChangeSingleAttribute(dest: any, names: string[], attributeName: string, value: any, queryString: string) : void {
+		if(attributeName.substring(0, 2) == 'on') {	// new 2021/04/01, not a joke
+			try {
+				if(value.indexOf("javascript:") == 0)
+					value = value.substring(11).trim();
+				value = value.trim();
+				if(value == "") {
+					delete dest[attributeName];
+					return;
+				}
+
+				var fntext = value.indexOf("return") >= 0 || value.substring(0, 1) === "{" ? value : "return " + value;		// for now accept everything that at least does a return.
+				let se = new Function("event", fntext);
+				dest[attributeName] = se;
+			} catch(x) {
+				alert('DomUI: Cannot set EVENT ' + attributeName + " as " + value + ' on ' + dest + ": " + x);
+			}
+			return;
+		}
+
+		if(attributeName.substring(0, 6) == 'domjs_') {
+			let s = undefined;
+			try {
+				s = "dest." + attributeName.substring(6) + " = " + value;
+				eval(s);
+				return;
+			} catch(ex) {
+				alert('domjs_ eval failed: ' + ex + ", value=" + s);
+				throw ex;
+			}
+		}
+
+		if(value == '---') { // drop attribute request?
+			dest.removeAttribute(attributeName);
+			return;
+		}
+
+		if (attributeName == 'style') { // IE workaround
+			dest.style.cssText = value;
+			dest.setAttribute(attributeName, value);
+			//We need this dirty fix for IE7 to force height recalculation of divs that has just become visible (IE7 sometimes fails to calculate height that stays 0!).
+			// if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
+			// 	if((dest.tagName.toLowerCase() == 'div' && $(dest).height() == 0) && ((v.indexOf('visibility') != -1 && v.indexOf('hidden') == -1) || (v.indexOf('display') != -1 && v.indexOf('none') == -1))) {
+			// 		WebUI.refreshElement(dest.id);
+			// 	}
+			// }
+			return;
+		}
+		//-- jal 20100720 handle disabled, readonly, checked differently: these are either present or not present; their value is always the same.
+//								alert('changeAttr: id='+dest.id+' change '+n+" to "+v);
+
+		if (dest.tagName.toLowerCase() == 'select' && attributeName == 'class' && $.browser.mozilla) {
+			dest.className = value;
+			let ele = dest as any;
+			let old = ele.selectedIndex;
+			ele.selectedIndex = 1;			// jal 20100720 Fixes problem where setting BG color on select removes the dropdown button image
+			ele.selectedIndex = old;
+		} else if (value == "" && ("checked" == attributeName || "selected" == attributeName || "disabled" == attributeName || "readonly" == attributeName)) {
+			let jqAttribute = $(queryString);
+			jqAttribute.attr(attributeName, false)
+			jqAttribute.prop(attributeName, false);
+			removeValueFromArray(names, attributeName);
+		} else {
+			let jqAttribute = $(queryString);
+			jqAttribute.attr(attributeName, value);
+			jqAttribute.prop(attributeName, value);
+			removeValueFromArray(names, attributeName);
+		}
+	}
+
 	function postProcess() {
-		if(!$.browser.opera && !$.browser.msie)
+		if(!$.browser.opera /* && !$.browser.msie */)
 			return;
 		$('select:taconiteTag').each(function() {
 			$('option:taconiteTag', this).each(function() {
@@ -394,48 +470,48 @@
 	function createElement(node, cdataWrap: string) {
 		var e, tag = node.tagName.toLowerCase();
 		// some elements in IE need to be created with attrs inline
-		if($.browser.msie && !WebUI.isNormalIE9plus()) {
-			var type = node.getAttribute('type');
-			if(tag == 'table'
-				|| type == 'radio'
-				|| type == 'checkbox'
-				|| tag == 'button'
-				|| (tag == 'select' && node
-					.getAttribute('multiple'))) {
-				let xxa;
-				try {
-					xxa = copyAttrs(null, node, true);
-					e = document.createElement('<' + tag + ' '
-						+ xxa + '>');
-				} catch(xx) {
-					alert('err= ' + xx + ', ' + tag + ", " + xxa);
-				}
-			}
-		}
+		// if($.browser.msie && !WebUI.isNormalIE9plus()) {
+		// 	var type = node.getAttribute('type');
+		// 	if(tag == 'table'
+		// 		|| type == 'radio'
+		// 		|| type == 'checkbox'
+		// 		|| tag == 'button'
+		// 		|| (tag == 'select' && node
+		// 			.getAttribute('multiple'))) {
+		// 		let xxa;
+		// 		try {
+		// 			xxa = copyAttrs(null, node, true);
+		// 			e = document.createElement('<' + tag + ' '
+		// 				+ xxa + '>');
+		// 		} catch(xx) {
+		// 			alert('err= ' + xx + ', ' + tag + ", " + xxa);
+		// 		}
+		// 	}
+		// }
 		if(!e) {
 			e = document.createElement(tag);
 			copyAttrs(e, node, false);
 		}
 
 		// IE fix; colspan must be explicitly set
-		if($.browser.msie && tag == 'td') {
-			var colspan = node.getAttribute('colspan');
-			if(colspan)
-				e.colSpan = parseInt(colspan);
-		}
+		// if($.browser.msie && tag == 'td') {
+		// 	var colspan = node.getAttribute('colspan');
+		// 	if(colspan)
+		// 		e.colSpan = parseInt(colspan);
+		// }
 
 		// IE fix; script tag not allowed to have children
-		if($.browser.msie && !e.canHaveChildren) {
-			if(node.childNodes.length > 0)
-				e.text = node.text;
-		} else {
+		// if($.browser.msie && !e.canHaveChildren) {
+		// 	if(node.childNodes.length > 0)
+		// 		e.text = node.text;
+		// } else {
 			for(var i = 0, max = node.childNodes.length; i < max; i++) {
 				var child = createNode(node.childNodes[i], cdataWrap);
 				if(child)
 					e.appendChild(child);
 			}
-		}
-		if($.browser.msie || $.browser.opera) {
+		// }
+		if(/*$.browser.msie || */ $.browser.opera) {
 			if(tag == 'select'
 				|| (tag == 'option' && node
 					.getAttribute('selected')))
@@ -446,7 +522,7 @@
 
 	function copyAttrs(dest, src, inline) {
 		for(var i = 0, attr = ''; i < src.attributes.length; i++) {
-			var a = src.attributes[i], n = $.trim(a.name), v = $.trim(a.value);
+			var a = src.attributes[i], n = a.name.trim(), v = a.value.trim();
 
 //					if(n.substring(0, 2) == 'on' && ! this._xxxw) {
 //						this._xxxw = true;
@@ -477,23 +553,24 @@
 					throw ex;
 				}
 
-			} else if(v != "" && dest && ($.browser.msie || $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
+			} else if(v != "" && dest && (/*$.browser.msie || */ $.browser.webkit || ($.browser.mozilla && $.browser.majorVersion >= 9)) && n.substring(0, 2) == 'on') {
 				try {
 					if(v.indexOf("javascript:") == 0)
-						v = $.trim(v.substring(11));
+						v = v.substring(11).trim();
 					var fntext = v.indexOf("return") >= 0 || v.trim().substring(0, 1) === "{" ? v : "return " + v;		// for now accept everything that at least does a return.
 
 					let se;
-					if($.browser.msie && $.browser.majorVersion < 9)
-						se = new Function(fntext);
-					else
+					// if($.browser.msie && $.browser.majorVersion < 9)
+					// 	se = new Function(fntext);
+					// else
 						se = new Function("event", fntext);
 					dest[n] = se;
 
 				} catch(x) {
 					alert('DomUI: Cannot set EVENT ' + n + " as " + v + ' on ' + dest + ": " + x);
 				}
-			} else if(n == 'style') { // IE workaround
+			} else if(n == '' +
+				'style') { // IE workaround
 				dest.style.cssText = v;
 				dest.setAttribute(n, v);
 			} else {

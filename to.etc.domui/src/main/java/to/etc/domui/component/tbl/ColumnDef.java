@@ -2,6 +2,7 @@ package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.binding.StyleBinder;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -10,6 +11,7 @@ import to.etc.domui.component.meta.YesNoType;
 import to.etc.domui.converter.IConverter;
 import to.etc.domui.dom.css.TextAlign;
 import to.etc.domui.util.IRenderInto;
+import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.query.QField;
 
 import java.util.function.Predicate;
@@ -86,6 +88,9 @@ final public class ColumnDef<I, T> {
 	@Nullable
 	private Predicate<I> m_showCellClickedWhen;
 
+	@Nullable
+	private ColumnStyleBindingBuilder<I, T> m_columnStyleBinding;
+
 	ColumnDef(@NonNull ColumnList<I> cdl, @NonNull Class<T> valueClass) {
 		m_actualClass = valueClass;
 		m_columnType = valueClass;
@@ -94,7 +99,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Create a column definition using metadata for the column.
-	 * @param pmm
 	 */
 	ColumnDef(@NonNull ColumnList<I> cdl, @NonNull PropertyMetaModel<T> pmm) {
 		m_actualClass = pmm.getActualType();
@@ -144,7 +148,6 @@ final public class ColumnDef<I, T> {
 	/**
 	 * Create an editable component bound to the column's value.
 	 * @since 2013/1/2
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> editable() {
@@ -158,9 +161,6 @@ final public class ColumnDef<I, T> {
 	 * Use to set the property name for a column that wraps the whole record
 	 * (a column defined by {@link RowRenderer#column()}. It should be set when a row has
 	 * sort defined.
-	 *
-	 * @param name
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> property(@NonNull String name) {
@@ -240,7 +240,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * When set this defines the css class to set on the header of this column.
-	 * @return
 	 */
 	@Nullable
 	public String getHeaderCssClass() {
@@ -299,10 +298,13 @@ final public class ColumnDef<I, T> {
 	/*	CODING:	Chainable setters.									*/
 	/*--------------------------------------------------------------*/
 
+	@NonNull
+	public ColumnDef<I, T> label(IBundleCode code) {
+		return label(code.getString());
+	}
+
 	/**
 	 * Set the column header's label.
-	 * @param columnLabel
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> label(@Nullable String columnLabel) {
@@ -312,8 +314,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the text align for this column. Defaults depend on the numeric type of the column, if known.
-	 * @param align
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> align(@NonNull TextAlign align) {
@@ -323,8 +323,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the cell click handler.
-	 * @param ck
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked<I> ck) {
@@ -334,8 +332,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the cell click handler.
-	 * @param ck
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> cellClicked(@Nullable ICellClicked<I> ck, @NonNull Predicate<I> showWhen) {
@@ -347,8 +343,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the node content renderer.
-	 * @param cr
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> renderer(@Nullable IRenderInto<T> cr) {
@@ -358,8 +352,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the css class of this column's values.
-	 * @param css
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> css(@NonNull String css) {
@@ -369,8 +361,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the css class of this column's header.
-	 * @param css
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> cssHeader(@NonNull String css) {
@@ -380,7 +370,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Make sure this column's contents are wrapped (by default columns added by {@link RowRenderer} are marked as not wrappable.
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> wrap() {
@@ -390,7 +379,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the column to nowrap.
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> nowrap() {
@@ -400,8 +388,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the numeric presentation for this column.
-	 * @param np
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> numeric(@NonNull NumericPresentation np) {
@@ -420,7 +406,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the default sort order to ascending first.
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> ascending() {
@@ -430,7 +415,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set the default sort order to descending first.
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> descending() {
@@ -440,7 +424,6 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Set this column as the default column to sort on.
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> sortdefault() {
@@ -451,8 +434,6 @@ final public class ColumnDef<I, T> {
 	/**
 	 * Set a sort helper to be used for this column. <b>Important:</b> if you just
 	 * need to sort on a property consider {@link #sort(String)} instead.
-	 * @param sh
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> sort(@NonNull ISortHelper<?> sh) {
@@ -465,9 +446,6 @@ final public class ColumnDef<I, T> {
 	/**
 	 * For a column that represents the whole entity, this can specify which property of
 	 * the entity is to be used to sort on. It prevents having to use an {@link ISortHelper} for simple sorting.
-	 *
-	 * @param propertyName
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<I, T> sort(@NonNull String propertyName) {
@@ -505,11 +483,27 @@ final public class ColumnDef<I, T> {
 
 	/**
 	 * Return the control factory to create the control to use to show the column's value.
-	 *
-	 * @return
 	 */
 	@Nullable
 	public IRowControlFactory<I> getControlFactory() {
 		return m_controlFactory;
+	}
+
+	@NonNull
+	ColumnList<I> getColumnList() {
+		return m_defList;
+	}
+
+	public ColumnStyleBindingBuilder<I, T> styleBinding(StyleBinder style) {
+		ColumnStyleBindingBuilder<I, T> csb = new ColumnStyleBindingBuilder<I, T>(this, style);
+		return csb;
+	}
+	void styleBindingComplete(ColumnStyleBindingBuilder<I, T> csb) {
+		m_columnStyleBinding = csb;
+	}
+
+	@Nullable
+	public ColumnStyleBindingBuilder<I, T> getColumnStyleBinding() {
+		return m_columnStyleBinding;
 	}
 }

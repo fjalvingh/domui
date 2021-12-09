@@ -219,24 +219,32 @@ final public class ConnectionProxy implements Connection {
 	 * exception. Logs tracepoint and updates last-used timestamp. LOCKS THIS.
 	 */
 	private synchronized Connection check(String sql) {
-		if(m_state != ConnState.OPEN)
-			throw new InvalidProxyException("Connection " + this + " is closed, it's state is " + m_state);
+		usable();
 		saveTracepoint(sql);
 		return m_pe.getConnection();
 	}
 
 	private synchronized Connection checkNoSave() {
-		if(m_state != ConnState.OPEN)
-			throw new InvalidProxyException("Connection " + this + " is closed, it's state is " + m_state);
+		usable();
 		return m_pe.getConnection();
 	}
 
 	private synchronized Connection check() {
 		return check(null);
 	}
+
 	private synchronized void usable() {
-		if(m_state != ConnState.OPEN)
-			throw new InvalidProxyException("Connection " + this + " is closed, it's state is " + m_state);
+		if(m_state != ConnState.OPEN) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Connection ").append(this).append(" is closed: state is ").append(m_state).append("\n");
+			Tracepoint closeLocation = m_closeLocation;
+			if(null != closeLocation) {
+				sb.append("\n- it was closed at:\n");
+				DbPoolUtil.strStacktraceFiltered(sb, closeLocation.getElements(), new String[0], new String[0], 999, 2);
+			}
+
+			throw new InvalidProxyException(closeLocation.getException(), sb.toString());
+		}
 	}
 
 	/**

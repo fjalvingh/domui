@@ -4,7 +4,6 @@ import kotlin.reflect.KProperty0;
 import kotlin.reflect.KProperty1;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.binding.BindReference;
 import to.etc.domui.component.binding.IBidiBindingConverter;
 import to.etc.domui.component.meta.ClassMetaModel;
@@ -260,7 +259,7 @@ final public class FormBuilder {
 	 * are available on the KProperty0 they are not in the correct form, so we would need to largely
 	 * re write the annotation discovery logic.
 	 */
-	@NotNull
+	@NonNull
 	public <V> TypedControlBuilder<?, V> property(@NonNull KProperty0<V> propertyRef) {
 		check();
 
@@ -272,7 +271,7 @@ final public class FormBuilder {
 	/**
 	 * Reference to a Kotlin property itself, i.e. ClassName::property.
 	 */
-	@NotNull
+	@NonNull
 	public <T, V> TypedControlBuilder<T, V> property(@NonNull T instance, @NonNull KProperty1<T, V> propertyRef) {
 		if(null == instance)
 			throw new ProgrammerErrorException("The instance for a formbuilder property cannot be null");
@@ -296,6 +295,10 @@ final public class FormBuilder {
 	/*----------------------------------------------------------------------*/
 	/*	CODING:	Propertyless items.											*/
 	/*----------------------------------------------------------------------*/
+
+	public ItemBuilder label(IBundleCode code) {
+		return label(code.getString());
+	}
 
 	public ItemBuilder label(@Nullable String label) {
 		check();

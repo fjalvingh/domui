@@ -1,5 +1,6 @@
 package to.etc.domui.util.importers;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.io.IOException;
@@ -27,4 +28,6 @@ public interface IRowReader extends Iterable<IImportRow>, AutoCloseable {
 	void setHasHeaderRow(boolean hasHeaderRow);
 
 	long getProgressIndicator();
+
+	void setDateFormat(@NonNull String dateFormat);
 }

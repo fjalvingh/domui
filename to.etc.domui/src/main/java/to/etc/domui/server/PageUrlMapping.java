@@ -7,6 +7,8 @@ import io.github.classgraph.ScanResult;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.annotations.UIPage;
 import to.etc.domui.annotations.UIUrlParameter;
 import to.etc.domui.dom.html.SubPage;
@@ -29,6 +31,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @NonNullByDefault
 final public class PageUrlMapping {
+	static private final Logger LOG = LoggerFactory.getLogger(PageUrlMapping.class);
+
+	private final Map<String, String> m_urlToPage = new ConcurrentHashMap<>();
+
 	private final DomApplication m_application;
 
 	private final Level m_root = new Level();
@@ -48,7 +54,7 @@ final public class PageUrlMapping {
 			AnnotationInfo anninfo = classInfo.getAnnotationInfo(UIPage.class.getName());
 			String pattern = (String) anninfo.getParameterValues().getValue("value");
 			if(! pattern.startsWith("/")) {
-				System.err.println("Page " + classInfo.getName() + ": @UIPage pattern must start with /");
+				LOG.error("Page " + classInfo.getName() + ": @UIPage pattern must start with /");
 			} else {
 				pattern = pattern.substring(1);							// Remove leading slash
 			}
@@ -60,7 +66,7 @@ final public class PageUrlMapping {
 				type = PageSubtype.UrlPage;
 			}
 
-			System.err.println("Page " + classInfo.getName() + " url " + pattern + ", type " + type);
+			LOG.error("Page " + classInfo.getName() + " url " + pattern + ", type " + type);
 
 			//-- Find all methods annotated with UIUrlParameter
 			Map<String, String> pageParams = new HashMap<>();
@@ -99,9 +105,7 @@ final public class PageUrlMapping {
 			//-- We're here -> set the action on this level. If there already is an action we have a duplicate.
 			currentLevel.setTargetPage(type, name, varMap);
 		} catch(PageUrlPatternException px) {
-			System.err.println("ERROR: Page " + name + " pattern " + pattern + ": " + px.getMessage() + " (segment " + px.getSegment() + ")" );
-
-			//throw new PageUrlPatternException(px.getSegment(), px.getMessage() + " in page " + name + ", url " + pattern);
+			LOG.error("ERROR: Page " + name + " pattern " + pattern + ": " + px.getMessage() + " (segment " + px.getSegment() + ")");
 		}
 	}
 
@@ -115,7 +119,7 @@ final public class PageUrlMapping {
 		Level currentLevel = m_root;
 		Map<Level, String> paramValues = new HashMap<>();
 		for(String segment : segments) {
-			if(! segment.isEmpty()) {
+			if(!segment.isEmpty()) {
 				Level nextLevel = currentLevel.findSegment(paramValues, segment);
 				if(nextLevel == null) {
 					//-- We do not have a next level -> no match found
@@ -141,7 +145,7 @@ final public class PageUrlMapping {
 			String name = varMap.get(level);
 			if(null == name)
 				throw new IllegalStateException("No name stored for level " + level);
-			pp.setParameterValues(name, new String[] {value});
+			pp.setParameterValues(name, new String[]{value});
 		});
 
 		return new Target(targetPage, pp);
@@ -170,7 +174,7 @@ final public class PageUrlMapping {
 					throw new IllegalArgumentException("Missing value for page parameter {" + vn + "} for page " + pageClass.getName());
 
 				segment = value;
-				pp.removeParameter(vn);								// No longer needed as a query parameter
+				pp.removeParameter(vn);                                // No longer needed as a query parameter
 			}
 			if(sb.length() > 0)
 				sb.append('/');
@@ -302,16 +306,13 @@ final public class PageUrlMapping {
 			if(null != level)
 				return level;
 
-			level = m_byName.get("");						// Variable level present?
+			level = m_byName.get("");                        // Variable level present?
 			if(null != level) {
-				paramValues.put(this, StringTool.decodeURLEncoded(segment));				// Assign the value for this level
+				paramValues.put(this, StringTool.decodeURLEncoded(segment));                // Assign the value for this level
 				return level;
 			}
 			return null;
 		}
 	}
-
-
-
 
 }

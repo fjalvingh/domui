@@ -2,8 +2,12 @@ package to.etc.domui.state;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final public class CidPair {
+	static private final Logger LOG = LoggerFactory.getLogger(CidPair.class);
+
 	@NonNull
 	final private String m_windowId;
 
@@ -13,6 +17,24 @@ final public class CidPair {
 	public CidPair(@NonNull String windowId, @NonNull String conversationId) {
 		m_windowId = windowId;
 		m_conversationId = conversationId;
+
+		if(!isValid(windowId)) {
+			LOG.error("Invalid window ID in $CID " + windowId + "." + conversationId);
+			throw new IllegalStateException("Invalid window ID in CID");    // Do not show the ID - can be a XSS attack
+		}
+		if(!isValid(conversationId)) {
+			LOG.error("Invalid conversation ID in $CID " + windowId + "." + conversationId);
+			throw new IllegalStateException("Invalid conversation ID in CID");    // Do not show the ID - can be a XSS attack
+		}
+	}
+
+	private boolean isValid(String thing) {
+		for(int i = thing.length(); --i >= 0; ) {
+			char c = thing.charAt(i);
+			if(c != '_' && !Character.isLetterOrDigit(c))
+				return false;
+		}
+		return true;
 	}
 
 	@NonNull
@@ -45,7 +67,8 @@ final public class CidPair {
 		return new CidPair(param.substring(0, pos), param.substring(pos + 1));
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return m_windowId + "." + m_conversationId;
 	}
 }

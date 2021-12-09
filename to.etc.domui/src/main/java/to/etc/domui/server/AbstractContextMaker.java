@@ -25,6 +25,8 @@
 package to.etc.domui.server;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.state.UIContext;
 import to.etc.net.HttpCallException;
 import to.etc.webapp.nls.NlsContext;
@@ -42,7 +44,9 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 abstract public class AbstractContextMaker implements IContextMaker {
-	public static final String LOCALE_PARAM = "___locale";
+	static private final Logger LOG = LoggerFactory.getLogger(AbstractContextMaker.class);
+
+	private static final String LOCALE_PARAM = "___locale";
 
 	@Override
 	abstract public void handleRequest(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain chain) throws Exception;
@@ -160,7 +164,7 @@ abstract public class AbstractContextMaker implements IContextMaker {
 			try {
 				ctx.discard();
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("execute failed: " + x, x);
 			}
 			UIContext.internalClear();
 		}

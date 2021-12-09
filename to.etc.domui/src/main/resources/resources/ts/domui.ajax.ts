@@ -48,10 +48,6 @@ namespace WebUI {
 					throw "Cannot locate editor with id=" + sel.id;
 				val = editor.getData();
 			} else {
-//				if($.browser.msie) { // The MS idiots remove newlines from value....
-//					val = sel.innerText;
-//					//alert("inner value="+sel.innerText);
-//				} else
 				val = sel.value;
 			}
 			fields[sel.id] = val;
@@ -315,7 +311,7 @@ namespace WebUI {
 	export function handleResponse(data, state): void {
 		clearErrorAsy();
 		// if (false && window.console && window.console.debug)
-		// 	console.debug("data is ", data);
+		// console.log("data is ", data);
 		$.webui(data);
 	}
 
@@ -472,6 +468,11 @@ namespace WebUI {
 			data: fields,
 			cache: false,
 			global: false, // jal 20091015 prevent block/unblock on polling call.
+			converters: { //bugfix: when special bytes are present, handlers are not called.
+				'text xml': function (f) {
+					return f;
+				}
+			},
 			success: handleResponse,
 			error: handleErrorAsy
 		});

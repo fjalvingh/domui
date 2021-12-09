@@ -24,11 +24,26 @@
  */
 package to.etc.domui.component.layout;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.input.TextStr;
+import to.etc.domui.component.misc.IIconRef;
+import to.etc.domui.component.misc.Icon;
+import to.etc.domui.component.misc.MsgBox2;
 import to.etc.domui.dom.css.VerticalAlignType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.Label;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.themes.Theme;
+import to.etc.domui.util.Msgs;
+import to.etc.function.PredicateEx;
+import to.etc.function.RunnableEx;
+
+import java.util.function.BiPredicate;
+
+import static to.etc.util.StringTool.isBlank;
 
 /**
  * A Dialog that is used to input single value of type &lt;T&gt;, using input control of type &lt;C&gt;.
@@ -194,5 +209,62 @@ public class InputDialog<T, C extends NodeBase & IControl<T>> extends Dialog {
 
 	public void setLabel(String label) {
 		m_label = label;
+	}
+
+	/**
+	 * Delete confirmation dialog that asks for input value confirmation (in blood) before action is accepted.
+	 */
+	public static Dialog confirmDeleteInBlood(String title, String confirmValue, String controlLabel, PredicateEx<String> onConfirm) {
+		return confirmInBlood(title, Msgs.incorrectInputCantDeleteData.getString(), new TextStr(), confirmValue, (v1, v2) -> v1.equals(v2), controlLabel, Msgs.btnDelete.getString(), Theme.BTN_SKULL, onConfirm);
+	}
+
+	/**
+	 * Delete confirmation dialog that asks for input value confirmation (in blood) before action is accepted.
+	 */
+	public static Dialog confirmDeleteInBlood(String title, String confirmValue, String controlLabel, RunnableEx onConfirm) {
+		return confirmDeleteInBlood(title, confirmValue, controlLabel, it -> {
+			onConfirm.run();
+			return true;
+		});
+	}
+
+	/**
+	 * Action confirmation dialog that also asks for input reason.
+	 */
+	public static Dialog confirmWithReason(String title, int maxLen, int size, String actionBtnTitle, IIconRef actionButtonIcon, PredicateEx<String> onConfirm) {
+		TextStr input = new TextStr();
+		input.setMandatory(true);
+		input.setMaxLength(maxLen);
+		input.setSize(size);
+
+		return confirmInBlood(title, "", input, "", (v1, v2) -> !isBlank(v2), Msgs.reason.toString() + ":", actionBtnTitle, actionButtonIcon, onConfirm);
+	}
+
+	/**
+	 * Generic confirmation dialog that asks for input confirmation before action is proceeded.
+	 */
+	public static <T, C extends NodeBase & IControl<T>> Dialog confirmInBlood(String title, String nonConfirmedInputMsg, C inputControl, T confirmValue, BiPredicate<T, T> confirmCheck, String controlLabel, String actionBtnTitle, IIconRef actionButtonIcon, PredicateEx<T> onConfirm) {
+		return new InputDialog<T, C>(inputControl, title, controlLabel) {
+
+			@NonNull
+			@Override
+			protected DefaultButton createSaveButton() {
+				return createSaveButton(actionBtnTitle, actionButtonIcon).css("is-danger is-outlined");
+			}
+
+			@Override
+			protected boolean onValidateData(@Nullable T data) throws Exception {
+				boolean ok = confirmCheck.test(confirmValue, data);
+				if(! ok) {
+					MsgBox2.on(this).error(nonConfirmedInputMsg);
+				}
+				return ok;
+			}
+
+			@Override
+			protected boolean onSaveData(@Nullable T data) throws Exception {
+				return onConfirm.test(data);
+			}
+		};
 	}
 }

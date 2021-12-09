@@ -26,6 +26,8 @@ package to.etc.domui.component.input;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.SmallImgButton;
 import to.etc.domui.component.meta.MetaManager;
@@ -74,6 +76,8 @@ import java.util.regex.Pattern;
  */
 @NonNullByDefault
 public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication, IConvertable<T>, ITypedControl<T> {
+	private static final Logger LOG = LoggerFactory.getLogger(Text2.class);
+
 	private final Input m_input = new Input() {
 		/**
 		 * Handle the input from the request for this component.
@@ -321,7 +325,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		} catch(RuntimeConversionException x) {
 			throw new ValidationException(Msgs.notValid, raw);
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("Unexpected: " + x, x);
 			throw new ValidationException(Msgs.unexpectedException, x);
 		}
 	}
@@ -468,7 +472,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
 			return;
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("setValue error: " + x, x);
 			setMessage(UIMessage.error(Msgs.unexpectedException, x));
 			return;
 		}

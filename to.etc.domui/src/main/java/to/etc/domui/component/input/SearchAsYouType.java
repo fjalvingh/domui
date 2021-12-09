@@ -53,6 +53,9 @@ public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements IContr
 	private IObjectToStringConverter<T> m_actualConverter;
 
 	@Nullable
+	private IRenderInto<T> m_renderer;
+
+	@Nullable
 	private FunctionEx<String, T> m_onEnter;
 
 	private boolean m_mandatory;
@@ -167,6 +170,10 @@ public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements IContr
 	}
 
 	@Override protected IRenderInto<T> getActualRenderer() {
+		IRenderInto<T> renderer = m_renderer;
+		if(null != renderer) {
+			return renderer;
+		}
 		IObjectToStringConverter<T> cv = requireNonNull(getActualConverter());
 		return (node, object) -> node.add(cv.convertObjectToString(NlsContext.getLocale(), object));
 	}
@@ -439,5 +446,14 @@ public class SearchAsYouType<T> extends SearchAsYouTypeBase<T> implements IContr
 
 	@Override public void setHint(String hintText) {
 		setTitle(hintText);
+	}
+
+	@Nullable
+	public IRenderInto<T> getRenderer() {
+		return m_renderer;
+	}
+
+	public void setRenderer(@Nullable IRenderInto<T> renderer) {
+		m_renderer = renderer;
 	}
 }

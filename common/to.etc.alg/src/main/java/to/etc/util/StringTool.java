@@ -1457,6 +1457,18 @@ public class StringTool {
 		}
 	}
 
+	@Nullable
+	static public String xmlDeStringize(final String is) {
+		if(is == null || "null".equals(is))
+			return null;
+		return is
+			.replace("&gt;", ">")
+			.replace("&lt;", "<")
+			.replace("&amp;", "&")
+			.replace("&quot;", "\"")
+			.replace("&apos;", "'");
+	}
+
 	/**
 	 *	Converts input string to xml representation that complies to
 	 *  DOM API 5.2 Character Escaping
@@ -1699,30 +1711,12 @@ public class StringTool {
 	}
 
 
-	static public void main(final String[] args) {
-		try {
-			//			int	res	= compareStrings(args[0], args[1]);
-			//			System.out.println("Result is "+res);
-			//			System.out.println(strCommad(0));
-			//			System.out.println(strCommad(10));
-			//			System.out.println(strCommad(112));
-			//			System.out.println(strCommad(1234));
-			//			System.out.println(strCommad(10234));
-			//			System.out.println(strCommad(101221));
-			//			System.out.println(strCommad(1065432));
-			//
-			//			StringWriter	sw = new StringWriter();
-			//			strToJavascriptString(sw, "Dit is \"de beste\" oplossing\nzij de beste 'man'; ze kost \u20a3 20,00", false);
-			//			System.out.println(sw.getBuffer());
+	static public void main(final String[] args) throws Exception {
+		byte[] data = new byte[127];
+		StringBuilder sb = new StringBuilder();
+		dumpData(sb, data, 0, data.length);
+		System.out.println(sb.toString());
 
-			String s = strToJavascriptString("accu\\'s vervangen", false);
-			System.out.println(s);
-
-		} catch(Throwable x) {
-			System.out.println("Fatal: " + x.toString());
-			x.printStackTrace();
-
-		}
 	}
 
 
@@ -3066,5 +3060,35 @@ public class StringTool {
 		}
 		return null;
 	}
+
+	static public boolean isWindows() {
+		String os = System.getProperty("os.name").toLowerCase();
+		return os.contains("win");
+	}
+
+	static public boolean isLinux() {
+		return "linux".equalsIgnoreCase(System.getProperty("os.name"));
+	}
+
+	static public String stripInvalidUnicode(String in) {
+		StringBuilder sb = new StringBuilder(in.length());
+		stripInvalidUnicode(sb, in);
+		return sb.toString();
+	}
+
+	public static void stripInvalidUnicode(StringBuilder sb, CharSequence in) {
+		int len = in.length();
+		for(int i = 0; i < len; i++) {
+			char c = in.charAt(i);
+			if(c == 0x0a || c == 0x0d) {
+				sb.append(c);
+			} else if(c < 32) {
+				// -- ignore
+			} else if(Character.isDefined(c)) {
+				sb.append(c);
+			}
+		}
+	}
 }
+
 

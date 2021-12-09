@@ -26,6 +26,9 @@ package to.etc.webapp.query;
 
 import org.eclipse.jdt.annotation.Nullable;
 
+import javax.annotation.Nonnull;
+import java.util.Objects;
+
 /**
  * Generic interface that defines a class as having a getId() method returning a primary key.
  * @param <T>	The type of the primary key for the object.
@@ -36,4 +39,10 @@ import org.eclipse.jdt.annotation.Nullable;
 public interface IIdentifyable<T> {
 	@Nullable
 	T getId();
+
+	@Nonnull
+	default T getSafeId() {
+		return Objects.requireNonNull(getId());
+	}
+
 }

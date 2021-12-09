@@ -48,11 +48,21 @@ public enum Msgs implements IBundleCode {
 	uiPagerActualCount,
 
 	btnDelete,
+	btnDeleteYesNo,
 	btnAdd,
 	btnEdit,
 
+	vInvalidRegex,
 	vInvalidEmail,
 
+/** Leave page dialog */
+	leavePageQuestion,
+	changesYouMadeMayNotBeSaved,
+	leave,
+
+/** Confirmation in blood */
+	incorrectInputCantDeleteData,
+	reason,
 	;
 
 	/** Error component panel header text: Info */

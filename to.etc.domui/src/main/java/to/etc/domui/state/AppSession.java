@@ -101,7 +101,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	/**
 	 * Questionable use.
-	 * @return
 	 */
 	@NonNull
 	public DomApplication getApplication() {
@@ -232,7 +231,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 		//-- Force state closed.
 		for(WindowSession cm : droplist) {
-			System.out.println("cm: dropping window session " + cm.getWindowID() + " due to timeout");
+			LOG.info("cm: dropping window session " + cm.getWindowID() + " due to timeout");
 			logUser(cm.getWindowID(), "cm: dropping window session " + cm.getWindowID() + " due to timeout");
 			try {
 				cm.destroyWindow(false);
@@ -246,7 +245,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	/**
 	 * Create a new WindowSession. The thingy has a new, globally-unique ID.
-	 * @return
 	 */
 	@NonNull
 	final public synchronized WindowSession createWindowSession() {
@@ -274,7 +272,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	/**
 	 * Marks the WindowSession as recently used, and cancels any obituary processing on it.
-	 * @param cm
 	 */
 	private synchronized boolean resurrectWindowSession(@NonNull final WindowSession cm) {
 		cm.internalTouched();
@@ -283,7 +280,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			return true;
 		cm.setObituaryTimer(-1);
 		boolean res = Janitor.getJanitor().cancelJob(tm);
-		System.out.println("session: resurrected window " + cm.getWindowID() + ", canceltask=" + res);
+		LOG.info("session: resurrected window " + cm.getWindowID() + ", canceltask=" + res);
 		logUser(cm.getWindowID(), "session: resurrected window " + cm.getWindowID() + ", canceltask=" + res);
 		return res;
 	}
@@ -303,9 +300,8 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	 * are always close together in time. For now we do not mark a WindowSession as possibly deleted
 	 * if it's previous request is before but close to the obituary's request.</p>
 	 *
-	 * @param cm			The WindowSession for which the obituary was received.
+	 * @param cid			The WindowSession for which the obituary was received.
 	 * @param obitPageTag	The page tag of the page that has died.
-	 * @throws Exception
 	 */
 	public synchronized void internalObituaryReceived(final String cid, final int obitPageTag) throws Exception {
 		final WindowSession cm = m_windowMap.get(cid);
@@ -320,7 +316,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 			LOG.info("Obituary ignored: the kill timer has already been started");
 			return;
 		}
-		if(obitPageTag != cm.internalGetLastPageTag()) {// Some other page is already present?
+		if(obitPageTag != cm.internalGetLastPageTag()) {		// Some other page is already present?
 			LOG.info("Obituary ignored: the last page has a different page tag (the corpse arrived too late)");
 			logUser(cid, "Obituary ignored: the last page has a different page tag (the corpse arrived too late)");
 			return;
@@ -351,7 +347,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	/**
 	 * Internal timeout handler for a WindowSession whose Obituary timer has fired. This deletes
 	 * the expired WindowSession from the known window map, then destroys all conversations therein.
-	 * @param cm
 	 */
 	void internalDropWindowSession(final WindowSession cm) {
 		if(LOG.isInfoEnabled())
@@ -415,7 +410,7 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 				try {
 					((IAppSessionBindingListener) value).unboundFromSession(this, name);
 				} catch(Exception x) {
-					x.printStackTrace();
+					LOG.error("Failure in unbind: " + x);
 				}
 			}
 		}
@@ -424,15 +419,13 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 	/**
 	 * Saves this session's windows and their shelve stacks into the HttpSession allowing
 	 * a session to be "resurrected" after a development mode reload.
-	 *
-	 * @param httpSession
 	 */
 	synchronized void saveOldState(@NonNull HttpSession httpSession) {
 		for(WindowSession ws : m_windowMap.values()) {
 			List<SavedPage> wl = ws.getSavedPageList();
 			SavedWindow sw = new SavedWindow(ws.getWindowID(), wl);
 			httpSession.setAttribute(ws.getWindowID(), sw);
-			System.out.println("appSession: saved " + sw);
+			LOG.info("appSession: saved " + sw);
 		}
 	}
 
@@ -457,7 +450,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	/**
 	 * Add a log item to the round-robin list of per user log entries.
-	 * @param uli
 	 */
 	public synchronized void log(@NonNull UserLogItem uli) {
 		while(m_itemList.size() > 400)
@@ -467,7 +459,6 @@ public class AppSession implements HttpSessionBindingListener, IAttributeContain
 
 	/**
 	 * Get a copy of the currently collected log entries.
-	 * @return
 	 */
 	@NonNull
 	synchronized public List<UserLogItem> getLogItems() {

@@ -26,8 +26,11 @@ package to.etc.domui.server;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.html.Page;
 import to.etc.domui.server.PageUrlMapping.PageSubtype;
+import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.server.PageUrlMapping.Target;
 import to.etc.domui.state.AppSession;
 import to.etc.domui.state.CidPair;
@@ -56,6 +59,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class RequestContextImpl implements IRequestContext, IAttributeContainer {
+	static private final Logger LOG = LoggerFactory.getLogger(RequestContextImpl.class);
+
 	@NonNull
 	final private DomApplication m_application;
 
@@ -115,7 +120,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 
 	@NonNull
 	private IThemeVariant m_themeVariant = DefaultThemeVariant.INSTANCE;
-	
+
 	static private final int PAGE_HEADER_BUFFER_LENGTH = 4000;
 
 	@NonNull
@@ -481,7 +486,7 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		StringWriter sw = m_sw;
 		if(null != sw) {
 			if(sw.getBuffer().length() > PAGE_HEADER_BUFFER_LENGTH) {
-				System.out.println("domui warning: outputwriter reallocated after writing " + sw.getBuffer().length() + " characters of data already");
+				LOG.warn("domui warning: outputwriter reallocated after writing " + sw.getBuffer().length() + " characters of data already");
 			}
 		}
 
@@ -490,6 +495,10 @@ public class RequestContextImpl implements IRequestContext, IAttributeContainer 
 		m_sw = new StringWriter(8192);
 		m_outWriter = m_sw;
 		return m_outWriter;
+	}
+
+	public void renderResponseHeaders(@Nullable UrlPage currentPage) throws Exception {
+		m_application.applyPageHeaderTransformations(getPageName(), currentPage).forEach((header, value) -> getRequestResponse().addHeader(header, value));
 	}
 
 	/**

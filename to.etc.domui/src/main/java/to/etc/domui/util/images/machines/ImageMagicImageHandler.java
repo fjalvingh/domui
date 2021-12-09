@@ -26,6 +26,8 @@ package to.etc.domui.util.images.machines;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.util.images.converters.ImageConverterHelper;
 import to.etc.domui.util.images.converters.ImageSpec;
 import to.etc.util.ProcessTools;
@@ -41,6 +43,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 final public class ImageMagicImageHandler implements ImageHandler {
+	static private final Logger LOG = LoggerFactory.getLogger(ImageMagicImageHandler.class);
+
 	static public final String PNG = "image/png";
 
 	static public final String JPEG = "image/jpeg";
@@ -81,7 +85,6 @@ final public class ImageMagicImageHandler implements ImageHandler {
 	/**
 	 * This returns the ImageMagic manipulator *if* it is available. If
 	 * ImageMagic is not available then this returns null.
-	 * @return
 	 */
 	static public synchronized ImageMagicImageHandler getInstance() {
 		if(!m_initialized)
@@ -100,7 +103,6 @@ final public class ImageMagicImageHandler implements ImageHandler {
 
 	/**
 	 * Initializes and checks to see if ImageMagick is present.
-	 * @return
 	 */
 	static private synchronized void initialize() {
 		m_initialized = true;
@@ -153,7 +155,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			if(initMagick(base, filecommand))
 				return;
 		}
-		System.out.println("Error: ImageMagick not found in paths " + pathlist);
+		LOG.error("Error: ImageMagick not found in paths " + pathlist);
 	}
 
 	static private synchronized boolean initMagick(@NonNull File base, @Nullable File filecommand) {
@@ -163,7 +165,7 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			if(ident.exists()) {
 				ImageMagicImageHandler h = new ImageMagicImageHandler(ident, convert, filecommand);
 				m_instance = h;
-				System.out.println("ImageMagick: using base=" + base);
+				LOG.info("ImageMagick: using base=" + base);
 				return true;
 			}
 		}
@@ -191,9 +193,6 @@ final public class ImageMagicImageHandler implements ImageHandler {
 
 	/**
 	 * Runs the "identify" call and returns per-page info.
-	 *
-	 * @param input
-	 * @return
 	 */
 	@Override
 	public ImageInfo identify(File input) throws Exception {
@@ -317,9 +316,6 @@ final public class ImageMagicImageHandler implements ImageHandler {
 
 	/**
 	 * Create a thumbnail from a source image spec.
-	 * @param source
-	 * @return
-	 * @throws Exception
 	 */
 	@Override
 	public ImageSpec thumbnail(ImageConverterHelper h, ImageSpec source, int page, int width, int height, String targetMime) throws Exception {
@@ -372,7 +368,8 @@ final public class ImageMagicImageHandler implements ImageHandler {
 			//-- rg 20120608 quality 95 is best for for png files
 			if(width != 0 && height != 0) {
 				String rsz = width + "x" + height;
-				pb = new ProcessBuilder(m_convert.toString(), "-density", DENSITY, "-size", rsz, source.getSource().toString() + "[" + page + "]", "-thumbnail", rsz, "-coalesce", "-quality", "95", tof.toString());
+				pb = new ProcessBuilder(m_convert.toString(), "-density", DENSITY, "-size", rsz, source.getSource().toString() + "[" + page + "]", "-thumbnail", rsz, "-coalesce", "-quality", "95",
+					tof.toString());
 			} else {
 				//in case that 0 size is passed, use original width / height
 				pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-density", DENSITY, tof.toString());
@@ -403,10 +400,10 @@ final public class ImageMagicImageHandler implements ImageHandler {
 
 			//-- jal 20100906 Use thumbnail, not resize: resize does not properly filter causing an white image because all black pixels are sized out.
 			ProcessBuilder pb = new ProcessBuilder(m_convert.toString(), source.getSource().toString() + "[" + page + "]", "-coalesce", "-quality", "100", tof.toString());
-			System.out.println("Command: " + pb.command().toString());
+			LOG.info("Command: " + pb.command().toString());
 			StringBuilder sb = new StringBuilder(8192);
 			int xc = ProcessTools.runProcess(pb, sb);
-			System.out.println("convert: " + sb.toString());
+			LOG.info("convert: " + sb.toString());
 			if(xc != 0)
 				throw new Exception("External command exception: " + m_convert + " returned error code " + xc + "\n" + sb.toString());
 			return new ImageSpec(tof, targetMime, pi.getWidth(), pi.getHeight());

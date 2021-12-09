@@ -26,6 +26,8 @@ package to.etc.domui.component.delayed;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.css.DisplayType;
@@ -40,7 +42,11 @@ import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.util.Progress;
 import to.etc.util.StringTool;
 
+import java.util.concurrent.CancellationException;
+
 final public class AsyncContainer extends Div {
+	static private final Logger LOG = LoggerFactory.getLogger(AsyncContainer.class);
+
 	@NonNull
 	final private IAsyncRunnable m_runnable;
 
@@ -60,6 +66,8 @@ final public class AsyncContainer extends Div {
 	 * Defines busy image src. If not set uses default framework resource.
 	 */
 	private String m_busyMarkerSrc = "THEME/asy-container-busy.gif";
+
+	private DefaultButton m_cancelButton;
 
 	public AsyncContainer(@NonNull IAsyncRunnable arunnable) {
 		this(arunnable, null);
@@ -95,16 +103,21 @@ final public class AsyncContainer extends Div {
 		};
 
 		m_resultListener = new IAsyncCompletionListener() {
-			@Override public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
+			@Override
+			public void onCompleted(boolean cancelled, @Nullable Exception errorException) throws Exception {
 				//-- If we've got an exception replace the contents with the exception message.
 				if(errorException != null) {
-					errorException.printStackTrace();
-					StringBuilder sb = new StringBuilder(8192);
-					StringTool.strStacktrace(sb, errorException);
-					String s = sb.toString();
-					s = s.replace("\n", "<br/>\n");
+					if(errorException instanceof CancellationException) {
+						MsgBox.error(AsyncContainer.this.getParent(), Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED_MSG));
+					} else {
+						//LOG.error("Error in async command: " + errorException, errorException);
+						StringBuilder sb = new StringBuilder(8192);
+						StringTool.strStacktrace(sb, errorException);
+						String s = sb.toString();
+						s = s.replace("\n", "<br/>\n");
 
-					MsgBox.error(AsyncContainer.this.getParent(), "Exception while creating result for asynchronous task:<br/>" + s);
+						MsgBox.error(AsyncContainer.this.getParent(), "Exception while creating result for asynchronous task:<br/>" + s);
+					}
 					return;
 				}
 
@@ -120,7 +133,7 @@ final public class AsyncContainer extends Div {
 				}
 
 				//-- Now replace AsyncContainer with the result
-				replaceWith(res); 					// Replace this node with another one.
+				replaceWith(res);                    // Replace this node with another one.
 			}
 		};
 	}
@@ -139,12 +152,16 @@ final public class AsyncContainer extends Div {
 		m_progress = new Div();
 		add(m_progress);
 		if(isAbortable()) {
-			DefaultButton db = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, b -> {
-				cancel();
-				b.setDisabled(true);
+			m_cancelButton = new DefaultButton(Msgs.BUNDLE.getString(Msgs.LOOKUP_FORM_CANCEL), Theme.BTN_CANCEL, b -> {
+				doCancel();
 			});
-			add(db);
+			add(m_cancelButton);
 		}
+	}
+
+	public void doCancel() {
+		cancel();
+		m_cancelButton.setDisabled(true);
 	}
 
 	void cancel() {
@@ -190,17 +207,16 @@ final public class AsyncContainer extends Div {
 			//dai.getActivity().onCompleted(dai.getMonitor().isCancelled(), dai.getException());
 		} finally {
 			try {
-				remove();								// Remove myself *after* this all.
+				remove();                                // Remove myself *after* this all.
 			} catch(Exception x) {
-				System.err.println("Could not remove AsyncContainer: " + x);
-				x.printStackTrace();
+				LOG.error("Could not remove AsyncContainer: " + x);
 			}
 		}
 	}
 
-	public void confirmCancelled() {
-		setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
-	}
+	//public void confirmCancelled() {
+	//	setText(Msgs.BUNDLE.getString(Msgs.ASYNC_CONTAINER_CANCELLED));
+	//}
 
 	public boolean isAbortable() {
 		return m_abortable;

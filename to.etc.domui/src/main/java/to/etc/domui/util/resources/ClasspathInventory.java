@@ -232,9 +232,6 @@ public class ClasspathInventory {
 	/**
 	 * This scans the entire known classpath and constructs all stuff that is available in the
 	 * specified package directory. These are all files there: .class and others.
-	 *
-	 * @param pkgdirname
-	 * @return
 	 */
 	@NonNull
 	public List<String> getPackageInventory(@NonNull String pkgdirname) {

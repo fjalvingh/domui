@@ -61,24 +61,23 @@ public abstract class PropertyInjector {
 	/**
 	 * Once the value is determined this injects it, after a check whether the value is allowed
 	 * according to the rights checkers registered.
+	 *
+	 * If rights check is refused we throw AccessCheckException with refused details, and we not set the property value.
 	 */
 	protected void setValue(@NonNull AbstractPage instance, @Nullable Object value) throws Exception {
-		if(! isValueAllowed(instance, value))
-			throw new IllegalDataValueException(m_propertyInfo);
-
 		try {
+			checkValueAllowed(instance, value);
 			getPropertySetter().invoke(instance, value);
+		} catch(AccessCheckException acex) {
+			throw acex;
 		} catch(Exception x) {
 			throw new WrappedException("Cannot SET the entity '" + value + "' for property=" + m_propertyInfo.getName() + " of page=" + instance.getClass() + ": " + x, x);
 		}
 	}
 
-	private boolean isValueAllowed(AbstractPage instance, @Nullable Object value) throws Exception {
+	private void checkValueAllowed(AbstractPage instance, @Nullable Object value) throws Exception {
 		for(IInjectedPropertyAccessChecker checker : DomApplication.get().getInjectedPropertyAccessCheckerList()) {
-			if(! checker.isAccessAllowed(m_propertyInfo, instance, value)) {
-				return false;
-			}
+			checker.checkAccessAllowed(m_propertyInfo, instance, value);
 		}
-		return true;
 	}
 }

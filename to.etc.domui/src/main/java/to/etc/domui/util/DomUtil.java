@@ -867,7 +867,7 @@ final public class DomUtil {
 						if(count < maxcol) {
 							if(tr.getChildCount() == 0) {
 								//--??? Childless row?! Cannot do anything with this...
-								System.out.println("?? Silly empty row in table");
+								USERLOG.error("?? Silly empty row in table");
 								//								throw new IllegalStateException("Table has a row without any TD's in it.");
 							} else {
 								TD td = (TD) tr.getChild(tr.getChildCount() - 1);
@@ -982,7 +982,7 @@ final public class DomUtil {
 	}
 
 	static public void dumpException(final Exception x) {
-		x.printStackTrace();
+		USERLOG.error("Exception: " + x, x);
 
 		Throwable next = null;
 		for(Throwable curr = x; curr != null; curr = next) {
@@ -994,7 +994,7 @@ final public class DomUtil {
 				SQLException sx = (SQLException) curr;
 				while(sx.getNextException() != null) {
 					sx = sx.getNextException();
-					System.err.println("SQL NextException: " + sx);
+					USERLOG.error("SQL NextException: " + sx);
 				}
 			}
 		}
@@ -1583,10 +1583,10 @@ final public class DomUtil {
 	/**
 	 * Set a new or overwrite an existing cookie.
 	 */
-	static public void setCookie(@NonNull String name, String value, int maxage) {
+	static public void setCookie(@NonNull String name, String value, int maxageInSeconds) {
 		IRequestContext rci = UIContext.getRequestContext();
 		Cookie k = new Cookie(name, value);
-		k.setMaxAge(maxage);
+		k.setMaxAge(maxageInSeconds);
 		k.setPath("/" + rci.getRequestResponse().getWebappContext());
 		rci.getRequestResponse().addCookie(k);
 	}
@@ -1734,10 +1734,11 @@ final public class DomUtil {
 				((IHasModifiedIndication) n).setModified(true);
 			}
 			if(n instanceof IUserInputModifiedFence) {
-				if(!wasModifiedBefore) {
-					((IUserInputModifiedFence) n).onModifyFlagRaised();
+				IUserInputModifiedFence fenceNode = (IUserInputModifiedFence) n;
+				if(! wasModifiedBefore || fenceNode.receiveNewModifications()) {
+					fenceNode.onModifyFlagRaised();
 				}
-				if(((IUserInputModifiedFence) n).isFinalUserInputModifiedFence()) {
+				if(fenceNode.isFinalUserInputModifiedFence()) {
 					return;
 				}
 			}

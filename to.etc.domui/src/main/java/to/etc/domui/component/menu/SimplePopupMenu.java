@@ -259,7 +259,6 @@ public class SimplePopupMenu extends FloatingDiv {
 
 	@Override
 	public void componentHandleWebAction(@NonNull RequestContextImpl ctx, @NonNull String action) throws Exception {
-		System.out.println("SimplePopupMenu: received " + action);
 		if("POPINCLOSE?".equals(action)) {
 			if (!getSource().isPermanent()) {
 				closeMenu();

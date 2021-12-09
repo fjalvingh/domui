@@ -76,7 +76,6 @@ final public class ResourceInfoCache {
 
 	@Nullable
 	private Dimension calculateImageDimensions(String resourceRURL) throws Exception {
-		System.out.println("Calculating dimensions of " + resourceRURL);
 		IResourceRef ref = DomApplication.get().getResource(resourceRURL, ResourceDependencyList.NULL);
 		try(InputStream is = ref.getInputStream()) {
 			if(null == is)

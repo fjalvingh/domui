@@ -1,6 +1,6 @@
 package to.etc.domui.themes.obsolete;
 
-import to.etc.domui.themes.*;
+import to.etc.domui.themes.CssColor;
 
 /**
  * Utility class to generate all kinds of colors.
@@ -22,13 +22,11 @@ public class CssColorGenerator {
 
 		//-- We handle 10*color, 2 luminance levels (0.5, 1.0) and 2 saturation levels (0.5, 1.0) total of 40 colors @ the 1st ring
 		if(c < COL_1 * LUMD * SATD) {
-			double color = (c % COL_1) * (360.0/COL_1);					// Color divider
+			double color = (c % COL_1) * (360.0 / COL_1);                    // Color divider
 			int r = c / COL_1;
 
 			double sat = 1.0 - (r % SATD) * (1.0 / SATD);
 			double lum = 1.0 - (r / SATD) * (1.0 / LUMD);
-
-			System.out.println("color: " + color + ", sat=" + sat + ", lum=" + lum);
 
 			return CssColor.createHSV(color, sat, lum);
 

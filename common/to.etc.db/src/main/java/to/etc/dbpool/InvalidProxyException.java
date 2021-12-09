@@ -28,4 +28,8 @@ public class InvalidProxyException extends RuntimeException {
 	public InvalidProxyException(String message) {
 		super(message);
 	}
+
+	public InvalidProxyException(Throwable cause, String message) {
+		super(message, cause);
+	}
 }

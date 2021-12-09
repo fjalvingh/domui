@@ -31,12 +31,14 @@ import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.BR;
 import to.etc.domui.dom.html.Button;
+import to.etc.domui.dom.html.Canvas;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Col;
 import to.etc.domui.dom.html.ColGroup;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.FileInput;
 import to.etc.domui.dom.html.Form;
+import to.etc.domui.dom.html.HR;
 import to.etc.domui.dom.html.HTag;
 import to.etc.domui.dom.html.IForTarget;
 import to.etc.domui.dom.html.IFrame;
@@ -580,6 +582,17 @@ public class HtmlTagRenderer implements INodeVisitor {
 			a.append(c.getTransform().name().toLowerCase());
 			a.append(';');
 		}
+
+		if(c.getGridColumn() != null) {
+			a.append("grid-column:");
+			a.append(c.getGridColumn());
+			a.append(';');
+		}
+		if(c.getGridRow() != null) {
+			a.append("grid-row:");
+			a.append(c.getGridRow());
+			a.append(';');
+		}
 	}
 
 	static private String border(final StringBuilder a, final int w, final String s, final String c) {
@@ -736,7 +749,10 @@ public class HtmlTagRenderer implements INodeVisitor {
 			o.attr("onclick", a.toString());
 		} else if(b.getOnClickJS() != null) {
 			o.attr("onclick", b.getOnClickJS());
+		} else if(isAttrRender()) {
+			o.attr("onclick", "");
 		}
+
 		if(b instanceof INativeChangeListener && b.getSpecialAttribute("onchange") == null) {
 			INativeChangeListener inb = (INativeChangeListener) b;
 			if(null != inb.getOnValueChanged()) {
@@ -790,6 +806,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 		if(n.getDropMode() != null) {
 			o().attr("uidropmode", n.getDropMode().name());
 		}
+		renderTagend(n, m_o);
+	}
+
+	@Override
+	public void visitCanvas(Canvas n) throws Exception {
+		basicNodeRender(n, m_o);
 		renderTagend(n, m_o);
 	}
 
@@ -1008,8 +1030,6 @@ public class HtmlTagRenderer implements INodeVisitor {
 	}
 
 	private void renderType(final String t) throws Exception {
-		if(isAttrRender()) // Cannot replace on existing node.
-			return;
 		o().attr("type", t);
 	}
 
@@ -1276,6 +1296,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 
 	@Override
 	public void visitBR(final BR n) throws Exception {
+		basicNodeRender(n, o());
+		renderTagend(n, o());
+	}
+
+	@Override
+	public void visitHR(final HR n) throws Exception {
 		basicNodeRender(n, o());
 		renderTagend(n, o());
 	}

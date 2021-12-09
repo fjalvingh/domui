@@ -228,6 +228,11 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Simple getters and setters.							*/
 	/*--------------------------------------------------------------*/
+
+	/**
+	 *
+	 * @param refreshAfterShelve
+	 */
 	public void setRefreshAfterShelve(boolean refreshAfterShelve) {
 		m_refreshAfterShelve = refreshAfterShelve;
 	}
@@ -278,7 +283,6 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		}
 		throw new IllegalStateException("No sessionSource and no contextSourceNode present - I do not know how to allocate a QDataContext");
 	}
-
 
 	final private void execQuery() throws Exception {
 		long ts = System.nanoTime();
@@ -347,16 +351,12 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 				m_actualRowCount = getWorkResult().size();					// We actually know the result count
 			}
 			updatePkMap();
-
-			if(LOG.isDebugEnabled()) {
-				ts = System.nanoTime() - ts;
-				LOG.debug("db: persistence framework query and materialize took " + StringTool.strNanoTime(ts));
-			}
 		} finally {
 			try {
 				if(dc != null)
 					dc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -447,7 +447,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		QCriteria<T> query = m_query;
 		if(null == query)
 			throw new IllegalStateException("This model is not using a QCriteria query.");
-		m_criteriaSortOrder = new ArrayList<>(query.getOrder());		// Store the current query.
+		m_criteriaSortOrder = new ArrayList<>(query.getOrder());        // Store the current query.
 		query.getOrder().clear();
 		return query;
 	}
@@ -471,7 +471,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 		try {
 			fireModelChanged();
 		} catch(Exception x) {
-			throw WrappedException.wrap(x);						// 8-(
+			throw WrappedException.wrap(x);                        // 8-(
 		}
 	}
 
@@ -697,6 +697,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IShelveListener implementation.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * When the component is shelved we discard all results. This causes a requery when
 	 * unshelved (when accessed).
@@ -708,8 +709,8 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 	}
 
 	@Override
-	public void onUnshelve() throws Exception {}
-
+	public void onUnshelve() throws Exception {
+	}
 
 	@Override
 	public void refresh() {

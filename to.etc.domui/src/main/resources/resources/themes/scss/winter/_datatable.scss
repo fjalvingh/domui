@@ -119,6 +119,15 @@ div.ui-sortable {
 	display: flex;
 	flex-direction: row;
 }
+th.ui-dt-th.ui-numeric {
+	div {
+		display: flex;
+		justify-content: flex-end !important;
+		flex-direction: row;
+		flex-wrap: nowrap;
+	}
+}
+
 
 .ui-sortable span {
 	//margin-left: 10px;
@@ -162,6 +171,10 @@ div.ui-sortable {
 .ui-dt-row > td {
 	padding: 0 4px;
 	@include overflow-ellipsis();
+}
+
+.ui-dt-row > td.wrap {
+	white-space: unset;
 }
 
 .ui-odd {

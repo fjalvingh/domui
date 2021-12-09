@@ -3,6 +3,8 @@ package to.etc.domui.server.parts;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.IPageParameters;
@@ -27,6 +29,7 @@ import java.util.Map;
  */
 @NonNullByDefault
 public class PartService {
+	static private final Logger LOG = LoggerFactory.getLogger(PartService.class);
 
 	public static final String PART_SUFFIX = ".part";
 
@@ -110,6 +113,7 @@ public class PartService {
 		IPartFactory factory = executionReference.getFactory();
 		if(factory instanceof IUnbufferedPartFactory) {
 			IUnbufferedPartFactory upf = (IUnbufferedPartFactory) factory;
+			DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 			upf.generate(getApplication(), executionReference.getInfo().getInputPath(), ctx);
 		} else if(factory instanceof IBufferedPartFactory) {
 			generate((IBufferedPartFactory<?>) factory, ctx, executionReference.getInfo());
@@ -253,9 +257,6 @@ public class PartService {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Helper which handles possible cached buffered parts.
-	 * @param pf
-	 * @param ctx
-	 * @throws Exception
 	 */
 	private <K> void generate(IBufferedPartFactory<K> pf, RequestContextImpl ctx, IPageParameters parameters) throws Exception {
 		PartData cp = getCachedInstance2(pf, parameters);
@@ -265,6 +266,8 @@ public class PartService {
 		if(cp.getCacheTime() > 0 && m_allowExpires) {
 			ctx.getRequestResponse().setExpiry(cp.getCacheTime());
 		}
+		DomApplication.get().getDefaultSiteResourceHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
+
 		try {
 			os = ctx.getRequestResponse().getOutputStream(cp.getContentType(), null, cp.getSize());
 			for(byte[] data : cp.getData())
@@ -307,7 +310,7 @@ public class PartService {
 		if(cp != null /* && m_application.inDevelopmentMode() */) {
 			if(cp.getDependencies() != null) {
 				if(cp.getDependencies().isModified()) {
-					System.out.println("parts: part " + key + " has changed. Reloading..");
+					LOG.info("parts: part " + key + " has changed. Reloading..");
 					cp = null;
 				}
 			}
@@ -322,7 +325,7 @@ public class PartService {
 		pf.generate(pr, m_application, key, rdl);
 		String mime = pr.getMime();
 		if(mime == null) {
-			System.err.println("The part " + pf + " did not set a MIME type, key=" + key + ", using octet-stream");
+			LOG.error("The part " + pf + " did not set a MIME type, key=" + key + ", using octet-stream");
 			mime = "application/octet-stream";
 		}
 		os.close();

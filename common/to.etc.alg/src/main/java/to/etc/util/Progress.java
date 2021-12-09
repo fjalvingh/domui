@@ -116,8 +116,6 @@ public class Progress {
 
 	/**
 	 * Return all parallel-running progress parts, starting with the root one.
-	 * @param level
-	 * @return
 	 */
 	@NonNull
 	public List<Info> getParallels(int level) {
@@ -129,7 +127,7 @@ public class Progress {
 			StringBuilder sb = new StringBuilder();
 			Progress split = findSplitPoint(sb, this, level);
 
-			//-- Got 1st split point. Add this-items's progress
+			//-- Got 1st split point. Add this-items' progress
 			prl.add(new Info(sb.toString(), getPercentage()));
 
 			if(split != null) {
@@ -182,7 +180,6 @@ public class Progress {
 
 	/**
 	 * Return the root progress handler; this NEVER returns null - it returns itself if it is the root.
-	 * @return
 	 */
 	@NonNull
 	public Progress getRoot() {
@@ -201,9 +198,13 @@ public class Progress {
 	@Nullable
 	public String getName() {
 		synchronized(m_root) {
-			if(m_extra == null)
-				return m_name;
-			return m_name + m_extra;
+			String extra = m_extra;
+			String name = m_name;
+			if(extra == null)
+				return name;
+			if(name == null)
+				return extra;
+			return name + " " + extra;
 		}
 	}
 
@@ -246,12 +247,18 @@ public class Progress {
 		synchronized(m_root) {
 			Progress p = this;
 			while(p != null && levels > 0) {
-				if(p.m_name != null) {
+				String levelName = p.m_name;
+				String levelExtra = p.m_extra;
+				if(levelName != null || levelExtra != null) {
 					if(sb.length() != 0)
 						sb.append(">");
-					sb.append(p.m_name);
-					if(p.m_extra != null)
-						sb.append(p.m_extra);
+					if(null != levelName)
+						sb.append(levelName);
+					if(levelExtra != null) {
+						if(levelName != null)
+							sb.append(' ');
+						sb.append(levelExtra);
+					}
 					levels--;
 				}
 				if(p.m_subProgress.size() != 1)
@@ -292,9 +299,16 @@ public class Progress {
 	/**
 	 * Set the current amount of work.
 	 * @param work
-	 * @param name
 	 */
 	public void setTotalWork(double work) {
+		setTotalWork(work, null);
+	}
+
+	/**
+	 * Set the current amount of work.
+	 * @param work int for convenience
+	 */
+	public void setTotalWork(int work) {
 		setTotalWork(work, null);
 	}
 
@@ -327,6 +341,16 @@ public class Progress {
 	 * @param now
 	 */
 	public void setCompleted(double now) {
+		checkCancelled();
+		setCompleted(now, null);
+	}
+
+	/**
+	 * Set the amount of work completed. It can only be set to a valid value, and it can
+	 * only advance, not go back.
+	 * @param now int for convenience
+	 */
+	public void setCompleted(int now) {
 		checkCancelled();
 		setCompleted(now, null);
 	}

@@ -50,6 +50,7 @@ import org.hibernate.type.Type;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.component.meta.PropertyRelationType;
+import to.etc.util.RuntimeConversions;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.qsql.QQuerySyntaxException;
 import to.etc.webapp.query.QBetweenNode;
@@ -803,10 +804,14 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 			throw new IllegalStateException("Attempt to do a 'like' on a multi-column property: " + pmm);
 		String columnName = colar[0];
 		int dotix = name.lastIndexOf('.');
-		var property = Objects.requireNonNull(pmm.getClassModel().findProperty(name));
+		String propertyName = name;
+		if(dotix > -1) {
+			propertyName = name.substring(dotix + 1);
+		}
+		var property = Objects.requireNonNull(pmm.getClassModel().findProperty(propertyName));
 		if(dotix == -1) {
 			//-- We need Hibernate metadata to find the column name....
-			if ( Number.class.isAssignableFrom(property.getActualType()) && ((String) value).contains("%")) {
+			if (RuntimeConversions.isNumeric(property.getActualType()) && ((String) value).contains("%")) {
 				m_last = Restrictions.sqlRestriction("CAST({alias}." + columnName + " AS VARCHAR) like ?", value, StringType.INSTANCE);
 			} else {
 				m_last = Restrictions.sqlRestriction("{alias}." + columnName + " like ?", value, StringType.INSTANCE);
@@ -814,7 +819,7 @@ public class CriteriaCreatingVisitor implements QNodeVisitor {
 			return;
 		}
 		String sql;
-		if ( Number.class.isAssignableFrom(property.getActualType()) && ((String) value).contains("%")) {
+		if ( RuntimeConversions.isNumeric(property.getActualType()) && ((String) value).contains("%")) {
 			sql = "CAST({" + name + "} AS VARCHAR) like ?";
 		} else {
 			sql = "{" + name + "} like ?";

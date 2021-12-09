@@ -25,6 +25,8 @@
 package to.etc.domui.util.bugs;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.layout.FloatingWindow;
 import to.etc.domui.component.layout.IWindowClosed;
 import to.etc.domui.dom.css.VerticalAlignType;
@@ -63,6 +65,8 @@ import java.util.List;
  * Created on Jun 18, 2010
  */
 public class DefaultBugListener implements IBugListener {
+	static private final Logger LOG = LoggerFactory.getLogger(DefaultBugListener.class);
+
 	static private final int MAX_BUGS = 20;
 
 	static private final String KEY = "DefaultBugList";
@@ -136,7 +140,7 @@ public class DefaultBugListener implements IBugListener {
 		try {
 			cc = UIContext.getCurrentConversation();
 		} catch(Exception x) {
-			System.out.println("Bug signalled, outside UI: " + item);
+			LOG.error("Bug signalled, outside UI: " + item);
 			return;
 		}
 
@@ -227,7 +231,7 @@ public class DefaultBugListener implements IBugListener {
 		if(null == ref || ref.getBugList().size() == 0)
 			return;
 
-		System.out.println("BugListener: need to add UI for " + ref.getBugList().size() + " bugs are present");
+		LOG.error("BugListener: need to add UI for " + ref.getBugList().size() + " bugs are present");
 
 		//-- We need to create/add to the Bug UI
 		if(ref.getIndicator() == null) {

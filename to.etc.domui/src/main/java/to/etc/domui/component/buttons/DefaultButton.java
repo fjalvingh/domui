@@ -37,6 +37,7 @@ import to.etc.domui.dom.html.Span;
 import to.etc.domui.dom.html.Underline;
 import to.etc.domui.util.DomUtil;
 import to.etc.util.StringTool;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.Objects;
 
@@ -103,6 +104,9 @@ public class DefaultButton extends Button implements IActionControl {
 		actionRefresh();
 	}
 
+	public DefaultButton(IBundleCode code, IIconRef icon) {
+		this(code.getString(), icon);
+	}
 
 	/**
 	 * Create a button with a text and an icon.
@@ -113,10 +117,18 @@ public class DefaultButton extends Button implements IActionControl {
 		setIcon(icon);
 	}
 
+	public DefaultButton(IBundleCode code, IClicked<DefaultButton> clicked) {
+		this(code.getString(), clicked);
+	}
+
 	public DefaultButton(String txt, IClicked<DefaultButton> clicked) {
 		this();
 		setText(txt);
 		setClicked(clicked);
+	}
+
+	public DefaultButton(IBundleCode code, IIconRef icon, final IClicked<DefaultButton> clicked) {
+		this(code.getString(), icon, clicked);
 	}
 
 	public DefaultButton(String txt, IIconRef icon, final IClicked<DefaultButton> clicked) {

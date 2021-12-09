@@ -26,7 +26,6 @@ package to.etc.domui.component.searchpanel;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.input.IQueryFactory;
 import to.etc.domui.component.layout.ButtonFactory;
@@ -54,8 +53,8 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.themes.Theme;
 import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
-import to.etc.function.IExecute;
 import to.etc.domui.util.Msgs;
+import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.annotations.GProperty;
 import to.etc.webapp.query.QCriteria;
@@ -1046,7 +1045,8 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		addDefault();
 	}
 
-	@NotNull private List<SearchPropertyMetaModel> getMetadataSearchPropertyList() {
+	@NonNull
+	private List<SearchPropertyMetaModel> getMetadataSearchPropertyList() {
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
 		if(list == null || list.size() == 0) {
 			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL

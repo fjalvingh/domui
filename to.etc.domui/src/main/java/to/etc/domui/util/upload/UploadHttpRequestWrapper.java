@@ -25,6 +25,8 @@
 package to.etc.domui.util.upload;
 
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.server.DomApplication;
 import to.etc.util.WrappedException;
 
@@ -38,6 +40,8 @@ import java.util.Map;
 import java.util.Vector;
 
 public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
+	private static final Logger LOG = LoggerFactory.getLogger(UploadHttpRequestWrapper.class);
+
 	static public final String UPLOADKEY = "to.etc.domui.up$load$key";
 
 	/** Indexed by name, contains both file and normal parameters. */
@@ -73,7 +77,7 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 		} catch(FileUploadException sxe) {
 			m_uploadException = sxe;
 		} catch(Exception x) {
-			x.printStackTrace();
+			LOG.error("upload failed: " + x, x);
 			throw new WrappedException(x);
 		}
 
@@ -90,10 +94,7 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 						parammap.put(name, v);
 					}
 					v.add(fi.getValue());
-					System.out.println("~~ form item name=" + name);
 				} else {
-					//-- This is some kind of FILE thingy..
-					//				System.out.println("~~ file item name=" + name);
 					List<UploadItem> v = filemap.get(name);
 					if(v == null) {
 						v = new ArrayList<>(5);
@@ -177,7 +178,8 @@ public class UploadHttpRequestWrapper extends HttpServletRequestWrapper {
 			for(UploadItem ui : uiar) {
 				try {
 					ui.discard();
-				} catch(Exception x) {}
+				} catch(Exception x) {
+				}
 			}
 		}
 	}

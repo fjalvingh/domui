@@ -100,6 +100,11 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		m_value = newval;
 	}
 
+	@Nullable
+	protected T internalGetValue() {
+		return m_value;
+	}
+
 	final public T getBindValue() {
 		validateBindValue();
 		return m_value;
@@ -161,6 +166,10 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		IValueChanged<?> ovc = m_onValueChanged;
 		if(null != ovc)
 			rb.setClicked(clickednode -> {});				// Force an event
+
+		if(null != m_value) {
+			rb.setChecked(MetaManager.areObjectsEqual(m_value, rb.getButtonValue()));
+		}
 
 		if(isBuilt())
 			forceRebuild();

@@ -3,7 +3,6 @@ package to.etc.domui.server;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import to.etc.domui.component.misc.InternalParentTree;
 import to.etc.domui.component.misc.MessageFlare;
@@ -20,6 +19,7 @@ import to.etc.domui.dom.html.Page;
 import to.etc.domui.dom.html.PagePhase;
 import to.etc.domui.dom.html.SpiPage;
 import to.etc.domui.dom.html.UrlPage;
+import to.etc.domui.injector.AccessCheckException;
 import to.etc.domui.login.AccessCheckResult;
 import to.etc.domui.login.IAccessDeniedHandler;
 import to.etc.domui.parts.IComponentJsonProvider;
@@ -191,15 +191,19 @@ final public class PageRequestHandler {
 		// ORDERED!!! Must be kept BELOW the OBITUARY check
 		WindowSession windowSession = null;
 		CidPair cida = m_cida;
+		LOG.debug("cida: " + cida);
 		if(cida != null) {
 			windowSession = m_ctx.getSession().findWindowSession(cida.getWindowId());
 		}
 		if(windowSession == null) {
+			LOG.debug("windowSession == null");
 			//-- If this is a crawler we would render a page with a fake session
 			if(m_application.getIsCrawlerFunctor().apply(m_ctx)) {
+				LOG.debug("IsCrawler");
 				windowSession = m_ctx.getSession().createWindowSession();
-				cida = new CidPair(windowSession.getWindowID(), ".x");
+				cida = new CidPair(windowSession.getWindowID(), "x");
 			} else {
+				LOG.debug("createSessionAndReload");
 				//-- no session yet: create one and redirect to a new URL that contains it.
 				createSessionAndReload();
 				return;
@@ -221,7 +225,6 @@ final public class PageRequestHandler {
 				if(LOG.isDebugEnabled())
 					LOG.debug(msg);
 				logUser(msg);
-				System.out.println(msg);
 				m_commandWriter.generateEmptyDelta(m_ctx);
 				return;											// jal 20121122 Must return after sending that delta or the document is invalid!!
 			}
@@ -356,7 +359,8 @@ final public class PageRequestHandler {
 	/**
 	 *
 	 */
-	@NotNull private PageParameters getPageParameters(@Nullable ConversationContext conversation) {
+	@NonNull
+	private PageParameters getPageParameters(@Nullable ConversationContext conversation) {
 		PageParameters papa = PageParameters.createFrom(m_ctx.getPageParameters());
 
 		//-- If this request is a huge post request - get the huge post parameters.
@@ -381,7 +385,9 @@ final public class PageRequestHandler {
 			if(DomUtil.USERLOG.isDebugEnabled())
 				DomUtil.USERLOG.debug(m_cid + ": Full render of page " + page);
 
-			injectPageProperties(page, papa);
+			if(! injectPageProperties(windowSession, page, papa)) {
+				return;
+			}
 
 			/*
 			 * This is a (new) page request. We need to check rights on the page before
@@ -393,7 +399,7 @@ final public class PageRequestHandler {
 			 * user to check it's rights against the page's required rights.
 			 * FIXME This is fugly. Should this use the registerExceptionHandler code? If so we need to extend it's meaning to include pre-page exception handling.
 			 */
-			if(!checkAccess(windowSession, page))
+			if(! checkAccess(windowSession, page))
 				return;
 
 			m_application.callUIStateListeners(sl -> sl.onBeforeFullRender(m_ctx, page));
@@ -428,8 +434,7 @@ final public class PageRequestHandler {
 
 			//-- Start the main rendering process. Determine the browser type.
 			//-- Output all headers
-			IRequestResponse rr = m_ctx.getRequestResponse();
-			page.getHTTPHeaderMap().forEach((header, value) -> rr.addHeader(header, value));
+			m_ctx.renderResponseHeaders(page.getBody());
 
 			Writer w;
 			if(page.isRenderAsXHTML()) {
@@ -531,15 +536,15 @@ final public class PageRequestHandler {
 			logUser("Session exception: " + x);
 			sendUnexpectedLogoutMessageToUser("The session has been invalidated; perhaps you have logged out in another window?");
 		} catch(Exception xxx) {
-			System.err.println("Double exception in handling full page build exception");
-			System.err.println("Original exception: " + x);
-			System.err.println("Second one on forceRebuild: " + xxx);
-			x.printStackTrace();
-			xxx.printStackTrace();
+			LOG.error("Double exception in handling full page build exception"
+				+	"]nOriginal exception: " + x
+				+	"Second one on forceRebuild: " + xxx
+				, x);
+			LOG.error("Second exception", xxx);
 		}
 	}
 
-	private void injectPageProperties(Page page, @NonNull PageParameters papa) throws Exception {
+	private boolean injectPageProperties(WindowSession windowSession, Page page, @NonNull PageParameters papa) throws Exception {
 		if(page.getBody() instanceof IRebuildOnRefresh) {                // Must fully refresh?
 			page.getBody().forceRebuild();                                // Cleanout state
 			page.setInjected(false);
@@ -550,10 +555,18 @@ final public class PageRequestHandler {
 		} else {
 			logUser("Full page render");
 		}
-		if(!page.isInjected()) {
-			m_ctx.getApplication().getInjector().injectPageValues(page.getBody(), nullChecked(papa));
-			page.setInjected(true);
+		if(page.isInjected()) {
+			return true;
 		}
+		try {
+			m_ctx.getApplication().getInjector().injectPageValues(page.getBody(), nullChecked(papa));
+		}catch(AccessCheckException x) {
+			if(! handleAccessCheckResult(windowSession, x.getAccessResult())) {
+				return false;
+			}
+		}
+		page.setInjected(true);
+		return true;
 	}
 
 	private void handleSessionUIMessages(WindowSession windowSession, Page page) throws Exception {
@@ -802,6 +815,11 @@ final public class PageRequestHandler {
 		if(!page.isDestroyed()) 								// jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
 			page.getConversation().processDelayedResults(page);
 
+		if(page.isDestroyed()) {
+			//page is destroyed already (i.e. due to processed delayed navigation)
+			return;
+		}
+
 		//-- Determine the response class to render; exit if we have a redirect,
 		WindowSession cm = m_ctx.getWindowSession();
 		if(cm.handleGoto(m_ctx, page, true))
@@ -826,8 +844,7 @@ final public class PageRequestHandler {
 		try {
 			page.modelToControl();
 		} catch(Exception xxx) {
-			System.out.println("Double exception on modelToControl: " + xxx);
-			xxx.printStackTrace();
+			LOG.error("Double exception on modelToControl: " + xxx, xxx);
 		}
 
 		E nx = (E) ex;
@@ -836,10 +853,13 @@ final public class PageRequestHandler {
 			throw x; 										// Move on, nothing to see here,
 		if(targetComponent != null && !targetComponent.isAttached()) {
 			targetComponent = page.getTheCurrentControl();
-			System.out.println("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
+			LOG.error("DEBUG: Report exception on a " + (targetComponent == null ? "unknown control/node" : targetComponent.getClass()));
 		}
-		if(targetComponent == null || !targetComponent.isAttached())
-			throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
+		if(targetComponent == null || !targetComponent.isAttached()) {
+			//throw new IllegalStateException("INTERNAL: Cannot determine node to report exception /on/", x);
+			LOG.error("INTERNAL: Cannot determine node to report exception /on/:" + x);
+			return false;
+		}
 
 		if(!xl.handleException(m_ctx, page, targetComponent, nx))
 			throw x;
@@ -855,7 +875,7 @@ final public class PageRequestHandler {
 				throw new IllegalStateException("Unknown node '" + targetComponentID + "' for action='" + action + "'");
 
 			logUser(page, "Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
-			System.out.println("Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
+			LOG.warn("Node " + targetComponentID + " is missing for action=" + action + " - ignoring");
 			m_inhibitlog = true;
 		} else if(Constants.ACMD_CLICKED.equals(action)) {
 			handleClicked(page, targetComponent);
@@ -913,6 +933,10 @@ final public class PageRequestHandler {
 	 */
 	private boolean checkAccess(WindowSession windowSession, Page page) throws Exception {
 		AccessCheckResult result = m_application.getPageAccessChecker().checkAccess(m_ctx, page, a -> logUser(a));
+		return handleAccessCheckResult(windowSession, result);
+	}
+
+	private boolean handleAccessCheckResult(WindowSession windowSession, AccessCheckResult result) throws Exception {
 		switch(result.getResult()) {
 			default:
 				throw new IllegalArgumentException(result + "?");
@@ -1009,8 +1033,7 @@ final public class PageRequestHandler {
 	final private JSONRegistry m_jsonRegistry = new JSONRegistry();
 
 	private void renderJsonLikeResponse(Page page, @NonNull Object value) throws Exception {
-		IRequestResponse rr = m_ctx.getRequestResponse();
-		page.getHTTPHeaderMap().forEach((header, val) -> rr.addHeader(header, val));
+		m_ctx.renderResponseHeaders(page.getBody());
 		Writer w = m_ctx.getOutputWriter("application/javascript", "utf-8");
 		if(value instanceof String) {
 			//-- String return: we'll assume this is a javascript response by itself.
@@ -1166,8 +1189,7 @@ final public class PageRequestHandler {
 		try {
 			m_applicationRequestHandler.getOopsRenderer().renderOopsFrame(m_ctx, x);
 		} catch(Exception oopx) {
-			System.out.println("Exception while rendering exception page!!?? " + oopx);
-			oopx.printStackTrace();
+			LOG.error("Exception while rendering exception page!!?? " + oopx, oopx);
 			if(x instanceof Error) {
 				throw (Error) x;
 			} else {

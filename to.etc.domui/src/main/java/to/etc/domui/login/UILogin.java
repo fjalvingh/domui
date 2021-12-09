@@ -3,6 +3,9 @@ package to.etc.domui.login;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import to.etc.domui.server.HttpServerRequestResponse;
 import to.etc.domui.server.IRequestContext;
 import to.etc.domui.server.IServerSession;
@@ -23,6 +26,8 @@ import java.util.TimeZone;
  */
 @NonNullByDefault
 final public class UILogin {
+	static private final Logger LOG = LoggerFactory.getLogger(UILogin.class);
+
 	static private volatile ILoginHandler	m_loginHandler = new DefaultLoginHandler();
 
 	/**
@@ -55,6 +60,7 @@ final public class UILogin {
 		if(null == user) {
 			m_impersonator.set(null);
 		}
+		MDC.put(to.etc.log.EtcMDCAdapter.LOGINID, null == user ? null : user.getLoginID());
 	}
 
 	/**
@@ -269,7 +275,7 @@ final public class UILogin {
 				try {
 					l.userLogout(user);
 				} catch(Exception x) {
-					x.printStackTrace();
+					LOG.error("LoginListener error: " + x, x);
 				}
 			}
 
@@ -281,7 +287,7 @@ final public class UILogin {
 				hs.invalidate();
 			} catch(Exception x) {
 				//-- Invalidating 2ce causes a useless exception.
-				x.printStackTrace();
+				LOG.error(x.toString(), x);
 			}
 		}
 	}
@@ -324,7 +330,7 @@ final public class UILogin {
 		long exp = System.currentTimeMillis() + l;
 		sb.append(df.format(new Date(l)));
 
-		System.out.println("LoginCookie: " + sb.toString());
+		LOG.debug("LoginCookie: " + sb.toString());
 		ci.getRequestResponse().addHeader("Set-Cookie", sb.toString());
 		return k;
 	}

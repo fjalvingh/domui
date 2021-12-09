@@ -79,6 +79,8 @@ public interface INodeVisitor {
 
 	void visitBR(BR n) throws Exception;
 
+	void visitHR(HR n) throws Exception;
+
 	void visitTextArea(TextArea n) throws Exception;
 
 	void visitFileInput(FileInput fi) throws Exception;
@@ -104,4 +106,6 @@ public interface INodeVisitor {
 	void visitVideo(Video n) throws Exception;
 
 	void visitSource(Source source) throws Exception;
+
+	void visitCanvas(Canvas c) throws Exception;
 }

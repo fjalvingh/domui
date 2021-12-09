@@ -4,6 +4,7 @@ import kotlin.reflect.KProperty1;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.binding.StyleBinding;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -46,7 +47,8 @@ import java.util.function.Predicate;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 11, 2013
  */
-@NonNullByDefault final public class RowRenderer<T> implements IClickableRowRenderer<T> {
+@NonNullByDefault
+final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/** Used in DomApplication.setAttribute to set a generic {@link IColumnListener} for all pages. */
 	static public final String COLUMN_LISTENER = RowRenderer.class.getCanonicalName() + ".rowl";
 
@@ -167,6 +169,7 @@ import java.util.function.Predicate;
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Actual rendering: the header.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Render the header for a table, using the simple column metadata provided. This renders a rich
 	 * header, containing column labels, sort boxes and the like.
@@ -192,7 +195,7 @@ import java.util.function.Predicate;
 			TH th;
 			Col col;
 			String label = cd.getColumnLabel();
-			if(! sortablemodel || ! isSortable(cd)) {
+			if(!sortablemodel || !isSortable(cd)) {
 				//-- Just add the span with label, if present. Span is needed to allow styling.
 				Div cellSpan = new Div();
 
@@ -219,7 +222,6 @@ import java.util.function.Predicate;
 				th.setClicked((IClicked<TH>) b -> handleSortClick(b, scd));
 
 				//in order to apply correct positioning, we need to wrap Span around sort indicator image and label
-
 
 				String sortCss;
 				if(cd == getSortColumn()) {
@@ -325,7 +327,7 @@ import java.util.function.Predicate;
 		//-- 1. Is this the same as the "current" sort column? If so toggle the sort order only.
 		ColumnDef<T, ?> sortColumn = getSortColumn();
 		if(scd == sortColumn) {
-			setSortDescending(!isSortDescending());			// Toggle
+			setSortDescending(!isSortDescending());            // Toggle
 		} else {
 			if(sortColumn != null && isSortable(sortColumn))
 				updateSortImage(sortColumn, SortableType.UNKNOWN);
@@ -383,7 +385,7 @@ import java.util.function.Predicate;
 		Div sp = sortSpans[index];
 		if(null == sp)
 			throw new IllegalStateException("Missing sort image for column " + scd);
-		switch(sortOrder) {
+		switch(sortOrder){
 			default:
 				sp.removeCssClass("ui-sort-a ui-sort-d");
 				sp.addCssClass("ui-sort-n");
@@ -434,6 +436,7 @@ import java.util.function.Predicate;
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Actual rendering: a row.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 */
@@ -472,8 +475,16 @@ import java.util.function.Predicate;
 	/**
 	 * Render a single column fully.
 	 */
-	protected <X> void renderColumn(@NonNull final TableModelTableBase<T> tbl, @NonNull final ColumnContainer<T> cc, final int index, @NonNull final T instance, @NonNull final ColumnDef<T, X> cd) throws Exception {
+	protected <X> void renderColumn(@NonNull final TableModelTableBase<T> tbl, @NonNull final ColumnContainer<T> cc, final int index, @NonNull final T instance, @NonNull final ColumnDef<T, X> cd)
+		throws Exception {
 		TD cell = cc.add((NodeBase) null);
+
+		ColumnStyleBindingBuilder<T, X> csb = cd.getColumnStyleBinding();
+		if(null != csb) {
+			StyleBinding syb = new StyleBinding(csb.getBinder(), cell);
+			syb.to(instance, csb.getProperty());
+		}
+
 		String cssClass = cd.getCssClass();
 		if(cssClass != null)
 			cell.addCssClass(cssClass);
@@ -526,7 +537,8 @@ import java.util.function.Predicate;
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
 				ds.setRenderer(new IRenderInto<X>() {
-					@Override public void render(@NonNull NodeContainer node, @NonNull X object) throws Exception {
+					@Override
+					public void render(@NonNull NodeContainer node, @NonNull X object) throws Exception {
 						contentRenderer.render(node, object);
 					}
 
@@ -554,18 +566,18 @@ import java.util.function.Predicate;
 	}
 
 	private void applyNumericCssClass(NodeContainer cell, ColumnDef<T, ?> cd) {
-		if(cd.getConverter() != null)							// Using a converter: have to add it manually.
+		if(cd.getConverter() != null)                            // Using a converter: have to add it manually.
 			return;
 		PropertyMetaModel<?> pmm = cd.getPropertyMetaModel();
 		if(pmm != null && pmm.getConverter() != null)
 			return;
 
 		//-- Do we have a control factory?
-		if(cd.isEditable() || cd.getControlFactory() != null)	// Control factory means do it yourself too.
+		if(cd.isEditable() || cd.getControlFactory() != null)    // Control factory means do it yourself too.
 			return;
 
 		//NumericPresentation np = cd.getNumericPresentation();
-		if(! Number.class.isAssignableFrom(DomUtil.getBoxedForPrimitive(cd.getActualClass()))) {
+		if(!Number.class.isAssignableFrom(DomUtil.getBoxedForPrimitive(cd.getActualClass()))) {
 			return;
 		}
 
@@ -574,9 +586,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Render an editable component for the thingy, and bind it to the item value.
-	 * @param tbl
-	 * @param cell
-	 * @param instance
 	 */
 	private <X, C extends NodeBase & IControl<X>> void renderEditable(@NonNull TableModelTableBase<T> tbl, @NonNull ColumnDef<T, X> cd, @NonNull TD cell, @NonNull T instance) throws Exception {
 		PropertyMetaModel<X> pmm = cd.getPropertyMetaModel();
@@ -616,10 +625,6 @@ import java.util.function.Predicate;
 		return this;
 	}
 
-	/**
-	 *
-	 * @return
-	 */
 	@Nullable
 	public IRowButtonFactory<T> getRowButtonFactory() {
 		return m_rowButtonFactory;
@@ -643,8 +648,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Sets default sort column on row renderer. Overrides property meta model setting if such defines default sort.
-	 * @param cd
-	 * @param type
 	 */
 	public void setDefaultSort(@NonNull ColumnDef<T, ?> cd, @NonNull SortableType type) {
 		getColumnList().setSortColumn(cd, type);
@@ -652,7 +655,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Returns the metamodel used.
-	 * @return
 	 */
 	@NonNull
 	protected ClassMetaModel model() {
@@ -661,7 +663,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Returns the record type being rendered.
-	 * @return
 	 */
 	@NonNull
 	protected Class<?> getActualClass() {
@@ -670,7 +671,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Check if this object is used (completed) and thereby unmodifyable (internal).
-	 * @return
 	 */
 	protected boolean isComplete() {
 		return m_completed;
@@ -696,8 +696,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Return the definition for the nth column. You can change the column's definition there.
-	 * @param ix
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<T, ?> getColumn(final int ix) {
@@ -706,7 +704,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Return the #of columns in this renderer.
-	 * @return
 	 */
 	public int getColumnCount() {
 		return m_columnList.size();
@@ -716,8 +713,6 @@ import java.util.function.Predicate;
 	 * Find a column by the property it is displaying. This only works for that kind of columns, and will
 	 * not work for any joined columns defined from metadata. If no column exists for the specified property
 	 * this will throw an exception.
-	 * @param propertyName
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<T, ?> getColumnByName(String propertyName) {
@@ -730,7 +725,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Quickly set the widths of all columns in the same order as defined.
-	 * @param widths
 	 */
 	public void setColumnWidths(final String... widths) {
 		check();
@@ -742,8 +736,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Convenience method to set the column width; replacement for getColumn(index).setWidth().
-	 * @param index
-	 * @param width
 	 */
 	public void setColumnWidth(final int index, final String width) {
 		check();
@@ -752,8 +744,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Convenience method to set the column's cell renderer; replacement for getColumn(index).setRenderer().
-	 * @param index
-	 * @param renderer
 	 */
 	public <C> void setNodeRenderer(final int index, @Nullable final IRenderInto<C> renderer) {
 		check();
@@ -762,18 +752,14 @@ import java.util.function.Predicate;
 
 	/**
 	 * Convenience method to get the column's cell renderer; replacement for getColumn(index).getRenderer().
-	 * @param index
-	 * @return
 	 */
 	@Nullable
 	public IRenderInto<?> getNodeRenderer(final int index) {
 		return getColumn(index).getContentRenderer();
 	}
 
-
 	/**
 	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
-	 * @return
 	 */
 	@Override
 	@Nullable
@@ -783,7 +769,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * When set each row will be selectable (will react when the mouse hovers over it), and when clicked will call this handler.
-	 * @param rowClicked
 	 */
 	@Override
 	public void setRowClicked(@Nullable final ICellClicked<T> rowClicked) {
@@ -792,8 +777,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Get the cell clicked handler for the specified column. Convenience method for getColumn(col).getCellClicked().
-	 * @param col
-	 * @return
 	 */
 	@Nullable
 	public ICellClicked<?> getCellClicked(final int col) {
@@ -802,8 +785,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Set the cell clicked handler for the specified column. Convenience method for getColumn(col).setCellClicked().
-	 * @param col
-	 * @param cellClicked
 	 */
 	@Override
 	public void setCellClicked(final int col, @Nullable final ICellClicked<T> cellClicked) {
@@ -813,13 +794,11 @@ import java.util.function.Predicate;
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Typesafe definition delegates.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Add and return the column definition for a column on the specified property. Because Java still has no
 	 * first-class properties (sigh) you need to pass in the property's type to get a typeful column. If you
 	 * do not need a typeful column use {@link #column(String)}.
-	 * @param type
-	 * @param property
-	 * @return
 	 */
 	@NonNull
 	public <V> ColumnDef<T, V> column(@NonNull Class<V> type, @NonNull @GProperty String property) {
@@ -829,8 +808,6 @@ import java.util.function.Predicate;
 	/**
 	 * This adds a column on the specified property, but has no idea about the real type. It can be used as long
 	 * as that type is not needed.
-	 * @param property
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<T, ?> column(@NonNull String property) {
@@ -861,7 +838,6 @@ import java.util.function.Predicate;
 
 	/**
 	 * Add a column which gets referred the row element instead of a column element. This is normally used together with
-	 * @return
 	 */
 	@NonNull
 	public ColumnDef<T, T> column() {
@@ -911,13 +887,13 @@ import java.util.function.Predicate;
 		}
 	}
 
-
 	/**
 	 * Called when the column size has been changed by the user, this stores the new sizes
 	 * in the column to be sure they are re-rendered with the same widths when paging
 	 * or re-rendering. In addition it calls the store method if configured.
 	 */
-	@Override public void updateWidths(@NonNull TableModelTableBase<T> tbl, @NonNull RequestContextImpl context) throws Exception {
+	@Override
+	public void updateWidths(@NonNull TableModelTableBase<T> tbl, @NonNull RequestContextImpl context) throws Exception {
 		//-- Get the CSS widths for all heads.
 		List<ColumnWidth<T, ?>> list = new ArrayList<>();
 		int index = 0;
@@ -926,7 +902,7 @@ import java.util.function.Predicate;
 			if(null != th) {
 				String cw = context.getPageParameters().getString("column_" + th.getActualID(), null);
 				if(null != cw) {
-					th.unchanged(() -> th.setWidth(cw));								// Update TH
+					th.unchanged(() -> th.setWidth(cw));                                // Update TH
 					list.add(new ColumnWidth<>(cd, index, cw));
 				}
 			}
@@ -945,7 +921,8 @@ import java.util.function.Predicate;
 		}
 	}
 
-	@Nullable public IColumnListener<T> getColumnListener() {
+	@Nullable
+	public IColumnListener<T> getColumnListener() {
 		return m_columnListener;
 	}
 

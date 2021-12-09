@@ -25,6 +25,12 @@ class EmptyColumn extends AbstractImportColumn implements IImportColumn {
 		return null;
 	}
 
+	@Nullable
+	@Override
+	public Date asDate(String dateFormat) {
+		return null;
+	}
+
 	@Nullable @Override public BigDecimal getDecimal() {
 		return null;
 	}

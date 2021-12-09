@@ -15,14 +15,18 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -46,6 +50,18 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 
 	private final NumberFormat m_doubleFormatter;
 
+	private final Map<String, DateFormat> m_dateFormatMap = new HashMap<>();
+
+	@Nullable
+	private DateFormat m_defaultDateFormat;
+
+	/**
+	 * When set all fields read by getValueAsString() will return this date format string
+	 * if Excel has the idea the field was a date.
+	 */
+	@Nullable
+	private DateFormat m_forceStringDateFormat;
+
 	public ExcelRowReader(File file) throws Exception {
 		String suffix = FileTool.getFileExtension(file.getName());
 		ExcelFormat format = ExcelFormat.byExtension(suffix);
@@ -61,10 +77,6 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
 	}
 
-	public String convertDouble(double value) {
-		return m_doubleFormatter.format(value);
-	}
-
 	public ExcelRowReader(InputStream is, ExcelFormat format) throws Exception {
 		m_inputStream = is;
 		m_format = format;
@@ -73,17 +85,44 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
 	}
 
-	@NonNull @Override public Iterator<IImportRow> iterator() {
+	/**
+	 * When set all fields read by getValueAsString() will return this date format string
+	 * if Excel has the idea the field was a date. This means that a call to getString()
+	 * might return something that looks different in the Excel file itself!
+	 */
+	public ExcelRowReader forceStringDateFormat(String dateFormat) {
+		m_forceStringDateFormat = new SimpleDateFormat(dateFormat);
+		return this;
+	}
+
+	@Override
+	public void setDateFormat(String dateFormat) {
+		m_defaultDateFormat = new SimpleDateFormat(dateFormat);
+	}
+
+	@Nullable
+	DateFormat getDefaultDateFormat() {
+		return m_defaultDateFormat;
+	}
+
+	public String convertDouble(double value) {
+		return m_doubleFormatter.format(value);
+	}
+
+	@NonNull
+	@Override
+	public Iterator<IImportRow> iterator() {
 		checkStart();
 		Sheet sheet = getSheet();
 		try {
 			return new RowIterator(sheet, sheet.getFirstRowNum() + m_headerRowCount, getCurrentHeaderNames());
 		} catch(IOException ix) {
-			throw WrappedException.wrap(ix);				// morons
+			throw WrappedException.wrap(ix);                // morons
 		}
 	}
 
-	@Override public IImportRow getHeaderRow() {
+	@Override
+	public IImportRow getHeaderRow() {
 		if(m_headerRowCount <= 0)
 			throw new IllegalStateException("You cannot ask for a header row when hasHeaderRow is false");
 		return new ExcelImportRow(this, getSheet().getRow(getSheet().getFirstRowNum() + m_headerRowCount - 1), Collections.emptyList());
@@ -96,7 +135,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	}
 
 	private Workbook openWorkbook() throws IOException {
-		switch(m_format) {
+		switch(m_format){
 			default:
 				throw new IllegalStateException("Unhandled Excel format " + m_format);
 			case XLS:
@@ -110,11 +149,13 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	/**
 	 * Returns the #of datasets, sheets in Excel files.
 	 */
-	@Override public int getSetCount() {
+	@Override
+	public int getSetCount() {
 		return m_workbook.getNumberOfSheets();
 	}
 
-	@Override public void setSetIndex(int setIndex) {
+	@Override
+	public void setSetIndex(int setIndex) {
 		if(m_setIndex != setIndex) {
 			Sheet sheet = m_currentSheet = m_workbook.getSheetAt(setIndex);
 			m_setIndex = setIndex;
@@ -167,15 +208,18 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		return getSheet().getSheetName();
 	}
 
-	@Override public long getSetSizeIndicator() {
+	@Override
+	public long getSetSizeIndicator() {
 		return getSheet().getLastRowNum() - getSheet().getFirstRowNum();
 	}
 
-	@Override public long getProgressIndicator() {
+	@Override
+	public long getProgressIndicator() {
 		return m_progressIndicator;
 	}
 
-	@Override public void close() throws IOException {
+	@Override
+	public void close() throws IOException {
 		InputStream is = m_inputStream;
 		if(null != is) {
 			is.close();
@@ -183,7 +227,8 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		}
 	}
 
-	@Override public void setHasHeaderRow(boolean hasHeaderRow) {
+	@Override
+	public void setHasHeaderRow(boolean hasHeaderRow) {
 		setHeaderRowCount(hasHeaderRow ? 1 : 0);
 	}
 
@@ -193,6 +238,19 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 
 	public int getHeaderRowCount() {
 		return m_headerRowCount;
+	}
+
+	public DateFormat getDateFormat(String dateFormat) {
+		return m_dateFormatMap.computeIfAbsent(dateFormat, a -> {
+			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+			sdf.setLenient(false);
+			return sdf;
+		});
+	}
+
+	@Nullable
+	DateFormat getForceStringDateFormat() {
+		return m_forceStringDateFormat;
 	}
 
 	private class RowIterator implements Iterator<IImportRow> {
@@ -213,16 +271,19 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			m_headerNames = headerNames;
 		}
 
-		@Override public boolean hasNext() {
+		@Override
+		public boolean hasNext() {
 			return m_nextRow <= m_lastRow;
 		}
 
-		@Override public void remove() {
+		@Override
+		public void remove() {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override public IImportRow next() {
-			if(! hasNext())
+		@Override
+		public IImportRow next() {
+			if(!hasNext())
 				throw new IllegalStateException("Calling next() after hasNext() returned false");
 			Row row = m_sheet.getRow(m_nextRow++);
 			m_progressIndicator++;
@@ -242,25 +303,32 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			m_index = index;
 		}
 
-		@Override public String getName() {
+		@Override
+		public String getName() {
 			return m_name;
 		}
 
-		@Override public int getIndex() {
+		@Override
+		public int getIndex() {
 			return m_index;
 		}
 	}
 
 	private static class EmptyRow implements IImportRow {
-		@Override public int getColumnCount() {
+		@Override
+		public int getColumnCount() {
 			return 0;
 		}
 
-		@NonNull @Override public IImportColumn get(int index) {
+		@NonNull
+		@Override
+		public IImportColumn get(int index) {
 			return new EmptyColumn("Column" + index);
 		}
 
-		@NonNull @Override public IImportColumn get(@NonNull String name) throws IOException {
+		@NonNull
+		@Override
+		public IImportColumn get(@NonNull String name) throws IOException {
 			return new EmptyColumn(name);
 		}
 	}

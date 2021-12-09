@@ -7,7 +7,9 @@ import to.etc.webapp.ProgrammerErrorException;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Access checker which uses the type of the value to check access to it.
@@ -18,6 +20,8 @@ import java.util.Map;
 public class TypedPropertyAccessChecker implements IInjectedPropertyAccessChecker {
 	private Map<Class<?>, ITypedValueAccessChecker<?>> m_checkerMap = Collections.emptyMap();
 
+	private List<ITypedValueAccessChecker<Object>> m_anyCheckerList = new CopyOnWriteArrayList<>();
+
 	public synchronized <T> void register(Class<T> clz, ITypedValueAccessChecker<T> check) {
 		Map<Class<?>, ITypedValueAccessChecker<?>> map = new HashMap<>(m_checkerMap);
 		if(map.put(clz, check) != null)
@@ -25,23 +29,43 @@ public class TypedPropertyAccessChecker implements IInjectedPropertyAccessChecke
 		m_checkerMap = Collections.unmodifiableMap(map);
 	}
 
+	public void registerAny(ITypedValueAccessChecker<Object> checker) {
+		m_anyCheckerList.add(checker);
+	}
+
 	private synchronized Map<Class<?>, ITypedValueAccessChecker<?>> getCheckerMap() {
 		return m_checkerMap;
 	}
 
 	@Override
-	public boolean isAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
-		return checkAccessSigh(info, page, value);
+	public void checkAccessAllowed(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
+		checkAccessInternal(info, page, value);
 	}
 
-	private <T> boolean checkAccessSigh(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
+	private <T> void checkAccessInternal(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
 		if(null == value)
-			return true;
+			return;
 
 		ITypedValueAccessChecker<T> checker = findClassChecker(value.getClass());
-		if(null == checker)
-			return false;
-		return checker.isAccessAllowed(info, page, (T) value);
+		if(null != checker) {
+			checker.checkAccessAllowed(info, page, (T) value);
+			return;
+		}
+		//Checks if any of registered access checkers can grant the access. If none can grant it, we abort with first access check exception that was delivered by checkers.
+		AccessCheckException firstException = null;
+		for(ITypedValueAccessChecker<Object> any : m_anyCheckerList) {
+			try{
+				any.checkAccessAllowed(info, page, value);
+				return;
+			}catch (AccessCheckException x) {
+				if(null == firstException) {
+					firstException = x;
+				}
+			}
+		}
+		if(null != firstException) {
+			throw firstException;
+		}
 	}
 
 	@Nullable

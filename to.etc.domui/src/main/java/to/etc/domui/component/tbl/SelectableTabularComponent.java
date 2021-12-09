@@ -111,7 +111,12 @@ abstract public class SelectableTabularComponent<T> extends TableModelTableBase<
 
 	@Override
 	public void setDisabled(boolean disabled) {
+		if(m_disabled == disabled)
+			return;
 		m_disabled = disabled;
+		if(isBuilt()) {
+			forceRebuild();
+		}
 	}
 
 }

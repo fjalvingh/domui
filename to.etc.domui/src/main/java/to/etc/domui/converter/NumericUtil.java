@@ -26,6 +26,8 @@ package to.etc.domui.converter;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.NumericPresentation;
 import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.trouble.ValidationException;
@@ -39,6 +41,8 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 
 public class NumericUtil {
+	static private final Logger LOG = LoggerFactory.getLogger(NumericUtil.class);
+
 	private NumericUtil() {}
 
 	/*--------------------------------------------------------------*/
@@ -51,7 +55,7 @@ public class NumericUtil {
 		return internalParseInt(input);
 	}
 
-	@Nullable
+	@NonNull
 	static public Integer parseIntWrapper(String input) {
 		return Integer.valueOf(internalParseInt(input));
 	}
@@ -68,8 +72,6 @@ public class NumericUtil {
 	/**
 	 * Parses an integer as a BigDecimal, then converts it. It also
 	 * does a range check on that BigDecimal. FIXME Complex, do later.
-	 * @param input
-	 * @return
 	 */
 	static private int internalParseInt(String input) {
 		BigDecimal bd = parseBigDecimal(input, 0, NumericPresentation.NUMBER);
@@ -301,8 +303,12 @@ public class NumericUtil {
 				//FIXME: vmijic 20110718 - Since this combination in pmm can break existing code, for now we just log this places.
 				//SCHEDULED FOR DELETE - if it is proven that this actually does not happen, (if no such items in logs are found) this check shold be removed.
 				if(scale > 0)
-					System.out.println(pmm + ": WRONG SCALE on int types! Detected (scale :" + scale + ") is changed to 0!");
+					LOG.error(pmm + ": WRONG SCALE on int types! Detected (scale :" + scale + ") is changed to 0!");
 				scale = 0;
+			}
+			if((DomUtil.isFloatOrWrapper(type) || DomUtil.isDoubleOrWrapper(type)) && scale == -1) {
+				//when we have undefined scale for decimal types, we keep it to some reasonable generic scale, lets use 5
+				scale = 5;
 			}
 			IConverter<T> c = createNumberConverter(type, np, scale);
 			node.setConverter(c);

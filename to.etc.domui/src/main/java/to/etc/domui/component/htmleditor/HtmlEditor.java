@@ -26,6 +26,8 @@ package to.etc.domui.component.htmleditor;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.css.DisplayType;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.TextArea;
@@ -52,6 +54,8 @@ import to.etc.util.StringTool;
  * Created on Feb 19, 2010
  */
 public class HtmlEditor extends TextArea {
+	private static final Logger LOG = LoggerFactory.getLogger(HtmlEditor.class);
+
 	private String m_styleSheet;
 
 	private String m_updateValueJS;
@@ -221,7 +225,7 @@ public class HtmlEditor extends TextArea {
 //				values[i] = sb.toString();
 //				System.out.println("post-value[" + i + "]=" + values[i]);
 			} catch(Exception e) {
-				e.printStackTrace();
+				LOG.error("HtmlEditor exception: " + e, e);
 				values[i] = e.toString();
 			}
 		}

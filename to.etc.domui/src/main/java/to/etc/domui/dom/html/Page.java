@@ -27,6 +27,8 @@ package to.etc.domui.dom.html;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.binding.OldBindingHandler;
 import to.etc.domui.component.layout.FloatingDiv;
 import to.etc.domui.component.misc.WindowParameters;
@@ -40,6 +42,7 @@ import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.SubConversationContext;
 import to.etc.domui.state.UIContext;
+import to.etc.domui.state.UIGotoContext;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.domui.util.resources.IResourceRef;
@@ -59,7 +62,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -74,6 +76,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @NonNullByDefault
 final public class Page implements IQContextContainer {
+	static private final Logger LOG = LoggerFactory.getLogger(Page.class);
+
 	static private final int MAX_DOMUI_NODES_PER_PAGE = 100_000;
 
 	/** Next ID# for unidded nodes. */
@@ -233,6 +237,8 @@ final public class Page implements IQContextContainer {
 
 	private long m_lastClickTime;
 
+	private boolean m_allowTooManyNodes;
+
 	/**
 	 * Nodes that are added to a render and that are removed by the Javascript framework are added here; this
 	 * will force them to be removed from the tree after any render without causing a delta.
@@ -257,12 +263,12 @@ final public class Page implements IQContextContainer {
 
 	private List<IExecute> m_pageOnCallbackList = new ArrayList<>();
 
-	/**
-	 * Contains all http headers that need to be sent for this page. When the Page
-	 * is created this is filled with the headers set in {@link DomApplication#getDefaultHTTPHeaderMap()},
-	 * and it can after be manipulated by a page before being used.
-	 */
-	private Map<String, String> m_HTTPHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+	///**
+	// * Contains all http headers that need to be sent for this page. When the Page
+	// * is created this is filled with the headers set in {@link DomApplication#getDefaultHTTPHeaderMap()},
+	// * and it can after be manipulated by a page before being used.
+	// */
+	//private Map<String, String> m_HTTPHeaderMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
 	public Page(@NonNull final UrlPage pageContent) throws Exception {
 		m_pageTag = DomApplication.internalNextPageTag(); // Unique page ID.
@@ -283,7 +289,7 @@ final public class Page implements IQContextContainer {
 		if(res == null)
 			throw new IllegalStateException("internal: missing domui NLS resource $js/domuinls{nls}.js");
 		addHeaderContributor(HeaderContributor.loadJavascript(res), -760);
-		m_HTTPHeaderMap.putAll(app.getDefaultHTTPHeaderMap());
+		//m_HTTPHeaderMap.putAll(app.applyPageHeaderTransformations(pageContent.getClass().getName(), app.getDefaultHTTPHeaderMap()));
 	}
 
 	/*--------------------------------------------------------------*/
@@ -315,6 +321,7 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Initialization.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Assign required data to the page.
 	 */
@@ -343,7 +350,7 @@ final public class Page implements IQContextContainer {
 			try {
 				listener.execute();
 			} catch(Exception x) {
-				x.printStackTrace();
+				LOG.error("Listener failed: " + x, x);
 			}
 		}
 		m_asyncLink.m_page = null;
@@ -370,7 +377,7 @@ final public class Page implements IQContextContainer {
 	public NodeBase getTheCurrentControl() {
 		//-- Locate the best encapsulating control if possible.
 		NodeBase nb = getTheCurrentNode();
-		while(nb != null && !(nb instanceof IControl< ? >) && nb.hasParent()) {
+		while(nb != null && !(nb instanceof IControl<?>) && nb.hasParent()) {
 			nb = nb.getParent();
 		}
 		return nb != null ? nb : getTheCurrentNode();
@@ -454,9 +461,9 @@ final public class Page implements IQContextContainer {
 		 */
 		String id = n.internalGetID();
 		if(id != null) {
-			if(m_nodeMap.containsKey(id)) { 			// Duplicate key?
-				id = nextID();							// Assign new ID
-				n.setActualID(id); 						// Save in node.
+			if(m_nodeMap.containsKey(id)) {            // Duplicate key?
+				id = nextID();                            // Assign new ID
+				n.setActualID(id);                        // Save in node.
 			}
 		} else {
 			//-- Assign new ID
@@ -465,10 +472,10 @@ final public class Page implements IQContextContainer {
 		}
 		if(null != m_nodeMap.put(id, n))
 			throw new IllegalStateException("Duplicate node ID '" + id + "'!?!?");
-		if(m_nodeMap.size() > MAX_DOMUI_NODES_PER_PAGE)
+		if(! m_allowTooManyNodes && m_nodeMap.size() > MAX_DOMUI_NODES_PER_PAGE)
 			throw new IllegalStateException("The page you are using is too big (it creates too many DOM nodes). Ask the developer to fix this issue.");
 		n.setPage(this);
-		n.onHeaderContributors(this);				// Ask the node for it's header contributors.
+		n.onHeaderContributors(this);                // Ask the node for it's header contributors.
 		n.internalOnAddedToPage(this);
 		if(n.isFocusRequested()) {
 			setFocusComponent(n);
@@ -477,9 +484,9 @@ final public class Page implements IQContextContainer {
 		internalAddPendingBuild(n);
 
 		if(n instanceof SubPage) {
-			SubPage sp = (SubPage) n;					// This is not dumb at all, sigh.
+			SubPage sp = (SubPage) n;                    // This is not dumb at all, sigh.
 			getConversation().addSubConversation(sp.getConversation());
-			m_removedSubPages.remove(sp);				// If we removed it earlier- unremove it (keeping its conversation state)
+			m_removedSubPages.remove(sp);                // If we removed it earlier- unremove it (keeping its conversation state)
 
 			long ts = System.nanoTime();
 			try {
@@ -495,7 +502,7 @@ final public class Page implements IQContextContainer {
 		//-- Fix for bug# 787: cannot locate error fence. Allow errors to be posted on disconnected nodes.
 		UIMessage message = n.getMessage();
 		if(message != null) {
-			IErrorFence fence = DomUtil.getMessageFence(n);		// Get the fence that'll handle the message by looking UPWARDS in the tree
+			IErrorFence fence = DomUtil.getMessageFence(n);        // Get the fence that'll handle the message by looking UPWARDS in the tree
 			fence.addMessage(message);
 		}
 	}
@@ -517,7 +524,7 @@ final public class Page implements IQContextContainer {
 		m_pendingBuildSet.remove(n);
 
 		if(n instanceof SubPage) {
-			SubPage sp = (SubPage) n;					// Sigh
+			SubPage sp = (SubPage) n;                    // Sigh
 			m_removedSubPages.add(sp);
 			//m_addedSubPages.remove(sp);					// If it was added before but removed again -> nothing happened...
 		}
@@ -592,7 +599,7 @@ final public class Page implements IQContextContainer {
 	private final Map<String, IntRef> m_testIdMap = new HashMap<String, Page.IntRef>();
 
 	@NonNull
-	public String	allocateTestID(@NonNull String initial) {
+	public String allocateTestID(@NonNull String initial) {
 		IntRef ir = m_testIdMap.get(initial);
 		if(null == ir) {
 			ir = new IntRef();
@@ -600,7 +607,7 @@ final public class Page implements IQContextContainer {
 			return initial;
 		}
 		int v = ++ir.m_value;
-		return initial + "_" +v;
+		return initial + "_" + v;
 	}
 
 	public boolean isTestIDAllocated(@NonNull String id) {
@@ -611,6 +618,7 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Header contributors									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Call from within the onHeaderContributor call on a node to register any header
 	 * contributors needed by a node.
@@ -621,7 +629,7 @@ final public class Page implements IQContextContainer {
 		if(set == null || list == null) {
 			m_headerContributorSet = set = new HashSet<>(30);
 			list = m_orderedContributorList = new ArrayList<>(30);
-		} else if(set.contains(hc)) 							// Already registered?
+		} else if(set.contains(hc))                            // Already registered?
 			return;
 		set.add(hc);
 		list.add(new HeaderContributorEntry(hc, order));
@@ -693,17 +701,17 @@ final public class Page implements IQContextContainer {
 	/*	CODING:	http protocol headers										*/
 	/*----------------------------------------------------------------------*/
 
-	public void addHTTPHeader(@NonNull String header, @Nullable String value) {
-		if(null == value)
-			m_HTTPHeaderMap.remove(header);
-		else
-			m_HTTPHeaderMap.put(header, value);
-	}
-
-	@NonNull
-	public Map<String, String> getHTTPHeaderMap() {
-		return m_HTTPHeaderMap;
-	}
+	//public void addHTTPHeader(@NonNull String header, @Nullable String value) {
+	//	if(null == value)
+	//		m_HTTPHeaderMap.remove(header);
+	//	else
+	//		m_HTTPHeaderMap.put(header, value);
+	//}
+	//
+	//@NonNull
+	//public Map<String, String> getHTTPHeaderMap() {
+	//	return m_HTTPHeaderMap;
+	//}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Handle the floating window stack.					*/
@@ -881,6 +889,7 @@ final public class Page implements IQContextContainer {
 	 * javascript added gets executed /after/ all of the DOM delta has been executed by
 	 * the browser.
 	 */
+
 	/**
 	 * Add a Javascript statement (MUST be a valid, semicolon-terminated statement or statement list) to
 	 * execute on return to the browser (once).
@@ -891,6 +900,14 @@ final public class Page implements IQContextContainer {
 
 	@Nullable
 	public StringBuilder internalFlushAppendJS() {
+		if(internalCanLeaveCurrentPageByBrowser()) {
+			if(m_rootContent instanceof IPageWithNavigationCheck) {
+				m_rootContent.appendJavascript("WebUI.setCheckLeavePage(false);");
+			}
+		} else {
+			m_rootContent.appendJavascript("WebUI.setCheckLeavePage(true);");
+		}
+
 		StringBuilder sb = m_appendJS;
 		m_appendJS = null;
 		return sb;
@@ -911,7 +928,7 @@ final public class Page implements IQContextContainer {
 	 * inherit any DomUI session data, of course, and has no WindowSession. After creation the
 	 * window cannot be manipulated by DomUI code.
 	 *
-	 * @param windowURL	The url to open. If this is a relative path it will get the webapp
+	 * @param windowURL    The url to open. If this is a relative path it will get the webapp
 	 * 					context appended to it.
 	 */
 	public void openWindow(@NonNull String windowURL, @Nullable WindowParameters wp) {
@@ -927,7 +944,7 @@ final public class Page implements IQContextContainer {
 	 * FIXME URGENT This code needs to CREATE the window session BEFORE referring to it!!!!
 	 */
 	@Deprecated
-	public void openWindow(@NonNull Class< ? extends UrlPage> clz, @Nullable IPageParameters pp, @Nullable WindowParameters wp) {
+	public void openWindow(@NonNull Class<? extends UrlPage> clz, @Nullable IPageParameters pp, @Nullable WindowParameters wp) {
 		String js = DomUtil.createOpenWindowJS(clz, pp, wp);
 		appendJS(js);
 	}
@@ -953,6 +970,7 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Component focus handling.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return the component that currently has a focus request.
 	 */
@@ -1076,6 +1094,7 @@ final public class Page implements IQContextContainer {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Pop-in support.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This sets a new pop-in. This does NOT add the popin to the tree, that
 	 * must be done manually.
@@ -1194,7 +1213,7 @@ final public class Page implements IQContextContainer {
 
 	public void removeBeforeRequestListener(@NonNull IExecute x) {
 		if(!m_beforeRequestListenerList.remove(x))
-			System.out.println("PAGE: removal of beforeRequestListener failed (" + x + ")");
+			LOG.error("PAGE: removal of beforeRequestListener failed (" + x + ")");
 	}
 
 	public void addDestroyListener(@NonNull IExecute listener) {
@@ -1202,12 +1221,12 @@ final public class Page implements IQContextContainer {
 	}
 
 	public void removeDestroyListener(@NonNull IExecute listener) {
-		if(! m_destroyListenerList.remove(listener))
-			System.out.println("PAGE: removal of destroyListener failed (" + listener + ")");
+		if(!m_destroyListenerList.remove(listener))
+			LOG.error("PAGE: removal of destroyListener failed (" + listener + ")");
 	}
 
 	public void callRequestFinished() throws Exception {
-		for(IExecute x: new ArrayList<>(m_afterRequestListenerList)) {
+		for(IExecute x : new ArrayList<>(m_afterRequestListenerList)) {
 			x.execute();
 		}
 	}
@@ -1268,7 +1287,7 @@ final public class Page implements IQContextContainer {
 				try {
 					getConversation().removeAndDestroySubConversation(scs);
 				} catch(Exception x) {
-					x.printStackTrace();
+					LOG.error("Subpage discard failed: " + x, x);
 				}
 			}
 		}
@@ -1367,7 +1386,7 @@ final public class Page implements IQContextContainer {
 		if(errorList.size() == 0)
 			return;
 		for(int i = 0; i < errorList.size(); i++) {
-			errorList.get(i).printStackTrace();
+			LOG.error("Errors during async poll: ", errorList.get(i));
 		}
 
 		throw errorList.get(0);
@@ -1406,5 +1425,46 @@ final public class Page implements IQContextContainer {
 	public static void spilog(String s) {
 		if(LOGSPI)
 			System.out.println("spi>> " + s);
+	}
+
+	/**
+	 * Checks if page can be left caused by browser navigation.
+	 */
+	public boolean internalCanLeaveCurrentPageByBrowser() {
+		if(m_rootContent instanceof IPageWithNavigationCheck) {
+			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
+			boolean hasModification = pageWithNavigationCheck.hasModification();
+			return !hasModification;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Checks if page can be left caused by domui navigation.
+	 */
+	public boolean internalCanLeaveCurrentPageByDomui(UIGotoContext gotoCtx) throws Exception {
+		if(m_rootContent instanceof IPageWithNavigationCheck) {
+			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
+			boolean hasModification = pageWithNavigationCheck.hasModification();
+			if(!hasModification) {
+				return true;
+			}
+			if(m_rootContent instanceof IPageWithNavigationHandler) {
+				((IPageWithNavigationHandler) m_rootContent).handleNavigationOnModified(gotoCtx);
+			} else {
+				DomApplication.get().handleNavigationOnModified(gotoCtx, this.getBody());
+			}
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	/**
+	 * Do not use, you will OOM the server just like that!!
+	 */
+	public void internalSetAllowTooManyNodes(boolean allowTooManyNodes) {
+		m_allowTooManyNodes = allowTooManyNodes;
 	}
 }

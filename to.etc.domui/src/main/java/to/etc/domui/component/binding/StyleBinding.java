@@ -2,6 +2,8 @@ package to.etc.domui.component.binding;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.html.NodeBase;
@@ -16,6 +18,8 @@ import to.etc.domui.util.IValueAccessor;
  * Created on 12/10/14.
  */
 final public class StyleBinding implements IBinding {
+	static private final Logger LOG = LoggerFactory.getLogger(StyleBinding.class);
+
 	@NonNull
 	private final StyleBinder m_styleBinder;
 
@@ -28,12 +32,12 @@ final public class StyleBinding implements IBinding {
 
 	/** If this contains whatever property-related binding this contains the property's meta model, needed to use it's value accessor. */
 	@Nullable
-	private IValueAccessor< ? > m_instanceProperty;
+	private IValueAccessor<?> m_instanceProperty;
 
 	@Nullable
 	private String m_previousStyle;
 
-	StyleBinding(@NonNull StyleBinder styleBinder, @NonNull NodeBase component) {
+	public StyleBinding(@NonNull StyleBinder styleBinder, @NonNull NodeBase component) {
 		m_styleBinder = styleBinder;
 		m_component = component;
 	}
@@ -48,15 +52,15 @@ final public class StyleBinding implements IBinding {
 	}
 
 	@NonNull
-	public <T> StyleBinder	to(@NonNull T instance, @NonNull String property) throws Exception {
+	public <T> StyleBinder to(@NonNull T instance, @NonNull String property) throws Exception {
 		return to(instance, MetaManager.getPropertyMeta(instance.getClass(), property));
 	}
-
 
 	/**
 	 * Update the style according to the model's value.
 	 */
-	@Override public void moveModelToControl() throws Exception {
+	@Override
+	public void moveModelToControl() throws Exception {
 		Object instance = m_instance;
 		if(null == instance)
 			throw new IllegalStateException("Instance bound to is null??");
@@ -69,7 +73,7 @@ final public class StyleBinding implements IBinding {
 			updateStyle(style);
 
 		} catch(Exception x) {
-			System.err.println("Style binding error: "+x);
+			LOG.error("Style binding error: " + x);
 		}
 	}
 
@@ -96,18 +100,22 @@ final public class StyleBinding implements IBinding {
 	 * A style binding never moves anything back to the model.
 	 */
 	@Nullable
-	@Override public BindingValuePair<?> getBindingDifference() throws Exception {
+	@Override
+	public BindingValuePair<?> getBindingDifference() throws Exception {
 		return null;
 	}
 
-	@Override public <T> void setModelValue(T value) {
+	@Override
+	public <T> void setModelValue(T value) {
 		throw new IllegalStateException("A style binding cannot move data to the model!");
 	}
 
 	/**
 	 * A style binding never has errors.
 	 */
-	@Nullable @Override public UIMessage getBindError() {
+	@Nullable
+	@Override
+	public UIMessage getBindError() {
 		return null;
 	}
 }

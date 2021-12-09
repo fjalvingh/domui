@@ -218,6 +218,21 @@ final public class UIGoto {
 
 	/**
 	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
+	 */
+	static public void replace(Class< ? extends UrlPage> clz, Object... param) {
+		PageParameters pp;
+		if(param == null || param.length == 0)
+			pp = null;
+		else
+			pp = new PageParameters(param);
+
+		if(clz == null)
+			throw new IllegalArgumentException("The class to move-to cannot be null");
+		context().internalSetNextPage(MoveMode.REPLACE, clz, null, null, pp);
+	}
+
+	/**
+	 * Replace the "current" page with a new page. The current page is destroyed; the shelve stack is not changed.
 	 * On the new page show the specified message as an UI message.
 	 */
 	static public final void replace(Page pg, final Class<? extends UrlPage> clz, final IPageParameters pp, UIMessage msg) {

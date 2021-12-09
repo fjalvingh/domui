@@ -1,5 +1,7 @@
 package to.etc.domui.dom;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.resources.IResourceRef;
 import to.etc.domui.util.resources.ResourceDependencyList;
@@ -17,12 +19,14 @@ import static java.util.Objects.requireNonNull;
  * Created on 9-3-18.
  */
 final public class ImgToDataRenderer {
+	static private final Logger LOG = LoggerFactory.getLogger(ImgToDataRenderer.class);
+
 	public String imageToData(String imageURL) throws Exception {
 		//-- Try to locate the image
 
 		IResourceRef resource = DomApplication.get().getResource(imageURL, new ResourceDependencyList());
 		if(! resource.exists()) {
-			System.out.println(imageURL + ": image resource not found");
+			LOG.error(imageURL + ": image resource not found");
 			return "";
 		}
 

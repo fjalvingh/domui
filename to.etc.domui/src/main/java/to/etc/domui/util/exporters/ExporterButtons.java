@@ -85,7 +85,7 @@ public class ExporterButtons {
 		});
 	}
 
-	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<IExportColumn<?>> columns, String fileName) {
+	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<? extends IExportColumn<?>> columns, String fileName) {
 		ListExporterTask<T> exporterTask = new ListExporterTask<>(xf, baseClass, list, columns);
 		AsyncDialog.runInDialog(node, exporterTask, "Export", true, task -> {
 			File target = Objects.requireNonNull(task.getOutputFile());
@@ -132,13 +132,13 @@ public class ExporterButtons {
 	}
 
 	static private class ListExporterTask<T> extends AbstractExporter<T> {
-		final private List<IExportColumn<?>> m_columns;
+		final private List<? extends IExportColumn<?>> m_columns;
 
 		private final Class<T> m_baseClass;
 
 		private final List<T> m_list;
 
-		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<IExportColumn<?>> columns) {
+		public ListExporterTask(IExportFormat format, Class<T> baseClass, List<T> list, List<? extends IExportColumn<?>> columns) {
 			super(format);
 			m_baseClass = baseClass;
 			m_list = list;
@@ -218,6 +218,10 @@ public class ExporterButtons {
 
 		private String m_fileName;
 
+		private String m_buttonName;
+
+		private IExportFormat m_forceFormat;
+
 		@Nullable
 		private SupplierEx<List<T>> m_sourceSupplier;
 
@@ -271,6 +275,14 @@ public class ExporterButtons {
 			return new ExportColumnBuilder<>(this, (PropertyMetaModel<Object>) m_classModel.getProperty(name));
 		}
 
+		public ExportButtonBuilder<T> columns(List<String> columns) {
+			for(String column : columns) {
+				PropertyMetaModel<?> property = m_classModel.getProperty(column);
+				addColumn(new ExportColumnBuilder<>(this, property));
+			}
+			return this;
+		}
+
 		public ExportButtonBuilder<T> fileName(String name) {
 			m_fileName = name;
 			return this;
@@ -288,6 +300,21 @@ public class ExporterButtons {
 
 		public ExportButtonBuilder<T> customizer(ConsumerEx<QCriteria<T>> c) {
 			m_customizer = c;
+			return this;
+		}
+
+		public ExportButtonBuilder<T> buttonName(String name) {
+			m_buttonName = name;
+			return this;
+		}
+
+		public ExportButtonBuilder<T> forceFormat(IExportFormat format) {
+			m_forceFormat = format;
+			return this;
+		}
+
+		public ExportButtonBuilder<T> forceFormat(String ext) {
+			m_forceFormat = ExportFormatRegistry.getByExt(ext);
 			return this;
 		}
 
@@ -448,16 +475,27 @@ public class ExporterButtons {
 		}
 
 		public DefaultButton build() {
-			DefaultButton button = new DefaultButton(Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON), Icon.faFileExcelO);
+			String buttonName = m_buttonName == null ? Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON) : m_buttonName;
+			DefaultButton button = new DefaultButton(buttonName, Icon.faFileExcelO);
 			button.setClicked(ab -> {
-				showFormatPopup(format -> {
+				IExportFormat forceFormat = m_forceFormat;
+				if(null == forceFormat) {
+					showFormatPopup(format -> {
+						if(m_sourceSupplier != null) {
+							executeExportFromList(ab.getParent(), format);
+						} else {
+							executeExportByQuery(ab.getParent(), format);
+						}
+					}, ab);
+				} else {
 					if(m_sourceSupplier != null) {
-						executeExportFromList(ab.getParent(), format);
+						executeExportFromList(ab.getParent(), forceFormat);
 					} else {
-						executeExportByQuery(ab.getParent(), format);
+						executeExportByQuery(ab.getParent(), forceFormat);
 					}
-				}, ab);
+				}
 			});
+
 			return button;
 		}
 	}

@@ -105,21 +105,21 @@ namespace WebUI {
 	export function focus(id: string): void {
 		let n = document.getElementById(id);
 		if(n) {
-			if($.browser.msie) {
-				setTimeout(function() {
-					try {
-						$('body').focus();
-						n.focus();
-					} catch(e) { /*just ignore */
-					}
-				}, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/
-			} else {
+			// if($.browser.msie) {
+			// 	setTimeout(function() {
+			// 		try {
+			// 			$('body').focus();
+			// 			n.focus();
+			// 		} catch(e) { /*just ignore */
+			// 		}
+			// 	}, 100); //Due to IE bug, we need to set focus on timeout :( See http://www.mkyong.com/javascript/focus-is-not-working-in-ie-solution/
+			// } else {
 				try {
 					n.focus();
 				} catch(e) {
 					//-- ignore
 				}
-			}
+			// }
 		}
 	}
 
@@ -252,19 +252,19 @@ namespace WebUI {
 	}
 
 	export function disableSelect(id: string) {
-		if($.browser.msie) {
-			$('#' + id).disableSelection();
-		} else {
+		// if($.browser.msie) {
+		// 	$('#' + id).disableSelection();
+		// } else {
 			$('#' + id).addClass("ui-selection-disable");
-		}
+		// }
 	}
 
 	export function enableSelect(id: string) {
-		if($.browser.msie) {
-			$('#' + id).enableSelection();
-		} else {
+		// if($.browser.msie) {
+		// 	$('#' + id).enableSelection();
+		// } else {
 			$('#' + id).removeClass("ui-selection-disable");
-		}
+		// }
 	}
 
 	export function nearestID(elem: HTMLElement): any {
@@ -396,11 +396,11 @@ namespace WebUI {
 			} else {
 				//else scroll parent to show me at top
 				let newPos = $(elem).position().top + parent.scrollTop;
-				if($.browser.msie && parseInt($.browser.version) < 11) {
-					if($(elem).height() == 0) {
-						newPos = newPos - 15; //On IE browsers older than 11 we need this correction :¬|
-					}
-				}
+				// if($.browser.msie && parseInt($.browser.version) < 11) {
+				// 	if($(elem).height() == 0) {
+				// 		newPos = newPos - 15; //On IE browsers older than 11 we need this correction :¬|
+				// 	}
+				// }
 				if(offset) {
 					newPos = newPos - offset;
 				}
@@ -411,10 +411,10 @@ namespace WebUI {
 
 	//Use this to make sure that option in dropdown would be visible. It needs fix only in FF sinve IE would always make visible selected option.
 	export function makeOptionVisible(elemId: string, offset: number): void {
-		if($.browser.msie) {
-			//IE already fix this... we need fix only for FF and other browsers
-			return;
-		}
+		// if($.browser.msie) {
+		// 	//IE already fix this... we need fix only for FF and other browsers
+		// 	return;
+		// }
 		let elem = document.getElementById(elemId);
 		if(!elem) {
 			return;
@@ -542,19 +542,19 @@ namespace WebUI {
 			elemDeltaHeight = elemDeltaHeight + 1;
 		}
 		$(elem).height($(elem).parent().height() - totHeight - elemDeltaHeight);
-		if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
-			//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers
-			if(elem.scrollWidth > elem.offsetWidth) {
-				$(elem).height($(elem).height() - 20);
-				//show hidden vertical scroller if it is again needed after height is decreased.
-				if($(elem).css('overflow-y') == 'hidden') {
-					if(elem.scrollHeight > elem.offsetHeight) {
-						$(elem).css({'overflow-y': 'auto'});
-					}
-				}
-				return;
-			}
-		}
+		// if($.browser.msie && $.browser.version.substring(0, 1) == "7") {
+		// 	//we need to special handle another IE7 muddy hack -> extra padding-bottom that is added to table to prevent non-necesarry vertical scrollers
+		// 	if(elem.scrollWidth > elem.offsetWidth) {
+		// 		$(elem).height($(elem).height() - 20);
+		// 		//show hidden vertical scroller if it is again needed after height is decreased.
+		// 		if($(elem).css('overflow-y') == 'hidden') {
+		// 			if(elem.scrollHeight > elem.offsetHeight) {
+		// 				$(elem).css({'overflow-y': 'auto'});
+		// 			}
+		// 		}
+		// 		return;
+		// 	}
+		// }
 	}
 
 
