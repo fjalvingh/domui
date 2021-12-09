@@ -3,9 +3,9 @@ package to.etc.util;
 import java.util.Objects;
 
 public class Pair<A, B> {
-	final private A	m_1;
+	final private A m_1;
 
-	final private B	m_2;
+	final private B m_2;
 
 	public Pair(A one, B two) {
 		m_1 = one;
@@ -20,7 +20,8 @@ public class Pair<A, B> {
 		return m_2;
 	}
 
-	@Override public boolean equals(Object o) {
+	@Override
+	public boolean equals(Object o) {
 		if(this == o)
 			return true;
 		if(o == null || getClass() != o.getClass())
@@ -30,11 +31,13 @@ public class Pair<A, B> {
 			Objects.equals(m_2, pair.m_2);
 	}
 
-	@Override public int hashCode() {
+	@Override
+	public int hashCode() {
 		return Objects.hash(m_1, m_2);
 	}
 
-	@Override public String toString() {
+	@Override
+	public String toString() {
 		return get1() + ", " + get2();
 	}
 }

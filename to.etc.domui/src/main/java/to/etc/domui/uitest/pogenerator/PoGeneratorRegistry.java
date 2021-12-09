@@ -17,6 +17,7 @@ import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TextArea;
+import to.etc.domui.uitest.pogenerator.PogSimple.AllowEmbedded;
 import to.etc.function.BiFunctionEx;
 
 import java.util.Map;
@@ -63,7 +64,7 @@ final public class PoGeneratorRegistry {
 		register(SmallImgButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
 		register(ComboLookup.class, (ctx, node) -> new PogSimple(node, "CpComboLookup"));
 		register(ComboLookup2.class, (ctx, node) -> new PogSimple(node, "CpComboLookup2"));
-		register(DisplaySpan.class, (ctx, node) -> new PogSimple(node, "CpDisplaySpan"));
+		register(DisplaySpan.class, (ctx, node) -> new PogSimple(node, "CpDisplaySpan", AllowEmbedded.DisallowEmbedded));
 		register(TextArea.class, (ctx, node) -> new PogSimple(node, "CpTextArea"));
 
 		register(DataTable.class, (ctx, node) -> new PogDataTable(node));

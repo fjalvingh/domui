@@ -208,4 +208,7 @@ final public class PoClass {
 		return m_importSet.contains(fullName);
 	}
 
+	public Pair<String, String> asType() {
+		return new Pair<>(getPackageName(), getClassName());
+	}
 }

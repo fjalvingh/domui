@@ -17,8 +17,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Recognizes a data table, and gives accessors for the column things inside it.
@@ -38,7 +38,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 	}
 
 	@Override
-	public void generateCode(PoGeneratorContext context, PoClass pc, String baseName) throws Exception {
+	public void generateCode(PoGeneratorContext context, PoClass rc, String baseName, IPoSelector selector) throws Exception {
 		//-- Generate a row class
 		String rowClassName = context.getRootClass().getClassName() + m_baseName + "Row";
 		PoClass rowClass = context.addClass(rowClassName, null, Collections.emptyList());
@@ -46,6 +46,17 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 		//-- Generate the table class
 		PoClass baseClass = new PoClass(PROXYPACKAGE, "CpDataTableBase");
 		baseClass.addGenericParameter(rowClass);
+
+		//-- Generate the accessor in the provided class (the accessor to the CpDataTable
+		String fieldName = PoGeneratorContext.fieldName(baseName);
+		String methodName = PoGeneratorContext.methodName(baseName);
+
+		PoField field = rc.addField(baseClass.asType(), fieldName);
+		PoMethod getter = rc.addMethod(field.getType(), "get" + methodName);
+		getter.appendLazyInit(field, variable -> {
+			getter.append(variable).append(" = ").append("new ");
+			getter.appendType(rc, field.getType()).append("(this, ").append(selector.selectorAsCode()).append(");").nl();
+		});
 
 		String tableClassName = context.getRootClass().getClassName() + m_baseName;
 		PoClass tableClass = context.addClass(new PoClass(context.getRootClass().getPackageName(), tableClassName, baseClass));
@@ -78,16 +89,19 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 	private void generateRowClassColumn(PoGeneratorContext context, PoClass pc, Col col, int index) throws Exception {
 		String baseName = col.getColumnName();
 
-		List<IPoProxyGenerator> controlList = col.getContentModelList();
+		List<Pair<String, IPoProxyGenerator>> controlList = col.getContentModelList();
 		if(controlList.size() == 0) {
-			context.error(m_node, "Column " + col + " has no content model, it is not generated");
+			//-- No model -> we'll generate a text only model.
+			IPoProxyGenerator px = PoGeneratorRegistry.getDisplayTextGenerator(context, m_node);	// FIXME Node is odd here
+			px.generateCode(context, pc, baseName, new PoSelectorCell(index));
 			return;
 		}
 
 		boolean uniqueNames = hasUniqueNames(controlList);
-
 		for(int i = 0; i < controlList.size(); i++) {
-			IPoProxyGenerator pg = controlList.get(i);
+			Pair<String, IPoProxyGenerator> pair = controlList.get(i);
+			IPoProxyGenerator pg = pair.get2();
+			String testId = pair.get1();
 
 			/*
 			 * Calculate a name as follows:
@@ -99,17 +113,17 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 			if(controlList.size() == 1) {
 				controlBaseName = baseName;
 			} else if(uniqueNames) {
-				controlBaseName = pg.identifier();
+				controlBaseName = baseName;
 			} else {
-				controlBaseName = baseName + pg.identifier() + index;
+				controlBaseName = baseName + pc.getBaseName(testId) + index;
 			}
 
-			generateCellControl(context, pc, col, index, pg, controlBaseName);
+			generateCellControl(context, pc, col, index, pg, controlBaseName, testId);
 		}
 	}
 
-	private void generateCellControl(PoGeneratorContext context, PoClass pc, Col col, int index, IPoProxyGenerator pg, String baseName) throws Exception {
-		pg.generateCode(context, pc, baseName);
+	private void generateCellControl(PoGeneratorContext context, PoClass pc, Col col, int index, IPoProxyGenerator pg, String baseName, String testId) throws Exception {
+		pg.generateCode(context, pc, baseName, new PoSelectorCellComponent(index, testId));
 	}
 
 	/**
@@ -121,10 +135,10 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 		return "() -> columnControlSelector(" + col.getIndex() + ", \"fixme-control-testid-in-row-" + pg + "\")";
 	}
 
-	private boolean hasUniqueNames(List<IPoProxyGenerator> list) {
+	private boolean hasUniqueNames(List<Pair<String, IPoProxyGenerator>> list) {
 		Set<String> nameSet = new HashSet<>();
-		for(IPoProxyGenerator pg : list) {
-			if(! nameSet.add(pg.identifier()))
+		for(Pair<String, IPoProxyGenerator> pg : list) {
+			if(! nameSet.add(pg.get1()))
 				return false;
 		}
 		return true;
@@ -154,12 +168,12 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 	 * Detect the structure of the datatable, its columns, and what is in each column and row.
 	 */
 	@Override
-	public boolean acceptChildren(PoGeneratorContext context) throws Exception {
+	public GeneratorAccepted acceptChildren(PoGeneratorContext context) throws Exception {
 		NodeContainer nc = (NodeContainer) m_node;
 		List<Table> tables = nc.getChildren(Table.class);
 		if(tables.size() == 0) {
 			context.error(m_node, "The data table is empty; fill it to generate its content model");
-			return false;
+			return GeneratorAccepted.RefusedIgnoreChildren;
 		} else if(tables.size() > 1) {
 			context.error(m_node, "?? > 1 table in data table??");
 		}
@@ -170,13 +184,13 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 			context.error(m_node, "Too many THEAD items in DataTable");
 		} else if(heads.size() == 0) {
 			context.error(m_node, "No data in table, cannot really do anything");
-			return false;
+			return GeneratorAccepted.RefusedIgnoreChildren;
 		}
 		THead head = heads.get(0);
 		m_colList = scanColumnNames(context, head);
 		if(m_colList.size() == 0) {
 			context.error(m_node, "No columns recognized");
-			return false;
+			return GeneratorAccepted.RefusedIgnoreChildren;
 		}
 
 		//-- Ok, we have columns; now try to calculate a content model for each column by looking at all rows.
@@ -205,7 +219,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 		for(Col col : m_colList) {
 			calculateCellContentModel(context, col);
 		}
-		return true;
+		return GeneratorAccepted.Accepted;
 	}
 
 	/**
@@ -214,22 +228,39 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 	 * be merged on a better testid (one that does not change per row).
 	 */
 	private void calculateCellContentModel(PoGeneratorContext context, Col col) throws Exception {
+		//-- Map of (real) testid and occurrences of a generator for it, in different rows
 		Map<String, List<IPoProxyGenerator>> perTypeMap = new HashMap<>();
 
-		for(List<IPoProxyGenerator> list : col.getPerRowContentList()) {
-			for(IPoProxyGenerator pg : list) {
-				perTypeMap.computeIfAbsent(pg.identifier(), a -> new ArrayList<>()).add(pg);
+		boolean warned = false;
+		for(List<NodeGeneratorPair> list : col.getPerRowContentList()) {
+			for(NodeGeneratorPair pg : list) {
+				String testID = pg.getNode().getTestID();
+				if(null == testID) {
+					if(! warned) {
+						warned = true;
+						context.error(m_node, "Column " + col + " has a control (" + pg.getNode() + ") without a testID - skipping");
+					}
+				} else {
+					String realTestID = calculateActualTestID(testID);	// Remove any container info from the test ID
+					perTypeMap.computeIfAbsent(realTestID, a -> new ArrayList<>()).add(pg.getGenerator());
+				}
 			}
 		}
-		if(perTypeMap.size() == 0) {
-			//-- No content model found. Just get a "cell content" model.
-			col.addContentModel(PoGeneratorRegistry.getDisplayTextGenerator(context, m_node));		// FIXME Node is odd
-		} else {
-			//-- Use the actual models
-			for(List<IPoProxyGenerator> pgl : perTypeMap.values()) {
-				col.addContentModel(pgl.get(0));
-			}
+
+		//-- Use the actual models
+		for(Entry<String, List<IPoProxyGenerator>> e : perTypeMap.entrySet()) {
+			col.addContentModel(e.getKey(), e.getValue().get(0));
 		}
+
+		//if(perTypeMap.size() == 0) {
+		//	//-- No content model found. Just get a "cell content" model using the row selector.
+		//	col.addContentModel(PoGeneratorRegistry.getDisplayTextGenerator(context, m_node));		// FIXME Node is odd
+		//} else {
+		//	//-- Use the actual models
+		//	for(Entry<String, List<IPoProxyGenerator>> e : perTypeMap.entrySet()) {
+		//		col.addContentModel(e.getKey(), e.getValue().get(0));
+		//	}
+		//}
 	}
 
 	/**
@@ -237,7 +268,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 	 */
 	private void scanContentModel(PoGeneratorContext context, TD td, Col col) throws Exception {
 		List<NodeGeneratorPair> generators = context.createGenerators(td);
-		col.addGeneratorSet(generators.stream().map(a -> a.getGenerator()).collect(Collectors.toList()));
+		col.addGeneratorSet(generators);
 	}
 
 	private List<Col> scanColumnNames(PoGeneratorContext context, THead head) {
@@ -295,14 +326,25 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 		return "DataTable";
 	}
 
+	/**
+	 * If the test ID passed has a row identifier added to it: extract the test ID.
+	 */
+	static private String calculateActualTestID(@NonNull String testID) {
+		int ix = testID.lastIndexOf('/');
+		if(ix == -1)
+			return testID;
+
+		return testID.substring(ix + 1);
+	}
+
 	static private final class Col {
 		private List<TH> m_header = new ArrayList<>(3);
 
 		private String m_columnName;
 
-		private List<List<IPoProxyGenerator>> m_perRowContentList = new ArrayList<>();
+		private List<List<NodeGeneratorPair>> m_perRowContentList = new ArrayList<>();
 
-		private List<IPoProxyGenerator> m_contentModelList = new ArrayList<>();
+		private List<Pair<String, IPoProxyGenerator>> m_contentModelList = new ArrayList<>();
 
 		private int m_index;
 
@@ -322,19 +364,19 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 			return m_header;
 		}
 
-		public void addGeneratorSet(List<IPoProxyGenerator> generators) {
+		public void addGeneratorSet(List<NodeGeneratorPair> generators) {
 			m_perRowContentList.add(generators);
 		}
 
-		public List<List<IPoProxyGenerator>> getPerRowContentList() {
+		public List<List<NodeGeneratorPair>> getPerRowContentList() {
 			return m_perRowContentList;
 		}
 
-		public void addContentModel(IPoProxyGenerator pg) {
-			m_contentModelList.add(pg);
+		public void addContentModel(String testId, IPoProxyGenerator pg) {
+			m_contentModelList.add(new Pair<>(testId, pg));
 		}
 
-		public List<IPoProxyGenerator> getContentModelList() {
+		public List<Pair<String, IPoProxyGenerator>> getContentModelList() {
 			return m_contentModelList;
 		}
 
@@ -344,6 +386,11 @@ final public class PogDataTable extends AbstractPoProxyGenerator implements IPoA
 
 		public void setIndex(int index) {
 			m_index = index;
+		}
+
+		@Override
+		public String toString() {
+			return m_columnName;
 		}
 	}
 }

@@ -12,15 +12,15 @@ public interface IPoProxyGenerator {
 
 	/**
 	 * This allows the generator to see if there is content inside it that
-	 * it wants to have generated.
+	 * it wants to have generated. The generator can refuse to be used
+	 * by returning false. In that case the content of the node will
+	 * still be scanned for other controls.
 	 */
-	boolean acceptChildren(PoGeneratorContext ctx) throws Exception;
+	GeneratorAccepted acceptChildren(PoGeneratorContext ctx) throws Exception;
 
 	void prepare(PoGeneratorContext context) throws Exception;
 
-	void generateCode(PoGeneratorContext context, PoClass intoClass, String baseName) throws Exception;
-
-	void updateSelector(IPoSelector selector);
+	void generateCode(PoGeneratorContext context, PoClass intoClass, String baseName, IPoSelector selector) throws Exception;
 
 	String identifier();
 }

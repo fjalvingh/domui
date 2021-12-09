@@ -5,6 +5,7 @@ import to.etc.util.FileTool;
 
 import java.io.File;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -61,7 +62,8 @@ public class PageObjectGenerator {
 		} else {
 			baseName = rc.getBaseName(pair.getNode());
 		}
-		pair.getGenerator().generateCode(m_context, m_context.getRootClass(), baseName);
+		String testID = Objects.requireNonNull(pair.getNode().getTestID(), "Unexpected: testID should not be null here ever");
+		pair.getGenerator().generateCode(m_context, m_context.getRootClass(), baseName, new PoSelectorTestId(testID));
 	}
 
 	public PoGeneratorContext getContext() {

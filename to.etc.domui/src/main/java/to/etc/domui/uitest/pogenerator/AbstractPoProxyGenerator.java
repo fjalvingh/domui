@@ -11,28 +11,16 @@ import to.etc.domui.dom.html.NodeBase;
 abstract public class AbstractPoProxyGenerator implements IPoProxyGenerator {
 	protected final NodeBase m_node;
 
-	private IPoSelector m_selector;
-
 	public AbstractPoProxyGenerator(NodeBase node) {
 		m_node = node;
-		m_selector = new PoSelectorTestId(node.getTestID());
 	}
 
 	@Override
-	public boolean acceptChildren(PoGeneratorContext ctx) throws Exception {
-		return true;
+	public GeneratorAccepted acceptChildren(PoGeneratorContext ctx) throws Exception {
+		return GeneratorAccepted.Accepted;
 	}
 
 	@Override
 	public void prepare(PoGeneratorContext context) throws Exception {
-	}
-
-	@Override
-	public void updateSelector(IPoSelector selector) {
-		m_selector = selector;
-	}
-
-	public IPoSelector getSelector() {
-		return m_selector;
 	}
 }

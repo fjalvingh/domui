@@ -64,13 +64,20 @@ public class PoGeneratorContext {
 		for(NodeBase nb : nc) {
 			IPoProxyGenerator generator = PoGeneratorRegistry.find(this, nb);
 			if(generator != null) {
-				String testID = nb.getTestID();				// For now do not accept things without a testid
-				if(null == testID && ! (generator instanceof IPoAcceptNullTestid)) {
-					error("Component with a null testID (null): " + nb);
-				} else {
-					list.add(new NodeGeneratorPair(nb, generator));
-					if(! generator.acceptChildren(this))	// If it wants to let the generator play with its children
-						return;
+				GeneratorAccepted acceptance = generator.acceptChildren(this);
+				if(acceptance == GeneratorAccepted.Accepted) {		// If it wants to let the generator play with its children
+					String testID = nb.getTestID();					// For now do not accept things without a testid
+					if(null == testID && ! (generator instanceof IPoAcceptNullTestid)) {
+						error("Component with a null testID (null): " + nb);
+					} else {
+						list.add(new NodeGeneratorPair(nb, generator));
+					}
+				} else if(acceptance == GeneratorAccepted.RefusedScanChildren) {
+					//-- This generator does not accept. So- scan the subtree for things.
+					if(nb instanceof NodeContainer) {
+						//-- Nothing here; walk the children.
+						createGenerators(list, (NodeContainer) nb);
+					}
 				}
 			} else {
 				if(nb instanceof IControl) {				// This should have a proxy
