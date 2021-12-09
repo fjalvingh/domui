@@ -5,11 +5,12 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
-@NonNullByDefault
-public class RadioButtonPO extends ComponentPO {
+import java.util.function.Supplier;
 
-	public RadioButtonPO(WebDriverConnector wd, String id) {
-		super(wd, id);
+@NonNullByDefault
+public class CpRadioButton extends AbstractCpComponent {
+	public CpRadioButton(WebDriverConnector wd, Supplier<String> selectorProvider) {
+		super(wd, selectorProvider);
 	}
 
 	public void click(int order) {
@@ -18,7 +19,7 @@ public class RadioButtonPO extends ComponentPO {
 	}
 
 	private WebElement getRatioButton() {
-		return wd().getElement(getTestId());
+		return wd().getElement(getSelector());
 	}
 
 	public void selectWithLabel(String label) {

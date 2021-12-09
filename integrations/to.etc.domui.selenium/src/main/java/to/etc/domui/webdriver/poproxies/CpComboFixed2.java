@@ -8,18 +8,19 @@ import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 @NonNullByDefault
-public class ComboFixed2PO extends ComponentPO implements IControlPO<String> {
+public class CpComboFixed2 extends AbstractCpComponent implements ICpControl<String> {
 
-	public ComboFixed2PO(WebDriverConnector connector, String testId) {
-		super(connector, testId);
+	public CpComboFixed2(WebDriverConnector connector, Supplier<String> selectorProvider) {
+		super(connector, selectorProvider);
 	}
 
 	@Override
 	public void setValue(String value) throws Exception {
 		var available = getAvailable();
-		var option = available.stream().filter(x->x.getLabel().equals(value)).findFirst().orElse(null);
+		var option = available.stream().filter(x -> x.getLabel().equals(value)).findFirst().orElse(null);
 		var index = available.indexOf(option);
 		if(index >= 0) {
 			select(index);
@@ -28,35 +29,35 @@ public class ComboFixed2PO extends ComponentPO implements IControlPO<String> {
 
 	@Override
 	public String getValue() {
-		return wd().getElement(By.cssSelector(createTestIdSelector() + " option[selected='selected']")).getText();
+		String topSelector = getSelectorSupplier().get();
+		return wd().getElement(By.cssSelector(topSelector + " option[selected='selected']")).getText();
 	}
 
 	@Override
 	public boolean isReadonly() throws Exception {
-		return wd().isReadonly(By.cssSelector(createTestIdSelector() + " select"));
+		return wd().isReadonly(By.cssSelector(getSelectorSupplier().get() + " select"));
 	}
 
 	@Override
 	public boolean isDisabled() throws Exception {
-		return wd().isEnabled(By.cssSelector(createTestIdSelector() + " select"));
+		return wd().isEnabled(By.cssSelector(getSelectorSupplier().get() + " select"));
 	}
 
 	private void select(int idx) {
-		wd().cmd().click().on(By.cssSelector(createTestIdSelector() + " select"));
-		By locator = By.cssSelector(createTestIdSelector() + " option:nth-child(" + (idx + 1) + ")");
+		wd().cmd().click().on(By.cssSelector(getSelectorSupplier().get() + " select"));
+		By locator = By.cssSelector(getSelectorSupplier().get() + " option:nth-child(" + (idx + 1) + ")");
 		wd().wait(locator);
 		wd().cmd().click().on(locator);
 	}
 
 	public List<ComboPOValue> getAvailable() {
-		var elements = wd().findElements(By.cssSelector((createTestIdSelector()) + " option"));
+		var elements = wd().findElements(By.cssSelector(getSelectorSupplier().get() + " option"));
 		var list = new ArrayList<ComboPOValue>();
 
 		for(WebElement element : elements) {
 			list.add(new ComboPOValue(element.getAttribute("testId"), element.getText()));
 		}
-
-		return  list;
+		return list;
 	}
 
 	public static class ComboPOValue {

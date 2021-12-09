@@ -5,10 +5,10 @@ import org.openqa.selenium.JavascriptExecutor;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 @NonNullByDefault
-public abstract class BasePO {
+public abstract class AbstractCpBase {
 	private final WebDriverConnector m_wd;
 
-	public BasePO(WebDriverConnector wd) {
+	public AbstractCpBase(WebDriverConnector wd) {
 		m_wd = wd;
 	}
 

@@ -18,6 +18,6 @@ final public class PoSelectorTestId implements IPoSelector {
 
 	@Override
 	public String selectorAsCode() {
-		return "() -> *[testId='" + m_testId + "']";
+		return "() -> \"*[testId='" + m_testId + "']\"";
 	}
 }

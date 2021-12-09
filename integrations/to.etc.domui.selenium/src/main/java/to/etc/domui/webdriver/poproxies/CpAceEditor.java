@@ -3,11 +3,13 @@ package to.etc.domui.webdriver.poproxies;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
-@NonNullByDefault
-public class AceEditorPO extends ComponentPO implements IControlPO<String> {
+import java.util.function.Supplier;
 
-	public AceEditorPO(WebDriverConnector wd, String testId) {
-		super(wd, testId);
+@NonNullByDefault
+public class CpAceEditor extends AbstractCpComponent implements ICpControl<String> {
+
+	public CpAceEditor(WebDriverConnector wd, Supplier<String> selectorProvider) {
+		super(wd, selectorProvider);
 	}
 
 	@Override
@@ -39,9 +41,9 @@ public class AceEditorPO extends ComponentPO implements IControlPO<String> {
 	}
 
 	private String getActualId() {
-		var editor = wd().findElement(getTestId());
+		var editor = wd().findElement(getSelector());
 		if(editor == null) {
-			throw new IllegalStateException("Can't find Ace Editor with testid: " + getTestId());
+			throw new IllegalStateException("Can't find Ace Editor with selector: " + getSelector());
 		}
 		return editor.getAttribute("id");
 	}

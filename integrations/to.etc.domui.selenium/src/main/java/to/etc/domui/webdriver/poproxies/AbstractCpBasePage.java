@@ -17,13 +17,13 @@ import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
 @NonNullByDefault
-public abstract class BasePagePO<T extends UrlPage> {
+public abstract class AbstractCpBasePage<T extends UrlPage> {
 
 	private WebDriverConnector m_wd;
 
 	private final Class<T> m_pageClass;
 
-	public BasePagePO(WebDriverConnector wd, Class<T> clazz) {
+	public AbstractCpBasePage(WebDriverConnector wd, Class<T> clazz) {
 		m_wd = wd;
 		m_pageClass = clazz;
 	}

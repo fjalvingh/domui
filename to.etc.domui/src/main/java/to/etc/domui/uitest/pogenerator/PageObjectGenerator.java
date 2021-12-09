@@ -37,7 +37,10 @@ public class PageObjectGenerator {
 
 		StringBuilder res = new StringBuilder();
 		if(asFiles) {
-			File tmpDir = new File(FileTool.getTmpDir(), "pageobjects");
+			File tmp = new File("/tmp");
+			if(! tmp.exists())
+				tmp = FileTool.getTmpDir();
+			File tmpDir = new File(tmp, "pageobjects");
 			tmpDir.mkdirs();
 
 			res.append("Files are generated at ").append(tmpDir).append("\n\n");

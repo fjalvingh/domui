@@ -7,16 +7,17 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @NonNullByDefault
-public class LookupPO extends ComponentPO implements IControlPO<String> {
-
-	public LookupPO(WebDriverConnector connector, String testId) {
-		super(connector, testId);
+public class CpLookupInput extends AbstractCpComponent implements ICpControl<String> {
+	public CpLookupInput(WebDriverConnector connector, Supplier<String> selectorProvider) {
+		super(connector, selectorProvider);
 	}
 
 	public void searchBy(List<SearchPair> val) {
-		var locator = wd().byId(getTestId() + "-lookup");
+		By locator = By.cssSelector(getSelectorSupplier().get() +  " -lookup");			// FIXME Incorrect
+
 		var wait = new WebDriverWait(wd().driver(), 10);
 		wd().wait(ExpectedConditions.elementToBeClickable(locator));
 		wd().cmd().click().on(locator);
@@ -41,24 +42,30 @@ public class LookupPO extends ComponentPO implements IControlPO<String> {
 
 	@Override
 	public void setValue(String value) throws Exception {
-		var clearBtn = getTestId()+ "-clear";
-		By locator = By.cssSelector(createTestIdSelector() + " INPUT");
+		clickClear();
+		By selector = By.cssSelector(getSelectorSupplier().get() + " INPUT");
+		wd().cmd().type(value).on(selector);
+		wd().waitForNoneOfElementsPresent(selector);
+	}
+
+	private void clickClear() throws Exception {
+		By clearBtn = By.cssSelector(getSelectorSupplier().get() + " INPUT");
+		By inputSelector = By.cssSelector(getSelectorSupplier().get() + " INPUT");
+
 		if(wd().isEnabled(clearBtn)) {
-			wd().wait(ExpectedConditions.elementToBeClickable(wd().byId(clearBtn)));
-			wd().wait(wd().byId(clearBtn));
+			wd().wait(ExpectedConditions.elementToBeClickable(clearBtn));
+			wd().wait(clearBtn);
 			wd().cmd().click().on(clearBtn);
-			if(!wd().isVisible(locator)) {
+			if(!wd().isVisible(inputSelector)) {
 				wd().cmd().click().on(clearBtn);
 			}
 		}
-
-		wd().cmd().type(value).on(locator);
-		wd().waitForNoneOfElementsPresent(locator);
 	}
 
 	@Override
 	public String getValue() {
-		return wd().getElement(By.cssSelector(createTestIdSelector()+" .ui-lui-vcell")).getText();
+		By selector = By.cssSelector(getSelectorSupplier().get() + " .ui-lui-vcell");
+		return wd().getElement(selector).getText();
 	}
 
 	@Override
@@ -68,7 +75,7 @@ public class LookupPO extends ComponentPO implements IControlPO<String> {
 
 	@Override
 	public boolean isDisabled() {
-		return !wd().isEnabled(getTestId()+ "-lookup");
+		return !wd().isEnabled(selector("-lookup"));					// FIXME Incorrect
 	}
 
 	public static class SearchPair {

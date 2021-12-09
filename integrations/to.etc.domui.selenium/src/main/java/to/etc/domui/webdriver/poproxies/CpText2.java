@@ -5,17 +5,19 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
-@NonNullByDefault
-public class Text2PO extends ComponentPO implements IControlPO<String> {
+import java.util.function.Supplier;
 
-	public Text2PO(WebDriverConnector connector, String testId) {
-		super(connector, testId);
+@NonNullByDefault
+public class CpText2 extends AbstractCpComponent implements ICpControl<String> {
+
+	public CpText2(WebDriverConnector connector, Supplier<String> selectorProvider) {
+		super(connector, selectorProvider);
 	}
 
 	@Override
 	public void setValue(String value) {
 		wd().cmd().type(value).on(getInputLocator());
-		wd().wait(getTestId());
+		wd().wait(getSelector());
 	}
 
 	@Override
@@ -31,11 +33,15 @@ public class Text2PO extends ComponentPO implements IControlPO<String> {
 
 	@Override
 	public boolean isDisabled() {
-		return !wd().isEnabled(getTestId());
+		return !wd().isEnabled(getSelector());
 	}
 
+	/**
+	 * Should obviously not exist.
+	 */
+	@Deprecated
 	@NonNull
 	private By getInputLocator() {
-		return By.cssSelector(createTestIdSelector() + " INPUT");
+		return selector("INPUT");
 	}
 }
