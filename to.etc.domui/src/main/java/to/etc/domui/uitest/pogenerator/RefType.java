@@ -12,6 +12,8 @@ import java.util.List;
  */
 @NonNullByDefault
 final public class RefType {
+	static public final RefType INT = new RefType("", "int");
+
 	private final String m_packageName;
 
 	private final String m_typeName;

@@ -49,7 +49,8 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		//-- Add a constructor to the row class
 		PoMethod cons = rowClass.addConstructor();
 		cons.addParameter(baseClass.asType(), "dt");
-		cons.append("super(dt);").nl();
+		cons.addParameter(RefType.INT, "rowIndex");
+		cons.append("super(dt, rowIndex);").nl();
 
 		//-- Generate the accessor in the provided class (the accessor to the CpDataTable
 		String fieldName = PoGeneratorContext.fieldName(baseName);
