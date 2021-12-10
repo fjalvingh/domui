@@ -16,7 +16,7 @@ public class PageObjectGenerator {
 
 	private final PoGeneratorContext m_context;
 
-	public PageObjectGenerator(UrlPage page) {
+	public PageObjectGenerator(UrlPage page) throws Exception {
 		m_context = new PoGeneratorContext(page);
 	}
 

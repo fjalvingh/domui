@@ -44,7 +44,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 
 		//-- Generate the table class
 		PoClass baseClass = new PoClass(PROXYPACKAGE, "CpDataTable");
-		baseClass.addGenericParameter(rowClass);
+		baseClass.addGenericParameter(rowClass.asType());
 
 		//-- Generate the accessor in the provided class (the accessor to the CpDataTable
 		String fieldName = PoGeneratorContext.fieldName(baseName);

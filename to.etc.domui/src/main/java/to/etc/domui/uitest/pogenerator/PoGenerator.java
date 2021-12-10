@@ -18,10 +18,11 @@ final public class PoGenerator {
 	static public void onGeneratePO(UrlPage page) {
 		if(!DeveloperOptions.isDeveloperWorkstation())
 			return;
-		PageObjectGenerator pg = new PageObjectGenerator(page);
 
+		PageObjectGenerator pg;
 		String result;
 		try {
+			pg = new PageObjectGenerator(page);
 			result = pg.generateAll(true);
 		} catch(Exception x) {
 			ExceptionDialog.createIgnore(page, "Failed to generate PO model", x);

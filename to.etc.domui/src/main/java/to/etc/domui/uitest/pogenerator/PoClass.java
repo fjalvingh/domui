@@ -33,6 +33,8 @@ final public class PoClass {
 
 	private final List<PoMethod> m_methodList = new ArrayList<>();
 
+	private final List<PoMethod> m_constructorList = new ArrayList<>();
+
 	/**
 	 * Full imports required.
 	 */
@@ -47,7 +49,7 @@ final public class PoClass {
 
 	private boolean m_markGenerated;
 
-	private final List<PoClass> m_genericParameterList = new ArrayList<>();
+	private final List<RefType> m_genericParameterList = new ArrayList<>();
 
 	public PoClass(String packageName, String className, @Nullable PoClass baseClass, List<RefType> interfaceList) {
 		m_packageName = packageName;
@@ -70,7 +72,7 @@ final public class PoClass {
 		m_interfaceList = Collections.emptyList();
 	}
 
-	public void addGenericParameter(PoClass clz) {
+	public void addGenericParameter(RefType clz) {
 		m_genericParameterList.add(clz);
 	}
 
@@ -179,7 +181,7 @@ final public class PoClass {
 	}
 
 	public PoClass addImport(String packageName, String className) {
-		if(packageName.length() == 0)
+		if(packageName.length() == 0 || packageName.startsWith("java.lang."))
 			return this;
 		if(packageName.equals(m_packageName)) {					// Same package as class -> just add as named
 			m_singleNameImport.add(className);
@@ -201,8 +203,12 @@ final public class PoClass {
 		return m_importSet;
 	}
 
-	public List<PoClass> getGenericParameterList() {
+	public List<RefType> getGenericParameterList() {
 		return m_genericParameterList;
+	}
+
+	public List<PoMethod> getConstructorList() {
+		return m_constructorList;
 	}
 
 	public boolean isMarkGenerated() {
@@ -210,14 +216,22 @@ final public class PoClass {
 	}
 
 	public boolean hasImport(String fullName) {
+		if(fullName.startsWith("java.lang."))
+			return true;
 		return m_importSet.contains(fullName);
 	}
 
 	public RefType asType() {
 		List<String> plist = getGenericParameterList().stream()
-			.map(a -> a.asType().asTypeString())
+			.map(a -> a.asTypeString())
 			.collect(Collectors.toList());
 
 		return new RefType(getPackageName(), getClassName(), plist);
+	}
+
+	public PoMethod addConstructor() {
+		PoMethod m = new PoMethod(this, null, getClassName(), Modifier.Public);
+		m_constructorList.add(m);
+		return m;
 	}
 }

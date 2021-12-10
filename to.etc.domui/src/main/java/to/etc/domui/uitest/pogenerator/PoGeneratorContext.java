@@ -18,6 +18,12 @@ import java.util.List;
  * Created on 08-12-21.
  */
 public class PoGeneratorContext {
+	static public final RefType WDCONNECTOR = new RefType(IPoProxyGenerator.WEBDRIVERPACKAGE, "WebDriverConnector");
+
+	static public final RefType URLPAGE = new RefType(UrlPage.class.getPackageName(), UrlPage.class.getSimpleName());
+
+	static public final RefType CLASSURLPAGE = new RefType(Class.class.getPackageName(), Class.class.getSimpleName(), "? extends UrlPage");
+
 	private final UrlPage m_page;
 
 	/** All classes generated within this context */
@@ -31,7 +37,7 @@ public class PoGeneratorContext {
 
 	private int m_counter;
 
-	public PoGeneratorContext(UrlPage page) {
+	public PoGeneratorContext(UrlPage page) throws Exception {
 		m_page = page;
 
 		//-- Create the root class: the class representing this page.
@@ -40,15 +46,30 @@ public class PoGeneratorContext {
 
 		PoClass baseClass = new PoClass(IPoProxyGenerator.PROXYPACKAGE, "AbstractCpPage");
 		PoClass urlPage = new PoClass(UrlPage.class.getPackageName(), UrlPage.class.getSimpleName());
-		baseClass.addGenericParameter(urlPage);
+		baseClass.addGenericParameter(new RefType(page.getClass()));
 
 		PoClass clz = new PoClass(pkg, name + "Base", baseClass, Collections.emptyList()).generated();
 		m_rootClass = clz;
 		m_classList.add(clz);
 
+		//-- Imports
+		clz.addImport(WDCONNECTOR);
+		clz.addImport(URLPAGE);
+
+		//-- Constructor
+		PoMethod cons = clz.addConstructor();
+		cons.addParameter(WDCONNECTOR, "connector");
+		cons.append("super(connector, " + page.getClass().getCanonicalName() + ".class);").nl();
+
 		//-- The empty class for extending the PO
-		m_emptyClass = new PoClass(pkg, name, clz, Collections.emptyList());
-		m_classList.add(m_emptyClass);
+		PoClass empty = m_emptyClass = new PoClass(pkg, name, clz, Collections.emptyList());
+		m_classList.add(empty);
+		empty.addImport(WDCONNECTOR);
+		empty.addImport(URLPAGE);
+
+		cons = empty.addConstructor();
+		cons.addParameter(WDCONNECTOR, "connector");
+		cons.append("super(connector);").nl();
 	}
 
 	/**

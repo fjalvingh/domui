@@ -46,6 +46,8 @@ public class BodyWriter<T extends BodyWriter<T>> {
 	}
 
 	protected String getTypeName(PoClass clz, RefType type) {
+		if(clz.hasImport(type.getPackageName() + "." + type.getTypeName()))
+			return type.asSmallTypeString();
 		return type.asTypeString();
 	}
 

@@ -82,7 +82,10 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		nl();
 
 		//-- Constructor
-
+		List<PoMethod> constructorList = n.getConstructorList();
+		for(PoMethod poMethod : constructorList) {
+			renderConstructor(n, poMethod);
+		}
 
 		//-- Methods.
 		List<PoMethod> methodList = n.getMethodList();
@@ -94,6 +97,28 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		//-- end of class
 		dec();
 		append("}").nl().nl();
+	}
+
+	private void renderConstructor(PoClass n, PoMethod poMethod) throws Exception {
+		appendModifiers(poMethod.getModifierSet());
+
+		append(poMethod.getMethodName());
+		append("(");
+		List<PoMethodParameter> parameterList = poMethod.getParameterList();
+		for(int i = 0; i < parameterList.size(); i++) {
+			PoMethodParameter parameter = parameterList.get(i);
+			if(i > 0)
+				append(", ");
+			appendType(n, parameter.getType());
+			append(" ");
+			append(parameter.getParameterName());
+		}
+		append(") {").nl();
+		inc();
+		append(poMethod.getResult());
+		dec();
+		append("}").nl();
+		nl();
 	}
 
 	private void renderMethod(PoClass n, PoMethod poMethod) throws Exception {
