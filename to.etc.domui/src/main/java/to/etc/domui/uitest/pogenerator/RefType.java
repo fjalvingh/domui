@@ -3,7 +3,6 @@ package to.etc.domui.uitest.pogenerator;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -32,10 +31,10 @@ final public class RefType {
 		m_genericParameterList = genericParameters;
 	}
 
-	public RefType(Class<?> clz) {
+	public RefType(Class<?> clz, String... genericParameters) {
 		m_packageName = clz.getPackageName();
 		m_typeName = clz.getSimpleName();
-		m_genericParameterList = Collections.emptyList();
+		m_genericParameterList = Arrays.asList(genericParameters);
 	}
 
 	public String getPackageName() {

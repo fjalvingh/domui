@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 
 /**
  * Recognizes a data table, and gives accessors for the column things inside it.
@@ -29,6 +30,8 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 	static private final RefType COLUMNCLASS = new RefType(PROXYPACKAGE, "CpDataTableColumn");
 
 	static private final RefType ROWBASECLASS = new RefType(PROXYPACKAGE, "CpDataTableRowBase");
+
+	static private final RefType SUPPLIER = new RefType(Supplier.class, "String");
 
 	private List<Col> m_colList = new ArrayList<>();
 
@@ -43,12 +46,11 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		PoClass rowClass = context.addClass(rowClassName, ROWBASECLASS, Collections.emptyList());
 
 		//-- Generate the table class
-		PoClass baseClass = new PoClass(PROXYPACKAGE, "CpDataTable");
-		baseClass.addGenericParameter(rowClass.asType());
+		RefType baseClass = new RefType(PROXYPACKAGE, "CpDataTable", rowClass.asType().asTypeString());
 
 		//-- Add a constructor to the row class
 		PoMethod cons = rowClass.addConstructor();
-		cons.addParameter(baseClass.asType(), "dt");
+		cons.addParameter(baseClass, "dt");
 		cons.addParameter(RefType.INT, "rowIndex");
 		cons.append("super(dt, rowIndex);").nl();
 
@@ -56,15 +58,21 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		String fieldName = PoGeneratorContext.fieldName(baseName);
 		String methodName = PoGeneratorContext.methodName(baseName);
 
-		PoField field = rc.addField(baseClass.asType(), fieldName);
+		PoField field = rc.addField(baseClass, fieldName);
 		PoMethod getter = rc.addMethod(field.getType(), "get" + methodName);
 		getter.appendLazyInit(field, variable -> {
 			getter.append(variable).append(" = ").append("new ");
-			getter.appendType(rc, field.getType()).append("(this, ").append(selector.selectorAsCode()).append(");").nl();
+			getter.appendType(rc, field.getType()).append("(this.wd(), ").append(selector.selectorAsCode()).append(");").nl();
 		});
 
 		String tableClassName = context.getRootClass().getClassName() + baseName;
-		PoClass tableClass = context.addClass(new PoClass(context.getRootClass().getPackageName(), tableClassName, baseClass.asType()));
+		PoClass tableClass = context.addClass(new PoClass(context.getRootClass().getPackageName(), tableClassName, baseClass));
+
+		//-- And a constructor to the table class.
+		cons = tableClass.addConstructor();
+		cons.addParameter(PoGeneratorContext.WDCONNECTOR, "connector");
+		cons.addParameter(SUPPLIER, "selectorProvider");
+		cons.append("super(connector, selectorProvider);").nl();
 
 		//-- Generate thingies per column
 		for(int i = 0; i < m_colList.size(); i++) {
