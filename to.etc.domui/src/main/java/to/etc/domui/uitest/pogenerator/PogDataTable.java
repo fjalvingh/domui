@@ -59,7 +59,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		String methodName = PoGeneratorContext.methodName(baseName);
 
 		PoField field = rc.addField(baseClass, fieldName);
-		PoMethod getter = rc.addMethod(field.getType(), "get" + methodName);
+		PoMethod getter = rc.addMethod(field.getType(), baseName);
 		getter.appendLazyInit(field, variable -> {
 			getter.append(variable).append(" = ").append("new ");
 			getter.appendType(rc, field.getType()).append("(this.wd(), ").append(selector.selectorAsCode()).append(");").nl();
