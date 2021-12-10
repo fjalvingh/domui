@@ -1,7 +1,5 @@
 package to.etc.domui.uitest.pogenerator;
 
-import to.etc.util.Pair;
-
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -54,19 +52,6 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		PoClass baseClass = n.getBaseClass();
 		if(null != baseClass) {
 			append("extends ").appendType(n, baseClass.asType());
-
-			List<PoClass> pl = baseClass.getGenericParameterList();
-			if(pl.size() > 0) {
-				append("<");
-				for(int i = 0; i < pl.size(); i++) {
-					PoClass poClass = pl.get(i);
-					if(i > 0)
-						append(", ");
-					appendType(n, poClass.asType());
-				}
-
-				append(">");
-			}
 			append(" ");
 		}
 		List<RefType> interfaceList = n.getInterfaceList();
