@@ -48,7 +48,7 @@ public class PoGeneratorContext {
 		PoClass urlPage = new PoClass(UrlPage.class.getPackageName(), UrlPage.class.getSimpleName());
 		baseClass.addGenericParameter(new RefType(page.getClass()));
 
-		PoClass clz = new PoClass(pkg, name + "Base", baseClass, Collections.emptyList()).generated();
+		PoClass clz = new PoClass(pkg, name + "Base", baseClass.asType(), Collections.emptyList()).generated();
 		m_rootClass = clz;
 		m_classList.add(clz);
 
@@ -62,7 +62,7 @@ public class PoGeneratorContext {
 		cons.append("super(connector, " + page.getClass().getCanonicalName() + ".class);").nl();
 
 		//-- The empty class for extending the PO
-		PoClass empty = m_emptyClass = new PoClass(pkg, name, clz, Collections.emptyList());
+		PoClass empty = m_emptyClass = new PoClass(pkg, name, clz.asType(), Collections.emptyList());
 		m_classList.add(empty);
 		empty.addImport(WDCONNECTOR);
 		empty.addImport(URLPAGE);
@@ -152,13 +152,13 @@ public class PoGeneratorContext {
 		return m_errorList;
 	}
 
-	public PoClass addClass(String packageName, String className, @Nullable PoClass baseClass, List<RefType> ifaces) {
+	public PoClass addClass(String packageName, String className, @Nullable RefType baseClass, List<RefType> ifaces) {
 		PoClass pc = new PoClass(packageName, className, baseClass, ifaces);
 		m_classList.add(pc);
 		return pc;
 	}
 
-	public PoClass addClass(String className, @Nullable PoClass baseClass, List<RefType> ifaces) {
+	public PoClass addClass(String className, @Nullable RefType baseClass, List<RefType> ifaces) {
 		return addClass(m_rootClass.getPackageName(), className, baseClass, ifaces);
 	}
 

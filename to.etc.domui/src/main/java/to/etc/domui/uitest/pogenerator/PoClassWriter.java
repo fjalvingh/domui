@@ -49,9 +49,9 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 
 		//-- Class header
 		append("public class ").append(n.getClassName()).append(" ");
-		PoClass baseClass = n.getBaseClass();
+		RefType baseClass = n.getBaseClass();
 		if(null != baseClass) {
-			append("extends ").appendType(n, baseClass.asType());
+			append("extends ").appendType(n, baseClass);
 			append(" ");
 		}
 		List<RefType> interfaceList = n.getInterfaceList();

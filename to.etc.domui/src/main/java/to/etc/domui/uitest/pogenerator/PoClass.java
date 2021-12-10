@@ -25,7 +25,7 @@ final public class PoClass {
 	private final String m_className;
 
 	@Nullable
-	private final PoClass m_baseClass;
+	private final RefType m_baseClass;
 
 	private final List<RefType> m_interfaceList;
 
@@ -51,7 +51,7 @@ final public class PoClass {
 
 	private final List<RefType> m_genericParameterList = new ArrayList<>();
 
-	public PoClass(String packageName, String className, @Nullable PoClass baseClass, List<RefType> interfaceList) {
+	public PoClass(String packageName, String className, @Nullable RefType baseClass, List<RefType> interfaceList) {
 		m_packageName = packageName;
 		m_className = className;
 		m_baseClass = baseClass;
@@ -65,7 +65,7 @@ final public class PoClass {
 		m_interfaceList = Collections.emptyList();
 	}
 
-	public PoClass(String packageName, String className, @Nullable PoClass baseClass) {
+	public PoClass(String packageName, String className, @Nullable RefType baseClass) {
 		m_packageName = packageName;
 		m_className = className;
 		m_baseClass = baseClass;
@@ -159,7 +159,7 @@ final public class PoClass {
 	}
 
 	@Nullable
-	public PoClass getBaseClass() {
+	public RefType getBaseClass() {
 		return m_baseClass;
 	}
 

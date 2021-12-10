@@ -28,9 +28,9 @@ import java.util.Map.Entry;
 final public class PogDataTable extends AbstractPoProxyGenerator {
 	static private final RefType COLUMNCLASS = new RefType(PROXYPACKAGE, "CpDataTableColumn");
 
-	private List<Col> m_colList = new ArrayList<>();
+	static private final RefType ROWBASECLASS = new RefType(PROXYPACKAGE, "CpDataTableRowBase");
 
-	private String m_baseName;
+	private List<Col> m_colList = new ArrayList<>();
 
 	public PogDataTable(NodeBase node) {
 		super(node);
@@ -39,12 +39,17 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 	@Override
 	public void generateCode(PoGeneratorContext context, PoClass rc, String baseName, IPoSelector selector) throws Exception {
 		//-- Generate a row class
-		String rowClassName = context.getRootClass().getClassName() + m_baseName + "Row";
-		PoClass rowClass = context.addClass(rowClassName, null, Collections.emptyList());
+		String rowClassName = context.getRootClass().getClassName() + baseName + "Row";
+		PoClass rowClass = context.addClass(rowClassName, ROWBASECLASS, Collections.emptyList());
 
 		//-- Generate the table class
 		PoClass baseClass = new PoClass(PROXYPACKAGE, "CpDataTable");
 		baseClass.addGenericParameter(rowClass.asType());
+
+		//-- Add a constructor to the row class
+		PoMethod cons = rowClass.addConstructor();
+		cons.addParameter(baseClass.asType(), "dt");
+		cons.append("super(dt);").nl();
 
 		//-- Generate the accessor in the provided class (the accessor to the CpDataTable
 		String fieldName = PoGeneratorContext.fieldName(baseName);
@@ -57,8 +62,8 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 			getter.appendType(rc, field.getType()).append("(this, ").append(selector.selectorAsCode()).append(");").nl();
 		});
 
-		String tableClassName = context.getRootClass().getClassName() + m_baseName;
-		PoClass tableClass = context.addClass(new PoClass(context.getRootClass().getPackageName(), tableClassName, baseClass));
+		String tableClassName = context.getRootClass().getClassName() + baseName;
+		PoClass tableClass = context.addClass(new PoClass(context.getRootClass().getPackageName(), tableClassName, baseClass.asType()));
 
 		//-- Generate thingies per column
 		for(int i = 0; i < m_colList.size(); i++) {
