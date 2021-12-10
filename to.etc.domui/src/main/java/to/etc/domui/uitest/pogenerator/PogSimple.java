@@ -54,7 +54,7 @@ final public class PogSimple extends AbstractPoProxyGenerator implements IPoProx
 		PoMethod getter = rc.addMethod(field.getType(), "get" + methodName);
 		getter.appendLazyInit(field, variable -> {
 			getter.append(variable).append(" = ").append("new ");
-			getter.appendType(rc, field.getType()).append("(this, ").append(selector.selectorAsCode()).append(");").nl();
+			getter.appendType(rc, field.getType()).append("(this.wd(), ").append(selector.selectorAsCode()).append(");").nl();
 		});
 	}
 

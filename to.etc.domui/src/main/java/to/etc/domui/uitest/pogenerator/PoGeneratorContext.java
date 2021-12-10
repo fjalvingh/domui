@@ -37,7 +37,12 @@ public class PoGeneratorContext {
 		//-- Create the root class: the class representing this page.
 		String pkg = calculatePageTestclassPackageName(page);
 		String name = calculatePageTestclassName(page);
-		PoClass clz = new PoClass(pkg, name + "Base", null, Collections.emptyList()).generated();
+
+		PoClass baseClass = new PoClass(IPoProxyGenerator.PROXYPACKAGE, "AbstractCpPage");
+		PoClass urlPage = new PoClass(UrlPage.class.getPackageName(), UrlPage.class.getSimpleName());
+		baseClass.addGenericParameter(urlPage);
+
+		PoClass clz = new PoClass(pkg, name + "Base", baseClass, Collections.emptyList()).generated();
 		m_rootClass = clz;
 		m_classList.add(clz);
 

@@ -8,7 +8,7 @@ import to.etc.domui.webdriver.core.WebDriverConnector;
 import java.util.function.Supplier;
 
 @NonNullByDefault
-public class CpDataTable extends AbstractCpComponent {
+public class CpDataTable<T extends CpDataTableRowBase> extends AbstractCpComponent {
 
 	public CpDataTable(WebDriverConnector connector, Supplier<String> selectorProvider) {
 		super(connector, selectorProvider);

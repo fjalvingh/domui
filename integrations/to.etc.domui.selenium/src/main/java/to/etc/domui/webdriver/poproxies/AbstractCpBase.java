@@ -5,14 +5,15 @@ import org.openqa.selenium.JavascriptExecutor;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 @NonNullByDefault
-public abstract class AbstractCpBase {
+public abstract class AbstractCpBase implements ICpDriverSource {
 	private final WebDriverConnector m_wd;
 
 	public AbstractCpBase(WebDriverConnector wd) {
 		m_wd = wd;
 	}
 
-	protected WebDriverConnector wd() {
+	@Override
+	public WebDriverConnector wd() {
 		return m_wd;
 	}
 

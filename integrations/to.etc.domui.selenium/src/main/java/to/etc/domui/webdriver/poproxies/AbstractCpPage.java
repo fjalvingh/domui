@@ -17,13 +17,12 @@ import java.util.Map;
 import static java.util.stream.Collectors.toMap;
 
 @NonNullByDefault
-public abstract class AbstractCpBasePage<T extends UrlPage> {
-
+public abstract class AbstractCpPage<T extends UrlPage> implements ICpDriverSource {
 	private WebDriverConnector m_wd;
 
 	private final Class<T> m_pageClass;
 
-	public AbstractCpBasePage(WebDriverConnector wd, Class<T> clazz) {
+	public AbstractCpPage(WebDriverConnector wd, Class<T> clazz) {
 		m_wd = wd;
 		m_pageClass = clazz;
 	}
@@ -64,7 +63,8 @@ public abstract class AbstractCpBasePage<T extends UrlPage> {
 		return m_pageClass;
 	}
 
-	protected WebDriverConnector wd() {
+	@Override
+	public WebDriverConnector wd() {
 		return m_wd;
 	}
 }
