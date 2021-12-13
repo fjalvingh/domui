@@ -22,9 +22,11 @@ public class PoGeneratorContext {
 
 	static public final RefType URLPAGE = new RefType(UrlPage.class.getPackageName(), UrlPage.class.getSimpleName());
 
-	static public final RefType CLASSURLPAGE = new RefType(Class.class.getPackageName(), Class.class.getSimpleName(), "? extends UrlPage");
+	//static public final RefType CLASSURLPAGE = new RefType(Class.class.getPackageName(), Class.class.getSimpleName(), "? extends UrlPage");
 
 	private final UrlPage m_page;
+
+	private final RefType m_pageType;
 
 	/** All classes generated within this context */
 	private final List<PoClass> m_classList = new ArrayList<>();
@@ -44,17 +46,19 @@ public class PoGeneratorContext {
 		String pkg = calculatePageTestclassPackageName(page);
 		String name = calculatePageTestclassName(page);
 
-		PoClass baseClass = new PoClass(IPoProxyGenerator.PROXYPACKAGE, "AbstractCpPage");
-		PoClass urlPage = new PoClass(UrlPage.class.getPackageName(), UrlPage.class.getSimpleName());
-		baseClass.addGenericParameter(new RefType(page.getClass()));
+		m_pageType = new RefType(page.getClass());
 
-		PoClass clz = new PoClass(pkg, name + "Base", baseClass.asType(), Collections.emptyList()).generated();
+		RefType baseClass = new RefType(IPoProxyGenerator.PROXYPACKAGE, "AbstractCpPage", m_pageType);
+		PoClass urlPage = new PoClass(UrlPage.class.getPackageName(), UrlPage.class.getSimpleName());
+		//baseClass.addGenericParameter(new RefType(page.getClass()));
+
+		PoClass clz = new PoClass(pkg, name + "Base", baseClass, Collections.emptyList()).generated();
 		m_rootClass = clz;
 		m_classList.add(clz);
 
 		//-- Imports
 		clz.addImport(WDCONNECTOR);
-		clz.addImport(URLPAGE);
+		//clz.addImport(URLPAGE);
 
 		//-- Constructor
 		PoMethod cons = clz.addConstructor();
@@ -80,6 +84,10 @@ public class PoGeneratorContext {
 		List<NodeGeneratorPair> list = new ArrayList<>();
 		createGenerators(list, nc);
 		return list;
+	}
+
+	public String getPageName() {
+		return m_page.getClass().getSimpleName();
 	}
 
 	/**

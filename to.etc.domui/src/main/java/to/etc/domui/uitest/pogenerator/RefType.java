@@ -12,26 +12,27 @@ import java.util.List;
 @NonNullByDefault
 final public class RefType {
 	static public final RefType INT = new RefType("", "int");
+	static public final RefType STRING = new RefType("", "String");
 
 	private final String m_packageName;
 
 	private final String m_typeName;
 
-	private final List<String> m_genericParameterList;
+	private final List<RefType> m_genericParameterList;
 
-	public RefType(String packageName, String typeName, String... genericParameters) {
+	public RefType(String packageName, String typeName, RefType... genericParameters) {
 		m_packageName = packageName;
 		m_typeName = typeName;
 		m_genericParameterList = Arrays.asList(genericParameters);
 	}
 
-	public RefType(String packageName, String typeName, List<String> genericParameters) {
+	public RefType(String packageName, String typeName, List<RefType> genericParameters) {
 		m_packageName = packageName;
 		m_typeName = typeName;
 		m_genericParameterList = genericParameters;
 	}
 
-	public RefType(Class<?> clz, String... genericParameters) {
+	public RefType(Class<?> clz, RefType... genericParameters) {
 		m_packageName = clz.getPackageName();
 		m_typeName = clz.getSimpleName();
 		m_genericParameterList = Arrays.asList(genericParameters);
@@ -45,11 +46,11 @@ final public class RefType {
 		return m_typeName;
 	}
 
-	public List<String> getGenericParameterList() {
+	public List<RefType> getGenericParameterList() {
 		return m_genericParameterList;
 	}
 
-	public String asTypeString() {
+	private String asTypeString() {
 		StringBuilder sb = new StringBuilder();
 		if(m_packageName.length() > 0) {
 			sb.append(m_packageName).append(".");
@@ -58,10 +59,10 @@ final public class RefType {
 		if(m_genericParameterList.size() > 0) {
 			sb.append("<");
 			for(int i = 0; i < m_genericParameterList.size(); i++) {
-				String s = m_genericParameterList.get(i);
+				RefType s = m_genericParameterList.get(i);
 				if(i > 0)
 					sb.append(", ");
-				sb.append(s);
+				sb.append(s.asTypeString());
 			}
 
 			sb.append(">");
@@ -70,16 +71,21 @@ final public class RefType {
 		return sb.toString();
 	}
 
-	public String asSmallTypeString() {
+	public String asTypeString(PoClass clz) {
+		clz.addImport(this);
+
 		StringBuilder sb = new StringBuilder();
+		if(! clz.hasImport(this) && m_packageName.length() > 0) {
+			sb.append(m_packageName).append(".");
+		}
 		sb.append(m_typeName);
 		if(m_genericParameterList.size() > 0) {
 			sb.append("<");
 			for(int i = 0; i < m_genericParameterList.size(); i++) {
-				String s = m_genericParameterList.get(i);
+				RefType s = m_genericParameterList.get(i);
 				if(i > 0)
 					sb.append(", ");
-				sb.append(s);
+				sb.append(s.asTypeString(clz));
 			}
 
 			sb.append(">");
@@ -87,6 +93,25 @@ final public class RefType {
 
 		return sb.toString();
 	}
+
+
+	//public String asSmallTypeString() {
+	//	StringBuilder sb = new StringBuilder();
+	//	sb.append(m_typeName);
+	//	if(m_genericParameterList.size() > 0) {
+	//		sb.append("<");
+	//		for(int i = 0; i < m_genericParameterList.size(); i++) {
+	//			RefType s = m_genericParameterList.get(i);
+	//			if(i > 0)
+	//				sb.append(", ");
+	//			sb.append(s.asTypeString());
+	//		}
+	//
+	//		sb.append(">");
+	//	}
+	//
+	//	return sb.toString();
+	//}
 
 
 	@Override

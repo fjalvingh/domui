@@ -31,7 +31,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 
 	static private final RefType ROWBASECLASS = new RefType(PROXYPACKAGE, "CpDataTableRowBase");
 
-	static private final RefType SUPPLIER = new RefType(Supplier.class, "String");
+	static private final RefType SUPPLIER = new RefType(Supplier.class, RefType.STRING);
 
 	private List<Col> m_colList = new ArrayList<>();
 
@@ -42,11 +42,11 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 	@Override
 	public void generateCode(PoGeneratorContext context, PoClass rc, String baseName, IPoSelector selector) throws Exception {
 		//-- Generate a row class
-		String rowClassName = context.getRootClass().getClassName() + baseName + "Row";
+		String rowClassName = context.getRootClass().getClassName() + StringTool.strCapitalizedIntact(baseName) + "Row";
 		PoClass rowClass = context.addClass(rowClassName, ROWBASECLASS, Collections.emptyList());
 
 		//-- Generate the table class
-		RefType baseClass = new RefType(PROXYPACKAGE, "CpDataTable", rowClass.asType().asTypeString());
+		RefType baseClass = new RefType(PROXYPACKAGE, "CpDataTable", rowClass.asType());
 
 		//-- Add a constructor to the row class
 		PoMethod cons = rowClass.addConstructor();
@@ -58,14 +58,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		String fieldName = PoGeneratorContext.fieldName(baseName);
 		String methodName = PoGeneratorContext.methodName(baseName);
 
-		PoField field = rc.addField(baseClass, fieldName);
-		PoMethod getter = rc.addMethod(field.getType(), baseName);
-		getter.appendLazyInit(field, variable -> {
-			getter.append(variable).append(" = ").append("new ");
-			getter.appendType(rc, field.getType()).append("(this.wd(), ").append(selector.selectorAsCode()).append(");").nl();
-		});
-
-		String tableClassName = context.getRootClass().getClassName() + baseName;
+		String tableClassName = "PO" + context.getPageName() + StringTool.strCapitalizedIntact(baseName);
 		PoClass tableClass = context.addClass(new PoClass(context.getRootClass().getPackageName(), tableClassName, baseClass));
 
 		//-- And a constructor to the table class.
@@ -74,12 +67,25 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		cons.addParameter(SUPPLIER, "selectorProvider");
 		cons.append("super(connector, selectorProvider);").nl();
 
+		//-- Generate the row accessor method (row(n))
+		PoMethod rowMethod = tableClass.addMethod(rowClass.asType(), "row");
+		rowMethod.addParameter(RefType.INT, "rowIndex");
+		rowMethod.append("return new ").appendType(tableClass, rowClass.asType()).append("(this, rowIndex);").nl();
+
 		//-- Generate thingies per column
 		for(int i = 0; i < m_colList.size(); i++) {
 			Col col = m_colList.get(i);
 			generateTableClassColumn(context, tableClass, col, i);
 			generateRowClassColumn(context, rowClass, col, i);
 		}
+
+		PoField field = rc.addField(tableClass.asType(), fieldName);
+		PoMethod getter = rc.addMethod(field.getType(), baseName);
+		getter.appendLazyInit(field, variable -> {
+			getter.append(variable).append(" = ").append("new ");
+			getter.appendType(rc, field.getType()).append("(this.wd(), ").append(selector.selectorAsCode()).append(");").nl();
+		});
+
 	}
 
 	///**
@@ -144,7 +150,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		String methodName = PoGeneratorContext.methodName(col.getColumnName());
 
 		PoField field = pc.addField(COLUMNCLASS, fieldName);
-		PoMethod getter = pc.addMethod(field.getType(), methodName);
+		PoMethod getter = pc.addMethod(field.getType(), PoGeneratorContext.propertyName(col.getColumnName()));
 		getter.appendLazyInit(field, variable -> {
 			getter.append(variable).append(" = ").append("new ");
 			getter.appendType(pc, field.getType()).append("(this, ").append(Integer.toString(index)).append(");").nl();
