@@ -59,6 +59,10 @@
             <!-- We cannot use test scope because maven is too bloody stupid to understand that test code should be shared between projects. -->
             <exclusions>
                 <exclusion>
+                    <artifactId>okio</artifactId>
+                    <groupId>com.squareup.okio</groupId>
+                </exclusion>
+                <exclusion>
                     <groupId>com.google.code.findbugs</groupId>
                     <artifactId>jsr305</artifactId>
                 </exclusion>
