@@ -81,12 +81,11 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	private final Input m_input = new Input() {
 		/**
 		 * Handle the input from the request for this component.
-		 * @see Input#acceptRequestParameter(String[])
 		 */
 		@Override
 		public boolean acceptRequestParameter(@NonNull String[] values) {
-			String oldValue = getRawValue();									// Retain previous value,
-			super.acceptRequestParameter(values);								// Set the new one;
+			String oldValue = getRawValue();                                    // Retain previous value,
+			super.acceptRequestParameter(values);                                // Set the new one;
 
 			oldValue = oldValue == null ? "" : m_untrimmed ? oldValue : oldValue.trim();
 			String newValue = getRawValue() == null ? "" : m_untrimmed ? getRawValue() : getRawValue().trim();
@@ -98,11 +97,13 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			return true;
 		}
 
-		@Override public String getInputType() {
+		@Override
+		public String getInputType() {
 			return m_password ? "password" : "text";
 		}
 
-		@Override public boolean isFocusable() {
+		@Override
+		public boolean isFocusable() {
 			if(m_disableFocus)
 				return false;
 			return super.isFocusable();
@@ -123,7 +124,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	private IConverter<T> m_converter;
 
 	/** Defined value validators on this field. */
-	private List<IValueValidator< ? >> m_validators = Collections.EMPTY_LIST;
+	private List<IValueValidator<?>> m_validators = Collections.EMPTY_LIST;
 
 	@Nullable
 	private T m_value;
@@ -154,9 +155,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	private boolean m_immediate;
 
-	/**
-	 * @see Text2#getEmptyMarker()
-	 */
 	@Nullable
 	private String m_emptyMarker;
 
@@ -166,7 +164,9 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	private boolean m_disableFocus;
 
 	public enum NumberMode {
-		NONE, DIGITS, FLOAT,
+		NONE,
+		DIGITS,
+		FLOAT,
 	}
 
 	@NonNull
@@ -203,16 +203,20 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		renderMode();
 	}
 
-	@Nullable @Override protected String getFocusID() {
+	@Nullable
+	@Override
+	protected String getFocusID() {
 		return m_input.getActualID();
 	}
 
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return m_input;
 	}
 
 	private void renderButtons() {
-		if(! isBuilt())
+		if(!isBuilt())
 			return;
 
 		//-- Remove all but the 1st child
@@ -265,7 +269,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			validatePrimitive();
 
 			if(clearvalidate)
-				clearValidationFailure(result);				// jal 20160216 You cannot just do this: this clears the error message associated with the component!!!
+				clearValidationFailure(result);                // jal 20160216 You cannot just do this: this clears the error message associated with the component!!!
 			m_validationResult = null;
 		} catch(ValidationException vx) {
 			m_validationResult = vx;
@@ -299,7 +303,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			if(!Pattern.matches(getValidationRegexp(), raw)) {
 				//-- We have a validation error.
 				if(getRegexpUserString() != null)
-					throw new ValidationException(Msgs.V_NO_RE_MATCH, getRegexpUserString());		// Input format must be {0}
+					throw new ValidationException(Msgs.V_NO_RE_MATCH, getRegexpUserString());        // Input format must be {0}
 				else
 					throw new ValidationException(Msgs.V_INVALID);
 			}
@@ -317,7 +321,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			else
 				converted = RuntimeConversions.convertTo(raw, m_inputClass);
 
-			for(IValueValidator< ? > vv : m_validators)
+			for(IValueValidator<?> vv : m_validators)
 				((IValueValidator<Object>) vv).validate(converted);
 			m_value = (T) converted;
 		} catch(UIException x) {
@@ -358,7 +362,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	/**
 	 * Returns the datatype of the value of this control, as passed in the constructor.
-	 * @return
 	 */
 	@Override
 	@NonNull
@@ -369,8 +372,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	/**
 	 * See {@link IConvertable#getConverter()}.
 	 * This returns null if no converter has been set. It also returns null if a default converter is used.
-	 *
-	 * @return
 	 */
 	@Nullable
 	@Override
@@ -383,8 +384,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 * Sets the Converter to use to convert the string value to a T and vice versa. It is the programmer's
 	 * responsibility to ensure that the converter actually converts to a T; if not the code will throw
 	 * ClassCastExceptions.
-	 *
-	 * @param converter
 	 */
 	@Override
 	public void setConverter(@Nullable IConverter<T> converter) {
@@ -402,11 +401,10 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 * 	<li>If this component has an input error: throw the ValidationException for that error</li>
 	 * 	<li>On no error this returns the value.</li>
 	 * </ul>
-	 * @return
 	 */
 	@Nullable
 	public T getBindValue() {
-		validate(false);												// Validate, and throw exception without UI change on trouble.
+		validate(false);                                                // Validate, and throw exception without UI change on trouble.
 		return m_value;
 	}
 
@@ -514,28 +512,34 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		m_mandatory = mandatory;
 	}
 
-	@Override public boolean isDisabled() {
+	@Override
+	public boolean isDisabled() {
 		return m_input.isDisabled();
 	}
 
-	@Override public void setDisabled(boolean d) {
+	@Override
+	public void setDisabled(boolean d) {
 		m_input.setDisabled(d);
 	}
 
-	@Override public boolean isReadOnly() {
+	@Override
+	public boolean isReadOnly() {
 		return m_input.isReadOnly();
 	}
 
-	@Override public void setReadOnly(boolean ro) {
+	@Override
+	public void setReadOnly(boolean ro) {
 		m_input.setReadOnly(ro);
 	}
 
 	@Nullable
-	@Override public IValueChanged<?> getOnValueChanged() {
+	@Override
+	public IValueChanged<?> getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
-	@Override public void setOnValueChanged(@Nullable IValueChanged<?> onValueChanged) {
+	@Override
+	public void setOnValueChanged(@Nullable IValueChanged<?> onValueChanged) {
 		m_onValueChanged = onValueChanged;
 		if(null == onValueChanged) {
 			m_input.setOnValueChanged(null);
@@ -586,7 +590,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return m_emptyMarker;
 	}
 
-
 	/**
 	 * Method can be used to show default marker icon (THEME/icon-search.png) with magnifier image in background of input. Image is hidden when input have focus or has any content.
 	 */
@@ -635,7 +638,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 * Append appropriate JS based on current {@link NumberMode}
 	 */
 	private void renderMode() {
-		switch(m_numberMode){
+		switch(m_numberMode) {
 			default:
 				throw new IllegalStateException(m_numberMode + "?");
 			case NONE:
@@ -650,6 +653,14 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		}
 	}
 
+	public void clearButtons() {
+		List<NodeBase> buttonList = m_buttonList;
+		if(buttonList == null || buttonList.size() == 0)
+			return;
+		buttonList.clear();
+		forceRebuild();
+	}
+
 	public DefaultButton addButton(IIconRef image, IClicked<DefaultButton> clicked) {
 		DefaultButton sib = new DefaultButton("", image, clicked);
 		addButton(sib);
@@ -661,7 +672,6 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		addButton(sib);
 		return sib;
 	}
-
 
 	public void addButton(NodeBase button) {
 		List<NodeBase> buttonList = m_buttonList;
@@ -679,23 +689,23 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return sib;
 	}
 
-	public void addValidator(IValueValidator< ? > v) {
+	public void addValidator(IValueValidator<?> v) {
 		if(m_validators == Collections.EMPTY_LIST)
 			m_validators = new ArrayList<>(5);
 		m_validators.add(v);
 	}
 
 	public void addValidator(PropertyMetaValidator v) {
-		IValueValidator<T> vi = ValidatorRegistry.getValueValidator((Class< ? extends IValueValidator<T>>) v.getValidatorClass(), v.getParameters());
+		IValueValidator<T> vi = ValidatorRegistry.getValueValidator((Class<? extends IValueValidator<T>>) v.getValidatorClass(), v.getParameters());
 		addValidator(vi);
 	}
 
-	public void addValidator(Class< ? extends IValueValidator<T>> clz) {
+	public void addValidator(Class<? extends IValueValidator<T>> clz) {
 		IValueValidator<T> vi = ValidatorRegistry.getValueValidator(clz, null);
 		addValidator(vi);
 	}
 
-	public void addValidator(Class< ? extends IValueValidator<T>> clz, String[] parameters) {
+	public void addValidator(Class<? extends IValueValidator<T>> clz, String[] parameters) {
 		addValidator(new MetaPropertyValidatorImpl(clz, parameters));
 	}
 
@@ -720,6 +730,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IHasModifiedIndication impl							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns the modified-by-user flag.
 	 */
@@ -749,16 +760,17 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Creating monetary input controls.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Create a control to input a monetary value proper for the specified property.
 	 */
 	@NonNull
-	static public Text2<Double> createDoubleMoneyInput(@NonNull Class< ? > clz, @NonNull String property, boolean editable) {
+	static public Text2<Double> createDoubleMoneyInput(@NonNull Class<?> clz, @NonNull String property, boolean editable) {
 		return Text2.createDoubleMoneyInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@NonNull
-	static public Text2<BigDecimal> createBDMoneyInput(Class< ? > clz, String property, boolean editable) {
+	static public Text2<BigDecimal> createBDMoneyInput(Class<?> clz, String property, boolean editable) {
 		return Text2.createBDMoneyInput((PropertyMetaModel<BigDecimal>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
@@ -782,7 +794,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return txt;
 	}
 
-	public static void configureNumericInput(@NonNull Text2< ? > txt, @NonNull PropertyMetaModel< ? > pmm, boolean editable) {
+	public static void configureNumericInput(@NonNull Text2<?> txt, @NonNull PropertyMetaModel<?> pmm, boolean editable) {
 		if(!editable)
 			txt.setReadOnly(true);
 
@@ -826,27 +838,27 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	 * Create an int input control, properly configured for the specified property.
 	 */
 	@NonNull
-	static public Text2<Integer> createIntInput(Class< ? > clz, String property, boolean editable) {
+	static public Text2<Integer> createIntInput(Class<?> clz, String property, boolean editable) {
 		return Text2.createNumericInput((PropertyMetaModel<Integer>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@NonNull
-	static public Text2<Long> createLongInput(Class< ? > clz, String property, boolean editable) {
+	static public Text2<Long> createLongInput(Class<?> clz, String property, boolean editable) {
 		return Text2.createNumericInput((PropertyMetaModel<Long>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@NonNull
-	static public Text2<Double> createDoubleInput(Class< ? > clz, String property, boolean editable) {
+	static public Text2<Double> createDoubleInput(Class<?> clz, String property, boolean editable) {
 		return Text2.createNumericInput((PropertyMetaModel<Double>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@NonNull
-	static public Text2<BigDecimal> createBigDecimalInput(Class< ? > clz, String property, boolean editable) {
+	static public Text2<BigDecimal> createBigDecimalInput(Class<?> clz, String property, boolean editable) {
 		return Text2.createNumericInput((PropertyMetaModel<BigDecimal>) MetaManager.getPropertyMeta(clz, property), editable);
 	}
 
 	@NonNull
-	static public <T> Text2<T> createText(Class< ? > clz, String property, boolean editable) {
+	static public <T> Text2<T> createText(Class<?> clz, String property, boolean editable) {
 		PropertyMetaModel<T> pmm = (PropertyMetaModel<T>) MetaManager.getPropertyMeta(clz, property);
 		return Text2.createText(pmm.getActualType(), pmm, editable);
 	}
@@ -858,7 +870,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	@NonNull
 	static public <T> Text2<T> createText(Class<T> iclz, PropertyMetaModel<T> pmm, boolean editable, boolean setDefaultErrorLocation) {
-		Class< ? > aclz = pmm.getActualType();
+		Class<?> aclz = pmm.getActualType();
 		if(!iclz.isAssignableFrom(aclz))
 			throw new IllegalStateException("Invalid class type=" + iclz + " for property " + pmm);
 		Text2<T> txt = new Text2<T>(iclz);
@@ -963,7 +975,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		return txt;
 	}
 
-	@Override public void setSpecialAttribute(@NonNull String name, @Nullable String value) {
+	@Override
+	public void setSpecialAttribute(@NonNull String name, @Nullable String value) {
 		m_input.setSpecialAttribute(name, value);
 	}
 
@@ -971,7 +984,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		m_input.setPlaceHolder(text);
 	}
 
-	@Nullable public String getPlaceHolder() {
+	@Nullable
+	public String getPlaceHolder() {
 		return m_input.getPlaceHolder();
 	}
 
@@ -992,7 +1006,8 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		m_disableFocus = disableFocus;
 	}
 
-	@Override public void setHint(@Nullable String hintText) {
+	@Override
+	public void setHint(@Nullable String hintText) {
 		setTitle(hintText);
 	}
 }
