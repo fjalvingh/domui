@@ -282,6 +282,11 @@ public class UIMessage {
 	}
 
 	@NonNull
+	static public UIMessage warning(@NonNull IBundleCode code, Object... param) {
+		return new UIMessage(null, null, MsgType.WARNING, code, param);
+	}
+
+	@NonNull
 	static public UIMessage info(@NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(null, null, MsgType.INFO, ref, code, param);
 	}
