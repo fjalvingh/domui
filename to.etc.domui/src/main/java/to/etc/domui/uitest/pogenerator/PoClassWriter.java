@@ -10,6 +10,9 @@ import java.util.Set;
  * Created on 08-12-21.
  */
 public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModelVisitor {
+
+	public static final String IMPORT_MARKER = "$*$IMPORT*$*";
+
 	private PoClass m_currentClass;
 
 	static private final RefType GENERATED = new RefType("javax.annotation.processing", "Generated");
@@ -36,9 +39,11 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		}
 
 		nl();
-		for(String s : n.getImportSet()) {
-			append("import ").append(s).append(";").nl();
-		}
+		append(IMPORT_MARKER);
+
+		//for(String s : n.getImportSet()) {
+		//	append("import ").append(s).append(";").nl();
+		//}
 		nl();
 
 		//-- Write the class
@@ -177,4 +182,14 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 
 	}
 
+	@Override
+	public String getResult() {
+		String result = super.getResult();
+
+		StringBuilder sb = new StringBuilder();
+		for(String s : m_currentClass.getImportSet()) {
+			sb.append("import ").append(s).append(";\n");
+		}
+		return result.replace(IMPORT_MARKER, sb.toString());
+	}
 }

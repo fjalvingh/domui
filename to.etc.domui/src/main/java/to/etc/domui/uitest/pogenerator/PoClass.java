@@ -221,6 +221,13 @@ final public class PoClass {
 		return m_importSet.contains(fullName);
 	}
 
+	public boolean hasImport(RefType type) {
+		if(type.getPackageName().isEmpty())
+			return true;
+		return hasImport(type.getPackageName() + "." + type.getTypeName());
+	}
+
+
 	public RefType asType() {
 		List<String> plist = getGenericParameterList().stream()
 			.map(a -> a.asTypeString())
