@@ -41,15 +41,8 @@ public class BodyWriter<T extends BodyWriter<T>> {
 	}
 
 	protected T appendType(PoClass clz, RefType type) throws Exception {
-		append(getTypeName(clz, type));
+		append(clz.getTypeName(type));
 		return (T) this;
-	}
-
-	protected String getTypeName(PoClass clz, RefType type) {
-		clz.addImport(type);
-		if(clz.hasImport(type))
-			return type.asSmallTypeString();
-		return type.asTypeString();
 	}
 
 	protected T appendString(String s) throws Exception {

@@ -61,7 +61,7 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 		}
 		List<RefType> interfaceList = n.getInterfaceList();
 		if(interfaceList.size() > 0) {
-			interfaceList.sort(Comparator.comparing(RefType::asTypeString));
+			interfaceList.sort(Comparator.comparing(RefType::toString));
 			append("implements ");
 			for(int i = 0; i < interfaceList.size(); i++) {
 				RefType s = interfaceList.get(i);

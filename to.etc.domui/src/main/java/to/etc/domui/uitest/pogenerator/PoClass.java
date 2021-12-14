@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 /**
  * Represents a class to be generated.
@@ -73,6 +72,7 @@ final public class PoClass {
 	}
 
 	public void addGenericParameter(RefType clz) {
+		addImport(clz);
 		m_genericParameterList.add(clz);
 	}
 
@@ -111,36 +111,40 @@ final public class PoClass {
 
 	public PoField addField(String packageName, String typeName, String fieldName) {
 		RefType rt = new RefType(packageName, typeName);
+		addImport(rt);
 		PoField field = new PoField(this, rt, fieldName);
 		add(field);
 		return field;
 	}
 
 	public PoField addField(RefType type, String fieldName) {
+		addImport(type);
 		PoField field = new PoField(this, type, fieldName);
 		add(field);
 		return field;
 	}
 
-	public PoClass addField(String fullType, String fieldName) {
-		int ix = fullType.lastIndexOf('.');
-		if(ix == -1) {
-			RefType rt = new RefType("", fullType);
-			add(new PoField(this, rt, fieldName));
-		} else {
-			String packageName = fullType.substring(0, ix);
-			String typeName = fullType.substring(ix + 1);
-			RefType rt = new RefType(packageName, typeName);
-			addImport(packageName, typeName);
-			add(new PoField(this, rt, fieldName));
-		}
-		return this;
-	}
+	//public PoClass addField(String fullType, String fieldName) {
+	//	int ix = fullType.lastIndexOf('.');
+	//	if(ix == -1) {
+	//		RefType rt = new RefType("", fullType);
+	//		add(new PoField(this, rt, fieldName));
+	//	} else {
+	//		String packageName = fullType.substring(0, ix);
+	//		String typeName = fullType.substring(ix + 1);
+	//		RefType rt = new RefType(packageName, typeName);
+	//		addImport(packageName, typeName);
+	//		add(new PoField(this, rt, fieldName));
+	//	}
+	//	return this;
+	//}
 
 	/**
 	 * Add a method. The method is returned so that it can be further configured.
 	 */
 	public PoMethod addMethod(@Nullable RefType returnType, String name, Modifier... modifiers) {
+		if(null != returnType)
+			addImport(returnType);
 		PoMethod m = new PoMethod(this, returnType, name, modifiers);
 		m_methodList.add(m);
 		return m;
@@ -215,25 +219,20 @@ final public class PoClass {
 		return m_markGenerated;
 	}
 
-	public boolean hasImport(String fullName) {
-		if(fullName.startsWith("java.lang."))
+	public boolean hasImport(RefType type) {
+		if(type.getPackageName().isEmpty() || type.getPackageName().equals(m_packageName) || type.getPackageName().equals("java.lang"))
 			return true;
+		String fullName = type.getPackageName() + "." + type.getTypeName();
 		return m_importSet.contains(fullName);
 	}
 
-	public boolean hasImport(RefType type) {
-		if(type.getPackageName().isEmpty())
-			return true;
-		return hasImport(type.getPackageName() + "." + type.getTypeName());
+	public RefType asType() {
+		return new RefType(getPackageName(), getClassName(), getGenericParameterList());
 	}
 
-
-	public RefType asType() {
-		List<String> plist = getGenericParameterList().stream()
-			.map(a -> a.asTypeString())
-			.collect(Collectors.toList());
-
-		return new RefType(getPackageName(), getClassName(), plist);
+	public String getTypeName(RefType type) {
+		addImport(type);
+		return type.asTypeString(this);
 	}
 
 	public PoMethod addConstructor() {
