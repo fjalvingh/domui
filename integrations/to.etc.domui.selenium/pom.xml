@@ -54,6 +54,11 @@
         </dependency>
 
         <dependency>
+            <artifactId>okio</artifactId>
+            <groupId>com.squareup.okio</groupId>
+        </dependency>
+
+        <dependency>
             <groupId>org.seleniumhq.selenium</groupId>
             <artifactId>selenium-java</artifactId>
             <!-- We cannot use test scope because maven is too bloody stupid to understand that test code should be shared between projects. -->
