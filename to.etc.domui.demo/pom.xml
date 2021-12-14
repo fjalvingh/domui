@@ -140,6 +140,7 @@
         <dependency>
             <artifactId>okio</artifactId>
             <groupId>com.squareup.okio</groupId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
