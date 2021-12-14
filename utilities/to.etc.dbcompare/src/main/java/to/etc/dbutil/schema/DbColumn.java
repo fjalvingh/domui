@@ -46,8 +46,6 @@ public class DbColumn implements Serializable {
 	private boolean m_quoteName;
 
 	public DbColumn(DbTable table, String name, ColumnType type, int precision, int scale, boolean nullable, Boolean autoIncrement) {
-		if("id".equals(name))
-			System.out.println("GOTCHA");
 		m_table = table;
 		m_name = name;
 		m_type = type;
@@ -58,8 +56,6 @@ public class DbColumn implements Serializable {
 	}
 
 	public DbColumn(DbTable table, String name, ColumnType type, int precision, int scale, boolean nullable, Boolean autoIncrement, int sqlType, String platformTypeName) {
-		if("id".equals(name))
-			System.out.println("GOTCHA");
 		m_table = table;
 		m_name = name;
 		m_type = type;
