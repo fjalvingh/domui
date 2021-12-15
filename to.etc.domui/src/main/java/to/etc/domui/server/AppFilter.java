@@ -183,6 +183,8 @@ public class AppFilter implements Filter {
 	}
 
 	private boolean isLogRequired(String s) {
+		if(s == null)
+			return false;
 		return s.contains("/rest/appliance2/loadResultTable");
 	}
 
