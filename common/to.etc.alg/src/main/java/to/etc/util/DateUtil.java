@@ -590,6 +590,24 @@ final public class DateUtil {
 		long startL = startCal.getTimeInMillis() + startCal.getTimeZone().getOffset(startCal.getTimeInMillis());
 		return (int) ((double) (endL - startL) / (double) (1000 * 60 * 60 * 24));
 	}
+
+	/**
+	 * Get the difference in number of minutes between the specified dates.
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public static int deltaInMinutes(Date start, Date end) {
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTime(start);
+		Calendar endCal = Calendar.getInstance();
+		endCal.setTime(end);
+
+		long endL = endCal.getTimeInMillis() + endCal.getTimeZone().getOffset(endCal.getTimeInMillis());
+		long startL = startCal.getTimeInMillis() + startCal.getTimeZone().getOffset(startCal.getTimeInMillis());
+		return (int) ((double) (endL - startL) / (double) (1000 * 60));
+	}
+
 	/**
 	 * Returns ISO calendar with specified year and week.
 	 * @param year
