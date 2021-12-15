@@ -109,7 +109,7 @@ public class AppFilter implements Filter {
 		String path = null;
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
-			path = rq.getPathInfo();
+			path = rq.getRequestURI();			// getPathInfo() always returns null - what an idiots.
 			logRequired = isLogRequired(path);
 			if(logRequired) {
 				LOG.error("ENTERED " + rq.getPathInfo());
@@ -185,7 +185,7 @@ public class AppFilter implements Filter {
 	private boolean isLogRequired(String s) {
 		if(s == null)
 			return false;
-		return s.contains("/rest/appliance2/loadResultTable");
+		return s.contains("rest/appliance2/loadResultTable");
 	}
 
 	//static synchronized private void initContext(ServletRequest req) {
