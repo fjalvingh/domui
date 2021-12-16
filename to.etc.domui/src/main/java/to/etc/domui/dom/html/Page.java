@@ -261,6 +261,8 @@ final public class Page implements IQContextContainer {
 
 	private List<IExecute> m_pageOnCallbackList = new ArrayList<>();
 
+	private final Map<String, Object> m_attributeMap = new HashMap<>();
+
 	///**
 	// * Contains all http headers that need to be sent for this page. When the Page
 	// * is created this is filled with the headers set in {@link DomApplication#getDefaultHTTPHeaderMap()},
@@ -603,6 +605,10 @@ final public class Page implements IQContextContainer {
 		}
 		int v = ++ir.m_value;
 		return initial + "_" + v;
+	}
+
+	public void deallocateTestId(@NonNull String testId) {
+		m_testIdMap.remove(testId);
 	}
 
 	public boolean isTestIDAllocated(@NonNull String id) {
@@ -952,6 +958,19 @@ final public class Page implements IQContextContainer {
 		}
 	}
 
+	public void setAttribute(@NonNull String name, @Nullable Object value) {
+		if(null == value)
+			m_attributeMap.remove(name);
+		else
+			m_attributeMap.put(name, value);
+	}
+
+	@Nullable
+	public Object getAttribute(String name) {
+		return m_attributeMap.get(name);
+	}
+
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Component focus handling.							*/
 	/*--------------------------------------------------------------*/
@@ -1033,7 +1052,6 @@ final public class Page implements IQContextContainer {
 
 	/**
 	 * Registers the node specified as needing a callback at delta render time.
-	 * @param nodeBase
 	 */
 	void registerJavascriptStateChanged(@NonNull NodeBase nodeBase) {
 		m_javaScriptStateChangedSet.add(nodeBase);
@@ -1048,7 +1066,6 @@ final public class Page implements IQContextContainer {
 	 * For all nodes that registered a "javascript delta", this calls that node's {@link NodeBase#renderJavascriptDelta(JavascriptStmt)}
 	 * method, then it will reset the state for the node. Because calls might cause other nodes to become invalid this
 	 * code loops max 10 times checking the set of delta nodes.
-	 * @throws Exception
 	 */
 	@Nullable
 	public StringBuilder internalFlushJavascriptStateChanges() throws Exception {

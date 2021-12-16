@@ -31,6 +31,7 @@ import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.dom.html.Button;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IClicked;
+import to.etc.domui.util.DomUtil;
 
 /**
  * A Button tag containing a single, usually small, image. The image is a normal image
@@ -59,7 +60,6 @@ public class SmallImgButton extends Button {
 	/**
 	 * Create a small image button from the specified resource. The resource can come from the current
 	 * theme, or it can be an absolute image path to a web file.
-	 * @param rurl
 	 */
 	public SmallImgButton(IIconRef rurl) {
 		this();
@@ -68,8 +68,6 @@ public class SmallImgButton extends Button {
 
 	/**
 	 * If the rurl is prefixed with THEME/ it specifies an image from the current THEME's directory.
-	 * @param rurl
-	 * @param cl
 	 */
 	public SmallImgButton(IIconRef rurl, IClicked<SmallImgButton> cl) {
 		this();
@@ -96,7 +94,6 @@ public class SmallImgButton extends Button {
 	/**
 	 * Set a new image using a web resource's absolute path. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
-	 * @param src
 	 */
 	public void setSrc(@Nullable IIconRef src) {
 		m_icon = src;
@@ -136,7 +133,15 @@ public class SmallImgButton extends Button {
 		}
 	}
 
-	@Override public void setHint(@Nullable String hintText) {
+	@Override
+	public void setHint(@Nullable String hintText) {
 		setTitle(hintText);
+	}
+
+	@Override
+	public void setTitle(@Nullable String title) {
+		super.setTitle(title);
+		if(getTestID() == null && title != null)
+			setCalculcatedId("sib_" + DomUtil.convertToID(title));
 	}
 }

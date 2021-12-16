@@ -24,6 +24,7 @@
  */
 package to.etc.domui.component.input;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.Dialog;
@@ -404,16 +405,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
 			if(searchString.startsWith("$$") && searchString.length() > 2) {
 				String idString = searchString.substring(2);
-				PropertyMetaModel<?> primaryKey = getQueryMetaModel().getPrimaryKey();
-				if(null != primaryKey) {
-					Class<?> pkType = primaryKey.getActualType();
-					Object pk = RuntimeConversions.convertTo(idString, pkType);
-					if(null != pk) {
-						searchQuery = (QCriteria<QT>) getQueryMetaModel().createCriteria();
-						searchQuery.eq(primaryKey.getName(), pk);
-						return searchQuery;
-					}
-				}
+
 			}
 
 			//-- Has default meta?

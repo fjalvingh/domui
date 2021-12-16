@@ -30,6 +30,7 @@ import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
 import to.etc.function.IExecute;
+import to.etc.function.SupplierEx;
 import to.etc.net.HttpCallException;
 import to.etc.pater.IPaterContext;
 import to.etc.pater.Pater;
@@ -91,12 +92,14 @@ final public class WebDriverConnector {
 	private int m_nextInterval = -1;
 
 	/** The base of the application URL, to which page names will be appended. */
-	@NonNull final private String m_applicationURL;
+	@NonNull
+	final private String m_applicationURL;
 
 	@NonNull
 	private final WebDriverType m_driverType;
 
-	@NonNull final private BrowserModel m_kind;
+	@NonNull
+	final private BrowserModel m_kind;
 
 	private boolean m_inhibitAfter;
 
@@ -246,7 +249,6 @@ final public class WebDriverConnector {
 		});
 	}
 
-
 	public int getWaitTimeout() {
 		return m_nextWaitTimeout != -1 ? m_nextWaitTimeout : m_waitTimeout;
 	}
@@ -268,7 +270,8 @@ final public class WebDriverConnector {
 		m_nextInterval = -1;
 	}
 
-	@NonNull public WebDriverType getDriverType() {
+	@NonNull
+	public WebDriverType getDriverType() {
 		return m_driverType;
 	}
 
@@ -310,19 +313,21 @@ final public class WebDriverConnector {
 	/**
 	 * Create the locator for a given testid.
 	 */
-	@NonNull final public By byId(@NonNull String testid) {
+	@NonNull
+	final public By byId(@NonNull String testid) {
 		return By.cssSelector("*[testid='" + testid + "']");
 	}
 
-	@NonNull final public By byId(@NonNull String testid, @NonNull String elementType) {
+	@NonNull
+	final public By byId(@NonNull String testid, @NonNull String elementType) {
 		return By.cssSelector("*[testid='" + testid + "'] " + elementType);
 	}
-
 
 	/**
 	 * Create a full locator using any supported expression.
 	 */
-	@NonNull final public By locator(@NonNull String locator) {
+	@NonNull
+	final public By locator(@NonNull String locator) {
 		if(locator.startsWith("//")) {
 			return By.xpath(locator);
 		} else if(locator.startsWith("#")) {
@@ -371,6 +376,17 @@ final public class WebDriverConnector {
 			.pollingEvery(getWaitInterval(), TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
 
 		return wait.until(exc);
+	}
+
+	public synchronized void wait(@NonNull SupplierEx<Boolean> condition) throws Exception {
+		var times = getWaitInterval() / 25;
+		for(var i = 0; i < times; i++) {
+			var v = condition.get();
+			if(Boolean.TRUE.equals(v)) {
+				break;
+			}
+			wait(25);
+		}
 	}
 
 	/**
@@ -624,7 +640,8 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nullable final public String getValue(@NonNull String testid) {
+	@Nullable
+	final public String getValue(@NonNull String testid) {
 		return getValue(byId(testid));
 	}
 
@@ -633,7 +650,8 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	@Nullable final public String getValue(@NonNull By locator) {
+	@Nullable
+	final public String getValue(@NonNull By locator) {
 		WebElement elem = driver().findElement(locator);
 		return elem.getAttribute("value");
 	}
@@ -643,7 +661,8 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@NonNull final public String getHtmlText(@NonNull String testid) {
+	@NonNull
+	final public String getHtmlText(@NonNull String testid) {
 		return getHtmlText(byId(testid));
 	}
 
@@ -652,7 +671,8 @@ final public class WebDriverConnector {
 	 * @param locator
 	 * @return
 	 */
-	@NonNull final public String getHtmlText(@NonNull By locator) {
+	@NonNull
+	final public String getHtmlText(@NonNull By locator) {
 		WebElement elem = driver().findElement(locator);
 		return elem.getText();
 	}
@@ -836,7 +856,8 @@ final public class WebDriverConnector {
 		return selectElement.getOptions();
 	}
 
-	@NonNull private Select getSelectElement(@NonNull By locator) {
+	@NonNull
+	private Select getSelectElement(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
 		WebElement select = elem.findElement(By.tagName("select"));
@@ -861,7 +882,8 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@NonNull final public TreeSet<String> selectGetOptionSet(@NonNull String testid, boolean value) {
+	@NonNull
+	final public TreeSet<String> selectGetOptionSet(@NonNull String testid, boolean value) {
 		return selectGetOptionSet(byId(testid), value);
 	}
 
@@ -873,7 +895,8 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@NonNull final public TreeSet<String> selectGetOptionSet(@NonNull By locator, boolean value) {
+	@NonNull
+	final public TreeSet<String> selectGetOptionSet(@NonNull By locator, boolean value) {
 		List<WebElement> options = getSelectElementOptions(locator);
 		TreeSet<String> optionList = new TreeSet<String>();                // Ordered set.
 
@@ -892,7 +915,8 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@NonNull final public String selectGetOptionsString(@NonNull By locator, boolean value) {
+	@NonNull
+	final public String selectGetOptionsString(@NonNull By locator, boolean value) {
 		StringBuilder sb = new StringBuilder(128);
 		int count = 0;
 		for(String s : selectGetOptionSet(locator, value)) {
@@ -911,7 +935,8 @@ final public class WebDriverConnector {
 	 * @param value
 	 * @return
 	 */
-	@NonNull final public String selectGetOptionsString(@NonNull String testid, boolean value) {
+	@NonNull
+	final public String selectGetOptionsString(@NonNull String testid, boolean value) {
 		return selectGetOptionsString(byId(testid), value);
 	}
 
@@ -920,7 +945,8 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nullable final public String selectGetSelectedLabel(@NonNull String testid) {
+	@Nullable
+	final public String selectGetSelectedLabel(@NonNull String testid) {
 		return selectGetSelected(byId(testid), false);
 	}
 
@@ -929,7 +955,8 @@ final public class WebDriverConnector {
 	 * @param testid
 	 * @return
 	 */
-	@Nullable final public String selectGetSelectedValue(@NonNull String testid) {
+	@Nullable
+	final public String selectGetSelectedValue(@NonNull String testid) {
 		return selectGetSelected(byId(testid), true);
 	}
 
@@ -939,7 +966,8 @@ final public class WebDriverConnector {
 	 * @param byvalue
 	 * @return
 	 */
-	@NonNull final public String selectGetSelected(@NonNull By locator, boolean byvalue) {
+	@NonNull
+	final public String selectGetSelected(@NonNull By locator, boolean byvalue) {
 		Select selectElement = getSelectElement(locator);
 		WebElement option = selectElement.getFirstSelectedOption();
 		if(null == option) {
@@ -951,11 +979,13 @@ final public class WebDriverConnector {
 			return option.getText();
 	}
 
-	@NonNull final private String getSelectOptionContaining(@NonNull String testid, @NonNull String optionContainsText) {
+	@NonNull
+	final private String getSelectOptionContaining(@NonNull String testid, @NonNull String optionContainsText) {
 		return getSelectOptionContaining(byId(testid), optionContainsText);
 	}
 
-	@NonNull final private String getSelectOptionContaining(@NonNull By locator, @NonNull String optionContainsText) {
+	@NonNull
+	final private String getSelectOptionContaining(@NonNull By locator, @NonNull String optionContainsText) {
 		waitForElementPresent(locator);
 		Set<String> options = selectGetOptionSet(locator, false);
 
@@ -966,7 +996,6 @@ final public class WebDriverConnector {
 		}
 		throw new IllegalStateException("Unable to select option [" + optionContainsText + "] in select locator: " + locator);
 	}
-
 
 	/**
 	 * Maximizes browser window.
@@ -1040,7 +1069,6 @@ final public class WebDriverConnector {
 			res.add(cookie);
 
 		//-- FIXME Add other server's state cookie names here.
-
 
 		//--
 		if(res.size() == 0)
@@ -1116,7 +1144,7 @@ final public class WebDriverConnector {
 	/*	CODING:	DomUI screen(s).									*/
 	/*--------------------------------------------------------------*/
 	@NonNull
-	public WebDriverConnector openScreen(@NonNull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
+	public WebDriverConnector openScreen(@NonNull Class<? extends UrlPage> clz, Object... parameters) throws Exception {
 		return openScreen(null, clz, parameters);
 	}
 
@@ -1128,7 +1156,7 @@ final public class WebDriverConnector {
 	 * @throws Exception
 	 */
 	@NonNull
-	public WebDriverConnector openScreen(@Nullable Locale locale, @NonNull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
+	public WebDriverConnector openScreen(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object... parameters) throws Exception {
 		m_lastTestClass = null;
 		m_lastTestPage = null;
 
@@ -1144,7 +1172,7 @@ final public class WebDriverConnector {
 		WebElement we = wait(xdomui);
 
 		String id = DomUtil.nullChecked(we).getAttribute("id");
-		if("_1".equals(id)) 						// If this is a domUI body then be done
+		if("_1".equals(id))                        // If this is a domUI body then be done
 			return this;
 
 		doLogin();
@@ -1172,7 +1200,7 @@ final public class WebDriverConnector {
 	private String m_lastTestPage;
 
 	@NonNull
-	public WebDriverConnector openScreenIf(@NonNull Object testClass, @NonNull Class< ? extends UrlPage> clz, Object... parameters) throws Exception {
+	public WebDriverConnector openScreenIf(@NonNull Object testClass, @NonNull Class<? extends UrlPage> clz, Object... parameters) throws Exception {
 		String sb = calculatePageURL(null, clz, parameters);
 		if(m_lastTestClass == testClass.getClass() && sb.equals(m_lastTestPage)) {
 			//-- Already open
@@ -1194,7 +1222,7 @@ final public class WebDriverConnector {
 		WebElement we = wait(xdomui);
 
 		String id = DomUtil.nullChecked(we).getAttribute("id");
-		if(!"_1".equals(id)) {							// If this is a domUI body then be done
+		if(!"_1".equals(id)) {                            // If this is a domUI body then be done
 			doLogin();
 
 			xdomui = ExpectedConditions.presenceOfElementLocated(locator("body[id='_1']"));
@@ -1207,7 +1235,8 @@ final public class WebDriverConnector {
 		return this;
 	}
 
-	@NonNull private String calculatePageURL(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object[] parameters) {
+	@NonNull
+	private String calculatePageURL(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object[] parameters) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(m_applicationURL);
 		sb.append(clz.getName());
@@ -1219,7 +1248,6 @@ final public class WebDriverConnector {
 		DomUtil.addUrlParameters(sb, pp, true);
 		return sb.toString();
 	}
-
 
 	/**
 	 * Cause the browser screen to refresh.
@@ -1251,7 +1279,7 @@ final public class WebDriverConnector {
 	 * @return
 	 */
 	@NonNull
-	public WebDriverConnector waitScreen(@NonNull Class< ? extends UrlPage> clz) {
+	public WebDriverConnector waitScreen(@NonNull Class<? extends UrlPage> clz) {
 		wait(locator("body[" + PAGENAME_PARAMETER + "='" + clz.getName() + "']"));
 		return this;
 	}
@@ -1263,7 +1291,7 @@ final public class WebDriverConnector {
 	 * @throws Exception
 	 */
 	@NonNull
-	public WebDriverConnector waitScreenNotPresent(@NonNull Class< ? extends UrlPage> clz) throws Exception {
+	public WebDriverConnector waitScreenNotPresent(@NonNull Class<? extends UrlPage> clz) throws Exception {
 		notPresent(locator("body[" + PAGENAME_PARAMETER + "='" + clz.getName() + "']"));
 		return this;
 	}
@@ -1323,7 +1351,6 @@ final public class WebDriverConnector {
 			throw new IllegalStateException("Only accepting strings or Keys.");
 	}
 
-
 	//	public void click(@NonNull WebElement element) {
 	//		element.click();
 	//	}
@@ -1336,12 +1363,14 @@ final public class WebDriverConnector {
 		}
 	}
 
-	protected void on(@NonNull By locator) {}
+	protected void on(@NonNull By locator) {
+	}
 
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Frameset handling.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *
 	 */
@@ -1482,7 +1511,6 @@ final public class WebDriverConnector {
 //		return cmd().check(selected);
 //	}
 
-
 	/**
 	 * Wait until the element is not present.
 	 * @return
@@ -1568,7 +1596,6 @@ final public class WebDriverConnector {
 	//		return this;
 	//	}
 
-
 	/**
 	 * Waits until one of listed locators is found in page.
 	 * Returns index of a matched element's locator.
@@ -1620,7 +1647,6 @@ final public class WebDriverConnector {
 			}
 		});
 	}
-
 
 	/**
 	 * Waits until one of listed locators is found and visible in page.
@@ -1727,8 +1753,8 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	* @see org.openqa.selenium.JavascriptExecutor#executeScript(String, Object...)
-	*/
+	 * @see org.openqa.selenium.JavascriptExecutor#executeScript(String, Object...)
+	 */
 	@NonNull
 	public String executeScript(@NonNull String javaScriptFunction) {
 		if(m_driver instanceof JavascriptExecutor) {
@@ -1777,7 +1803,6 @@ final public class WebDriverConnector {
 			throw new ElementNotFoundException("testID " + testId + " and " + extraCss);
 		return element;
 	}
-
 
 	@Nullable
 	public WebElement findElement(String testId, String extraCss) {
@@ -1867,17 +1892,17 @@ final public class WebDriverConnector {
 	<T> T timed(long timeoutSeconds, long intervalMillis, @NonNull Action<T> action) throws Exception {
 		long ts = System.currentTimeMillis() + (timeoutSeconds * 1000);
 		int count = 0;
-		for(;;) {
+		for(; ; ) {
 			T value = action.execute();
 			if(null != value)
 				return value;
 
-			if(count++ >= 2) {									// Make sure we execute at least 2x.
+			if(count++ >= 2) {                                    // Make sure we execute at least 2x.
 				long cts = System.currentTimeMillis();
 				if(cts >= ts)
 					throw new IllegalStateException("Wait timeout exceeded");
 			}
-			Thread.sleep(intervalMillis);								// Explicitly allow InterruptedException so that thread can be killed properly.
+			Thread.sleep(intervalMillis);                                // Explicitly allow InterruptedException so that thread can be killed properly.
 		}
 	}
 
@@ -1885,7 +1910,6 @@ final public class WebDriverConnector {
 	public <T> T timed(@NonNull Action<T> action) throws Exception {
 		return timed(getWaitTimeout(), getWaitInterval(), action);
 	}
-
 
 	/**
 	 * Make sure that passed in testClass has properly annotated @Category({GroupRunsSlow.class}) or ancestor in order to use custom defined timeouts. Use only as last option when test has to wait more for conditions to happen.
@@ -1897,11 +1921,11 @@ final public class WebDriverConnector {
 	 * @throws Exception
 	 */
 	@NonNull
-	public <T> T timed(long timeoutSeconds, @NonNull Class< ? > testClass, @NonNull Action<T> action) throws Exception {
+	public <T> T timed(long timeoutSeconds, @NonNull Class<?> testClass, @NonNull Action<T> action) throws Exception {
 		org.junit.experimental.categories.Category category = testClass.getAnnotation(org.junit.experimental.categories.Category.class);
 		boolean isAnnotatedAsRunSlow = false;
 		if(category != null) {
-			for(Class< ? > value : category.value()) {
+			for(Class<?> value : category.value()) {
 				if(to.etc.puzzler.GroupRunsSlow.class.isAssignableFrom(value)) {
 					isAnnotatedAsRunSlow = true;
 				}
@@ -1961,7 +1985,7 @@ final public class WebDriverConnector {
 
 	public void keyUp(@NonNull By locator, @NonNull Keys... keys) {
 		Actions a = new Actions(driver()).moveToElement(driver().findElement(locator));
-		for(Keys k: keys)
+		for(Keys k : keys)
 			a.keyUp(k);
 		a.perform();
 	}
@@ -1981,6 +2005,7 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Alert handling.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * In case that alert is present, accept it, otherwise do nothing
 	 */
@@ -2117,6 +2142,7 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Assertion helpers.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Force the test to fail with the specified message.
 	 * @param message
@@ -2148,6 +2174,7 @@ final public class WebDriverConnector {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Assertions.											*/
 	/*--------------------------------------------------------------*/
+
 	/** Compares two strings, but handles "regexp:" strings like HTML Selenese
 	 *
 	 * @param expectedPattern
@@ -2213,7 +2240,6 @@ final public class WebDriverConnector {
 		}
 		return null;
 	}
-
 
 	public void verifyInvisible(@NonNull String testid) {
 		verifyInvisible(byId(testid));
@@ -2352,9 +2378,18 @@ final public class WebDriverConnector {
 		return res;
 
 	}
+
 	@NonNull
 	public Map<String, String> getComputedStyles(@NonNull WebElement element) {
 		return getComputedStyles(element, a -> true);
 
+	}
+
+	final public boolean isReadonly(By locator) {
+		return "true".equals(findAttribute(locator, "readonly"));
+	}
+
+	final public boolean isReadonly(String testId) {
+		return isReadonly(byId(testId));
 	}
 }

@@ -231,7 +231,6 @@ public class DefaultButton extends Button implements IActionControl {
 
 	/**
 	 * Returns the text currently set on the button.
-	 * @return
 	 */
 	public String getText() {
 		return m_text;
@@ -240,8 +239,6 @@ public class DefaultButton extends Button implements IActionControl {
 	/**
 	 * Set a (new) text on the button's surface. The text may contain a '!' to specify an accelerator. To
 	 * actually render the exclamation point precede it with a backslash.
-	 *
-	 * @see to.etc.domui.dom.html.NodeContainer#setText(java.lang.String)
 	 */
 	@Override
 	public void setText(final @Nullable String text) {
