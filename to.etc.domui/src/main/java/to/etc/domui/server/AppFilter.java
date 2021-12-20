@@ -73,7 +73,6 @@ public class AppFilter implements Filter {
 
 	static private String m_appContext;
 
-	@Nullable
 	static private boolean m_testMode;
 
 	@Nullable
