@@ -27,9 +27,17 @@ public class CpCheckbox extends AbstractCpComponent implements ICpControl<Boolea
 
 	}
 
+	public boolean isChecked() throws Exception {
+		return getValue() == Boolean.TRUE;
+	}
+
+	public void setChecked(boolean v) throws Exception {
+		setValue(Boolean.valueOf(v));
+	}
+
 	@Override
 	public Boolean getValue() throws Exception {
-		return wd().isChecked(getSelector());
+		return Boolean.valueOf(wd().isChecked(getSelector()));
 	}
 
 	@Override
