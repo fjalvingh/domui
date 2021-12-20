@@ -18,10 +18,6 @@ public class CpNodeAsText extends AbstractCpComponent implements ICpActionContro
 		wd().cmd().click().on(getSelector());
 	}
 
-	public String getText() {
-		return wd().getElement(getSelector()).getText();
-	}
-
 	@Override
 	public boolean isDisabled() {
 		return !wd().isEnabled(getSelector());

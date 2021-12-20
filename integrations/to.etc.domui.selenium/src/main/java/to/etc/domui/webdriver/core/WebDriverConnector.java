@@ -368,6 +368,15 @@ final public class WebDriverConnector {
 		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
 	}
 
+	/**
+	 * Wait for the given element to appear.
+	 */
+	public void wait(@NonNull By locator, long time, TimeUnit unit) {
+		long seconds = unit.toSeconds(time);
+		WebDriverWait wait = new WebDriverWait(driver(), seconds, getWaitInterval());
+		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+	}
+
 	@Nullable
 	public WebElement wait(@NonNull ExpectedCondition<WebElement> exc) {
 		Wait<WebDriver> wait = new FluentWait<>(driver())
@@ -638,6 +647,23 @@ final public class WebDriverConnector {
 	 */
 	@NonNull
 	public String getHtmlText(@NonNull By locator) {
+		WebElement elem = driver().findElement(locator);
+		return elem.getAttribute("innerHTML");
+	}
+
+	/**
+	 * Get the text ONLY that is inside the specified node (the thing between the tag and the end tag).
+	 */
+	@NonNull
+	public String getText(@NonNull String testid) {
+		return getText(byId(testid));
+	}
+
+	/**
+	 * Get the text ONLY that is inside the specified node (the thing between the tag and the end tag).
+	 */
+	@NonNull
+	public String getText(@NonNull By locator) {
 		WebElement elem = driver().findElement(locator);
 		return elem.getText();
 	}
@@ -2130,6 +2156,9 @@ final public class WebDriverConnector {
 	}
 
 	public void verifyTextEquals(@NonNull By locator, @NonNull String text) {
+		assertEquals(getText(locator), text);
+	}
+	public void verifyHtmlTextEquals(@NonNull By locator, @NonNull String text) {
 		assertEquals(getHtmlText(locator), text);
 	}
 
@@ -2142,16 +2171,22 @@ final public class WebDriverConnector {
 	}
 
 	public void verifyTextContains(@NonNull By locator, @NonNull String text) {
+		String html = getText(locator);
+		assertTrue("Locator " + locator + " does not contain " + text + "(value = " + html + ")", html.toLowerCase().contains(text.toLowerCase()));
+	}
+
+	public void verifyHtmlTextContains(@NonNull By locator, @NonNull String text) {
 		String html = getHtmlText(locator);
 		assertTrue("Locator " + locator + " does not contain " + text + "(value = " + html + ")", html.toLowerCase().contains(text.toLowerCase()));
 	}
+
 
 	public void verifyTextStartsWith(@NonNull String testid, @NonNull String text) {
 		verifyTextStartsWith(byId(testid), text);
 	}
 
 	public void verifyTextStartsWith(@NonNull By locator, @NonNull String text) {
-		String html = getHtmlText(locator);
+		String html = getText(locator);
 		assertTrue("Locator " + locator + " text does not start with " + text + " (value=" + html + ")", html.toLowerCase().startsWith(text.toLowerCase()));
 	}
 

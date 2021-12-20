@@ -74,6 +74,5 @@ final public class PoGeneratorRegistry {
 		register(Input.class, (ctx, node) -> new PogSimple(node, "CpHtmlInput"));
 
 		register(DataTable.class, (ctx, node) -> new PogDataTable(node));
-
 	}
 }

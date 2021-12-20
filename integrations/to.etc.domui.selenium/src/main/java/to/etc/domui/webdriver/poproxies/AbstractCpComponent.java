@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
 @NonNullByDefault
@@ -30,6 +31,28 @@ abstract public class AbstractCpComponent extends AbstractCpBase {
 
 	public By getSelector() {
 		return By.cssSelector(getSelectorSupplier().get());
+	}
+
+
+	/**
+	 * Waits until the component is present.
+	 */
+	public void waitTillPresent() {
+		wd().wait(getSelector());
+	}
+
+	/**
+	 * Waits until the component is present with a timeout.
+	 */
+	public void waitTillPresent(long time, TimeUnit unit) {
+		wd().wait(getSelector(), time, unit);
+	}
+
+	/**
+	 * Return the text inside the control.
+	 */
+	public String getText() {
+		return wd().getText(getSelector());
 	}
 
 	//protected String createTestIdSelector() {

@@ -142,7 +142,7 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	@Test
 	public void testDoNotBindDottedControlPath() throws Exception {
 		wd().openScreen(DoNotBindControlDottedTestPage.class);
-		String text = wd().getHtmlText(By.cssSelector(".exc-exception-type"));
+		String text = wd().getText(By.cssSelector(".exc-exception-type"));
 		wd().assertTrue("Should have thrown an exception", text.contains("ProgrammerErrorException"));
 	}
 
