@@ -169,14 +169,13 @@ public class FileTool {
 			throw new IllegalStateException("The 'java.io.tmpdir' variable does not point to an existing directory (" + tmp + ")");
 		return tmp;
 	}
+
 	static {
 		m_seed_ts = System.currentTimeMillis();
 	}
 
 	/**
 	 * Create a temp directory within the root directory.
-	 * @param root
-	 * @return
 	 */
 	static public synchronized File newDir(final File root) {
 		for(;;) {
@@ -191,8 +190,6 @@ public class FileTool {
 
 	/**
 	 * Create a temp file within the specified root directory.
-	 * @param root
-	 * @return
 	 */
 	static public synchronized File makeTempFile(final File root) {
 		for(;;) {
@@ -2119,8 +2116,8 @@ public class FileTool {
 	 * Returns the string from specified Clob.
 	 * @param data
 	 * @return
-	 * @throws SQLException 
-	 * @throws IOException 
+	 * @throws SQLException
+	 * @throws IOException
 	 */
 	@NonNull
 	public static String readAsString(@NonNull Clob data) throws IOException, SQLException{

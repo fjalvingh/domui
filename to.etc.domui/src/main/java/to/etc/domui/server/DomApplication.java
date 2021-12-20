@@ -280,7 +280,6 @@ public abstract class DomApplication {
 	@NonNull
 	private List<ILoginListener> m_loginListenerList = Collections.EMPTY_LIST;
 
-
 	@NonNull
 	private IPageInjector m_injector = new DefaultPageInjector();
 
@@ -400,9 +399,9 @@ public abstract class DomApplication {
 		if(null == transformation) {
 			return map;
 		}
-		TreeMap<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);	// We need headers to be case independent. Hide that.
-		newMap.putAll(map);										// Copy all default headers
-		transformation.accept(newMap, currentPage);				// Let the transformation do all it wants.
+		TreeMap<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);    // We need headers to be case independent. Hide that.
+		newMap.putAll(map);                                        // Copy all default headers
+		transformation.accept(newMap, currentPage);                // Let the transformation do all it wants.
 		return newMap;
 	}
 
@@ -632,7 +631,6 @@ public abstract class DomApplication {
 			.collect(Collectors.toList());
 	}
 
-
 	/**
 	 * Send a message to all active pages in the system. Pages wanting to receive the message must
 	 * implement {@link IPagePostbox} so that the code can determine whether the page needs the message.
@@ -644,7 +642,6 @@ public abstract class DomApplication {
 			page.addPageMessage(message);
 		}
 	}
-
 
 	private synchronized Set<IAppSessionListener> getAppSessionListeners() {
 		return m_appSessionListeners;
@@ -812,7 +809,6 @@ public abstract class DomApplication {
 	 */
 	protected void initialize(@NonNull final ConfigParameters pp) throws Exception {
 	}
-
 
 	final synchronized public void internalInitialize(@NonNull final ConfigParameters pp, boolean development) throws Exception {
 		setCurrentApplication(this);
@@ -1450,7 +1446,6 @@ public abstract class DomApplication {
 		return new File(m_webFilePath, path);
 	}
 
-
 	/**
 	 * Primitive to return either a File-based resource from the web content files
 	 * or a classpath resource (below /resources/) for the same path. The result will
@@ -1478,7 +1473,6 @@ public abstract class DomApplication {
 			return resource;
 		return createClasspathReference("/resources/" + name);
 	}
-
 
 	public synchronized void registerResourceFactory(@NonNull IResourceFactory f) {
 		m_resourceFactoryList = new ArrayList<IResourceFactory>(m_resourceFactoryList);
@@ -1577,7 +1571,6 @@ public abstract class DomApplication {
 				return k.booleanValue();
 		}
 
-
 		//-- Determine existence out-of-lock (single init is unimportant)
 		//		IResourceRef ref = internalFindCachedResource(name);
 		IResourceRef ref = internalFindResource(name, ResourceDependencyList.NULL);
@@ -1599,7 +1592,6 @@ public abstract class DomApplication {
 		IResourceFactory rf = findResourceFactory(name);
 		if(rf != null)
 			return rf.getResource(this, name, rdl);
-
 
 		//-- No factory. Return class/file reference.
 		IResourceRef r = getAppFileOrResource(name);

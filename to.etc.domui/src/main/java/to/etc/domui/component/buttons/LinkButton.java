@@ -67,12 +67,12 @@ public class LinkButton extends ATag implements IActionControl {
 
 	public LinkButton(@NonNull String txt, @Nullable IIconRef image, @NonNull IClicked<LinkButton> clk) {
 		setClicked(clk);
-		m_text = txt;
+		setText(txt);
 		setImage(image);
 	}
 
 	public LinkButton(@NonNull String txt, @NonNull IIconRef image) {
-		m_text = txt;
+		setText(txt);
 		setImage(image);
 	}
 
@@ -82,7 +82,7 @@ public class LinkButton extends ATag implements IActionControl {
 
 	public LinkButton(@NonNull String txt, @NonNull IClicked<LinkButton> clk) {
 		setClicked(clk);
-		m_text = txt;
+		setText(txt);
 	}
 
 	public LinkButton(@NonNull IUIAction<Void> action) throws Exception {
@@ -133,7 +133,7 @@ public class LinkButton extends ATag implements IActionControl {
 			setTitle(action.getTitle(getActionInstance())); // The default tooltip or remove it if not present
 			setDisabled(false);
 		} else {
-			setTitle(dt);						// Shot reason for being disabled
+			setTitle(dt);                        // Shot reason for being disabled
 			setDisabled(true);
 		}
 		setText(action.getName(getActionInstance()));
@@ -156,6 +156,8 @@ public class LinkButton extends ATag implements IActionControl {
 	public void setText(final @Nullable String txt) {
 		m_text = txt;
 		forceRebuild();
+		if(null != txt)
+			setCalculcatedId("lbtn_" + DomUtil.convertToID(txt));
 	}
 
 	@Override
@@ -165,7 +167,7 @@ public class LinkButton extends ATag implements IActionControl {
 	}
 
 	@Nullable
-	public IUIAction< ? > getAction() {
+	public IUIAction<?> getAction() {
 		return m_action;
 	}
 
@@ -215,7 +217,8 @@ public class LinkButton extends ATag implements IActionControl {
 		setDisabled(msg != null);
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 }

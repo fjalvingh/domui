@@ -67,6 +67,14 @@ final public class ExceptionDialog {
 		return null;
 	}
 
+	static public void createIgnore(@NonNull NodeContainer container, @NonNull String message, @NonNull Throwable xin) {
+		try {
+			create(container, message, xin);
+		} catch(Exception x) {
+			LOG.error("Failed to create exception dialog: " + x, x);
+		}
+	}
+
 	/**
 	 * Show an exception as an error dialog.
 	 */

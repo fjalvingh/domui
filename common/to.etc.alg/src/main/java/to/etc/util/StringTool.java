@@ -2983,6 +2983,46 @@ public class StringTool {
 	}
 
 	/**
+	 * Just capitalizes first letter and leaves the rest of the string intact
+	 * Example StringTool.strCapitalizedIntact("executeNow") -> "ExecuteNow"
+	 * @param name
+	 * @return
+	 */
+	@NonNull
+	public static String strCapitalizedIntact(@NonNull String name) {
+		if(name.length() == 0)
+			return name;
+		char c = name.charAt(0);
+		return Character.toUpperCase(c) + name.substring(1);
+	}
+
+	/**
+	 * Decapitalizes a string and lowercases everything else
+	 * Example: StringTool.strDecapitalized("ExecuteNow") -> "executenow"
+	 * Added for consistency in the API.
+	 * @param name
+	 * @return
+	 */
+	@NonNull
+	public static String strDecapitalized(@NonNull String name) {
+		return name.toLowerCase();
+	}
+
+	/**
+	 * Decapitalizes a string and lowercases everything else
+	 * Example: StringTool.strDecapitalized("ExecuteNow") -> "executeNow"
+	 * @param name
+	 * @return
+	 */
+	@NonNull
+	public static String strDecapitalizedIntact(@NonNull String name) {
+		if(name.length() == 0)
+			return name;
+		char c = name.charAt(0);
+		return Character.toLowerCase(c) + name.substring(1);
+	}
+
+	/**
 	 * Checks whether a given text is too big for the maximum varchar2 database field
 	 */
 	public static boolean isInvalidOracleLength(@NonNull String text) {

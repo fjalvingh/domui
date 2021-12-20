@@ -112,8 +112,17 @@ public class AppFilter implements Filter {
 
 	@Override
 	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain) throws IOException, ServletException {
+		boolean logRequired = false;
+		Throwable failure = null;
+		String path = null;
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
+			path = rq.getRequestURI();			// getPathInfo() always returns null - what an idiots.
+			logRequired = isLogRequired(path);
+			if(logRequired) {
+				LOG.error("ENTERED " + rq.getPathInfo());
+			}
+
 			if(LOG.isDebugEnabled()) {
 				LOG.debug("--- Request entering the server");
 
@@ -157,20 +166,34 @@ public class AppFilter implements Filter {
 			}
 			m_contextMaker.handleRequest(rq, response, chain);
 		} catch(RuntimeException | ServletException x) {
+			failure = x;
 			DomUtil.dumpExceptionIfSevere(x);
 			throw x;
 		} catch(IOException x) {
+			failure = x;
 			if(x.getClass().getName().endsWith("ClientAbortException")) // Do not log these.
 				throw x;
 			DomUtil.dumpExceptionIfSevere(x);
 			throw x;
 		} catch(Exception x) {
+			failure = x;
 			DomUtil.dumpExceptionIfSevere(x);
 			throw new WrappedException(x); // checked exceptions are idiotic
 		} catch(Error x) {
 			LOG.error("Request error: " + x, x);
+			failure = x;
 			throw x;
+		} finally {
+			if(logRequired) {
+				LOG.error("EXITED " + path + " exception=" + failure);
+			}
 		}
+	}
+
+	private boolean isLogRequired(String s) {
+		if(s == null)
+			return false;
+		return s.contains("rest/appliance2/loadResultTable");
 	}
 
 	//static synchronized private void initContext(ServletRequest req) {

@@ -139,22 +139,22 @@ namespace WebUI {
 
 	export function handleDevelopmentMode(): void {
 		$(document).bind("keydown", function (e) {
-			if (e.keyCode != 192)
+			if (e.keyCode != 192 && e.keyCode != 106)
 				return;
-
-			let t = new Date().getTime();
+			var t = new Date().getTime();
 			if (!_debugLastKeypress || (t - _debugLastKeypress) > 250) {
 				_debugLastKeypress = t;
 				return;
 			}
-
-			//-- Send a DEBUG command to the server, indicating the current node below the last mouse move....
-			let id = WebUI.nearestID(_debugMouseTarget);
+			var id = WebUI.nearestID(_debugMouseTarget);
 			if (!id) {
 				id = document.body.id;
 			}
-
-			WebUI.scall(id, "DEVTREE", {});
+			if (e.keyCode == 192) {
+				WebUI.scall(id, "DEVTREE", {});
+			} else if (e.keyCode == 106) {
+				WebUI.scall(id, "TESTGEN", {});
+			}
 		});
 		$(document.body).bind("mousemove", function (e) {
 //			if(WebUI._NOMOVE)
