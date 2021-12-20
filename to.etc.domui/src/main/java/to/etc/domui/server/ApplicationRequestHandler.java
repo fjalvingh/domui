@@ -53,9 +53,6 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	private final OopsFrameRenderer m_oopsRenderer = new OopsFrameRenderer();
 
 	@NonNull
-	private final OopsFrameRenderer m_oopsPrdRenderer = new OopsFramePrdRenderer();
-
-	@NonNull
 	private ResponseCommandWriter m_commandWriter = new ResponseCommandWriter();
 
 	private static boolean m_logPerf = DeveloperOptions.getBool("domui.logtime", false);
@@ -152,10 +149,6 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 	 * Return the page renderer to use to render an Oops (Exception) page.
 	 */
 	public OopsFrameRenderer getOopsRenderer() {
-		Boolean productionMode = AppFilter.isProductionMode();
-		if(null != productionMode && productionMode) {
-			return m_oopsPrdRenderer;
-		}
-		return m_oopsPrdRenderer;
+		return m_oopsRenderer;
 	}
 }

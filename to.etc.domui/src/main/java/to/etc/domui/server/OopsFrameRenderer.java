@@ -37,7 +37,11 @@ public class OopsFrameRenderer {
 
 	protected String m_stacktraceTag = "a";
 
-	public void renderOopsFrame(RequestContextImpl ctx, Throwable x) throws Exception {
+	public void renderOopsFrame(RequestContextImpl ctx, Throwable x, boolean testMode) throws Exception {
+		if(!testMode) {
+			m_templateName = "exceptionPrdTemplate.html";
+			m_stacktraceTag = "label";
+		}
 		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
 			HttpServletResponse resp = srr.getResponse();

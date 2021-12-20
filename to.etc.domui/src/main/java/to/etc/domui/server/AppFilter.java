@@ -74,7 +74,7 @@ public class AppFilter implements Filter {
 	static private String m_appContext;
 
 	@Nullable
-	static private Boolean m_isProductionMode;
+	static private boolean m_testMode;
 
 	@Nullable
 	static private IRequestResponseWrapper m_ioWrapper;
@@ -93,9 +93,8 @@ public class AppFilter implements Filter {
 		m_ioWrapper = ww;
 	}
 
-	@Nullable
-	public static Boolean isProductionMode() {
-		return m_isProductionMode;
+	public static boolean isTestMode() {
+		return m_testMode;
 	}
 
 	@Override
@@ -117,7 +116,7 @@ public class AppFilter implements Filter {
 		String path = null;
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
-			path = rq.getRequestURI();			// getPathInfo() always returns null - what an idiots.
+			path = rq.getRequestURI();            // getPathInfo() always returns null - what an idiots.
 			logRequired = isLogRequired(path);
 			if(logRequired) {
 				LOG.error("ENTERED " + rq.getPathInfo());
@@ -258,12 +257,10 @@ public class AppFilter implements Filter {
 
 			if(DeveloperOptions.isDeveloperWorkstation() && DeveloperOptions.getBool("domui.developer", true) && autoload != null && autoload.trim().length() > 0) {
 				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload, autoloadWatchOnly);
-				if(null == m_isProductionMode)
-					m_isProductionMode = false;
+				m_testMode = true;
 			} else {
 				m_contextMaker = new NormalContextMaker(m_applicationClassName, m_config);
-				if(null == m_isProductionMode)
-					m_isProductionMode = true;
+				m_testMode = false;
 			}
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);

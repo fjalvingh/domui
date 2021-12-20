@@ -463,8 +463,8 @@ final public class PageRequestHandler {
 			sendUnexpectedLogoutMessageToUser("The session has been invalidated; perhaps you have logged out in another window?");
 		} catch(Exception xxx) {
 			LOG.error("Double exception in handling full page build exception"
-				+	"]nOriginal exception: " + x
-				+	"Second one on forceRebuild: " + xxx
+					+ "]nOriginal exception: " + x
+					+ "Second one on forceRebuild: " + xxx
 				, x);
 			LOG.error("Second exception", xxx);
 		}
@@ -1112,7 +1112,7 @@ final public class PageRequestHandler {
 	 */
 	private void tryRenderOopsFrame(@NonNull Throwable x) throws Exception {
 		try {
-			m_applicationRequestHandler.getOopsRenderer().renderOopsFrame(m_ctx, x);
+			m_applicationRequestHandler.getOopsRenderer().renderOopsFrame(m_ctx, x, AppFilter.isTestMode());
 		} catch(Exception oopx) {
 			LOG.error("Exception while rendering exception page!!?? " + oopx, oopx);
 			if(x instanceof Error) {
