@@ -28,8 +28,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A progress reporter utility. A single instance defines progress in user-specified
@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class Progress {
 	/** The top-level progress entry, */
-	private Progress m_root;
+	final private Progress m_root;
 
 	/** The parent of this progress entry */
 	private Progress m_parent;
@@ -68,17 +68,17 @@ public class Progress {
 	private boolean m_parallel;
 
 	/** If F, then this cannot be cancelled, and any attempt to do that is ignored. */
-	private boolean					m_cancelable	= true;
+	private boolean m_cancelable = true;
 
 	/** A short-as-possible name for the current activity */
 	@Nullable
 	private String m_name;
 
 	@Nullable
-	private String					m_extra;
+	private String m_extra;
 
 	@NonNull
-	private List<IProgressListener>	m_listeners	= Collections.emptyList();
+	final private CopyOnWriteArrayList<IProgressListener> m_listeners = new CopyOnWriteArrayList<>();
 
 	static public class Info {
 		final private String m_path;
@@ -98,7 +98,6 @@ public class Progress {
 			return m_percentage;
 		}
 	}
-
 
 	/**
 	 * Top-level progress indicator for a given task.
@@ -273,12 +272,12 @@ public class Progress {
 	/**
 	 * Request the action to be cancelled.
 	 */
-	public void	cancel() {
+	public void cancel() {
 		synchronized(m_root) {
 			if(!m_cancelled && m_root.m_cancelable) {
 				m_cancelled = true;
 				if(m_parent != null)
-					m_parent.cancel();		// Pass upwards.
+					m_parent.cancel();        // Pass upwards.
 				updateTree();
 			}
 		}
@@ -292,13 +291,12 @@ public class Progress {
 
 	public boolean isCancelled() {
 		synchronized(m_root) {
-			return m_root.m_cancelled;		// Do not use getter, please 8-(
+			return m_root.m_cancelled;        // Do not use getter, please 8-(
 		}
 	}
 
 	/**
 	 * Set the current amount of work.
-	 * @param work
 	 */
 	public void setTotalWork(double work) {
 		setTotalWork(work, null);
@@ -306,7 +304,8 @@ public class Progress {
 
 	/**
 	 * Set the current amount of work.
-	 * @param work int for convenience
+	 *
+	 * @param work int for convenience.
 	 */
 	public void setTotalWork(int work) {
 		setTotalWork(work, null);
@@ -314,8 +313,6 @@ public class Progress {
 
 	/**
 	 * Set the current amount of work.
-	 * @param work
-	 * @param extra
 	 */
 	public void setTotalWork(double work, @Nullable String extra) {
 		synchronized(m_root) {
@@ -338,7 +335,6 @@ public class Progress {
 	/**
 	 * Set the amount of work completed. It can only be set to a valid value, and it can
 	 * only advance, not go back.
-	 * @param now
 	 */
 	public void setCompleted(double now) {
 		checkCancelled();
@@ -348,6 +344,7 @@ public class Progress {
 	/**
 	 * Set the amount of work completed. It can only be set to a valid value, and it can
 	 * only advance, not go back.
+	 *
 	 * @param now int for convenience
 	 */
 	public void setCompleted(int now) {
@@ -358,7 +355,6 @@ public class Progress {
 	/**
 	 * Set the amount of work completed. It can only be set to a valid value, and it can
 	 * only advance, not go back.
-	 * @param now
 	 */
 	private void internalSetCompleted(double now) {
 		synchronized(m_root) {
@@ -372,7 +368,7 @@ public class Progress {
 			//-- If I have a parent: increment it's work done.
 			Progress dad = m_parent;
 			if(null != dad) {
-				double parentwork = getFraction() * m_parentsWorkForSub;		// Amount of work done if parent's units'
+				double parentwork = getFraction() * m_parentsWorkForSub;        // Amount of work done if parent's units'
 				double toreport = parentwork - m_workReportedToParent;
 				if(toreport > 0) {
 					double dadwork = dad.m_currentWork + toreport;
@@ -385,9 +381,11 @@ public class Progress {
 		}
 	}
 
-	public synchronized void setCompleted(double now, @Nullable String extra) {
-		m_extra = extra;
-		internalSetCompleted(now);
+	public void setCompleted(double now, @Nullable String extra) {
+		synchronized(m_root) {
+			m_extra = extra;
+			internalSetCompleted(now);
+		}
 	}
 
 	public void complete() {
@@ -403,7 +401,7 @@ public class Progress {
 			//-- If I am part of a parallel: clear myself from my parent and update parent progress
 			Progress dad = m_parent;
 			if(null != dad) {
-				if(dad.m_subProgress.remove(this)) {			// Remove from my parent as I'm done
+				if(dad.m_subProgress.remove(this)) {            // Remove from my parent as I'm done
 					double toreport = m_parentsWorkForSub - m_workReportedToParent;
 					if(toreport > 0) {
 						dad.internalSetCompleted(m_parent.m_currentWork + toreport);
@@ -445,20 +443,19 @@ public class Progress {
 
 	/**
 	 * Create a single (non-parallel) sub-progress indicator for the specified portion of work.
-	 * @return
 	 */
 	@NonNull
 	public Progress createSubProgress(@Nullable String name, double work) {
 		synchronized(m_root) {
 			clearSubProgress();
 			checkCancelled();
-			if(m_currentWork + work > m_totalWork) { 			// Truncate if amount == too big
-				work = m_totalWork - m_currentWork;				// How much is possible?
-				if(work < 0) 									// If we think we're already done- just ignore..
+			if(m_currentWork + work > m_totalWork) {            // Truncate if amount == too big
+				work = m_totalWork - m_currentWork;                // How much is possible?
+				if(work < 0)                                    // If we think we're already done- just ignore..
 					work = 0;
 			}
 			Progress sub = new Progress(this, name);
-			sub.m_parentsWorkForSub = work;						// The max amount of work this subprocess can complete, in our units.
+			sub.m_parentsWorkForSub = work;                        // The max amount of work this subprocess can complete, in our units.
 			m_subProgress.add(sub);
 			return sub;
 		}
@@ -472,14 +469,14 @@ public class Progress {
 			m_parallel = true;
 		}
 
-		if(m_currentWork + work > m_totalWork) { 				// Truncate if amount == too big
-			work = m_totalWork - m_currentWork; 				// How much is possible?
-			if(work < 0) 										// If we think we're already done- just ignore..
+		if(m_currentWork + work > m_totalWork) {                // Truncate if amount == too big
+			work = m_totalWork - m_currentWork;                // How much is possible?
+			if(work < 0)                                        // If we think we're already done- just ignore..
 				work = 0;
 		}
 
 		Progress sub = new Progress(this, name);
-		sub.m_parentsWorkForSub = work;							// The max amount of work this subprocess can complete, in our units.
+		sub.m_parentsWorkForSub = work;                            // The max amount of work this subprocess can complete, in our units.
 		m_subProgress.add(sub);
 		return sub;
 	}
@@ -494,7 +491,7 @@ public class Progress {
 			try {
 				l.progressed(this);
 			} catch(Exception x) {
-				throw WrappedException.wrap(x);		// Bad interfaces: I hate checked exceptions.
+				throw WrappedException.wrap(x);        // Bad interfaces: I hate checked exceptions.
 			}
 		}
 	}
@@ -503,18 +500,16 @@ public class Progress {
 
 	}
 
-	public synchronized void addListener(@NonNull IProgressListener l) {
-		m_listeners = new ArrayList<IProgressListener>(m_listeners);
+	public void addListener(@NonNull IProgressListener l) {
 		m_listeners.add(l);
 	}
 
-	public synchronized void removeListener(@NonNull IProgressListener l) {
-		m_listeners = new ArrayList<IProgressListener>(m_listeners);
+	public void removeListener(@NonNull IProgressListener l) {
 		m_listeners.remove(l);
 	}
 
 	@NonNull
-	synchronized private List<IProgressListener> getListeners() {
+	private List<IProgressListener> getListeners() {
 		return m_listeners;
 	}
 }
