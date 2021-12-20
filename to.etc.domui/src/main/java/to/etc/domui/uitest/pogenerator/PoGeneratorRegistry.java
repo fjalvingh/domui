@@ -15,6 +15,7 @@ import to.etc.domui.component.misc.DisplaySpan;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.lookupinput.LookupInput2;
+import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.uitest.pogenerator.PogSimple.AllowEmbedded;
@@ -55,6 +56,7 @@ final public class PoGeneratorRegistry {
 	}
 
 	static {
+		register(Checkbox.class, (ctx, node) -> new PogSimple(node, "CpCheckbox"));
 		register(DefaultButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
 		register(Text.class, (ctx, node) -> new PogSimple(node, "CpText"));
 		register(Text2.class, (ctx, node) -> new PogSimple(node, "CpText2"));

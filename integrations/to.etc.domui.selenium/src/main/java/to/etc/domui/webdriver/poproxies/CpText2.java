@@ -9,39 +9,34 @@ import java.util.function.Supplier;
 
 @NonNullByDefault
 public class CpText2 extends AbstractCpComponent implements ICpControl<String> {
-
 	public CpText2(WebDriverConnector connector, Supplier<String> selectorProvider) {
 		super(connector, selectorProvider);
 	}
 
 	@Override
 	public void setValue(String value) {
-		wd().cmd().type(value).on(getInputLocator());
+		wd().cmd().type(value).on(getInputSelector());
 		wd().wait(getSelector());
 	}
 
 	@Override
 	public String getValue() {
-		var elem = wd().getElement(getInputLocator());
+		var elem = wd().getElement(getInputSelector());
 		return elem.getText();
 	}
 
 	@Override
 	public boolean isReadonly() {
-		return wd().isReadonly(getInputLocator());
+		return wd().isReadonly(getInputSelector());
 	}
 
 	@Override
 	public boolean isDisabled() {
-		return !wd().isEnabled(getSelector());
+		return !wd().isEnabled(getInputSelector());
 	}
 
-	/**
-	 * Should obviously not exist.
-	 */
-	@Deprecated
 	@NonNull
-	private By getInputLocator() {
+	private By getInputSelector() {
 		return selector("INPUT");
 	}
 }
