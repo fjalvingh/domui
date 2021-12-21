@@ -140,6 +140,8 @@ namespace WebUI {
 	export function handleDevelopmentMode(): void {
 		$(document).bind("keydown", function (e) {
 			let action = '';
+			console.debug("key: shiftKey=" + e.shiftKey + " ctrl=" + e.ctrlKey + " alt=" + e.altKey + " key=" + e.key);
+
 			if(e.key == '~' && e.shiftKey && ! e.altKey && ! e.ctrlKey) {		// Tilde
 				action = 'DEVTREE';
 			} else if(e.key == '~' && e.ctrlKey && e.shiftKey && ! e.altKey) {
