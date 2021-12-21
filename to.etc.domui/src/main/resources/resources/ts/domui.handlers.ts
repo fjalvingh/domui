@@ -139,8 +139,16 @@ namespace WebUI {
 
 	export function handleDevelopmentMode(): void {
 		$(document).bind("keydown", function (e) {
-			if (e.keyCode != 192 && e.keyCode != 106)
+			let action = '';
+			if(e.key == '~' && e.shiftKey && ! e.altKey && ! e.ctrlKey) {		// Tilde
+				action = 'DEVTREE';
+			} else if(e.key == '~' && e.ctrlKey && e.shiftKey && ! e.altKey) {
+				action = 'TESTGEN';
+			} else {
+				_debugLastKeypress = 0;
 				return;
+			}
+
 			var t = new Date().getTime();
 			if (!_debugLastKeypress || (t - _debugLastKeypress) > 250) {
 				_debugLastKeypress = t;
@@ -150,11 +158,7 @@ namespace WebUI {
 			if (!id) {
 				id = document.body.id;
 			}
-			if (e.keyCode == 192) {
-				WebUI.scall(id, "DEVTREE", {});
-			} else if (e.keyCode == 106) {
-				WebUI.scall(id, "TESTGEN", {});
-			}
+			WebUI.scall(id, action, {});
 		});
 		$(document.body).bind("mousemove", function (e) {
 //			if(WebUI._NOMOVE)
