@@ -62,11 +62,6 @@
             <artifactId>parallelgzip</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-
         <!-- Test dependencies  -->
         <dependency>
             <groupId>junit</groupId>

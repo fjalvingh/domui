@@ -1,6 +1,5 @@
 package to.etc.net;
 
-import org.apache.http.ssl.SSLContexts;
 import org.eclipse.jdt.annotation.Nullable;
 
 import javax.annotation.Nonnull;
@@ -51,9 +50,8 @@ final public class HTTP {
 			keystore.load(is, passkeyArray);
 			kmf.init(keystore, passkeyArray);
 
-			SSLContext sslContext = SSLContexts.custom()
-				.loadKeyMaterial(keystore, passkeyArray)
-				.build();
+			SSLContext sslContext = SSLContext.getInstance(KeyStore.getDefaultType()); //"TLSv1.2"
+			sslContext.init(kmf.getKeyManagers(), null, null);
 
 			return HttpClient.newBuilder()
 				.sslContext(sslContext)
