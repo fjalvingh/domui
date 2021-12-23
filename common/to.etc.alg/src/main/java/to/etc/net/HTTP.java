@@ -50,7 +50,7 @@ final public class HTTP {
 			keystore.load(is, passkeyArray);
 			kmf.init(keystore, passkeyArray);
 
-			SSLContext sslContext = SSLContext.getInstance(KeyStore.getDefaultType()); //"TLSv1.2"
+			SSLContext sslContext = SSLContext.getInstance(type.getSslContextProtocol());
 			sslContext.init(kmf.getKeyManagers(), null, null);
 
 			return HttpClient.newBuilder()
