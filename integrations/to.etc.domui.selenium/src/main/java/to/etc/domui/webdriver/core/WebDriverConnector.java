@@ -322,6 +322,10 @@ final public class WebDriverConnector {
 		return By.cssSelector("*[testid='" + testid + "'] " + elementType);
 	}
 
+	static public String getTestIDSelector(String testid) {
+		return "*[testid='" + testid + "']";
+	}
+
 	/**
 	 * Create a full locator using any supported expression.
 	 */

@@ -30,7 +30,7 @@ public class CpDataTable<T extends CpDataTableRowBase> extends AbstractCpCompone
 
 	@Nullable
 	private WebElement getTBody() {
-		return wd().findElement("selector tbody");
+		return wd().findElement(selector("tbody"));
 	}
 
 	private WebElement getTable() {
