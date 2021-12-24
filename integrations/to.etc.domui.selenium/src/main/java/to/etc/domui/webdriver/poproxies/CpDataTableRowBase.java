@@ -38,7 +38,7 @@ public class CpDataTableRowBase extends AbstractCpBase {
 	}
 
 	public String getCellComponentSelectorCss(int columnIndex, String componentTestID) {
-		return getCellSelectorCss(columnIndex) + WebDriverConnector.getTestIDSelector(componentTestID);
+		return getCellSelectorCss(columnIndex) + " " + WebDriverConnector.getTestIDSelector(componentTestID);
 	}
 
 	public By getCellSelector(int columnIndex) {
