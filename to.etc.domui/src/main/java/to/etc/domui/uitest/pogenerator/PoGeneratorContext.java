@@ -185,7 +185,7 @@ public class PoGeneratorContext {
 			char c = str.charAt(i);
 			if(c == '_' || Character.isLetterOrDigit(c)) {
 				sb.append(c);
-			} else if(c == '-') {
+			} else if(c == '-' || c == ' ') {
 				sb.append('_');
 			}
 		}
@@ -211,7 +211,6 @@ public class PoGeneratorContext {
 			sb.append(Character.toLowerCase(c));
 		}
 		return sb.toString();
-
 	}
 
 	static public String fieldName(String baseName) {

@@ -106,7 +106,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 	 * them as good as it gets.
 	 */
 	private void generateRowClassColumn(PoGeneratorContext context, PoClass pc, Col col, int index) throws Exception {
-		String baseName = col.getColumnName();
+		String baseName = PoGeneratorContext.propertyName(col.getColumnName());
 
 		List<Pair<String, IPoProxyGenerator>> controlList = col.getContentModelList();
 		if(controlList.size() == 0) {
