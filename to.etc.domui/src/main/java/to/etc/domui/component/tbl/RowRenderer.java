@@ -537,6 +537,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 			} else {
 				ds.bind().to(instance, pmm);                    // Bind value to model
 			}
+			ds.setTestID(pmm.getName());
 			if(null != contentRenderer) {
 				// Bind the display control and let it render through the content renderer, enabling binding
 				ds.setRenderer(createContentRendererForSpan(contentRenderer));

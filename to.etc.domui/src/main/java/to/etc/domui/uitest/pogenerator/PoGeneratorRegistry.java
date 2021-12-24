@@ -13,6 +13,7 @@ import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.DisplaySpan;
+import to.etc.domui.component.searchpanel.lookupcontrols.NumberLookupControl;
 import to.etc.domui.component.tbl.DataTable;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.lookupinput.LookupInput2;
@@ -58,23 +59,30 @@ final public class PoGeneratorRegistry {
 	}
 
 	static {
+		register(DefaultButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
 		register(Checkbox.class, (ctx, node) -> new PogSimple(node, "CpCheckbox"));
 		register(CheckboxButton.class, (ctx, node) -> new PogSimple(node, "CpCheckboxButton"));
-		register(DefaultButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
-		register(Text.class, (ctx, node) -> new PogSimple(node, "CpText"));
-		register(Text2.class, (ctx, node) -> new PogSimple(node, "CpText2"));
-		register(LookupInput2.class, (ctx, node) -> new PogSimple(node, "CpLookupInput2"));
-		register(LookupInput.class, (ctx, node) -> new PogSimple(node, "CpLookupInput"));
-		register(LinkButton.class, (ctx, node) -> new PogSimple(node, "CpLinkButton"));
-		register(SmallImgButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
+
 		register(ComboLookup.class, (ctx, node) -> new PogSimple(node, "CpComboLookup"));
 		register(ComboLookup2.class, (ctx, node) -> new PogSimple(node, "CpComboLookup2"));
+
 		register(DisplaySpan.class, (ctx, node) -> new PogSimple(node, "CpDisplaySpan", AllowEmbedded.DisallowEmbedded));
+
+		register(LinkButton.class, (ctx, node) -> new PogSimple(node, "CpLinkButton"));
+		register(LookupInput2.class, (ctx, node) -> new PogSimple(node, "CpLookupInput2"));
+		register(LookupInput.class, (ctx, node) -> new PogSimple(node, "CpLookupInput"));
+
+		register(NumberLookupControl.class, (ctx, node) -> new PogSimple(node, "CpNumberLookupControl"));
+
+		register(SmallImgButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
+		register(Text.class, (ctx, node) -> new PogSimple(node, "CpText"));
+		register(Text2.class, (ctx, node) -> new PogSimple(node, "CpText2"));
 		register(TextArea.class, (ctx, node) -> new PogSimple(node, "CpTextArea"));
 
 		//-- Base HTML components
 		register(Input.class, (ctx, node) -> new PogSimple(node, "CpHtmlInput"));
 
+		//-- Complex
 		register(DataTable.class, (ctx, node) -> new PogDataTable(node));
 	}
 }
