@@ -20,6 +20,6 @@ final public class PoSelectorCellComponent implements IPoSelector {
 
 	@Override
 	public String selectorAsCode() {
-		return "() -> this.getCellComponentSelector(" + m_columnIndex + ", " + StringTool.strToJavascriptString(m_testId, true) + ")";
+		return "() -> this.getCellComponentSelectorCss(" + m_columnIndex + ", " + StringTool.strToJavascriptString(m_testId, true) + ")";
 	}
 }
