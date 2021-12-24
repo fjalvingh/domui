@@ -2,6 +2,7 @@ package to.etc.domui.webdriver.poproxies;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 /**
@@ -20,9 +21,23 @@ public class CpDataTableRowBase extends AbstractCpBase {
 		m_rowIndex = rowIndex;
 	}
 
+	public boolean isPresent() {
+		return wd().isPresent(getSelector());
+	}
+
+	@NonNull
+	public WebElement getElement() {
+		return wd().getElement(getSelector());
+	}
+
+	@NonNull
+	public WebElement getCellElement(int column) {
+		return wd().getElement(getCellSelector(column));
+	}
+
 	private String getSelectorCSS() {
 		String tableSelector = m_dataTable.getSelectorSupplier().get();
-		return tableSelector + " tbody:nth-child(" + (m_rowIndex + 1) + ")";			// The idiots made it 1 based.
+		return tableSelector + " tbody > :nth-child(" + (m_rowIndex + 1) + ")";			// The idiots made it 1 based.
 	}
 
 	public By selector(String extra) {
@@ -34,7 +49,7 @@ public class CpDataTableRowBase extends AbstractCpBase {
 	}
 
 	public String getCellSelectorCss(int columnIndex) {
-		return getSelectorCSS() + " nth-child(" + columnIndex + ")";
+		return getSelectorCSS() + " > :nth-child(" + (columnIndex + 1) + ")";
 	}
 
 	public String getCellComponentSelectorCss(int columnIndex, String componentTestID) {
