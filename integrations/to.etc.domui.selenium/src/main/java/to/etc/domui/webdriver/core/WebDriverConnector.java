@@ -355,6 +355,13 @@ final public class WebDriverConnector {
 		return elements.size();
 	}
 
+	/**
+	 * Get the direct children of the specified element.
+	 */
+	public List<WebElement> getChildren(WebElement element) {
+		return element.findElements(By.xpath("./child::*"));
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Waiting.											*/

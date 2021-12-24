@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.component.buttons.CheckboxButton;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.buttons.SmallImgButton;
@@ -58,6 +59,7 @@ final public class PoGeneratorRegistry {
 
 	static {
 		register(Checkbox.class, (ctx, node) -> new PogSimple(node, "CpCheckbox"));
+		register(CheckboxButton.class, (ctx, node) -> new PogSimple(node, "CpCheckboxButton"));
 		register(DefaultButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
 		register(Text.class, (ctx, node) -> new PogSimple(node, "CpText"));
 		register(Text2.class, (ctx, node) -> new PogSimple(node, "CpText2"));
