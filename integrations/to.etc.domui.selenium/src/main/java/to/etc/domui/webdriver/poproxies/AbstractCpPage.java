@@ -31,6 +31,10 @@ public abstract class AbstractCpPage<T extends UrlPage> implements ICpDriverSour
 		wd().openScreen(m_pageClass, parameters);
 	}
 
+	public void waitTillPresent() {
+		wd().wait(By.tagName("body"));
+	}
+
 	public boolean isBrowserOnThisPage() {
 		var body = wd().findElement(By.tagName("body"));
 		if(body == null) {

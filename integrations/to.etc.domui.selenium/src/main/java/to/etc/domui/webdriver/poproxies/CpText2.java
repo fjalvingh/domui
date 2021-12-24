@@ -2,6 +2,7 @@ package to.etc.domui.webdriver.poproxies;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
@@ -14,15 +15,16 @@ public class CpText2 extends AbstractCpComponent implements ICpControl<String> {
 	}
 
 	@Override
-	public void setValue(String value) {
-		wd().cmd().type(value).on(getInputSelector());
+	public void setValue(@Nullable String value) {
+		wd().cmd().type(value == null ? "" : value).on(getInputSelector());
 		wd().wait(getSelector());
 	}
 
+	@Nullable
 	@Override
 	public String getValue() {
 		var elem = wd().getElement(getInputSelector());
-		return elem.getText();
+		return wd().getValue(getInputSelector());
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package to.etc.domui.webdriver.poproxies;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -41,10 +42,10 @@ public class CpLookupInput extends AbstractCpComponent implements ICpControl<Str
 
 
 	@Override
-	public void setValue(String value) throws Exception {
+	public void setValue(@Nullable String value) throws Exception {
 		clickClear();
 		By selector = By.cssSelector(getSelectorSupplier().get() + " INPUT");
-		wd().cmd().type(value).on(selector);
+		wd().cmd().type(value == null ? "" : value).on(selector);
 		wd().waitForNoneOfElementsPresent(selector);
 	}
 
@@ -63,6 +64,7 @@ public class CpLookupInput extends AbstractCpComponent implements ICpControl<Str
 	}
 
 	@Override
+	@Nullable
 	public String getValue() {
 		By selector = By.cssSelector(getSelectorSupplier().get() + " .ui-lui-vcell");
 		return wd().getElement(selector).getText();

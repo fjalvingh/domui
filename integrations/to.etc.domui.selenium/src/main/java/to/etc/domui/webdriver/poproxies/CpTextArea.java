@@ -1,6 +1,7 @@
 package to.etc.domui.webdriver.poproxies;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.util.function.Supplier;
@@ -12,10 +13,11 @@ public class CpTextArea extends AbstractCpComponent implements ICpControl<String
 	}
 
 	@Override
-	public void setValue(String value) {
+	public void setValue(@Nullable String value) {
 		wd().cmd().type(value).on(getSelector());
 	}
 
+	@Nullable
 	@Override
 	public String getValue() {
 		return wd().getElement(getSelector()).getText();

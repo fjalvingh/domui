@@ -18,7 +18,8 @@ public class CpComboFixed2 extends AbstractCpComponent implements ICpControl<Str
 	}
 
 	@Override
-	public void setValue(String value) throws Exception {
+	public void setValue(@Nullable String valueIn) throws Exception {
+		String value = valueIn == null ? "" : valueIn;
 		var available = getAvailable();
 		var option = available.stream().filter(x -> x.getLabel().equals(value)).findFirst().orElse(null);
 		var index = available.indexOf(option);
@@ -27,6 +28,7 @@ public class CpComboFixed2 extends AbstractCpComponent implements ICpControl<Str
 		}
 	}
 
+	@Nullable
 	@Override
 	public String getValue() {
 		String topSelector = getSelectorSupplier().get();

@@ -1,6 +1,7 @@
 package to.etc.domui.webdriver.poproxies;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
@@ -22,8 +23,8 @@ public class CpCheckbox extends AbstractInputControlProxy<Boolean> implements IC
 	}
 
 	@Override
-	public void setValue(Boolean value) throws Exception {
-		wd().cmd().check(value.booleanValue()).on(getSelector());
+	public void setValue(@Nullable Boolean value) throws Exception {
+		wd().cmd().check(value != null && value.booleanValue()).on(getSelector());
 	}
 
 	public boolean isChecked() throws Exception {
