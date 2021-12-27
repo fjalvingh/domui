@@ -845,9 +845,9 @@ public abstract class DomApplication {
 	 */
 	private void configureHeaders(ConfigParameters pp) {
 		for(String parameterName : pp.getParameterNames()) {
+			String value = pp.getString(parameterName);
 			if(parameterName.startsWith(HEADER_PREFIX)) {
 				String name = parameterName.substring(HEADER_PREFIX.length());
-				String value = pp.getString(parameterName);
 				if(value == null || value.length() == 0) {
 					addDefaultHTTPHeader(name, null);
 					addDefaultResourceHeader(name, null);
@@ -857,7 +857,6 @@ public abstract class DomApplication {
 				}
 			} else if(parameterName.startsWith(HTTPHEADER_PREFIX)) {
 				String name = parameterName.substring(HTTPHEADER_PREFIX.length());
-				String value = pp.getString(parameterName);
 				if(value == null || value.length() == 0) {
 					addDefaultHTTPHeader(name, null);
 				} else {
@@ -865,7 +864,6 @@ public abstract class DomApplication {
 				}
 			} else if(parameterName.startsWith(RESOURCEHEADER_PREFIX)) {
 				String name = parameterName.substring(RESOURCEHEADER_PREFIX.length());
-				String value = pp.getString(parameterName);
 				if(value == null || value.length() == 0) {
 					addDefaultResourceHeader(name, null);
 				} else {
