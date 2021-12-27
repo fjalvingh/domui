@@ -5,6 +5,9 @@ import org.eclipse.jdt.annotation.NonNull;
 import javax.servlet.FilterConfig;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 public class FilterConfigParameters implements ConfigParameters {
 	@NonNull
@@ -35,5 +38,15 @@ public class FilterConfigParameters implements ConfigParameters {
 		if(path.startsWith("/"))
 			return m_fc.getServletContext().getResource(path);
 		return m_fc.getServletContext().getResource("/" + path);		// Always nice to have a relative path start with /. Morons.
+	}
+
+	@Override
+	public List<String> getParameterNames() {
+		List<String> result = new ArrayList<>();
+		for(Enumeration<String> e = m_fc.getInitParameterNames(); e.hasMoreElements();) {
+			String s = e.nextElement();
+			result.add(s);
+		}
+		return result;
 	}
 }
