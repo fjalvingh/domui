@@ -24,7 +24,7 @@ public class CpCheckbox extends AbstractCpInputControl<Boolean> implements ICpCo
 
 	@Override
 	public void setValue(@Nullable Boolean value) throws Exception {
-		wd().cmd().check(value != null && value.booleanValue()).on(getSelector());
+		wd().cmd().check(value != null && value.booleanValue()).on(getInputSelector());
 	}
 
 	public boolean isChecked() throws Exception {
@@ -37,6 +37,6 @@ public class CpCheckbox extends AbstractCpInputControl<Boolean> implements ICpCo
 
 	@Override
 	public Boolean getValue() throws Exception {
-		return Boolean.valueOf(wd().isChecked(getSelector()));
+		return Boolean.valueOf(wd().isChecked(getInputSelector()));
 	}
 }

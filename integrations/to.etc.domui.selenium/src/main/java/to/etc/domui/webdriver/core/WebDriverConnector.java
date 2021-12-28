@@ -620,6 +620,7 @@ final public class WebDriverConnector {
 	public boolean isChecked(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
+		System.out.println(elem.getTagName());
 		return elem.isSelected();
 	}
 

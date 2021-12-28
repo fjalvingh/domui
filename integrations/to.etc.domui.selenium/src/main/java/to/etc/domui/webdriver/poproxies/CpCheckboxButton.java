@@ -20,4 +20,9 @@ public class CpCheckboxButton extends CpCheckbox {
 	protected By getInputSelector() {
 		return selector("input");
 	}
+
+	@Override
+	public void click() {
+		wd().cmd().click().on(getSelector());
+	}
 }

@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.util.ArrayList;
@@ -30,11 +31,21 @@ public class AbstractCpComboComponent extends AbstractCpInputControl<String> imp
 		}
 	}
 
+	private Select seleniumSelect() {
+		WebElement inputElement = getInputElement();
+		if(null == inputElement)
+			throw new IllegalStateException(this + ": element not found");
+		return new Select(inputElement);
+	}
+
 	@Nullable
 	@Override
 	public String getValue() {
-		String topSelector = getSelectorSupplier().get();
-		return wd().getElement(By.cssSelector(topSelector + " option[selected='selected']")).getText();
+		Select select = seleniumSelect();
+		WebElement option = select.getFirstSelectedOption();
+		if(null == option)
+			return null;
+		return option.getText();
 	}
 
 	private void select(int idx) {
