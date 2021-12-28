@@ -9,7 +9,7 @@ import to.etc.domui.webdriver.core.WebDriverConnector;
 import java.util.function.Supplier;
 
 @NonNullByDefault
-public class CpText2 extends AbstractCpComponent implements ICpControl<String> {
+public class CpText2 extends AbstractCpInputControl<String> implements ICpControl<String> {
 	public CpText2(WebDriverConnector connector, Supplier<String> selectorProvider) {
 		super(connector, selectorProvider);
 	}
@@ -28,17 +28,8 @@ public class CpText2 extends AbstractCpComponent implements ICpControl<String> {
 	}
 
 	@Override
-	public boolean isReadonly() {
-		return wd().isReadonly(getInputSelector());
-	}
-
-	@Override
-	public boolean isDisabled() {
-		return !wd().isEnabled(getInputSelector());
-	}
-
 	@NonNull
-	private By getInputSelector() {
+	protected By getInputSelector() {
 		return selector("INPUT");
 	}
 }
