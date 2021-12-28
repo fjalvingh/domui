@@ -1,6 +1,7 @@
 package to.etc.domui.webdriver.poproxies;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
@@ -19,6 +20,19 @@ public class CpCheckboxButton extends CpCheckbox {
 	@Override
 	protected By getInputSelector() {
 		return selector("input");
+	}
+
+	@Override
+	public void setValue(@Nullable Boolean value) throws Exception {
+		if(value == null)
+			return;
+		boolean current = isChecked();
+		if(value.booleanValue() == current)
+			return;
+		click();
+		current = isChecked();
+		if(current != value.booleanValue())
+			throw new IllegalStateException("Unexpected: could not set checkbox value");
 	}
 
 	@Override

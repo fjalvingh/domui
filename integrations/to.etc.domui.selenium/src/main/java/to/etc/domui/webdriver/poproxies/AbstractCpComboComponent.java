@@ -49,8 +49,8 @@ public class AbstractCpComboComponent extends AbstractCpInputControl<String> imp
 	}
 
 	private void select(int idx) {
-		wd().cmd().click().on(By.cssSelector(getSelectorSupplier().get() + " select"));
-		By locator = By.cssSelector(getSelectorSupplier().get() + " option:nth-child(" + (idx + 1) + ")");
+		wd().cmd().click().on(By.cssSelector(getInputSelectorCss()));
+		By locator = By.cssSelector(getInputSelectorCss() + " option:nth-child(" + (idx + 1) + ")");
 		wd().wait(locator);
 		wd().cmd().click().on(locator);
 	}

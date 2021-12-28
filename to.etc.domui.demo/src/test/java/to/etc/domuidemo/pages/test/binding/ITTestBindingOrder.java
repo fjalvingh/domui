@@ -21,7 +21,6 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	/**
 	 * Two bindings that influence each order should work.
 	 * https://etc.to/confluence/display/DOM/Tests%3A+data+binding
-	 * @throws Exception
 	 */
 	@Test
 	public void testBinding1() throws Exception {
@@ -67,8 +66,6 @@ final public class ITTestBindingOrder extends AbstractWebDriverTest {
 	/**
 	 * When we just press "click" without entering anything we should have an empty "value". This caused a NPE
 	 * before.
-	 *
-	 * @throws Exception
 	 */
 	@Test
 	public void testBindingConverter1() throws Exception {

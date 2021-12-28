@@ -10,4 +10,10 @@ public class CpComboFixed extends AbstractCpComboComponent implements ICpControl
 	public CpComboFixed(WebDriverConnector connector, Supplier<String> selectorProvider) {
 		super(connector, selectorProvider);
 	}
+
+	@Override
+	protected String getInputSelectorCss() {
+		String s = getSelectorSupplier().get();
+		return s;
+	}
 }
