@@ -1,7 +1,10 @@
 package to.etc.domui.webdriver.poproxies;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.util.concurrent.TimeUnit;
@@ -17,8 +20,47 @@ abstract public class AbstractCpComponent extends AbstractCpBase {
 
 	}
 
+	/**
+	 * Returns a selector for the primary element in this component. The default
+	 * implementation returns the component element itself.
+	 */
+	@NonNull
+	protected By getInputSelector() {
+		return By.cssSelector(getInputSelectorCss());
+	}
+
+	/**
+	 * Returns a selector for the primary element in this component. The default
+	 * implementation returns the component element itself.
+	 */
+	@NonNull
+	protected String getInputSelectorCss() {
+		return getSelectorSupplier().get();
+	}
+
+	/**
+	 * Returns the primary element, if present.
+	 */
+	@Nullable
+	public WebElement getInputElement() {
+		return wd().findElement(getInputSelector());
+	}
+
 	public boolean isPresent() {
 		return wd().isPresent(getSelector());
+	}
+
+	/**
+	 * Returns true if the control is being displayed (should be visible) on
+	 * the page. WARNING: This depends on WebDrivers' implementation which
+	 * handles basic concepts of visibility but not things like parts obscured
+	 * by css positioning.
+	 */
+	public boolean isDisplayed() {
+		WebElement element = wd().findElement(getSelector());
+		if(null == element)
+			return false;
+		return element.isDisplayed();
 	}
 
 	public Supplier<String> getSelectorSupplier() {
@@ -27,6 +69,10 @@ abstract public class AbstractCpComponent extends AbstractCpBase {
 
 	public By selector(String extra) {
 		return By.cssSelector(getSelectorSupplier().get() + " " + extra);
+	}
+
+	public String selectorCss(String extra) {
+		return getSelectorSupplier().get() + " " + extra;
 	}
 
 	public By getSelector() {
@@ -47,6 +93,8 @@ abstract public class AbstractCpComponent extends AbstractCpBase {
 	public void waitTillPresent(long time, TimeUnit unit) {
 		wd().wait(getSelector(), time, unit);
 	}
+
+
 
 	/**
 	 * Return the text inside the control.

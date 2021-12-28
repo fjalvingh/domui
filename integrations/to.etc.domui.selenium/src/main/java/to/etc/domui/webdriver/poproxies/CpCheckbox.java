@@ -11,7 +11,7 @@ import java.util.function.Supplier;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-12-21.
  */
-public class CpCheckbox extends AbstractInputControlProxy<Boolean> implements ICpControl<Boolean> {
+public class CpCheckbox extends AbstractCpInputControl<Boolean> implements ICpControl<Boolean> {
 	public CpCheckbox(WebDriverConnector wd, Supplier<String> selectorProvider) {
 		super(wd, selectorProvider);
 	}

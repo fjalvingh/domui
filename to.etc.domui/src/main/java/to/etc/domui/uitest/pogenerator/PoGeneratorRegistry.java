@@ -8,6 +8,7 @@ import to.etc.domui.component.buttons.CheckboxButton;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.ComboLookup;
 import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.input.Text;
@@ -15,6 +16,7 @@ import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.DisplaySpan;
 import to.etc.domui.component.searchpanel.lookupcontrols.NumberLookupControl;
 import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component2.combo.ComboFixed2;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.dom.html.Checkbox;
@@ -65,12 +67,15 @@ final public class PoGeneratorRegistry {
 
 		register(ComboLookup.class, (ctx, node) -> new PogSimple(node, "CpComboLookup"));
 		register(ComboLookup2.class, (ctx, node) -> new PogSimple(node, "CpComboLookup2"));
+		register(ComboFixed.class, (ctx, node) -> new PogSimple(node, "CpComboFixed"));
+		register(ComboFixed2.class, (ctx, node) -> new PogSimple(node, "CpComboFixed2"));
 
 		register(DisplaySpan.class, (ctx, node) -> new PogSimple(node, "CpDisplaySpan", AllowEmbedded.DisallowEmbedded));
 
 		register(LinkButton.class, (ctx, node) -> new PogSimple(node, "CpLinkButton"));
 		register(LookupInput2.class, (ctx, node) -> new PogSimple(node, "CpLookupInput2"));
 		register(LookupInput.class, (ctx, node) -> new PogSimple(node, "CpLookupInput"));
+
 
 		register(NumberLookupControl.class, (ctx, node) -> new PogSimple(node, "CpNumberLookupControl"));
 
