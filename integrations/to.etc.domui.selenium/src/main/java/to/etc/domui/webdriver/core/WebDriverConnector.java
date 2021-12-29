@@ -143,6 +143,10 @@ final public class WebDriverConnector {
 		m_jvmExitHandlerRegistered = true;
 	}
 
+	public String getCurrentURL() {
+		return m_driver.getCurrentUrl();
+	}
+
 	/**
 	 * Walk all known WebDriver instances and close them.
 	 */

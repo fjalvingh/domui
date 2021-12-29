@@ -40,7 +40,13 @@ public abstract class AbstractCpPage<T extends UrlPage> implements ICpDriverSour
 		if(body == null) {
 			return false;
 		}
-		return body.getAttribute("pagename").equalsIgnoreCase(getPageClass().getName());
+		String pagename = body.getAttribute("pagename");
+		if(null != pagename)
+			return pagename.equalsIgnoreCase(getPageClass().getName());
+		String currentURL = wd().getCurrentURL();
+		if(null == currentURL)
+			return false;
+		return currentURL.contains(m_pageClass.getName() + ".ui");
 	}
 
 	public Map<String, String> getPageParameters() throws Exception {
