@@ -150,7 +150,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 
 		void addChildChange(NodeInfo ch) {
 			if(ch == this)
-				throw new IllegalStateException("?? Adding myself to my own lower list?! " + this.node);
+				throw new IllegalStateException("?? Adding myself to my own lower list?! " + node);
 			if(lowerChanges == Collections.EMPTY_LIST)
 				lowerChanges = new ArrayList<>();
 			lowerChanges.add(ch);
@@ -498,6 +498,12 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 
 			//-- We have a tree delta -> handle it,
 			doTreeDeltaOn(parentChanges, n);
+
+			//-- The tree here is not dirty -> I will not be re-rendered. Have my attributes changed?
+			if(n.internalHasChangedAttributes()) {
+				//-- Add me to the "change attributes" list of my owner.
+				parentChanges.addAttrChange(n); // FIXME must be delta-aware
+			}
 			return;
 		}
 
