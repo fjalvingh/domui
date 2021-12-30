@@ -36,7 +36,7 @@ public class OopsFrameRenderer {
 	private boolean m_testMode;
 
 	public void renderOopsFrame(RequestContextImpl ctx, Throwable x, boolean testMode) throws Exception {
-		m_testMode = false;
+		m_testMode = testMode;
 		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
 			HttpServletResponse resp = srr.getResponse();
