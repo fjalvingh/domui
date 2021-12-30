@@ -4,6 +4,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.errors.MsgType;
+import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
@@ -14,7 +15,9 @@ import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.parts.IComponentJsonProvider;
 import to.etc.domui.state.IPageParameters;
+import to.etc.domui.trouble.ValidationException;
 import to.etc.domui.util.DomUtil;
+import to.etc.domui.util.Msgs;
 import to.etc.domui.util.javascript.JavascriptStmt;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
@@ -96,7 +99,9 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	@Nullable
 	private ICompletionHandler m_completionHandler;
 
-	@Override public void createContent() throws Exception {
+	@Override
+	public void createContent() throws Exception {
+		addCssClass("ui-aced ace_editor ace-iplastic");
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
 
@@ -160,7 +165,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		}
 	}
 
-	@Override public Object provideJsonData(IPageParameters parameterSource) throws Exception {
+	@Override
+	public Object provideJsonData(IPageParameters parameterSource) throws Exception {
 		int col = parameterSource.getInt(getActualID() + "_col");
 		int row = parameterSource.getInt(getActualID() + "_row");
 		String prefix = parameterSource.getString(getActualID() + "_prefix");
@@ -181,7 +187,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		return ch.getCompletions(value, row, col, prefix);
 	}
 
-	@Override public void renderJavascriptState(StringBuilder sb) throws Exception {
+	@Override
+	public void renderJavascriptState(StringBuilder sb) throws Exception {
 		updateTheme();
 		updateMode();
 		updateValue();
@@ -196,13 +203,16 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		page.getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ext-language_tools.js"), 11);
 	}
 
-	@Override
-	@Nullable public String getValue() {
-		return m_value;
+	@Nullable
+	public String getBindValue() {
+		String value = m_value;
+		if(isMandatory() && (value == null || value.isEmpty())) {
+			throw new ValidationException(Msgs.mandatory);
+		}
+		return value;
 	}
 
-	@Override
-	public void setValue(@Nullable String value) {
+	public void setBindValue(@Nullable String value) {
 		if(Objects.equals(value, m_value))
 			return;
 		markerClear();
@@ -215,6 +225,32 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		} else {
 			forceRebuild();
 		}
+	}
+
+	@Override
+	@Nullable
+	public String getValue() {
+		try {
+			String bindValue = getBindValue();
+			setMessage(null);
+			return bindValue;
+		} catch(ValidationException x) {
+			handleValidationException(x);
+			throw x;
+		}
+	}
+
+	private void handleValidationException(@Nullable ValidationException x) {
+		UIMessage message = null;
+		if(null != x) {
+			message = UIMessage.error(x);
+		}
+		setMessage(message);
+	}
+
+	@Override
+	public void setValue(@Nullable String value) {
+		setBindValue(value);
 	}
 
 	private void callStringMethod(String methodName, String value) {
@@ -252,7 +288,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		appendJavascript(sb);
 	}
 
-	@Nullable public String getTheme() {
+	@Nullable
+	public String getTheme() {
 		return m_theme;
 	}
 
@@ -297,7 +334,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		callMethod("setReadOnly", Boolean.valueOf(m_internalRo).toString());
 	}
 
-	@Nullable public String getMode() {
+	@Nullable
+	public String getMode() {
 		return m_mode;
 	}
 
@@ -404,30 +442,37 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		updateInternalRo(m_disabled || m_readOnly);
 	}
 
-	@Override public boolean isMandatory() {
+	@Override
+	public boolean isMandatory() {
 		return m_mandatory;
 	}
 
-	@Override public void setMandatory(boolean mandatory) {
+	@Override
+	public void setMandatory(boolean mandatory) {
 		m_mandatory = mandatory;
 	}
 
-	@Override public IValueChanged<?> getOnValueChanged() {
+	@Override
+	public IValueChanged<?> getOnValueChanged() {
 		return m_valueChanged;
 	}
 
-	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	@Override
+	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		m_valueChanged = onValueChanged;
 	}
 
 	/**
 	 * The editor does not support being used as a label for= target.
 	 */
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return null;
 	}
 
-	@Override public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
+	@Override
+	public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
 		if(values.length != 1)
 			throw new IllegalStateException("? Expecting but one value?");
 		String value = values[0];
@@ -563,7 +608,7 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	}
 
 	public int markerAdd(MsgType sev, int startPosition, int endPosition, String message, @Nullable String css) {
-		String value = getValue();
+		String value = m_value;
 		if(null == value || endPosition <= startPosition)
 			return -1;
 		PositionCalculator calculator = m_calculator;
@@ -606,7 +651,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		}
 	}
 
-	@Override protected void renderJavascriptDelta(JavascriptStmt b) throws Exception {
+	@Override
+	protected void renderJavascriptDelta(JavascriptStmt b) throws Exception {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\n");
 		sb.append("let ed = ");
@@ -752,7 +798,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			return m_cssClass;
 		}
 
-		@Override public boolean equals(@Nullable Object o) {
+		@Override
+		public boolean equals(@Nullable Object o) {
 			if(this == o)
 				return true;
 			if(o == null || getClass() != o.getClass())
@@ -768,11 +815,13 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 				Objects.equals(m_cssClass, marker.m_cssClass);
 		}
 
-		@Override public int hashCode() {
+		@Override
+		public int hashCode() {
 			return Objects.hash(m_type, m_message, m_line, m_column, m_endColumn, m_endLine, m_cssClass, m_id);
 		}
 
-		@Override public String toString() {
+		@Override
+		public String toString() {
 			return "id=" + m_id + "(" + m_line + "," + m_column + ")";
 		}
 	}
@@ -782,7 +831,8 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		callMethod("focus");
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		//setTitle(hintText);
 	}
 
