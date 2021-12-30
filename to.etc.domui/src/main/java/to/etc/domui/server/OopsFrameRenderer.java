@@ -33,15 +33,10 @@ public class OopsFrameRenderer {
 	@Nullable
 	private JSTemplate m_exceptionTemplate;
 
-	protected String m_templateName = "exceptionTemplate.html";
-
-	protected String m_stacktraceTag = "a";
+	private boolean m_testMode;
 
 	public void renderOopsFrame(RequestContextImpl ctx, Throwable x, boolean testMode) throws Exception {
-		if(!testMode) {
-			m_templateName = "exceptionPrdTemplate.html";
-			m_stacktraceTag = "label";
-		}
+		m_testMode = false;
 		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
 			HttpServletResponse resp = srr.getResponse();
@@ -147,10 +142,10 @@ public class OopsFrameRenderer {
 	}
 
 	private void appendTraceLink(@NonNull StringBuilder sb, @NonNull StackTraceElement ste) {
-		if(m_stacktraceTag == "a") {
-			sb.append("        <" + m_stacktraceTag + " class='exc-stk-l' href=\"#\" onclick=\"linkClicked('");
+		if(m_testMode) {
+			sb.append("        <a class='exc-stk-l' href=\"#\" onclick=\"linkClicked('");
 		} else {
-			sb.append("        <" + m_stacktraceTag + " class='exc-stk-l'");
+			sb.append("        <label class='exc-stk-l'");
 		}
 		//-- Get name for the thingy,
 		String name;
@@ -159,20 +154,26 @@ public class OopsFrameRenderer {
 		else
 			name = ste.getClassName().replace('.', '/') + ".java#" + ste.getLineNumber();
 		sb.append(StringTool.htmlStringize(name));
-		if(m_stacktraceTag == "a") {
+		if(m_testMode) {
 			sb.append("')\">");
+			sb.append(ste).append("</a><br>");
 		} else {
 			sb.append("\">");
+			sb.append(ste).append("</label><br>");
 		}
-		sb.append(ste).append("</" + m_stacktraceTag + "><br>");
+
 	}
 
 	@NonNull
 	public JSTemplate getExceptionTemplate() throws Exception {
 		JSTemplate xt = m_exceptionTemplate;
+		String templateName = "exceptionTemplate.html";
+		if(!m_testMode) {
+			templateName = "exceptionPrdTemplate.html";
+		}
 		if(xt == null) {
 			JSTemplateCompiler jtc = new JSTemplateCompiler();
-			File src = new File(getClass().getResource(m_templateName).getFile());
+			File src = new File(getClass().getResource(templateName).getFile());
 			if(src.exists() && src.isFile()) {
 				Reader r = new FileReader(src);
 				try {
@@ -181,7 +182,7 @@ public class OopsFrameRenderer {
 					FileTool.closeAll(r);
 				}
 			} else {
-				xt = jtc.compile(ApplicationRequestHandler.class, m_templateName, "utf-8");
+				xt = jtc.compile(ApplicationRequestHandler.class, templateName, "utf-8");
 			}
 			m_exceptionTemplate = xt;
 		}
