@@ -1,26 +1,28 @@
 package to.etc.domui.webdriver.poproxies;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.util.function.Supplier;
 
-@NonNullByDefault
-public class CpTextArea extends AbstractCpComponent implements ICpControl<String> {
-	public CpTextArea(WebDriverConnector connector, Supplier<String> selectorProvider) {
+/**
+ * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
+ * Created on 20-12-21.
+ */
+public class CpHtmlInput extends AbstractCpComponent implements ICpControl<String> {
+	public CpHtmlInput(WebDriverConnector connector, Supplier<String> selectorProvider) {
 		super(connector, selectorProvider);
 	}
 
 	@Override
-	public void setValue(@Nullable String value) {
+	public void setValue(String value) {
 		wd().cmd().type(value).on(getSelector());
+		wd().wait(getSelector());
 	}
 
-	@Nullable
 	@Override
 	public String getValue() {
-		return wd().getElement(getSelector()).getText();
+		var elem = wd().getElement(getSelector());
+		return elem.getText();
 	}
 
 	@Override
@@ -32,4 +34,5 @@ public class CpTextArea extends AbstractCpComponent implements ICpControl<String
 	public boolean isDisabled() {
 		return !wd().isEnabled(getSelector());
 	}
+
 }

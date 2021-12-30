@@ -39,7 +39,7 @@ public class ITTestLookupForm1 extends AbstractWebDriverTest {
 		//-- Clicking "clear" then search should not give an error
 		wd().cmd().click().on("clearButton");
 
-		String txt = wd().getHtmlText(By.className("exc-exception-type"));
+		String txt = wd().getText(By.className("exc-exception-type"));
 		Assert.assertEquals("Must have thrown the correct exception", ProgrammerErrorException.class.getCanonicalName(), txt);
 	}
 

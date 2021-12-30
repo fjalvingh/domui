@@ -31,12 +31,22 @@ public abstract class AbstractCpPage<T extends UrlPage> implements ICpDriverSour
 		wd().openScreen(m_pageClass, parameters);
 	}
 
+	public void waitTillPresent() {
+		wd().wait(By.tagName("body"));
+	}
+
 	public boolean isBrowserOnThisPage() {
 		var body = wd().findElement(By.tagName("body"));
 		if(body == null) {
 			return false;
 		}
-		return body.getAttribute("pagename").equalsIgnoreCase(getPageClass().getName());
+		String pagename = body.getAttribute("pagename");
+		if(null != pagename)
+			return pagename.equalsIgnoreCase(getPageClass().getName());
+		String currentURL = wd().getCurrentURL();
+		if(null == currentURL)
+			return false;
+		return currentURL.contains(m_pageClass.getName() + ".ui");
 	}
 
 	public Map<String, String> getPageParameters() throws Exception {

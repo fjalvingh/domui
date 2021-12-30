@@ -1,8 +1,16 @@
 package to.etc.net;
 
+import org.eclipse.jdt.annotation.Nullable;
+
+import javax.annotation.Nonnull;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
+import java.security.KeyStore;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -29,6 +37,28 @@ final public class HTTP {
 				.build();
 		}
 		return client;
+	}
+
+	@Nonnull
+	static public HttpClient sslClient(@Nonnull byte[] certificate, @Nonnull SslCertificateType type, @Nullable String passkey) throws Exception {
+
+		KeyManagerFactory kmf = KeyManagerFactory.getInstance(type.getKeyManagerAlgorithm());
+		KeyStore keystore = KeyStore.getInstance(type.getKeyStoreType());
+
+		try(InputStream is = new ByteArrayInputStream(certificate)) {
+			char[] passkeyArray = null != passkey ? passkey.toCharArray() : null;
+			keystore.load(is, passkeyArray);
+			kmf.init(keystore, passkeyArray);
+
+			SSLContext sslContext = SSLContext.getInstance(type.getSslContextProtocol());
+			sslContext.init(kmf.getKeyManagers(), null, null);
+
+			return HttpClient.newBuilder()
+				.sslContext(sslContext)
+				.followRedirects(Redirect.NORMAL)
+				.version(Version.HTTP_1_1)
+				.build();
+		}
 	}
 
 	static public synchronized void close() {

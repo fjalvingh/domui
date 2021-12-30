@@ -14,6 +14,10 @@ public class BodyWriter<T extends BodyWriter<T>> {
 
 	private final IndentWriter m_writer = new IndentWriter(m_sw);
 
+	public BodyWriter() {
+		m_writer.setSpacesPerIndent(4);
+	}
+
 	public T append(String s) throws Exception {
 		m_writer.append(s);
 		return (T) this;

@@ -1,6 +1,7 @@
 package to.etc.domui.webdriver.poproxies;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.util.function.Supplier;
@@ -13,10 +14,11 @@ public class CpAceEditor extends AbstractCpComponent implements ICpControl<Strin
 	}
 
 	@Override
-	public void setValue(String value) {
-		getJsExecutor().executeScript(getAceJsReference() + ".setValue('" + value + "')");
+	public void setValue(@Nullable String value) {
+		getJsExecutor().executeScript(getAceJsReference() + ".setValue('" + (value == null ? "" : value) + "')");
 	}
 
+	@Nullable
 	@Override
 	public String getValue() {
 		Object val = getJsExecutor().executeScript("return " + getAceJsReference() + ".getSession().getValue();");

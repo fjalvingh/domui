@@ -42,7 +42,6 @@ import to.etc.webapp.testsupport.TestProperties;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.lang.reflect.Method;
@@ -144,6 +143,10 @@ final public class WebDriverConnector {
 		m_jvmExitHandlerRegistered = true;
 	}
 
+	public String getCurrentURL() {
+		return m_driver.getCurrentUrl();
+	}
+
 	/**
 	 * Walk all known WebDriver instances and close them.
 	 */
@@ -211,7 +214,7 @@ final public class WebDriverConnector {
 
 		IWebdriverScreenshotHelper sshelper = WebDriverFactory.getScreenshotHelper(webDriverType, browserModel);
 
-		final WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, sshelper);
+		WebDriverConnector tu = new WebDriverConnector(wp, browserModel, appURL, webDriverType, sshelper);
 		initializeAfterCommandListener(tu);
 		m_webDriverConnectorList.add(tu);
 		m_webDriverThreadLocal.set(tu);
@@ -234,7 +237,7 @@ final public class WebDriverConnector {
 	 * Called after every screen action, this checks whether the DomUI "waiting" backdrop is present and waits for it
 	 * to be gone.
 	 */
-	private static void initializeAfterCommandListener(final @NonNull WebDriverConnector tu) {
+	private static void initializeAfterCommandListener(@NonNull WebDriverConnector tu) {
 		tu.setAfterCommandCallback(new IExecute() {
 			@Override
 			public void execute() {
@@ -283,7 +286,7 @@ final public class WebDriverConnector {
 		return d;
 	}
 
-	protected final void handleAfterCommandCallback() {
+	protected void handleAfterCommandCallback() {
 		if(m_inhibitAfter) {
 			m_inhibitAfter = false;
 			return;
@@ -314,20 +317,24 @@ final public class WebDriverConnector {
 	 * Create the locator for a given testid.
 	 */
 	@NonNull
-	final public By byId(@NonNull String testid) {
+	public By byId(@NonNull String testid) {
 		return By.cssSelector("*[testid='" + testid + "']");
 	}
 
 	@NonNull
-	final public By byId(@NonNull String testid, @NonNull String elementType) {
+	public By byId(@NonNull String testid, @NonNull String elementType) {
 		return By.cssSelector("*[testid='" + testid + "'] " + elementType);
+	}
+
+	static public String getTestIDSelector(String testid) {
+		return "*[testid='" + testid + "']";
 	}
 
 	/**
 	 * Create a full locator using any supported expression.
 	 */
 	@NonNull
-	final public By locator(@NonNull String locator) {
+	public By locator(@NonNull String locator) {
 		if(locator.startsWith("//")) {
 			return By.xpath(locator);
 		} else if(locator.startsWith("#")) {
@@ -356,6 +363,13 @@ final public class WebDriverConnector {
 		return elements.size();
 	}
 
+	/**
+	 * Get the direct children of the specified element.
+	 */
+	public List<WebElement> getChildren(WebElement element) {
+		return element.findElements(By.xpath("./child::*"));
+	}
+
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Waiting.											*/
@@ -366,6 +380,15 @@ final public class WebDriverConnector {
 	 */
 	public void wait(@NonNull By locator) {
 		WebDriverWait wait = new WebDriverWait(driver(), getWaitTimeout(), getWaitInterval());
+		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
+	}
+
+	/**
+	 * Wait for the given element to appear.
+	 */
+	public void wait(@NonNull By locator, long time, TimeUnit unit) {
+		long seconds = unit.toSeconds(time);
+		WebDriverWait wait = new WebDriverWait(driver(), seconds, getWaitInterval());
 		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
 	}
 
@@ -492,10 +515,8 @@ final public class WebDriverConnector {
 
 	/**
 	 * Clicks on specified occurrence of element located by locator.
-	 *
-	 * @throws Exception
 	 */
-	public void clickInstance(@NonNull final By locator, final int index, final Keys... optionalKeys) throws Exception {
+	public void clickInstance(@NonNull By locator, int index, Keys... optionalKeys) throws Exception {
 		wait(locator);
 		timed(new WebDriverConnector.Action<Boolean>() {
 
@@ -518,47 +539,36 @@ final public class WebDriverConnector {
 
 	/**
 	 * Returns T if the specified element is present.
-	 * @param locator
-	 * @return
 	 */
-	final public boolean isPresent(@NonNull By locator) {
+	public boolean isPresent(@NonNull By locator) {
 		return !driver().findElements(locator).isEmpty();
 	}
 
 	/**
 	 * Returns T if the specified element is present.
-	 * @param testId
-	 * @return
 	 */
-	final public boolean isPresent(@NonNull String testId) {
+	public boolean isPresent(@NonNull String testId) {
 		return isPresent(byId(testId));
 	}
 
 	/**
 	 * Returns T if a link with the specified text is present.
-	 *
-	 * @param linkText
-	 * @return
 	 */
-	final public boolean isLinkPresent(@NonNull String linkText) {
+	public boolean isLinkPresent(@NonNull String linkText) {
 		return isPresent(By.linkText(linkText));
 	}
 
 	/**
 	 * Return T if the element specified by testid is visible.
-	 * @param testid
-	 * @return
 	 */
-	final public boolean isVisible(@NonNull String testid) {
+	public boolean isVisible(@NonNull String testid) {
 		return isVisible(byId(testid));
 	}
 
 	/**
 	 * Return T if the element is visible.
-	 * @param locator
-	 * @return
 	 */
-	final public boolean isVisible(@NonNull By locator) {
+	public boolean isVisible(@NonNull By locator) {
 		if(!isPresent(locator)) {
 			return false;
 		}
@@ -569,20 +579,15 @@ final public class WebDriverConnector {
 
 	/**
 	 * Return T if the element specified by testid is enabled.
-	 *
-	 * @param testid
-	 * @return
 	 */
-	final public boolean isEnabled(@NonNull String testid) {
+	public boolean isEnabled(@NonNull String testid) {
 		return isEnabled(byId(testid));
 	}
 
 	/**
 	 * Return T if the element is enabled.
-	 * @param locator
-	 * @return
 	 */
-	final public boolean isEnabled(@NonNull By locator) {
+	public boolean isEnabled(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
 		return elem.isEnabled();
@@ -590,19 +595,15 @@ final public class WebDriverConnector {
 
 	/**
 	 * Return T if the element is not a readonly element.
-	 * @param testid
-	 * @return
 	 */
-	final public boolean isEditable(@NonNull String testid) {
+	public boolean isEditable(@NonNull String testid) {
 		return isEditable(byId(testid));
 	}
 
 	/**
 	 * Return T if the element is not a readonly element.
-	 * @param locator
-	 * @return
 	 */
-	final public boolean isEditable(@NonNull By locator) {
+	public boolean isEditable(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
 		boolean enabled = elem.isEnabled();
@@ -612,21 +613,18 @@ final public class WebDriverConnector {
 
 	/**
 	 * T if the component is checked; only applies to checkboxes, radiobuttons or select options.
-	 * @param testid
-	 * @return
 	 */
-	final public boolean isChecked(@NonNull String testid) {
+	public boolean isChecked(@NonNull String testid) {
 		return isChecked(byId(testid));
 	}
 
 	/**
 	 * T if the component is checked; only applies to checkboxes, radiobuttons or select options.
-	 * @param locator
-	 * @return
 	 */
-	final public boolean isChecked(@NonNull By locator) {
+	public boolean isChecked(@NonNull By locator) {
 		on(locator);
 		WebElement elem = driver().findElement(locator);
+		System.out.println(elem.getTagName());
 		return elem.isSelected();
 	}
 
@@ -637,50 +635,57 @@ final public class WebDriverConnector {
 
 	/**
 	 * Get the value for a given input thing; this returns the value for the "value=" attribute.
-	 * @param testid
-	 * @return
 	 */
 	@Nullable
-	final public String getValue(@NonNull String testid) {
+	public String getValue(@NonNull String testid) {
 		return getValue(byId(testid));
 	}
 
 	/**
 	 * Get the value for a given input thing; this returns the value for the "value=" attribute.
-	 * @param locator
-	 * @return
 	 */
 	@Nullable
-	final public String getValue(@NonNull By locator) {
+	public String getValue(@NonNull By locator) {
 		WebElement elem = driver().findElement(locator);
 		return elem.getAttribute("value");
 	}
 
 	/**
 	 * Get the HTML text that is inside the specified node (the thing between the tag and the end tag).
-	 * @param testid
-	 * @return
 	 */
 	@NonNull
-	final public String getHtmlText(@NonNull String testid) {
+	public String getHtmlText(@NonNull String testid) {
 		return getHtmlText(byId(testid));
 	}
 
 	/**
 	 * Get the HTML text that is inside the specified node (the thing between the tag and the end tag).
-	 * @param locator
-	 * @return
 	 */
 	@NonNull
-	final public String getHtmlText(@NonNull By locator) {
+	public String getHtmlText(@NonNull By locator) {
+		WebElement elem = driver().findElement(locator);
+		return elem.getAttribute("innerHTML");
+	}
+
+	/**
+	 * Get the text ONLY that is inside the specified node (the thing between the tag and the end tag).
+	 */
+	@NonNull
+	public String getText(@NonNull String testid) {
+		return getText(byId(testid));
+	}
+
+	/**
+	 * Get the text ONLY that is inside the specified node (the thing between the tag and the end tag).
+	 */
+	@NonNull
+	public String getText(@NonNull By locator) {
 		WebElement elem = driver().findElement(locator);
 		return elem.getText();
 	}
 
 	/**
 	 * Locate the specified expected attribute value
-	 * @param locator
-	 * @return
 	 */
 	@NonNull
 	public String getAttribute(@NonNull By locator, @NonNull String attribute) {
@@ -693,8 +698,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Locate the specified expected attribute value
-	 * @param testid
-	 * @return
 	 */
 	@NonNull
 	public String getAttribute(@NonNull String testid, @NonNull String attribute) {
@@ -703,9 +706,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Locate the expected specified attribute using "testid@attribute" syntax.
-	 *
-	 * @param testidandattr
-	 * @return
 	 */
 	@NonNull
 	public String getAttribute(@NonNull String testidandattr) {
@@ -717,9 +717,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Locate the specified attribute, null if no attribute is found
-	 *
-	 * @param locator
-	 * @return
 	 */
 	@Nullable
 	public String findAttribute(@NonNull By locator, @NonNull String attribute) {
@@ -728,8 +725,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Locate the specified attribute, null if no attribute is found
-	 * @param testid
-	 * @return
 	 */
 	@Nullable
 	public String findAttribute(@NonNull String testid, @NonNull String attribute) {
@@ -749,9 +744,6 @@ final public class WebDriverConnector {
 	 *	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
 	 *	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
 	 * </dl>
-	 * @param testid
-	 * @param value
-	 * @return
 	 */
 	public void select(@NonNull String testid, @NonNull String value) throws Exception {
 		select(byId(testid), value);
@@ -766,9 +758,6 @@ final public class WebDriverConnector {
 	 *	<dt>id=xxx</dt><dd>Select the option whose xml id is xxx</dd>
 	 *	<dt>value=</dt><dd>Select the option whose value (the code reported to the server) is xxx</dd>
 	 * </dl>
-	 * @param locator
-	 * @param value
-	 * @return
 	 */
 	public void select(@NonNull By locator, @NonNull String value) throws Exception {
 		List<WebElement> options = getSelectElementOptions(locator);
@@ -805,9 +794,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Selects a value by matching a partial string in either value or label. The match is case-independent.
-	 * @param locator
-	 * @param value
-	 * @return
 	 */
 	public void selectContaining(@NonNull By locator, @NonNull String value) throws Exception {
 		List<WebElement> options = getSelectElementOptions(locator);
@@ -866,9 +852,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Locate the option that at least contains the specified text in its presentation string, case-independent compared.
-	 * @param locator
-	 * @param optionContainsText
-	 * @return
 	 */
 	public void selectOptionContainingText(@NonNull By locator, @NonNull String optionContainsText) throws Exception {
 		String option = getSelectOptionContaining(locator, optionContainsText);
@@ -878,25 +861,18 @@ final public class WebDriverConnector {
 	/**
 	 * Get <b>all</b> of the options in a &lt;select&gt; tag with either their text (presentation) or value (data to send in request) node. The
 	 * resulting set is a sorted set.
-	 * @param testid
-	 * @param value
-	 * @return
 	 */
 	@NonNull
-	final public TreeSet<String> selectGetOptionSet(@NonNull String testid, boolean value) {
+	public TreeSet<String> selectGetOptionSet(@NonNull String testid, boolean value) {
 		return selectGetOptionSet(byId(testid), value);
 	}
 
 	/**
 	 * Get <b>all</b> of the options in a &lt;select&gt; tag with either their text (presentation) or value (data to send in request) node. The
 	 * resulting set is a sorted set.
-	 *
-	 * @param locator
-	 * @param value
-	 * @return
 	 */
 	@NonNull
-	final public TreeSet<String> selectGetOptionSet(@NonNull By locator, boolean value) {
+	public TreeSet<String> selectGetOptionSet(@NonNull By locator, boolean value) {
 		List<WebElement> options = getSelectElementOptions(locator);
 		TreeSet<String> optionList = new TreeSet<String>();                // Ordered set.
 
@@ -910,13 +886,9 @@ final public class WebDriverConnector {
 	 * Get <b>all</b> options of a &lt;select&gt; tag with either their text (presentation) or value (data to send in request)
 	 * as a comma-separated string. No attempt is made to quote comma's in either value or text. The order of the items in the
 	 * string is alphabetically sorted.
-	 *
-	 * @param locator
-	 * @param value
-	 * @return
 	 */
 	@NonNull
-	final public String selectGetOptionsString(@NonNull By locator, boolean value) {
+	public String selectGetOptionsString(@NonNull By locator, boolean value) {
 		StringBuilder sb = new StringBuilder(128);
 		int count = 0;
 		for(String s : selectGetOptionSet(locator, value)) {
@@ -931,43 +903,33 @@ final public class WebDriverConnector {
 	 * Get <b>all</b> options of a &lt;select&gt; tag with either their text (presentation) or value (data to send in request)
 	 * as a comma-separated string. No attempt is made to quote comma's in either value or text. The order of the items in the
 	 * string is alphabetically sorted.
-	 * @param testid
-	 * @param value
-	 * @return
 	 */
 	@NonNull
-	final public String selectGetOptionsString(@NonNull String testid, boolean value) {
+	public String selectGetOptionsString(@NonNull String testid, boolean value) {
 		return selectGetOptionsString(byId(testid), value);
 	}
 
 	/**
 	 * Get the currently selected item's label text from a select.
-	 * @param testid
-	 * @return
 	 */
 	@Nullable
-	final public String selectGetSelectedLabel(@NonNull String testid) {
+	public String selectGetSelectedLabel(@NonNull String testid) {
 		return selectGetSelected(byId(testid), false);
 	}
 
 	/**
 	 * Get the currently selected item's value (not the visible label, but the value reported to the server) from a select.
-	 * @param testid
-	 * @return
 	 */
 	@Nullable
-	final public String selectGetSelectedValue(@NonNull String testid) {
+	public String selectGetSelectedValue(@NonNull String testid) {
 		return selectGetSelected(byId(testid), true);
 	}
 
 	/**
 	 * Get the currently selected value either as text or as the value item from a select item.
-	 * @param locator
-	 * @param byvalue
-	 * @return
 	 */
 	@NonNull
-	final public String selectGetSelected(@NonNull By locator, boolean byvalue) {
+	public String selectGetSelected(@NonNull By locator, boolean byvalue) {
 		Select selectElement = getSelectElement(locator);
 		WebElement option = selectElement.getFirstSelectedOption();
 		if(null == option) {
@@ -980,12 +942,12 @@ final public class WebDriverConnector {
 	}
 
 	@NonNull
-	final private String getSelectOptionContaining(@NonNull String testid, @NonNull String optionContainsText) {
+	private String getSelectOptionContaining(@NonNull String testid, @NonNull String optionContainsText) {
 		return getSelectOptionContaining(byId(testid), optionContainsText);
 	}
 
 	@NonNull
-	final private String getSelectOptionContaining(@NonNull By locator, @NonNull String optionContainsText) {
+	private String getSelectOptionContaining(@NonNull By locator, @NonNull String optionContainsText) {
 		waitForElementPresent(locator);
 		Set<String> options = selectGetOptionSet(locator, false);
 
@@ -1023,10 +985,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Takes screenshot and stores it on specified location.
-	 *
-	 * @param screenshotFile
-	 * @return T if the screenshot was made.
-	 * @throws IOException
 	 */
 	public boolean screenshot(@NonNull File screenshotFile) throws Exception {
 		IWebdriverScreenshotHelper helper = m_screenshotHelper;
@@ -1038,7 +996,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Returns a ScreenInspector: something to play with the actual screen bitmap.
-	 * @return
 	 */
 	@Nullable
 	public ScreenInspector screenInspector() throws Exception {
@@ -1059,7 +1016,6 @@ final public class WebDriverConnector {
 	/**
 	 * This obtains a list of session cookies that should be used to talk with the
 	 * remote server using the same session.
-	 * @return
 	 */
 	@NonNull
 	private List<Cookie> getSessionCookies() {
@@ -1079,10 +1035,6 @@ final public class WebDriverConnector {
 	/**
 	 * Send an out-of-bound request to the server under test, allowing us to manipulate that
 	 * server's state outside of the state of the webdriver session.
-	 *
-	 * @param url
-	 * @return
-	 * @throws Exception
 	 */
 	private String sendOobRequest(@NonNull String url) throws Exception {
 		List<Cookie> sescook = getSessionCookies();
@@ -1150,10 +1102,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Open the specified screen, and wait for it to be fully loaded.
-	 * @param clz
-	 * @param parameters
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	public WebDriverConnector openScreen(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object... parameters) throws Exception {
@@ -1251,7 +1199,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Cause the browser screen to refresh.
-	 * @return
 	 */
 	public WebDriverConnector refresh() throws Exception {
 		driver().navigate().refresh();
@@ -1275,8 +1222,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Wait for the specified DomUI screen to be fully loaded.
-	 * @param clz
-	 * @return
 	 */
 	@NonNull
 	public WebDriverConnector waitScreen(@NonNull Class<? extends UrlPage> clz) {
@@ -1286,9 +1231,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Wait for the specified DomUI screen to be replaced by some other screen.
-	 * @param clz
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	public WebDriverConnector waitScreenNotPresent(@NonNull Class<? extends UrlPage> clz) throws Exception {
@@ -1315,8 +1257,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Send a list of things to the keyboard.
-	 * @param locator
-	 * @param textlist
 	 */
 	void text(@NonNull By locator, @NonNull List<CharSequence> textlist) {
 		waitForElementVisible(locator);
@@ -1391,9 +1331,6 @@ final public class WebDriverConnector {
 	 * Used only internally. Needed since if can happen that frames are loading while driver start locating them.
 	 * To make tests more robust, all what we can is to try to restart locating frames, with decreased retryCount.
 	 * Initial retryCount is number of nested frames that we want to access and switch too.
-	 *
-	 * @param retryCount
-	 * @param names
 	 */
 	private void switchToFrameInternal(int retryCount, @NonNull String... names) {
 		try {
@@ -1513,8 +1450,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Wait until the element is not present.
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	public WebDriverConnector notPresent(@NonNull String testid) throws Exception {
@@ -1524,7 +1459,6 @@ final public class WebDriverConnector {
 	/**
 	 * Wait until the element is not present.
 	 * @deprecated does not work - use other one notPresent(By)
-	 * @return
 	 */
 	@Deprecated
 	@NonNull
@@ -1538,12 +1472,9 @@ final public class WebDriverConnector {
 	 * Wait until the element is not present. Uses custom timed Action implementation since it seams that built in
 	 * ExpectedConditions.not does not work. Consequence is that now notPresent method has throws Exception decoration.
 	 * Implementation that uses is ExpectedConditions renamed to notPresent_notWorking and made private for someone else to check too.
-	 *
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
-	public WebDriverConnector notPresent(@NonNull final By locator) throws Exception {
+	public WebDriverConnector notPresent(@NonNull By locator) throws Exception {
 		timed(getWaitTimeout(), getWaitInterval(), new Action<Boolean>() {
 			@Override
 			@Nullable
@@ -1559,13 +1490,9 @@ final public class WebDriverConnector {
 
 	/**
 	 * Waits until at least specified number of elements located by locator is present.
-	 *
-	 * @param locator
-	 * @param count
-	 * @throws Exception
 	 */
 	@NonNull
-	public WebDriverConnector waitMultiplePresent(@NonNull final By locator, final int count) throws Exception {
+	public WebDriverConnector waitMultiplePresent(@NonNull By locator, int count) throws Exception {
 		timed(getWaitTimeout(), getWaitInterval(), new Action<Boolean>() {
 			@Override
 			@Nullable
@@ -1585,7 +1512,7 @@ final public class WebDriverConnector {
 	//	 * @throws Exception
 	//	 */
 	//	@NonNull
-	//	public TUtilWebdriver waitMultipleNotPresent(@NonNull final By locator, final int count) throws Exception {
+	//	public TUtilWebdriver waitMultipleNotPresent(@NonNull By locator, int count) throws Exception {
 	//		timed(getWaitTimeout(), getWaitInterval(), new Action<Boolean>() {
 	//			@Nullable
 	//			public Boolean execute() throws Exception {
@@ -1599,12 +1526,8 @@ final public class WebDriverConnector {
 	/**
 	 * Waits until one of listed locators is found in page.
 	 * Returns index of a matched element's locator.
-	 *
-	 * @param locators
-	 * @return
-	 * @throws Exception
 	 */
-	public int waitForOneOfElements(final By... locators) throws Exception {
+	public int waitForOneOfElements(By... locators) throws Exception {
 		if(locators.length == 0)
 			throw new IllegalStateException("Missing locators");
 		Integer value = timed(new Action<Integer>() {
@@ -1626,12 +1549,8 @@ final public class WebDriverConnector {
 
 	/**
 	 * Waits until none of listed locators is found in page.
-	 *
-	 * @param locators
-	 * @return
-	 * @throws Exception
 	 */
-	public void waitForNoneOfElementsPresent(final @NonNull By... locators) throws Exception {
+	public void waitForNoneOfElementsPresent(@NonNull By... locators) throws Exception {
 		if(locators.length == 0)
 			throw new IllegalStateException("Missing locators");
 		Boolean value = timed(new Action<Boolean>() {
@@ -1651,12 +1570,8 @@ final public class WebDriverConnector {
 	/**
 	 * Waits until one of listed locators is found and visible in page.
 	 * Returns index of a matched element's locator.
-	 *
-	 * @param locators
-	 * @return
-	 * @throws Exception
 	 */
-	public int waitForOneOfElementsVisible(final By... locators) throws Exception {
+	public int waitForOneOfElementsVisible(By... locators) throws Exception {
 		if(locators.length == 0)
 			throw new IllegalStateException("Missing locators");
 		Integer value = timed(new Action<Integer>() {
@@ -1677,7 +1592,7 @@ final public class WebDriverConnector {
 	}
 
 	@NonNull
-	public String waitValuePresent(@NonNull final By locator, @Nullable final String text) throws Exception {
+	public String waitValuePresent(@NonNull By locator, @Nullable String text) throws Exception {
 		wait(locator);
 		return timed(new Action<String>() {
 			@Override
@@ -1697,7 +1612,7 @@ final public class WebDriverConnector {
 	}
 
 	@NonNull
-	public String waitValueNotEmpty(@NonNull final By locator) throws Exception {
+	public String waitValueNotEmpty(@NonNull By locator) throws Exception {
 		wait(locator);
 		return timed(new Action<String>() {
 			@Override
@@ -1715,7 +1630,7 @@ final public class WebDriverConnector {
 	}
 
 	@NonNull
-	public String waitHtmlTextPresent(@NonNull final By locator, @Nullable final String text) throws Exception {
+	public String waitHtmlTextPresent(@NonNull By locator, @Nullable String text) throws Exception {
 		wait(locator);
 		return timed(new Action<String>() {
 			@Override
@@ -1736,8 +1651,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Wait for a link with the specified text, then click it.
-	 * @param linkText
-	 * @return
 	 */
 	public void clickLink(@NonNull String linkText, Keys... optionalWithKeys) {
 		internalClick(By.linkText(linkText), optionalWithKeys);
@@ -1745,7 +1658,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * DO NOT USE - DANGEROUS- Click on the button that has the specified title= attribute.
-	 * @param title
 	 */
 	@Deprecated
 	public void clickButtonTitled(@NonNull String title) {
@@ -1771,8 +1683,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Search for all elements with provided locator
-	 * @param locator
-	 * @return
 	 */
 	public List<WebElement> findElements(By locator) {
 		return driver().findElements(locator);
@@ -1856,7 +1766,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Wait for the window handle to disappear.
-	 * @throws Exception
 	 */
 	public void waitForHandleNotPresent() throws Exception {
 		try {
@@ -1913,12 +1822,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Make sure that passed in testClass has properly annotated @Category({GroupRunsSlow.class}) or ancestor in order to use custom defined timeouts. Use only as last option when test has to wait more for conditions to happen.
-	 *
-	 * @param timeoutSeconds
-	 * @param testClass
-	 * @param action
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	public <T> T timed(long timeoutSeconds, @NonNull Class<?> testClass, @NonNull Action<T> action) throws Exception {
@@ -1942,8 +1845,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Press keys that are send to the complete browser window; used for pressing acceleration keys on buttons for example.
-	 *
-	 * @param keys
 	 */
 	public void pressKeys(@NonNull CharSequence... keys) throws Exception {
 		pressKeys(By.cssSelector("body"), keys);
@@ -1951,9 +1852,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Press keys that are send to the specified element.
-	 *
-	 * @param locator
-	 * @param keys
 	 */
 	public void pressKeys(@NonNull By locator, @NonNull CharSequence... keys) throws Exception {
 		WebElement elem = driver().findElement(locator);
@@ -1963,8 +1861,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Focus the specified element.
-	 * @param testid
-	 * @return
 	 */
 	public void focus(@NonNull String testid) {
 		focus(byId(testid));
@@ -1972,8 +1868,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Focus the specified element.
-	 * @param locator
-	 * @return
 	 */
 	public void focus(@NonNull By locator) {
 		new Actions(driver()).moveToElement(driver().findElement(locator)).perform();
@@ -2032,18 +1926,13 @@ final public class WebDriverConnector {
 
 	/**
 	 * Used for switching control to the other browser window by UrlPage
-	 * @param page
-	 * @return
-	 * @throws Exception
 	 */
-	public void switchToWindow(@NonNull final UrlPage page) throws Exception {
+	public void switchToWindow(@NonNull UrlPage page) throws Exception {
 		switchToWindow(page.toString());
 	}
 
 	/**
 	 * Used for switching control to the other browser window by page name
-	 * @param screen
-	 * @throws Exception
 	 */
 	public void switchToWindow(@NonNull String screen) throws Exception {
 		String windowHandler = waitForPopup(screen);
@@ -2052,7 +1941,6 @@ final public class WebDriverConnector {
 
 	/**
 	 * Used for switching control to the other browser window by its handle.
-	 * @param handle
 	 */
 	public void switchToWindowByHandle(@NonNull String handle) {
 		driver().switchTo().window(handle);
@@ -2061,7 +1949,6 @@ final public class WebDriverConnector {
 	/**
 	 * Used for switching control to a page with string part contained in url.</br>
 	 * Used when you are expecting some parameters in your popup
-	 * @throws Exception
 	 */
 	public void switchToByUrlPart(@NonNull String urlPart) throws Exception {
 		switchToWindowByHandle(waitForWithUrlPart(urlPart));
@@ -2069,11 +1956,10 @@ final public class WebDriverConnector {
 
 	/**
 	 * Get handle from the current window under driver control
-	 * @return
 	 */
 	@NonNull
 	public String getWindowHandle() {
-		final String currentWindowHandle = driver().getWindowHandle();
+		String currentWindowHandle = driver().getWindowHandle();
 		if(currentWindowHandle == null) {
 			throw new NullPointerException("There is no windowHandle for the current page.");
 		}
@@ -2083,14 +1969,11 @@ final public class WebDriverConnector {
 	/**
 	 * Expects new popup with specified body #PAGENAME_PARAMETER attribute</br>
 	 * Returns handle for expected popup.
-	 * @param page
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
-	private String waitForPopup(@NonNull final String page) throws Exception {
+	private String waitForPopup(@NonNull String page) throws Exception {
 		alertAccept();
-		final String currentWindowHandle = driver().getWindowHandle();
+		String currentWindowHandle = driver().getWindowHandle();
 		return timed(getWaitTimeout(), getWaitInterval(), new Action<String>() {
 			@Override
 			@Nullable
@@ -2115,12 +1998,9 @@ final public class WebDriverConnector {
 	 * Expects popup page with string part contained in url.</br>
 	 * Good for searching by parameters
 	 * Return handle for expected page with defined string in url.
-	 * @param urlPart
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
-	private String waitForWithUrlPart(@NonNull final String urlPart) throws Exception {
+	private String waitForWithUrlPart(@NonNull String urlPart) throws Exception {
 		return timed(getWaitTimeout(), getWaitInterval(), new Action<String>() {
 			@Override
 			@Nullable
@@ -2145,29 +2025,28 @@ final public class WebDriverConnector {
 
 	/**
 	 * Force the test to fail with the specified message.
-	 * @param message
 	 */
-	final public static void fail(@NonNull String message) {
+	public static void fail(@NonNull String message) {
 		Assert.fail(message);
 	}
 
-	final public void assertTrue(@NonNull String message, boolean condition) {
+	public void assertTrue(@NonNull String message, boolean condition) {
 		Assert.assertTrue(message, condition);
 	}
 
-	final public void assertTrue(boolean condition) {
+	public void assertTrue(boolean condition) {
 		Assert.assertTrue(condition);
 	}
 
-	final public void assertFalse(@NonNull String message, boolean condition) {
+	public void assertFalse(@NonNull String message, boolean condition) {
 		Assert.assertFalse(message, condition);
 	}
 
-	final public void assertFalse(boolean condition) {
+	public void assertFalse(boolean condition) {
 		Assert.assertFalse(condition);
 	}
 
-	final public void assertEquals(@Nullable Object actual, @Nullable Object expected) {
+	public void assertEquals(@Nullable Object actual, @Nullable Object expected) {
 		Assert.assertEquals(actual, expected);
 	}
 
@@ -2177,8 +2056,6 @@ final public class WebDriverConnector {
 
 	/** Compares two strings, but handles "regexp:" strings like HTML Selenese
 	 *
-	 * @param expectedPattern
-	 * @param actual
 	 * @return true if actual matches the expectedPattern, or false otherwise
 	 */
 	public static boolean seleniumEquals(String expectedPattern, String actual) {
@@ -2295,6 +2172,9 @@ final public class WebDriverConnector {
 	}
 
 	public void verifyTextEquals(@NonNull By locator, @NonNull String text) {
+		assertEquals(getText(locator), text);
+	}
+	public void verifyHtmlTextEquals(@NonNull By locator, @NonNull String text) {
 		assertEquals(getHtmlText(locator), text);
 	}
 
@@ -2307,16 +2187,22 @@ final public class WebDriverConnector {
 	}
 
 	public void verifyTextContains(@NonNull By locator, @NonNull String text) {
+		String html = getText(locator);
+		assertTrue("Locator " + locator + " does not contain " + text + "(value = " + html + ")", html.toLowerCase().contains(text.toLowerCase()));
+	}
+
+	public void verifyHtmlTextContains(@NonNull By locator, @NonNull String text) {
 		String html = getHtmlText(locator);
 		assertTrue("Locator " + locator + " does not contain " + text + "(value = " + html + ")", html.toLowerCase().contains(text.toLowerCase()));
 	}
+
 
 	public void verifyTextStartsWith(@NonNull String testid, @NonNull String text) {
 		verifyTextStartsWith(byId(testid), text);
 	}
 
 	public void verifyTextStartsWith(@NonNull By locator, @NonNull String text) {
-		String html = getHtmlText(locator);
+		String html = getText(locator);
 		assertTrue("Locator " + locator + " text does not start with " + text + " (value=" + html + ")", html.toLowerCase().startsWith(text.toLowerCase()));
 	}
 
@@ -2385,11 +2271,11 @@ final public class WebDriverConnector {
 
 	}
 
-	final public boolean isReadonly(By locator) {
+	public boolean isReadonly(By locator) {
 		return "true".equals(findAttribute(locator, "readonly"));
 	}
 
-	final public boolean isReadonly(String testId) {
+	public boolean isReadonly(String testId) {
 		return isReadonly(byId(testId));
 	}
 }

@@ -6,8 +6,8 @@ import to.etc.domui.webdriver.core.WebDriverConnector;
 import java.util.function.Supplier;
 
 @NonNullByDefault
-public class CpComboFixed2 extends AbstractCpComboComponent implements ICpControl<String> {
-	public CpComboFixed2(WebDriverConnector connector, Supplier<String> selectorProvider) {
+public class CpComboLookup extends AbstractCpComboComponent implements ICpControl<String> {
+	public CpComboLookup(WebDriverConnector connector, Supplier<String> selectorProvider) {
 		super(connector, selectorProvider);
 	}
 }

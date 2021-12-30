@@ -17,6 +17,6 @@ final public class PoSelectorCell implements IPoSelector {
 
 	@Override
 	public String selectorAsCode() {
-		return "() -> this.getCellSelector(" + m_columnIndex + ")";
+		return "() -> this.getCellSelectorCss(" + m_columnIndex + ")";
 	}
 }

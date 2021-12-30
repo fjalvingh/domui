@@ -46,7 +46,7 @@ public class ITBindErrors1  extends AbstractWebDriverTest {
 
 		// And now we must have a "mandatory" error.
 		wd().assertTrue("we must have an error panel", wd().findElement(By.className("ui-emd-error")) != null);
-		String htmlText = wd().getHtmlText(By.className("ui-emd-error"));
+		String htmlText = wd().getText(By.className("ui-emd-error"));
 		System.out.println(" >> " + htmlText);
 		wd().assertTrue("There must be a mandatory error message", htmlText.contains("Mandatory"));
 

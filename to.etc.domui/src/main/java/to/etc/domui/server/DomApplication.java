@@ -174,6 +174,12 @@ public abstract class DomApplication {
 
 	static private final Map<String, IThemeFactory> THEME_FACTORIES = new HashMap<>();
 
+	public static final String HEADER_PREFIX = "header-";
+
+	public static final String HTTPHEADER_PREFIX = "httpheader-";
+
+	public static final String RESOURCEHEADER_PREFIX = "resourceheader-";
+
 	@NonNull
 	private final PartService m_partService = new PartService(this);
 
@@ -819,6 +825,7 @@ public abstract class DomApplication {
 		calculateWebPageExtension(pp);
 		calculateUiTestMode(development);
 		runListenersStartInitialization();
+		configureHeaders(pp);
 		m_pageUrlMapping.scan();
 		try {
 			initialize(pp);
@@ -831,6 +838,39 @@ public abstract class DomApplication {
 
 		//-- One of the FontAwesome implementations must have been registered - FIXME Find a less ugly means
 		checkIconPackInitialization();
+	}
+
+	/**
+	 * Read any default headers from the filter config.
+	 */
+	private void configureHeaders(ConfigParameters pp) {
+		for(String parameterName : pp.getParameterNames()) {
+			String value = pp.getString(parameterName);
+			if(parameterName.startsWith(HEADER_PREFIX)) {
+				String name = parameterName.substring(HEADER_PREFIX.length());
+				if(value == null || value.length() == 0) {
+					addDefaultHTTPHeader(name, null);
+					addDefaultResourceHeader(name, null);
+				} else {
+					addDefaultHTTPHeader(name, value);
+					addDefaultResourceHeader(name, value);
+				}
+			} else if(parameterName.startsWith(HTTPHEADER_PREFIX)) {
+				String name = parameterName.substring(HTTPHEADER_PREFIX.length());
+				if(value == null || value.length() == 0) {
+					addDefaultHTTPHeader(name, null);
+				} else {
+					addDefaultHTTPHeader(name, value);
+				}
+			} else if(parameterName.startsWith(RESOURCEHEADER_PREFIX)) {
+				String name = parameterName.substring(RESOURCEHEADER_PREFIX.length());
+				if(value == null || value.length() == 0) {
+					addDefaultResourceHeader(name, null);
+				} else {
+					addDefaultResourceHeader(name, value);
+				}
+			}
+		}
 	}
 
 	private void checkIconPackInitialization() {
@@ -1037,19 +1077,25 @@ public abstract class DomApplication {
 	/**
 	 * Add a default HTTP header to all responses.
 	 */
-	public void addDefaultHTTPHeader(String headerName, String value) {
+	public void addDefaultHTTPHeader(@NonNull String headerName, @Nullable String value) {
 		Map<String, String> map = m_defaultSiteHeaderMap;
 		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		newMap.putAll(map);
-		newMap.put(headerName, value);
+		if(value == null)
+			newMap.remove(headerName);
+		else
+			newMap.put(headerName, value);
 		m_defaultSiteHeaderMap = Collections.unmodifiableMap(newMap);
 	}
 
-	public void addDefaultResourceHeader(String headerName, String value) {
+	public void addDefaultResourceHeader(@NonNull String headerName, @Nullable String value) {
 		Map<String, String> map = m_defaultSiteResourceHeaderMap;
 		Map<String, String> newMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		newMap.putAll(map);
-		newMap.put(headerName, value);
+		if(value == null)
+			newMap.remove(headerName);
+		else
+			newMap.put(headerName, value);
 		m_defaultSiteResourceHeaderMap = Collections.unmodifiableMap(newMap);
 	}
 

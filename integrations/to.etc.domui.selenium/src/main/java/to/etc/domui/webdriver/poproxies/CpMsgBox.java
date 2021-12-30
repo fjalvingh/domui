@@ -11,6 +11,7 @@ public class CpMsgBox extends AbstractCpComponent {
 		super(connector, selectorProvider);
 	}
 
+	@Override
 	public String getText() {
 		var el = wd().findElement(selector(".ui-mbx-mc"));
 		if(el == null) {

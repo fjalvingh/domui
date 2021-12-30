@@ -4,17 +4,23 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import to.etc.domui.component.buttons.CheckboxButton;
 import to.etc.domui.component.buttons.DefaultButton;
 import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.buttons.SmallImgButton;
+import to.etc.domui.component.input.ComboFixed;
 import to.etc.domui.component.input.ComboLookup;
 import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
 import to.etc.domui.component.misc.DisplaySpan;
+import to.etc.domui.component.searchpanel.lookupcontrols.NumberLookupControl;
 import to.etc.domui.component.tbl.DataTable;
+import to.etc.domui.component2.combo.ComboFixed2;
 import to.etc.domui.component2.combo.ComboLookup2;
 import to.etc.domui.component2.lookupinput.LookupInput2;
+import to.etc.domui.dom.html.Checkbox;
+import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.uitest.pogenerator.PogSimple.AllowEmbedded;
@@ -56,18 +62,32 @@ final public class PoGeneratorRegistry {
 
 	static {
 		register(DefaultButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
-		register(Text.class, (ctx, node) -> new PogSimple(node, "CpText"));
-		register(Text2.class, (ctx, node) -> new PogSimple(node, "CpText2"));
-		register(LookupInput2.class, (ctx, node) -> new PogSimple(node, "CpLookupInput2"));
-		register(LookupInput.class, (ctx, node) -> new PogSimple(node, "CpLookupInput"));
-		register(LinkButton.class, (ctx, node) -> new PogSimple(node, "CpLinkButton"));
-		register(SmallImgButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
+		register(Checkbox.class, (ctx, node) -> new PogSimple(node, "CpCheckbox"));
+		register(CheckboxButton.class, (ctx, node) -> new PogSimple(node, "CpCheckboxButton"));
+
 		register(ComboLookup.class, (ctx, node) -> new PogSimple(node, "CpComboLookup"));
 		register(ComboLookup2.class, (ctx, node) -> new PogSimple(node, "CpComboLookup2"));
+		register(ComboFixed.class, (ctx, node) -> new PogSimple(node, "CpComboFixed"));
+		register(ComboFixed2.class, (ctx, node) -> new PogSimple(node, "CpComboFixed2"));
+
 		register(DisplaySpan.class, (ctx, node) -> new PogSimple(node, "CpDisplaySpan", AllowEmbedded.DisallowEmbedded));
+
+		register(LinkButton.class, (ctx, node) -> new PogSimple(node, "CpLinkButton"));
+		register(LookupInput2.class, (ctx, node) -> new PogSimple(node, "CpLookupInput2"));
+		register(LookupInput.class, (ctx, node) -> new PogSimple(node, "CpLookupInput"));
+
+
+		register(NumberLookupControl.class, (ctx, node) -> new PogSimple(node, "CpNumberLookupControl"));
+
+		register(SmallImgButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
+		register(Text.class, (ctx, node) -> new PogSimple(node, "CpText"));
+		register(Text2.class, (ctx, node) -> new PogSimple(node, "CpText2"));
 		register(TextArea.class, (ctx, node) -> new PogSimple(node, "CpTextArea"));
 
-		register(DataTable.class, (ctx, node) -> new PogDataTable(node));
+		//-- Base HTML components
+		register(Input.class, (ctx, node) -> new PogSimple(node, "CpHtmlInput"));
 
+		//-- Complex
+		register(DataTable.class, (ctx, node) -> new PogDataTable(node));
 	}
 }

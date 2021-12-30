@@ -1,16 +1,14 @@
 package to.etc.domui.webdriver.poproxies;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.openqa.selenium.By;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.util.function.Supplier;
 
 @NonNullByDefault
-public class CpText2 extends AbstractCpInputControl<String> implements ICpControl<String> {
-	public CpText2(WebDriverConnector connector, Supplier<String> selectorProvider) {
+public class CpText extends AbstractCpInputControl<String> implements ICpControl<String> {
+	public CpText(WebDriverConnector connector, Supplier<String> selectorProvider) {
 		super(connector, selectorProvider);
 	}
 
@@ -25,11 +23,5 @@ public class CpText2 extends AbstractCpInputControl<String> implements ICpContro
 	public String getValue() {
 		var elem = wd().getElement(getInputSelector());
 		return wd().getValue(getInputSelector());
-	}
-
-	@Override
-	@NonNull
-	protected By getInputSelector() {
-		return selector("INPUT");
 	}
 }

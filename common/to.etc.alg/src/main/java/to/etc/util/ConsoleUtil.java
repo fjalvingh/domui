@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Created on 30-6-19.
  */
 public class ConsoleUtil {
-	static private final FastDateFormat m_logFmt = FastDateFormat.getInstance("HH:mm:ss.SSS");
+	static private final FastDateFormat m_logFmt = FastDateFormat.getInstance("d/HH:mm:ss.SSS");
 
 	static private int m_logOrder;
 
@@ -140,8 +140,10 @@ public class ConsoleUtil {
 
 	static private synchronized int getLogOrder(Date when) {
 		long cts = when.getTime();
-		if(cts != m_lastLogTS)
+		if(cts != m_lastLogTS) {
 			m_logOrder = 0;
+			m_lastLogTS = cts;
+		}
 		return ++m_logOrder;
 	}
 
