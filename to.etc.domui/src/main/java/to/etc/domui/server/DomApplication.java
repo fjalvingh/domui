@@ -320,6 +320,8 @@ public abstract class DomApplication {
 
 	private volatile Map<String, String> m_defaultSiteResourceHeaderMap = Map.of();
 
+	private boolean m_dieOnUncheckedInjectors;
+
 	/**
 	 * Default handling of leaving the page with unsaved changes.
 	 */
@@ -829,6 +831,12 @@ public abstract class DomApplication {
 		m_pageUrlMapping.scan();
 		try {
 			initialize(pp);
+
+			InjectorRightsChecker injectorRightsChecker = new InjectorRightsChecker(this);
+			injectorRightsChecker.scan();
+			if(m_dieOnUncheckedInjectors && injectorRightsChecker.getErrorCount() > 0)
+				throw new IllegalStateException("There are injected class types not checked by an injector access checker");
+
 		} finally {
 			closeClasspathScanResult();
 		}
@@ -838,6 +846,14 @@ public abstract class DomApplication {
 
 		//-- One of the FontAwesome implementations must have been registered - FIXME Find a less ugly means
 		checkIconPackInitialization();
+	}
+
+	/**
+	 * When called this causes the application initialization to fail
+	 * if we discover unsafe/unchecked data injections done.
+	 */
+	public void setDieOnUncheckedInjectors() {
+		m_dieOnUncheckedInjectors = true;
 	}
 
 	/**

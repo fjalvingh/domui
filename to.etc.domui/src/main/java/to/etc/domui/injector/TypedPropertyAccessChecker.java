@@ -1,5 +1,6 @@
 package to.etc.domui.injector;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.AbstractPage;
 import to.etc.util.PropertyInfo;
@@ -42,6 +43,12 @@ public class TypedPropertyAccessChecker implements IInjectedPropertyAccessChecke
 		checkAccessInternal(info, page, value);
 	}
 
+	@Override
+	public boolean checks(Class<?> parameterType) {
+		ITypedValueAccessChecker<T> checker = findClassChecker(parameterType);
+		return checker != null;
+	}
+
 	private <T> void checkAccessInternal(PropertyInfo info, AbstractPage page, @Nullable Object value) throws Exception {
 		if(null == value)
 			return;
@@ -51,13 +58,14 @@ public class TypedPropertyAccessChecker implements IInjectedPropertyAccessChecke
 			checker.checkAccessAllowed(info, page, (T) value);
 			return;
 		}
+
 		//Checks if any of registered access checkers can grant the access. If none can grant it, we abort with first access check exception that was delivered by checkers.
 		AccessCheckException firstException = null;
 		for(ITypedValueAccessChecker<Object> any : m_anyCheckerList) {
-			try{
+			try {
 				any.checkAccessAllowed(info, page, value);
 				return;
-			}catch (AccessCheckException x) {
+			} catch(AccessCheckException x) {
 				if(null == firstException) {
 					firstException = x;
 				}
@@ -72,7 +80,7 @@ public class TypedPropertyAccessChecker implements IInjectedPropertyAccessChecke
 	private <T> ITypedValueAccessChecker<T> findClassChecker(Class<?> clz) {
 		Map<Class<?>, ITypedValueAccessChecker<?>> map = getCheckerMap();
 		Class<?> curr = clz;
-		for(;;) {
+		for(; ; ) {
 			if(curr == Object.class || curr == null)
 				return null;
 			ITypedValueAccessChecker<?> checker = map.get(curr);
