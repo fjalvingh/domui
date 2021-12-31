@@ -34,10 +34,12 @@ import to.etc.domui.component2.lookupinput.LookupInput2;
  * Creates a {@link to.etc.domui.component2.lookupinput.LookupInput2} which allows lookup of the
  * related data record.
  */
-final class RelationLookupFactory2<T> implements ILookupFactory<T> {
-	@NonNull @Override public FactoryPair<T> createControl(@NonNull SearchPropertyMetaModel spm) {
+final class RelationLookupFactory2<Q, D> implements ILookupFactory<Q, D> {
+	@NonNull
+	@Override
+	public FactoryPair<Q, D> createControl(@NonNull SearchPropertyMetaModel spm) {
 		PropertyMetaModel<?> pmm = spm.getProperty();
-		LookupInput2<T> control = new LookupInput2<T>((Class<T>) pmm.getActualType()); // Create a lookup thing for this one
+		LookupInput2<D> control = new LookupInput2<D>((Class<D>) pmm.getActualType()); // Create a lookup thing for this one
 		String hint = MetaUtils.findHintText(spm);
 		if(null != hint)
 			control.setHint(hint);

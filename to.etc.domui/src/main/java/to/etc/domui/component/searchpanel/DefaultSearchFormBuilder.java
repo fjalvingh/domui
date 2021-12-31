@@ -20,7 +20,8 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 
 	private Div m_target;
 
-	@Override public void setTarget(NodeContainer target) throws Exception {
+	@Override
+	public void setTarget(NodeContainer target) throws Exception {
 		Div root = m_target = new Div("ui-dfsb-panel");
 		target.add(root);
 		Div d = new Div("ui-dfsb-part");
@@ -28,7 +29,8 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 		m_builder = new FormBuilder(d);
 	}
 
-	@Override public void append(SearchControlLine<?> it) throws Exception {
+	@Override
+	public void append(SearchControlLine<?, ?> it) throws Exception {
 		NodeContainer label = it.getLabel();
 		IControl<?> control = it.getControl();
 		fb().label(label).item((NodeBase) control);
@@ -42,7 +44,8 @@ public class DefaultSearchFormBuilder implements ISearchFormBuilder {
 		m_builder = new FormBuilder(d);
 	}
 
-	@Override public void finish() throws Exception {
+	@Override
+	public void finish() throws Exception {
 		m_builder = null;
 	}
 

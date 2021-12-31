@@ -50,6 +50,8 @@ public enum Msgs implements IBundleCode {
 	btnDeleteYesNo,
 	btnAdd,
 	btnEdit,
+	btnSave,
+	btnCancel,
 
 	vInvalidRegex,
 	vInvalidEmail,

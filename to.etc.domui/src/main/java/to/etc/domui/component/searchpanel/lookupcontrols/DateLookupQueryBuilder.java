@@ -11,14 +11,15 @@ import java.util.Date;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 3-12-17.
  */
-public class DateLookupQueryBuilder implements ILookupQueryBuilder<DatePeriod> {
+public class DateLookupQueryBuilder<T> implements ILookupQueryBuilder<T, DatePeriod> {
 	private final String m_propertyName;
 
 	public DateLookupQueryBuilder(String propertyName) {
 		m_propertyName = propertyName;
 	}
 
-	@Override public <T> LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, DatePeriod lookupValue) {
+	@Override
+	public LookupQueryBuilderResult appendCriteria(QCriteria<T> criteria, DatePeriod lookupValue) {
 		if(null == lookupValue)
 			return LookupQueryBuilderResult.EMPTY;
 

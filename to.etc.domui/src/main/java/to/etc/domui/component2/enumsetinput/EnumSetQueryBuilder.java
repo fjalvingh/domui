@@ -13,17 +13,19 @@ import java.util.Set;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 4-2-18.
  */
-public class EnumSetQueryBuilder<V> implements ILookupQueryBuilder<Set<V>> {
+public class EnumSetQueryBuilder<Q, V> implements ILookupQueryBuilder<Q, Set<V>> {
 	private final String m_propertyName;
 
 	public EnumSetQueryBuilder(String propertyName) {
 		m_propertyName = propertyName;
 	}
 
-	@NonNull @Override public <T> LookupQueryBuilderResult appendCriteria(@NonNull QCriteria<T> criteria, @Nullable Set<V> lookupValue) {
+	@NonNull
+	@Override
+	public LookupQueryBuilderResult appendCriteria(@NonNull QCriteria<Q> criteria, @Nullable Set<V> lookupValue) {
 		if(lookupValue == null || lookupValue.isEmpty())
 			return LookupQueryBuilderResult.EMPTY;
-		QRestrictorImpl<T> or = criteria.or();
+		QRestrictorImpl<Q> or = criteria.or();
 		lookupValue.forEach(value -> or.eq(m_propertyName, value));
 		return LookupQueryBuilderResult.VALID;
 	}

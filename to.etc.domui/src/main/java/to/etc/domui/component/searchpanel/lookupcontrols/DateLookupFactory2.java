@@ -30,8 +30,9 @@ import to.etc.domui.component.meta.SearchPropertyMetaModel;
 import to.etc.domui.component.meta.TemporalPresentationType;
 import to.etc.domui.util.DomUtil;
 
-final class DateLookupFactory2 implements ILookupFactory<DatePeriod> {
-	@Override public FactoryPair<DatePeriod> createControl(@NonNull SearchPropertyMetaModel spm) {
+final class DateLookupFactory2<Q> implements ILookupFactory<Q, DatePeriod> {
+	@Override
+	public FactoryPair<Q, DatePeriod> createControl(@NonNull SearchPropertyMetaModel spm) {
 		//get temporal type from metadata and set withTime later to date inout components
 		PropertyMetaModel<?> pmm = spm.getProperty();
 
@@ -46,6 +47,6 @@ final class DateLookupFactory2 implements ILookupFactory<DatePeriod> {
 		}
 		DateLookupControl control = new DateLookupControl();
 		control.setWithTime(withTime);
-		return new FactoryPair<>(new DateLookupQueryBuilder(pmm.getName()), control);
+		return new FactoryPair<>(new DateLookupQueryBuilder<>(pmm.getName()), control);
 	}
 }
