@@ -61,7 +61,7 @@ namespace WebUI {
 				//-- Node gone - remove input
 				list.splice(i, 1);
 			} else {
-				let data = item.control.getInputField();
+				let data = item.control.getInputField(fields);
 				fields[item.id] = data;
 			}
 		}

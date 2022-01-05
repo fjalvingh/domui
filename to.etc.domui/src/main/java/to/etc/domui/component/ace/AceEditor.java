@@ -20,7 +20,7 @@ import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 
-import java.awt.*;
+import java.awt.Point;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,7 +41,7 @@ import java.util.function.Predicate;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 23-12-17.
  */
-public class AceEditor extends Div implements IControl<String>, IComponentJsonProvider, IHasModifiedIndication, IManualFocus {
+public class AceEditor extends Div implements IControl<String>, IHasModifiedIndication, IManualFocus {
 	//static private String m_version = "1.2.9";
 	static private String m_version = "1.4.13";
 
@@ -49,6 +49,9 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	@Nullable
 	private String m_value;
+
+	@Nullable
+	private String m_selectedText;
 
 	@Nullable
 	private String m_theme;
@@ -78,12 +81,23 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	private boolean m_completerDefined;
 
-	private Div m_editDiv = new Div("ui-acedit-e") {
+	private Div m_editDiv = new RealEditor("ui-acedit-e");
+
+	private final class RealEditor extends Div implements IComponentJsonProvider {
+		public RealEditor(String css) {
+			super(css);
+		}
+
 		@Override
-		public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
+		public boolean acceptRequestParameter(@NonNull String[] values, @NonNull IPageParameters allParameters) throws Exception {
 			if(values.length != 1)
 				throw new IllegalStateException("? Expecting but one value?");
 			String value = values[0];
+			String selected = allParameters.getString(getActualID() + "_s", null);
+			if(selected != null && selected.isEmpty())
+				selected = null;
+			m_selectedText = selected;
+
 			if(Objects.equals(m_value, value))
 				return false;
 
@@ -91,7 +105,29 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 			DomUtil.setModifiedFlag(this);
 			return true;
 		}
-	};
+
+		@Override
+		public Object provideJsonData(IPageParameters parameterSource) throws Exception {
+			int col = parameterSource.getInt(getEditorId() + "_col");
+			int row = parameterSource.getInt(getEditorId() + "_row");
+			String prefix = parameterSource.getString(getEditorId() + "_prefix");
+			ICompletionHandler ch = getCompletionHandler();
+			String value = m_value;
+			if(ch == null || prefix == null || value == null) {
+				return Collections.emptyList();
+			}
+
+			//-- Do we need to change the prefix?
+			Predicate<Character> prefixValidator = m_prefixValidator;
+			if(null != prefixValidator) {
+				String dotted = getDottedPrefix(row, col, prefixValidator);
+				if(null != dotted)
+					prefix = dotted;
+
+			}
+			return ch.getCompletions(value, row, col, prefix);
+		}
+	}
 
 	private Div m_barDiv = new Div("ui-acedit-b");
 
@@ -133,7 +169,9 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 		sb.append("ed.__id='").append(editorId).append("';\n");
 		sb.append("var Range = require('ace/range').Range;\n");
 		sb.append("window['").append(editorId).append("'] = ed;\n");
-		sb.append("WebUI.registerInputControl('").append(editorId).append("', {getInputField: function() {");
+		sb.append("WebUI.registerInputControl('").append(editorId).append("', {getInputField: function(fields) {");
+		sb.append(" let select = ed.getSelectedText();\n");
+		sb.append(" fields['").append(editorId).append("_s'] = select;\n");
 		sb.append(" return ed.getValue();\n");
 		sb.append("}");
 
@@ -201,28 +239,6 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	}
 
 	@Override
-	public Object provideJsonData(IPageParameters parameterSource) throws Exception {
-		int col = parameterSource.getInt(getEditorId() + "_col");
-		int row = parameterSource.getInt(getEditorId() + "_row");
-		String prefix = parameterSource.getString(getEditorId() + "_prefix");
-		ICompletionHandler ch = getCompletionHandler();
-		String value = m_value;
-		if(ch == null || prefix == null || value == null) {
-			return Collections.emptyList();
-		}
-
-		//-- Do we need to change the prefix?
-		Predicate<Character> prefixValidator = m_prefixValidator;
-		if(null != prefixValidator) {
-			String dotted = getDottedPrefix(row, col, prefixValidator);
-			if(null != dotted)
-				prefix = dotted;
-
-		}
-		return ch.getCompletions(value, row, col, prefix);
-	}
-
-	@Override
 	public void renderJavascriptState(StringBuilder sb) throws Exception {
 		updateTheme();
 		updateMode();
@@ -242,6 +258,11 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 	@Nullable
 	public String getValue() {
 		return m_value;
+	}
+
+	@Nullable
+	public String getSelectedText() {
+		return m_selectedText;
 	}
 
 	@Override
