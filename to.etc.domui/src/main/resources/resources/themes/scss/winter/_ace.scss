@@ -3,3 +3,19 @@
 	border-bottom: solid 2px red;
 	z-index: 2;
 }
+
+.ui-acedit {
+	border-bottom: 1px solid #000088;
+	.ace_editor {
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.ui-acedit-b {
+	background-color: #222222;
+	width: 100%;
+	height: 2px;
+	cursor: row-resize;
+	opacity: 1;
+}

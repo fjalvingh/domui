@@ -95,6 +95,16 @@ namespace WebUI {
 		}
 	}
 
+	export function propagateResize() {
+		let list = _inputFieldList;
+		for(let i = list.length; --i >= 0;) {
+			let item = list[i];
+			if(item.control.onResize) {
+				item.control.onResize();
+			}
+		}
+	}
+
 	export function findInputControl(id) {
 		//-- return registered component by id, if not found returns null
 		let list = _inputFieldList;
