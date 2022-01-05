@@ -138,6 +138,10 @@ namespace WebUI {
 	let _debugMouseTarget: HTMLElement;
 
 	export function handleDevelopmentMode(): void {
+		// $(document).bind("keypress", function(e) {
+		// 	console.log("keypress", e);
+		// });
+
 		$(document).bind("keydown", function (e) {
 			if (e.keyCode != 192 && e.keyCode != 106)
 				return;
