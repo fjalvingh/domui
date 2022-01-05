@@ -78,7 +78,20 @@ public class AceEditor extends Div implements IControl<String>, IComponentJsonPr
 
 	private boolean m_completerDefined;
 
-	private Div m_editDiv = new Div("ui-acedit-e");
+	private Div m_editDiv = new Div("ui-acedit-e") {
+		@Override
+		public boolean acceptRequestParameter(@NonNull String[] values) throws Exception {
+			if(values.length != 1)
+				throw new IllegalStateException("? Expecting but one value?");
+			String value = values[0];
+			if(Objects.equals(m_value, value))
+				return false;
+
+			m_value = value;
+			DomUtil.setModifiedFlag(this);
+			return true;
+		}
+	};
 
 	private Div m_barDiv = new Div("ui-acedit-b");
 
