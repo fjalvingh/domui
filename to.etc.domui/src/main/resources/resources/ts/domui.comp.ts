@@ -522,7 +522,6 @@ namespace WebUI {
 			}
 			WebUI.scall(id, "LOADMORE", {});
 		});
-
 	}
 
 	export function plotlyComponent(id: string) {
@@ -534,6 +533,77 @@ namespace WebUI {
 			if(data != null && layout != null) {
 				let config = {responsive: true};
 				Plotly.newPlot(id, data, layout, config);
+			}
+		});
+	}
+
+	export function aceMakeResizable(id_editor: string, id_bar: string) {
+		let editor = window[id_editor];
+		if(editor == null)
+			return;
+
+		let draggingAceEditor = window['draggingAceEditor'];
+		if(null == draggingAceEditor) {
+			draggingAceEditor = {};
+			window['draggingAceEditor'] = draggingAceEditor;
+		}
+		let id_dragbar = '#' + id_bar;
+		// let id_wrapper = '#' + id_editor + '_wrapper';
+		let wpoffset = 0;
+		draggingAceEditor[id_editor] = false;
+
+		$(id_dragbar).mousedown(function(e) {
+			e.preventDefault();
+
+			draggingAceEditor[id_editor] = true;
+
+			let _editor = $('#' + id_editor);
+			let top_offset = _editor.offset().top - wpoffset;
+
+			// Set editor opacity to 0 to make transparent so our wrapper div shows
+			_editor.css('opacity', 0);
+
+			// handle mouse movement
+			$(document).mousemove(function(e){
+				let actualY = e.pageY - wpoffset;
+				// editor height
+				let eheight = actualY - top_offset;
+
+				// Set wrapper height
+				_editor.parent().css('height', eheight);
+
+				// Set dragbar opacity while dragging (set to 0 to not show)
+				$(id_dragbar).css('opacity', 0.15);
+			});
+		});
+
+		$(document).mouseup(function(e){
+			let draggingAceEditor = window['draggingAceEditor'];
+			if(null == draggingAceEditor) {
+				draggingAceEditor = {};
+				window['draggingAceEditor'] = draggingAceEditor;
+			}
+
+			if(draggingAceEditor[id_editor]) {
+				let ctx_editor = $('#' + id_editor);
+
+				let actualY = e.pageY - wpoffset;
+				let top_offset = ctx_editor.offset().top - wpoffset;
+				let eheight = actualY - top_offset;
+
+				$( document ).unbind('mousemove');
+
+				// Set dragbar opacity back to 1
+				$(id_dragbar).css('opacity', 1);
+
+				// Set height on actual editor element, and opacity back to 1
+				ctx_editor.css('height', eheight).css('opacity', 1);
+				ctx_editor.parent().css("height", eheight);
+
+				// Trigger ace editor resize()
+				editor.resize();
+
+				draggingAceEditor[id_editor] = false;
 			}
 		});
 	}

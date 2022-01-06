@@ -138,6 +138,10 @@ namespace WebUI {
 	let _debugMouseTarget: HTMLElement;
 
 	export function handleDevelopmentMode(): void {
+		// $(document).bind("keypress", function(e) {
+		// 	console.log("keypress", e);
+		// });
+
 		$(document).bind("keydown", function (e) {
 			let action = '';
 			// console.log("key: shiftKey=" + e.shiftKey + " ctrl=" + e.ctrlKey + " alt=" + e.altKey + " key=" + e.key);

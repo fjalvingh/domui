@@ -19,6 +19,9 @@ $(window).bind('beforeunload', function() {
 	WebUI.beforeUnload();
 	return undefined;
 });
+$(window).resize(function() {
+	WebUI.propagateResize();
+});
 
 //-- Embedded $.browser support - doing feature detection is fine except in the presence of specific browser bugs.
 

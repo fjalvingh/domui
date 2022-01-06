@@ -61,7 +61,7 @@ namespace WebUI {
 				//-- Node gone - remove input
 				list.splice(i, 1);
 			} else {
-				let data = item.control.getInputField();
+				let data = item.control.getInputField(fields);
 				fields[item.id] = data;
 			}
 		}
@@ -91,6 +91,16 @@ namespace WebUI {
 			let item = list[i];
 			if(item.control.onVisibilityChanged) {
 				item.control.onVisibilityChanged();
+			}
+		}
+	}
+
+	export function propagateResize() {
+		let list = _inputFieldList;
+		for(let i = list.length; --i >= 0;) {
+			let item = list[i];
+			if(item.control.onResize) {
+				item.control.onResize();
 			}
 		}
 	}
