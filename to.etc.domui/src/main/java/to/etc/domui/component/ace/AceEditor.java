@@ -7,6 +7,7 @@ import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IControl;
+import to.etc.domui.dom.html.IHasChangeListener;
 import to.etc.domui.dom.html.IHasModifiedIndication;
 import to.etc.domui.dom.html.IManualFocus;
 import to.etc.domui.dom.html.IValueChanged;
@@ -83,7 +84,7 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 
 	private Div m_editDiv = new RealEditor("ui-acedit-e");
 
-	private final class RealEditor extends Div implements IComponentJsonProvider {
+	private final class RealEditor extends Div implements IComponentJsonProvider, IHasChangeListener {
 		public RealEditor(String css) {
 			super(css);
 		}
@@ -104,6 +105,16 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 			m_value = value;
 			DomUtil.setModifiedFlag(this);
 			return true;
+		}
+
+		@Override
+		public IValueChanged<?> getOnValueChanged() {
+			return m_valueChanged;
+		}
+
+		@Override
+		public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+			m_valueChanged = onValueChanged;
 		}
 
 		@Override
