@@ -531,6 +531,12 @@
 				<version>4.1.0</version>
 			</dependency>
 
+			<dependency>
+				<groupId>com.ibm.icu</groupId>
+				<artifactId>icu4j</artifactId>
+				<version>68.2</version>
+			</dependency>
+
 			<!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
 			<dependency>
 				<groupId>org.apache.poi</groupId>
@@ -540,6 +546,10 @@
 					<exclusion>
 						<groupId>stax</groupId>
 						<artifactId>stax-api</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.apache.commons</groupId>
+						<artifactId>commons-compress</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
@@ -554,12 +564,25 @@
 						<artifactId>poi-ooxml-schemas</artifactId>
 					</exclusion>
 					<exclusion>
+						<groupId>org.apache.poi</groupId>
+						<artifactId>poi-ooxml</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.apache.poi</groupId>
+						<artifactId>poi</artifactId>
+					</exclusion>
+
+					<exclusion>
 						<groupId>xml-apis</groupId>
 						<artifactId>xml-apis</artifactId>
 					</exclusion>
 					<exclusion>
 						<groupId>xml-apis</groupId>
 						<artifactId>xml-apis-ext</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.ibm.icu</groupId>
+						<artifactId>icu4j</artifactId>
 					</exclusion>
 				</exclusions>
 			</dependency>
