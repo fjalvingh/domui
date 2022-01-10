@@ -33,11 +33,14 @@ public class OopsFrameRenderer {
 	@Nullable
 	private JSTemplate m_exceptionTemplate;
 
-	public void renderOopsFrame(RequestContextImpl ctx, Throwable x) throws Exception {
+	private boolean m_testMode;
+
+	public void renderOopsFrame(RequestContextImpl ctx, Throwable x, boolean testMode) throws Exception {
+		m_testMode = testMode;
 		if(ctx.getRequestResponse() instanceof HttpServerRequestResponse) {
 			HttpServerRequestResponse srr = (HttpServerRequestResponse) ctx.getRequestResponse();
 			HttpServletResponse resp = srr.getResponse();
-			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);				// Fail with proper response code.
+			resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);                // Fail with proper response code.
 		}
 		DomApplication.get().getDefaultHTTPHeaderMap().forEach((header, value) -> ctx.getRequestResponse().addHeader(header, value));
 
@@ -72,7 +75,7 @@ public class OopsFrameRenderer {
 		w.close();
 	}
 
-	static private void dumpException(@NonNull StringBuilder a, @NonNull Throwable x) {
+	private void dumpException(@NonNull StringBuilder a, @NonNull Throwable x) {
 		Set<String> allset = new HashSet<>();
 		StackTraceElement[] ssear = x.getStackTrace();
 		for(StackTraceElement sse : ssear) {
@@ -82,7 +85,7 @@ public class OopsFrameRenderer {
 		dumpSingle(a, x, Collections.EMPTY_SET);
 
 		Throwable curr = x;
-		for(;;) {
+		for(; ; ) {
 			Throwable cause = curr.getCause();
 			if(cause == null || cause == curr)
 				break;
@@ -93,7 +96,7 @@ public class OopsFrameRenderer {
 		}
 	}
 
-	static private void dumpSingle(@NonNull StringBuilder sb, @NonNull Throwable x, @NonNull Set<String> initset) {
+	private void dumpSingle(@NonNull StringBuilder sb, @NonNull Throwable x, @NonNull Set<String> initset) {
 		//-- Try to render openable stack trace elements as links.
 		List<StackTraceElement> list = Arrays.asList(x.getStackTrace());
 
@@ -104,7 +107,7 @@ public class OopsFrameRenderer {
 		}
 
 		//-- Remove from the end all names in initset.
-		for(int i = list.size(); --i >= 0;) {
+		for(int i = list.size(); --i >= 0; ) {
 			String str = list.get(i).toString();
 			if(!initset.contains(str))
 				break;
@@ -125,9 +128,8 @@ public class OopsFrameRenderer {
 		}
 	}
 
-
 	private static int findName(@NonNull List<StackTraceElement> list, String name) {
-		for(int i = list.size(); --i >= 0;) {
+		for(int i = list.size(); --i >= 0; ) {
 			String cn = list.get(i).getClassName();
 			if(name.equals(cn))
 				return i;
@@ -135,12 +137,16 @@ public class OopsFrameRenderer {
 		return -1;
 	}
 
-	private static List<StackTraceElement> stripFrames(@NonNull List<StackTraceElement> list, int from) {
+	private List<StackTraceElement> stripFrames(@NonNull List<StackTraceElement> list, int from) {
 		return list.subList(0, from - 1);
 	}
 
-	private static void appendTraceLink(@NonNull StringBuilder sb, @NonNull StackTraceElement ste) {
-		sb.append("        <a class='exc-stk-l' href=\"#\" onclick=\"linkClicked('");
+	private void appendTraceLink(@NonNull StringBuilder sb, @NonNull StackTraceElement ste) {
+		if(m_testMode) {
+			sb.append("        <a class='exc-stk-l' href=\"#\" onclick=\"linkClicked('");
+		} else {
+			sb.append("        <label class='exc-stk-l'");
+		}
 		//-- Get name for the thingy,
 		String name;
 		if(ste.getLineNumber() <= 0)
@@ -148,18 +154,26 @@ public class OopsFrameRenderer {
 		else
 			name = ste.getClassName().replace('.', '/') + ".java#" + ste.getLineNumber();
 		sb.append(StringTool.htmlStringize(name));
-		sb.append("')\">");
-		sb.append(ste.toString()).append("</a><br>");
+		if(m_testMode) {
+			sb.append("')\">");
+			sb.append(ste).append("</a><br>");
+		} else {
+			sb.append("\">");
+			sb.append(ste).append("</label><br>");
+		}
+
 	}
-
-
 
 	@NonNull
 	public JSTemplate getExceptionTemplate() throws Exception {
 		JSTemplate xt = m_exceptionTemplate;
+		String templateName = "exceptionTemplate.html";
+		if(!m_testMode) {
+			templateName = "exceptionPrdTemplate.html";
+		}
 		if(xt == null) {
 			JSTemplateCompiler jtc = new JSTemplateCompiler();
-			File src = new File(getClass().getResource("exceptionTemplate.html").getFile());
+			File src = new File(getClass().getResource(templateName).getFile());
 			if(src.exists() && src.isFile()) {
 				Reader r = new FileReader(src);
 				try {
@@ -168,7 +182,7 @@ public class OopsFrameRenderer {
 					FileTool.closeAll(r);
 				}
 			} else {
-				xt = jtc.compile(ApplicationRequestHandler.class, "exceptionTemplate.html", "utf-8");
+				xt = jtc.compile(ApplicationRequestHandler.class, templateName, "utf-8");
 			}
 			m_exceptionTemplate = xt;
 		}

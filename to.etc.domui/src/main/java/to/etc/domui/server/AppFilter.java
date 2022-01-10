@@ -73,6 +73,8 @@ public class AppFilter implements Filter {
 
 	static private String m_appContext;
 
+	static private boolean m_testMode;
+
 	@Nullable
 	static private IRequestResponseWrapper m_ioWrapper;
 
@@ -88,6 +90,10 @@ public class AppFilter implements Filter {
 
 	static public synchronized void setIoWrapper(@NonNull IRequestResponseWrapper ww) {
 		m_ioWrapper = ww;
+	}
+
+	public static boolean isTestMode() {
+		return m_testMode;
 	}
 
 	@Override
@@ -109,7 +115,7 @@ public class AppFilter implements Filter {
 		String path = null;
 		try {
 			HttpServletRequest rq = (HttpServletRequest) req;
-			path = rq.getRequestURI();			// getPathInfo() always returns null - what an idiots.
+			path = rq.getRequestURI();            // getPathInfo() always returns null - what an idiots.
 			logRequired = isLogRequired(path);
 			if(logRequired) {
 				LOG.error("ENTERED " + rq.getPathInfo());
@@ -243,15 +249,18 @@ public class AppFilter implements Filter {
 
 			//-- Are we running in development mode?
 			String domUiReload = DeveloperOptions.getString("domui.reload");
-			String autoload = domUiReload != null ? domUiReload : m_config.getString("auto-reload"); 			// Allow override of web.xml values.
+			String autoload = domUiReload != null ? domUiReload : m_config.getString("auto-reload");            // Allow override of web.xml values.
 
 			//these patterns will be only watched not really reloaded. It makes sure the reloader kicks in. Found bundles and MetaData will be reloaded only.
 			String autoloadWatchOnly = m_config.getString("auto-reload-watch-only");
 
-			if(DeveloperOptions.isDeveloperWorkstation() && DeveloperOptions.getBool("domui.developer", true) && autoload != null && autoload.trim().length() > 0)
+			if(DeveloperOptions.isDeveloperWorkstation() && DeveloperOptions.getBool("domui.developer", true) && autoload != null && autoload.trim().length() > 0) {
 				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload, autoloadWatchOnly);
-			else
+				m_testMode = true;
+			} else {
 				m_contextMaker = new NormalContextMaker(m_applicationClassName, m_config);
+				m_testMode = false;
+			}
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
 			throw x;
