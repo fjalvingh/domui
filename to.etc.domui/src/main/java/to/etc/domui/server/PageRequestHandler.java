@@ -953,7 +953,7 @@ final public class PageRequestHandler {
 			return;
 		}
 
-		Writer w = m_ctx.getOutputWriter("application/javascript", "utf-8");
+		Writer w = m_ctx.getOutputWriter("application/json", "utf-8");
 		if(value instanceof String) {
 			//-- String return: we'll assume this is a javascript response by itself.
 			w.write((String) value);
