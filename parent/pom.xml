@@ -559,6 +559,11 @@
 				<artifactId>xlsx-streamer</artifactId>
 				<version>2.1.0</version>
 				<exclusions>
+					<!-- Important: remove xerces as its SAX parser does not obey the characters() contract: it gets called with partial char data -->
+					<exclusion>
+						<groupId>com.rackspace.apache</groupId>
+						<artifactId>xerces2-xsd11</artifactId>
+					</exclusion>
 					<exclusion>
 						<groupId>org.apache.poi</groupId>
 						<artifactId>poi-ooxml-schemas</artifactId>
