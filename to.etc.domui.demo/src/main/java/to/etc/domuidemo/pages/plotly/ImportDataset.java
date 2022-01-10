@@ -47,7 +47,6 @@ public class ImportDataset implements Iterable<IImportRow> {
 			case "xls":
 			case "xlsx":
 				rr = new ExcelRowReader(is, ExcelFormat.byExtension(type));
-
 				break;
 		}
 		rr.setHasHeaderRow(true);

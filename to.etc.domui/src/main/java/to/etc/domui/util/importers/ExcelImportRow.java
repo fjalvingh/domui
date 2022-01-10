@@ -22,13 +22,13 @@ import java.util.List;
 public class ExcelImportRow implements IImportRow {
 	private static final Logger LOG = LoggerFactory.getLogger(ExcelImportRow.class);
 
-	final private ExcelRowReader m_rr;
+	final private IExcelRowReader m_rr;
 
 	final private Row m_row;
 
 	private final List<String> m_headerNames;
 
-	public ExcelImportRow(ExcelRowReader rr, Row row, List<String> headerNames) {
+	public ExcelImportRow(IExcelRowReader rr, Row row, List<String> headerNames) {
 		m_rr = rr;
 		if(null == row)
 			throw new IllegalStateException();

@@ -1,10 +1,9 @@
 package to.etc.domui.util.importers;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import com.monitorjbl.xlsx.StreamingReader;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.util.exporters.ExcelFormat;
@@ -30,10 +29,12 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * This reads Excel rows in streaming mode (XSLX only).
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- * Created on 31-10-17.
+ * Created on 10-01-22.
  */
-public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImportRow>, IExcelRowReader {
+public class ExcelStreamingRowReader implements IRowReader, AutoCloseable, Iterable<IImportRow>, IExcelRowReader {
 	private final ExcelFormat m_format;
 
 	private final Workbook m_workbook;
@@ -44,9 +45,16 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 
 	private Sheet m_currentSheet;
 
+	/** Zero-based row */
+	private int m_currentSheetRow;
+
+	private Iterator<Row> m_currentSheetIterator;
+
 	private long m_progressIndicator;
 
 	private int m_headerRowCount;
+
+	private List<ExcelImportRow> m_headerRows = new ArrayList<>();
 
 	private final NumberFormat m_doubleFormatter;
 
@@ -62,17 +70,23 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	@Nullable
 	private DateFormat m_forceStringDateFormat;
 
-	public ExcelRowReader(File file) throws Exception {
+	public ExcelStreamingRowReader(File file) throws Exception {
 		String suffix = FileTool.getFileExtension(file.getName());
 		ExcelFormat format = ExcelFormat.byExtension(suffix);
 		if(null == format)
 			throw new IOException("Excel format for file extension '" + suffix + "' is not found");
+		if(format != ExcelFormat.XLSX)
+			throw new IOException("Only XSLX supported for streaming imports");
 
 		InputStream is = new FileInputStream(file);
 		try {
 			m_inputStream = is;
 			m_format = format;
-			m_workbook = openWorkbook();
+
+			m_workbook = StreamingReader.builder()
+				.rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
+				.bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
+				.open(is);
 			DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(Locale.US);
 			m_doubleFormatter = new DecimalFormat("#.#####", dfs);
 			is = null;
@@ -81,10 +95,13 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		}
 	}
 
-	public ExcelRowReader(InputStream is, ExcelFormat format) throws Exception {
+	public ExcelStreamingRowReader(InputStream is, ExcelFormat format) throws Exception {
 		m_inputStream = is;
 		m_format = format;
-		m_workbook = openWorkbook();
+		m_workbook = StreamingReader.builder()
+			.rowCacheSize(100)    // number of rows to keep in memory (defaults to 10)
+			.bufferSize(4096)     // buffer size to use when reading InputStream to file (defaults to 1024)
+			.open(is);
 		DecimalFormatSymbols dfs = DecimalFormatSymbols.getInstance(Locale.US);
 		m_doubleFormatter = new DecimalFormat("#.#####", dfs);
 	}
@@ -94,7 +111,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	 * if Excel has the idea the field was a date. This means that a call to getString()
 	 * might return something that looks different in the Excel file itself!
 	 */
-	public ExcelRowReader forceStringDateFormat(String dateFormat) {
+	public ExcelStreamingRowReader forceStringDateFormat(String dateFormat) {
 		m_forceStringDateFormat = new SimpleDateFormat(dateFormat);
 		return this;
 	}
@@ -102,21 +119,6 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	@Override
 	public void setDateFormat(String dateFormat) {
 		m_defaultDateFormat = new SimpleDateFormat(dateFormat);
-	}
-
-	@Override
-	public DateFormat getDateFormat(String dateFormat) {
-		return m_dateFormatMap.computeIfAbsent(dateFormat, a -> {
-			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
-			sdf.setLenient(false);
-			return sdf;
-		});
-	}
-
-	@Nullable
-	@Override
-	public DateFormat getForceStringDateFormat() {
-		return m_forceStringDateFormat;
 	}
 
 	@Override
@@ -134,36 +136,41 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 	@Override
 	public Iterator<IImportRow> iterator() {
 		checkStart();
-		Sheet sheet = getSheet();
 		try {
-			return new RowIterator(sheet, sheet.getFirstRowNum() + m_headerRowCount, getCurrentHeaderNames());
+			return new RowIterator(getSheet(), m_currentSheetIterator, getCurrentHeaderNames());
 		} catch(IOException ix) {
 			throw WrappedException.wrap(ix);                // morons
 		}
 	}
 
+	/**
+	 * Reads the n header rows, if present. Leaves the current sheet at the 1st data row.
+	 */
+	private void readHeaderRows() {
+		while(m_currentSheetRow < m_headerRowCount) {
+			Iterator<Row> it = m_currentSheetIterator;
+			if(it.hasNext()) {
+				Row headerRow = it.next();
+				ExcelImportRow xrow = new ExcelImportRow(this, headerRow, Collections.emptyList());
+				m_headerRows.add(xrow);
+
+				m_currentSheetRow++;
+			}
+		}
+	}
+
 	@Override
 	public IImportRow getHeaderRow() {
-		if(m_headerRowCount <= 0)
+		if(m_headerRowCount <= 0) {
 			throw new IllegalStateException("You cannot ask for a header row when hasHeaderRow is false");
+		}
+		checkStart();
 		return new ExcelImportRow(this, getSheet().getRow(getSheet().getFirstRowNum() + m_headerRowCount - 1), Collections.emptyList());
 	}
 
 	private void checkStart() {
 		if(m_setIndex == -1) {
 			setSetIndex(0);
-		}
-	}
-
-	private Workbook openWorkbook() throws IOException {
-		switch(m_format){
-			default:
-				throw new IllegalStateException("Unhandled Excel format " + m_format);
-			case XLS:
-				return new HSSFWorkbook(m_inputStream);
-
-			case XLSX:
-				return new XSSFWorkbook(m_inputStream);
 		}
 	}
 
@@ -181,6 +188,9 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			Sheet sheet = m_currentSheet = m_workbook.getSheetAt(setIndex);
 			m_setIndex = setIndex;
 			m_progressIndicator = 0;
+			m_currentSheetRow = 0;
+			m_headerRows.clear();
+			m_currentSheetIterator = sheet.iterator();
 		}
 	}
 
@@ -261,27 +271,37 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		return m_headerRowCount;
 	}
 
+	@Override
+	public DateFormat getDateFormat(String dateFormat) {
+		return m_dateFormatMap.computeIfAbsent(dateFormat, a -> {
+			SimpleDateFormat sdf = new SimpleDateFormat(dateFormat);
+			sdf.setLenient(false);
+			return sdf;
+		});
+	}
+
+	@Override
+	@Nullable
+	public DateFormat getForceStringDateFormat() {
+		return m_forceStringDateFormat;
+	}
+
 	private class RowIterator implements Iterator<IImportRow> {
 		private final Sheet m_sheet;
 
-		/** The next row to read */
-		private int m_nextRow;
+		private final Iterator<Row> m_sheeterator;
 
 		private final List<String> m_headerNames;
 
-		/** The last row we're expecting (inclusive) */
-		private int m_lastRow;
-
-		public RowIterator(Sheet sheet, int firstRowNum, List<String> headerNames) {
+		public RowIterator(Sheet sheet, Iterator<Row> sheeterator, List<String> headerNames) {
 			m_sheet = sheet;
-			m_lastRow = sheet.getLastRowNum();
-			m_nextRow = firstRowNum;
+			m_sheeterator = sheeterator;
 			m_headerNames = headerNames;
 		}
 
 		@Override
 		public boolean hasNext() {
-			return m_nextRow <= m_lastRow;
+			return m_sheeterator.hasNext();
 		}
 
 		@Override
@@ -293,11 +313,12 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 		public IImportRow next() {
 			if(!hasNext())
 				throw new IllegalStateException("Calling next() after hasNext() returned false");
-			Row row = m_sheet.getRow(m_nextRow++);
+
+			Row row = m_sheeterator.next();
 			m_progressIndicator++;
 			if(null == row)
 				return new EmptyRow();
-			return new ExcelImportRow(ExcelRowReader.this, row, m_headerNames);
+			return new ExcelImportRow(ExcelStreamingRowReader.this, row, m_headerNames);
 		}
 	}
 
@@ -340,5 +361,6 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			return new EmptyColumn(name);
 		}
 	}
+
 
 }
