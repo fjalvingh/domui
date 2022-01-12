@@ -171,7 +171,8 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 	@Override
 	public void createContent() throws Exception {
 		addCssClass("ui-acedit");
-		m_editDiv.addCssClass("ui-aced ace_editor ace-iplastic");
+		m_editDiv.addCssClass("ui-aced ace_editor");
+		//m_editDiv.addCssClass("ui-aced ace_editor ace-iplastic");
 		add(m_editDiv);
 		add(m_barDiv);
 		getPage().addHeaderContributor(HeaderContributor.loadJavascript("https://cdnjs.cloudflare.com/ajax/libs/ace/" + m_version + "/ace.js"), 10);
@@ -254,8 +255,6 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 	}
 
 	@Override
-
-
 	public void renderJavascriptState(StringBuilder sb) throws Exception {
 		updateTheme();
 		updateMode();
@@ -378,9 +377,11 @@ public class AceEditor extends Div implements IControl<String>, IHasModifiedIndi
 	private void updateTheme() {
 		String theme = m_theme;
 		if(null == theme) {
-			theme = "ace/theme/monokai";
+			theme = "monokai";
 		}
-		callStringMethod("setTheme", theme);
+
+		//-- Convert the theme name to a theme name on the cdn (see https://cdnjs.com/libraries/ace)
+		callStringMethod("setTheme", "ace/theme/" + theme);
 	}
 
 	private void updateMode() {
