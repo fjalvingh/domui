@@ -213,6 +213,12 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			if(c == -1) {
 				if(qc != 0) {
 					error(ImporterErrorCodes.csvEofInString, startLine);        // EOF in string started at line xxx
+				} else {
+					//-- Can be a line without a newline.
+					if(m_sb.length() == 0)
+						m_columns.add(null);                                // ,, means null
+					else
+						m_columns.add(m_sb.toString());
 				}
 				return;
 			}
