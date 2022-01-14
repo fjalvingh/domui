@@ -1100,6 +1100,18 @@ final public class WebDriverConnector {
 		return openScreen(null, clz, parameters);
 	}
 
+	public interface IWdUrlCalculator {
+		@NonNull
+		String updateUrlFor(@NonNull String prevUrl, @Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object... parameters) throws Exception;
+	}
+
+	@Nullable
+	private IWdUrlCalculator m_openScreenUrlCalculator;
+
+	public void setOpenScreenUrlCalculator(@Nullable IWdUrlCalculator calculator) {
+		m_openScreenUrlCalculator = calculator;
+	}
+
 	/**
 	 * Open the specified screen, and wait for it to be fully loaded.
 	 */
@@ -1111,6 +1123,12 @@ final public class WebDriverConnector {
 		checkSize();
 
 		String sb = calculatePageURL(locale, clz, parameters);
+
+		IWdUrlCalculator calculator = m_openScreenUrlCalculator;
+		if(null != calculator) {
+			sb = calculator.updateUrlFor(sb, locale, clz, parameters);
+		}
+
 		System.out.println("webdriver: navigate to " + sb);
 		m_driver.navigate().to(sb);
 		checkSize();
@@ -1184,7 +1202,7 @@ final public class WebDriverConnector {
 	}
 
 	@NonNull
-	private String calculatePageURL(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object[] parameters) {
+	public String calculatePageURL(@Nullable Locale locale, @NonNull Class<? extends UrlPage> clz, Object[] parameters) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(m_applicationURL);
 		sb.append(clz.getName());

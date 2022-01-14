@@ -36,7 +36,6 @@ abstract public class AbstractWebDriverTest {
 
 	/**
 	 * Get the webdriver to use for tests.
-	 * @return
 	 */
 	@NonNull
 	final protected WebDriverConnector wd() {
@@ -64,8 +63,6 @@ abstract public class AbstractWebDriverTest {
 	 * EXPERIMENTAL: this method gets called by the "new" test runner if a test has failed. The implementation
 	 * uses the "test report" mechanism to register screenshots with the test runner so that they can be
 	 * part of the result report.
-	 * @param failedMethod
-	 * @throws Exception
 	 */
 	@OnTestFailure
 	public void onTestFailure(Method failedMethod) throws Exception {
