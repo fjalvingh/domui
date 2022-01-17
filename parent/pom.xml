@@ -61,7 +61,7 @@
 		<jackson.version>2.12.1</jackson.version>
 
 		<javax.servlet.version>4.0.1</javax.servlet.version>
-		<javax.el.version>1.1</javax.el.version>
+		<javax.el.version>2.2</javax.el.version>
 		<javax.servlet.jsp.version>2.0</javax.servlet.jsp.version>
 
 		<rhino.version>1.7.7</rhino.version>
