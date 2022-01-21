@@ -722,6 +722,30 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		}
 	}
 
+	/**
+	 * Get a list of all children and children of a children in the <i>entire subtree</i> that are an instance of the specified class.
+	 */
+	@NonNull
+	final public <T> List<T> getDeepDeepChildren(@NonNull Class<T> ofClass) {
+		if(m_delegate != null)
+			return m_delegate.getDeepDeepChildren(ofClass);
+
+		List<T> res = new ArrayList<T>();
+		internalDeepDeepChildren(res, ofClass);
+		return res;
+	}
+
+	final private <T> void internalDeepDeepChildren(List<T> res, Class<T> ofClass) {
+		for(NodeBase b : m_children) {
+			if(ofClass.isAssignableFrom(b.getClass())) {
+				res.add((T) b);
+			}
+			if(b instanceof NodeContainer) {
+				((NodeContainer) b).internalDeepDeepChildren(res, ofClass);
+			}
+		}
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Miscellaneous										*/
 	/*--------------------------------------------------------------*/
