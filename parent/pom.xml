@@ -64,7 +64,7 @@
 		<javax.el.version>1.1</javax.el.version>
 		<javax.servlet.jsp.version>2.0</javax.servlet.jsp.version>
 
-		<rhino.version>1.7.7</rhino.version>
+		<rhino.version>1.7.14</rhino.version>
 		<jcharts.version>0.7.5</jcharts.version>
 		<batik.version>1.8</batik.version>
 		<jericho.version>3.4</jericho.version>
