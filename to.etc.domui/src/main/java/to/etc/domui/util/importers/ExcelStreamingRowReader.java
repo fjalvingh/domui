@@ -165,13 +165,17 @@ public class ExcelStreamingRowReader implements IRowReader, AutoCloseable, Itera
 			throw new IllegalStateException("You cannot ask for a header row when hasHeaderRow is false");
 		}
 		checkStart();
-		return new ExcelImportRow(this, getSheet().getRow(getSheet().getFirstRowNum() + m_headerRowCount - 1), Collections.emptyList());
+		ExcelImportRow row = m_headerRows.get(0);
+		return row;
+		//
+		//return new ExcelImportRow(this, getSheet().getRow(getSheet().getFirstRowNum() + m_headerRowCount - 1), Collections.emptyList());
 	}
 
 	private void checkStart() {
 		if(m_setIndex == -1) {
 			setSetIndex(0);
 		}
+		readHeaderRows();
 	}
 
 	/**
@@ -191,6 +195,7 @@ public class ExcelStreamingRowReader implements IRowReader, AutoCloseable, Itera
 			m_currentSheetRow = 0;
 			m_headerRows.clear();
 			m_currentSheetIterator = sheet.iterator();
+			readHeaderRows();
 		}
 	}
 
@@ -241,7 +246,7 @@ public class ExcelStreamingRowReader implements IRowReader, AutoCloseable, Itera
 
 	@Override
 	public long getSetSizeIndicator() {
-		return getSheet().getLastRowNum() - getSheet().getFirstRowNum();
+		return getSheet().getLastRowNum() /*- getSheet().getFirstRowNum() this one is not implemented */;
 	}
 
 	@Override
