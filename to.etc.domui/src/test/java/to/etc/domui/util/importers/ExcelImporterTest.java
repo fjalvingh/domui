@@ -45,6 +45,8 @@ public class ExcelImporterTest {
 			if(null == is)
 				throw new IllegalStateException("Resource no found");
 			try(ExcelStreamingRowReader rr = new ExcelStreamingRowReader(is, ExcelFormat.XLSX)) {
+				rr.setHeaderRowCount(1);
+				rr.getHeaderRow();
 				int rowCount = 0;
 				int columnCount = 0;
 				for(IImportRow row : rr) {
@@ -54,8 +56,8 @@ public class ExcelImporterTest {
 						columnCount++;
 					}
 				}
-				Assert.assertEquals("Row count must be correct", 275, rowCount);
-				Assert.assertEquals("Column count must be correct", 550, columnCount);
+				Assert.assertEquals("Row count must be correct", 274, rowCount);
+				Assert.assertEquals("Column count must be correct", 548, columnCount);
 			}
 		}
 	}
