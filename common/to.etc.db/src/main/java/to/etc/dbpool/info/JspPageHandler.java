@@ -444,7 +444,7 @@ final public class JspPageHandler {
 	private ScriptEngine getScripter() throws Exception {
 		if(m_scripter == null) {
 			ScriptEngineManager em = new ScriptEngineManager();
-			m_scripter = em.getEngineByName("JavaScript");
+			m_scripter = em.getEngineByName("nashorn");
 			Bindings	b = m_scripter.getBindings(ScriptContext.ENGINE_SCOPE);
 			b.put("this", this);
 			b.put("out", getOut());
