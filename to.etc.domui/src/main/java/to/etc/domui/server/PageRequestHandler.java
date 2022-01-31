@@ -731,15 +731,15 @@ final public class PageRequestHandler {
 		if(!page.isDestroyed())                                // jal 20090827 If an exception handler or whatever destroyed conversation or page exit...
 			page.getConversation().processDelayedResults(page);
 
-		if(page.isDestroyed()) {
-			//page is destroyed already (i.e. due to processed delayed navigation)
-			return;
-		}
-
 		//-- Determine the response class to render; exit if we have a redirect,
 		WindowSession cm = m_ctx.getWindowSession();
 		if(cm.handleGoto(m_ctx, page, true))
 			return;
+
+		if(page.isDestroyed()) {
+			//page is destroyed already (i.e. due to processed delayed navigation)
+			return;
+		}
 
 		//-- Call the 'new page added' listeners for this page, if it is now unbuilt due to some action calling forceRebuild() on it. Fixes bug# 605
 		callNewPageBuiltListeners(page);
