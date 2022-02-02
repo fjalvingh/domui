@@ -1,6 +1,5 @@
 package db.annotationprocessing;
 
-
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
@@ -27,7 +26,9 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes({"javax.persistence.Entity", "to.etc.annotations.GenerateProperties"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
@@ -198,7 +199,12 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 				break;
 			}
 		}
-		return result;
+
+		Map<String, List<Property>> byNameMap = result.stream()
+			.collect(Collectors.groupingBy(a -> a.getName(), Collectors.toList()));
+		return byNameMap.values().stream()
+			.map(a -> a.get(0))
+			.collect(Collectors.toList());
 	}
 
 	private final class PropertyVisitor extends ElementScanner6 {
