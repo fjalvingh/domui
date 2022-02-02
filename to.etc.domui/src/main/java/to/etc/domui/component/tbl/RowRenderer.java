@@ -864,7 +864,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	}
 
 	@NonNull
-	public <V> ColumnDef<T, V> column(QField<?, V> field) {
+	public <V> ColumnDef<T, V> column(QField<T, V> field) {
 		return getColumnList().column(field);
 	}
 
