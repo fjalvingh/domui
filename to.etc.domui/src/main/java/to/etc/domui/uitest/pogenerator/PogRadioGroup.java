@@ -56,7 +56,7 @@ public class PogRadioGroup extends AbstractPoProxyGenerator implements IPoProxyG
 		if(null == testID) {
 			throw new IllegalStateException();
 		}
-		sb.append("\"[testId='").append(testID).append("']\"");
+		sb.append("\"*[testId='").append(testID).append("']\"");
 	}
 
 	private void renderObjectValue(StringBuilder sb, Object value, PoClass rc) {

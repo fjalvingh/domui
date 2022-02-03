@@ -3,6 +3,7 @@ package to.etc.domuidemo.pages.test.proxies.test;
 import org.junit.Assert;
 import org.junit.Test;
 import to.etc.domui.webdriver.core.AbstractWebDriverTest;
+import to.etc.domuidemo.pages.test.proxies.ProxyTestPage1.MyValues;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -123,6 +124,18 @@ public class ITTestProxiesPage1 extends AbstractWebDriverTest {
 		Assert.assertEquals("Second click should show Pong", "Pong", value);
 	}
 
+	@Test
+	public void testRadioGroup() throws Exception {
+		POProxyTestPage1 page = new POProxyTestPage1(wd());
+		page.open();
+
+		MyValues value = page.ragrou().getValue();
+		Assert.assertNull("Initial value of radio group must be null", value);
+
+		page.ragrou().setValue(MyValues.Ozymandias);
+		value = page.ragrou().getValue();
+		Assert.assertEquals("Value set must be correct", MyValues.Ozymandias, value);
+	}
 
 
 

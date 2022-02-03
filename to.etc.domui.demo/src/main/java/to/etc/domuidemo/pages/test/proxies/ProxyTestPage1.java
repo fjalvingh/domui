@@ -14,6 +14,7 @@ import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.IActionControl;
 import to.etc.domui.dom.html.IControl;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.RadioGroup;
 import to.etc.domui.dom.html.UrlPage;
 
 /**
@@ -47,6 +48,9 @@ public class ProxyTestPage1 extends UrlPage {
 
 		addActionComponent(new DefaultButton("PingPong"), "defbtn");
 		addActionComponent(new SmallImgButton(Icon.faAdjust), "sib");
+
+		RadioGroup<MyValues> erg = RadioGroup.createEnumRadioGroup(MyValues.class).asButtons();
+		addComponent(erg, "ragrou");
 	}
 
 	private <V, T extends NodeBase & IControl<V>> void addComponent(T comp, String id) {
