@@ -3,6 +3,7 @@ package to.etc.domui.util.exporters;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.buttons.DefaultButton;
+import to.etc.domui.component.buttons.LinkButton;
 import to.etc.domui.component.menu.PopupMenu;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
@@ -451,6 +452,32 @@ public class ExporterButtons {
 			});
 
 			return button;
+		}
+
+		public LinkButton buildLinkButton() {
+			String buttonName = m_buttonName == null ? Msgs.BUNDLE.getString(Msgs.EXPORT_BUTTON) : m_buttonName;
+			LinkButton button = new LinkButton(buttonName, Icon.faFileExcelO);
+			button.setClicked(ab -> {
+				IExportFormat forceFormat = m_forceFormat;
+				if(null == forceFormat) {
+					showFormatPopup(format -> {
+						if(m_sourceSupplier != null) {
+							executeExportFromList(ab.getParent(), format);
+						} else {
+							executeExportByQuery(ab.getParent(), format);
+						}
+					}, ab);
+				} else {
+					if(m_sourceSupplier != null) {
+						executeExportFromList(ab.getParent(), forceFormat);
+					} else {
+						executeExportByQuery(ab.getParent(), forceFormat);
+					}
+				}
+			});
+
+			return button;
+
 		}
 	}
 
