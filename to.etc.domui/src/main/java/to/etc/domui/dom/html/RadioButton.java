@@ -69,6 +69,7 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 	public RadioButton(T value) {
 		super("input");
 		m_buttonValue = value;
+		setCalculcatedId("rb-" + value);
 	}
 
 	@Override
@@ -78,7 +79,6 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 
 	/**
 	 * All buttons must be in a group; all buttons in that group expose a single value.
-	 * @param g
 	 */
 	public void setGroup(@NonNull RadioGroup<T> g) {
 		if(m_radioGroup == g)
@@ -207,8 +207,8 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 
 	@Override
 	@Nullable
-	public IClickBase< ? > getClicked() {
-		IClickBase< ? > clicked = super.getClicked();
+	public IClickBase<?> getClicked() {
+		IClickBase<?> clicked = super.getClicked();
 		if(null != clicked)
 			return clicked;
 
@@ -237,9 +237,9 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IHasModifiedIndication impl							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns the modified-by-user flag.
-	 * @see to.etc.domui.dom.html.IHasModifiedIndication#isModified()
 	 */
 	@Override
 	public boolean isModified() {
@@ -255,8 +255,9 @@ public class RadioButton<T> extends NodeBase implements IHasModifiedIndication, 
 		m_modifiedByUser = as;
 	}
 
-
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return this;
 	}
 }

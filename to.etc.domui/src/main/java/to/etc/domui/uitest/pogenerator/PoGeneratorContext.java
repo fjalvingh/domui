@@ -234,7 +234,16 @@ public class PoGeneratorContext {
 		return sb.toString();
 	}
 
+	static public String makeNameValid(String in) {
+		if(in.length() == 0)
+			throw new IllegalStateException("Empty name not supported");
+		if(! Character.isJavaIdentifierStart(in.charAt(0))) {
+			in = "c" + in;
+		}
+		return in;
+	}
+
 	static public String makeName(String from) {
-		return removeUnderscores(clean(from));
+		return makeNameValid(removeUnderscores(clean(from)));
 	}
 }

@@ -33,7 +33,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	private T m_value;
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IValueChanged<?> m_onValueChanged;
 
 	private boolean m_readOnly;
 
@@ -128,8 +128,8 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
-		IValueChanged< ? > vc = m_onValueChanged;
+	public IValueChanged<?> getOnValueChanged() {
+		IValueChanged<?> vc = m_onValueChanged;
 		if(null == vc && isImmediate()) {
 			return IValueChanged.DUMMY;
 		}
@@ -137,16 +137,16 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		m_onValueChanged = onValueChanged;
 		if(null != onValueChanged) {
-			List<RadioButton<?>> deepChildren =(List<RadioButton<?>>) (Object)getDeepChildren(RadioButton.class);		// What a trainwreck.
+			List<RadioButton<?>> deepChildren = (List<RadioButton<?>>) (Object) getDeepChildren(RadioButton.class);        // What a trainwreck.
 			for(RadioButton<?> deepChild : deepChildren) {
-				deepChild.setClicked(clickednode -> {});
+				deepChild.setClicked(clickednode -> {
+				});
 			}
 		}
 	}
-
 
 	public RadioButton<T> addButton(String text, T value) {
 		return addButton(text, value, null);
@@ -165,7 +165,8 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		rb.setReadOnly(m_readOnly);
 		IValueChanged<?> ovc = m_onValueChanged;
 		if(null != ovc)
-			rb.setClicked(clickednode -> {});				// Force an event
+			rb.setClicked(clickednode -> {
+			});                // Force an event
 
 		if(null != m_value) {
 			rb.setChecked(MetaManager.areObjectsEqual(m_value, rb.getButtonValue()));
@@ -255,12 +256,14 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		m_immediate = true;
 	}
 
-
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return null;
 	}
 
-	@Override public T getValueSafe() {
+	@Override
+	public T getValueSafe() {
 		try {
 			return getValue();
 		} catch(Exception x) {
@@ -268,11 +271,13 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		}
 	}
 
-	@Override public boolean isReadOnly() {
+	@Override
+	public boolean isReadOnly() {
 		return m_readOnly;
 	}
 
-	@Override public void setReadOnly(boolean ro) {
+	@Override
+	public void setReadOnly(boolean ro) {
 		if(m_readOnly == ro)
 			return;
 		for(RadioButton<T> rb : m_buttonList) {
@@ -286,11 +291,13 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		}
 	}
 
-	@Override public boolean isDisabled() {
+	@Override
+	public boolean isDisabled() {
 		return m_disabled;
 	}
 
-	@Override public void setDisabled(boolean d) {
+	@Override
+	public void setDisabled(boolean d) {
 		if(m_disabled == d)
 			return;
 		for(RadioButton<T> rb : m_buttonList) {
@@ -322,12 +329,10 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		return rg;
 	}
 
-
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
-
-
 
 	@NonNull
 	static public <T> RadioGroup<T> createGroupFor(PropertyMetaModel<T> pmm, boolean editable, boolean asButtons) {

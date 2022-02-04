@@ -22,6 +22,7 @@ import to.etc.domui.component2.lookupinput.LookupInput2;
 import to.etc.domui.dom.html.Checkbox;
 import to.etc.domui.dom.html.Input;
 import to.etc.domui.dom.html.NodeBase;
+import to.etc.domui.dom.html.RadioGroup;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.uitest.pogenerator.PogSimple.AllowEmbedded;
 import to.etc.function.BiFunctionEx;
@@ -78,6 +79,8 @@ final public class PoGeneratorRegistry {
 
 
 		register(NumberLookupControl.class, (ctx, node) -> new PogSimple(node, "CpNumberLookupControl"));
+
+		register(RadioGroup.class, (ctx, node) -> new PogRadioGroup(node));
 
 		register(SmallImgButton.class, (ctx, node) -> new PogSimple(node, "CpButton"));
 		register(Text.class, (ctx, node) -> new PogSimple(node, "CpText"));

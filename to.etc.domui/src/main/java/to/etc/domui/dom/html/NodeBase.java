@@ -997,7 +997,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * This can be overridden for items that are supposed to be found for testing.
-	 * @return
 	 */
 	@Nullable
 	protected String getCalculatedTestID() {
@@ -1022,7 +1021,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * EXPERIMENTAL: If this is part of some "repeating" structure this must hold a repeat ID, which is a
 	 * page-unique id for the repeating thing.
-	 * @return
 	 */
 	@NonNull
 	public String getTestRepeatId() {
