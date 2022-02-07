@@ -97,6 +97,10 @@ public class ALink extends ATag {
 		this(targetClass, targetParameters, null, mode);
 	}
 
+	public ALink(Class< ? extends UrlPage> targetClass, MoveMode mode, IPageParameters targetParameters) {
+		this(targetClass, targetParameters, null, mode);
+	}
+
 	public ALink(Class< ? extends UrlPage> targetClass, IPageParameters targetParameters, WindowParameters newWindowParameters) {
 		this(targetClass, targetParameters, newWindowParameters, null);
 	}
