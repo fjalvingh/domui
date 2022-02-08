@@ -9,7 +9,6 @@ import to.etc.domui.converter.IObjectToStringConverter;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.webapp.nls.NlsContext;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -18,18 +17,13 @@ import java.util.Objects;
  * Encapsulates AutocompleteText and drop down picker into single component. Input behaves as autocomplete field that does search on select inside select within drop down picker.
  * Search is done at client side for faster user experience.
  * It also allows entering of new data (not contained inside predefined list), that is why it works on-top of String based input.
- *
- * FIXME Urgent This must implement IControl proper 8-(
- *
- * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
- * Created on Nov 6, 2012
  */
 public class EditableDropDownPicker<T> extends AutocompleteText {
-	@Nullable
-	private DropDownPicker<T> m_picker;
+	@NonNull
+	private final List<T> m_data;
 
 	@NonNull
-	private List<T> m_data = Collections.EMPTY_LIST;
+	private final DropDownPicker<T> m_picker;
 
 	@Nullable
 	private IIconRef m_dropDownIcon;
@@ -50,25 +44,24 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	 * Empty constructor.
 	 * Before use, make sure to setup component using:
 	 * <UL>
-	 * <LI> {@link EditableDropDownPicker#setData(List)} </LI>
 	 * <LI> {@link EditableDropDownPicker#setDropDownIcon(IIconRef)} </LI>
 	 * <LI> {@link EditableDropDownPicker#setToStringConverter(IObjectToStringConverter)} in case of 'type' is not assignable from String.class</LI>
 	 * </UL>
-	 *
-	 * @param type
 	 */
-	public EditableDropDownPicker(@NonNull Class<T> type) {
+	public EditableDropDownPicker(@NonNull Class<T> type, @NonNull List<T> data) {
 		super();
 		m_type = type;
+		m_data = data;
+		m_picker = new DropDownPicker<>(m_data);
 	}
 
 	/**
 	 * Factory constructor.
+	 *
 	 * @param toStringConverter In case of T = String, toStringConverter can be left null, otherwise it needs to be specified.
 	 */
 	public EditableDropDownPicker(@NonNull Class<T> type, @NonNull List<T> data, @NonNull IIconRef dropDownIcon, @Nullable IObjectToStringConverter<T> toStringConverter) {
-		this(type);
-		m_data = data;
+		this(type, data);
 		m_dropDownIcon = dropDownIcon;
 		m_toStringConverter = toStringConverter;
 	}
@@ -77,34 +70,34 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	public void createContent() throws Exception {
 		super.createContent();
 
-		DropDownPicker<T> picker = m_picker = new DropDownPicker<T>(m_data);
 		if(m_dropDownIcon != null && !isReadOnly()) {
-			picker.setSrc(m_dropDownIcon);
+			m_picker.setSrc(m_dropDownIcon);
 		}
 
-		picker.setMandatory(isMandatory());
-		picker.setValue(null);
-		picker.setDisabled(isDisabled());
-		picker.setHalign(m_halign);
-		picker.setAlignmentBase(this);
-		picker.setOnBeforeShow((sender, combo) -> {
+		m_picker.setMandatory(isMandatory());
+		m_picker.setValue(null);
+		m_picker.setDisabled(isDisabled());
+		m_picker.setHalign(m_halign);
+		m_picker.setAlignmentBase(this);
+		m_picker.setOnBeforeShow((sender, combo) -> {
 			String text = getValueSafe();
 			clearMessage();
 			adjustSelection(combo, text);
 		});
 
-		picker.setOnValueChanged((IValueChanged<DropDownPicker<T>>) component -> {
+		m_picker.setOnValueChanged((IValueChanged<DropDownPicker<T>>) component -> {
 			T value = m_object = component.getValueSafe();
 			setValue(convertObjectToString(NlsContext.getCurrencyLocale(), value));
-			IValueChanged<EditableDropDownPicker<T>> onValueChanged = (IValueChanged<EditableDropDownPicker<T>>) EditableDropDownPicker.this.getOnValueChanged();
+			IValueChanged<EditableDropDownPicker<T>> onValueChanged = (IValueChanged<EditableDropDownPicker<T>>) getOnValueChanged();
 			if(onValueChanged != null) {
 				onValueChanged.onValueChanged(EditableDropDownPicker.this);
 			}
 		});
 
-		setSelect(picker.getSelectControl());
-		appendAfterMe(picker);
-		picker.build();
+		setSelect(m_picker.getSelectControl());
+		initSelectSizeAndValue();
+		appendAfterMe(m_picker);
+		m_picker.build();
 		initializeJS();
 	}
 
@@ -142,50 +135,28 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		return m_data;
 	}
 
-	/**
-	 * Sets data that is used for picker select options.
-	 * @param data
-	 */
-	private void setData(@NonNull List<T> data) {
-		if(m_data != data) {
-			m_data = data;
-			if(null != m_picker) {
-				//if picker is already created then switch it's data, otherwise data would be used when picker is creating
-				m_picker.setData(data);
-			}
-		}
-	}
-	
-	/**
-	 * Update data displayed in picker select options.
-	 */
-	public void updateData(@NonNull List<T> data) throws Exception {
-		setData(data);
-		initSelectSizeAndValue();
-	}
-
-
 	private void initSelectSizeAndValue() throws Exception {
-		if(isMandatory()){
+		if(isMandatory()) {
 			setComboSize(getData().size());
 			//workaround: we have to set a value to avoid rendering of empty option for mandatory combo
-			if(!getData().isEmpty() && getData().get(0) != null && m_picker != null){
-				((ComboLookup<T>)m_picker.getSelectControl()).setValue(getData().get(0));
+			if(!m_data.isEmpty()) {
+				T firstVal = m_data.get(0);
+				if(null != firstVal) {
+					((ComboLookup<T>) m_picker.getSelectControl()).setValue(firstVal);
+				}
 			}
 		} else {
-			setComboSize(getData().size() + 1);
+			setComboSize(m_data.size() + 1);
 		}
 	}
 
 	private void setComboSize(int size) throws Exception {
 		int newSize = size > DropDownPicker.DEFAULT_COMBO_SIZE ? DropDownPicker.DEFAULT_COMBO_SIZE : size; 
-		if(m_picker != null){
-			m_picker.getSelectControl().setSize(newSize);
-		}
+		m_picker.setSize(newSize);
 	}
 
-	public @Nullable
-	IIconRef getDropDownIcon() {
+	@Nullable
+	public IIconRef getDropDownIcon() {
 		return m_dropDownIcon;
 	}
 
@@ -196,8 +167,8 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		}
 	}
 
-	public @NonNull
-	HAlign getHalign() {
+	@NonNull
+	public HAlign getHalign() {
 		return m_halign;
 	}
 
@@ -208,8 +179,8 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		}
 	}
 
-	public @Nullable
-	IObjectToStringConverter<T> getToStringConverter() {
+	@Nullable
+	public IObjectToStringConverter<T> getToStringConverter() {
 		return m_toStringConverter;
 	}
 
@@ -222,7 +193,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		return m_object;
 	}
 
-	public void setObject(@Nullable T object) {
-		m_object = object;
+	public void setObject(@Nullable T value) {
+		m_object = value;
 	}
 }
