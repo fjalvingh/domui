@@ -215,7 +215,7 @@
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>
-				<version>3.6.10.Final</version>
+				<version>5.4.24.Final</version>
 			</dependency>
 
 			<!-- https://mvnrepository.com/artifact/org.javassist/javassist -->
