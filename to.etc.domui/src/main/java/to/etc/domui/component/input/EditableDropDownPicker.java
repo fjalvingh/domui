@@ -88,11 +88,14 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 		m_picker.setOnValueChanged((IValueChanged<DropDownPicker<T>>) component -> {
 			T value = m_object = component.getValueSafe();
 			setValue(convertObjectToString(NlsContext.getCurrencyLocale(), value));
+			setFocus();
+			//appendJavascript("$('#" + getActualID() + "').focus();");
 			IValueChanged<EditableDropDownPicker<T>> onValueChanged = (IValueChanged<EditableDropDownPicker<T>>) getOnValueChanged();
 			if(onValueChanged != null) {
 				onValueChanged.onValueChanged(EditableDropDownPicker.this);
 			}
 		});
+		m_picker.setFocusOnBlur(this);
 
 		setSelect(m_picker.getSelectControl());
 		initSelectSizeAndValue();
@@ -136,8 +139,9 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 	}
 
 	private void initSelectSizeAndValue() throws Exception {
+		int size = m_data.size();
 		if(isMandatory()) {
-			setComboSize(getData().size());
+			setComboSize(size == 1 ? 2 : size);
 			//workaround: we have to set a value to avoid rendering of empty option for mandatory combo
 			if(!m_data.isEmpty()) {
 				T firstVal = m_data.get(0);
@@ -146,7 +150,7 @@ public class EditableDropDownPicker<T> extends AutocompleteText {
 				}
 			}
 		} else {
-			setComboSize(m_data.size() + 1);
+			setComboSize(size + 1);
 		}
 	}
 
