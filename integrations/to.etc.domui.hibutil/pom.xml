@@ -17,7 +17,7 @@
     <inceptionYear>2017</inceptionYear>
 
     <properties>
-        <hibernate.core.version>5.2.10.Final</hibernate.core.version>
+        <hibernate.core.version>5.4.24.Final</hibernate.core.version>
         <javassist.version>3.23.1-GA</javassist.version>
     </properties>
 
