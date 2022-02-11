@@ -76,7 +76,7 @@ final public class PoolConfig {
 	public static final String BINARY_LOG = "binaryLog";
 
 	/** The max. #of connections that can be allocated before the pool blocks */
-	final private int m_max_conns;
+	private int m_max_conns;
 
 	/** The #of connections to allocate when INITIALIZING */
 	final private int m_min_conns;
@@ -367,6 +367,10 @@ final public class PoolConfig {
 
 	public int getMaxConns() {
 		return m_max_conns;
+	}
+
+	public void setMaxConns(int max_conns) {
+		m_max_conns = max_conns;
 	}
 
 	public int getMinConns() {
