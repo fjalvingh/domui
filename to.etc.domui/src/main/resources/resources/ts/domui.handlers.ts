@@ -219,6 +219,18 @@ namespace WebUI {
 		}
 	}
 
+	export function addDropDownPickerKeys(e): void {
+		let KEY = {
+			ESC: 27
+		};
+		let visibleDropDownPicker = $('select.ddp-cmb:visible').first();
+		if(visibleDropDownPicker.size() === 1) {
+			if(e.keyCode === KEY.ESC) {
+				visibleDropDownPicker.blur();
+			}
+		}
+	}
+
 	let _checkLeavePage = false;
 
 	const beforeUnloadListener = (event) => {

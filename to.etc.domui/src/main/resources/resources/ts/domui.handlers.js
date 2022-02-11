@@ -192,6 +192,20 @@ var WebUI;
 
 	WebUI.addPagerAccessKeys = addPagerAccessKeys;
 
+	function addDropDownPickerKeys(e) {
+		let KEY = {
+			ESC: 27
+		};
+		let visibleDropDownPicker = $('select.ddp-cmb:visible').first();
+		if(visibleDropDownPicker.size() === 1) {
+			if(e.keyCode === KEY.ESC) {
+				visibleDropDownPicker.blur();
+			}
+		}
+	}
+
+	WebUI.addDropDownPickerKeys = addDropDownPickerKeys;
+
 	var _checkLeavePage = false;
 	const beforeUnloadListener = (event) => {
 		if(_checkLeavePage) {
