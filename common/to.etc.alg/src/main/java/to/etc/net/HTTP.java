@@ -11,6 +11,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.security.KeyStore;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -57,6 +58,7 @@ final public class HTTP {
 				.sslContext(sslContext)
 				.followRedirects(Redirect.NORMAL)
 				.version(Version.HTTP_1_1)
+				.connectTimeout(Duration.ofMinutes(10))
 				.build();
 		}
 	}
