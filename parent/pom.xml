@@ -37,7 +37,7 @@
 		<maven-pmd-plugin.version>3.6</maven-pmd-plugin.version>
 		<maven-enforcer-plugin.version>3.0.0-M2</maven-enforcer-plugin.version>
 		<maven-shade-plugin.version>2.4.3</maven-shade-plugin.version>
-		<plexus-compiler-eclipse.version>2.8.5</plexus-compiler-eclipse.version>
+		<plexus-compiler-eclipse.version>2.10.0</plexus-compiler-eclipse.version>
 		<findbugs-maven-plugin.version>3.0.4</findbugs-maven-plugin.version>
 		<appassembler-maven-plugin.version>1.10</appassembler-maven-plugin.version>
 		<jshint-maven-plugin.version>1.6.0</jshint-maven-plugin.version>
