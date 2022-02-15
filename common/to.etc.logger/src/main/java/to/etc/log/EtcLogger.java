@@ -414,7 +414,7 @@ public class EtcLogger implements Logger {
 		return m_level == null;
 	}
 
-	public synchronized void setLevel(@Nullable Level level) {
+	synchronized void setLevel(@Nullable Level level) {
 		m_level = level;
 	}
 

@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Implements logger factory. Encapsulates definitions and configuration of loggers used.
@@ -77,10 +78,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	/** Contains handler instances - logger instances behavior definition. */
 	@NonNull
-	private List<ILogHandler> m_handlers = new ArrayList<>();
-
-	@NonNull
-	private Object m_handlersLock = new Object();
+	private List<ILogHandler> m_handlers = new CopyOnWriteArrayList<>();
 
 	/** Default general log level */
 	@NonNull
@@ -160,6 +158,13 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 			}
 		}
 		return current;
+	}
+
+	public void setLevelFor(String loggerPath, Level level) {
+		for(ILogHandler handler : getHandlers()) {
+			handler.setLogLevel(loggerPath, level);
+		}
+		recalculateLoggers();
 	}
 
 	/**
@@ -374,9 +379,8 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 			ILogHandler handler = LogHandlerRegistry.getSingleton().createDefaultHandler(getLogDir(), DEFAULT_LEVEL);
 			loadedHandlers.add(handler);
 		}
-		synchronized(m_handlersLock) {
-			m_handlers = loadedHandlers;
-		}
+		m_handlers.clear();
+		m_handlers.addAll(loadedHandlers);
 		recalculateLoggers();
 	}
 
@@ -411,9 +415,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	@NonNull
 	private List<ILogHandler> getHandlers() {
-		synchronized(m_handlersLock) {
-			return m_handlers;
-		}
+		return m_handlers;
 	}
 
 	static {

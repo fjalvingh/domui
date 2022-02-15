@@ -29,6 +29,8 @@ public interface ILogHandler {
 	@Nullable
 	Level listenAt(@NonNull String key);
 
+	void setLogLevel(String key, Level level);
+
 	/**
 	 * Saving handler into xml configuration.
 	 */
