@@ -64,6 +64,10 @@ public class CmdStringDecoder {
 	//		}
 	//	}
 
+	public String getInputString() {
+		return m_cmd;
+	}
+
 	private String getWord() {
 		while(m_ix < m_sl) {
 			char c = m_cmd.charAt(m_ix);
