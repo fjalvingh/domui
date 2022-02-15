@@ -173,7 +173,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		//-- Either no file or no editable config -> just load the specified resource
 		String configXml = LogUtil.readResourceAsString(this.getClass(), resourceName, "utf-8");
 		loadConfigFromXml(configXml);
-		System.out.println(getClass().getName() + " initialized from classpath resource " + resourceName);
+		System.out.println(getClass().getName() + "@" + System.identityHashCode(this) + " initialized from classpath resource " + resourceName);
 		if(null != m_writableConfig)
 			System.out.println(getClass().getName() + " writable config file location set to " + m_writableConfig);
 	}
