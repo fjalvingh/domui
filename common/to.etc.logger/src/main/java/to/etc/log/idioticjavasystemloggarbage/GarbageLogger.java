@@ -88,6 +88,28 @@ final public class GarbageLogger implements System.Logger {
 
 	@Override
 	public void log(Level level, ResourceBundle bundle, String format, Object... params) {
-		log(level, bundle, MessageFormat.format(format, params), (Throwable) null);
+		/*
+		 * The SSL logging trainwreck passes parameters that contain the data dump but the format
+		 * does not contain a placeholder for it. So: if we see params but after MessageFormat
+		 * we see that the output is the same as the input then we add the params.
+		 */
+		String text = MessageFormat.format(format, params);
+		if(params != null && params.length > 0) {
+			if(format.equals(text)) {
+				//-- Jah, probably bad.
+				StringBuilder sb = new StringBuilder();
+				sb.append(format);
+				for(Object param : params) {
+					if(param != null) {
+						sb.append(String.valueOf(param));
+						if(sb.charAt(sb.length() - 1) != '\n')
+							sb.append("\n");
+					}
+				}
+				text = sb.toString();
+			}
+		}
+
+		log(level, bundle, text, (Throwable) null);
 	}
 }

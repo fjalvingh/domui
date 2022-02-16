@@ -188,7 +188,7 @@ abstract public class AbstractGenericTelnetCommandHandler implements ITelnetComm
 		if(! isWordValid(main) || ! isWordValid(rest))
 			throw new IllegalStateException("Invalid word '" + word + "' in handler " + method);
 
-		String mp = main + "[" + rest + "]?";
+		String mp = main + "(" + rest + ")?";
 		Pattern pattern = Pattern.compile(mp, Pattern.CASE_INSENSITIVE);
 		return pattern;
 	}
