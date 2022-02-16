@@ -98,7 +98,7 @@ final public class GarbageLogger implements System.Logger {
 			if(format.equals(text)) {
 				//-- Jah, probably bad.
 				StringBuilder sb = new StringBuilder();
-				sb.append(format);
+				sb.append(format).append("\n");
 				for(Object param : params) {
 					if(param != null) {
 						sb.append(String.valueOf(param));
