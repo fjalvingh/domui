@@ -72,6 +72,7 @@ import to.etc.util.ExceptionClassifier;
 import to.etc.util.FileTool;
 import to.etc.util.HtmlScanner;
 import to.etc.util.LineIterator;
+import to.etc.util.ObjectUtil;
 import to.etc.util.StringTool;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleRef;
@@ -1778,16 +1779,11 @@ final public class DomUtil {
 
 	/**
 	 * EXPENSIVE - USE WITH CARE
-	 * Check if first primitive type paramater is equal to some from others.
+	 * Check if first primitive type parameter is equal to some from others.
 	 * Use only for primitive types and enums, for other complex types use {@link MetaManager#areObjectsEqual(Object, Object, ClassMetaModel)}.
 	 */
 	static public <T> boolean isIn(T value, T... values) {
-		for(T item : values) {
-			if(item.equals(value)) {
-				return true;
-			}
-		}
-		return false;
+		return ObjectUtil.isIn(value, values);
 	}
 
 	/**
