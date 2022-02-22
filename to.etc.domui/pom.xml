@@ -301,15 +301,21 @@
 			<version>1.1</version>
 		</dependency>
 
-		<!-- Test dependencies  -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>compile</scope>
-		</dependency>
-	</dependencies>
+        <!-- Test dependencies  -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
 
-	<build>
+        <!-- https://mvnrepository.com/artifact/com.ckeditor/ckeditor-java-core -->
+        <dependency>
+            <groupId>com.ckeditor</groupId>
+            <artifactId>ckeditor-java-core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+
+    </dependencies><build>
 		<plugins>
 			<plugin>
 				<groupId>com.github.eirslett</groupId>

@@ -195,6 +195,8 @@ public class CKEditor extends Div implements IControl<String> {
 			dl = "en";
 		sb.append(", defaultLanguage:'").append(dl).append("'\n");
 
+		sb.append(", removeButtons: 'Source'\n");
+
 		if(!isToolbarStartExpanded()) {
 			sb.append(", toolbarStartupExpanded: false\n");
 			sb.append(", toolbarCanCollapse: true\n");
