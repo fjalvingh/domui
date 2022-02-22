@@ -22,7 +22,9 @@ import java.util.Set;
 abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<V>> {
 	private List<T> m_data;
 
-	/** The specified ComboRenderer used. */
+	/**
+	 * The specified ComboRenderer used.
+	 */
 	private IRenderInto<T> m_contentRenderer;
 
 	private IRenderInto<T> m_actualContentRenderer;
@@ -34,7 +36,8 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 	@NonNull
 	abstract protected V listToValue(@NonNull T in) throws Exception;
 
-	public CheckboxSetInputBase() {}
+	public CheckboxSetInputBase() {
+	}
 
 	public CheckboxSetInputBase(@NonNull List<T> data) {
 		m_data = data;
@@ -42,7 +45,6 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	/**
 	 * Can be used to set a specific list-of-values. When called this clears the existing dataset.
-	 * @param data
 	 */
 	public void setData(@Nullable List<T> data) {
 		if(m_data != data) {
@@ -76,12 +78,16 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		}
 	}
 
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		List<Checkbox> children = getChildren(Checkbox.class);
 		return children.size() > 0 ? children.get(0) : null;
 	}
 
-	@Nullable @Override protected String getFocusID() {
+	@Nullable
+	@Override
+	protected String getFocusID() {
 		NodeBase id = getForTarget();
 		return id == null ? null : id.getActualID();
 	}
@@ -157,7 +163,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 
 	@Override
 	public void setValue(@Nullable Set<V> v) {
-		getValue();									// Update set to the latest checkbox states.
+		getValue();                                    // Update set to the latest checkbox states.
 		super.setValue(v);
 	}
 
@@ -174,12 +180,21 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 		disabledChanged();
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 
 	protected CheckboxSetInputBase<V, T> asButtons() {
 		m_asButtons = true;
 		return this;
+	}
+
+	public IRenderInto<T> getRenderer() {
+		return m_contentRenderer;
+	}
+
+	public void setRenderer(IRenderInto<T> contentRenderer) {
+		m_contentRenderer = contentRenderer;
 	}
 }
