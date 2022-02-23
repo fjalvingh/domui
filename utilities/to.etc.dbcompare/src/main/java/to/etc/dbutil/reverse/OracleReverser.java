@@ -181,7 +181,7 @@ public class OracleReverser extends JDBCReverser {
 				c.setSqlType(daty);
 				c.setComment(remark);
 			}
-			msg("Loaded " + t.getName() + ": " + columnMap.size() + " columns");
+			//msg("Loaded " + t.getName() + ": " + columnMap.size() + " columns");
 		} finally {
 			try {
 				if(rs != null)
