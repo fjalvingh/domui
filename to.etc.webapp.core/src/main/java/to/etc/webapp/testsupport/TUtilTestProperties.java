@@ -27,7 +27,9 @@ import java.util.Locale;
 import java.util.Properties;
 
 public class TUtilTestProperties {
-	/** Will contain a description of the location for the test properties used, after {@link #getTestProperties()}. */
+	/**
+	 * Will contain a description of the location for the test properties used, after {@link #getTestProperties()}.
+	 */
 	static private String m_propertiesLocation;
 
 	@Nullable
@@ -130,7 +132,8 @@ public class TUtilTestProperties {
 						}
 					}
 				}
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 
 			//-- Cannot find
 			return null;
@@ -142,7 +145,8 @@ public class TUtilTestProperties {
 			try {
 				if(is != null)
 					is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -165,10 +169,12 @@ public class TUtilTestProperties {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Test environment database config.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Check if a database config is present. It does not OPEN the database, but
 	 * when true database tests will run. If the database is configured but a connection
 	 * cannot be made this <b>will</b> fail the tests.
+	 *
 	 * @return
 	 */
 	static public boolean hasDbConfig() {
@@ -187,6 +193,7 @@ public class TUtilTestProperties {
 	 * Get the database connection string. This fails hard when no connection string
 	 * is present. Use {@link #hasDbConfig()} to check if a test database is configured
 	 * if the test needs to be conditional.
+	 *
 	 * @return
 	 */
 	static public String getDbString() {
@@ -218,7 +225,6 @@ public class TUtilTestProperties {
 	}
 
 	/**
-	 *
 	 * @return
 	 */
 	static synchronized public DbConnectionInfo getDbConn() {
@@ -256,6 +262,7 @@ public class TUtilTestProperties {
 
 	/**
 	 * Returns the SID for the test database.
+	 *
 	 * @return
 	 */
 	static public String getDbSID() {
@@ -267,6 +274,7 @@ public class TUtilTestProperties {
 	 * related tests are running. The name defaults to 'VIEWPOINT' but can be set to
 	 * another value by setting the 'userid' value in the test properties file. If the
 	 * userid is set to ANONYMOUS this will return NULL.
+	 *
 	 * @return
 	 */
 	static synchronized public String getViewpointLoginName() {
@@ -274,7 +282,7 @@ public class TUtilTestProperties {
 			m_gotLoginName = true;
 			m_viewpointLoginName = getTestProperties().getProperty("loginid");
 			if(m_viewpointLoginName == null)
-				m_viewpointLoginName = "VPC";								// jal 2014/02/11 Do not use "VIEWPOINT" since it has no rights at all and is not a real account
+				m_viewpointLoginName = "VPC";                                // jal 2014/02/11 Do not use "VIEWPOINT" since it has no rights at all and is not a real account
 			else if("ANONYMOUS".equalsIgnoreCase(m_viewpointLoginName))
 				m_viewpointLoginName = null;
 		}
@@ -285,6 +293,7 @@ public class TUtilTestProperties {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Database connection basics.							*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns a raw, unaltered datasource to the ViewPoint test database. This datasource
 	 * does not alter the "current user" in red_environment.
@@ -350,6 +359,7 @@ public class TUtilTestProperties {
 	 * flag set (see {@link ConnectionPool#setCommitDisabled(boolean)}. This allows changes to a test database
 	 * without commiting those changes. The result of the test should be tested using the same database
 	 * connection as the one altering the data.
+	 *
 	 * @param on
 	 */
 	static public void setCommitDisabled(boolean on) {
@@ -376,10 +386,14 @@ public class TUtilTestProperties {
 	/*	CODING:	Test logging using a LogSink.						*/
 	/*--------------------------------------------------------------*/
 
-	/** If assigned the location where test log is written. */
+	/**
+	 * If assigned the location where test log is written.
+	 */
 	static private File m_testLogFile;
 
-	/** If assigned, a LogSink logwriter that can be used to output data from tests. */
+	/**
+	 * If assigned, a LogSink logwriter that can be used to output data from tests.
+	 */
 	static private PrintWriter m_logWriter;
 
 	static private boolean m_testLogInitialized;
@@ -441,6 +455,7 @@ public class TUtilTestProperties {
 
 	/**
 	 * Returns the location for the JUnit test log file, or null if none is assigned.
+	 *
 	 * @return
 	 */
 	@Nullable
@@ -457,6 +472,7 @@ public class TUtilTestProperties {
 
 	/**
 	 * Get a log sink if logging is actually on.
+	 *
 	 * @return
 	 */
 	@Nullable
@@ -526,6 +542,14 @@ public class TUtilTestProperties {
 	public static String getString(@NonNull final String propertyName, @Nullable final String defaultValue) {
 		TestProperties tp = getTestProperties();
 		return tp.getProperty(propertyName, defaultValue);
+	}
+
+	public static void println(String text) {
+		if(System.getProperty("surefire.real.class.path") == null
+			&& System.getProperty("surefire.test.class.path") == null
+		)
+			System.out.println(text);
+		//System.getProperties().forEach((k, v) -> System.out.println("%%% " + k + "=" + v));
 	}
 
 }
