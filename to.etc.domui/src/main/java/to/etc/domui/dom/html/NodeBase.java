@@ -295,7 +295,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		} else if(c instanceof IClicked2<?>) {
 			((IClicked2<NodeBase>) c).clicked(this, cli);
 		} else if(c != null) {
-			throw new IllegalStateException("? Node " + this.getActualID() + " does not have a (valid) click handler??");
+			throw new IllegalStateException("? Node " + getActualID() + " does not have a (valid) click handler??");
 		}
 	}
 
@@ -615,7 +615,8 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		int pos = cssClass.indexOf(cls);
 		if(pos == -1)
 			return false;
-		return pos == 0 || cssClass.charAt(pos - 1) == ' ';
+		return pos == 0 && (cssClass.length() == cls.length() || cssClass.charAt(cls.length()) == ' ')
+			|| pos > 0 && cssClass.charAt(pos - 1) == ' ' && (cssClass.length() == pos + cls.length() || cssClass.charAt(pos + cls.length()) == ' ');
 	}
 
 
@@ -1340,7 +1341,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * onValueChange handler to be called.
 	 */
 	protected boolean acceptRequestParameter(@NonNull final String[] values) throws Exception {
-		throw new IllegalStateException("?? The '" + getTag() + "' component (" + this.getClass() + ") with id=" + m_actualID + " does NOT accept input!");
+		throw new IllegalStateException("?? The '" + getTag() + "' component (" + getClass() + ") with id=" + m_actualID + " does NOT accept input!");
 	}
 
 	/**
@@ -1617,7 +1618,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	final public IBundle getComponentBundle() {
 		IBundle b = findComponentBundle();
 		if(null == b)
-			throw new IllegalStateException("The component " + this.getClass() + " does not have any message bundle.");
+			throw new IllegalStateException("The component " + getClass() + " does not have any message bundle.");
 		return b;
 	}
 
