@@ -1,11 +1,12 @@
 package to.etc.domui.component.delayed;
 
+import to.etc.domui.component.layout.ExpandCollapsePanel;
 import to.etc.domui.component.layout.MessageLine;
 import to.etc.domui.component.misc.MsgBox;
 import to.etc.domui.dom.errors.MsgType;
 import to.etc.domui.dom.html.Div;
 import to.etc.domui.dom.html.HTag;
-import to.etc.domui.dom.html.Para;
+import to.etc.domui.dom.html.Pre;
 import to.etc.domui.util.Msgs;
 import to.etc.parallelrunner.IAsyncRunnable;
 import to.etc.util.CancelledException;
@@ -63,8 +64,11 @@ abstract public class AsyncDiv<T extends IAsyncRunnable> extends Div {
 			String s = sb.toString();
 			s = s.replace("\n", "<br/>\n");
 
-			Para p = new Para();
-			add(p);
+			ExpandCollapsePanel ecp = new ExpandCollapsePanel("Details");
+			add(ecp);
+
+			Pre p = new Pre();
+			ecp.setContent(p);
 			p.setText(s);
 		}
 	}
