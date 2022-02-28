@@ -51,6 +51,9 @@ public class ColumnType implements Serializable {
 
 	static public final ColumnType JSON = new ColumnType("json", 1111, false, false, "json");
 
+
+	static public final ColumnType UNKNOWN = new ColumnType("unknownType", Integer.MAX_VALUE, false, false, "unknown");
+
 	private int m_sqlType;
 
 	private String m_name;

@@ -104,6 +104,11 @@ public class OracleReverser extends JDBCReverser {
 		List<DbColumn> columnList = new ArrayList<DbColumn>();
 		Map<String, DbColumn> columnMap = new HashMap<String, DbColumn>();
 
+		Set<DbTable> unusedTableSet = new HashSet<>();
+		for(DbSchema schema : schemaSet) {
+			unusedTableSet.addAll(schema.getTables());
+		}
+
 		try {
 			String extrawhere = tablename == null ? "" : " and c.table_name=?";
 			ps = dbc.prepareStatement(
@@ -149,6 +154,7 @@ public class OracleReverser extends JDBCReverser {
 					t = schema.findTable(tn);
 					last = tn;
 					if(t != null) {
+						unusedTableSet.remove(t);
 						columnList = new ArrayList<DbColumn>();
 						columnMap = new HashMap<String, DbColumn>();
 						t.initializeColumns(columnList, columnMap);
@@ -163,9 +169,14 @@ public class OracleReverser extends JDBCReverser {
 
 				//-- Create this column thingy..
 				int daty = oracleTypeToSQLType(typename);
-				ColumnType ct = decodeColumnType(schema, daty, typename);
-				if(ct == null)
-					throw new IllegalStateException("Unknown type: SQLType " + daty + " (" + typename + ") in " + t.getName() + "." + cn);
+				ColumnType ct = null;
+				if(daty != Integer.MAX_VALUE) {
+					ct = decodeColumnType(schema, daty, typename);
+				}
+				if(ct == null) {
+					System.err.println("Unknown type: SQLType " + daty + " (" + typename + ") in " + t.getName() + "." + cn);
+					ct = ColumnType.UNKNOWN;
+				}
 
 				switch(daty){
 					case Types.VARCHAR:
@@ -182,6 +193,12 @@ public class OracleReverser extends JDBCReverser {
 				c.setSqlType(daty);
 				c.setComment(remark);
 			}
+
+			//-- Always initialize all remaining tables
+			for(DbTable tbl : unusedTableSet) {
+				tbl.initializeColumns(new ArrayList<>(), new HashMap<>());			// Empty column set
+			}
+
 			//msg("Loaded " + t.getName() + ": " + columnMap.size() + " columns");
 		} finally {
 			try {
@@ -215,7 +232,8 @@ public class OracleReverser extends JDBCReverser {
 		if(i == null) {
 			if(s.startsWith("timestamp"))
 				return Types.TIMESTAMP;
-			throw new IllegalStateException("Unknown Oracle type '" + s + "'");
+			return Integer.MAX_VALUE;				// Indicate a problem
+			//throw new IllegalStateException("Unknown Oracle type '" + s + "'");
 		}
 		return i.intValue();
 	}
@@ -317,11 +335,6 @@ public class OracleReverser extends JDBCReverser {
 
 	/**
 	 * Get a list of either parent or child constraints.
-	 * @param dbc
-	 * @param table
-	 * @param asparent
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	private List<Cons> getRelationConstraints(@NonNull Connection dbc, @NonNull DbTable table, boolean asparent) throws Exception {
@@ -457,31 +470,39 @@ public class OracleReverser extends JDBCReverser {
 				while(rs.next()) {
 					String cn = rs.getString(1);
 					DbColumn fkc = t.findColumn(cn);
-					if(fkc == null)
-						throw new IllegalStateException("Unknown column " + cn + " in table " + t + " for foreign key constraint " + sp.name);
+					if(fkc == null) {
+						warning("Unknown column " + cn + " in table " + t + " for foreign key constraint " + sp.name);
+					} else {
 
-					//-- We must have a matching column on the other (PK) side,
-					if(!rs2.next())
-						throw new IllegalStateException("Unmatched column " + cn + " in PK table for foreign key constraint " + sp.name);
-					String pkcn = rs2.getString(1);
-					if(pt == null) {
-						String pktn = rs2.getString(2);
-						pt = t.getSchema().findTable(pktn);
-						if(pt == null)
-							throw new IllegalStateException("Can't find table for PK " + pktn + " in PK table for foreign key constraint " + sp.name);
+						//-- We must have a matching column on the other (PK) side,
+						if(!rs2.next()) {
+							warning("Unmatched column " + cn + " in PK table for foreign key constraint " + sp.name);
+						} else {
+							String pkcn = rs2.getString(1);
+							if(pt == null) {
+								String pktn = rs2.getString(2);
+								pt = t.getSchema().findTable(pktn);
+								if(pt == null) {
+									warning("Can't find table for PK " + pktn + " in PK table for foreign key constraint " + sp.name);
+								} else {
+									if(rel == null) {
+										//-- Create the relation too.
+										rel = new DbRelation(pt, t, RelationUpdateAction.None, RelationUpdateAction.None);        // FIXME Need to find cascade rule
+										rel.setName(sp.name);
+										pt.getParentRelationList().add(rel);
+										t.getChildRelationList().add(rel);
+									}
+									DbColumn pkc = pt.findColumn(pkcn);
+									if(pkc == null) {
+										warning("Unknown column " + pkcn + " in PK table " + pt + " for foreign key constraint " + sp.name);
+									} else if(null != rel) {
+										rel.addPair(pkc, fkc);
+									}
+								}
 
-						//-- Create the relation too.
-						rel = new DbRelation(pt, t, RelationUpdateAction.None, RelationUpdateAction.None);		// FIXME Need to find cascade rule
-						rel.setName(sp.name);
-						pt.getParentRelationList().add(rel);
-						t.getChildRelationList().add(rel);
+							}
+						}
 					}
-					DbColumn pkc = pt.findColumn(pkcn);
-					if(pkc == null)
-						throw new IllegalStateException("Unknown column " + pkcn + " in PK table " + pt + " for foreign key constraint " + sp.name);
-					if(null == rel)
-						throw new IllegalStateException("Logic error");
-					rel.addPair(pkc, fkc);
 				}
 				rs.close();
 				rs2.close();
@@ -558,15 +579,22 @@ public class OracleReverser extends JDBCReverser {
 
 				ps2.setString(1, type);
 				ps2.setString(2, name);
-				rs2 = ps2.executeQuery();
-				if(!rs2.next())
-					msg("No DDL for " + type + " " + name + "; skipped.");
-				else {
-					String ddl = rs2.getString(1);
-					Procedure p = new Procedure(name, ddl);
-					schema.addProcedure(p);
+
+				try {
+					rs2 = ps2.executeQuery();
+					if(!rs2.next())
+						msg("No DDL for " + type + " " + name + "; skipped.");
+					else {
+						String ddl = rs2.getString(1);
+						Procedure p = new Procedure(name, ddl);
+						schema.addProcedure(p);
+					}
+				} catch(Exception x) {
+					warning("Can't get DDL for " + type + " " + name + ": " + x);
+				} finally {
+					FileTool.closeAll(rs2);
+					rs2 = null;
 				}
-				rs2.close();
 			}
 			System.out.println(this + ": loaded " + schema.getProcedureMap().size() + " procedures");
 		} finally {
@@ -606,26 +634,32 @@ public class OracleReverser extends JDBCReverser {
 
 				ps2.setString(1, type);
 				ps2.setString(2, name);
-				rs2 = ps2.executeQuery();
-				if(!rs2.next())
-					msg("No DDL for package " + name + "; skipped.");
-				else {
-					String def = rs2.getString(1);
-					rs2.close();
-
-					//-- Get package body
-					ps2.setString(1, type);
-					ps2.setString(2, name);
+				try {
 					rs2 = ps2.executeQuery();
 					if(!rs2.next())
-						msg("No DDL for package BODY " + name + "; skipped.");
+						msg("No DDL for package " + name + "; skipped.");
 					else {
-						String body = rs2.getString(1);
-						Package p = new Package(name, def, body);
-						schema.addPackage(p);
+						String def = rs2.getString(1);
+						rs2.close();
+
+						//-- Get package body
+						ps2.setString(1, type);
+						ps2.setString(2, name);
+						rs2 = ps2.executeQuery();
+						if(!rs2.next())
+							msg("No DDL for package BODY " + name + "; skipped.");
+						else {
+							String body = rs2.getString(1);
+							Package p = new Package(name, def, body);
+							schema.addPackage(p);
+						}
 					}
+				} catch(Exception x) {
+					warning("Cannot get package details for " + type + " " + name + ": " + x);
+				} finally {
+					FileTool.closeAll(rs2);
+					rs2 = null;
 				}
-				rs2.close();
 			}
 			System.out.println(this + ": loaded " + schema.getPackageMap().size() + " packages");
 		} finally {
@@ -664,15 +698,21 @@ public class OracleReverser extends JDBCReverser {
 
 				ps2.setString(1, "TRIGGER");
 				ps2.setString(2, name);
-				rs2 = ps2.executeQuery();
-				if(!rs2.next())
-					msg("No DDL for TRIGGER " + name + "; skipped.");
-				else {
-					String ddl = rs2.getString(1);
-					Trigger t = new Trigger(name, ddl);
-					schema.addTrigger(t);
+				try {
+					rs2 = ps2.executeQuery();
+					if(!rs2.next())
+						msg("No DDL for TRIGGER " + name + "; skipped.");
+					else {
+						String ddl = rs2.getString(1);
+						Trigger t = new Trigger(name, ddl);
+						schema.addTrigger(t);
+					}
+				} catch(Exception x) {
+					warning("Failed to get details for trigger " + schema.getName() + "." + name + ": " + x);
+				} finally {
+					FileTool.closeAll(rs2);
+					rs2 = null;
 				}
-				rs2.close();
 			}
 			System.out.println(this + ": loaded " + schema.getTriggerMap().size() + " triggers");
 		} finally {
@@ -750,8 +790,9 @@ public class OracleReverser extends JDBCReverser {
 					//-- Add unique constraint.
 					DbUniqueConstraint uc = new DbUniqueConstraint(cn, bix);
 					ct.addConstraint(uc);
-				} else
-					throw new IllegalStateException("Unknown constraint type " + type);
+				} else {
+					warning("Unknown constraint type " + type);
+				}
 			}
 		} finally {
 			try {
@@ -827,23 +868,35 @@ public class OracleReverser extends JDBCReverser {
 						s = rs3.getString(2);
 						boolean desc = s != null && s.equalsIgnoreCase("DESC");
 						DbColumn c = it.findColumn(cn);
-						if(c == null)
-							throw new IllegalStateException("Unknown column " + tn + "." + cn + " in index " + name);
-						ix.addColumn(c, desc);
+						if(c == null) {
+							warning("Unknown column " + tn + "." + cn + " in index " + name);
+							//throw new IllegalStateException("Unknown column " + tn + "." + cn + " in index " + name);
+						} else {
+							ix.addColumn(c, desc);
+						}
 					}
 					rs3.close();
 				} else { // if("FUNC".equalsIgnoreCase(type)) {
 					//-- All others: get DDL
 					ps2.setString(1, name);
-					rs2 = ps2.executeQuery();
-					if(!rs2.next()) {
-						warning("Cannot obtain index DDL for index=" + name);
-						continue;
+
+					rs2 = null;
+					try {
+						rs2 = ps2.executeQuery();
+						if(!rs2.next()) {
+							warning("Cannot obtain index DDL for index=" + name);
+							continue;
+						}
+						String ddl = rs2.getString(1);
+						SpecialIndex sx = new SpecialIndex(name, ddl);
+						schema.addSpecialIndex(sx);
+						rs2.close();
+					} catch(Exception x) {
+						warning("Cannot obtain index DDL for index=" + name + ": " + x);
+					} finally {
+						FileTool.closeAll(rs2);
+						rs2 = null;
 					}
-					String ddl = rs2.getString(1);
-					SpecialIndex sx = new SpecialIndex(name, ddl);
-					schema.addSpecialIndex(sx);
-					rs2.close();
 
 				} //else throw new IllegalStateException("Unexpected index type "+type);
 			}
