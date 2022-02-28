@@ -148,10 +148,11 @@ public class OracleReverser extends JDBCReverser {
 					//-- New table. Lookkitup
 					t = schema.findTable(tn);
 					last = tn;
-
-					columnList = new ArrayList<DbColumn>();
-					columnMap = new HashMap<String, DbColumn>();
-					t.initializeColumns(columnList, columnMap);
+					if(t != null) {
+						columnList = new ArrayList<DbColumn>();
+						columnMap = new HashMap<String, DbColumn>();
+						t.initializeColumns(columnList, columnMap);
+					}
 				}
 				if(t == null)
 					continue; // Skip unknown tables (usually BIN$ crapshit from the recycle kludge)
@@ -478,6 +479,8 @@ public class OracleReverser extends JDBCReverser {
 					DbColumn pkc = pt.findColumn(pkcn);
 					if(pkc == null)
 						throw new IllegalStateException("Unknown column " + pkcn + " in PK table " + pt + " for foreign key constraint " + sp.name);
+					if(null == rel)
+						throw new IllegalStateException("Logic error");
 					rel.addPair(pkc, fkc);
 				}
 				rs.close();

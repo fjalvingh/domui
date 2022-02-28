@@ -1,10 +1,24 @@
 package to.etc.dbcompare;
 
-import java.util.*;
-
-import to.etc.dbutil.schema.*;
+import to.etc.dbutil.schema.DbColumn;
+import to.etc.dbutil.schema.DbIndex;
+import to.etc.dbutil.schema.DbPrimaryKey;
+import to.etc.dbutil.schema.DbRelation;
+import to.etc.dbutil.schema.DbSchema;
+import to.etc.dbutil.schema.DbTable;
+import to.etc.dbutil.schema.DbView;
+import to.etc.dbutil.schema.FieldPair;
+import to.etc.dbutil.schema.IndexColumn;
 import to.etc.dbutil.schema.Package;
-import to.etc.util.*;
+import to.etc.dbutil.schema.Trigger;
+import to.etc.util.StringTool;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Compare two schema's by walking both synchronously.
@@ -83,25 +97,25 @@ abstract public class AbstractSchemaComparator {
 	}
 
 	private boolean doComparePK(DbTable st, DbTable dt) throws Exception {
-		if(st.getPrimaryKey() == null && dt.getPrimaryKey() == null)
+		DbPrimaryKey sPk = st.getPrimaryKey();
+		DbPrimaryKey dPk = dt.getPrimaryKey();
+		if(sPk == null && dPk == null)
 			return false;
 
-		if(st.getPrimaryKey() == null) {
-			primaryKeyDeleted(dt, dt.getPrimaryKey());
+		if(sPk == null) {
+			primaryKeyDeleted(dt, dPk);
 			return true;
-		} else if(dt.getPrimaryKey() == null) {
-			primaryKeyAdded(dt, st.getPrimaryKey());
+		} else if(dPk == null) {
+			primaryKeyAdded(dt, sPk);
 			return true;
 		}
 
 		//-- Both have a PK; compare PK columns and order.
 		boolean changed = false;
 		int ix = 0;
-		DbPrimaryKey spk = st.getPrimaryKey();
-		DbPrimaryKey dpk = dt.getPrimaryKey();
-		while(ix < spk.getColumnList().size()) {
-			DbColumn sc = spk.getColumnList().get(ix);
-			DbColumn dc = ix >= dpk.getColumnList().size() ? null : dpk.getColumnList().get(ix);
+		while(ix < sPk.getColumnList().size()) {
+			DbColumn sc = sPk.getColumnList().get(ix);
+			DbColumn dc = ix >= dPk.getColumnList().size() ? null : dPk.getColumnList().get(ix);
 
 			//-- Compare column by name.
 			if(dc == null) {
@@ -117,13 +131,13 @@ abstract public class AbstractSchemaComparator {
 			}
 			ix++;
 		}
-		while(ix < dpk.getColumnList().size()) {
-			DbColumn dc = dpk.getColumnList().get(ix);
+		while(ix < dPk.getColumnList().size()) {
+			DbColumn dc = dPk.getColumnList().get(ix);
 			changed = true;
 			primaryKeyFieldDeleted(dt, ix, dc);
 		}
 		if(changed)
-			primaryKeyChanged(dt, st, dpk, spk);
+			primaryKeyChanged(dt, st, dPk, sPk);
 		return changed;
 	}
 
