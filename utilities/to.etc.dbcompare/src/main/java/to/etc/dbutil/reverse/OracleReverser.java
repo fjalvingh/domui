@@ -368,7 +368,7 @@ public class OracleReverser extends JDBCReverser {
 		}
 	}
 
-	@NonNull
+	@Nullable
 	private List<DbColumn> getRelationColumns(@NonNull Connection dbc, @NonNull DbSchema schema, @NonNull String owner, @NonNull String constraintName) throws Exception {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -381,8 +381,17 @@ public class OracleReverser extends JDBCReverser {
 			while(rs.next()) {
 				String cn = rs.getString(1);
 				String tn = rs.getString(2);
-				DbTable tbl = schema.getTable(tn);
-				DbColumn col = tbl.getColumn(cn);
+				DbTable tbl = schema.findTable(tn);
+				if(null == tbl) {
+					warning("Can't find table " + tn + " in schema " + owner + " for constraint " + constraintName);
+					return null;
+				}
+				DbColumn col = tbl.findColumn(cn);
+				if(null == col) {
+					warning("Can't find column " + tn + "." + cn + " in schema " + owner + " for constraint " + constraintName);
+					return null;
+				}
+
 				res.add(col);
 			}
 			return res;
@@ -408,6 +417,10 @@ public class OracleReverser extends JDBCReverser {
 		for(Cons c : list) {
 			List<DbColumn> childColumns = getRelationColumns(dbc, table.getSchema(), c.owner, c.name);							// Get all columns in the FK part
 			List<DbColumn> parentColumns = getRelationColumns(dbc, table.getSchema(), c.remoteOwner, c.remoteConstraint);		// Get all columns in the PK part
+			if(null == childColumns || null == parentColumns) {
+				warning("Could not reverse relation " + c.owner + "." + c.name + " ");
+				return;
+			}
 
 			DbRelation rel = createRelation(c.owner, c.name, parentColumns, childColumns);
 			if(!rel.getParent().internalGetParentRelationList().contains(rel)) {
