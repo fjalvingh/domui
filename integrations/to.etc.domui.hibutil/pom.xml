@@ -17,7 +17,8 @@
     <inceptionYear>2017</inceptionYear>
 
     <properties>
-        <hibernate.core.version>5.2.10.Final</hibernate.core.version>
+<!--        <hibernate.core.version>5.2.10.Final</hibernate.core.version>-->
+        <hibernate.core.version>5.4.24.Final</hibernate.core.version>
         <javassist.version>3.23.1-GA</javassist.version>
     </properties>
 
@@ -76,7 +77,23 @@
                     <groupId>org.javassist</groupId>
                     <artifactId>javassist</artifactId>
                 </exclusion>
+
+                <exclusion>
+                    <groupId>org.jboss.logging</groupId>
+                    <artifactId>jboss-logging</artifactId>
+                </exclusion>
+
+                <exclusion>
+                    <groupId>org.glassfish.jaxb</groupId>
+                    <artifactId>jaxb-runtime</artifactId>
+                </exclusion>
             </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.4.1.Final</version>
         </dependency>
 
         <dependency>

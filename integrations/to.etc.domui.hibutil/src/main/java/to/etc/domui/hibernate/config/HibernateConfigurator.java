@@ -40,7 +40,6 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.event.service.spi.EventListenerRegistry;
 import org.hibernate.event.spi.EventType;
-import org.hibernate.jpa.event.spi.JpaIntegrator;
 import org.hibernate.service.ServiceRegistry;
 import to.etc.dbpool.ConnectionPool;
 import to.etc.dbpool.PoolManager;
@@ -121,17 +120,17 @@ final public class HibernateConfigurator {
 		/**
 		 * Assume the database is correct and the same as the Hibernate expected schema.
 		 */
-		NONE
+		NONE,
 
 		/**
 		 * Check table definitions and alter the database to correspond to the Hibernate schema as much as possible.
 		 */
-		, UPDATE
+		UPDATE,
 
 		/**
 		 * DANGEROUS: drop the entire database AND ITS DATA, and recreate all tables.
 		 */
-		, CREATE
+		CREATE
 	}
 
 	/**
@@ -317,7 +316,7 @@ final public class HibernateConfigurator {
 		 */
 		BootstrapServiceRegistry bootstrapRegistry =
 			new BootstrapServiceRegistryBuilder()
-				.applyIntegrator(new JpaIntegrator())
+				//.applyIntegrator(new JpaIntegrator())
 				.build();
 
 		String resname = "/" + HibernateConfigurator.class.getPackage().getName().replace('.', '/') + "/hibernate.cfg.xml";
