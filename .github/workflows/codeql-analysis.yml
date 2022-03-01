@@ -2,10 +2,10 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [master-java11, skarp-master ]
+    branches: [skarp-master ]
   pull_request:
     # The branches below must be a subset of the branches above
-    branches: [master-java11, skarp-master, skarp-prd]
+    branches: [skarp-master, skarp-prd]
   schedule:
     - cron: '0 2 * * 2'
 
