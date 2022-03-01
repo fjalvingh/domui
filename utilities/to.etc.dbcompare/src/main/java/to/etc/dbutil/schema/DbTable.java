@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -43,29 +44,33 @@ public class DbTable implements Serializable {
 
 	private String m_comments;
 
+	@Nullable
 	private List<DbColumn> m_columnList;
 
+	@Nullable
 	private Map<String, DbColumn> m_columnMap;
 
+	@Nullable
 	private Map<String, DbIndex> m_indexMap;
 
-	private List<DbRelation> m_parentRelationList = new ArrayList<DbRelation>();
+	private List<DbRelation> m_parentRelationList = new ArrayList<>();
 
-	private List<DbRelation> m_childRelationList = new ArrayList<DbRelation>();
+	private List<DbRelation> m_childRelationList = new ArrayList<>();
 
 	private boolean m_parentRelationsInitialized;
 
 	private boolean m_childRelationsInitialized;
 
-	private List<DbCheckConstraint> m_checkConstraintList = new ArrayList<DbCheckConstraint>();
+	private List<DbCheckConstraint> m_checkConstraintList = new ArrayList<>();
 
-	private List<DbUniqueConstraint> m_uniqueConstraintList = new ArrayList<DbUniqueConstraint>();
+	private List<DbUniqueConstraint> m_uniqueConstraintList = new ArrayList<>();
 
 	transient private boolean m_gotRecordCount;
 
 	/** The #of records in this table, or -1 if not yet acquired. */
 	transient private long m_recordCount = -1;
 
+	@Nullable
 	private List<DbColumn> m_sortedColumns;
 
 	public DbTable(DbSchema schema, String name) {
@@ -143,7 +148,6 @@ public class DbTable implements Serializable {
 
 	/**
 	 * Return the relations that I am a <i>parent</i> in.
-	 * @return
 	 */
 	@NonNull
 	public List<DbRelation> getParentRelationList() {
@@ -155,9 +159,9 @@ public class DbTable implements Serializable {
 	public List<DbRelation> internalGetParentRelationList() {
 		return m_parentRelationList;
 	}
+
 	/**
 	 * Return the relations that I am a <i>child</i> in.
-	 * @return
 	 */
 	@NonNull
 	public List<DbRelation> getChildRelationList() {
@@ -167,7 +171,6 @@ public class DbTable implements Serializable {
 
 	/**
 	 * Return the relations that I am a <i>child</i> in.
-	 * @return
 	 */
 	@NonNull
 	public List<DbRelation> internalGetChildRelationList() {
@@ -177,13 +180,14 @@ public class DbTable implements Serializable {
 	@NonNull
 	public Map<String, DbColumn> getColumnMap() {
 		initColumns();
-		return m_columnMap;
+		return Objects.requireNonNull(m_columnMap, "The column map should have been initialized");
 	}
 
-	public void setColumnMap(Map<String, DbColumn> columnMap) {
-		m_columnMap = columnMap;
-	}
+	//public void setColumnMap(Map<String, DbColumn> columnMap) {
+	//	m_columnMap = columnMap;
+	//}
 
+	@Nullable
 	public String getComments() {
 		return m_comments;
 	}
@@ -192,15 +196,17 @@ public class DbTable implements Serializable {
 		m_comments = comments;
 	}
 
+	@NonNull
 	public String getName() {
 		return m_name;
 	}
 
+	@NonNull
 	public DbSchema getSchema() {
 		return m_schema;
 	}
 
-	public long getRecordCount(Database db) throws Exception {
+	public long getRecordCount(@NonNull Database db) throws Exception {
 		if(!m_gotRecordCount) {
 			PreparedStatement ps = null;
 			ResultSet rs = null;
@@ -256,6 +262,7 @@ public class DbTable implements Serializable {
 		}
 	}
 
+	@Nullable
 	public DbColumn findColumn(String name) {
 		return getColumnMap().get(name);
 	}
@@ -294,17 +301,19 @@ public class DbTable implements Serializable {
 
 	public Map<String, DbIndex> getIndexMap() {
 		initIndexes();
-		return m_indexMap;
+		return Objects.requireNonNull(m_indexMap, "The index map should have been initialized");
 	}
 
 	public void setIndexMap(Map<String, DbIndex> indexMap) {
 		m_indexMap = indexMap;
 	}
 
+	@Nullable
 	public DbIndex findIndex(String name) {
 		return getIndexMap().get(name);
 	}
 
+	@Nullable
 	public DbPrimaryKey getPrimaryKey() {
 		initPrimaryKey();
 		return m_primaryKey;
@@ -319,6 +328,7 @@ public class DbTable implements Serializable {
 		m_checkConstraintList.add(c);
 	}
 
+	@Nullable
 	public DbCheckConstraint findCheckConstraint(String s) {
 		for(DbCheckConstraint c : m_checkConstraintList) {
 			if(s.equals(c.getName()))
@@ -331,6 +341,7 @@ public class DbTable implements Serializable {
 		return m_checkConstraintList;
 	}
 
+	@Nullable
 	public DbUniqueConstraint findUniqueConstraint(String name) {
 		for(DbUniqueConstraint c : m_uniqueConstraintList) {
 			if(name.equals(c.getName()))
@@ -352,7 +363,6 @@ public class DbTable implements Serializable {
 	 * does that by finding the most-often used prefix in all column names. Columns
 	 * "native" to the table are scored higher in determination than columns that
 	 * are foreign.
-	 * @return
 	 */
 	public String getColumnPrefix() {
 		Set<String> fkcolset = new HashSet<String>();
@@ -364,8 +374,9 @@ public class DbTable implements Serializable {
 			}
 		}
 		Set<DbColumn> pkcolset = new HashSet<DbColumn>();
-		if(getPrimaryKey() != null)
-			pkcolset.addAll(getPrimaryKey().getColumnList());
+		DbPrimaryKey primaryKey = getPrimaryKey();
+		if(primaryKey != null)
+			pkcolset.addAll(primaryKey.getColumnList());
 
 		//-- Prefix occurrence score per prefix
 		Map<String, Integer> occmap = new HashMap<String, Integer>();

@@ -250,8 +250,7 @@ public class PostgresReverser extends JDBCReverser {
 		if(null == deflt)
 			return null;
 
-		deflt = deflt.trim();
-		if(deflt.toLowerCase().startsWith(NEXTVAL)) {
+		if(null != deflt && deflt.toLowerCase().startsWith(NEXTVAL)) {
 			String sub = deflt.substring(NEXTVAL.length());
 
 			//-- Do we have a cast?

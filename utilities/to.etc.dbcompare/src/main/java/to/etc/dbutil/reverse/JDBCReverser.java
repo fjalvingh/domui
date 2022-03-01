@@ -173,6 +173,7 @@ public class JDBCReverser implements Reverser {
 		}
 	}
 
+	@Override
 	public Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaNames, boolean lazily) throws Exception {
 		try(Connection dbc = m_ds.getConnection()) {
 			//-- Create the set of schema's
@@ -356,8 +357,8 @@ public class JDBCReverser implements Reverser {
 		}
 	}
 
+	@Override
 	public void reverseColumns(@NonNull Connection dbc, DbTable t) throws Exception {
-
 		List<DbColumn> columnList = new ArrayList<DbColumn>();
 		Map<String, DbColumn> columnMap = new HashMap<String, DbColumn>();
 		try(ResultSet rs = dbc.getMetaData().getColumns(null, t.getSchema().getName(), t.getName(), null)) {
@@ -486,7 +487,8 @@ public class JDBCReverser implements Reverser {
 						lastord = ord;
 					}
 				}
-				ix.addColumn(c, desc);
+				if(null != ix)							// Satisfy ecj's null check
+					ix.addColumn(c, desc);
 			}
 			t.setIndexMap(indexMap);
 			msg("Loaded " + t.getName() + ": " + t.getColumnMap().size() + " indexes");
@@ -594,6 +596,8 @@ public class JDBCReverser implements Reverser {
 				}
 
 				//-- Add the relation fields.
+				if(rel == null)
+					throw new IllegalStateException("Logic error");
 				if(name != null)
 					rel.setName(name);
 				rel.addPair(pkc, fkc);
@@ -677,6 +681,8 @@ public class JDBCReverser implements Reverser {
 				}
 
 				//-- Add the relation fields.
+				if(rel == null)
+					throw new IllegalStateException("Logic error");
 				if(name != null)
 					rel.setName(name);
 				rel.addPair(pkc, fkc);

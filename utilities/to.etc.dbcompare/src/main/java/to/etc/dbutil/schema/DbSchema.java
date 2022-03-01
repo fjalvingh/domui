@@ -46,9 +46,9 @@ public class DbSchema implements Serializable {
 		m_reverser = r;
 	}
 
-	public void setReverser(Reverser r) {
-		m_reverser = r;
-	}
+	//public void setReverser(Reverser r) {
+	//	m_reverser = r;
+	//}
 
 	@NonNull
 	public Reverser getReverser() {
@@ -61,9 +61,9 @@ public class DbSchema implements Serializable {
 		return m_name;
 	}
 
-	public void setName(String name) {
-		m_name = name;
-	}
+	//public void setName(String name) {
+	//	m_name = name;
+	//}
 
 	public DbTable createTable(String name) {
 		DbTable t = new DbTable(this, name);
@@ -75,10 +75,12 @@ public class DbSchema implements Serializable {
 		return new ArrayList<DbTable>(m_tableMap.values());
 	}
 
+	@Nullable
 	public DbTable findTable(String name) {
 		return m_tableMap.get(name);
 	}
 
+	@NonNull
 	public DbTable getTable(String name) {
 		DbTable t = findTable(name);
 		if(t == null)
@@ -86,6 +88,7 @@ public class DbSchema implements Serializable {
 		return t;
 	}
 
+	@Nullable
 	public DbView findView(String name) {
 		return m_viewMap.get(name);
 	}
@@ -94,6 +97,7 @@ public class DbSchema implements Serializable {
 		m_viewMap.put(v.getName(), v);
 	}
 
+	@NonNull
 	public Map<String, DbView> getViewMap() {
 		return m_viewMap;
 	}
@@ -102,10 +106,12 @@ public class DbSchema implements Serializable {
 		m_procedureMap.put(p.getName(), p);
 	}
 
+	@Nullable
 	public Procedure findProcedure(String name) {
 		return m_procedureMap.get(name);
 	}
 
+	@NonNull
 	public Map<String, Procedure> getProcedureMap() {
 		return m_procedureMap;
 	}
@@ -114,6 +120,7 @@ public class DbSchema implements Serializable {
 		m_packageMap.put(p.getName(), p);
 	}
 
+	@Nullable
 	public Package findPackage(String s) {
 		return m_packageMap.get(s);
 	}
@@ -126,6 +133,7 @@ public class DbSchema implements Serializable {
 		m_triggerMap.put(t.getName(), t);
 	}
 
+	@Nullable
 	public Trigger findTrigger(String name) {
 		return m_triggerMap.get(name);
 	}
@@ -142,6 +150,7 @@ public class DbSchema implements Serializable {
 		m_indexMap.put(ix.getName(), ix);
 	}
 
+	@Nullable
 	public DbIndex findIndex(String name) {
 		return m_indexMap.get(name);
 	}
@@ -154,6 +163,7 @@ public class DbSchema implements Serializable {
 		m_specialIndexMap.put(ix.getName(), ix);
 	}
 
+	@Nullable
 	public SpecialIndex findSpecialIndex(String name) {
 		return m_specialIndexMap.get(name);
 	}

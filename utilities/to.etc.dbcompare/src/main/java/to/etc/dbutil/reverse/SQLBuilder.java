@@ -99,6 +99,8 @@ public class SQLBuilder extends QNodeVisitorBase {
 		m_reverser = r;
 		m_criteria = table;
 		QDbTable dbt = (QDbTable) table.getMetaTable();
+		if(null == dbt)
+			throw new IllegalStateException("Missing table definition in qcriteria");
 		m_table = dbt.getTable();
 	}
 
@@ -169,10 +171,10 @@ public class SQLBuilder extends QNodeVisitorBase {
 
 			int skiprows = 0;
 			int maxrows = m_maxRows;
-			if(! m_islimited) {
+			if(!m_islimited) {
 				skiprows = m_firstRow;
 			}
-			SQLRowSet	set = new SQLRowSet(m_columnList, m_table);
+			SQLRowSet set = new SQLRowSet(m_columnList, m_table);
 
 			List<SQLRow> res = new ArrayList<SQLRow>();
 			while(rs.next()) {
@@ -213,8 +215,10 @@ public class SQLBuilder extends QNodeVisitorBase {
 	/*--------------------------------------------------------------*/
 
 	@Override
-	public void visitCriteria(QCriteria< ? > qc) throws Exception {
+	public void visitCriteria(QCriteria<?> qc) throws Exception {
 		QDbTable qt = (QDbTable) qc.getMetaTable();
+		if(qt == null)
+			throw new IllegalStateException("Missing table defintion in qcriteria");
 
 		m_root = new PTableRef(qt.getTable(), "this_");
 		m_tblMap.put(m_root.getAlias(), m_root);
@@ -253,7 +257,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 		//-- 2. Create a select xxx statement
 		sb.append("select ");
 		int ix = 0;
-		for(DbColumn c: coll) {
+		for(DbColumn c : coll) {
 			if(ix++ > 0)
 				sb.append(",");
 			r().addSelectColumnAs(sb, c.getName(), "c" + ix);
@@ -287,7 +291,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 	}
 
 	@Override
-	public void visitSelection(QSelection< ? > s) throws Exception {
+	public void visitSelection(QSelection<?> s) throws Exception {
 		throw new IllegalStateException("Not implemented yet");
 	}
 
@@ -323,7 +327,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 		if(m_order.length() > 0)
 			m_order.append(",");
 		m_order.append(getColumnRef(m_root, pm.getName()));
-		switch(o.getDirection()){
+		switch(o.getDirection()) {
 			default:
 				throw new IllegalStateException("Bad order: " + o.getDirection());
 			case ASC:
@@ -447,7 +451,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 			DbTable currclz = m_table;
 			DbColumn selpm = null;
 			int i = 0;
-			for(;;) {
+			for(; ; ) {
 				String name = segs[i++];
 				selpm = currclz.findColumn(name);
 				if(selpm == null)
@@ -541,7 +545,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 	}
 
 	static private String renderOperation(QOperation op) {
-		switch(op){
+		switch(op) {
 			default:
 				throw new IllegalStateException("Unexpected operation type=" + op);
 			case AND:
@@ -583,7 +587,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 	 * @return
 	 */
 	static public int getOperationPrecedence(final QOperation ot) {
-		switch(ot){
+		switch(ot) {
 			default:
 				throw new IllegalStateException("Unknown operator " + ot);
 			case OR:
@@ -592,7 +596,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 				return 20;
 			case NOT:
 				return 25;
-				/*case IN: */
+			/*case IN: */
 			case BETWEEN:
 			case LIKE:
 			case ILIKE:
@@ -607,17 +611,17 @@ public class SQLBuilder extends QNodeVisitorBase {
 			case ISNULL:
 			case ISNOTNULL:
 				return 40;
-				//			case NOT:
-				//				return 50;
-				//				// ANY, ALL, SOME: 60
-				//			case CONCAT:
-				//				return 70;
-				//			case PLUS: case MINUS:
-				//				return 80;
-				//			case MULT: case DIV: case MOD:
-				//				return 90;
-				//			case UMINUS:
-				//				return 100;
+			//			case NOT:
+			//				return 50;
+			//				// ANY, ALL, SOME: 60
+			//			case CONCAT:
+			//				return 70;
+			//			case PLUS: case MINUS:
+			//				return 80;
+			//			case MULT: case DIV: case MOD:
+			//				return 90;
+			//			case UMINUS:
+			//				return 100;
 
 			case LITERAL:
 				return 100;
@@ -626,7 +630,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 
 	@Override
 	public void visitUnaryNode(final QUnaryNode n) throws Exception {
-		switch(n.getOperation()){
+		switch(n.getOperation()) {
 			default:
 				throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 			case SQL:
@@ -659,7 +663,6 @@ public class SQLBuilder extends QNodeVisitorBase {
 		}
 		throw new IllegalStateException("Unsupported UNARY operation: " + n.getOperation());
 	}
-
 
 	/**
 	 * Set a value.
@@ -708,7 +711,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 
 				//-- Convert the string to the actual/close to actual data type.
 				s = s.trim();
-				switch(m_column.getType().getSqlType()){
+				switch(m_column.getType().getSqlType()) {
 					default:
 						ps.setString(m_index, s);
 						break;
@@ -763,6 +766,5 @@ public class SQLBuilder extends QNodeVisitorBase {
 			}
 		}
 	}
-
 
 }
