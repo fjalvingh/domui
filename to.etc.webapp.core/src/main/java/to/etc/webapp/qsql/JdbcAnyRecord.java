@@ -64,6 +64,7 @@ public class JdbcAnyRecord {
 					throw new IllegalStateException("Cannot handle SQLType=" + type + " for column " + tablename + "." + name);
 				case Types.NUMERIC:
 				case Types.INTEGER:
+				case Types.SMALLINT:
 				case Types.DECIMAL:
 				case Types.FLOAT:
 				case Types.DOUBLE:
