@@ -274,7 +274,8 @@ final public class DomUtil {
 	}
 
 	static public final Class<?> getUnproxiedClass(@NonNull Class<?> clz) {
-		if(clz.getName().contains("$$"))
+		String name = clz.getName();
+		if(name.contains("$$") || name.contains("$HibernateProxy$"))	// Sigh
 			clz = clz.getSuperclass();									// Enhanced class (Hibernate). Get base class instead
 		return clz;
 	}

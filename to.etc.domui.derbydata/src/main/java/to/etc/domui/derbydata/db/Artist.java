@@ -8,6 +8,7 @@ import to.etc.domui.component.meta.SearchPropertyType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -40,7 +41,6 @@ public class Artist extends DbRecordBase<Long> {
 
 	/**
 	 * IMPORTANT: Keep SearchPropertyType.SEARCH_FIELD or JUnit tests will fail.
-	 * @return
 	 */
 	@MetaSearch(order = 1, searchType = SearchPropertyType.SEARCH_FIELD)
 	@Column(length = 120, nullable = false, unique = true)
@@ -53,7 +53,7 @@ public class Artist extends DbRecordBase<Long> {
 		m_name = name;
 	}
 
-	@OneToMany(mappedBy = "artist")
+	@OneToMany(mappedBy = "artist", fetch = FetchType.LAZY)
 	public List<Album> getAlbumList() {
 		return m_albumList;
 	}
