@@ -85,10 +85,18 @@ public class ExporterButtons {
 		});
 	}
 
-	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<? extends IExportColumn<?>> columns, String fileName) {
+	public static <T> void export(NodeContainer node, Class<T> baseClass, List<T> list, IExportFormat xf, List<? extends IExportColumn<?>> columns, String fileName) throws Exception {
 		ListExporterTask<T> exporterTask = new ListExporterTask<>(xf, baseClass, list, columns);
-		AsyncDialog.runInDialog(node, exporterTask, "Export", true, task -> {
-			File target = Objects.requireNonNull(task.getOutputFile());
+
+		/*
+		 * The list variant of the exporter should NOT run in an async task, as its
+		 * members are probably loaded by the calling page's QDataContext. Exporting
+		 * the list async causes the page's context to detach while the async task
+		 * executes. This causes exceptions when the list contains lazily loaded objects.
+		 */
+		node.executeWithDialog("Exporting list", () -> {
+			exporterTask.run(new Progress(""));
+			File target = Objects.requireNonNull(exporterTask.getOutputFile());
 			String fn = fileName;
 			if(null == fn) {
 				fn = target.getName();
@@ -98,8 +106,22 @@ public class ExporterButtons {
 				}
 			}
 
-			TempFilePart.createDownloadAction(node, target, task.getMimeType(), Disposition.Attachment, fn);
+			TempFilePart.createDownloadAction(node, target, exporterTask.getMimeType(), Disposition.Attachment, fn);
 		});
+		//
+		//AsyncDialog.runInDialog(node, exporterTask, "Export", true, task -> {
+		//	File target = Objects.requireNonNull(task.getOutputFile());
+		//	String fn = fileName;
+		//	if(null == fn) {
+		//		fn = target.getName();
+		//	} else {
+		//		if(fn.lastIndexOf('.') == -1) {
+		//			fn += "." + xf.extension();
+		//		}
+		//	}
+		//
+		//	TempFilePart.createDownloadAction(node, target, task.getMimeType(), Disposition.Attachment, fn);
+		//});
 	}
 
 
