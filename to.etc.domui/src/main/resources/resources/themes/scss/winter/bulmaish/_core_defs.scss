@@ -97,12 +97,9 @@ $control-padding-horizontal: calc(0.625em - 1px) !default;
 	@include ui-control-base;
 	@include ui-focus-border;
 
-	&:hover,
-	&.is-hovered {
+	&:hover:not([disabled]),
+	&.is-hovered:not([disabled]) {
 		border-color: $input-hover-border-color;
-		&[disabled] {
-			border-color: $border;
-		}
 	}
 
 	padding: $control-padding-vertical $control-padding-horizontal;
