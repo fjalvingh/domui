@@ -220,7 +220,7 @@ CKEDITOR.on( 'dialogDefinition', function( ev )
 
 				//-- Register callback to use when image is selected
 				let cbId = WebUI.registerCallback(actualId, function(image) {
-					let txti = dialog.getContentElement("info", "background");
+					let txti = dialog.getContentElement("advanced", "background");
 					txti.setValue(image);
 				});
 
