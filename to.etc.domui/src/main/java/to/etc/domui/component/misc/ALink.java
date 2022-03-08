@@ -183,8 +183,9 @@ public class ALink extends ATag {
 	 * Generate the actual link to the thing.
 	 */
 	private void updateLink() {
+		String pageURL = DomUtil.createPageURL(m_targetClass, m_targetParameters);
 		if(m_targetClass != null) {
-			setHref(DomUtil.createPageURL(m_targetClass, m_targetParameters));
+			setHref(pageURL);
 		} else if(!DomUtil.isBlank(m_targetURL)) {
 			setHref(DomUtil.createPageURL(m_targetURL, m_targetParameters));
 		} else {
@@ -204,8 +205,9 @@ public class ALink extends ATag {
 				sb.append(DomUtil.createPageURL(m_targetURL, m_targetParameters));
 			} else {
 				//-- We need a NEW window session. Create it,
-				sb.append(DomUtil.createPageURL(m_targetClass, m_targetParameters));
-				sb.append(m_targetParameters.size() > 0 ? "&" : "?");
+				sb.append(pageURL);
+				boolean hasParam = pageURL.contains("?");			// We must use this, because the parameters can be embedded in the URL.
+				sb.append(hasParam ? "&" : "?");
 				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
 				sb.append('=');
 				sb.append(wid);
