@@ -41,25 +41,30 @@ import to.etc.util.StringTool;
  * A hyperlink which allows for opening windows in a separate conversation from the
  * link. This is a rather complex interaction which works as follows:
  * <ul>
- *	<li>The link is generated as an A tag with both an onclick handler and a href URL.</li>
- *	<li>The href url contains a server-generated link to the Page to reach. This URL does NOT contain a WID.</li>
- *	<li>The onclick handler is a regular handler passing control to the server <b>and returns false always</b></li>
- *	<li>When the link is clicked in a normal way the onclick handles takes precedence over the href. This onclick
- *		handler passes control to the server as usual; the server will send a redirect for the actual page to reach
- *		and this redirect contains the current WID. This causes the new page to show in the current window session.</li>
- *	<li>If the link is opened with the right mouse button and "Open in new window" or something like that then
- *		the onclick handler is not used; the HREF url is used instead. This causes the browser to open a new window
- *		with a new URL not containing a WID. The server will respond by redirecting to the same thing with a new WID.
- *		This establishes a new Window session.</li>
+ * 	<li>The link is generated as an A tag with both an onclick handler and a href URL.</li>
+ * 	<li>The href url contains a server-generated link to the Page to reach. This URL does NOT contain a WID.</li>
+ * 	<li>The onclick handler is a regular handler passing control to the server <b>and returns false always</b></li>
+ * 	<li>When the link is clicked in a normal way the onclick handles takes precedence over the href. This onclick
+ * 		handler passes control to the server as usual; the server will send a redirect for the actual page to reach
+ * 		and this redirect contains the current WID. This causes the new page to show in the current window session.</li>
+ * 	<li>If the link is opened with the right mouse button and "Open in new window" or something like that then
+ * 		the onclick handler is not used; the HREF url is used instead. This causes the browser to open a new window
+ * 		with a new URL not containing a WID. The server will respond by redirecting to the same thing with a new WID.
+ * 		This establishes a new Window session.</li>
  * </ul>
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Nov 3, 2008
  */
 public class ALink extends ATag {
-	/** The target class this link should move to. When set targetURL must be null. */
-	private Class< ? extends UrlPage> m_targetClass;
+	/**
+	 * The target class this link should move to. When set targetURL must be null.
+	 */
+	private Class<? extends UrlPage> m_targetClass;
 
-	/** The target URL this page should move to. When set targetClass must be null. */
+	/**
+	 * The target URL this page should move to. When set targetClass must be null.
+	 */
 	private String m_targetURL;
 
 	private IPageParameters m_targetParameters;
@@ -70,42 +75,40 @@ public class ALink extends ATag {
 
 	private String m_imageUrl;
 
-	public ALink() {}
+	public ALink() {
+	}
 
 	/**
 	 * Link to a new page; the new page is a SUB page (it is added to the shelve stack).
-	 * @param targetClass
 	 */
-	public ALink(Class< ? extends UrlPage> targetClass) {
+	public ALink(Class<? extends UrlPage> targetClass) {
 		this(targetClass, null, null, null);
 	}
 
-	public ALink(Class< ? extends UrlPage> targetClass, MoveMode mode) {
+	public ALink(Class<? extends UrlPage> targetClass, MoveMode mode) {
 		this(targetClass, null, null, mode);
 	}
 
 	/**
 	 * Link to a new page; the new page is a SUB page (it is added to the shelve stack).
-	 * @param targetClass
-	 * @param targetParameters
 	 */
-	public ALink(Class< ? extends UrlPage> targetClass, IPageParameters targetParameters) {
+	public ALink(Class<? extends UrlPage> targetClass, IPageParameters targetParameters) {
 		this(targetClass, targetParameters, null, null);
 	}
 
-	public ALink(Class< ? extends UrlPage> targetClass, IPageParameters targetParameters, MoveMode mode) {
+	public ALink(Class<? extends UrlPage> targetClass, IPageParameters targetParameters, MoveMode mode) {
 		this(targetClass, targetParameters, null, mode);
 	}
 
-	public ALink(Class< ? extends UrlPage> targetClass, MoveMode mode, IPageParameters targetParameters) {
+	public ALink(Class<? extends UrlPage> targetClass, MoveMode mode, IPageParameters targetParameters) {
 		this(targetClass, targetParameters, null, mode);
 	}
 
-	public ALink(Class< ? extends UrlPage> targetClass, IPageParameters targetParameters, WindowParameters newWindowParameters) {
+	public ALink(Class<? extends UrlPage> targetClass, IPageParameters targetParameters, WindowParameters newWindowParameters) {
 		this(targetClass, targetParameters, newWindowParameters, null);
 	}
 
-	private ALink(Class< ? extends UrlPage> targetClass, IPageParameters targetParameters, WindowParameters newWindowParameters, MoveMode mode) {
+	private ALink(Class<? extends UrlPage> targetClass, IPageParameters targetParameters, WindowParameters newWindowParameters, MoveMode mode) {
 		setCssClass("ui-alnk");
 		m_targetClass = targetClass;
 		m_targetParameters = targetParameters;
@@ -117,9 +120,6 @@ public class ALink extends ATag {
 
 	/**
 	 * Link to some http: url that is not a DomUI page.
-	 *
-	 * @param targetURL
-	 * @param targetParameters
 	 */
 	public ALink(String targetURL, IPageParameters targetParameters, WindowParameters newWindowParameters) {
 		setCssClass("ui-alnk");
@@ -129,11 +129,11 @@ public class ALink extends ATag {
 		updateLink();
 	}
 
-	public Class< ? extends UrlPage> getTargetClass() {
+	public Class<? extends UrlPage> getTargetClass() {
 		return m_targetClass;
 	}
 
-	public void setTargetClass(Class< ? extends UrlPage> targetClass, Object... parameters) {
+	public void setTargetClass(Class<? extends UrlPage> targetClass, Object... parameters) {
 //		if(m_targetClass == targetClass)
 //			return;
 		m_targetClass = targetClass;
@@ -185,7 +185,7 @@ public class ALink extends ATag {
 	private void updateLink() {
 		if(m_targetClass != null) {
 			setHref(DomUtil.createPageURL(m_targetClass, m_targetParameters));
-		} else if(! DomUtil.isBlank(m_targetURL)) {
+		} else if(!DomUtil.isBlank(m_targetURL)) {
 			setHref(DomUtil.createPageURL(m_targetURL, m_targetParameters));
 		} else {
 			setHref(null);
@@ -253,8 +253,6 @@ public class ALink extends ATag {
 	/**
 	 * Overridden click handler. If no specific onClick handler is configured we handle the click by
 	 * moving to the specified page within the same window session.
-	 *
-	 * @see to.etc.domui.dom.html.NodeBase#internalOnClicked()
 	 */
 	@Override
 	public void internalOnClicked(@NonNull ClickInfo cli) throws Exception {
@@ -281,7 +279,6 @@ public class ALink extends ATag {
 	/**
 	 * Add an image to the link. The image is added just before the link text and should be an icon of
 	 * max 16x16 px. The image is cleared by passing null as a parameter.
-	 * @param url
 	 */
 	public void setImage(final String url) {
 		if(DomUtil.isEqual(url, m_imageUrl))
@@ -306,13 +303,12 @@ public class ALink extends ATag {
 	/**
 	 * Add an image to the link. The image is added just before the link text and should be an icon of max 16x16 px.
 	 */
-	public void setImage(Class< ? > resourceBase, final String name) {
+	public void setImage(Class<?> resourceBase, final String name) {
 		setImage(DomUtil.getJavaResourceRURL(resourceBase, name));
 	}
 
 	/**
 	 * Return the URL for the link's image, or null if unassigned.
-	 * @return
 	 */
 	public String getImage() {
 		return m_imageUrl;
@@ -321,7 +317,7 @@ public class ALink extends ATag {
 	private void updateStyle() {
 		if(isAttached()) {
 			String imageUrl = m_imageUrl;
-			if (null != imageUrl) {
+			if(null != imageUrl) {
 				setBackgroundImage(getThemedResourceRURL(imageUrl));
 			}
 		}
