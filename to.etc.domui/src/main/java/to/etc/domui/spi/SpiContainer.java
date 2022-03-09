@@ -365,11 +365,9 @@ final public class SpiContainer {
 	 */
 	public Runnable addShelfListener(IExecute onChange) {
 		m_shelfChangedListeners.add(onChange);
-		System.out.println("BREADCRUMB: Adding shelf listener");
 
 		return () -> {
 			m_shelfChangedListeners.remove(onChange);
-			System.out.println("BREADCRUMB: Removing shelf listener");
 		};
 	}
 
