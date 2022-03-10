@@ -25,6 +25,7 @@
 package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.ATag;
 import to.etc.domui.dom.html.ClickInfo;
 import to.etc.domui.dom.html.Page;
@@ -60,19 +61,25 @@ public class ALink extends ATag {
 	/**
 	 * The target class this link should move to. When set targetURL must be null.
 	 */
+	@Nullable
 	private Class<? extends UrlPage> m_targetClass;
 
 	/**
 	 * The target URL this page should move to. When set targetClass must be null.
 	 */
+	@Nullable
 	private String m_targetURL;
 
+	@Nullable
 	private IPageParameters m_targetParameters;
 
+	@Nullable
 	private WindowParameters m_newWindowParameters;
 
+	@NonNull
 	private MoveMode m_moveMode = MoveMode.SUB;
 
+	@Nullable
 	private String m_imageUrl;
 
 	public ALink() {
@@ -183,17 +190,21 @@ public class ALink extends ATag {
 	 * Generate the actual link to the thing.
 	 */
 	private void updateLink() {
-		String pageURL = DomUtil.createPageURL(m_targetClass, m_targetParameters);
-		if(m_targetClass != null) {
+		String pageURL;
+		Class<? extends UrlPage> targetClass = m_targetClass;
+		if(targetClass != null) {
+			pageURL = DomUtil.createPageURL(targetClass, m_targetParameters);
 			setHref(pageURL);
 		} else if(!DomUtil.isBlank(m_targetURL)) {
-			setHref(DomUtil.createPageURL(m_targetURL, m_targetParameters));
+			pageURL = DomUtil.createPageURL(m_targetURL, m_targetParameters);
+			setHref(pageURL);
 		} else {
 			setHref(null);
 			return;
 		}
 
-		if(getClicked() == null && getNewWindowParameters() != null) {
+		WindowParameters wp = getNewWindowParameters();
+		if(getClicked() == null && wp != null) {
 			//-- Generate an onclick javascript thingy to open the window to prevent popup blockers.
 
 			//-- Send a special JAVASCRIPT open command, containing the shtuff.
@@ -201,11 +212,9 @@ public class ALink extends ATag {
 			String wid = DomUtil.generateGUID();
 			sb.append("return DomUI.openWindow('");
 
-			if(!DomUtil.isBlank(m_targetURL)) {
-				sb.append(DomUtil.createPageURL(m_targetURL, m_targetParameters));
-			} else {
+			sb.append(pageURL);
+			if(targetClass != null) {
 				//-- We need a NEW window session. Create it,
-				sb.append(pageURL);
 				boolean hasParam = pageURL.contains("?");			// We must use this, because the parameters can be embedded in the URL.
 				sb.append(hasParam ? "&" : "?");
 				StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
@@ -218,29 +227,29 @@ public class ALink extends ATag {
 			sb.append("','");
 
 			sb.append("resizable=");
-			sb.append(m_newWindowParameters.isResizable() ? "yes" : "no");
+			sb.append(wp.isResizable() ? "yes" : "no");
 			sb.append(",scrollbars=");
-			sb.append(m_newWindowParameters.isShowScrollbars() ? "yes" : "no");
+			sb.append(wp.isShowScrollbars() ? "yes" : "no");
 			sb.append(",toolbar=");
-			sb.append(m_newWindowParameters.isShowToolbar() ? "yes" : "no");
+			sb.append(wp.isShowToolbar() ? "yes" : "no");
 			sb.append(",location=");
-			sb.append(m_newWindowParameters.isShowLocation() ? "yes" : "no");
+			sb.append(wp.isShowLocation() ? "yes" : "no");
 			sb.append(",directories=");
-			sb.append(m_newWindowParameters.isShowDirectories() ? "yes" : "no");
+			sb.append(wp.isShowDirectories() ? "yes" : "no");
 			sb.append(",status=");
-			sb.append(m_newWindowParameters.isShowStatus() ? "yes" : "no");
+			sb.append(wp.isShowStatus() ? "yes" : "no");
 			sb.append(",menubar=");
-			sb.append(m_newWindowParameters.isShowMenubar() ? "yes" : "no");
+			sb.append(wp.isShowMenubar() ? "yes" : "no");
 			sb.append(",copyhistory=");
-			sb.append(m_newWindowParameters.isCopyhistory() ? "yes" : "no");
+			sb.append(wp.isCopyhistory() ? "yes" : "no");
 
-			if(m_newWindowParameters.getWidth() > 0) {
+			if(wp.getWidth() > 0) {
 				sb.append(",width=");
-				sb.append(m_newWindowParameters.getWidth());
+				sb.append(wp.getWidth());
 			}
-			if(m_newWindowParameters.getHeight() > 0) {
+			if(wp.getHeight() > 0) {
 				sb.append(",height=");
-				sb.append(m_newWindowParameters.getHeight());
+				sb.append(wp.getHeight());
 			}
 			sb.append("');");
 			setOnClickJS(sb.toString());
@@ -264,18 +273,19 @@ public class ALink extends ATag {
 		}
 
 		//-- Default action.
-		if(m_targetClass == null)
+		Class<? extends UrlPage> targetClass = m_targetClass;
+		if(targetClass == null)
 			return;
 
 		//-- Is this a WINDOWED link?
 		if(m_newWindowParameters != null) {
-			String open = DomUtil.createOpenWindowJS(m_targetClass, m_targetParameters, m_newWindowParameters);
+			String open = DomUtil.createOpenWindowJS(targetClass, m_targetParameters, m_newWindowParameters);
 			appendJavascript(open);
 			return;
 		}
 
 		//-- Normal link; moveTo.
-		UIContext.getRequestContext().getWindowSession().internalSetNextPage(m_moveMode, m_targetClass, null, null, m_targetParameters);
+		UIContext.getRequestContext().getWindowSession().internalSetNextPage(m_moveMode, targetClass, null, null, m_targetParameters);
 	}
 
 	/**
