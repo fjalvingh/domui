@@ -1810,6 +1810,43 @@ final public class DomUtil {
 	}
 
 	/**
+	 * WARNING: Use createOpenTab instead!!
+	 * This opens a new DomUI page in a browser tab.
+	 */
+	@NonNull
+	static public String createOpenTabJS(@NonNull Class<?> targetClass, @Nullable IPageParameters targetParameters) {
+		//-- We need a NEW window session. Create it,
+		RequestContextImpl ctx = (RequestContextImpl) UIContext.getRequestContext();
+		WindowSession cm = ctx.getSession().createWindowSession();
+
+		//-- Send a special JAVASCRIPT open command, containing the shtuff.
+		StringBuilder sb = new StringBuilder();
+		sb.append(ctx.getRelativePath(targetClass.getName()));
+		sb.append(".ui?");
+		StringTool.encodeURLEncoded(sb, Constants.PARAM_CONVERSATION_ID);
+		sb.append('=');
+		sb.append(cm.getWindowID());
+		sb.append(".x");
+		if(targetParameters != null)
+			DomUtil.addUrlParameters(sb, targetParameters, false);
+		String url = sb.toString();
+
+		sb.setLength(0);
+		sb.append("window.open('").append(url).append("', '_blank');");
+		return sb.toString();
+	}
+
+	/**
+	 * Adds a Javascript onClick action which will open a new tab in the browser containing the
+	 * specified page. This can ONLY be done by javascript directly called by the click handler
+	 * (security, see <a href="https://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-and-not-a-new-window">https://stackoverflow.com/questions/4907843/open-a-url-in-a-new-tab-and-not-a-new-window</a>).
+	 */
+	static public void createOpenTab(NodeBase base, @NonNull Class<?> targetClass, @Nullable IPageParameters targetParameters) {
+		String js = createOpenTabJS(targetClass, targetParameters);
+		base.setOnClickJS(js);
+	}
+
+	/**
 	 * create a postUrlJS command where all page parameters are put in a json collection.
 	 */
 	@NonNull
