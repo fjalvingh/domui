@@ -52,4 +52,22 @@ public class SinglePoolPropertiesSource extends PoolConfigSource {
 		return this;
 	}
 
+	@Override
+	protected Properties getExtraProperties(String section) throws Exception {
+		Properties in = m_prop;
+		String prefix = "p.";
+		String prefix2 = "extra.";
+		Properties p = new Properties();
+		for(Object s : in.keySet()) {
+			String propertyName = s.toString();
+			if(propertyName.startsWith(prefix)) {
+				String realName = propertyName.substring(prefix.length());                // Strip p.
+				p.setProperty(realName, in.getProperty(propertyName));
+			} else if(propertyName.startsWith(prefix2)) {
+				String realName = propertyName.substring(prefix2.length());                // Strip extra.
+				p.setProperty(realName, in.getProperty(propertyName));
+			}
+		}
+		return p;
+	}
 }

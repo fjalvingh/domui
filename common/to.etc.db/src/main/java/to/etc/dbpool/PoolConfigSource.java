@@ -43,6 +43,10 @@ abstract public class PoolConfigSource {
 
 	PoolConfigSource() {}
 
+	abstract protected String getProperty(String section, String name) throws Exception;
+
+	abstract protected Properties getExtraProperties(String section) throws Exception;
+
 	public PoolConfigSource(File src, File back) {
 		m_src = src;
 		m_backupSrc = back;
@@ -55,8 +59,6 @@ abstract public class PoolConfigSource {
 	public File getSrc() {
 		return m_src;
 	}
-
-	abstract public String getProperty(String section, String name) throws Exception;
 
 	public boolean getBool(String sec, String name, boolean def) throws Exception {
 		String v = getProperty(sec, name);

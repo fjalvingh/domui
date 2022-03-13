@@ -221,4 +221,57 @@ public class XmlSource extends PoolConfigSource {
 		return v;
 	}
 
+	/**
+	 * Get driver-specific properties.
+	 */
+	@Override
+	protected Properties getExtraProperties(String section) throws Exception {
+		init();
+
+		Node backup = m_backup;
+		if(null != backup) {
+			Node poolNode = findPoolNode(backup, section);
+			if(null != poolNode) {
+				return getExtraProperties(poolNode);
+			}
+		}
+		Node poolNode = findPoolNode(m_src, section);
+		if(null != poolNode) {
+			return getExtraProperties(poolNode);
+		}
+		return new Properties();
+	}
+
+	private Properties getExtraProperties(Node pool) {
+		Properties p = new Properties();
+
+		NamedNodeMap m = pool.getAttributes();
+		if(null != m) {
+			for(int i = 0; i < m.getLength(); i++) {
+				Node item = m.item(i);
+				if(item.getNodeName().startsWith("p-")) {
+					String nodeValue = item.getNodeValue();
+					String realName = item.getNodeName().substring(2);			// Strip p-
+					p.put(realName, nodeValue);
+				}
+			}
+		}
+
+		//-- Also scan all entities below
+		NodeList childNodes = pool.getChildNodes();
+		if(null != childNodes) {
+			for(int i = 0; i < childNodes.getLength(); i++) {
+				Node node = childNodes.item(i);
+				if(node.getNodeType() == Node.ELEMENT_NODE) {
+					String name = node.getNodeName();
+					String value = node.getTextContent();
+					if(name != null && value != null && value.trim().length() > 0) {
+						p.setProperty(name, value);
+					}
+				}
+			}
+		}
+
+		return p;
+	}
 }

@@ -127,9 +127,9 @@ final public class PoolManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Accessing pools.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Return the #of pools currently defined.
-	 * @return
 	 */
 	public synchronized int getPoolCount() {
 		return m_poolMap.size();
@@ -152,7 +152,6 @@ final public class PoolManager {
 
 	/**
 	 * Return all currently defined pools.
-	 * @return
 	 */
 	public ConnectionPool[] getPoolList() {
 		synchronized(this) {
@@ -164,6 +163,7 @@ final public class PoolManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Defining and initializing pools.					*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Register a new pool with the manager and allow duplicate definitions.
 	 */
@@ -200,7 +200,12 @@ final public class PoolManager {
 		return definePool(id, pc);
 	}
 
-	public ConnectionPool definePool(@NonNull String id, @NonNull String driver, @NonNull String url, @NonNull String userid, @NonNull String password, @Nullable String driverpath, @Nullable Properties extra) throws SQLException {
+	public ConnectionPool definePool(String id, PoolConfigBuilder builder) throws SQLException {
+		return definePool(id, new PoolConfig(builder));
+	}
+
+	public ConnectionPool definePool(@NonNull String id, @NonNull String driver, @NonNull String url, @NonNull String userid, @NonNull String password, @Nullable String driverpath,
+		@Nullable Properties extra) throws SQLException {
 		if(null == extra)
 			extra = new Properties();
 		SinglePoolPropertiesSource ps = new SinglePoolPropertiesSource(extra)
@@ -208,8 +213,7 @@ final public class PoolManager {
 			.property(PoolConfig.USERID, userid)
 			.property(PoolConfig.PASSWORD, password)
 			.property(PoolConfig.DRIVER, driver)
-			.property(PoolConfig.DRIVERPATH, driverpath)
-			;
+			.property(PoolConfig.DRIVERPATH, driverpath);
 		return definePool(ps, id);
 	}
 
@@ -251,7 +255,13 @@ final public class PoolManager {
 	}
 
 	public ConnectionPool initializePool(String id) throws Exception {
-		return initializePool(id, null);
+		return initializePool(id, (Properties) null);
+	}
+
+	public ConnectionPool initializePool(String id, PoolConfigBuilder builder) throws Exception {
+		ConnectionPool pool = definePool(id, builder);
+		pool.initialize();
+		return pool;
 	}
 
 	/**
@@ -269,8 +279,10 @@ final public class PoolManager {
 
 	/**
 	 * This combines defining and initializing a pool.
-	 * @param cs	The configsource to take definitions from
-	 * @param id	The ID of the pool to define.
+	 *
+	 * @param cs    The configsource to take definitions from
+	 *
+	 * @param id    The ID of the pool to define.
 	 */
 	public ConnectionPool initializePool(final PoolConfigSource cs, final String id) throws SQLException {
 		ConnectionPool p = definePool(cs, id); // Define the pool
@@ -295,6 +307,7 @@ final public class PoolManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Pool management and teardown.						*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Destroy all current pools.
 	 */
@@ -338,28 +351,28 @@ final public class PoolManager {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Pool scanner.										*/
 	/*--------------------------------------------------------------*/
-	private final int m_dbpool_scaninterval = 120;
+	private final int m_scanInterval = 120;
 
-	private Thread m_scanthread;
+	private Thread m_scanThread;
 
 	/**
 	 * Starts the scanner if database locking security is requested.
 	 */
 	synchronized protected void startExpiredConnectionScanner() {
-		if(m_dbpool_scaninterval == 0 || m_scanthread != null)
+		if(m_scanInterval == 0 || m_scanThread != null)
 			return;
 
 		//-- Start the task,
 		try {
-			m_scanthread = new Thread(new Runnable() {
+			m_scanThread = new Thread(new Runnable() {
 				@Override
 				public void run() {
 					expiredConnectionScannerLoop();
 				}
 			});
-			m_scanthread.setDaemon(true);
-			m_scanthread.setName("DbPoolScanner");
-			m_scanthread.start();
+			m_scanThread.setDaemon(true);
+			m_scanThread.setName("DbPoolScanner");
+			m_scanThread.start();
 		} catch(Exception x) {
 			x.printStackTrace();
 			logUnexpected(x, "in starting dbpool scanner");
@@ -371,10 +384,10 @@ final public class PoolManager {
 	 */
 	void expiredConnectionScannerLoop() {
 		//System.out.println("PoolManager: expired connection scanning thread started.");
-		for(;;) {
+		for(; ; ) {
 			try {
-				scanExpiredConnectionsOnce(m_dbpool_scaninterval);
-				Thread.sleep(m_dbpool_scaninterval * 1000 / 2);
+				scanExpiredConnectionsOnce(m_scanInterval);
+				Thread.sleep(m_scanInterval * 1000 / 2);
 			} catch(Exception x) {
 				logUnexpected(x, "In scanning for expired connections");
 			}
@@ -384,11 +397,11 @@ final public class PoolManager {
 	/**
 	 * The janitor task which scans for unreleased database connections.
 	 */
-	private void scanExpiredConnectionsOnce(final int scaninterval_in_secs) {
+	private void scanExpiredConnectionsOnce(final int scanIntervalInSecs) {
 		//-- Righty right. Get a list of ALL pools and scan them for old shit.
 		ConnectionPool[] ar = getPoolList();
 		for(ConnectionPool p : ar)
-			p.scanExpiredConnections(scaninterval_in_secs, false);
+			p.scanExpiredConnections(scanIntervalInSecs, false);
 	}
 
 	/*--------------------------------------------------------------*/
@@ -433,8 +446,6 @@ final public class PoolManager {
 	/**
 	 * Returns the collector with the specified key. If statistics collection is not enabled
 	 * this returns null always; else it returns and removes the collector- if found.
-	 * @param key
-	 * @return
 	 */
 	public IStatisticsListener stopCollecting(String key) {
 		IConnectionEventListener ih = m_connectionEventListener.get();
@@ -443,25 +454,23 @@ final public class PoolManager {
 
 		CollectingConnectionEventListener cih = (CollectingConnectionEventListener) ih;
 		StatisticsListenerMultiplexer sink = (StatisticsListenerMultiplexer) cih.getListener();
-		IStatisticsListener ic = sink.removeCollector(key); 	// Remove collector.
+		IStatisticsListener ic = sink.removeCollector(key);    // Remove collector.
 		if(null != ic)
 			ic.finish();
 		return ic;
 	}
 
 	public void setCollectStatistics(final boolean on) {
-		m_collectStatistics = on;								// volatile
+		m_collectStatistics = on;                                // volatile
 	}
 
 	public boolean isCollectStatistics() {
-		return m_collectStatistics;								// volatile
+		return m_collectStatistics;                                // volatile
 	}
 
 	/**
 	 * Add an event listener to the specified connection. The connection must be one that is allocated
 	 * through this pool manager or an exception is thrown.
-	 * @param dbc
-	 * @param el
 	 */
 	static public void addListener(@NonNull Connection dbc, @NonNull IDatabaseEventListener el) {
 		if(!(dbc instanceof ConnectionProxy))
@@ -472,8 +481,6 @@ final public class PoolManager {
 	/**
 	 * Remove an event listener that was added before from the specified connection. The connection must be one that is allocated
 	 * through this pool manager or an exception is thrown.
-	 * @param dbc
-	 * @param el
 	 */
 	static public void removeListener(@NonNull Connection dbc, @NonNull IDatabaseEventListener el) {
 		if(!(dbc instanceof ConnectionProxy))
@@ -499,9 +506,6 @@ final public class PoolManager {
 
 	static private final boolean DEBUG = false;
 
-	/**
-	 * @param cx
-	 */
 	void addThreadConnection(ConnectionProxy cx) {
 		if(!isCheckCloseConnections())
 			return;
@@ -557,9 +561,6 @@ final public class PoolManager {
 	 * Mark connection long living, for those connections which need
 	 * to be opened for a long time (hanging connection check will skip
 	 * this connection).
-	 *
-	 * @param dbc
-	 * @throws SQLException
 	 */
 	static public void setLongLiving(@NonNull Connection dbc) throws SQLException {
 		ConnectionProxy proxy = dbc.unwrap(ConnectionProxy.class);
@@ -582,11 +583,9 @@ final public class PoolManager {
 	/**
 	 * Try to get the unpooled datasource associated with this datasource, if that
 	 * datasource comes from the pool manager.
-	 * @param ds
-	 * @return
 	 */
 	@NonNull
-	static public DataSource	getUnpooledFrom(@NonNull DataSource ds) {
+	static public DataSource getUnpooledFrom(@NonNull DataSource ds) {
 		ConnectionPool cp = getPoolFrom(ds);
 		if(null == cp)
 			return ds;

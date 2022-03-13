@@ -24,11 +24,17 @@
  */
 package to.etc.dbpool;
 
-import java.io.*;
-import java.util.*;
-
-import javax.naming.*;
-import javax.naming.spi.*;
+import javax.naming.Context;
+import javax.naming.Name;
+import javax.naming.RefAddr;
+import javax.naming.Reference;
+import javax.naming.spi.ObjectFactory;
+import java.io.File;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Object factory for the database pool. This allows this pool to be used from within applications.
@@ -37,14 +43,14 @@ import javax.naming.spi.*;
  * Created on Jan 16, 2007
  */
 public class PoolResourceFactory implements ObjectFactory {
-	public Object getObjectInstance(Object arg0, Name arg1, Context arg2, Hashtable< ? , ? > arg3) throws Exception {
+	public Object getObjectInstance(Object arg0, Name arg1, Context arg2, Hashtable<?, ?> arg3) throws Exception {
 		System.out.println("Called getObjectFactory.");
 
 		//-- 1. Initialize the pool, and return a datasource.
 		final Map<String, String> map = new HashMap<String, String>();
 
 		Reference ref = (Reference) arg0;
-		for(Enumeration<RefAddr> e = ref.getAll(); e.hasMoreElements();) {
+		for(Enumeration<RefAddr> e = ref.getAll(); e.hasMoreElements(); ) {
 			RefAddr ra = e.nextElement();
 			String name = ra.getType();
 			String val = (String) ra.getContent();
@@ -71,6 +77,11 @@ public class PoolResourceFactory implements ObjectFactory {
 				@Override
 				public String getProperty(String section, String name) throws Exception {
 					return map.get(name);
+				}
+
+				@Override
+				protected Properties getExtraProperties(String section) throws Exception {
+					return new Properties();
 				}
 			};
 			p = PoolManager.getInstance().initializePool(cs, id);
