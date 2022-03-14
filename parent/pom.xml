@@ -81,7 +81,7 @@
 		<jetty.version>9.4.14.v20181114</jetty.version>  <!-- DO NOT GO TO 10.x - tests fail with that -->
 <!--		<jetty.version>11.0.7</jetty.version>-->
 		<selenium.version>3.141.59</selenium.version>
-		<hsqldb.version>2.5.1</hsqldb.version>
+		<hsqldb.version>2.6.1</hsqldb.version>
 
 		<jaxb.version>2.3.0</jaxb.version>
 
