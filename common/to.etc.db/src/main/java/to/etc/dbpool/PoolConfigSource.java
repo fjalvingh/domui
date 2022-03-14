@@ -93,7 +93,7 @@ abstract public class PoolConfigSource {
 		return m_src.toString();
 	}
 
-	static PoolConfigSource create(File f, @Nullable Properties extra) {
+	static public PoolConfigSource create(File f, @Nullable Properties extra) {
 		if(null == extra)
 			extra = new Properties();
 		String name = f.getName().toLowerCase();
