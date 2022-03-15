@@ -39,16 +39,25 @@ public class ValidationException extends UIException {
 		super(t, code, parameters);
 	}
 
+	/**
+	 * Use the {@link IBundleCode} variants.
+	 */
 	@Deprecated
 	public ValidationException() {
 		super(Msgs.notValid);
 	}
 
+	/**
+	 * Use the {@link IBundleCode} variants.
+	 */
 	@Deprecated
 	public ValidationException(BundleRef bundle, String code, Object... parameters) {
 		super(bundle, code, parameters);
 	}
 
+	/**
+	 * Use the {@link IBundleCode} variants.
+	 */
 	@Deprecated
 	public ValidationException(String code, Object... param) {
 		super(Msgs.BUNDLE, code, param);
