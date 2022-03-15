@@ -342,6 +342,13 @@ final public class ConnectionPool {
 		m_manager = pm;
 		m_id = id;
 		m_config = config;
+
+		m_properties.put("defaultRowFetchSize", "65536");
+		m_properties.setProperty("reWriteBatchedInserts", "true");
+		m_properties.setProperty("sendBufferSize",
+			Integer.toString(1024 * 1024));        // See https://github.com/pgjdbc/pgjdbc/issues/194#issuecomment-248614175 and https://github.com/pgjdbc/pgjdbc/issues/929
+		m_properties.setProperty("recvBufferSize",
+			Integer.toString(1024 * 1024));
 	}
 
 	/**
