@@ -47,6 +47,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 
 	public RadioGroup() {
 		m_groupName = "g" + nextID();
+		addCssClass("ui-rbgroup");
 	}
 
 	static private synchronized int nextID() {
