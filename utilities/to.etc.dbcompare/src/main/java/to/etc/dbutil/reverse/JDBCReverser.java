@@ -430,7 +430,7 @@ public class JDBCReverser implements Reverser {
 
 	protected DbColumn reverseColumnUnknownType(ResultSet rs, DbTable t, String name, int sqlType, String typename, int prec, int scale, boolean nulla, Boolean autoIncrement) {
 		log("Unknown type: SQLType " + sqlType + " (" + typename + ") in " + t.getName() + "." + name);
-		return null;
+		return createDbColumn(t, name, Integer.MAX_VALUE, typename, prec, scale, nulla, autoIncrement, ColumnType.UNKNOWN);
 	}
 
 	static private void dumpRow(ResultSet rs) throws Exception {
@@ -459,36 +459,37 @@ public class JDBCReverser implements Reverser {
 				String col = rs.getString("COLUMN_NAME");
 				String s = rs.getString("ASC_OR_DESC");
 				boolean desc = "D".equalsIgnoreCase(s);
-				if(col == null) {
-					System.out.println("Null index column in index " + name + " of table " + t.getName());
-					continue;
-				}
-				DbColumn c;
-				try {
-					c = t.getColumn(col);
-				} catch(Exception x) {
-					x.printStackTrace();
-					continue;
-				}
-
-				//-- Is a new index being defined?
-				if(lastindex == null || !lastindex.equals(name)) {
-					lastindex = name;
-
-					ix = new DbIndex(t, name, !nonunique);
-					indexMap.put(name, ix);
-					lastord = -1;
+				if(name == null) {            // Microsoft, whom else
+					System.out.println("Bad JDBC driver: index name null in database metadata query");
 				} else {
-					if(lastord == -1) {
-						lastord = ord;
+					if(col == null) {
+						System.out.println("Bad JDBC driver (let me guess: MS): index column name is null in index " + name + " of " + t.getName());
+						continue;
+					}
+					DbColumn c = t.findColumn(col);
+					if(null == c) {
+						System.out.println("Bad JDBC driver (let me guess: MS): index column " + col + " not found in table " + t.getName());
 					} else {
-						if(lastord + 1 != ord)
-							throw new IllegalStateException("JDBC driver trouble: getIndexes() does not return cols ordered by position: " + lastord + ", " + ord);
-						lastord = ord;
+						//-- Is a new index being defined?
+						if(lastindex == null || !lastindex.equals(name)) {
+							lastindex = name;
+
+							ix = new DbIndex(t, name, !nonunique);
+							indexMap.put(name, ix);
+							lastord = -1;
+						} else {
+							if(lastord == -1) {
+								lastord = ord;
+							} else {
+								if(lastord + 1 != ord)
+									throw new IllegalStateException("Bad JDBC driver: getIndexes() does not return cols ordered by position: " + lastord + ", " + ord);
+								lastord = ord;
+							}
+						}
+						if(null != ix)                            // Satisfy ecj's null check
+							ix.addColumn(c, desc);
 					}
 				}
-				if(null != ix)							// Satisfy ecj's null check
-					ix.addColumn(c, desc);
 			}
 			t.setIndexMap(indexMap);
 			msg("Loaded " + t.getName() + ": " + t.getColumnMap().size() + " indexes");
@@ -502,7 +503,7 @@ public class JDBCReverser implements Reverser {
 
 	@Override
 	public void reversePrimaryKey(@NonNull Connection dbc, DbTable t) throws Exception {
-		List<DbColumn> pkl = new ArrayList<DbColumn>(); // Stupid resultset is ordered by NAME instead of ordinal. Dumbfuckers.
+		List<DbColumn> pkl = new ArrayList<>(); // Stupid resultset is ordered by NAME instead of ordinal. Dumbfuckers.
 		try(ResultSet rs = dbc.getMetaData().getPrimaryKeys(null, t.getSchema().getName(), t.getName())) {
 			DbPrimaryKey pk;
 			String name = null;
@@ -511,15 +512,19 @@ public class JDBCReverser implements Reverser {
 				int ord = rs.getInt("KEY_SEQ");
 				String col = rs.getString("COLUMN_NAME");
 				if(col == null) {
-					System.out.println("Null PK column in PK " + name + " of table " + t.getName());
+					System.out.println("Bad JDBC driver: Null PK column in PK " + name + " of table " + t.getName());
 					continue;
 				}
-				DbColumn c = t.getColumn(col);
-				while(pkl.size() <= ord)
-					pkl.add(null);
-				pkl.set(ord, c);
+				DbColumn c = t.findColumn(col);
+				if(c == null) {
+					System.out.println("Bad JDBC driver: PK column " + col + " was not found in the column list for table " + t.getName());
+				} else {
+					while(pkl.size() <= ord)
+						pkl.add(null);
+					pkl.set(ord, c);
+				}
 			}
-			if(name != null) {
+			if(name != null && pkl.size() > 0) {
 				pk = new DbPrimaryKey(t, name);
 				t.setPrimaryKey(pk);
 				for(DbColumn c : pkl)
@@ -746,6 +751,8 @@ public class JDBCReverser implements Reverser {
 			case Types.BOOLEAN:
 				return ColumnType.BOOLEAN;
 
+			case Types.NCHAR:
+				return ColumnType.NCHAR;
 			case Types.DECIMAL:
 				return ColumnType.NUMBER;
 			case Types.LONGVARCHAR:

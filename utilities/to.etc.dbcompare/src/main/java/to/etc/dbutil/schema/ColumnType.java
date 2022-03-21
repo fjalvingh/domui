@@ -25,6 +25,7 @@ public class ColumnType implements Serializable {
 	static public final ColumnType NVARCHAR = new ColumnType("nvarchar", Types.NVARCHAR, true, false, "nvarchar2", "nvarchar");
 
 	static public final ColumnType CHAR = new ColumnType("char", Types.CHAR, true, false, "char", "character");
+	static public final ColumnType NCHAR = new ColumnType("nchar", Types.NCHAR, true, false, "nchar");
 
 	static public final ColumnType BOOLEAN = new ColumnType("boolean", Types.BOOLEAN, false, false, "bool", "boolean");
 
