@@ -178,6 +178,17 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		return rb;
 	}
 
+	public RadioButton<T> addButton(@NonNull T value) {
+		if(value instanceof Enum) {
+			Enum<?> enu = (Enum<?>) value;
+			String label = MetaManager.getEnumLabel(enu);
+			return addButton(label, value);
+		}
+		return addButton(value.toString(), value);
+	}
+
+
+
 	static public <T extends Enum<T>> RadioGroup<T> createEnumRadioGroup(Class<T> clz, T... exceptions) {
 		ClassMetaModel cmm = MetaManager.findClassMeta(clz);
 		List<ValueLabelPair<T>> l = new ArrayList<ValueLabelPair<T>>();
