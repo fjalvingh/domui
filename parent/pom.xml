@@ -19,6 +19,21 @@
 	<description>Parent to all DomUI projects</description>
 	<inceptionYear>2017</inceptionYear>
 
+	<developers>
+		<developer>
+			<id>jal</id>
+			<name>Frits Jalvingh</name>
+			<email>jal@etc.to</email>
+			<organization>etc.to</organization>
+			<organizationUrl>https://etc.to/</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+	</developers>
+
 	<properties>
 		<!-- JDK properties -->
 		<jdk.version>11</jdk.version>
@@ -713,21 +728,6 @@
 
 		</dependencies>
 	</dependencyManagement>
-
-	<developers>
-		<developer>
-			<id>jal</id>
-			<name>Frits Jalvingh</name>
-			<email>jal@etc.to</email>
-			<organization>etc.to</organization>
-			<organizationUrl>https://etc.to/</organizationUrl>
-			<roles>
-				<role>architect</role>
-				<role>developer</role>
-			</roles>
-			<timezone>+1</timezone>
-		</developer>
-	</developers>
 
 	<!--    <reporting>-->
 	<!--        <plugins>-->
