@@ -17,6 +17,28 @@
     <description>Typeful Properties annotation processor</description>
     <packaging>jar</packaging>
 
+    <developers>
+        <developer>
+            <id>jal</id>
+            <name>Frits Jalvingh</name>
+            <email>jal@etc.to</email>
+            <organization>etc.to</organization>
+            <organizationUrl>https://etc.to/</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>+1</timezone>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License, version 2.1</name>
+            <url>https://www.gnu.org/licenses/old-licenses/lgpl-2.1.en.html</url>
+        </license>
+    </licenses>
+
     <properties>
         <!-- JDK properties -->
         <source.jdk.version>1.8</source.jdk.version>
@@ -24,7 +46,6 @@
         <ecj.version>3.12.3</ecj.version>
 
         <maven-compiler-plugin.version>3.6.1</maven-compiler-plugin.version>
-
     </properties>
 
     <dependencies>
@@ -64,6 +85,18 @@
                         <version>${ecj.version}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.9.1</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>3.2.2</version>
             </plugin>
 
         </plugins>
