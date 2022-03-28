@@ -231,7 +231,7 @@ public class SecurityUtils {
 		try {
 			byte[] md5Hash = md5Hash(in.getBytes("UTF-8"));
 			String hexStr = StringTool.toHex(md5Hash);
-			return new BigInteger(hexStr, 16).toString( 36 ).toLowerCase();
+			return new BigInteger(hexStr, 16).toString(36).toLowerCase();
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);
 		}
@@ -239,9 +239,20 @@ public class SecurityUtils {
 
 	static public String convertHexToBase36(@NonNull String hexStr) {
 		try {
-			return new BigInteger(hexStr, 16).toString( 36 ).toLowerCase();
+			return new BigInteger(hexStr, 16).toString(36).toLowerCase();
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);
+		}
+	}
+
+	@NonNull
+	static public String getSha1Hex(@NonNull String in, @NonNull Charset encoding) {
+		try {
+			MessageDigest sha = MessageDigest.getInstance("SHA-1");
+			byte[] hash = sha.digest(in.getBytes(encoding));
+			return StringTool.toHex(hash);
+		}catch(Exception ex) {
+			throw WrappedException.wrap(ex);
 		}
 	}
 
