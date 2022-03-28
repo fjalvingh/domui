@@ -36,6 +36,10 @@ import org.eclipse.jdt.annotation.Nullable;
  * Created on Feb 15, 2010
  */
 public class DisplayValue<T> extends DisplaySpan<T> {
+	public DisplayValue() {
+		setCssClass("ui-dspv");
+	}
+
 	public DisplayValue(@NonNull Class<T> valueClass) {
 		super(valueClass);
 		setCssClass("ui-dspv");
@@ -46,7 +50,7 @@ public class DisplayValue<T> extends DisplaySpan<T> {
 		setCssClass("ui-dspv");
 	}
 
-	public DisplayValue(@NonNull T literal) {
+	public DisplayValue(@Nullable T literal) {
 		super(literal);
 		setCssClass("ui-dspv");
 	}

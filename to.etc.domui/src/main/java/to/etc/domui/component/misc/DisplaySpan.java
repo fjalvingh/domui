@@ -26,7 +26,6 @@ package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.meta.ClassMetaModel;
 import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.PropertyMetaModel;
@@ -50,9 +49,9 @@ import to.etc.webapp.nls.NlsContext;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
-public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvertable<T>, ITypedControl<T> {
-	@NonNull
-	private Class<T> m_valueClass;
+public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvertable<T> {
+	//@NonNull
+	//private Class<T> m_valueClass;
 
 	@Nullable
 	private T m_value;
@@ -68,25 +67,27 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	@Nullable
 	private String m_emptyString;
 
+	public DisplaySpan() {}
+
 	public DisplaySpan(@NonNull Class<T> valueClass) {
 		this(valueClass, null);
 	}
 
 	public DisplaySpan(@NonNull Class<T> valueClass, @Nullable T value) {
-		m_valueClass = valueClass;
+		//m_valueClass = valueClass;
 		m_value = value;
 	}
 
-	public DisplaySpan(@NonNull T literal) {
-		m_valueClass = (Class<T>) literal.getClass();
+	public DisplaySpan(@Nullable T literal) {
+		//m_valueClass = (Class<T>) literal.getClass();
 		m_value = literal;
 	}
 
-	@NonNull
-	@Override
-	public Class<T> getActualType() {
-		return m_valueClass;
-	}
+	//@NonNull
+	//@Override
+	//public Class<T> getActualType() {
+	//	return m_valueClass;
+	//}
 
 	/**
 	 * Render the content in some way. It uses the following logic:
@@ -122,7 +123,7 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		}
 
 		//-- Getting slightly desperate here... Is there a "default converter" that we can use?
-		IConverter<T> c = ConverterRegistry.findConverter(getActualType()); // This version does return null if nothing is found, not a toString converter.
+		IConverter<T> c = ConverterRegistry.findConverter((Class<T>) val.getClass()); // This version does return null if nothing is found, not a toString converter.
 		if(c != null) {
 			String converted = c.convertObjectToString(NlsContext.getLocale(), val);
 			setString(converted);
