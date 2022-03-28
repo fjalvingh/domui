@@ -26,6 +26,7 @@ package to.etc.domui.component.misc;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.domui.component.meta.PropertyMetaModel;
 
 /**
  * This is a special control which can be used to display all kinds of values. It behaves as a "span" containing some
@@ -36,6 +37,16 @@ import org.eclipse.jdt.annotation.Nullable;
  * Created on Feb 15, 2010
  */
 public class DisplayValue<T> extends DisplaySpan<T> {
+	public DisplayValue(PropertyMetaModel<T> pmm) {
+		super(pmm);
+		setCssClass("ui-dspv");
+	}
+
+	public DisplayValue(PropertyMetaModel<T> pmm, @Nullable T value) {
+		super(pmm, value);
+		setCssClass("ui-dspv");
+	}
+
 	public DisplayValue() {
 		setCssClass("ui-dspv");
 	}

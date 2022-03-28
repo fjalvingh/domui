@@ -291,9 +291,9 @@ public class NumericUtil {
 		return new NumberConverter<T>(type, np, scale);
 	}
 
-	public static <T extends Number> void assignNumericConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
+	public static <T extends Number> IConverter<T> createNumericConverter(PropertyMetaModel<T> pmm, Class<T> type) {
 		if(pmm.getConverter() != null)
-			node.setConverter(pmm.getConverter());
+			return pmm.getConverter();
 		else {
 			NumericPresentation np = null;
 			//			if(!editable)
@@ -311,7 +311,12 @@ public class NumericUtil {
 				scale = 5;
 			}
 			IConverter<T> c = createNumberConverter(type, np, scale);
-			node.setConverter(c);
+			return c;
 		}
+	}
+
+	public static <T extends Number> void assignNumericConverter(final PropertyMetaModel<T> pmm, boolean editable, final IConvertable<T> node, Class<T> type) {
+		IConverter<T> c = createNumericConverter(pmm, type);
+		node.setConverter(c);
 	}
 }

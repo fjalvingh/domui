@@ -32,6 +32,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
 import to.etc.domui.converter.ConverterRegistry;
 import to.etc.domui.converter.IConvertable;
 import to.etc.domui.converter.IConverter;
+import to.etc.domui.converter.NumericUtil;
 import to.etc.domui.dom.html.IDisplayControl;
 import to.etc.domui.dom.html.IValueChanged;
 import to.etc.domui.dom.html.NodeBase;
@@ -68,6 +69,16 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 	private String m_emptyString;
 
 	public DisplaySpan() {}
+
+	public DisplaySpan(PropertyMetaModel<T> pmm) {
+		defineFrom(pmm);
+	}
+
+	public DisplaySpan(PropertyMetaModel<T> pmm, @Nullable T value) {
+		defineFrom(pmm);
+		m_value = value;
+	}
+
 
 	public DisplaySpan(@NonNull Class<T> valueClass) {
 		this(valueClass, null);
@@ -202,6 +213,11 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		m_emptyString = emptyString;
 	}
 
+	private <V extends Number> void setNumericConfig(PropertyMetaModel<V> pmm) {
+		IConverter<V> numericConverter = NumericUtil.createNumericConverter(pmm, pmm.getActualType());
+		setConverter((IConverter<T>) numericConverter);
+	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	IDisplayControl interface.							*/
 	/*--------------------------------------------------------------*/
@@ -221,8 +237,11 @@ public class DisplaySpan<T> extends Span implements IDisplayControl<T>, IConvert
 		forceRebuild();
 	}
 
-	public void defineFrom(@NonNull PropertyMetaModel<?> pmm) {
+	public void defineFrom(@NonNull PropertyMetaModel<T> pmm) {
 		UIControlUtil.configureHint(this, pmm);
+		if(Number.class.isAssignableFrom(pmm.getActualType())) {
+			setNumericConfig((PropertyMetaModel<? extends Number>) pmm);
+		}
 	}
 
 	@Nullable
