@@ -47,10 +47,15 @@ import javax.servlet.ServletResponse;
 import javax.servlet.UnavailableException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Enumeration;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Base filter which accepts requests to the dom windows. This accepts all URLs that end with a special
@@ -86,9 +91,7 @@ public class AppFilter implements Filter {
 
 	private ILoginDeterminator m_loginDeterminator;
 
-	static public synchronized void setIoWrapper(@NonNull IRequestResponseWrapper ww) {
-		m_ioWrapper = ww;
-	}
+	private static List<HttpSession> m_activeSessionList = new ArrayList<>();
 
 	@Override
 	public void destroy() {
@@ -229,6 +232,8 @@ public class AppFilter implements Filter {
 				m_contextMaker = new ReloadingContextMaker(m_applicationClassName, m_config, autoload, autoloadWatchOnly);
 			else
 				m_contextMaker = new NormalContextMaker(m_applicationClassName, m_config);
+
+			config.getServletContext().addListener(new ActiveSessionListener());
 		} catch(RuntimeException x) {
 			DomUtil.dumpException(x);
 			throw x;
@@ -308,6 +313,24 @@ public class AppFilter implements Filter {
 		if(f.exists() && f.isFile())
 			return f;
 		return null;
+	}
+
+	static synchronized void addSession(HttpSession session) {
+		m_activeSessionList.add(session);
+	}
+
+	static synchronized void removeSession(HttpSession session) {
+		m_activeSessionList.remove(session);
+	}
+
+	static public synchronized List<HttpSession> getSessions(Predicate<HttpSession> filter) {
+		return m_activeSessionList.stream()
+			.filter(filter)
+			.collect(Collectors.toList());
+	}
+
+	static public synchronized void setIoWrapper(@NonNull IRequestResponseWrapper ww) {
+		m_ioWrapper = ww;
 	}
 
 	public String getApplicationClassName(final ConfigParameters p) {

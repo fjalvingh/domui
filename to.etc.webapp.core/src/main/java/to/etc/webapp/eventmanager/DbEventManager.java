@@ -208,7 +208,12 @@ public class DbEventManager implements Runnable {
 	/** The thread executing the event handler's main loop. */
 	private Thread m_handlerThread;
 
-	private final TreeSet<Long> m_localEvents = new TreeSet<Long>();
+	/**
+	 * List of event IDs that must be skipped locally when read back through
+	 * the database. Used for events that were handled IMMEDIATELY, and events
+	 * delivered to remotes only.
+	 */
+	private final TreeSet<Long> m_skipEventsLocally = new TreeSet<Long>();
 
 	/**
 	 * The listeners to events, indexed by their event name.
@@ -516,7 +521,7 @@ public class DbEventManager implements Runnable {
 
 				//-- Remove all saved "locally generated" events up to the event we've just read,
 				synchronized(this) {
-					Iterator<Long> it = m_localEvents.iterator();
+					Iterator<Long> it = m_skipEventsLocally.iterator();
 					while(it.hasNext()) {
 						Long v = it.next();
 						if(v.longValue() <= upid) {
@@ -656,7 +661,7 @@ public class DbEventManager implements Runnable {
 	 * adds it to the "local" event queue *if* the event is an immediate event (an event whose
 	 * handler will be called immediately).
 	 */
-	public long sendEventMain(@NonNull final Connection dbc, @NonNull final AppEventBase ae, final boolean commit, final boolean isimmediate) throws Exception {
+	public long sendEventMain(@NonNull final Connection dbc, @NonNull final AppEventBase ae, final boolean commit, final boolean skipLocalReadback) throws Exception {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		boolean ac = dbc.getAutoCommit(); // Do not autocommit when storing a blub
@@ -679,9 +684,10 @@ public class DbEventManager implements Runnable {
 			ae.setTimestamp(now());
 			ae.setServer(m_serverName);
 
-			if(isimmediate) { // Handlers will be called immediately after this?
+			if(skipLocalReadback) {
+				//-- This event should not be executed locally on readback
 				synchronized(this) {
-					m_localEvents.add(Long.valueOf(id)); // Store this as a local event,
+					m_skipEventsLocally.add(Long.valueOf(id)); // Store this as a local event,
 				}
 			}
 
@@ -830,7 +836,7 @@ public class DbEventManager implements Runnable {
 
 	/**
 	 * Call all registered listeners for an event.
-	 * @param ae        The event that occured
+	 * @param ae        The event that occurred
 	 * @param immediate When T call all events that need to be called immediately.
 	 */
 	private void callListeners(@NonNull final AppEventBase ae, final boolean immediate, final boolean islocalevent) {
@@ -862,15 +868,16 @@ public class DbEventManager implements Runnable {
 		removeListener(cl, listener);
 	}
 
+	public void postRemoteEvent(@NonNull Connection dbc, @NonNull AppEventBase ae) throws Exception {
+		if(!inJUnitTestMode())
+			sendEventMain(dbc, ae, true, true);
+	}
+
 	/**
-	 * Post an event synchronously. This posts the event, <b>commits it (commiting the transaction on the connection!!)</b> and calls all local handlers immediately. You
-	 * may only call this version if all data pertaining to the event has been commited to the database or will
-	 * be commited as a result of this call! If you do not the event may fire in other servers/listeners with stale
+	 * Post an event synchronously. This posts the event, <b>commits it (committing the transaction on the connection!!)</b> and calls all local handlers immediately. You
+	 * may only call this version if all data pertaining to the event has been committed to the database or will
+	 * be committed as a result of this call! If you do not the event may fire in other servers/listeners with stale
 	 * data in the database; this will cause wrong results.
-	 *
-	 * @param dbc
-	 * @param ae
-	 * @throws Exception
 	 */
 	public void postEvent(@NonNull final Connection dbc, @NonNull final AppEventBase ae) throws Exception {
 		if(!inJUnitTestMode())
@@ -879,13 +886,9 @@ public class DbEventManager implements Runnable {
 	}
 
 	/**
-	 * Post an event asynchronously. The event gets added to the database but not commited, and no local listeners
-	 * get called at this time. When the event gets commited the scanner will see it and call the local handlers. This
-	 * call is typically done when an event needs to be commited lazily.
-	 *
-	 * @param dbc
-	 * @param ae
-	 * @throws Exception
+	 * Post an event asynchronously. The event gets added to the database but not committed, and no local listeners
+	 * get called at this time. When the event gets committed the scanner will see it and call the local handlers. This
+	 * call is typically done when an event needs to be committed lazily.
 	 */
 	public void postDelayedEvent(@NonNull final Connection dbc, @NonNull final AppEventBase ae) throws Exception {
 		if(!inJUnitTestMode())
@@ -905,9 +908,6 @@ public class DbEventManager implements Runnable {
 	 * Post a list of events asynchronously. The event gets added to the database but not committed, and no local listeners
 	 * get called at this time. When the event gets commited the scanner will see it and call the local handlers. This
 	 * call is typically done when an event needs to be commited lazily.
-	 * @param dbc
-	 * @param ae
-	 * @throws Exception
 	 */
 	public void postDelayedEvent(@NonNull final Connection dbc, @NonNull final List< ? extends AppEventBase> ae) throws Exception {
 		for(AppEventBase a : ae) {
@@ -922,12 +922,8 @@ public class DbEventManager implements Runnable {
 	/**
 	 * Post all of the events in the list synchronously. This posts the events, commits them, then calls all local handlers immediately. You
 	 * may only call this version if all data pertaining to the events have been commited to the database or will
-	 * be commited as a result of this call! If you do not the events may fire in other servers/listeners with stale
+	 * be committed as a result of this call! If you do not the events may fire in other servers/listeners with stale
 	 * data in the database; this will cause wrong results.
-	 *
-	 * @param dbc
-	 * @param aelist
-	 * @throws Exception
 	 */
 	public void postEvent(@NonNull final Connection dbc, @NonNull final List< ? extends AppEventBase> aelist) throws Exception {
 		if(!inJUnitTestMode()) {
@@ -949,7 +945,6 @@ public class DbEventManager implements Runnable {
 
 	/**
 	 * Sleep until the specified event has been handled. This waits for max. one minute.
-	 * @param value
 	 */
 	public void waitUntilHandled(long value) throws Exception {
 		if(getLastHandled() >= value)

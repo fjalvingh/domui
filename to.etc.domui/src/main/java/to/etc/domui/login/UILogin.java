@@ -6,8 +6,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import to.etc.domui.server.AppFilter;
 import to.etc.domui.server.HttpServerRequestResponse;
 import to.etc.domui.server.IRequestContext;
+import to.etc.domui.server.IRequestResponse;
 import to.etc.domui.server.IServerSession;
 import to.etc.domui.server.RequestContextImpl;
 import to.etc.domui.state.UIContext;
@@ -251,7 +253,6 @@ final public class UILogin {
 
 	/**
 	 * Logs out a user.
-	 * @throws Exception
 	 */
 	static public void logout() throws Exception {
 		IRequestContext rcx = UIContext.getRequestContext();
@@ -383,4 +384,66 @@ final public class UILogin {
 
 		setCurrentUser(user);
 	}
+
+	/*----------------------------------------------------------------------*/
+	/*	CODING:	Session invalidation.										*/
+	/*----------------------------------------------------------------------*/
+	/*
+	 * When a new password is requested we should force all existing connections
+	 * except the requesting one to log out. To do this we need all sessions,
+	 * walk through them, and recognize other sessions that refer to the same
+	 * user account.
+	 */
+
+	/**
+	 * Logout all sessions for the specified user, except for the session
+	 * that is requesting the logout.
+	 */
+	public static void logoutOtherSessions(IUser user, @Nullable HttpSession requestingSession) {
+		logoutOtherSessions(user.getLoginID(), requestingSession);
+	}
+
+	public static void logoutOtherSessions(String userId, @Nullable HttpSession requestingSession) {
+		for(HttpSession session : AppFilter.getSessions(a -> isSessionFor(a, userId))) {
+			if(session != requestingSession) {
+				session.removeAttribute(LOGIN_KEY);				// Discard key
+				session.invalidate();
+			}
+		}
+	}
+
+	/**
+	 * Logout all "other" sessions for the current user.
+	 */
+	public static void logoutOtherSessions() {
+		IUser current = getCurrentUser();
+		if(null == current)
+			return;
+		IRequestContext rc = UIContext.getRequestContext();
+		IRequestResponse rr = rc.getRequestResponse();
+		if(rr instanceof HttpServerRequestResponse) {
+			HttpServerRequestResponse hsr = (HttpServerRequestResponse) rr;
+			HttpSession session = hsr.getRequest().getSession(false);
+			if(null != session) {
+				logoutOtherSessions(current, session);
+			}
+		}
+	}
+
+	private static boolean isSessionFor(HttpSession hs, String userId) {
+		try {
+			Object sval = hs.getAttribute(LOGIN_KEY);				// Try to find the key,
+			if(sval instanceof IUser) {
+				IUser su = (IUser) sval;
+				if(su.getLoginID().equals(userId)) {
+					return true;
+				}
+			}
+		} catch(Exception x) {
+			LOG.error("Failed to check session: " + x);
+		}
+		return false;
+	}
+
+
 }
