@@ -33,6 +33,10 @@ $form-label-color: #363636 !default;
 .ui-f5-lbl-v {
 	display: inline-block;
 	min-width: $form-label-width;
+
+	.ui-label-wide & {
+		min-width: $form-label-width-wide;
+	}
 }
 
 .ui-f5-pair-v {
