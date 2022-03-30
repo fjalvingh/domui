@@ -47,6 +47,7 @@
     <bytecodeTargetLevel>
       <module name="annotations" target="11" />
       <module name="common" target="1.5" />
+      <module name="domui" target="1.5" />
       <module name="domui-archetypes" target="1.5" />
       <module name="domui-hello" target="1.5" />
       <module name="domui-hibernate-generator" target="11" />
