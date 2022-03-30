@@ -1,8 +1,6 @@
-package to.etc.alg.test;
+package to.etc.util;
 
 import org.junit.Test;
-import to.etc.util.Pair;
-import to.etc.util.StringTool;
 
 import java.util.List;
 
