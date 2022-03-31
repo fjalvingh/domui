@@ -2297,7 +2297,7 @@ public class StringTool {
 	}
 
 	/**
-	 * ! 	* 	' 	( 	) 	; 	: 	@ 	& 	= 	+ 	$ 	, 	/ 	? 	% 	# 	[ 	]
+	 * ! 	* 	' 	( 	) 	; 	: 	@ 	& 	= 	+ 	$ 	, 	/ 	? 	% 	# 	[ 	] { }
 	 */
 	static private boolean isSpecialUrlChar(byte da) {
 		if(da <= 32) // Everything including -1..-128 (0x80..0xff) is special
@@ -2324,6 +2324,8 @@ public class StringTool {
 			case ']':
 			case '<':
 			case '>':
+			case '{':
+			case '}':
 				return true;
 		}
 		return false;
