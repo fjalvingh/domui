@@ -90,7 +90,8 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 		super();
 	}
 
-	@Override public synchronized void init(ProcessingEnvironment processingEnv) {
+	@Override
+	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		m_typeUtils = processingEnv.getTypeUtils();
 		m_elementUtils = processingEnv.getElementUtils();
@@ -111,7 +112,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	}
 
 	@Override
-	public boolean process(Set< ? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
 		if(roundEnv.processingOver()) {
 			return false;
 		}
@@ -119,9 +120,9 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 		final Messager messager = processingEnv.getMessager();
 		Set<Element> done = new HashSet<>();
 		for(TypeElement ann : annotations) {
-			Set< ? extends Element> rootElements = roundEnv.getElementsAnnotatedWith(ann);
+			Set<? extends Element> rootElements = roundEnv.getElementsAnnotatedWith(ann);
 			for(Element classElement : rootElements) {
-				if(! done.add(classElement))
+				if(!done.add(classElement))
 					continue;
 
 				String pkgName = processingEnv.getElementUtils().getPackageOf(classElement).getQualifiedName().toString();
@@ -140,7 +141,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 					 * ecj apparently calls this several times, causing:
 					 * Error:(27, 20) java: javax.annotation.processing.FilerException: Source file already exists : nl.skarp.portal.pages.definitions.usability.PiResult_Link in class db.annotationprocessing.PropertyAnnotationProcessor
 					 */
-					if(! e1.getMessage().toLowerCase().contains("source file already exists")) {
+					if(!e1.getMessage().toLowerCase().contains("source file already exists")) {
 						e1.printStackTrace();
 						messager.printMessage(Kind.ERROR, e1.toString() + " in " + getClass(), classElement);
 					}
@@ -151,7 +152,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	}
 
 	String getStaticClass(String entityName) {
-		return entityName + "_";						// Artist becomes Artist_
+		return entityName + "_";                        // Artist becomes Artist_
 	}
 
 	String getLinkClass(String entityName) {
@@ -234,7 +235,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 			}
 
 			TypeMirror returnType = m.getReturnType();
-			if(returnType instanceof javax.lang.model.type.NoType) {	// void?
+			if(returnType instanceof javax.lang.model.type.NoType) {    // void?
 				return super.visitExecutable(m, p);
 			}
 
@@ -244,7 +245,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 				Name annName = a.getAnnotationType().asElement().getSimpleName();
 				annotationNames.add(annName.toString());
 			}
-			if(annotationNames.contains("to.etc.annotations.IgnoreGeneration")) {	// Ignore?
+			if(annotationNames.contains("to.etc.annotations.IgnoreGeneration")) {    // Ignore?
 				return super.visitExecutable(m, p);
 			}
 
