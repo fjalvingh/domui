@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @SupportedAnnotationTypes({"javax.persistence.Entity", "to.etc.annotations.GenerateProperties"})
@@ -184,14 +185,19 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	private List<Property> getProperties(Element classElement) throws Exception {
 		Element ce = classElement;
 
-		List<Property> result = new ArrayList<>();
+		Map<String, Property> map = new TreeMap<>();
 		while(ce != null && !ce.toString().equals("java.lang.Object")) {
-			final Messager messager = processingEnv.getMessager();
+			scanProperties(map, ce);
 
-			PropertyVisitor v = new PropertyVisitor();
-			ce.accept(v, null);
-			result.addAll(v.getResult());
 			TypeElement asType = (TypeElement) ce;
+			for(TypeMirror ifa : asType.getInterfaces()) {
+				if(ifa instanceof DeclaredType) {
+					DeclaredType dty = (DeclaredType) ifa;
+
+					scanProperties(map, dty.asElement());
+				}
+			}
+
 			TypeMirror superclass = asType.getSuperclass();
 			if(superclass instanceof DeclaredType) {
 				DeclaredType sup = (DeclaredType) superclass;
@@ -201,12 +207,27 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 			}
 		}
 
+		List<Property> result = new ArrayList<>(map.values());
+
 		Map<String, List<Property>> byNameMap = result.stream()
 			.collect(Collectors.groupingBy(a -> a.getName(), Collectors.toList()));
 		return byNameMap.values().stream()
 			.map(a -> a.get(0))
 			.collect(Collectors.toList());
 	}
+
+	private void scanProperties(Map<String, Property> map, Element ce) {
+		PropertyVisitor v = new PropertyVisitor();
+		ce.accept(v, null);
+		for(Property property : v.getResult()) {
+			Property rp = map.get(property.getName());
+			if(null == rp) {
+				map.put(property.getName(), property);
+			}
+		}
+	}
+
+
 
 	private final class PropertyVisitor extends ElementScanner6 {
 		private final List<Property> m_result = new ArrayList<>();
