@@ -58,6 +58,10 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	private int m_gridColumns;
 
+	private int m_width;
+
+	private int m_height;
+
 	/**
 	 * Add a time series trace, where every pair is a [date, value]. The date
 	 * can be either just a date or a timestamp, defined by the timeMode setting
@@ -116,6 +120,12 @@ public class PlotlyDataSet implements IPlotlyDataset {
 		b.arrayEnd();
 
 		b.objObjField("layout");
+
+		if(m_width > 0)
+			b.objField("width", m_width);
+		if(m_height > 0)
+			b.objField("height", m_height);
+
 		b.objFieldOpt("title", m_title);
 		PlBarMode barMode = m_barMode;
 		if(barMode != null)
@@ -220,6 +230,22 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	public PlotlyDataSet showLegend(boolean on) {
 		m_showLegend = on;
+		return this;
+	}
+
+	public PlotlyDataSet width(int w) {
+		m_width = w;
+		return this;
+	}
+
+	public PlotlyDataSet height(int w) {
+		m_height = w;
+		return this;
+	}
+
+	public PlotlyDataSet size(int w, int h) {
+		m_width = w;
+		m_height = h;
 		return this;
 	}
 

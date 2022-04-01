@@ -11,14 +11,19 @@ import to.etc.webapp.query.QDataContext;
  * Created on 02-12-21.
  */
 public class GaugeDataSource extends PlGaugeTrace implements IPlotlyDataSource {
+	private PlotlyDataSet m_ds = new PlotlyDataSet();
+
 	public GaugeDataSource() {
+		m_ds.addTrace(this);
 	}
 
 	public GaugeDataSource(double value) {
+		this();
 		value(value);
 	}
 
 	public GaugeDataSource(double value, String text) {
+		this();
 		value(value);
 		title().text(text);
 	}
@@ -26,9 +31,11 @@ public class GaugeDataSource extends PlGaugeTrace implements IPlotlyDataSource {
 	@NonNull
 	@Override
 	public IPlotlyDataset createDataset(@NonNull QDataContext dc) throws Exception {
-		PlotlyDataSet ds = new PlotlyDataSet();
-		ds.addTrace(this);
 		mode(PlIndicatorMode.Gauge, PlIndicatorMode.Number);
-		return ds;
+		return m_ds;
+	}
+
+	public PlotlyDataSet dataSet() {
+		return m_ds;
 	}
 }
