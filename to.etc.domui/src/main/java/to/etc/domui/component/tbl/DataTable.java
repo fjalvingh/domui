@@ -463,11 +463,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * Click handler for rows. This handles both row clicked handling and row selection handling.
-	 *
-	 * @param b
-	 * @param instance
-	 * @param clinfo
-	 * @throws Exception
 	 */
 	private void handleRowClick(final TR b, final T instance, final ClickInfo clinfo) throws Exception {
 		//-- If we have a selection model: check if this is some selecting clicky.
@@ -492,10 +487,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * When checkbox itself is clicked, this handles shift stuff.
-	 * @param instance
-	 * @param checked
-	 * @param info
-	 * @throws Exception
 	 */
 	private void selectionCheckboxClicked(T instance, boolean checked, ClickInfo info, @NonNull Checkbox checkbox) throws Exception {
 		handleSelectClicky(instance, info, Boolean.valueOf(checked));
@@ -508,8 +499,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * If the specified item is on-screen, this returns the row index inside TBody for that item.
 	 * It returns -1 if the thing is not found.
-	 * @param item
-	 * @return
 	 */
 	protected int findRowIndex(T item) {
 		for(int i = m_visibleItemList.size(); --i >= 0; ) {
@@ -530,13 +519,17 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			throw new IllegalStateException("SelectionModel is null??");
 		boolean nvalue = setTo != null ? setTo.booleanValue() : !sm.isSelected(instance);
 
+		int itemindex = getVisibleItemindex(instance);
 		if(!clinfo.isShift()) {
 			sm.setInstanceSelected(instance, nvalue);
-			m_lastSelectionLocation = -1;
+			if(itemindex == -1) {
+				m_lastSelectionLocation = -1;
+			} else {
+				m_lastSelectionLocation = itemindex + m_six;	// Last selected index
+			}
 			return;
 		}
-		int itemindex = getVisibleItemindex(instance);
-		if(itemindex == -1)									// Ignore when thingy not found
+		if(itemindex == -1)										// Ignore when thingy not found
 			return;
 		itemindex += m_six;
 
