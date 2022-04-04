@@ -7,6 +7,7 @@ import to.etc.domui.component.plotly.layout.PlAxis;
 import to.etc.domui.component.plotly.layout.PlBarMode;
 import to.etc.domui.component.plotly.layout.PlFont;
 import to.etc.domui.component.plotly.layout.PlImage;
+import to.etc.domui.component.plotly.layout.PlMargin;
 import to.etc.domui.component.plotly.traces.IPlotlyTrace;
 import to.etc.domui.component.plotly.traces.PlLabelValueTrace;
 import to.etc.domui.component.plotly.traces.PlPieTrace;
@@ -37,6 +38,9 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	private String m_title;
 
 	private PlFont m_titleFont = new PlFont();
+
+	@Nullable
+	private PlMargin m_margin;
 
 	private Boolean m_showLegend;
 
@@ -125,6 +129,13 @@ public class PlotlyDataSet implements IPlotlyDataset {
 			b.objField("width", m_width);
 		if(m_height > 0)
 			b.objField("height", m_height);
+
+		PlMargin margin = m_margin;
+		if(null != margin) {
+			b.objObjField("margin");
+			margin.render(b);
+			b.objEnd();			// margin
+		}
 
 		b.objFieldOpt("title", m_title);
 		PlBarMode barMode = m_barMode;
@@ -222,6 +233,14 @@ public class PlotlyDataSet implements IPlotlyDataset {
 	public PlotlyDataSet title(String title) {
 		m_title = title;
 		return this;
+	}
+
+	public PlMargin margin() {
+		PlMargin margin = m_margin;
+		if(null == margin) {
+			m_margin = margin = new PlMargin(this);
+		}
+		return margin;
 	}
 
 	public PlFont titleFont() {
