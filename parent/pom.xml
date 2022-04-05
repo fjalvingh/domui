@@ -34,6 +34,24 @@
 		</developer>
 	</developers>
 
+	<repositories>
+		<repository>
+			<id>central</id>
+			<url>https://repo1.maven.org/maven2/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+
+		<repository>
+			<id>maven.exasol.com</id>
+			<url>https://maven.exasol.com/artifactory/exasol-releases</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<properties>
 		<!-- JDK properties -->
 		<jdk.version>11</jdk.version>
@@ -73,7 +91,7 @@
 		<commons-jcs.version>1.3</commons-jcs.version>
 		<commons-lang3.version>3.9</commons-lang3.version>
 
-		<jackson.version>2.12.6.1</jackson.version>
+		<jackson.version>2.13.2</jackson.version>
 
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		<javax.el.version>2.2</javax.el.version>
