@@ -30,6 +30,8 @@ public class UIGotoContext {
 
 	private final boolean m_ajax;
 
+	private final boolean m_onDestroyedPage;
+
 	public UIGotoContext(
 		@Nullable Class< ? extends UrlPage> targetPageClass,
 		@Nullable IPageParameters targetPageParameters,
@@ -38,7 +40,8 @@ public class UIGotoContext {
 		@Nullable MoveMode targetMode,
 		@Nullable
 		String targetURL,
-		boolean ajax
+		boolean ajax,
+		boolean onDestroyedPage
 	) {
 		m_targetPageClass = targetPageClass;
 		m_targetPageParameters = targetPageParameters;
@@ -47,6 +50,7 @@ public class UIGotoContext {
 		m_targetMode = targetMode;
 		m_targetURL = targetURL;
 		m_ajax = ajax;
+		m_onDestroyedPage = onDestroyedPage;
 	}
 
 	@Nullable
@@ -81,5 +85,9 @@ public class UIGotoContext {
 
 	public boolean isAjax() {
 		return m_ajax;
+	}
+
+	public boolean isOnDestroyedPage() {
+		return m_onDestroyedPage;
 	}
 }
