@@ -364,7 +364,7 @@ final public class WindowSession {
 	 * @param currentpg		The page that is <b>current</b> (the one that issued the MOVE command).
 	 */
 	public boolean handleGoto(@NonNull final RequestContextImpl ctx, @NonNull final Page currentpg, boolean ajax) throws Exception {
-		UIGotoContext gotoCtx = new UIGotoContext(getTargetPageClass(), getTargetPageParameters(), getTargetConversationClass(), getTargetConversation(), getTargetMode(), m_targetURL, ajax);
+		UIGotoContext gotoCtx = new UIGotoContext(getTargetPageClass(), getTargetPageParameters(), getTargetConversationClass(), getTargetConversation(), getTargetMode(), m_targetURL, ajax, currentpg.isDestroyed());
 		return internalHandleGoto(ctx, gotoCtx, currentpg, true);
 	}
 
@@ -474,7 +474,11 @@ final public class WindowSession {
 			 * make sure it is correct even though the request was for another page and is almost dying.
 			 */
 			UIContext.internalSet(currentPage);
-			currentPage.internalUnshelve();
+			if(gotoCtx.isOnDestroyedPage() && !currentPage.isShelved()) {
+				//when we are handling goto on page that was already destroyed, it might be that shelving stack is already taken care of
+			} else {
+				currentPage.internalUnshelve();
+			}
 			generateRedirect(ctx, currentPage, ajax);
 			saveWindowState();
 			return true;
