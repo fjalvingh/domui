@@ -65,13 +65,13 @@ import java.util.TimeZone;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class DomTools {
-	static public final Date				OBLIVIAN;
+	static public final Date OBLIVIAN;
 
-	static public final Date				BIGBANG;
+	static public final Date BIGBANG;
 
-	static public final String				DBNULL			= "(dbnull)";
+	static public final String DBNULL = "(dbnull)";
 
-	static private final SimpleDateFormat	m_dateFormat	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS z");
+	static private final SimpleDateFormat m_dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS z");
 
 	static {
 		GregorianCalendar cal = new GregorianCalendar();
@@ -100,6 +100,7 @@ public class DomTools {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Reading XML.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Creates a DOM parser, parses the document, and returns the DOM
 	 * associated with the thing. If errors occur they are logged into an error
@@ -107,6 +108,8 @@ public class DomTools {
 	 */
 	static public Document getDocument(final InputStream is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		//dbf.setFeature(XMLConstants.ACCESS_EXTERNAL_DTD, "jar");
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);        // Plain terrible
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -143,6 +146,7 @@ public class DomTools {
 	 */
 	static public Document getDocument(final Reader is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);        // Plain terrible
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -174,6 +178,7 @@ public class DomTools {
 		dbf.setFeature("http://xml.org/sax/features/validation", false);
 		dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
 		dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);        // Plain terrible
 
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -236,13 +241,15 @@ public class DomTools {
 			try {
 				if(is != null)
 					is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	DOM helper stuff									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 *	Finds a single element with the name spec'd in the node. If more than
 	 *  one node with the same name exists this throws an exception.
@@ -265,10 +272,9 @@ public class DomTools {
 	 * Searches for child Nodes in the specified Node which have the specified
 	 * name and returns the result as a Set. If null is specified for the
 	 * parentNode an empty Set is returned.
-	 * @param rn, the Node which is queried.
-	 * @param name, the name of the childNodes we are searching.
-	 * @return
-	 * 		a Set<Node> containing the childnodes with the specified name.
+	 * @param rn the Node which is queried.
+	 * @param name the name of the childNodes we are searching.
+	 * @return a Set<Node> containing the childnodes with the specified name.
 	 */
 	static public List<Node> nodesFind(final Node rn, final String name) {
 		List<Node> nnl = new ArrayList<Node>();
@@ -327,12 +333,9 @@ public class DomTools {
 		return s;
 	}
 
-
 	/**
 	 *	Finds the child node with the name specified, and returns it's text
 	 *  value. If the node is not found it returns null.
-	 *  @deprecated
-	 *  @see #stringNode(Node, String)
 	 */
 	@Deprecated
 	static public String findChildNodeValue(final Node rootnode, final String name) throws Exception {
@@ -341,7 +344,6 @@ public class DomTools {
 			return null;
 		return textFrom(n);
 	}
-
 
 	/**
 	 *	Finds the child node with the name specified, and returns it's text
@@ -400,7 +402,6 @@ public class DomTools {
 		return textFrom_untrimmed(n);
 	}
 
-
 	static public Date dateNode(final Node rn, final String name) throws Exception {
 		String s = stringNode(rn, name);
 		if(s == null)
@@ -424,11 +425,6 @@ public class DomTools {
 	/**
 	 * Scans a node as a hh:mm:ss time (or hh:mm). The time is returned
 	 * as a #seconds in the day.
-	 * @param rn
-	 * @param name
-	 * @param dflt
-	 * @return
-	 * @throws Exception
 	 */
 	static public int timeNode(final Node rn, final String name, final int dflt) throws Exception {
 		String v = stringNode(rn, name, null);
@@ -592,10 +588,6 @@ public class DomTools {
 	 * Checks if there's a file node with the spec'd name in the node. If so
 	 * this returns the node's filename... If the node doesn't exist this
 	 * returns null..
-	 * @param rootnode
-	 * @param name
-	 * @return
-	 * @throws Exception
 	 */
 	static public String fileNameNode(final Node rootnode, final String name) throws Exception {
 		Node fn = nodeFind(rootnode, name);
@@ -616,7 +608,6 @@ public class DomTools {
 		rname = rname.trim();
 		return rname;
 	}
-
 
 	/**
 	 *	Finds the child node with the name specified, and returns it as a
@@ -669,10 +660,10 @@ public class DomTools {
 	/**
 	 * Get the named attribute from a node. If the attribute is not present
 	 * return the default value in defval
-	 * @param n			the node to containing the attribute.
-	 * @param aname		the name of the attribute.
-	 * @param defval	the value to return if the attribute is not present,
-	 * @return			a string containing the attribute's value or the default.
+	 * @param n            the node to containing the attribute.
+	 * @param aname        the name of the attribute.
+	 * @param defval    the value to return if the attribute is not present,
+	 * @return a string containing the attribute's value or the default.
 	 */
 	static public String getNodeAttribute(@NonNull final Node n, @NonNull final String aname, @Nullable final String defval) {
 		if(n.hasAttributes()) {
@@ -691,7 +682,7 @@ public class DomTools {
 	static public String strAttr(@NonNull final Node n, @NonNull final String aname) {
 		String s = getNodeAttribute(n, aname, null);
 		if(s == null)
-			throw new IllegalStateException("Missing attribute '" + aname + "' on node '" + n.getNodeName() +"'");
+			throw new IllegalStateException("Missing attribute '" + aname + "' on node '" + n.getNodeName() + "'");
 		return s;
 	}
 
@@ -762,10 +753,10 @@ public class DomTools {
 	/**
 	 * Get the named attribute from a node. If the attribute is not present
 	 * return the default value in defval
-	 * @param n			the node to containing the attribute.
-	 * @param aname		the name of the attribute.
-	 * @param defval	the value to return if the attribute is not present,
-	 * @return			a string containing the attribute's value or the default.
+	 * @param n            the node to containing the attribute.
+	 * @param aname        the name of the attribute.
+	 * @param defval    the value to return if the attribute is not present,
+	 * @return a string containing the attribute's value or the default.
 	 */
 	static public int getNodeAttribute(final Node n, final String aname, final int defval) throws Exception {
 		if(n.hasAttributes()) {
@@ -787,8 +778,8 @@ public class DomTools {
 	/**
 	 * Encodes a date-only field to some readable form. Can be decoded by
 	 * decodeDate or getNodeDate(). The date contains local timezone info.
-	 * @param dt	the date to encode.
-	 * @return		a string
+	 * @param dt    the date to encode.
+	 * @return a string
 	 */
 	static public String dateEncode(final Date dt) {
 		if(dt == null)
@@ -828,7 +819,6 @@ public class DomTools {
 		return sb.toString();
 	}
 
-
 	/**
 	 * Decodes a date and converts it to the local time. The format MUST match
 	 * the format generated by encode or we fail. Dates can contain three special
@@ -841,9 +831,6 @@ public class DomTools {
 	 * Format:
 	 * 0123456789012345678901234567
 	 * 2001-12-24 18:10:52.0012 (timezone)
-	 *
-	 * @param s
-	 * @return
 	 */
 	static public Date dateDecode(String s) {
 		s = s.trim();
@@ -863,7 +850,8 @@ public class DomTools {
 
 		try {
 			return m_dateFormat.parse(s);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		try {
 			int year = Integer.parseInt(s.substring(0, 4));
@@ -1042,7 +1030,6 @@ public class DomTools {
 
 	/**
 	 * Get a stream reader that does not ^&*^(^$ connect to the Internet while fscking reading xml 8-(
-	 * @return
 	 */
 	@NonNull
 	static public XMLInputFactory getStreamFactory() {
@@ -1057,6 +1044,5 @@ public class DomTools {
 		//		xmlif.setProperty(XMLInputFactory., Boolean.FALSE);
 		return xmlif;
 	}
-
 
 }
