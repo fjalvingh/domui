@@ -46,7 +46,7 @@ public class Lanczos3Filter extends ResamplerFilter {
 		if(value == 0.0f)
 			return 1.0f;
 
-		value *= Math.PI;
+		value *= (float) Math.PI;
 		return (float) Math.sin(value) / value;
 	}
 

@@ -189,9 +189,20 @@ public class StringTool {
 	}
 
 	/**
+	 * Checks that the path is a valid relative path, not starting with a / and not
+	 * containing the '..' pattern.
+	 */
+	static public boolean isValidRelativePath(@NonNull String path) {
+		path = path.replace("\\", "/");							// Accept both / and \ as dir separators
+		if(path.startsWith("/"))
+			return false;
+		if(path.contains("/..") || path.contains("../"))
+			return false;
+		return true;
+	}
+
+	/**
 	 * Returns TRUE if the string is a number, possibly containing a '.'.
-	 * @param s
-	 * @return
 	 */
 	static public boolean isNumber(@NonNull final String s) {
 		int dots = 0;

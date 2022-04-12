@@ -38,13 +38,12 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspWriter;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -392,17 +391,16 @@ final public class JspPageHandler {
 	}
 
 	private String readResource(String name) throws IOException {
-		InputStream is = null;
-		try {
-			File inf = new File("/home/jal/bzr/trunk-newpool/shared/to.etc.db/src/to/etc/dbpool/info/" + name);
-			if(inf.exists()) {
-				is = new FileInputStream(inf);
-			} else {
-				is = getClass().getResourceAsStream(name);
-			}
+		try(InputStream is = getClass().getResourceAsStream(name)) {
+			//File inf = new File("/home/jal/bzr/trunk-newpool/shared/to.etc.db/src/to/etc/dbpool/info/" + name);
+			//if(inf.exists()) {
+			//	is = new FileInputStream(inf);
+			//} else {
+			//	is = getClass().getResourceAsStream(name);
+			//}
 			if(null == is)
 				throw new IllegalStateException("Unknown classpath-resource " + name);
-			InputStreamReader isr = new InputStreamReader(is, "utf-8");
+			InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8);
 			char[] data = new char[1024];
 			StringBuilder sb = new StringBuilder();
 
@@ -411,12 +409,6 @@ final public class JspPageHandler {
 				sb.append(data, 0, szrd);
 			}
 			return sb.toString();
-		} finally {
-			try {
-				if(null != is)
-					is.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 

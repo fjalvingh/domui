@@ -42,6 +42,7 @@ import to.etc.domui.state.ConversationContext;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.state.UIContext;
 import to.etc.domui.state.WindowSession;
+import to.etc.util.StringTool;
 
 import java.io.File;
 import java.io.StringWriter;
@@ -70,6 +71,8 @@ public class TUtilDomUI {
 			@NonNull
 			@Override
 			public URL getResourcePath(@NonNull String path) throws Exception {
+				if(!StringTool.isValidRelativePath(path))
+					throw new SecurityException("Invalid relative path: " + path);
 				File f = new File(getWebFileRoot(), path);
 				return f.toURL();
 			}
@@ -109,6 +112,8 @@ public class TUtilDomUI {
 				@NonNull
 				@Override
 				public URL getResourcePath(@NonNull String path) throws Exception {
+					if(!StringTool.isValidRelativePath(path))
+						throw new SecurityException("Invalid relative path: " + path);
 					File f = new File(getWebFileRoot(), path);
 					return f.toURL();
 				}

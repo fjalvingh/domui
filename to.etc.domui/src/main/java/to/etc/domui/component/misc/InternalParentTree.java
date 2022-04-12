@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -458,7 +459,7 @@ public class InternalParentTree extends Div {
 			sb.append("` OPENFILE `");
 			sb.append(name);
 			sb.append('`');
-			outputStream.write(sb.toString().getBytes("UTF-8"));
+			outputStream.write(sb.toString().getBytes(StandardCharsets.UTF_8));
 			outputStream.write(0);
 			outputStream.flush();
 
@@ -474,7 +475,7 @@ public class InternalParentTree extends Div {
 			//			System.out.println("data end = " + szrd);
 			baos.close();
 
-			String response = new String(baos.toByteArray(), "utf-8");
+			String response = new String(baos.toByteArray(), StandardCharsets.UTF_8);
 			LOG.debug("DomUI Eclipse: response=" + response);
 
 			//-- If response ends in lf strip it
@@ -489,7 +490,7 @@ public class InternalParentTree extends Div {
 				rest = "";
 			} else {
 				code = response.substring(0, pos).trim();
-				rest = response.substring(pos + 1).trim();
+				rest = DomApplication.get().getXssChecker().stripXSS(response.substring(pos + 1).trim());
 			}
 
 			if("SELECT-FAILED".equals(code)) {

@@ -2,6 +2,7 @@ package to.etc.domui.util.resources;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.util.StringTool;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,14 +26,18 @@ public class DirectoryFileContainer implements IFileContainer {
 		m_directory = directory;
 	}
 
-	@Nullable @Override public ClasspathFileRef findFile(String name) {
+	@Nullable
+	@Override
+	public ClasspathFileRef findFile(String name) {
 		ClasspathFileRef ref = m_map.get(name);
 		if(ref != null) {
 			return ref;
 		}
 
+		if(!StringTool.isValidRelativePath(name))
+			throw new SecurityException("Invalid relative path: " + name);
 		File file = new File(m_directory, name);
-		if(! file.exists())
+		if(!file.exists())
 			return null;
 
 		ref = new ClasspathFileRef(file);
@@ -44,7 +49,8 @@ public class DirectoryFileContainer implements IFileContainer {
 		return new DirectoryFileContainer(f);
 	}
 
-	@Override public List<String> getInventory() {
+	@Override
+	public List<String> getInventory() {
 		List<String> res = new ArrayList<>();
 		StringBuilder sb = new StringBuilder();
 		inventory(res, m_directory, sb);
@@ -52,7 +58,7 @@ public class DirectoryFileContainer implements IFileContainer {
 	}
 
 	private void inventory(List<String> res, File directory, StringBuilder sb) {
-		if(! directory.exists() || ! directory.isDirectory())
+		if(!directory.exists() || !directory.isDirectory())
 			return;
 		int clen = sb.length();
 		for(File file : directory.listFiles()) {
