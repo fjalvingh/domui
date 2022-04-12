@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 /**
  * This is the main owner of all nodes; this represents all that is needed for a
@@ -826,7 +827,7 @@ final public class Page implements IQContextContainer {
 		modelToControl();
 		while(m_pendingBuildSet.size() > 0) {
 			if(tries++ > 10)
-				throw new IllegalStateException("Internal: building the tree failed after " + tries + " attempts: the tree keeps changing every build....");
+				throw new IllegalStateException("Internal: building the tree failed after " + tries + " attempts: the tree keeps changing every build...." + renderPendingChangeSet());
 			NodeBase[] todo = m_pendingBuildSet.toArray(new NodeBase[m_pendingBuildSet.size()]); // Dup todolist,
 			m_pendingBuildSet.clear();
 			for(NodeBase nd : todo) {
@@ -834,6 +835,12 @@ final public class Page implements IQContextContainer {
 				modelToControl();
 			}
 		}
+	}
+
+	private String renderPendingChangeSet() {
+		return m_pendingBuildSet.stream()
+			.map(a -> "\n- " + a.toString())
+			.collect(Collectors.joining());
 	}
 
 	/**
