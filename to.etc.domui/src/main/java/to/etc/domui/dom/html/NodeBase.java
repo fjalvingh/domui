@@ -75,6 +75,7 @@ import to.etc.webapp.query.QField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Base node for all non-container html dom nodes.
@@ -1923,7 +1924,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	public String toString() {
 		String n = getClass().getName();
 		int pos = n.lastIndexOf('.');
-		return n.substring(pos + 1) + ":" + m_actualID + (m_title == null ? "" : "/" + m_title);
+		List<IBinding> bindingList = m_bindingList;
+		String binding = "";
+		if(bindingList != null && bindingList.size() > 0) {
+			binding = " Binding " + bindingList.stream().map(a -> a.toString()).collect(Collectors.joining(";"));
+		}
+		return n.substring(pos + 1)
+			+ ":" + m_actualID
+			+ binding
+			+ (m_title == null ? "" : "/" + m_title);
 	}
 
 	/**
