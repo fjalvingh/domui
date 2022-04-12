@@ -146,9 +146,6 @@ public class StringTool {
 	 * Checks if the name is a valid domain name. These can contain only
 	 * letters (a..z), digits (0..9), the dash and dots. Dots cannot start or
 	 * end a name, nor can two dots occurs immediately next to another.
-	 *
-	 * @param s
-	 * @return
 	 */
 	static public boolean isValidDomainName(@NonNull final String s) {
 		int len = s.length();
@@ -171,6 +168,24 @@ public class StringTool {
 			return false; // There must be at least one dot.
 		}
 		return lastdot + 1 != len;
+	}
+
+	static public final boolean isValidIpAddress(@NonNull String ip) {
+		if(ip.length() == 0)
+			return false;
+		String[] split = ip.split("\\.");
+		if(split.length != 4)
+			return false;
+		for(String s : split) {
+			try {
+				int val = Integer.parseInt(s);
+				if(val < 0 || val > 255)
+					return false;
+			} catch(Exception x) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
