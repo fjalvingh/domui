@@ -25,19 +25,16 @@
 package to.etc.domui.component.menu;
 
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.domui.annotations.UIMenu;
 import to.etc.domui.component.misc.IIconRef;
 import to.etc.domui.component.misc.Icon;
 import to.etc.domui.dom.html.UrlPage;
 import to.etc.domui.state.IPageParameters;
 import to.etc.domui.state.PageParameters;
 import to.etc.domui.util.DomUtil;
-import to.etc.webapp.nls.BundleRef;
-import to.etc.webapp.nls.NlsContext;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static java.util.Objects.requireNonNull;
 
@@ -56,28 +53,15 @@ final public class MenuItem {
 
 	private String m_id;
 
-	private BundleRef m_labelRef;
-	private BundleRef m_titleRef;
-	private BundleRef m_searchRef;
-	private BundleRef m_descRef;
+	private BundleMessage m_label;
 
-	private String m_label;
+	private BundleMessage m_title;
 
-	private String m_labelKey;
-
-	private String m_title;
-
-	private String m_titleKey;
-
-	private String m_desc;
-
-	private String m_descKey;
-
-	private String m_searchKey;
+	private BundleMessage m_desc;
 
 	private IIconRef m_image;
 
-	private Class< ? extends UrlPage> m_pageClass;
+	private Class<? extends UrlPage> m_pageClass;
 
 	private IPageParameters m_pageParameters;
 
@@ -139,16 +123,9 @@ final public class MenuItem {
 	 */
 	MenuItem addClone(MenuItem from) {
 		MenuItem to = new MenuItem(this);
-		to.m_labelRef = from.m_labelRef;
+
 		to.m_label = from.m_label;
-		to.m_labelKey = from.m_labelKey;
-		to.m_searchRef = from.m_searchRef;
-		to.m_searchKey = from.m_searchKey;
-		to.m_titleRef = from.m_titleRef;
-		to.m_titleKey = from.m_titleKey;
 		to.m_title = from.m_title;
-		to.m_descRef = from.m_descRef;
-		to.m_descKey = from.m_descKey;
 		to.m_desc = from.m_desc;
 		to.m_image = from.m_image;
 		to.m_pageClass = from.m_pageClass;
@@ -172,16 +149,9 @@ final public class MenuItem {
 		return item;
 	}
 
-	public MenuItem addSub(BundleRef bundle, String labelKey) {
+	public MenuItem addSub(IBundleCode code, Object... parameters) {
 		MenuItem item = new MenuItem(this);
-		item.labelKey(bundle, labelKey);
-		m_children.add(item);
-		return item;
-	}
-
-	public MenuItem addSub(String name) {
-		MenuItem item = new MenuItem(this);
-		item.label(name);
+		item.label(code, parameters);
 		m_children.add(item);
 		return item;
 	}
@@ -203,16 +173,9 @@ final public class MenuItem {
 		return this;
 	}
 
-	public MenuItem image(Class< ? > res, String name) {
+	public MenuItem image(Class<?> res, String name) {
 		m_image = Icon.of(DomUtil.getJavaResourceRURL(res, name));
 		return this;
-	}
-
-	private String byKey(BundleRef ref, String k) {
-		if(ref == null || k == null)
-			return null;
-		Locale loc = NlsContext.getLocale();
-		return ref.getString(loc, k);
 	}
 
 	public MenuItem order(int order) {
@@ -220,24 +183,18 @@ final public class MenuItem {
 		return this;
 	}
 
-	public MenuItem label(String label) {
-		m_label = label;
+	public MenuItem label(IBundleCode code, Object... parameters) {
+		m_label = new BundleMessage(code, parameters);
 		return this;
 	}
 
-	public MenuItem desc(String desc) {
-		m_desc = desc;
+	public MenuItem desc(IBundleCode code, Object... parameters) {
+		m_desc = new BundleMessage(code, parameters);
 		return this;
 	}
 
-	public MenuItem title(String ttl) {
-		m_title = ttl;
-		return this;
-	}
-
-	public MenuItem labelKey(BundleRef bundle, String labelKey) {
-		m_labelKey = labelKey;
-		m_labelRef = bundle;
+	public MenuItem title(IBundleCode code, Object... parameters) {
+		m_title = new BundleMessage(code, parameters);
 		return this;
 	}
 
@@ -246,26 +203,8 @@ final public class MenuItem {
 		return this;
 	}
 
-	public MenuItem descKey(BundleRef ref, String descKey) {
-		m_descKey = descKey;
-		m_descRef = ref;
-		return this;
-	}
-
-	public MenuItem titleKey(BundleRef ref, String titleKey) {
-		m_titleKey = titleKey;
-		m_titleRef = ref;
-		return this;
-	}
-
 	public MenuItem target(String target) {
 		m_target = target;
-		return this;
-	}
-
-	public MenuItem searchKey(BundleRef ref, String searchKey) {
-		m_searchKey = searchKey;
-		m_searchRef = ref;
 		return this;
 	}
 
@@ -305,27 +244,18 @@ final public class MenuItem {
 	}
 
 	public String getSearchString() {
-		String s = byKey(m_searchRef, m_searchKey);
-		if(null != s)
-			return s;
-		return getLabel();
+		String label = getLabel();
+		return label;
 	}
 
 	public String[] getRequiredRights() {
 		return m_requiredRights;
 	}
 
-	public String getSearchKey() {
-		return m_searchKey;
-	}
-
-
 	public String getLabel() {
-		String s = byKey(m_labelRef, m_labelKey);
-		if(null != s)
-			return s;
-		if(m_label != null)
-			return m_label;
+		BundleMessage label = m_label;
+		if(null != label)
+			return label.getString();
 		Class<? extends UrlPage> pageClass = m_pageClass;
 		if(null != pageClass) {
 			return pageClass.getSimpleName();
@@ -334,10 +264,10 @@ final public class MenuItem {
 	}
 
 	public String getDescription() {
-		String s = byKey(m_descRef, m_descKey);
-		if(null != s)
-			return s;
-		return m_desc;
+		BundleMessage desc = m_desc;
+		if(desc == null)
+			return null;
+		return desc.getString();
 	}
 
 	public boolean isSubMenu() {
@@ -348,9 +278,6 @@ final public class MenuItem {
 		return m_order;
 	}
 
-	public String getTitleKey() {
-		return m_titleKey;
-	}
 	public MenuItem getParent() {
 		return m_parent;
 	}
@@ -362,12 +289,13 @@ final public class MenuItem {
 	public String getRURL() {
 		return m_rurl;
 	}
+
 	@Nullable
 	public String getId() {
 		return m_id;
 	}
 
-	public Class< ? extends UrlPage> getPageClass() {
+	public Class<? extends UrlPage> getPageClass() {
 		return m_pageClass;
 	}
 
@@ -379,135 +307,127 @@ final public class MenuItem {
 		return m_image;
 	}
 
-	private void calculateBundleData() {
-		if(m_calculated)
-			return;
-
-		Class<? extends UrlPage> clz = getPageClass();
-		if(null != clz) {
-			if(m_image == null) {
-				//-- 1. Is an icon or icon resource specified in any attached UIMenu annotation? If so use that;
-				UIMenu ma = clz.getAnnotation(UIMenu.class);
-				if(ma != null) {
-					if(! ma.iconName().isEmpty()) {
-						if(ma.iconBase() != Object.class)
-							image(ma.iconBase(), ma.iconName());
-						else
-							image(Icon.of(ma.iconName()));
-					}
-				}
-
-				//-- Not set using a UIMenu annotation. Is a .png with the same classname available?
-				String cn = DomUtil.getClassNameOnly(clz) + ".png";
-				if(DomUtil.hasResource(clz, cn)) {
-					image(clz, cn); 									// Set class-based URL
-				}
-			}
-
-			/*
-			 * We try to prime the source for title, label, search and description from the properties defined
-			 * in the Page class. This can be overridden by separate calls into the returned item. The logic
-			 * used here should duplicate the logic exposed in AppUIUtil for the items mostly. The exception
-			 * is that the code here tries to find a single source for the strings using the same chain of
-			 * locations specified in AppUIUtil; it will then use this single source for /all/ strings.
-			 * These things all set a bundle and key for all items.
-			 */
-			UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
-			String labelKey = null;
-			String titleKey = null;
-			String searchKey = null;
-			String descKey = null;
-			BundleRef labelRef = null;
-			BundleRef titleRef = null;
-			BundleRef searchRef = null;
-			BundleRef descRef = null;
-
-			if(ma != null) {
-				BundleRef ref = DomUtil.findBundle(ma, clz);
-				if(ref != null) {
-					if(ma.baseKey().length() != 0) {
-						labelKey = ma.baseKey() + ".label";
-						titleKey = ma.baseKey() + ".title";
-						searchKey = ma.baseKey() + ".search";
-						descKey = ma.baseKey() + ".desc";
-						labelRef = titleRef = searchRef = descRef = ref;
-					}
-					if(ma.labelKey().length() != 0) {
-						labelKey = ma.labelKey();
-						labelRef = ref;
-					}
-					if(ma.titleKey().length() != 0) {
-						titleKey = ma.titleKey();
-						titleRef = ref;
-					}
-					if(ma.descKey().length() != 0) {
-						descKey = ma.descKey();
-						descRef = ref;
-					}
-					if(ma.searchKey().length() != 0) {
-						searchKey = ma.searchKey();
-						searchRef = ref;
-					}
-				}
-			}
-
-			//-- Not using UIMenu; use page/package based structures. This depends on whether a Page resource exists.
-			BundleRef br = DomUtil.getClassBundle(clz); 	// PageClass bundle
-			if(br.exists()) {
-				//-- Use page-based resources.
-				if(br.getString("label") != null) {
-					labelKey = "label";
-					labelRef = br;
-				}
-				if(br.getString("title") != null) {
-					titleKey = "title";
-					titleRef = br;
-				}
-				if(br.getString("search") != null) {
-					searchKey = "search";
-					searchRef = br;
-				}
-				if(br.getString("desc") != null) {
-					descKey = "desc";
-					descRef = br;
-				}
-			}
-
-			//-- Try package-based keys
-			br = DomUtil.getPackageBundle(clz); 				// Package bundle.
-			if(br.exists()) {
-				//-- Use the package-based bundle for $ provided some exist...
-				String bn = clz.getSimpleName();
-				String kl = bn + ".label";
-				String kt = bn + ".title";
-				if(br.findMessage(Locale.US, kl) != null || br.findMessage(Locale.US, kt) != null) {
-					titleRef = labelRef = descRef = searchRef = br;
-					labelKey = kl;
-					titleKey = kt;
-					searchKey = bn + ".search";
-					descKey = bn + ".desc";
-				}
-			}
-
-			if(m_labelKey == null && m_label == null)
-				labelKey(labelRef, labelKey);
-			if(m_titleKey == null && m_title == null)
-				titleKey(titleRef, titleKey);
-			if(m_searchKey == null)
-				searchKey(searchRef, searchKey);
-			if(m_desc == null && m_descKey == null)
-				descKey(descRef, descKey);
-		}
-		m_calculated = true;
-	}
-
-	public String getLabelKey() {
-		return m_labelKey;
-	}
-
-	public String getDescKey() {
-		return m_descKey;
-	}
+	//private void calculateBundleData() {
+	//	if(m_calculated)
+	//		return;
+	//
+	//	Class<? extends UrlPage> clz = getPageClass();
+	//	if(null != clz) {
+	//		if(m_image == null) {
+	//			//-- 1. Is an icon or icon resource specified in any attached UIMenu annotation? If so use that;
+	//			UIMenu ma = clz.getAnnotation(UIMenu.class);
+	//			if(ma != null) {
+	//				if(!ma.iconName().isEmpty()) {
+	//					if(ma.iconBase() != Object.class)
+	//						image(ma.iconBase(), ma.iconName());
+	//					else
+	//						image(Icon.of(ma.iconName()));
+	//				}
+	//			}
+	//
+	//			//-- Not set using a UIMenu annotation. Is a .png with the same classname available?
+	//			String cn = DomUtil.getClassNameOnly(clz) + ".png";
+	//			if(DomUtil.hasResource(clz, cn)) {
+	//				image(clz, cn);                                    // Set class-based URL
+	//			}
+	//		}
+	//
+	//		/*
+	//		 * We try to prime the source for title, label, search and description from the properties defined
+	//		 * in the Page class. This can be overridden by separate calls into the returned item. The logic
+	//		 * used here should duplicate the logic exposed in AppUIUtil for the items mostly. The exception
+	//		 * is that the code here tries to find a single source for the strings using the same chain of
+	//		 * locations specified in AppUIUtil; it will then use this single source for /all/ strings.
+	//		 * These things all set a bundle and key for all items.
+	//		 */
+	//		UIMenu ma = clz.getAnnotation(UIMenu.class); // Is annotated with UIMenu?
+	//		String labelKey = null;
+	//		String titleKey = null;
+	//		String searchKey = null;
+	//		String descKey = null;
+	//		BundleRef labelRef = null;
+	//		BundleRef titleRef = null;
+	//		BundleRef searchRef = null;
+	//		BundleRef descRef = null;
+	//
+	//		if(ma != null) {
+	//			BundleRef ref = DomUtil.findBundle(ma, clz);
+	//			if(ref != null) {
+	//				if(ma.baseKey().length() != 0) {
+	//					labelKey = ma.baseKey() + ".label";
+	//					titleKey = ma.baseKey() + ".title";
+	//					searchKey = ma.baseKey() + ".search";
+	//					descKey = ma.baseKey() + ".desc";
+	//					labelRef = titleRef = searchRef = descRef = ref;
+	//				}
+	//				if(ma.labelKey().length() != 0) {
+	//					labelKey = ma.labelKey();
+	//					labelRef = ref;
+	//				}
+	//				if(ma.titleKey().length() != 0) {
+	//					titleKey = ma.titleKey();
+	//					titleRef = ref;
+	//				}
+	//				if(ma.descKey().length() != 0) {
+	//					descKey = ma.descKey();
+	//					descRef = ref;
+	//				}
+	//				if(ma.searchKey().length() != 0) {
+	//					searchKey = ma.searchKey();
+	//					searchRef = ref;
+	//				}
+	//			}
+	//		}
+	//
+	//		//-- Not using UIMenu; use page/package based structures. This depends on whether a Page resource exists.
+	//		BundleRef br = DomUtil.getClassBundle(clz);    // PageClass bundle
+	//		if(br.exists()) {
+	//			//-- Use page-based resources.
+	//			if(br.getString("label") != null) {
+	//				labelKey = "label";
+	//				labelRef = br;
+	//			}
+	//			if(br.getString("title") != null) {
+	//				titleKey = "title";
+	//				titleRef = br;
+	//			}
+	//			if(br.getString("search") != null) {
+	//				searchKey = "search";
+	//				searchRef = br;
+	//			}
+	//			if(br.getString("desc") != null) {
+	//				descKey = "desc";
+	//				descRef = br;
+	//			}
+	//		}
+	//
+	//		//-- Try package-based keys
+	//		br = DomUtil.getPackageBundle(clz);                // Package bundle.
+	//		if(br.exists()) {
+	//			//-- Use the package-based bundle for $ provided some exist...
+	//			String bn = clz.getSimpleName();
+	//			String kl = bn + ".label";
+	//			String kt = bn + ".title";
+	//			if(br.findMessage(Locale.US, kl) != null || br.findMessage(Locale.US, kt) != null) {
+	//				titleRef = labelRef = descRef = searchRef = br;
+	//				labelKey = kl;
+	//				titleKey = kt;
+	//				searchKey = bn + ".search";
+	//				descKey = bn + ".desc";
+	//			}
+	//		}
+	//
+	//		if(m_labelKey == null && m_label == null)
+	//			labelKey(labelRef, labelKey);
+	//		if(m_titleKey == null && m_title == null)
+	//			titleKey(titleRef, titleKey);
+	//		if(m_searchKey == null)
+	//			searchKey(searchRef, searchKey);
+	//		if(m_desc == null && m_descKey == null)
+	//			descKey(descRef, descKey);
+	//	}
+	//	m_calculated = true;
+	//}
 
 	public boolean siblingHasIcons() {
 		MenuItem parent = m_parent;
