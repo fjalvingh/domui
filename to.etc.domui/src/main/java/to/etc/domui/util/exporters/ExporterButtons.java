@@ -69,7 +69,7 @@ public class ExporterButtons {
 	//
 	//}
 
-	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<IExportColumn<?>> columns, String fileName) {
+	public static <T> void export(NodeContainer node, IExportFormat xf, QCriteria<T> query, List<? extends IExportColumn<?>> columns, String fileName) {
 		QueryExporterTask<T> x = new QueryExporterTask<>(xf, query, columns);
 		AsyncDialog.runInDialog(node, x, "Export", true, task -> {
 			File target = Objects.requireNonNull(task.getOutputFile());
@@ -129,6 +129,7 @@ public class ExporterButtons {
 	static public <T> ExportButtonBuilder<T> from(Class<T> baseClass, SupplierEx<QCriteria<T>> supplier) {
 		return new ExportButtonBuilder<>(baseClass, supplier);
 	}
+
 	static public <T> ExportButtonBuilder<T> fromList(Class<T> baseClass, SupplierEx<List<T>> supplier) {
 		return new ExportButtonBuilder<>(MetaManager.findClassMeta(baseClass), supplier);
 	}
@@ -140,9 +141,9 @@ public class ExporterButtons {
 	static private class QueryExporterTask<T> extends AbstractExporter<T> {
 		final private QCriteria<T> m_criteria;
 
-		final private List<IExportColumn<?>> m_columns;
+		final private List<? extends IExportColumn<?>> m_columns;
 
-		public QueryExporterTask(IExportFormat format, QCriteria<T> criteria, List<IExportColumn<?>> columns) {
+		public QueryExporterTask(IExportFormat format, QCriteria<T> criteria, List<? extends IExportColumn<?>> columns) {
 			super(format);
 			m_criteria = criteria;
 			m_columns = columns;

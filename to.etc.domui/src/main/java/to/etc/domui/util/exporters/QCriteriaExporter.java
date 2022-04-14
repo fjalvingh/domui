@@ -18,9 +18,9 @@ public class QCriteriaExporter<T> extends AbstractObjectExporter<T> {
 
 	private final IExportWriter<T>	m_exportWriter;
 
-	private final List<IExportColumn<?>> m_columnList;
+	private final List<? extends IExportColumn<?>> m_columnList;
 
-	public QCriteriaExporter(@NonNull IExportWriter<T> writer, @NonNull QDataContext dc, @NonNull QCriteria<T> query, List<IExportColumn<?>> columnList) {
+	public QCriteriaExporter(@NonNull IExportWriter<T> writer, @NonNull QDataContext dc, @NonNull QCriteria<T> query, List<? extends IExportColumn<?>> columnList) {
 		m_dc = dc;
 		m_query = query;
 		m_exportWriter = writer;
