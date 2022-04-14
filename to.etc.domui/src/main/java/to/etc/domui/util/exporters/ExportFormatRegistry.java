@@ -43,5 +43,11 @@ public class ExportFormatRegistry {
 				return new ExcelExportWriter<>(ExcelFormat.XLSX, out);
 			}
 		});
+		register(new AbstractExportFormat("csv", "Comma-separated file") {
+			@Override
+			public IExportWriter<?> createWriter(File output) throws Exception {
+				return new CsvExportWriter<>(output);
+			}
+		});
 	}
 }
