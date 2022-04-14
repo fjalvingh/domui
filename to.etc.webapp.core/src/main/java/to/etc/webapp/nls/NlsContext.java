@@ -94,6 +94,8 @@ final public class NlsContext {
 		String language = dl.getLanguage();
 		if(country == null || country.length() == 0 || language == null || language.length() == 0) {
 			m_defaultLocale = Locale.US;
+		} else {
+			m_defaultLocale = dl;
 		}
 	}
 
