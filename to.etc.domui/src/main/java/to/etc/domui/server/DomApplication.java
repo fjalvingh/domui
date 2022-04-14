@@ -1297,6 +1297,7 @@ public abstract class DomApplication {
 	@NonNull
 	public Locale getRequestLocale(HttpServletRequest request) {
 		return request.getLocale();
+
 	}
 
 	@Nullable
