@@ -29,6 +29,7 @@ final public class AccessCheckResult {
 		m_messageList = Collections.unmodifiableList(messageList);
 		m_page = page;
 	}
+
 	private AccessCheckResult(PageAccessCheckResult result) {
 		m_result = result;
 		m_rights = null;
