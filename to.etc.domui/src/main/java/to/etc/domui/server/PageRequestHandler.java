@@ -139,11 +139,12 @@ final public class PageRequestHandler {
 		try {
 			runClass();
 		} catch(ThingyNotFoundException | ClientDisconnectedException xxxx) {
+			renderApplicationMail(xxxx);
 			throw xxxx;
 		} catch(Exception x) {
 			renderApplicationMail(x);
-			//if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
-			//	throw x;
+			if(!m_application.isShowProblemTemplate() && !m_application.inDevelopmentMode())
+				throw x;
 
 			tryRenderOopsFrame(x);
 		} catch(Error x) {
