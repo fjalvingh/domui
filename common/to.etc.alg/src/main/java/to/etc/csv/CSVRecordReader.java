@@ -24,10 +24,14 @@
  */
 package to.etc.csv;
 
-import java.io.*;
-import java.util.*;
+import to.etc.util.StringTool;
 
-import to.etc.util.*;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.Reader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
 
 /**
  * Reads CSV files record by record, and implements the iLoadInputProvider interface
@@ -214,7 +218,7 @@ public class CSVRecordReader implements iRecordReader {
 	}
 
 	/**
-	 * @author mbp, added method to see if it is an empty line. This is to make
+	 * Method to see if it is an empty line. This is to make
 	 * config files ending with an extra newline not cause unnecessary errors
 	 */
 	public boolean isEmptyLine() {
