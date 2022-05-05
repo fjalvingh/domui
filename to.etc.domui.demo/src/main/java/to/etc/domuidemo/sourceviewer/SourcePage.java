@@ -5,7 +5,6 @@ import to.etc.domui.component.layout.*;
 import to.etc.domui.component.misc.*;
 import to.etc.domui.dom.html.*;
 import to.etc.syntaxer.*;
-import to.etc.syntaxer.TokenMarker.*;
 import to.etc.util.*;
 
 import javax.swing.text.*;
@@ -28,9 +27,9 @@ public class SourcePage extends UrlPage {
 
 	private List<LineContext> m_ctxList;
 
-	private Colorizer.Mode m_mode;
+	private IHighlighter m_mode;
 
-	private HtmlTokenHandler m_th = new HtmlTokenHandler();
+	private HtmlHighlightRenderer m_th = new HtmlHighlightRenderer();
 
 	private Segment m_seg = new Segment();
 
@@ -61,8 +60,8 @@ public class SourcePage extends UrlPage {
 		//-- Syntax highlighter
 		String ext = FileTool.getFileExtension(name);
 		if(ext.length() != 0)
-			m_mode = Colorizer.getModeForExtension(ext);
-		m_th.setTabsize(m_tabSize);
+			m_mode = Colorizer.getHighlighter(ext);
+		m_th.setTabSize(m_tabSize);
 		m_th.setImportList(m_importList);
 		Div scrolldiv = new Div();
 		add(scrolldiv);
@@ -70,8 +69,7 @@ public class SourcePage extends UrlPage {
 
 		TBody tb = scrolldiv.addTable();
 
-		InputStream	is	= sf.getContent();
-		try {
+		try(InputStream is = sf.getContent()) {
 			//-- Start rendering file's contents.
 			LineNumberReader lr = new LineNumberReader(new InputStreamReader(is, m_encoding));
 			int linenr = 0;
@@ -82,8 +80,6 @@ public class SourcePage extends UrlPage {
 				linenr++;
 				lc = appendLine(tb, linenr, line, lc);
 			}
-		} finally {
-			try { if(is != null) is.close(); } catch(Exception x) {}
 		}
 	}
 
@@ -115,6 +111,7 @@ public class SourcePage extends UrlPage {
 		m_seg.array = line.toCharArray();
 		m_seg.offset = 0;
 		m_seg.count = m_seg.array.length;
-		return m_mode.getTokenMarker().markTokens(lc, m_th, m_seg);
+		return m_mode.highlightLine(lc, line, m_th);
+		//return m_mode.getTokenMarker().markTokens(lc, m_th, m_seg);
 	}
 }
