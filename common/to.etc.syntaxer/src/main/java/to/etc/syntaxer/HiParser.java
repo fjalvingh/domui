@@ -3,6 +3,11 @@ package to.etc.syntaxer;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.IExecute;
+import to.etc.util.WrappedException;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Split a line into tokens using general (and configurable) rules
@@ -24,36 +29,48 @@ abstract public class HiParser {
 
 	private IExecute m_state = this::sWhitespace;
 
+	private int m_tokenStart;
+
 	private boolean m_eoln;
 
 	@Nullable
 	private String m_tokenEnd;
 
-	private HighlightTokenType m_lastType = HighlightTokenType.whitespace;
+	//private HighlightTokenType m_lastType = HighlightTokenType.whitespace;
 
-	private String m_lastToken = "";
+	abstract protected void tokenFound(HighlightTokenType type, String text, int characterIndex);
 
-	abstract protected void tokenFound(HighlightTokenType type, CharSequence text);
+	private Map<String, HighlightTokenType> m_keywordMap = new HashMap<>();
 
-	public LineContext start(String line, @Nullable LineContext startContext) throws Exception {
+	public LineContext start(String line, @Nullable LineContext startContext) {
 		m_line = line;
 		m_ix = 0;
 		m_len = line.length();
 		m_sb.setLength(0);
 		m_eoln = false;
+		m_tokenStart = 0;
 		if(null != startContext) {
 			m_state = startContext.getLexerState();
 		} else {
-			m_state = this::sWhitespace;
+			calculatePhaseFor();
 		}
-		m_lastType = HighlightTokenType.whitespace;
-		m_lastToken = "";
-		while(la() != -1) {
-			m_state.execute();
+		int eolct = 0;							// The eol char is always offered to the phase once.
+		for(;;) {
+			int c = la();
+			if(c == -1) {
+				eolct++;
+				if(eolct >= 2)
+					break;
+			}
+
+			try {
+				m_state.execute();
+			} catch(Exception x) {
+				throw WrappedException.wrap(x);
+			}
 		}
 
-
-
+		m_tokenStart = m_ix;
 		flush(HighlightTokenType.newline);
 		return new LineContext(m_state);
 	}
@@ -62,15 +79,16 @@ abstract public class HiParser {
 	 * If the current char is whitespace then append, else move to the next state.
 	 */
 	protected void sWhitespace() {
-		int c = la();
-		if(Character.isWhitespace(c)) {
+		while(isWhitespace(la()))
 			copy();
-			return;
-		}
 
 		//-- We have finished a whitespace run -> flush
 		flush(HighlightTokenType.whitespace);
 		calculatePhaseFor();
+	}
+
+	private boolean isWhitespace(int c) {
+		return c != -1 && Character.isWhitespace(c);
 	}
 
 	protected void sIdentifier() {
@@ -93,6 +111,8 @@ abstract public class HiParser {
 	}
 
 	protected void calculatePhaseFor() {
+		m_tokenStart = m_ix;
+
 		if(isWsStart())
 			return;
 		if(isIdentifierStart())
@@ -116,10 +136,27 @@ abstract public class HiParser {
 	}
 
 	protected void sPunctuation() {
-		int c = la();
+		for(;;) {
+			int c = la();
+			if(! isPunctuation(c) || isCommentStarter() || c == -1) {
+				break;
+			}
+			copy();
+		}
+		flush(HighlightTokenType.punctuation);
+		calculatePhaseFor();
+	}
 
+	private boolean isCommentStarter() {
+		if(is("/*") || is("//"))
+			return true;
+		return false;
+	}
 
-
+	private boolean isPunctuation(int c) {
+		return ! Character.isLetterOrDigit(c)
+			&& ! Character.isWhitespace(c)
+			&& c != -1;
 	}
 
 	private boolean isComment() {
@@ -271,7 +308,7 @@ abstract public class HiParser {
 		if(c == '\"' || c == '\'') {
 			copy();
 			m_state = this::sString;
-			m_tokenEnd = "\"";
+			m_tokenEnd = "" + (char) c;
 			return true;
 		}
 		return false;
@@ -377,14 +414,17 @@ abstract public class HiParser {
 	 * the previous token type then flush the previous type.
 	 */
 	protected void flush(HighlightTokenType type) {
-		if(m_lastType != type) {
-			tokenFound(m_lastType, m_lastToken);
-			m_sb.setLength(0);
-			m_lastType = type;
-			m_lastToken = sb().toString();
-		} else {
-			m_lastToken = m_lastToken + sb();
+		//-- Is this a keyword?
+		String token = m_sb.toString();
+		if(type == HighlightTokenType.id) {
+			HighlightTokenType alt = m_keywordMap.get(token);
+			if(null != alt) {
+				type = alt;
+			}
 		}
+
+		tokenFound(type, token, m_tokenStart);
+		m_sb.setLength(0);
 	}
 
 	/*----------------------------------------------------------------------*/
@@ -436,4 +476,19 @@ abstract public class HiParser {
 		}
 	}
 
+	protected void setKeywordMap(Map<String, HighlightTokenType> keywordMap) {
+		m_keywordMap = keywordMap;
+	}
+
+	protected void setKeywordCaseIndependent() {
+		Map<String, HighlightTokenType> map = m_keywordMap;
+		m_keywordMap = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+		m_keywordMap.putAll(map);
+	}
+
+	protected void addKeywords(HighlightTokenType type, String... list) {
+		for(String s : list) {
+			m_keywordMap.put(s, type);
+		}
+	}
 }
