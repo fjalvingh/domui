@@ -1,8 +1,10 @@
 package to.etc.parallelrunner.simple;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.parallelrunner.AsyncWorker;
 import to.etc.parallelrunner.IAsyncRunnable;
+import to.etc.parallelrunner.simple.ParallelTaskRunner.IAsyncRunnableSimpleTask;
 import to.etc.util.Progress;
 
 import java.util.ArrayList;
@@ -12,7 +14,18 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
-public class ParallelTaskRunner<T extends IAsyncRunnable> {
+public final class ParallelTaskRunner<T extends IAsyncRunnableSimpleTask> {
+
+	/**
+	 * Used with ParallelTaskRunner
+	 */
+	@NonNullByDefault
+	public interface IAsyncRunnableSimpleTask extends IAsyncRunnable {
+
+		void onBeforeScheduled();
+
+		void onAfterExecuted(boolean cancelled, @Nullable Exception exception);
+	}
 
 	private final AsyncWorker m_asyncWorker;
 
@@ -27,6 +40,12 @@ public class ParallelTaskRunner<T extends IAsyncRunnable> {
 	private final Condition m_hasIdleExecutorsCondition = m_lock.newCondition();
 
 	private final Condition m_noBusyExecutorsCondition = m_lock.newCondition();
+
+	private boolean m_allTasksAdded = false;
+
+	private int m_tasksAdded = 0;
+
+	private int m_tasksCompleted = 0;
 
 	public ParallelTaskRunner(Progress p, int capacity, AsyncWorker asyncWorker) {
 		m_progress = p;
@@ -50,6 +69,8 @@ public class ParallelTaskRunner<T extends IAsyncRunnable> {
 			}
 			SimpleTaskExecutor simpleTaskExecutor = m_idleExecutors.remove(0);
 			m_busyExecutors.add(simpleTaskExecutor);
+			m_tasksAdded++;
+			//System.out.println("Added to m_busyExecutors, size: " + m_busyExecutors.size());
 			simpleTaskExecutor.schedule(m_progress, task);
 		}finally {
 			m_lock.unlock();
@@ -60,24 +81,35 @@ public class ParallelTaskRunner<T extends IAsyncRunnable> {
 		m_lock.lock();
 		try {
 			m_busyExecutors.remove(executor);
+			m_tasksCompleted++;
+			//System.out.println("Removed from m_busyExecutors, size: " + m_busyExecutors.size());
 			m_idleExecutors.add(executor);
 			m_hasIdleExecutorsCondition.signal();
-			if(m_busyExecutors.isEmpty()) {
+			if(m_busyExecutors.isEmpty() && m_allTasksAdded) {
+				//System.out.println("Signaling m_noBusyExecutorsCondition!");
 				m_noBusyExecutorsCondition.signal();
 			}
 		}finally {
 			m_lock.unlock();
+		}
+		if(cancelled) {
+			System.out.println("task cancelled: " + task + "");
+		}
+		if(null != ex) {
+			System.out.println("task has exception: " + ex.getMessage());
+			ex.printStackTrace();
 		}
 
 		//TODO report exception
 	}
 
 	public void waitAllCompleted() throws Exception {
+		m_allTasksAdded = true;
 		System.out.println("** waiting for all task to finish");
 		m_lock.lock();
 		try {
 			for(;;) {
-				if(!m_busyExecutors.isEmpty()) {
+				if(m_busyExecutors.isEmpty()) {
 					break;
 				}
 				m_noBusyExecutorsCondition.await();
@@ -105,11 +137,18 @@ public class ParallelTaskRunner<T extends IAsyncRunnable> {
 		return m_busyExecutors.stream().map(it -> it.getTask()).collect(Collectors.toList());
 	}
 
+	public int getTasksAdded() {
+		return m_tasksAdded;
+	}
+
+	public int getTasksCompleted() {
+		return m_tasksCompleted;
+	}
 
 	/**
 	 * The executor that runs tasks provided by runner.
 	 */
-	static public final class SimpleTaskExecutor<V extends IAsyncRunnable>  {
+	static final public class SimpleTaskExecutor<V extends IAsyncRunnableSimpleTask>  {
 		private final ParallelTaskRunner<V> m_runner;
 
 		private V m_task;
@@ -123,8 +162,11 @@ public class ParallelTaskRunner<T extends IAsyncRunnable> {
 
 		public void schedule(Progress p, V task) {
 			m_task = task;
+			//System.out.println("Scheduling task: " + toString());
+			task.onBeforeScheduled();
 			m_runner.m_asyncWorker.schedule(toString(), task, (cancelled, exception) -> {
 				m_task = null;
+				task.onAfterExecuted(cancelled, exception);
 				m_runner.reportTaskDone(this, task, cancelled, exception);
 			});
 		}
