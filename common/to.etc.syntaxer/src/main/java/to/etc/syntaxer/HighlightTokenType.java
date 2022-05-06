@@ -17,5 +17,6 @@ public enum HighlightTokenType {
 	stringEscape,
 	comment,
 	text,
+	type,
 	newline
 }

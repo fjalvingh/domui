@@ -1,15 +1,22 @@
 package to.etc.domuidemo.sourceviewer;
 
-import to.etc.domui.annotations.*;
-import to.etc.domui.component.layout.*;
-import to.etc.domui.component.misc.*;
-import to.etc.domui.dom.html.*;
-import to.etc.syntaxer.*;
-import to.etc.util.*;
+import to.etc.domui.annotations.UIUrlParameter;
+import to.etc.domui.component.layout.CaptionedHeader;
+import to.etc.domui.component.misc.InfoPanel;
+import to.etc.domui.dom.html.Div;
+import to.etc.domui.dom.html.TBody;
+import to.etc.domui.dom.html.TD;
+import to.etc.domui.dom.html.UrlPage;
+import to.etc.syntaxer.HighlighterFactory;
+import to.etc.syntaxer.IHighlighter;
+import to.etc.syntaxer.LineContext;
+import to.etc.util.FileTool;
 
-import javax.swing.text.*;
-import java.io.*;
-import java.util.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This page will attempt to show the source code for a given Java class or other resource. It is
@@ -30,8 +37,6 @@ public class SourcePage extends UrlPage {
 	private IHighlighter m_mode;
 
 	private HtmlHighlightRenderer m_th = new HtmlHighlightRenderer();
-
-	private Segment m_seg = new Segment();
 
 	private List<String> m_importList = new ArrayList<String>();
 
@@ -60,7 +65,7 @@ public class SourcePage extends UrlPage {
 		//-- Syntax highlighter
 		String ext = FileTool.getFileExtension(name);
 		if(ext.length() != 0)
-			m_mode = Colorizer.getHighlighter(ext);
+			m_mode = HighlighterFactory.getHighlighter(ext, m_th);
 		m_th.setTabSize(m_tabSize);
 		m_th.setImportList(m_importList);
 		Div scrolldiv = new Div();
@@ -107,11 +112,6 @@ public class SourcePage extends UrlPage {
 		td.setText(Integer.toString(linenr));
 		td = tb.addCell("dm-srcp-txt");
 		m_th.setTarget(td);
-
-		m_seg.array = line.toCharArray();
-		m_seg.offset = 0;
-		m_seg.count = m_seg.array.length;
-		return m_mode.highlightLine(lc, line, m_th);
-		//return m_mode.getTokenMarker().markTokens(lc, m_th, m_seg);
+		return m_mode.highlightLine(lc, line);
 	}
 }

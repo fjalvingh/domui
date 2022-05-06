@@ -8,11 +8,17 @@ import org.eclipse.jdt.annotation.Nullable;
  * Created on 05-05-22.
  */
 final public class NullHighlighter implements IHighlighter {
+	private final IHighlightRenderer m_renderer;
+
+	public NullHighlighter(@NonNull IHighlightRenderer renderer) {
+		m_renderer = renderer;
+	}
+
 	@NonNull
 	@Override
-	public LineContext highlightLine(@Nullable LineContext previous, @NonNull String line, @NonNull IHighlightRenderer renderer) {
-		renderer.renderToken(HighlightTokenType.text, line, 0);
-		renderer.renderToken(HighlightTokenType.newline, "", line.length());
+	public LineContext highlightLine(@Nullable LineContext previous, @NonNull String line) {
+		m_renderer.renderToken(HighlightTokenType.text, line, 0);
+		m_renderer.renderToken(HighlightTokenType.newline, "", line.length());
 
 		return new LineContext(this::dummy);
 	}
