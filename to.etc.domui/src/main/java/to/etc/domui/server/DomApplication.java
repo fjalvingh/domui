@@ -2488,6 +2488,16 @@ public abstract class DomApplication {
 		return m_pageUrlMapping;
 	}
 
+	/**
+	 * Decides if the exception should be mailed. By default is should, override if needed.
+	 *
+	 * @param x
+	 * @return
+	 */
+	public boolean shouldMailException(Throwable x) {
+		return true;
+	}
+
 	static {
 		register(SassThemeFactory.INSTANCE);
 		register(SimpleThemeFactory.INSTANCE);

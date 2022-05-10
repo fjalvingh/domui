@@ -98,6 +98,10 @@ final public class ExceptionUtil {
 		if(null == from)
 			return;
 
+		if (!DomApplication.get().shouldMailException(x)) {
+			return;
+		}
+
 		try {
 			InetAddress host = InetAddress.getLocalHost();
 			subj += " (" + host.getCanonicalHostName() + ")";
