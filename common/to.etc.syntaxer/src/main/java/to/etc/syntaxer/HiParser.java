@@ -2,7 +2,6 @@ package to.etc.syntaxer;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import to.etc.function.IExecute;
 import to.etc.util.WrappedException;
 
 import java.util.HashMap;
@@ -27,11 +26,10 @@ abstract public class HiParser {
 	/** The current token being built. */
 	private StringBuilder m_sb = new StringBuilder();
 
-	private IExecute m_state = this::sWhitespace;
+	/** The current token type being parsed */
+	private HighlightTokenType m_state;
 
 	private int m_tokenStart;
-
-	private boolean m_eoln;
 
 	@Nullable
 	private String m_tokenEnd;
@@ -47,7 +45,6 @@ abstract public class HiParser {
 		m_ix = 0;
 		m_len = line.length();
 		m_sb.setLength(0);
-		m_eoln = false;
 		m_tokenStart = 0;
 		if(null != startContext) {
 			m_state = startContext.getLexerState();
@@ -64,12 +61,42 @@ abstract public class HiParser {
 			}
 
 			try {
-				m_state.execute();
+				switch(m_state) {
+					default:
+						throw new IllegalStateException("Unhandled token type " + m_state);
+
+					case comment:
+						sComment();
+						break;
+
+					case whitespace:
+						sWhitespace();
+						break;
+
+					case character:
+					case string:
+						sString();
+						break;
+
+					case id:
+						sIdentifier();
+						break;
+
+					case punctuation:
+						sPunctuation();
+						break;
+				}
 			} catch(Exception x) {
 				throw WrappedException.wrap(x);
 			}
 		}
 
+		//-- Flush the current token
+		if(m_sb.length() > 0) {
+			flush(m_state);
+		}
+
+		//-- Flush the newline
 		m_tokenStart = m_ix;
 		flush(HighlightTokenType.newline);
 		return new LineContext(m_state);
@@ -92,17 +119,21 @@ abstract public class HiParser {
 	}
 
 	protected void sIdentifier() {
-		int c = la();
-		if(m_sb.length() == 0) {
-			if(isIdentifierStart(c)) {
-				copy();
-				return;
+		m_state = HighlightTokenType.id;
+		for(;;) {
+			int c = la();
+			if(isEoln(c))
+				break;
+			if(m_sb.length() == 0) {
+				if(! isIdentifierStart(c))
+					break;
+			} else {
+				if(! isIdentifierNext(c))
+					break;
 			}
-		} else {
-			if(isIdentifierNext(c)) {
-				copy();
-				return;
-			}
+
+			//-- Id char -> add
+			copy();
 		}
 
 		//-- No longer an identifier ->
@@ -110,35 +141,48 @@ abstract public class HiParser {
 		calculatePhaseFor();
 	}
 
+	private boolean isEoln(int c) {
+		return c == -1 || c == '\n';
+	}
+
 	protected void calculatePhaseFor() {
 		m_tokenStart = m_ix;
 
-		if(isWsStart())
+		if(isWsStart()) {
+			m_state = HighlightTokenType.whitespace;
 			return;
-		if(isIdentifierStart())
+		}
+		if(isIdentifierStart(la())) {
+			m_state = HighlightTokenType.id;
 			return;
+		}
 		if(la() == '\n') {
 			flush(HighlightTokenType.newline);
 			accept();
-			m_state = this::sWhitespace;
+			m_state = HighlightTokenType.whitespace;
 			return;
 		}
-		if(isStringStart())
+		int nc = isStringStart();
+		if(nc > 0) {
+			m_tokenEnd = get(nc);
+			copy(nc);
+			m_state = HighlightTokenType.string;
 			return;
-		if(isNumberStart())
+		}
+		if(checkNumber())
 			return;
 		if(isComment())
 			return;
 
 		//-- Must be punctuation
-		m_state = this::sPunctuation;
+		m_state = HighlightTokenType.punctuation;
 		copy();
 	}
 
 	protected void sPunctuation() {
 		for(;;) {
 			int c = la();
-			if(! isPunctuation(c) || isCommentStarter() || c == -1) {
+			if(! isPunctuation(c) || isCommentStarter() || isStringStart() != 0 || c == -1) {
 				break;
 			}
 			copy();
@@ -161,7 +205,7 @@ abstract public class HiParser {
 
 	private boolean isComment() {
 		if(is("/*")) {
-			m_state = this::sComment;
+			m_state = HighlightTokenType.comment;
 			m_tokenEnd = "*/";
 			return true;
 		}
@@ -182,148 +226,130 @@ abstract public class HiParser {
 	}
 
 	protected void sComment() {
-		if(isTokenEnd()) {
-			flush(HighlightTokenType.comment);
-			calculatePhaseFor();
-			return;
+		for(;;) {
+			if(isTokenEnd()) {
+				flush(HighlightTokenType.comment);
+				calculatePhaseFor();
+				return;
+			}
+			copy();
 		}
-		copy();
 	}
 
-	protected boolean isNumberStart() {
+	protected boolean checkNumber() {
 		int c = la();
-		if(Character.isDigit(c)) {
-			if(isHexNumber() || isOctalNumber() || isBinaryNumber() || isDecimalNumber()) {
-				return true;
+		int base = 0;
+		if(c == '0') {
+			//-- octal/hex/binary?
+			copy();
+			c = la();
+			if(c == 'x' || c == 'X') {
+				base = 16;
+				copy();
+			} else if(c == 'b' || c == 'B') {
+				base = 2;
+				copy();
+			} else {
+				base = 8;
+				// Let the copy be done in the body as we check there that it is actually a digit
 			}
+		} else if(Character.isDigit(c)) {
+			m_state = HighlightTokenType.number;
+			copy();
+			base = 10;
+		} else {
+			return false;
+		}
+
+		//-- Copy all digits, and allow for scientific notation where necessary
+		m_state = HighlightTokenType.number;
+		for(;;) {
+			c = la();
+			if(c != '_') {
+				int value = digitValue(c);
+				if(value == -1 || value >= base) {
+					break;
+				}
+			}
+			copy();
+		}
+
+		//-- If the base is 10 we can have scientific notation, so bail out for other bases
+		if(base != 10) {
+			//-- We do accept 'l' or 'L' here
+			if(c == 'l' || c == 'L') {
+				copy();
+			}
+			flush(m_state);
+			calculatePhaseFor();
 			return true;
 		}
-		return false;
-	}
 
-	protected boolean isHexNumber() {
-		if(la() == '0') {
-			if(Character.toUpperCase(la(1)) == 'X') {
-				m_state = this::sHexNumber;
-				copy(2);
-				return true;
-			}
+		//-- Base 10. Do we have a dot?
+		if(c == '.') {
+			copy();
+
+			//-- Second copy digit loop
+			while(Character.isDigit(la()))
+				copy();
 		}
-		return false;
-	}
 
-	protected boolean isBinaryNumber() {
-		if(la() == '0') {
-			if(Character.toUpperCase(la(1)) == 'B') {
-				m_state = this::sBinaryNumber;
-				copy(2);
-				return true;
-			}
+		//-- Can now be followed by 'e' 'E'
+		c = la();
+		if(c == 'e' || c == 'E') {
+			copy();
+
+			//-- Then + or -, optionally,
+			c = la();
+			if(c == '+' || c == '-')
+				copy();
+
+			//-- Copy exponent
+			while(Character.isDigit(la()))
+				copy();
 		}
-		return false;
-	}
-
-	protected boolean isOctalNumber() {
-		if(la() == '0') {
-			m_state = this::sOctalNumber;
-			copy(1);
-			return true;
-		}
-		return false;
-	}
-
-	protected boolean isDecimalNumber() {
-		m_state = this::sDecimalNumber;
-		copy();
+		c = la();
+		if(c == 'd' || c == 'D')
+			copy();
+		flush(m_state);
+		calculatePhaseFor();
 		return true;
 	}
 
-	protected void sHexNumber() {
-		int c = la();
-		if(Character.isDigit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f') || c == '_') {
-			copy();
-		} else {
-			flush(HighlightTokenType.number);
-			calculatePhaseFor();
-		}
+	private int digitValue(int c) {
+		if(c >= '0' && c <= '9') {
+			return c - '0';
+		} else if(c >= 'A' && c <= 'Z') {
+			return 10 + c - 'A';
+		} else if(c >= 'a' && c <= 'z') {
+			return 10 + c - 'a';
+		} else
+			return -1;
 	}
 
-	protected void sOctalNumber() {
-		int c = la();
-		if(Character.isDigit(c) || c == '_') {
-			copy();
-		} else {
-			flush(HighlightTokenType.number);
-			calculatePhaseFor();
-		}
-	}
-
-	protected void sBinaryNumber() {
-		int c = la();
-		if(Character.isDigit(c) || c == '_') {
-			copy();
-		} else {
-			flush(HighlightTokenType.number);
-			calculatePhaseFor();
-		}
-	}
-
-	/**
-	 * Scans decimals
-	 */
-	protected void sDecimalNumber() {
-		int c = la();
-		if(Character.isDigit(c) || c == '_') {
-			copy();
-			return;
-		}
-
-		if(c == '.') {
-			copy();
-			return;
-		}
-		if(c == 'e' || c == 'E') {
-			copy();
-			return;
-		}
-		if(c == '+' || c == '-') {
-			int lc = getLastCopied();
-			if(lc == 'e' || lc == 'E') {
-				copy();
-				return;
-			}
-		}
-		if(c == 'L' || c == 'l' || c == 'D' || c == 'd') {
-			copy();
-			return;
-		}
-
-		//-- End of number
-		flush(HighlightTokenType.number);
-		calculatePhaseFor();
-	}
-
-	protected boolean isStringStart() {
+	protected int isStringStart() {
 		int c = la();
 		if(c == '\"' || c == '\'') {
-			copy();
-			m_state = this::sString;
-			m_tokenEnd = "" + (char) c;
-			return true;
+			return 1;
+			//copy();
+			//m_state = this::sString;
+			//m_tokenEnd = "" + (char) c;
+			//return true;
 		}
-		return false;
+		return 0;
 	}
 
 	protected void sString() {
-		if(isStringEscape()) {
-			return;
+		for(;;) {
+			if(! isStringEscape()) {
+				if(isTokenEnd()) {
+					break;
+				}
+				copy();
+			}
 		}
-		if(isTokenEnd()) {
-			flush(HighlightTokenType.string);
-			calculatePhaseFor();
-		} else {
-			copy();
-		}
+		flush(m_state);
+		calculatePhaseFor();
 	}
 
 	/**
@@ -352,6 +378,13 @@ abstract public class HiParser {
 			}
 		}
 		return true;
+	}
+
+	protected String get(int count) {
+		int ep = m_ix + count;
+		if(ep > m_len)
+			ep = m_len;
+		return m_line.substring(m_ix, ep);
 	}
 
 	/**
@@ -383,23 +416,17 @@ abstract public class HiParser {
 	}
 
 	protected boolean isWsStart() {
-		if(Character.isWhitespace(la())) {
-			m_state = this::sWhitespace;
-			copy();
-			return true;
-		}
-		return false;
+		return Character.isWhitespace(la());
 	}
 
-	protected boolean isIdentifierStart() {
-		if(isIdentifierStart(la())) {
-			copy();
-			m_state = this::sIdentifier;
-			return true;
-		}
-		return false;
-	}
-
+	//protected boolean isIdentifierStart() {
+	//	if(isIdentifierStart(la())) {
+	//		copy();
+	//		m_state = this::sIdentifier;
+	//		return true;
+	//	}
+	//	return false;
+	//}
 
 	protected boolean isIdentifierStart(int c) {
 		return Character.isJavaIdentifierStart(c);
