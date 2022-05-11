@@ -81,12 +81,16 @@ public class OracleReverser extends JDBCReverser {
 	 * Use the name of the user as the default schema name.
 	 */
 	@Override public String getDefaultSchemaName() throws Exception {
-		try(Connection dbc = getDataSource().getConnection();
-			PreparedStatement ps = dbc.prepareStatement("select user from dual");
+		Connection dbc = getDataSource().getConnection();
+		try(PreparedStatement ps = dbc.prepareStatement("select user from dual");
 			ResultSet rs = ps.executeQuery()) {
 			if(rs.next())
 				return rs.getString(1);
 			return "SYSTEM";
+		}finally {
+			if(!isKeepConnectionsOpen()) {
+				FileTool.closeAll(dbc);
+			}
 		}
 	}
 

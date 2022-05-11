@@ -45,15 +45,19 @@ public class JDBCReverser implements Reverser {
 
 //	private DatabaseMetaData m_dmd;
 
+	private final boolean m_keepConnectionsOpen;
+
 	private Set<DbSchema> m_schemaSet = new HashSet<>();
 
 	public JDBCReverser(DataSource dbc, Set<ReverserOption> optionSet) {
 		m_ds = dbc;
+		m_keepConnectionsOpen = false;
 		m_optionSet = optionSet;
 	}
 
 	public JDBCReverser(Connection conn, Set<ReverserOption> optionSet) {
 		m_ds = from(conn);
+		m_keepConnectionsOpen = true;
 		m_optionSet = optionSet;
 	}
 
@@ -87,7 +91,9 @@ public class JDBCReverser implements Reverser {
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);
 		} finally {
-			FileTool.closeAll(dbc);
+			if(!m_keepConnectionsOpen) {
+				FileTool.closeAll(dbc);
+			}
 		}
 	}
 
@@ -158,7 +164,9 @@ public class JDBCReverser implements Reverser {
 			}
 			return schema;
 		} finally {
-			FileTool.closeAll(dbc);
+			if(!m_keepConnectionsOpen) {
+				FileTool.closeAll(dbc);
+			}
 		}
 	}
 
@@ -167,7 +175,8 @@ public class JDBCReverser implements Reverser {
 	}
 
 	@Override public Set<DbSchema> getSchemas(boolean lazily) throws Exception {
-		try(Connection dbc = m_ds.getConnection()) {
+		Connection dbc = m_ds.getConnection();
+		try {
 			DatabaseMetaData dmd = dbc.getMetaData();
 			List<String> names = new ArrayList<>();
 			try(ResultSet rs = dmd.getSchemas()) {
@@ -179,12 +188,17 @@ public class JDBCReverser implements Reverser {
 
 			//-- Now load the schema sets
 			return loadSchemaSet(names, lazily);
+		}finally {
+			if(!m_keepConnectionsOpen) {
+				FileTool.closeAll(dbc);
+			}
 		}
 	}
 
 	@Override
 	public Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaNames, boolean lazily) throws Exception {
-		try(Connection dbc = m_ds.getConnection()) {
+		Connection dbc = m_ds.getConnection();
+		try {
 			//-- Create the set of schema's
 			Set<DbSchema> schemaSet = m_schemaSet = new HashSet<>();
 			for(String schemaName : schemaNames) {
@@ -242,6 +256,10 @@ public class JDBCReverser implements Reverser {
 //				afterLoad(dbc, schema);
 			}
 			return schemaSet;
+		}finally {
+			if(!m_keepConnectionsOpen) {
+				FileTool.closeAll(dbc);
+			}
 		}
 	}
 
@@ -859,6 +877,10 @@ public class JDBCReverser implements Reverser {
 
 	protected void log(String what) {
 		System.err.println("reverser: " + what);
+	}
+
+	public boolean isKeepConnectionsOpen() {
+		return m_keepConnectionsOpen;
 	}
 
 	private static DataSource from(Connection conn) {
