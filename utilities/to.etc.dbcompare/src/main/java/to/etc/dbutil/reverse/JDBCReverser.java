@@ -15,9 +15,12 @@ import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
 
 import javax.sql.DataSource;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Generic impl of a jdbc-based reverser.
@@ -45,6 +49,11 @@ public class JDBCReverser implements Reverser {
 
 	public JDBCReverser(DataSource dbc, Set<ReverserOption> optionSet) {
 		m_ds = dbc;
+		m_optionSet = optionSet;
+	}
+
+	public JDBCReverser(Connection conn, Set<ReverserOption> optionSet) {
+		m_ds = from(conn);
 		m_optionSet = optionSet;
 	}
 
@@ -852,4 +861,54 @@ public class JDBCReverser implements Reverser {
 		System.err.println("reverser: " + what);
 	}
 
+	private static DataSource from(Connection conn) {
+		return new DataSource() {
+			@Override
+			public Connection getConnection() throws SQLException {
+				return conn;
+			}
+
+			@Override
+			@Nullable
+			public Connection getConnection(@Nullable String username, @Nullable String password) throws SQLException {
+				throw new IllegalStateException();
+			}
+
+			@Nullable
+			@Override
+			public PrintWriter getLogWriter() throws SQLException {
+				return null;
+			}
+
+			@Override
+			public void setLogWriter(@Nullable PrintWriter out) throws SQLException {
+			}
+
+			@Override
+			public void setLoginTimeout(int seconds) throws SQLException {
+			}
+
+			@Override
+			public int getLoginTimeout() throws SQLException {
+				return 0;
+			}
+
+			@Override
+			@Nullable
+			public <T> T unwrap(@Nullable Class<T> iface) throws SQLException {
+				return null;
+			}
+
+			@Override
+			public boolean isWrapperFor(@Nullable Class<?> iface) throws SQLException {
+				return false;
+			}
+
+			@Override
+			@Nullable
+			public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+				return null;
+			}
+		};
+	}
 }
