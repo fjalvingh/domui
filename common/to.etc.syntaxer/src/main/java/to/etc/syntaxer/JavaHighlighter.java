@@ -24,10 +24,6 @@ public class JavaHighlighter extends HiParser implements IHighlighter {
 	public LineContext highlightLine(@Nullable LineContext previous, @NonNull String line) {
 		m_renderer.renderToken(HighlightTokenType.text, line, 0);
 		m_renderer.renderToken(HighlightTokenType.newline, "", line.length());
-		return new LineContext(this::dummy);
-	}
-
-	private void dummy() {
-
+		return new LineContext(HighlightTokenType.whitespace);
 	}
 }

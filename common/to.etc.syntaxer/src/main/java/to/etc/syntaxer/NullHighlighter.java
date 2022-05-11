@@ -20,8 +20,6 @@ final public class NullHighlighter implements IHighlighter {
 		m_renderer.renderToken(HighlightTokenType.text, line, 0);
 		m_renderer.renderToken(HighlightTokenType.newline, "", line.length());
 
-		return new LineContext(this::dummy);
+		return new LineContext(HighlightTokenType.whitespace);
 	}
-
-	private void dummy() {}
 }
