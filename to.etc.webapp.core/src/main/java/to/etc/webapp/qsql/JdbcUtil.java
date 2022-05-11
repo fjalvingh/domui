@@ -183,11 +183,25 @@ final public class JdbcUtil {
 	 */
 	public static <T> T selectOne(@NonNull Connection connection, @NonNull Class<T> clz, @NonNull String select, @NonNull Object... params) throws SQLException {
 		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
 			ps = connection.prepareStatement(select);
-			setParameters(ps, 1, params);
 			logDebug("selectOne", select, params);
+			return selectOne(clz, ps, params);
+		} finally {
+			FileTool.closeAll(ps);
+		}
+	}
+
+	/**
+	 * Quick method to select a single value of a given type from the given prepared statement. Returns null if not found AND if the value was null...
+	 * @param ps prepared statement defined in client code.
+	 * @param clz
+	 * @return
+	 */
+	public static <T> T selectOne(@NonNull Class<T> clz, @NonNull PreparedStatement ps, @NonNull Object... params) throws SQLException {
+		ResultSet rs = null;
+		try {
+			setParameters(ps, 1, params);
 			rs = ps.executeQuery();
 			if(!rs.next())
 				return null;
@@ -229,7 +243,7 @@ final public class JdbcUtil {
 			}
 			throw x;
 		} finally {
-			FileTool.closeAll(rs, ps);
+			FileTool.closeAll(rs);
 		}
 	}
 
@@ -448,12 +462,16 @@ final public class JdbcUtil {
 		PreparedStatement ps = null;
 		try {
 			ps = dbc.prepareStatement(sql);
-			setParameters(ps, 1, args);
 			logDebug("executeUpdate", sql, args);
-			return ps.executeUpdate();
+			return executeUpdate(ps, args);
 		} finally {
 			FileTool.closeAll(ps);
 		}
+	}
+
+	public static int executeUpdate(@NonNull PreparedStatement ps, Object... args) throws SQLException {
+		setParameters(ps, 1, args);
+		return ps.executeUpdate();
 	}
 
 	/**
