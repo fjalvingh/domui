@@ -1,4 +1,4 @@
-package to.etc.parallelrunner.simple;
+package to.etc.parallelrunner.bulk;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
