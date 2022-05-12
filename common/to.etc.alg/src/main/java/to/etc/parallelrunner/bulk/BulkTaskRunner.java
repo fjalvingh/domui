@@ -147,6 +147,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	}
 
 	public void waitTillFinished() throws Exception {
+		System.out.println("Waiting all tasks to finish");
 		Exception error;
 		synchronized(this) {
 			for(;;) {
@@ -166,6 +167,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 						}
 					} else {
 						m_finished = true;
+						System.out.println("All tasks finished");
 						return;
 					}
 				}else {
