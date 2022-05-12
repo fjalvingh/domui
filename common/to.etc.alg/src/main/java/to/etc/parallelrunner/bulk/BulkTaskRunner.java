@@ -191,6 +191,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 
 	@Override
 	public void close() throws Exception {
+		System.out.println("Closing bulk task runner");
 		List<AbstractTaskExecutor<T>> all;
 		synchronized(this) {
 			m_finished = true;
