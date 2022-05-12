@@ -156,7 +156,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 				}
 				if(m_freeThreadList.size() == m_allThreadList.size()) {
 					int waitForFinishedInSeconds = m_waitForFinishedInSeconds;
-					if(0 > waitForFinishedInSeconds) {
+					if(waitForFinishedInSeconds > 0) {
 						m_waitForFinishedInSeconds = 0;
 						System.out.println("Waiting for finish with delay of " + waitForFinishedInSeconds + " sec");
 						try {
