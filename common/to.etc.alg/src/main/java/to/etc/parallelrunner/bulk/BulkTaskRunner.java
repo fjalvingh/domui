@@ -23,19 +23,45 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 
 	private boolean m_finished;
 
+	private int m_delayAtTheEndInSeconds;
+
+	private int m_waitForFinishedInSeconds;
+
 	private Exception m_failed;
 
 	private Consumer<? super AbstractTaskExecutor<T>> m_onTaskCompleted;
 
 	private BiConsumer<? super AbstractTaskExecutor<T>, Throwable> m_onTaskFailed;
 
-	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads) throws Exception {
-		start(executorSupplier, nThreads, null, null);
+	/**
+	 * Starts execution of threads. Uses specified capacity of threads, and blocks in adding tasks if no threads are available.
+	 * Since tasks are added after, we can specify delay until executor receives new tasks, after that it moves to finished state and gets closed for processing of new tasks.
+	 * Each new task started would reset given ending delay.
+	 *
+	 * @param executorSupplier
+	 * @param nThreads
+	 * @param delayAtTheEndInSeconds
+	 * @throws Exception
+	 */
+	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, int delayAtTheEndInSeconds) throws Exception {
+		start(executorSupplier, nThreads, delayAtTheEndInSeconds, null, null);
 	}
 
-	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, @Nullable Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted, @Nullable BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed) throws Exception {
+	/**
+	 * Adds optional callbacks for each individual completed or failed executor task.
+	 *
+	 * @param executorSupplier
+	 * @param nThreads
+	 * @param delayAtTheEndInSeconds
+	 * @param onTaskCompleted
+	 * @param onTaskFailed
+	 * @throws Exception
+	 */
+	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, int delayAtTheEndInSeconds, @Nullable Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted, @Nullable BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed) throws Exception {
 		m_onTaskCompleted = onTaskCompleted;
 		m_onTaskFailed = onTaskFailed;
+		m_delayAtTheEndInSeconds = delayAtTheEndInSeconds;
+		m_waitForFinishedInSeconds = m_delayAtTheEndInSeconds;
 		try {
 			synchronized(this) {
 				m_finished = false;
@@ -66,19 +92,27 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 				if(error != null) {
 					break;
 				}
-				if(m_freeThreadList.size() == m_allThreadList.size())
-					return;									// All are there
+				if(m_freeThreadList.size() == m_allThreadList.size()) {
+					int waitForFinishedInSeconds = m_waitForFinishedInSeconds;
+					if(0 > waitForFinishedInSeconds) {
+						m_waitForFinishedInSeconds = 0;
+						wait(waitForFinishedInSeconds * 1000);
+					}else {
+						return;									// All are there and we did end delay too
+					}
+				}else {
 
-				if(System.currentTimeMillis() >= ets) {
-					error = new IllegalStateException("Threads do not become available in time");
-					break;
-				}
+					if(System.currentTimeMillis() >= ets) {
+						error = new IllegalStateException("Threads do not become available in time");
+						break;
+					}
 
-				try {
-					wait(60_000);
-				} catch(Exception x) {
-					error = x;
-					break;
+					try {
+						wait(60_000);
+					} catch(Exception x) {
+						error = x;
+						break;
+					}
 				}
 			}
 		}
@@ -101,6 +135,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 				if(m_freeThreadList.size() > 0) {
 					AbstractTaskExecutor<T> exec = m_freeThreadList.remove(m_freeThreadList.size() - 1);
 					exec.setTask(task);
+					m_waitForFinishedInSeconds = m_delayAtTheEndInSeconds;
 					return;
 				}
 				try {
