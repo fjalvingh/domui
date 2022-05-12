@@ -59,9 +59,9 @@ public class JdbcAnyRecord {
 		//		m_tableName = tablename;
 		Exception error = null;
 		for(int i = 1, len = rsm.getColumnCount(); i <= len; i++) {
+			String name = rsm.getColumnName(i);
+			int type = rsm.getColumnType(i);
 			try {
-				int type = rsm.getColumnType(i);
-				String name = rsm.getColumnName(i);
 				switch(type) {
 					default:
 						throw new IllegalStateException("Cannot handle SQLType=" + type + " for column " + tablename + "." + name);
@@ -103,7 +103,7 @@ public class JdbcAnyRecord {
 			}catch(Exception ex) {
 				//we register first exception that we encounter and continue reading... and throw at the end.
 				if(null == error) {
-					error = ex;
+					error = new IllegalStateException("Error in reading data for column " + tablename + "." + name + "\n" + ex.getLocalizedMessage(), ex);
 				}
 			}
 		}
