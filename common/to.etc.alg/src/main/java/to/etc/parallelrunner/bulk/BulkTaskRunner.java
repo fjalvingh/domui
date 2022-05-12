@@ -35,20 +35,20 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 
 	/**
 	 * Starts execution of threads. Uses specified capacity of threads, and blocks in adding tasks if no threads are available.
-	 * Since tasks are added after, we can specify delay until executor receives new tasks, after that it moves to finished state and gets closed for processing of new tasks.
-	 * Each new task started would reset given ending delay.
+	 * Call addTask to add tasks, and waitTillFinished at the end to wait for all work to complete. Call close after that.
 	 *
 	 * @param executorSupplier
 	 * @param nThreads
-	 * @param delayAtTheEndInSeconds
 	 * @throws Exception
 	 */
-	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, int delayAtTheEndInSeconds) throws Exception {
-		start(executorSupplier, nThreads, delayAtTheEndInSeconds, null, null);
+	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads) throws Exception {
+		start(executorSupplier, nThreads, 0,null, null);
 	}
 
 	/**
-	 * Adds optional callbacks for each individual completed or failed executor task.
+	 * In case when executed tasks might result in scheduling new tasks even after complete original batch of work was already scheduled (for example retries on faulty processing),
+	 * we can specify delay until executor receives new tasks after waitTillFinished is called. Each new task started would reset given ending delay.
+	 * Adds optional callbacks for each individual completed or failed executor task to handle possible re-work in tasks.
 	 *
 	 * @param executorSupplier
 	 * @param nThreads
