@@ -61,7 +61,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 		m_onTaskCompleted = onTaskCompleted;
 		m_onTaskFailed = onTaskFailed;
 		m_delayAtTheEndInSeconds = delayAtTheEndInSeconds;
-		m_waitForFinishedInSeconds = m_delayAtTheEndInSeconds;
+		m_waitForFinishedInSeconds = 0;
 		try {
 			synchronized(this) {
 				m_finished = false;
@@ -93,13 +93,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 					break;
 				}
 				if(m_freeThreadList.size() == m_allThreadList.size()) {
-					int waitForFinishedInSeconds = m_waitForFinishedInSeconds;
-					if(0 > waitForFinishedInSeconds) {
-						m_waitForFinishedInSeconds = 0;
-						wait(waitForFinishedInSeconds * 1000);
-					}else {
-						return;									// All are there and we did end delay too
-					}
+					return;									// All are there
 				}else {
 
 					if(System.currentTimeMillis() >= ets) {
@@ -150,6 +144,49 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	synchronized void startFailed(Exception x) {
 		m_failed = x;
 		notifyAll();
+	}
+
+	public void waitTillFinished() throws Exception {
+		Exception error;
+		synchronized(this) {
+			for(;;) {
+				if(m_finished) {
+					return; //it is closed already
+				}
+				if(m_freeThreadList.size() == m_allThreadList.size()) {
+					int waitForFinishedInSeconds = m_waitForFinishedInSeconds;
+					if(0 > waitForFinishedInSeconds) {
+						m_waitForFinishedInSeconds = 0;
+						System.out.println("Waiting for finish with delay of " + waitForFinishedInSeconds + " sec");
+						try {
+							wait(waitForFinishedInSeconds * 1000);
+						} catch(Exception ex) {
+							error = ex;
+							break;
+						}
+					} else {
+						m_finished = true;
+						return;
+					}
+				}else {
+					try {
+						wait(60_000);
+					} catch(Exception x) {
+						error = x;
+						break;
+					}
+				}
+			}
+		}
+
+		try {
+			close();
+		} catch(Exception x) {
+			x.printStackTrace();
+		}
+		if(null != error) {
+			throw error;
+		}
 	}
 
 	@Override
