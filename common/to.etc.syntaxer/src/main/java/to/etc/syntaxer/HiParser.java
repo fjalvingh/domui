@@ -231,6 +231,8 @@ abstract public class HiParser {
 				flush(HighlightTokenType.comment);
 				calculatePhaseFor();
 				return;
+			} else if(la() == -1) {
+				return;
 			}
 			copy();
 		}
@@ -342,7 +344,7 @@ abstract public class HiParser {
 	protected void sString() {
 		for(;;) {
 			if(! isStringEscape()) {
-				if(isTokenEnd()) {
+				if(isTokenEnd() || la() == -1) {
 					break;
 				}
 				copy();
