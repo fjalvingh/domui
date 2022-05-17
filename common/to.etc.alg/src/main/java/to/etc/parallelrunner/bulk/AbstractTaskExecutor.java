@@ -58,10 +58,9 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 				break;
 			try {
 				executeOnce(task);
+				m_runner.taskFinished(this);
 			} catch(Exception | Error x) {
 				m_runner.taskFailed(this, x);
-			} finally {
-				m_runner.taskFinished(this);
 			}
 		}
 	}
