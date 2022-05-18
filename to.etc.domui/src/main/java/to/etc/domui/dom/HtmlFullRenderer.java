@@ -296,6 +296,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		m_tagRenderer.setRenderMode(m);
 	}
 
+	@Override
 	public boolean isXml() {
 		return m_xml;
 	}
@@ -497,7 +498,10 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 			o().rawAttr(options[i], options[i + 1]);
 		}
 
-		o().endtag();
+		if(isXml())
+			o().endAndCloseXmltag();
+		else
+			o().endtag();
 		o().dec();					// do not close
 		//o().closetag("link");
 	}

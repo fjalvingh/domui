@@ -173,6 +173,11 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 	}
 
 	@Override
+	public boolean isXml() {
+		return false;
+	}
+
+	@Override
 	@NonNull
 	public IBrowserOutput o() {
 		return m_o;

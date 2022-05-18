@@ -238,6 +238,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 		m_tagRenderer.setRenderMode(m);
 	}
 
+	@Override
 	public boolean isXml() {
 		return m_xml;
 	}
