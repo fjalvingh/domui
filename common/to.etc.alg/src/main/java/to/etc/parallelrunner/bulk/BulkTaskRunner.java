@@ -122,15 +122,15 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	}
 
 	public void addTask(T task) {
+		AbstractTaskExecutor<T> exec;
 		synchronized(this) {
 			for(;;) {
 				if(m_finished)
 					throw new IllegalStateException("Attempt to add task while we're finished");
 				if(m_freeThreadList.size() > 0) {
-					AbstractTaskExecutor<T> exec = m_freeThreadList.remove(m_freeThreadList.size() - 1);
-					exec.setTask(task);
+					exec = m_freeThreadList.remove(m_freeThreadList.size() - 1);
 					m_waitForFinishedInSeconds = m_delayAtTheEndInSeconds;
-					return;
+					break;
 				}
 				try {
 					wait();
@@ -139,6 +139,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 				}
 			}
 		}
+		exec.setTask(task);
 	}
 
 	synchronized void startFailed(Exception x) {
