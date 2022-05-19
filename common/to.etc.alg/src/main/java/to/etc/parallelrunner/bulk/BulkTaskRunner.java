@@ -23,10 +23,6 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 
 	private boolean m_finished;
 
-	private int m_delayAtTheEndInSeconds;
-
-	private int m_waitForFinishedInSeconds;
-
 	private Exception m_failed;
 
 	private Consumer<? super AbstractTaskExecutor<T>> m_onTaskCompleted;
@@ -42,26 +38,21 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	 * @throws Exception
 	 */
 	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads) throws Exception {
-		start(executorSupplier, nThreads, 0,null, null);
+		start(executorSupplier, nThreads, null, null);
 	}
 
 	/**
-	 * In case when executed tasks might result in scheduling new tasks even after complete original batch of work was already scheduled (for example retries on faulty processing),
-	 * we can specify delay until executor receives new tasks after waitTillFinished is called. Each new task started would reset given ending delay.
 	 * Adds optional callbacks for each individual completed or failed executor task to handle possible re-work in tasks.
 	 *
 	 * @param executorSupplier
 	 * @param nThreads
-	 * @param delayAtTheEndInSeconds
 	 * @param onTaskCompleted
 	 * @param onTaskFailed
 	 * @throws Exception
 	 */
-	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, int delayAtTheEndInSeconds, @Nullable Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted, @Nullable BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed) throws Exception {
+	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, @Nullable Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted, @Nullable BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed) throws Exception {
 		m_onTaskCompleted = onTaskCompleted;
 		m_onTaskFailed = onTaskFailed;
-		m_delayAtTheEndInSeconds = delayAtTheEndInSeconds;
-		m_waitForFinishedInSeconds = 0;
 		try {
 			synchronized(this) {
 				m_finished = false;
@@ -129,7 +120,6 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 					throw new IllegalStateException("Attempt to add task while we're finished");
 				if(m_freeThreadList.size() > 0) {
 					exec = m_freeThreadList.remove(m_freeThreadList.size() - 1);
-					m_waitForFinishedInSeconds = m_delayAtTheEndInSeconds;
 					break;
 				}
 				try {
@@ -156,20 +146,9 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 					return; //it is closed already
 				}
 				if(m_freeThreadList.size() == m_allThreadList.size()) {
-					int waitForFinishedInSeconds = m_waitForFinishedInSeconds;
-					if(waitForFinishedInSeconds > 0) {
-						m_waitForFinishedInSeconds = 0;
-						try {
-							wait(waitForFinishedInSeconds * 1000);
-						} catch(Exception ex) {
-							error = ex;
-							break;
-						}
-					} else {
-						m_finished = true;
-						System.out.println("All tasks finished");
-						return;
-					}
+					m_finished = true;
+					System.out.println("All tasks finished");
+					return;
 				}else {
 					try {
 						wait(60_000);
