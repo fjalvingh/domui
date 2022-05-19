@@ -519,7 +519,7 @@ public class JDBCReverser implements Reverser {
 				}
 			}
 			t.setIndexMap(indexMap);
-			msg("Loaded " + t.getName() + ": " + t.getColumnMap().size() + " indexes");
+			msg("Loaded " + t.getName() + ": " + indexMap.size() + " index(es)");
 		} finally {
 			try {
 				if(rs != null)
