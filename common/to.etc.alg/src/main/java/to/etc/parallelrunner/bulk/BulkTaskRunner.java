@@ -15,11 +15,11 @@ import java.util.function.Consumer;
  * Created on 09-05-22.
  */
 @NonNullByDefault
-final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T>> implements AutoCloseable {
+final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T, E>> implements AutoCloseable {
 
-	private final List<AbstractTaskExecutor<T>> m_allThreadList = new ArrayList<>();
+	private final List<AbstractTaskExecutor<T, E>> m_allThreadList = new ArrayList<>();
 
-	private final List<AbstractTaskExecutor<T>> m_freeThreadList = new ArrayList<>();
+	private final List<AbstractTaskExecutor<T, E>> m_freeThreadList = new ArrayList<>();
 
 	private boolean m_finished;
 
@@ -51,7 +51,7 @@ final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T>> implemen
 				m_finished = false;
 
 				for(int i = 0; i < nThreads; i++) {
-					AbstractTaskExecutor<T> executor = executorSupplier.apply(this);
+					AbstractTaskExecutor<T, E> executor = executorSupplier.apply(this);
 					m_allThreadList.add(executor);
 					executor.setDaemon(true);
 					executor.start();
@@ -106,7 +106,7 @@ final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T>> implemen
 	}
 
 	public void addTask(T task) {
-		AbstractTaskExecutor<T> exec;
+		AbstractTaskExecutor<T, E> exec;
 		synchronized(this) {
 			for(;;) {
 				if(m_finished)
@@ -166,16 +166,16 @@ final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T>> implemen
 	@Override
 	public void close() throws Exception {
 		System.out.println("Closing bulk task runner");
-		List<AbstractTaskExecutor<T>> all;
+		List<AbstractTaskExecutor<T, E>> all;
 		synchronized(this) {
 			m_finished = true;
 			all = m_allThreadList;
 		}
 
-		for(AbstractTaskExecutor<T> executor : all) {
+		for(AbstractTaskExecutor<T, E> executor : all) {
 			executor.setFinished();
 		}
-		for(AbstractTaskExecutor<T> executor : all) {
+		for(AbstractTaskExecutor<T, E> executor : all) {
 			executor.join();
 		}
 
@@ -208,7 +208,7 @@ final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T>> implemen
 	/**
 	 * Called when a task is free.
 	 */
-	synchronized void taskFree(AbstractTaskExecutor<T> executor) {
+	synchronized void taskFree(AbstractTaskExecutor<T, E> executor) {
 		m_freeThreadList.add(executor);
 		notifyAll();
 	}
