@@ -15,42 +15,35 @@ import java.util.function.Consumer;
  * Created on 09-05-22.
  */
 @NonNullByDefault
-final public class BulkTaskRunner<T> implements AutoCloseable {
+final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T, E>> implements AutoCloseable {
 
-	private final List<AbstractTaskExecutor<T>> m_allThreadList = new ArrayList<>();
+	private final List<AbstractTaskExecutor<T, E>> m_allThreadList = new ArrayList<>();
 
-	private final List<AbstractTaskExecutor<T>> m_freeThreadList = new ArrayList<>();
+	private final List<AbstractTaskExecutor<T, E>> m_freeThreadList = new ArrayList<>();
 
 	private boolean m_finished;
 
+	@Nullable
 	private Exception m_failed;
 
-	private Consumer<? super AbstractTaskExecutor<T>> m_onTaskCompleted;
+	@Nullable
+	private Consumer<E> m_onTaskCompleted;
 
-	private BiConsumer<? super AbstractTaskExecutor<T>, Throwable> m_onTaskFailed;
+	@Nullable
+	private BiConsumer<E, Throwable> m_onTaskFailed;
 
 	/**
 	 * Starts execution of threads. Uses specified capacity of threads, and blocks in adding tasks if no threads are available.
 	 * Call addTask to add tasks, and waitTillFinished at the end to wait for all work to complete. Call close after that.
-	 *
-	 * @param executorSupplier
-	 * @param nThreads
-	 * @throws Exception
 	 */
-	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads) throws Exception {
+	public void start(FunctionEx<BulkTaskRunner<T, E>, E> executorSupplier, int nThreads) throws Exception {
 		start(executorSupplier, nThreads, null, null);
 	}
 
 	/**
 	 * Adds optional callbacks for each individual completed or failed executor task to handle possible re-work in tasks.
-	 *
-	 * @param executorSupplier
-	 * @param nThreads
-	 * @param onTaskCompleted
-	 * @param onTaskFailed
-	 * @throws Exception
 	 */
-	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, @Nullable Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted, @Nullable BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed) throws Exception {
+	public void start(FunctionEx<BulkTaskRunner<T, E>, E> executorSupplier, int nThreads, @Nullable Consumer<E> onTaskCompleted, @Nullable BiConsumer<E, Throwable> onTaskFailed) throws Exception {
 		m_onTaskCompleted = onTaskCompleted;
 		m_onTaskFailed = onTaskFailed;
 		try {
@@ -58,7 +51,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 				m_finished = false;
 
 				for(int i = 0; i < nThreads; i++) {
-					AbstractTaskExecutor<T> executor = executorSupplier.apply(this);
+					AbstractTaskExecutor<T, E> executor = executorSupplier.apply(this);
 					m_allThreadList.add(executor);
 					executor.setDaemon(true);
 					executor.start();
@@ -113,7 +106,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	}
 
 	public void addTask(T task) {
-		AbstractTaskExecutor<T> exec;
+		AbstractTaskExecutor<T, E> exec;
 		synchronized(this) {
 			for(;;) {
 				if(m_finished)
@@ -173,16 +166,16 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	@Override
 	public void close() throws Exception {
 		System.out.println("Closing bulk task runner");
-		List<AbstractTaskExecutor<T>> all;
+		List<AbstractTaskExecutor<T, E>> all;
 		synchronized(this) {
 			m_finished = true;
 			all = m_allThreadList;
 		}
 
-		for(AbstractTaskExecutor<T> executor : all) {
+		for(AbstractTaskExecutor<T, E> executor : all) {
 			executor.setFinished();
 		}
-		for(AbstractTaskExecutor<T> executor : all) {
+		for(AbstractTaskExecutor<T, E> executor : all) {
 			executor.join();
 		}
 
@@ -192,15 +185,15 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 		}
 	}
 
-	void taskFinished(AbstractTaskExecutor<T> executor) {
-		Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted = m_onTaskCompleted;
+	void taskFinished(E executor) {
+		Consumer<E> onTaskCompleted = m_onTaskCompleted;
 		if(null != onTaskCompleted) {
 			onTaskCompleted.accept(executor);
 		}
 	}
 
-	void taskFailed(AbstractTaskExecutor<T> executor, Throwable ex) {
-		BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed = m_onTaskFailed;
+	void taskFailed(E executor, Throwable ex) {
+		BiConsumer<E, Throwable> onTaskFailed = m_onTaskFailed;
 		if(null != onTaskFailed) {
 			onTaskFailed.accept(executor, ex);
 		}
@@ -215,7 +208,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	/**
 	 * Called when a task is free.
 	 */
-	synchronized void taskFree(AbstractTaskExecutor<T> executor) {
+	synchronized void taskFree(AbstractTaskExecutor<T, E> executor) {
 		m_freeThreadList.add(executor);
 		notifyAll();
 	}

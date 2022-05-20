@@ -9,8 +9,8 @@ import to.etc.util.WrappedException;
  * Created on 09-05-22.
  */
 @NonNullByDefault
-abstract public class AbstractTaskExecutor<T> extends Thread {
-	private final BulkTaskRunner<T> m_runner;
+abstract public class AbstractTaskExecutor<T, E extends AbstractTaskExecutor<T, E>> extends Thread {
+	private final BulkTaskRunner<T, E> m_runner;
 
 	@Nullable
 	private T m_nextTask;
@@ -23,7 +23,7 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 
 	abstract protected void executeOnce(T taskInfo);
 
-	public AbstractTaskExecutor(BulkTaskRunner<T> runner) {
+	public AbstractTaskExecutor(BulkTaskRunner<T, E> runner) {
 		m_runner = runner;
 	}
 
@@ -58,9 +58,9 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 				break;
 			try {
 				executeOnce(task);
-				m_runner.taskFinished(this);
+				m_runner.taskFinished((E) this);
 			} catch(Exception | Error x) {
-				m_runner.taskFailed(this, x);
+				m_runner.taskFailed((E) this, x);
 			}
 		}
 	}
