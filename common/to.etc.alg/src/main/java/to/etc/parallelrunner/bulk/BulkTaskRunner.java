@@ -23,19 +23,18 @@ final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T>> implemen
 
 	private boolean m_finished;
 
+	@Nullable
 	private Exception m_failed;
 
+	@Nullable
 	private Consumer<E> m_onTaskCompleted;
 
+	@Nullable
 	private BiConsumer<E, Throwable> m_onTaskFailed;
 
 	/**
 	 * Starts execution of threads. Uses specified capacity of threads, and blocks in adding tasks if no threads are available.
 	 * Call addTask to add tasks, and waitTillFinished at the end to wait for all work to complete. Call close after that.
-	 *
-	 * @param executorSupplier
-	 * @param nThreads
-	 * @throws Exception
 	 */
 	public void start(FunctionEx<BulkTaskRunner<T, E>, E> executorSupplier, int nThreads) throws Exception {
 		start(executorSupplier, nThreads, null, null);
@@ -43,12 +42,6 @@ final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T>> implemen
 
 	/**
 	 * Adds optional callbacks for each individual completed or failed executor task to handle possible re-work in tasks.
-	 *
-	 * @param executorSupplier
-	 * @param nThreads
-	 * @param onTaskCompleted
-	 * @param onTaskFailed
-	 * @throws Exception
 	 */
 	public void start(FunctionEx<BulkTaskRunner<T, E>, E> executorSupplier, int nThreads, @Nullable Consumer<E> onTaskCompleted, @Nullable BiConsumer<E, Throwable> onTaskFailed) throws Exception {
 		m_onTaskCompleted = onTaskCompleted;
