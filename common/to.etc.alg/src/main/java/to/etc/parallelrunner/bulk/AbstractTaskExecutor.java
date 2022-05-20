@@ -10,7 +10,7 @@ import to.etc.util.WrappedException;
  */
 @NonNullByDefault
 abstract public class AbstractTaskExecutor<T> extends Thread {
-	private final BulkTaskRunner<T> m_runner;
+	private final BulkTaskRunner<T, ? super AbstractTaskExecutor<T>> m_runner;
 
 	@Nullable
 	private T m_nextTask;
@@ -23,7 +23,7 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 
 	abstract protected void executeOnce(T taskInfo);
 
-	public AbstractTaskExecutor(BulkTaskRunner<T> runner) {
+	public AbstractTaskExecutor(BulkTaskRunner<T, ? super AbstractTaskExecutor<T>> runner) {
 		m_runner = runner;
 	}
 

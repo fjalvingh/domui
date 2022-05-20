@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  * Created on 09-05-22.
  */
 @NonNullByDefault
-final public class BulkTaskRunner<T> implements AutoCloseable {
+final public class BulkTaskRunner<T, E extends AbstractTaskExecutor<T>> implements AutoCloseable {
 
 	private final List<AbstractTaskExecutor<T>> m_allThreadList = new ArrayList<>();
 
@@ -25,9 +25,9 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 
 	private Exception m_failed;
 
-	private Consumer<? super AbstractTaskExecutor<T>> m_onTaskCompleted;
+	private Consumer<E> m_onTaskCompleted;
 
-	private BiConsumer<? super AbstractTaskExecutor<T>, Throwable> m_onTaskFailed;
+	private BiConsumer<E, Throwable> m_onTaskFailed;
 
 	/**
 	 * Starts execution of threads. Uses specified capacity of threads, and blocks in adding tasks if no threads are available.
@@ -37,7 +37,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	 * @param nThreads
 	 * @throws Exception
 	 */
-	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads) throws Exception {
+	public void start(FunctionEx<BulkTaskRunner<T, E>, E> executorSupplier, int nThreads) throws Exception {
 		start(executorSupplier, nThreads, null, null);
 	}
 
@@ -50,7 +50,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	 * @param onTaskFailed
 	 * @throws Exception
 	 */
-	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, @Nullable Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted, @Nullable BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed) throws Exception {
+	public void start(FunctionEx<BulkTaskRunner<T, E>, E> executorSupplier, int nThreads, @Nullable Consumer<E> onTaskCompleted, @Nullable BiConsumer<E, Throwable> onTaskFailed) throws Exception {
 		m_onTaskCompleted = onTaskCompleted;
 		m_onTaskFailed = onTaskFailed;
 		try {
@@ -192,15 +192,15 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 		}
 	}
 
-	void taskFinished(AbstractTaskExecutor<T> executor) {
-		Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted = m_onTaskCompleted;
+	void taskFinished(E executor) {
+		Consumer<E> onTaskCompleted = m_onTaskCompleted;
 		if(null != onTaskCompleted) {
 			onTaskCompleted.accept(executor);
 		}
 	}
 
-	void taskFailed(AbstractTaskExecutor<T> executor, Throwable ex) {
-		BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed = m_onTaskFailed;
+	void taskFailed(E executor, Throwable ex) {
+		BiConsumer<E, Throwable> onTaskFailed = m_onTaskFailed;
 		if(null != onTaskFailed) {
 			onTaskFailed.accept(executor, ex);
 		}
