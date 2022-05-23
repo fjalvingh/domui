@@ -254,19 +254,20 @@ $.extend(WebUI.SearchPopup.prototype, {
 
 			var axaj = WebUI.prepareAjaxCall(this._id, "lookupTyping");
 
-			axaj.beforeSend = function() {
+			axaj.beforeSend = function () {
 				var parentDiv = lookupField.parentNode;
-				if(parentDiv) {
-					showWaitingTimerId = window.setTimeout(function() {
+				if (parentDiv) {
+					WebUI.blockUI();
+					showWaitingTimerId = window.setTimeout(function () {
 						self.displayWaiting();
 					}, 500);
 				}
 			};
 			axaj.global = false;
 
-			axaj.complete = function() {
+			axaj.complete = function () {
 				// Handle the local complete event
-				if(showWaitingTimerId) {
+				if (showWaitingTimerId) {
 					window.clearTimeout(showWaitingTimerId);
 					showWaitingTimerId = null;
 				}
@@ -275,6 +276,7 @@ $.extend(WebUI.SearchPopup.prototype, {
 				//handle received lookupTyping component content
 				self.showLookupTypingPopupIfStillFocusedAndFixZIndex();
 				WebUI.doCustomUpdates();
+				WebUI.unblockUI();
 			};
 			$.ajax(axaj);
 		}
