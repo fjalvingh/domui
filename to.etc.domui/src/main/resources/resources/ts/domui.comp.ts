@@ -27,15 +27,21 @@ namespace WebUI {
 		WebUI.copyTextToClipboard(obj.innerHTML);
 	}
 
-	export function popupMenuShow(refid, menu): void {
+	export function popupMenuShow(refid, menu, mode): void {
 		registerPopinClose(menu);
 		let pos = $(refid).offset();
 		let eWidth = $(refid).outerWidth();
 		let mwidth = $(menu).outerWidth();
+
 		let left = (pos.left);
 		if(left + mwidth > screen.width)
 			left = screen.width - mwidth - 10;
 		let top = 3 + pos.top;
+
+		if(mode == 'below') {
+			top = pos.top + $(refid).outerHeight();
+		}
+
 		$(menu).css({
 			position: 'absolute',
 			zIndex: 100,
