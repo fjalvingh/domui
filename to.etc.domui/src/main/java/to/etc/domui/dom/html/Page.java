@@ -1461,6 +1461,28 @@ final public class Page implements IQContextContainer {
 	}
 
 	/**
+	 * Checks if page can be left with specified callback.
+	 */
+	public boolean internalCanLeaveCurrentPageByDomui(Runnable callback) throws Exception {
+		if(m_rootContent instanceof IPageWithNavigationCheck) {
+			IPageWithNavigationCheck pageWithNavigationCheck = (IPageWithNavigationCheck) m_rootContent;
+			boolean hasModification = pageWithNavigationCheck.hasModification();
+			if(!hasModification) {
+				return true;
+			}
+			if(m_rootContent instanceof IPageWithNavigationHandler) {
+				((IPageWithNavigationHandler) m_rootContent).handleNavigationOnModified(callback);
+			} else {
+				DomApplication.get().handleNavigationOnModified(callback, this.getBody());
+			}
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+
+	/**
 	 * Do not use, you will OOM the server just like that!!
 	 */
 	public void internalSetAllowTooManyNodes(boolean allowTooManyNodes) {
