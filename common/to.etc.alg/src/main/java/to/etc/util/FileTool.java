@@ -1354,6 +1354,44 @@ public class FileTool {
 		}
 	}
 
+	public static void unzipSingleFile(File dest, InputStream is) throws Exception {
+		dest.mkdirs();
+		ZipInputStream zis = null;
+		OutputStream os = null;
+		byte[] buf = new byte[8192];
+		try {
+			zis = new ZipInputStream(is);
+			ZipEntry ze = zis.getNextEntry();
+			if(null == ze) {
+				throw new IllegalArgumentException("Expected single file in zip but empty zip located!");
+			}
+			if(ze.isDirectory()) {
+				throw new IllegalArgumentException("Expected single file in zip but located directory! " + ze);
+			}
+			os = new FileOutputStream(dest);
+			int sz;
+			while(0 < (sz = zis.read(buf)))
+				os.write(buf, 0, sz);
+			os.close();
+			os = null;
+			zis.closeEntry();
+			if(null != zis.getNextEntry()) {
+				throw new IllegalArgumentException("Expected single file in zip but mutiple zip entries located!");
+			}
+		} finally {
+			if(zis != null)
+				try {
+					zis.close();
+				} catch(Exception x) {
+				}
+			if(os != null)
+				try {
+					os.close();
+				} catch(Exception x) {
+				}
+		}
+	}
+
 	/**
 	 * Unzip the contents of the zipfile to the directory. The directory is
 	 * created if it does not yet exist.
