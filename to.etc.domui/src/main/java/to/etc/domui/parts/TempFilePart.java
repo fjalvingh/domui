@@ -172,7 +172,9 @@ public class TempFilePart implements IUnbufferedPartFactory {
 	 */
 	public static void	createDownloadAction(@NonNull NodeBase sourcePage, @NonNull File target, @NonNull String mime, @NonNull Disposition disposition, @Nullable String name) {
 		String url = registerTempFile(target, mime, disposition, name);
+		sourcePage.appendJavascript("WebUI.setSkipLeavePageCheck(true);");
 		sourcePage.appendJavascript("location.href=" + StringTool.strToJavascriptString(url, true) + ";");
+		sourcePage.appendJavascript("WebUI.setSkipLeavePageCheck(false);");
 	}
 
 	@Override

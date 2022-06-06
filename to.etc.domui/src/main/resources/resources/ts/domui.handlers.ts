@@ -232,9 +232,10 @@ namespace WebUI {
 	}
 
 	let _checkLeavePage = false;
+	let _skipLeavePageCheck = false;
 
 	const beforeUnloadListener = (event) => {
-		if (_checkLeavePage) {
+		if (_checkLeavePage && !_skipLeavePageCheck) {
 			event.preventDefault();
 			return event.returnValue = "Are you sure you want to exit?";
 		} else {
@@ -245,6 +246,10 @@ namespace WebUI {
 
 	export function setCheckLeavePage(v): void {
 		_checkLeavePage = v;
+	}
+
+	export function setSkipLeavePageCheck(v): void {
+		_skipLeavePageCheck = v;
 	}
 }
 
