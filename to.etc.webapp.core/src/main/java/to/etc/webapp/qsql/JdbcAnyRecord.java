@@ -26,6 +26,7 @@ package to.etc.webapp.qsql;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.util.RuntimeConversions;
+import to.etc.util.WrappedException;
 
 import java.math.BigDecimal;
 import java.sql.Clob;
@@ -56,47 +57,63 @@ public class JdbcAnyRecord {
 			throw new IllegalStateException("Null rs not allowed");
 		m_valueMap.clear();
 		//		m_tableName = tablename;
+		Exception error = null;
 		for(int i = 1, len = rsm.getColumnCount(); i <= len; i++) {
-			int type = rsm.getColumnType(i);
 			String name = rsm.getColumnName(i);
-			switch(type){
-				default:
-					throw new IllegalStateException("Cannot handle SQLType=" + type + " for column " + tablename + "." + name);
-				case Types.NUMERIC:
-				case Types.INTEGER:
-				case Types.SMALLINT:
-				case Types.DECIMAL:
-				case Types.FLOAT:
-				case Types.DOUBLE:
-				case Types.BIGINT:
-					BigDecimal bd = rs.getBigDecimal(i);
-					set(name, bd);
-					break;
-				case Types.VARCHAR:
-				case Types.CHAR:
-					set(name, rs.getString(i));
-					break;
+			int type = rsm.getColumnType(i);
+			try {
+				switch(type) {
+					default:
+						throw new IllegalStateException("Cannot handle SQLType=" + type + " for column " + tablename + "." + name);
+					case Types.NUMERIC:
+					case Types.INTEGER:
+					case Types.SMALLINT:
+					case Types.DECIMAL:
+					case Types.FLOAT:
+					case Types.DOUBLE:
+					case Types.BIGINT:
+						BigDecimal bd = rs.getBigDecimal(i);
+						set(name, bd);
+						break;
+					case Types.VARCHAR:
+					case Types.CHAR:
+						set(name, rs.getString(i));
+						break;
 
-				case Types.ROWID:
-					set(name, rs.getString(i));
-					break;
+					case Types.ROWID:
+						set(name, rs.getString(i));
+						break;
 
-				case Types.DATE:
-				case Types.TIMESTAMP:
-					Timestamp ts = rs.getTimestamp(i);
-					if(ts == null)
-						set(name, NULL_VAL);
-					else
-						set(name, new java.util.Date(ts.getTime()));
-					break;
-				case Types.CLOB:
-					Clob clob = rs.getClob(i);
-					if(clob == null)
-						set(name, NULL_VAL);
-					else
-						set(name, clob);
-					break;
+					case Types.DATE:
+					case Types.TIMESTAMP:
+						Timestamp ts = rs.getTimestamp(i);
+						if(ts == null)
+							set(name, NULL_VAL);
+						else
+							set(name, new java.util.Date(ts.getTime()));
+						break;
+					case Types.CLOB:
+						Clob clob = rs.getClob(i);
+						if(clob == null)
+							set(name, NULL_VAL);
+						else
+							set(name, clob);
+						break;
+				}
+			}catch(Exception ex) {
+				//we register first exception that we encounter and continue reading... and throw at the end.
+				if(null == error) {
+					error = new IllegalStateException("Error in reading data for column " + tablename + "." + name + "\n" + ex.getLocalizedMessage(), ex);
+				}
 			}
+		}
+		if(null != error) {
+			if(error instanceof SQLException) {
+				throw (SQLException) error;
+			}else if (error instanceof IllegalStateException) {
+				throw (IllegalStateException) error;
+			}
+			throw WrappedException.wrap(error);
 		}
 	}
 

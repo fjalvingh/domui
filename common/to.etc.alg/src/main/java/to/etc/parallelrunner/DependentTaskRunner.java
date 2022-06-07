@@ -2,9 +2,9 @@ package to.etc.parallelrunner;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.FunctionEx;
-import to.etc.util.CancelledException;
 import to.etc.parallelrunner.DependentTaskSource.ITaskListener;
 import to.etc.parallelrunner.DependentTaskSource.Task;
+import to.etc.util.CancelledException;
 import to.etc.util.Progress;
 
 import java.util.Collection;
@@ -16,7 +16,9 @@ import java.util.Objects;
  * Created on 26-2-19.
  */
 public class DependentTaskRunner<T extends IAsyncRunnable> {
-	private final DependentTaskSource<T, SingleTaskExecutor<T>> m_taskSource = new DependentTaskSource<>(this::convertTaskToRunner);
+	private final boolean m_logErrors;
+
+	private final DependentTaskSource<T, SingleTaskExecutor<T>> m_taskSource;
 
 	private FunctionEx<List<Task<T, SingleTaskExecutor<T>>>, Task<T, SingleTaskExecutor<T>>> m_calculateBest = tasks -> tasks.get(0);
 
@@ -27,7 +29,13 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 	private AsyncWorker m_executor;
 
 	public DependentTaskRunner(AsyncWorker executor) {
+		this(executor, true);
+	}
+
+	public DependentTaskRunner(AsyncWorker executor, boolean logErrors) {
 		m_executor = executor;
+		m_logErrors = logErrors;
+		m_taskSource = new DependentTaskSource<>(this::convertTaskToRunner, m_logErrors);
 		m_taskSource.addListener(new ITaskListener<T, SingleTaskExecutor<T>>() {
 			@Override
 			public void onTaskStarted(Task<T, SingleTaskExecutor<T>> task) throws Exception {
@@ -36,7 +44,7 @@ public class DependentTaskRunner<T extends IAsyncRunnable> {
 
 			@Override
 			public void onTaskFinished(Task<T, SingleTaskExecutor<T>> task, @Nullable Throwable failure) throws Exception {
-				DependentTaskRunner.this.onFinish(task);
+				onFinish(task);
 				m_progress.increment(1.0);
 			}
 		});
