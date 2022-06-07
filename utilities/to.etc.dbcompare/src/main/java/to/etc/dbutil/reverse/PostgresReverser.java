@@ -31,6 +31,10 @@ public class PostgresReverser extends JDBCReverser {
 		super(dbc, optionSet);
 	}
 
+	public PostgresReverser(Connection conn, Set<ReverserOption> optionSet) {
+		super(conn, optionSet);
+	}
+
 	@Override public String getDefaultSchemaName() throws Exception {
 		return "public";
 	}

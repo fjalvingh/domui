@@ -15,9 +15,12 @@ import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
 
 import javax.sql.DataSource;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
 /**
  * Generic impl of a jdbc-based reverser.
@@ -41,10 +45,19 @@ public class JDBCReverser implements Reverser {
 
 //	private DatabaseMetaData m_dmd;
 
+	private final boolean m_keepConnectionsOpen;
+
 	private Set<DbSchema> m_schemaSet = new HashSet<>();
 
 	public JDBCReverser(DataSource dbc, Set<ReverserOption> optionSet) {
 		m_ds = dbc;
+		m_keepConnectionsOpen = false;
+		m_optionSet = optionSet;
+	}
+
+	public JDBCReverser(Connection conn, Set<ReverserOption> optionSet) {
+		m_ds = from(conn);
+		m_keepConnectionsOpen = true;
 		m_optionSet = optionSet;
 	}
 
@@ -78,7 +91,9 @@ public class JDBCReverser implements Reverser {
 		} catch(Exception x) {
 			throw WrappedException.wrap(x);
 		} finally {
-			FileTool.closeAll(dbc);
+			if(!m_keepConnectionsOpen) {
+				FileTool.closeAll(dbc);
+			}
 		}
 	}
 
@@ -149,7 +164,9 @@ public class JDBCReverser implements Reverser {
 			}
 			return schema;
 		} finally {
-			FileTool.closeAll(dbc);
+			if(!m_keepConnectionsOpen) {
+				FileTool.closeAll(dbc);
+			}
 		}
 	}
 
@@ -158,7 +175,8 @@ public class JDBCReverser implements Reverser {
 	}
 
 	@Override public Set<DbSchema> getSchemas(boolean lazily) throws Exception {
-		try(Connection dbc = m_ds.getConnection()) {
+		Connection dbc = m_ds.getConnection();
+		try {
 			DatabaseMetaData dmd = dbc.getMetaData();
 			List<String> names = new ArrayList<>();
 			try(ResultSet rs = dmd.getSchemas()) {
@@ -170,12 +188,17 @@ public class JDBCReverser implements Reverser {
 
 			//-- Now load the schema sets
 			return loadSchemaSet(names, lazily);
+		}finally {
+			if(!m_keepConnectionsOpen) {
+				FileTool.closeAll(dbc);
+			}
 		}
 	}
 
 	@Override
 	public Set<DbSchema> loadSchemaSet(@NonNull Collection<String> schemaNames, boolean lazily) throws Exception {
-		try(Connection dbc = m_ds.getConnection()) {
+		Connection dbc = m_ds.getConnection();
+		try {
 			//-- Create the set of schema's
 			Set<DbSchema> schemaSet = m_schemaSet = new HashSet<>();
 			for(String schemaName : schemaNames) {
@@ -233,6 +256,10 @@ public class JDBCReverser implements Reverser {
 //				afterLoad(dbc, schema);
 			}
 			return schemaSet;
+		}finally {
+			if(!m_keepConnectionsOpen) {
+				FileTool.closeAll(dbc);
+			}
 		}
 	}
 
@@ -492,7 +519,7 @@ public class JDBCReverser implements Reverser {
 				}
 			}
 			t.setIndexMap(indexMap);
-			msg("Loaded " + t.getName() + ": " + t.getColumnMap().size() + " indexes");
+			msg("Loaded " + t.getName() + ": " + indexMap.size() + " index(es)");
 		} finally {
 			try {
 				if(rs != null)
@@ -852,4 +879,58 @@ public class JDBCReverser implements Reverser {
 		System.err.println("reverser: " + what);
 	}
 
+	public boolean isKeepConnectionsOpen() {
+		return m_keepConnectionsOpen;
+	}
+
+	private static DataSource from(Connection conn) {
+		return new DataSource() {
+			@Override
+			public Connection getConnection() throws SQLException {
+				return conn;
+			}
+
+			@Override
+			@Nullable
+			public Connection getConnection(@Nullable String username, @Nullable String password) throws SQLException {
+				throw new IllegalStateException();
+			}
+
+			@Nullable
+			@Override
+			public PrintWriter getLogWriter() throws SQLException {
+				return null;
+			}
+
+			@Override
+			public void setLogWriter(@Nullable PrintWriter out) throws SQLException {
+			}
+
+			@Override
+			public void setLoginTimeout(int seconds) throws SQLException {
+			}
+
+			@Override
+			public int getLoginTimeout() throws SQLException {
+				return 0;
+			}
+
+			@Override
+			@Nullable
+			public <T> T unwrap(@Nullable Class<T> iface) throws SQLException {
+				return null;
+			}
+
+			@Override
+			public boolean isWrapperFor(@Nullable Class<?> iface) throws SQLException {
+				return false;
+			}
+
+			@Override
+			@Nullable
+			public Logger getParentLogger() throws SQLFeatureNotSupportedException {
+				return null;
+			}
+		};
+	}
 }
