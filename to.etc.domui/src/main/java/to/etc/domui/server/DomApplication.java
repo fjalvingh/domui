@@ -340,6 +340,23 @@ public abstract class DomApplication {
 	}
 
 	/**
+	 * Default handling of leaving the page with unsaved changes when callback that change page navigation is provided.
+	 */
+	public void handleNavigationOnModified(Runnable callback, UrlPage page) throws Exception {
+		MsgBox2
+			.on(page)
+			.title(Msgs.leavePageQuestion.getString())
+			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
+			.button(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Integer.valueOf(1))
+			.button(Msgs.leave.getString(), Integer.valueOf(2))
+			.onAnswer((IAnswer2) answer -> {
+				if(Integer.valueOf(2).equals(answer)) {
+					callback.run();
+				}
+			});
+	}
+
+	/**
 	 * Must return the "root" class of the application; the class rendered when the application's
 	 * root URL is entered without a class name.
 	 */
