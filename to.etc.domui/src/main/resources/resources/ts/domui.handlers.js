@@ -207,8 +207,9 @@ var WebUI;
 	WebUI.addDropDownPickerKeys = addDropDownPickerKeys;
 
 	var _checkLeavePage = false;
+	var _skipLeavePageCheck = false;
 	const beforeUnloadListener = (event) => {
-		if(_checkLeavePage) {
+		if(_checkLeavePage && !_skipLeavePageCheck) {
 			event.preventDefault();
 			return event.returnValue = "Are you sure you want to exit?";
 		} else {
@@ -221,6 +222,11 @@ var WebUI;
 		_checkLeavePage = v;
 	}
 
+	function setSkipLeavePageCheck(v) {
+		_skipLeavePageCheck = v;
+	}
+
 	WebUI.setCheckLeavePage = setCheckLeavePage;
+	WebUI.setSkipLeavePageCheck = setSkipLeavePageCheck;
 })(WebUI || (WebUI = {}));
 //# sourceMappingURL=domui.handlers.js.map
