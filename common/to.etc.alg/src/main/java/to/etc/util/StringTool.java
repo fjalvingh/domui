@@ -859,13 +859,23 @@ public class StringTool {
 		return sb.toString();
 	}
 
-//	@Contract("null -> null; !null -> !null")
 	static public String strTrunc(@Nullable final String s, final int len) {
 		if(s == null)
 			return null;
 		if(s.length() <= len)
 			return s;
 		return s.substring(0, len);
+	}
+
+	static public String strTruncWithEclipses(@Nullable final String s, final int len) {
+		if(s == null)
+			return null;
+		if(s.length() <= len)
+			return s;
+		if(len < 5) {
+			throw new IllegalArgumentException("len needs to be at least 5!");
+		}
+		return s.substring(0, len - 3) + "...";
 	}
 
 
