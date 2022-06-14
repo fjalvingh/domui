@@ -345,9 +345,13 @@ namespace WebUI {
 			return;
 		}
 
-		document.write(txt);
-		document.close();
-		window.setTimeout('document.body.style.cursor="default"', 1000);
+		try {
+			document.write(txt);
+			document.close();
+			window.setTimeout('document.body.style.cursor="default"', 1000);
+		} catch(x) {
+			alert("Error: " + txt);
+		}
 		return true;
 	}
 
