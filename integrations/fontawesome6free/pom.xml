@@ -10,13 +10,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>fontawesome5free</artifactId>
+    <artifactId>fontawesome6free</artifactId>
     <version>1.2-SNAPSHOT</version>
 
     <packaging>jar</packaging>
-    <name>domui :: integrations :: fontawesome 5 FREE</name>
-    <description>FontAwesome 5 integration, free version</description>
-    <inceptionYear>2020</inceptionYear>
+    <name>domui :: integrations :: fontawesome 6 FREE</name>
+    <description>FontAwesome 6 integration, free version</description>
+    <inceptionYear>2022</inceptionYear>
 
     <dependencies>
         <dependency>

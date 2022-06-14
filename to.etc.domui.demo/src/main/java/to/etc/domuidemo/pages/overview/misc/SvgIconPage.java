@@ -27,14 +27,14 @@ public class SvgIconPage extends UrlPage {
 	private void addFontIcons() {
 		ContentPanel cp = add(new ContentPanel());
 		cp.add(new HTag(1, "Font icon sets"));
-		cp.add(new DisplayHtml("We can use <a target='_blank' href='https://fontawesome.com/'><b>FontAwesome</b></a> and other font icon sets easily as icons. Support for FontAwesome 4.7 and FontAwesome 5 free comes out-of-the-box."));
+		cp.add(new DisplayHtml("We can use <a target='_blank' href='https://fontawesome.com/'><b>FontAwesome</b></a> and other font icon sets easily as icons. Support for FontAwesome 4.7, FontAwesome 5.4.1 and FontAwesome 6.1.1 free comes out-of-the-box."));
 		Div d = cp.add(new Div());
 		d
-			.append("This uses FontAwesome 5 free icons like ")
+			.append("This uses FontAwesome 6 free icons like ")
 			.append(FaIcon.faCalculator.createNode())
 			.append(" and ")
 			.append(FaIcon.faBlenderPhone.createNode())
-			.append(", supported out-of the box by including the maven project fontawesome5free, using ")
+			.append(", supported out-of the box by including the maven project fontawesome6free, using ")
 			.append(new EmbeddedCode("add(FaIcon.faCalculator.createNode());"))
 		;
 

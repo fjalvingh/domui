@@ -21,6 +21,7 @@
         <module>to.etc.domui.hibutil</module>
         <module>fontawesome4</module>
         <module>fontawesome5free</module>
+        <module>fontawesome6free</module>
     </modules>
 
 </project>
