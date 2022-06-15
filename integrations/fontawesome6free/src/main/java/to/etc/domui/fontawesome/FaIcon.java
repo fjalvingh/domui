@@ -3140,11 +3140,11 @@ public class FaIcon implements IFontIconRef {
 		return new FontIcon(this).css(cssClasses);
 	}
 
-	public IIconRef css(String... classes) {
+	public IFontIconRef css(String... classes) {
 		return new WrappedIconRef(this, classes);
 	}
 
-	public IIconRef solid() {
+	public IFontIconRef solid() {
 		return css("fas");
 	}
 }
