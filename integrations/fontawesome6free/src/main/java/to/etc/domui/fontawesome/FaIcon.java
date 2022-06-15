@@ -12,1255 +12,2426 @@ import javax.annotation.processing.Generated;
 /**
  * All of the definitions in the FontAwesome 6.1.1 font distribution.
  */
-public enum FaIcon implements IFontIconRef {
+public class FaIcon implements IFontIconRef {
 	///--- BEGIN ICONS
-	fa500px("fa-500px","fab"),
-	faAccessibleIcon("fa-accessible-icon","fab"),
-	faAccusoft("fa-accusoft","fa"),
-	faAcquisitionsIncorporated("fa-acquisitions-incorporated","fa"),
-	faAd("fa-ad","fa"),
-	faAddressBook("fa-address-book","far"),
-	faAddressCard("fa-address-card","fa"),
-	faAdjust("fa-adjust","fa"),
-	faAdn("fa-adn","fab"),
-	faAdversal("fa-adversal","fa"),
-	faAffiliatetheme("fa-affiliatetheme","fa"),
-	faAirFreshener("fa-air-freshener","fa"),
-	faAlgolia("fa-algolia","fa"),
-	faAlignCenter("fa-align-center","fa"),
-	faAlignJustify("fa-align-justify","fa"),
-	faAlignLeft("fa-align-left","fa"),
-	faAlignRight("fa-align-right","fa"),
-	faAlipay("fa-alipay","fa"),
-	faAllergies("fa-allergies","fa"),
-	faAmazon("fa-amazon","fab"),
-	faAmazonPay("fa-amazon-pay","fa"),
-	faAmbulance("fa-ambulance","fa"),
-	faAmericanSignLanguageInterpreting("fa-american-sign-language-interpreting","fa"),
-	faAmilia("fa-amilia","fa"),
-	faAnchor("fa-anchor","fa"),
-	faAndroid("fa-android","fab"),
-	faAngellist("fa-angellist","fab"),
-	faAngleDoubleDown("fa-angle-double-down","fa"),
-	faAngleDoubleLeft("fa-angle-double-left","fa"),
-	faAngleDoubleRight("fa-angle-double-right","fa"),
-	faAngleDoubleUp("fa-angle-double-up","fa"),
-	faAngleDown("fa-angle-down","fa"),
-	faAngleLeft("fa-angle-left","fa"),
-	faAngleRight("fa-angle-right","fa"),
-	faAngleUp("fa-angle-up","fa"),
-	faAngry("fa-angry","fa"),
-	faAngrycreative("fa-angrycreative","fa"),
-	faAngular("fa-angular","fa"),
-	faAnkh("fa-ankh","fa"),
-	faAppStore("fa-app-store","fa"),
-	faAppStoreIos("fa-app-store-ios","fa"),
-	faApper("fa-apper","fa"),
-	faApple("fa-apple","fab"),
-	faAppleAlt("fa-apple-alt","fa"),
-	faApplePay("fa-apple-pay","fa"),
-	faArchive("fa-archive","fa"),
-	faArchway("fa-archway","fa"),
-	faArrowAltCircleDown("fa-arrow-alt-circle-down","far"),
-	faArrowAltCircleLeft("fa-arrow-alt-circle-left","far"),
-	faArrowAltCircleRight("fa-arrow-alt-circle-right","far"),
-	faArrowAltCircleUp("fa-arrow-alt-circle-up","far"),
-	faArrowCircleDown("fa-arrow-circle-down","fa"),
-	faArrowCircleLeft("fa-arrow-circle-left","fa"),
-	faArrowCircleRight("fa-arrow-circle-right","fa"),
-	faArrowCircleUp("fa-arrow-circle-up","fa"),
-	faArrowDown("fa-arrow-down","fa"),
-	faArrowLeft("fa-arrow-left","fa"),
-	faArrowRight("fa-arrow-right","fa"),
-	faArrowUp("fa-arrow-up","fa"),
-	faArrowsAlt("fa-arrows-alt","fa"),
-	faArrowsAltH("fa-arrows-alt-h","fa"),
-	faArrowsAltV("fa-arrows-alt-v","fa"),
-	faAssistiveListeningSystems("fa-assistive-listening-systems","fa"),
-	faAsterisk("fa-asterisk","fa"),
-	faAsymmetrik("fa-asymmetrik","fa"),
-	faAt("fa-at","fa"),
-	faAtlas("fa-atlas","fa"),
-	faAtom("fa-atom","fa"),
-	faAudible("fa-audible","fa"),
-	faAudioDescription("fa-audio-description","fa"),
-	faAutoprefixer("fa-autoprefixer","fa"),
-	faAvianex("fa-avianex","fa"),
-	faAviato("fa-aviato","fa"),
-	faAward("fa-award","fa"),
-	faAws("fa-aws","fa"),
-	faBackspace("fa-backspace","fa"),
-	faBackward("fa-backward","fa"),
-	faBalanceScale("fa-balance-scale","fa"),
-	faBan("fa-ban","fa"),
-	faBandAid("fa-band-aid","fa"),
-	faBandcamp("fa-bandcamp","fab"),
-	faBarcode("fa-barcode","fa"),
-	faBars("fa-bars","fa"),
-	faBaseballBall("fa-baseball-ball","fa"),
-	faBasketballBall("fa-basketball-ball","fa"),
-	faBath("fa-bath","fa"),
-	faBatteryEmpty("fa-battery-empty","fa"),
-	faBatteryFull("fa-battery-full","fa"),
-	faBatteryHalf("fa-battery-half","fa"),
-	faBatteryQuarter("fa-battery-quarter","fa"),
-	faBatteryThreeQuarters("fa-battery-three-quarters","fa"),
-	faBed("fa-bed","fa"),
-	faBeer("fa-beer","fa"),
-	faBehance("fa-behance","fab"),
-	faBehanceSquare("fa-behance-square","fab"),
-	faBell("fa-bell","far"),
-	faBellSlash("fa-bell-slash","far"),
-	faBezierCurve("fa-bezier-curve","fa"),
-	faBible("fa-bible","fa"),
-	faBicycle("fa-bicycle","fa"),
-	faBimobject("fa-bimobject","fa"),
-	faBinoculars("fa-binoculars","fa"),
-	faBirthdayCake("fa-birthday-cake","fa"),
-	faBitbucket("fa-bitbucket","fab"),
-	faBitcoin("fa-bitcoin","fa"),
-	faBity("fa-bity","fa"),
-	faBlackTie("fa-black-tie","fab"),
-	faBlackberry("fa-blackberry","fa"),
-	faBlender("fa-blender","fa"),
-	faBlenderPhone("fa-blender-phone","fa"),
-	faBlind("fa-blind","fa"),
-	faBlogger("fa-blogger","fa"),
-	faBloggerB("fa-blogger-b","fa"),
-	faBluetooth("fa-bluetooth","fab"),
-	faBluetoothB("fa-bluetooth-b","fab"),
-	faBold("fa-bold","fa"),
-	faBolt("fa-bolt","fa"),
-	faBomb("fa-bomb","fa"),
-	faBone("fa-bone","fa"),
-	faBong("fa-bong","fa"),
-	faBook("fa-book","fa"),
-	faBookDead("fa-book-dead","fa"),
-	faBookOpen("fa-book-open","fa"),
-	faBookReader("fa-book-reader","fa"),
-	faBookmark("fa-bookmark","far"),
-	faBowlingBall("fa-bowling-ball","fa"),
-	faBox("fa-box","fa"),
-	faBoxOpen("fa-box-open","fa"),
-	faBoxes("fa-boxes","fa"),
-	faBraille("fa-braille","fa"),
-	faBrain("fa-brain","fa"),
-	faBriefcase("fa-briefcase","fa"),
-	faBriefcaseMedical("fa-briefcase-medical","fa"),
-	faBroadcastTower("fa-broadcast-tower","fa"),
-	faBroom("fa-broom","fa"),
-	faBrush("fa-brush","fa"),
-	faBtc("fa-btc","fab"),
-	faBug("fa-bug","fa"),
-	faBuilding("fa-building","far"),
-	faBullhorn("fa-bullhorn","fa"),
-	faBullseye("fa-bullseye","fa"),
-	faBurn("fa-burn","fa"),
-	faBuromobelexperte("fa-buromobelexperte","fa"),
-	faBus("fa-bus","fa"),
-	faBusAlt("fa-bus-alt","fa"),
-	faBusinessTime("fa-business-time","fa"),
-	faBuysellads("fa-buysellads","fab"),
-	faCalculator("fa-calculator","fa"),
-	faCalendar("fa-calendar","far"),
-	faCalendarAlt("fa-calendar-alt","fa"),
-	faCalendarCheck("fa-calendar-check","far"),
-	faCalendarMinus("fa-calendar-minus","far"),
-	faCalendarPlus("fa-calendar-plus","far"),
-	faCalendarTimes("fa-calendar-times","far"),
-	faCamera("fa-camera","fa"),
-	faCameraRetro("fa-camera-retro","fa"),
-	faCampground("fa-campground","fa"),
-	faCannabis("fa-cannabis","fa"),
-	faCapsules("fa-capsules","fa"),
-	faCar("fa-car","fa"),
-	faCarAlt("fa-car-alt","fa"),
-	faCarBattery("fa-car-battery","fa"),
-	faCarCrash("fa-car-crash","fa"),
-	faCarSide("fa-car-side","fa"),
-	faCaretDown("fa-caret-down","fa"),
-	faCaretLeft("fa-caret-left","fa"),
-	faCaretRight("fa-caret-right","fa"),
-	faCaretSquareDown("fa-caret-square-down","far"),
-	faCaretSquareLeft("fa-caret-square-left","far"),
-	faCaretSquareRight("fa-caret-square-right","far"),
-	faCaretSquareUp("fa-caret-square-up","far"),
-	faCaretUp("fa-caret-up","fa"),
-	faCartArrowDown("fa-cart-arrow-down","fa"),
-	faCartPlus("fa-cart-plus","fa"),
-	faCat("fa-cat","fa"),
-	faCcAmazonPay("fa-cc-amazon-pay","fa"),
-	faCcAmex("fa-cc-amex","fab"),
-	faCcApplePay("fa-cc-apple-pay","fa"),
-	faCcDinersClub("fa-cc-diners-club","fab"),
-	faCcDiscover("fa-cc-discover","fab"),
-	faCcJcb("fa-cc-jcb","fab"),
-	faCcMastercard("fa-cc-mastercard","fab"),
-	faCcPaypal("fa-cc-paypal","fab"),
-	faCcStripe("fa-cc-stripe","fab"),
-	faCcVisa("fa-cc-visa","fab"),
-	faCentercode("fa-centercode","fa"),
-	faCertificate("fa-certificate","fa"),
-	faChair("fa-chair","fa"),
-	faChalkboard("fa-chalkboard","fa"),
-	faChalkboardTeacher("fa-chalkboard-teacher","fa"),
-	faChargingStation("fa-charging-station","fa"),
-	faChartArea("fa-chart-area","fa"),
-	faChartBar("fa-chart-bar","far"),
-	faChartLine("fa-chart-line","fa"),
-	faChartPie("fa-chart-pie","fa"),
-	faCheck("fa-check","fa"),
-	faCheckCircle("fa-check-circle","far"),
-	faCheckDouble("fa-check-double","fa"),
-	faCheckSquare("fa-check-square","far"),
-	faChess("fa-chess","fa"),
-	faChessBishop("fa-chess-bishop","fa"),
-	faChessBoard("fa-chess-board","fa"),
-	faChessKing("fa-chess-king","fa"),
-	faChessKnight("fa-chess-knight","fa"),
-	faChessPawn("fa-chess-pawn","fa"),
-	faChessQueen("fa-chess-queen","fa"),
-	faChessRook("fa-chess-rook","fa"),
-	faChevronCircleDown("fa-chevron-circle-down","fa"),
-	faChevronCircleLeft("fa-chevron-circle-left","fa"),
-	faChevronCircleRight("fa-chevron-circle-right","fa"),
-	faChevronCircleUp("fa-chevron-circle-up","fa"),
-	faChevronDown("fa-chevron-down","fa"),
-	faChevronLeft("fa-chevron-left","fa"),
-	faChevronRight("fa-chevron-right","fa"),
-	faChevronUp("fa-chevron-up","fa"),
-	faChild("fa-child","fa"),
-	faChrome("fa-chrome","fab"),
-	faChurch("fa-church","fa"),
-	faCircle("fa-circle","far"),
-	faCircleNotch("fa-circle-notch","fa"),
-	faCity("fa-city","fa"),
-	faClipboard("fa-clipboard","far"),
-	faClipboardCheck("fa-clipboard-check","fa"),
-	faClipboardList("fa-clipboard-list","fa"),
-	faClock("fa-clock","far"),
-	faClockO("fa-clock-o","far"),
-	faClone("fa-clone","far"),
-	faClosedCaptioning("fa-closed-captioning","far"),
-	faCloud("fa-cloud","fa"),
-	faCloudDownloadAlt("fa-cloud-download-alt","fa"),
-	faCloudMoon("fa-cloud-moon","fa"),
-	faCloudSun("fa-cloud-sun","fa"),
-	faCloudUploadAlt("fa-cloud-upload-alt","fa"),
-	faCloudscale("fa-cloudscale","fa"),
-	faCloudsmith("fa-cloudsmith","fa"),
-	faCloudversify("fa-cloudversify","fa"),
-	faCocktail("fa-cocktail","fa"),
-	faCode("fa-code","fa"),
-	faCodeBranch("fa-code-branch","fa"),
-	faCodepen("fa-codepen","fab"),
-	faCodiepie("fa-codiepie","fab"),
-	faCoffee("fa-coffee","fa"),
-	faCog("fa-cog","fa"),
-	faCogs("fa-cogs","fa"),
-	faCoins("fa-coins","fa"),
-	faColumns("fa-columns","fa"),
-	faComment("fa-comment","far"),
-	faCommentAlt("fa-comment-alt","fa"),
-	faCommentDollar("fa-comment-dollar","fa"),
-	faCommentDots("fa-comment-dots","far"),
-	faCommentSlash("fa-comment-slash","fa"),
-	faComments("fa-comments","far"),
-	faCommentsDollar("fa-comments-dollar","fa"),
-	faCompactDisc("fa-compact-disc","fa"),
-	faCompass("fa-compass","far"),
-	faCompress("fa-compress","fa"),
-	faConciergeBell("fa-concierge-bell","fa"),
-	faConnectdevelop("fa-connectdevelop","fab"),
-	faContao("fa-contao","fab"),
-	faCookie("fa-cookie","fa"),
-	faCookieBite("fa-cookie-bite","fa"),
-	faCopy("fa-copy","far"),
-	faCopyright("fa-copyright","far"),
-	faCouch("fa-couch","fa"),
-	faCpanel("fa-cpanel","fa"),
-	faCreativeCommons("fa-creative-commons","fab"),
-	faCreativeCommonsBy("fa-creative-commons-by","fa"),
-	faCreativeCommonsNc("fa-creative-commons-nc","fa"),
-	faCreativeCommonsNcEu("fa-creative-commons-nc-eu","fa"),
-	faCreativeCommonsNcJp("fa-creative-commons-nc-jp","fa"),
-	faCreativeCommonsNd("fa-creative-commons-nd","fa"),
-	faCreativeCommonsPd("fa-creative-commons-pd","fa"),
-	faCreativeCommonsPdAlt("fa-creative-commons-pd-alt","fa"),
-	faCreativeCommonsRemix("fa-creative-commons-remix","fa"),
-	faCreativeCommonsSa("fa-creative-commons-sa","fa"),
-	faCreativeCommonsSampling("fa-creative-commons-sampling","fa"),
-	faCreativeCommonsSamplingPlus("fa-creative-commons-sampling-plus","fa"),
-	faCreativeCommonsShare("fa-creative-commons-share","fa"),
-	faCreativeCommonsZero("fa-creative-commons-zero","fa"),
-	faCreditCard("fa-credit-card","fa"),
-	faCriticalRole("fa-critical-role","fa"),
-	faCrop("fa-crop","fa"),
-	faCropAlt("fa-crop-alt","fa"),
-	faCross("fa-cross","fa"),
-	faCrosshairs("fa-crosshairs","fa"),
-	faCrow("fa-crow","fa"),
-	faCrown("fa-crown","fa"),
-	faCss3("fa-css3","fab"),
-	faCss3Alt("fa-css3-alt","fa"),
-	faCube("fa-cube","fa"),
-	faCubes("fa-cubes","fa"),
-	faCut("fa-cut","fa"),
-	faCuttlefish("fa-cuttlefish","fa"),
-	faDAndD("fa-d-and-d","fa"),
-	faDashcube("fa-dashcube","fab"),
-	faDatabase("fa-database","fa"),
-	faDeaf("fa-deaf","fa"),
-	faDelicious("fa-delicious","fab"),
-	faDeploydog("fa-deploydog","fa"),
-	faDeskpro("fa-deskpro","fa"),
-	faDesktop("fa-desktop","fa"),
-	faDev("fa-dev","fa"),
-	faDeviantart("fa-deviantart","fab"),
-	faDharmachakra("fa-dharmachakra","fa"),
-	faDiagnoses("fa-diagnoses","fa"),
-	faDice("fa-dice","fa"),
-	faDiceD20("fa-dice-d20","fa"),
-	faDiceD6("fa-dice-d6","fa"),
-	faDiceFive("fa-dice-five","fa"),
-	faDiceFour("fa-dice-four","fa"),
-	faDiceOne("fa-dice-one","fa"),
-	faDiceSix("fa-dice-six","fa"),
-	faDiceThree("fa-dice-three","fa"),
-	faDiceTwo("fa-dice-two","fa"),
-	faDigg("fa-digg","fab"),
-	faDigitalOcean("fa-digital-ocean","fa"),
-	faDigitalTachograph("fa-digital-tachograph","fa"),
-	faDirections("fa-directions","fa"),
-	faDiscord("fa-discord","fa"),
-	faDiscourse("fa-discourse","fa"),
-	faDivide("fa-divide","fa"),
-	faDizzy("fa-dizzy","fa"),
-	faDna("fa-dna","fa"),
-	faDochub("fa-dochub","fa"),
-	faDocker("fa-docker","fa"),
-	faDog("fa-dog","fa"),
-	faDollarSign("fa-dollar-sign","fa"),
-	faDolly("fa-dolly","fa"),
-	faDollyFlatbed("fa-dolly-flatbed","fa"),
-	faDonate("fa-donate","fa"),
-	faDoorClosed("fa-door-closed","fa"),
-	faDoorOpen("fa-door-open","fa"),
-	faDotCircle("fa-dot-circle","far"),
-	faDove("fa-dove","fa"),
-	faDownload("fa-download","fa"),
-	faDraft2digital("fa-draft2digital","fa"),
-	faDraftingCompass("fa-drafting-compass","fa"),
-	faDragon("fa-dragon","fa"),
-	faDrawPolygon("fa-draw-polygon","fa"),
-	faDribbble("fa-dribbble","fab"),
-	faDribbbleSquare("fa-dribbble-square","fa"),
-	faDropbox("fa-dropbox","fab"),
-	faDrum("fa-drum","fa"),
-	faDrumSteelpan("fa-drum-steelpan","fa"),
-	faDrumstickBite("fa-drumstick-bite","fa"),
-	faDrupal("fa-drupal","fab"),
-	faDumbbell("fa-dumbbell","fa"),
-	faDungeon("fa-dungeon","fa"),
-	faDyalog("fa-dyalog","fa"),
-	faEarlybirds("fa-earlybirds","fa"),
-	faEbay("fa-ebay","fa"),
-	faEdge("fa-edge","fab"),
-	faEdit("fa-edit","far"),
-	faEject("fa-eject","fa"),
-	faElementor("fa-elementor","fa"),
-	faEllipsisH("fa-ellipsis-h","fa"),
-	faEllipsisV("fa-ellipsis-v","fa"),
-	faEllo("fa-ello","fa"),
-	faEmber("fa-ember","fa"),
-	faEmpire("fa-empire","fab"),
-	faEnvelope("fa-envelope","far"),
-	faEnvelopeOpen("fa-envelope-open","far"),
-	faEnvelopeOpenText("fa-envelope-open-text","fa"),
-	faEnvelopeSquare("fa-envelope-square","fa"),
-	faEnvira("fa-envira","fab"),
-	faEquals("fa-equals","fa"),
-	faEraser("fa-eraser","fa"),
-	faErlang("fa-erlang","fa"),
-	faEthereum("fa-ethereum","fa"),
-	faEtsy("fa-etsy","fab"),
-	faEuroSign("fa-euro-sign","fa"),
-	faExchangeAlt("fa-exchange-alt","fa"),
-	faExclamation("fa-exclamation","fa"),
-	faExclamationCircle("fa-exclamation-circle","fa"),
-	faExclamationTriangle("fa-exclamation-triangle","fa"),
-	faExpand("fa-expand","fa"),
-	faExpandArrowsAlt("fa-expand-arrows-alt","fa"),
-	faExpeditedssl("fa-expeditedssl","fab"),
-	faExternalLinkAlt("fa-external-link-alt","fa"),
-	faExternalLinkSquareAlt("fa-external-link-square-alt","fa"),
-	faEye("fa-eye","far"),
-	faEyeDropper("fa-eye-dropper","fa"),
-	faEyeSlash("fa-eye-slash","far"),
-	faFacebook("fa-facebook","fab"),
-	faFacebookF("fa-facebook-f","fab"),
-	faFacebookMessenger("fa-facebook-messenger","fa"),
-	faFacebookSquare("fa-facebook-square","fab"),
-	faFantasyFlightGames("fa-fantasy-flight-games","fa"),
-	faFastBackward("fa-fast-backward","fa"),
-	faFastForward("fa-fast-forward","fa"),
-	faFax("fa-fax","fa"),
-	faFeather("fa-feather","fa"),
-	faFeatherAlt("fa-feather-alt","fa"),
-	faFemale("fa-female","fa"),
-	faFighterJet("fa-fighter-jet","fa"),
-	faFile("fa-file","far"),
-	faFileAlt("fa-file-alt","far"),
-	faFileArchive("fa-file-archive","far"),
-	faFileAudio("fa-file-audio","far"),
-	faFileCode("fa-file-code","far"),
-	faFileContract("fa-file-contract","fa"),
-	faFileCsv("fa-file-csv","fa"),
-	faFileDownload("fa-file-download","fa"),
-	faFileExcel("fa-file-excel","far"),
-	faFileExport("fa-file-export","fa"),
-	faFileImage("fa-file-image","far"),
-	faFileImport("fa-file-import","fa"),
-	faFileInvoice("fa-file-invoice","fa"),
-	faFileInvoiceDollar("fa-file-invoice-dollar","fa"),
-	faFileMedical("fa-file-medical","fa"),
-	faFileMedicalAlt("fa-file-medical-alt","fa"),
-	faFilePdf("fa-file-pdf","far"),
-	faFilePowerpoint("fa-file-powerpoint","far"),
-	faFilePrescription("fa-file-prescription","fa"),
-	faFileSignature("fa-file-signature","fa"),
-	faFileUpload("fa-file-upload","fa"),
-	faFileVideo("fa-file-video","far"),
-	faFileWord("fa-file-word","far"),
-	faFill("fa-fill","fa"),
-	faFillDrip("fa-fill-drip","fa"),
-	faFilm("fa-film","fa"),
-	faFilter("fa-filter","fa"),
-	faFingerprint("fa-fingerprint","fa"),
-	faFire("fa-fire","fa"),
-	faFireExtinguisher("fa-fire-extinguisher","fa"),
-	faFirefox("fa-firefox","fab"),
-	faFirstAid("fa-first-aid","fa"),
-	faFirstOrder("fa-first-order","fab"),
-	faFirstOrderAlt("fa-first-order-alt","fa"),
-	faFirstdraft("fa-firstdraft","fa"),
-	faFish("fa-fish","fa"),
-	faFistRaised("fa-fist-raised","fa"),
-	faFlag("fa-flag","far"),
-	faFlagCheckered("fa-flag-checkered","fa"),
-	faFlask("fa-flask","fa"),
-	faFlickr("fa-flickr","fab"),
-	faFlipboard("fa-flipboard","fa"),
-	faFlushed("fa-flushed","fa"),
-	faFly("fa-fly","fa"),
-	faFolder("fa-folder","far"),
-	faFolderMinus("fa-folder-minus","fa"),
-	faFolderOpen("fa-folder-open","far"),
-	faFolderPlus("fa-folder-plus","fa"),
-	faFont("fa-font","fa"),
-	faFontAwesome("fa-font-awesome","fab"),
-	faFontAwesomeAlt("fa-font-awesome-alt","fa"),
-	faFontAwesomeFlag("fa-font-awesome-flag","fa"),
-	faFontAwesomeLogoFull("fa-font-awesome-logo-full","fa"),
-	faFonticons("fa-fonticons","fab"),
-	faFonticonsFi("fa-fonticons-fi","fa"),
-	faFootballBall("fa-football-ball","fa"),
-	faFortAwesome("fa-fort-awesome","fab"),
-	faFortAwesomeAlt("fa-fort-awesome-alt","fa"),
-	faForumbee("fa-forumbee","fab"),
-	faForward("fa-forward","fa"),
-	faFoursquare("fa-foursquare","fab"),
-	faFreeCodeCamp("fa-free-code-camp","fab"),
-	faFreebsd("fa-freebsd","fa"),
-	faFrog("fa-frog","fa"),
-	faFrown("fa-frown","far"),
-	faFrownOpen("fa-frown-open","fa"),
-	faFulcrum("fa-fulcrum","fa"),
-	faFunnelDollar("fa-funnel-dollar","fa"),
-	faFutbol("fa-futbol","far"),
-	faGalacticRepublic("fa-galactic-republic","fa"),
-	faGalacticSenate("fa-galactic-senate","fa"),
-	faGamepad("fa-gamepad","fa"),
-	faGasPump("fa-gas-pump","fa"),
-	faGavel("fa-gavel","fa"),
-	faGem("fa-gem","far"),
-	faGenderless("fa-genderless","fa"),
-	faGetPocket("fa-get-pocket","fab"),
-	faGg("fa-gg","fab"),
-	faGgCircle("fa-gg-circle","fab"),
-	faGhost("fa-ghost","fa"),
-	faGift("fa-gift","fa"),
-	faGit("fa-git","fab"),
-	faGitSquare("fa-git-square","fab"),
-	faGithub("fa-github","fab"),
-	faGithubAlt("fa-github-alt","fab"),
-	faGithubSquare("fa-github-square","fab"),
-	faGitkraken("fa-gitkraken","fa"),
-	faGitlab("fa-gitlab","fab"),
-	faGitter("fa-gitter","fa"),
-	faGlassMartini("fa-glass-martini","fa"),
-	faGlassMartiniAlt("fa-glass-martini-alt","fa"),
-	faGlasses("fa-glasses","fa"),
-	faGlide("fa-glide","fab"),
-	faGlideG("fa-glide-g","fab"),
-	faGlobe("fa-globe","fa"),
-	faGlobeAfrica("fa-globe-africa","fa"),
-	faGlobeAmericas("fa-globe-americas","fa"),
-	faGlobeAsia("fa-globe-asia","fa"),
-	faGofore("fa-gofore","fa"),
-	faGolfBall("fa-golf-ball","fa"),
-	faGoodreads("fa-goodreads","fa"),
-	faGoodreadsG("fa-goodreads-g","fa"),
-	faGoogle("fa-google","fab"),
-	faGoogleDrive("fa-google-drive","fa"),
-	faGooglePlay("fa-google-play","fa"),
-	faGooglePlus("fa-google-plus","fab"),
-	faGooglePlusG("fa-google-plus-g","fab"),
-	faGooglePlusSquare("fa-google-plus-square","fab"),
-	faGoogleWallet("fa-google-wallet","fab"),
-	faGopuram("fa-gopuram","fa"),
-	faGraduationCap("fa-graduation-cap","fa"),
-	faGratipay("fa-gratipay","fab"),
-	faGrav("fa-grav","fab"),
-	faGreaterThan("fa-greater-than","fa"),
-	faGreaterThanEqual("fa-greater-than-equal","fa"),
-	faGrimace("fa-grimace","fa"),
-	faGrin("fa-grin","fa"),
-	faGrinAlt("fa-grin-alt","fa"),
-	faGrinBeam("fa-grin-beam","fa"),
-	faGrinBeamSweat("fa-grin-beam-sweat","fa"),
-	faGrinHearts("fa-grin-hearts","fa"),
-	faGrinSquint("fa-grin-squint","fa"),
-	faGrinSquintTears("fa-grin-squint-tears","fa"),
-	faGrinStars("fa-grin-stars","fa"),
-	faGrinTears("fa-grin-tears","fa"),
-	faGrinTongue("fa-grin-tongue","fa"),
-	faGrinTongueSquint("fa-grin-tongue-squint","fa"),
-	faGrinTongueWink("fa-grin-tongue-wink","fa"),
-	faGrinWink("fa-grin-wink","fa"),
-	faGripHorizontal("fa-grip-horizontal","fa"),
-	faGripVertical("fa-grip-vertical","fa"),
-	faGripfire("fa-gripfire","fa"),
-	faGrunt("fa-grunt","fa"),
-	faGulp("fa-gulp","fa"),
-	faHSquare("fa-h-square","fa"),
-	faHackerNews("fa-hacker-news","fab"),
-	faHackerNewsSquare("fa-hacker-news-square","fa"),
-	faHackerrank("fa-hackerrank","fa"),
-	faHammer("fa-hammer","fa"),
-	faHamsa("fa-hamsa","fa"),
-	faHandHolding("fa-hand-holding","fa"),
-	faHandHoldingHeart("fa-hand-holding-heart","fa"),
-	faHandHoldingUsd("fa-hand-holding-usd","fa"),
-	faHandLizard("fa-hand-lizard","far"),
-	faHandPaper("fa-hand-paper","far"),
-	faHandPeace("fa-hand-peace","far"),
-	faHandPointDown("fa-hand-point-down","far"),
-	faHandPointLeft("fa-hand-point-left","far"),
-	faHandPointRight("fa-hand-point-right","far"),
-	faHandPointUp("fa-hand-point-up","far"),
-	faHandPointer("fa-hand-pointer","far"),
-	faHandRock("fa-hand-rock","far"),
-	faHandScissors("fa-hand-scissors","far"),
-	faHandSpock("fa-hand-spock","far"),
-	faHands("fa-hands","fa"),
-	faHandsHelping("fa-hands-helping","fa"),
-	faHandshake("fa-handshake","far"),
-	faHanukiah("fa-hanukiah","fa"),
-	faHashtag("fa-hashtag","fa"),
-	faHatWizard("fa-hat-wizard","fa"),
-	faHaykal("fa-haykal","fa"),
-	faHdd("fa-hdd","far"),
-	faHeading("fa-heading","fa"),
-	faHeadphones("fa-headphones","fa"),
-	faHeadphonesAlt("fa-headphones-alt","fa"),
-	faHeadset("fa-headset","fa"),
-	faHeart("fa-heart","far"),
-	faHeartbeat("fa-heartbeat","fa"),
-	faHelicopter("fa-helicopter","fa"),
-	faHighlighter("fa-highlighter","fa"),
-	faHiking("fa-hiking","fa"),
-	faHippo("fa-hippo","fa"),
-	faHips("fa-hips","fa"),
-	faHireAHelper("fa-hire-a-helper","fa"),
-	faHistory("fa-history","fa"),
-	faHockeyPuck("fa-hockey-puck","fa"),
-	faHome("fa-home","fa"),
-	faHooli("fa-hooli","fa"),
-	faHornbill("fa-hornbill","fa"),
-	faHorse("fa-horse","fa"),
-	faHospital("fa-hospital","far"),
-	faHospitalAlt("fa-hospital-alt","fa"),
-	faHospitalSymbol("fa-hospital-symbol","fa"),
-	faHotTub("fa-hot-tub","fa"),
-	faHotel("fa-hotel","fa"),
-	faHotjar("fa-hotjar","fa"),
-	faHourglass("fa-hourglass","far"),
-	faHourglassEnd("fa-hourglass-end","fa"),
-	faHourglassHalf("fa-hourglass-half","fa"),
-	faHourglassStart("fa-hourglass-start","fa"),
-	faHouseDamage("fa-house-damage","fa"),
-	faHouzz("fa-houzz","fab"),
-	faHryvnia("fa-hryvnia","fa"),
-	faHtml5("fa-html5","fab"),
-	faHubspot("fa-hubspot","fa"),
-	faICursor("fa-i-cursor","fa"),
-	faIdBadge("fa-id-badge","far"),
-	faIdCard("fa-id-card","far"),
-	faIdCardAlt("fa-id-card-alt","fa"),
-	faImage("fa-image","far"),
-	faImages("fa-images","fa"),
-	faImdb("fa-imdb","fab"),
-	faInbox("fa-inbox","fa"),
-	faIndent("fa-indent","fa"),
-	faIndustry("fa-industry","fa"),
-	faInfinity("fa-infinity","fa"),
-	faInfo("fa-info","fa"),
-	faInfoCircle("fa-info-circle","fa"),
-	faInstagram("fa-instagram","fab"),
-	faInternetExplorer("fa-internet-explorer","fab"),
-	faIoxhost("fa-ioxhost","fab"),
-	faItalic("fa-italic","fa"),
-	faItunes("fa-itunes","fa"),
-	faItunesNote("fa-itunes-note","fa"),
-	faJava("fa-java","fa"),
-	faJedi("fa-jedi","fa"),
-	faJediOrder("fa-jedi-order","fa"),
-	faJenkins("fa-jenkins","fa"),
-	faJoget("fa-joget","fa"),
-	faJoint("fa-joint","fa"),
-	faJoomla("fa-joomla","fab"),
-	faJournalWhills("fa-journal-whills","fa"),
-	faJs("fa-js","fa"),
-	faJsSquare("fa-js-square","fa"),
-	faJsfiddle("fa-jsfiddle","fab"),
-	faKaaba("fa-kaaba","fa"),
-	faKaggle("fa-kaggle","fa"),
-	faKey("fa-key","fa"),
-	faKeybase("fa-keybase","fa"),
-	faKeyboard("fa-keyboard","far"),
-	faKeycdn("fa-keycdn","fa"),
-	faKhanda("fa-khanda","fa"),
-	faKickstarter("fa-kickstarter","fa"),
-	faKickstarterK("fa-kickstarter-k","fa"),
-	faKiss("fa-kiss","fa"),
-	faKissBeam("fa-kiss-beam","fa"),
-	faKissWinkHeart("fa-kiss-wink-heart","fa"),
-	faKiwiBird("fa-kiwi-bird","fa"),
-	faKorvue("fa-korvue","fa"),
-	faLandmark("fa-landmark","fa"),
-	faLanguage("fa-language","fa"),
-	faLaptop("fa-laptop","fa"),
-	faLaptopCode("fa-laptop-code","fa"),
-	faLaravel("fa-laravel","fa"),
-	faLastfm("fa-lastfm","fab"),
-	faLastfmSquare("fa-lastfm-square","fab"),
-	faLaugh("fa-laugh","fa"),
-	faLaughBeam("fa-laugh-beam","fa"),
-	faLaughSquint("fa-laugh-squint","fa"),
-	faLaughWink("fa-laugh-wink","fa"),
-	faLayerGroup("fa-layer-group","fa"),
-	faLeaf("fa-leaf","fa"),
-	faLeanpub("fa-leanpub","fab"),
-	faLemon("fa-lemon","far"),
-	faLess("fa-less","fa"),
-	faLessThan("fa-less-than","fa"),
-	faLessThanEqual("fa-less-than-equal","fa"),
-	faLevelDownAlt("fa-level-down-alt","fa"),
-	faLevelUpAlt("fa-level-up-alt","fa"),
-	faLifeRing("fa-life-ring","far"),
-	faLightbulb("fa-lightbulb","far"),
-	faLine("fa-line","fa"),
-	faLink("fa-link","fa"),
-	faLinkedin("fa-linkedin","fab"),
-	faLinkedinIn("fa-linkedin-in","fab"),
-	faLinode("fa-linode","fab"),
-	faLinux("fa-linux","fab"),
-	faLiraSign("fa-lira-sign","fa"),
-	faList("fa-list","fa"),
-	faListAlt("fa-list-alt","far"),
-	faListOl("fa-list-ol","fa"),
-	faListUl("fa-list-ul","fa"),
-	faLocationArrow("fa-location-arrow","fa"),
-	faLock("fa-lock","fa"),
-	faLockOpen("fa-lock-open","fa"),
-	faLongArrowAltDown("fa-long-arrow-alt-down","fa"),
-	faLongArrowAltLeft("fa-long-arrow-alt-left","fa"),
-	faLongArrowAltRight("fa-long-arrow-alt-right","fa"),
-	faLongArrowAltUp("fa-long-arrow-alt-up","fa"),
-	faLowVision("fa-low-vision","fa"),
-	faLuggageCart("fa-luggage-cart","fa"),
-	faLyft("fa-lyft","fa"),
-	faMagento("fa-magento","fa"),
-	faMagic("fa-magic","fa"),
-	faMagnet("fa-magnet","fa"),
-	faMailBulk("fa-mail-bulk","fa"),
-	faMailchimp("fa-mailchimp","fa"),
-	faMale("fa-male","fa"),
-	faMandalorian("fa-mandalorian","fa"),
-	faMap("fa-map","far"),
-	faMapMarked("fa-map-marked","fa"),
-	faMapMarkedAlt("fa-map-marked-alt","fa"),
-	faMapMarker("fa-map-marker","fa"),
-	faMapMarkerAlt("fa-map-marker-alt","fa"),
-	faMapPin("fa-map-pin","fa"),
-	faMapSigns("fa-map-signs","fa"),
-	faMarkdown("fa-markdown","fa"),
-	faMarker("fa-marker","fa"),
-	faMars("fa-mars","fa"),
-	faMarsDouble("fa-mars-double","fa"),
-	faMarsStroke("fa-mars-stroke","fa"),
-	faMarsStrokeH("fa-mars-stroke-h","fa"),
-	faMarsStrokeV("fa-mars-stroke-v","fa"),
-	faMask("fa-mask","fa"),
-	faMastodon("fa-mastodon","fa"),
-	faMaxcdn("fa-maxcdn","fab"),
-	faMedal("fa-medal","fa"),
-	faMedapps("fa-medapps","fa"),
-	faMedium("fa-medium","fab"),
-	faMediumM("fa-medium-m","fa"),
-	faMedkit("fa-medkit","fa"),
-	faMedrt("fa-medrt","fa"),
-	faMeetup("fa-meetup","fab"),
-	faMegaport("fa-megaport","fa"),
-	faMeh("fa-meh","far"),
-	faMehBlank("fa-meh-blank","fa"),
-	faMehRollingEyes("fa-meh-rolling-eyes","fa"),
-	faMemory("fa-memory","fa"),
-	faMenorah("fa-menorah","fa"),
-	faMercury("fa-mercury","fa"),
-	faMicrochip("fa-microchip","fa"),
-	faMicrophone("fa-microphone","fa"),
-	faMicrophoneAlt("fa-microphone-alt","fa"),
-	faMicrophoneAltSlash("fa-microphone-alt-slash","fa"),
-	faMicrophoneSlash("fa-microphone-slash","fa"),
-	faMicroscope("fa-microscope","fa"),
-	faMicrosoft("fa-microsoft","fa"),
-	faMinus("fa-minus","fa"),
-	faMinusCircle("fa-minus-circle","fa"),
-	faMinusSquare("fa-minus-square","far"),
-	faMix("fa-mix","fa"),
-	faMixcloud("fa-mixcloud","fab"),
-	faMizuni("fa-mizuni","fa"),
-	faMobile("fa-mobile","fa"),
-	faMobileAlt("fa-mobile-alt","fa"),
-	faModx("fa-modx","fab"),
-	faMonero("fa-monero","fa"),
-	faMoneyBill("fa-money-bill","fa"),
-	faMoneyBillAlt("fa-money-bill-alt","far"),
-	faMoneyBillWave("fa-money-bill-wave","fa"),
-	faMoneyBillWaveAlt("fa-money-bill-wave-alt","fa"),
-	faMoneyCheck("fa-money-check","fa"),
-	faMoneyCheckAlt("fa-money-check-alt","fa"),
-	faMonument("fa-monument","fa"),
-	faMoon("fa-moon","far"),
-	faMortarPestle("fa-mortar-pestle","fa"),
-	faMosque("fa-mosque","fa"),
-	faMotorcycle("fa-motorcycle","fa"),
-	faMountain("fa-mountain","fa"),
-	faMousePointer("fa-mouse-pointer","fa"),
-	faMusic("fa-music","fa"),
-	faNapster("fa-napster","fa"),
-	faNeos("fa-neos","fa"),
-	faNetworkWired("fa-network-wired","fa"),
-	faNeuter("fa-neuter","fa"),
-	faNewspaper("fa-newspaper","far"),
-	faNimblr("fa-nimblr","fa"),
-	faNintendoSwitch("fa-nintendo-switch","fa"),
-	faNode("fa-node","fa"),
-	faNodeJs("fa-node-js","fa"),
-	faNotEqual("fa-not-equal","fa"),
-	faNotesMedical("fa-notes-medical","fa"),
-	faNpm("fa-npm","fa"),
-	faNs8("fa-ns8","fa"),
-	faNutritionix("fa-nutritionix","fa"),
-	faObjectGroup("fa-object-group","far"),
-	faObjectUngroup("fa-object-ungroup","far"),
-	faOdnoklassniki("fa-odnoklassniki","fab"),
-	faOdnoklassnikiSquare("fa-odnoklassniki-square","fab"),
-	faOilCan("fa-oil-can","fa"),
-	faOldRepublic("fa-old-republic","fa"),
-	faOm("fa-om","fa"),
-	faOpencart("fa-opencart","fab"),
-	faOpenid("fa-openid","fab"),
-	faOpera("fa-opera","fab"),
-	faOptinMonster("fa-optin-monster","fab"),
-	faOsi("fa-osi","fa"),
-	faOtter("fa-otter","fa"),
-	faOutdent("fa-outdent","fa"),
-	faPage4("fa-page4","fa"),
-	faPagelines("fa-pagelines","fab"),
-	faPaintBrush("fa-paint-brush","fa"),
-	faPaintRoller("fa-paint-roller","fa"),
-	faPalette("fa-palette","fa"),
-	faPalfed("fa-palfed","fa"),
-	faPallet("fa-pallet","fa"),
-	faPaperPlane("fa-paper-plane","fa"),
-	faPaperclip("fa-paperclip","fa"),
-	faParachuteBox("fa-parachute-box","fa"),
-	faParagraph("fa-paragraph","fa"),
-	faParking("fa-parking","fa"),
-	faPassport("fa-passport","fa"),
-	faPastafarianism("fa-pastafarianism","fa"),
-	faPaste("fa-paste","fa"),
-	faPatreon("fa-patreon","fa"),
-	faPause("fa-pause","fa"),
-	faPauseCircle("fa-pause-circle","far"),
-	faPaw("fa-paw","fa"),
-	faPaypal("fa-paypal","fab"),
-	faPeace("fa-peace","fa"),
-	faPen("fa-pen","fa"),
-	faPenAlt("fa-pen-alt","fa"),
-	faPenFancy("fa-pen-fancy","fa"),
-	faPenNib("fa-pen-nib","fa"),
-	faPenSquare("fa-pen-square","fa"),
-	faPencilAlt("fa-pencil-alt","fa"),
-	faPencilRuler("fa-pencil-ruler","fa"),
-	faPennyArcade("fa-penny-arcade","fa"),
-	faPeopleCarry("fa-people-carry","fa"),
-	faPercent("fa-percent","fa"),
-	faPercentage("fa-percentage","fa"),
-	faPeriscope("fa-periscope","fa"),
-	faPhabricator("fa-phabricator","fa"),
-	faPhoenixFramework("fa-phoenix-framework","fa"),
-	faPhoenixSquadron("fa-phoenix-squadron","fa"),
-	faPhone("fa-phone","fa"),
-	faPhoneSlash("fa-phone-slash","fa"),
-	faPhoneSquare("fa-phone-square","fa"),
-	faPhoneVolume("fa-phone-volume","fa"),
-	faPhp("fa-php","fa"),
-	faPiedPiper("fa-pied-piper","fab"),
-	faPiedPiperAlt("fa-pied-piper-alt","fab"),
-	faPiedPiperHat("fa-pied-piper-hat","fa"),
-	faPiedPiperPp("fa-pied-piper-pp","fab"),
-	faPiggyBank("fa-piggy-bank","fa"),
-	faPills("fa-pills","fa"),
-	faPinterest("fa-pinterest","fab"),
-	faPinterestP("fa-pinterest-p","fab"),
-	faPinterestSquare("fa-pinterest-square","fab"),
-	faPlaceOfWorship("fa-place-of-worship","fa"),
-	faPlane("fa-plane","fa"),
-	faPlaneArrival("fa-plane-arrival","fa"),
-	faPlaneDeparture("fa-plane-departure","fa"),
-	faPlay("fa-play","fa"),
-	faPlayCircle("fa-play-circle","far"),
-	faPlaystation("fa-playstation","fa"),
-	faPlug("fa-plug","fa"),
-	faPlus("fa-plus","fa"),
-	faPlusCircle("fa-plus-circle","fa"),
-	faPlusSquare("fa-plus-square","far"),
-	faPodcast("fa-podcast","fa"),
-	faPoll("fa-poll","fa"),
-	faPollH("fa-poll-h","fa"),
-	faPoo("fa-poo","fa"),
-	faPoop("fa-poop","fa"),
-	faPortrait("fa-portrait","fa"),
-	faPoundSign("fa-pound-sign","fa"),
-	faPowerOff("fa-power-off","fa"),
-	faPray("fa-pray","fa"),
-	faPrayingHands("fa-praying-hands","fa"),
-	faPrescription("fa-prescription","fa"),
-	faPrescriptionBottle("fa-prescription-bottle","fa"),
-	faPrescriptionBottleAlt("fa-prescription-bottle-alt","fa"),
-	faPrint("fa-print","fa"),
-	faProcedures("fa-procedures","fa"),
-	faProductHunt("fa-product-hunt","fab"),
-	faProjectDiagram("fa-project-diagram","fa"),
-	faPushed("fa-pushed","fa"),
-	faPuzzlePiece("fa-puzzle-piece","fa"),
-	faPython("fa-python","fa"),
-	faQq("fa-qq","fab"),
-	faQrcode("fa-qrcode","fa"),
-	faQuestion("fa-question","fa"),
-	faQuestionCircle("fa-question-circle","far"),
-	faQuidditch("fa-quidditch","fa"),
-	faQuinscape("fa-quinscape","fa"),
-	faQuora("fa-quora","fab"),
-	faQuoteLeft("fa-quote-left","fa"),
-	faQuoteRight("fa-quote-right","fa"),
-	faQuran("fa-quran","fa"),
-	faRProject("fa-r-project","fa"),
-	faRandom("fa-random","fa"),
-	faRavelry("fa-ravelry","fab"),
-	faReact("fa-react","fa"),
-	faReadme("fa-readme","fa"),
-	faRebel("fa-rebel","fab"),
-	faReceipt("fa-receipt","fa"),
-	faRecycle("fa-recycle","fa"),
-	faRedRiver("fa-red-river","fa"),
-	faReddit("fa-reddit","fab"),
-	faRedditAlien("fa-reddit-alien","fab"),
-	faRedditSquare("fa-reddit-square","fab"),
-	faRedo("fa-redo","fa"),
-	faRedoAlt("fa-redo-alt","fa"),
-	faRegistered("fa-registered","far"),
-	faRendact("fa-rendact","fa"),
-	faRenren("fa-renren","fab"),
-	faReply("fa-reply","fa"),
-	faReplyAll("fa-reply-all","fa"),
-	faReplyd("fa-replyd","fa"),
-	faResearchgate("fa-researchgate","fa"),
-	faResolving("fa-resolving","fa"),
-	faRetweet("fa-retweet","fa"),
-	faRev("fa-rev","fa"),
-	faRibbon("fa-ribbon","fa"),
-	faRing("fa-ring","fa"),
-	faRoad("fa-road","fa"),
-	faRobot("fa-robot","fa"),
-	faRocket("fa-rocket","fa"),
-	faRocketchat("fa-rocketchat","fa"),
-	faRockrms("fa-rockrms","fa"),
-	faRoute("fa-route","fa"),
-	faRss("fa-rss","fa"),
-	faRssSquare("fa-rss-square","fa"),
-	faRubleSign("fa-ruble-sign","fa"),
-	faRuler("fa-ruler","fa"),
-	faRulerCombined("fa-ruler-combined","fa"),
-	faRulerHorizontal("fa-ruler-horizontal","fa"),
-	faRulerVertical("fa-ruler-vertical","fa"),
-	faRunning("fa-running","fa"),
-	faRupeeSign("fa-rupee-sign","fa"),
-	faSadCry("fa-sad-cry","fa"),
-	faSadTear("fa-sad-tear","fa"),
-	faSafari("fa-safari","fab"),
-	faSass("fa-sass","fa"),
-	faSave("fa-save","far"),
-	faSchlix("fa-schlix","fa"),
-	faSchool("fa-school","fa"),
-	faScrewdriver("fa-screwdriver","fa"),
-	faScribd("fa-scribd","fab"),
-	faScroll("fa-scroll","fa"),
-	faSearch("fa-search","fa"),
-	faSearchDollar("fa-search-dollar","fa"),
-	faSearchLocation("fa-search-location","fa"),
-	faSearchMinus("fa-search-minus","fa"),
-	faSearchPlus("fa-search-plus","fa"),
-	faSearchengin("fa-searchengin","fa"),
-	faSeedling("fa-seedling","fa"),
-	faSellcast("fa-sellcast","fab"),
-	faSellsy("fa-sellsy","fab"),
-	faSend("fa-send","fa"),
-	faSendO("fa-send-o","fa"),
-	faServer("fa-server","fa"),
-	faServicestack("fa-servicestack","fa"),
-	faShapes("fa-shapes","fa"),
-	faShare("fa-share","fa"),
-	faShareAlt("fa-share-alt","fa"),
-	faShareAltSquare("fa-share-alt-square","fa"),
-	faShareSquare("fa-share-square","far"),
-	faShekelSign("fa-shekel-sign","fa"),
-	faShieldAlt("fa-shield-alt","fa"),
-	faShip("fa-ship","fa"),
-	faShippingFast("fa-shipping-fast","fa"),
-	faShirtsinbulk("fa-shirtsinbulk","fab"),
-	faShoePrints("fa-shoe-prints","fa"),
-	faShoppingBag("fa-shopping-bag","fa"),
-	faShoppingBasket("fa-shopping-basket","fa"),
-	faShoppingCart("fa-shopping-cart","fa"),
-	faShopware("fa-shopware","fa"),
-	faShower("fa-shower","fa"),
-	faShuttleVan("fa-shuttle-van","fa"),
-	faSign("fa-sign","fa"),
-	faSignInAlt("fa-sign-in-alt","fa"),
-	faSignLanguage("fa-sign-language","fa"),
-	faSignOutAlt("fa-sign-out-alt","fa"),
-	faSignal("fa-signal","fa"),
-	faSignature("fa-signature","fa"),
-	faSimplybuilt("fa-simplybuilt","fab"),
-	faSistrix("fa-sistrix","fa"),
-	faSitemap("fa-sitemap","fa"),
-	faSith("fa-sith","fa"),
-	faSkull("fa-skull","fa"),
-	faSkullCrossbones("fa-skull-crossbones","fa"),
-	faSkyatlas("fa-skyatlas","fab"),
-	faSkype("fa-skype","fab"),
-	faSlack("fa-slack","fab"),
-	faSlackHash("fa-slack-hash","fa"),
-	faSlash("fa-slash","fa"),
-	faSlidersH("fa-sliders-h","fa"),
-	faSlideshare("fa-slideshare","fab"),
-	faSmile("fa-smile","far"),
-	faSmileBeam("fa-smile-beam","fa"),
-	faSmileWink("fa-smile-wink","fa"),
-	faSmoking("fa-smoking","fa"),
-	faSmokingBan("fa-smoking-ban","fa"),
-	faSnapchat("fa-snapchat","fab"),
-	faSnapchatGhost("fa-snapchat-ghost","fab"),
-	faSnapchatSquare("fa-snapchat-square","fab"),
-	faSnowflake("fa-snowflake","far"),
-	faSocks("fa-socks","fa"),
-	faSolarPanel("fa-solar-panel","fa"),
-	faSort("fa-sort","fa"),
-	faSortAlphaDown("fa-sort-alpha-down","fa"),
-	faSortAlphaUp("fa-sort-alpha-up","fa"),
-	faSortAmountDown("fa-sort-amount-down","fa"),
-	faSortAmountUp("fa-sort-amount-up","fa"),
-	faSortDown("fa-sort-down","fa"),
-	faSortNumericDown("fa-sort-numeric-down","fa"),
-	faSortNumericUp("fa-sort-numeric-up","fa"),
-	faSortUp("fa-sort-up","fa"),
-	faSoundcloud("fa-soundcloud","fab"),
-	faSpa("fa-spa","fa"),
-	faSpaceShuttle("fa-space-shuttle","fa"),
-	faSpeakap("fa-speakap","fa"),
-	faSpider("fa-spider","fa"),
-	faSpinner("fa-spinner","fa"),
-	faSplotch("fa-splotch","fa"),
-	faSpotify("fa-spotify","fab"),
-	faSprayCan("fa-spray-can","fa"),
-	faSquare("fa-square","far"),
-	faSquareFull("fa-square-full","fa"),
-	faSquareRootAlt("fa-square-root-alt","fa"),
-	faSquarespace("fa-squarespace","fa"),
-	faStackExchange("fa-stack-exchange","fab"),
-	faStackOverflow("fa-stack-overflow","fab"),
-	faStamp("fa-stamp","fa"),
-	faStar("fa-star","far"),
-	faStarAndCrescent("fa-star-and-crescent","fa"),
-	faStarHalf("fa-star-half","far"),
-	faStarHalfAlt("fa-star-half-alt","fa"),
-	faStarOfDavid("fa-star-of-david","fa"),
-	faStarOfLife("fa-star-of-life","fa"),
-	faStaylinked("fa-staylinked","fa"),
-	faSteam("fa-steam","fab"),
-	faSteamSquare("fa-steam-square","fab"),
-	faSteamSymbol("fa-steam-symbol","fa"),
-	faStepBackward("fa-step-backward","fa"),
-	faStepForward("fa-step-forward","fa"),
-	faStethoscope("fa-stethoscope","fa"),
-	faStickerMule("fa-sticker-mule","fa"),
-	faStickyNote("fa-sticky-note","far"),
-	faStop("fa-stop","fa"),
-	faStopCircle("fa-stop-circle","far"),
-	faStopwatch("fa-stopwatch","fa"),
-	faStore("fa-store","fa"),
-	faStoreAlt("fa-store-alt","fa"),
-	faStrava("fa-strava","fa"),
-	faStream("fa-stream","fa"),
-	faStreetView("fa-street-view","fa"),
-	faStrikethrough("fa-strikethrough","fa"),
-	faStripe("fa-stripe","fa"),
-	faStripeS("fa-stripe-s","fa"),
-	faStroopwafel("fa-stroopwafel","fa"),
-	faStudiovinari("fa-studiovinari","fa"),
-	faStumbleupon("fa-stumbleupon","fab"),
-	faStumbleuponCircle("fa-stumbleupon-circle","fab"),
-	faSubscript("fa-subscript","fa"),
-	faSubway("fa-subway","fa"),
-	faSuitcase("fa-suitcase","fa"),
-	faSuitcaseRolling("fa-suitcase-rolling","fa"),
-	faSun("fa-sun","far"),
-	faSuperpowers("fa-superpowers","fab"),
-	faSuperscript("fa-superscript","fa"),
-	faSupple("fa-supple","fa"),
-	faSurprise("fa-surprise","fa"),
-	faSwatchbook("fa-swatchbook","fa"),
-	faSwimmer("fa-swimmer","fa"),
-	faSwimmingPool("fa-swimming-pool","fa"),
-	faSynagogue("fa-synagogue","fa"),
-	faSync("fa-sync","fa"),
-	faSyncAlt("fa-sync-alt","fa"),
-	faSyringe("fa-syringe","fa"),
-	faTable("fa-table","fa"),
-	faTableTennis("fa-table-tennis","fa"),
-	faTablet("fa-tablet","fa"),
-	faTabletAlt("fa-tablet-alt","fa"),
-	faTablets("fa-tablets","fa"),
-	faTachometerAlt("fa-tachometer-alt","fa"),
-	faTag("fa-tag","fa"),
-	faTags("fa-tags","fa"),
-	faTape("fa-tape","fa"),
-	faTasks("fa-tasks","fa"),
-	faTaxi("fa-taxi","fa"),
-	faTeamspeak("fa-teamspeak","fa"),
-	faTeeth("fa-teeth","fa"),
-	faTeethOpen("fa-teeth-open","fa"),
-	faTelegram("fa-telegram","fab"),
-	faTelegramPlane("fa-telegram-plane","fa"),
-	faTencentWeibo("fa-tencent-weibo","fab"),
-	faTerminal("fa-terminal","fa"),
-	faTextHeight("fa-text-height","fa"),
-	faTextWidth("fa-text-width","fa"),
-	faTh("fa-th","fa"),
-	faThLarge("fa-th-large","fa"),
-	faThList("fa-th-list","fa"),
-	faTheRedYeti("fa-the-red-yeti","fa"),
-	faTheaterMasks("fa-theater-masks","fa"),
-	faThemeco("fa-themeco","fa"),
-	faThemeisle("fa-themeisle","fab"),
-	faThermometer("fa-thermometer","fa"),
-	faThermometerEmpty("fa-thermometer-empty","fa"),
-	faThermometerFull("fa-thermometer-full","fa"),
-	faThermometerHalf("fa-thermometer-half","fa"),
-	faThermometerQuarter("fa-thermometer-quarter","fa"),
-	faThermometerThreeQuarters("fa-thermometer-three-quarters","fa"),
-	faThumbsDown("fa-thumbs-down","far"),
-	faThumbsUp("fa-thumbs-up","far"),
-	faThumbtack("fa-thumbtack","fa"),
-	faTicketAlt("fa-ticket-alt","fa"),
-	faTimes("fa-times","fa"),
-	faTimesCircle("fa-times-circle","far"),
-	faTint("fa-tint","fa"),
-	faTintSlash("fa-tint-slash","fa"),
-	faTired("fa-tired","fa"),
-	faToggleOff("fa-toggle-off","fa"),
-	faToggleOn("fa-toggle-on","fa"),
-	faToiletPaper("fa-toilet-paper","fa"),
-	faToolbox("fa-toolbox","fa"),
-	faTooth("fa-tooth","fa"),
-	faTorah("fa-torah","fa"),
-	faToriiGate("fa-torii-gate","fa"),
-	faTractor("fa-tractor","fa"),
-	faTradeFederation("fa-trade-federation","fa"),
-	faTrademark("fa-trademark","fa"),
-	faTrafficLight("fa-traffic-light","fa"),
-	faTrain("fa-train","fa"),
-	faTransgender("fa-transgender","fa"),
-	faTransgenderAlt("fa-transgender-alt","fa"),
-	faTrash("fa-trash","fa"),
-	faTrashAlt("fa-trash-alt","far"),
-	faTree("fa-tree","fa"),
-	faTrello("fa-trello","fab"),
-	faTripadvisor("fa-tripadvisor","fab"),
-	faTrophy("fa-trophy","fa"),
-	faTruck("fa-truck","fa"),
-	faTruckLoading("fa-truck-loading","fa"),
-	faTruckMonster("fa-truck-monster","fa"),
-	faTruckMoving("fa-truck-moving","fa"),
-	faTruckPickup("fa-truck-pickup","fa"),
-	faTshirt("fa-tshirt","fa"),
-	faTty("fa-tty","fa"),
-	faTumblr("fa-tumblr","fab"),
-	faTumblrSquare("fa-tumblr-square","fab"),
-	faTv("fa-tv","fa"),
-	faTwitch("fa-twitch","fab"),
-	faTwitter("fa-twitter","fab"),
-	faTwitterSquare("fa-twitter-square","fab"),
-	faTypo3("fa-typo3","fa"),
-	faUber("fa-uber","fa"),
-	faUikit("fa-uikit","fa"),
-	faUmbrella("fa-umbrella","fa"),
-	faUmbrellaBeach("fa-umbrella-beach","fa"),
-	faUnderline("fa-underline","fa"),
-	faUndo("fa-undo","fa"),
-	faUndoAlt("fa-undo-alt","fa"),
-	faUniregistry("fa-uniregistry","fa"),
-	faUniversalAccess("fa-universal-access","fa"),
-	faUniversity("fa-university","fa"),
-	faUnlink("fa-unlink","fa"),
-	faUnlock("fa-unlock","fa"),
-	faUnlockAlt("fa-unlock-alt","fa"),
-	faUntappd("fa-untappd","fa"),
-	faUpload("fa-upload","fa"),
-	faUsb("fa-usb","fab"),
-	faUser("fa-user","far"),
-	faUserAlt("fa-user-alt","fa"),
-	faUserAltSlash("fa-user-alt-slash","fa"),
-	faUserAstronaut("fa-user-astronaut","fa"),
-	faUserCheck("fa-user-check","fa"),
-	faUserCircle("fa-user-circle","far"),
-	faUserClock("fa-user-clock","fa"),
-	faUserCog("fa-user-cog","fa"),
-	faUserEdit("fa-user-edit","fa"),
-	faUserFriends("fa-user-friends","fa"),
-	faUserGraduate("fa-user-graduate","fa"),
-	faUserInjured("fa-user-injured","fa"),
-	faUserLock("fa-user-lock","fa"),
-	faUserMd("fa-user-md","fa"),
-	faUserMinus("fa-user-minus","fa"),
-	faUserNinja("fa-user-ninja","fa"),
-	faUserPlus("fa-user-plus","fa"),
-	faUserSecret("fa-user-secret","fa"),
-	faUserShield("fa-user-shield","fa"),
-	faUserSlash("fa-user-slash","fa"),
-	faUserTag("fa-user-tag","fa"),
-	faUserTie("fa-user-tie","fa"),
-	faUserTimes("fa-user-times","fa"),
-	faUsers("fa-users","fa"),
-	faUsersCog("fa-users-cog","fa"),
-	faUssunnah("fa-ussunnah","fa"),
-	faUtensilSpoon("fa-utensil-spoon","fa"),
-	faUtensils("fa-utensils","fa"),
-	faVaadin("fa-vaadin","fa"),
-	faVectorSquare("fa-vector-square","fa"),
-	faVenus("fa-venus","fa"),
-	faVenusDouble("fa-venus-double","fa"),
-	faVenusMars("fa-venus-mars","fa"),
-	faViacoin("fa-viacoin","fab"),
-	faViadeo("fa-viadeo","fab"),
-	faViadeoSquare("fa-viadeo-square","fab"),
-	faVial("fa-vial","fa"),
-	faVials("fa-vials","fa"),
-	faViber("fa-viber","fa"),
-	faVideo("fa-video","fa"),
-	faVideoSlash("fa-video-slash","fa"),
-	faVihara("fa-vihara","fa"),
-	faVimeo("fa-vimeo","fa"),
-	faVimeoSquare("fa-vimeo-square","fab"),
-	faVimeoV("fa-vimeo-v","fab"),
-	faVine("fa-vine","fab"),
-	faVk("fa-vk","fab"),
-	faVnv("fa-vnv","fa"),
-	faVolleyballBall("fa-volleyball-ball","fa"),
-	faVolumeDown("fa-volume-down","fa"),
-	faVolumeMute("fa-volume-mute","fa"),
-	faVolumeOff("fa-volume-off","fa"),
-	faVolumeUp("fa-volume-up","fa"),
-	faVuejs("fa-vuejs","fa"),
-	faWalking("fa-walking","fa"),
-	faWallet("fa-wallet","fa"),
-	faWarehouse("fa-warehouse","fa"),
-	faWarning("fa-warnning","fa"),
-	faWeebly("fa-weebly","fa"),
-	faWeibo("fa-weibo","fab"),
-	faWeight("fa-weight","fa"),
-	faWeightHanging("fa-weight-hanging","fa"),
-	faWeixin("fa-weixin","fab"),
-	faWhatsapp("fa-whatsapp","fab"),
-	faWhatsappSquare("fa-whatsapp-square","fa"),
-	faWheelchair("fa-wheelchair","fa"),
-	faWhmcs("fa-whmcs","fa"),
-	faWifi("fa-wifi","fa"),
-	faWikipediaW("fa-wikipedia-w","fab"),
-	faWind("fa-wind","fa"),
-	faWindowClose("fa-window-close","far"),
-	faWindowMaximize("fa-window-maximize","far"),
-	faWindowMinimize("fa-window-minimize","fa"),
-	faWindowRestore("fa-window-restore","far"),
-	faWindows("fa-windows","fab"),
-	faWineBottle("fa-wine-bottle","fa"),
-	faWineGlass("fa-wine-glass","fa"),
-	faWineGlassAlt("fa-wine-glass-alt","fa"),
-	faWix("fa-wix","fa"),
-	faWizardsOfTheCoast("fa-wizards-of-the-coast","fa"),
-	faWolfPackBattalion("fa-wolf-pack-battalion","fa"),
-	faWonSign("fa-won-sign","fa"),
-	faWordpress("fa-wordpress","fab"),
-	faWordpressSimple("fa-wordpress-simple","fa"),
-	faWpbeginner("fa-wpbeginner","fab"),
-	faWpexplorer("fa-wpexplorer","fab"),
-	faWpforms("fa-wpforms","fab"),
-	faWrench("fa-wrench","fa"),
-	faXRay("fa-x-ray","fa"),
-	faXbox("fa-xbox","fa"),
-	faXing("fa-xing","fab"),
-	faXingSquare("fa-xing-square","fab"),
-	faYCombinator("fa-y-combinator","fab"),
-	faYahoo("fa-yahoo","fab"),
-	faYandex("fa-yandex","fa"),
-	faYandexInternational("fa-yandex-international","fa"),
-	faYelp("fa-yelp","fab"),
-	faYenSign("fa-yen-sign","fa"),
-	faYinYang("fa-yin-yang","fa"),
-	faYoast("fa-yoast","fab"),
-	faYoutube("fa-youtube","fab"),
-	faYoutubeSquare("fa-youtube-square","fab"),
-	faZhihu("fa-zhihu","fa"),
+	public static FaIcon fa0 = new FaIcon("fa-0","far");
+	public static FaIcon fa1 = new FaIcon("fa-1","far");
+	public static FaIcon fa2 = new FaIcon("fa-2","far");
+	public static FaIcon fa3 = new FaIcon("fa-3","far");
+	public static FaIcon fa4 = new FaIcon("fa-4","far");
+	public static FaIcon fa42Group = new FaIcon("fa-42-group","far");
+	public static FaIcon fa5 = new FaIcon("fa-5","far");
+	public static FaIcon fa500px = new FaIcon("fa-500px","far");
+	public static FaIcon fa6 = new FaIcon("fa-6","far");
+	public static FaIcon fa7 = new FaIcon("fa-7","far");
+	public static FaIcon fa8 = new FaIcon("fa-8","far");
+	public static FaIcon fa9 = new FaIcon("fa-9","far");
+	public static FaIcon faA = new FaIcon("fa-a","far");
+	public static FaIcon faAccessibleIcon = new FaIcon("fa-accessible-icon","far");
+	public static FaIcon faAccusoft = new FaIcon("fa-accusoft","far");
+	public static FaIcon faAd = new FaIcon("fa-ad","far");
+	public static FaIcon faAdd = new FaIcon("fa-add","far");
+	public static FaIcon faAddressBook = new FaIcon("fa-address-book","far");
+	public static FaIcon faAddressCard = new FaIcon("fa-address-card","far");
+	public static FaIcon faAdjust = new FaIcon("fa-adjust","far");
+	public static FaIcon faAdn = new FaIcon("fa-adn","far");
+	public static FaIcon faAdversal = new FaIcon("fa-adversal","far");
+	public static FaIcon faAffiliatetheme = new FaIcon("fa-affiliatetheme","far");
+	public static FaIcon faAirFreshener = new FaIcon("fa-air-freshener","far");
+	public static FaIcon faAirbnb = new FaIcon("fa-airbnb","far");
+	public static FaIcon faAlgolia = new FaIcon("fa-algolia","far");
+	public static FaIcon faAlignCenter = new FaIcon("fa-align-center","far");
+	public static FaIcon faAlignJustify = new FaIcon("fa-align-justify","far");
+	public static FaIcon faAlignLeft = new FaIcon("fa-align-left","far");
+	public static FaIcon faAlignRight = new FaIcon("fa-align-right","far");
+	public static FaIcon faAlipay = new FaIcon("fa-alipay","far");
+	public static FaIcon faAllergies = new FaIcon("fa-allergies","far");
+	public static FaIcon faAmazon = new FaIcon("fa-amazon","far");
+	public static FaIcon faAmazonPay = new FaIcon("fa-amazon-pay","far");
+	public static FaIcon faAmbulance = new FaIcon("fa-ambulance","far");
+	public static FaIcon faAmericanSignLanguageInterpreting = new FaIcon("fa-american-sign-language-interpreting","far");
+	public static FaIcon faAmilia = new FaIcon("fa-amilia","far");
+	public static FaIcon faAnchor = new FaIcon("fa-anchor","far");
+	public static FaIcon faAnchorCircleCheck = new FaIcon("fa-anchor-circle-check","far");
+	public static FaIcon faAnchorCircleExclamation = new FaIcon("fa-anchor-circle-exclamation","far");
+	public static FaIcon faAnchorCircleXmark = new FaIcon("fa-anchor-circle-xmark","far");
+	public static FaIcon faAnchorLock = new FaIcon("fa-anchor-lock","far");
+	public static FaIcon faAndroid = new FaIcon("fa-android","far");
+	public static FaIcon faAngellist = new FaIcon("fa-angellist","far");
+	public static FaIcon faAngleDoubleDown = new FaIcon("fa-angle-double-down","far");
+	public static FaIcon faAngleDoubleLeft = new FaIcon("fa-angle-double-left","far");
+	public static FaIcon faAngleDoubleRight = new FaIcon("fa-angle-double-right","far");
+	public static FaIcon faAngleDoubleUp = new FaIcon("fa-angle-double-up","far");
+	public static FaIcon faAngleDown = new FaIcon("fa-angle-down","far");
+	public static FaIcon faAngleLeft = new FaIcon("fa-angle-left","far");
+	public static FaIcon faAngleRight = new FaIcon("fa-angle-right","far");
+	public static FaIcon faAngleUp = new FaIcon("fa-angle-up","far");
+	public static FaIcon faAnglesDown = new FaIcon("fa-angles-down","far");
+	public static FaIcon faAnglesLeft = new FaIcon("fa-angles-left","far");
+	public static FaIcon faAnglesRight = new FaIcon("fa-angles-right","far");
+	public static FaIcon faAnglesUp = new FaIcon("fa-angles-up","far");
+	public static FaIcon faAngry = new FaIcon("fa-angry","far");
+	public static FaIcon faAngrycreative = new FaIcon("fa-angrycreative","far");
+	public static FaIcon faAngular = new FaIcon("fa-angular","far");
+	public static FaIcon faAnkh = new FaIcon("fa-ankh","far");
+	public static FaIcon faAppStore = new FaIcon("fa-app-store","far");
+	public static FaIcon faAppStoreIos = new FaIcon("fa-app-store-ios","far");
+	public static FaIcon faApper = new FaIcon("fa-apper","far");
+	public static FaIcon faApple = new FaIcon("fa-apple","far");
+	public static FaIcon faAppleAlt = new FaIcon("fa-apple-alt","far");
+	public static FaIcon faApplePay = new FaIcon("fa-apple-pay","far");
+	public static FaIcon faAppleWhole = new FaIcon("fa-apple-whole","far");
+	public static FaIcon faArchive = new FaIcon("fa-archive","far");
+	public static FaIcon faArchway = new FaIcon("fa-archway","far");
+	public static FaIcon faAreaChart = new FaIcon("fa-area-chart","far");
+	public static FaIcon faArrowAltCircleDown = new FaIcon("fa-arrow-alt-circle-down","far");
+	public static FaIcon faArrowAltCircleLeft = new FaIcon("fa-arrow-alt-circle-left","far");
+	public static FaIcon faArrowAltCircleRight = new FaIcon("fa-arrow-alt-circle-right","far");
+	public static FaIcon faArrowAltCircleUp = new FaIcon("fa-arrow-alt-circle-up","far");
+	public static FaIcon faArrowCircleDown = new FaIcon("fa-arrow-circle-down","far");
+	public static FaIcon faArrowCircleLeft = new FaIcon("fa-arrow-circle-left","far");
+	public static FaIcon faArrowCircleRight = new FaIcon("fa-arrow-circle-right","far");
+	public static FaIcon faArrowCircleUp = new FaIcon("fa-arrow-circle-up","far");
+	public static FaIcon faArrowDown = new FaIcon("fa-arrow-down","far");
+	public static FaIcon faArrowDown19 = new FaIcon("fa-arrow-down-1-9","far");
+	public static FaIcon faArrowDown91 = new FaIcon("fa-arrow-down-9-1","far");
+	public static FaIcon faArrowDownAZ = new FaIcon("fa-arrow-down-a-z","far");
+	public static FaIcon faArrowDownLong = new FaIcon("fa-arrow-down-long","far");
+	public static FaIcon faArrowDownShortWide = new FaIcon("fa-arrow-down-short-wide","far");
+	public static FaIcon faArrowDownUpAcrossLine = new FaIcon("fa-arrow-down-up-across-line","far");
+	public static FaIcon faArrowDownUpLock = new FaIcon("fa-arrow-down-up-lock","far");
+	public static FaIcon faArrowDownWideShort = new FaIcon("fa-arrow-down-wide-short","far");
+	public static FaIcon faArrowDownZA = new FaIcon("fa-arrow-down-z-a","far");
+	public static FaIcon faArrowLeft = new FaIcon("fa-arrow-left","far");
+	public static FaIcon faArrowLeftLong = new FaIcon("fa-arrow-left-long","far");
+	public static FaIcon faArrowLeftRotate = new FaIcon("fa-arrow-left-rotate","far");
+	public static FaIcon faArrowPointer = new FaIcon("fa-arrow-pointer","far");
+	public static FaIcon faArrowRight = new FaIcon("fa-arrow-right","far");
+	public static FaIcon faArrowRightArrowLeft = new FaIcon("fa-arrow-right-arrow-left","far");
+	public static FaIcon faArrowRightFromBracket = new FaIcon("fa-arrow-right-from-bracket","far");
+	public static FaIcon faArrowRightFromFile = new FaIcon("fa-arrow-right-from-file","far");
+	public static FaIcon faArrowRightLong = new FaIcon("fa-arrow-right-long","far");
+	public static FaIcon faArrowRightRotate = new FaIcon("fa-arrow-right-rotate","far");
+	public static FaIcon faArrowRightToBracket = new FaIcon("fa-arrow-right-to-bracket","far");
+	public static FaIcon faArrowRightToCity = new FaIcon("fa-arrow-right-to-city","far");
+	public static FaIcon faArrowRightToFile = new FaIcon("fa-arrow-right-to-file","far");
+	public static FaIcon faArrowRotateBack = new FaIcon("fa-arrow-rotate-back","far");
+	public static FaIcon faArrowRotateBackward = new FaIcon("fa-arrow-rotate-backward","far");
+	public static FaIcon faArrowRotateForward = new FaIcon("fa-arrow-rotate-forward","far");
+	public static FaIcon faArrowRotateLeft = new FaIcon("fa-arrow-rotate-left","far");
+	public static FaIcon faArrowRotateRight = new FaIcon("fa-arrow-rotate-right","far");
+	public static FaIcon faArrowTrendDown = new FaIcon("fa-arrow-trend-down","far");
+	public static FaIcon faArrowTrendUp = new FaIcon("fa-arrow-trend-up","far");
+	public static FaIcon faArrowTurnDown = new FaIcon("fa-arrow-turn-down","far");
+	public static FaIcon faArrowTurnRight = new FaIcon("fa-arrow-turn-right","far");
+	public static FaIcon faArrowTurnUp = new FaIcon("fa-arrow-turn-up","far");
+	public static FaIcon faArrowUp = new FaIcon("fa-arrow-up","far");
+	public static FaIcon faArrowUp19 = new FaIcon("fa-arrow-up-1-9","far");
+	public static FaIcon faArrowUp91 = new FaIcon("fa-arrow-up-9-1","far");
+	public static FaIcon faArrowUpAZ = new FaIcon("fa-arrow-up-a-z","far");
+	public static FaIcon faArrowUpFromBracket = new FaIcon("fa-arrow-up-from-bracket","far");
+	public static FaIcon faArrowUpFromGroundWater = new FaIcon("fa-arrow-up-from-ground-water","far");
+	public static FaIcon faArrowUpFromWaterPump = new FaIcon("fa-arrow-up-from-water-pump","far");
+	public static FaIcon faArrowUpLong = new FaIcon("fa-arrow-up-long","far");
+	public static FaIcon faArrowUpRightDots = new FaIcon("fa-arrow-up-right-dots","far");
+	public static FaIcon faArrowUpRightFromSquare = new FaIcon("fa-arrow-up-right-from-square","far");
+	public static FaIcon faArrowUpShortWide = new FaIcon("fa-arrow-up-short-wide","far");
+	public static FaIcon faArrowUpWideShort = new FaIcon("fa-arrow-up-wide-short","far");
+	public static FaIcon faArrowUpZA = new FaIcon("fa-arrow-up-z-a","far");
+	public static FaIcon faArrows = new FaIcon("fa-arrows","far");
+	public static FaIcon faArrowsAlt = new FaIcon("fa-arrows-alt","far");
+	public static FaIcon faArrowsAltH = new FaIcon("fa-arrows-alt-h","far");
+	public static FaIcon faArrowsAltV = new FaIcon("fa-arrows-alt-v","far");
+	public static FaIcon faArrowsDownToLine = new FaIcon("fa-arrows-down-to-line","far");
+	public static FaIcon faArrowsDownToPeople = new FaIcon("fa-arrows-down-to-people","far");
+	public static FaIcon faArrowsH = new FaIcon("fa-arrows-h","far");
+	public static FaIcon faArrowsLeftRight = new FaIcon("fa-arrows-left-right","far");
+	public static FaIcon faArrowsLeftRightToLine = new FaIcon("fa-arrows-left-right-to-line","far");
+	public static FaIcon faArrowsRotate = new FaIcon("fa-arrows-rotate","far");
+	public static FaIcon faArrowsSpin = new FaIcon("fa-arrows-spin","far");
+	public static FaIcon faArrowsSplitUpAndLeft = new FaIcon("fa-arrows-split-up-and-left","far");
+	public static FaIcon faArrowsToCircle = new FaIcon("fa-arrows-to-circle","far");
+	public static FaIcon faArrowsToDot = new FaIcon("fa-arrows-to-dot","far");
+	public static FaIcon faArrowsToEye = new FaIcon("fa-arrows-to-eye","far");
+	public static FaIcon faArrowsTurnRight = new FaIcon("fa-arrows-turn-right","far");
+	public static FaIcon faArrowsTurnToDots = new FaIcon("fa-arrows-turn-to-dots","far");
+	public static FaIcon faArrowsUpDown = new FaIcon("fa-arrows-up-down","far");
+	public static FaIcon faArrowsUpDownLeftRight = new FaIcon("fa-arrows-up-down-left-right","far");
+	public static FaIcon faArrowsUpToLine = new FaIcon("fa-arrows-up-to-line","far");
+	public static FaIcon faArrowsV = new FaIcon("fa-arrows-v","far");
+	public static FaIcon faArtstation = new FaIcon("fa-artstation","far");
+	public static FaIcon faAslInterpreting = new FaIcon("fa-asl-interpreting","far");
+	public static FaIcon faAssistiveListeningSystems = new FaIcon("fa-assistive-listening-systems","far");
+	public static FaIcon faAsterisk = new FaIcon("fa-asterisk","far");
+	public static FaIcon faAsymmetrik = new FaIcon("fa-asymmetrik","far");
+	public static FaIcon faAt = new FaIcon("fa-at","far");
+	public static FaIcon faAtlas = new FaIcon("fa-atlas","far");
+	public static FaIcon faAtlassian = new FaIcon("fa-atlassian","far");
+	public static FaIcon faAtom = new FaIcon("fa-atom","far");
+	public static FaIcon faAudible = new FaIcon("fa-audible","far");
+	public static FaIcon faAudioDescription = new FaIcon("fa-audio-description","far");
+	public static FaIcon faAustralSign = new FaIcon("fa-austral-sign","far");
+	public static FaIcon faAutomobile = new FaIcon("fa-automobile","far");
+	public static FaIcon faAutoprefixer = new FaIcon("fa-autoprefixer","far");
+	public static FaIcon faAvianex = new FaIcon("fa-avianex","far");
+	public static FaIcon faAviato = new FaIcon("fa-aviato","far");
+	public static FaIcon faAward = new FaIcon("fa-award","far");
+	public static FaIcon faAws = new FaIcon("fa-aws","far");
+	public static FaIcon faB = new FaIcon("fa-b","far");
+	public static FaIcon faBaby = new FaIcon("fa-baby","far");
+	public static FaIcon faBabyCarriage = new FaIcon("fa-baby-carriage","far");
+	public static FaIcon faBackspace = new FaIcon("fa-backspace","far");
+	public static FaIcon faBackward = new FaIcon("fa-backward","far");
+	public static FaIcon faBackwardFast = new FaIcon("fa-backward-fast","far");
+	public static FaIcon faBackwardStep = new FaIcon("fa-backward-step","far");
+	public static FaIcon faBacon = new FaIcon("fa-bacon","far");
+	public static FaIcon faBacteria = new FaIcon("fa-bacteria","far");
+	public static FaIcon faBacterium = new FaIcon("fa-bacterium","far");
+	public static FaIcon faBagShopping = new FaIcon("fa-bag-shopping","far");
+	public static FaIcon faBahai = new FaIcon("fa-bahai","far");
+	public static FaIcon faBahtSign = new FaIcon("fa-baht-sign","far");
+	public static FaIcon faBalanceScale = new FaIcon("fa-balance-scale","far");
+	public static FaIcon faBalanceScaleLeft = new FaIcon("fa-balance-scale-left","far");
+	public static FaIcon faBalanceScaleRight = new FaIcon("fa-balance-scale-right","far");
+	public static FaIcon faBan = new FaIcon("fa-ban","far");
+	public static FaIcon faBanSmoking = new FaIcon("fa-ban-smoking","far");
+	public static FaIcon faBandAid = new FaIcon("fa-band-aid","far");
+	public static FaIcon faBandage = new FaIcon("fa-bandage","far");
+	public static FaIcon faBandcamp = new FaIcon("fa-bandcamp","far");
+	public static FaIcon faBank = new FaIcon("fa-bank","far");
+	public static FaIcon faBarChart = new FaIcon("fa-bar-chart","far");
+	public static FaIcon faBarcode = new FaIcon("fa-barcode","far");
+	public static FaIcon faBars = new FaIcon("fa-bars","far");
+	public static FaIcon faBarsProgress = new FaIcon("fa-bars-progress","far");
+	public static FaIcon faBarsStaggered = new FaIcon("fa-bars-staggered","far");
+	public static FaIcon faBaseball = new FaIcon("fa-baseball","far");
+	public static FaIcon faBaseballBall = new FaIcon("fa-baseball-ball","far");
+	public static FaIcon faBaseballBatBall = new FaIcon("fa-baseball-bat-ball","far");
+	public static FaIcon faBasketShopping = new FaIcon("fa-basket-shopping","far");
+	public static FaIcon faBasketball = new FaIcon("fa-basketball","far");
+	public static FaIcon faBasketballBall = new FaIcon("fa-basketball-ball","far");
+	public static FaIcon faBath = new FaIcon("fa-bath","far");
+	public static FaIcon faBathtub = new FaIcon("fa-bathtub","far");
+	public static FaIcon faBattery = new FaIcon("fa-battery","far");
+	public static FaIcon faBattery0 = new FaIcon("fa-battery-0","far");
+	public static FaIcon faBattery2 = new FaIcon("fa-battery-2","far");
+	public static FaIcon faBattery3 = new FaIcon("fa-battery-3","far");
+	public static FaIcon faBattery4 = new FaIcon("fa-battery-4","far");
+	public static FaIcon faBattery5 = new FaIcon("fa-battery-5","far");
+	public static FaIcon faBatteryCar = new FaIcon("fa-battery-car","far");
+	public static FaIcon faBatteryEmpty = new FaIcon("fa-battery-empty","far");
+	public static FaIcon faBatteryFull = new FaIcon("fa-battery-full","far");
+	public static FaIcon faBatteryHalf = new FaIcon("fa-battery-half","far");
+	public static FaIcon faBatteryQuarter = new FaIcon("fa-battery-quarter","far");
+	public static FaIcon faBatteryThreeQuarters = new FaIcon("fa-battery-three-quarters","far");
+	public static FaIcon faBattleNet = new FaIcon("fa-battle-net","far");
+	public static FaIcon faBed = new FaIcon("fa-bed","far");
+	public static FaIcon faBedPulse = new FaIcon("fa-bed-pulse","far");
+	public static FaIcon faBeer = new FaIcon("fa-beer","far");
+	public static FaIcon faBeerMugEmpty = new FaIcon("fa-beer-mug-empty","far");
+	public static FaIcon faBehance = new FaIcon("fa-behance","far");
+	public static FaIcon faBehanceSquare = new FaIcon("fa-behance-square","far");
+	public static FaIcon faBell = new FaIcon("fa-bell","far");
+	public static FaIcon faBellConcierge = new FaIcon("fa-bell-concierge","far");
+	public static FaIcon faBellSlash = new FaIcon("fa-bell-slash","far");
+	public static FaIcon faBezierCurve = new FaIcon("fa-bezier-curve","far");
+	public static FaIcon faBible = new FaIcon("fa-bible","far");
+	public static FaIcon faBicycle = new FaIcon("fa-bicycle","far");
+	public static FaIcon faBiking = new FaIcon("fa-biking","far");
+	public static FaIcon faBilibili = new FaIcon("fa-bilibili","far");
+	public static FaIcon faBimobject = new FaIcon("fa-bimobject","far");
+	public static FaIcon faBinoculars = new FaIcon("fa-binoculars","far");
+	public static FaIcon faBiohazard = new FaIcon("fa-biohazard","far");
+	public static FaIcon faBirthdayCake = new FaIcon("fa-birthday-cake","far");
+	public static FaIcon faBitbucket = new FaIcon("fa-bitbucket","far");
+	public static FaIcon faBitcoin = new FaIcon("fa-bitcoin","far");
+	public static FaIcon faBitcoinSign = new FaIcon("fa-bitcoin-sign","far");
+	public static FaIcon faBity = new FaIcon("fa-bity","far");
+	public static FaIcon faBlackTie = new FaIcon("fa-black-tie","far");
+	public static FaIcon faBlackberry = new FaIcon("fa-blackberry","far");
+	public static FaIcon faBlackboard = new FaIcon("fa-blackboard","far");
+	public static FaIcon faBlender = new FaIcon("fa-blender","far");
+	public static FaIcon faBlenderPhone = new FaIcon("fa-blender-phone","far");
+	public static FaIcon faBlind = new FaIcon("fa-blind","far");
+	public static FaIcon faBlog = new FaIcon("fa-blog","far");
+	public static FaIcon faBlogger = new FaIcon("fa-blogger","far");
+	public static FaIcon faBloggerB = new FaIcon("fa-blogger-b","far");
+	public static FaIcon faBluetooth = new FaIcon("fa-bluetooth","far");
+	public static FaIcon faBluetoothB = new FaIcon("fa-bluetooth-b","far");
+	public static FaIcon faBold = new FaIcon("fa-bold","far");
+	public static FaIcon faBolt = new FaIcon("fa-bolt","far");
+	public static FaIcon faBoltLightning = new FaIcon("fa-bolt-lightning","far");
+	public static FaIcon faBomb = new FaIcon("fa-bomb","far");
+	public static FaIcon faBone = new FaIcon("fa-bone","far");
+	public static FaIcon faBong = new FaIcon("fa-bong","far");
+	public static FaIcon faBook = new FaIcon("fa-book","far");
+	public static FaIcon faBookAtlas = new FaIcon("fa-book-atlas","far");
+	public static FaIcon faBookBible = new FaIcon("fa-book-bible","far");
+	public static FaIcon faBookBookmark = new FaIcon("fa-book-bookmark","far");
+	public static FaIcon faBookDead = new FaIcon("fa-book-dead","far");
+	public static FaIcon faBookJournalWhills = new FaIcon("fa-book-journal-whills","far");
+	public static FaIcon faBookMedical = new FaIcon("fa-book-medical","far");
+	public static FaIcon faBookOpen = new FaIcon("fa-book-open","far");
+	public static FaIcon faBookOpenReader = new FaIcon("fa-book-open-reader","far");
+	public static FaIcon faBookQuran = new FaIcon("fa-book-quran","far");
+	public static FaIcon faBookReader = new FaIcon("fa-book-reader","far");
+	public static FaIcon faBookSkull = new FaIcon("fa-book-skull","far");
+	public static FaIcon faBookmark = new FaIcon("fa-bookmark","far");
+	public static FaIcon faBootstrap = new FaIcon("fa-bootstrap","far");
+	public static FaIcon faBorderAll = new FaIcon("fa-border-all","far");
+	public static FaIcon faBorderNone = new FaIcon("fa-border-none","far");
+	public static FaIcon faBorderStyle = new FaIcon("fa-border-style","far");
+	public static FaIcon faBorderTopLeft = new FaIcon("fa-border-top-left","far");
+	public static FaIcon faBoreHole = new FaIcon("fa-bore-hole","far");
+	public static FaIcon faBots = new FaIcon("fa-bots","far");
+	public static FaIcon faBottleDroplet = new FaIcon("fa-bottle-droplet","far");
+	public static FaIcon faBottleWater = new FaIcon("fa-bottle-water","far");
+	public static FaIcon faBowlFood = new FaIcon("fa-bowl-food","far");
+	public static FaIcon faBowlRice = new FaIcon("fa-bowl-rice","far");
+	public static FaIcon faBowlingBall = new FaIcon("fa-bowling-ball","far");
+	public static FaIcon faBox = new FaIcon("fa-box","far");
+	public static FaIcon faBoxArchive = new FaIcon("fa-box-archive","far");
+	public static FaIcon faBoxOpen = new FaIcon("fa-box-open","far");
+	public static FaIcon faBoxTissue = new FaIcon("fa-box-tissue","far");
+	public static FaIcon faBoxes = new FaIcon("fa-boxes","far");
+	public static FaIcon faBoxesAlt = new FaIcon("fa-boxes-alt","far");
+	public static FaIcon faBoxesPacking = new FaIcon("fa-boxes-packing","far");
+	public static FaIcon faBoxesStacked = new FaIcon("fa-boxes-stacked","far");
+	public static FaIcon faBraille = new FaIcon("fa-braille","far");
+	public static FaIcon faBrain = new FaIcon("fa-brain","far");
+	public static FaIcon faBrazilianRealSign = new FaIcon("fa-brazilian-real-sign","far");
+	public static FaIcon faBreadSlice = new FaIcon("fa-bread-slice","far");
+	public static FaIcon faBridge = new FaIcon("fa-bridge","far");
+	public static FaIcon faBridgeCircleCheck = new FaIcon("fa-bridge-circle-check","far");
+	public static FaIcon faBridgeCircleExclamation = new FaIcon("fa-bridge-circle-exclamation","far");
+	public static FaIcon faBridgeCircleXmark = new FaIcon("fa-bridge-circle-xmark","far");
+	public static FaIcon faBridgeLock = new FaIcon("fa-bridge-lock","far");
+	public static FaIcon faBridgeWater = new FaIcon("fa-bridge-water","far");
+	public static FaIcon faBriefcase = new FaIcon("fa-briefcase","far");
+	public static FaIcon faBriefcaseClock = new FaIcon("fa-briefcase-clock","far");
+	public static FaIcon faBriefcaseMedical = new FaIcon("fa-briefcase-medical","far");
+	public static FaIcon faBroadcastTower = new FaIcon("fa-broadcast-tower","far");
+	public static FaIcon faBroom = new FaIcon("fa-broom","far");
+	public static FaIcon faBroomBall = new FaIcon("fa-broom-ball","far");
+	public static FaIcon faBrush = new FaIcon("fa-brush","far");
+	public static FaIcon faBtc = new FaIcon("fa-btc","far");
+	public static FaIcon faBucket = new FaIcon("fa-bucket","far");
+	public static FaIcon faBuffer = new FaIcon("fa-buffer","far");
+	public static FaIcon faBug = new FaIcon("fa-bug","far");
+	public static FaIcon faBugSlash = new FaIcon("fa-bug-slash","far");
+	public static FaIcon faBugs = new FaIcon("fa-bugs","far");
+	public static FaIcon faBuilding = new FaIcon("fa-building","far");
+	public static FaIcon faBuildingCircleArrowRight = new FaIcon("fa-building-circle-arrow-right","far");
+	public static FaIcon faBuildingCircleCheck = new FaIcon("fa-building-circle-check","far");
+	public static FaIcon faBuildingCircleExclamation = new FaIcon("fa-building-circle-exclamation","far");
+	public static FaIcon faBuildingCircleXmark = new FaIcon("fa-building-circle-xmark","far");
+	public static FaIcon faBuildingColumns = new FaIcon("fa-building-columns","far");
+	public static FaIcon faBuildingFlag = new FaIcon("fa-building-flag","far");
+	public static FaIcon faBuildingLock = new FaIcon("fa-building-lock","far");
+	public static FaIcon faBuildingNgo = new FaIcon("fa-building-ngo","far");
+	public static FaIcon faBuildingShield = new FaIcon("fa-building-shield","far");
+	public static FaIcon faBuildingUn = new FaIcon("fa-building-un","far");
+	public static FaIcon faBuildingUser = new FaIcon("fa-building-user","far");
+	public static FaIcon faBuildingWheat = new FaIcon("fa-building-wheat","far");
+	public static FaIcon faBullhorn = new FaIcon("fa-bullhorn","far");
+	public static FaIcon faBullseye = new FaIcon("fa-bullseye","far");
+	public static FaIcon faBurger = new FaIcon("fa-burger","far");
+	public static FaIcon faBurn = new FaIcon("fa-burn","far");
+	public static FaIcon faBuromobelexperte = new FaIcon("fa-buromobelexperte","far");
+	public static FaIcon faBurst = new FaIcon("fa-burst","far");
+	public static FaIcon faBus = new FaIcon("fa-bus","far");
+	public static FaIcon faBusAlt = new FaIcon("fa-bus-alt","far");
+	public static FaIcon faBusSimple = new FaIcon("fa-bus-simple","far");
+	public static FaIcon faBusinessTime = new FaIcon("fa-business-time","far");
+	public static FaIcon faBuyNLarge = new FaIcon("fa-buy-n-large","far");
+	public static FaIcon faBuysellads = new FaIcon("fa-buysellads","far");
+	public static FaIcon faC = new FaIcon("fa-c","far");
+	public static FaIcon faCab = new FaIcon("fa-cab","far");
+	public static FaIcon faCake = new FaIcon("fa-cake","far");
+	public static FaIcon faCakeCandles = new FaIcon("fa-cake-candles","far");
+	public static FaIcon faCalculator = new FaIcon("fa-calculator","far");
+	public static FaIcon faCalendar = new FaIcon("fa-calendar","far");
+	public static FaIcon faCalendarAlt = new FaIcon("fa-calendar-alt","far");
+	public static FaIcon faCalendarCheck = new FaIcon("fa-calendar-check","far");
+	public static FaIcon faCalendarDay = new FaIcon("fa-calendar-day","far");
+	public static FaIcon faCalendarDays = new FaIcon("fa-calendar-days","far");
+	public static FaIcon faCalendarMinus = new FaIcon("fa-calendar-minus","far");
+	public static FaIcon faCalendarPlus = new FaIcon("fa-calendar-plus","far");
+	public static FaIcon faCalendarTimes = new FaIcon("fa-calendar-times","far");
+	public static FaIcon faCalendarWeek = new FaIcon("fa-calendar-week","far");
+	public static FaIcon faCalendarXmark = new FaIcon("fa-calendar-xmark","far");
+	public static FaIcon faCamera = new FaIcon("fa-camera","far");
+	public static FaIcon faCameraAlt = new FaIcon("fa-camera-alt","far");
+	public static FaIcon faCameraRetro = new FaIcon("fa-camera-retro","far");
+	public static FaIcon faCameraRotate = new FaIcon("fa-camera-rotate","far");
+	public static FaIcon faCampground = new FaIcon("fa-campground","far");
+	public static FaIcon faCanadianMapleLeaf = new FaIcon("fa-canadian-maple-leaf","far");
+	public static FaIcon faCancel = new FaIcon("fa-cancel","far");
+	public static FaIcon faCandyCane = new FaIcon("fa-candy-cane","far");
+	public static FaIcon faCannabis = new FaIcon("fa-cannabis","far");
+	public static FaIcon faCapsules = new FaIcon("fa-capsules","far");
+	public static FaIcon faCar = new FaIcon("fa-car","far");
+	public static FaIcon faCarAlt = new FaIcon("fa-car-alt","far");
+	public static FaIcon faCarBattery = new FaIcon("fa-car-battery","far");
+	public static FaIcon faCarBurst = new FaIcon("fa-car-burst","far");
+	public static FaIcon faCarCrash = new FaIcon("fa-car-crash","far");
+	public static FaIcon faCarOn = new FaIcon("fa-car-on","far");
+	public static FaIcon faCarRear = new FaIcon("fa-car-rear","far");
+	public static FaIcon faCarSide = new FaIcon("fa-car-side","far");
+	public static FaIcon faCarTunnel = new FaIcon("fa-car-tunnel","far");
+	public static FaIcon faCaravan = new FaIcon("fa-caravan","far");
+	public static FaIcon faCaretDown = new FaIcon("fa-caret-down","far");
+	public static FaIcon faCaretLeft = new FaIcon("fa-caret-left","far");
+	public static FaIcon faCaretRight = new FaIcon("fa-caret-right","far");
+	public static FaIcon faCaretSquareDown = new FaIcon("fa-caret-square-down","far");
+	public static FaIcon faCaretSquareLeft = new FaIcon("fa-caret-square-left","far");
+	public static FaIcon faCaretSquareRight = new FaIcon("fa-caret-square-right","far");
+	public static FaIcon faCaretSquareUp = new FaIcon("fa-caret-square-up","far");
+	public static FaIcon faCaretUp = new FaIcon("fa-caret-up","far");
+	public static FaIcon faCarriageBaby = new FaIcon("fa-carriage-baby","far");
+	public static FaIcon faCarrot = new FaIcon("fa-carrot","far");
+	public static FaIcon faCartArrowDown = new FaIcon("fa-cart-arrow-down","far");
+	public static FaIcon faCartFlatbed = new FaIcon("fa-cart-flatbed","far");
+	public static FaIcon faCartFlatbedSuitcase = new FaIcon("fa-cart-flatbed-suitcase","far");
+	public static FaIcon faCartPlus = new FaIcon("fa-cart-plus","far");
+	public static FaIcon faCartShopping = new FaIcon("fa-cart-shopping","far");
+	public static FaIcon faCashRegister = new FaIcon("fa-cash-register","far");
+	public static FaIcon faCat = new FaIcon("fa-cat","far");
+	public static FaIcon faCcAmazonPay = new FaIcon("fa-cc-amazon-pay","far");
+	public static FaIcon faCcAmex = new FaIcon("fa-cc-amex","far");
+	public static FaIcon faCcApplePay = new FaIcon("fa-cc-apple-pay","far");
+	public static FaIcon faCcDinersClub = new FaIcon("fa-cc-diners-club","far");
+	public static FaIcon faCcDiscover = new FaIcon("fa-cc-discover","far");
+	public static FaIcon faCcJcb = new FaIcon("fa-cc-jcb","far");
+	public static FaIcon faCcMastercard = new FaIcon("fa-cc-mastercard","far");
+	public static FaIcon faCcPaypal = new FaIcon("fa-cc-paypal","far");
+	public static FaIcon faCcStripe = new FaIcon("fa-cc-stripe","far");
+	public static FaIcon faCcVisa = new FaIcon("fa-cc-visa","far");
+	public static FaIcon faCediSign = new FaIcon("fa-cedi-sign","far");
+	public static FaIcon faCentSign = new FaIcon("fa-cent-sign","far");
+	public static FaIcon faCentercode = new FaIcon("fa-centercode","far");
+	public static FaIcon faCentos = new FaIcon("fa-centos","far");
+	public static FaIcon faCertificate = new FaIcon("fa-certificate","far");
+	public static FaIcon faChain = new FaIcon("fa-chain","far");
+	public static FaIcon faChainBroken = new FaIcon("fa-chain-broken","far");
+	public static FaIcon faChainSlash = new FaIcon("fa-chain-slash","far");
+	public static FaIcon faChair = new FaIcon("fa-chair","far");
+	public static FaIcon faChalkboard = new FaIcon("fa-chalkboard","far");
+	public static FaIcon faChalkboardTeacher = new FaIcon("fa-chalkboard-teacher","far");
+	public static FaIcon faChalkboardUser = new FaIcon("fa-chalkboard-user","far");
+	public static FaIcon faChampagneGlasses = new FaIcon("fa-champagne-glasses","far");
+	public static FaIcon faChargingStation = new FaIcon("fa-charging-station","far");
+	public static FaIcon faChartArea = new FaIcon("fa-chart-area","far");
+	public static FaIcon faChartBar = new FaIcon("fa-chart-bar","far");
+	public static FaIcon faChartColumn = new FaIcon("fa-chart-column","far");
+	public static FaIcon faChartGantt = new FaIcon("fa-chart-gantt","far");
+	public static FaIcon faChartLine = new FaIcon("fa-chart-line","far");
+	public static FaIcon faChartPie = new FaIcon("fa-chart-pie","far");
+	public static FaIcon faChartSimple = new FaIcon("fa-chart-simple","far");
+	public static FaIcon faCheck = new FaIcon("fa-check","far");
+	public static FaIcon faCheckCircle = new FaIcon("fa-check-circle","far");
+	public static FaIcon faCheckDouble = new FaIcon("fa-check-double","far");
+	public static FaIcon faCheckSquare = new FaIcon("fa-check-square","far");
+	public static FaIcon faCheckToSlot = new FaIcon("fa-check-to-slot","far");
+	public static FaIcon faCheese = new FaIcon("fa-cheese","far");
+	public static FaIcon faChess = new FaIcon("fa-chess","far");
+	public static FaIcon faChessBishop = new FaIcon("fa-chess-bishop","far");
+	public static FaIcon faChessBoard = new FaIcon("fa-chess-board","far");
+	public static FaIcon faChessKing = new FaIcon("fa-chess-king","far");
+	public static FaIcon faChessKnight = new FaIcon("fa-chess-knight","far");
+	public static FaIcon faChessPawn = new FaIcon("fa-chess-pawn","far");
+	public static FaIcon faChessQueen = new FaIcon("fa-chess-queen","far");
+	public static FaIcon faChessRook = new FaIcon("fa-chess-rook","far");
+	public static FaIcon faChevronCircleDown = new FaIcon("fa-chevron-circle-down","far");
+	public static FaIcon faChevronCircleLeft = new FaIcon("fa-chevron-circle-left","far");
+	public static FaIcon faChevronCircleRight = new FaIcon("fa-chevron-circle-right","far");
+	public static FaIcon faChevronCircleUp = new FaIcon("fa-chevron-circle-up","far");
+	public static FaIcon faChevronDown = new FaIcon("fa-chevron-down","far");
+	public static FaIcon faChevronLeft = new FaIcon("fa-chevron-left","far");
+	public static FaIcon faChevronRight = new FaIcon("fa-chevron-right","far");
+	public static FaIcon faChevronUp = new FaIcon("fa-chevron-up","far");
+	public static FaIcon faChild = new FaIcon("fa-child","far");
+	public static FaIcon faChildDress = new FaIcon("fa-child-dress","far");
+	public static FaIcon faChildReaching = new FaIcon("fa-child-reaching","far");
+	public static FaIcon faChildRifle = new FaIcon("fa-child-rifle","far");
+	public static FaIcon faChildren = new FaIcon("fa-children","far");
+	public static FaIcon faChrome = new FaIcon("fa-chrome","far");
+	public static FaIcon faChromecast = new FaIcon("fa-chromecast","far");
+	public static FaIcon faChurch = new FaIcon("fa-church","far");
+	public static FaIcon faCircle = new FaIcon("fa-circle","far");
+	public static FaIcon faCircleArrowDown = new FaIcon("fa-circle-arrow-down","far");
+	public static FaIcon faCircleArrowLeft = new FaIcon("fa-circle-arrow-left","far");
+	public static FaIcon faCircleArrowRight = new FaIcon("fa-circle-arrow-right","far");
+	public static FaIcon faCircleArrowUp = new FaIcon("fa-circle-arrow-up","far");
+	public static FaIcon faCircleCheck = new FaIcon("fa-circle-check","far");
+	public static FaIcon faCircleChevronDown = new FaIcon("fa-circle-chevron-down","far");
+	public static FaIcon faCircleChevronLeft = new FaIcon("fa-circle-chevron-left","far");
+	public static FaIcon faCircleChevronRight = new FaIcon("fa-circle-chevron-right","far");
+	public static FaIcon faCircleChevronUp = new FaIcon("fa-circle-chevron-up","far");
+	public static FaIcon faCircleDollarToSlot = new FaIcon("fa-circle-dollar-to-slot","far");
+	public static FaIcon faCircleDot = new FaIcon("fa-circle-dot","far");
+	public static FaIcon faCircleDown = new FaIcon("fa-circle-down","far");
+	public static FaIcon faCircleExclamation = new FaIcon("fa-circle-exclamation","far");
+	public static FaIcon faCircleH = new FaIcon("fa-circle-h","far");
+	public static FaIcon faCircleHalfStroke = new FaIcon("fa-circle-half-stroke","far");
+	public static FaIcon faCircleInfo = new FaIcon("fa-circle-info","far");
+	public static FaIcon faCircleLeft = new FaIcon("fa-circle-left","far");
+	public static FaIcon faCircleMinus = new FaIcon("fa-circle-minus","far");
+	public static FaIcon faCircleNodes = new FaIcon("fa-circle-nodes","far");
+	public static FaIcon faCircleNotch = new FaIcon("fa-circle-notch","far");
+	public static FaIcon faCirclePause = new FaIcon("fa-circle-pause","far");
+	public static FaIcon faCirclePlay = new FaIcon("fa-circle-play","far");
+	public static FaIcon faCirclePlus = new FaIcon("fa-circle-plus","far");
+	public static FaIcon faCircleQuestion = new FaIcon("fa-circle-question","far");
+	public static FaIcon faCircleRadiation = new FaIcon("fa-circle-radiation","far");
+	public static FaIcon faCircleRight = new FaIcon("fa-circle-right","far");
+	public static FaIcon faCircleStop = new FaIcon("fa-circle-stop","far");
+	public static FaIcon faCircleUp = new FaIcon("fa-circle-up","far");
+	public static FaIcon faCircleUser = new FaIcon("fa-circle-user","far");
+	public static FaIcon faCircleXmark = new FaIcon("fa-circle-xmark","far");
+	public static FaIcon faCity = new FaIcon("fa-city","far");
+	public static FaIcon faClapperboard = new FaIcon("fa-clapperboard","far");
+	public static FaIcon faClinicMedical = new FaIcon("fa-clinic-medical","far");
+	public static FaIcon faClipboard = new FaIcon("fa-clipboard","far");
+	public static FaIcon faClipboardCheck = new FaIcon("fa-clipboard-check","far");
+	public static FaIcon faClipboardList = new FaIcon("fa-clipboard-list","far");
+	public static FaIcon faClipboardQuestion = new FaIcon("fa-clipboard-question","far");
+	public static FaIcon faClipboardUser = new FaIcon("fa-clipboard-user","far");
+	public static FaIcon faClock = new FaIcon("fa-clock","far");
+	public static FaIcon faClockFour = new FaIcon("fa-clock-four","far");
+	public static FaIcon faClockRotateLeft = new FaIcon("fa-clock-rotate-left","far");
+	public static FaIcon faClone = new FaIcon("fa-clone","far");
+	public static FaIcon faClose = new FaIcon("fa-close","far");
+	public static FaIcon faClosedCaptioning = new FaIcon("fa-closed-captioning","far");
+	public static FaIcon faCloud = new FaIcon("fa-cloud","far");
+	public static FaIcon faCloudArrowDown = new FaIcon("fa-cloud-arrow-down","far");
+	public static FaIcon faCloudArrowUp = new FaIcon("fa-cloud-arrow-up","far");
+	public static FaIcon faCloudBolt = new FaIcon("fa-cloud-bolt","far");
+	public static FaIcon faCloudDownload = new FaIcon("fa-cloud-download","far");
+	public static FaIcon faCloudDownloadAlt = new FaIcon("fa-cloud-download-alt","far");
+	public static FaIcon faCloudMeatball = new FaIcon("fa-cloud-meatball","far");
+	public static FaIcon faCloudMoon = new FaIcon("fa-cloud-moon","far");
+	public static FaIcon faCloudMoonRain = new FaIcon("fa-cloud-moon-rain","far");
+	public static FaIcon faCloudRain = new FaIcon("fa-cloud-rain","far");
+	public static FaIcon faCloudShowersHeavy = new FaIcon("fa-cloud-showers-heavy","far");
+	public static FaIcon faCloudShowersWater = new FaIcon("fa-cloud-showers-water","far");
+	public static FaIcon faCloudSun = new FaIcon("fa-cloud-sun","far");
+	public static FaIcon faCloudSunRain = new FaIcon("fa-cloud-sun-rain","far");
+	public static FaIcon faCloudUpload = new FaIcon("fa-cloud-upload","far");
+	public static FaIcon faCloudUploadAlt = new FaIcon("fa-cloud-upload-alt","far");
+	public static FaIcon faCloudflare = new FaIcon("fa-cloudflare","far");
+	public static FaIcon faCloudscale = new FaIcon("fa-cloudscale","far");
+	public static FaIcon faCloudsmith = new FaIcon("fa-cloudsmith","far");
+	public static FaIcon faCloudversify = new FaIcon("fa-cloudversify","far");
+	public static FaIcon faClover = new FaIcon("fa-clover","far");
+	public static FaIcon faCmplid = new FaIcon("fa-cmplid","far");
+	public static FaIcon faCny = new FaIcon("fa-cny","far");
+	public static FaIcon faCocktail = new FaIcon("fa-cocktail","far");
+	public static FaIcon faCode = new FaIcon("fa-code","far");
+	public static FaIcon faCodeBranch = new FaIcon("fa-code-branch","far");
+	public static FaIcon faCodeCommit = new FaIcon("fa-code-commit","far");
+	public static FaIcon faCodeCompare = new FaIcon("fa-code-compare","far");
+	public static FaIcon faCodeFork = new FaIcon("fa-code-fork","far");
+	public static FaIcon faCodeMerge = new FaIcon("fa-code-merge","far");
+	public static FaIcon faCodePullRequest = new FaIcon("fa-code-pull-request","far");
+	public static FaIcon faCodepen = new FaIcon("fa-codepen","far");
+	public static FaIcon faCodiepie = new FaIcon("fa-codiepie","far");
+	public static FaIcon faCoffee = new FaIcon("fa-coffee","far");
+	public static FaIcon faCog = new FaIcon("fa-cog","far");
+	public static FaIcon faCogs = new FaIcon("fa-cogs","far");
+	public static FaIcon faCoins = new FaIcon("fa-coins","far");
+	public static FaIcon faColonSign = new FaIcon("fa-colon-sign","far");
+	public static FaIcon faColumns = new FaIcon("fa-columns","far");
+	public static FaIcon faComment = new FaIcon("fa-comment","far");
+	public static FaIcon faCommentAlt = new FaIcon("fa-comment-alt","far");
+	public static FaIcon faCommentDollar = new FaIcon("fa-comment-dollar","far");
+	public static FaIcon faCommentDots = new FaIcon("fa-comment-dots","far");
+	public static FaIcon faCommentMedical = new FaIcon("fa-comment-medical","far");
+	public static FaIcon faCommentSlash = new FaIcon("fa-comment-slash","far");
+	public static FaIcon faCommentSms = new FaIcon("fa-comment-sms","far");
+	public static FaIcon faCommenting = new FaIcon("fa-commenting","far");
+	public static FaIcon faComments = new FaIcon("fa-comments","far");
+	public static FaIcon faCommentsDollar = new FaIcon("fa-comments-dollar","far");
+	public static FaIcon faCompactDisc = new FaIcon("fa-compact-disc","far");
+	public static FaIcon faCompass = new FaIcon("fa-compass","far");
+	public static FaIcon faCompassDrafting = new FaIcon("fa-compass-drafting","far");
+	public static FaIcon faCompress = new FaIcon("fa-compress","far");
+	public static FaIcon faCompressAlt = new FaIcon("fa-compress-alt","far");
+	public static FaIcon faCompressArrowsAlt = new FaIcon("fa-compress-arrows-alt","far");
+	public static FaIcon faComputer = new FaIcon("fa-computer","far");
+	public static FaIcon faComputerMouse = new FaIcon("fa-computer-mouse","far");
+	public static FaIcon faConciergeBell = new FaIcon("fa-concierge-bell","far");
+	public static FaIcon faConfluence = new FaIcon("fa-confluence","far");
+	public static FaIcon faConnectdevelop = new FaIcon("fa-connectdevelop","far");
+	public static FaIcon faContactBook = new FaIcon("fa-contact-book","far");
+	public static FaIcon faContactCard = new FaIcon("fa-contact-card","far");
+	public static FaIcon faContao = new FaIcon("fa-contao","far");
+	public static FaIcon faCookie = new FaIcon("fa-cookie","far");
+	public static FaIcon faCookieBite = new FaIcon("fa-cookie-bite","far");
+	public static FaIcon faCopy = new FaIcon("fa-copy","far");
+	public static FaIcon faCopyright = new FaIcon("fa-copyright","far");
+	public static FaIcon faCottonBureau = new FaIcon("fa-cotton-bureau","far");
+	public static FaIcon faCouch = new FaIcon("fa-couch","far");
+	public static FaIcon faCow = new FaIcon("fa-cow","far");
+	public static FaIcon faCpanel = new FaIcon("fa-cpanel","far");
+	public static FaIcon faCreativeCommons = new FaIcon("fa-creative-commons","far");
+	public static FaIcon faCreativeCommonsBy = new FaIcon("fa-creative-commons-by","far");
+	public static FaIcon faCreativeCommonsNc = new FaIcon("fa-creative-commons-nc","far");
+	public static FaIcon faCreativeCommonsNcEu = new FaIcon("fa-creative-commons-nc-eu","far");
+	public static FaIcon faCreativeCommonsNcJp = new FaIcon("fa-creative-commons-nc-jp","far");
+	public static FaIcon faCreativeCommonsNd = new FaIcon("fa-creative-commons-nd","far");
+	public static FaIcon faCreativeCommonsPd = new FaIcon("fa-creative-commons-pd","far");
+	public static FaIcon faCreativeCommonsPdAlt = new FaIcon("fa-creative-commons-pd-alt","far");
+	public static FaIcon faCreativeCommonsRemix = new FaIcon("fa-creative-commons-remix","far");
+	public static FaIcon faCreativeCommonsSa = new FaIcon("fa-creative-commons-sa","far");
+	public static FaIcon faCreativeCommonsSampling = new FaIcon("fa-creative-commons-sampling","far");
+	public static FaIcon faCreativeCommonsSamplingPlus = new FaIcon("fa-creative-commons-sampling-plus","far");
+	public static FaIcon faCreativeCommonsShare = new FaIcon("fa-creative-commons-share","far");
+	public static FaIcon faCreativeCommonsZero = new FaIcon("fa-creative-commons-zero","far");
+	public static FaIcon faCreditCard = new FaIcon("fa-credit-card","far");
+	public static FaIcon faCreditCardAlt = new FaIcon("fa-credit-card-alt","far");
+	public static FaIcon faCriticalRole = new FaIcon("fa-critical-role","far");
+	public static FaIcon faCrop = new FaIcon("fa-crop","far");
+	public static FaIcon faCropAlt = new FaIcon("fa-crop-alt","far");
+	public static FaIcon faCropSimple = new FaIcon("fa-crop-simple","far");
+	public static FaIcon faCross = new FaIcon("fa-cross","far");
+	public static FaIcon faCrosshairs = new FaIcon("fa-crosshairs","far");
+	public static FaIcon faCrow = new FaIcon("fa-crow","far");
+	public static FaIcon faCrown = new FaIcon("fa-crown","far");
+	public static FaIcon faCrutch = new FaIcon("fa-crutch","far");
+	public static FaIcon faCruzeiroSign = new FaIcon("fa-cruzeiro-sign","far");
+	public static FaIcon faCss3 = new FaIcon("fa-css3","far");
+	public static FaIcon faCss3Alt = new FaIcon("fa-css3-alt","far");
+	public static FaIcon faCube = new FaIcon("fa-cube","far");
+	public static FaIcon faCubes = new FaIcon("fa-cubes","far");
+	public static FaIcon faCubesStacked = new FaIcon("fa-cubes-stacked","far");
+	public static FaIcon faCut = new FaIcon("fa-cut","far");
+	public static FaIcon faCutlery = new FaIcon("fa-cutlery","far");
+	public static FaIcon faCuttlefish = new FaIcon("fa-cuttlefish","far");
+	public static FaIcon faD = new FaIcon("fa-d","far");
+	public static FaIcon faDAndD = new FaIcon("fa-d-and-d","far");
+	public static FaIcon faDAndDBeyond = new FaIcon("fa-d-and-d-beyond","far");
+	public static FaIcon faDailymotion = new FaIcon("fa-dailymotion","far");
+	public static FaIcon faDashboard = new FaIcon("fa-dashboard","far");
+	public static FaIcon faDashcube = new FaIcon("fa-dashcube","far");
+	public static FaIcon faDatabase = new FaIcon("fa-database","far");
+	public static FaIcon faDeaf = new FaIcon("fa-deaf","far");
+	public static FaIcon faDeafness = new FaIcon("fa-deafness","far");
+	public static FaIcon faDedent = new FaIcon("fa-dedent","far");
+	public static FaIcon faDeezer = new FaIcon("fa-deezer","far");
+	public static FaIcon faDeleteLeft = new FaIcon("fa-delete-left","far");
+	public static FaIcon faDelicious = new FaIcon("fa-delicious","far");
+	public static FaIcon faDemocrat = new FaIcon("fa-democrat","far");
+	public static FaIcon faDeploydog = new FaIcon("fa-deploydog","far");
+	public static FaIcon faDeskpro = new FaIcon("fa-deskpro","far");
+	public static FaIcon faDesktop = new FaIcon("fa-desktop","far");
+	public static FaIcon faDesktopAlt = new FaIcon("fa-desktop-alt","far");
+	public static FaIcon faDev = new FaIcon("fa-dev","far");
+	public static FaIcon faDeviantart = new FaIcon("fa-deviantart","far");
+	public static FaIcon faDharmachakra = new FaIcon("fa-dharmachakra","far");
+	public static FaIcon faDhl = new FaIcon("fa-dhl","far");
+	public static FaIcon faDiagnoses = new FaIcon("fa-diagnoses","far");
+	public static FaIcon faDiagramNext = new FaIcon("fa-diagram-next","far");
+	public static FaIcon faDiagramPredecessor = new FaIcon("fa-diagram-predecessor","far");
+	public static FaIcon faDiagramProject = new FaIcon("fa-diagram-project","far");
+	public static FaIcon faDiagramSuccessor = new FaIcon("fa-diagram-successor","far");
+	public static FaIcon faDiamond = new FaIcon("fa-diamond","far");
+	public static FaIcon faDiamondTurnRight = new FaIcon("fa-diamond-turn-right","far");
+	public static FaIcon faDiaspora = new FaIcon("fa-diaspora","far");
+	public static FaIcon faDice = new FaIcon("fa-dice","far");
+	public static FaIcon faDiceD20 = new FaIcon("fa-dice-d20","far");
+	public static FaIcon faDiceD6 = new FaIcon("fa-dice-d6","far");
+	public static FaIcon faDiceFive = new FaIcon("fa-dice-five","far");
+	public static FaIcon faDiceFour = new FaIcon("fa-dice-four","far");
+	public static FaIcon faDiceOne = new FaIcon("fa-dice-one","far");
+	public static FaIcon faDiceSix = new FaIcon("fa-dice-six","far");
+	public static FaIcon faDiceThree = new FaIcon("fa-dice-three","far");
+	public static FaIcon faDiceTwo = new FaIcon("fa-dice-two","far");
+	public static FaIcon faDigg = new FaIcon("fa-digg","far");
+	public static FaIcon faDigging = new FaIcon("fa-digging","far");
+	public static FaIcon faDigitalOcean = new FaIcon("fa-digital-ocean","far");
+	public static FaIcon faDigitalTachograph = new FaIcon("fa-digital-tachograph","far");
+	public static FaIcon faDirections = new FaIcon("fa-directions","far");
+	public static FaIcon faDiscord = new FaIcon("fa-discord","far");
+	public static FaIcon faDiscourse = new FaIcon("fa-discourse","far");
+	public static FaIcon faDisease = new FaIcon("fa-disease","far");
+	public static FaIcon faDisplay = new FaIcon("fa-display","far");
+	public static FaIcon faDivide = new FaIcon("fa-divide","far");
+	public static FaIcon faDizzy = new FaIcon("fa-dizzy","far");
+	public static FaIcon faDna = new FaIcon("fa-dna","far");
+	public static FaIcon faDochub = new FaIcon("fa-dochub","far");
+	public static FaIcon faDocker = new FaIcon("fa-docker","far");
+	public static FaIcon faDog = new FaIcon("fa-dog","far");
+	public static FaIcon faDollar = new FaIcon("fa-dollar","far");
+	public static FaIcon faDollarSign = new FaIcon("fa-dollar-sign","far");
+	public static FaIcon faDolly = new FaIcon("fa-dolly","far");
+	public static FaIcon faDollyBox = new FaIcon("fa-dolly-box","far");
+	public static FaIcon faDollyFlatbed = new FaIcon("fa-dolly-flatbed","far");
+	public static FaIcon faDonate = new FaIcon("fa-donate","far");
+	public static FaIcon faDongSign = new FaIcon("fa-dong-sign","far");
+	public static FaIcon faDoorClosed = new FaIcon("fa-door-closed","far");
+	public static FaIcon faDoorOpen = new FaIcon("fa-door-open","far");
+	public static FaIcon faDotCircle = new FaIcon("fa-dot-circle","far");
+	public static FaIcon faDove = new FaIcon("fa-dove","far");
+	public static FaIcon faDownLeftAndUpRightToCenter = new FaIcon("fa-down-left-and-up-right-to-center","far");
+	public static FaIcon faDownLong = new FaIcon("fa-down-long","far");
+	public static FaIcon faDownload = new FaIcon("fa-download","far");
+	public static FaIcon faDraft2digital = new FaIcon("fa-draft2digital","far");
+	public static FaIcon faDraftingCompass = new FaIcon("fa-drafting-compass","far");
+	public static FaIcon faDragon = new FaIcon("fa-dragon","far");
+	public static FaIcon faDrawPolygon = new FaIcon("fa-draw-polygon","far");
+	public static FaIcon faDribbble = new FaIcon("fa-dribbble","far");
+	public static FaIcon faDribbbleSquare = new FaIcon("fa-dribbble-square","far");
+	public static FaIcon faDriversLicense = new FaIcon("fa-drivers-license","far");
+	public static FaIcon faDropbox = new FaIcon("fa-dropbox","far");
+	public static FaIcon faDroplet = new FaIcon("fa-droplet","far");
+	public static FaIcon faDropletSlash = new FaIcon("fa-droplet-slash","far");
+	public static FaIcon faDrum = new FaIcon("fa-drum","far");
+	public static FaIcon faDrumSteelpan = new FaIcon("fa-drum-steelpan","far");
+	public static FaIcon faDrumstickBite = new FaIcon("fa-drumstick-bite","far");
+	public static FaIcon faDrupal = new FaIcon("fa-drupal","far");
+	public static FaIcon faDumbbell = new FaIcon("fa-dumbbell","far");
+	public static FaIcon faDumpster = new FaIcon("fa-dumpster","far");
+	public static FaIcon faDumpsterFire = new FaIcon("fa-dumpster-fire","far");
+	public static FaIcon faDungeon = new FaIcon("fa-dungeon","far");
+	public static FaIcon faDyalog = new FaIcon("fa-dyalog","far");
+	public static FaIcon faE = new FaIcon("fa-e","far");
+	public static FaIcon faEarDeaf = new FaIcon("fa-ear-deaf","far");
+	public static FaIcon faEarListen = new FaIcon("fa-ear-listen","far");
+	public static FaIcon faEarlybirds = new FaIcon("fa-earlybirds","far");
+	public static FaIcon faEarth = new FaIcon("fa-earth","far");
+	public static FaIcon faEarthAfrica = new FaIcon("fa-earth-africa","far");
+	public static FaIcon faEarthAmerica = new FaIcon("fa-earth-america","far");
+	public static FaIcon faEarthAmericas = new FaIcon("fa-earth-americas","far");
+	public static FaIcon faEarthAsia = new FaIcon("fa-earth-asia","far");
+	public static FaIcon faEarthEurope = new FaIcon("fa-earth-europe","far");
+	public static FaIcon faEarthOceania = new FaIcon("fa-earth-oceania","far");
+	public static FaIcon faEbay = new FaIcon("fa-ebay","far");
+	public static FaIcon faEdge = new FaIcon("fa-edge","far");
+	public static FaIcon faEdgeLegacy = new FaIcon("fa-edge-legacy","far");
+	public static FaIcon faEdit = new FaIcon("fa-edit","far");
+	public static FaIcon faEgg = new FaIcon("fa-egg","far");
+	public static FaIcon faEject = new FaIcon("fa-eject","far");
+	public static FaIcon faElementor = new FaIcon("fa-elementor","far");
+	public static FaIcon faElevator = new FaIcon("fa-elevator","far");
+	public static FaIcon faEllipsis = new FaIcon("fa-ellipsis","far");
+	public static FaIcon faEllipsisH = new FaIcon("fa-ellipsis-h","far");
+	public static FaIcon faEllipsisV = new FaIcon("fa-ellipsis-v","far");
+	public static FaIcon faEllipsisVertical = new FaIcon("fa-ellipsis-vertical","far");
+	public static FaIcon faEllo = new FaIcon("fa-ello","far");
+	public static FaIcon faEmber = new FaIcon("fa-ember","far");
+	public static FaIcon faEmpire = new FaIcon("fa-empire","far");
+	public static FaIcon faEnvelope = new FaIcon("fa-envelope","far");
+	public static FaIcon faEnvelopeCircleCheck = new FaIcon("fa-envelope-circle-check","far");
+	public static FaIcon faEnvelopeOpen = new FaIcon("fa-envelope-open","far");
+	public static FaIcon faEnvelopeOpenText = new FaIcon("fa-envelope-open-text","far");
+	public static FaIcon faEnvelopeSquare = new FaIcon("fa-envelope-square","far");
+	public static FaIcon faEnvelopesBulk = new FaIcon("fa-envelopes-bulk","far");
+	public static FaIcon faEnvira = new FaIcon("fa-envira","far");
+	public static FaIcon faEquals = new FaIcon("fa-equals","far");
+	public static FaIcon faEraser = new FaIcon("fa-eraser","far");
+	public static FaIcon faErlang = new FaIcon("fa-erlang","far");
+	public static FaIcon faEthereum = new FaIcon("fa-ethereum","far");
+	public static FaIcon faEthernet = new FaIcon("fa-ethernet","far");
+	public static FaIcon faEtsy = new FaIcon("fa-etsy","far");
+	public static FaIcon faEur = new FaIcon("fa-eur","far");
+	public static FaIcon faEuro = new FaIcon("fa-euro","far");
+	public static FaIcon faEuroSign = new FaIcon("fa-euro-sign","far");
+	public static FaIcon faEvernote = new FaIcon("fa-evernote","far");
+	public static FaIcon faExchange = new FaIcon("fa-exchange","far");
+	public static FaIcon faExchangeAlt = new FaIcon("fa-exchange-alt","far");
+	public static FaIcon faExclamation = new FaIcon("fa-exclamation","far");
+	public static FaIcon faExclamationCircle = new FaIcon("fa-exclamation-circle","far");
+	public static FaIcon faExclamationTriangle = new FaIcon("fa-exclamation-triangle","far");
+	public static FaIcon faExpand = new FaIcon("fa-expand","far");
+	public static FaIcon faExpandAlt = new FaIcon("fa-expand-alt","far");
+	public static FaIcon faExpandArrowsAlt = new FaIcon("fa-expand-arrows-alt","far");
+	public static FaIcon faExpeditedssl = new FaIcon("fa-expeditedssl","far");
+	public static FaIcon faExplosion = new FaIcon("fa-explosion","far");
+	public static FaIcon faExternalLink = new FaIcon("fa-external-link","far");
+	public static FaIcon faExternalLinkAlt = new FaIcon("fa-external-link-alt","far");
+	public static FaIcon faExternalLinkSquare = new FaIcon("fa-external-link-square","far");
+	public static FaIcon faExternalLinkSquareAlt = new FaIcon("fa-external-link-square-alt","far");
+	public static FaIcon faEye = new FaIcon("fa-eye","far");
+	public static FaIcon faEyeDropper = new FaIcon("fa-eye-dropper","far");
+	public static FaIcon faEyeDropperEmpty = new FaIcon("fa-eye-dropper-empty","far");
+	public static FaIcon faEyeLowVision = new FaIcon("fa-eye-low-vision","far");
+	public static FaIcon faEyeSlash = new FaIcon("fa-eye-slash","far");
+	public static FaIcon faEyedropper = new FaIcon("fa-eyedropper","far");
+	public static FaIcon faF = new FaIcon("fa-f","far");
+	public static FaIcon faFaceAngry = new FaIcon("fa-face-angry","far");
+	public static FaIcon faFaceDizzy = new FaIcon("fa-face-dizzy","far");
+	public static FaIcon faFaceFlushed = new FaIcon("fa-face-flushed","far");
+	public static FaIcon faFaceFrown = new FaIcon("fa-face-frown","far");
+	public static FaIcon faFaceFrownOpen = new FaIcon("fa-face-frown-open","far");
+	public static FaIcon faFaceGrimace = new FaIcon("fa-face-grimace","far");
+	public static FaIcon faFaceGrin = new FaIcon("fa-face-grin","far");
+	public static FaIcon faFaceGrinBeam = new FaIcon("fa-face-grin-beam","far");
+	public static FaIcon faFaceGrinBeamSweat = new FaIcon("fa-face-grin-beam-sweat","far");
+	public static FaIcon faFaceGrinHearts = new FaIcon("fa-face-grin-hearts","far");
+	public static FaIcon faFaceGrinSquint = new FaIcon("fa-face-grin-squint","far");
+	public static FaIcon faFaceGrinSquintTears = new FaIcon("fa-face-grin-squint-tears","far");
+	public static FaIcon faFaceGrinStars = new FaIcon("fa-face-grin-stars","far");
+	public static FaIcon faFaceGrinTears = new FaIcon("fa-face-grin-tears","far");
+	public static FaIcon faFaceGrinTongue = new FaIcon("fa-face-grin-tongue","far");
+	public static FaIcon faFaceGrinTongueSquint = new FaIcon("fa-face-grin-tongue-squint","far");
+	public static FaIcon faFaceGrinTongueWink = new FaIcon("fa-face-grin-tongue-wink","far");
+	public static FaIcon faFaceGrinWide = new FaIcon("fa-face-grin-wide","far");
+	public static FaIcon faFaceGrinWink = new FaIcon("fa-face-grin-wink","far");
+	public static FaIcon faFaceKiss = new FaIcon("fa-face-kiss","far");
+	public static FaIcon faFaceKissBeam = new FaIcon("fa-face-kiss-beam","far");
+	public static FaIcon faFaceKissWinkHeart = new FaIcon("fa-face-kiss-wink-heart","far");
+	public static FaIcon faFaceLaugh = new FaIcon("fa-face-laugh","far");
+	public static FaIcon faFaceLaughBeam = new FaIcon("fa-face-laugh-beam","far");
+	public static FaIcon faFaceLaughSquint = new FaIcon("fa-face-laugh-squint","far");
+	public static FaIcon faFaceLaughWink = new FaIcon("fa-face-laugh-wink","far");
+	public static FaIcon faFaceMeh = new FaIcon("fa-face-meh","far");
+	public static FaIcon faFaceMehBlank = new FaIcon("fa-face-meh-blank","far");
+	public static FaIcon faFaceRollingEyes = new FaIcon("fa-face-rolling-eyes","far");
+	public static FaIcon faFaceSadCry = new FaIcon("fa-face-sad-cry","far");
+	public static FaIcon faFaceSadTear = new FaIcon("fa-face-sad-tear","far");
+	public static FaIcon faFaceSmile = new FaIcon("fa-face-smile","far");
+	public static FaIcon faFaceSmileBeam = new FaIcon("fa-face-smile-beam","far");
+	public static FaIcon faFaceSmileWink = new FaIcon("fa-face-smile-wink","far");
+	public static FaIcon faFaceSurprise = new FaIcon("fa-face-surprise","far");
+	public static FaIcon faFaceTired = new FaIcon("fa-face-tired","far");
+	public static FaIcon faFacebook = new FaIcon("fa-facebook","far");
+	public static FaIcon faFacebookF = new FaIcon("fa-facebook-f","far");
+	public static FaIcon faFacebookMessenger = new FaIcon("fa-facebook-messenger","far");
+	public static FaIcon faFacebookSquare = new FaIcon("fa-facebook-square","far");
+	public static FaIcon faFan = new FaIcon("fa-fan","far");
+	public static FaIcon faFantasyFlightGames = new FaIcon("fa-fantasy-flight-games","far");
+	public static FaIcon faFastBackward = new FaIcon("fa-fast-backward","far");
+	public static FaIcon faFastForward = new FaIcon("fa-fast-forward","far");
+	public static FaIcon faFaucet = new FaIcon("fa-faucet","far");
+	public static FaIcon faFaucetDrip = new FaIcon("fa-faucet-drip","far");
+	public static FaIcon faFax = new FaIcon("fa-fax","far");
+	public static FaIcon faFeather = new FaIcon("fa-feather","far");
+	public static FaIcon faFeatherAlt = new FaIcon("fa-feather-alt","far");
+	public static FaIcon faFeatherPointed = new FaIcon("fa-feather-pointed","far");
+	public static FaIcon faFedex = new FaIcon("fa-fedex","far");
+	public static FaIcon faFedora = new FaIcon("fa-fedora","far");
+	public static FaIcon faFeed = new FaIcon("fa-feed","far");
+	public static FaIcon faFemale = new FaIcon("fa-female","far");
+	public static FaIcon faFerry = new FaIcon("fa-ferry","far");
+	public static FaIcon faFighterJet = new FaIcon("fa-fighter-jet","far");
+	public static FaIcon faFigma = new FaIcon("fa-figma","far");
+	public static FaIcon faFile = new FaIcon("fa-file","far");
+	public static FaIcon faFileAlt = new FaIcon("fa-file-alt","far");
+	public static FaIcon faFileArchive = new FaIcon("fa-file-archive","far");
+	public static FaIcon faFileArrowDown = new FaIcon("fa-file-arrow-down","far");
+	public static FaIcon faFileArrowUp = new FaIcon("fa-file-arrow-up","far");
+	public static FaIcon faFileAudio = new FaIcon("fa-file-audio","far");
+	public static FaIcon faFileCircleCheck = new FaIcon("fa-file-circle-check","far");
+	public static FaIcon faFileCircleExclamation = new FaIcon("fa-file-circle-exclamation","far");
+	public static FaIcon faFileCircleMinus = new FaIcon("fa-file-circle-minus","far");
+	public static FaIcon faFileCirclePlus = new FaIcon("fa-file-circle-plus","far");
+	public static FaIcon faFileCircleQuestion = new FaIcon("fa-file-circle-question","far");
+	public static FaIcon faFileCircleXmark = new FaIcon("fa-file-circle-xmark","far");
+	public static FaIcon faFileClipboard = new FaIcon("fa-file-clipboard","far");
+	public static FaIcon faFileCode = new FaIcon("fa-file-code","far");
+	public static FaIcon faFileContract = new FaIcon("fa-file-contract","far");
+	public static FaIcon faFileCsv = new FaIcon("fa-file-csv","far");
+	public static FaIcon faFileDownload = new FaIcon("fa-file-download","far");
+	public static FaIcon faFileEdit = new FaIcon("fa-file-edit","far");
+	public static FaIcon faFileExcel = new FaIcon("fa-file-excel","far");
+	public static FaIcon faFileExport = new FaIcon("fa-file-export","far");
+	public static FaIcon faFileImage = new FaIcon("fa-file-image","far");
+	public static FaIcon faFileImport = new FaIcon("fa-file-import","far");
+	public static FaIcon faFileInvoice = new FaIcon("fa-file-invoice","far");
+	public static FaIcon faFileInvoiceDollar = new FaIcon("fa-file-invoice-dollar","far");
+	public static FaIcon faFileLines = new FaIcon("fa-file-lines","far");
+	public static FaIcon faFileMedical = new FaIcon("fa-file-medical","far");
+	public static FaIcon faFileMedicalAlt = new FaIcon("fa-file-medical-alt","far");
+	public static FaIcon faFilePdf = new FaIcon("fa-file-pdf","far");
+	public static FaIcon faFilePen = new FaIcon("fa-file-pen","far");
+	public static FaIcon faFilePowerpoint = new FaIcon("fa-file-powerpoint","far");
+	public static FaIcon faFilePrescription = new FaIcon("fa-file-prescription","far");
+	public static FaIcon faFileShield = new FaIcon("fa-file-shield","far");
+	public static FaIcon faFileSignature = new FaIcon("fa-file-signature","far");
+	public static FaIcon faFileText = new FaIcon("fa-file-text","far");
+	public static FaIcon faFileUpload = new FaIcon("fa-file-upload","far");
+	public static FaIcon faFileVideo = new FaIcon("fa-file-video","far");
+	public static FaIcon faFileWaveform = new FaIcon("fa-file-waveform","far");
+	public static FaIcon faFileWord = new FaIcon("fa-file-word","far");
+	public static FaIcon faFileZipper = new FaIcon("fa-file-zipper","far");
+	public static FaIcon faFill = new FaIcon("fa-fill","far");
+	public static FaIcon faFillDrip = new FaIcon("fa-fill-drip","far");
+	public static FaIcon faFilm = new FaIcon("fa-film","far");
+	public static FaIcon faFilter = new FaIcon("fa-filter","far");
+	public static FaIcon faFilterCircleDollar = new FaIcon("fa-filter-circle-dollar","far");
+	public static FaIcon faFilterCircleXmark = new FaIcon("fa-filter-circle-xmark","far");
+	public static FaIcon faFingerprint = new FaIcon("fa-fingerprint","far");
+	public static FaIcon faFire = new FaIcon("fa-fire","far");
+	public static FaIcon faFireAlt = new FaIcon("fa-fire-alt","far");
+	public static FaIcon faFireBurner = new FaIcon("fa-fire-burner","far");
+	public static FaIcon faFireExtinguisher = new FaIcon("fa-fire-extinguisher","far");
+	public static FaIcon faFireFlameCurved = new FaIcon("fa-fire-flame-curved","far");
+	public static FaIcon faFireFlameSimple = new FaIcon("fa-fire-flame-simple","far");
+	public static FaIcon faFirefox = new FaIcon("fa-firefox","far");
+	public static FaIcon faFirefoxBrowser = new FaIcon("fa-firefox-browser","far");
+	public static FaIcon faFirstAid = new FaIcon("fa-first-aid","far");
+	public static FaIcon faFirstOrder = new FaIcon("fa-first-order","far");
+	public static FaIcon faFirstOrderAlt = new FaIcon("fa-first-order-alt","far");
+	public static FaIcon faFirstdraft = new FaIcon("fa-firstdraft","far");
+	public static FaIcon faFish = new FaIcon("fa-fish","far");
+	public static FaIcon faFishFins = new FaIcon("fa-fish-fins","far");
+	public static FaIcon faFistRaised = new FaIcon("fa-fist-raised","far");
+	public static FaIcon faFlag = new FaIcon("fa-flag","far");
+	public static FaIcon faFlagCheckered = new FaIcon("fa-flag-checkered","far");
+	public static FaIcon faFlagUsa = new FaIcon("fa-flag-usa","far");
+	public static FaIcon faFlask = new FaIcon("fa-flask","far");
+	public static FaIcon faFlaskVial = new FaIcon("fa-flask-vial","far");
+	public static FaIcon faFlickr = new FaIcon("fa-flickr","far");
+	public static FaIcon faFlipboard = new FaIcon("fa-flipboard","far");
+	public static FaIcon faFloppyDisk = new FaIcon("fa-floppy-disk","far");
+	public static FaIcon faFlorinSign = new FaIcon("fa-florin-sign","far");
+	public static FaIcon faFlushed = new FaIcon("fa-flushed","far");
+	public static FaIcon faFly = new FaIcon("fa-fly","far");
+	public static FaIcon faFolder = new FaIcon("fa-folder","far");
+	public static FaIcon faFolderBlank = new FaIcon("fa-folder-blank","far");
+	public static FaIcon faFolderClosed = new FaIcon("fa-folder-closed","far");
+	public static FaIcon faFolderMinus = new FaIcon("fa-folder-minus","far");
+	public static FaIcon faFolderOpen = new FaIcon("fa-folder-open","far");
+	public static FaIcon faFolderPlus = new FaIcon("fa-folder-plus","far");
+	public static FaIcon faFolderTree = new FaIcon("fa-folder-tree","far");
+	public static FaIcon faFont = new FaIcon("fa-font","far");
+	public static FaIcon faFontAwesome = new FaIcon("fa-font-awesome","far");
+	public static FaIcon faFontAwesomeAlt = new FaIcon("fa-font-awesome-alt","far");
+	public static FaIcon faFontAwesomeFlag = new FaIcon("fa-font-awesome-flag","far");
+	public static FaIcon faFontAwesomeLogoFull = new FaIcon("fa-font-awesome-logo-full","far");
+	public static FaIcon faFonticons = new FaIcon("fa-fonticons","far");
+	public static FaIcon faFonticonsFi = new FaIcon("fa-fonticons-fi","far");
+	public static FaIcon faFootball = new FaIcon("fa-football","far");
+	public static FaIcon faFootballBall = new FaIcon("fa-football-ball","far");
+	public static FaIcon faFortAwesome = new FaIcon("fa-fort-awesome","far");
+	public static FaIcon faFortAwesomeAlt = new FaIcon("fa-fort-awesome-alt","far");
+	public static FaIcon faForumbee = new FaIcon("fa-forumbee","far");
+	public static FaIcon faForward = new FaIcon("fa-forward","far");
+	public static FaIcon faForwardFast = new FaIcon("fa-forward-fast","far");
+	public static FaIcon faForwardStep = new FaIcon("fa-forward-step","far");
+	public static FaIcon faFoursquare = new FaIcon("fa-foursquare","far");
+	public static FaIcon faFrancSign = new FaIcon("fa-franc-sign","far");
+	public static FaIcon faFreeCodeCamp = new FaIcon("fa-free-code-camp","far");
+	public static FaIcon faFreebsd = new FaIcon("fa-freebsd","far");
+	public static FaIcon faFrog = new FaIcon("fa-frog","far");
+	public static FaIcon faFrown = new FaIcon("fa-frown","far");
+	public static FaIcon faFrownOpen = new FaIcon("fa-frown-open","far");
+	public static FaIcon faFulcrum = new FaIcon("fa-fulcrum","far");
+	public static FaIcon faFunnelDollar = new FaIcon("fa-funnel-dollar","far");
+	public static FaIcon faFutbol = new FaIcon("fa-futbol","far");
+	public static FaIcon faFutbolBall = new FaIcon("fa-futbol-ball","far");
+	public static FaIcon faG = new FaIcon("fa-g","far");
+	public static FaIcon faGalacticRepublic = new FaIcon("fa-galactic-republic","far");
+	public static FaIcon faGalacticSenate = new FaIcon("fa-galactic-senate","far");
+	public static FaIcon faGamepad = new FaIcon("fa-gamepad","far");
+	public static FaIcon faGasPump = new FaIcon("fa-gas-pump","far");
+	public static FaIcon faGauge = new FaIcon("fa-gauge","far");
+	public static FaIcon faGaugeHigh = new FaIcon("fa-gauge-high","far");
+	public static FaIcon faGaugeMed = new FaIcon("fa-gauge-med","far");
+	public static FaIcon faGaugeSimple = new FaIcon("fa-gauge-simple","far");
+	public static FaIcon faGaugeSimpleHigh = new FaIcon("fa-gauge-simple-high","far");
+	public static FaIcon faGaugeSimpleMed = new FaIcon("fa-gauge-simple-med","far");
+	public static FaIcon faGavel = new FaIcon("fa-gavel","far");
+	public static FaIcon faGbp = new FaIcon("fa-gbp","far");
+	public static FaIcon faGear = new FaIcon("fa-gear","far");
+	public static FaIcon faGears = new FaIcon("fa-gears","far");
+	public static FaIcon faGem = new FaIcon("fa-gem","far");
+	public static FaIcon faGenderless = new FaIcon("fa-genderless","far");
+	public static FaIcon faGetPocket = new FaIcon("fa-get-pocket","far");
+	public static FaIcon faGg = new FaIcon("fa-gg","far");
+	public static FaIcon faGgCircle = new FaIcon("fa-gg-circle","far");
+	public static FaIcon faGhost = new FaIcon("fa-ghost","far");
+	public static FaIcon faGift = new FaIcon("fa-gift","far");
+	public static FaIcon faGifts = new FaIcon("fa-gifts","far");
+	public static FaIcon faGit = new FaIcon("fa-git","far");
+	public static FaIcon faGitAlt = new FaIcon("fa-git-alt","far");
+	public static FaIcon faGitSquare = new FaIcon("fa-git-square","far");
+	public static FaIcon faGithub = new FaIcon("fa-github","far");
+	public static FaIcon faGithubAlt = new FaIcon("fa-github-alt","far");
+	public static FaIcon faGithubSquare = new FaIcon("fa-github-square","far");
+	public static FaIcon faGitkraken = new FaIcon("fa-gitkraken","far");
+	public static FaIcon faGitlab = new FaIcon("fa-gitlab","far");
+	public static FaIcon faGitter = new FaIcon("fa-gitter","far");
+	public static FaIcon faGlassCheers = new FaIcon("fa-glass-cheers","far");
+	public static FaIcon faGlassMartini = new FaIcon("fa-glass-martini","far");
+	public static FaIcon faGlassMartiniAlt = new FaIcon("fa-glass-martini-alt","far");
+	public static FaIcon faGlassWater = new FaIcon("fa-glass-water","far");
+	public static FaIcon faGlassWaterDroplet = new FaIcon("fa-glass-water-droplet","far");
+	public static FaIcon faGlassWhiskey = new FaIcon("fa-glass-whiskey","far");
+	public static FaIcon faGlasses = new FaIcon("fa-glasses","far");
+	public static FaIcon faGlide = new FaIcon("fa-glide","far");
+	public static FaIcon faGlideG = new FaIcon("fa-glide-g","far");
+	public static FaIcon faGlobe = new FaIcon("fa-globe","far");
+	public static FaIcon faGlobeAfrica = new FaIcon("fa-globe-africa","far");
+	public static FaIcon faGlobeAmericas = new FaIcon("fa-globe-americas","far");
+	public static FaIcon faGlobeAsia = new FaIcon("fa-globe-asia","far");
+	public static FaIcon faGlobeEurope = new FaIcon("fa-globe-europe","far");
+	public static FaIcon faGlobeOceania = new FaIcon("fa-globe-oceania","far");
+	public static FaIcon faGofore = new FaIcon("fa-gofore","far");
+	public static FaIcon faGolang = new FaIcon("fa-golang","far");
+	public static FaIcon faGolfBall = new FaIcon("fa-golf-ball","far");
+	public static FaIcon faGolfBallTee = new FaIcon("fa-golf-ball-tee","far");
+	public static FaIcon faGoodreads = new FaIcon("fa-goodreads","far");
+	public static FaIcon faGoodreadsG = new FaIcon("fa-goodreads-g","far");
+	public static FaIcon faGoogle = new FaIcon("fa-google","far");
+	public static FaIcon faGoogleDrive = new FaIcon("fa-google-drive","far");
+	public static FaIcon faGooglePay = new FaIcon("fa-google-pay","far");
+	public static FaIcon faGooglePlay = new FaIcon("fa-google-play","far");
+	public static FaIcon faGooglePlus = new FaIcon("fa-google-plus","far");
+	public static FaIcon faGooglePlusG = new FaIcon("fa-google-plus-g","far");
+	public static FaIcon faGooglePlusSquare = new FaIcon("fa-google-plus-square","far");
+	public static FaIcon faGoogleWallet = new FaIcon("fa-google-wallet","far");
+	public static FaIcon faGopuram = new FaIcon("fa-gopuram","far");
+	public static FaIcon faGraduationCap = new FaIcon("fa-graduation-cap","far");
+	public static FaIcon faGratipay = new FaIcon("fa-gratipay","far");
+	public static FaIcon faGrav = new FaIcon("fa-grav","far");
+	public static FaIcon faGreaterThan = new FaIcon("fa-greater-than","far");
+	public static FaIcon faGreaterThanEqual = new FaIcon("fa-greater-than-equal","far");
+	public static FaIcon faGrimace = new FaIcon("fa-grimace","far");
+	public static FaIcon faGrin = new FaIcon("fa-grin","far");
+	public static FaIcon faGrinAlt = new FaIcon("fa-grin-alt","far");
+	public static FaIcon faGrinBeam = new FaIcon("fa-grin-beam","far");
+	public static FaIcon faGrinBeamSweat = new FaIcon("fa-grin-beam-sweat","far");
+	public static FaIcon faGrinHearts = new FaIcon("fa-grin-hearts","far");
+	public static FaIcon faGrinSquint = new FaIcon("fa-grin-squint","far");
+	public static FaIcon faGrinSquintTears = new FaIcon("fa-grin-squint-tears","far");
+	public static FaIcon faGrinStars = new FaIcon("fa-grin-stars","far");
+	public static FaIcon faGrinTears = new FaIcon("fa-grin-tears","far");
+	public static FaIcon faGrinTongue = new FaIcon("fa-grin-tongue","far");
+	public static FaIcon faGrinTongueSquint = new FaIcon("fa-grin-tongue-squint","far");
+	public static FaIcon faGrinTongueWink = new FaIcon("fa-grin-tongue-wink","far");
+	public static FaIcon faGrinWink = new FaIcon("fa-grin-wink","far");
+	public static FaIcon faGrip = new FaIcon("fa-grip","far");
+	public static FaIcon faGripHorizontal = new FaIcon("fa-grip-horizontal","far");
+	public static FaIcon faGripLines = new FaIcon("fa-grip-lines","far");
+	public static FaIcon faGripLinesVertical = new FaIcon("fa-grip-lines-vertical","far");
+	public static FaIcon faGripVertical = new FaIcon("fa-grip-vertical","far");
+	public static FaIcon faGripfire = new FaIcon("fa-gripfire","far");
+	public static FaIcon faGroupArrowsRotate = new FaIcon("fa-group-arrows-rotate","far");
+	public static FaIcon faGrunt = new FaIcon("fa-grunt","far");
+	public static FaIcon faGuaraniSign = new FaIcon("fa-guarani-sign","far");
+	public static FaIcon faGuilded = new FaIcon("fa-guilded","far");
+	public static FaIcon faGuitar = new FaIcon("fa-guitar","far");
+	public static FaIcon faGulp = new FaIcon("fa-gulp","far");
+	public static FaIcon faGun = new FaIcon("fa-gun","far");
+	public static FaIcon faH = new FaIcon("fa-h","far");
+	public static FaIcon faHSquare = new FaIcon("fa-h-square","far");
+	public static FaIcon faHackerNews = new FaIcon("fa-hacker-news","far");
+	public static FaIcon faHackerNewsSquare = new FaIcon("fa-hacker-news-square","far");
+	public static FaIcon faHackerrank = new FaIcon("fa-hackerrank","far");
+	public static FaIcon faHamburger = new FaIcon("fa-hamburger","far");
+	public static FaIcon faHammer = new FaIcon("fa-hammer","far");
+	public static FaIcon faHamsa = new FaIcon("fa-hamsa","far");
+	public static FaIcon faHand = new FaIcon("fa-hand","far");
+	public static FaIcon faHandBackFist = new FaIcon("fa-hand-back-fist","far");
+	public static FaIcon faHandDots = new FaIcon("fa-hand-dots","far");
+	public static FaIcon faHandFist = new FaIcon("fa-hand-fist","far");
+	public static FaIcon faHandHolding = new FaIcon("fa-hand-holding","far");
+	public static FaIcon faHandHoldingDollar = new FaIcon("fa-hand-holding-dollar","far");
+	public static FaIcon faHandHoldingDroplet = new FaIcon("fa-hand-holding-droplet","far");
+	public static FaIcon faHandHoldingHand = new FaIcon("fa-hand-holding-hand","far");
+	public static FaIcon faHandHoldingHeart = new FaIcon("fa-hand-holding-heart","far");
+	public static FaIcon faHandHoldingMedical = new FaIcon("fa-hand-holding-medical","far");
+	public static FaIcon faHandHoldingUsd = new FaIcon("fa-hand-holding-usd","far");
+	public static FaIcon faHandHoldingWater = new FaIcon("fa-hand-holding-water","far");
+	public static FaIcon faHandLizard = new FaIcon("fa-hand-lizard","far");
+	public static FaIcon faHandMiddleFinger = new FaIcon("fa-hand-middle-finger","far");
+	public static FaIcon faHandPaper = new FaIcon("fa-hand-paper","far");
+	public static FaIcon faHandPeace = new FaIcon("fa-hand-peace","far");
+	public static FaIcon faHandPointDown = new FaIcon("fa-hand-point-down","far");
+	public static FaIcon faHandPointLeft = new FaIcon("fa-hand-point-left","far");
+	public static FaIcon faHandPointRight = new FaIcon("fa-hand-point-right","far");
+	public static FaIcon faHandPointUp = new FaIcon("fa-hand-point-up","far");
+	public static FaIcon faHandPointer = new FaIcon("fa-hand-pointer","far");
+	public static FaIcon faHandRock = new FaIcon("fa-hand-rock","far");
+	public static FaIcon faHandScissors = new FaIcon("fa-hand-scissors","far");
+	public static FaIcon faHandSparkles = new FaIcon("fa-hand-sparkles","far");
+	public static FaIcon faHandSpock = new FaIcon("fa-hand-spock","far");
+	public static FaIcon faHandcuffs = new FaIcon("fa-handcuffs","far");
+	public static FaIcon faHands = new FaIcon("fa-hands","far");
+	public static FaIcon faHandsAmericanSignLanguageInterpreting = new FaIcon("fa-hands-american-sign-language-interpreting","far");
+	public static FaIcon faHandsAslInterpreting = new FaIcon("fa-hands-asl-interpreting","far");
+	public static FaIcon faHandsBound = new FaIcon("fa-hands-bound","far");
+	public static FaIcon faHandsBubbles = new FaIcon("fa-hands-bubbles","far");
+	public static FaIcon faHandsClapping = new FaIcon("fa-hands-clapping","far");
+	public static FaIcon faHandsHelping = new FaIcon("fa-hands-helping","far");
+	public static FaIcon faHandsHolding = new FaIcon("fa-hands-holding","far");
+	public static FaIcon faHandsHoldingChild = new FaIcon("fa-hands-holding-child","far");
+	public static FaIcon faHandsHoldingCircle = new FaIcon("fa-hands-holding-circle","far");
+	public static FaIcon faHandsPraying = new FaIcon("fa-hands-praying","far");
+	public static FaIcon faHandsWash = new FaIcon("fa-hands-wash","far");
+	public static FaIcon faHandshake = new FaIcon("fa-handshake","far");
+	public static FaIcon faHandshakeAlt = new FaIcon("fa-handshake-alt","far");
+	public static FaIcon faHandshakeAltSlash = new FaIcon("fa-handshake-alt-slash","far");
+	public static FaIcon faHandshakeAngle = new FaIcon("fa-handshake-angle","far");
+	public static FaIcon faHandshakeSimple = new FaIcon("fa-handshake-simple","far");
+	public static FaIcon faHandshakeSimpleSlash = new FaIcon("fa-handshake-simple-slash","far");
+	public static FaIcon faHandshakeSlash = new FaIcon("fa-handshake-slash","far");
+	public static FaIcon faHanukiah = new FaIcon("fa-hanukiah","far");
+	public static FaIcon faHardDrive = new FaIcon("fa-hard-drive","far");
+	public static FaIcon faHardHat = new FaIcon("fa-hard-hat","far");
+	public static FaIcon faHardOfHearing = new FaIcon("fa-hard-of-hearing","far");
+	public static FaIcon faHashnode = new FaIcon("fa-hashnode","far");
+	public static FaIcon faHashtag = new FaIcon("fa-hashtag","far");
+	public static FaIcon faHatCowboy = new FaIcon("fa-hat-cowboy","far");
+	public static FaIcon faHatCowboySide = new FaIcon("fa-hat-cowboy-side","far");
+	public static FaIcon faHatHard = new FaIcon("fa-hat-hard","far");
+	public static FaIcon faHatWizard = new FaIcon("fa-hat-wizard","far");
+	public static FaIcon faHdd = new FaIcon("fa-hdd","far");
+	public static FaIcon faHeadSideCough = new FaIcon("fa-head-side-cough","far");
+	public static FaIcon faHeadSideCoughSlash = new FaIcon("fa-head-side-cough-slash","far");
+	public static FaIcon faHeadSideMask = new FaIcon("fa-head-side-mask","far");
+	public static FaIcon faHeadSideVirus = new FaIcon("fa-head-side-virus","far");
+	public static FaIcon faHeader = new FaIcon("fa-header","far");
+	public static FaIcon faHeading = new FaIcon("fa-heading","far");
+	public static FaIcon faHeadphones = new FaIcon("fa-headphones","far");
+	public static FaIcon faHeadphonesAlt = new FaIcon("fa-headphones-alt","far");
+	public static FaIcon faHeadphonesSimple = new FaIcon("fa-headphones-simple","far");
+	public static FaIcon faHeadset = new FaIcon("fa-headset","far");
+	public static FaIcon faHeart = new FaIcon("fa-heart","far");
+	public static FaIcon faHeartBroken = new FaIcon("fa-heart-broken","far");
+	public static FaIcon faHeartCircleBolt = new FaIcon("fa-heart-circle-bolt","far");
+	public static FaIcon faHeartCircleCheck = new FaIcon("fa-heart-circle-check","far");
+	public static FaIcon faHeartCircleExclamation = new FaIcon("fa-heart-circle-exclamation","far");
+	public static FaIcon faHeartCircleMinus = new FaIcon("fa-heart-circle-minus","far");
+	public static FaIcon faHeartCirclePlus = new FaIcon("fa-heart-circle-plus","far");
+	public static FaIcon faHeartCircleXmark = new FaIcon("fa-heart-circle-xmark","far");
+	public static FaIcon faHeartCrack = new FaIcon("fa-heart-crack","far");
+	public static FaIcon faHeartMusicCameraBolt = new FaIcon("fa-heart-music-camera-bolt","far");
+	public static FaIcon faHeartPulse = new FaIcon("fa-heart-pulse","far");
+	public static FaIcon faHeartbeat = new FaIcon("fa-heartbeat","far");
+	public static FaIcon faHelicopter = new FaIcon("fa-helicopter","far");
+	public static FaIcon faHelicopterSymbol = new FaIcon("fa-helicopter-symbol","far");
+	public static FaIcon faHelmetSafety = new FaIcon("fa-helmet-safety","far");
+	public static FaIcon faHelmetUn = new FaIcon("fa-helmet-un","far");
+	public static FaIcon faHighlighter = new FaIcon("fa-highlighter","far");
+	public static FaIcon faHiking = new FaIcon("fa-hiking","far");
+	public static FaIcon faHillAvalanche = new FaIcon("fa-hill-avalanche","far");
+	public static FaIcon faHillRockslide = new FaIcon("fa-hill-rockslide","far");
+	public static FaIcon faHippo = new FaIcon("fa-hippo","far");
+	public static FaIcon faHips = new FaIcon("fa-hips","far");
+	public static FaIcon faHireAHelper = new FaIcon("fa-hire-a-helper","far");
+	public static FaIcon faHistory = new FaIcon("fa-history","far");
+	public static FaIcon faHive = new FaIcon("fa-hive","far");
+	public static FaIcon faHockeyPuck = new FaIcon("fa-hockey-puck","far");
+	public static FaIcon faHollyBerry = new FaIcon("fa-holly-berry","far");
+	public static FaIcon faHome = new FaIcon("fa-home","far");
+	public static FaIcon faHomeAlt = new FaIcon("fa-home-alt","far");
+	public static FaIcon faHomeLg = new FaIcon("fa-home-lg","far");
+	public static FaIcon faHomeLgAlt = new FaIcon("fa-home-lg-alt","far");
+	public static FaIcon faHomeUser = new FaIcon("fa-home-user","far");
+	public static FaIcon faHooli = new FaIcon("fa-hooli","far");
+	public static FaIcon faHornbill = new FaIcon("fa-hornbill","far");
+	public static FaIcon faHorse = new FaIcon("fa-horse","far");
+	public static FaIcon faHorseHead = new FaIcon("fa-horse-head","far");
+	public static FaIcon faHospital = new FaIcon("fa-hospital","far");
+	public static FaIcon faHospitalAlt = new FaIcon("fa-hospital-alt","far");
+	public static FaIcon faHospitalSymbol = new FaIcon("fa-hospital-symbol","far");
+	public static FaIcon faHospitalUser = new FaIcon("fa-hospital-user","far");
+	public static FaIcon faHospitalWide = new FaIcon("fa-hospital-wide","far");
+	public static FaIcon faHotTub = new FaIcon("fa-hot-tub","far");
+	public static FaIcon faHotTubPerson = new FaIcon("fa-hot-tub-person","far");
+	public static FaIcon faHotdog = new FaIcon("fa-hotdog","far");
+	public static FaIcon faHotel = new FaIcon("fa-hotel","far");
+	public static FaIcon faHotjar = new FaIcon("fa-hotjar","far");
+	public static FaIcon faHourglass = new FaIcon("fa-hourglass","far");
+	public static FaIcon faHourglass1 = new FaIcon("fa-hourglass-1","far");
+	public static FaIcon faHourglass2 = new FaIcon("fa-hourglass-2","far");
+	public static FaIcon faHourglass3 = new FaIcon("fa-hourglass-3","far");
+	public static FaIcon faHourglassEmpty = new FaIcon("fa-hourglass-empty","far");
+	public static FaIcon faHourglassEnd = new FaIcon("fa-hourglass-end","far");
+	public static FaIcon faHourglassHalf = new FaIcon("fa-hourglass-half","far");
+	public static FaIcon faHourglassStart = new FaIcon("fa-hourglass-start","far");
+	public static FaIcon faHouse = new FaIcon("fa-house","far");
+	public static FaIcon faHouseChimney = new FaIcon("fa-house-chimney","far");
+	public static FaIcon faHouseChimneyCrack = new FaIcon("fa-house-chimney-crack","far");
+	public static FaIcon faHouseChimneyMedical = new FaIcon("fa-house-chimney-medical","far");
+	public static FaIcon faHouseChimneyUser = new FaIcon("fa-house-chimney-user","far");
+	public static FaIcon faHouseChimneyWindow = new FaIcon("fa-house-chimney-window","far");
+	public static FaIcon faHouseCircleCheck = new FaIcon("fa-house-circle-check","far");
+	public static FaIcon faHouseCircleExclamation = new FaIcon("fa-house-circle-exclamation","far");
+	public static FaIcon faHouseCircleXmark = new FaIcon("fa-house-circle-xmark","far");
+	public static FaIcon faHouseCrack = new FaIcon("fa-house-crack","far");
+	public static FaIcon faHouseDamage = new FaIcon("fa-house-damage","far");
+	public static FaIcon faHouseFire = new FaIcon("fa-house-fire","far");
+	public static FaIcon faHouseFlag = new FaIcon("fa-house-flag","far");
+	public static FaIcon faHouseFloodWater = new FaIcon("fa-house-flood-water","far");
+	public static FaIcon faHouseFloodWaterCircleArrowRight = new FaIcon("fa-house-flood-water-circle-arrow-right","far");
+	public static FaIcon faHouseLaptop = new FaIcon("fa-house-laptop","far");
+	public static FaIcon faHouseLock = new FaIcon("fa-house-lock","far");
+	public static FaIcon faHouseMedical = new FaIcon("fa-house-medical","far");
+	public static FaIcon faHouseMedicalCircleCheck = new FaIcon("fa-house-medical-circle-check","far");
+	public static FaIcon faHouseMedicalCircleExclamation = new FaIcon("fa-house-medical-circle-exclamation","far");
+	public static FaIcon faHouseMedicalCircleXmark = new FaIcon("fa-house-medical-circle-xmark","far");
+	public static FaIcon faHouseMedicalFlag = new FaIcon("fa-house-medical-flag","far");
+	public static FaIcon faHouseSignal = new FaIcon("fa-house-signal","far");
+	public static FaIcon faHouseTsunami = new FaIcon("fa-house-tsunami","far");
+	public static FaIcon faHouseUser = new FaIcon("fa-house-user","far");
+	public static FaIcon faHouzz = new FaIcon("fa-houzz","far");
+	public static FaIcon faHryvnia = new FaIcon("fa-hryvnia","far");
+	public static FaIcon faHryvniaSign = new FaIcon("fa-hryvnia-sign","far");
+	public static FaIcon faHtml5 = new FaIcon("fa-html5","far");
+	public static FaIcon faHubspot = new FaIcon("fa-hubspot","far");
+	public static FaIcon faHurricane = new FaIcon("fa-hurricane","far");
+	public static FaIcon faI = new FaIcon("fa-i","far");
+	public static FaIcon faICursor = new FaIcon("fa-i-cursor","far");
+	public static FaIcon faIceCream = new FaIcon("fa-ice-cream","far");
+	public static FaIcon faIcicles = new FaIcon("fa-icicles","far");
+	public static FaIcon faIcons = new FaIcon("fa-icons","far");
+	public static FaIcon faIdBadge = new FaIcon("fa-id-badge","far");
+	public static FaIcon faIdCard = new FaIcon("fa-id-card","far");
+	public static FaIcon faIdCardAlt = new FaIcon("fa-id-card-alt","far");
+	public static FaIcon faIdCardClip = new FaIcon("fa-id-card-clip","far");
+	public static FaIcon faIdeal = new FaIcon("fa-ideal","far");
+	public static FaIcon faIgloo = new FaIcon("fa-igloo","far");
+	public static FaIcon faIls = new FaIcon("fa-ils","far");
+	public static FaIcon faImage = new FaIcon("fa-image","far");
+	public static FaIcon faImagePortrait = new FaIcon("fa-image-portrait","far");
+	public static FaIcon faImages = new FaIcon("fa-images","far");
+	public static FaIcon faImdb = new FaIcon("fa-imdb","far");
+	public static FaIcon faInbox = new FaIcon("fa-inbox","far");
+	public static FaIcon faIndent = new FaIcon("fa-indent","far");
+	public static FaIcon faIndianRupee = new FaIcon("fa-indian-rupee","far");
+	public static FaIcon faIndianRupeeSign = new FaIcon("fa-indian-rupee-sign","far");
+	public static FaIcon faIndustry = new FaIcon("fa-industry","far");
+	public static FaIcon faInfinity = new FaIcon("fa-infinity","far");
+	public static FaIcon faInfo = new FaIcon("fa-info","far");
+	public static FaIcon faInfoCircle = new FaIcon("fa-info-circle","far");
+	public static FaIcon faInnosoft = new FaIcon("fa-innosoft","far");
+	public static FaIcon faInr = new FaIcon("fa-inr","far");
+	public static FaIcon faInstagram = new FaIcon("fa-instagram","far");
+	public static FaIcon faInstagramSquare = new FaIcon("fa-instagram-square","far");
+	public static FaIcon faInstalod = new FaIcon("fa-instalod","far");
+	public static FaIcon faInstitution = new FaIcon("fa-institution","far");
+	public static FaIcon faIntercom = new FaIcon("fa-intercom","far");
+	public static FaIcon faInternetExplorer = new FaIcon("fa-internet-explorer","far");
+	public static FaIcon faInvision = new FaIcon("fa-invision","far");
+	public static FaIcon faIoxhost = new FaIcon("fa-ioxhost","far");
+	public static FaIcon faItalic = new FaIcon("fa-italic","far");
+	public static FaIcon faItchIo = new FaIcon("fa-itch-io","far");
+	public static FaIcon faItunes = new FaIcon("fa-itunes","far");
+	public static FaIcon faItunesNote = new FaIcon("fa-itunes-note","far");
+	public static FaIcon faJ = new FaIcon("fa-j","far");
+	public static FaIcon faJar = new FaIcon("fa-jar","far");
+	public static FaIcon faJarWheat = new FaIcon("fa-jar-wheat","far");
+	public static FaIcon faJava = new FaIcon("fa-java","far");
+	public static FaIcon faJedi = new FaIcon("fa-jedi","far");
+	public static FaIcon faJediOrder = new FaIcon("fa-jedi-order","far");
+	public static FaIcon faJenkins = new FaIcon("fa-jenkins","far");
+	public static FaIcon faJetFighter = new FaIcon("fa-jet-fighter","far");
+	public static FaIcon faJetFighterUp = new FaIcon("fa-jet-fighter-up","far");
+	public static FaIcon faJira = new FaIcon("fa-jira","far");
+	public static FaIcon faJoget = new FaIcon("fa-joget","far");
+	public static FaIcon faJoint = new FaIcon("fa-joint","far");
+	public static FaIcon faJoomla = new FaIcon("fa-joomla","far");
+	public static FaIcon faJournalWhills = new FaIcon("fa-journal-whills","far");
+	public static FaIcon faJpy = new FaIcon("fa-jpy","far");
+	public static FaIcon faJs = new FaIcon("fa-js","far");
+	public static FaIcon faJsSquare = new FaIcon("fa-js-square","far");
+	public static FaIcon faJsfiddle = new FaIcon("fa-jsfiddle","far");
+	public static FaIcon faJugDetergent = new FaIcon("fa-jug-detergent","far");
+	public static FaIcon faK = new FaIcon("fa-k","far");
+	public static FaIcon faKaaba = new FaIcon("fa-kaaba","far");
+	public static FaIcon faKaggle = new FaIcon("fa-kaggle","far");
+	public static FaIcon faKey = new FaIcon("fa-key","far");
+	public static FaIcon faKeybase = new FaIcon("fa-keybase","far");
+	public static FaIcon faKeyboard = new FaIcon("fa-keyboard","far");
+	public static FaIcon faKeycdn = new FaIcon("fa-keycdn","far");
+	public static FaIcon faKhanda = new FaIcon("fa-khanda","far");
+	public static FaIcon faKickstarter = new FaIcon("fa-kickstarter","far");
+	public static FaIcon faKickstarterK = new FaIcon("fa-kickstarter-k","far");
+	public static FaIcon faKipSign = new FaIcon("fa-kip-sign","far");
+	public static FaIcon faKiss = new FaIcon("fa-kiss","far");
+	public static FaIcon faKissBeam = new FaIcon("fa-kiss-beam","far");
+	public static FaIcon faKissWinkHeart = new FaIcon("fa-kiss-wink-heart","far");
+	public static FaIcon faKitMedical = new FaIcon("fa-kit-medical","far");
+	public static FaIcon faKitchenSet = new FaIcon("fa-kitchen-set","far");
+	public static FaIcon faKiwiBird = new FaIcon("fa-kiwi-bird","far");
+	public static FaIcon faKorvue = new FaIcon("fa-korvue","far");
+	public static FaIcon faKrw = new FaIcon("fa-krw","far");
+	public static FaIcon faL = new FaIcon("fa-l","far");
+	public static FaIcon faLadderWater = new FaIcon("fa-ladder-water","far");
+	public static FaIcon faLandMineOn = new FaIcon("fa-land-mine-on","far");
+	public static FaIcon faLandmark = new FaIcon("fa-landmark","far");
+	public static FaIcon faLandmarkAlt = new FaIcon("fa-landmark-alt","far");
+	public static FaIcon faLandmarkDome = new FaIcon("fa-landmark-dome","far");
+	public static FaIcon faLandmarkFlag = new FaIcon("fa-landmark-flag","far");
+	public static FaIcon faLanguage = new FaIcon("fa-language","far");
+	public static FaIcon faLaptop = new FaIcon("fa-laptop","far");
+	public static FaIcon faLaptopCode = new FaIcon("fa-laptop-code","far");
+	public static FaIcon faLaptopFile = new FaIcon("fa-laptop-file","far");
+	public static FaIcon faLaptopHouse = new FaIcon("fa-laptop-house","far");
+	public static FaIcon faLaptopMedical = new FaIcon("fa-laptop-medical","far");
+	public static FaIcon faLaravel = new FaIcon("fa-laravel","far");
+	public static FaIcon faLariSign = new FaIcon("fa-lari-sign","far");
+	public static FaIcon faLastfm = new FaIcon("fa-lastfm","far");
+	public static FaIcon faLastfmSquare = new FaIcon("fa-lastfm-square","far");
+	public static FaIcon faLaugh = new FaIcon("fa-laugh","far");
+	public static FaIcon faLaughBeam = new FaIcon("fa-laugh-beam","far");
+	public static FaIcon faLaughSquint = new FaIcon("fa-laugh-squint","far");
+	public static FaIcon faLaughWink = new FaIcon("fa-laugh-wink","far");
+	public static FaIcon faLayerGroup = new FaIcon("fa-layer-group","far");
+	public static FaIcon faLeaf = new FaIcon("fa-leaf","far");
+	public static FaIcon faLeanpub = new FaIcon("fa-leanpub","far");
+	public static FaIcon faLeftLong = new FaIcon("fa-left-long","far");
+	public static FaIcon faLeftRight = new FaIcon("fa-left-right","far");
+	public static FaIcon faLegal = new FaIcon("fa-legal","far");
+	public static FaIcon faLemon = new FaIcon("fa-lemon","far");
+	public static FaIcon faLess = new FaIcon("fa-less","far");
+	public static FaIcon faLessThan = new FaIcon("fa-less-than","far");
+	public static FaIcon faLessThanEqual = new FaIcon("fa-less-than-equal","far");
+	public static FaIcon faLevelDown = new FaIcon("fa-level-down","far");
+	public static FaIcon faLevelDownAlt = new FaIcon("fa-level-down-alt","far");
+	public static FaIcon faLevelUp = new FaIcon("fa-level-up","far");
+	public static FaIcon faLevelUpAlt = new FaIcon("fa-level-up-alt","far");
+	public static FaIcon faLifeRing = new FaIcon("fa-life-ring","far");
+	public static FaIcon faLightbulb = new FaIcon("fa-lightbulb","far");
+	public static FaIcon faLine = new FaIcon("fa-line","far");
+	public static FaIcon faLineChart = new FaIcon("fa-line-chart","far");
+	public static FaIcon faLinesLeaning = new FaIcon("fa-lines-leaning","far");
+	public static FaIcon faLink = new FaIcon("fa-link","far");
+	public static FaIcon faLinkSlash = new FaIcon("fa-link-slash","far");
+	public static FaIcon faLinkedin = new FaIcon("fa-linkedin","far");
+	public static FaIcon faLinkedinIn = new FaIcon("fa-linkedin-in","far");
+	public static FaIcon faLinode = new FaIcon("fa-linode","far");
+	public static FaIcon faLinux = new FaIcon("fa-linux","far");
+	public static FaIcon faLiraSign = new FaIcon("fa-lira-sign","far");
+	public static FaIcon faList = new FaIcon("fa-list","far");
+	public static FaIcon faList12 = new FaIcon("fa-list-1-2","far");
+	public static FaIcon faListAlt = new FaIcon("fa-list-alt","far");
+	public static FaIcon faListCheck = new FaIcon("fa-list-check","far");
+	public static FaIcon faListDots = new FaIcon("fa-list-dots","far");
+	public static FaIcon faListNumeric = new FaIcon("fa-list-numeric","far");
+	public static FaIcon faListOl = new FaIcon("fa-list-ol","far");
+	public static FaIcon faListSquares = new FaIcon("fa-list-squares","far");
+	public static FaIcon faListUl = new FaIcon("fa-list-ul","far");
+	public static FaIcon faLitecoinSign = new FaIcon("fa-litecoin-sign","far");
+	public static FaIcon faLocation = new FaIcon("fa-location","far");
+	public static FaIcon faLocationArrow = new FaIcon("fa-location-arrow","far");
+	public static FaIcon faLocationCrosshairs = new FaIcon("fa-location-crosshairs","far");
+	public static FaIcon faLocationDot = new FaIcon("fa-location-dot","far");
+	public static FaIcon faLocationPin = new FaIcon("fa-location-pin","far");
+	public static FaIcon faLocationPinLock = new FaIcon("fa-location-pin-lock","far");
+	public static FaIcon faLock = new FaIcon("fa-lock","far");
+	public static FaIcon faLockOpen = new FaIcon("fa-lock-open","far");
+	public static FaIcon faLocust = new FaIcon("fa-locust","far");
+	public static FaIcon faLongArrowAltDown = new FaIcon("fa-long-arrow-alt-down","far");
+	public static FaIcon faLongArrowAltLeft = new FaIcon("fa-long-arrow-alt-left","far");
+	public static FaIcon faLongArrowAltRight = new FaIcon("fa-long-arrow-alt-right","far");
+	public static FaIcon faLongArrowAltUp = new FaIcon("fa-long-arrow-alt-up","far");
+	public static FaIcon faLongArrowDown = new FaIcon("fa-long-arrow-down","far");
+	public static FaIcon faLongArrowLeft = new FaIcon("fa-long-arrow-left","far");
+	public static FaIcon faLongArrowRight = new FaIcon("fa-long-arrow-right","far");
+	public static FaIcon faLongArrowUp = new FaIcon("fa-long-arrow-up","far");
+	public static FaIcon faLowVision = new FaIcon("fa-low-vision","far");
+	public static FaIcon faLuggageCart = new FaIcon("fa-luggage-cart","far");
+	public static FaIcon faLungs = new FaIcon("fa-lungs","far");
+	public static FaIcon faLungsVirus = new FaIcon("fa-lungs-virus","far");
+	public static FaIcon faLyft = new FaIcon("fa-lyft","far");
+	public static FaIcon faM = new FaIcon("fa-m","far");
+	public static FaIcon faMagento = new FaIcon("fa-magento","far");
+	public static FaIcon faMagic = new FaIcon("fa-magic","far");
+	public static FaIcon faMagicWandSparkles = new FaIcon("fa-magic-wand-sparkles","far");
+	public static FaIcon faMagnet = new FaIcon("fa-magnet","far");
+	public static FaIcon faMagnifyingGlass = new FaIcon("fa-magnifying-glass","far");
+	public static FaIcon faMagnifyingGlassArrowRight = new FaIcon("fa-magnifying-glass-arrow-right","far");
+	public static FaIcon faMagnifyingGlassChart = new FaIcon("fa-magnifying-glass-chart","far");
+	public static FaIcon faMagnifyingGlassDollar = new FaIcon("fa-magnifying-glass-dollar","far");
+	public static FaIcon faMagnifyingGlassLocation = new FaIcon("fa-magnifying-glass-location","far");
+	public static FaIcon faMagnifyingGlassMinus = new FaIcon("fa-magnifying-glass-minus","far");
+	public static FaIcon faMagnifyingGlassPlus = new FaIcon("fa-magnifying-glass-plus","far");
+	public static FaIcon faMailBulk = new FaIcon("fa-mail-bulk","far");
+	public static FaIcon faMailForward = new FaIcon("fa-mail-forward","far");
+	public static FaIcon faMailReply = new FaIcon("fa-mail-reply","far");
+	public static FaIcon faMailReplyAll = new FaIcon("fa-mail-reply-all","far");
+	public static FaIcon faMailchimp = new FaIcon("fa-mailchimp","far");
+	public static FaIcon faMale = new FaIcon("fa-male","far");
+	public static FaIcon faManatSign = new FaIcon("fa-manat-sign","far");
+	public static FaIcon faMandalorian = new FaIcon("fa-mandalorian","far");
+	public static FaIcon faMap = new FaIcon("fa-map","far");
+	public static FaIcon faMapLocation = new FaIcon("fa-map-location","far");
+	public static FaIcon faMapLocationDot = new FaIcon("fa-map-location-dot","far");
+	public static FaIcon faMapMarked = new FaIcon("fa-map-marked","far");
+	public static FaIcon faMapMarkedAlt = new FaIcon("fa-map-marked-alt","far");
+	public static FaIcon faMapMarker = new FaIcon("fa-map-marker","far");
+	public static FaIcon faMapMarkerAlt = new FaIcon("fa-map-marker-alt","far");
+	public static FaIcon faMapPin = new FaIcon("fa-map-pin","far");
+	public static FaIcon faMapSigns = new FaIcon("fa-map-signs","far");
+	public static FaIcon faMarkdown = new FaIcon("fa-markdown","far");
+	public static FaIcon faMarker = new FaIcon("fa-marker","far");
+	public static FaIcon faMars = new FaIcon("fa-mars","far");
+	public static FaIcon faMarsAndVenus = new FaIcon("fa-mars-and-venus","far");
+	public static FaIcon faMarsAndVenusBurst = new FaIcon("fa-mars-and-venus-burst","far");
+	public static FaIcon faMarsDouble = new FaIcon("fa-mars-double","far");
+	public static FaIcon faMarsStroke = new FaIcon("fa-mars-stroke","far");
+	public static FaIcon faMarsStrokeH = new FaIcon("fa-mars-stroke-h","far");
+	public static FaIcon faMarsStrokeRight = new FaIcon("fa-mars-stroke-right","far");
+	public static FaIcon faMarsStrokeUp = new FaIcon("fa-mars-stroke-up","far");
+	public static FaIcon faMarsStrokeV = new FaIcon("fa-mars-stroke-v","far");
+	public static FaIcon faMartiniGlass = new FaIcon("fa-martini-glass","far");
+	public static FaIcon faMartiniGlassCitrus = new FaIcon("fa-martini-glass-citrus","far");
+	public static FaIcon faMartiniGlassEmpty = new FaIcon("fa-martini-glass-empty","far");
+	public static FaIcon faMask = new FaIcon("fa-mask","far");
+	public static FaIcon faMaskFace = new FaIcon("fa-mask-face","far");
+	public static FaIcon faMaskVentilator = new FaIcon("fa-mask-ventilator","far");
+	public static FaIcon faMasksTheater = new FaIcon("fa-masks-theater","far");
+	public static FaIcon faMastodon = new FaIcon("fa-mastodon","far");
+	public static FaIcon faMattressPillow = new FaIcon("fa-mattress-pillow","far");
+	public static FaIcon faMaxcdn = new FaIcon("fa-maxcdn","far");
+	public static FaIcon faMaximize = new FaIcon("fa-maximize","far");
+	public static FaIcon faMdb = new FaIcon("fa-mdb","far");
+	public static FaIcon faMedal = new FaIcon("fa-medal","far");
+	public static FaIcon faMedapps = new FaIcon("fa-medapps","far");
+	public static FaIcon faMedium = new FaIcon("fa-medium","far");
+	public static FaIcon faMediumM = new FaIcon("fa-medium-m","far");
+	public static FaIcon faMedkit = new FaIcon("fa-medkit","far");
+	public static FaIcon faMedrt = new FaIcon("fa-medrt","far");
+	public static FaIcon faMeetup = new FaIcon("fa-meetup","far");
+	public static FaIcon faMegaport = new FaIcon("fa-megaport","far");
+	public static FaIcon faMeh = new FaIcon("fa-meh","far");
+	public static FaIcon faMehBlank = new FaIcon("fa-meh-blank","far");
+	public static FaIcon faMehRollingEyes = new FaIcon("fa-meh-rolling-eyes","far");
+	public static FaIcon faMemory = new FaIcon("fa-memory","far");
+	public static FaIcon faMendeley = new FaIcon("fa-mendeley","far");
+	public static FaIcon faMenorah = new FaIcon("fa-menorah","far");
+	public static FaIcon faMercury = new FaIcon("fa-mercury","far");
+	public static FaIcon faMessage = new FaIcon("fa-message","far");
+	public static FaIcon faMeteor = new FaIcon("fa-meteor","far");
+	public static FaIcon faMicroblog = new FaIcon("fa-microblog","far");
+	public static FaIcon faMicrochip = new FaIcon("fa-microchip","far");
+	public static FaIcon faMicrophone = new FaIcon("fa-microphone","far");
+	public static FaIcon faMicrophoneAlt = new FaIcon("fa-microphone-alt","far");
+	public static FaIcon faMicrophoneAltSlash = new FaIcon("fa-microphone-alt-slash","far");
+	public static FaIcon faMicrophoneLines = new FaIcon("fa-microphone-lines","far");
+	public static FaIcon faMicrophoneLinesSlash = new FaIcon("fa-microphone-lines-slash","far");
+	public static FaIcon faMicrophoneSlash = new FaIcon("fa-microphone-slash","far");
+	public static FaIcon faMicroscope = new FaIcon("fa-microscope","far");
+	public static FaIcon faMicrosoft = new FaIcon("fa-microsoft","far");
+	public static FaIcon faMillSign = new FaIcon("fa-mill-sign","far");
+	public static FaIcon faMinimize = new FaIcon("fa-minimize","far");
+	public static FaIcon faMinus = new FaIcon("fa-minus","far");
+	public static FaIcon faMinusCircle = new FaIcon("fa-minus-circle","far");
+	public static FaIcon faMinusSquare = new FaIcon("fa-minus-square","far");
+	public static FaIcon faMitten = new FaIcon("fa-mitten","far");
+	public static FaIcon faMix = new FaIcon("fa-mix","far");
+	public static FaIcon faMixcloud = new FaIcon("fa-mixcloud","far");
+	public static FaIcon faMixer = new FaIcon("fa-mixer","far");
+	public static FaIcon faMizuni = new FaIcon("fa-mizuni","far");
+	public static FaIcon faMobile = new FaIcon("fa-mobile","far");
+	public static FaIcon faMobileAlt = new FaIcon("fa-mobile-alt","far");
+	public static FaIcon faMobileAndroid = new FaIcon("fa-mobile-android","far");
+	public static FaIcon faMobileAndroidAlt = new FaIcon("fa-mobile-android-alt","far");
+	public static FaIcon faMobileButton = new FaIcon("fa-mobile-button","far");
+	public static FaIcon faMobilePhone = new FaIcon("fa-mobile-phone","far");
+	public static FaIcon faMobileRetro = new FaIcon("fa-mobile-retro","far");
+	public static FaIcon faMobileScreen = new FaIcon("fa-mobile-screen","far");
+	public static FaIcon faMobileScreenButton = new FaIcon("fa-mobile-screen-button","far");
+	public static FaIcon faModx = new FaIcon("fa-modx","far");
+	public static FaIcon faMonero = new FaIcon("fa-monero","far");
+	public static FaIcon faMoneyBill = new FaIcon("fa-money-bill","far");
+	public static FaIcon faMoneyBill1 = new FaIcon("fa-money-bill-1","far");
+	public static FaIcon faMoneyBill1Wave = new FaIcon("fa-money-bill-1-wave","far");
+	public static FaIcon faMoneyBillAlt = new FaIcon("fa-money-bill-alt","far");
+	public static FaIcon faMoneyBillTransfer = new FaIcon("fa-money-bill-transfer","far");
+	public static FaIcon faMoneyBillTrendUp = new FaIcon("fa-money-bill-trend-up","far");
+	public static FaIcon faMoneyBillWave = new FaIcon("fa-money-bill-wave","far");
+	public static FaIcon faMoneyBillWaveAlt = new FaIcon("fa-money-bill-wave-alt","far");
+	public static FaIcon faMoneyBillWheat = new FaIcon("fa-money-bill-wheat","far");
+	public static FaIcon faMoneyBills = new FaIcon("fa-money-bills","far");
+	public static FaIcon faMoneyCheck = new FaIcon("fa-money-check","far");
+	public static FaIcon faMoneyCheckAlt = new FaIcon("fa-money-check-alt","far");
+	public static FaIcon faMoneyCheckDollar = new FaIcon("fa-money-check-dollar","far");
+	public static FaIcon faMonument = new FaIcon("fa-monument","far");
+	public static FaIcon faMoon = new FaIcon("fa-moon","far");
+	public static FaIcon faMortarBoard = new FaIcon("fa-mortar-board","far");
+	public static FaIcon faMortarPestle = new FaIcon("fa-mortar-pestle","far");
+	public static FaIcon faMosque = new FaIcon("fa-mosque","far");
+	public static FaIcon faMosquito = new FaIcon("fa-mosquito","far");
+	public static FaIcon faMosquitoNet = new FaIcon("fa-mosquito-net","far");
+	public static FaIcon faMotorcycle = new FaIcon("fa-motorcycle","far");
+	public static FaIcon faMound = new FaIcon("fa-mound","far");
+	public static FaIcon faMountain = new FaIcon("fa-mountain","far");
+	public static FaIcon faMountainCity = new FaIcon("fa-mountain-city","far");
+	public static FaIcon faMountainSun = new FaIcon("fa-mountain-sun","far");
+	public static FaIcon faMouse = new FaIcon("fa-mouse","far");
+	public static FaIcon faMousePointer = new FaIcon("fa-mouse-pointer","far");
+	public static FaIcon faMugHot = new FaIcon("fa-mug-hot","far");
+	public static FaIcon faMugSaucer = new FaIcon("fa-mug-saucer","far");
+	public static FaIcon faMultiply = new FaIcon("fa-multiply","far");
+	public static FaIcon faMuseum = new FaIcon("fa-museum","far");
+	public static FaIcon faMusic = new FaIcon("fa-music","far");
+	public static FaIcon faN = new FaIcon("fa-n","far");
+	public static FaIcon faNairaSign = new FaIcon("fa-naira-sign","far");
+	public static FaIcon faNapster = new FaIcon("fa-napster","far");
+	public static FaIcon faNavicon = new FaIcon("fa-navicon","far");
+	public static FaIcon faNeos = new FaIcon("fa-neos","far");
+	public static FaIcon faNetworkWired = new FaIcon("fa-network-wired","far");
+	public static FaIcon faNeuter = new FaIcon("fa-neuter","far");
+	public static FaIcon faNewspaper = new FaIcon("fa-newspaper","far");
+	public static FaIcon faNfcDirectional = new FaIcon("fa-nfc-directional","far");
+	public static FaIcon faNfcSymbol = new FaIcon("fa-nfc-symbol","far");
+	public static FaIcon faNimblr = new FaIcon("fa-nimblr","far");
+	public static FaIcon faNode = new FaIcon("fa-node","far");
+	public static FaIcon faNodeJs = new FaIcon("fa-node-js","far");
+	public static FaIcon faNotEqual = new FaIcon("fa-not-equal","far");
+	public static FaIcon faNoteSticky = new FaIcon("fa-note-sticky","far");
+	public static FaIcon faNotesMedical = new FaIcon("fa-notes-medical","far");
+	public static FaIcon faNpm = new FaIcon("fa-npm","far");
+	public static FaIcon faNs8 = new FaIcon("fa-ns8","far");
+	public static FaIcon faNutritionix = new FaIcon("fa-nutritionix","far");
+	public static FaIcon faO = new FaIcon("fa-o","far");
+	public static FaIcon faObjectGroup = new FaIcon("fa-object-group","far");
+	public static FaIcon faObjectUngroup = new FaIcon("fa-object-ungroup","far");
+	public static FaIcon faOctopusDeploy = new FaIcon("fa-octopus-deploy","far");
+	public static FaIcon faOdnoklassniki = new FaIcon("fa-odnoklassniki","far");
+	public static FaIcon faOdnoklassnikiSquare = new FaIcon("fa-odnoklassniki-square","far");
+	public static FaIcon faOilCan = new FaIcon("fa-oil-can","far");
+	public static FaIcon faOilWell = new FaIcon("fa-oil-well","far");
+	public static FaIcon faOldRepublic = new FaIcon("fa-old-republic","far");
+	public static FaIcon faOm = new FaIcon("fa-om","far");
+	public static FaIcon faOpencart = new FaIcon("fa-opencart","far");
+	public static FaIcon faOpenid = new FaIcon("fa-openid","far");
+	public static FaIcon faOpera = new FaIcon("fa-opera","far");
+	public static FaIcon faOptinMonster = new FaIcon("fa-optin-monster","far");
+	public static FaIcon faOrcid = new FaIcon("fa-orcid","far");
+	public static FaIcon faOsi = new FaIcon("fa-osi","far");
+	public static FaIcon faOtter = new FaIcon("fa-otter","far");
+	public static FaIcon faOutdent = new FaIcon("fa-outdent","far");
+	public static FaIcon faP = new FaIcon("fa-p","far");
+	public static FaIcon faPadlet = new FaIcon("fa-padlet","far");
+	public static FaIcon faPage4 = new FaIcon("fa-page4","far");
+	public static FaIcon faPagelines = new FaIcon("fa-pagelines","far");
+	public static FaIcon faPager = new FaIcon("fa-pager","far");
+	public static FaIcon faPaintBrush = new FaIcon("fa-paint-brush","far");
+	public static FaIcon faPaintRoller = new FaIcon("fa-paint-roller","far");
+	public static FaIcon faPaintbrush = new FaIcon("fa-paintbrush","far");
+	public static FaIcon faPalette = new FaIcon("fa-palette","far");
+	public static FaIcon faPalfed = new FaIcon("fa-palfed","far");
+	public static FaIcon faPallet = new FaIcon("fa-pallet","far");
+	public static FaIcon faPanorama = new FaIcon("fa-panorama","far");
+	public static FaIcon faPaperPlane = new FaIcon("fa-paper-plane","far");
+	public static FaIcon faPaperclip = new FaIcon("fa-paperclip","far");
+	public static FaIcon faParachuteBox = new FaIcon("fa-parachute-box","far");
+	public static FaIcon faParagraph = new FaIcon("fa-paragraph","far");
+	public static FaIcon faParking = new FaIcon("fa-parking","far");
+	public static FaIcon faPassport = new FaIcon("fa-passport","far");
+	public static FaIcon faPastafarianism = new FaIcon("fa-pastafarianism","far");
+	public static FaIcon faPaste = new FaIcon("fa-paste","far");
+	public static FaIcon faPatreon = new FaIcon("fa-patreon","far");
+	public static FaIcon faPause = new FaIcon("fa-pause","far");
+	public static FaIcon faPauseCircle = new FaIcon("fa-pause-circle","far");
+	public static FaIcon faPaw = new FaIcon("fa-paw","far");
+	public static FaIcon faPaypal = new FaIcon("fa-paypal","far");
+	public static FaIcon faPeace = new FaIcon("fa-peace","far");
+	public static FaIcon faPen = new FaIcon("fa-pen","far");
+	public static FaIcon faPenAlt = new FaIcon("fa-pen-alt","far");
+	public static FaIcon faPenClip = new FaIcon("fa-pen-clip","far");
+	public static FaIcon faPenFancy = new FaIcon("fa-pen-fancy","far");
+	public static FaIcon faPenNib = new FaIcon("fa-pen-nib","far");
+	public static FaIcon faPenRuler = new FaIcon("fa-pen-ruler","far");
+	public static FaIcon faPenSquare = new FaIcon("fa-pen-square","far");
+	public static FaIcon faPenToSquare = new FaIcon("fa-pen-to-square","far");
+	public static FaIcon faPencil = new FaIcon("fa-pencil","far");
+	public static FaIcon faPencilAlt = new FaIcon("fa-pencil-alt","far");
+	public static FaIcon faPencilRuler = new FaIcon("fa-pencil-ruler","far");
+	public static FaIcon faPencilSquare = new FaIcon("fa-pencil-square","far");
+	public static FaIcon faPeopleArrows = new FaIcon("fa-people-arrows","far");
+	public static FaIcon faPeopleArrowsLeftRight = new FaIcon("fa-people-arrows-left-right","far");
+	public static FaIcon faPeopleCarry = new FaIcon("fa-people-carry","far");
+	public static FaIcon faPeopleCarryBox = new FaIcon("fa-people-carry-box","far");
+	public static FaIcon faPeopleGroup = new FaIcon("fa-people-group","far");
+	public static FaIcon faPeopleLine = new FaIcon("fa-people-line","far");
+	public static FaIcon faPeoplePulling = new FaIcon("fa-people-pulling","far");
+	public static FaIcon faPeopleRobbery = new FaIcon("fa-people-robbery","far");
+	public static FaIcon faPeopleRoof = new FaIcon("fa-people-roof","far");
+	public static FaIcon faPepperHot = new FaIcon("fa-pepper-hot","far");
+	public static FaIcon faPerbyte = new FaIcon("fa-perbyte","far");
+	public static FaIcon faPercent = new FaIcon("fa-percent","far");
+	public static FaIcon faPercentage = new FaIcon("fa-percentage","far");
+	public static FaIcon faPeriscope = new FaIcon("fa-periscope","far");
+	public static FaIcon faPerson = new FaIcon("fa-person","far");
+	public static FaIcon faPersonArrowDownToLine = new FaIcon("fa-person-arrow-down-to-line","far");
+	public static FaIcon faPersonArrowUpFromLine = new FaIcon("fa-person-arrow-up-from-line","far");
+	public static FaIcon faPersonBiking = new FaIcon("fa-person-biking","far");
+	public static FaIcon faPersonBooth = new FaIcon("fa-person-booth","far");
+	public static FaIcon faPersonBreastfeeding = new FaIcon("fa-person-breastfeeding","far");
+	public static FaIcon faPersonBurst = new FaIcon("fa-person-burst","far");
+	public static FaIcon faPersonCane = new FaIcon("fa-person-cane","far");
+	public static FaIcon faPersonChalkboard = new FaIcon("fa-person-chalkboard","far");
+	public static FaIcon faPersonCircleCheck = new FaIcon("fa-person-circle-check","far");
+	public static FaIcon faPersonCircleExclamation = new FaIcon("fa-person-circle-exclamation","far");
+	public static FaIcon faPersonCircleMinus = new FaIcon("fa-person-circle-minus","far");
+	public static FaIcon faPersonCirclePlus = new FaIcon("fa-person-circle-plus","far");
+	public static FaIcon faPersonCircleQuestion = new FaIcon("fa-person-circle-question","far");
+	public static FaIcon faPersonCircleXmark = new FaIcon("fa-person-circle-xmark","far");
+	public static FaIcon faPersonDigging = new FaIcon("fa-person-digging","far");
+	public static FaIcon faPersonDotsFromLine = new FaIcon("fa-person-dots-from-line","far");
+	public static FaIcon faPersonDress = new FaIcon("fa-person-dress","far");
+	public static FaIcon faPersonDressBurst = new FaIcon("fa-person-dress-burst","far");
+	public static FaIcon faPersonDrowning = new FaIcon("fa-person-drowning","far");
+	public static FaIcon faPersonFalling = new FaIcon("fa-person-falling","far");
+	public static FaIcon faPersonFallingBurst = new FaIcon("fa-person-falling-burst","far");
+	public static FaIcon faPersonHalfDress = new FaIcon("fa-person-half-dress","far");
+	public static FaIcon faPersonHarassing = new FaIcon("fa-person-harassing","far");
+	public static FaIcon faPersonHiking = new FaIcon("fa-person-hiking","far");
+	public static FaIcon faPersonMilitaryPointing = new FaIcon("fa-person-military-pointing","far");
+	public static FaIcon faPersonMilitaryRifle = new FaIcon("fa-person-military-rifle","far");
+	public static FaIcon faPersonMilitaryToPerson = new FaIcon("fa-person-military-to-person","far");
+	public static FaIcon faPersonPraying = new FaIcon("fa-person-praying","far");
+	public static FaIcon faPersonPregnant = new FaIcon("fa-person-pregnant","far");
+	public static FaIcon faPersonRays = new FaIcon("fa-person-rays","far");
+	public static FaIcon faPersonRifle = new FaIcon("fa-person-rifle","far");
+	public static FaIcon faPersonRunning = new FaIcon("fa-person-running","far");
+	public static FaIcon faPersonShelter = new FaIcon("fa-person-shelter","far");
+	public static FaIcon faPersonSkating = new FaIcon("fa-person-skating","far");
+	public static FaIcon faPersonSkiing = new FaIcon("fa-person-skiing","far");
+	public static FaIcon faPersonSkiingNordic = new FaIcon("fa-person-skiing-nordic","far");
+	public static FaIcon faPersonSnowboarding = new FaIcon("fa-person-snowboarding","far");
+	public static FaIcon faPersonSwimming = new FaIcon("fa-person-swimming","far");
+	public static FaIcon faPersonThroughWindow = new FaIcon("fa-person-through-window","far");
+	public static FaIcon faPersonWalking = new FaIcon("fa-person-walking","far");
+	public static FaIcon faPersonWalkingArrowLoopLeft = new FaIcon("fa-person-walking-arrow-loop-left","far");
+	public static FaIcon faPersonWalkingArrowRight = new FaIcon("fa-person-walking-arrow-right","far");
+	public static FaIcon faPersonWalkingDashedLineArrowRight = new FaIcon("fa-person-walking-dashed-line-arrow-right","far");
+	public static FaIcon faPersonWalkingLuggage = new FaIcon("fa-person-walking-luggage","far");
+	public static FaIcon faPersonWalkingWithCane = new FaIcon("fa-person-walking-with-cane","far");
+	public static FaIcon faPesetaSign = new FaIcon("fa-peseta-sign","far");
+	public static FaIcon faPesoSign = new FaIcon("fa-peso-sign","far");
+	public static FaIcon faPhabricator = new FaIcon("fa-phabricator","far");
+	public static FaIcon faPhoenixFramework = new FaIcon("fa-phoenix-framework","far");
+	public static FaIcon faPhoenixSquadron = new FaIcon("fa-phoenix-squadron","far");
+	public static FaIcon faPhone = new FaIcon("fa-phone","far");
+	public static FaIcon faPhoneAlt = new FaIcon("fa-phone-alt","far");
+	public static FaIcon faPhoneFlip = new FaIcon("fa-phone-flip","far");
+	public static FaIcon faPhoneSlash = new FaIcon("fa-phone-slash","far");
+	public static FaIcon faPhoneSquare = new FaIcon("fa-phone-square","far");
+	public static FaIcon faPhoneSquareAlt = new FaIcon("fa-phone-square-alt","far");
+	public static FaIcon faPhoneVolume = new FaIcon("fa-phone-volume","far");
+	public static FaIcon faPhotoFilm = new FaIcon("fa-photo-film","far");
+	public static FaIcon faPhotoVideo = new FaIcon("fa-photo-video","far");
+	public static FaIcon faPhp = new FaIcon("fa-php","far");
+	public static FaIcon faPieChart = new FaIcon("fa-pie-chart","far");
+	public static FaIcon faPiedPiper = new FaIcon("fa-pied-piper","far");
+	public static FaIcon faPiedPiperAlt = new FaIcon("fa-pied-piper-alt","far");
+	public static FaIcon faPiedPiperHat = new FaIcon("fa-pied-piper-hat","far");
+	public static FaIcon faPiedPiperPp = new FaIcon("fa-pied-piper-pp","far");
+	public static FaIcon faPiedPiperSquare = new FaIcon("fa-pied-piper-square","far");
+	public static FaIcon faPiggyBank = new FaIcon("fa-piggy-bank","far");
+	public static FaIcon faPills = new FaIcon("fa-pills","far");
+	public static FaIcon faPingPongPaddleBall = new FaIcon("fa-ping-pong-paddle-ball","far");
+	public static FaIcon faPinterest = new FaIcon("fa-pinterest","far");
+	public static FaIcon faPinterestP = new FaIcon("fa-pinterest-p","far");
+	public static FaIcon faPinterestSquare = new FaIcon("fa-pinterest-square","far");
+	public static FaIcon faPix = new FaIcon("fa-pix","far");
+	public static FaIcon faPizzaSlice = new FaIcon("fa-pizza-slice","far");
+	public static FaIcon faPlaceOfWorship = new FaIcon("fa-place-of-worship","far");
+	public static FaIcon faPlane = new FaIcon("fa-plane","far");
+	public static FaIcon faPlaneArrival = new FaIcon("fa-plane-arrival","far");
+	public static FaIcon faPlaneCircleCheck = new FaIcon("fa-plane-circle-check","far");
+	public static FaIcon faPlaneCircleExclamation = new FaIcon("fa-plane-circle-exclamation","far");
+	public static FaIcon faPlaneCircleXmark = new FaIcon("fa-plane-circle-xmark","far");
+	public static FaIcon faPlaneDeparture = new FaIcon("fa-plane-departure","far");
+	public static FaIcon faPlaneLock = new FaIcon("fa-plane-lock","far");
+	public static FaIcon faPlaneSlash = new FaIcon("fa-plane-slash","far");
+	public static FaIcon faPlaneUp = new FaIcon("fa-plane-up","far");
+	public static FaIcon faPlantWilt = new FaIcon("fa-plant-wilt","far");
+	public static FaIcon faPlateWheat = new FaIcon("fa-plate-wheat","far");
+	public static FaIcon faPlay = new FaIcon("fa-play","far");
+	public static FaIcon faPlayCircle = new FaIcon("fa-play-circle","far");
+	public static FaIcon faPlaystation = new FaIcon("fa-playstation","far");
+	public static FaIcon faPlug = new FaIcon("fa-plug","far");
+	public static FaIcon faPlugCircleBolt = new FaIcon("fa-plug-circle-bolt","far");
+	public static FaIcon faPlugCircleCheck = new FaIcon("fa-plug-circle-check","far");
+	public static FaIcon faPlugCircleExclamation = new FaIcon("fa-plug-circle-exclamation","far");
+	public static FaIcon faPlugCircleMinus = new FaIcon("fa-plug-circle-minus","far");
+	public static FaIcon faPlugCirclePlus = new FaIcon("fa-plug-circle-plus","far");
+	public static FaIcon faPlugCircleXmark = new FaIcon("fa-plug-circle-xmark","far");
+	public static FaIcon faPlus = new FaIcon("fa-plus","far");
+	public static FaIcon faPlusCircle = new FaIcon("fa-plus-circle","far");
+	public static FaIcon faPlusMinus = new FaIcon("fa-plus-minus","far");
+	public static FaIcon faPlusSquare = new FaIcon("fa-plus-square","far");
+	public static FaIcon faPodcast = new FaIcon("fa-podcast","far");
+	public static FaIcon faPoll = new FaIcon("fa-poll","far");
+	public static FaIcon faPollH = new FaIcon("fa-poll-h","far");
+	public static FaIcon faPoo = new FaIcon("fa-poo","far");
+	public static FaIcon faPooBolt = new FaIcon("fa-poo-bolt","far");
+	public static FaIcon faPooStorm = new FaIcon("fa-poo-storm","far");
+	public static FaIcon faPoop = new FaIcon("fa-poop","far");
+	public static FaIcon faPortrait = new FaIcon("fa-portrait","far");
+	public static FaIcon faPoundSign = new FaIcon("fa-pound-sign","far");
+	public static FaIcon faPowerOff = new FaIcon("fa-power-off","far");
+	public static FaIcon faPray = new FaIcon("fa-pray","far");
+	public static FaIcon faPrayingHands = new FaIcon("fa-praying-hands","far");
+	public static FaIcon faPrescription = new FaIcon("fa-prescription","far");
+	public static FaIcon faPrescriptionBottle = new FaIcon("fa-prescription-bottle","far");
+	public static FaIcon faPrescriptionBottleAlt = new FaIcon("fa-prescription-bottle-alt","far");
+	public static FaIcon faPrescriptionBottleMedical = new FaIcon("fa-prescription-bottle-medical","far");
+	public static FaIcon faPrint = new FaIcon("fa-print","far");
+	public static FaIcon faProcedures = new FaIcon("fa-procedures","far");
+	public static FaIcon faProductHunt = new FaIcon("fa-product-hunt","far");
+	public static FaIcon faProjectDiagram = new FaIcon("fa-project-diagram","far");
+	public static FaIcon faPumpMedical = new FaIcon("fa-pump-medical","far");
+	public static FaIcon faPumpSoap = new FaIcon("fa-pump-soap","far");
+	public static FaIcon faPushed = new FaIcon("fa-pushed","far");
+	public static FaIcon faPuzzlePiece = new FaIcon("fa-puzzle-piece","far");
+	public static FaIcon faPython = new FaIcon("fa-python","far");
+	public static FaIcon faQ = new FaIcon("fa-q","far");
+	public static FaIcon faQq = new FaIcon("fa-qq","far");
+	public static FaIcon faQrcode = new FaIcon("fa-qrcode","far");
+	public static FaIcon faQuestion = new FaIcon("fa-question","far");
+	public static FaIcon faQuestionCircle = new FaIcon("fa-question-circle","far");
+	public static FaIcon faQuidditch = new FaIcon("fa-quidditch","far");
+	public static FaIcon faQuidditchBroomBall = new FaIcon("fa-quidditch-broom-ball","far");
+	public static FaIcon faQuinscape = new FaIcon("fa-quinscape","far");
+	public static FaIcon faQuora = new FaIcon("fa-quora","far");
+	public static FaIcon faQuoteLeft = new FaIcon("fa-quote-left","far");
+	public static FaIcon faQuoteLeftAlt = new FaIcon("fa-quote-left-alt","far");
+	public static FaIcon faQuoteRight = new FaIcon("fa-quote-right","far");
+	public static FaIcon faQuoteRightAlt = new FaIcon("fa-quote-right-alt","far");
+	public static FaIcon faQuran = new FaIcon("fa-quran","far");
+	public static FaIcon faR = new FaIcon("fa-r","far");
+	public static FaIcon faRProject = new FaIcon("fa-r-project","far");
+	public static FaIcon faRadiation = new FaIcon("fa-radiation","far");
+	public static FaIcon faRadiationAlt = new FaIcon("fa-radiation-alt","far");
+	public static FaIcon faRadio = new FaIcon("fa-radio","far");
+	public static FaIcon faRainbow = new FaIcon("fa-rainbow","far");
+	public static FaIcon faRandom = new FaIcon("fa-random","far");
+	public static FaIcon faRankingStar = new FaIcon("fa-ranking-star","far");
+	public static FaIcon faRaspberryPi = new FaIcon("fa-raspberry-pi","far");
+	public static FaIcon faRavelry = new FaIcon("fa-ravelry","far");
+	public static FaIcon faReact = new FaIcon("fa-react","far");
+	public static FaIcon faReacteurope = new FaIcon("fa-reacteurope","far");
+	public static FaIcon faReadme = new FaIcon("fa-readme","far");
+	public static FaIcon faRebel = new FaIcon("fa-rebel","far");
+	public static FaIcon faReceipt = new FaIcon("fa-receipt","far");
+	public static FaIcon faRecordVinyl = new FaIcon("fa-record-vinyl","far");
+	public static FaIcon faRectangleAd = new FaIcon("fa-rectangle-ad","far");
+	public static FaIcon faRectangleList = new FaIcon("fa-rectangle-list","far");
+	public static FaIcon faRectangleTimes = new FaIcon("fa-rectangle-times","far");
+	public static FaIcon faRectangleXmark = new FaIcon("fa-rectangle-xmark","far");
+	public static FaIcon faRecycle = new FaIcon("fa-recycle","far");
+	public static FaIcon faRedRiver = new FaIcon("fa-red-river","far");
+	public static FaIcon faReddit = new FaIcon("fa-reddit","far");
+	public static FaIcon faRedditAlien = new FaIcon("fa-reddit-alien","far");
+	public static FaIcon faRedditSquare = new FaIcon("fa-reddit-square","far");
+	public static FaIcon faRedhat = new FaIcon("fa-redhat","far");
+	public static FaIcon faRedo = new FaIcon("fa-redo","far");
+	public static FaIcon faRedoAlt = new FaIcon("fa-redo-alt","far");
+	public static FaIcon faRefresh = new FaIcon("fa-refresh","far");
+	public static FaIcon faRegistered = new FaIcon("fa-registered","far");
+	public static FaIcon faRemove = new FaIcon("fa-remove","far");
+	public static FaIcon faRemoveFormat = new FaIcon("fa-remove-format","far");
+	public static FaIcon faRenren = new FaIcon("fa-renren","far");
+	public static FaIcon faReorder = new FaIcon("fa-reorder","far");
+	public static FaIcon faRepeat = new FaIcon("fa-repeat","far");
+	public static FaIcon faReply = new FaIcon("fa-reply","far");
+	public static FaIcon faReplyAll = new FaIcon("fa-reply-all","far");
+	public static FaIcon faReplyd = new FaIcon("fa-replyd","far");
+	public static FaIcon faRepublican = new FaIcon("fa-republican","far");
+	public static FaIcon faResearchgate = new FaIcon("fa-researchgate","far");
+	public static FaIcon faResolving = new FaIcon("fa-resolving","far");
+	public static FaIcon faRestroom = new FaIcon("fa-restroom","far");
+	public static FaIcon faRetweet = new FaIcon("fa-retweet","far");
+	public static FaIcon faRev = new FaIcon("fa-rev","far");
+	public static FaIcon faRibbon = new FaIcon("fa-ribbon","far");
+	public static FaIcon faRightFromBracket = new FaIcon("fa-right-from-bracket","far");
+	public static FaIcon faRightLeft = new FaIcon("fa-right-left","far");
+	public static FaIcon faRightLong = new FaIcon("fa-right-long","far");
+	public static FaIcon faRightToBracket = new FaIcon("fa-right-to-bracket","far");
+	public static FaIcon faRing = new FaIcon("fa-ring","far");
+	public static FaIcon faRmb = new FaIcon("fa-rmb","far");
+	public static FaIcon faRoad = new FaIcon("fa-road","far");
+	public static FaIcon faRoadBarrier = new FaIcon("fa-road-barrier","far");
+	public static FaIcon faRoadBridge = new FaIcon("fa-road-bridge","far");
+	public static FaIcon faRoadCircleCheck = new FaIcon("fa-road-circle-check","far");
+	public static FaIcon faRoadCircleExclamation = new FaIcon("fa-road-circle-exclamation","far");
+	public static FaIcon faRoadCircleXmark = new FaIcon("fa-road-circle-xmark","far");
+	public static FaIcon faRoadLock = new FaIcon("fa-road-lock","far");
+	public static FaIcon faRoadSpikes = new FaIcon("fa-road-spikes","far");
+	public static FaIcon faRobot = new FaIcon("fa-robot","far");
+	public static FaIcon faRocket = new FaIcon("fa-rocket","far");
+	public static FaIcon faRocketchat = new FaIcon("fa-rocketchat","far");
+	public static FaIcon faRockrms = new FaIcon("fa-rockrms","far");
+	public static FaIcon faRodAsclepius = new FaIcon("fa-rod-asclepius","far");
+	public static FaIcon faRodSnake = new FaIcon("fa-rod-snake","far");
+	public static FaIcon faRotate = new FaIcon("fa-rotate","far");
+	public static FaIcon faRotateBack = new FaIcon("fa-rotate-back","far");
+	public static FaIcon faRotateBackward = new FaIcon("fa-rotate-backward","far");
+	public static FaIcon faRotateForward = new FaIcon("fa-rotate-forward","far");
+	public static FaIcon faRotateLeft = new FaIcon("fa-rotate-left","far");
+	public static FaIcon faRotateRight = new FaIcon("fa-rotate-right","far");
+	public static FaIcon faRouble = new FaIcon("fa-rouble","far");
+	public static FaIcon faRoute = new FaIcon("fa-route","far");
+	public static FaIcon faRss = new FaIcon("fa-rss","far");
+	public static FaIcon faRssSquare = new FaIcon("fa-rss-square","far");
+	public static FaIcon faRub = new FaIcon("fa-rub","far");
+	public static FaIcon faRuble = new FaIcon("fa-ruble","far");
+	public static FaIcon faRubleSign = new FaIcon("fa-ruble-sign","far");
+	public static FaIcon faRug = new FaIcon("fa-rug","far");
+	public static FaIcon faRuler = new FaIcon("fa-ruler","far");
+	public static FaIcon faRulerCombined = new FaIcon("fa-ruler-combined","far");
+	public static FaIcon faRulerHorizontal = new FaIcon("fa-ruler-horizontal","far");
+	public static FaIcon faRulerVertical = new FaIcon("fa-ruler-vertical","far");
+	public static FaIcon faRunning = new FaIcon("fa-running","far");
+	public static FaIcon faRupee = new FaIcon("fa-rupee","far");
+	public static FaIcon faRupeeSign = new FaIcon("fa-rupee-sign","far");
+	public static FaIcon faRupiahSign = new FaIcon("fa-rupiah-sign","far");
+	public static FaIcon faRust = new FaIcon("fa-rust","far");
+	public static FaIcon faS = new FaIcon("fa-s","far");
+	public static FaIcon faSackDollar = new FaIcon("fa-sack-dollar","far");
+	public static FaIcon faSackXmark = new FaIcon("fa-sack-xmark","far");
+	public static FaIcon faSadCry = new FaIcon("fa-sad-cry","far");
+	public static FaIcon faSadTear = new FaIcon("fa-sad-tear","far");
+	public static FaIcon faSafari = new FaIcon("fa-safari","far");
+	public static FaIcon faSailboat = new FaIcon("fa-sailboat","far");
+	public static FaIcon faSalesforce = new FaIcon("fa-salesforce","far");
+	public static FaIcon faSass = new FaIcon("fa-sass","far");
+	public static FaIcon faSatellite = new FaIcon("fa-satellite","far");
+	public static FaIcon faSatelliteDish = new FaIcon("fa-satellite-dish","far");
+	public static FaIcon faSave = new FaIcon("fa-save","far");
+	public static FaIcon faScaleBalanced = new FaIcon("fa-scale-balanced","far");
+	public static FaIcon faScaleUnbalanced = new FaIcon("fa-scale-unbalanced","far");
+	public static FaIcon faScaleUnbalancedFlip = new FaIcon("fa-scale-unbalanced-flip","far");
+	public static FaIcon faSchlix = new FaIcon("fa-schlix","far");
+	public static FaIcon faSchool = new FaIcon("fa-school","far");
+	public static FaIcon faSchoolCircleCheck = new FaIcon("fa-school-circle-check","far");
+	public static FaIcon faSchoolCircleExclamation = new FaIcon("fa-school-circle-exclamation","far");
+	public static FaIcon faSchoolCircleXmark = new FaIcon("fa-school-circle-xmark","far");
+	public static FaIcon faSchoolFlag = new FaIcon("fa-school-flag","far");
+	public static FaIcon faSchoolLock = new FaIcon("fa-school-lock","far");
+	public static FaIcon faScissors = new FaIcon("fa-scissors","far");
+	public static FaIcon faScreenpal = new FaIcon("fa-screenpal","far");
+	public static FaIcon faScrewdriver = new FaIcon("fa-screwdriver","far");
+	public static FaIcon faScrewdriverWrench = new FaIcon("fa-screwdriver-wrench","far");
+	public static FaIcon faScribd = new FaIcon("fa-scribd","far");
+	public static FaIcon faScroll = new FaIcon("fa-scroll","far");
+	public static FaIcon faScrollTorah = new FaIcon("fa-scroll-torah","far");
+	public static FaIcon faSdCard = new FaIcon("fa-sd-card","far");
+	public static FaIcon faSearch = new FaIcon("fa-search","far");
+	public static FaIcon faSearchDollar = new FaIcon("fa-search-dollar","far");
+	public static FaIcon faSearchLocation = new FaIcon("fa-search-location","far");
+	public static FaIcon faSearchMinus = new FaIcon("fa-search-minus","far");
+	public static FaIcon faSearchPlus = new FaIcon("fa-search-plus","far");
+	public static FaIcon faSearchengin = new FaIcon("fa-searchengin","far");
+	public static FaIcon faSection = new FaIcon("fa-section","far");
+	public static FaIcon faSeedling = new FaIcon("fa-seedling","far");
+	public static FaIcon faSellcast = new FaIcon("fa-sellcast","far");
+	public static FaIcon faSellsy = new FaIcon("fa-sellsy","far");
+	public static FaIcon faServer = new FaIcon("fa-server","far");
+	public static FaIcon faServicestack = new FaIcon("fa-servicestack","far");
+	public static FaIcon faShapes = new FaIcon("fa-shapes","far");
+	public static FaIcon faShare = new FaIcon("fa-share","far");
+	public static FaIcon faShareAlt = new FaIcon("fa-share-alt","far");
+	public static FaIcon faShareAltSquare = new FaIcon("fa-share-alt-square","far");
+	public static FaIcon faShareFromSquare = new FaIcon("fa-share-from-square","far");
+	public static FaIcon faShareNodes = new FaIcon("fa-share-nodes","far");
+	public static FaIcon faShareSquare = new FaIcon("fa-share-square","far");
+	public static FaIcon faSheetPlastic = new FaIcon("fa-sheet-plastic","far");
+	public static FaIcon faShekel = new FaIcon("fa-shekel","far");
+	public static FaIcon faShekelSign = new FaIcon("fa-shekel-sign","far");
+	public static FaIcon faSheqel = new FaIcon("fa-sheqel","far");
+	public static FaIcon faSheqelSign = new FaIcon("fa-sheqel-sign","far");
+	public static FaIcon faShield = new FaIcon("fa-shield","far");
+	public static FaIcon faShieldAlt = new FaIcon("fa-shield-alt","far");
+	public static FaIcon faShieldBlank = new FaIcon("fa-shield-blank","far");
+	public static FaIcon faShieldCat = new FaIcon("fa-shield-cat","far");
+	public static FaIcon faShieldDog = new FaIcon("fa-shield-dog","far");
+	public static FaIcon faShieldHalved = new FaIcon("fa-shield-halved","far");
+	public static FaIcon faShieldHeart = new FaIcon("fa-shield-heart","far");
+	public static FaIcon faShieldVirus = new FaIcon("fa-shield-virus","far");
+	public static FaIcon faShip = new FaIcon("fa-ship","far");
+	public static FaIcon faShippingFast = new FaIcon("fa-shipping-fast","far");
+	public static FaIcon faShirt = new FaIcon("fa-shirt","far");
+	public static FaIcon faShirtsinbulk = new FaIcon("fa-shirtsinbulk","far");
+	public static FaIcon faShoePrints = new FaIcon("fa-shoe-prints","far");
+	public static FaIcon faShop = new FaIcon("fa-shop","far");
+	public static FaIcon faShopLock = new FaIcon("fa-shop-lock","far");
+	public static FaIcon faShopSlash = new FaIcon("fa-shop-slash","far");
+	public static FaIcon faShopify = new FaIcon("fa-shopify","far");
+	public static FaIcon faShoppingBag = new FaIcon("fa-shopping-bag","far");
+	public static FaIcon faShoppingBasket = new FaIcon("fa-shopping-basket","far");
+	public static FaIcon faShoppingCart = new FaIcon("fa-shopping-cart","far");
+	public static FaIcon faShopware = new FaIcon("fa-shopware","far");
+	public static FaIcon faShower = new FaIcon("fa-shower","far");
+	public static FaIcon faShrimp = new FaIcon("fa-shrimp","far");
+	public static FaIcon faShuffle = new FaIcon("fa-shuffle","far");
+	public static FaIcon faShuttleSpace = new FaIcon("fa-shuttle-space","far");
+	public static FaIcon faShuttleVan = new FaIcon("fa-shuttle-van","far");
+	public static FaIcon faSign = new FaIcon("fa-sign","far");
+	public static FaIcon faSignHanging = new FaIcon("fa-sign-hanging","far");
+	public static FaIcon faSignIn = new FaIcon("fa-sign-in","far");
+	public static FaIcon faSignInAlt = new FaIcon("fa-sign-in-alt","far");
+	public static FaIcon faSignLanguage = new FaIcon("fa-sign-language","far");
+	public static FaIcon faSignOut = new FaIcon("fa-sign-out","far");
+	public static FaIcon faSignOutAlt = new FaIcon("fa-sign-out-alt","far");
+	public static FaIcon faSignal = new FaIcon("fa-signal","far");
+	public static FaIcon faSignal5 = new FaIcon("fa-signal-5","far");
+	public static FaIcon faSignalPerfect = new FaIcon("fa-signal-perfect","far");
+	public static FaIcon faSignature = new FaIcon("fa-signature","far");
+	public static FaIcon faSigning = new FaIcon("fa-signing","far");
+	public static FaIcon faSignsPost = new FaIcon("fa-signs-post","far");
+	public static FaIcon faSimCard = new FaIcon("fa-sim-card","far");
+	public static FaIcon faSimplybuilt = new FaIcon("fa-simplybuilt","far");
+	public static FaIcon faSink = new FaIcon("fa-sink","far");
+	public static FaIcon faSistrix = new FaIcon("fa-sistrix","far");
+	public static FaIcon faSitemap = new FaIcon("fa-sitemap","far");
+	public static FaIcon faSith = new FaIcon("fa-sith","far");
+	public static FaIcon faSitrox = new FaIcon("fa-sitrox","far");
+	public static FaIcon faSkating = new FaIcon("fa-skating","far");
+	public static FaIcon faSketch = new FaIcon("fa-sketch","far");
+	public static FaIcon faSkiing = new FaIcon("fa-skiing","far");
+	public static FaIcon faSkiingNordic = new FaIcon("fa-skiing-nordic","far");
+	public static FaIcon faSkull = new FaIcon("fa-skull","far");
+	public static FaIcon faSkullCrossbones = new FaIcon("fa-skull-crossbones","far");
+	public static FaIcon faSkyatlas = new FaIcon("fa-skyatlas","far");
+	public static FaIcon faSkype = new FaIcon("fa-skype","far");
+	public static FaIcon faSlack = new FaIcon("fa-slack","far");
+	public static FaIcon faSlackHash = new FaIcon("fa-slack-hash","far");
+	public static FaIcon faSlash = new FaIcon("fa-slash","far");
+	public static FaIcon faSleigh = new FaIcon("fa-sleigh","far");
+	public static FaIcon faSliders = new FaIcon("fa-sliders","far");
+	public static FaIcon faSlidersH = new FaIcon("fa-sliders-h","far");
+	public static FaIcon faSlideshare = new FaIcon("fa-slideshare","far");
+	public static FaIcon faSmile = new FaIcon("fa-smile","far");
+	public static FaIcon faSmileBeam = new FaIcon("fa-smile-beam","far");
+	public static FaIcon faSmileWink = new FaIcon("fa-smile-wink","far");
+	public static FaIcon faSmog = new FaIcon("fa-smog","far");
+	public static FaIcon faSmoking = new FaIcon("fa-smoking","far");
+	public static FaIcon faSmokingBan = new FaIcon("fa-smoking-ban","far");
+	public static FaIcon faSms = new FaIcon("fa-sms","far");
+	public static FaIcon faSnapchat = new FaIcon("fa-snapchat","far");
+	public static FaIcon faSnapchatGhost = new FaIcon("fa-snapchat-ghost","far");
+	public static FaIcon faSnapchatSquare = new FaIcon("fa-snapchat-square","far");
+	public static FaIcon faSnowboarding = new FaIcon("fa-snowboarding","far");
+	public static FaIcon faSnowflake = new FaIcon("fa-snowflake","far");
+	public static FaIcon faSnowman = new FaIcon("fa-snowman","far");
+	public static FaIcon faSnowplow = new FaIcon("fa-snowplow","far");
+	public static FaIcon faSoap = new FaIcon("fa-soap","far");
+	public static FaIcon faSoccerBall = new FaIcon("fa-soccer-ball","far");
+	public static FaIcon faSocks = new FaIcon("fa-socks","far");
+	public static FaIcon faSolarPanel = new FaIcon("fa-solar-panel","far");
+	public static FaIcon faSort = new FaIcon("fa-sort","far");
+	public static FaIcon faSortAlphaAsc = new FaIcon("fa-sort-alpha-asc","far");
+	public static FaIcon faSortAlphaDesc = new FaIcon("fa-sort-alpha-desc","far");
+	public static FaIcon faSortAlphaDown = new FaIcon("fa-sort-alpha-down","far");
+	public static FaIcon faSortAlphaDownAlt = new FaIcon("fa-sort-alpha-down-alt","far");
+	public static FaIcon faSortAlphaUp = new FaIcon("fa-sort-alpha-up","far");
+	public static FaIcon faSortAlphaUpAlt = new FaIcon("fa-sort-alpha-up-alt","far");
+	public static FaIcon faSortAmountAsc = new FaIcon("fa-sort-amount-asc","far");
+	public static FaIcon faSortAmountDesc = new FaIcon("fa-sort-amount-desc","far");
+	public static FaIcon faSortAmountDown = new FaIcon("fa-sort-amount-down","far");
+	public static FaIcon faSortAmountDownAlt = new FaIcon("fa-sort-amount-down-alt","far");
+	public static FaIcon faSortAmountUp = new FaIcon("fa-sort-amount-up","far");
+	public static FaIcon faSortAmountUpAlt = new FaIcon("fa-sort-amount-up-alt","far");
+	public static FaIcon faSortAsc = new FaIcon("fa-sort-asc","far");
+	public static FaIcon faSortDesc = new FaIcon("fa-sort-desc","far");
+	public static FaIcon faSortDown = new FaIcon("fa-sort-down","far");
+	public static FaIcon faSortNumericAsc = new FaIcon("fa-sort-numeric-asc","far");
+	public static FaIcon faSortNumericDesc = new FaIcon("fa-sort-numeric-desc","far");
+	public static FaIcon faSortNumericDown = new FaIcon("fa-sort-numeric-down","far");
+	public static FaIcon faSortNumericDownAlt = new FaIcon("fa-sort-numeric-down-alt","far");
+	public static FaIcon faSortNumericUp = new FaIcon("fa-sort-numeric-up","far");
+	public static FaIcon faSortNumericUpAlt = new FaIcon("fa-sort-numeric-up-alt","far");
+	public static FaIcon faSortUp = new FaIcon("fa-sort-up","far");
+	public static FaIcon faSoundcloud = new FaIcon("fa-soundcloud","far");
+	public static FaIcon faSourcetree = new FaIcon("fa-sourcetree","far");
+	public static FaIcon faSpa = new FaIcon("fa-spa","far");
+	public static FaIcon faSpaceShuttle = new FaIcon("fa-space-shuttle","far");
+	public static FaIcon faSpaghettiMonsterFlying = new FaIcon("fa-spaghetti-monster-flying","far");
+	public static FaIcon faSpeakap = new FaIcon("fa-speakap","far");
+	public static FaIcon faSpeakerDeck = new FaIcon("fa-speaker-deck","far");
+	public static FaIcon faSpellCheck = new FaIcon("fa-spell-check","far");
+	public static FaIcon faSpider = new FaIcon("fa-spider","far");
+	public static FaIcon faSpinner = new FaIcon("fa-spinner","far");
+	public static FaIcon faSplotch = new FaIcon("fa-splotch","far");
+	public static FaIcon faSpoon = new FaIcon("fa-spoon","far");
+	public static FaIcon faSpotify = new FaIcon("fa-spotify","far");
+	public static FaIcon faSprayCan = new FaIcon("fa-spray-can","far");
+	public static FaIcon faSprayCanSparkles = new FaIcon("fa-spray-can-sparkles","far");
+	public static FaIcon faSprout = new FaIcon("fa-sprout","far");
+	public static FaIcon faSquare = new FaIcon("fa-square","far");
+	public static FaIcon faSquareArrowUpRight = new FaIcon("fa-square-arrow-up-right","far");
+	public static FaIcon faSquareCaretDown = new FaIcon("fa-square-caret-down","far");
+	public static FaIcon faSquareCaretLeft = new FaIcon("fa-square-caret-left","far");
+	public static FaIcon faSquareCaretRight = new FaIcon("fa-square-caret-right","far");
+	public static FaIcon faSquareCaretUp = new FaIcon("fa-square-caret-up","far");
+	public static FaIcon faSquareCheck = new FaIcon("fa-square-check","far");
+	public static FaIcon faSquareEnvelope = new FaIcon("fa-square-envelope","far");
+	public static FaIcon faSquareFontAwesome = new FaIcon("fa-square-font-awesome","far");
+	public static FaIcon faSquareFontAwesomeStroke = new FaIcon("fa-square-font-awesome-stroke","far");
+	public static FaIcon faSquareFull = new FaIcon("fa-square-full","far");
+	public static FaIcon faSquareH = new FaIcon("fa-square-h","far");
+	public static FaIcon faSquareMinus = new FaIcon("fa-square-minus","far");
+	public static FaIcon faSquareNfi = new FaIcon("fa-square-nfi","far");
+	public static FaIcon faSquareParking = new FaIcon("fa-square-parking","far");
+	public static FaIcon faSquarePen = new FaIcon("fa-square-pen","far");
+	public static FaIcon faSquarePersonConfined = new FaIcon("fa-square-person-confined","far");
+	public static FaIcon faSquarePhone = new FaIcon("fa-square-phone","far");
+	public static FaIcon faSquarePhoneFlip = new FaIcon("fa-square-phone-flip","far");
+	public static FaIcon faSquarePlus = new FaIcon("fa-square-plus","far");
+	public static FaIcon faSquarePollHorizontal = new FaIcon("fa-square-poll-horizontal","far");
+	public static FaIcon faSquarePollVertical = new FaIcon("fa-square-poll-vertical","far");
+	public static FaIcon faSquareRootAlt = new FaIcon("fa-square-root-alt","far");
+	public static FaIcon faSquareRootVariable = new FaIcon("fa-square-root-variable","far");
+	public static FaIcon faSquareRss = new FaIcon("fa-square-rss","far");
+	public static FaIcon faSquareShareNodes = new FaIcon("fa-square-share-nodes","far");
+	public static FaIcon faSquareUpRight = new FaIcon("fa-square-up-right","far");
+	public static FaIcon faSquareVirus = new FaIcon("fa-square-virus","far");
+	public static FaIcon faSquareXmark = new FaIcon("fa-square-xmark","far");
+	public static FaIcon faSquarespace = new FaIcon("fa-squarespace","far");
+	public static FaIcon faStackExchange = new FaIcon("fa-stack-exchange","far");
+	public static FaIcon faStackOverflow = new FaIcon("fa-stack-overflow","far");
+	public static FaIcon faStackpath = new FaIcon("fa-stackpath","far");
+	public static FaIcon faStaffAesculapius = new FaIcon("fa-staff-aesculapius","far");
+	public static FaIcon faStaffSnake = new FaIcon("fa-staff-snake","far");
+	public static FaIcon faStairs = new FaIcon("fa-stairs","far");
+	public static FaIcon faStamp = new FaIcon("fa-stamp","far");
+	public static FaIcon faStar = new FaIcon("fa-star","far");
+	public static FaIcon faStarAndCrescent = new FaIcon("fa-star-and-crescent","far");
+	public static FaIcon faStarHalf = new FaIcon("fa-star-half","far");
+	public static FaIcon faStarHalfAlt = new FaIcon("fa-star-half-alt","far");
+	public static FaIcon faStarHalfStroke = new FaIcon("fa-star-half-stroke","far");
+	public static FaIcon faStarOfDavid = new FaIcon("fa-star-of-david","far");
+	public static FaIcon faStarOfLife = new FaIcon("fa-star-of-life","far");
+	public static FaIcon faStaylinked = new FaIcon("fa-staylinked","far");
+	public static FaIcon faSteam = new FaIcon("fa-steam","far");
+	public static FaIcon faSteamSquare = new FaIcon("fa-steam-square","far");
+	public static FaIcon faSteamSymbol = new FaIcon("fa-steam-symbol","far");
+	public static FaIcon faStepBackward = new FaIcon("fa-step-backward","far");
+	public static FaIcon faStepForward = new FaIcon("fa-step-forward","far");
+	public static FaIcon faSterlingSign = new FaIcon("fa-sterling-sign","far");
+	public static FaIcon faStethoscope = new FaIcon("fa-stethoscope","far");
+	public static FaIcon faStickerMule = new FaIcon("fa-sticker-mule","far");
+	public static FaIcon faStickyNote = new FaIcon("fa-sticky-note","far");
+	public static FaIcon faStop = new FaIcon("fa-stop","far");
+	public static FaIcon faStopCircle = new FaIcon("fa-stop-circle","far");
+	public static FaIcon faStopwatch = new FaIcon("fa-stopwatch","far");
+	public static FaIcon faStopwatch20 = new FaIcon("fa-stopwatch-20","far");
+	public static FaIcon faStore = new FaIcon("fa-store","far");
+	public static FaIcon faStoreAlt = new FaIcon("fa-store-alt","far");
+	public static FaIcon faStoreAltSlash = new FaIcon("fa-store-alt-slash","far");
+	public static FaIcon faStoreSlash = new FaIcon("fa-store-slash","far");
+	public static FaIcon faStrava = new FaIcon("fa-strava","far");
+	public static FaIcon faStream = new FaIcon("fa-stream","far");
+	public static FaIcon faStreetView = new FaIcon("fa-street-view","far");
+	public static FaIcon faStrikethrough = new FaIcon("fa-strikethrough","far");
+	public static FaIcon faStripe = new FaIcon("fa-stripe","far");
+	public static FaIcon faStripeS = new FaIcon("fa-stripe-s","far");
+	public static FaIcon faStroopwafel = new FaIcon("fa-stroopwafel","far");
+	public static FaIcon faStudiovinari = new FaIcon("fa-studiovinari","far");
+	public static FaIcon faStumbleupon = new FaIcon("fa-stumbleupon","far");
+	public static FaIcon faStumbleuponCircle = new FaIcon("fa-stumbleupon-circle","far");
+	public static FaIcon faSubscript = new FaIcon("fa-subscript","far");
+	public static FaIcon faSubtract = new FaIcon("fa-subtract","far");
+	public static FaIcon faSubway = new FaIcon("fa-subway","far");
+	public static FaIcon faSuitcase = new FaIcon("fa-suitcase","far");
+	public static FaIcon faSuitcaseMedical = new FaIcon("fa-suitcase-medical","far");
+	public static FaIcon faSuitcaseRolling = new FaIcon("fa-suitcase-rolling","far");
+	public static FaIcon faSun = new FaIcon("fa-sun","far");
+	public static FaIcon faSunPlantWilt = new FaIcon("fa-sun-plant-wilt","far");
+	public static FaIcon faSuperpowers = new FaIcon("fa-superpowers","far");
+	public static FaIcon faSuperscript = new FaIcon("fa-superscript","far");
+	public static FaIcon faSupple = new FaIcon("fa-supple","far");
+	public static FaIcon faSurprise = new FaIcon("fa-surprise","far");
+	public static FaIcon faSuse = new FaIcon("fa-suse","far");
+	public static FaIcon faSwatchbook = new FaIcon("fa-swatchbook","far");
+	public static FaIcon faSwift = new FaIcon("fa-swift","far");
+	public static FaIcon faSwimmer = new FaIcon("fa-swimmer","far");
+	public static FaIcon faSwimmingPool = new FaIcon("fa-swimming-pool","far");
+	public static FaIcon faSymfony = new FaIcon("fa-symfony","far");
+	public static FaIcon faSynagogue = new FaIcon("fa-synagogue","far");
+	public static FaIcon faSync = new FaIcon("fa-sync","far");
+	public static FaIcon faSyncAlt = new FaIcon("fa-sync-alt","far");
+	public static FaIcon faSyringe = new FaIcon("fa-syringe","far");
+	public static FaIcon faT = new FaIcon("fa-t","far");
+	public static FaIcon faTShirt = new FaIcon("fa-t-shirt","far");
+	public static FaIcon faTable = new FaIcon("fa-table","far");
+	public static FaIcon faTableCells = new FaIcon("fa-table-cells","far");
+	public static FaIcon faTableCellsLarge = new FaIcon("fa-table-cells-large","far");
+	public static FaIcon faTableColumns = new FaIcon("fa-table-columns","far");
+	public static FaIcon faTableList = new FaIcon("fa-table-list","far");
+	public static FaIcon faTableTennis = new FaIcon("fa-table-tennis","far");
+	public static FaIcon faTableTennisPaddleBall = new FaIcon("fa-table-tennis-paddle-ball","far");
+	public static FaIcon faTablet = new FaIcon("fa-tablet","far");
+	public static FaIcon faTabletAlt = new FaIcon("fa-tablet-alt","far");
+	public static FaIcon faTabletAndroid = new FaIcon("fa-tablet-android","far");
+	public static FaIcon faTabletButton = new FaIcon("fa-tablet-button","far");
+	public static FaIcon faTabletScreenButton = new FaIcon("fa-tablet-screen-button","far");
+	public static FaIcon faTablets = new FaIcon("fa-tablets","far");
+	public static FaIcon faTachographDigital = new FaIcon("fa-tachograph-digital","far");
+	public static FaIcon faTachometer = new FaIcon("fa-tachometer","far");
+	public static FaIcon faTachometerAlt = new FaIcon("fa-tachometer-alt","far");
+	public static FaIcon faTachometerAltAverage = new FaIcon("fa-tachometer-alt-average","far");
+	public static FaIcon faTachometerAltFast = new FaIcon("fa-tachometer-alt-fast","far");
+	public static FaIcon faTachometerAverage = new FaIcon("fa-tachometer-average","far");
+	public static FaIcon faTachometerFast = new FaIcon("fa-tachometer-fast","far");
+	public static FaIcon faTag = new FaIcon("fa-tag","far");
+	public static FaIcon faTags = new FaIcon("fa-tags","far");
+	public static FaIcon faTape = new FaIcon("fa-tape","far");
+	public static FaIcon faTarp = new FaIcon("fa-tarp","far");
+	public static FaIcon faTarpDroplet = new FaIcon("fa-tarp-droplet","far");
+	public static FaIcon faTasks = new FaIcon("fa-tasks","far");
+	public static FaIcon faTasksAlt = new FaIcon("fa-tasks-alt","far");
+	public static FaIcon faTaxi = new FaIcon("fa-taxi","far");
+	public static FaIcon faTeamspeak = new FaIcon("fa-teamspeak","far");
+	public static FaIcon faTeeth = new FaIcon("fa-teeth","far");
+	public static FaIcon faTeethOpen = new FaIcon("fa-teeth-open","far");
+	public static FaIcon faTelegram = new FaIcon("fa-telegram","far");
+	public static FaIcon faTelegramPlane = new FaIcon("fa-telegram-plane","far");
+	public static FaIcon faTeletype = new FaIcon("fa-teletype","far");
+	public static FaIcon faTelevision = new FaIcon("fa-television","far");
+	public static FaIcon faTemperature0 = new FaIcon("fa-temperature-0","far");
+	public static FaIcon faTemperature1 = new FaIcon("fa-temperature-1","far");
+	public static FaIcon faTemperature2 = new FaIcon("fa-temperature-2","far");
+	public static FaIcon faTemperature3 = new FaIcon("fa-temperature-3","far");
+	public static FaIcon faTemperature4 = new FaIcon("fa-temperature-4","far");
+	public static FaIcon faTemperatureArrowDown = new FaIcon("fa-temperature-arrow-down","far");
+	public static FaIcon faTemperatureArrowUp = new FaIcon("fa-temperature-arrow-up","far");
+	public static FaIcon faTemperatureDown = new FaIcon("fa-temperature-down","far");
+	public static FaIcon faTemperatureEmpty = new FaIcon("fa-temperature-empty","far");
+	public static FaIcon faTemperatureFull = new FaIcon("fa-temperature-full","far");
+	public static FaIcon faTemperatureHalf = new FaIcon("fa-temperature-half","far");
+	public static FaIcon faTemperatureHigh = new FaIcon("fa-temperature-high","far");
+	public static FaIcon faTemperatureLow = new FaIcon("fa-temperature-low","far");
+	public static FaIcon faTemperatureQuarter = new FaIcon("fa-temperature-quarter","far");
+	public static FaIcon faTemperatureThreeQuarters = new FaIcon("fa-temperature-three-quarters","far");
+	public static FaIcon faTemperatureUp = new FaIcon("fa-temperature-up","far");
+	public static FaIcon faTencentWeibo = new FaIcon("fa-tencent-weibo","far");
+	public static FaIcon faTenge = new FaIcon("fa-tenge","far");
+	public static FaIcon faTengeSign = new FaIcon("fa-tenge-sign","far");
+	public static FaIcon faTent = new FaIcon("fa-tent","far");
+	public static FaIcon faTentArrowDownToLine = new FaIcon("fa-tent-arrow-down-to-line","far");
+	public static FaIcon faTentArrowLeftRight = new FaIcon("fa-tent-arrow-left-right","far");
+	public static FaIcon faTentArrowTurnLeft = new FaIcon("fa-tent-arrow-turn-left","far");
+	public static FaIcon faTentArrowsDown = new FaIcon("fa-tent-arrows-down","far");
+	public static FaIcon faTents = new FaIcon("fa-tents","far");
+	public static FaIcon faTerminal = new FaIcon("fa-terminal","far");
+	public static FaIcon faTextHeight = new FaIcon("fa-text-height","far");
+	public static FaIcon faTextSlash = new FaIcon("fa-text-slash","far");
+	public static FaIcon faTextWidth = new FaIcon("fa-text-width","far");
+	public static FaIcon faTh = new FaIcon("fa-th","far");
+	public static FaIcon faThLarge = new FaIcon("fa-th-large","far");
+	public static FaIcon faThList = new FaIcon("fa-th-list","far");
+	public static FaIcon faTheRedYeti = new FaIcon("fa-the-red-yeti","far");
+	public static FaIcon faTheaterMasks = new FaIcon("fa-theater-masks","far");
+	public static FaIcon faThemeco = new FaIcon("fa-themeco","far");
+	public static FaIcon faThemeisle = new FaIcon("fa-themeisle","far");
+	public static FaIcon faThermometer = new FaIcon("fa-thermometer","far");
+	public static FaIcon faThermometer0 = new FaIcon("fa-thermometer-0","far");
+	public static FaIcon faThermometer1 = new FaIcon("fa-thermometer-1","far");
+	public static FaIcon faThermometer2 = new FaIcon("fa-thermometer-2","far");
+	public static FaIcon faThermometer3 = new FaIcon("fa-thermometer-3","far");
+	public static FaIcon faThermometer4 = new FaIcon("fa-thermometer-4","far");
+	public static FaIcon faThermometerEmpty = new FaIcon("fa-thermometer-empty","far");
+	public static FaIcon faThermometerFull = new FaIcon("fa-thermometer-full","far");
+	public static FaIcon faThermometerHalf = new FaIcon("fa-thermometer-half","far");
+	public static FaIcon faThermometerQuarter = new FaIcon("fa-thermometer-quarter","far");
+	public static FaIcon faThermometerThreeQuarters = new FaIcon("fa-thermometer-three-quarters","far");
+	public static FaIcon faThinkPeaks = new FaIcon("fa-think-peaks","far");
+	public static FaIcon faThumbTack = new FaIcon("fa-thumb-tack","far");
+	public static FaIcon faThumbsDown = new FaIcon("fa-thumbs-down","far");
+	public static FaIcon faThumbsUp = new FaIcon("fa-thumbs-up","far");
+	public static FaIcon faThumbtack = new FaIcon("fa-thumbtack","far");
+	public static FaIcon faThunderstorm = new FaIcon("fa-thunderstorm","far");
+	public static FaIcon faTicket = new FaIcon("fa-ticket","far");
+	public static FaIcon faTicketAlt = new FaIcon("fa-ticket-alt","far");
+	public static FaIcon faTicketSimple = new FaIcon("fa-ticket-simple","far");
+	public static FaIcon faTiktok = new FaIcon("fa-tiktok","far");
+	public static FaIcon faTimeline = new FaIcon("fa-timeline","far");
+	public static FaIcon faTimes = new FaIcon("fa-times","far");
+	public static FaIcon faTimesCircle = new FaIcon("fa-times-circle","far");
+	public static FaIcon faTimesRectangle = new FaIcon("fa-times-rectangle","far");
+	public static FaIcon faTimesSquare = new FaIcon("fa-times-square","far");
+	public static FaIcon faTint = new FaIcon("fa-tint","far");
+	public static FaIcon faTintSlash = new FaIcon("fa-tint-slash","far");
+	public static FaIcon faTired = new FaIcon("fa-tired","far");
+	public static FaIcon faToggleOff = new FaIcon("fa-toggle-off","far");
+	public static FaIcon faToggleOn = new FaIcon("fa-toggle-on","far");
+	public static FaIcon faToilet = new FaIcon("fa-toilet","far");
+	public static FaIcon faToiletPaper = new FaIcon("fa-toilet-paper","far");
+	public static FaIcon faToiletPaperSlash = new FaIcon("fa-toilet-paper-slash","far");
+	public static FaIcon faToiletPortable = new FaIcon("fa-toilet-portable","far");
+	public static FaIcon faToiletsPortable = new FaIcon("fa-toilets-portable","far");
+	public static FaIcon faToolbox = new FaIcon("fa-toolbox","far");
+	public static FaIcon faTools = new FaIcon("fa-tools","far");
+	public static FaIcon faTooth = new FaIcon("fa-tooth","far");
+	public static FaIcon faTorah = new FaIcon("fa-torah","far");
+	public static FaIcon faToriiGate = new FaIcon("fa-torii-gate","far");
+	public static FaIcon faTornado = new FaIcon("fa-tornado","far");
+	public static FaIcon faTowerBroadcast = new FaIcon("fa-tower-broadcast","far");
+	public static FaIcon faTowerCell = new FaIcon("fa-tower-cell","far");
+	public static FaIcon faTowerObservation = new FaIcon("fa-tower-observation","far");
+	public static FaIcon faTractor = new FaIcon("fa-tractor","far");
+	public static FaIcon faTradeFederation = new FaIcon("fa-trade-federation","far");
+	public static FaIcon faTrademark = new FaIcon("fa-trademark","far");
+	public static FaIcon faTrafficLight = new FaIcon("fa-traffic-light","far");
+	public static FaIcon faTrailer = new FaIcon("fa-trailer","far");
+	public static FaIcon faTrain = new FaIcon("fa-train","far");
+	public static FaIcon faTrainSubway = new FaIcon("fa-train-subway","far");
+	public static FaIcon faTrainTram = new FaIcon("fa-train-tram","far");
+	public static FaIcon faTram = new FaIcon("fa-tram","far");
+	public static FaIcon faTransgender = new FaIcon("fa-transgender","far");
+	public static FaIcon faTransgenderAlt = new FaIcon("fa-transgender-alt","far");
+	public static FaIcon faTrash = new FaIcon("fa-trash","far");
+	public static FaIcon faTrashAlt = new FaIcon("fa-trash-alt","far");
+	public static FaIcon faTrashArrowUp = new FaIcon("fa-trash-arrow-up","far");
+	public static FaIcon faTrashCan = new FaIcon("fa-trash-can","far");
+	public static FaIcon faTrashCanArrowUp = new FaIcon("fa-trash-can-arrow-up","far");
+	public static FaIcon faTrashRestore = new FaIcon("fa-trash-restore","far");
+	public static FaIcon faTrashRestoreAlt = new FaIcon("fa-trash-restore-alt","far");
+	public static FaIcon faTree = new FaIcon("fa-tree","far");
+	public static FaIcon faTreeCity = new FaIcon("fa-tree-city","far");
+	public static FaIcon faTrello = new FaIcon("fa-trello","far");
+	public static FaIcon faTriangleCircleSquare = new FaIcon("fa-triangle-circle-square","far");
+	public static FaIcon faTriangleExclamation = new FaIcon("fa-triangle-exclamation","far");
+	public static FaIcon faTrophy = new FaIcon("fa-trophy","far");
+	public static FaIcon faTrowel = new FaIcon("fa-trowel","far");
+	public static FaIcon faTrowelBricks = new FaIcon("fa-trowel-bricks","far");
+	public static FaIcon faTruck = new FaIcon("fa-truck","far");
+	public static FaIcon faTruckArrowRight = new FaIcon("fa-truck-arrow-right","far");
+	public static FaIcon faTruckDroplet = new FaIcon("fa-truck-droplet","far");
+	public static FaIcon faTruckFast = new FaIcon("fa-truck-fast","far");
+	public static FaIcon faTruckField = new FaIcon("fa-truck-field","far");
+	public static FaIcon faTruckFieldUn = new FaIcon("fa-truck-field-un","far");
+	public static FaIcon faTruckFront = new FaIcon("fa-truck-front","far");
+	public static FaIcon faTruckLoading = new FaIcon("fa-truck-loading","far");
+	public static FaIcon faTruckMedical = new FaIcon("fa-truck-medical","far");
+	public static FaIcon faTruckMonster = new FaIcon("fa-truck-monster","far");
+	public static FaIcon faTruckMoving = new FaIcon("fa-truck-moving","far");
+	public static FaIcon faTruckPickup = new FaIcon("fa-truck-pickup","far");
+	public static FaIcon faTruckPlane = new FaIcon("fa-truck-plane","far");
+	public static FaIcon faTruckRampBox = new FaIcon("fa-truck-ramp-box","far");
+	public static FaIcon faTry = new FaIcon("fa-try","far");
+	public static FaIcon faTshirt = new FaIcon("fa-tshirt","far");
+	public static FaIcon faTty = new FaIcon("fa-tty","far");
+	public static FaIcon faTumblr = new FaIcon("fa-tumblr","far");
+	public static FaIcon faTumblrSquare = new FaIcon("fa-tumblr-square","far");
+	public static FaIcon faTurkishLira = new FaIcon("fa-turkish-lira","far");
+	public static FaIcon faTurkishLiraSign = new FaIcon("fa-turkish-lira-sign","far");
+	public static FaIcon faTurnDown = new FaIcon("fa-turn-down","far");
+	public static FaIcon faTurnUp = new FaIcon("fa-turn-up","far");
+	public static FaIcon faTv = new FaIcon("fa-tv","far");
+	public static FaIcon faTvAlt = new FaIcon("fa-tv-alt","far");
+	public static FaIcon faTwitch = new FaIcon("fa-twitch","far");
+	public static FaIcon faTwitter = new FaIcon("fa-twitter","far");
+	public static FaIcon faTwitterSquare = new FaIcon("fa-twitter-square","far");
+	public static FaIcon faTypo3 = new FaIcon("fa-typo3","far");
+	public static FaIcon faU = new FaIcon("fa-u","far");
+	public static FaIcon faUber = new FaIcon("fa-uber","far");
+	public static FaIcon faUbuntu = new FaIcon("fa-ubuntu","far");
+	public static FaIcon faUikit = new FaIcon("fa-uikit","far");
+	public static FaIcon faUmbraco = new FaIcon("fa-umbraco","far");
+	public static FaIcon faUmbrella = new FaIcon("fa-umbrella","far");
+	public static FaIcon faUmbrellaBeach = new FaIcon("fa-umbrella-beach","far");
+	public static FaIcon faUncharted = new FaIcon("fa-uncharted","far");
+	public static FaIcon faUnderline = new FaIcon("fa-underline","far");
+	public static FaIcon faUndo = new FaIcon("fa-undo","far");
+	public static FaIcon faUndoAlt = new FaIcon("fa-undo-alt","far");
+	public static FaIcon faUniregistry = new FaIcon("fa-uniregistry","far");
+	public static FaIcon faUnity = new FaIcon("fa-unity","far");
+	public static FaIcon faUniversalAccess = new FaIcon("fa-universal-access","far");
+	public static FaIcon faUniversity = new FaIcon("fa-university","far");
+	public static FaIcon faUnlink = new FaIcon("fa-unlink","far");
+	public static FaIcon faUnlock = new FaIcon("fa-unlock","far");
+	public static FaIcon faUnlockAlt = new FaIcon("fa-unlock-alt","far");
+	public static FaIcon faUnlockKeyhole = new FaIcon("fa-unlock-keyhole","far");
+	public static FaIcon faUnsorted = new FaIcon("fa-unsorted","far");
+	public static FaIcon faUnsplash = new FaIcon("fa-unsplash","far");
+	public static FaIcon faUntappd = new FaIcon("fa-untappd","far");
+	public static FaIcon faUpDown = new FaIcon("fa-up-down","far");
+	public static FaIcon faUpDownLeftRight = new FaIcon("fa-up-down-left-right","far");
+	public static FaIcon faUpLong = new FaIcon("fa-up-long","far");
+	public static FaIcon faUpRightAndDownLeftFromCenter = new FaIcon("fa-up-right-and-down-left-from-center","far");
+	public static FaIcon faUpRightFromSquare = new FaIcon("fa-up-right-from-square","far");
+	public static FaIcon faUpload = new FaIcon("fa-upload","far");
+	public static FaIcon faUps = new FaIcon("fa-ups","far");
+	public static FaIcon faUsb = new FaIcon("fa-usb","far");
+	public static FaIcon faUsd = new FaIcon("fa-usd","far");
+	public static FaIcon faUser = new FaIcon("fa-user","far");
+	public static FaIcon faUserAlt = new FaIcon("fa-user-alt","far");
+	public static FaIcon faUserAltSlash = new FaIcon("fa-user-alt-slash","far");
+	public static FaIcon faUserAstronaut = new FaIcon("fa-user-astronaut","far");
+	public static FaIcon faUserCheck = new FaIcon("fa-user-check","far");
+	public static FaIcon faUserCircle = new FaIcon("fa-user-circle","far");
+	public static FaIcon faUserClock = new FaIcon("fa-user-clock","far");
+	public static FaIcon faUserCog = new FaIcon("fa-user-cog","far");
+	public static FaIcon faUserDoctor = new FaIcon("fa-user-doctor","far");
+	public static FaIcon faUserEdit = new FaIcon("fa-user-edit","far");
+	public static FaIcon faUserFriends = new FaIcon("fa-user-friends","far");
+	public static FaIcon faUserGear = new FaIcon("fa-user-gear","far");
+	public static FaIcon faUserGraduate = new FaIcon("fa-user-graduate","far");
+	public static FaIcon faUserGroup = new FaIcon("fa-user-group","far");
+	public static FaIcon faUserInjured = new FaIcon("fa-user-injured","far");
+	public static FaIcon faUserLarge = new FaIcon("fa-user-large","far");
+	public static FaIcon faUserLargeSlash = new FaIcon("fa-user-large-slash","far");
+	public static FaIcon faUserLock = new FaIcon("fa-user-lock","far");
+	public static FaIcon faUserMd = new FaIcon("fa-user-md","far");
+	public static FaIcon faUserMinus = new FaIcon("fa-user-minus","far");
+	public static FaIcon faUserNinja = new FaIcon("fa-user-ninja","far");
+	public static FaIcon faUserNurse = new FaIcon("fa-user-nurse","far");
+	public static FaIcon faUserPen = new FaIcon("fa-user-pen","far");
+	public static FaIcon faUserPlus = new FaIcon("fa-user-plus","far");
+	public static FaIcon faUserSecret = new FaIcon("fa-user-secret","far");
+	public static FaIcon faUserShield = new FaIcon("fa-user-shield","far");
+	public static FaIcon faUserSlash = new FaIcon("fa-user-slash","far");
+	public static FaIcon faUserTag = new FaIcon("fa-user-tag","far");
+	public static FaIcon faUserTie = new FaIcon("fa-user-tie","far");
+	public static FaIcon faUserTimes = new FaIcon("fa-user-times","far");
+	public static FaIcon faUserXmark = new FaIcon("fa-user-xmark","far");
+	public static FaIcon faUsers = new FaIcon("fa-users","far");
+	public static FaIcon faUsersBetweenLines = new FaIcon("fa-users-between-lines","far");
+	public static FaIcon faUsersCog = new FaIcon("fa-users-cog","far");
+	public static FaIcon faUsersGear = new FaIcon("fa-users-gear","far");
+	public static FaIcon faUsersLine = new FaIcon("fa-users-line","far");
+	public static FaIcon faUsersRays = new FaIcon("fa-users-rays","far");
+	public static FaIcon faUsersRectangle = new FaIcon("fa-users-rectangle","far");
+	public static FaIcon faUsersSlash = new FaIcon("fa-users-slash","far");
+	public static FaIcon faUsersViewfinder = new FaIcon("fa-users-viewfinder","far");
+	public static FaIcon faUsps = new FaIcon("fa-usps","far");
+	public static FaIcon faUssunnah = new FaIcon("fa-ussunnah","far");
+	public static FaIcon faUtensilSpoon = new FaIcon("fa-utensil-spoon","far");
+	public static FaIcon faUtensils = new FaIcon("fa-utensils","far");
+	public static FaIcon faV = new FaIcon("fa-v","far");
+	public static FaIcon faVaadin = new FaIcon("fa-vaadin","far");
+	public static FaIcon faVanShuttle = new FaIcon("fa-van-shuttle","far");
+	public static FaIcon faVault = new FaIcon("fa-vault","far");
+	public static FaIcon faVcard = new FaIcon("fa-vcard","far");
+	public static FaIcon faVectorSquare = new FaIcon("fa-vector-square","far");
+	public static FaIcon faVenus = new FaIcon("fa-venus","far");
+	public static FaIcon faVenusDouble = new FaIcon("fa-venus-double","far");
+	public static FaIcon faVenusMars = new FaIcon("fa-venus-mars","far");
+	public static FaIcon faVest = new FaIcon("fa-vest","far");
+	public static FaIcon faVestPatches = new FaIcon("fa-vest-patches","far");
+	public static FaIcon faViacoin = new FaIcon("fa-viacoin","far");
+	public static FaIcon faViadeo = new FaIcon("fa-viadeo","far");
+	public static FaIcon faViadeoSquare = new FaIcon("fa-viadeo-square","far");
+	public static FaIcon faVial = new FaIcon("fa-vial","far");
+	public static FaIcon faVialCircleCheck = new FaIcon("fa-vial-circle-check","far");
+	public static FaIcon faVialVirus = new FaIcon("fa-vial-virus","far");
+	public static FaIcon faVials = new FaIcon("fa-vials","far");
+	public static FaIcon faViber = new FaIcon("fa-viber","far");
+	public static FaIcon faVideo = new FaIcon("fa-video","far");
+	public static FaIcon faVideoCamera = new FaIcon("fa-video-camera","far");
+	public static FaIcon faVideoSlash = new FaIcon("fa-video-slash","far");
+	public static FaIcon faVihara = new FaIcon("fa-vihara","far");
+	public static FaIcon faVimeo = new FaIcon("fa-vimeo","far");
+	public static FaIcon faVimeoSquare = new FaIcon("fa-vimeo-square","far");
+	public static FaIcon faVimeoV = new FaIcon("fa-vimeo-v","far");
+	public static FaIcon faVine = new FaIcon("fa-vine","far");
+	public static FaIcon faVirus = new FaIcon("fa-virus","far");
+	public static FaIcon faVirusCovid = new FaIcon("fa-virus-covid","far");
+	public static FaIcon faVirusCovidSlash = new FaIcon("fa-virus-covid-slash","far");
+	public static FaIcon faVirusSlash = new FaIcon("fa-virus-slash","far");
+	public static FaIcon faViruses = new FaIcon("fa-viruses","far");
+	public static FaIcon faVk = new FaIcon("fa-vk","far");
+	public static FaIcon faVnv = new FaIcon("fa-vnv","far");
+	public static FaIcon faVoicemail = new FaIcon("fa-voicemail","far");
+	public static FaIcon faVolcano = new FaIcon("fa-volcano","far");
+	public static FaIcon faVolleyball = new FaIcon("fa-volleyball","far");
+	public static FaIcon faVolleyballBall = new FaIcon("fa-volleyball-ball","far");
+	public static FaIcon faVolumeControlPhone = new FaIcon("fa-volume-control-phone","far");
+	public static FaIcon faVolumeDown = new FaIcon("fa-volume-down","far");
+	public static FaIcon faVolumeHigh = new FaIcon("fa-volume-high","far");
+	public static FaIcon faVolumeLow = new FaIcon("fa-volume-low","far");
+	public static FaIcon faVolumeMute = new FaIcon("fa-volume-mute","far");
+	public static FaIcon faVolumeOff = new FaIcon("fa-volume-off","far");
+	public static FaIcon faVolumeTimes = new FaIcon("fa-volume-times","far");
+	public static FaIcon faVolumeUp = new FaIcon("fa-volume-up","far");
+	public static FaIcon faVolumeXmark = new FaIcon("fa-volume-xmark","far");
+	public static FaIcon faVoteYea = new FaIcon("fa-vote-yea","far");
+	public static FaIcon faVrCardboard = new FaIcon("fa-vr-cardboard","far");
+	public static FaIcon faVuejs = new FaIcon("fa-vuejs","far");
+	public static FaIcon faW = new FaIcon("fa-w","far");
+	public static FaIcon faWalkieTalkie = new FaIcon("fa-walkie-talkie","far");
+	public static FaIcon faWalking = new FaIcon("fa-walking","far");
+	public static FaIcon faWallet = new FaIcon("fa-wallet","far");
+	public static FaIcon faWandMagic = new FaIcon("fa-wand-magic","far");
+	public static FaIcon faWandMagicSparkles = new FaIcon("fa-wand-magic-sparkles","far");
+	public static FaIcon faWandSparkles = new FaIcon("fa-wand-sparkles","far");
+	public static FaIcon faWarehouse = new FaIcon("fa-warehouse","far");
+	public static FaIcon faWarning = new FaIcon("fa-warning","far");
+	public static FaIcon faWatchmanMonitoring = new FaIcon("fa-watchman-monitoring","far");
+	public static FaIcon faWater = new FaIcon("fa-water","far");
+	public static FaIcon faWaterLadder = new FaIcon("fa-water-ladder","far");
+	public static FaIcon faWaveSquare = new FaIcon("fa-wave-square","far");
+	public static FaIcon faWaze = new FaIcon("fa-waze","far");
+	public static FaIcon faWeebly = new FaIcon("fa-weebly","far");
+	public static FaIcon faWeibo = new FaIcon("fa-weibo","far");
+	public static FaIcon faWeight = new FaIcon("fa-weight","far");
+	public static FaIcon faWeightHanging = new FaIcon("fa-weight-hanging","far");
+	public static FaIcon faWeightScale = new FaIcon("fa-weight-scale","far");
+	public static FaIcon faWeixin = new FaIcon("fa-weixin","far");
+	public static FaIcon faWhatsapp = new FaIcon("fa-whatsapp","far");
+	public static FaIcon faWhatsappSquare = new FaIcon("fa-whatsapp-square","far");
+	public static FaIcon faWheatAlt = new FaIcon("fa-wheat-alt","far");
+	public static FaIcon faWheatAwn = new FaIcon("fa-wheat-awn","far");
+	public static FaIcon faWheatAwnCircleExclamation = new FaIcon("fa-wheat-awn-circle-exclamation","far");
+	public static FaIcon faWheelchair = new FaIcon("fa-wheelchair","far");
+	public static FaIcon faWheelchairAlt = new FaIcon("fa-wheelchair-alt","far");
+	public static FaIcon faWheelchairMove = new FaIcon("fa-wheelchair-move","far");
+	public static FaIcon faWhiskeyGlass = new FaIcon("fa-whiskey-glass","far");
+	public static FaIcon faWhmcs = new FaIcon("fa-whmcs","far");
+	public static FaIcon faWifi = new FaIcon("fa-wifi","far");
+	public static FaIcon faWifi3 = new FaIcon("fa-wifi-3","far");
+	public static FaIcon faWifiStrong = new FaIcon("fa-wifi-strong","far");
+	public static FaIcon faWikipediaW = new FaIcon("fa-wikipedia-w","far");
+	public static FaIcon faWind = new FaIcon("fa-wind","far");
+	public static FaIcon faWindowClose = new FaIcon("fa-window-close","far");
+	public static FaIcon faWindowMaximize = new FaIcon("fa-window-maximize","far");
+	public static FaIcon faWindowMinimize = new FaIcon("fa-window-minimize","far");
+	public static FaIcon faWindowRestore = new FaIcon("fa-window-restore","far");
+	public static FaIcon faWindows = new FaIcon("fa-windows","far");
+	public static FaIcon faWineBottle = new FaIcon("fa-wine-bottle","far");
+	public static FaIcon faWineGlass = new FaIcon("fa-wine-glass","far");
+	public static FaIcon faWineGlassAlt = new FaIcon("fa-wine-glass-alt","far");
+	public static FaIcon faWineGlassEmpty = new FaIcon("fa-wine-glass-empty","far");
+	public static FaIcon faWirsindhandwerk = new FaIcon("fa-wirsindhandwerk","far");
+	public static FaIcon faWix = new FaIcon("fa-wix","far");
+	public static FaIcon faWizardsOfTheCoast = new FaIcon("fa-wizards-of-the-coast","far");
+	public static FaIcon faWodu = new FaIcon("fa-wodu","far");
+	public static FaIcon faWolfPackBattalion = new FaIcon("fa-wolf-pack-battalion","far");
+	public static FaIcon faWon = new FaIcon("fa-won","far");
+	public static FaIcon faWonSign = new FaIcon("fa-won-sign","far");
+	public static FaIcon faWordpress = new FaIcon("fa-wordpress","far");
+	public static FaIcon faWordpressSimple = new FaIcon("fa-wordpress-simple","far");
+	public static FaIcon faWorm = new FaIcon("fa-worm","far");
+	public static FaIcon faWpbeginner = new FaIcon("fa-wpbeginner","far");
+	public static FaIcon faWpexplorer = new FaIcon("fa-wpexplorer","far");
+	public static FaIcon faWpforms = new FaIcon("fa-wpforms","far");
+	public static FaIcon faWpressr = new FaIcon("fa-wpressr","far");
+	public static FaIcon faWrench = new FaIcon("fa-wrench","far");
+	public static FaIcon faWsh = new FaIcon("fa-wsh","far");
+	public static FaIcon faX = new FaIcon("fa-x","far");
+	public static FaIcon faXRay = new FaIcon("fa-x-ray","far");
+	public static FaIcon faXbox = new FaIcon("fa-xbox","far");
+	public static FaIcon faXing = new FaIcon("fa-xing","far");
+	public static FaIcon faXingSquare = new FaIcon("fa-xing-square","far");
+	public static FaIcon faXmark = new FaIcon("fa-xmark","far");
+	public static FaIcon faXmarkCircle = new FaIcon("fa-xmark-circle","far");
+	public static FaIcon faXmarkSquare = new FaIcon("fa-xmark-square","far");
+	public static FaIcon faXmarksLines = new FaIcon("fa-xmarks-lines","far");
+	public static FaIcon faY = new FaIcon("fa-y","far");
+	public static FaIcon faYCombinator = new FaIcon("fa-y-combinator","far");
+	public static FaIcon faYahoo = new FaIcon("fa-yahoo","far");
+	public static FaIcon faYammer = new FaIcon("fa-yammer","far");
+	public static FaIcon faYandex = new FaIcon("fa-yandex","far");
+	public static FaIcon faYandexInternational = new FaIcon("fa-yandex-international","far");
+	public static FaIcon faYarn = new FaIcon("fa-yarn","far");
+	public static FaIcon faYelp = new FaIcon("fa-yelp","far");
+	public static FaIcon faYen = new FaIcon("fa-yen","far");
+	public static FaIcon faYenSign = new FaIcon("fa-yen-sign","far");
+	public static FaIcon faYinYang = new FaIcon("fa-yin-yang","far");
+	public static FaIcon faYoast = new FaIcon("fa-yoast","far");
+	public static FaIcon faYoutube = new FaIcon("fa-youtube","far");
+	public static FaIcon faYoutubeSquare = new FaIcon("fa-youtube-square","far");
+	public static FaIcon faZ = new FaIcon("fa-z","far");
+	public static FaIcon faZap = new FaIcon("fa-zap","far");
+	public static FaIcon faZhihu = new FaIcon("fa-zhihu","far");
 	///--- END ICONS
 	;
 
 	///--- BEGIN MAP
-	@Generated("Generated")
 	static public void initializeIcons() {
 		Icon.setIcon(Icon.fa500px, FaIcon.fa500px);
 		Icon.setIcon(Icon.faAddressBook, FaIcon.faAddressBook);
@@ -1289,23 +2460,23 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faAngleUp, FaIcon.faAngleUp);
 		Icon.setIcon(Icon.faApple, FaIcon.faApple);
 		Icon.setIcon(Icon.faArchive, FaIcon.faArchive);
-		Icon.setIcon(Icon.faAreaChart, FaIcon.faChartArea);
+		Icon.setIcon(Icon.faAreaChart, FaIcon.faAreaChart);
 		Icon.setIcon(Icon.faArrowCircleDown, FaIcon.faArrowCircleDown);
 		Icon.setIcon(Icon.faArrowCircleLeft, FaIcon.faArrowCircleLeft);
-		Icon.setIcon(Icon.faArrowCircleODown, FaIcon.faArrowAltCircleDown);
-		Icon.setIcon(Icon.faArrowCircleOLeft, FaIcon.faArrowAltCircleLeft);
-		Icon.setIcon(Icon.faArrowCircleORight, FaIcon.faArrowAltCircleRight);
-		Icon.setIcon(Icon.faArrowCircleOUp, FaIcon.faArrowAltCircleUp);
+		Icon.setIcon(Icon.faArrowCircleODown, FaIcon.faArrowCircleDown);
+		Icon.setIcon(Icon.faArrowCircleOLeft, FaIcon.faArrowCircleLeft);
+		Icon.setIcon(Icon.faArrowCircleORight, FaIcon.faArrowCircleRight);
+		Icon.setIcon(Icon.faArrowCircleOUp, FaIcon.faArrowCircleUp);
 		Icon.setIcon(Icon.faArrowCircleRight, FaIcon.faArrowCircleRight);
 		Icon.setIcon(Icon.faArrowCircleUp, FaIcon.faArrowCircleUp);
 		Icon.setIcon(Icon.faArrowDown, FaIcon.faArrowDown);
 		Icon.setIcon(Icon.faArrowLeft, FaIcon.faArrowLeft);
 		Icon.setIcon(Icon.faArrowRight, FaIcon.faArrowRight);
 		Icon.setIcon(Icon.faArrowUp, FaIcon.faArrowUp);
-		Icon.setIcon(Icon.faArrows, FaIcon.faArrowsAlt);
-		Icon.setIcon(Icon.faArrowsAlt, FaIcon.faExpandArrowsAlt);
-		Icon.setIcon(Icon.faArrowsH, FaIcon.faArrowsAltH);
-		Icon.setIcon(Icon.faArrowsV, FaIcon.faArrowsAltV);
+		Icon.setIcon(Icon.faArrows, FaIcon.faArrows);
+		Icon.setIcon(Icon.faArrowsAlt, FaIcon.faArrowsAlt);
+		Icon.setIcon(Icon.faArrowsH, FaIcon.faArrowsH);
+		Icon.setIcon(Icon.faArrowsV, FaIcon.faArrowsV);
 		Icon.setIcon(Icon.faAssistiveListeningSystems, FaIcon.faAssistiveListeningSystems);
 		Icon.setIcon(Icon.faAsterisk, FaIcon.faAsterisk);
 		Icon.setIcon(Icon.faAt, FaIcon.faAt);
@@ -1314,7 +2485,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faBalanceScale, FaIcon.faBalanceScale);
 		Icon.setIcon(Icon.faBan, FaIcon.faBan);
 		Icon.setIcon(Icon.faBandcamp, FaIcon.faBandcamp);
-		Icon.setIcon(Icon.faBarChart, FaIcon.faChartBar);
+		Icon.setIcon(Icon.faBarChart, FaIcon.faBarChart);
 		Icon.setIcon(Icon.faBarcode, FaIcon.faBarcode);
 		Icon.setIcon(Icon.faBars, FaIcon.faBars);
 		Icon.setIcon(Icon.faBath, FaIcon.faBath);
@@ -1357,7 +2528,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faBus, FaIcon.faBus);
 		Icon.setIcon(Icon.faBuysellads, FaIcon.faBuysellads);
 		Icon.setIcon(Icon.faCalculator, FaIcon.faCalculator);
-		Icon.setIcon(Icon.faCalendar, FaIcon.faCalendarAlt);
+		Icon.setIcon(Icon.faCalendar, FaIcon.faCalendar);
 		Icon.setIcon(Icon.faCalendarCheckO, FaIcon.faCalendarCheck);
 		Icon.setIcon(Icon.faCalendarMinusO, FaIcon.faCalendarMinus);
 		Icon.setIcon(Icon.faCalendarO, FaIcon.faCalendar);
@@ -1386,8 +2557,8 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faCcStripe, FaIcon.faCcStripe);
 		Icon.setIcon(Icon.faCcVisa, FaIcon.faCcVisa);
 		Icon.setIcon(Icon.faCertificate, FaIcon.faCertificate);
-		Icon.setIcon(Icon.faChain, FaIcon.faLink);
-		Icon.setIcon(Icon.faChainBroken, FaIcon.faUnlink);
+		Icon.setIcon(Icon.faChain, FaIcon.faChain);
+		Icon.setIcon(Icon.faChainBroken, FaIcon.faChainBroken);
 		Icon.setIcon(Icon.faCheck, FaIcon.faCheck);
 		Icon.setIcon(Icon.faCheckCircle, FaIcon.faCheckCircle);
 		Icon.setIcon(Icon.faCheckCircleO, FaIcon.faCheckCircle);
@@ -1411,10 +2582,10 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faClockO, FaIcon.faClock);
 		Icon.setIcon(Icon.faClone, FaIcon.faClone);
 		Icon.setIcon(Icon.faCloud, FaIcon.faCloud);
-		Icon.setIcon(Icon.faCloudDownload, FaIcon.faCloudDownloadAlt);
-		Icon.setIcon(Icon.faCloudUpload, FaIcon.faCloudUploadAlt);
+		Icon.setIcon(Icon.faCloudDownload, FaIcon.faCloudDownload);
+		Icon.setIcon(Icon.faCloudUpload, FaIcon.faCloudUpload);
 		Icon.setIcon(Icon.faCode, FaIcon.faCode);
-		Icon.setIcon(Icon.faCodeFork, FaIcon.faCodeBranch);
+		Icon.setIcon(Icon.faCodeFork, FaIcon.faCodeFork);
 		Icon.setIcon(Icon.faCodepen, FaIcon.faCodepen);
 		Icon.setIcon(Icon.faCodiepie, FaIcon.faCodiepie);
 		Icon.setIcon(Icon.faCoffee, FaIcon.faCoffee);
@@ -1423,8 +2594,8 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faColumns, FaIcon.faColumns);
 		Icon.setIcon(Icon.faComment, FaIcon.faComment);
 		Icon.setIcon(Icon.faCommentO, FaIcon.faComment);
-		Icon.setIcon(Icon.faCommenting, FaIcon.faCommentDots);
-		Icon.setIcon(Icon.faCommentingO, FaIcon.faCommentDots);
+		Icon.setIcon(Icon.faCommenting, FaIcon.faCommenting);
+		Icon.setIcon(Icon.faCommentingO, FaIcon.faCommenting);
 		Icon.setIcon(Icon.faComments, FaIcon.faComments);
 		Icon.setIcon(Icon.faCommentsO, FaIcon.faComments);
 		Icon.setIcon(Icon.faCompass, FaIcon.faCompass);
@@ -1435,20 +2606,20 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faCopy, FaIcon.faCopy);
 		Icon.setIcon(Icon.faCreativeCommons, FaIcon.faCreativeCommons);
 		Icon.setIcon(Icon.faCreditCard, FaIcon.faCreditCard);
-		Icon.setIcon(Icon.faCreditCardAlt, FaIcon.faCreditCard);
+		Icon.setIcon(Icon.faCreditCardAlt, FaIcon.faCreditCardAlt);
 		Icon.setIcon(Icon.faCrop, FaIcon.faCrop);
 		Icon.setIcon(Icon.faCrosshairs, FaIcon.faCrosshairs);
 		Icon.setIcon(Icon.faCss3, FaIcon.faCss3);
 		Icon.setIcon(Icon.faCube, FaIcon.faCube);
 		Icon.setIcon(Icon.faCubes, FaIcon.faCubes);
-		Icon.setIcon(Icon.faCutlery, FaIcon.faUtensils);
+		Icon.setIcon(Icon.faCutlery, FaIcon.faCutlery);
 		Icon.setIcon(Icon.faDashcube, FaIcon.faDashcube);
 		Icon.setIcon(Icon.faDatabase, FaIcon.faDatabase);
 		Icon.setIcon(Icon.faDeaf, FaIcon.faDeaf);
 		Icon.setIcon(Icon.faDelicious, FaIcon.faDelicious);
 		Icon.setIcon(Icon.faDesktop, FaIcon.faDesktop);
 		Icon.setIcon(Icon.faDeviantart, FaIcon.faDeviantart);
-		Icon.setIcon(Icon.faDiamond, FaIcon.faGem);
+		Icon.setIcon(Icon.faDiamond, FaIcon.faDiamond);
 		Icon.setIcon(Icon.faDigg, FaIcon.faDigg);
 		Icon.setIcon(Icon.faDotCircleO, FaIcon.faDotCircle);
 		Icon.setIcon(Icon.faDownload, FaIcon.faDownload);
@@ -1469,19 +2640,19 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faEnvira, FaIcon.faEnvira);
 		Icon.setIcon(Icon.faEraser, FaIcon.faEraser);
 		Icon.setIcon(Icon.faEtsy, FaIcon.faEtsy);
-		Icon.setIcon(Icon.faEur, FaIcon.faEuroSign);
-		Icon.setIcon(Icon.faExchange, FaIcon.faExchangeAlt);
+		Icon.setIcon(Icon.faEur, FaIcon.faEur);
+		Icon.setIcon(Icon.faExchange, FaIcon.faExchange);
 		Icon.setIcon(Icon.faExclamation, FaIcon.faExclamation);
 		Icon.setIcon(Icon.faExclamationCircle, FaIcon.faExclamationCircle);
 		Icon.setIcon(Icon.faExclamationTriangle, FaIcon.faExclamationTriangle);
 		Icon.setIcon(Icon.faExpand, FaIcon.faExpand);
 		Icon.setIcon(Icon.faExpeditedssl, FaIcon.faExpeditedssl);
-		Icon.setIcon(Icon.faExternalLink, FaIcon.faExternalLinkAlt);
-		Icon.setIcon(Icon.faExternalLinkSquare, FaIcon.faExternalLinkSquareAlt);
+		Icon.setIcon(Icon.faExternalLink, FaIcon.faExternalLink);
+		Icon.setIcon(Icon.faExternalLinkSquare, FaIcon.faExternalLinkSquare);
 		Icon.setIcon(Icon.faEye, FaIcon.faEye);
 		Icon.setIcon(Icon.faEyeSlash, FaIcon.faEyeSlash);
-		Icon.setIcon(Icon.faEyedropper, FaIcon.faEyeDropper);
-		Icon.setIcon(Icon.faFacebook, FaIcon.faFacebookF);
+		Icon.setIcon(Icon.faEyedropper, FaIcon.faEyedropper);
+		Icon.setIcon(Icon.faFacebook, FaIcon.faFacebook);
 		Icon.setIcon(Icon.faFacebookOfficial, FaIcon.faFacebook);
 		Icon.setIcon(Icon.faFacebookSquare, FaIcon.faFacebookSquare);
 		Icon.setIcon(Icon.faFastBackward, FaIcon.faFastBackward);
@@ -1498,8 +2669,8 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faFileO, FaIcon.faFile);
 		Icon.setIcon(Icon.faFilePdfO, FaIcon.faFilePdf);
 		Icon.setIcon(Icon.faFilePowerpointO, FaIcon.faFilePowerpoint);
-		Icon.setIcon(Icon.faFileText, FaIcon.faFileAlt);
-		Icon.setIcon(Icon.faFileTextO, FaIcon.faFileAlt);
+		Icon.setIcon(Icon.faFileText, FaIcon.faFileText);
+		Icon.setIcon(Icon.faFileTextO, FaIcon.faFileText);
 		Icon.setIcon(Icon.faFileVideoO, FaIcon.faFileVideo);
 		Icon.setIcon(Icon.faFileWordO, FaIcon.faFileWord);
 		Icon.setIcon(Icon.faFilesO, FaIcon.faCopy);
@@ -1516,7 +2687,6 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faFlask, FaIcon.faFlask);
 		Icon.setIcon(Icon.faFlickr, FaIcon.faFlickr);
 		Icon.setIcon(Icon.faFloppyO, FaIcon.faSave);
-		Icon.setIcon(Icon.faSave, FaIcon.faSave);
 		Icon.setIcon(Icon.faFolder, FaIcon.faFolder);
 		Icon.setIcon(Icon.faFolderO, FaIcon.faFolder);
 		Icon.setIcon(Icon.faFolderOpen, FaIcon.faFolderOpen);
@@ -1533,7 +2703,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faFutbolO, FaIcon.faFutbol);
 		Icon.setIcon(Icon.faGamepad, FaIcon.faGamepad);
 		Icon.setIcon(Icon.faGavel, FaIcon.faGavel);
-		Icon.setIcon(Icon.faGbp, FaIcon.faPoundSign);
+		Icon.setIcon(Icon.faGbp, FaIcon.faGbp);
 		Icon.setIcon(Icon.faGenderless, FaIcon.faGenderless);
 		Icon.setIcon(Icon.faGetPocket, FaIcon.faGetPocket);
 		Icon.setIcon(Icon.faGg, FaIcon.faGg);
@@ -1550,7 +2720,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faGlideG, FaIcon.faGlideG);
 		Icon.setIcon(Icon.faGlobe, FaIcon.faGlobe);
 		Icon.setIcon(Icon.faGoogle, FaIcon.faGoogle);
-		Icon.setIcon(Icon.faGooglePlus, FaIcon.faGooglePlusG);
+		Icon.setIcon(Icon.faGooglePlus, FaIcon.faGooglePlus);
 		Icon.setIcon(Icon.faGooglePlusOfficial, FaIcon.faGooglePlus);
 		Icon.setIcon(Icon.faGooglePlusSquare, FaIcon.faGooglePlusSquare);
 		Icon.setIcon(Icon.faGoogleWallet, FaIcon.faGoogleWallet);
@@ -1573,7 +2743,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faHandshakeO, FaIcon.faHandshake);
 		Icon.setIcon(Icon.faHashtag, FaIcon.faHashtag);
 		Icon.setIcon(Icon.faHddO, FaIcon.faHdd);
-		Icon.setIcon(Icon.faHeader, FaIcon.faHeading);
+		Icon.setIcon(Icon.faHeader, FaIcon.faHeader);
 		Icon.setIcon(Icon.faHeadphones, FaIcon.faHeadphones);
 		Icon.setIcon(Icon.faHeart, FaIcon.faHeart);
 		Icon.setIcon(Icon.faHeartO, FaIcon.faHeart);
@@ -1592,24 +2762,24 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faIdBadge, FaIcon.faIdBadge);
 		Icon.setIcon(Icon.faIdCard, FaIcon.faIdCard);
 		Icon.setIcon(Icon.faIdCardO, FaIcon.faIdCard);
-		Icon.setIcon(Icon.faIls, FaIcon.faShekelSign);
+		Icon.setIcon(Icon.faIls, FaIcon.faIls);
 		Icon.setIcon(Icon.faImdb, FaIcon.faImdb);
 		Icon.setIcon(Icon.faInbox, FaIcon.faInbox);
 		Icon.setIcon(Icon.faIndent, FaIcon.faIndent);
 		Icon.setIcon(Icon.faIndustry, FaIcon.faIndustry);
 		Icon.setIcon(Icon.faInfo, FaIcon.faInfo);
 		Icon.setIcon(Icon.faInfoCircle, FaIcon.faInfoCircle);
-		Icon.setIcon(Icon.faInr, FaIcon.faRupeeSign);
+		Icon.setIcon(Icon.faInr, FaIcon.faInr);
 		Icon.setIcon(Icon.faInstagram, FaIcon.faInstagram);
 		Icon.setIcon(Icon.faInternetExplorer, FaIcon.faInternetExplorer);
 		Icon.setIcon(Icon.faIoxhost, FaIcon.faIoxhost);
 		Icon.setIcon(Icon.faItalic, FaIcon.faItalic);
 		Icon.setIcon(Icon.faJoomla, FaIcon.faJoomla);
-		Icon.setIcon(Icon.faJpy, FaIcon.faYenSign);
+		Icon.setIcon(Icon.faJpy, FaIcon.faJpy);
 		Icon.setIcon(Icon.faJsfiddle, FaIcon.faJsfiddle);
 		Icon.setIcon(Icon.faKey, FaIcon.faKey);
 		Icon.setIcon(Icon.faKeyboardO, FaIcon.faKeyboard);
-		Icon.setIcon(Icon.faKrw, FaIcon.faWonSign);
+		Icon.setIcon(Icon.faKrw, FaIcon.faKrw);
 		Icon.setIcon(Icon.faLanguage, FaIcon.faLanguage);
 		Icon.setIcon(Icon.faLaptop, FaIcon.faLaptop);
 		Icon.setIcon(Icon.faLastfm, FaIcon.faLastfm);
@@ -1617,13 +2787,13 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faLeaf, FaIcon.faLeaf);
 		Icon.setIcon(Icon.faLeanpub, FaIcon.faLeanpub);
 		Icon.setIcon(Icon.faLemonO, FaIcon.faLemon);
-		Icon.setIcon(Icon.faLevelDown, FaIcon.faLevelDownAlt);
-		Icon.setIcon(Icon.faLevelUp, FaIcon.faLevelUpAlt);
+		Icon.setIcon(Icon.faLevelDown, FaIcon.faLevelDown);
+		Icon.setIcon(Icon.faLevelUp, FaIcon.faLevelUp);
 		Icon.setIcon(Icon.faLifeRing, FaIcon.faLifeRing);
 		Icon.setIcon(Icon.faLightbulbO, FaIcon.faLightbulb);
-		Icon.setIcon(Icon.faLineChart, FaIcon.faChartLine);
+		Icon.setIcon(Icon.faLineChart, FaIcon.faLineChart);
 		Icon.setIcon(Icon.faLink, FaIcon.faLink);
-		Icon.setIcon(Icon.faLinkedin, FaIcon.faLinkedinIn);
+		Icon.setIcon(Icon.faLinkedin, FaIcon.faLinkedin);
 		Icon.setIcon(Icon.faLinkedinSquare, FaIcon.faLinkedin);
 		Icon.setIcon(Icon.faLinode, FaIcon.faLinode);
 		Icon.setIcon(Icon.faLinux, FaIcon.faLinux);
@@ -1633,16 +2803,16 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faListUl, FaIcon.faListUl);
 		Icon.setIcon(Icon.faLocationArrow, FaIcon.faLocationArrow);
 		Icon.setIcon(Icon.faLock, FaIcon.faLock);
-		Icon.setIcon(Icon.faLongArrowDown, FaIcon.faLongArrowAltDown);
-		Icon.setIcon(Icon.faLongArrowLeft, FaIcon.faLongArrowAltLeft);
-		Icon.setIcon(Icon.faLongArrowRight, FaIcon.faLongArrowAltRight);
-		Icon.setIcon(Icon.faLongArrowUp, FaIcon.faLongArrowAltUp);
+		Icon.setIcon(Icon.faLongArrowDown, FaIcon.faLongArrowDown);
+		Icon.setIcon(Icon.faLongArrowLeft, FaIcon.faLongArrowLeft);
+		Icon.setIcon(Icon.faLongArrowRight, FaIcon.faLongArrowRight);
+		Icon.setIcon(Icon.faLongArrowUp, FaIcon.faLongArrowUp);
 		Icon.setIcon(Icon.faLowVision, FaIcon.faLowVision);
 		Icon.setIcon(Icon.faMagic, FaIcon.faMagic);
 		Icon.setIcon(Icon.faMagnet, FaIcon.faMagnet);
 		Icon.setIcon(Icon.faMale, FaIcon.faMale);
 		Icon.setIcon(Icon.faMap, FaIcon.faMap);
-		Icon.setIcon(Icon.faMapMarker, FaIcon.faMapMarkerAlt);
+		Icon.setIcon(Icon.faMapMarker, FaIcon.faMapMarker);
 		Icon.setIcon(Icon.faMapO, FaIcon.faMap);
 		Icon.setIcon(Icon.faMapPin, FaIcon.faMapPin);
 		Icon.setIcon(Icon.faMapSigns, FaIcon.faMapSigns);
@@ -1666,7 +2836,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faMinusSquare, FaIcon.faMinusSquare);
 		Icon.setIcon(Icon.faMinusSquareO, FaIcon.faMinusSquare);
 		Icon.setIcon(Icon.faMixcloud, FaIcon.faMixcloud);
-		Icon.setIcon(Icon.faMobile, FaIcon.faMobileAlt);
+		Icon.setIcon(Icon.faMobile, FaIcon.faMobile);
 		Icon.setIcon(Icon.faModx, FaIcon.faModx);
 		Icon.setIcon(Icon.faMoney, FaIcon.faMoneyBillAlt);
 		Icon.setIcon(Icon.faMoonO, FaIcon.faMoon);
@@ -1695,14 +2865,14 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faPauseCircleO, FaIcon.faPauseCircle);
 		Icon.setIcon(Icon.faPaw, FaIcon.faPaw);
 		Icon.setIcon(Icon.faPaypal, FaIcon.faPaypal);
-		Icon.setIcon(Icon.faPencil, FaIcon.faPencilAlt);
-		Icon.setIcon(Icon.faPencilSquare, FaIcon.faPenSquare);
-		Icon.setIcon(Icon.faPencilSquareO, FaIcon.faEdit);
+		Icon.setIcon(Icon.faPencil, FaIcon.faPencil);
+		Icon.setIcon(Icon.faPencilSquare, FaIcon.faPencilSquare);
+		Icon.setIcon(Icon.faPencilSquareO, FaIcon.faPencilSquare);
 		Icon.setIcon(Icon.faPercent, FaIcon.faPercent);
 		Icon.setIcon(Icon.faPhone, FaIcon.faPhone);
 		Icon.setIcon(Icon.faPhoneSquare, FaIcon.faPhoneSquare);
 		Icon.setIcon(Icon.faPictureO, FaIcon.faImage);
-		Icon.setIcon(Icon.faPieChart, FaIcon.faChartPie);
+		Icon.setIcon(Icon.faPieChart, FaIcon.faPieChart);
 		Icon.setIcon(Icon.faPiedPiper, FaIcon.faPiedPiper);
 		Icon.setIcon(Icon.faPiedPiperAlt, FaIcon.faPiedPiperAlt);
 		Icon.setIcon(Icon.faPiedPiperPp, FaIcon.faPiedPiperPp);
@@ -1738,10 +2908,10 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faReddit, FaIcon.faReddit);
 		Icon.setIcon(Icon.faRedditAlien, FaIcon.faRedditAlien);
 		Icon.setIcon(Icon.faRedditSquare, FaIcon.faRedditSquare);
-		Icon.setIcon(Icon.faRefresh, FaIcon.faSync);
+		Icon.setIcon(Icon.faRefresh, FaIcon.faRefresh);
 		Icon.setIcon(Icon.faRegistered, FaIcon.faRegistered);
 		Icon.setIcon(Icon.faRenren, FaIcon.faRenren);
-		Icon.setIcon(Icon.faRepeat, FaIcon.faRedo);
+		Icon.setIcon(Icon.faRepeat, FaIcon.faRepeat);
 		Icon.setIcon(Icon.faReply, FaIcon.faReply);
 		Icon.setIcon(Icon.faReplyAll, FaIcon.faReplyAll);
 		Icon.setIcon(Icon.faRetweet, FaIcon.faRetweet);
@@ -1749,39 +2919,40 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faRocket, FaIcon.faRocket);
 		Icon.setIcon(Icon.faRss, FaIcon.faRss);
 		Icon.setIcon(Icon.faRssSquare, FaIcon.faRssSquare);
-		Icon.setIcon(Icon.faRub, FaIcon.faRubleSign);
+		Icon.setIcon(Icon.faRub, FaIcon.faRub);
 		Icon.setIcon(Icon.faSafari, FaIcon.faSafari);
-		Icon.setIcon(Icon.faScissors, FaIcon.faCut);
+		Icon.setIcon(Icon.faSave, FaIcon.faSave);
+		Icon.setIcon(Icon.faScissors, FaIcon.faScissors);
 		Icon.setIcon(Icon.faScribd, FaIcon.faScribd);
 		Icon.setIcon(Icon.faSearch, FaIcon.faSearch);
 		Icon.setIcon(Icon.faSearchMinus, FaIcon.faSearchMinus);
 		Icon.setIcon(Icon.faSearchPlus, FaIcon.faSearchPlus);
 		Icon.setIcon(Icon.faSellsy, FaIcon.faSellsy);
-		Icon.setIcon(Icon.faSend, FaIcon.faSend);
-		Icon.setIcon(Icon.faSendO, FaIcon.faSendO);
+		Icon.setIcon(Icon.faSend, FaIcon.faPaperPlane);
+		Icon.setIcon(Icon.faSendO, FaIcon.faPaperPlane);
 		Icon.setIcon(Icon.faServer, FaIcon.faServer);
 		Icon.setIcon(Icon.faShare, FaIcon.faShare);
 		Icon.setIcon(Icon.faShareAlt, FaIcon.faShareAlt);
 		Icon.setIcon(Icon.faShareAltSquare, FaIcon.faShareAltSquare);
 		Icon.setIcon(Icon.faShareSquare, FaIcon.faShareSquare);
 		Icon.setIcon(Icon.faShareSquareO, FaIcon.faShareSquare);
-		Icon.setIcon(Icon.faShield, FaIcon.faShieldAlt);
+		Icon.setIcon(Icon.faShield, FaIcon.faShield);
 		Icon.setIcon(Icon.faShip, FaIcon.faShip);
 		Icon.setIcon(Icon.faShirtsinbulk, FaIcon.faShirtsinbulk);
 		Icon.setIcon(Icon.faShoppingBag, FaIcon.faShoppingBag);
 		Icon.setIcon(Icon.faShoppingBasket, FaIcon.faShoppingBasket);
 		Icon.setIcon(Icon.faShoppingCart, FaIcon.faShoppingCart);
 		Icon.setIcon(Icon.faShower, FaIcon.faShower);
-		Icon.setIcon(Icon.faSignIn, FaIcon.faSignInAlt);
+		Icon.setIcon(Icon.faSignIn, FaIcon.faSignIn);
 		Icon.setIcon(Icon.faSignLanguage, FaIcon.faSignLanguage);
-		Icon.setIcon(Icon.faSignOut, FaIcon.faSignOutAlt);
+		Icon.setIcon(Icon.faSignOut, FaIcon.faSignOut);
 		Icon.setIcon(Icon.faSignal, FaIcon.faSignal);
 		Icon.setIcon(Icon.faSimplybuilt, FaIcon.faSimplybuilt);
 		Icon.setIcon(Icon.faSitemap, FaIcon.faSitemap);
 		Icon.setIcon(Icon.faSkyatlas, FaIcon.faSkyatlas);
 		Icon.setIcon(Icon.faSkype, FaIcon.faSkype);
 		Icon.setIcon(Icon.faSlack, FaIcon.faSlack);
-		Icon.setIcon(Icon.faSliders, FaIcon.faSlidersH);
+		Icon.setIcon(Icon.faSliders, FaIcon.faSliders);
 		Icon.setIcon(Icon.faSlideshare, FaIcon.faSlideshare);
 		Icon.setIcon(Icon.faSmileO, FaIcon.faSmile);
 		Icon.setIcon(Icon.faSnapchat, FaIcon.faSnapchat);
@@ -1789,18 +2960,18 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faSnapchatSquare, FaIcon.faSnapchatSquare);
 		Icon.setIcon(Icon.faSnowflakeO, FaIcon.faSnowflake);
 		Icon.setIcon(Icon.faSort, FaIcon.faSort);
-		Icon.setIcon(Icon.faSortAlphaAsc, FaIcon.faSortAlphaDown);
-		Icon.setIcon(Icon.faSortAlphaDesc, FaIcon.faSortAlphaUp);
-		Icon.setIcon(Icon.faSortAmountAsc, FaIcon.faSortAmountDown);
-		Icon.setIcon(Icon.faSortAmountDesc, FaIcon.faSortAmountUp);
-		Icon.setIcon(Icon.faSortAsc, FaIcon.faSortUp);
-		Icon.setIcon(Icon.faSortDesc, FaIcon.faSortDown);
-		Icon.setIcon(Icon.faSortNumericAsc, FaIcon.faSortNumericDown);
-		Icon.setIcon(Icon.faSortNumericDesc, FaIcon.faSortNumericUp);
+		Icon.setIcon(Icon.faSortAlphaAsc, FaIcon.faSortAlphaAsc);
+		Icon.setIcon(Icon.faSortAlphaDesc, FaIcon.faSortAlphaDesc);
+		Icon.setIcon(Icon.faSortAmountAsc, FaIcon.faSortAmountAsc);
+		Icon.setIcon(Icon.faSortAmountDesc, FaIcon.faSortAmountDesc);
+		Icon.setIcon(Icon.faSortAsc, FaIcon.faSortAsc);
+		Icon.setIcon(Icon.faSortDesc, FaIcon.faSortDesc);
+		Icon.setIcon(Icon.faSortNumericAsc, FaIcon.faSortNumericAsc);
+		Icon.setIcon(Icon.faSortNumericDesc, FaIcon.faSortNumericDesc);
 		Icon.setIcon(Icon.faSoundcloud, FaIcon.faSoundcloud);
 		Icon.setIcon(Icon.faSpaceShuttle, FaIcon.faSpaceShuttle);
 		Icon.setIcon(Icon.faSpinner, FaIcon.faSpinner);
-		Icon.setIcon(Icon.faSpoon, FaIcon.faUtensilSpoon);
+		Icon.setIcon(Icon.faSpoon, FaIcon.faSpoon);
 		Icon.setIcon(Icon.faSpotify, FaIcon.faSpotify);
 		Icon.setIcon(Icon.faSquare, FaIcon.faSquare);
 		Icon.setIcon(Icon.faSquareO, FaIcon.faSquare);
@@ -1831,14 +3002,14 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faSuperpowers, FaIcon.faSuperpowers);
 		Icon.setIcon(Icon.faSuperscript, FaIcon.faSuperscript);
 		Icon.setIcon(Icon.faTable, FaIcon.faTable);
-		Icon.setIcon(Icon.faTablet, FaIcon.faTabletAlt);
-		Icon.setIcon(Icon.faTachometer, FaIcon.faTachometerAlt);
+		Icon.setIcon(Icon.faTablet, FaIcon.faTablet);
+		Icon.setIcon(Icon.faTachometer, FaIcon.faTachometer);
 		Icon.setIcon(Icon.faTag, FaIcon.faTag);
 		Icon.setIcon(Icon.faTags, FaIcon.faTags);
 		Icon.setIcon(Icon.faTasks, FaIcon.faTasks);
 		Icon.setIcon(Icon.faTaxi, FaIcon.faTaxi);
 		Icon.setIcon(Icon.faTelegram, FaIcon.faTelegram);
-		Icon.setIcon(Icon.faTelevision, FaIcon.faTv);
+		Icon.setIcon(Icon.faTelevision, FaIcon.faTelevision);
 		Icon.setIcon(Icon.faTencentWeibo, FaIcon.faTencentWeibo);
 		Icon.setIcon(Icon.faTerminal, FaIcon.faTerminal);
 		Icon.setIcon(Icon.faTextHeight, FaIcon.faTextHeight);
@@ -1852,12 +3023,12 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faThermometerHalf, FaIcon.faThermometerHalf);
 		Icon.setIcon(Icon.faThermometerQuarter, FaIcon.faThermometerQuarter);
 		Icon.setIcon(Icon.faThermometerThreeQuarters, FaIcon.faThermometerThreeQuarters);
-		Icon.setIcon(Icon.faThumbTack, FaIcon.faThumbtack);
+		Icon.setIcon(Icon.faThumbTack, FaIcon.faThumbTack);
 		Icon.setIcon(Icon.faThumbsDown, FaIcon.faThumbsDown);
 		Icon.setIcon(Icon.faThumbsODown, FaIcon.faThumbsDown);
 		Icon.setIcon(Icon.faThumbsOUp, FaIcon.faThumbsUp);
 		Icon.setIcon(Icon.faThumbsUp, FaIcon.faThumbsUp);
-		Icon.setIcon(Icon.faTicket, FaIcon.faTicketAlt);
+		Icon.setIcon(Icon.faTicket, FaIcon.faTicket);
 		Icon.setIcon(Icon.faTimes, FaIcon.faTimes);
 		Icon.setIcon(Icon.faTimesCircle, FaIcon.faTimesCircle);
 		Icon.setIcon(Icon.faTimesCircleO, FaIcon.faTimesCircle);
@@ -1868,14 +3039,14 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faTrain, FaIcon.faTrain);
 		Icon.setIcon(Icon.faTransgender, FaIcon.faTransgender);
 		Icon.setIcon(Icon.faTransgenderAlt, FaIcon.faTransgenderAlt);
-		Icon.setIcon(Icon.faTrash, FaIcon.faTrashAlt);
-		Icon.setIcon(Icon.faTrashO, FaIcon.faTrashAlt);
+		Icon.setIcon(Icon.faTrash, FaIcon.faTrash);
+		Icon.setIcon(Icon.faTrashO, FaIcon.faTrash);
 		Icon.setIcon(Icon.faTree, FaIcon.faTree);
 		Icon.setIcon(Icon.faTrello, FaIcon.faTrello);
-		Icon.setIcon(Icon.faTripadvisor, FaIcon.faTripadvisor);
+		Icon.setIcon(Icon.faTripadvisor, FaIcon.faSuitcase);
 		Icon.setIcon(Icon.faTrophy, FaIcon.faTrophy);
 		Icon.setIcon(Icon.faTruck, FaIcon.faTruck);
-		Icon.setIcon(Icon.faTry, FaIcon.faLiraSign);
+		Icon.setIcon(Icon.faTry, FaIcon.faTry);
 		Icon.setIcon(Icon.faTty, FaIcon.faTty);
 		Icon.setIcon(Icon.faTumblr, FaIcon.faTumblr);
 		Icon.setIcon(Icon.faTumblrSquare, FaIcon.faTumblrSquare);
@@ -1891,7 +3062,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faUnlockAlt, FaIcon.faUnlockAlt);
 		Icon.setIcon(Icon.faUpload, FaIcon.faUpload);
 		Icon.setIcon(Icon.faUsb, FaIcon.faUsb);
-		Icon.setIcon(Icon.faUsd, FaIcon.faDollarSign);
+		Icon.setIcon(Icon.faUsd, FaIcon.faUsd);
 		Icon.setIcon(Icon.faUser, FaIcon.faUser);
 		Icon.setIcon(Icon.faUserCircle, FaIcon.faUserCircle);
 		Icon.setIcon(Icon.faUserCircleO, FaIcon.faUserCircle);
@@ -1907,12 +3078,12 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faViacoin, FaIcon.faViacoin);
 		Icon.setIcon(Icon.faViadeo, FaIcon.faViadeo);
 		Icon.setIcon(Icon.faViadeoSquare, FaIcon.faViadeoSquare);
-		Icon.setIcon(Icon.faVideoCamera, FaIcon.faVideo);
-		Icon.setIcon(Icon.faVimeo, FaIcon.faVimeoV);
+		Icon.setIcon(Icon.faVideoCamera, FaIcon.faVideoCamera);
+		Icon.setIcon(Icon.faVimeo, FaIcon.faVimeo);
 		Icon.setIcon(Icon.faVimeoSquare, FaIcon.faVimeoSquare);
 		Icon.setIcon(Icon.faVine, FaIcon.faVine);
 		Icon.setIcon(Icon.faVk, FaIcon.faVk);
-		Icon.setIcon(Icon.faVolumeControlPhone, FaIcon.faPhoneVolume);
+		Icon.setIcon(Icon.faVolumeControlPhone, FaIcon.faVolumeControlPhone);
 		Icon.setIcon(Icon.faVolumeDown, FaIcon.faVolumeDown);
 		Icon.setIcon(Icon.faVolumeOff, FaIcon.faVolumeOff);
 		Icon.setIcon(Icon.faVolumeUp, FaIcon.faVolumeUp);
@@ -1921,7 +3092,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faWeixin, FaIcon.faWeixin);
 		Icon.setIcon(Icon.faWhatsapp, FaIcon.faWhatsapp);
 		Icon.setIcon(Icon.faWheelchair, FaIcon.faWheelchair);
-		Icon.setIcon(Icon.faWheelchairAlt, FaIcon.faAccessibleIcon);
+		Icon.setIcon(Icon.faWheelchairAlt, FaIcon.faWheelchairAlt);
 		Icon.setIcon(Icon.faWifi, FaIcon.faWifi);
 		Icon.setIcon(Icon.faWikipediaW, FaIcon.faWikipediaW);
 		Icon.setIcon(Icon.faWindowClose, FaIcon.faWindowClose);
@@ -1942,7 +3113,7 @@ public enum FaIcon implements IFontIconRef {
 		Icon.setIcon(Icon.faYelp, FaIcon.faYelp);
 		Icon.setIcon(Icon.faYoast, FaIcon.faYoast);
 		Icon.setIcon(Icon.faYoutube, FaIcon.faYoutube);
-		Icon.setIcon(Icon.faYoutubePlay, FaIcon.faYoutube);
+		Icon.setIcon(Icon.faYoutubePlay, FaIcon.faPlayCircle);
 		Icon.setIcon(Icon.faYoutubeSquare, FaIcon.faYoutubeSquare);
 	}
 	///--- END MAP
@@ -1971,5 +3142,9 @@ public enum FaIcon implements IFontIconRef {
 
 	public IIconRef css(String... classes) {
 		return new WrappedIconRef(this, classes);
+	}
+
+	public IIconRef solid() {
+		return css("fas");
 	}
 }

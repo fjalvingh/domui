@@ -17,9 +17,39 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static java.util.Map.entry;
+
 /**
  */
 final public class IconFromCss {
+	private static Map<String, String> TRANSLATIONS = Map.ofEntries(
+		entry("faCc", "faClosedCaptioning"),
+		entry("faEercast", "faSellcast"),
+		entry("faFilesO", "faCopy"),
+		entry("faFlash", "faBolt"),
+		entry("faFloppyO", "faSave"),
+		entry("faGlass", "faGlassMartini"),
+		entry("faMeanpath", "faFontAwesome"),
+		entry("faMoney", "faMoneyBillAlt"),
+		entry("faPictureO", "faImage"),
+		entry("faSend%", "faPaperPlane%"),
+		entry("faHandO%", "faHandPoint%"),
+		entry("faTripadvisor", "faSuitcase"),
+		entry("faYoutubePlay", "faPlayCircle")
+	);
+
+	private static Map<String, String> TRANSLATIONS_SUFFIXES = Map.ofEntries(
+		entry("%O", "%"),
+		entry("%ODown", "%Down"),
+		entry("%OLeft", "%Left"),
+		entry("%ORight", "%Right"),
+		entry("%OUp", "%Up"),
+		entry("%Square", "%"),
+		entry("%ONotch", "%Notch"),
+		entry("%Thin", "%"),
+		entry("%Official", "%")
+	);
+
 	private final Reader m_r;
 
 	public IconFromCss(Reader r) {
@@ -28,7 +58,8 @@ final public class IconFromCss {
 
 	public static void main(String[] args) throws Exception {
 		if(args.length != 1) {
-			System.out.println("Add the .css file path as a parameter");
+			System.out.println("Add the .css file path as a parameter. Download the free resource bundle and put here path to all icons css.");
+			//I.E.: /home/vmijic/Downloads/fontawesome-free-6.1.1-web/css/all.css
 			System.exit(10);
 		}
 		File f = new File(".").getAbsoluteFile();
@@ -71,7 +102,7 @@ final public class IconFromCss {
 
 							if(s.contains(ICON_START)) {
 								section = InSection.ICONS;
-								renderIcons(of, names, map);
+								renderIcons(of, names);
 							} else if(s.contains(MAP_START)) {
 								section = InSection.MAP;
 								renderMap(of, names, map);
@@ -120,8 +151,16 @@ final public class IconFromCss {
 				newName = alterName(ren.m_new);
 			} else {
 				if(! nameSet.contains(newName)) {
-					System.out.println("missing icon " + newName);
-					throw new IllegalStateException("Missing icon " + icon.name());
+					System.out.print("missing icon " + newName);
+					newName = transformFirst(newName);
+					if(!nameSet.contains(newName)) {
+						newName = transformSecond(newName);
+					}
+					if(nameSet.contains(newName)) {
+						System.out.println(", replaced with  " + newName);
+					}else {
+						throw new IllegalStateException("Missing icon " + icon.name());
+					}
 				}
 			}
 			of.write("\t\tIcon.setIcon(Icon.");
@@ -133,22 +172,35 @@ final public class IconFromCss {
 		of.write("\t}\n");
 	}
 
-	private static void renderIcons(OutputStreamWriter of, List<String> names, Map<String, Ren> map) throws Exception {
-		Map<String, Ren> by = new HashMap<>();
-		map.forEach((key, ren) -> by.put(ren.m_new, ren));
+	private static String transformFirst(final String newName) {
+		String translation = TRANSLATIONS.get(newName);
+		if(null != translation) {
+			return translation;
+		}
+		String startWithKey = TRANSLATIONS.keySet().stream().filter(k -> k.endsWith("%") && newName.startsWith(k.substring(0, k.length() -1))).findFirst().orElse(null);
+		if(null != startWithKey) {
+			String startWithValue = TRANSLATIONS.get(startWithKey);
+			return startWithValue.replace("%", newName.substring(startWithKey.length() - 1));
+		}
+		return newName;
+	}
 
+	private static String transformSecond(final String newName) {
+		String endsWithSuffix = TRANSLATIONS_SUFFIXES.keySet().stream().filter(k -> k.startsWith("%") && newName.endsWith(k.substring(1))).findFirst().orElse(null);
+		if(null != endsWithSuffix) {
+			String endsWithValue = TRANSLATIONS_SUFFIXES.get(endsWithSuffix);
+			return endsWithValue.replace("%", newName.substring(0, newName.length() - endsWithSuffix.length() + 1));
+		}
+		return newName;
+	}
+
+	private static void renderIcons(OutputStreamWriter of, List<String> names) throws Exception {
 		for(String name : names) {
 			String key = name;
 
-			String mainClass = "fa";
-			Ren ren = by.get(key);
-			if(null != ren) {
-				//System.out.println("Got name");
-				if(!"fa".equals(ren.m_prefix) && !"fas".equals(ren.m_prefix))
-					mainClass = ren.m_prefix;
-			}
-
-			of.write("\t" + alterName(name) + "(\"" + name + "\",\"" + mainClass + "\"),\n");
+			String mainClass = "far";
+			//of.write("\t" + alterName(name) + "(\"" + name + "\",\"" + mainClass + "\"),\n");
+			of.write("\tpublic static FaIcon " + alterName(name) + " = new FaIcon(\"" + name + "\",\"" + mainClass + "\");\n");
 		}
 	}
 
