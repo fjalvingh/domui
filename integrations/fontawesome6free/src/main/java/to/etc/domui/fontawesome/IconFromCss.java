@@ -1,23 +1,28 @@
 package to.etc.domui.fontawesome;
 
 import to.etc.domui.component.misc.Icon;
+import to.etc.util.Pair;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static java.util.Map.entry;
+import static java.util.Objects.requireNonNull;
 
 /**
  */
@@ -57,22 +62,31 @@ final public class IconFromCss {
 	}
 
 	public static void main(String[] args) throws Exception {
+		File fa6AllCssFile;
 		if(args.length != 1) {
-			System.out.println("Add the .css file path as a parameter. Download the free resource bundle and put here path to all icons css.");
+			System.out.println("Add the font awesome 6 all.css file path as a parameter. Download the free resource bundle and put here path to all icons css.");
 			//I.E.: /home/vmijic/Downloads/fontawesome-free-6.1.1-web/css/all.css
-			System.exit(10);
+			System.out.println("By default we take one from resources");
+			fa6AllCssFile = new File(IconFromCss.class.getResource("/generator/all.css").toURI());
+		}else {
+			fa6AllCssFile = new File(args[0]);
 		}
 		File f = new File(".").getAbsoluteFile();
 		System.out.println("Path " + f);
 		File src = new File(f, "domui/integrations/fontawesome6free/src/main/java/to/etc/domui/fontawesome/FaIcon.java");
-		if(! src.exists())
+		if(! src.exists()) {
 			throw new IllegalStateException("Cannot find java source as " + src);
+		}
 
-		File file = new File(args[0]);
-		List<String> names = loadNames(file);
-		Map<String, Ren> map = loadMap(file);
+		Properties props;
+		try(InputStream r = IconFromCss.class.getResourceAsStream("/generator/iconFaStyles.properties")) {
+			props = new Properties();
+			props.load(r);
+		}
 
-		renderOutput(src, names, map);
+		List<Pair<String, Integer>> namesAndCodes = loadNames(fa6AllCssFile);
+
+		renderOutput(src, namesAndCodes, props);
 	}
 
 	static private final String ICON_START = "///--- BEGIN ICONS";
@@ -84,9 +98,10 @@ final public class IconFromCss {
 		COPY, ICONS, MAP
 	}
 
-	private static void renderOutput(File src, List<String> names, Map<String, Ren> map) throws Exception {
+	private static void renderOutput(File src, List<Pair<String, Integer>> namesAndCodes, Properties props) throws Exception {
+		String outPath = "/tmp/FaIcon.java";
 		try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(src), "utf-8"))) {
-			try(OutputStreamWriter of = new OutputStreamWriter(new FileOutputStream(new File("/tmp/FaIcon.java")), "utf-8")) {
+			try(OutputStreamWriter of = new OutputStreamWriter(new FileOutputStream(outPath), "utf-8")) {
 				String s;
 
 				InSection section = InSection.COPY;
@@ -102,10 +117,10 @@ final public class IconFromCss {
 
 							if(s.contains(ICON_START)) {
 								section = InSection.ICONS;
-								renderIcons(of, names);
+								renderIcons(of, namesAndCodes, props);
 							} else if(s.contains(MAP_START)) {
 								section = InSection.MAP;
-								renderMap(of, names, map);
+								renderMap(of, namesAndCodes);
 							}
 							break;
 
@@ -130,37 +145,29 @@ final public class IconFromCss {
 				}
 			}
 		}
+		System.out.println("Written output as: " + outPath);
 	}
 
-	private static void renderMap(OutputStreamWriter of, List<String> names, Map<String, Ren> map) throws Exception {
+	private static void renderMap(OutputStreamWriter of, List<Pair<String, Integer>> namesAndCodes) throws Exception {
 		of.write("\tstatic public void initializeIcons() {\n");
 
 		//-- Get a set of Java names from names
-		Set<String> nameSet = names.stream()
-			.map(a -> alterName(a))
+		Set<String> nameSet = namesAndCodes.stream()
+			.map(a -> alterName(a.get1()))
 			.collect(Collectors.toSet());
-
-		//-- Now create a map of (java oldname, ren)
-		Map<String, Ren> oldMap = map.values().stream()
-			.collect(Collectors.toMap(a -> alterName(a.m_old), a -> a));
 
 		for(Icon icon : Icon.values()) {
 			String newName = icon.name();
-			Ren ren = oldMap.get(icon.name());
-			if(null != ren) {
-				newName = alterName(ren.m_new);
-			} else {
-				if(! nameSet.contains(newName)) {
-					System.out.print("missing icon " + newName);
-					newName = transformFirst(newName);
-					if(!nameSet.contains(newName)) {
-						newName = transformSecond(newName);
-					}
-					if(nameSet.contains(newName)) {
-						System.out.println(", replaced with  " + newName);
-					}else {
-						throw new IllegalStateException("Missing icon " + icon.name());
-					}
+			if(! nameSet.contains(newName)) {
+				System.out.print("missing icon " + newName);
+				newName = transformFirst(newName);
+				if(!nameSet.contains(newName)) {
+					newName = transformSecond(newName);
+				}
+				if(nameSet.contains(newName)) {
+					System.out.println(", replaced with  " + newName);
+				}else {
+					throw new IllegalStateException("Missing icon " + icon.name());
 				}
 			}
 			of.write("\t\tIcon.setIcon(Icon.");
@@ -194,17 +201,33 @@ final public class IconFromCss {
 		return newName;
 	}
 
-	private static void renderIcons(OutputStreamWriter of, List<String> names) throws Exception {
-		for(String name : names) {
-			String key = name;
+	private static void renderIcons(OutputStreamWriter of, List<Pair<String, Integer>> namesAndCodes, Properties props) throws Exception {
+		try(InputStream faSolidIs = IconFromCss.class.getResourceAsStream("/META-INF/resources/webfonts/fa-solid-900.ttf");
+			InputStream faRegularIs = IconFromCss.class.getResourceAsStream("/META-INF/resources/webfonts/fa-regular-400.ttf")) {
+			Font fontRegular = Font.createFont(Font.TRUETYPE_FONT, faRegularIs);
+			Font fontSolid = Font.createFont(Font.TRUETYPE_FONT, faSolidIs);
 
-			String mainClass = "far";
-			//of.write("\t" + alterName(name) + "(\"" + name + "\",\"" + mainClass + "\"),\n");
-			of.write("\tpublic static FaIcon " + alterName(name) + " = new FaIcon(\"" + name + "\",\"" + mainClass + "\");\n");
+			for(Pair<String, Integer> nameAndCode : namesAndCodes) {
+				String name = nameAndCode.get1();
+				int code = requireNonNull(nameAndCode.get2()).intValue();
+				String faStyle = props.getProperty(name, null);
+				if(null == faStyle) {
+					if(fontRegular.canDisplay(code)) {
+						faStyle = "far";
+					}else if (fontSolid.canDisplay(code)) {
+						faStyle = "fas";
+					}else {
+						faStyle = "na";
+					}
+				}
+				String constName = alterName(name);
+				//of.write("\t" + constName + "(\"" + name + "\",\"" + mainClass + "\"),\n");
+				of.write("\tpublic static final FaIcon " + constName + " = register(new FaIcon(\"" + name + "\",\"" + faStyle + "\"));\n");
+			}
 		}
 	}
 
-	private static List<String> loadNames(File file) throws Exception {
+	private static List<Pair<String, Integer>> loadNames(File file) throws Exception {
 		try(Reader r = new InputStreamReader(new FileInputStream(file), "utf-8") ) {
 			return new IconFromCss(r).render();
 		}
@@ -219,15 +242,16 @@ final public class IconFromCss {
 		findDot,
 		scanName,
 		waitBody,
-		waitContent
+		waitContent,
+		waitContentEnd,
 	}
 
 	private State m_state = State.findDot;
 
-	private List<String> render() throws Exception {
+	private List<Pair<String, Integer>> render() throws Exception {
 		int t;
 
-		List<String> names = new ArrayList<>();
+		List<Pair<String, Integer>> namesAndCodes = new ArrayList<>();
 		StringBuilder sb = new StringBuilder();
 		String name = null;
 		while((t = next()) != -1) {
@@ -268,7 +292,9 @@ final public class IconFromCss {
 				case waitContent:
 					if(t == ':') {
 						if("content".equalsIgnoreCase(sb.toString()) && name != null && name.length() > 0) {
-							names.add(name);
+							sb.setLength(0);
+							m_state = State.waitContentEnd;
+							break;
 						}
 						m_state = State.findDot;
 						sb.setLength(0);
@@ -280,15 +306,29 @@ final public class IconFromCss {
 						sb.append((char) t);
 					}
 					break;
+
+				case waitContentEnd:
+					if(t == ';') {
+						if(sb.toString().startsWith("\"\\") && sb.toString().endsWith("\"") && name != null && name.length() > 0) {
+							Integer code = Integer.parseInt(sb.toString().replace("\"\\", "").replace("\"", ""), 16);
+							namesAndCodes.add(new Pair<>(name, code));
+						}
+						m_state = State.findDot;
+						sb.setLength(0);
+						name = null;
+					} else if(! Character.isWhitespace(t)) {
+						sb.append((char) t);
+					}
+					break;
 			}
 		}
 
-		Collections.sort(names);
-		System.out.println("Got " + names.size() + " names");
-		for(String s : names) {
-			System.out.println(alterName(s) + "(\"" + s + "\"),");
+		Collections.sort(namesAndCodes, Comparator.comparing(Pair::get1));
+		System.out.println("Got " + namesAndCodes.size() + " names with font codes");
+		for(Pair<String, Integer> s : namesAndCodes) {
+			System.out.println(alterName(s.get1()) + "(\"" + s + "\") - " + s.get2() + ",");
 		}
-		return names;
+		return namesAndCodes;
 	}
 
 	static String alterName(String faname) {
@@ -309,48 +349,5 @@ final public class IconFromCss {
 			}
 		}
 		return sb.toString();
-	}
-
-
-	private static Map<String, Ren> loadMap(File f) throws Exception {
-		File mapf = new File(f.getParent(), f.getName() + ".moves");
-
-		Map<String, Ren> map = new HashMap<>();
-		if(mapf.exists()) {
-
-			try(LineNumberReader r = new LineNumberReader(new InputStreamReader(new FileInputStream(mapf), "utf-8"))) {
-				String s;
-
-				while(null != (s = r.readLine())) {
-					decodeLine(map, s);
-				}
-			}
-			System.out.println("Got " + map.size() + " moved icons");
-		}
-		return map;
-	}
-
-	private static void decodeLine(Map<String, Ren> map, String s) {
-		s = s.trim();
-		if(s.length() == 0)
-			return;
-
-		String[] frag = s.split("\\s+");
-		if(frag.length != 4)
-			throw new IllegalStateException("Bad fragment in line: " + s + " - must have 4 columns");
-		Ren ren = new Ren("fa-" + frag[0], "fa-" + frag[1], frag[2]);
-		map.put(frag[0], ren);
-	}
-
-	static private final class Ren {
-		public final String m_old;
-		public final String m_new;
-		public final String m_prefix;
-
-		public Ren(String old, String aNew, String prefix) {
-			m_old = old;
-			m_new = aNew;
-			m_prefix = prefix;
-		}
 	}
 }
