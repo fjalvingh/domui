@@ -359,7 +359,10 @@ public class MailBuilder {
 		Message m = new Message();
 		m.setSubject(m_subject);
 		m.setBody(m_text_sb.toString());
-		m.setHtmlBody(m_html_sb.toString().replace(STYLE_PLACEHOLDER, m_style_sb.toString()));
+		String html = m_decorateHtml
+			? m_html_sb.toString().replace(STYLE_PLACEHOLDER, m_style_sb.toString())
+			: m_html_sb.toString();
+		m.setHtmlBody(html);
 		for(Attachment a : m_attachmentList)
 			m.addAttachment(a);
 		return m;
