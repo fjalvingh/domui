@@ -198,6 +198,15 @@ public class UIContext {
 		hs.setAttribute(attrName, value);
 	}
 
+	@Nullable
+	public static Object getSessionAttribute(String attrName) {
+		IRequestContext ctx = getRequestContext();
+		IServerSession hs = ctx.getServerSession(true);
+		if(null == hs)
+			return null;
+		return hs.getAttribute(attrName);
+	}
+
 	///**
 	// * Checks whether the currently logged in (or not logged in) user has rights on
 	// * the specified page, based on the class only. This does not implement either
