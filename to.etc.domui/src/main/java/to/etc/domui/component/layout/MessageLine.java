@@ -30,8 +30,8 @@ public class MessageLine extends Div {
 	@Nullable
 	final private ConsumerEx<NodeContainer> m_renderer;
 
-	public MessageLine(@NonNull MsgType type, @NonNull IBundleCode code) {
-		this(type, code.getString());
+	public MessageLine(@NonNull MsgType type, @NonNull IBundleCode code, Object... param) {
+		this(type, code.format(param));
 	}
 
 	public MessageLine(@NonNull MsgType type, @NonNull String text) {
