@@ -51,6 +51,11 @@ public class MailBuilder {
 	/** The part for the HTML variant. */
 	private StringBuilder m_html_sb = new StringBuilder();
 
+	private final static String STYLE_PLACEHOLDER = "{STYLE}";
+
+	/** The STYLE part for the HTML variant. Has to go into the header, can't go to body */
+	private StringBuilder m_style_sb = new StringBuilder();
+
 	private String m_subject;
 
 	/** If T, adds HTML header and body automatically, otherwise allow user to define whole HTML. */
@@ -119,12 +124,14 @@ public class MailBuilder {
 		m_subject = subject;
 		m_text_sb.setLength(0);
 		m_html_sb.setLength(0);
+		m_style_sb.setLength(0);
 		m_attachmentList.clear();
 		m_attindex = 0;
 
 		if(m_decorateHtml) {
 			m_html_sb.append("<html><head>");
 			m_html_sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+			m_html_sb.append(STYLE_PLACEHOLDER);
 			m_html_sb.append("</head>");
 			m_html_sb.append("<body>");
 		}
@@ -150,12 +157,21 @@ public class MailBuilder {
 		return m_html_sb;
 	}
 
+	public StringBuilder getStyleBuffer() {
+		return m_style_sb;
+	}
+
 	public StringBuilder getTextBuffer() {
 		return m_text_sb;
 	}
 
 	public MailBuilder appendHTML(String s) {
 		m_html_sb.append(s);
+		return this;
+	}
+
+	public MailBuilder appendHTMLStyle(String s) {
+		m_style_sb.append(s);
 		return this;
 	}
 
@@ -320,7 +336,6 @@ public class MailBuilder {
 
 	/**
 	 * Send it.
-	 * @param dest
 	 * @throws Exception
 	 */
 	public void send(Message m) throws Exception {
@@ -330,7 +345,10 @@ public class MailBuilder {
 		}
 		m.setSubject(m_subject);
 		m.setBody(m_text_sb.toString());
-		m.setHtmlBody(m_html_sb.toString());
+		String html = m_decorateHtml
+			? m_html_sb.toString().replace(STYLE_PLACEHOLDER, m_style_sb.toString())
+			: m_html_sb.toString();
+		m.setHtmlBody(html);
 		for(Attachment a: m_attachmentList)
 			m.addAttachment(a);
 		m.send();
@@ -341,7 +359,7 @@ public class MailBuilder {
 		Message m = new Message();
 		m.setSubject(m_subject);
 		m.setBody(m_text_sb.toString());
-		m.setHtmlBody(m_html_sb.toString());
+		m.setHtmlBody(m_html_sb.toString().replace(STYLE_PLACEHOLDER, m_style_sb.toString()));
 		for(Attachment a : m_attachmentList)
 			m.addAttachment(a);
 		return m;
