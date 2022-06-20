@@ -31,11 +31,16 @@ $form-label-color: #363636 !default;
 	justify-items: flex-start;
 }
 .ui-f5-lbl-v {
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
 	min-width: $form-label-width;
 
 	.ui-label-wide & {
 		min-width: $form-label-width-wide;
+	}
+
+	.ui-label-extrawide & {
+		min-width: 300px;
 	}
 }
 
