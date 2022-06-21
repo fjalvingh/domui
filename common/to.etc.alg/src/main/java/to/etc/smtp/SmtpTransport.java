@@ -29,7 +29,7 @@ import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
 
-import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -477,7 +477,7 @@ public class SmtpTransport {
 			mb.appendHTML("<p>This is <b>HTML</b> text</p>");
 			
 			//add attachment?
-			mb.image("image.jpg", new File(imagePath), "image/jpeg");
+			mb.image("image.jpg", new FileInputStream(imagePath), "image/jpeg");
 
 			Address from = new Address("itris@info.nl", "Mailer \u20ac daemon");
 			Address to = new Address(mailTo, "Frits \u20acJalvingh");

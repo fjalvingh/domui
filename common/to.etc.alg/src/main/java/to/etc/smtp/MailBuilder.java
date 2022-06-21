@@ -66,17 +66,17 @@ public class MailBuilder {
 
 		public String ident;
 
-		public File source;
+		public InputStream source;
 
 		public ContentDisposition m_contentDisposition = ContentDisposition.attachment;
 
-		public Attachment(String mime, String ident, File source) {
+		public Attachment(String mime, String ident, InputStream source) {
 			this.mime = mime;
 			this.ident = ident;
 			this.source = source;
 		}
 
-		public Attachment(String mime, String ident, File source, ContentDisposition disposition) {
+		public Attachment(String mime, String ident, InputStream source, ContentDisposition disposition) {
 			this.mime = mime;
 			this.ident = ident;
 			this.source = source;
@@ -92,7 +92,7 @@ public class MailBuilder {
 		}
 
 		public InputStream getInputStream() throws Exception {
-			return new FileInputStream(source);
+			return source;
 		}
 
 		public String getMime() {
@@ -262,13 +262,13 @@ public class MailBuilder {
 	 * @param source of attachment
 	 */
 	@NonNull
-	public MailBuilder addAttachment(@NonNull String name, @NonNull File source) throws Exception {
-		m_attachmentList.add(new Attachment(getMimeByFile(source), name, source));
+	public MailBuilder addAttachment(@NonNull String name, @NonNull InputStream source, String mimeType) throws Exception {
+		m_attachmentList.add(new Attachment(mimeType, name, source));
 		return this;
 	}
 
 	@NonNull
-	private String getMimeByFile(@NonNull File file) throws IOException {
+	public static String getMimeByFile(@NonNull File file) throws IOException {
 		Path path = FileSystems.getDefault().getPath(file.getPath());
 		return Files.probeContentType(path);
 	}
@@ -298,7 +298,7 @@ public class MailBuilder {
 	 * Create an inline image attachment that can later be referred using the "src" that is returned
 	 * by this method (which can be simplified by calling {@link #imageRef(String)}.
 	 */
-	public String addImageAttachment(String name, File source, String mime) {
+	public String addImageAttachment(String name, InputStream source, String mime) {
 		//-- Create the attachment image.
 		String imgkey = name + "-" + (m_attindex++);
 		m_attachmentList.add(new Attachment(mime, imgkey, source, ContentDisposition.inline));
@@ -309,11 +309,10 @@ public class MailBuilder {
 	 * Append an image as an attachment, and embed the image in the HTML stream. The text
 	 * stream just contains a reference like (see image xxx). The image must be a supported
 	 * mime type.
+	 * Returns image ref key.
 	 */
-	public MailBuilder image(String name, File source, String mime) throws Exception {
-		String imgkey = addImageAttachment(name, source, mime);
-		imageRef(imgkey);
-		return this;
+	public String image(String name, InputStream source, String mime) throws Exception {
+		return addImageAttachment(name, source, mime);
 	}
 
 	/**
