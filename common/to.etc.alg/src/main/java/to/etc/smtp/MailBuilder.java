@@ -309,11 +309,10 @@ public class MailBuilder {
 	 * Append an image as an attachment, and embed the image in the HTML stream. The text
 	 * stream just contains a reference like (see image xxx). The image must be a supported
 	 * mime type.
+	 * Returns image ref key.
 	 */
-	public MailBuilder image(String name, File source, String mime) throws Exception {
-		String imgkey = addImageAttachment(name, source, mime);
-		imageRef(imgkey);
-		return this;
+	public String image(String name, File source, String mime) throws Exception {
+		return addImageAttachment(name, source, mime);
 	}
 
 	/**
