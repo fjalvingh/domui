@@ -46,20 +46,20 @@ import java.util.List;
  */
 public class MailBuilder {
 	/** The stringbuffer for the text-only part */
-	private StringBuilder m_text_sb = new StringBuilder();
+	private StringBuilder m_textSb = new StringBuilder();
 
 	/** The part for the HTML variant. */
-	private StringBuilder m_html_sb = new StringBuilder();
+	private StringBuilder m_htmlSb = new StringBuilder();
 
 	private final static String STYLE_PLACEHOLDER = "{STYLE}";
 
 	/** The STYLE part for the HTML variant. Has to go into the header, can't go to body */
-	private StringBuilder m_style_sb = new StringBuilder();
+	private StringBuilder m_styleSb = new StringBuilder();
 
 	private String m_subject;
 
 	/** If T, adds HTML header and body automatically, otherwise allow user to define whole HTML. */
-	private final boolean	m_decorateHtml;
+	private final boolean m_decorateHtml;
 
 	static private class Attachment implements IMailAttachment {
 		public String mime;
@@ -68,10 +68,19 @@ public class MailBuilder {
 
 		public File source;
 
+		public ContentDisposition m_contentDisposition = ContentDisposition.attachment;
+
 		public Attachment(String mime, String ident, File source) {
 			this.mime = mime;
 			this.ident = ident;
 			this.source = source;
+		}
+
+		public Attachment(String mime, String ident, File source, ContentDisposition disposition) {
+			this.mime = mime;
+			this.ident = ident;
+			this.source = source;
+			m_contentDisposition = disposition;
 		}
 
 		public String getIdent() {
@@ -93,6 +102,15 @@ public class MailBuilder {
 		public void setMime(String mime) {
 			this.mime = mime;
 		}
+
+		@Override
+		public ContentDisposition getContentDisposition() {
+			return m_contentDisposition;
+		}
+
+		public void setContentDisposition(ContentDisposition contentDisposition) {
+			m_contentDisposition = contentDisposition;
+		}
 	}
 
 	private List<Attachment> m_attachmentList = new ArrayList<Attachment>();
@@ -112,102 +130,98 @@ public class MailBuilder {
 
 	/**
 	 * Creates mail builder that allows full control over HTML content.
-	 * @see MailBuilder#m_decorateHtml
-	 * @return
 	 */
-	public static @NonNull
-	MailBuilder createNondecoratedMailBuilder() {
+	@NonNull
+	public static MailBuilder createNondecoratedMailBuilder() {
 		return new MailBuilder(false);
 	}
 
 	public void initialize(String subject) {
 		m_subject = subject;
-		m_text_sb.setLength(0);
-		m_html_sb.setLength(0);
-		m_style_sb.setLength(0);
+		m_textSb.setLength(0);
+		m_htmlSb.setLength(0);
+		m_styleSb.setLength(0);
 		m_attachmentList.clear();
 		m_attindex = 0;
 
 		if(m_decorateHtml) {
-			m_html_sb.append("<html><head>");
-			m_html_sb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
-			m_html_sb.append(STYLE_PLACEHOLDER);
-			m_html_sb.append("</head>");
-			m_html_sb.append("<body>");
+			m_htmlSb.append("<html><head>");
+			m_htmlSb.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n");
+			m_htmlSb.append(STYLE_PLACEHOLDER);
+			m_htmlSb.append("</head>");
+			m_htmlSb.append("<body>");
 		}
 	}
 
 	/**
 	 * Just add verbatim text, without anything else. Quotes all html content.
-	 * @param s
-	 * @return
 	 */
 	public MailBuilder append(String s) {
-		m_text_sb.append(s);
-		StringTool.htmlStringizewithLF(m_html_sb, s);
+		m_textSb.append(s);
+		StringTool.htmlStringizewithLF(m_htmlSb, s);
 		return this;
 	}
 
 	public MailBuilder appendText(String s) {
-		m_text_sb.append(s);
+		m_textSb.append(s);
 		return this;
 	}
 
 	public StringBuilder getHtmlBuffer() {
-		return m_html_sb;
+		return m_htmlSb;
 	}
 
 	public StringBuilder getStyleBuffer() {
-		return m_style_sb;
+		return m_styleSb;
 	}
 
 	public StringBuilder getTextBuffer() {
-		return m_text_sb;
+		return m_textSb;
 	}
 
 	public MailBuilder appendHTML(String s) {
-		m_html_sb.append(s);
+		m_htmlSb.append(s);
 		return this;
 	}
 
-	public MailBuilder appendHTMLStyle(String s) {
-		m_style_sb.append(s);
+	public MailBuilder appendStyle(String s) {
+		m_styleSb.append(s);
 		return this;
 	}
 
 	public MailBuilder ttl(String s) {
-		m_text_sb.append(s);
-		m_text_sb.append("\n");
-		for(int i = s.length(); --i >= 0;)
-			m_text_sb.append('=');
-		m_text_sb.append("\n");
+		m_textSb.append(s);
+		m_textSb.append("\n");
+		for(int i = s.length(); --i >= 0; )
+			m_textSb.append('=');
+		m_textSb.append("\n");
 
 		//-- HTML fragment
-		m_html_sb.append("<h2>");
-		StringTool.htmlStringize(m_html_sb, s);
-		m_html_sb.append("</h2>\n");
+		m_htmlSb.append("<h2>");
+		StringTool.htmlStringize(m_htmlSb, s);
+		m_htmlSb.append("</h2>\n");
 		return this;
 	}
 
 	public MailBuilder i(String s) {
-		m_text_sb.append(s);
-		m_html_sb.append("<i>");
-		StringTool.htmlStringize(m_html_sb, s);
-		m_html_sb.append("</i>");
+		m_textSb.append(s);
+		m_htmlSb.append("<i>");
+		StringTool.htmlStringize(m_htmlSb, s);
+		m_htmlSb.append("</i>");
 		return this;
 	}
 
 	public MailBuilder b(String s) {
-		m_text_sb.append(s);
-		m_html_sb.append("<b>");
-		StringTool.htmlStringize(m_html_sb, s);
-		m_html_sb.append("</b>");
+		m_textSb.append(s);
+		m_htmlSb.append("<b>");
+		StringTool.htmlStringize(m_htmlSb, s);
+		m_htmlSb.append("</b>");
 		return this;
 	}
 
 	public MailBuilder nl() {
-		m_text_sb.append("\n");
-		m_html_sb.append("<br>");
+		m_textSb.append("\n");
+		m_htmlSb.append("<br>");
 		return this;
 	}
 
@@ -216,89 +230,108 @@ public class MailBuilder {
 	 * <pre>
 	 * text (link)
 	 * </pre>
-	 * @param rurl
-	 * @param text
-	 * @return
 	 */
 	public MailBuilder link(String url, String text) {
-		m_text_sb.append(text);
-		m_text_sb.append(" (");
-		m_text_sb.append(url);
-		m_text_sb.append(")");
+		m_textSb.append(text);
+		m_textSb.append(" (");
+		m_textSb.append(url);
+		m_textSb.append(")");
 
-		m_html_sb.append("<a href=\"");
-		m_html_sb.append(url);
-		m_html_sb.append("\">");
-		StringTool.htmlStringize(m_html_sb, text);
-		m_html_sb.append("</a>");
+		m_htmlSb.append("<a href=\"");
+		m_htmlSb.append(url);
+		m_htmlSb.append("\">");
+		StringTool.htmlStringize(m_htmlSb, text);
+		m_htmlSb.append("</a>");
 		return this;
 	}
 
 	public MailBuilder linkNoText(String url, String text) {
-		m_text_sb.append(url);
-		m_html_sb.append("<a href=\"");
-		m_html_sb.append(url);
-		m_html_sb.append("\">");
-		StringTool.htmlStringize(m_html_sb, text);
-		m_html_sb.append("</a>");
+		m_textSb.append(url);
+		m_htmlSb.append("<a href=\"");
+		m_htmlSb.append(url);
+		m_htmlSb.append("\">");
+		StringTool.htmlStringize(m_htmlSb, text);
+		m_htmlSb.append("</a>");
 		return this;
 	}
 
-	/**
-	 * Append an image as an attachment, and embed the image in the HTML stream. The text
-	 * stream just contains a reference like (see image xxx). The image must be a supported
-	 * mime type.
-	 *
-	 * @param name
-	 * @param source
-	 * @return
-	 * @throws Exception
-	 */
-	public MailBuilder image(String name, File source, String mime) throws Exception {
-		String imgkey = name + "-" + (m_attindex++);
-
-		m_text_sb.append("(see attached image ");
-		m_text_sb.append(imgkey);
-		m_text_sb.append(") ");
-
-		m_html_sb.append("<img src=\"cid:");
-		m_html_sb.append(imgkey);
-		m_html_sb.append("\">");
-
-		//-- Create the attachment image.
-		m_attachmentList.add(new Attachment(mime, imgkey, source));
-		return this;
-	}
-	
 	/**
 	 * Add attachment to the email
-	 * @param name	Name of an attachment
-	 * @param source of attachment 
-	 * @return
-	 * @throws Exception
+	 *
+	 * @param name    Name of an attachment
+	 * @param source of attachment
 	 */
 	@NonNull
 	public MailBuilder addAttachment(@NonNull String name, @NonNull File source) throws Exception {
 		m_attachmentList.add(new Attachment(getMimeByFile(source), name, source));
 		return this;
 	}
-	
+
 	@NonNull
 	private String getMimeByFile(@NonNull File file) throws IOException {
 		Path path = FileSystems.getDefault().getPath(file.getPath());
 		return Files.probeContentType(path);
 	}
 
+	/**
+	 * Create an inline image attachment that can later be referred using the "src" that is returned
+	 * by this method (which can be simplified by calling {@link #imageRef(String)}.
+	 */
+	public String addImageAttachment(String name, Class<?> resourceBase, String resourceName, String mime) {
+		String imgkey = name + "-" + (m_attindex++);
+		Attachment a = new Attachment(mime, imgkey, null, ContentDisposition.inline) {
+			@Override
+			public InputStream getInputStream() throws Exception {
+				InputStream is = resourceBase.getResourceAsStream(resourceName);
+				if(is == null)
+					throw new IllegalArgumentException("Missing class resource " + resourceName + " using base class " + resourceBase);
+				return is;
+			}
+		};
+
+		//-- Create the attachment image.
+		m_attachmentList.add(a);
+		return "cid:" + imgkey;
+	}
+
+	/**
+	 * Create an inline image attachment that can later be referred using the "src" that is returned
+	 * by this method (which can be simplified by calling {@link #imageRef(String)}.
+	 */
+	public String addImageAttachment(String name, File source, String mime) {
+		//-- Create the attachment image.
+		String imgkey = name + "-" + (m_attindex++);
+		m_attachmentList.add(new Attachment(mime, imgkey, source, ContentDisposition.inline));
+		return "cid:" + imgkey;
+	}
+
+	/**
+	 * Append an image as an attachment, and embed the image in the HTML stream. The text
+	 * stream just contains a reference like (see image xxx). The image must be a supported
+	 * mime type.
+	 */
+	public MailBuilder image(String name, File source, String mime) throws Exception {
+		String imgkey = addImageAttachment(name, source, mime);
+		imageRef(imgkey);
+		return this;
+	}
+
+	/**
+	 * Add an image by adding an attachment and an inlike "img" tag referring to that image.
+	 * <b>Do not use if you want to add the same image multiple times</b>, in that case use
+	 * addImageAttachment() followed by addImageRef().
+	 */
 	public MailBuilder image(String name, String mime, Attachment a) throws Exception {
 		String imgkey = name + "-" + (m_attindex++);
+		a.setContentDisposition(ContentDisposition.inline);			// Must be inline
 
-		m_text_sb.append("(see attached image ");
-		m_text_sb.append(imgkey);
-		m_text_sb.append(") ");
+		m_textSb.append("(see attached image ");
+		m_textSb.append(imgkey);
+		m_textSb.append(") ");
 
-		m_html_sb.append("<img src=\"cid:");
-		m_html_sb.append(imgkey);
-		m_html_sb.append("\">");
+		m_htmlSb.append("<img src=\"cid:");
+		m_htmlSb.append(imgkey);
+		m_htmlSb.append("\">");
 		a.setMime(mime);
 		a.setIdent(imgkey);
 
@@ -307,49 +340,38 @@ public class MailBuilder {
 		return this;
 	}
 
-	public MailBuilder image(String name, final Class< ? > rbase, final String rname, String mime) throws Exception {
-		String imgkey = name + "-" + (m_attindex++);
-
-		m_text_sb.append("(see attached image ");
-		m_text_sb.append(imgkey);
-		m_text_sb.append(") ");
-
-		m_html_sb.append("<img src=\"cid:");
-		m_html_sb.append(imgkey);
-		m_html_sb.append("\">");
-
-		Attachment a = new Attachment(mime, imgkey, null) {
-			@Override
-			public InputStream getInputStream() throws Exception {
-				InputStream is = rbase.getResourceAsStream(rname);
-				if(is == null)
-					throw new IllegalArgumentException("Missing class resource " + rname + " using base class " + rbase);
-				return is;
-			}
-		};
-
-		//-- Create the attachment image.
-		m_attachmentList.add(a);
+	public MailBuilder image(String name, final Class<?> rbase, final String rname, String mime) throws Exception {
+		String imgkey = addImageAttachment(name, rbase, rname, mime);
+		imageRef(imgkey);
 		return this;
 	}
 
+	public MailBuilder imageRef(String imageKey) {
+		m_textSb.append("(see attached image ");
+		m_textSb.append(imageKey);
+		m_textSb.append(") ");
+
+		m_htmlSb.append("<img src=\"");
+		m_htmlSb.append(imageKey);
+		m_htmlSb.append("\">");
+		return this;
+	}
 
 	/**
 	 * Send it.
-	 * @throws Exception
 	 */
 	public void send(Message m) throws Exception {
 		if(m_decorateHtml) {
 			//-- Finish html
-			m_html_sb.append("</body></html>\n");
+			m_htmlSb.append("</body></html>\n");
 		}
 		m.setSubject(m_subject);
-		m.setBody(m_text_sb.toString());
+		m.setBody(m_textSb.toString());
 		String html = m_decorateHtml
-			? m_html_sb.toString().replace(STYLE_PLACEHOLDER, m_style_sb.toString())
-			: m_html_sb.toString();
+			? m_htmlSb.toString().replace(STYLE_PLACEHOLDER, m_styleSb.toString())
+			: m_htmlSb.toString();
 		m.setHtmlBody(html);
-		for(Attachment a: m_attachmentList)
+		for(Attachment a : m_attachmentList)
 			m.addAttachment(a);
 		m.send();
 	}
@@ -358,10 +380,10 @@ public class MailBuilder {
 	public Message createMessage() {
 		Message m = new Message();
 		m.setSubject(m_subject);
-		m.setBody(m_text_sb.toString());
+		m.setBody(m_textSb.toString());
 		String html = m_decorateHtml
-			? m_html_sb.toString().replace(STYLE_PLACEHOLDER, m_style_sb.toString())
-			: m_html_sb.toString();
+			? m_htmlSb.toString().replace(STYLE_PLACEHOLDER, m_styleSb.toString())
+			: m_htmlSb.toString();
 		m.setHtmlBody(html);
 		for(Attachment a : m_attachmentList)
 			m.addAttachment(a);

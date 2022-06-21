@@ -36,4 +36,6 @@ public interface IMailAttachment {
 	String getMime() throws Exception;
 
 	String getIdent();
+
+	ContentDisposition getContentDisposition();
 }
