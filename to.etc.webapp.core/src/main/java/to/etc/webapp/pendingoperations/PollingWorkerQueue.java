@@ -24,7 +24,8 @@
  */
 package to.etc.webapp.pendingoperations;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Generic Executor which polls for jobs to execute. Providers for jobs can be easily registered.
@@ -59,8 +60,8 @@ public class PollingWorkerQueue {
 
 	private final PolledActionQueue m_actionQueue = new PolledActionQueue();
 
-	static public void initialize() throws Exception {
-		m_instance.init();
+	static public void initialize(int minThreads, int maxThreads) throws Exception {
+		m_instance.init(minThreads, maxThreads);
 	}
 
 	static public PollingWorkerQueue getInstance() {
@@ -77,7 +78,9 @@ public class PollingWorkerQueue {
 	 * Initialize: run minThread threads.
 	 * @throws Exception
 	 */
-	private synchronized void init() throws Exception {
+	private synchronized void init(int minThreads, int maxThreads) throws Exception {
+		m_minThreads = minThreads;
+		m_maxThreads = maxThreads;
 		if(m_minThreads <= 0)
 			m_minThreads = 2;
 		if(m_maxThreads < m_minThreads)

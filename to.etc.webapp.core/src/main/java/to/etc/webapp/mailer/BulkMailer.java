@@ -476,7 +476,7 @@ public class BulkMailer {
 			ConnectionPool p = PoolManager.getInstance().definePool("pzlnew");
 
 			DataSource ds = p.getUnpooledDataSource();
-			PollingWorkerQueue.initialize();
+			PollingWorkerQueue.initialize(5, 10);
 
 			BulkMailer.initialize(ds, new SmtpTransport("localhost"));
 
