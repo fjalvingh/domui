@@ -1,6 +1,7 @@
 package to.etc.dbutil.schema;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.dbutil.reverse.Reverser;
 
@@ -10,6 +11,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * A database (schema) definition.
@@ -18,10 +20,20 @@ import java.util.Map;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Dec 22, 2006
  */
+@NonNullByDefault
 public class DbSchema implements Serializable {
 	transient private Reverser m_reverser;
 
+	/** The assigned schema name */
 	private String m_name;
+
+	/** If this schema is in reality a catalog: thisis the catalog name (or null) */
+	@Nullable
+	private String m_catalogName;
+
+	/** If this really is a schema this contains the schema name. */
+	@Nullable
+	private String m_internalSchemaName;
 
 	private boolean m_forceQuote;
 
@@ -41,8 +53,10 @@ public class DbSchema implements Serializable {
 
 	private Map<String, DbSequence> m_sequenceMap = new HashMap<>();
 
-	public DbSchema(Reverser r, String name) {
-		m_name = name;
+	public DbSchema(Reverser r, @Nullable String internalSchemaName, @Nullable String internalCatalogName) {
+		m_catalogName = internalCatalogName;
+		m_internalSchemaName = internalSchemaName;
+		m_name = internalSchemaName == null ? Objects.requireNonNull(internalCatalogName) : internalSchemaName;
 		m_reverser = r;
 	}
 
@@ -52,8 +66,9 @@ public class DbSchema implements Serializable {
 
 	@NonNull
 	public Reverser getReverser() {
-		if(null != m_reverser)
-			return m_reverser;
+		Reverser reverser = m_reverser;
+		if(null != reverser)
+			return reverser;
 		throw new IllegalStateException("Missing reverser.");
 	}
 
@@ -211,5 +226,21 @@ public class DbSchema implements Serializable {
 		if(m_name.length() == 0)
 			return "";
 		return m_name + ".";
+	}
+
+	/**
+	 * If this is really a catalog: this returns the nonnull catalog name.
+	 */
+	@Nullable
+	public String getInternalCatalogName() {
+		return m_catalogName;
+	}
+
+	/**
+	 * If this is really a schema this returns the schema na,e
+	 */
+	@Nullable
+	public String getInternalSchemaName() {
+		return m_internalSchemaName;
 	}
 }
