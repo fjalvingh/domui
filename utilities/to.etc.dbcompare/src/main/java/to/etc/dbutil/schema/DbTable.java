@@ -425,7 +425,7 @@ public class DbTable implements Serializable {
 
 	@Override
 	public String toString() {
-		return m_schema.getName() + "." + getName();
+		return m_schema.qualifyName(getName());
 	}
 
 	public void initializeColumns(@NonNull List<DbColumn> columnList, @NonNull Map<String, DbColumn> columnMap) {

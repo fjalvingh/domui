@@ -5,11 +5,12 @@ package to.etc.dbutil.reverse;
  * Created on 30-10-20.
  */
 public enum ReverserOption {
+	ReverseTables,
 	ReverseIndexes,
 	ReverseColumns,
 	ReverseRelations,
 	ReverseSequences,
 	ReverseViews,
-	ReverseProdecures,
+	ReverseProcedures,
 	ReverseConstraints,
 }

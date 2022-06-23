@@ -147,7 +147,7 @@ public class JDBCReverser implements Reverser {
 					System.out.println("Reversing views");
 					reverseViews(dbc, schema);
 				}
-				if(hasOption(ReverserOption.ReverseProdecures)) {
+				if(hasOption(ReverserOption.ReverseProcedures)) {
 					System.out.println("Reversing procedures");
 					reverseProcedures(dbc, schema);
 					System.out.println("Reversing packages");
@@ -208,53 +208,7 @@ public class JDBCReverser implements Reverser {
 				DbSchema schema = new DbSchema(this, name);
 				schemaSet.add(schema);
 			}
-			initialize(dbc, schemaSet);
-			System.out.println("Reversing tables");
-			reverseTables(dbc, schemaSet);
-
-			if(!lazily) {
-				if(hasOption(ReverserOption.ReverseSequences)) {
-					System.out.println("Reversing sequences");
-					reverseSequences(dbc, schemaSet);
-				}
-
-				if(hasOption(ReverserOption.ReverseColumns, ReverserOption.ReverseIndexes, ReverserOption.ReverseRelations, ReverserOption.ReverseConstraints)) {
-					System.out.println("Reversing columns");
-					reverseColumns(dbc, schemaSet);
-					int ncols = 0;
-					for(DbSchema schema : schemaSet) {
-						for(DbTable table : schema.getTables()) {
-							ncols += table.getColumnList().size();
-						}
-					}
-
-					msg("Loaded " + ncols + " columns");
-				}
-				if(hasOption(ReverserOption.ReverseIndexes)) {
-					System.out.println("Reversing indices");
-					reverseIndexes(dbc, schemaSet);
-				}
-
-				if(hasOption(ReverserOption.ReverseColumns)) {
-					System.out.println("Reversing primary keys");
-					reversePrimaryKeys(dbc, schemaSet);
-				}
-
-				if(hasOption(ReverserOption.ReverseRelations)) {
-					System.out.println("Reversing relations");
-					reverseRelations(dbc, schemaSet);
-				}
-//				reverseViews(dbc, schema);
-//				reverseProcedures(dbc, schema);
-//				reversePackages(dbc, schema);
-//				reverseTriggers(dbc, schema);
-				if(hasOption(ReverserOption.ReverseConstraints)) {
-					System.out.println("Reversing constraints");
-					reverseConstraints(dbc, schemaSet);
-				}
-//
-//				afterLoad(dbc, schema);
-			}
+			reverseSchemaSet(dbc, schemaSet, lazily);
 			return schemaSet;
 		}finally {
 			if(!m_keepConnectionsOpen) {
@@ -263,6 +217,55 @@ public class JDBCReverser implements Reverser {
 		}
 	}
 
+	protected void reverseSchemaSet(Connection dbc, Set<DbSchema> schemaSet, boolean lazily) throws Exception {
+		initialize(dbc, schemaSet);
+		System.out.println("Reversing tables");
+		reverseTables(dbc, schemaSet);
+
+		if(!lazily) {
+			if(hasOption(ReverserOption.ReverseSequences)) {
+				System.out.println("Reversing sequences");
+				reverseSequences(dbc, schemaSet);
+			}
+
+			if(hasOption(ReverserOption.ReverseColumns, ReverserOption.ReverseIndexes, ReverserOption.ReverseRelations, ReverserOption.ReverseConstraints)) {
+				System.out.println("Reversing columns");
+				reverseColumns(dbc, schemaSet);
+				int ncols = 0;
+				for(DbSchema schema : schemaSet) {
+					for(DbTable table : schema.getTables()) {
+						ncols += table.getColumnList().size();
+					}
+				}
+
+				msg("Loaded " + ncols + " columns");
+			}
+			if(hasOption(ReverserOption.ReverseIndexes)) {
+				System.out.println("Reversing indices");
+				reverseIndexes(dbc, schemaSet);
+			}
+
+			if(hasOption(ReverserOption.ReverseColumns)) {
+				System.out.println("Reversing primary keys");
+				reversePrimaryKeys(dbc, schemaSet);
+			}
+
+			if(hasOption(ReverserOption.ReverseRelations)) {
+				System.out.println("Reversing relations");
+				reverseRelations(dbc, schemaSet);
+			}
+//				reverseViews(dbc, schema);
+//				reverseProcedures(dbc, schema);
+//				reversePackages(dbc, schema);
+//				reverseTriggers(dbc, schema);
+			if(hasOption(ReverserOption.ReverseConstraints)) {
+				System.out.println("Reversing constraints");
+				reverseConstraints(dbc, schemaSet);
+			}
+//
+//				afterLoad(dbc, schema);
+		}
+	}
 
 	protected String translateSchemaName(@NonNull Connection dbc, @Nullable String name) throws Exception {
 		if(null == name)
@@ -343,6 +346,16 @@ public class JDBCReverser implements Reverser {
 
 	@Nullable
 	protected DbSchema findSchema(Set<DbSchema> schemaSet, String name) {
+		/*
+		 * Special case: if we have only the NONAME schema in the schemaset we ignore the
+		 * null name and return that schema. This is needed for databases that do not support schema's.
+		 */
+		if(name == null && schemaSet.size() == 1) {
+			DbSchema schema = schemaSet.iterator().next();
+			if(schema.getName().length() == 0)
+				return schema;
+		}
+
 		Optional<DbSchema> first = schemaSet.stream().filter(s -> s.getName().equalsIgnoreCase(name)).findFirst();
 		return first.isPresent() ? first.get() : null;
 	}
@@ -355,8 +368,6 @@ public class JDBCReverser implements Reverser {
 
 	protected void reverseSequences(Connection dbc, DbSchema schema) throws Exception {
 	}
-
-
 
 	protected void reverseTables(@NonNull Connection dbc, @NonNull Set<DbSchema> schemaSet) throws Exception {
 		ResultSet rs = null;

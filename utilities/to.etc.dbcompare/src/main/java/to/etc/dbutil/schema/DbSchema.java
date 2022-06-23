@@ -195,4 +195,21 @@ public class DbSchema implements Serializable {
 	public void setForceQuote(boolean forceQuote) {
 		m_forceQuote = forceQuote;
 	}
+
+	@Override
+	public String toString() {
+		return getName();
+	}
+
+	public String qualifyName(String in) {
+		if(m_name.length() == 0)
+			return in;
+		return m_name + "." + in;
+	}
+
+	public String getSchemaNameAndDot() {
+		if(m_name.length() == 0)
+			return "";
+		return m_name + ".";
+	}
 }

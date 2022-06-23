@@ -460,13 +460,12 @@ abstract public class AbstractGenerator {
 	private boolean isIgnoredTable(DbTable tbl) {
 		if(m_ignoreTableSet.contains(tbl.getName().toLowerCase()))
 			return true;
-		return m_ignoreTableSet.contains(tbl.getSchema().getName().toLowerCase() + "." + tbl.getName().toLowerCase());
+		return m_ignoreTableSet.contains(tbl.getSchema().qualifyName(tbl.getName()).toLowerCase());
 
 	}
 
 	/**
 	 * Walk all tables, and create java sources for all of them that are missing.
-	 * @throws Exception
 	 */
 	private void matchTablesAndSources() throws Exception {
 		Set<ClassWrapper> deleteSet = new HashSet<>(getTableClasses());
