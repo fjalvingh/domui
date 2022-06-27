@@ -777,7 +777,7 @@ public enum Icon implements IIconRef {
 		}
 		if(sb.length() > 0)
 			throw new IllegalStateException("Missing values for Icon constants. Have you added one of the font packs to "
-				+ "your projects, i.e. fontawesome5free or fontawesome4? Or did you forget to map?\n\nMissing are: " + sb);
+				+ "your projects, i.e. fontawesome6free or fontawesome5free or fontawesome4? Or did you forget to map?\n\nMissing are: " + sb);
 	}
 
 

@@ -10,7 +10,7 @@ import to.etc.domui.dom.html.NodeBase;
 import javax.annotation.processing.Generated;
 
 /**
- * All of the definitions in the FontAwesome 4.7.0 font distribution.
+ * All of the definitions in the FontAwesome 5.4.1 font distribution.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 20-10-18.
@@ -242,6 +242,7 @@ public enum FaIcon implements IFontIconRef {
 	faClipboardCheck("fa-clipboard-check","fa"),
 	faClipboardList("fa-clipboard-list","fa"),
 	faClock("fa-clock","far"),
+	faClockO("fa-clock-o","far"),
 	faClone("fa-clone","far"),
 	faClosedCaptioning("fa-closed-captioning","far"),
 	faCloud("fa-cloud","fa"),
