@@ -166,7 +166,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 		List<AbstractTaskExecutor<T>> all;
 		synchronized(this) {
 			m_finished = true;
-			all = m_allThreadList;
+			all = new ArrayList<>(m_allThreadList);
 		}
 
 		for(AbstractTaskExecutor<T> executor : all) {
