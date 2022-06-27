@@ -40,7 +40,14 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 			runLoop();
 		} finally {
 			try {
-				terminate();
+				try {
+					terminate();
+				} catch(Exception x) {
+					x.printStackTrace();
+				} catch(Error x) {
+					x.printStackTrace();
+				}
+				m_runner.taskTerminated(this);
 			} catch(Exception x) {
 				x.printStackTrace();
 			}
