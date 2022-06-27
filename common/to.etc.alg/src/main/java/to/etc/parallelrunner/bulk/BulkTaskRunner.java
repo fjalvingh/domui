@@ -32,10 +32,6 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	/**
 	 * Starts execution of threads. Uses specified capacity of threads, and blocks in adding tasks if no threads are available.
 	 * Call addTask to add tasks, and waitTillFinished at the end to wait for all work to complete. Call close after that.
-	 *
-	 * @param executorSupplier
-	 * @param nThreads
-	 * @throws Exception
 	 */
 	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads) throws Exception {
 		start(executorSupplier, nThreads, null, null);
@@ -43,12 +39,6 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 
 	/**
 	 * Adds optional callbacks for each individual completed or failed executor task to handle possible re-work in tasks.
-	 *
-	 * @param executorSupplier
-	 * @param nThreads
-	 * @param onTaskCompleted
-	 * @param onTaskFailed
-	 * @throws Exception
 	 */
 	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, @Nullable Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted, @Nullable BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed) throws Exception {
 		m_onTaskCompleted = onTaskCompleted;
@@ -216,7 +206,25 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	 * Called when a task is free.
 	 */
 	synchronized void taskFree(AbstractTaskExecutor<T> executor) {
-		m_freeThreadList.add(executor);
-		notifyAll();
+		if(!m_freeThreadList.contains(executor)) {
+			m_freeThreadList.add(executor);
+			notifyAll();
+		}
+	}
+
+	public void reportStatus() {
+		synchronized(this) {
+			System.out.println("---- executor status");
+			System.out.println(m_allThreadList.size() + " total threads");
+			System.out.println(m_freeThreadList.size() + " free threads");
+		}
+	}
+
+	/**
+	 * Called when an executor THREAD has stopped.
+	 */
+	synchronized void taskTerminated(AbstractTaskExecutor<T> executor) {
+		m_allThreadList.remove(executor);
+		m_freeThreadList.remove(executor);
 	}
 }
