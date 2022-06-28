@@ -231,6 +231,16 @@ namespace WebUI {
 		}
 	}
 
+	export function addRefreshFull(e): void {
+		let KEY = {
+			REFRESH: 116
+		};
+		if (e.keyCode === KEY.REFRESH) {
+			e.preventDefault();
+			WebUI.refreshPage();
+		}
+	}
+
 	let _checkLeavePage = false;
 	let _skipLeavePageCheck = false;
 

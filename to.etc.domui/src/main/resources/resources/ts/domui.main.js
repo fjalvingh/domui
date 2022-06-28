@@ -45,4 +45,5 @@ $(document).ajaxComplete(function () {
 $(document).keydown(function (e) {
     WebUI.addPagerAccessKeys(e);
     WebUI.addDropDownPickerKeys(e);
+    WebUI.addRefreshFull(e);
 });
