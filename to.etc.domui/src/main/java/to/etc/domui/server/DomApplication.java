@@ -1523,7 +1523,7 @@ public abstract class DomApplication {
 	 */
 	@NonNull
 	public File getAppFile(final String path) {
-		if(! StringTool.isValidRelativePath(path))
+		if(! StringTool.isValidPath(path))
 			throw new SecurityException("Invalid relative path " + path);
 		return new File(m_webFilePath, path);
 	}
