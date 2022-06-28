@@ -202,6 +202,16 @@ public class StringTool {
 	}
 
 	/**
+	 * Checks that the path is a valid path (security wise), not containing the '..' pattern.
+	 */
+	static public boolean isValidPath(@NonNull String path) {
+		path = path.replace("\\", "/");							// Accept both / and \ as dir separators
+		if(path.contains("/..") || path.contains("../"))
+			return false;
+		return true;
+	}
+
+	/**
 	 * Returns TRUE if the string is a number, possibly containing a '.'.
 	 */
 	static public boolean isNumber(@NonNull final String s) {
