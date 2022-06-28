@@ -40,7 +40,7 @@ final public class IconFromCss {
 		entry("faSend%", "faPaperPlane%"),
 		entry("faHandO%", "faHandPoint%"),
 		entry("faTripadvisor", "faSuitcase"),
-		entry("faYoutubePlay", "faPlayCircle")
+		entry("faYoutubePlay", "faYoutube")
 	);
 
 	private static Map<String, String> TRANSLATIONS_SUFFIXES = Map.ofEntries(
@@ -203,9 +203,11 @@ final public class IconFromCss {
 
 	private static void renderIcons(OutputStreamWriter of, List<Pair<String, Integer>> namesAndCodes, Properties props) throws Exception {
 		try(InputStream faSolidIs = IconFromCss.class.getResourceAsStream("/META-INF/resources/webfonts/fa-solid-900.ttf");
-			InputStream faRegularIs = IconFromCss.class.getResourceAsStream("/META-INF/resources/webfonts/fa-regular-400.ttf")) {
+			InputStream faRegularIs = IconFromCss.class.getResourceAsStream("/META-INF/resources/webfonts/fa-regular-400.ttf");
+			InputStream faBrandsIs = IconFromCss.class.getResourceAsStream("/META-INF/resources/webfonts/fa-brands-400.ttf")) {
 			Font fontRegular = Font.createFont(Font.TRUETYPE_FONT, faRegularIs);
 			Font fontSolid = Font.createFont(Font.TRUETYPE_FONT, faSolidIs);
+			Font fontBrands = Font.createFont(Font.TRUETYPE_FONT, faBrandsIs);
 
 			for(Pair<String, Integer> nameAndCode : namesAndCodes) {
 				String name = nameAndCode.get1();
@@ -216,6 +218,8 @@ final public class IconFromCss {
 						faStyle = "far";
 					}else if (fontSolid.canDisplay(code)) {
 						faStyle = "fas";
+					}else if (fontBrands.canDisplay(code)) {
+						faStyle = "fab";
 					}else {
 						faStyle = "na";
 					}
