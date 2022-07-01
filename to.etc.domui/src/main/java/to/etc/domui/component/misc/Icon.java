@@ -734,6 +734,13 @@ public enum Icon implements IIconRef {
 		return new ImageIconRef(path);
 	}
 
+	/**
+	 * Create an icon out of an Unicode character.
+	 */
+	static public IIconRef of(char unicode) {
+		return new CharIconRef(unicode);
+	}
+
 	@Override public NodeBase createNode(String cssClasses) {
 		IIconRef icon = getRef();
 		return icon.createNode(cssClasses);
