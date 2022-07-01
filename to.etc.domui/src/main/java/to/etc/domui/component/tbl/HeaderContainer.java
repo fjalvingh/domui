@@ -81,7 +81,7 @@ final public class HeaderContainer<T> {
 				tr.appendBeforeMe(header);
 			}
 		}
-		header.addCssClass("ui-dt-hdr-extra");
+		//header.addCssClass("ui-dt-hdr-extra");
 	}
 
 	/**
