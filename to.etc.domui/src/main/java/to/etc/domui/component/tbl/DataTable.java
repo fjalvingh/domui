@@ -591,9 +591,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/*--------------------------------------------------------------*/
 	/**
 	 * Updates the "selection" state of the specified local row#.
-	 * @param instance
-	 * @param tableRowSet
-	 * @param on
 	 */
 	private void updateSelectionChanged(T instance, TableRowSet<T> tableRowSet, boolean on) throws Exception {
 		ISelectionModel<T> sm = getSelectionModel();
@@ -765,8 +762,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * page size; if it is we delete the last node. After all this the renderer will render
 	 * the correct result.
 	 * When called the actual insert has already taken place in the model.
-	 *
-	 * @see to.etc.domui.component.tbl.ITableModelListener#rowAdded(to.etc.domui.component.tbl.ITableModel, int, java.lang.Object)
 	 */
 	@Override
 	public void rowAdded(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
@@ -856,8 +851,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	 * Delete the row specified. If it is not visible we do nothing. If it is visible we
 	 * delete the row. This causes one less row to be shown, so we check if we have a pagesize
 	 * set; if so we add a new row at the end IF it is available.
-	 *
-	 * @see ITableModelListener#rowDeleted(ITableModel, int, Object)
 	 */
 	@Override
 	public void rowDeleted(@NonNull ITableModel<T> model, int index, @NonNull T value) throws Exception {
@@ -991,7 +984,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * Called when a selection event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
-	 * it's selection presentation.
+	 * its selection presentation.
 	 *
 	 * @see ISelectionListener#selectionChanged(Object, boolean)
 	 */
@@ -1013,7 +1006,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 	/**
 	 * Called when a selection cleared event fires. The underlying model has already been changed. It
 	 * tries to see if the row is currently paged in, and if so asks the row renderer to update
-	 * it's selection presentation.
+	 * its selection presentation.
 	 */
 	@Override
 	public void selectionAllChanged() throws Exception {
@@ -1028,7 +1021,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * When T, the header of the table is always shown, even if the list of results is empty.
-	 * @return
 	 */
 	public boolean isShowHeaderAlways() {
 		return m_showHeaderAlways;
@@ -1036,7 +1028,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * When T, the header of the table is always shown, even if the list of results is empty.
-	 * @param showHeaderAlways
 	 */
 	public void setShowHeaderAlways(boolean showHeaderAlways) {
 		m_showHeaderAlways = showHeaderAlways;
@@ -1048,8 +1039,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * When T, rows are not highlighted when table has no selection callbacks on rows.
-	 *
-	 * @param preventRowHighlight
 	 */
 	public void setPreventRowHighlight(boolean preventRowHighlight) {
 		m_preventRowHighlight = preventRowHighlight;
@@ -1057,7 +1046,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * UNSTABLE INTERFACE - UNDER CONSIDERATION.
-	 * @param dataBody
 	 */
 	private void setDataBody(@NonNull TBody dataBody) {
 		m_dataBody = dataBody;
@@ -1073,7 +1061,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * Return the backing table for this data browser. For component extension only - DO NOT MAKE PUBLIC.
-	 * @return
 	 */
 	@NonNull
 	protected Table getTable() {
@@ -1097,8 +1084,6 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 
 	/**
 	 * Set the page size: the #of records to show. If &lt;= 0 all records are shown.
-	 *
-	 * @param pageSize
 	 */
 	public void setPageSize(int pageSize) {
 		if(m_pageSize == pageSize)
