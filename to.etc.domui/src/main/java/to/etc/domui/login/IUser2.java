@@ -19,5 +19,5 @@ public interface IUser2 extends IUser {
 	 * implementation's responsibility to obtain the primary element from the data passed and apply the rights check there.
 	 * If data-bound permissions are not implemented this MUST return getRight(r).
 	 */
-	<T> boolean hasRight(@NonNull String r, @Nullable T dataElement);
+	<T> boolean hasDataRight(@NonNull String r, @Nullable T dataElement);
 }
