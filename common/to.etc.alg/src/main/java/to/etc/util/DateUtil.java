@@ -720,6 +720,18 @@ final public class DateUtil {
 	}
 
 	/**
+	 * Converts java.sql.Timestamp to java.util.Date. Returns null if sqlDate is null.
+	 * @param sqlDate
+	 * @return
+	 */
+	public static Date sqlToUtilDate(@Nullable java.sql.Timestamp sqlDate){
+		if (null == sqlDate){
+			return null;
+		}
+		return new Date(sqlDate.getTime());
+	}
+
+	/**
 	 * Returns format for specified date and formatter.
 	 * In case of null date returns empty string.
 	 *
