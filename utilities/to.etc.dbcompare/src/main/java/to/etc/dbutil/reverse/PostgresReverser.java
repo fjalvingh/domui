@@ -304,15 +304,21 @@ public class PostgresReverser extends JDBCReverser {
 				break;
 
 			case Types.INTEGER:
-				prec = 10;
+				if(prec < 10) {
+					prec = 10;
+				}
 				break;
 
 			case Types.SMALLINT:
-				prec = 5;
+				if(prec < 5) {
+					prec = 5;
+				}
 				break;
 
 			case Types.BIGINT:
-				prec = 20;
+				if(prec < 20) {
+					prec = 20;
+				}
 				break;
 		}
 
