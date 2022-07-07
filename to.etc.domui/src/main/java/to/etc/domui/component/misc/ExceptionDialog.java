@@ -101,7 +101,7 @@ final public class ExceptionDialog {
 	/**
 	 * Show an exception as an error dialog.
 	 */
-	static public void create(@NonNull NodeContainer container, @NonNull String message, @NonNull Throwable xin) throws Exception {
+	static public void create(@NonNull NodeContainer container, @NonNull String message, @NonNull Throwable xin) {
 		if(xin instanceof ValidationException)
 			return;
 		Exception x = WrappedException.unwrap(xin);
