@@ -28,6 +28,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -417,6 +419,12 @@ public class RuntimeConversions {
 		if(Enum.class.isAssignableFrom(to)) {
 			return (T) convertToEnum((Class<Enum<?>>) to, o);
 		}
+		if(to == java.util.Date.class) {
+			return (T) convertToDate(to);
+		}
+		if(to == java.sql.Date.class) {
+			return (T) convertToSqlDate(to);
+		}
 
 		if(o == null && !to.isPrimitive()) // Accept null for all non-primitives
 			return (T) o;
@@ -697,11 +705,33 @@ public class RuntimeConversions {
 	static public java.util.Date convertToDate(Object o) {
 		if(o == null)
 			return null;
+		if(o instanceof java.sql.Date) {
+			return new java.util.Date(((Date) o).getTime());
+		}
+		if(o instanceof java.sql.Timestamp) {
+			return new java.util.Date(((Timestamp) o).getTime());
+		}
 		if(o instanceof java.util.Date)
 			return (java.util.Date) o;
 		if(o instanceof Calendar)
 			return ((Calendar) o).getTime();
 		throw new RuntimeConversionException("Cannot convert a " + o.getClass().getName() + " to a java.util.Date");
+	}
+
+	static public java.sql.Date convertToSqlDate(Object o) {
+		if(o == null)
+			return null;
+		if(o.getClass() == java.util.Date.class) {
+			return new java.sql.Date(((java.util.Date) o).getTime());
+		}
+		if(o instanceof java.sql.Timestamp) {
+			return new java.sql.Date(((Timestamp) o).getTime());
+		}
+		if(o instanceof java.sql.Date)
+			return (java.sql.Date) o;
+		if(o instanceof Calendar)
+			return new java.sql.Date(((Calendar) o).getTimeInMillis());
+		throw new RuntimeConversionException("Cannot convert a " + o.getClass().getName() + " to a java.sql.Date");
 	}
 
 	static public Enum<?> convertToEnum(Class<Enum<?>> cl, Object o) {

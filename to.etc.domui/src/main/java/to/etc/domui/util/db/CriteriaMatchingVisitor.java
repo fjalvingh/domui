@@ -223,6 +223,9 @@ public class CriteriaMatchingVisitor<T> extends QNodeVisitorBase {
 		Double.class, double.class,                //
 		BigInteger.class, null,                    //
 		BigDecimal.class, null,                    //
+		java.sql.Timestamp.class, null,
+		java.sql.Date.class, null,
+		java.util.Date.class, null,
 		String.class, null                        //
 	};
 
