@@ -25,8 +25,6 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 	/** T if the sort order is currently descending. */
 	private boolean m_descending;
 
-	private boolean m_truncated;
-
 	public SortableListModel(Class<T> clz, List<T> list) {
 		super(list);
 		m_dataClass = clz;
@@ -76,14 +74,5 @@ public class SortableListModel<T> extends SimpleListModel<T> implements ISortabl
 	@Override
 	public boolean isSortDescending() {
 		return m_descending;
-	}
-
-	@Override
-	public boolean isTruncated() {
-		return m_truncated;
-	}
-
-	public void setTruncated(boolean tr) {
-		m_truncated = tr;
 	}
 }
