@@ -7,6 +7,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -19,7 +20,7 @@ public class CpLookupInput extends AbstractCpComponent implements ICpControl<Str
 	public void searchBy(List<SearchPair> val) {
 		By locator = By.cssSelector(getSelectorSupplier().get() +  " -lookup");			// FIXME Incorrect
 
-		var wait = new WebDriverWait(wd().driver(), 10);
+		var wait = new WebDriverWait(wd().driver(), Duration.ofSeconds(10));
 		wd().wait(ExpectedConditions.elementToBeClickable(locator));
 		wd().cmd().click().on(locator);
 		wd().wait(locator);

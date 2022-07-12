@@ -98,9 +98,9 @@
 		<javax.el.version>2.2</javax.el.version>
 		<javax.servlet.jsp.version>2.0</javax.servlet.jsp.version>
 
-		<rhino.version>1.7.7</rhino.version>
+		<rhino.version>1.7.14</rhino.version>
 		<jcharts.version>0.7.5</jcharts.version>
-		<batik.version>1.8</batik.version>
+		<batik.version>1.14</batik.version>
 		<jericho.version>3.4</jericho.version>
 		<gnu.regexp.version>1.1.4</gnu.regexp.version>
 
@@ -114,7 +114,8 @@
 		-->
 		<jetty.version>9.4.14.v20181114</jetty.version>  <!-- DO NOT GO TO 10.x - tests fail with that -->
 <!--		<jetty.version>11.0.7</jetty.version>-->
-		<selenium.version>3.141.59</selenium.version>
+<!--		<selenium.version>3.141.59</selenium.version>-->
+		<selenium.version>4.3.0</selenium.version>
 		<hsqldb.version>2.5.1</hsqldb.version>
 
 		<jaxb.version>2.3.0</jaxb.version>
@@ -198,7 +199,7 @@
 			<dependency>
 				<groupId>com.google.api-client</groupId>
 				<artifactId>google-api-client</artifactId>
-				<version>1.33.4</version>
+				<version>1.35.2</version>
 
 				<exclusions>
 					<exclusion>
@@ -233,7 +234,7 @@
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>30.1.1-jre</version>
+				<version>31.1-jre</version>
 
 				<exclusions>
 					<exclusion>
@@ -288,7 +289,7 @@
 			<dependency>
 				<groupId>io.github.classgraph</groupId>
 				<artifactId>classgraph</artifactId>
-				<version>4.8.52</version>
+				<version>4.8.149</version>
 			</dependency>
 
 			<!-- https://mvnrepository.com/artifact/javax.servlet/javax.servlet-api -->
@@ -471,6 +472,38 @@
 						<groupId>net.bytebuddy</groupId>
 						<artifactId>byte-buddy</artifactId>
 					</exclusion>
+					<exclusion>
+						<groupId>io.netty</groupId>
+						<artifactId>netty-buffer</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>io.netty</groupId>
+						<artifactId>netty-transport</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>io.netty</groupId>
+						<artifactId>netty-handler</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>io.netty</groupId>
+						<artifactId>netty-transport-native-epoll</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>io.netty</groupId>
+						<artifactId>netty-codec</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>io.netty</groupId>
+						<artifactId>netty-transport-native-kqueue</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>io.netty</groupId>
+						<artifactId>netty-common</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>io.netty</groupId>
+						<artifactId>netty-codec-http</artifactId>
+					</exclusion>
 				</exclusions>
 			</dependency>
 
@@ -486,11 +519,21 @@
 				<version>1.15.0</version>
 			</dependency>
 
-			<dependency>
-				<groupId>org.seleniumhq.selenium</groupId>
-				<artifactId>htmlunit-driver</artifactId>
-				<version>2.50.0</version>
-			</dependency>
+<!--			<dependency>-->
+<!--				<groupId>org.seleniumhq.selenium</groupId>-->
+<!--				<artifactId>htmlunit-driver</artifactId>-->
+<!--				<version>4.3.0</version>-->
+<!--				<exclusions>-->
+<!--					<exclusion>-->
+<!--						<groupId>org.seleniumhq.selenium</groupId>-->
+<!--						<artifactId>selenium-support</artifactId>-->
+<!--					</exclusion>-->
+<!--					<exclusion>-->
+<!--						<groupId>org.seleniumhq.selenium</groupId>-->
+<!--						<artifactId>selenium-api</artifactId>-->
+<!--					</exclusion>-->
+<!--				</exclusions>-->
+<!--			</dependency>-->
 
 			<!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
 			<dependency>

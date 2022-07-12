@@ -6,6 +6,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,7 +48,6 @@ final public class WebDriverCommandBuilder {
 	/*--------------------------------------------------------------*/
 	/**
 	 * Wait for the element to become present.
-	 * @return
 	 */
 	@NonNull
 	public WebDriverCommandBuilder present() {
@@ -57,7 +57,6 @@ final public class WebDriverCommandBuilder {
 
 	/**
 	 * Wait until the element is clickable.
-	 * @return
 	 */
 	@NonNull
 	public WebDriverCommandBuilder clickable() {
@@ -67,7 +66,6 @@ final public class WebDriverCommandBuilder {
 
 	/**
 	 * Wait until the element is visible.
-	 * @return
 	 */
 	@NonNull
 	public WebDriverCommandBuilder visible() {
@@ -77,7 +75,6 @@ final public class WebDriverCommandBuilder {
 
 	/**
 	 * Wait until the element is invisible.
-	 * @return
 	 */
 	@NonNull
 	public WebDriverCommandBuilder invisible() {
@@ -87,23 +84,19 @@ final public class WebDriverCommandBuilder {
 
 	/**
 	 * Alter the default timeout for this action.
-	 * @param milliseconds
-	 * @return
 	 */
 	@NonNull
-	public WebDriverCommandBuilder timeout(int milliseconds) {
-		m_wd.setNextWaitTimeout(milliseconds);
+	public WebDriverCommandBuilder timeout(Duration time) {
+		m_wd.setNextWaitTimeout(time);
 		return this;
 	}
 
 	/**
 	 * Alter the default wait interval for this action.
-	 * @param milliseconds
-	 * @return
 	 */
 	@NonNull
-	public WebDriverCommandBuilder interval(int milliseconds) {
-		m_wd.setNextInterval(milliseconds);
+	public WebDriverCommandBuilder interval(Duration time) {
+		m_wd.setNextInterval(time);
 		return this;
 	}
 
@@ -136,8 +129,6 @@ final public class WebDriverCommandBuilder {
 
 	/**
 	 * Click something, with optional keys pressed.
-	 * @param withKeys
-	 * @return
 	 */
 	@NonNull
 	public WebDriverCommandBuilder click(Keys... withKeys) {
@@ -166,7 +157,6 @@ final public class WebDriverCommandBuilder {
 
 	/**
 	 * Define the item the actions are do be done on, and executes the actions.
-	 * @param testid
 	 */
 	public void on(@NonNull String testid) {
 		on(m_wd.byId(testid));

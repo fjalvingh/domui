@@ -9,11 +9,8 @@ import org.openqa.selenium.html5.Location;
 import org.openqa.selenium.html5.LocationContext;
 import org.openqa.selenium.html5.SessionStorage;
 import org.openqa.selenium.html5.WebStorage;
-import org.openqa.selenium.interactions.HasTouchScreen;
-import org.openqa.selenium.interactions.TouchScreen;
 import org.openqa.selenium.mobile.NetworkConnection;
 import org.openqa.selenium.remote.FileDetector;
-import org.openqa.selenium.remote.RemoteTouchScreen;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.remote.html5.RemoteLocationContext;
 import org.openqa.selenium.remote.html5.RemoteWebStorage;
@@ -23,10 +20,10 @@ import org.openqa.selenium.remote.mobile.RemoteNetworkConnection;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 3-9-17.
  */
-public class MyChromeDriver  extends RemoteWebDriver implements LocationContext, WebStorage, HasTouchScreen, NetworkConnection {
+public class MyChromeDriver  extends RemoteWebDriver implements LocationContext, WebStorage, NetworkConnection {
 	private RemoteLocationContext locationContext;
 	private RemoteWebStorage webStorage;
-	private TouchScreen touchScreen;
+	//private TouchScreen touchScreen;
 	private RemoteNetworkConnection networkConnection;
 
 	//public MyChromeDriver() {
@@ -49,7 +46,7 @@ public class MyChromeDriver  extends RemoteWebDriver implements LocationContext,
 		super(new MyChromeDriverCommandExecutor(service), capabilities);
 		this.locationContext = new RemoteLocationContext(this.getExecuteMethod());
 		this.webStorage = new RemoteWebStorage(this.getExecuteMethod());
-		this.touchScreen = new RemoteTouchScreen(this.getExecuteMethod());
+		//this.touchScreen = new RemoteTouchScreen(this.getExecuteMethod());
 		this.networkConnection = new RemoteNetworkConnection(this.getExecuteMethod());
 	}
 
@@ -78,10 +75,10 @@ public class MyChromeDriver  extends RemoteWebDriver implements LocationContext,
 		this.locationContext.setLocation(location);
 	}
 
-	@Override
-	public TouchScreen getTouch() {
-		return this.touchScreen;
-	}
+	//@Override
+	//public TouchScreen getTouch() {
+	//	return this.touchScreen;
+	//}
 
 	@Override
 	public ConnectionType getNetworkConnection() {

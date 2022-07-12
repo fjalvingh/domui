@@ -13,8 +13,8 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.ie.InternetExplorerOptions;
 import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -38,7 +38,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 /**
  * Factory to create raw WebDriver instances.
  */
-@NonNullByDefault final class WebDriverFactory {
+@NonNullByDefault
+final class WebDriverFactory {
 	private static Logger LOG = LoggerFactory.getLogger(WebDriverFactory.class);
 
 	/**
@@ -53,12 +54,12 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		//	return allocatePhantomjsInstance(lang);
 		//}
 
-		switch(type){
+		switch(type) {
 			default:
 				throw new IllegalStateException("? unhandled driver type");
 
-			case HTMLUNIT:
-				return allocateHtmlUnitInstance(browser, lang);
+			//case HTMLUNIT:
+			//	return allocateHtmlUnitInstance(browser, lang);
 
 			case LOCAL:
 				return allocateLocalInstance(browser, lang);
@@ -142,36 +143,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return new RemoteWebDriver(new URL(url), caps);
 	}
 
-	//private static WebDriver allocatePhantomjsInstance(Locale lang) throws Exception {
-	//	DesiredCapabilities capabilities = calculateCapabilities(BrowserModel.PHANTOMJS, lang);
-	//	capabilities.setCapability(CapabilityType.TAKES_SCREENSHOT, "true");
-	//
-	//	PhantomJSDriver wd;
-	//	if(false) {
-	//		wd = new PhantomJSDriver(capabilities);
-	//	} else {
-	//		/*
-	//		 * We must have anti-aliasing off for better testing. This should work for unices where Phantomjs has been
-	//		 * compiled with FontConfig support..
-	//		 */
-	//
-	//		//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
-	//		File dir = createFontConfigFile();
-	//		Map<String, String> env = new HashMap<>();
-	//		env.put("XDG_CONFIG_HOME", dir.getParentFile().getAbsolutePath());
-	//
-	//		PhantomJSDriverService service = MyPhantomDriverService.createDefaultService(capabilities, env);
-	//		wd = new PhantomJSDriver(service, capabilities);
-	//	}
-	//
-	//	wd.manage().window().setSize(new Dimension(1280, 1024));
-	//	String browserName = wd.getCapabilities().getBrowserName();
-	//	String version = wd.getCapabilities().getVersion();
-	//	System.out.println("wd: allocated " + browserName + " " + version);
-	//	return wd;
-	//}
-
-	@NonNull private static File createFontConfigFile() throws IOException {
+	@NonNull
+	private static File createFontConfigFile() throws IOException {
 		//-- 1. Make a temp directory which will contain our fonts.conf
 		String tmp = System.getProperty("java.io.tmpdir");
 		if(tmp == null) {
@@ -196,32 +169,28 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return dir;
 	}
 
-	private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
-		Capabilities capabilities = calculateCapabilities(browser, lang);
-		return new HtmlUnitDriver(capabilities);
-	}
+	//private static WebDriver allocateHtmlUnitInstance(BrowserModel browser, Locale lang) throws Exception {
+	//	Capabilities capabilities = calculateCapabilities(browser, lang);
+	//	return new HtmlUnitDriver(capabilities);
+	//}
 
 	private static WebDriver allocateRemoteInstance(BrowserModel browser, @NonNull String hubUrl, Locale lang) throws Exception {
 		return new RemoteWebDriver(new URL(hubUrl), calculateCapabilities(browser, lang));
 	}
 
-	private static DesiredCapabilities calculateCapabilities(BrowserModel browser, Locale lang) throws Exception {
-		switch(browser){
+	private static Capabilities calculateCapabilities(BrowserModel browser, Locale lang) throws Exception {
+		switch(browser) {
 			default:
 				throw new IllegalStateException("Unsupported browser type " + browser.getCode());
 
 			case FIREFOX:
 				return getFirefoxCapabilities(lang);
 
-			//case PHANTOMJS:
-			//	return getPhantomCapabilities(lang);
-
 			case CHROME:
 				return getChromeCapabilities(lang);
 
 			case CHROME_HEADLESS:
 				return getChromeHeadlessCapabilities(lang);
-
 
 			case IE:
 			case IE9:
@@ -234,7 +203,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	}
 
 	private static WebDriver allocateLocalInstance(BrowserModel browser, Locale lang) throws IOException {
-		switch(browser){
+		switch(browser) {
 			default:
 				throw new IllegalStateException("Unsupported browser type " + browser.getCode() + " for HUB test execution");
 
@@ -255,15 +224,17 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		}
 	}
 
-	@NonNull private static WebDriver allocateIEDriver(BrowserModel browser, Locale lang) {
+	@NonNull
+	private static WebDriver allocateIEDriver(BrowserModel browser, Locale lang) {
 		InternetExplorerDriver wd = new InternetExplorerDriver(getIECapabilities(browser, lang));
 		String browserName = wd.getCapabilities().getBrowserName();
-		String version = wd.getCapabilities().getVersion();
+		String version = wd.getCapabilities().getBrowserVersion();
 		System.out.println("wd: allocated " + browserName + " " + version);
 		return wd;
 	}
 
-	@NonNull private static WebDriver allocateFirefoxDriver(Locale lang) throws IOException {
+	@NonNull
+	private static WebDriver allocateFirefoxDriver(Locale lang) throws IOException {
 		FirefoxOptions fo = new FirefoxOptions();
 
 		////-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
@@ -278,7 +249,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 
 		FirefoxDriver wd = new FirefoxDriver(getFirefoxCapabilities(lang));
 		String browserName = wd.getCapabilities().getBrowserName();
-		String version = wd.getCapabilities().getVersion();
+		String version = wd.getCapabilities().getBrowserVersion();
 		System.out.println("wd: allocated " + browserName + " " + version);
 		return wd;
 	}
@@ -292,9 +263,9 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		File home = new File(System.getProperty("user.home"));
 		final File dotfont = new File(home, ".fonts.conf");
 		final File dotbackup = new File(home, "fonts.conf.backup");
-		if(! dotbackup.exists()) {
+		if(!dotbackup.exists()) {
 			if(dotfont.exists()) {
-				if(! dotfont.renameTo(dotbackup)) {
+				if(!dotfont.renameTo(dotbackup)) {
 					throw new IOException("Cannot rename " + dotfont + " to " + dotbackup);
 				}
 			}
@@ -311,13 +282,14 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		}
 
 		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override public void run() {
+			@Override
+			public void run() {
 				try {
 					if(!dotfont.delete()) {
 						System.err.println("FAILED TO DELETE " + dotfont);
 					}
 					if(dotbackup.exists()) {
-						if(! dotbackup.renameTo(dotfont)) {
+						if(!dotbackup.renameTo(dotfont)) {
 							System.err.println("FAILED TO RENAME " + dotbackup + " back to " + dotfont);
 						}
 					}
@@ -337,13 +309,14 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		"${HOME}/bin/chromedriver",
 		"${HOME}/chromedriver"
 	};
+
 	static private final String[] CHROMELOCATIONS = {
 		"/usr/local/bin/google-chrome",
 		"/usr/bin/google-chrome"
 	};
 
 	private static WebDriver allocateChromeInstance(BrowserModel model, Locale lang) throws IOException {
-		DesiredCapabilities dc;
+		ChromeOptions dc;
 		switch(model) {
 			default:
 				throw new IllegalStateException("Unsupported browser type " + model.getCode() + " for local execution");
@@ -375,7 +348,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		}
 
 		System.setProperty("webdriver.chrome.driver", driver);
-		dc.setCapability("chrome.binary", chrome);
+		dc.setBinary(chrome);
 
 		//-- Set the XDG_CONFIG_HOME envvar; this is used by fontconfig as one of its locations
 		File dir = createFontConfigFile();
@@ -392,7 +365,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		chromeDriver.manage().window().setSize(new Dimension(1280, 1024));
 
 		String browserName = chromeDriver.getCapabilities().getBrowserName();
-		String version = chromeDriver.getCapabilities().getVersion();
+		String version = chromeDriver.getCapabilities().getBrowserVersion();
 		System.out.println("wd: allocated " + browserName + " " + version);
 
 		return chromeDriver;
@@ -411,11 +384,12 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 		return null;
 	}
 
-	private static DesiredCapabilities getIECapabilities(BrowserModel browser, Locale lang) {
+	private static InternetExplorerOptions getIECapabilities(BrowserModel browser, Locale lang) {
 		LOG.warn("Language for IE is still not supported! Language found: [" + lang.getLanguage() + "]");
-		DesiredCapabilities dc = DesiredCapabilities.internetExplorer();
-		dc.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
-		switch(browser){
+		InternetExplorerOptions oo = new InternetExplorerOptions();
+
+		oo.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+		switch(browser) {
 			default:
 				throw new IllegalStateException("Unsupported IE browser version " + browser.getCode());
 			case IE:
@@ -423,55 +397,57 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 				LOG.warn("Unspecified IE browser version");
 				break;
 			case IE9:
-				dc.setVersion("9");
+				oo.setBrowserVersion("9");
 				break;
 			case IE10:
-				dc.setVersion("10");
+				oo.setBrowserVersion("10");
 				break;
 			case IE11:
-				dc.setVersion("11");
+				oo.setBrowserVersion("11");
 				break;
 			case EDGE14:
-				dc.setVersion("10");
+				oo.setBrowserVersion("10");
 				break;
 			case EDGE15:
-				dc.setVersion("11");
+				oo.setBrowserVersion("11");
 				break;
 		}
-		return dc;
+		return oo;
 	}
 
-	private static DesiredCapabilities getFirefoxCapabilities(Locale lang) {
+	private static FirefoxOptions getFirefoxCapabilities(Locale lang) {
 		FirefoxProfile profile = new FirefoxProfile();
 		profile.setPreference("intl.accept_languages", lang.getLanguage().toLowerCase());
-		DesiredCapabilities capabilities = DesiredCapabilities.firefox();
-		capabilities.setCapability(FirefoxDriver.PROFILE, profile);
+		FirefoxOptions oo = new FirefoxOptions();
+		oo.setProfile(profile);
 
 		//-- Not supported anymore, see https://github.com/mozilla/geckodriver/issues/617
 		//capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
-		return capabilities;
+		return oo;
 	}
 
-	private static DesiredCapabilities getChromeCapabilities(Locale lang) {
+	private static ChromeOptions getChromeCapabilities(Locale lang) {
 		ChromeOptions options = getCommonChromeOptions(lang);
-		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
-		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-		return capabilities;
+		options.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+		//capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+		//capabilities.setCapability(ChromeOptions.CAPABILITY, options);
+		return options;
 	}
 
-	private static DesiredCapabilities getChromeHeadlessCapabilities(Locale lang) {
+	private static ChromeOptions getChromeHeadlessCapabilities(Locale lang) {
 		ChromeOptions options = getCommonChromeOptions(lang);
 		options.addArguments("--headless");
 		options.addArguments("--no-sandbox");
 		options.addArguments("--disable-dev-shm-usage");
-		DesiredCapabilities capabilities = DesiredCapabilities.chrome();
-		capabilities.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
-		capabilities.setCapability(ChromeOptions.CAPABILITY, options);
-		return capabilities;
+		options.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+		//ChromeOptions oo = new ChromeOptions();
+		//oo.setCapability(CapabilityType.UNEXPECTED_ALERT_BEHAVIOUR, UnexpectedAlertBehaviour.IGNORE);
+		//oo.setCapability(ChromeOptions.CAPABILITY, options);
+		return options;
 	}
 
-	@NonNull private static ChromeOptions getCommonChromeOptions(Locale lang) {
+	@NonNull
+	private static ChromeOptions getCommonChromeOptions(Locale lang) {
 		ChromeOptions options = new ChromeOptions();
 		options.addArguments(
 			"test-type");                    // This gets rid of the message "You are using an unsupported command-line flag: --ignore-certificate-errors. Stability and security will suffer."
@@ -491,14 +467,14 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 
 	@Nullable
 	public static IWebdriverScreenshotHelper getScreenshotHelper(WebDriverType webDriverType, BrowserModel browserModel) {
-		switch(webDriverType) {
-			default:
-				break;
-
-			case HTMLUNIT:
-				//-- HTMLUNIT does not render, so it cannot create screenshots.
-				return null;
-		}
+		//switch(webDriverType) {
+		//	default:
+		//		break;
+		//
+		//	case HTMLUNIT:
+		//		//-- HTMLUNIT does not render, so it cannot create screenshots.
+		//		return null;
+		//}
 
 		switch(browserModel) {
 			default:

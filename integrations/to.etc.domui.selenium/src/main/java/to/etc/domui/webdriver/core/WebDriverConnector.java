@@ -47,6 +47,7 @@ import java.io.Reader;
 import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -80,15 +81,23 @@ final public class WebDriverConnector {
 	/** When T, exit registration has been done, to ensure things are released when the JVM exits. */
 	static private boolean m_jvmExitHandlerRegistered;
 
-	/** Wait timeout in SECONDS */
-	private int m_waitTimeout = 60;
+	private Duration m_waitTimeout = Duration.ofSeconds(60);
+
+	///** Wait timeout in SECONDS */
+	//private int m_waitTimeout = 60;
 
 	/** Wait interval in MILLISECONDS */
-	private int m_waitInterval = 250;
+	private Duration m_waitInterval = Duration.ofMillis(250);
+	//private int m_waitInterval = 250;
 
-	private int m_nextWaitTimeout = -1;
+	@Nullable
+	private Duration m_nextWaitTimeout;
 
-	private int m_nextInterval = -1;
+	//private int m_nextWaitTimeout = -1;
+
+	@Nullable
+	private Duration m_nextInterval;
+	//private int m_nextInterval = -1;
 
 	/** The base of the application URL, to which page names will be appended. */
 	@NonNull
@@ -119,7 +128,7 @@ final public class WebDriverConnector {
 		m_kind = kind;
 		m_applicationURL = webapp;
 		m_driverType = driverType;
-		m_waitTimeout = readWaitTimeout(m_waitTimeout);
+		m_waitTimeout = readWaitTimeout(60);
 		m_screenshotHelper = helper;
 	}
 
@@ -224,7 +233,7 @@ final public class WebDriverConnector {
 	@NonNull
 	private static WebDriverType getDriverType(@Nullable String hubUrl) {
 		if(null == hubUrl || hubUrl.trim().length() == 0)
-			return WebDriverType.HTMLUNIT;                    // Used as a target because it can emulate multiple browser types
+			return WebDriverType.LOCAL;
 		if("local".equals(hubUrl.trim()))
 			return WebDriverType.LOCAL;
 		if(hubUrl.startsWith(BROWSERSTACK)) {
@@ -252,25 +261,35 @@ final public class WebDriverConnector {
 		});
 	}
 
-	public int getWaitTimeout() {
-		return m_nextWaitTimeout != -1 ? m_nextWaitTimeout : m_waitTimeout;
+	public Duration getWaitTimeout() {
+		Duration to = m_nextWaitTimeout;
+		return null == to ? m_waitTimeout : to;
 	}
 
-	public int getWaitInterval() {
-		return m_nextInterval != -1 ? m_nextInterval : m_waitInterval;
+	public Duration getWaitInterval() {
+		Duration ni = m_nextInterval;
+		return ni == null ? m_waitInterval : ni;
 	}
 
-	public void setNextWaitTimeout(int millis) {
-		m_nextWaitTimeout = millis;
+	//public void setNextWaitTimeout(int millis) {
+	//	m_nextWaitTimeout = millis;
+	//}
+
+	public void setNextWaitTimeout(@Nullable Duration d) {
+		m_nextWaitTimeout = d;
 	}
 
-	public void setNextInterval(int nextInterval) {
+	//public void setNextInterval(int nextInterval) {
+	//	m_nextInterval = nextInterval;
+	//}
+
+	public void setNextInterval(@Nullable Duration nextInterval) {
 		m_nextInterval = nextInterval;
 	}
 
 	public void resetWaits() {
-		m_nextWaitTimeout = -1;
-		m_nextInterval = -1;
+		m_nextInterval = null;
+		m_nextWaitTimeout = null;
 	}
 
 	@NonNull
@@ -388,21 +407,21 @@ final public class WebDriverConnector {
 	 */
 	public void wait(@NonNull By locator, long time, TimeUnit unit) {
 		long seconds = unit.toSeconds(time);
-		WebDriverWait wait = new WebDriverWait(driver(), seconds, getWaitInterval());
+		WebDriverWait wait = new WebDriverWait(driver(), Duration.ofSeconds(seconds), getWaitInterval());
 		wait.until(ExpectedConditions.presenceOfElementLocated(locator));
 	}
 
 	@Nullable
 	public WebElement wait(@NonNull ExpectedCondition<WebElement> exc) {
 		Wait<WebDriver> wait = new FluentWait<>(driver())
-			.withTimeout(getWaitTimeout(), TimeUnit.SECONDS)
-			.pollingEvery(getWaitInterval(), TimeUnit.MILLISECONDS).ignoring(NoSuchElementException.class);
+			.withTimeout(getWaitTimeout())
+			.pollingEvery(getWaitInterval()).ignoring(NoSuchElementException.class);
 
 		return wait.until(exc);
 	}
 
 	public synchronized void wait(@NonNull SupplierEx<Boolean> condition) throws Exception {
-		var times = getWaitInterval() / 25;
+		var times = getWaitInterval().toMillis() / 25;
 		for(var i = 0; i < times; i++) {
 			var v = condition.get();
 			if(Boolean.TRUE.equals(v)) {
@@ -457,11 +476,11 @@ final public class WebDriverConnector {
 		wait.until(ExpectedConditions.alertIsPresent());
 	}
 
-	private int readWaitTimeout(int defaultTimeout) {
+	private Duration readWaitTimeout(int defaultTimeoutInSeconds) {
 		TestProperties p = TUtilTestProperties.getTestProperties();
-		String waitTimeout = p.getProperty("webdriver.waittimeout", defaultTimeout + "");
+		String waitTimeout = p.getProperty("webdriver.waittimeout", defaultTimeoutInSeconds + "");
 		try {
-			return Integer.parseInt(waitTimeout);
+			return Duration.ofSeconds(Integer.parseInt(waitTimeout));
 		} catch(NumberFormatException e) {
 			throw new IllegalArgumentException("webdriver.waittimeout parameter in .test.properties file can't be converted to int");
 		}
@@ -1265,13 +1284,13 @@ final public class WebDriverConnector {
 	/*	CODING:	Internal.											*/
 	/*--------------------------------------------------------------*/
 
-	private int calcTimeout(int milliseconds) {
-		return milliseconds > 0 ? milliseconds : getWaitTimeout();
-	}
-
-	private int calcInterval(int milliseconds) {
-		return milliseconds > 0 ? milliseconds : getWaitInterval();
-	}
+	//private int calcTimeout(int milliseconds) {
+	//	return milliseconds > 0 ? milliseconds : getWaitTimeout();
+	//}
+	//
+	//private int calcInterval(int milliseconds) {
+	//	return milliseconds > 0 ? milliseconds : getWaitInterval();
+	//}
 
 	/**
 	 * Send a list of things to the keyboard.
@@ -1378,93 +1397,6 @@ final public class WebDriverConnector {
 			}
 		}
 	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Command stuff - old									*/
-	/*--------------------------------------------------------------*/
-//	/**
-//	 * Wait for the element to become present.
-//	 * @return
-//	 */
-//	@NonNull
-//	public WebDriverCommandBuilder present() {
-//		return cmd().present();
-//	}
-//
-//	/**
-//	 * Wait for the element to become visible.
-//	 * @return
-//	 */
-//	@NonNull
-//	public WebDriverCommandBuilder visible() {
-//		return cmd().visible();
-//	}
-//
-//	/**
-//	 * Wait for the element to become invisible.
-//	 * @return
-//	 */
-//	@NonNull
-//	public WebDriverCommandBuilder invisible() {
-//		return cmd().invisible();
-//	}
-//
-//
-//	/**
-//	 * Wait until the element is clickable.
-//	 * @return
-//	 */
-//	@NonNull
-//	public WebDriverCommandBuilder clickable() {
-//		return cmd().clickable();
-//	}
-//
-//	/**
-//	 * Type the specified text in the target. The characters \t (tab) and \n (return) are sent as
-//	 * the specified keys.
-//	 * @param text
-//	 * @return
-//	 */
-//	@NonNull
-//	public WebDriverCommandBuilder type(@NonNull String text) {
-//		return cmd().type(text);
-//	}
-//
-//	/**
-//	 * Click the later selected element. You can optionally specify keys to keep pressed while the thingy is clicked.
-//	 * @return
-//	 */
-//	@NonNull
-//	public WebDriverCommandBuilder click(Keys... optionalWityKeys) {
-//		return cmd().click(optionalWityKeys);
-//	}
-//	/**
-//	 * Check a checkbox, readiobutton or combobox option.
-//	 * @return
-//	 */
-//	@NonNull
-//	public WebDriverCommandBuilder check() {
-//		return cmd().check();
-//	}
-//
-//	/**
-//	 * Uncheck a checkbox, readiobutton or combobox option.
-//	 * @return
-//	 */
-//	@NonNull
-//	public WebDriverCommandBuilder uncheck() {
-//		return cmd().uncheck();
-//	}
-//
-//	/**
-//	 * Check or uncheck a checkbox, readiobutton or combobox option.
-//	 * @param selected
-//	 * @return
-//	 */
-//	@NonNull
-//	public WebDriverCommandBuilder check(boolean selected) {
-//		return cmd().check(selected);
-//	}
 
 	/**
 	 * Wait until the element is not present.
@@ -1816,8 +1748,8 @@ final public class WebDriverConnector {
 	 * the timeout specified in seconds is exceeded throw an exception.
 	 */
 	@NonNull
-	<T> T timed(long timeoutSeconds, long intervalMillis, @NonNull Action<T> action) throws Exception {
-		long ts = System.currentTimeMillis() + (timeoutSeconds * 1000);
+	<T> T timed(Duration timeout, Duration interval, @NonNull Action<T> action) throws Exception {
+		long ts = System.currentTimeMillis() + timeout.toMillis();
 		int count = 0;
 		for(; ; ) {
 			T value = action.execute();
@@ -1829,7 +1761,7 @@ final public class WebDriverConnector {
 				if(cts >= ts)
 					throw new IllegalStateException("Wait timeout exceeded");
 			}
-			Thread.sleep(intervalMillis);                                // Explicitly allow InterruptedException so that thread can be killed properly.
+			Thread.sleep(interval.toMillis());                    // Explicitly allow InterruptedException so that thread can be killed properly.
 		}
 	}
 
@@ -1842,7 +1774,7 @@ final public class WebDriverConnector {
 	 * Make sure that passed in testClass has properly annotated @Category({GroupRunsSlow.class}) or ancestor in order to use custom defined timeouts. Use only as last option when test has to wait more for conditions to happen.
 	 */
 	@NonNull
-	public <T> T timed(long timeoutSeconds, @NonNull Class<?> testClass, @NonNull Action<T> action) throws Exception {
+	public <T> T timed(Duration timeout, @NonNull Class<?> testClass, @NonNull Action<T> action) throws Exception {
 		org.junit.experimental.categories.Category category = testClass.getAnnotation(org.junit.experimental.categories.Category.class);
 		boolean isAnnotatedAsRunSlow = false;
 		if(category != null) {
@@ -1855,8 +1787,9 @@ final public class WebDriverConnector {
 		if(!isAnnotatedAsRunSlow) {
 			throw new IllegalStateException("Waiting tests must be annotated as slow ones using GroupRunsSlow @Category annotation");
 		}
-		return timed(timeoutSeconds, getWaitInterval(), action);
+		return timed(timeout, getWaitInterval(), action);
 	}
+
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Keyboard and mouse.									*/
 	/*--------------------------------------------------------------*/
@@ -1965,7 +1898,7 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 * Used for switching control to a page with string part contained in url.</br>
+	 * Used for switching control to a page with string part contained in url.
 	 * Used when you are expecting some parameters in your popup
 	 */
 	public void switchToByUrlPart(@NonNull String urlPart) throws Exception {
@@ -1985,7 +1918,7 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 * Expects new popup with specified body #PAGENAME_PARAMETER attribute</br>
+	 * Expects new popup with specified body #PAGENAME_PARAMETER attribute
 	 * Returns handle for expected popup.
 	 */
 	@NonNull
@@ -2013,7 +1946,7 @@ final public class WebDriverConnector {
 	}
 
 	/**
-	 * Expects popup page with string part contained in url.</br>
+	 * Expects popup page with string part contained in url.
 	 * Good for searching by parameters
 	 * Return handle for expected page with defined string in url.
 	 */
@@ -2192,6 +2125,7 @@ final public class WebDriverConnector {
 	public void verifyTextEquals(@NonNull By locator, @NonNull String text) {
 		assertEquals(getText(locator), text);
 	}
+
 	public void verifyHtmlTextEquals(@NonNull By locator, @NonNull String text) {
 		assertEquals(getHtmlText(locator), text);
 	}
@@ -2213,7 +2147,6 @@ final public class WebDriverConnector {
 		String html = getHtmlText(locator);
 		assertTrue("Locator " + locator + " does not contain " + text + "(value = " + html + ")", html.toLowerCase().contains(text.toLowerCase()));
 	}
-
 
 	public void verifyTextStartsWith(@NonNull String testid, @NonNull String text) {
 		verifyTextStartsWith(byId(testid), text);
