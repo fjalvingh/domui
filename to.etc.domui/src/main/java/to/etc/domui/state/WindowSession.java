@@ -478,6 +478,7 @@ final public class WindowSession {
 				//when we are handling goto on page that was already destroyed, it might be that shelving stack is already taken care of
 			} else {
 				currentPage.internalUnshelve();
+				currentPage.setInjected(false);
 			}
 			generateRedirect(ctx, currentPage, ajax);
 			saveWindowState();
