@@ -359,12 +359,13 @@ public class FileTool {
 	static public String fileNameSansExtension(final String fn) {
 		int slp = fn.lastIndexOf('/');
 		int t = fn.lastIndexOf('\\');
-		if(t > slp)
-			slp = t; // Find last directory separator,
+		int start = slp == -1
+			? t == -1 ? 0 : t
+			: slp;
 
 		//-- Now find last dot,
-		int dp = fn.lastIndexOf('.');
-		if(dp < t) // Before dir separator: dot is in directory part,
+		int dp = fn.lastIndexOf('.', start);
+		if(dp == -1)
 			return fn;
 		return fn.substring(0, dp);
 	}
