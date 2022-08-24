@@ -17,6 +17,10 @@
     <description>FontAwesome 4 integration</description>
     <inceptionYear>2018</inceptionYear>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>to.etc.domui</groupId>
