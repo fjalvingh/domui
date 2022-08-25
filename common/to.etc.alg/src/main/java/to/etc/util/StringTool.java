@@ -3197,7 +3197,7 @@ public class StringTool {
 	}
 
 	private static boolean isValidSqlNameChar(char c) {
-		return Character.isLetterOrDigit(c) || c == '_';
+		return Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '[' || c == ']' || c == '"';
 	}
 
 	static public void sqlCheckNoQuotes(@Nullable String password) {
