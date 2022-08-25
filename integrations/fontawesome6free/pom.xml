@@ -18,6 +18,10 @@
     <description>FontAwesome 6 integration, free version</description>
     <inceptionYear>2022</inceptionYear>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>to.etc.domui</groupId>

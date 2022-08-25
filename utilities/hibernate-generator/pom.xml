@@ -18,6 +18,10 @@
 
     <packaging>jar</packaging>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>to.etc.domui</groupId>
