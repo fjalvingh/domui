@@ -113,6 +113,7 @@ public class DomTools {
 	 */
 	static public Document getDocument(final InputStream is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
 		DocumentBuilderFactory dbf = createDocumentBuilderFactory();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Plain terrible
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -149,6 +150,7 @@ public class DomTools {
 	 */
 	static public Document getDocument(final Reader is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
 		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Plain terrible
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
