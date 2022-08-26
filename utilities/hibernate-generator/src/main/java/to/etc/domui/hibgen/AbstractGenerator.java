@@ -288,7 +288,7 @@ abstract public class AbstractGenerator {
 
 		Source source = new DOMSource(m_configDocument);
 		StreamResult result = new StreamResult(new OutputStreamWriter(new FileOutputStream(m_configFile), "utf-8"));
-		Transformer xformer = TransformerFactory.newInstance().newTransformer();
+		Transformer xformer = DomTools.createTransformerFactory().newInstance().newTransformer();
 		xformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		xformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		xformer.transform(source, result);
@@ -321,7 +321,7 @@ abstract public class AbstractGenerator {
 			m_configDocument = DomTools.getDocument(m_configFile, false);
 			m_configRoot = DomTools.getRootElement(m_configDocument);
 		} else {
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory docFactory = DomTools.createDocumentBuilderFactory().newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 			Document xmlDoc = m_configDocument = docBuilder.newDocument();
 
