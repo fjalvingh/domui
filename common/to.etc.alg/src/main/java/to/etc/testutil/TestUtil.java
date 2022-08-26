@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
  * Created on 15-04-22.
  */
 final public class TestUtil {
+	private static boolean m_mavenTest;
+
 	private TestUtil() {
 	}
 
@@ -33,6 +35,16 @@ final public class TestUtil {
 
 	static public void main(String[] args) {
 		System.out.println("branch: " + getGitBranch());
+	}
+
+	public static synchronized boolean isMavenTest() {
+		Boolean mavenTest = m_mavenTest;
+		if(null == mavenTest) {
+			mavenTest = m_mavenTest = System.getProperty("surefire.real.class.path") != null
+				|| System.getProperty("surefire.test.class.path") != null;
+
+		}
+		return mavenTest;
 	}
 
 }
