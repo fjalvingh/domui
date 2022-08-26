@@ -38,11 +38,14 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -109,9 +112,7 @@ public class DomTools {
 	 * message string; these are thrown as an exception when complete.
 	 */
 	static public Document getDocument(final InputStream is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = DomTools.createDocumentBuilderFactory().newInstance();
-		//dbf.setFeature(XMLConstants.ACCESS_EXTERNAL_DTD, "jar");
-		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);        // Plain terrible
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory();
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -147,8 +148,7 @@ public class DomTools {
 	 * message string; these are thrown as an exception when complete.
 	 */
 	static public Document getDocument(final Reader is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = DomTools.createDocumentBuilderFactory().newInstance();
-		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);        // Plain terrible
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -173,14 +173,13 @@ public class DomTools {
 		if(!inf.exists() || !inf.isFile())
 			throw new IOException(inf + ": file not found.");
 		inf = inf.getAbsoluteFile();
-		DocumentBuilderFactory dbf = DomTools.createDocumentBuilderFactory().newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
 		dbf.setNamespaceAware(nsaware);
 		dbf.setValidating(false);
 		dbf.setFeature("http://xml.org/sax/features/namespaces", false);
 		dbf.setFeature("http://xml.org/sax/features/validation", false);
 		dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
 		dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);        // Plain terrible
 
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -966,21 +965,21 @@ public class DomTools {
 	static public void saveDocument(final File of, final Document doc) throws Exception {
 		Source s = new DOMSource(doc);
 		Result r = new StreamResult(of);
-		Transformer t = DomTools.createTransformerFactory().newInstance().newTransformer();
+		Transformer t = DomTools.createTransformer();
 		t.transform(s, r);
 	}
 
 	static public void saveDocument(final Writer of, final Document doc) throws Exception {
 		Source s = new DOMSource(doc);
 		Result r = new StreamResult(of);
-		Transformer t = DomTools.createTransformerFactory().newInstance().newTransformer();
+		Transformer t = DomTools.createTransformer();
 		t.transform(s, r);
 	}
 
 	static public void saveDocumentFormatted(Writer of, Document doc) throws Exception {
 		Source s = new DOMSource(doc);
 		Result r = new StreamResult(of);
-		Transformer t = DomTools.createTransformerFactory().newInstance().newTransformer();
+		Transformer t = DomTools.createTransformer();
 		t.setOutputProperty(OutputKeys.INDENT, "yes");
 		t.setOutputProperty(OutputKeys.METHOD, "xml");
 		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -1057,13 +1056,13 @@ public class DomTools {
 	 * If external entities are not necessary, completely disable their declarations.
 	 * If external entities are necessary then:
 	 * Use XML processor features, if available, to authorize only required protocols (eg: https).
-	 * And use an entity resolver (and optionally an XML Catalog) to resolve only trusted entities. == Noncompliant Code Example
+	 * And use an entity resolver (and optionally an XML Catalog) to resolve only trusted entities.
 	 */
 
 	/**
 	 * Creates DocumentBuilderFactory using high security recommendations by disabling vulnerable features.
+	 *
 	 * @return Instance of DocumentBuilderFactory.
-	 * @throws ParserConfigurationException
 	 */
 	static public DocumentBuilderFactory createDocumentBuilderFactory() throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -1082,7 +1081,17 @@ public class DomTools {
 	}
 
 	/**
+	 * Creates DocumentBuilder instance using high security recommendations by disabling vulnerable features.
+	 *
+	 * @return Instance of DocumentBuilder.
+	 */
+	static public DocumentBuilder createDocumentBuilderInstance() throws ParserConfigurationException {
+		return createDocumentBuilderFactory().newDocumentBuilder();
+	}
+
+	/**
 	 * Creates XMLInputFactory using high security recommendations by disabling vulnerable factory properties.
+	 *
 	 * @return Instace of XMLInputFactory.
 	 */
 	public static XMLInputFactory createXMLInputFactory() {
@@ -1098,7 +1107,21 @@ public class DomTools {
 	}
 
 	/**
+	 * Creates XMLEventReader using high security recommendations by disabling vulnerable factory properties.
+	 * Create a new XMLEventReader from a java.io.InputStream using
+	 *
+	 * @param stream the InputStream to read from.
+	 * @param encoding the character encoding of the stream.
+	 *
+	 * @return Instance of XMLEventReader.
+	 */
+	public static XMLEventReader createXMLEventReader(InputStream stream, String encoding) throws XMLStreamException {
+		return createXMLInputFactory().createXMLEventReader(stream, encoding);
+	}
+
+	/**
 	 * Creates TransformerFactory using high security recommendations by disabling vulnerable factory attributes.
+	 *
 	 * @return Instance of TransformerFactory.
 	 */
 	public static TransformerFactory createTransformerFactory() {
@@ -1108,4 +1131,14 @@ public class DomTools {
 		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
 		return factory;
 	}
+
+	/**
+	 * Creates Transformer using high security recommendations by disabling vulnerable factory attributes.
+	 *
+	 * @return Instance of Transformer.
+	 */
+	public static Transformer createTransformer() throws TransformerConfigurationException {
+		return createTransformerFactory().newTransformer();
+	}
+
 }

@@ -29,7 +29,6 @@ import to.etc.webapp.nls.BundleRef;
 import to.etc.xml.DomTools;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.util.ArrayList;
 import java.util.List;
@@ -187,8 +186,7 @@ public class LoggerConfigPage extends UrlPage implements IUserInputModifiedFence
 	}
 
 	private Document toXml() throws ParserConfigurationException {
-		DocumentBuilderFactory dbf = DomTools.createDocumentBuilderFactory().newInstance();
-		DocumentBuilder db = dbf.newDocumentBuilder();
+		DocumentBuilder db = DomTools.createDocumentBuilderInstance();
 		Document doc = db.newDocument();
 		Element rootElement = doc.createElement("config");
 		doc.appendChild(rootElement);

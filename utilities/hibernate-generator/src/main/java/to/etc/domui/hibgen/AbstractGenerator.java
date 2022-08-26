@@ -26,11 +26,9 @@ import to.etc.xml.DomTools;
 
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.File;
@@ -288,7 +286,7 @@ abstract public class AbstractGenerator {
 
 		Source source = new DOMSource(m_configDocument);
 		StreamResult result = new StreamResult(new OutputStreamWriter(new FileOutputStream(m_configFile), "utf-8"));
-		Transformer xformer = DomTools.createTransformerFactory().newInstance().newTransformer();
+		Transformer xformer = DomTools.createTransformer();
 		xformer.setOutputProperty(OutputKeys.INDENT, "yes");
 		xformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 		xformer.transform(source, result);
@@ -321,8 +319,7 @@ abstract public class AbstractGenerator {
 			m_configDocument = DomTools.getDocument(m_configFile, false);
 			m_configRoot = DomTools.getRootElement(m_configDocument);
 		} else {
-			DocumentBuilderFactory docFactory = DomTools.createDocumentBuilderFactory().newInstance();
-			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+			DocumentBuilder docBuilder = DomTools.createDocumentBuilderInstance();
 			Document xmlDoc = m_configDocument = docBuilder.newDocument();
 
 			m_configRoot = xmlDoc.createElement("config");
