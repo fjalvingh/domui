@@ -34,8 +34,10 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,6 +45,35 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class XmlSource extends PoolConfigSource {
+
+	static DocumentBuilderFactory createDocumentBuilderFactory() throws ParserConfigurationException {
+		String feature = null;
+		String errMsg = null;
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			// to be compliant, completely disable DOCTYPE declaration:
+			feature = "http://apache.org/xml/features/disallow-doctype-decl";
+			factory.setFeature(feature, true);
+			// or completely disable external entities declarations:
+			feature = "http://xml.org/sax/features/external-general-entities";
+			factory.setFeature(feature, false);
+			feature = "http://xml.org/sax/features/external-parameter-entities";
+			factory.setFeature(feature, false);
+			// or prohibit the use of all protocols by external entities:
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			// or disable entity expansion but keep in mind that this doesn't prevent fetching external entities
+			// and this solution is not correct for OpenJDK < 13 due to a bug: https://bugs.openjdk.java.net/browse/JDK-8206132
+			factory.setExpandEntityReferences(false);
+			return factory;
+		} catch (ParserConfigurationException e) {
+			// This should catch a failed setFeature feature
+			errMsg = "ParserConfigurationException was thrown. The feature '" + feature + "' is probably not supported by your XML processor.";
+			System.err.println(errMsg);
+			throw e;
+		}
+	}
+
 	@NonNull private final Properties m_extra;
 	static class DefaultErrorHandler implements ErrorHandler {
 		/** This string buffer receives error messages while the document gets parsed. */
@@ -119,7 +150,7 @@ public class XmlSource extends PoolConfigSource {
 	 * message string; these are thrown as an exception when complete.
 	 */
 	private Node getDocument(File f, boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		InputStream is = null;

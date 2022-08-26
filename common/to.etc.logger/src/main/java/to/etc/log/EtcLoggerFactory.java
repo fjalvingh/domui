@@ -33,6 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static to.etc.log.LogUtil.createDocumentBuilderFactory;
+import static to.etc.log.LogUtil.createTransformerFactory;
+
 /**
  * Implements logger factory. Encapsulates definitions and configuration of loggers used.
  *
@@ -231,7 +234,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	public synchronized void loadConfigFromXml(@NonNull String configXml) throws Exception {
 		StringReader sr = null;
 		try {
-			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			sr = new StringReader(configXml);
 			Document doc = db.parse(new InputSource(sr));
@@ -280,7 +283,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		Document doc = toXml(false);
 
 		// write the content into xml file
-		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		TransformerFactory transformerFactory = createTransformerFactory().newInstance();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
 		try(Writer fw = new OutputStreamWriter(new FileOutputStream(writableConfig), "utf-8")) {
@@ -291,7 +294,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	@NonNull
 	public Document toXml(boolean includeNonPerstistable) throws ParserConfigurationException {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		Document doc = db.newDocument();
 		Element rootElement = doc.createElement("config");
