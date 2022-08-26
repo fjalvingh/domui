@@ -79,8 +79,11 @@ import java.util.zip.ZipOutputStream;
  * @version 1.0
  */
 public class FileTool {
-
 	private static final Logger LOG = LoggerFactory.getLogger(FileTool.class);
+
+	static public final long KB = 1024L;
+	static public final long MB = 1024L * KB;
+	static public final long GB = 1024L * MB;
 
 	private FileTool() {
 	}
@@ -371,54 +374,44 @@ public class FileTool {
 	}
 
 	/**
-	 * Copies a file.
-	 *
-	 * @param destf the destination
-	 * @param srcf  the source
-	 * @throws IOException the error
+	 * Copies a file of max. 1GB.
+	 * @deprecated Use the specific limited one instead.
 	 */
+	@Deprecated
 	static public void copyFile(final File destf, final File srcf) throws IOException {
-		InputStream is = null;
-		OutputStream os = null;
-		try {
-			is = new FileInputStream(srcf);
-			os = new FileOutputStream(destf);
-			copyFile(os, is);
+		copyFile(destf, srcf, 1 * GB);
+	}
+
+	static public void copyFile(final File destf, final File srcf, long maxSize) throws IOException {
+		try(InputStream is = new FileInputStream(srcf); OutputStream os = new FileOutputStream(destf)) {
+			copyFile(os, is, maxSize);
 			destf.setLastModified(srcf.lastModified());
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
 	/**
-	 * Copies the inputstream to the output stream.
-	 *
-	 * @param destf the destination
-	 * @param srcf  the source
-	 * @throws IOException the error
+	 * Copies the inputstream to the output stream, limited to 1GB of data(!).
+	 * @deprecated Use the specific limited one instead.
 	 */
+	@Deprecated
 	static public void copyFile(final OutputStream os, final InputStream is) throws IOException {
+		copyFile(os, is, 1 * GB);
+	}
+
+	static public void copyFile(final OutputStream os, final InputStream is, long maxSize) throws IOException {
 		byte[] buf = new byte[8192];
 		int sz;
-		while(0 < (sz = is.read(buf)))
+		long size = 0L;
+		while(0 < (sz = is.read(buf))) {
+			size += sz;
+			if(size > maxSize)
+				throw new IOException("Copied data exceeds the configured maximum (" + maxSize + " bytes)");
 			os.write(buf, 0, sz);
+		}
 	}
 
 	/**
 	 * Copy the input reader to the output reader.
-	 *
-	 * @param w
-	 * @param r
-	 * @throws IOException
 	 */
 	static public void copyFile(final Writer w, final Reader r) throws IOException {
 		char[] buf = new char[8192];
@@ -431,10 +424,6 @@ public class FileTool {
 	 * Copies an entire directory structure from src to dest. This copies the
 	 * files from src into destd; it does not remove files in destd that are
 	 * not in srcd. Use synchronizeDir() for that.
-	 *
-	 * @param destd
-	 * @param srcd
-	 * @throws IOException
 	 */
 	static public void copyDir(final File destd, final File srcd) throws IOException {
 		if(!srcd.exists())
@@ -547,11 +536,6 @@ public class FileTool {
 
 	/**
 	 * Read a file's contents as byte[].
-	 *
-	 * @param f
-	 * @return
-	 * @throws IOException
-	 * @throws Exception
 	 */
 	public static byte[] readFileAsByteArray(@NonNull File file) throws IOException {
 		FileInputStream in = null;
@@ -576,11 +560,6 @@ public class FileTool {
 
 	/**
 	 * Load a class resource as a byte array. If the resource is not found this returns null.
-	 *
-	 * @param clz
-	 * @param name
-	 * @return
-	 * @throws IOException
 	 */
 	@Nullable
 	public static byte[] readResourceAsByteArray(@NonNull Class<?> clz, @NonNull String name) throws IOException {
@@ -1273,11 +1252,6 @@ public class FileTool {
 
 	/**
 	 * Recursive workhorse for zipping the entry passed, be it file or directory.
-	 *
-	 * @param zos
-	 * @param base
-	 * @param f
-	 * @throws IOException
 	 */
 	static private void zipFile(final ZipOutputStream zos, final String base, final File f, final byte[] buf) throws IOException {
 		//-- Create a relative name for this entry
@@ -1316,13 +1290,19 @@ public class FileTool {
 		}
 	}
 
+	/**
+	 * Unzips an archive. Max file size (and total expanded size) is 1GB.
+	 * @deprecated Use the specific limited one instead.
+	 */
 	public static void unzip(File dest, InputStream is) throws Exception {
+		unzip(dest, is, 1 * GB, 1 * GB);
+	}
+
+	public static void unzip(File dest, InputStream is, long maxFileSize, long maxTotalSize) throws Exception {
 		dest.mkdirs();
-		ZipInputStream zis = null;
-		OutputStream os = null;
+		long totalSize = 0L;
 		byte[] buf = new byte[8192];
-		try {
-			zis = new ZipInputStream(is);
+		try(ZipInputStream zis = new ZipInputStream(is)) {
 			ZipEntry ze;
 			while(null != (ze = zis.getNextEntry())) {
 				File of = new File(dest, ze.getName()); // Create a full path
@@ -1332,36 +1312,34 @@ public class FileTool {
 					//-- Copy.
 					File dir = of.getParentFile();
 					dir.mkdirs();
-					os = new FileOutputStream(of);
-					int sz;
-					while(0 < (sz = zis.read(buf)))
-						os.write(buf, 0, sz);
-					os.close();
-					os = null;
+					try(OutputStream os = new FileOutputStream(of)) {
+						int sz;
+						long fileSize = 0L;
+						while(0 < (sz = zis.read(buf))) {
+							fileSize += sz;
+							if(fileSize > maxFileSize)
+								throw new IOException("Zip file " + ze.getName() + " is larger than the maximum size (" + maxFileSize + " bytes)");
+							totalSize += sz;
+							if(totalSize > maxTotalSize) {
+								throw new IOException("Zip file expands to a larger set of files than the allowed maximum size (" + maxTotalSize + " bytes)");
+							}
+							os.write(buf, 0, sz);
+						}
+					}
 				}
 				zis.closeEntry();
 			}
-		} finally {
-			if(zis != null)
-				try {
-					zis.close();
-				} catch(Exception x) {
-				}
-			if(os != null)
-				try {
-					os.close();
-				} catch(Exception x) {
-				}
 		}
 	}
 
 	public static void unzipSingleFile(File dest, InputStream is) throws Exception {
+		unzipSingleFile(dest, is, 1 * GB);
+	}
+
+	public static void unzipSingleFile(File dest, InputStream is, long maxFileSize) throws Exception {
 		dest.mkdirs();
-		ZipInputStream zis = null;
-		OutputStream os = null;
 		byte[] buf = new byte[8192];
-		try {
-			zis = new ZipInputStream(is);
+		try(ZipInputStream zis = new ZipInputStream(is)) {
 			ZipEntry ze = zis.getNextEntry();
 			if(null == ze) {
 				throw new IllegalArgumentException("Expected single file in zip but empty zip located!");
@@ -1369,41 +1347,32 @@ public class FileTool {
 			if(ze.isDirectory()) {
 				throw new IllegalArgumentException("Expected single file in zip but located directory! " + ze);
 			}
-			os = new FileOutputStream(dest);
-			int sz;
-			while(0 < (sz = zis.read(buf)))
-				os.write(buf, 0, sz);
-			os.close();
-			os = null;
+			try(OutputStream os = new FileOutputStream(dest)) {
+				copyFile(os, zis, maxFileSize);
+			}
 			zis.closeEntry();
 			if(null != zis.getNextEntry()) {
-				throw new IllegalArgumentException("Expected single file in zip but mutiple zip entries located!");
+				throw new IllegalArgumentException("Expected single file in zip but multiple zip entries located!");
 			}
-		} finally {
-			if(zis != null)
-				try {
-					zis.close();
-				} catch(Exception x) {
-				}
-			if(os != null)
-				try {
-					os.close();
-				} catch(Exception x) {
-				}
 		}
 	}
 
 	/**
 	 * Unzip the contents of the zipfile to the directory. The directory is
 	 * created if it does not yet exist.
+	 * @deprecated Use the size limited variant.
 	 */
 	public static void unzip(final File dest, final File zipfile) throws Exception {
+		unzip(dest, zipfile, 1 * GB, 1 * GB);
+	}
+
+	public static void unzip(final File dest, final File zipfile, long maxFileSize, long maxTotalSize) throws Exception {
 		if(zipfile.length() < 1)
 			return;
 
 		InputStream is = new FileInputStream(zipfile);
 		try {
-			unzip(dest, is);
+			unzip(dest, is, maxFileSize, maxTotalSize);
 		} finally {
 			try {
 				is.close();
@@ -1450,10 +1419,6 @@ public class FileTool {
 	/**
 	 * Returns a stream which is the uncompressed data stream for a zip file
 	 * component.
-	 *
-	 * @param zipis
-	 * @return
-	 * @throws IOException
 	 */
 	@Nullable
 	static public InputStream getZipContent(@NonNull final InputStream zipis, @NonNull final String name) throws IOException {
@@ -1528,9 +1493,6 @@ public class FileTool {
 
 	/**
 	 * Loads a byte[][] from an input stream until exhaustion.
-	 *
-	 * @param is
-	 * @return
 	 */
 	@NonNull
 	static public byte[][] loadByteBuffers(@NonNull final InputStream is) throws IOException {
@@ -1562,10 +1524,6 @@ public class FileTool {
 
 	/**
 	 * Load an entire file in a byte buffer set.
-	 *
-	 * @param in
-	 * @return
-	 * @throws IOException
 	 */
 	static public byte[][] loadByteBuffers(final File in) throws IOException {
 		InputStream is = new FileInputStream(in);
@@ -1581,10 +1539,6 @@ public class FileTool {
 
 	/**
 	 * Save the data in byte buffers to a file.
-	 *
-	 * @param of
-	 * @param data
-	 * @throws IOException
 	 */
 	static public void save(final File of, final byte[][] data) throws IOException {
 		OutputStream os = new FileOutputStream(of);
@@ -1600,10 +1554,6 @@ public class FileTool {
 
 	/**
 	 * Save the data in byte buffers to an output stream.
-	 *
-	 * @param os
-	 * @param data
-	 * @throws IOException
 	 */
 	static public void save(final OutputStream os, final byte[][] data) throws IOException {
 		for(byte[] b : data)
