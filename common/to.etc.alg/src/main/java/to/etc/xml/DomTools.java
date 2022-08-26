@@ -1103,8 +1103,11 @@ public class DomTools {
 		// or completely disable external entities declarations:
 		factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
 		// or prohibit the use of all protocols by external entities:
-		factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-		factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+
+		//java.lang.IllegalArgumentException: Unrecognized property 'http://javax.xml.XMLConstants/property/accessExternalDTD'
+		//factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		//java.lang.IllegalArgumentException: Unrecognized property 'http://javax.xml.XMLConstants/property/accessExternalSchema'
+		//factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 		return factory;
 	}
 
