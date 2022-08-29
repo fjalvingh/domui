@@ -37,11 +37,15 @@ import to.etc.util.StringTool;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -108,9 +112,8 @@ public class DomTools {
 	 * message string; these are thrown as an exception when complete.
 	 */
 	static public Document getDocument(final InputStream is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		//dbf.setFeature(XMLConstants.ACCESS_EXTERNAL_DTD, "jar");
-		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);        // Plain terrible
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Plain terrible
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -146,8 +149,8 @@ public class DomTools {
 	 * message string; these are thrown as an exception when complete.
 	 */
 	static public Document getDocument(final Reader is, final String ident, final ErrorHandler eh, final boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);        // Plain terrible
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
+		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); // Plain terrible
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -172,14 +175,13 @@ public class DomTools {
 		if(!inf.exists() || !inf.isFile())
 			throw new IOException(inf + ": file not found.");
 		inf = inf.getAbsoluteFile();
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
 		dbf.setNamespaceAware(nsaware);
 		dbf.setValidating(false);
 		dbf.setFeature("http://xml.org/sax/features/namespaces", false);
 		dbf.setFeature("http://xml.org/sax/features/validation", false);
 		dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
 		dbf.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-		dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);        // Plain terrible
 
 		DocumentBuilder db = dbf.newDocumentBuilder();
 		try {
@@ -965,21 +967,21 @@ public class DomTools {
 	static public void saveDocument(final File of, final Document doc) throws Exception {
 		Source s = new DOMSource(doc);
 		Result r = new StreamResult(of);
-		Transformer t = TransformerFactory.newInstance().newTransformer();
+		Transformer t = DomTools.createTransformer();
 		t.transform(s, r);
 	}
 
 	static public void saveDocument(final Writer of, final Document doc) throws Exception {
 		Source s = new DOMSource(doc);
 		Result r = new StreamResult(of);
-		Transformer t = TransformerFactory.newInstance().newTransformer();
+		Transformer t = DomTools.createTransformer();
 		t.transform(s, r);
 	}
 
 	static public void saveDocumentFormatted(Writer of, Document doc) throws Exception {
 		Source s = new DOMSource(doc);
 		Result r = new StreamResult(of);
-		Transformer t = TransformerFactory.newInstance().newTransformer();
+		Transformer t = DomTools.createTransformer();
 		t.setOutputProperty(OutputKeys.INDENT, "yes");
 		t.setOutputProperty(OutputKeys.METHOD, "xml");
 		t.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
@@ -988,7 +990,7 @@ public class DomTools {
 	}
 
 //	static public void saveDocumentFormatted(Writer of, Document doc) throws Exception {
-//		DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+//		DocumentBuilder db = DomTools.createDocumentBuilderFactory().newInstance().newDocumentBuilder();
 //		OutputFormat format = new OutputFormat(doc);
 //		format.setIndenting(true);
 //		format.setIndent(2);
@@ -1034,7 +1036,7 @@ public class DomTools {
 	 */
 	@NonNull
 	static public XMLInputFactory getStreamFactory() {
-		XMLInputFactory xmlif = XMLInputFactory.newInstance();
+		XMLInputFactory xmlif = createXMLInputFactory().newInstance();
 		//		xmlif.setProperty("http://apache.org/xml/features/nonvalidating/load-external-dtd", Boolean.FALSE);
 		xmlif.setProperty(XMLInputFactory.IS_VALIDATING, Boolean.FALSE);
 		xmlif.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
@@ -1046,7 +1048,25 @@ public class DomTools {
 		return xmlif;
 	}
 
-	static public DocumentBuilderFactory createDocumentBuilderFactory() throws Exception {
+	//follows list of safe to use XML factories
+	/*
+	 * XML standard allows the use of entities, declared in the DOCTYPE of the document, which can be internal or external.
+	 * When parsing the XML file, the content of the external entities is retrieved from an external storage such as the file system or network, which may lead, if no restrictions are put in place, to arbitrary file disclosures or server-side request forgery (SSRF) vulnerabilities.
+	 * It’s recommended to limit resolution of external entities by using one of these solutions:
+	 *
+	 * If DOCTYPE is not necessary, completely disable all DOCTYPE declarations.
+	 * If external entities are not necessary, completely disable their declarations.
+	 * If external entities are necessary then:
+	 * Use XML processor features, if available, to authorize only required protocols (eg: https).
+	 * And use an entity resolver (and optionally an XML Catalog) to resolve only trusted entities.
+	 */
+
+	/**
+	 * Creates DocumentBuilderFactory using high security recommendations by disabling vulnerable features.
+	 *
+	 * @return Instance of DocumentBuilderFactory.
+	 */
+	static public DocumentBuilderFactory createDocumentBuilderFactory() throws ParserConfigurationException {
 		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		// to be compliant, completely disable DOCTYPE declaration:
 		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
@@ -1060,6 +1080,70 @@ public class DomTools {
 		// and this solution is not correct for OpenJDK < 13 due to a bug: https://bugs.openjdk.java.net/browse/JDK-8206132
 		factory.setExpandEntityReferences(false);
 		return factory;
+	}
+
+	/**
+	 * Creates DocumentBuilder instance using high security recommendations by disabling vulnerable features.
+	 *
+	 * @return Instance of DocumentBuilder.
+	 */
+	static public DocumentBuilder createDocumentBuilderInstance() throws ParserConfigurationException {
+		return createDocumentBuilderFactory().newDocumentBuilder();
+	}
+
+	/**
+	 * Creates XMLInputFactory using high security recommendations by disabling vulnerable factory properties.
+	 *
+	 * @return Instace of XMLInputFactory.
+	 */
+	public static XMLInputFactory createXMLInputFactory() {
+		XMLInputFactory factory = XMLInputFactory.newInstance();
+		// to be compliant, completely disable DOCTYPE declaration:
+		factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+		// or completely disable external entities declarations:
+		factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE);
+		// or prohibit the use of all protocols by external entities:
+
+		//java.lang.IllegalArgumentException: Unrecognized property 'http://javax.xml.XMLConstants/property/accessExternalDTD'
+		//factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		//java.lang.IllegalArgumentException: Unrecognized property 'http://javax.xml.XMLConstants/property/accessExternalSchema'
+		//factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+		return factory;
+	}
+
+	/**
+	 * Creates XMLEventReader using high security recommendations by disabling vulnerable factory properties.
+	 * Create a new XMLEventReader from a java.io.InputStream using
+	 *
+	 * @param stream the InputStream to read from.
+	 * @param encoding the character encoding of the stream.
+	 *
+	 * @return Instance of XMLEventReader.
+	 */
+	public static XMLEventReader createXMLEventReader(InputStream stream, String encoding) throws XMLStreamException {
+		return createXMLInputFactory().createXMLEventReader(stream, encoding);
+	}
+
+	/**
+	 * Creates TransformerFactory using high security recommendations by disabling vulnerable factory attributes.
+	 *
+	 * @return Instance of TransformerFactory.
+	 */
+	public static TransformerFactory createTransformerFactory() {
+		TransformerFactory factory = TransformerFactory.newInstance();
+		// to be compliant, prohibit the use of all protocols by external entities:
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+		return factory;
+	}
+
+	/**
+	 * Creates Transformer using high security recommendations by disabling vulnerable factory attributes.
+	 *
+	 * @return Instance of Transformer.
+	 */
+	public static Transformer createTransformer() throws TransformerConfigurationException {
+		return createTransformerFactory().newTransformer();
 	}
 
 }
