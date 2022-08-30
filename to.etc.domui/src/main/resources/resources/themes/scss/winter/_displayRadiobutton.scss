@@ -1,0 +1,12 @@
+/*** DisplayRadiobutton ***/
+.ui-dsprb {
+	&:hover {
+		filter: brightness(150%);
+	}
+
+	.icon {
+		color: black;
+		background: linear-gradient(0deg, lightgray, transparent);
+		border-radius: 8px;
+	}
+}
