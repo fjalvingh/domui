@@ -1,5 +1,6 @@
 package to.etc.domui.webdriver.core;
 
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -40,6 +41,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
  */
 @NonNullByDefault final class WebDriverFactory {
 	private static Logger LOG = LoggerFactory.getLogger(WebDriverFactory.class);
+
+	private static boolean m_chromeDriverUpdated;
 
 	/**
 	 * Allocate a WebDriver instance with the specified characteristics.
@@ -243,6 +246,7 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 
 			case CHROME:
 			case CHROME_HEADLESS:
+				updateChromeDriver();
 				return allocateChromeInstance(browser, lang);
 
 			case IE:
@@ -253,6 +257,14 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 			case EDGE15:
 				return allocateIEDriver(browser, lang);
 		}
+	}
+
+	private synchronized static void updateChromeDriver() {
+		if(m_chromeDriverUpdated)
+			return;
+
+		WebDriverManager.chromedriver().setup();
+		m_chromeDriverUpdated = true;
 	}
 
 	@NonNull private static WebDriver allocateIEDriver(BrowserModel browser, Locale lang) {
