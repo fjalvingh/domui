@@ -3181,6 +3181,29 @@ public class StringTool {
 		s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
 		return s;
 	}
+
+	/**
+	 * This method checks that the name passed only contains a name,
+	 * and nothing that looks like a SQL injection.
+	 */
+	static public void sqlCheckNameOnly(@Nullable String name) {
+		if(null == name)
+			return;
+		for(int i = 0, len = name.length(); i < len; i++) {
+			char c = name.charAt(i);
+			if(! isValidSqlNameChar(c))
+				throw new IllegalArgumentException("Invalid characters in SQL name");
+		}
+	}
+
+	private static boolean isValidSqlNameChar(char c) {
+		return Character.isLetterOrDigit(c) || c == '_' || c == '.' || c == '[' || c == ']' || c == '"';
+	}
+
+	static public void sqlCheckNoQuotes(@Nullable String password) {
+		if(null != password && password.contains("'"))
+			throw new IllegalArgumentException("Invalid characters in SQL");
+	}
 }
 
 

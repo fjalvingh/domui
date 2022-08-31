@@ -2,6 +2,10 @@ package to.etc.log;
 
 import org.eclipse.jdt.annotation.NonNull;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerFactory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
@@ -100,5 +104,45 @@ class LogUtil {
 		if(!tmp.exists() || !tmp.isDirectory())
 			throw new IllegalStateException("The 'java.io.tmpdir' variable does not point to an existing directory (" + tmp + ")");
 		return tmp;
+	}
+
+	static DocumentBuilderFactory createDocumentBuilderFactory() {
+		String feature = null;
+		String errMsg = null;
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			// to be compliant, completely disable DOCTYPE declaration:
+			feature = "http://apache.org/xml/features/disallow-doctype-decl";
+			factory.setFeature(feature, true);
+			// or completely disable external entities declarations:
+			feature = "http://xml.org/sax/features/external-general-entities";
+			factory.setFeature(feature, false);
+			feature = "http://xml.org/sax/features/external-parameter-entities";
+			factory.setFeature(feature, false);
+			// or prohibit the use of all protocols by external entities:
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+			// or disable entity expansion but keep in mind that this doesn't prevent fetching external entities
+			// and this solution is not correct for OpenJDK < 13 due to a bug: https://bugs.openjdk.java.net/browse/JDK-8206132
+			factory.setExpandEntityReferences(false);
+			return factory;
+		} catch (ParserConfigurationException e) {
+			// This should catch a failed setFeature feature
+			errMsg = "ParserConfigurationException was thrown. The feature '" + feature + "' is probably not supported by your XML processor.";
+			System.err.println(errMsg);
+			throw new RuntimeException("error in createDocumentBuilderFactory: " + errMsg, e);
+		}
+	}
+
+	/**
+	 * Creates TransformerFactory using high security recommendations by disabling vulnerable factory attributes.
+	 * @return Instance of TransformerFactory.
+	 */
+	public static TransformerFactory createTransformerFactory() {
+		TransformerFactory factory = TransformerFactory.newInstance();
+		// to be compliant, prohibit the use of all protocols by external entities:
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+		factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
+		return factory;
 	}
 }

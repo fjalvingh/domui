@@ -18,6 +18,10 @@
 
     <packaging>jar</packaging>
 
+    <properties>
+        <sonar.skip>true</sonar.skip>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>to.etc.domui</groupId>
@@ -62,7 +66,7 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
         </dependency>
-    </dependencies>
+	</dependencies>
 
 
 </project>
