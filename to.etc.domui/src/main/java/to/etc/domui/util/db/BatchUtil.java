@@ -24,7 +24,7 @@ final public class BatchUtil {
 	 * Use it when performance matters ;)
 	 * @throws SQLException
 	 */
-	public static <K extends Number, T extends IIdentifyable<K>> boolean bulkDelete(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items) throws SQLException {
+	public static <K extends Number, T extends IIdentifyable<K>> int bulkDelete(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items) throws SQLException {
 		List<K> ids = items.stream().map(it -> it.getSafeId()).collect(Collectors.toList());
 		return bulkDelete(con, cmm, false, ids);
 	}
@@ -36,9 +36,9 @@ final public class BatchUtil {
 	 * Use it when performance matters ;)
 	 * @throws SQLException
 	 */
-	public static <K> boolean bulkDelete(@NonNull Connection con, ClassMetaModel cmm, boolean except, @NonNull List<K> ids) throws SQLException {
+	public static <K> int bulkDelete(@NonNull Connection con, ClassMetaModel cmm, boolean except, @NonNull List<K> ids) throws SQLException {
 		if(ids.isEmpty() && !except) {
-			return false;
+			return 0;
 		}
 		final PropertyMetaModel<?> pkPmm = cmm.getPrimaryKey();
 		if(null == pkPmm) {
@@ -49,13 +49,16 @@ final public class BatchUtil {
 			throw new IllegalArgumentException("Table: " + cmm.getTableName() + " has composite PK: " + pkCols + ". Composite PK is not supported!");
 		}
 		String pkCol = pkCols[0];
-		int chunkSize = except ? ids.size() : 1000;
-		boolean result = true;
+		int maxChunk = pkPmm.getActualType().isAssignableFrom(String.class)
+			? 100
+			: 1000;
+		int chunkSize = except ? ids.size() : maxChunk;
+		int result = 0;
 		for(List<K> idsChunk: Iterables.partition(ids, chunkSize)) {
 			String idsPlaceholders = idsChunk.stream().map(it -> "?").collect(Collectors.joining(","));
 			Object[] idsValues = idsChunk.toArray(new Object[idsChunk.size()]);
 			String notPart = except ? "not " : "";
-			result = result && JdbcUtil.executeStatement(con, "delete from " + cmm.getTableName() + " where " + notPart + pkCol + " in (" + idsPlaceholders + ")", idsValues);
+			result = result + JdbcUtil.executeUpdate(con, "delete from " + cmm.getTableName() + " where " + notPart + pkCol + " in (" + idsPlaceholders + ")", idsValues);
 		}
 		return result;
 	}
