@@ -463,7 +463,9 @@ final public class JdbcUtil {
 		try {
 			ps = dbc.prepareStatement(sql);
 			logDebug("executeUpdate", sql, args);
-			return executeUpdate(ps, args);
+			int result = executeUpdate(ps, args);
+			LOG.debug("executeUpdate result: " + result);
+			return result;
 		} finally {
 			FileTool.closeAll(ps);
 		}
