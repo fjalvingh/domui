@@ -1,0 +1,10 @@
+/*** DisplayControl ***/
+@import "variables";
+
+.ui-dspctl {
+	@include ui-control-base;
+	display: inline-flex;
+	flex-direction: row;
+	justify-content: flex-start;
+	align-items: center;
+}

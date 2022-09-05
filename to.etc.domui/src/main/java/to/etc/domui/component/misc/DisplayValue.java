@@ -29,6 +29,16 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.meta.PropertyMetaModel;
 
 /**
+ * Deprecated: this control cannot properly align its content: when used in a FormBuilder the
+ * rendered values all align to the top of the row which looks terrible. This is because there
+ * is no content member inside this control: the value is direct text which cannot be aligned.
+ *
+ * Use the new DisplayControl class instead. This consists of an inline-flex part which has the
+ * required size as defined by the form classes, and has an inner element that is then flex
+ * aligned center.
+ *
+ * If you want an item without any associated style use DisplaySpan.
+ *
  * This is a special control which can be used to display all kinds of values. It behaves as a "span" containing some
  * value that can be converted, translated and whatnot. It is meant for not too complex values that are usually
  * represented as a span.
@@ -36,6 +46,7 @@ import to.etc.domui.component.meta.PropertyMetaModel;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 15, 2010
  */
+@Deprecated
 public class DisplayValue<T> extends DisplaySpan<T> {
 	public DisplayValue(PropertyMetaModel<T> pmm) {
 		super(pmm);
