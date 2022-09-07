@@ -24,39 +24,37 @@
  */
 package to.etc.lexer;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.Reader;
 
 /**
  * Created on Sep 9, 2004
- * @author jal
  */
 public class ReaderTokenizerBase extends ReaderScannerBase {
 	/** If T the tokenizer will return whitespace as a token too. All whitespace is collated and returned as a single token */
-	private boolean	m_return_ws;
+	private boolean m_returnWhitespace;
 
 	/** If T the tokenizer will treat newline as a token too - it will be returned. */
-	private boolean	m_return_nl;
+	private boolean m_returnNewline;
 
-	private boolean	m_returnComment;
+	private boolean m_returnComment;
 
 	private boolean m_keepQuotes;
 
 	private boolean m_scanUndottedNumbers;
 
-	//	private StringBuffer	m_sb = new StringBuffer();
-
-	private int		m_lastToken	= T_EOF;
+	private int m_lastToken = T_EOF;
 
 	public ReaderTokenizerBase(Object source, Reader r) {
 		super(source, r);
 	}
 
 	public void setReturnWhitespace(boolean ws) {
-		m_return_ws = ws;
+		m_returnWhitespace = ws;
 	}
 
 	public void setReturnNewline(boolean nl) {
-		m_return_nl = nl;
+		m_returnNewline = nl;
 	}
 
 	public boolean isKeepQuotes() {
@@ -73,7 +71,7 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 
 	public String getTokenString() {
 		int type = getLastToken();
-		switch(type){
+		switch(type) {
 			default:
 				return "'" + Character.toString((char) type) + "'";
 			case T_EOF:
@@ -109,11 +107,11 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 	}
 
 	private int nextTokenPrimitive() throws IOException, SourceErrorException {
-		for(;;) // Till a non-filtered token is found
-		{
-			if(!m_return_ws && !m_return_nl)
+		for(; ; ) {
+			// Till a non-filtered token is found
+			if(!m_returnWhitespace && !m_returnNewline)
 				skipWs();
-			else if(m_return_nl && !m_return_ws)
+			else if(m_returnNewline && !m_returnWhitespace)
 				skipWsNoNL();
 			startToken();
 			int c = LA(); // Get current character
@@ -128,12 +126,11 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 	}
 
 	protected int decodeToken(int c) throws IOException, SourceErrorException {
-		switch(c){
+		switch(c) {
 			default:
 				if(Character.isWhitespace((char) c)) {
-					for(;;) {
-						if(m_return_nl) // Must we treat NL differently?
-						{
+					for(; ; ) {
+						if(m_returnNewline) { // Must we treat NL differently?
 							if(c == '\n') // Is newline-> end loop
 								break;
 						}
@@ -159,12 +156,12 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 				return c;
 
 			case '\n':
-				if(m_return_nl) {
+				if(m_returnNewline) {
 					append((char) c);
 					accept();
 					return c;
 				} else {
-					for(;;) {
+					for(; ; ) {
 						if(c == -1)
 							break;
 						else if(!Character.isWhitespace((char) c))
@@ -225,7 +222,7 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 				//-- Line-based comment?
 				if(LA(1) == '/') {
 					copy(2);
-					for(;;) {
+					for(; ; ) {
 						c = LA();
 						if(c == '\n' || c == -1) { // Eof/eoln?
 							if(m_returnComment)
@@ -234,11 +231,10 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 						}
 						copy(); // Always accept
 					}
-				} else if(LA(1) == '*') // C style multiline comment?
-				{
+				} else if(LA(1) == '*') {		 // C style multiline comment?
 					copy(2); // accept /*
 					int lc = 0;
-					for(;;) {
+					for(; ; ) {
 						c = LA();
 						copy();
 						if(c == -1)
@@ -268,7 +264,8 @@ public class ReaderTokenizerBase extends ReaderScannerBase {
 
 	public int laNextNonWs() throws IOException {
 		int i = 0;
-		while(Character.isWhitespace(LA(i))) i++;
+		while(Character.isWhitespace(LA(i)))
+			i++;
 		return LA(i);
 	}
 }
