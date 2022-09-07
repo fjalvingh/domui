@@ -193,7 +193,7 @@ public class ExcelImportRow implements IImportRow {
 			try {
 				return df.parse(stringValue);
 			} catch(Exception x) {
-				throw new ImportValueException("Invalid date '" + stringValue + "' using date format '" + dateFormat + ";");
+				throw new ImportValueException("Invalid date '" + stringValue + "' using date format '" + dateFormat + "'");
 			}
 		}
 
