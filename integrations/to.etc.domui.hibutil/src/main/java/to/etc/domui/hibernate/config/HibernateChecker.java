@@ -148,6 +148,9 @@ final public class HibernateChecker {
 				m_currentProperty = pi;
 				Method g = pi.getGetter();
 				if(g != null) {
+					if(null != g.getAnnotation(IgnoreHibernateCheck.class)) {
+						continue;
+					}
 					checkOneToMany(g);
 					checkEnumMapping(g);
 					checkDateMapping(g);
@@ -388,32 +391,31 @@ final public class HibernateChecker {
 	}
 
 	public void report() {
-		if(getBadOneToMany() > 0)
-			System.out.println("MAPPING: " + getBadOneToMany() + " bad @OneToMany mappings with missing mappedBy");
-		if(getBadManyToOne() > 0)
-			System.out.println("MAPPING: " + getBadManyToOne() + " bad @ManyToOne mappings (fetch eager)");
-		if(getBadChildType() > 0)
-			System.out.println("MAPPING: " + getBadChildType() + " bad @OneToMany mappings with non-List<T> type");
-		if(getBadJoinColumn() > 0)
-			System.out.println("MAPPING: " + getBadJoinColumn() + " bad @OneToMany mappings with @JoinColumn");
-		if(getDupTables() > 0)
-			System.out.println("MAPPING: " + getDupTables() + " duplicate tables");
-		if(getEnumErrors() > 0)
-			System.out.println("MAPPING: " + getEnumErrors() + " enum's mapped as ORDINAL or missing @Enumerated annotation");
-		if(getDateErrors() > 0)
-			System.out.println("MAPPING: " + getDateErrors() + " date field without proper @Temporal annotation or of the wrong date type");
-		if(getMissingEntity() > 0)
-			System.out.println("MAPPING: " + getMissingEntity() + " classes missing an @Entity annotation");
-		if(getBadBooleans() > 0)
-			System.out.println("MAPPING: " + getBadBooleans() + " bad Boolean/boolean mappings");
-		if(getMissingColumn() > 0)
-			System.out.println("MAPPING: " + getMissingColumn() + " properties with a missing @Column annotation");
-		if(getDomuiMetaFatals() > 0)
-			System.out.println("MAPPING: " + getDomuiMetaFatals() + " fatal DomUI metamodel errors - must be fixed now.");
-		if(getBadOneToOne() > 0)
-			System.out.println("MAPPING: " + getBadOneToOne() + " bad @OneToOne mapping errors - must be fixed now");
-		if(getNotLazyLoadedFormula() > 0)
-			System.out.println("MAPPING: " + getNotLazyLoadedFormula() + " bad @Formula lazy loading, missing @Basic(fetch=FetchType.LAZY) - must be fixed now");
+		boolean hasIssues = false;
+		hasIssues = reportIssues(getBadOneToMany(), "bad @OneToMany mappings with missing mappedBy") || hasIssues;
+		hasIssues = reportIssues(getBadManyToOne(), "bad @ManyToOne mappings (fetch eager)") || hasIssues;
+		hasIssues = reportIssues(getBadChildType(), "bad @OneToMany mappings with non-List<T> type") || hasIssues;
+		hasIssues = reportIssues(getBadJoinColumn(), "bad @OneToMany mappings with @JoinColumn") || hasIssues;
+		hasIssues = reportIssues(getDupTables(), "duplicate tables") || hasIssues;
+		hasIssues = reportIssues(getEnumErrors(), "enum's mapped as ORDINAL or missing @Enumerated annotation") || hasIssues;
+		hasIssues = reportIssues(getDateErrors(), "date field without proper @Temporal annotation or of the wrong date type") || hasIssues;
+		hasIssues = reportIssues(getMissingEntity(), "classes missing an @Entity annotation") || hasIssues;
+		hasIssues = reportIssues(getBadBooleans(), "bad Boolean/boolean mappings") || hasIssues;
+		hasIssues = reportIssues(getMissingColumn(), "properties with a missing @Column annotation") || hasIssues;
+		hasIssues = reportIssues(getDomuiMetaFatals(), "fatal DomUI metamodel errors - must be fixed now.") || hasIssues;
+		hasIssues = reportIssues(getBadOneToOne(), "bad @OneToOne mapping errors - must be fixed now") || hasIssues;
+		hasIssues = reportIssues(getNotLazyLoadedFormula(), "bad @Formula lazy loading, missing @Basic(fetch=FetchType.LAZY) - must be fixed now") || hasIssues;
+		if(!hasIssues) {
+			System.out.println("HibernateChecker found no issues :)");
+		}
+	}
+
+	private boolean reportIssues(int issuesCount, String msg) {
+		if(issuesCount > 0) {
+			System.out.println("MAPPING: " + issuesCount + " " + msg);
+			return true;
+		}
+		return false;
 	}
 
 	public int getDomuiMetaFatals() {
