@@ -24,7 +24,7 @@ final public class BatchUtil {
 	 * Use it when performance matters ;)
 	 * @throws SQLException
 	 */
-	public static <K extends Number, T extends IIdentifyable<K>> int bulkDelete(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items) throws SQLException {
+	public static <K, T extends IIdentifyable<K>> int bulkDelete(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items) throws SQLException {
 		List<K> ids = items.stream().map(it -> it.getSafeId()).collect(Collectors.toList());
 		return bulkDelete(con, cmm, false, ids);
 	}
