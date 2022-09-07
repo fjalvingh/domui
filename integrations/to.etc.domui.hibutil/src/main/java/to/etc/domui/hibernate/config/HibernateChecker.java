@@ -32,7 +32,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -67,7 +66,7 @@ final public class HibernateChecker {
 
 	private int m_notLazyLoadedFormula;
 
-	private Class< ? > m_currentClass;
+	private Class<?> m_currentClass;
 
 	private PropertyInfo m_currentProperty;
 
@@ -102,11 +101,11 @@ final public class HibernateChecker {
 				}
 			}
 
-			System.out.println("MAPPING " + sb.toString());
+			System.out.println("MAPPING " + sb);
 		}
 	}
 
-	public void enhanceMappings() throws Exception {
+	public void enhanceMappings() {
 		//m_config.buildMappings();
 
 		/*
@@ -114,21 +113,19 @@ final public class HibernateChecker {
 		 * sufficient information to user types (like the property type, sigh). This code prevents us
 		 * from having to set the user type by hand which is one big error time sink.
 		 */
-		Map<String, Class< ? >> exmaps = new HashMap<String, Class< ? >>();
+		Map<String, Class<?>> exmaps = new HashMap<>();
 		m_dupTables = 0;
 		m_badOneToMany = 0;
 		m_badChildType = 0;
 
 		//-- For some reason the hibernate kids only fill config after the session factory has been created. Very unhygienic.
 
-
-		for(Iterator< ? > iter = m_metaData.getEntityBindings().iterator(); iter.hasNext();) {
-			PersistentClass pc = (PersistentClass) iter.next();
+		for(PersistentClass pc : m_metaData.getEntityBindings()) {
 			m_currentClass = pc.getMappedClass();
 			m_currentProperty = null;
 
 			String tn = pc.getTable().getName();
-			Class< ? > xcl = exmaps.get(tn.toLowerCase());
+			Class<?> xcl = exmaps.get(tn.toLowerCase());
 			if(xcl != null) {
 				m_dupTables++;
 				problem(Severity.ERROR, "DUPLICATE TABLE IN HIBERNATE MAPPING: " + tn + " in " + xcl + " and " + pc.getMappedClass());
@@ -147,29 +144,27 @@ final public class HibernateChecker {
 			for(PropertyInfo pi : pilist) {
 				m_currentProperty = pi;
 				Method g = pi.getGetter();
-				if(g != null) {
-					if(null != g.getAnnotation(IgnoreHibernateCheck.class)) {
-						continue;
-					}
-					checkOneToMany(g);
-					checkEnumMapping(g);
-					checkDateMapping(g);
-					checkBooleanMapping(g);
-					checkOneToOne(g, pilist);
-					checkFormula(g);
-					checkSequenceGenerator(g);
+				if(null != g.getAnnotation(IgnoreHibernateCheck.class)) {
+					continue;
 				}
+				checkOneToMany(g);
+				checkEnumMapping(g);
+				checkDateMapping(g);
+				checkBooleanMapping(g);
+				checkOneToOne(g, pilist);
+				checkFormula(g);
+				checkSequenceGenerator(g);
 			}
 
 			checkDomuiMetadata();
 
-			for(Iterator< ? > iter2 = pc.getPropertyIterator(); iter2.hasNext();) {
+			for(Iterator<?> iter2 = pc.getPropertyIterator(); iter2.hasNext(); ) {
 				Property property = (Property) iter2.next();
 				//				System.out.println("... " + property.getName() + " type " + property.getType().getName());
 				Getter g = property.getGetter(pc.getMappedClass());
 
 				Method method = g.getMethod();
-				Class< ? > actual = null == method ? null : method.getReturnType();
+				Class<?> actual = null == method ? null : method.getReturnType();
 
 				if(property.getType().getName().equals(MappedEnumType.class.getName()) || "nl.itris.viewpoint.db.hibernate.ViewPointMappedEnumType".equals(property.getType().getName())) {
 					//-- Sigh.. Try to obtain the property's actual type from the getter because Hibernate does not have an easy route to it, appearently.
@@ -185,9 +180,9 @@ final public class HibernateChecker {
 				}
 			}
 		}
-		if(m_reportProblems || (! m_allowHibernateSuckySequences && m_hibernateSuckySequences > 0))
+		if(m_reportProblems || (! m_allowHibernateSuckySequences && getHibernateSuckySequences() > 0))
 			report();
-		if(! m_allowHibernateSuckySequences && m_hibernateSuckySequences > 0)
+		if(! m_allowHibernateSuckySequences && getHibernateSuckySequences() > 0)
 			throw new IllegalStateException("Using hibernate sucky sequences! Call HibernateConfigurator.setAllowHibernateSuckySequences() to allow this IF YOU KNOW WHAT YOU ARE DOING");
 	}
 
@@ -246,7 +241,6 @@ final public class HibernateChecker {
 
 	/**
 	 * boolean columns cannot be mapped to Boolean but must be mapped to boolean with a proper @Type.
-	 * @param g
 	 */
 	private void checkBooleanMapping(Method g) {
 		if(Boolean.class.isAssignableFrom(g.getReturnType())) {
@@ -299,7 +293,6 @@ final public class HibernateChecker {
 
 	/**
 	 * OneToMany: must have mappedBy, cannot have JoinColumn, must have List<T> resultType.
-	 * @param g
 	 */
 	private void checkOneToMany(Method g) {
 		javax.persistence.OneToMany o2m = g.getAnnotation(javax.persistence.OneToMany.class);
@@ -334,7 +327,6 @@ final public class HibernateChecker {
 
 	/**
 	 * Date columns must be that, must have a proper @DateType
-	 * @param g
 	 */
 	private void checkDateMapping(Method g) {
 		if(Date.class.isAssignableFrom(g.getReturnType())) {
@@ -356,7 +348,6 @@ final public class HibernateChecker {
 
 	/**
 	 * Enums must be mapped as String, not ORDINAL.
-	 * @param g
 	 */
 	private void checkEnumMapping(Method g) {
 		if(Enum.class.isAssignableFrom(g.getReturnType())) {		// Is type enum?
@@ -384,15 +375,15 @@ final public class HibernateChecker {
 			m_currentProperty = null;
 			ClassMetaModel cmm = MetaManager.findClassMeta(m_currentClass);
 		} catch(Exception x) {
-			problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x.toString());
+			problem(Severity.MUSTFIXNOW, "DomUI Metamodel error: " + x);
 			x.printStackTrace();
 			m_domuiMetaFatals++;
 		}
 	}
 
 	public void report() {
-		boolean hasIssues = false;
-		hasIssues = reportIssues(getBadOneToMany(), "bad @OneToMany mappings with missing mappedBy") || hasIssues;
+		boolean hasIssues;
+		hasIssues = reportIssues(getBadOneToMany(), "bad @OneToMany mappings with missing mappedBy");
 		hasIssues = reportIssues(getBadManyToOne(), "bad @ManyToOne mappings (fetch eager)") || hasIssues;
 		hasIssues = reportIssues(getBadChildType(), "bad @OneToMany mappings with non-List<T> type") || hasIssues;
 		hasIssues = reportIssues(getBadJoinColumn(), "bad @OneToMany mappings with @JoinColumn") || hasIssues;
