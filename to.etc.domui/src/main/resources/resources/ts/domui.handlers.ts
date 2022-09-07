@@ -146,9 +146,9 @@ namespace WebUI {
 			let action = '';
 			// console.log("key: shiftKey=" + e.shiftKey + " ctrl=" + e.ctrlKey + " alt=" + e.altKey + " key=" + e.key);
 
-			if((e.key == '~' || e.key == '\'') && e.shiftKey && ! e.altKey && ! e.ctrlKey) {		// Tilde
+			if((e.key == '~' || e.key == '`') && e.shiftKey && ! e.altKey && ! e.ctrlKey) {		// Tilde
 				action = 'DEVTREE';
-			} else if((e.key == '~' || e.key == '\'') && e.ctrlKey && e.shiftKey && ! e.altKey) {
+			} else if((e.key == '~' || e.key == '`') && e.ctrlKey && e.shiftKey && ! e.altKey) {
 				action = 'TESTGEN';
 			} else {
 				_debugLastKeypress = 0;
