@@ -18,6 +18,8 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
@@ -30,6 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 /**
@@ -149,7 +152,7 @@ final public class HibernateChecker {
 					checkEnumMapping(g);
 					checkDateMapping(g);
 					checkBooleanMapping(g);
-					checkOneToOne(g);
+					checkOneToOne(g, pilist);
 					checkFormula(g);
 					checkSequenceGenerator(g);
 				}
@@ -195,13 +198,35 @@ final public class HibernateChecker {
 		}
 	}
 
-	private void checkOneToOne(Method g) {
+	private void checkOneToOne(Method g, List<PropertyInfo> props) {
 		OneToOne annotation = g.getAnnotation(OneToOne.class);
 		if(null == annotation)
 			return;
+
 		if(annotation.optional() && annotation.fetch() == FetchType.LAZY) {
-			problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY does eager fetching, causing big performance trouble");
-			m_badOneToOne++;
+			PropertyInfo idProp = props.stream().filter(it -> null != it.getGetter().getAnnotation(Id.class)).findFirst().orElse(null);
+			if(null == idProp) {
+				problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY is used in class that has no @Id property!?");
+				m_badOneToOne++;
+				return;
+			}
+			JoinColumn joinColumnAnnotation = g.getAnnotation(JoinColumn.class);
+			if(null == joinColumnAnnotation) {
+				problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY is used without @JoinColumn!?");
+				m_badOneToOne++;
+				return;
+			}
+			Column idColumnAnnotation = idProp.getGetter().getAnnotation(Column.class);
+			if(null == idColumnAnnotation) {
+				problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY is used with @Id property without @Column!?");
+				m_badOneToOne++;
+				return;
+			}
+
+			if(joinColumnAnnotation.name().equals(idColumnAnnotation.name())) {
+				problem(Severity.ERROR, "@OneOnOne that is optional with fetch=LAZY, and uses shared id column '" + joinColumnAnnotation.name() + "' does eager fetching, causing big performance trouble!");
+				m_badOneToOne++;
+			}
 		}
 	}
 
