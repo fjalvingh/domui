@@ -351,7 +351,8 @@ import static to.etc.domui.util.DomUtil.nullChecked;
 	};
 	static private final String[] CHROMELOCATIONS = {
 		"/usr/local/bin/google-chrome",
-		"/usr/bin/google-chrome"
+		"/usr/bin/google-chrome",
+		"/Applications/Google Chrome.app"
 	};
 
 	private static WebDriver allocateChromeInstance(BrowserModel model, Locale lang) throws IOException {
