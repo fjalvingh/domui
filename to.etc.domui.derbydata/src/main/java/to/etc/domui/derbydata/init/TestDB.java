@@ -24,12 +24,12 @@ final public class TestDB {
 
 	static public synchronized ConnectionPool getPool() throws Exception {
 		String path = "/tmp/demoDb";
-		if(System.getProperty("maven.home") != null || System.getProperty("failsafe.test.class.path") != null) {
+		//if(System.getProperty("maven.home") != null || System.getProperty("failsafe.test.class.path") != null) {
 			File tmp = File.createTempFile("testdb", ".domui");
 			tmp.delete();
 			tmp.mkdirs();
 			path = tmp.getAbsolutePath();
-		}
+		//}
 		System.out.println("Database path is " + path);
 
 		return getPool(path);
