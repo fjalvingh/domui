@@ -16,7 +16,7 @@ import java.io.InputStream;
 public class TestImageHelper {
 	@Test
 	public void testUnborderedInput() throws Exception {
-		String baseName = "/tmp/" + getClass().getSimpleName() + "_testUnborderedInput";
+		//String baseName = "/tmp/" + getClass().getSimpleName() + "_testUnborderedInput";
 
 		BufferedImage srcBi;
 		try(InputStream is = getClass().getResourceAsStream("input-1.png")) {
@@ -30,8 +30,9 @@ public class TestImageHelper {
 		int sy = borderBi.getRootLocation().y + bl[0];
 		int ey = borderBi.getRootLocation().y + bl[1];
 
+		File f1 = File.createTempFile("ubborder-", "-bw.png");
 		BufferedImage outBi = borderBi.save();
-		ImageIO.write(outBi, "png", new File(baseName + "-bw.png"));
+		ImageIO.write(outBi, "png", f1);
 
 		Graphics2D graphics = (Graphics2D) srcBi.getGraphics();
 		graphics.setStroke(new BasicStroke(1));
@@ -39,14 +40,17 @@ public class TestImageHelper {
 		graphics.drawLine(0, ey, srcBi.getWidth()-1, ey);
 		graphics.dispose();
 
-		ImageIO.write(srcBi, "png", new File(baseName + "-baseline.png"));
+		File f2 = File.createTempFile("unborder-", "-baseline.png");
+		ImageIO.write(srcBi, "png", f2);
 		Assert.assertEquals("Baseline should be correct", 11, ey);
+		f1.delete();
+		f2.delete();
 
 	}
 
 	@Test
 	public void testBorderedInput() throws Exception {
-		String baseName = "/tmp/" + getClass().getSimpleName() + "_testBorderedInput";
+		//String baseName = "/tmp/" + getClass().getSimpleName() + "_testBorderedInput";
 
 		BufferedImage srcBi;
 		try(InputStream is = getClass().getResourceAsStream("input-2.png")) {
@@ -61,7 +65,8 @@ public class TestImageHelper {
 		int ey = borderBi.getRootLocation().y + bl[1];
 
 		BufferedImage outBi = borderBi.save();
-		ImageIO.write(outBi, "png", new File(baseName + "-bw.png"));
+		File f1 = File.createTempFile("testborder-", "-bw.png");
+		ImageIO.write(outBi, "png", f1);
 
 		Graphics2D graphics = (Graphics2D) srcBi.getGraphics();
 		graphics.setStroke(new BasicStroke(1));
@@ -69,8 +74,12 @@ public class TestImageHelper {
 		graphics.drawLine(0, ey, srcBi.getWidth()-1, ey);
 		graphics.dispose();
 
-		ImageIO.write(srcBi, "png", new File(baseName + "-baseline.png"));
+		File f2 = File.createTempFile("testborder-", "-baseline.png");
+		ImageIO.write(srcBi, "png", f2);
 		Assert.assertEquals("Baseline should be correct", 13, ey);
+		f1.delete();
+		f2.delete();
+
 	}
 
 
