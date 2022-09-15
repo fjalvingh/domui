@@ -1,6 +1,8 @@
 package to.etc.domui.component.tbl;
 
 import org.eclipse.jdt.annotation.NonNull;
+import to.etc.function.FunctionEx;
+import to.etc.util.WrappedException;
 import to.etc.webapp.query.IIdentifyable;
 
 import java.util.ArrayList;
@@ -26,17 +28,35 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 
 	final private boolean m_retainInstances;
 
+	final private FunctionEx<T, K> m_keyExtractor;
+
 	/**
 	 * Constructor.
-	 * @param retainInstances Set T in case that model should collect instancies. For lightweight use, set F in case that collecting PKs is sufficient.
+	 *
+	 * @param retainInstances Set T in case that model should collect instances. For lightweight use, set F in case that collecting PKs is sufficient.
 	 */
 	public KeySelectionModel(boolean multiSelect, boolean retainInstances) {
+		this(multiSelect, retainInstances, rowinstance -> {
+			if(rowinstance instanceof IIdentifyable<?>) {
+				return ((IIdentifyable<K>) rowinstance).getId();
+			} else if(null == rowinstance) 							// Should not happen.
+				throw new IllegalArgumentException("null row");
+			throw new IllegalStateException("The instance needs to implement IIdentifyable<K>, or you need to set a KeyExtractor");
+		});
+	}
+
+	public KeySelectionModel(boolean multiSelect, boolean retainInstances, FunctionEx<T, K> keyExtractor) {
 		m_multiSelect = multiSelect;
 		m_retainInstances = retainInstances;
+		m_keyExtractor = keyExtractor;
 	}
 
 	public KeySelectionModel(boolean multiSelect) {
 		this(multiSelect, false);
+	}
+
+	public KeySelectionModel(boolean multiSelect, FunctionEx<T, K> keyExtractor) {
+		this(multiSelect, false, keyExtractor);
 	}
 
 	@Override
@@ -55,16 +75,13 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 	 * This must return the unique key K for an instance. By default, if the instance implements
 	 * {@link IIdentifyable}&lt;K&gt; it will use that to retrieve the key; if that is not possible
 	 * you <b>must</b> override this method.
-	 *
-	 * @param rowinstance
-	 * @return
 	 */
 	public K getKey(@NonNull T rowinstance) {
-		if(rowinstance instanceof IIdentifyable< ? >) {
-			return ((IIdentifyable<K>) rowinstance).getId();
-		} else if(null == rowinstance) // Should not happen.
-			throw new IllegalArgumentException("null row");
-		throw new IllegalStateException("The instance needs to implement IIdentifyable<K>, or the getKey() method needs to be overridden.");
+		try {
+			return m_keyExtractor.apply(rowinstance);
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);						// 8-(
+		}
 	}
 
 	@Override
