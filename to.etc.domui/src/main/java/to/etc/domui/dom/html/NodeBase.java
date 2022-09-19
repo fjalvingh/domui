@@ -67,6 +67,7 @@ import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.nls.BundleStack;
 import to.etc.webapp.nls.IBundle;
+import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.query.QContextManager;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QDataContextFactory;
@@ -869,8 +870,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	/**
 	 * Set the title attribute, using tilde replacement. If the string starts with a ~ it is
 	 * assumed to be a key into the page's resource bundle.
-	 *
-	 * @param title
 	 */
 	public void setTitle(@Nullable final String title) {
 		if(!DomUtil.isEqual(title, m_title))
@@ -879,8 +878,15 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	}
 
 	/**
+	 * Set the title attribute, using tilde replacement. If the string starts with a ~ it is
+	 * assumed to be a key into the page's resource bundle.
+	 */
+	public void setTitle(@Nullable IBundleCode code, Object... param) {
+		setTitle(code == null ? null : code.format(param));
+	}
+
+	/**
 	 * Returns the title <i>as set</i> verbatim; if it was set using a tilde key this returns the <i>key</i> without resource bundle replacement.
-	 * @return
 	 */
 	@Nullable
 	public String getTitle() {
