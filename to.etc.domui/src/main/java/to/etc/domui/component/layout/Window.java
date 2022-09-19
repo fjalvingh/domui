@@ -33,6 +33,7 @@ import to.etc.domui.dom.html.Img;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.IBundleCode;
 
 /**
  * This is a basic floating window, with a title area, optional fixed content area's
@@ -163,6 +164,12 @@ public class Window extends FloatingDiv {
 	@NonNull
 	public Window title(@NonNull String set) {
 		setWindowTitle(set);
+		return this;
+	}
+
+	@NonNull
+	public Window title(IBundleCode code, Object... param) {
+		title(code.format(param));
 		return this;
 	}
 
