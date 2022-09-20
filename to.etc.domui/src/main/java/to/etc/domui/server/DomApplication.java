@@ -332,7 +332,7 @@ public abstract class DomApplication {
 			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
 			.button(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Integer.valueOf(1))
 			.button(Msgs.leave.getString(), Integer.valueOf(2))
-			.onAnswer((IAnswer2) answer -> {
+			.onAnswer2((IAnswer2) answer -> {
 				if(Integer.valueOf(2).equals(answer)) {
 					UIContext.getCurrentConversation().getWindowSession().handleGotoOnNavigationCheck((RequestContextImpl) UIContext.getRequestContext(), gotoCtx, page.getPage());
 				}
@@ -349,7 +349,7 @@ public abstract class DomApplication {
 			.warning(Msgs.changesYouMadeMayNotBeSaved.getString())
 			.button(Msgs.BUNDLE.getString(Msgs.EDLG_CANCEL), Integer.valueOf(1))
 			.button(Msgs.leave.getString(), Integer.valueOf(2))
-			.onAnswer((IAnswer2) answer -> {
+			.onAnswer2((IAnswer2) answer -> {
 				if(Integer.valueOf(2).equals(answer)) {
 					callback.run();
 				}

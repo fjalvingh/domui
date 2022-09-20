@@ -512,13 +512,18 @@ final public class MsgBox2 extends Window {
 	}
 
 	@NonNull
-	public MsgBox2 onAnswer(@NonNull IAnswer2 onAnswer) {
+	public MsgBox2 onAnswer2(@NonNull IAnswer2 onAnswer) {
 		m_onAnswer2 = onAnswer;
 		return this;
 	}
 
+	/**
+	 * This handles the usual "confirmation" button and ignores all other type of responses.
+	 * <b>This has been renamed; it used to be called onAnswer too causing big trouble with
+	 * lambda's</b>
+	 */
 	@NonNull
-	public MsgBox2 onAnswer(@NonNull IClicked<MsgBox2> clicked) {
+	public MsgBox2 onClicked(@NonNull IClicked<MsgBox2> clicked) {
 		m_clicked = clicked;
 		return this;
 	}
