@@ -129,10 +129,12 @@ import to.etc.domui.util.resources.VersionedJsResourceFactory;
 import to.etc.domui.util.resources.WebappResourceRef;
 import to.etc.function.BiConsumerEx;
 import to.etc.function.ConsumerEx;
+import to.etc.smtp.Message;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.mailer.BulkMailer;
 import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.NlsContext;
 import to.etc.webapp.query.QNotFoundException;
@@ -2496,6 +2498,16 @@ public abstract class DomApplication {
 	 */
 	public boolean shouldMailException(Throwable x) {
 		return true;
+	}
+
+	/**
+	 * Sends an email with the exception info using bulk mailer.
+	 *
+	 * @param m
+	 * @throws Exception
+	 */
+	public void mailException(Message m) throws Exception {
+		BulkMailer.getInstance().store(m);
 	}
 
 	static {

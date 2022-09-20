@@ -16,7 +16,6 @@ import to.etc.smtp.Message;
 import to.etc.util.LineIterator;
 import to.etc.util.SecurityUtils;
 import to.etc.util.StringTool;
-import to.etc.webapp.mailer.BulkMailer;
 
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -177,7 +176,7 @@ final public class ExceptionUtil {
 		m.addTo(new Address(addr));
 		m.setFrom(new Address(from, from));
 		try {
-			BulkMailer.getInstance().store(m);
+			DomApplication.get().mailException(m);
 		} catch(Exception xxx) {
 			LOG.error("renderEmail failed: " + x, x);
 		}
