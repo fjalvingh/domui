@@ -1,14 +1,38 @@
 package to.etc.domui.component2.lookupinput;
 
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.layout.IWindowClosed;
+import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.ITableModel;
 import to.etc.domui.component2.lookupinput.LookupInputBase2.IPopupOpener;
 import to.etc.domui.dom.html.IClicked;
 import to.etc.function.IExecute;
 
-public class DefaultPopupOpener implements IPopupOpener {
+public class DefaultPopupOpener<A, B> implements IPopupOpener {
+
+	@Nullable
+	private IClickableRowRenderer<B> m_formRowRenderer;
+
+	/**
+	 * Returns configured custom {@link IClickableRowRenderer}&lt;OT&gt; render for rows when the popup lookup form is used.
+	 *
+	 * @return configured renderer.
+	 */
+	@Nullable
+	public IClickableRowRenderer<B> getFormRowRenderer() {
+		return m_formRowRenderer;
+	}
+
+	/**
+	 * Sets custom {@link IClickableRowRenderer}&lt;B&gt; render.
+	 *
+	 * @param lookupFormRenderer render for table rows when the popup lookup form is used.
+	 */
+	public void setFormRowRenderer(@Nullable IClickableRowRenderer<B> lookupFormRenderer) {
+		m_formRowRenderer = lookupFormRenderer;
+	}
 
 	@Override
 	public <A, B, L extends LookupInputBase2<A, B>> Dialog createDialog(final L control, ITableModel<B> initialModel, final IExecute callOnWindowClose) {
@@ -29,7 +53,7 @@ public class DefaultPopupOpener implements IPopupOpener {
 		dlg.setQueryHandler(control.getQueryHandler());
 		dlg.setQueryManipulator(control);
 
-		if (null != initialModel){
+		if(null != initialModel){
 			dlg.setInitialModel(initialModel);
 		}
 
@@ -38,6 +62,11 @@ public class DefaultPopupOpener implements IPopupOpener {
 				callOnWindowClose.execute();
 			}
 		});
+
+		IClickableRowRenderer<B> formRowRenderer = (IClickableRowRenderer<B>) getFormRowRenderer();
+		if(null != formRowRenderer) {
+			dlg.setFormRowRenderer(formRowRenderer);
+		}
 
 		return dlg;
 	}
