@@ -398,6 +398,14 @@ final public class ColumnDef<I, T> {
 	}
 
 	/**
+	 * Set the hint for a column as localized code.
+	 */
+	@NonNull
+	public ColumnDef<I, T> hint(IBundleCode code) {
+		return hint(code.getString());
+	}
+
+	/**
 	 * Set the hint for a column.
 	 */
 	@NonNull
