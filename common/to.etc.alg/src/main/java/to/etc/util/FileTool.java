@@ -375,9 +375,7 @@ public class FileTool {
 
 	/**
 	 * Copies a file of max. 1GB.
-	 * @deprecated Use the specific limited one instead.
 	 */
-	@Deprecated
 	static public void copyFile(final File destf, final File srcf) throws IOException {
 		copyFile(destf, srcf, 1 * GB);
 	}
@@ -391,9 +389,7 @@ public class FileTool {
 
 	/**
 	 * Copies the inputstream to the output stream, limited to 1GB of data(!).
-	 * @deprecated Use the specific limited one instead.
 	 */
-	@Deprecated
 	static public void copyFile(final OutputStream os, final InputStream is) throws IOException {
 		copyFile(os, is, 1 * GB);
 	}
@@ -602,7 +598,6 @@ public class FileTool {
 	 * Use the charset variant.
 	 * Read a file into a string using the specified encoding.
 	 */
-	@Deprecated
 	static public String readFileAsString(final File f, final String encoding) throws Exception {
 		try(InputStream is = new FileInputStream(f)) {
 			return readStreamAsString(is, encoding);
@@ -729,7 +724,6 @@ public class FileTool {
 	/**
 	 * Use the Charset variant.
 	 */
-	@Deprecated
 	static public String readStreamAsString(final InputStream is, final String enc) throws Exception {
 		StringBuilder sb = new StringBuilder(128);
 		readStreamAsString(sb, is, enc);
@@ -739,7 +733,6 @@ public class FileTool {
 	/**
 	 * Use the Charset variant.
 	 */
-	@Deprecated
 	static public void readStreamAsString(final Appendable o, final InputStream f, final String enc) throws Exception {
 		Reader r = new InputStreamReader(f, enc);
 		readStreamAsString(o, r);
@@ -1292,7 +1285,6 @@ public class FileTool {
 
 	/**
 	 * Unzips an archive. Max file size (and total expanded size) is 1GB.
-	 * @deprecated Use the specific limited one instead.
 	 */
 	public static void unzip(File dest, InputStream is) throws Exception {
 		unzip(dest, is, 1 * GB, 1 * GB);
@@ -1360,7 +1352,6 @@ public class FileTool {
 	/**
 	 * Unzip the contents of the zipfile to the directory. The directory is
 	 * created if it does not yet exist.
-	 * @deprecated Use the size limited variant.
 	 */
 	public static void unzip(final File dest, final File zipfile) throws Exception {
 		unzip(dest, zipfile, 1 * GB, 1 * GB);

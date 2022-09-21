@@ -24,12 +24,13 @@
  */
 package to.etc.template;
 
-import java.io.*;
+import to.etc.util.FileTool;
 
-import javax.servlet.*;
-import javax.servlet.http.*;
-
-import to.etc.util.*;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * VERY OLD - DO NOT USE
@@ -124,7 +125,7 @@ public class ServletTplExpander extends TplExpander {
 	public void expand(InputStream is) throws Exception {
 		//-- Read the entire thing into a string buffer.
 		try {
-			String tpl = FileTool.readStreamAsString(is, "utf-8");
+			String tpl = FileTool.readStreamAsString(is, StandardCharsets.UTF_8);
 			setNoCache();
 			m_res.setContentType("text/html");
 			expand(tpl, m_res.getWriter());

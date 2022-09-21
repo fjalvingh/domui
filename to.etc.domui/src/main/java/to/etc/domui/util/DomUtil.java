@@ -88,6 +88,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1993,7 +1994,7 @@ final public class DomUtil {
 		if(null == m_lorem) {
 			InputStream is = DomUtil.class.getResourceAsStream("lorem.txt");
 			try {
-				m_lorem = FileTool.readStreamAsString(is, "utf-8");
+				m_lorem = FileTool.readStreamAsString(is, StandardCharsets.UTF_8);
 			} finally {
 				try {
 					is.close();
