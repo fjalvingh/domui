@@ -136,12 +136,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	private ILookupFormModifier<QT> m_lookupFormInitialization;
 
 	/**
-	 * When set this defines the {@link IRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
-	 */
-	@Nullable
-	private IClickableRowRenderer<OT> m_formRowRenderer;
-
-	/**
 	 * Internal: the actual form row renderer used by the code. This will be set to a {@link BasicRowRenderer} if the user
 	 * did not specify a row renderer.
 	 */
@@ -880,24 +874,6 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		m_searchImmediately = searchImmediately;
 		if(searchImmediately)
 			setAllowEmptyQuery(true);
-	}
-
-	/**
-	 * When set this defines the {@link IClickableRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
-	 *
-	 * @return
-	 */
-	@Nullable
-	public IClickableRowRenderer<OT> getFormRowRenderer() {
-		return m_formRowRenderer;
-	}
-
-	/**
-	 * When set this defines the {@link IClickableRowRenderer}&lt;OT&gt; to use to render rows when the popup lookup form is used.
-	 * @param lookupFormRenderer
-	 */
-	public void setFormRowRenderer(@Nullable IClickableRowRenderer<OT> lookupFormRenderer) {
-		m_formRowRenderer = lookupFormRenderer;
 	}
 
 	protected DataTable<OT> getDataTable() {
