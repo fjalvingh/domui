@@ -5,6 +5,8 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import to.etc.domui.webdriver.core.WebDriverConnector;
 
 import java.util.concurrent.TimeUnit;
@@ -101,6 +103,16 @@ abstract public class AbstractCpComponent extends AbstractCpBase {
 	 */
 	public String getText() {
 		return wd().getText(getSelector());
+	}
+
+	public void waitForElementVisible() {
+		WebDriverWait wait = new WebDriverWait(wd().driver(), 5, 100);
+		wait.until(ExpectedConditions.visibilityOfElementLocated(getSelector()));
+	}
+
+	public void waitForElementInvisible() {
+		WebDriverWait wait = new WebDriverWait(wd().driver(), 5, 100);
+		wait.until(ExpectedConditions.invisibilityOfElementLocated(getSelector()));
 	}
 
 	//protected String createTestIdSelector() {

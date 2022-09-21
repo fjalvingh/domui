@@ -27,7 +27,7 @@ public class AbstractCpComboComponent extends AbstractCpInputControl<String> imp
 		var option = available.stream().filter(x -> x.getLabel().equals(value)).findFirst().orElse(null);
 		var index = available.indexOf(option);
 		if(index >= 0) {
-			select(index);
+			selectDropdownIndex(index);
 		}
 	}
 
@@ -48,7 +48,7 @@ public class AbstractCpComboComponent extends AbstractCpInputControl<String> imp
 		return option.getText();
 	}
 
-	private void select(int idx) {
+	public void selectDropdownIndex(int idx) {
 		wd().cmd().click().on(By.cssSelector(getInputSelectorCss()));
 		By locator = By.cssSelector(getInputSelectorCss() + " option:nth-child(" + (idx + 1) + ")");
 		wd().wait(locator);

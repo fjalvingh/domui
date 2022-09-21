@@ -13,6 +13,7 @@ public class CpButton extends AbstractCpComponent implements ICpActionControl {
 
 	@Override
 	public void click() {
+		wd().waitForElementVisible(getSelector());
 		wd().cmd().click().on(getSelector());
 	}
 
