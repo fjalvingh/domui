@@ -244,7 +244,7 @@ public class FileTool {
 	 * as much as possible. If elogb is not null then all errors are written
 	 * there.
 	 */
-	static public boolean dirEmpty(final File dirf) {
+	static public boolean dirEmpty(@NonNull File dirf) {
 		return dirEmpty(dirf, null);
 	}
 
@@ -253,7 +253,7 @@ public class FileTool {
 	 *
 	 * @param f
 	 */
-	static public void deleteDir(final File f) {
+	static public void deleteDir(@NonNull File f) {
 		dirEmpty(f);
 		f.delete();
 	}
@@ -266,7 +266,7 @@ public class FileTool {
 	 * @throws Exception when creation fails or when removing old contents
 	 *                   fails.
 	 */
-	public static void prepareDir(final File dir) throws Exception {
+	public static void prepareDir(@NonNull File dir) throws Exception {
 		if(!dir.exists()) {
 			if(dir.mkdirs()) // make sure all parent dirs exist, then create this one
 				return; // success
@@ -284,7 +284,7 @@ public class FileTool {
 	 * there.
 	 */
 	@Deprecated
-	static public boolean dirEmpty(final File dirf, final Vector<Object> elogb) {
+	static public boolean dirEmpty(@NonNull File dirf, final Vector<Object> elogb) {
 		boolean hase = false;
 
 		File[] ar = dirf.listFiles();

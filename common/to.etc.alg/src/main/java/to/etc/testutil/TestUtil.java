@@ -8,7 +8,9 @@ import java.io.InputStreamReader;
  * Created on 15-04-22.
  */
 final public class TestUtil {
-	private static boolean m_mavenTest;
+	private static Boolean m_mavenTest;
+
+	private static Boolean m_ciRun;
 
 	private TestUtil() {
 	}
@@ -45,6 +47,17 @@ final public class TestUtil {
 
 		}
 		return mavenTest;
+	}
+
+	/**
+	 * Returns T if the build is done from the CI (the -DCI parameter is present).
+	 */
+	public static synchronized boolean isCIRun() {
+		Boolean ciRun = m_ciRun;
+		if(null == ciRun) {
+			ciRun = m_ciRun = System.getProperty("CI") != null;
+		}
+		return ciRun;
 	}
 
 }
