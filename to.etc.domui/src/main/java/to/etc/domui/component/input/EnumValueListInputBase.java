@@ -35,7 +35,7 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 	private final E m_defaultValue;
 	
 	/**
-	 * The specified ComboRenderer used.
+	 * The specified renderer for variable representation content.
 	 */
 	@Nullable
 	private IRenderInto<V> m_contentRenderer = null;
@@ -43,6 +43,9 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 	@Nullable
 	private IRenderInto<V> m_actualContentRenderer = null;
 
+	/**
+	 * The specified rendrer for enum values.
+	 */
 	@Nullable
 	private IRenderInto<ValueLabelPair<E>> m_enumRenderer = null;
 
@@ -61,7 +64,7 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 	}
 
 	/**
-	 * Can be used to set a specific list-of-values. When called this clears the existing dataset.
+	 * Used to set a specific list-of-variables. When called this clears the existing dataset.
 	 */
 	public void setData(@Nullable List<V> data) {
 		if(m_data != data) {
@@ -72,8 +75,7 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 	}
 
 	/**
-	 * Returns the data to use as the list-of-values of this control. This must contain actual selectable
-	 * values only, it may not contain a "no selection made" value thingerydoo.
+	 * Returns the data to use as the list-of-variables of this control.
 	 */
 	@Nullable
 	public List<V> getData() throws Exception {
@@ -158,7 +160,7 @@ abstract public class EnumValueListInputBase<V, E extends Enum<E>> extends Abstr
 		if(m_contentRenderer != null)
 			return m_contentRenderer;
 		if(val == null)
-			throw new IllegalStateException("Cannot calculate content renderer for null value");
+			throw new IllegalStateException("Cannot calculate content renderer for null variable");
 		ClassMetaModel cmm = MetaManager.findClassMeta(val.getClass());
 		return (IRenderInto<V>) MetaManager.createDefaultComboRenderer(null, cmm);
 	}

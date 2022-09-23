@@ -7,6 +7,14 @@ import to.etc.domui.util.DomUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Control that defines list of input variables that have specified enum as its value.
+ * Can be rendered as list dropdown inputs or list of radio button inputs.
+ * Allows customization renderers for both rendering variable parts and enum parts.
+ *
+ * @param <V> Type of variable objects
+ * @param <E> Enum that defines value of variables
+ */
 @NonNullByDefault
 public class EnumValueListInput<V, E extends Enum<E>> extends EnumValueListInputBase<V, E> {
 
