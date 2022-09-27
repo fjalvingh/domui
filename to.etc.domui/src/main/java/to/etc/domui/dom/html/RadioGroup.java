@@ -164,7 +164,11 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 		RadioButton<T> rb = new RadioButton<>(value);
 		d.add(rb);
 		IRenderInto<ValueLabelPair<T>> valueRenderer = getValueRenderer();
-		if(null != valueRenderer) {
+		if(null == valueRenderer) {
+			Label label = new Label(rb, text);
+			d.add(label);
+			label.setTitle(title);
+		}else {
 			Label content = new Label();
 			content.setForTarget(rb);
 			ValueLabelPair<T> pair = new ValueLabelPair<>(value, text);
@@ -174,10 +178,6 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 			}catch(Exception ex) {
 				WrappedException.wrap(ex);
 			}
-		}else {
-			Label label = new Label(rb, text);
-			d.add(label);
-			label.setTitle(title);
 		}
 		m_buttonList.add(rb);
 		rb.setDisabled(m_disabled);
