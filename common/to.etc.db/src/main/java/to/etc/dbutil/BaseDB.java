@@ -222,11 +222,8 @@ abstract public class BaseDB {
 	 */
 	abstract protected void setBlob(Connection dbc, String table, String column, String where, InputStream is, int len) throws SQLException;
 
-	abstract protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is, int len) throws SQLException;
-
 	/**
 	 * Returns a SQL statement that is the cheapest way to check the validity of a connection.
-	 * @return
 	 */
 	protected abstract String getCheckString();
 
@@ -286,60 +283,7 @@ abstract public class BaseDB {
 		return tsz;
 	}
 
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Getting streams/readers from a resultset.			*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Returns a Reader from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	abstract protected Reader getLobReader(Connection dbc, ResultSet rs, int col) throws Exception;
-
-	/**
-	 * Returns a Reader from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	abstract protected Reader getLobReader(Connection dbc, ResultSet rs, String col) throws Exception;
-
-	/**
-	 * Returns an InputStream from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	abstract protected InputStream getLobStream(Connection dbc, ResultSet rs, int col) throws Exception;
-
-	/**
-	 * Returns an InputStream from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	abstract protected InputStream getLobStream(Connection dbc, ResultSet rs, String col) throws Exception;
-
-
 	public boolean oracleOuterJoin() {
 		return false;
 	}
-
-	protected void setBlob(Connection dbc, String table, String column, String where, byte[][] data) throws SQLException {
-		InputStream is = null;
-		int len = 0;
-		if(data != null) {
-			for(byte[] b : data)
-				len += b.length;
-			is = new ByteBufferInputStream(data);
-		}
-		setBlob(dbc, table, column, where, is, len);
-	}
-
-	abstract protected void setClob(Connection dbc, String table, String column, String where, Reader r) throws Exception;
 }

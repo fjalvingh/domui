@@ -24,10 +24,12 @@
  */
 package to.etc.dbutil;
 
-import java.io.*;
-import java.sql.*;
-
-import to.etc.dbpool.*;
+import java.io.InputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class PostgresDB extends BaseDB {
 	public PostgresDB() {
@@ -110,35 +112,6 @@ public class PostgresDB extends BaseDB {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Blob writing.										*/
 	/*--------------------------------------------------------------*/
-	@Override
-	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is, int len) throws SQLException {
-		PreparedStatement ps = null;
-		try {
-			StringBuilder sb = new StringBuilder();
-			sb.append("update ");
-			sb.append(table);
-			sb.append(" set ");
-			sb.append(column);
-			sb.append('=');
-			if(is == null)
-				sb.append("null");
-			else
-				sb.append('?');
-			sb.append(" where ");
-			ps = mkKeyedSQL(dbc, sb, pkfields, key, is == null ? 1 : 2, null);
-			if(is != null)
-				ps.setBinaryStream(1, is, len);
-			int rc = ps.executeUpdate();
-			if(rc != 1)
-				throw new SQLException("Record in table " + table + " not found for BLOB update.");
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-		}
-	}
-
 	/**
 	 *	Writes a blob to the requested record using the normal setBinaryStream
 	 *  call. Used for jdbc-compliant databases.
@@ -163,94 +136,4 @@ public class PostgresDB extends BaseDB {
 			} catch(Exception x) {}
 		}
 	}
-
-	/**
-	 * Writes a blob to the requested record using the normal setBinaryStream
-	 * The Postgres impl converts the data to byte[] then stores, and the
-	 * set interfaces do not work of course. So we convert the shit to
-	 * string then store it.
-	 */
-	@Override
-	protected void setClob(Connection dbc, String table, String column, String where, Reader r) throws Exception {
-		PreparedStatement ps = null;
-		try {
-			if(r == null)
-				ps = dbc.prepareStatement("update " + table + " set " + column + " = null where " + where);
-			else {
-				ps = dbc.prepareStatement("update " + table + " set " + column + " = ? where " + where);
-				StringBuilder sb = new StringBuilder();
-				DbPoolUtil.readAsString(sb, r);
-				ps.setString(1, sb.toString());
-
-
-				//				ps.setCharacterStream(1, r, Integer.MAX_VALUE); jal 20050601 does not work of course
-			}
-			int rc = ps.executeUpdate();
-			if(rc != 1)
-				throw new SQLException("Record in table " + table + " with key " + where + " not found for BLOB update.");
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-		}
-	}
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Getting streams/readers from a resultset.			*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Returns a Reader from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected Reader getLobReader(Connection dbc, ResultSet rs, int col) throws Exception {
-		InputStream is = rs.getBinaryStream(col);
-		if(is == null)
-			return null;
-		return new InputStreamReader(is);
-	}
-
-	/**
-	 * Returns a Reader from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected Reader getLobReader(Connection dbc, ResultSet rs, String col) throws Exception {
-		InputStream is = rs.getBinaryStream(col);
-		if(is == null)
-			return null;
-		return new InputStreamReader(is);
-	}
-
-	/**
-	 * Returns an InputStream from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected InputStream getLobStream(Connection dbc, ResultSet rs, int col) throws Exception {
-		return rs.getBinaryStream(col);
-	}
-
-	/**
-	 * Returns an InputStream from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected InputStream getLobStream(Connection dbc, ResultSet rs, String col) throws Exception {
-		return rs.getBinaryStream(col);
-	}
-
 }

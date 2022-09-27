@@ -25,6 +25,7 @@
 package to.etc.dbutil;
 
 import org.eclipse.jdt.annotation.Nullable;
+import to.etc.dbpool.DbPoolUtil;
 import to.etc.dbpool.PoolManager;
 
 import javax.sql.DataSource;
@@ -54,11 +55,12 @@ public final class DbLockKeeper {
 		return M_INSTANCE;
 	}
 
-	private DbLockKeeper() {}
-
+	private DbLockKeeper() {
+	}
 
 	/**
 	 * Initializes the DbLockKeeper. Creates the required tables and sets the datasource. Should be called before the first use of this class.
+	 *
 	 * @param ds the datasource used to create the connections.
 	 */
 	public synchronized static void init(DataSource ds) {
@@ -82,7 +84,8 @@ public final class DbLockKeeper {
 					ps.close();
 				if(dbc != null)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 
 	}
@@ -90,14 +93,14 @@ public final class DbLockKeeper {
 	/**
 	 * Method should be used to create a lock. It can be used to make sure that certain processes won't run at the same time
 	 * on multiple servers. The method won't finish until lock is given.
-	 *
+	 * <p>
 	 * IMPORTANT
 	 * The lock must be released after execution of the code.
 	 *
 	 * @param lockName the name of the lock
-	 * @throws Exception
 	 */
 	public LockHandle lock(final String lockName) throws Exception {
+		DbPoolUtil.sqlCheckNameOnly(lockName);
 		LockThreadKey key = new LockThreadKey(lockName, Thread.currentThread());
 		Lock lock;
 		synchronized(this) {
@@ -132,28 +135,29 @@ public final class DbLockKeeper {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(dbc != null)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/**
 	 * Get a lock, but do not wait for it- if the lock is taken the code
 	 * returns immediately, returning a null lock handle.
-	 *
-	 * @param lockName
-	 * @return
-	 * @throws Exception
 	 */
 	@Nullable
 	public LockHandle lockNowait(final String lockName) throws Exception {
+		DbPoolUtil.sqlCheckNameOnly(lockName);
+
 		LockThreadKey key = new LockThreadKey(lockName, Thread.currentThread());
 		Lock lock;
 
@@ -195,18 +199,20 @@ public final class DbLockKeeper {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(dbc != null)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
-
 
 	private synchronized void releaseLock(String lockName) {
 		LockThreadKey key = new LockThreadKey(lockName, Thread.currentThread());
@@ -218,10 +224,12 @@ public final class DbLockKeeper {
 
 	/**
 	 * Tries to insert the lock in the database. Ignores exceptions.
+	 *
 	 * @param lockName the name of the used lock
-	 * @param dbc Connection to use
+	 * @param dbc      Connection to use
 	 */
 	private void insertLock(final String lockName, final Connection dbc) {
+		DbPoolUtil.sqlCheckNameOnly(lockName);
 		PreparedStatement ps = null;
 		try {
 			ps = dbc.prepareStatement("insert into " + TABLENAME + " (lock_name) values('" + lockName + "')");
@@ -233,12 +241,14 @@ public final class DbLockKeeper {
 			if(ps != null)
 				try {
 					ps.close();
-				} catch(SQLException e) {}
+				} catch(SQLException e) {
+				}
 
 			//-- Postgresql needs rollback or all other statements will fail.
 			try {
 				dbc.rollback();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -288,8 +298,8 @@ public final class DbLockKeeper {
 
 	/**
 	 * Class keeps an lock on the database. Only handles to this lock will be
-	 *  distibuted to classes that require a database lock. When all handle are
-	 *  released the lock is also released.
+	 * distibuted to classes that require a database lock. When all handle are
+	 * released the lock is also released.
 	 */
 	private static final class Lock {
 		private Connection m_lockedConnection;
@@ -324,7 +334,8 @@ public final class DbLockKeeper {
 						try {
 							//-- jal 20110821 symmetry: should move to releaseLock method.
 							m_lockedConnection.close();
-						} catch(Exception x) {}
+						} catch(Exception x) {
+						}
 						m_lockedConnection = null;
 					}
 					m_keeper.releaseLock(m_lockName);
@@ -356,8 +367,9 @@ public final class DbLockKeeper {
 
 		/**
 		 * Use close() instead, and use try-with-resources to ensure the lock is freed.
-		 *
+		 * <p>
 		 * If this handle is the last/only handle for a lock the lock is released.
+		 *
 		 * @throws Exception when exception with releasing the lock occurs.
 		 */
 		@Deprecated

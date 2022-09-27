@@ -34,26 +34,27 @@ public class MysqlDB extends BaseDB {
 
 	/**
 	 * Returns a SQL statement that is the cheapest way to check the validity of a connection.
-	 * @return
 	 */
 	@Override
 	protected String getCheckString() {
 		return "select 1";
 	}
 
-
 	/**
 	 * Uses mysql specific code to create a sequence number from a sequence
 	 * table.
-	 * @param dbc			the connection
-	 * @return				the id
-	 * @throws SQLException	if the sequence could not be obtained
+	 *
+	 * @param dbc the connection
+	 * @return the id
+	 * @throws SQLException if the sequence could not be obtained
 	 */
 	@Override
 	protected int getSequenceID(Connection dbc, String tablename) throws SQLException {
+
 		try {
 			return getMysqlSequenceTry(dbc);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		//-- When here the above failed. Try to create the table then retry.
 		createMysqlSequence(dbc); // Create the sequence table
@@ -64,11 +65,6 @@ public class MysqlDB extends BaseDB {
 	 * Returns a sequence number that can be used to create a new PK for a
 	 * record in the given table. Sequences are emulated on databases that do
 	 * not support 'm.
-	 *
-	 * @param dbc
-	 * @param tablename
-	 * @return
-	 * @throws SQLException
 	 */
 	@Override
 	protected int getFullSequenceID(Connection dbc, String tablename) throws SQLException {
@@ -77,9 +73,6 @@ public class MysqlDB extends BaseDB {
 
 	/**
 	 * Helper to get a sequence number from a table.
-	 * @param dbc
-	 * @return					a number
-	 * @throws SQLException
 	 */
 	static private int getMysqlSequenceTry(Connection dbc) throws SQLException {
 		ResultSet rs = null;
@@ -98,19 +91,18 @@ public class MysqlDB extends BaseDB {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
-
 	/**
 	 * Creates the MYSQL sequences table.
-	 * @param dbc
-	 * @throws SQLException
 	 */
 	static private void createMysqlSequence(Connection dbc) {
 		PreparedStatement ps = null;
@@ -120,50 +112,23 @@ public class MysqlDB extends BaseDB {
 			ps.close();
 			ps = dbc.prepareStatement("insert into sequence values(1)");
 			ps.executeUpdate();
-		} catch(SQLException x) {} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
-		}
-	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Blob writing.										*/
-	/*--------------------------------------------------------------*/
-	@Override
-	protected void setBlob(Connection dbc, String table, String column, String[] pkfields, Object[] key, InputStream is, int len) throws SQLException {
-		PreparedStatement ps = null;
-		try {
-			StringBuilder sb = new StringBuilder();
-			sb.append("update ");
-			sb.append(table);
-			sb.append(" set ");
-			sb.append(column);
-			sb.append('=');
-			if(is == null)
-				sb.append("null");
-			else
-				sb.append('?');
-			sb.append(" where ");
-			ps = mkKeyedSQL(dbc, sb, pkfields, key, is == null ? 1 : 2, null);
-			if(is != null)
-				ps.setBinaryStream(1, is, len);
-			int rc = ps.executeUpdate();
-			if(rc != 1)
-				throw new SQLException("Record in table " + table + " not found for BLOB update.");
+		} catch(SQLException x) {
 		} finally {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
+	/*--------------------------------------------------------------*/
+	/*	CODING:	Blob writing.										*/
+	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Writes a blob to the requested record using the normal setBinaryStream
-	 *  call. Used for jdbc-compliant databases.
+	 * Writes a blob to the requested record using the normal setBinaryStream
+	 * call. Used for jdbc-compliant databases.
 	 */
 	@Override
 	protected void setBlob(Connection dbc, String table, String column, String where, InputStream is, int len) throws SQLException {
@@ -182,98 +147,8 @@ public class MysqlDB extends BaseDB {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
-		}
-	}
-
-	/**
-	 *	Writes a blob to the requested record using the normal setBinaryStream
-	 *  call. Used for jdbc-compliant databases.
-	 */
-	@Override
-	protected void setClob(Connection dbc, String table, String column, String where, Reader r) throws Exception {
-		PreparedStatement ps = null;
-		try {
-			if(r == null)
-				ps = dbc.prepareStatement("update " + table + " set " + column + " = null where " + where);
-			else {
-				ps = dbc.prepareStatement("update " + table + " set " + column + " = ? where " + where);
-				ps.setCharacterStream(1, r, Integer.MAX_VALUE);
+			} catch(Exception x) {
 			}
-			int rc = ps.executeUpdate();
-			if(rc != 1)
-				throw new SQLException("Record in table " + table + " with key " + where + " not found for BLOB update.");
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
 		}
 	}
-
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Getting streams/readers from a resultset.			*/
-	/*--------------------------------------------------------------*/
-	/**
-	 * Returns a Reader from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected Reader getLobReader(Connection dbc, ResultSet rs, int col) throws Exception {
-		Blob b = rs.getBlob(col);
-		if(b == null)
-			return null; // Null blob.
-		return new InputStreamReader(b.getBinaryStream());
-	}
-
-	/**
-	 * Returns a Reader from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected Reader getLobReader(Connection dbc, ResultSet rs, String col) throws Exception {
-		Blob b = rs.getBlob(col);
-		if(b == null)
-			return null; // Null blob.
-		return new InputStreamReader(b.getBinaryStream());
-	}
-
-	/**
-	 * Returns an InputStream from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected InputStream getLobStream(Connection dbc, ResultSet rs, int col) throws Exception {
-		Blob b = rs.getBlob(col);
-		if(b == null)
-			return null; // Null blob.
-		return b.getBinaryStream();
-	}
-
-	/**
-	 * Returns an InputStream from the blob (clob) column specified.
-	 * @param rs
-	 * @param col
-	 * @return
-	 * @throws Exception
-	 */
-	@Override
-	protected InputStream getLobStream(Connection dbc, ResultSet rs, String col) throws Exception {
-		Blob b = rs.getBlob(col);
-		if(b == null)
-			return null; // Null blob.
-		return b.getBinaryStream();
-	}
-
-
 }
