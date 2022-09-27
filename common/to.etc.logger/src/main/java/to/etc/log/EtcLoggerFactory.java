@@ -234,7 +234,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 	public synchronized void loadConfigFromXml(@NonNull String configXml) throws Exception {
 		StringReader sr = null;
 		try {
-			DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
+			DocumentBuilderFactory dbf = createDocumentBuilderFactory();
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			sr = new StringReader(configXml);
 			Document doc = db.parse(new InputSource(sr));
@@ -272,7 +272,6 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 
 	/**
 	 * Saves configuration of logger factory. Uses same root location as specified during .
-	 * @throws Exception
 	 */
 	public void saveConfig() throws Exception {
 		File writableConfig = m_writableConfig;
@@ -283,7 +282,7 @@ final public class EtcLoggerFactory implements ILoggerFactory {
 		Document doc = toXml(false);
 
 		// write the content into xml file
-		TransformerFactory transformerFactory = createTransformerFactory().newInstance();
+		TransformerFactory transformerFactory = createTransformerFactory();
 		Transformer transformer = transformerFactory.newTransformer();
 		DOMSource source = new DOMSource(doc);
 		try(Writer fw = new OutputStreamWriter(new FileOutputStream(writableConfig), "utf-8")) {

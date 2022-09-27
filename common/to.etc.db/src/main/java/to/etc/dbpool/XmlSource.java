@@ -150,14 +150,12 @@ public class XmlSource extends PoolConfigSource {
 	 * message string; these are thrown as an exception when complete.
 	 */
 	private Node getDocument(File f, boolean nsaware) throws Exception {
-		DocumentBuilderFactory dbf = createDocumentBuilderFactory().newInstance();
+		DocumentBuilderFactory dbf = createDocumentBuilderFactory();
 		dbf.setNamespaceAware(nsaware);
 		DocumentBuilder db = dbf.newDocumentBuilder();
-		InputStream is = null;
 		DefaultErrorHandler deh = new DefaultErrorHandler();
-		try {
+		try(InputStream is = new FileInputStream(f)) {
 			//-- Assign myself as the error handler for parsing,
-			is = new FileInputStream(f);
 			db.setErrorHandler(deh);
 			InputSource ins = new InputSource(is);
 			ins.setPublicId(f.toString());
@@ -167,11 +165,6 @@ public class XmlSource extends PoolConfigSource {
 			return getRootElement(doc);
 		} catch(IOException x) {
 			throw new IOException("XML Parser IO error on " + f + ": " + x.toString());
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {}
 		}
 	}
 
