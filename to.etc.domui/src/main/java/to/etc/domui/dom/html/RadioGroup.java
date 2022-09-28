@@ -176,7 +176,7 @@ public class RadioGroup<T> extends Div implements IHasChangeListener, IControl<T
 			try {
 				valueRenderer.render(content, pair);
 			}catch(Exception ex) {
-				WrappedException.wrap(ex);
+				throw WrappedException.wrap(ex);
 			}
 		}
 		m_buttonList.add(rb);
