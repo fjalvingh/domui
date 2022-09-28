@@ -99,6 +99,7 @@ public class FileBackedBuffer extends OutputStream {
 			try {
 				m_fos.close();
 			} catch(Exception x) {
+				// Ignore
 			}
 			m_fos = null;
 		}
@@ -106,7 +107,7 @@ public class FileBackedBuffer extends OutputStream {
 			try {
 				m_is.close();
 			} catch(Exception x) {
-				x.printStackTrace();
+				//-- Ignore
 			}
 		}
 		if(m_file != null) {
@@ -309,8 +310,6 @@ public class FileBackedBuffer extends OutputStream {
 
 	/**
 	 * Sends all of the contained data to the outputstream.
-	 *
-	 * @param os
 	 */
 	public void copy(OutputStream os) throws IOException {
 		checkReadable();

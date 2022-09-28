@@ -32,14 +32,10 @@ import to.etc.dbpool.DbPoolUtil;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.Reader;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Blob;
-import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -61,11 +57,13 @@ public class OracleDB extends BaseDB {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Sequences.											*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Uses a table sequence to generate a value.
-	 * @param dbc			the connection
-	 * @return				the id
-	 * @throws SQLException	if the sequence could not be obtained
+	 *
+	 * @param dbc the connection
+	 * @throws SQLException if the sequence could not be obtained
+	 * @return the id
 	 */
 	@Override
 	protected int getSequenceID(Connection dbc, String tablename) throws SQLException {
@@ -74,15 +72,17 @@ public class OracleDB extends BaseDB {
 
 	/**
 	 * Uses a table sequence to generate a value.
-	 * @param dbc			the connection
-	 * @return				the id
-	 * @throws SQLException	if the sequence could not be obtained
+	 *
+	 * @param dbc the connection
+	 * @throws SQLException if the sequence could not be obtained
+	 * @return the id
 	 */
 	@Override
 	protected int getFullSequenceID(Connection dbc, String seqname) throws SQLException {
 		try {
 			return trySequenceID(dbc, seqname);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		//-- When here the above failed. Try to create the table then retry.
 		createSequence(dbc, seqname); // Create the sequence table
@@ -94,11 +94,13 @@ public class OracleDB extends BaseDB {
 		try {
 			ps = dbc.prepareStatement("create sequence " + table + " start with 1 increment by 1");
 			ps.executeUpdate();
-		} catch(SQLException x) {} finally {
+		} catch(SQLException x) {
+		} finally {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -115,11 +117,13 @@ public class OracleDB extends BaseDB {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -134,9 +138,10 @@ public class OracleDB extends BaseDB {
 	}
 
 	/**
-	 *	Writes a blob to the requested record. Works for Oral and MYSQL.
-	 *  @parameter is	The stream to write to the blob. If this is null then the
-	 *  				field is set to dbnull.
+	 * Writes a blob to the requested record. Works for Oral and MYSQL.
+	 *
+	 * @parameter is    The stream to write to the blob. If this is null then the
+	 * field is set to dbnull.
 	 */
 	private void _setBlob(Connection dbc, String table, String column, String where, Object data, int len) throws SQLException {
 		ResultSet rs = null;
@@ -198,7 +203,8 @@ public class OracleDB extends BaseDB {
 			} finally {
 				try {
 					os.close();
-				} catch(Exception x) {}
+				} catch(Exception x) {
+				}
 			}
 			os = null;
 			ps.close();
@@ -210,29 +216,35 @@ public class OracleDB extends BaseDB {
 			try {
 				if(os != null)
 					os.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(!okay && isac)
 					dbc.rollback();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(dbc.getAutoCommit() != isac)
 					dbc.setAutoCommit(isac);
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/**
 	 * Generic caller of a method using reflection. This prevents us from having
 	 * to link to the stupid Oracle driver.
+	 *
 	 * @param src
 	 * @param name
 	 * @return
@@ -253,6 +265,7 @@ public class OracleDB extends BaseDB {
 
 	/**
 	 * This method creates public synonyms for all objects in a schema (except TYPE objects).
+	 *
 	 * @param ds
 	 * @param owner
 	 * @param objectNames
@@ -286,7 +299,8 @@ public class OracleDB extends BaseDB {
 					try {
 						if(null != st)
 							st.close();
-					} catch(Exception x) {}
+					} catch(Exception x) {
+					}
 				}
 			}
 			rs.close();
@@ -336,7 +350,7 @@ public class OracleDB extends BaseDB {
 					ps2.executeUpdate();
 				} catch(Exception x) {
 					String msg = x.toString();
-					if(!msg.contains("xxORA-00955")) {					// jal do not remove this test !@!@!
+					if(!msg.contains("xxORA-00955")) {                    // jal do not remove this test !@!@!
 						System.out.println(owner + ": error creating synonym " + on + ": " + x);
 						LOG.error(owner + ": error creating synonym " + on + ": " + x);
 					}
@@ -356,19 +370,23 @@ public class OracleDB extends BaseDB {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps2 != null)
 					ps2.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(null != dbc)
 					dbc.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -389,10 +407,10 @@ public class OracleDB extends BaseDB {
 	 * to a known value; then we login using that password and obtain connection for execute the action. We restore the original password
 	 * immediately after obtaining connection, even before privileged action is executed.
 	 *
-	 * @param otherSchemaDs	DataSource for other schema.
-	 * @param otherUserName	Username - account that we use to run privileged action - we change its password temporary.
-	 * @param defaultDs DataSource that we use for password manipulations.
-	 * @param paction Privileged action that is executed under otherUserName account directly in otherSchemaDs.
+	 * @param otherSchemaDs DataSource for other schema.
+	 * @param otherUserName Username - account that we use to run privileged action - we change its password temporary.
+	 * @param defaultDs     DataSource that we use for password manipulations.
+	 * @param paction       Privileged action that is executed under otherUserName account directly in otherSchemaDs.
 	 * @return
 	 * @throws Exception
 	 */
@@ -406,17 +424,20 @@ public class OracleDB extends BaseDB {
 			try {
 				if(otherSchemaConn != null)
 					otherSchemaConn.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 
 			try {
 				if(defaultConn != null)
 					defaultConn.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
 	/**
 	 * This allocates a connection to another user without that other-user's password, using an initial connection with DBA privileges.
+	 *
 	 * @param otherSchemaDs
 	 * @param otherUserName
 	 * @param sourceConn
@@ -487,18 +508,20 @@ public class OracleDB extends BaseDB {
 			phase = 0;
 
 			//-- Now execute the other schema command on the otherUserName connection.
-			Connection newc = otherSchemaConn;					// Pass ownership to caller.
+			Connection newc = otherSchemaConn;                    // Pass ownership to caller.
 			otherSchemaConn = null;
 			return newc;
 		} finally {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 
 			if(phase == 1) {
 				restorePassword(sourceConn, otherUserName, realhashpass);
@@ -506,7 +529,8 @@ public class OracleDB extends BaseDB {
 			try {
 				if(otherSchemaConn != null)
 					otherSchemaConn.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -523,7 +547,8 @@ public class OracleDB extends BaseDB {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -539,7 +564,8 @@ public class OracleDB extends BaseDB {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -597,11 +623,13 @@ public class OracleDB extends BaseDB {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -617,7 +645,8 @@ public class OracleDB extends BaseDB {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 

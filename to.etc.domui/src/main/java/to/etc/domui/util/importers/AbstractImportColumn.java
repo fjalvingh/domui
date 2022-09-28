@@ -10,25 +10,35 @@ import java.util.Date;
  * Created on 12-12-17.
  */
 abstract public class AbstractImportColumn implements IImportColumn {
-	@Nullable @Override abstract public String getStringValue();
+	@Nullable
+	@Override
+	abstract public String getStringValue();
 
-	@Nullable @Override abstract public Date asDate();
+	@Nullable
+	@Override
+	abstract public Date asDate();
 
-	@Nullable @Override public Long asLong() {
+	@Nullable
+	@Override
+	public Long asLong() {
 		String stringValue = getStringValue();
 		if(null == stringValue)
 			return null;
 		return Long.valueOf(stringValue);
 	}
 
-	@Nullable @Override public Integer asInteger() {
+	@Nullable
+	@Override
+	public Integer asInteger() {
 		String stringValue = getStringValue();
 		if(null == stringValue)
 			return null;
 		return Integer.valueOf(stringValue);
 	}
 
-	@Nullable @Override public BigDecimal getDecimal() {
+	@Nullable
+	@Override
+	public BigDecimal getDecimal() {
 		String stringValue = getStringValue();
 		if(null == stringValue)
 			return null;
@@ -46,8 +56,8 @@ abstract public class AbstractImportColumn implements IImportColumn {
 	public static String trimAllWS(String v) {
 		if(null == v)
 			return null;
-		v = v.replaceAll("(^\\h*)|(\\h*$)","");	// Replace all spaces, even nbsp's and others, sigh.
-		v = v.replaceAll("(\\h+)"," ");	// Replace all inner spaces with " "
+		v = v.replaceAll("(^\\h*)|(\\h*$)", "");    // Replace all spaces, even nbsp's and others, sigh.
+		v = v.replaceAll("(\\h+)", " ");    // Replace all inner spaces with " "
 		return v;
 	}
 

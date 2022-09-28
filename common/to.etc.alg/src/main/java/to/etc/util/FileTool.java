@@ -83,7 +83,9 @@ public class FileTool {
 	private static final Logger LOG = LoggerFactory.getLogger(FileTool.class);
 
 	static public final long KB = 1024L;
+
 	static public final long MB = 1024L * KB;
+
 	static public final long GB = 1024L * MB;
 
 	private FileTool() {
@@ -967,12 +969,12 @@ public class FileTool {
 					//-- Gotcha! Create parameters and load 'm
 					byte[] data;
 					try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-						copyFile(baos, zis, 1024*1024);
+						copyFile(baos, zis, 1024L * 1024L);
 						data = baos.toByteArray();
 					}
 
 					Properties p = new Properties();
-					p.load(new ByteArrayInputStream(data)); 	// Load properties
+					p.load(new ByteArrayInputStream(data));    // Load properties
 					return p;
 				}
 				zis.closeEntry();
@@ -1180,7 +1182,7 @@ public class FileTool {
 			while(null != (ze = zis.getNextEntry())) {
 				String name = ze.getName();
 				checkValidRelativePath(name);
-				File of = new File(dest, name); 					// Create a full path
+				File of = new File(dest, name);                    // Create a full path
 				if(ze.isDirectory())
 					of.mkdirs();
 				else {
