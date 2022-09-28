@@ -62,8 +62,8 @@ public class OracleDB extends BaseDB {
 	 * Uses a table sequence to generate a value.
 	 *
 	 * @param dbc the connection
-	 * @throws SQLException if the sequence could not be obtained
 	 * @return the id
+	 * @throws SQLException if the sequence could not be obtained
 	 */
 	@Override
 	protected int getSequenceID(Connection dbc, String tablename) throws SQLException {
@@ -74,14 +74,15 @@ public class OracleDB extends BaseDB {
 	 * Uses a table sequence to generate a value.
 	 *
 	 * @param dbc the connection
-	 * @throws SQLException if the sequence could not be obtained
 	 * @return the id
+	 * @throws SQLException if the sequence could not be obtained
 	 */
 	@Override
 	protected int getFullSequenceID(Connection dbc, String seqname) throws SQLException {
 		try {
 			return trySequenceID(dbc, seqname);
 		} catch(Exception x) {
+			//-- Ignore
 		}
 
 		//-- When here the above failed. Try to create the table then retry.
@@ -90,40 +91,18 @@ public class OracleDB extends BaseDB {
 	}
 
 	private void createSequence(Connection dbc, String table) {
-		PreparedStatement ps = null;
-		try {
-			ps = dbc.prepareStatement("create sequence " + table + " start with 1 increment by 1");
+		try(PreparedStatement ps = dbc.prepareStatement("create sequence " + table + " start with 1 increment by 1")) {
 			ps.executeUpdate();
 		} catch(SQLException x) {
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {
-			}
+			//-- Ignore
 		}
 	}
 
 	private int trySequenceID(Connection dbc, String tablename) throws SQLException {
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		try {
-			ps = dbc.prepareStatement("select " + tablename + ".nextval from dual");
-			rs = ps.executeQuery();
+		try(PreparedStatement ps = dbc.prepareStatement("select " + tablename + ".nextval from dual"); ResultSet rs = ps.executeQuery()) {
 			if(!rs.next())
 				throw new SQLException("genid Query no results!?");
 			return rs.getInt(1);
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -204,6 +183,7 @@ public class OracleDB extends BaseDB {
 				try {
 					os.close();
 				} catch(Exception x) {
+					//-- Ignore
 				}
 			}
 			os = null;
@@ -217,26 +197,31 @@ public class OracleDB extends BaseDB {
 				if(os != null)
 					os.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			try {
 				if(rs != null)
 					rs.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			try {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			try {
 				if(!okay && isac)
 					dbc.rollback();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			try {
 				if(dbc.getAutoCommit() != isac)
 					dbc.setAutoCommit(isac);
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}
@@ -244,11 +229,6 @@ public class OracleDB extends BaseDB {
 	/**
 	 * Generic caller of a method using reflection. This prevents us from having
 	 * to link to the stupid Oracle driver.
-	 *
-	 * @param src
-	 * @param name
-	 * @return
-	 * @throws Exception
 	 */
 	static private Object callObjectMethod(Object src, String name) throws SQLException {
 		try {
@@ -265,10 +245,6 @@ public class OracleDB extends BaseDB {
 
 	/**
 	 * This method creates public synonyms for all objects in a schema (except TYPE objects).
-	 *
-	 * @param ds
-	 * @param owner
-	 * @param objectNames
 	 */
 	public static void updateSynonyms(@NonNull DataSource ds, @NonNull String owner, String... objectNames) {
 		PreparedStatement ps = null;
@@ -285,9 +261,7 @@ public class OracleDB extends BaseDB {
 				String sowner = rs.getString(1);
 				String name = rs.getString(2);
 
-				Statement st = null;
-				try {
-					st = dbc.createStatement();
+				try(Statement st = dbc.createStatement()) {
 					if("PUBLIC".equals(sowner)) {
 						st.executeUpdate("drop public synonym \"" + name + "\"");
 					} else {
@@ -295,12 +269,6 @@ public class OracleDB extends BaseDB {
 					}
 				} catch(Exception x) {
 					System.out.println("Failed to drop synonym " + sowner + "." + name + ": " + x);
-				} finally {
-					try {
-						if(null != st)
-							st.close();
-					} catch(Exception x) {
-					}
 				}
 			}
 			rs.close();
@@ -371,21 +339,25 @@ public class OracleDB extends BaseDB {
 				if(rs != null)
 					rs.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			try {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			try {
 				if(ps2 != null)
 					ps2.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			try {
 				if(null != dbc)
 					dbc.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}
@@ -411,8 +383,6 @@ public class OracleDB extends BaseDB {
 	 * @param otherUserName Username - account that we use to run privileged action - we change its password temporary.
 	 * @param defaultDs     DataSource that we use for password manipulations.
 	 * @param paction       Privileged action that is executed under otherUserName account directly in otherSchemaDs.
-	 * @return
-	 * @throws Exception
 	 */
 	static public Object runAsOtherSchemaUser(@NonNull DataSource otherSchemaDs, @NonNull String otherUserName, @NonNull DataSource defaultDs, @NonNull IPrivilegedAction paction) throws Exception {
 		Connection otherSchemaConn = null;
@@ -425,24 +395,20 @@ public class OracleDB extends BaseDB {
 				if(otherSchemaConn != null)
 					otherSchemaConn.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 
 			try {
 				if(defaultConn != null)
 					defaultConn.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}
 
 	/**
 	 * This allocates a connection to another user without that other-user's password, using an initial connection with DBA privileges.
-	 *
-	 * @param otherSchemaDs
-	 * @param otherUserName
-	 * @param sourceConn
-	 * @return
-	 * @throws Exception
 	 */
 	@NonNull
 	static public Connection allocateConnectionAs(@NonNull DataSource otherSchemaDs, @NonNull String otherUserName, @NonNull Connection sourceConn) throws Exception {
@@ -516,11 +482,13 @@ public class OracleDB extends BaseDB {
 				if(rs != null)
 					rs.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			try {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 
 			if(phase == 1) {
@@ -530,6 +498,7 @@ public class OracleDB extends BaseDB {
 				if(otherSchemaConn != null)
 					otherSchemaConn.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}
@@ -548,6 +517,7 @@ public class OracleDB extends BaseDB {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}
@@ -565,6 +535,7 @@ public class OracleDB extends BaseDB {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}
@@ -624,11 +595,13 @@ public class OracleDB extends BaseDB {
 				if(rs != null)
 					rs.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 			try {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}
@@ -646,6 +619,7 @@ public class OracleDB extends BaseDB {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}

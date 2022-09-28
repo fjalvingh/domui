@@ -35,17 +35,21 @@ public class UnknownDB extends BaseDB {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Sequences.											*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Uses a table sequence to generate a value.
-	 * @param dbc			the connection
-	 * @return				the id
-	 * @throws SQLException	if the sequence could not be obtained
+	 *
+	 * @param dbc the connection
+	 * @throws SQLException if the sequence could not be obtained
+	 * @return the id
 	 */
 	@Override
 	protected int getFullSequenceID(Connection dbc, String seqname) throws SQLException {
 		try {
 			return trySequenceID(dbc, seqname);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+			//-- Ignore
+		}
 
 		//-- When here the above failed. Try to create the table then retry.
 		createSequence(dbc, seqname); // Create the sequence table
@@ -69,7 +73,9 @@ public class UnknownDB extends BaseDB {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- Ignore
+			}
 		}
 	}
 
@@ -86,11 +92,15 @@ public class UnknownDB extends BaseDB {
 			try {
 				if(rs != null)
 					rs.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- Ignore
+			}
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- Ignore
+			}
 		}
 	}
 
@@ -99,8 +109,8 @@ public class UnknownDB extends BaseDB {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 *	Writes a blob to the requested record using the normal setBinaryStream
-	 *  call. Used for jdbc-compliant databases.
+	 * Writes a blob to the requested record using the normal setBinaryStream
+	 * call. Used for jdbc-compliant databases.
 	 */
 	@Override
 	protected void setBlob(Connection dbc, String table, String column, String where, InputStream is, int len) throws SQLException {
@@ -119,7 +129,9 @@ public class UnknownDB extends BaseDB {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- Ignore
+			}
 		}
 	}
 
