@@ -496,12 +496,14 @@ final public class NetTools {
 	 * Problem is, on linux, /usr/bin/ping is owned by root and has +rws, so java runtime needs permission for ICMP on port 7.
 	 * Usually, we don't run java as root, so standard ways do not work.
 	 */
-	public static boolean pingWithProcess(String host) {
+	public static boolean pingWithProcess(String host) throws Exception {
 		try {
 			String cmd = System.getProperty("os.name").startsWith("Windows") ? "ping -n 1 " + host : "ping -c 1 " + host;
 			Process p = Runtime.getRuntime().exec(cmd);
 			p.waitFor();
 			return p.exitValue() == 0;
+		} catch(InterruptedException x) {
+			throw x;
 		} catch(Exception e) {
 			return false;
 		}

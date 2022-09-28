@@ -24,7 +24,6 @@
  */
 package to.etc.smtp;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
 import to.etc.util.StringTool;
@@ -44,19 +43,22 @@ import java.util.List;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 16, 2006
  */
-@NonNullByDefault
 public class SmtpTransport {
-	static private boolean		DEBUG		= DeveloperOptions.getBool("smtp.debug", false);
+	static private boolean DEBUG = DeveloperOptions.getBool("smtp.debug", false);
 
-	private String					m_myhostname;
+	private String m_myhostname;
 
-	/** The address of the SMTP server. */
-	private final InetAddress			m_server;
+	/**
+	 * The address of the SMTP server.
+	 */
+	private final InetAddress m_server;
 
-	/** The smtp port number, defaults to 25 */
-	private int						m_port	= 25;
+	/**
+	 * The smtp port number, defaults to 25
+	 */
+	private int m_port = 25;
 
-	private Address					m_from;
+	private Address m_from;
 
 	public SmtpTransport(InetAddress a, int port) {
 		m_server = a;
@@ -100,7 +102,6 @@ public class SmtpTransport {
 		return m_myhostname;
 	}
 
-
 	public void send(Message msg) throws Exception {
 		send(msg, null);
 	}
@@ -118,12 +119,12 @@ public class SmtpTransport {
 		if(msg.getSubject() == null || msg.getSubject().trim().length() == 0)
 			throw new MailException("The 'subject' is empty in message");
 
-		if (DeveloperOptions.isDeveloperWorkstation()) {
+		if(DeveloperOptions.isDeveloperWorkstation()) {
 			String overrideTo = DeveloperOptions.getString("email.debug");
 			if(!StringTool.isBlank(overrideTo)) {
 				msg.getTo().clear();
 				msg.getTo().add(new Address(overrideTo, "email.debug"));
-			}else{
+			} else {
 				System.out.println("warning: You are sending emails from Developer Workstation, please consider setting email.debug in your .developer.properties !");
 			}
 		}
@@ -148,7 +149,7 @@ public class SmtpTransport {
 			boolean accepted = false;
 
 			//-- Read the response strings, if needed
-			for(;;) {
+			for(; ; ) {
 				String res = readLine(is);
 				if(res.length() < 3)
 					throw new MailException("SMTP error: empty response");
@@ -246,7 +247,7 @@ public class SmtpTransport {
 	static public void writeMime(OutputStream os, Message msg) throws Exception {
 		//-- 1.. Make sure all string data is crlf terminated, and all lines starting with '.' are escaped.
 		EmailOutputStream eos = new EmailOutputStream(os);
-		MimeWriter w = MimeWriter.createMimeWriter(eos, "multipart/alternative");		// jal 20130327 No 'type' allowed in multipart/alternative.
+		MimeWriter w = MimeWriter.createMimeWriter(eos, "multipart/alternative");        // jal 20130327 No 'type' allowed in multipart/alternative.
 
 		//-- Write the text/plain part
 		w.partStart(false, "text/plain", "charset", "UTF-8");
@@ -260,7 +261,7 @@ public class SmtpTransport {
 			//-- Start HTML section.
 			String cid = MimeWriter.generateContentID();
 			if(null == hw) {
-				hw = w.createSubMime("multipart/related", "start", cid, "type", "text/html");		// RFC2387 multipart/related requires type.
+				hw = w.createSubMime("multipart/related", "start", cid, "type", "text/html");        // RFC2387 multipart/related requires type.
 			}
 			hw.partStart(false, "text/html", "charset", "UTF-8");
 			hw.partHeader("Content-id", "<" + cid + ">");
@@ -274,7 +275,7 @@ public class SmtpTransport {
 			if(hw == null)
 				hw = w.createSubMime("multipart/related");
 
-			for(IMailAttachment ma: msg.getAttachmentList()) {
+			for(IMailAttachment ma : msg.getAttachmentList()) {
 				hw.partStart(true, ma.getMime());
 				hw.partHeader("Content-Location", "CID:blarf.net");
 				hw.partHeader("Content-ID", "<" + ma.getIdent() + ">");
@@ -339,7 +340,7 @@ public class SmtpTransport {
 	}
 
 	private void writeAddress(OutputStream os, Address a) throws Exception {
-		if(! StringTool.isBlank(a.getName())) {
+		if(!StringTool.isBlank(a.getName())) {
 			if(false) {
 				write(os, "\"" + a.getName() + "\" ");
 			} else {
@@ -352,7 +353,7 @@ public class SmtpTransport {
 	}
 
 	private void writeMimeWordName(OutputStream os, String text) throws Exception {
-		if(! hasUnicode(text)) {
+		if(!hasUnicode(text)) {
 			write(os, text);
 			return;
 		}
@@ -363,19 +364,19 @@ public class SmtpTransport {
 		StringBuilder sb = new StringBuilder();
 		int index = 0;
 		int len = text.length();
-		sb.append("=?utf-8?q?");						// Encoded-word using Q encoding (see rfc 2047)
+		sb.append("=?utf-8?q?");                        // Encoded-word using Q encoding (see rfc 2047)
 
 		while(index < len) {
 			if(sb.length() > 60) {
-				sb.append("?=");								// Finish current encoded-word
+				sb.append("?=");                                // Finish current encoded-word
 				write(os, sb.toString());
 				sb.setLength(0);
-				sb.append("=?utf-8?q?");						// Encoded-word using Q encoding (see rfc 2047)
+				sb.append("=?utf-8?q?");                        // Encoded-word using Q encoding (see rfc 2047)
 			}
 
 			int c = text.charAt(index++) & 0xffff;
 			if(Character.isLetterOrDigit(c)) {
-				sb.append((char)c);
+				sb.append((char) c);
 			} else if(c < 0x80) {
 				sb.append('=').append(hex(c));
 			} else if(c <= 0x7ff) {
@@ -401,7 +402,7 @@ public class SmtpTransport {
 	}
 
 	private boolean hasUnicode(String text) {
-		for(int i = text.length(); --i >= 0;) {
+		for(int i = text.length(); --i >= 0; ) {
 			int c = text.charAt(i) & 0xffff;
 			if(c > 127)
 				return true;
@@ -422,6 +423,7 @@ public class SmtpTransport {
 
 	/**
 	 * Does a raw write of the string in ASCII 7 encoding.
+	 *
 	 * @param os
 	 * @param s
 	 */
@@ -436,7 +438,7 @@ public class SmtpTransport {
 		byte[] buf = new byte[128];
 		int ix = 0;
 		int lch = 0;
-		for(;;) {
+		for(; ; ) {
 			int ch = is.read();
 			if(ch == '\n') {
 				if(lch == '\r')
@@ -467,7 +469,6 @@ public class SmtpTransport {
 			return;
 		}
 
-
 		String mailTo = "jal@etc.to";
 		String imagePath = "/home/jal/again.jpg";
 		try {
@@ -475,7 +476,7 @@ public class SmtpTransport {
 			mb.initialize("Run mailBuilder");
 			mb.appendText("Hello, this is the mailBuilder (4)");
 			mb.appendHTML("<p>This is <b>HTML</b> text</p>");
-			
+
 			//add attachment?
 			mb.image("image.jpg", new File(imagePath), "image/jpeg");
 
