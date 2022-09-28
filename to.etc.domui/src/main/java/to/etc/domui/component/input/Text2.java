@@ -181,6 +181,10 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 	@Nullable
 	private String m_regexpUserString;
 
+	public Text2() {
+		this((Class<T>) String.class);
+	}
+
 	public Text2(@NonNull Class<T> inputClass) {
 		m_inputClass = inputClass;
 
