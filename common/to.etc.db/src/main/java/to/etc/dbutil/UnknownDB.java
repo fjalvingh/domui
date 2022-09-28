@@ -32,16 +32,6 @@ public class UnknownDB extends BaseDB {
 		super("unknown");
 	}
 
-	/**
-	 * Returns a SQL statement that is the cheapest way to check the validity of a connection.
-	 * @return
-	 */
-	@Override
-	protected String getCheckString() {
-		return "select 1";
-	}
-
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Sequences.											*/
 	/*--------------------------------------------------------------*/

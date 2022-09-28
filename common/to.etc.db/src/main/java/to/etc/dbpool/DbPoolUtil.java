@@ -636,21 +636,13 @@ public class DbPoolUtil {
 		File f = new File(new File(s), ".developer.properties");
 		if(!f.exists())
 			return null;
-		InputStream is = null;
-		try {
-			is = new FileInputStream(f);
+		try(InputStream is = new FileInputStream(f)) {
 			Properties p = new Properties();
 			p.load(is);
 			return p;
 		} catch(Exception x) {
 			System.out.println("PoolManager: exception while reading " + f + ": " + x);
 			return null;
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -676,16 +668,10 @@ public class DbPoolUtil {
 	 */
 	public static void enableRemoteDebug(@NonNull Connection con, @NonNull HostAndPort hostAndPort) throws SQLException {
 		final String cmd = "begin dbms_debug_jdwp.connect_tcp('" + hostAndPort.getHost() + "'," + hostAndPort.getPort() + ");end;";
-		PreparedStatement st = con.prepareStatement(cmd);
-		try {
+		try(PreparedStatement st = con.prepareStatement(cmd)) {
 			st.execute();
 		} catch(Exception x) {
 			//-- Ignore any error.
-		} finally {
-			try {
-				st.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 

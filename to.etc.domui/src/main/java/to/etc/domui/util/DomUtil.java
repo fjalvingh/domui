@@ -1590,6 +1590,7 @@ final public class DomUtil {
 	static public void setCookie(@NonNull String name, String value, int maxageInSeconds) {
 		IRequestContext rci = UIContext.getRequestContext();
 		Cookie k = new Cookie(name, value);
+		k.setSecure(false);
 		k.setMaxAge(maxageInSeconds);
 		k.setPath("/" + rci.getRequestResponse().getWebappContext());
 		rci.getRequestResponse().addCookie(k);

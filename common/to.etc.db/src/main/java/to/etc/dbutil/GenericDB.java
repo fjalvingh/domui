@@ -143,6 +143,7 @@ public class GenericDB {
 				if(is != null)
 					is.close();
 			} catch(Exception x) {
+				//-- Ignore close error
 			}
 		}
 	}
@@ -192,22 +193,16 @@ public class GenericDB {
 		if(isAllSpaces(s))
 			return;
 
-		PreparedStatement ps = null;
-		try {
-			ps = dbc.prepareStatement(s);
+		try(PreparedStatement ps = dbc.prepareStatement(s)) {
 			ps.executeUpdate();
 			dbc.commit();
 		} catch(Exception x) {
 			errors.append(s).append("\n").append("ERROR: ").append(x.toString()).append("\n");
 		} finally {
 			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {
-			}
-			try {
 				dbc.rollback();
 			} catch(Exception x) {
+				//-- Ignore errors
 			}
 		}
 	}

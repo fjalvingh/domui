@@ -38,31 +38,43 @@ import java.io.*;
  * Created on Aug 10, 2006
  */
 public class FileBackedBuffer extends OutputStream {
-	static private final byte[]	NODATA	= new byte[0];
+	static private final byte[] NODATA = new byte[0];
 
-	/** The max. #bytes that this buffer may retain in memory before it flushes the data to disk. */
-	private int					m_maxInMemory;
+	/**
+	 * The max. #bytes that this buffer may retain in memory before it flushes the data to disk.
+	 */
+	private int m_maxInMemory;
 
-	private int					m_initialAllocation;
+	private int m_initialAllocation;
 
-	private boolean				m_inFile;
+	private boolean m_inFile;
 
-	/** If a file was allocated this holds on to it. */
-	private File				m_file;
+	/**
+	 * If a file was allocated this holds on to it.
+	 */
+	private File m_file;
 
-	private byte[]				m_data	= NODATA;
+	private byte[] m_data = NODATA;
 
-	/** The current size of the buffer, in bytes. */
-	private int					m_size;
+	/**
+	 * The current size of the buffer, in bytes.
+	 */
+	private int m_size;
 
-	/** T if the writer has closed. */
-	private boolean				m_wclosed;
+	/**
+	 * T if the writer has closed.
+	 */
+	private boolean m_wclosed;
 
-	/** If the file is being used as a buffer this is the file's output. */
-	private OutputStream		m_fos;
+	/**
+	 * If the file is being used as a buffer this is the file's output.
+	 */
+	private OutputStream m_fos;
 
-	/** If someone allocated an input stream from this this holds it. */
-	InputStream					m_is;
+	/**
+	 * If someone allocated an input stream from this this holds it.
+	 */
+	InputStream m_is;
 
 	public FileBackedBuffer() {
 		this(8192);
@@ -86,7 +98,8 @@ public class FileBackedBuffer extends OutputStream {
 		if(m_fos != null) {
 			try {
 				m_fos.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 			m_fos = null;
 		}
 		if(m_is != null) {
@@ -99,13 +112,16 @@ public class FileBackedBuffer extends OutputStream {
 		if(m_file != null) {
 			try {
 				m_file.delete();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- ignore
+			}
 			m_file = null;
 		}
 	}
 
 	/**
 	 * This finalizer at least tries to cleanup the mess if discard() was not called...
+	 *
 	 * @see java.lang.Object#finalize()
 	 */
 	@Override
@@ -117,6 +133,7 @@ public class FileBackedBuffer extends OutputStream {
 	/*--------------------------------------------------------------*/
 	/* CODING: Writer code.                                         */
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * This closes the write channel. After this the data can be read
 	 * using getInputStream() or another call.
@@ -137,7 +154,6 @@ public class FileBackedBuffer extends OutputStream {
 
 	/**
 	 * Called when the internal buffer has overflown. It allocates a new buffer.
-	 * @param newsz
 	 */
 	private void reallocate(int newsz) {
 		if(newsz < m_initialAllocation)
@@ -293,6 +309,7 @@ public class FileBackedBuffer extends OutputStream {
 
 	/**
 	 * Sends all of the contained data to the outputstream.
+	 *
 	 * @param os
 	 */
 	public void copy(OutputStream os) throws IOException {

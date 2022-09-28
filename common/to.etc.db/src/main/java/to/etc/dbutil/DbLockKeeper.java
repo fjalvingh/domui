@@ -68,26 +68,15 @@ public final class DbLockKeeper {
 			throw new RuntimeException("DbLockKeeper is already initialized.");
 		}
 		M_INSTANCE.m_dataSource = ds;
-		PreparedStatement ps = null;
-		Connection dbc = null;
-		try {
-			dbc = ds.getConnection();
+		try(Connection dbc = ds.getConnection()) {
 			dbc.setAutoCommit(false);
-			ps = dbc.prepareStatement("create table " + TABLENAME + " ( LOCK_NAME varchar(60) not null primary key)");
-			ps.executeUpdate();
-			dbc.commit();
+			try(PreparedStatement ps = dbc.prepareStatement("create table " + TABLENAME + " ( LOCK_NAME varchar(60) not null primary key)")) {
+				ps.executeUpdate();
+				dbc.commit();
+			}
 		} catch(Exception x) {
 			//Exception ignored, Table is always created, fails when already present.
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-				if(dbc != null)
-					dbc.close();
-			} catch(Exception x) {
-			}
 		}
-
 	}
 
 	/**
@@ -111,41 +100,31 @@ public final class DbLockKeeper {
 		}
 
 		Connection dbc = null;
-		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
 			dbc = m_dataSource.getConnection();
 			PoolManager.setLongLiving(dbc);
 			dbc.setAutoCommit(false);
 			insertLock(lockName, dbc);
 
-			ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update");
-			rs = ps.executeQuery();
-			if(!rs.next()) {
-				throw new Exception("Lock with name: " + lockName + " not acquired");
+			try(PreparedStatement ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update");
+				ResultSet rs = ps.executeQuery()) {
+				if(!rs.next()) {
+					throw new Exception("Lock with name: " + lockName + " not acquired");
+				}
+				lock = new Lock(this, lockName, dbc);
+				LockHandle lh = new LockHandle(lock);
+				synchronized(this) {
+					M_MAINTAINED_LOCKS.put(key, lock);
+				}
+				dbc = null; // Release ownership.
+				return lh;
 			}
-			lock = new Lock(this, lockName, dbc);
-			LockHandle lh = new LockHandle(lock);
-			synchronized(this) {
-				M_MAINTAINED_LOCKS.put(key, lock);
-			}
-			dbc = null; // Release ownership.
-			return lh;
 		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {
-			}
 			try {
 				if(dbc != null)
 					dbc.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}
@@ -170,25 +149,24 @@ public final class DbLockKeeper {
 		}
 
 		Connection dbc = m_dataSource.getConnection();
-		PreparedStatement ps = null;
-		ResultSet rs = null;
 		try {
 			dbc.setAutoCommit(false);
 			PoolManager.setLongLiving(dbc);
 			insertLock(lockName, dbc);
 
-			ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update nowait");
-			rs = ps.executeQuery();
-			if(!rs.next()) {
-				return null;
+			try(PreparedStatement ps = dbc.prepareStatement("select lock_name from " + TABLENAME + " where lock_name = '" + lockName + "' for update nowait");
+				ResultSet rs = ps.executeQuery()) {
+				if(!rs.next()) {
+					return null;
+				}
+				lock = new Lock(this, lockName, dbc);
+				LockHandle lh = new LockHandle(lock);
+				synchronized(this) {
+					M_MAINTAINED_LOCKS.put(key, lock);
+				}
+				dbc = null; // Release ownership.
+				return lh;
 			}
-			lock = new Lock(this, lockName, dbc);
-			LockHandle lh = new LockHandle(lock);
-			synchronized(this) {
-				M_MAINTAINED_LOCKS.put(key, lock);
-			}
-			dbc = null; // Release ownership.
-			return lh;
 		} catch(SQLException sx) {
 //			System.out.println("Errcode=" + sx.getErrorCode() + ", state=" + sx.getSQLState());
 			String msg = sx.getMessage().toLowerCase();
@@ -197,19 +175,10 @@ public final class DbLockKeeper {
 			throw sx;
 		} finally {
 			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {
-			}
-			try {
 				if(dbc != null)
 					dbc.close();
 			} catch(Exception x) {
+				// Willfully ignore
 			}
 		}
 	}
@@ -230,24 +199,17 @@ public final class DbLockKeeper {
 	 */
 	private void insertLock(final String lockName, final Connection dbc) {
 		DbPoolUtil.sqlCheckNameOnly(lockName);
-		PreparedStatement ps = null;
-		try {
-			ps = dbc.prepareStatement("insert into " + TABLENAME + " (lock_name) values('" + lockName + "')");
+		try(PreparedStatement ps = dbc.prepareStatement("insert into " + TABLENAME + " (lock_name) values('" + lockName + "')")) {
 			ps.executeUpdate();
 			dbc.commit();
 		} catch(Exception e) {
 			//Exception ignored, LockName is always inserted, fails when already present.
 		} finally {
-			if(ps != null)
-				try {
-					ps.close();
-				} catch(SQLException e) {
-				}
-
 			//-- Postgresql needs rollback or all other statements will fail.
 			try {
 				dbc.rollback();
 			} catch(Exception x) {
+				//-- Ignore error on rollback- nothing to do
 			}
 		}
 	}
@@ -298,7 +260,7 @@ public final class DbLockKeeper {
 
 	/**
 	 * Class keeps an lock on the database. Only handles to this lock will be
-	 * distibuted to classes that require a database lock. When all handle are
+	 * distributed to classes that require a database lock. When all handle are
 	 * released the lock is also released.
 	 */
 	private static final class Lock {
@@ -307,9 +269,9 @@ public final class DbLockKeeper {
 		//@GuardedBy("m_keeper")
 		private int m_lockCounter;
 
-		private String m_lockName;
+		final private String m_lockName;
 
-		private DbLockKeeper m_keeper;
+		final private DbLockKeeper m_keeper;
 
 		public Lock(DbLockKeeper keeper, String lockName, Connection lockedConnection) {
 			m_lockedConnection = lockedConnection;
@@ -335,6 +297,7 @@ public final class DbLockKeeper {
 							//-- jal 20110821 symmetry: should move to releaseLock method.
 							m_lockedConnection.close();
 						} catch(Exception x) {
+							//-- Ignore close exception
 						}
 						m_lockedConnection = null;
 					}
@@ -348,7 +311,6 @@ public final class DbLockKeeper {
 				m_lockCounter++;
 			}
 		}
-
 	}
 
 	/**

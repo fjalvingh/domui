@@ -33,14 +33,6 @@ public class MysqlDB extends BaseDB {
 	}
 
 	/**
-	 * Returns a SQL statement that is the cheapest way to check the validity of a connection.
-	 */
-	@Override
-	protected String getCheckString() {
-		return "select 1";
-	}
-
-	/**
 	 * Uses mysql specific code to create a sequence number from a sequence
 	 * table.
 	 *
@@ -75,29 +67,16 @@ public class MysqlDB extends BaseDB {
 	 * Helper to get a sequence number from a table.
 	 */
 	static private int getMysqlSequenceTry(Connection dbc) throws SQLException {
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		try {
-			ps = dbc.prepareStatement("update sequence set id=LAST_INSERT_ID(id+1)");
+		try(PreparedStatement ps = dbc.prepareStatement("update sequence set id=LAST_INSERT_ID(id+1)")) {
 			ps.executeUpdate();
-			ps.close();
-			ps = null;
-			ps = dbc.prepareStatement("select last_insert_id()");
-			rs = ps.executeQuery();
+		}
+
+
+		try(PreparedStatement ps = dbc.prepareStatement("select last_insert_id()");
+			ResultSet rs = ps.executeQuery()) {
 			if(!rs.next())
 				throw new SQLException("genid Query no results!?");
 			return rs.getInt(1);
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -105,20 +84,15 @@ public class MysqlDB extends BaseDB {
 	 * Creates the MYSQL sequences table.
 	 */
 	static private void createMysqlSequence(Connection dbc) {
-		PreparedStatement ps = null;
-		try {
-			ps = dbc.prepareStatement("create table sequence (id integer not null)");
+		try(PreparedStatement ps = dbc.prepareStatement("create table sequence (id integer not null)")) {
 			ps.executeUpdate();
-			ps.close();
-			ps = dbc.prepareStatement("insert into sequence values(1)");
+		} catch(Exception x) {
+			return;
+		}
+		try(PreparedStatement ps = dbc.prepareStatement("insert into sequence values(1)")) {
 			ps.executeUpdate();
 		} catch(SQLException x) {
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {
-			}
+			//-- Ignore
 		}
 	}
 
@@ -148,6 +122,7 @@ public class MysqlDB extends BaseDB {
 				if(ps != null)
 					ps.close();
 			} catch(Exception x) {
+				//-- Ignore
 			}
 		}
 	}

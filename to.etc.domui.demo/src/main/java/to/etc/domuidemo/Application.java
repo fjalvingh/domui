@@ -26,6 +26,7 @@ import to.etc.domuidemo.components.PageHeader;
 import to.etc.domuidemo.pages.HomePage;
 import to.etc.domuidemo.sourceviewer.SourcePage;
 import to.etc.formbuilder.pages.FormDesigner;
+import to.etc.util.FileTool;
 import to.etc.webapp.query.QContextManager;
 
 import javax.servlet.UnavailableException;
@@ -44,7 +45,8 @@ public class Application extends DomApplication {
 	 */
 	@Override
 	protected void initialize(final ConfigParameters pp) throws Exception {
-		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, new File("/tmp/imagecache"));
+		File imagecache = new File(FileTool.getTmpDir(), "imagecache");
+		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, imagecache);
 
 		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
 

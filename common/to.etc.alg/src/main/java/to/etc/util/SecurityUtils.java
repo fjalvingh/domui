@@ -51,7 +51,10 @@ public class SecurityUtils {
 
 	static private final SecureRandom RANDOM = new SecureRandom();
 
-	public enum Algorithm { Blowfish, AES }
+	public enum Algorithm {
+		Blowfish,
+		AES
+	}
 
 	static public String encodeToHex(PrivateKey privk) {
 		byte[] enc = privk.getEncoded();
@@ -73,11 +76,11 @@ public class SecurityUtils {
 		return StringTool.encodeBase64ToString(enc);
 	}
 
-
 	/**
 	 * Decodes a public key from an encoded value.
-	 * @param enc	the hex string.
-	 * @return		a public key.
+	 *
+	 * @param enc the hex string.
+	 * @return a public key.
 	 */
 	static public PublicKey decodePublicKeyFromHex(String enc, String algo) throws Exception {
 		//-- 1. Decode the hex string into a byte array,
@@ -93,8 +96,9 @@ public class SecurityUtils {
 
 	/**
 	 * Decodes a private key from an encoded value.
-	 * @param enc	the hex string.
-	 * @return		a public key.
+	 *
+	 * @param enc the hex string.
+	 * @return a public key.
 	 */
 	static public PrivateKey decodePrivateKeyFromHex(String enc, String algo) throws Exception {
 		//-- 1. Decode the hex string into a byte array,
@@ -110,8 +114,9 @@ public class SecurityUtils {
 
 	/**
 	 * Decodes a public key from an encoded value.
-	 * @param enc	the hex string.
-	 * @return		a public key.
+	 *
+	 * @param enc the hex string.
+	 * @return a public key.
 	 */
 	static public PublicKey decodePublicKeyFromHex(String enc) throws Exception {
 		return decodePublicKeyFromHex(enc, "DSA");
@@ -119,8 +124,9 @@ public class SecurityUtils {
 
 	/**
 	 * Decodes a private key from an encoded value.
-	 * @param enc	the hex string.
-	 * @return		a public key.
+	 *
+	 * @param enc the hex string.
+	 * @return a public key.
 	 */
 	static public PrivateKey decodePrivateKeyFromHex(String enc) throws Exception {
 		return decodePrivateKeyFromHex(enc, "DSA");
@@ -128,8 +134,9 @@ public class SecurityUtils {
 
 	/**
 	 * Decodes a public key from an encoded value.
-	 * @param enc	the hex string.
-	 * @return		a public key.
+	 *
+	 * @param enc the hex string.
+	 * @return a public key.
 	 */
 	static public PublicKey decodePublicKeyFromBase64(String enc) throws Exception {
 		return decodePublicKeyFromBase64(enc, "DSA");
@@ -137,8 +144,9 @@ public class SecurityUtils {
 
 	/**
 	 * Decodes a private key from an encoded value.
-	 * @param enc	the hex string.
-	 * @return		a public key.
+	 *
+	 * @param enc the hex string.
+	 * @return a public key.
 	 */
 	static public PrivateKey decodePrivateKeyFromBase64(String enc) throws Exception {
 		return decodePrivateKeyFromBase64(enc, "DSA");
@@ -146,8 +154,9 @@ public class SecurityUtils {
 
 	/**
 	 * Decodes a public key from an encoded value.
-	 * @param enc	the hex string.
-	 * @return		a public key.
+	 *
+	 * @param enc the hex string.
+	 * @return a public key.
 	 */
 	static public PublicKey decodePublicKeyFromBase64(String enc, String algo) throws Exception {
 		//-- 1. Decode the hex string into a byte array,
@@ -159,8 +168,9 @@ public class SecurityUtils {
 
 	/**
 	 * Decodes a private key from an encoded value.
-	 * @param enc	the hex string.
-	 * @return		a public key.
+	 *
+	 * @param enc the hex string.
+	 * @return a public key.
 	 */
 	static public PrivateKey decodePrivateKeyFromBase64(String enc, String algo) throws Exception {
 		//-- 1. Decode the hex string into a byte array,
@@ -175,6 +185,7 @@ public class SecurityUtils {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Hashing functions.									*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Returns the MD5 hash for the data passed.
 	 */
@@ -213,6 +224,7 @@ public class SecurityUtils {
 			throw WrappedException.wrap(x);
 		}
 	}
+
 	static public String getMD5Hash(@NonNull String in, @NonNull Charset encoding) {
 		try {
 			byte[] hash = md5Hash(in.getBytes(encoding));
@@ -224,8 +236,6 @@ public class SecurityUtils {
 
 	/**
 	 * Returns the hash string generated based on md5 encoded as bas 36 string -> produces hash of 25 length, lowercase.
-	 * @param in
-	 * @return
 	 */
 	static public String getMd5HashBase36(@NonNull String in) {
 		try {
@@ -246,12 +256,12 @@ public class SecurityUtils {
 	}
 
 	@NonNull
-	static public String getSha1Hex(@NonNull String in, @NonNull Charset encoding) {
+	static public String getSha256Hex(@NonNull String in, @NonNull Charset encoding) {
 		try {
-			MessageDigest sha = MessageDigest.getInstance("SHA-1");
+			MessageDigest sha = MessageDigest.getInstance("SHA-256");
 			byte[] hash = sha.digest(in.getBytes(encoding));
 			return StringTool.toHex(hash);
-		}catch(Exception ex) {
+		} catch(Exception ex) {
 			throw WrappedException.wrap(ex);
 		}
 	}
@@ -269,7 +279,7 @@ public class SecurityUtils {
 	static public String encryptPassword(String password) throws Exception {
 		byte[] salt = createSalt(16);
 
-		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 20*8);
+		PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 20 * 8);
 		SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
 		byte[] hash = skf.generateSecret(spec).getEncoded();
 		String result = StringTool.toHex(hash);
@@ -283,7 +293,7 @@ public class SecurityUtils {
 			return false;
 		try {
 			byte[] salt = StringTool.fromHex(split[0]);
-			PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 20*8);
+			PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 1000, 20 * 8);
 			SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
 			byte[] hash = skf.generateSecret(spec).getEncoded();
 			String result = StringTool.toHex(hash);
@@ -294,15 +304,15 @@ public class SecurityUtils {
 	}
 
 	static private byte[] encryptStringToBytes(String input, String password, Algorithm algorithm) throws Exception {
-		SecretKeySpec skeyspec=new SecretKeySpec(password.getBytes(), algorithm.name());
-		Cipher cipher=Cipher.getInstance(algorithm.name());
+		SecretKeySpec skeyspec = new SecretKeySpec(password.getBytes(), algorithm.name());
+		Cipher cipher = Cipher.getInstance(algorithm.name());
 		cipher.init(Cipher.ENCRYPT_MODE, skeyspec);
 		return cipher.doFinal(input.getBytes(StandardCharsets.UTF_8));
 	}
 
 	static private String decryptStringFromBytes(byte[] data, String password, Algorithm algorithm) throws Exception {
-		SecretKeySpec skeyspec=new SecretKeySpec(password.getBytes(), algorithm.name());
-		Cipher cipher=Cipher.getInstance(algorithm.name());
+		SecretKeySpec skeyspec = new SecretKeySpec(password.getBytes(), algorithm.name());
+		Cipher cipher = Cipher.getInstance(algorithm.name());
 		cipher.init(Cipher.DECRYPT_MODE, skeyspec);
 		byte[] decrypted = cipher.doFinal(data);
 		return new String(decrypted, StandardCharsets.UTF_8);

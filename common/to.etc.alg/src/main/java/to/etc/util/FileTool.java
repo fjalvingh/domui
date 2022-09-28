@@ -957,11 +957,7 @@ public class FileTool {
 	 * Opens the jar file and tries to load the plugin.properties file from it.
 	 */
 	static public Properties loadPropertiesFromZip(final InputStream is, final String name) throws Exception {
-		ZipInputStream zis = null;
-		OutputStream os = null;
-
-		try {
-			zis = new ZipInputStream(is);
+		try(ZipInputStream zis = new ZipInputStream(is)) {
 			for(; ; ) {
 				ZipEntry ze = zis.getNextEntry();
 				if(ze == null)
@@ -969,22 +965,17 @@ public class FileTool {
 				String n = ze.getName();
 				if(n.equalsIgnoreCase(name)) {
 					//-- Gotcha! Create parameters and load 'm
+					byte[] data;
+					try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+						copyFile(baos, zis, 1024*1024);
+						data = baos.toByteArray();
+					}
+
 					Properties p = new Properties();
-					p.load(zis); // Load properties
+					p.load(new ByteArrayInputStream(data)); 	// Load properties
 					return p;
 				}
 				zis.closeEntry();
-			}
-		} finally {
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(zis != null)
-					zis.close();
-			} catch(Exception x) {
 			}
 		}
 		return null;
@@ -1023,11 +1014,7 @@ public class FileTool {
 	 * Opens the jar file and tries to load the plugin.properties file from it.
 	 */
 	static public Document loadXmlFromZip(final InputStream is, final String ident, final String name, final boolean nsaware) throws Exception {
-		ZipInputStream zis = null;
-		OutputStream os = null;
-
-		try {
-			zis = new ZipInputStream(is);
+		try(ZipInputStream zis = new ZipInputStream(is)) {
 			for(; ; ) {
 				ZipEntry ze = zis.getNextEntry();
 				if(ze == null)
@@ -1035,20 +1022,9 @@ public class FileTool {
 				String n = ze.getName();
 				if(n.equalsIgnoreCase(name)) {
 					//-- Gotcha! Create parameters and load 'm
-					return DomTools.getDocument(zis, ident, nsaware);
+					return DomTools.getDocument(new SizeCountingInputStream(zis, 512 * MB), ident, nsaware);
 				}
 				zis.closeEntry();
-			}
-		} finally {
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(zis != null)
-					zis.close();
-			} catch(Exception x) {
 			}
 		}
 		return null;
@@ -1056,7 +1032,7 @@ public class FileTool {
 
 
 	/*--------------------------------------------------------------*/
-	/*	CODING:	Classloader and classrelated stuff.					*/
+	/*	CODING:	Classloader and class related stuff.				*/
 	/*--------------------------------------------------------------*/
 
 	/**

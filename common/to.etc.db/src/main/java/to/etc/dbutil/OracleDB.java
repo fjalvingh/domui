@@ -58,15 +58,6 @@ public class OracleDB extends BaseDB {
 		super("oracle");
 	}
 
-	/**
-	 * Returns a SQL statement that is the cheapest way to check the validity of a connection.
-	 * @return
-	 */
-	@Override
-	protected String getCheckString() {
-		return "select 1 from dual";
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Sequences.											*/
 	/*--------------------------------------------------------------*/
@@ -258,12 +249,6 @@ public class OracleDB extends BaseDB {
 		} catch(Exception x) {
 			throw new SQLException("Exception calling " + name + " on " + src + ": " + x, x);
 		}
-	}
-
-
-	@Override
-	public boolean oracleOuterJoin() {
-		return true;
 	}
 
 	/**
