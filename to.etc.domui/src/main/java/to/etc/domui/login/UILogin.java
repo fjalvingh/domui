@@ -308,6 +308,7 @@ final public class UILogin {
 			return null;
 		String value = user.getLoginID() + ":" + l + ":" + auth;
 		Cookie k = new Cookie("domuiLogin", value);
+		k.setSecure(true);
 		k.setMaxAge((int) ((l - System.currentTimeMillis()) / 1000)); // #seconds before expiry
 		k.setPath(ci.getRequestResponse().getWebappContext());
 		//ci.getRequestResponse().addCookie(k);
@@ -319,11 +320,13 @@ final public class UILogin {
 		sb.append(k.getName());
 		sb.append('=');
 		sb.append('"').append(k.getValue()).append('"');
-		sb.append("; Path=/").append(k.getPath().replace("/", ""));
+		sb.append("; Path=/").append(k.getPath().replace("/", "")).append(";");
 		//sb.append("; Domain=");
 		//sb.append(k.getDomain());
 		//sb.append("; HttpOnly; Secure; Expires=");
-		sb.append("; HttpOnly; Expires=");
+		if(k.getSecure())
+			sb.append("Secure;");
+		sb.append("HttpOnly; Expires=");
 
 		DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 		df.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -351,6 +354,7 @@ final public class UILogin {
 
 					//-- Create a new cookie value containing a delete.
 					Cookie k = new Cookie("domuiLogin", "logout");
+					k.setSecure(true);
 					k.setMaxAge(60);
 					k.setPath(rci.getRequestResponse().getWebappContext());
 					rci.getRequestResponse().addCookie(k);

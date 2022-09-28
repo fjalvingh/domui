@@ -28,10 +28,8 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.slf4j.Logger;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -56,8 +54,6 @@ import java.util.regex.Pattern;
  */
 public class StringTool {
 	static private final Pattern	NORMALIZE_PATTERN	= Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
-
-	private static final Pattern URL_PATTERN = Pattern.compile("\\b(?:(https?|ftp|file)://|www\\.)?([\\w-]+[\\.\\:\\-])+[\\w-]+(/[\\w- ;#,./?%&=]*)?", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
 	/**
 	 * PLEASE DO NOT USE ANYMORE - this limit will change in Oracle 12. To get the
@@ -1765,44 +1761,6 @@ public class StringTool {
 
 	}
 
-
-	/*--------------------------------------------------------------*/
-	/*	CODING:	Get "REAL" environment variables.					*/
-	/*--------------------------------------------------------------*/
-	/**
-	 *	Returns the list of environment variables of the supported OS's. Because
-	 *  in their infinite wizdom the Java builders deprecated the use of this
-	 *  we need to do something complex..
-	 */
-	static public List<String> getEnvironment() {
-		try {
-			String opsys = System.getProperty("os.name").toLowerCase();
-			//		System.out.println(OS);
-			Process p = null;
-			if(opsys.indexOf("windows 9") > -1)
-				p = Runtime.getRuntime().exec("command.com /c set");
-			else if((opsys.indexOf("nt") > -1) || (opsys.indexOf("windows 2000") > -1))
-				p = Runtime.getRuntime().exec("cmd.exe /c set");
-			else if(opsys.indexOf("unix") > -1 || opsys.indexOf("Linux") > -1 || File.separatorChar == '/')
-				p = Runtime.getRuntime().exec("env");
-			else
-				throw new IllegalStateException("No environment can be found. This should not be possible.");
-
-			//-- Take the result..
-			BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			List<String> v = new ArrayList<String>();
-			String line;
-			while((line = br.readLine()) != null) {
-				v.add(line);
-			}
-			p.waitFor();
-			return v;
-		} catch(Exception x) {
-			x.printStackTrace();
-		}
-		return null;
-	}
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Base 64 encoding/decoding (rfc2045)					*/
 	/*--------------------------------------------------------------*/
@@ -3102,18 +3060,6 @@ public class StringTool {
 	@NonNull
 	public static String replaceNewLineChars(@NonNull String content, @NonNull String replacement) {
 		return content.replace("\r\n", replacement).replace("\r", replacement).replace("\n", replacement);
-	}
-
-	/**
-	 * Loose checks if provided URL is valid.</br>
-	 * It allows URLs with and without http, https, ftp... online PDFs, Images, locally mapped IP addresses and IP
-	 * addresses itself.
-	 */
-	public static boolean validateUrl(@Nullable String urlValue) {
-		if(urlValue == null || urlValue.isEmpty()) {
-			return false;
-		}
-		return URL_PATTERN.matcher(urlValue).matches();
 	}
 
 	/**

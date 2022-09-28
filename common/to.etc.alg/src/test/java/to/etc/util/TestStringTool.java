@@ -363,33 +363,6 @@ public class TestStringTool {
 	}
 
 	@Test
-	public void validateUrl_valid() {
-		assertTrue(StringTool.validateUrl("www.google.com"));
-		assertTrue(StringTool.validateUrl("74.125.206.105"));
-		assertTrue(StringTool.validateUrl("http://74.125.206.105"));
-		assertTrue(StringTool.validateUrl("http://www.google.com"));
-		assertTrue(StringTool.validateUrl("http://www.nu.nl/"));
-		assertTrue(StringTool.validateUrl("http://www.itris.nl/"));
-		assertTrue(StringTool.validateUrl("https://docs.google.com/a/itris.eu/spreadsheets/d/1GxCUI6FheVXAqI44o_zIh_CU7W-odiuJTY/edit#gid=1008896417"));
-		assertTrue(StringTool.validateUrl("http://localhost:8080/Itris_VO02/iRed/Portal/Menu/ViewPointMenuMain.jsp"));
-		assertTrue(StringTool.validateUrl("http://vfdsf:8080/fdsf/fdsf/nl/webintelligence.pdf"));
-		assertTrue(StringTool.validateUrl("http://www.opmaat.nl"));
-		assertTrue(StringTool.validateUrl("http://20-web-vp-01/viewpoint"));
-		assertTrue(StringTool.validateUrl("localhost:8080/Itris_VO02"));
-	}
-
-	@Test
-	public void validateUrl_notvalid() {
-		assertFalse(StringTool.validateUrl(null));
-		assertFalse(StringTool.validateUrl(""));
-		assertFalse(StringTool.validateUrl(StringTool.getRandomStringWithPrefix(10, "UT_")));
-		assertFalse(StringTool.validateUrl("www.goog le.com"));
-		assertFalse(StringTool.validateUrl("www.goog\\le.com"));
-		assertFalse(StringTool.validateUrl("www.goog=le.com"));
-		assertFalse(StringTool.validateUrl("http://www test test/"));
-	}
-
-	@Test
 	public void testStrOracleTruncate() throws Exception {
 		String s = FileTool.readResourceAsString(getClass(), "longMsg.txt", "utf-8");
 		String lessStr = StringTool.strOracleTruncate(s, 3997);

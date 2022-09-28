@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 
 final public class BatchUtil {
 
-	private BatchUtil() {}
+	private BatchUtil() {
+	}
 
 	/**
 	 * Does bulk delete using JDBC.
 	 * Use it when performance matters ;)
-	 * @throws SQLException
 	 */
 	public static <K, T extends IIdentifyable<K>> int bulkDelete(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items) throws SQLException {
 		List<K> ids = items.stream().map(it -> it.getSafeId()).collect(Collectors.toList());
@@ -34,7 +34,6 @@ final public class BatchUtil {
 	 * In case that 'except' is T, it deletes 'all other' records -> that can throw exception in case that specified list of 'except' ids is too large -> depends on database.
 	 * Otherwise it deletes specified records using smaller chunks of records, so it is safe regarding database limits in statement length.
 	 * Use it when performance matters ;)
-	 * @throws SQLException
 	 */
 	public static <K> int bulkDelete(@NonNull Connection con, ClassMetaModel cmm, boolean except, @NonNull List<K> ids) throws SQLException {
 		if(ids.isEmpty() && !except) {
@@ -54,7 +53,7 @@ final public class BatchUtil {
 			: 1000;
 		int chunkSize = except ? ids.size() : maxChunk;
 		int result = 0;
-		for(List<K> idsChunk: Iterables.partition(ids, chunkSize)) {
+		for(List<K> idsChunk : Iterables.partition(ids, chunkSize)) {
 			String idsPlaceholders = idsChunk.stream().map(it -> "?").collect(Collectors.joining(","));
 			Object[] idsValues = idsChunk.toArray(new Object[idsChunk.size()]);
 			String notPart = except ? "not " : "";
@@ -65,7 +64,6 @@ final public class BatchUtil {
 
 	/**
 	 * Does bulk insert using JDBC. Use it when performance matters ;)
-	 * @throws Exception
 	 */
 	public static <K, T extends IIdentifyable<K>> int bulkInsert(@NonNull Connection con, ClassMetaModel cmm, @NonNull List<T> items, QField<T, ?>... fields) throws Exception {
 		if(items.isEmpty()) {
@@ -78,13 +76,13 @@ final public class BatchUtil {
 		String params = Arrays.stream(props).map(it -> "?").collect(Collectors.joining(","));
 		String sql = "insert into " + cmm.getTableName() + " (" + insertColumns + ") values (" + params + ")";
 		int inserted = 0;
-		try(PreparedStatement ps = con.prepareStatement(sql)){
+		try(PreparedStatement ps = con.prepareStatement(sql)) {
 			for(List<T> chunk : Iterables.partition(items, 10000)) {
-				for(T item: chunk) {
+				for(T item : chunk) {
 					for(int index = 0; index < props.length; index++) {
 						Object value = props[index].getValue(item);
 						if(value instanceof IIdentifyable<?>) {
-							value = ((IIdentifyable<?>)value).getId();
+							value = ((IIdentifyable<?>) value).getId();
 						}
 						JdbcUtil.setParameter(ps, value, index + 1);
 					}

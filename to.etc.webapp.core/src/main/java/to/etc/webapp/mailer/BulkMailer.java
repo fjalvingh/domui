@@ -125,9 +125,6 @@ public class BulkMailer {
 	/*--------------------------------------------------------------*/
 	/**
 	 * This stores the message into the database. This will cause the message to be sent asap.
-	 *
-	 * @param m
-	 * @throws Exception
 	 */
 	public void store(@NonNull Message m) throws Exception {
 		boolean ok = false;
