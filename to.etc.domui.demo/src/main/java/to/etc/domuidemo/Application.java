@@ -25,7 +25,6 @@ import to.etc.domui.util.Msgs;
 import to.etc.domuidemo.components.PageHeader;
 import to.etc.domuidemo.pages.HomePage;
 import to.etc.domuidemo.sourceviewer.SourcePage;
-import to.etc.formbuilder.pages.FormDesigner;
 import to.etc.util.FileTool;
 import to.etc.webapp.query.QContextManager;
 
@@ -117,7 +116,7 @@ public class Application extends DomApplication {
 	}
 
 	void onNewPage(final UrlPage p) throws Exception {
-		if(p instanceof SourcePage || p instanceof FormDesigner)
+		if(p instanceof SourcePage)
 			return;
 
 		if(null != DomUtil.findComponentInTree(p, BreadCrumb.class))
@@ -154,8 +153,6 @@ public class Application extends DomApplication {
 	 * Initialize the database. This code uses the embedded Derby database but the same logic
 	 * as shown here can be used to open any database. In addition, this code will see if the
 	 * database is empty and if so will re-create the demo/example tables and populate them.
-	 *
-	 * @throws Exception
 	 */
 	private void initDatabase() throws Exception {
 		File appFile = getAppFile(".").getAbsoluteFile();

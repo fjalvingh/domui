@@ -127,10 +127,6 @@
 			<groupId>to.etc.domui</groupId>
 			<artifactId>to.etc.syntaxer</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>to.etc.domui</groupId>
-			<artifactId>to.etc.domui.formbuilder</artifactId>
-		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/org.mozilla/rhino -->
 		<dependency>
