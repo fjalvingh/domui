@@ -39,17 +39,21 @@ public class PostgresDB extends BaseDB {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Sequences.											*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * Uses a table sequence to generate a value.
-	 * @param dbc			the connection
-	 * @return				the id
-	 * @throws SQLException	if the sequence could not be obtained
+	 *
+	 * @param dbc the connection
+	 * @throws SQLException if the sequence could not be obtained
+	 * @return the id
 	 */
 	@Override
 	protected int getFullSequenceID(Connection dbc, String seqname) throws SQLException {
 		try {
 			return trySequenceID(dbc, seqname);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+			//-- Ignore
+		}
 
 		//-- When here the above failed. Try to create the table then retry.
 		createSequence(dbc, seqname); // Create the sequence table
@@ -62,39 +66,20 @@ public class PostgresDB extends BaseDB {
 	}
 
 	private void createSequence(Connection dbc, String table) {
-		Statement ps = null;
-		try {
-			ps = dbc.createStatement();
+		try(Statement ps = dbc.createStatement()) {
 			ps.execute("create sequence " + table + " increment 1 minvalue 1 start 1");
 			dbc.commit();
 		} catch(SQLException x) {
-			x.printStackTrace();
-		} finally {
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
+			//-- Ignore
 		}
+		//-- Ignore
 	}
 
 	private int trySequenceID(Connection dbc, String tablename) throws SQLException {
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-		try {
-			ps = dbc.prepareStatement("select nextval('" + tablename + "')");
-			rs = ps.executeQuery();
+		try(PreparedStatement ps = dbc.prepareStatement("select nextval('" + tablename + "')"); ResultSet rs = ps.executeQuery()) {
 			if(!rs.next())
 				throw new SQLException("genid Query no results!?");
 			return rs.getInt(1);
-		} finally {
-			try {
-				if(rs != null)
-					rs.close();
-			} catch(Exception x) {}
-			try {
-				if(ps != null)
-					ps.close();
-			} catch(Exception x) {}
 		}
 	}
 
@@ -102,9 +87,10 @@ public class PostgresDB extends BaseDB {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Blob writing.										*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Writes a blob to the requested record using the normal setBinaryStream
-	 *  call. Used for jdbc-compliant databases.
+	 * Writes a blob to the requested record using the normal setBinaryStream
+	 * call. Used for jdbc-compliant databases.
 	 */
 	@Override
 	protected void setBlob(Connection dbc, String table, String column, String where, InputStream is, int len) throws SQLException {
@@ -123,7 +109,9 @@ public class PostgresDB extends BaseDB {
 			try {
 				if(ps != null)
 					ps.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+				//-- Ignore
+			}
 		}
 	}
 }

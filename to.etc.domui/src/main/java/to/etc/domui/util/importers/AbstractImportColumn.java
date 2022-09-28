@@ -3,21 +3,12 @@ package to.etc.domui.util.importers;
 import org.eclipse.jdt.annotation.Nullable;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 12-12-17.
  */
 abstract public class AbstractImportColumn implements IImportColumn {
-	@Nullable
-	@Override
-	abstract public String getStringValue();
-
-	@Nullable
-	@Override
-	abstract public Date asDate();
-
 	@Nullable
 	@Override
 	public Long asLong() {
