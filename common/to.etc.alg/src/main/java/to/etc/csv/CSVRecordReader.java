@@ -37,44 +37,67 @@ import java.util.StringTokenizer;
  * Reads CSV files record by record, and implements the iLoadInputProvider interface
  * to access the fields.
  * Created on Oct 13, 2003
+ *
  * @author jal
  */
 public class CSVRecordReader implements iRecordReader {
-	/** The name for the input, for reporting pps. */
+	/**
+	 * The name for the input, for reporting pps.
+	 */
 	private String m_name;
 
-	/** The source thing to read the data from */
+	/**
+	 * The source thing to read the data from
+	 */
 	private Reader m_r;
 
 	private LineNumberReader m_line_r;
 
-	/** Current line # */
+	/**
+	 * Current line #
+	 */
 	int m_lnr;
 
-	/** When T, whitespace between fields is skipped */
+	/**
+	 * When T, whitespace between fields is skipped
+	 */
 	private boolean m_skip_ws = true;
 
-	/** The list of fields for the CURRENT record. */
+	/**
+	 * The list of fields for the CURRENT record.
+	 */
 	private List<Field> m_fld_al = new ArrayList<Field>();
 
 	private List<String> m_fldsep_al = new ArrayList<String>();
 
-	/** All characters that are allowed as quote characters */
+	/**
+	 * All characters that are allowed as quote characters
+	 */
 	private StringBuffer m_quote_sb = new StringBuffer();
 
-	/** Ignore all quotes. */
+	/**
+	 * Ignore all quotes.
+	 */
 	private boolean m_ignoreQuotes = false;
 
-	/** When set, any quote is escaped by the backslash character (C mode). */
+	/**
+	 * When set, any quote is escaped by the backslash character (C mode).
+	 */
 	private boolean m_escapeBackslash = true;
 
-	/** When set quotes are escaped by repeating them (BASIC mode) */
+	/**
+	 * When set quotes are escaped by repeating them (BASIC mode)
+	 */
 	private boolean m_escapeDupQuote = false;
 
-	/** If T, the first line is read as a set of field names. */
+	/**
+	 * If T, the first line is read as a set of field names.
+	 */
 	private boolean m_startWithFieldNames;
 
-	/** We can use a whitespace as separator. Signal this, otherwise it will be skipped as a whitespace. */
+	/**
+	 * We can use a whitespace as separator. Signal this, otherwise it will be skipped as a whitespace.
+	 */
 	private boolean m_whitespaceSeparator;
 
 	/**
@@ -103,6 +126,7 @@ public class CSVRecordReader implements iRecordReader {
 
 		/**
 		 * Return the real name of the field, or the numeric name.
+		 *
 		 * @see to.etc.csv.iInputField#getName()
 		 */
 		public String getName() {
@@ -112,7 +136,6 @@ public class CSVRecordReader implements iRecordReader {
 		}
 
 		/**
-		 *
 		 * @see to.etc.csv.iInputField#getValue()
 		 */
 		public String getValue() {
@@ -120,7 +143,6 @@ public class CSVRecordReader implements iRecordReader {
 		}
 
 		/**
-		 *
 		 * @see to.etc.csv.iInputField#isEmpty()
 		 */
 		public boolean isEmpty() {
@@ -165,7 +187,9 @@ public class CSVRecordReader implements iRecordReader {
 		m_fldsep_al.add(sep);
 	}
 
-	/** When T, whitespace between fields is skipped */
+	/**
+	 * When T, whitespace between fields is skipped
+	 */
 	public void setSkipWhitespace(boolean skip_ws) {
 		m_skip_ws = skip_ws;
 	}
@@ -209,8 +233,10 @@ public class CSVRecordReader implements iRecordReader {
 			if(!_nextRecord()) // Try to read,
 				return false;
 			//-- Move the values to the field names.
-			for(int i = size(); --i >= 0; )
-				elementAt(i).m_fldname = elementAt(i).m_value;
+			for(int i = size(); --i >= 0; ) {
+				Field field = m_fld_al.get(i);
+				field.m_fldname = field.m_value;
+			}
 		}
 		return _nextRecord();
 	}
@@ -237,6 +263,7 @@ public class CSVRecordReader implements iRecordReader {
 	/**
 	 * Parses a single line into fields. This fills the field set with
 	 * data from the record.
+	 *
 	 * @param line
 	 */
 	private void decode(String line) throws IOException {
@@ -270,6 +297,7 @@ public class CSVRecordReader implements iRecordReader {
 
 	/**
 	 * Defines fieldnames using a comma or semicolon separated field name string.
+	 *
 	 * @param fields
 	 */
 	public void defineFields(String fields) {
@@ -392,12 +420,12 @@ public class CSVRecordReader implements iRecordReader {
 			int ix = StringTool.strToInt(name.substring(1), -1);
 			if(ix < 0 || ix >= m_fld_al.size())
 				return null;
-			return elementAt(ix);
+			return m_fld_al.get(ix);
 		}
 
 		for(int i = m_fld_al.size(); --i >= 0; ) {
 			Field f = elementAt(i);
-			if(f.getName().equalsIgnoreCase(name))
+			if(f != null && f.getName().equalsIgnoreCase(name))
 				return f;
 		}
 		return null;
@@ -504,6 +532,7 @@ public class CSVRecordReader implements iRecordReader {
 	/**
 	 * Checks if the separator specified is at the current location, and
 	 * if so returns the #chars to skip past it.
+	 *
 	 * @param sep
 	 * @param line
 	 * @param ix
@@ -523,6 +552,7 @@ public class CSVRecordReader implements iRecordReader {
 
 	/**
 	 * Returns the first non-whitespace character on the line (can be eoln)
+	 *
 	 * @param line
 	 * @param ix
 	 * @return

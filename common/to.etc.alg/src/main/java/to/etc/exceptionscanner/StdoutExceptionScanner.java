@@ -1,6 +1,5 @@
 package to.etc.exceptionscanner;
 
-import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.ConsumerEx;
 import to.etc.function.SupplierEx;
@@ -17,7 +16,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on 07-01-21.
  */
-@NonNullByDefault
 public class StdoutExceptionScanner {
 	private ConsumerEx<String> m_stdoutListener;
 
@@ -78,7 +76,7 @@ public class StdoutExceptionScanner {
 					try {
 						wait(10000);
 					} catch(InterruptedException x) {
-						//-- ignore
+						break;
 					}
 				}
 			}
@@ -112,7 +110,7 @@ public class StdoutExceptionScanner {
 			if(m_exceptionList.size() > 200)						// Prevent from running into big problems
 				return;
 			m_exceptionList.add(rx);
-			notify();
+			notifyAll();
 		}
 	}
 

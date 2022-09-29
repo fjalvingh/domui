@@ -60,7 +60,12 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 	 */
 	private void runLoop() {
 		for(;;) {
-			T task = waitForTask();
+			T task;
+			try {
+				task = waitForTask();
+			} catch(InterruptedException xx) {
+				break;
+			}
 			if(null == task)
 				break;
 			try {
@@ -73,7 +78,7 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 	}
 
 	@Nullable
-	private T waitForTask() {
+	private T waitForTask() throws InterruptedException {
 		m_runner.taskFree(this);
 		synchronized(this) {
 			for(;;) {
@@ -91,6 +96,8 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 				//-- Wait for work to arrive
 				try {
 					wait();
+				} catch(InterruptedException ix) {
+					throw ix;
 				} catch(Exception x) {
 					throw WrappedException.wrap(x);
 				}
