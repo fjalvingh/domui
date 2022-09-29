@@ -44,12 +44,12 @@ import java.util.Objects;
 /**
  * Number lookup control. This is a Text2 input box which allows the following:
  * <ul>
- *	<li>Entering just a number: look for the exact value of the number</li>
- *	<li>Entering operator number, like "&gt; 200", looks for that. Operators supported are: =, !=, &lt;&gt; &gt; &gt;=, &lt; &lt;=, !, </></li>
- *	<li>Two operators, two numbers to handle between, like "&gt; 12 &lt; 100 </li>
- *	<li>Just entering '*' means look for a nonnull value</li>
- *	<li>Entering just a ! means: look for a null only</li>
- *	<li>You can also search for numbers with like which will try to issue a like query with the number converted to a string using '%' as the like value.</li>
+ * 	<li>Entering just a number: look for the exact value of the number</li>
+ * 	<li>Entering operator number, like "&gt; 200", looks for that. Operators supported are: =, !=, &lt;&gt; &gt; &gt;=, &lt; &lt;=, !, </></li>
+ * 	<li>Two operators, two numbers to handle between, like "&gt; 12 &lt; 100 </li>
+ * 	<li>Just entering '*' means look for a nonnull value</li>
+ * 	<li>Entering just a ! means: look for a null only</li>
+ * 	<li>You can also search for numbers with like which will try to issue a like query with the number converted to a string using '%' as the like value.</li>
  * </ul>
  *
  * @author <a href="mailto:vmijic@execom.eu">Vladimir Mijic</a>
@@ -95,11 +95,14 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		m_scale = scale;
 	}
 
-	@Override public void createContent() throws Exception {
+	@Override
+	public void createContent() throws Exception {
 		add(m_input);
 	}
 
-	@Nullable @Override public NumberLookupValue getValue() {
+	@Nullable
+	@Override
+	public NumberLookupValue getValue() {
 		String string = m_input.getValue();
 		if(null == string || string.trim().isEmpty())
 			return null;
@@ -111,7 +114,8 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		return m_value;
 	}
 
-	@Override public void setValue(@Nullable NumberLookupValue value) {
+	@Override
+	public void setValue(@Nullable NumberLookupValue value) {
 		if(Objects.equals(m_value, value))
 			return;
 		m_value = value;
@@ -120,9 +124,12 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 	}
 
 	private void renderValue(NumberLookupValue value) {
+		m_input.setValue(toString(value));
+	}
+
+	static public String toString(NumberLookupValue value) {
 		if(null == value) {
-			m_input.setValue(null);
-			return;
+			return null;
 		}
 		StringBuilder sb = new StringBuilder();
 		QOperation from = value.getFromOperation();
@@ -143,11 +150,9 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 					sb.append(">=");
 					break;
 				case ISNOTNULL:
-					m_input.setValue("*");
-					return;
+					return "*";
 				case ISNULL:
-					m_input.setValue("!");
-					return;
+					return "!";
 			}
 		}
 
@@ -176,10 +181,10 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 			number = value.getFrom();
 			sb.append(renderNumber(number));
 		}
-		m_input.setValue(sb.toString());
+		return sb.toString();
 	}
 
-	private String renderNumber(Number number) {
+	static private String renderNumber(Number number) {
 		if(null == number)
 			return "";
 
@@ -213,7 +218,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 				throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_INVALID);
 			if(v.contains("%") && m_allowLike) {
 				m_s.skipWs();
-				if(!m_s.eof()) 									// Must have eof
+				if(!m_s.eof())                                    // Must have eof
 					throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_INVALID);
 				return new NumberLookupValue(v);
 			}
@@ -232,7 +237,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		String v = scanNumeric(false);
 		if(v.isEmpty())
 			throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_INVALID);
-		T value = parseNumber(v); 								// Convert to appropriate type,
+		T value = parseNumber(v);                                // Convert to appropriate type,
 		checkNumber(value);
 
 		//-- Ok: is there a 2nd part?
@@ -248,7 +253,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 
 		//-- 2nd fragment of 2nd part MUST be numeric, so scan a value
 		v = scanNumeric(false);
-		T value2 = parseNumber(v); 								// Convert to appropriate type,
+		T value2 = parseNumber(v);                                // Convert to appropriate type,
 		checkNumber(value2);
 
 		//-- Now: construct the between proper
@@ -284,7 +289,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 	private String scanNumeric(boolean allowpct) {
 		m_s.skipWs();
 		m_s.getStringResult(); // Clear old result
-		for(;;) {
+		for(; ; ) {
 			int c = m_s.LA();
 			if(c != '-' && c != '+' && c != 'E' && c != 'e' && c != ',' && c != '.' && c != 0x20ac && c != '$' && !Character.isDigit(c) && !(allowpct && c == '%'))
 				break;
@@ -296,6 +301,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 	/**
 	 * Checks the current position for a supported operation. If OK the appropriate operation code is
 	 * returned and the current pos is advanced after it.
+	 *
 	 * @return
 	 */
 	protected QOperation scanOperation() {
@@ -314,7 +320,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 			return QOperation.GT;
 		else {
 			m_s.getStringResult(); // Clear content
-			for(;;) {
+			for(; ; ) {
 				int c = m_s.LA();
 				if(Character.isWhitespace(c) || Character.isDigit(c) || c == '-' || c == '.' || c == ',' || c == -1)
 					break;
@@ -362,43 +368,54 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		return m_monetary;
 	}
 
-	@Override public NumberLookupValue getValueSafe() {
+	@Override
+	public NumberLookupValue getValueSafe() {
 		return getValue();
 	}
 
-	@Override public boolean isReadOnly() {
+	@Override
+	public boolean isReadOnly() {
 		return m_input.isReadOnly();
 	}
 
-	@Override public void setReadOnly(boolean ro) {
+	@Override
+	public void setReadOnly(boolean ro) {
 		m_input.setReadOnly(ro);
 	}
 
-	@Override public boolean isDisabled() {
+	@Override
+	public boolean isDisabled() {
 		return m_input.isDisabled();
 	}
 
-	@Override public boolean isMandatory() {
+	@Override
+	public boolean isMandatory() {
 		return m_input.isMandatory();
 	}
 
-	@Override public void setMandatory(boolean ro) {
+	@Override
+	public void setMandatory(boolean ro) {
 		m_input.setMandatory(ro);
 	}
 
-	@Override public void setDisabled(boolean d) {
+	@Override
+	public void setDisabled(boolean d) {
 		m_input.setDisabled(d);
 	}
 
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return m_input;
 	}
 
-	@Override public IValueChanged<?> getOnValueChanged() {
+	@Override
+	public IValueChanged<?> getOnValueChanged() {
 		return m_input.getOnValueChanged();
 	}
 
-	@Override public void setOnValueChanged(IValueChanged<?> onValueChanged) {
+	@Override
+	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		m_input.setOnValueChanged(onValueChanged);
 	}
 
@@ -406,8 +423,8 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		m_input.setSize(size);
 	}
 
-
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 }
