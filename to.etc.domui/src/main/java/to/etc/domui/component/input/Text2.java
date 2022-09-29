@@ -307,9 +307,9 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			if(!Pattern.matches(getValidationRegexp(), raw)) {
 				//-- We have a validation error.
 				if(getRegexpUserString() != null)
-					throw new ValidationException(Msgs.V_NO_RE_MATCH, getRegexpUserString());        // Input format must be {0}
+					throw new ValidationException(Msgs.vNoReMatch, getRegexpUserString());        // Input format must be {0}
 				else
-					throw new ValidationException(Msgs.V_INVALID);
+					throw new ValidationException(Msgs.vInvalid);
 			}
 		}
 

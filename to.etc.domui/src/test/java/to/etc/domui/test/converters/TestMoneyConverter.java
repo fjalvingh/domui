@@ -89,7 +89,7 @@ public class TestMoneyConverter {
 			//System.out.println(" ... " + in + " (bad)");
 			ms.scanLaxWithCurrencySign(in, 2, false);
 		} catch(ValidationException vx) {
-			if(vx.getCode().equals(Msgs.V_BAD_AMOUNT))
+			if(vx.getCode().equals(Msgs.vBadAmount))
 				return;
 		}
 		Assert.fail("Validated an invalid amount: '" + in + "'");

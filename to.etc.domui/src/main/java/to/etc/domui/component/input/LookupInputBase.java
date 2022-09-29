@@ -24,7 +24,6 @@
  */
 package to.etc.domui.component.input;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.component.layout.Dialog;
@@ -536,7 +535,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		}
 		f.add(lf);
 		f.setOnClose(closeReason -> {
-			f.clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+			f.clearGlobalMessage(Msgs.vMissingSearch);
 			m_floater = null;
 			m_result = null;
 		});
@@ -596,9 +595,9 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			return;
 		}
 
-		getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		getFloater().clearGlobalMessage(Msgs.vMissingSearch);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptyQuery()) {
-			getFloater().addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
+			getFloater().addGlobalMessage(UIMessage.error(Msgs.vMissingSearch)); // Missing inputs
 			return;
 		} else
 			getFloater().clearGlobalMessage();
@@ -656,7 +655,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 			actualFormRowRenderer.setRowClicked(new ICellClicked<OT>() {
 				@Override
 				public void cellClicked(@NonNull OT val) throws Exception {
-					getFloater().clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+					getFloater().clearGlobalMessage(Msgs.vMissingSearch);
 					if(!getDataTable().isMultiSelectionVisible()) {
 						LookupInputBase.this.toggleFloater(null);
 					}

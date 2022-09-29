@@ -203,7 +203,7 @@ final public class DomUIBugContributor implements IBugInfoContributor {
 				}
 
 				if(msg == null && error != null) {
-					msg = UIMessage.error(Msgs.BUNDLE, Msgs.VERBATIM, "exception: " + error);
+					msg = UIMessage.error(Msgs.verbatim, "exception: " + error);
 				}
 
 				String val$;

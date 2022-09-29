@@ -83,7 +83,7 @@ public class PercentageBigDecimalConverter implements IConverter<BigDecimal> {
 		try {
 			return new BigDecimal(in).divide(BigDecimal.valueOf(100)).setScale(m_scale + 2, RoundingMode.HALF_EVEN);
 		} catch(NumberFormatException ex) {
-			throw new ValidationException(Msgs.V_BAD_PERCENTAGE, in);
+			throw new ValidationException(Msgs.vBadPercentage, in);
 		}
 	}
 

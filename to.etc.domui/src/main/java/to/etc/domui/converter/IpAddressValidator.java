@@ -23,15 +23,15 @@ final public class IpAddressValidator implements IValueValidator<String> {
 				try {
 					int val = Integer.parseInt(segment);
 					if(val < 0 || val > 255)
-						throw new ValidationException(Msgs.BUNDLE, Msgs.V_INVALID, input);
+						throw new ValidationException(Msgs.vInvalid, input);
 				} catch(ValidationException vx) {
 					throw vx;
 				} catch(Exception x) {
-					throw new ValidationException(Msgs.BUNDLE, Msgs.V_INVALID, input);
+					throw new ValidationException(Msgs.vInvalid, input);
 				}
 			}
 			return;
 		}
-		throw new ValidationException(Msgs.BUNDLE, Msgs.V_INVALID, input);
+		throw new ValidationException(Msgs.vInvalid, input);
 	}
 }

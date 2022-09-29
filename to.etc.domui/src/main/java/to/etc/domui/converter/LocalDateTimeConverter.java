@@ -58,7 +58,7 @@ final public class LocalDateTimeConverter  implements IConverter<LocalDateTime> 
 			if(datePattern == null && df != null) {
 				datePattern = df.format(LocalDateTime.now());
 			}
-			throw new ValidationException(Msgs.V_INVALID_DATE, datePattern);
+			throw new ValidationException(Msgs.vInvalidDate, datePattern);
 		}
 	}
 }

@@ -2,8 +2,8 @@ package to.etc.domui.trouble;
 
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.util.Msgs;
-import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.CodeException;
+import to.etc.webapp.nls.IBundleCode;
 
 /**
  * This exception, when thrown from the DomUI framework, will cause a MsgBox to be displayed with the error
@@ -13,15 +13,15 @@ import to.etc.webapp.nls.CodeException;
  * Created on Feb 12, 2013
  */
 final public class MsgException extends CodeException {
-	public MsgException(@NonNull BundleRef bundle, @NonNull String code, @NonNull Object... parameters) {
-		super(bundle, code, parameters);
+	public MsgException(@NonNull IBundleCode code, @NonNull Object... parameters) {
+		super(code, parameters);
 	}
 
-	public MsgException(@NonNull Throwable t, @NonNull BundleRef bundle, @NonNull String code, @NonNull Object... parameters) {
-		super(t, bundle, code, parameters);
+	public MsgException(@NonNull Throwable t, @NonNull IBundleCode code, @NonNull Object... parameters) {
+		super(t, code, parameters);
 	}
 
 	public MsgException(@NonNull String message, @NonNull Object... parameters) {
-		this(Msgs.BUNDLE, Msgs.VERBATIM, message, parameters);
+		this(Msgs.verbatim, message, parameters);
 	}
 }

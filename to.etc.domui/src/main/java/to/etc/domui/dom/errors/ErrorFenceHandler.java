@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.util.DomUtil;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,22 +42,22 @@ import java.util.List;
  * reported back to the user they add an error to either a control (usually
  * for validation/conversion errors) or to the page itself (for errors where
  * there's no clear "location" where the problem has occurred).
- *
+ * <p>
  * Making these errors visible is not the responsibility of a component, but
  * is delegated to one or more ErrorMessageListeners. These listeners get
  * called when an error is registered with a component (or when an error
  * is cleared).
- *
+ * <p>
  * The error listener is responsible for handling the actual reporting of the error,
  * and it usually does this by altering the output tree, for instance by adding
  * the error message to the page's defined "error box" and making that box visible. Other
  * listeners can change the CSS Class of the error node in question, causing it to be
  * displayed in a different color for instance.
- *
+ * <p>
  * If a page has no registered error handlers it "inherits" the default error handlers
  * from the current Application. By overriding that one you can easily alter the way
  * errors are reported in the entire application.
- *
+ * <p>
  * Special components that handle error messages also exist, and these components usually
  * register themselves as listeners when they are added to the tree. This is the best method
  * of handling error reporting because the page designer can easily determine where they are
@@ -95,7 +96,6 @@ public class ErrorFenceHandler implements IErrorFence {
 
 	/**
 	 * Discard an error message listener.
-	 * @param eml
 	 */
 	@Override
 	public void removeErrorListener(@NonNull IErrorMessageListener eml) {
@@ -104,7 +104,7 @@ public class ErrorFenceHandler implements IErrorFence {
 
 	@Override
 	public void addMessage(@NonNull UIMessage uim) {
-		if (!m_messageList.contains(uim)) { ////prevent double adding of same uim
+		if(!m_messageList.contains(uim)) { ////prevent double adding of same uim
 			if(m_messageList == Collections.EMPTY_LIST)
 				m_messageList = new ArrayList<UIMessage>(15);
 			m_messageList.add(uim);
@@ -160,6 +160,14 @@ public class ErrorFenceHandler implements IErrorFence {
 		//-- Remove all messages from the list,
 		for(UIMessage m : todo)
 			removeMessage(m);
+	}
+
+	@Override
+	public void clearGlobalMessages(@Nullable IBundleCode code) {
+		if(null == code)
+			clearGlobalMessages((String) null);
+		else
+			clearGlobalMessages(code.name());
 	}
 
 	@Override

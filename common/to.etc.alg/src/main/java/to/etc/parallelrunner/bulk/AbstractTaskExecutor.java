@@ -38,13 +38,13 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 
 		try {
 			runLoop();
+		} catch(InterruptedException x) {
+			Thread.currentThread().interrupt();					// Calling these people idiots is an insult to idiots.
 		} finally {
 			try {
 				try {
 					terminate();
-				} catch(Exception x) {
-					x.printStackTrace();
-				} catch(Error x) {
+				} catch(Exception | Error x) {
 					x.printStackTrace();
 				}
 				m_runner.taskTerminated(this);
@@ -58,14 +58,9 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 	 * In a loop: accept tasks to do, execute them, then wait for another task
 	 * until we're signalled as finished.
 	 */
-	private void runLoop() {
+	private void runLoop() throws InterruptedException {
 		for(;;) {
-			T task;
-			try {
-				task = waitForTask();
-			} catch(InterruptedException xx) {
-				break;
-			}
+			T task = waitForTask();
 			if(null == task)
 				break;
 			try {

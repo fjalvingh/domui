@@ -45,7 +45,7 @@ public class Application extends DomApplication {
 	@Override
 	protected void initialize(final ConfigParameters pp) throws Exception {
 		File imagecache = new File(FileTool.getTmpDir(), "imagecache");
-		ImageCache.initialize(32 * 1024 * 1024, 5l * 1024 * 1024 * 1024, imagecache);
+		ImageCache.initialize(32 * 1024L * 1024L, 5L * 1024L * 1024L * 1024L, imagecache);
 
 		setDefaultThemeFactory(SassThemeFactory.INSTANCE);
 

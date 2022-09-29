@@ -18,6 +18,6 @@ public class PositiveNumberValidator implements IValueValidator<Number> {
 			return;
 		if(input.doubleValue() >= 0.0)
 			return;
-		throw new ValidationException(Msgs.V_TOOSMALL, "0");
+		throw new ValidationException(Msgs.vTooSmall, "0");
 	}
 }

@@ -2,7 +2,6 @@ package to.etc.parallelrunner.bulk;
 
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.function.FunctionEx;
-import to.etc.util.WrappedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +61,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 		}
 	}
 
-	private void waitForStart() throws Exception {
+	private void waitForStart() throws InterruptedException {
 		Exception error;
 		long ets = System.currentTimeMillis() + 120 * 1000;
 		try {
@@ -75,33 +74,30 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 					if(m_freeThreadList.size() == m_allThreadList.size()) {
 						return;                                    // All are there
 					} else {
-
 						if(System.currentTimeMillis() >= ets) {
 							error = new IllegalStateException("Threads do not become available in time");
 							break;
 						}
 
-						try {
-							wait(60_000);
-						} catch(InterruptedException x) {
-							throw x;
-						}
+						wait(60_000);
 					}
 				}
 			}
-		} catch(Exception idiots) {
-			error = idiots;
+		} catch(Exception x) {
+			safeClose();
+			throw x;
 		}
+	}
 
+	private void safeClose() {
 		try {
 			close();
 		} catch(Exception x) {
 			x.printStackTrace();
 		}
-		throw error;
 	}
 
-	public void addTask(T task) {
+	public void addTask(T task) throws Exception {
 		AbstractTaskExecutor<T> exec;
 		synchronized(this) {
 			for(;;) {
@@ -111,11 +107,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 					exec = m_freeThreadList.remove(m_freeThreadList.size() - 1);
 					break;
 				}
-				try {
-					wait();
-				} catch(Exception x) {
-					throw WrappedException.wrap(x);
-				}
+				wait();
 			}
 		}
 		exec.setTask(task);
@@ -149,11 +141,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 			}
 		}
 
-		try {
-			close();
-		} catch(Exception x) {
-			x.printStackTrace();
-		}
+		safeClose();
 		if(null != error) {
 			throw error;
 		}

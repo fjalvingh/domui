@@ -77,16 +77,16 @@ public class NumericUtil {
 	static private int internalParseInt(String input) {
 		BigDecimal bd = parseBigDecimal(input, 0, NumericPresentation.NUMBER);
 		if(bd == null) {
-			throw new ValidationException(Msgs.V_INVALID, input); // No input is invalid input.
+			throw new ValidationException(Msgs.vInvalid, input); // No input is invalid input.
 		}
 		if(bd.compareTo(MAXINT) > 0)
-			throw new ValidationException(Msgs.V_TOOLARGE, MAXINT);
+			throw new ValidationException(Msgs.vTooLarge, MAXINT);
 		if(bd.compareTo(MININT) < 0)
-			throw new ValidationException(Msgs.V_TOOSMALL, MININT);
+			throw new ValidationException(Msgs.vTooSmall, MININT);
 		try {
 			return bd.intValueExact();
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input); // Happens when a fraction is present.
+			throw new ValidationException(Msgs.vInvalid, input); // Happens when a fraction is present.
 		}
 	}
 
@@ -97,7 +97,7 @@ public class NumericUtil {
 		try {
 			return Long.parseLong(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
+			throw new ValidationException(Msgs.vInvalid, input);
 		}
 	}
 
@@ -109,7 +109,7 @@ public class NumericUtil {
 		try {
 			return Long.valueOf(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
+			throw new ValidationException(Msgs.vInvalid, input);
 		}
 	}
 
@@ -122,7 +122,7 @@ public class NumericUtil {
 		try {
 			return Double.valueOf(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
+			throw new ValidationException(Msgs.vInvalid, input);
 		}
 	}
 
@@ -135,7 +135,7 @@ public class NumericUtil {
 		try {
 			return new BigDecimal(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
+			throw new ValidationException(Msgs.vInvalid, input);
 		}
 	}
 
@@ -147,7 +147,7 @@ public class NumericUtil {
 		try {
 			return new BigInteger(ms.getStringResult());
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID, input);
+			throw new ValidationException(Msgs.vInvalid, input);
 		}
 	}
 

@@ -51,23 +51,32 @@ public class UIMessage {
 	@NonNull
 	static private final Object[] NONE = new Object[0];
 
-
-	/** The message bundle to use, or null if the deprecated "global messages" are used. */
+	/**
+	 * The message bundle to use, or null if the deprecated "global messages" are used.
+	 */
 	@NonNull
 	private BundleRef m_bundle;
 
-	/** The error message code for the error that has occured. This exists always and is a lookup into the error NLS messages. */
+	/**
+	 * The error message code for the error that has occured. This exists always and is a lookup into the error NLS messages.
+	 */
 	@NonNull
 	private String m_code;
 
-	/** The type of the message (error, warning, informational); this mainly defines whether actions continue, and it defines an icon to show. */
+	/**
+	 * The type of the message (error, warning, informational); this mainly defines whether actions continue, and it defines an icon to show.
+	 */
 	@NonNull
 	final private MsgType m_type;
 
-	/** When set this is used in error messages as an indication of which input field contains the error. It usually contains the value for the "label" of the control. */
+	/**
+	 * When set this is used in error messages as an indication of which input field contains the error. It usually contains the value for the "label" of the control.
+	 */
 	private String m_errorLocation;
 
-	/** For errors that have parameters - these are the parameters. This is null if no parameters are present. */
+	/**
+	 * For errors that have parameters - these are the parameters. This is null if no parameters are present.
+	 */
 	@NonNull
 	private Object[] m_parameters;
 
@@ -76,23 +85,30 @@ public class UIMessage {
 	 */
 	private NodeBase m_errorNode;
 
-	/** The group links messages together, so a bunch of them can be deleted at the same time. */
+	/**
+	 * The group links messages together, so a bunch of them can be deleted at the same time.
+	 */
 	private String m_group;
 
-	/** The message key is the bundle class' package name plus the message code, separated by a '.' */
+	/**
+	 * The message key is the bundle class' package name plus the message code, separated by a '.'
+	 */
 	final private String m_key;
 
-	/** Set in case that we like to show messages using some custom set locate, other than default one. */
+	/**
+	 * Set in case that we like to show messages using some custom set locate, other than default one.
+	 */
 	private Locale m_customLocale;
 
 	/**
 	 * Create an error message container.
-	 * @param errorNode			If not-null this is the node that "owns" the error. This node will show a visual indication of the fact that it contains an error.
-	 * @param errorLocation		If not-null this is a user-understandable name of the input item that contains the error. It usually is the "label" associated with the problem.
-	 * @param type				The type of message: error, warning or info.
-	 * @param br				The bundle containing the message for the code. If this is null (deprecated) the "global bundle set" is used *WHICH IS DEPRECATED*.
-	 * @param code				The code for the message.
-	 * @param parameters		If needed a set of parameters to render into the message.
+	 *
+	 * @param errorNode     If not-null this is the node that "owns" the error. This node will show a visual indication of the fact that it contains an error.
+	 * @param errorLocation If not-null this is a user-understandable name of the input item that contains the error. It usually is the "label" associated with the problem.
+	 * @param type          The type of message: error, warning or info.
+	 * @param br            The bundle containing the message for the code. If this is null (deprecated) the "global bundle set" is used *WHICH IS DEPRECATED*.
+	 * @param code          The code for the message.
+	 * @param parameters    If needed a set of parameters to render into the message.
 	 */
 	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull BundleRef br, @NonNull String code, @Nullable Object[] parameters) {
 		this(errorNode, errorLocation, type, br, code, parameters, null);
@@ -120,7 +136,6 @@ public class UIMessage {
 
 	/**
 	 * Return a unique key for the message as "bundle name" '#' "code". The bundle name is defined as the bundle's class package + '.' + message file name without extension
-	 * @return
 	 */
 	public String getMessageKey() {
 		return m_key;
@@ -143,7 +158,6 @@ public class UIMessage {
 
 	/**
 	 * Returns the message bundle the code is in, or null if the code is a global message code (deprecated).
-	 * @return
 	 */
 	@Nullable
 	public BundleRef getBundle() {
@@ -172,7 +186,6 @@ public class UIMessage {
 	/**
 	 * When set this is used in error messages as an indication of which input field contains the
 	 * error. It usually contains the value for the "label" of the control.
-	 * @return
 	 */
 	@Nullable
 	public String getErrorLocation() {
@@ -185,12 +198,9 @@ public class UIMessage {
 
 	/**
 	 * Chaining setter for setErrorLocation.
-	 *
-	 * @param errorLocation
-	 * @return
 	 */
 	@NonNull
-	public UIMessage location(@Nullable String errorLocation){
+	public UIMessage location(@Nullable String errorLocation) {
 		m_errorLocation = errorLocation;
 		return this;
 	}
@@ -208,15 +218,14 @@ public class UIMessage {
 
 	/**
 	 * Returns the message part of the error message, properly localized for the request's locale.
-	 * @return
 	 */
 	@NonNull
 	public String getMessage() {
 		Locale locale = m_customLocale;
-		if (null == locale) {
+		if(null == locale) {
 			locale = NlsContext.getLocale();
 		}
-		if(m_bundle != null){
+		if(m_bundle != null) {
 			return m_bundle.formatMessage(locale, m_code, m_parameters);
 		}
 
@@ -238,30 +247,31 @@ public class UIMessage {
 		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
 	}
 
-	@NonNull
-	static public UIMessage error(NodeBase node, String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
-		return new UIMessage(node, errorLocation, MsgType.ERROR, ref, code, param);
-	}
+	//@NonNull
+	//static public UIMessage error(NodeBase node, String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
+	//	return new UIMessage(node, errorLocation, MsgType.ERROR, ref, code, param);
+	//}
 
-	@NonNull
-	static public UIMessage error(String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
-		return new UIMessage(null, errorLocation, MsgType.ERROR, ref, code, param);
-	}
+	//@NonNull
+	//static public UIMessage error(String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
+	//	return new UIMessage(null, errorLocation, MsgType.ERROR, ref, code, param);
+	//}
 
 	@NonNull
 	static public UIMessage error(String errorLocation, @NonNull IBundleCode code, Object... param) {
 		return new UIMessage(null, errorLocation, MsgType.ERROR, code.getBundle(), code.name(), param);
 	}
 
-	@NonNull
-	static public UIMessage error(NodeBase node, @NonNull BundleRef ref, @NonNull String code, Object... param) {
-		return new UIMessage(node, node.getErrorLocation(), MsgType.ERROR, ref, code, param);
-	}
+	//@NonNull
+	//static public UIMessage error(NodeBase node, @NonNull BundleRef ref, @NonNull String code, Object... param) {
+	//	return new UIMessage(node, node.getErrorLocation(), MsgType.ERROR, ref, code, param);
+	//}
 
 	@NonNull
 	static public UIMessage error(@NonNull BundleRef ref, @NonNull String code, Object... param) {
 		return new UIMessage(null, null, MsgType.ERROR, ref, code, param);
 	}
+
 	static public UIMessage error(@NonNull IBundleCode code, Object... param) {
 		return new UIMessage(null, null, MsgType.ERROR, code, param);
 	}
@@ -348,7 +358,6 @@ public class UIMessage {
 			return other.m_errorLocation == null;
 		} else
 			return m_errorLocation.equals(other.m_errorLocation);
-
 
 	}
 

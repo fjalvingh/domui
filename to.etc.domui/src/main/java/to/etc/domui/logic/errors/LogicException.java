@@ -9,12 +9,12 @@ final public class LogicException extends ValidationException {
 	final private ProblemModel m_problems;
 
 	public LogicException() {
-		super(Msgs.BUNDLE, Msgs.V_LOGIC_ERROR);
+		super(Msgs.vLogicError);
 		m_problems = null;
 	}
 
 	public LogicException(ProblemModel problems) {
-		super(Msgs.BUNDLE, Msgs.V_LOGIC_ERROR);
+		super(Msgs.vLogicError);
 		m_problems = problems;
 	}
 

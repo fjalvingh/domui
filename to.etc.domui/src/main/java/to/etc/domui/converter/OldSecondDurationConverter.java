@@ -79,7 +79,7 @@ public class OldSecondDurationConverter implements IConverter<Long> {
 		} catch(ValidationException x) {
 			throw x;
 		} catch(Exception x) {
-			throw new ValidationException(Msgs.V_INVALID_DATE);
+			throw new ValidationException(Msgs.vInvalidDate);
 		}
 	}
 }

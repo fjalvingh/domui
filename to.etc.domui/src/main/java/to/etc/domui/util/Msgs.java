@@ -64,6 +64,50 @@ public enum Msgs implements IBundleCode {
 /** Confirmation in blood */
 	incorrectInputCantDeleteData,
 	reason,
+
+	//-- Validation
+	/** Invalid value */
+	vInvalid,
+
+	/** Invalid date */
+	vInvalidDate, // = "v.invalid.date";
+
+	/** Alle zoekvelden zijn leeg; vul minimaal een veld in om een zoekopdracht te doen. */
+	vMissingSearch, // = "v.missing.search";
+
+	vBadDuration, // = "v.bad.duration";
+
+	/** Invalid monetary amount */
+	vBadAmount, // = "v.bad.amount";
+
+	/** Invalid percentage value */
+	vBadPercentage, // = "v.bad.percentage";
+
+	/** Invalid double */
+	vInvalidDouble, // = "v.invalid.double";
+
+	/** Invalid operator */
+	vInvalidOperator, // = "v.invalid.operator";
+
+	/** Invalid not unique */
+	vInvalidNotUnique, // = "v.invalid.not.unique";
+
+	/** Value out of range */
+	vOutOfRange, // = "v.out.of.range";
+
+	/** The input is not in the format {0} */
+	vNoReMatch, // = "v.no.re.match";
+
+	vTooSmall, // = "v.toosmall";
+
+	vTooLarge, // = "v.toolarge";
+
+	vLogicError, // = "v.logic.error";
+
+	//-- Crud
+	verbatim, // = "verbatim";
+
+
 	;
 
 	/** Error component panel header text: Info */
@@ -136,44 +180,6 @@ public enum Msgs implements IBundleCode {
 	public static String X_TOO_MANY_CONVERSATIONS = "x.conver.toomany";
 
 	//# Validators
-
-	/** Invalid date */
-	public static String V_INVALID_DATE = "v.invalid.date";
-
-	/** Alle zoekvelden zijn leeg; vul minimaal een veld in om een zoekopdracht te doen. */
-	public static String V_MISSING_SEARCH = "v.missing.search";
-
-	public static String V_BAD_DURATION = "v.bad.duration";
-
-	/** Invalid monetary amount */
-	public static String V_BAD_AMOUNT = "v.bad.amount";
-
-	/** Invalid percentage value */
-	public static String V_BAD_PERCENTAGE = "v.bad.percentage";
-
-	/** Invalid double */
-	public static String V_INVALID_DOUBLE = "v.invalid.double";
-
-	/** Invalid operator */
-	public static String V_INVALID_OPERATOR = "v.invalid.operator";
-
-	/** Invalid not unique */
-	public static String V_INVALID_NOT_UNIQUE = "v.invalid.not.unique";
-
-	/** Value out of range */
-	public static String V_OUT_OF_RANGE = "v.out.of.range";
-
-	/** Invalid value */
-	public static String V_INVALID = "v.invalid";
-
-	/** The input is not in the format {0} */
-	public static String V_NO_RE_MATCH = "v.no.re.match";
-
-	public static String V_TOOSMALL = "v.toosmall";
-
-	public static String V_TOOLARGE = "v.toolarge";
-
-	public static String V_LOGIC_ERROR = "v.logic.error";
 
 
 	//# Server errors.
@@ -281,7 +287,6 @@ public enum Msgs implements IBundleCode {
 	/** lookupform.cancel title */
 	public static String LOOKUP_FORM_CANCEL_TITLE = "lookupform.btn.cancel.title";
 
-	public static String VERBATIM = "verbatim";
 
 	//# AsyncContainer
 	/** asynccontainer.cancel key */

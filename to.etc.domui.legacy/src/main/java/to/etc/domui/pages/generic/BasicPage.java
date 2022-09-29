@@ -86,7 +86,7 @@ public class BasicPage<T> extends UrlPage {
 
 	public void clearGlobalMessages() {
 		IErrorFence fence = DomUtil.getMessageFence(this);
-		fence.clearGlobalMessages(null);
+		fence.clearGlobalMessages((String) null);
 	}
 
 	public BasePageTitleBar getTitleBar() {

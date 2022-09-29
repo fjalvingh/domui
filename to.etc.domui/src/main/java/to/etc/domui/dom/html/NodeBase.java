@@ -1554,7 +1554,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	public void clearGlobalMessage() {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.clearGlobalMessages(null);
+		fence.clearGlobalMessages((String) null);
 	}
 
 	public void clearGlobalMessage(UIMessage m) {
@@ -1564,13 +1564,16 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	/**
 	 * Delete all messages with the specified code (deprecated) or group name (see {@link UIMessage#getGroup()}).
-	 * @param code
 	 */
 	public void clearGlobalMessage(final String code) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(code);
 	}
 
+	public void clearGlobalMessage(IBundleCode code) {
+		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
+		fence.clearGlobalMessages(code);
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Internationalization helper methods.				*/
@@ -1587,8 +1590,6 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 	 * only be used <i>before</i> the message bundle is ever used (any call to $(), findComponentBundle()
 	 * and whatnot). Explicitly setting the bundle to null prevents any bundle lookup, and makes all bundle
 	 * related calls fail.
-	 *
-	 * @param bundle
 	 */
 	final public void setComponentBundle(@Nullable IBundle bundle) {
 		if(0 != (m_flags & F_BUNDLEUSED))

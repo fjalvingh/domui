@@ -68,6 +68,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	/**
 	 * Implement to handle a selection of a record that was found.
+	 *
 	 * @param rcord
 	 * @throws Exception
 	 */
@@ -75,6 +76,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	/**
 	 * Implement to handle pressing the "new record" button.
+	 *
 	 * @throws Exception
 	 */
 	abstract protected void onNew() throws Exception;
@@ -89,9 +91,11 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	/**
 	 * Override this to customize the lookup form. No need to call super. method.
+	 *
 	 * @param lf
 	 */
-	protected void customizeSearchPanel(@NonNull SearchPanel<T> lf) throws Exception {}
+	protected void customizeSearchPanel(@NonNull SearchPanel<T> lf) throws Exception {
+	}
 
 	@Override
 	public void createContent() throws Exception {
@@ -135,11 +139,11 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	void search(SearchPanel<T> lf) throws Exception {
 		QCriteria<T> c = lf.getCriteria();
-		if(c == null)									// Some error has occured?
-			return;										// Don't do anything (errors will have been registered)
-		clearGlobalMessage(Msgs.V_MISSING_SEARCH);
+		if(c == null)                                    // Some error has occured?
+			return;                                        // Don't do anything (errors will have been registered)
+		clearGlobalMessage(Msgs.vMissingSearch);
 		if(!lf.hasUserDefinedCriteria() && !isAllowEmptySearch()) {
-			addGlobalMessage(UIMessage.error(Msgs.BUNDLE, Msgs.V_MISSING_SEARCH)); // Missing inputs
+			addGlobalMessage(UIMessage.error(Msgs.vMissingSearch)); // Missing inputs
 			return;
 		} else {
 			clearGlobalMessage();
@@ -147,7 +151,8 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		setTableQuery(c);
 	}
 
-	protected void adjustCriteria(@NonNull QCriteria<T> crit) {}
+	protected void adjustCriteria(@NonNull QCriteria<T> crit) {
+	}
 
 	private void setTableQuery(QCriteria<T> qc) throws Exception {
 		adjustCriteria(qc);
@@ -164,7 +169,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 			IRowRenderer<T> renderer = getRowRenderer();
 
 			//-- jal 20091111 It is required that any search result has clickable rows. If no row click handler is set set one to call onNew.
-			if(renderer instanceof IClickableRowRenderer< ? >) { // Silly ? is needed even though cast cant do anything with it. Idiots.
+			if(renderer instanceof IClickableRowRenderer<?>) { // Silly ? is needed even though cast cant do anything with it. Idiots.
 				IClickableRowRenderer<T> arrh = (IClickableRowRenderer<T>) renderer;
 				if(arrh.getRowClicked() == null) {
 					arrh.setRowClicked(new ICellClicked<T>() {
@@ -203,15 +208,17 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	 * Override to do extra things when the lookupform's "clear" button is pressed. Can be used to
 	 * set items to defaults after their input has been cleared. When this is called all inputs in
 	 * the form have <i>already</i> been set to null (empty) - so do <b>not</b> call {@link SearchPanel#clearInput()}.
+	 *
 	 * @param lf
 	 * @throws Exception
 	 */
 	protected void onSearchPanelClear(SearchPanel<T> lf) throws Exception {
-	//lf.clearInput(); jal 20091002 DO NOT ADD BACK!!!! Pressing the clear button ALREADY CALLS this.
+		//lf.clearInput(); jal 20091002 DO NOT ADD BACK!!!! Pressing the clear button ALREADY CALLS this.
 	}
 
 	/**
 	 * Get the row renderer to use for the request.
+	 *
 	 * @return
 	 */
 	public IRowRenderer<T> getRowRenderer() throws Exception {
@@ -220,7 +227,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 		}
 
 		//-- jal 20091111 It is required that any search result has clickable rows. If no row click handler is set set one to call onNew.
-		if(m_rowRenderer instanceof AbstractRowRenderer< ? >) { // Silly ? is needed even though cast cant do anything with it. Idiots.
+		if(m_rowRenderer instanceof AbstractRowRenderer<?>) { // Silly ? is needed even though cast cant do anything with it. Idiots.
 			AbstractRowRenderer<T> arrh = (AbstractRowRenderer<T>) m_rowRenderer;
 			if(arrh.getRowClicked() == null) {
 				arrh.setRowClicked(new ICellClicked<T>() {
@@ -245,6 +252,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	/**
 	 * When set to TRUE this makes the form immediately execute a query with all
 	 * empty lookup fields, meaning it will immediately show a list of rows.
+	 *
 	 * @return
 	 */
 	public boolean isSearchImmediately() {
@@ -254,15 +262,16 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 	/**
 	 * When set to TRUE this makes the form immediately execute a query with all
 	 * empty lookup fields, meaning it will immediately show a list of rows.
+	 *
 	 * @param showDefaultSearch
 	 */
 	public void setSearchImmediately(boolean searchImmediately) {
 		m_searchImmediately = searchImmediately;
 	}
 
-
 	/**
 	 * When set to T this allows searching a set without any specified criteria.
+	 *
 	 * @return
 	 */
 	public boolean isAllowEmptySearch() {
@@ -271,6 +280,7 @@ abstract public class BasicListPage<T> extends BasicPage<T> {
 
 	/**
 	 * When set to T this allows searching a set without any specified criteria.
+	 *
 	 * @param allowEmptySearch
 	 */
 	public void setAllowEmptySearch(boolean allowEmptySearch) {

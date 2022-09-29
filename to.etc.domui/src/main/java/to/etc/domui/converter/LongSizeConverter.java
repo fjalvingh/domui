@@ -48,13 +48,13 @@ public class LongSizeConverter implements IConverter<Long> {
 	public Long convertStringToObject(Locale loc, String val) throws UIException {
 		val = val.trim();
 		if(val.length() == 0)
-			throw new ValidationException(Msgs.V_INVALID);
+			throw new ValidationException(Msgs.vInvalid);
 
 		int lindex = val.length();
 		while(lindex > 0 && !Character.isDigit(val.charAt(lindex - 1)))
 			lindex--;
 		if(lindex <= 0)
-			throw new ValidationException(Msgs.V_INVALID);
+			throw new ValidationException(Msgs.vInvalid);
 
 		String f = val.substring(lindex).toLowerCase().trim();
 		val = val.substring(0, lindex);
@@ -68,7 +68,7 @@ public class LongSizeConverter implements IConverter<Long> {
 		else if("t".equals(f) || "tb".equals(f))
 			size *= 1024l * 1024l * 1024l * 1024l;
 		else if(f.length() != 0)
-			throw new ValidationException(Msgs.V_INVALID);
+			throw new ValidationException(Msgs.vInvalid);
 
 		return Long.valueOf((long) size);
 	}
