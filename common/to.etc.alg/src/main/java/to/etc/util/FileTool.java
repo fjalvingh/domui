@@ -1956,7 +1956,7 @@ public class FileTool {
 	 * Used to prevent idiotic errors from Sonar for file.delete.
 	 */
 	public static void ignore(boolean delete) {
-
+		//-- And we need a nested comment too 8-(
 
 	}
 }
