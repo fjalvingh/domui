@@ -39,6 +39,7 @@ import to.etc.domui.logic.errors.ProblemReporter;
 import to.etc.domui.util.DomUtil;
 import to.etc.function.IExecute;
 import to.etc.webapp.ProgrammerErrorException;
+import to.etc.webapp.nls.IBundleCode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -596,6 +597,10 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			TextNode t = new TextNode(txt);
 			add(t);
 		}
+	}
+
+	public void setText(@NonNull IBundleCode code, Object... param) {
+		setText(code.format(param));
 	}
 
 	/**
