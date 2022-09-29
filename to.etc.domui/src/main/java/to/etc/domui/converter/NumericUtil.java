@@ -36,6 +36,7 @@ import to.etc.domui.util.Msgs;
 import to.etc.webapp.nls.NlsContext;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
@@ -138,6 +139,17 @@ public class NumericUtil {
 		}
 	}
 
+	@Nullable
+	static public BigInteger parseBigInteger(String input, NumericPresentation np) {
+		MiniScanner ms = MiniScanner.getInstance();
+		if(!ms.scanLaxNumber(input, 0, true))
+			return null;
+		try {
+			return new BigInteger(ms.getStringResult());
+		} catch(Exception x) {
+			throw new ValidationException(Msgs.V_INVALID, input);
+		}
+	}
 
 	/**
 	 * DEPRECATED: This method wrongly assumes the scale of the number parsed - use {@link #parseNumber(Class, String, int)}.
@@ -187,6 +199,8 @@ public class NumericUtil {
 			return (T) parseDoubleWrapper(input, scale, np);
 		else if(BigDecimal.class == type)
 			return (T) parseBigDecimal(input, scale, np);
+		else if(BigInteger.class == type)
+			return (T) parseBigInteger(input, np);
 		else
 			throw new IllegalArgumentException("Unsupported numeric type in conversion=" + type);
 	}

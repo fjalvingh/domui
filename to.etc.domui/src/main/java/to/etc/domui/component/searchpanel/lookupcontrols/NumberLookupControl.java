@@ -39,6 +39,7 @@ import to.etc.domui.util.Msgs;
 import to.etc.webapp.query.QOperation;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Objects;
 
 /**
@@ -137,6 +138,8 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 			switch(from) {
 				default:
 					throw new IllegalStateException("Unsupported operation: " + from);
+				case EQ:
+					break;
 				case LE:
 					sb.append("<=");
 					break;
@@ -265,7 +268,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 	}
 
 	protected void checkNumber(T value) {
-		if(value instanceof Double || value instanceof BigDecimal) { // FIXME BigDecimal is wrongly compared here (vmijic - what would be right compare ?)
+		if(value instanceof Double || value instanceof BigDecimal || value instanceof BigInteger) { // FIXME BigDecimal is wrongly compared here (vmijic - what would be right compare ?)
 			if(m_maxValue != null && value.doubleValue() > m_maxValue.doubleValue())
 				throw new ValidationException(Msgs.BUNDLE, Msgs.V_TOOLARGE, m_maxValue);
 			if(m_minValue != null && value.doubleValue() < m_minValue.doubleValue())
