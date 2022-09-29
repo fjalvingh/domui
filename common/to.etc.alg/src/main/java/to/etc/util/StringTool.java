@@ -97,7 +97,7 @@ public class StringTool {
 
 	static private final byte[] BASE64DECMAP;
 
-	private static Random m_random;
+	private static final Random m_random = new Random();
 
 	static {
 		BASE64DECMAP = new byte[128];
@@ -132,7 +132,6 @@ public class StringTool {
 		StringBuilder randomString = new StringBuilder(length);
 		randomString.append(prefix);
 
-		m_random = new Random();
 		for(int i = prefix.length(); i < length; i++) {
 			int position = m_random.nextInt(m_charString.length());
 			randomString.append(m_characters[position]);
@@ -1300,6 +1299,7 @@ public class StringTool {
 						}
 					}
 				} catch(Exception x) {
+					//Ignore
 				}
 			}
 		}
@@ -2100,6 +2100,7 @@ public class StringTool {
 		try {
 			return Integer.parseInt(v);
 		} catch(Exception x) {
+			//Ignore
 		}
 		return defval;
 	}
@@ -2108,6 +2109,7 @@ public class StringTool {
 		try {
 			return Long.parseLong(v);
 		} catch(Exception x) {
+			//Ignore
 		}
 		return defval;
 	}
@@ -2721,6 +2723,7 @@ public class StringTool {
 					lev = Integer.parseInt(v);
 				}
 			} catch(Exception x) {
+				//Ignore
 			}
 			ver = (ver << 8) + (lev & 0xff);
 		}

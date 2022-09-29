@@ -111,6 +111,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 			if(m_server_socket != null)
 				m_server_socket.close();
 		} catch(Exception x) {
+			//Ignore
 		}
 		m_server_socket = null;
 	}
@@ -236,6 +237,7 @@ public class TelnetServer extends TelnetStateThing implements Runnable {
 				if(s != null)
 					s.close();
 			} catch(Exception x) {
+				//Ignore
 			}
 		}
 	}

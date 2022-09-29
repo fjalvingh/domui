@@ -154,16 +154,10 @@ public class ImaTool {
 	 * Loads a JPEG image from a file. The image is returned as a BufferedImage.
 	 */
 	static public BufferedImage loadJPEG(File f) throws IOException {
-		FileInputStream fis = new FileInputStream(f);
-		try {
+		try(FileInputStream fis = new FileInputStream(f)) {
 			return loadJPEG(fis);
-		} finally {
-			try {
-				if(fis != null)
-					fis.close();
-			} catch(Exception x) {
-			}
 		}
+		//Ignore
 	}
 
 	/**
@@ -189,18 +183,8 @@ public class ImaTool {
 	 * spec'd. If q is zero the default quality will be used.
 	 */
 	static public void saveJPEG(BufferedImage bi, File f, double qf) throws IOException {
-		FileOutputStream fos = null;
-		try {
-			fos = new FileOutputStream(f);
+		try(FileOutputStream fos = new FileOutputStream(f)) {
 			saveJPEG(bi, fos, qf);
-
-		} finally {
-			try {
-				if(fos != null)
-					fos.close();
-			} catch(Exception x) {
-			}
-
 		}
 	}
 
@@ -213,15 +197,8 @@ public class ImaTool {
 	 * Load a GIF format image.
 	 */
 	static public BufferedImage loadGIF(File f, int buffertype) throws IOException {
-		InputStream is = new FileInputStream(f);
-		try {
+		try(InputStream is = new FileInputStream(f)) {
 			return loadGIF(is, buffertype);
-
-		} finally {
-			try {
-				is.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -262,14 +239,8 @@ public class ImaTool {
 	 * Saves an image as a GIF file to a stream.
 	 */
 	static public void saveGIF(BufferedImage bi, File f) throws Exception {
-		FileOutputStream fos = new FileOutputStream(f);
-		try {
+		try(FileOutputStream fos = new FileOutputStream(f)) {
 			saveGIF(bi, fos);
-		} finally {
-			try {
-				fos.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -302,17 +273,20 @@ public class ImaTool {
 			else if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg"))
 				return loadJPEG(f);
 		} catch(Exception x) {
+			//Ignore
 		}
 
 		//-- Try to load as JPEG
 		try {
 			return loadJPEG(f);
 		} catch(Exception x) {
+			//Ignore
 		}
 
 		try {
 			return loadGIF(f);
 		} catch(Exception x) {
+			//Ignore
 		}
 
 		//-- Still no go! Load using default code...
@@ -336,17 +310,20 @@ public class ImaTool {
 			else if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg"))
 				return loadJPEG(f);
 		} catch(Exception x) {
+			//Ignore
 		}
 
 		//-- Try to load as JPEG
 		try {
 			return loadJPEG(f);
 		} catch(Exception x) {
+			//Ignore
 		}
 
 		try {
 			return loadGIF(f);
 		} catch(Exception x) {
+			//Ignore
 		}
 
 		//-- Still no go! Load using default code...
