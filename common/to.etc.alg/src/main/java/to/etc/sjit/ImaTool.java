@@ -28,6 +28,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.util.FileTool;
 import to.etc.util.NullOutputStream;
+import to.etc.util.WrappedException;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -54,13 +55,13 @@ public class ImaTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Small helper functions..							*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Does a resize of an object with size (sw, sh) to fit within a rectangle
-	 *  of (dw, dh) while keeping the same aspect ratio
+	 * Does a resize of an object with size (sw, sh) to fit within a rectangle
+	 * of (dw, dh) while keeping the same aspect ratio
 	 */
 	static public Dimension resizeWithAspect(int dw, int dh, int sw, int sh) {
 		//-- Exit if already at/below the ar
-
 
 		//-- Calculate Idx / Odx as fx
 		double fx = (double) sw / (double) dw;
@@ -96,9 +97,10 @@ public class ImaTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Conversion...										*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Converts an Image into a same-size buffered image if it's not already a
-	 *  BufferedImage.
+	 * Converts an Image into a same-size buffered image if it's not already a
+	 * BufferedImage.
 	 */
 	static public BufferedImage makeBuffered(Image i, int bit) {
 		if(i instanceof BufferedImage)
@@ -114,10 +116,9 @@ public class ImaTool {
 		return bi;
 	}
 
-
 	/**
-	 *	Converts an Image into a same-size buffered image if it's not already a
-	 *  BufferedImage.
+	 * Converts an Image into a same-size buffered image if it's not already a
+	 * BufferedImage.
 	 */
 	static public BufferedImage makeBuffered(Image i) {
 		return makeBuffered(i, BufferedImage.TYPE_INT_RGB);
@@ -136,8 +137,9 @@ public class ImaTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	JPEG save and load stuff...							*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Loads a JPEG image from a stream. The image is returned as a BufferedImage.
+	 * Loads a JPEG image from a stream. The image is returned as a BufferedImage.
 	 */
 	static public BufferedImage loadJPEG(InputStream is) throws IOException {
 		return ImageIO.read(is);
@@ -148,9 +150,8 @@ public class ImaTool {
 		//		return bi;
 	}
 
-
 	/**
-	 *	Loads a JPEG image from a file. The image is returned as a BufferedImage.
+	 * Loads a JPEG image from a file. The image is returned as a BufferedImage.
 	 */
 	static public BufferedImage loadJPEG(File f) throws IOException {
 		FileInputStream fis = new FileInputStream(f);
@@ -160,14 +161,14 @@ public class ImaTool {
 			try {
 				if(fis != null)
 					fis.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
-
 	/**
-	 *	Saves an image as a JPEG to the stream specified, with the quality
-	 *  spec'd. If q is zero the default quality will be used.
+	 * Saves an image as a JPEG to the stream specified, with the quality
+	 * spec'd. If q is zero the default quality will be used.
 	 */
 	static public void saveJPEG(BufferedImage bi, OutputStream os, double qf) throws IOException {
 		//-- Write a JPEG
@@ -183,10 +184,9 @@ public class ImaTool {
 		//			je.encode(bi);
 	}
 
-
 	/**
-	 *	Saves an image as a JPEG to the stream specified, with the quality
-	 *  spec'd. If q is zero the default quality will be used.
+	 * Saves an image as a JPEG to the stream specified, with the quality
+	 * spec'd. If q is zero the default quality will be used.
 	 */
 	static public void saveJPEG(BufferedImage bi, File f, double qf) throws IOException {
 		FileOutputStream fos = null;
@@ -198,7 +198,8 @@ public class ImaTool {
 			try {
 				if(fos != null)
 					fos.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 
 		}
 	}
@@ -207,8 +208,9 @@ public class ImaTool {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Loading/saving GIF format files (no animation).		*/
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Load a GIF format image.
+	 * Load a GIF format image.
 	 */
 	static public BufferedImage loadGIF(File f, int buffertype) throws IOException {
 		InputStream is = new FileInputStream(f);
@@ -218,13 +220,13 @@ public class ImaTool {
 		} finally {
 			try {
 				is.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
-
 	/**
-	 *	Load a GIF format image.
+	 * Load a GIF format image.
 	 */
 	static public BufferedImage loadGIF(InputStream is, int buffertype) throws IOException {
 		AnimGifDecoder ade = new AnimGifDecoder(is);
@@ -232,23 +234,22 @@ public class ImaTool {
 		return bi;
 	}
 
-
 	/**
-	 *	Load a GIF format image using the BYTE_TYPE_INDEXED format (fastest)
+	 * Load a GIF format image using the BYTE_TYPE_INDEXED format (fastest)
 	 */
 	static public BufferedImage loadGIF(InputStream is) throws IOException {
 		return loadGIF(is, BufferedImage.TYPE_BYTE_INDEXED);
 	}
 
 	/**
-	 *	Load a GIF format image using the BYTE_TYPE_INDEXED format (fastest)
+	 * Load a GIF format image using the BYTE_TYPE_INDEXED format (fastest)
 	 */
 	static public BufferedImage loadGIF(File f) throws IOException {
 		return loadGIF(f, BufferedImage.TYPE_BYTE_INDEXED);
 	}
 
 	/**
-	 *	Saves an image as a GIF file to a stream.
+	 * Saves an image as a GIF file to a stream.
 	 */
 	static public void saveGIF(BufferedImage bi, OutputStream os) throws Exception {
 		AnimGifEncoder age = new AnimGifEncoder(os);
@@ -258,7 +259,7 @@ public class ImaTool {
 	}
 
 	/**
-	 *	Saves an image as a GIF file to a stream.
+	 * Saves an image as a GIF file to a stream.
 	 */
 	static public void saveGIF(BufferedImage bi, File f) throws Exception {
 		FileOutputStream fos = new FileOutputStream(f);
@@ -267,7 +268,8 @@ public class ImaTool {
 		} finally {
 			try {
 				fos.close();
-			} catch(Exception x) {}
+			} catch(Exception x) {
+			}
 		}
 	}
 
@@ -282,10 +284,11 @@ public class ImaTool {
 	/*--------------------------------------------------------------*/
 	/*      CODING: Loading several formats from stream/file...                     */
 	/*--------------------------------------------------------------*/
+
 	/**
-	 *	Loads an image from a file. If the extension of the file is known (either
-	 *  gif, jpg or jpeg) then the file is loaded using one of the optimized
-	 *  loaders; if not the routine returns null.
+	 * Loads an image from a file. If the extension of the file is known (either
+	 * gif, jpg or jpeg) then the file is loaded using one of the optimized
+	 * loaders; if not the routine returns null.
 	 */
 	static public BufferedImage loadFile(File f) throws IOException {
 		String ext = FileTool.getFileExtension(f.toString());
@@ -298,25 +301,28 @@ public class ImaTool {
 				return loadGIF(f);
 			else if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg"))
 				return loadJPEG(f);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		//-- Try to load as JPEG
 		try {
 			return loadJPEG(f);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		try {
 			return loadGIF(f);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		//-- Still no go! Load using default code...
 		return awtLoadBufferedImage(f);
 	}
 
 	/**
-	 *	Loads an image from a file. If the extension of the file is known (either
-	 *  gif, jpg or jpeg) then the file is loaded using one of the optimized
-	 *  loaders; if not the routine returns null.
+	 * Loads an image from a file. If the extension of the file is known (either
+	 * gif, jpg or jpeg) then the file is loaded using one of the optimized
+	 * loaders; if not the routine returns null.
 	 */
 	static public Image loadFile_image(File f) throws IOException {
 		String ext = FileTool.getFileExtension(f.toString());
@@ -329,25 +335,27 @@ public class ImaTool {
 				return loadGIF(f);
 			else if(ext.equalsIgnoreCase("jpg") || ext.equalsIgnoreCase("jpeg"))
 				return loadJPEG(f);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		//-- Try to load as JPEG
 		try {
 			return loadJPEG(f);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		try {
 			return loadGIF(f);
-		} catch(Exception x) {}
+		} catch(Exception x) {
+		}
 
 		//-- Still no go! Load using default code...
 		return awtLoadImage(f);
 	}
 
-
 	/**
-	 *	Loads an image from a stream. The image type must contain jpg or jpeg
-	 *  for a JPEG file, or gif for a GIF file, or png for a PNG file.
+	 * Loads an image from a stream. The image type must contain jpg or jpeg
+	 * for a JPEG file, or gif for a GIF file, or png for a PNG file.
 	 */
 	static public BufferedImage loadStream(InputStream is, String type) throws IOException {
 		type = type.toLowerCase();
@@ -360,15 +368,14 @@ public class ImaTool {
 		return null;
 	}
 
-
 	/*--------------------------------------------------------------*/
 	/*	CODING:	AWT Stuff...										*/
 	/*--------------------------------------------------------------*/
 	/// The current frame which appears to be necessary,,, Bah.
-	static private Frame	m_frame;
+	static private Frame m_frame;
 
 	/**
-	 *	Returns the frame. It gets allocated if it didn't exist.
+	 * Returns the frame. It gets allocated if it didn't exist.
 	 */
 	static private Frame getFrame() {
 		if(m_frame == null)
@@ -376,11 +383,10 @@ public class ImaTool {
 		return m_frame;
 	}
 
-
 	/**
-	 *	Loads the image from the file into an image. This loads exactly according
-	 *  to the AWT, without using any of the extensions. It will return a
-	 *  completely loaded image however.
+	 * Loads the image from the file into an image. This loads exactly according
+	 * to the AWT, without using any of the extensions. It will return a
+	 * completely loaded image however.
 	 */
 	static public Image awtLoadImage(File f) throws IOException {
 		try {
@@ -399,17 +405,15 @@ public class ImaTool {
 		}
 	}
 
-
 	/**
-	 *	Loads the image from the file into an image. This loads exactly according
-	 *  to the AWT, without using any of the extensions. After the load the
-	 *  image is copied into a BufferedImage and returned. This is VERY expensive
-	 *  so try to use another function instead!
+	 * Loads the image from the file into an image. This loads exactly according
+	 * to the AWT, without using any of the extensions. After the load the
+	 * image is copied into a BufferedImage and returned. This is VERY expensive
+	 * so try to use another function instead!
 	 */
 	static public BufferedImage awtLoadBufferedImage(File f) throws IOException {
 		return makeBuffered(awtLoadImage(f));
 	}
-
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Resizing an image in all the myriad ways..			*/
@@ -420,15 +424,13 @@ public class ImaTool {
 		return obi;
 	}
 
-
 	static public BufferedImage resizeFiltered_RAW(BufferedImage i, int w, int h) {
 		return resizeFiltered(i, w, h, new Lanczos3Filter());
 	}
 
-
 	/**
-	 *	Resizes a BufferedImage while keeping it's aspect ratio, using the
-	 *  optimal filtered stuff... This uses the default filter..
+	 * Resizes a BufferedImage while keeping it's aspect ratio, using the
+	 * optimal filtered stuff... This uses the default filter..
 	 */
 	static public BufferedImage resizeFiltered(BufferedImage bi, int w, int h, ResamplerFilter fil) {
 		//-- Make this a BufferedImage if it is not one already
@@ -441,20 +443,18 @@ public class ImaTool {
 		return obi;
 	}
 
-
 	/**
-	 *	Resizes a BufferedImage while keeping it's aspect ratio, using the
-	 *  optimal filtered stuff... This uses the default filter..
+	 * Resizes a BufferedImage while keeping it's aspect ratio, using the
+	 * optimal filtered stuff... This uses the default filter..
 	 */
 	static public BufferedImage resizeFiltered(BufferedImage i, int w, int h) {
 		return resizeFiltered(i, w, h, new Lanczos3Filter());
 	}
 
-
 	/**
-	 *	Resizes a BufferedImage while keeping it's aspect ratio, using the
-	 *  AWT mechanism... This returns a lower quality image; use resizeFiltered
-	 *  to get a filtered resampled image.
+	 * Resizes a BufferedImage while keeping it's aspect ratio, using the
+	 * AWT mechanism... This returns a lower quality image; use resizeFiltered
+	 * to get a filtered resampled image.
 	 */
 	static public BufferedImage awtResize(BufferedImage bi, int w, int h) {
 		int iw = bi.getWidth();
@@ -467,12 +467,11 @@ public class ImaTool {
 		return obi;
 	}
 
-
 	/**
-	 *	Taking a BufferedImage, this function will try to find a JPEG
-	 *  quality factor that will save the image with a size around the size
-	 *  specified. This is done by looping a number of times and adjusting
-	 *  the quality until something reasonable is obtained.
+	 * Taking a BufferedImage, this function will try to find a JPEG
+	 * quality factor that will save the image with a size around the size
+	 * specified. This is done by looping a number of times and adjusting
+	 * the quality until something reasonable is obtained.
 	 */
 	static public double findQualityBySize(BufferedImage bi, int sizenear) {
 		double lowq = 0.2; // Lowest qual
@@ -484,47 +483,50 @@ public class ImaTool {
 		int bsz = sizenear - (sizenear / 10);
 		int sz = 0;
 
-		NullOutputStream nos = new NullOutputStream();
+		try(NullOutputStream nos = new NullOutputStream()) {
 
-		/*
-		 *	Loop: encode an image until the size is reasonable...
-		 */
-		while(iter < 5 && aiter < 10) {
-			aiter++;
-			nos.reset(); // Reset current output size,
-			try {
-				ImaTool.saveJPEG(bi, nos, q); // Save to dummy stream,
-			} catch(Exception x) {
-				x.printStackTrace();
-			}
-			sz = (int) nos.getSzWritten(); // And get size generated;
+			/*
+			 *	Loop: encode an image until the size is reasonable...
+			 */
+			while(iter < 5 && aiter < 10) {
+				aiter++;
+				nos.reset(); // Reset current output size,
+				try {
+					ImaTool.saveJPEG(bi, nos, q); // Save to dummy stream,
+				} catch(Exception x) {
+					x.printStackTrace();
+				}
+				sz = (int) nos.getSzWritten(); // And get size generated;
 
-			//			System.out.println("findQualityBySize(): try with Q="+q+" result="+sz+" bytes");
+				//			System.out.println("findQualityBySize(): try with Q="+q+" result="+sz+" bytes");
 
-			if(sz > esz) {
-				//-- Output is WAY TOO BIG: another iteration needed ALWAYS.
-				hiq = q;
-				q = (lowq + hiq) / 2.0; // Get new quality,
-				if(q == hiq)
+				if(sz > esz) {
+					//-- Output is WAY TOO BIG: another iteration needed ALWAYS.
+					hiq = q;
+					q = (lowq + hiq) / 2.0; // Get new quality,
+					if(q == hiq)
+						break;
+
+					if(q >= hiq)
+						q = q / 2; // ..safety..
+				} else if(sz < bsz) // Too small...
+				{
+					//-- Too small. Increment iteration thingy.
+					iter++;
+					if(q >= 0.90)
+						break; // Already HIGH quality so use the small size,
+					lowq = q;
+
+					q = (hiq + lowq) / 2.0;
+				} else
 					break;
+			}
 
-				if(q >= hiq)
-					q = q / 2; // ..safety..
-			} else if(sz < bsz) // Too small...
-			{
-				//-- Too small. Increment iteration thingy.
-				iter++;
-				if(q >= 0.90)
-					break; // Already HIGH quality so use the small size,
-				lowq = q;
-
-				q = (hiq + lowq) / 2.0;
-			} else
-				break;
+			//		System.out.println("findQualityBySize(): "+sz+" bytes in "+aiter+" iterations");
+			return q;
+		} catch(Exception x) {
+			throw WrappedException.wrap(x);
 		}
-
-		//		System.out.println("findQualityBySize(): "+sz+" bytes in "+aiter+" iterations");
-		return q;
 	}
 
 	static public void saveImageByMime(OutputStream os, BufferedImage bi, String mime) throws Exception {

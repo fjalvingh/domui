@@ -195,7 +195,7 @@ public class FileTool {
 			String fn = makeName("td");
 			File of = new File(root, fn);
 			if(!of.exists()) {
-				of.mkdirs();
+				ignore(of.mkdirs());
 				return of;
 			}
 		}
@@ -210,7 +210,7 @@ public class FileTool {
 			File of = new File(root, fn);
 			if(!of.exists()) {
 				try {
-					of.createNewFile();
+					ignore(of.createNewFile());
 				} catch(Exception x) {
 					if(x instanceof RuntimeException)
 						throw (RuntimeException) x;
@@ -254,7 +254,7 @@ public class FileTool {
 	 */
 	static public void deleteDir(@NonNull File f) {
 		dirEmpty(f);
-		f.delete();
+		ignore(f.delete());
 	}
 
 	/**
@@ -382,7 +382,7 @@ public class FileTool {
 	static public void copyFile(final File destf, final File srcf, long maxSize) throws IOException {
 		try(InputStream is = new FileInputStream(srcf); OutputStream os = new FileOutputStream(destf)) {
 			copyFile(os, is, maxSize);
-			destf.setLastModified(srcf.lastModified());
+			ignore(destf.setLastModified(srcf.lastModified()));
 		}
 	}
 
@@ -441,7 +441,7 @@ public class FileTool {
 				copyFile(df, sf); // Then copy the file.
 			} else if(sf.isDirectory()) {
 				if(df.isFile()) // ... but target is a file now?
-					df.delete(); // then delete it...
+					ignore(df.delete()); // then delete it...
 				copyDir(df, sf); // ..before copying
 			}
 		}
@@ -461,7 +461,7 @@ public class FileTool {
 
 		if(targetDir.exists()) {
 			if(targetDir.isFile())
-				targetDir.delete();
+				ignore(targetDir.delete());
 			else
 				FileTool.dirEmpty(targetDir);
 		}
@@ -473,7 +473,7 @@ public class FileTool {
 		Set<String> ignoreSet = new HashSet<>();
 		Collections.addAll(ignoreSet, ignorePaths);
 
-		targetDir.mkdirs();
+		ignore(targetDir.mkdirs());
 		StringBuilder sb = new StringBuilder();
 		internalCopyHardDir(targetDir, sourceDir, sb, ignoreSet);
 	}
@@ -527,7 +527,9 @@ public class FileTool {
 			in = new FileInputStream(file);
 			int intSize = FileTool.getIntSizeOfFile(file);
 			byte[] data = new byte[intSize];
-			in.read(data);
+			int read = in.read(data);
+			if(read != intSize)
+				throw new IOException("Tried to read " + intSize + " bytes but only got " + read);
 			return data;
 		} finally {
 			FileTool.closeAll(in);
@@ -849,16 +851,8 @@ public class FileTool {
 	 */
 	@NonNull
 	static public String hashTextFile(@NonNull final File f) throws IOException {
-		InputStream is = null;
-		try {
-			is = new FileInputStream(f);
+		try(InputStream is = new FileInputStream(f)) {
 			return StringTool.toHex(hashTextFile(is));
-		} finally {
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -905,14 +899,10 @@ public class FileTool {
 	 */
 	@NonNull
 	static public Properties loadProperties(final File f) throws Exception {
-		InputStream is = new FileInputStream(f);
-		try {
+		try(InputStream is = new FileInputStream(f)) {
 			Properties p = new Properties();
 			p.load(is);
 			return p;
-		} finally {
-			if(is != null)
-				is.close();
 		}
 	}
 
@@ -920,13 +910,8 @@ public class FileTool {
 	 * Save a properties file.
 	 */
 	static public void saveProperties(final File f, final Properties p) throws Exception {
-		OutputStream os = null;
-		try {
-			os = new FileOutputStream(f);
+		try(OutputStream os = new FileOutputStream(f)) {
 			p.store(os, "# No comment");
-		} finally {
-			if(os != null)
-				os.close();
 		}
 	}
 
@@ -934,24 +919,9 @@ public class FileTool {
 	 * Opens the jar file and tries to load the plugin.properties file from it.
 	 */
 	static public Properties loadPropertiesFromZip(final File f, final String name) throws Exception {
-		InputStream is = null;
-		OutputStream os = null;
-
 		//-- Try to locate a zipentry containing coma.jar
-		try {
-			is = new FileInputStream(f);
+		try(InputStream is = new FileInputStream(f)) {
 			return loadPropertiesFromZip(is, name);
-		} finally {
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -991,24 +961,9 @@ public class FileTool {
 	 * Opens the jar file and tries to load the plugin.properties file from it.
 	 */
 	static public Document loadXmlFromZip(final File f, final String name, final boolean nsaware) throws Exception {
-		InputStream is = null;
-		OutputStream os = null;
-
 		//-- Try to locate a zipentry containing coma.jar
-		try {
-			is = new FileInputStream(f);
+		try(InputStream is = new FileInputStream(f)) {
 			return loadXmlFromZip(is, f + "!" + name, name, nsaware);
-		} finally {
-			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {
-			}
-			try {
-				if(is != null)
-					is.close();
-			} catch(Exception x) {
-			}
 		}
 	}
 
@@ -1133,24 +1088,16 @@ public class FileTool {
 		//-- Create a relative name for this entry
 		if(!f.isFile())
 			throw new IllegalStateException(f + ": must be file");
-		InputStream is = null;
-		try {
+		try(InputStream is = new FileInputStream(f)) {
 			//-- Write this file.
 			ZipEntry ze = new ZipEntry(base + f.getName());
 			ze.setTime(f.lastModified());
 			zos.putNextEntry(ze);
 
 			//-- Copy
-			is = new FileInputStream(f);
 			int sz;
 			while(0 <= (sz = is.read(buf)))
 				zos.write(buf, 0, sz);
-		} finally {
-			if(is != null)
-				try {
-					is.close();
-				} catch(Exception x) {
-				}
 		}
 	}
 
@@ -1526,7 +1473,7 @@ public class FileTool {
 		InputStream is = rawStream;
 		int off = 0;
 
-		//-- Initial read of a bufferfull. Exit if the buffer is full AND more data is available(!)
+		//-- Initial read of a buffer. Exit if the buffer is full AND more data is available(!)
 		for(; ; ) {
 			int szleft = buf.length - off; // #bytes left in buffert
 			if(szleft == 0) // Buffer overflow: need big file.
@@ -1551,40 +1498,39 @@ public class FileTool {
 		}
 
 		//-- Ok: the buffer overflowed. We allocate a tempfile and dump the data in there.
-		OutputStream os = null;
+		tempfile = File.createTempFile("soapin", ".bin");
 		try {
-			tempfile = File.createTempFile("soapin", ".bin");
-			os = new FileOutputStream(tempfile);
-			os.write(buf); // Copy what's already read.
-
-			//-- Dump what's already read into a string thing
 			StringBuilder sb = new StringBuilder(off * 4);
-			sb.append("Raw INPUT dump of the input stream:\n");
-			int doff = 0;
-			for(; doff < buf.length; doff += 32) {
-				StringTool.arrayToDumpLine(sb, buf, doff, 32, buf.length);
-				sb.append("\n");
-			}
+			try(OutputStream os = new FileOutputStream(tempfile)) {
+				os.write(buf); // Copy what's already read.
 
-			//-- Now continue reading buffers, dumping 'm and adding them to the file.
-			for(; ; ) {
-				int szread = is.read(buf);
-				if(szread <= 0)
-					break;
-
-				//-- Push data read to the overflow file
-				os.write(buf, 0, szread);
-
-				//-- Log whatever's read,
-				for(int rlen = 0; rlen < szread; rlen += 32) {
-					StringTool.arrayToDumpLine(sb, buf, rlen, 32, buf.length);
+				//-- Dump what's already read into a string thing
+				sb.append("Raw INPUT dump of the input stream:\n");
+				int doff = 0;
+				for(; doff < buf.length; doff += 32) {
+					StringTool.arrayToDumpLine(sb, buf, doff, 32, buf.length);
 					sb.append("\n");
-					doff += 32;
 				}
-				off += szread;
+
+				//-- Now continue reading buffers, dumping 'm and adding them to the file.
+				for(; ; ) {
+					int szread = is.read(buf);
+					if(szread <= 0)
+						break;
+
+					//-- Push data read to the overflow file
+					os.write(buf, 0, szread);
+
+					//-- Log whatever's read,
+					for(int rlen = 0; rlen < szread; rlen += 32) {
+						StringTool.arrayToDumpLine(sb, buf, rlen, 32, buf.length);
+						sb.append("\n");
+						doff += 32;
+					}
+					off += szread;
+				}
+				os.close();
 			}
-			os.close();
-			os = null;
 
 			//-- Log the data,
 			sb.append("Total size of the input stream is ").append(off).append(" bytes\n");
@@ -1607,19 +1553,15 @@ public class FileTool {
 				@Override
 				public void close() throws IOException {
 					tis.close();
-					del.delete();
+					ignore(del.delete());
 				}
 			};
 		} finally {
 			try {
-				if(os != null)
-					os.close();
-			} catch(Exception x) {
-			}
-			try {
 				if(tempfile != null)
-					tempfile.delete();
+					ignore(tempfile.delete());
 			} catch(Exception x) {
+				// Ignore
 			}
 		}
 	}
@@ -1642,25 +1584,16 @@ public class FileTool {
 	 * Save a serializable object to a datastream.
 	 */
 	static public void saveSerialized(OutputStream os, Serializable obj) throws IOException {
-		try {
-			ObjectOutputStream oos = new ObjectOutputStream(os);
+		try(ObjectOutputStream oos = new ObjectOutputStream(os)) {
 			oos.writeObject(obj);
-			oos.close();
-			os = null;
-			return;
 		} finally {
 			closeAll(os);
 		}
 	}
 
 	static public void saveSerialized(File f, Serializable obj) throws IOException {
-		OutputStream os = new FileOutputStream(f);
-		try {
+		try(OutputStream os = new FileOutputStream(f)) {
 			saveSerialized(os, obj);
-			os.close();
-			os = null;
-		} finally {
-			closeAll(os);
 		}
 	}
 
@@ -1669,12 +1602,8 @@ public class FileTool {
 	 */
 	@Nullable
 	static public Object loadSerialized(InputStream is) throws IOException, ClassNotFoundException {
-		ObjectInputStream iis = null;
-		try {
-			iis = new ObjectInputStream(is);
+		try(ObjectInputStream iis = new ObjectInputStream(is)) {
 			return iis.readObject();
-		} finally {
-			closeAll(iis);
 		}
 	}
 
@@ -1683,11 +1612,8 @@ public class FileTool {
 	 */
 	@Nullable
 	static public Object loadSerialized(File f) throws IOException, ClassNotFoundException {
-		InputStream is = new FileInputStream(f);
-		try {
+		try(InputStream is = new FileInputStream(f)) {
 			return loadSerialized(is);
-		} finally {
-			closeAll(is);
 		}
 	}
 
@@ -1696,27 +1622,19 @@ public class FileTool {
 	 */
 	@Nullable
 	static public Object loadSerializedNullOnError(InputStream is) {
-		ObjectInputStream iis = null;
-		try {
-			iis = new ObjectInputStream(is);
+		try(ObjectInputStream iis = new ObjectInputStream(is)) {
 			return iis.readObject();
 		} catch(Exception x) {
 			return null;
-		} finally {
-			closeAll(iis);
 		}
 	}
 
 	@Nullable
 	static public Object loadSerializedNullOnError(File f) throws IOException, ClassNotFoundException {
-		InputStream is = null;
-		try {
-			is = new FileInputStream(f);
+		try(InputStream is = new FileInputStream(f)) {
 			return loadSerialized(is);
 		} catch(Exception x) {
 			return null;
-		} finally {
-			closeAll(is);
 		}
 	}
 
@@ -1752,7 +1670,7 @@ public class FileTool {
 		} else if(v instanceof File) {
 			File f = (File) v;
 			if(f.isFile())
-				f.delete();
+				ignore(f.delete());
 			else
 				FileTool.deleteDir(f);
 		} else if(v != null) {
@@ -1959,7 +1877,7 @@ public class FileTool {
 	@NonNull
 	public static File createTmpDir() throws IOException {
 		File f = File.createTempFile("work", ".dir");
-		f.delete();
+		ignore(f.delete());
 		return f;
 	}
 
@@ -2032,5 +1950,13 @@ public class FileTool {
 	public static void checkValidRelativePath(String name) {
 		if(name.contains("..") || name.startsWith("/") || name.startsWith("\\") || name.contains(":"))
 			throw new IllegalArgumentException("Invalid relative path name: " + name);
+	}
+
+	/**
+	 * Used to prevent idiotic errors from Sonar for file.delete.
+	 */
+	public static void ignore(boolean delete) {
+
+
 	}
 }

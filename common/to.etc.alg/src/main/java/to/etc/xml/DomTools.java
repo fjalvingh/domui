@@ -76,8 +76,6 @@ public class DomTools {
 
 	static public final String DBNULL = "(dbnull)";
 
-	static private final SimpleDateFormat m_dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS z");
-
 	static {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.set(Calendar.YEAR, 2);
@@ -254,8 +252,8 @@ public class DomTools {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 *	Finds a single element with the name spec'd in the node. If more than
-	 *  one node with the same name exists this throws an exception.
+	 * Finds a single element with the name spec'd in the node. If more than
+	 * one node with the same name exists this throws an exception.
 	 */
 	static public Node nodeFind(final Node rn, final String name) throws Exception {
 		NodeList nl = rn.getChildNodes();
@@ -275,7 +273,8 @@ public class DomTools {
 	 * Searches for child Nodes in the specified Node which have the specified
 	 * name and returns the result as a Set. If null is specified for the
 	 * parentNode an empty Set is returned.
-	 * @param rn the Node which is queried.
+	 *
+	 * @param rn   the Node which is queried.
 	 * @param name the name of the childNodes we are searching.
 	 * @return a Set<Node> containing the childnodes with the specified name.
 	 */
@@ -294,8 +293,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Gets the text part contained in a node... All text parts are obtained and
-	 *  concatenated with a single space.
+	 * Gets the text part contained in a node... All text parts are obtained and
+	 * concatenated with a single space.
 	 */
 	static public String textFrom_untrimmed(final Node n) {
 		StringBuffer sb = new StringBuffer();
@@ -315,8 +314,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Gets the text part contained in a node... All text parts are obtained and
-	 *  concatenated with a single space.
+	 * Gets the text part contained in a node... All text parts are obtained and
+	 * concatenated with a single space.
 	 */
 	@Nullable
 	static public String textFrom(@NonNull final Node n) {
@@ -337,8 +336,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns null.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns null.
 	 */
 	@Deprecated
 	static public String findChildNodeValue(final Node rootnode, final String name) throws Exception {
@@ -349,8 +348,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns null.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns null.
 	 */
 	static public String stringNode(final Node rootnode, final String name) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -360,8 +359,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns null.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns null.
 	 */
 	static public String stringNode(final Node rootnode, final String name, final int trunclen) throws Exception {
 		String s = stringNode(rootnode, name);
@@ -373,8 +372,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns the default string.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns the default string.
 	 */
 	static public String stringNode(final Node rootnode, final String name, final String deflt) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -384,8 +383,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns null.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns null.
 	 */
 	static public String stringNode_untrimmed(final Node rootnode, final String name) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -395,8 +394,8 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it's text
-	 *  value. If the node is not found it returns the default string.
+	 * Finds the child node with the name specified, and returns it's text
+	 * value. If the node is not found it returns the default string.
 	 */
 	static public String stringNode_untrimmed(final Node rootnode, final String name, final String deflt) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -613,12 +612,12 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it as a
-	 *  boolean value. If the node has NO text associated then this returns TRUE,
-	 *  if the node is not present then this returns false; if the node is present
-	 *  and has text the text field is interpreted: if numeric we return T if
-	 *  the number is not null; if text the value must start with T for true and
-	 *  F for false. All other values throw an exception.
+	 * Finds the child node with the name specified, and returns it as a
+	 * boolean value. If the node has NO text associated then this returns TRUE,
+	 * if the node is not present then this returns false; if the node is present
+	 * and has text the text field is interpreted: if numeric we return T if
+	 * the number is not null; if text the value must start with T for true and
+	 * F for false. All other values throw an exception.
 	 */
 	static public boolean boolNode(final Node rootnode, final String name) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -628,12 +627,12 @@ public class DomTools {
 	}
 
 	/**
-	 *	Finds the child node with the name specified, and returns it as a
-	 *  boolean value. If the node has NO text associated then this returns TRUE,
-	 *  if the node is not present then this returns false; if the node is present
-	 *  and has text the text field is interpreted: if numeric we return T if
-	 *  the number is not null; if text the value must start with T for true and
-	 *  F for false. All other values throw an exception.
+	 * Finds the child node with the name specified, and returns it as a
+	 * boolean value. If the node has NO text associated then this returns TRUE,
+	 * if the node is not present then this returns false; if the node is present
+	 * and has text the text field is interpreted: if numeric we return T if
+	 * the number is not null; if text the value must start with T for true and
+	 * F for false. All other values throw an exception.
 	 */
 	static public Boolean booleanNode(final Node rootnode, final String name) throws Exception {
 		Node n = nodeFind(rootnode, name);
@@ -663,9 +662,10 @@ public class DomTools {
 	/**
 	 * Get the named attribute from a node. If the attribute is not present
 	 * return the default value in defval
-	 * @param n            the node to containing the attribute.
-	 * @param aname        the name of the attribute.
-	 * @param defval    the value to return if the attribute is not present,
+	 *
+	 * @param n      the node to containing the attribute.
+	 * @param aname  the name of the attribute.
+	 * @param defval the value to return if the attribute is not present,
 	 * @return a string containing the attribute's value or the default.
 	 */
 	static public String getNodeAttribute(@NonNull final Node n, @NonNull final String aname, @Nullable final String defval) {
@@ -756,9 +756,10 @@ public class DomTools {
 	/**
 	 * Get the named attribute from a node. If the attribute is not present
 	 * return the default value in defval
-	 * @param n            the node to containing the attribute.
-	 * @param aname        the name of the attribute.
-	 * @param defval    the value to return if the attribute is not present,
+	 *
+	 * @param n      the node to containing the attribute.
+	 * @param aname  the name of the attribute.
+	 * @param defval the value to return if the attribute is not present,
 	 * @return a string containing the attribute's value or the default.
 	 */
 	static public int getNodeAttribute(final Node n, final String aname, final int defval) throws Exception {
@@ -781,7 +782,8 @@ public class DomTools {
 	/**
 	 * Encodes a date-only field to some readable form. Can be decoded by
 	 * decodeDate or getNodeDate(). The date contains local timezone info.
-	 * @param dt    the date to encode.
+	 *
+	 * @param dt the date to encode.
 	 * @return a string
 	 */
 	static public String dateEncode(final Date dt) {
@@ -829,7 +831,7 @@ public class DomTools {
 	 * <dl>
 	 * 	<dt>(dbnull)<dd>The date field is null
 	 * 	<dt>big-bang<dd>The date field represents a date before any other date,
-	 *	<dt>oblivian<dd>The dtae field represents a date after any other date.
+	 * 	<dt>oblivian<dd>The dtae field represents a date after any other date.
 	 * <pre>
 	 * Format:
 	 * 0123456789012345678901234567
@@ -852,7 +854,8 @@ public class DomTools {
 		}
 
 		try {
-			return m_dateFormat.parse(s);
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSS z");
+			return dateFormat.parse(s);
 		} catch(Exception x) {
 		}
 
@@ -1011,7 +1014,7 @@ public class DomTools {
 	 * The path can only use unique names. If a child node with the same name exists an exception will be
 	 * thrown.
 	 *
-	 * @param node the node to search
+	 * @param node       the node to search
 	 * @param xpathQuery path to the child node
 	 * @return the child node, or null if it cannot be found.
 	 * @throws Exception
@@ -1115,9 +1118,8 @@ public class DomTools {
 	 * Creates XMLEventReader using high security recommendations by disabling vulnerable factory properties.
 	 * Create a new XMLEventReader from a java.io.InputStream using
 	 *
-	 * @param stream the InputStream to read from.
+	 * @param stream   the InputStream to read from.
 	 * @param encoding the character encoding of the stream.
-	 *
 	 * @return Instance of XMLEventReader.
 	 */
 	public static XMLEventReader createXMLEventReader(InputStream stream, String encoding) throws XMLStreamException {

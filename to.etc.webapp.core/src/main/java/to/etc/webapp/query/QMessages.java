@@ -25,5 +25,5 @@ public enum QMessages implements IBundleCode {
 	/**
 	 * A reference to the global shared message bundle for DomUI messages.
 	 */
-	public static BundleRef BUNDLE = BundleRef.create(QMessages.class, "messages");
+	public static final BundleRef BUNDLE = BundleRef.create(QMessages.class, "messages");
 }

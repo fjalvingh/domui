@@ -39,7 +39,7 @@ import java.util.Locale;
  */
 public class CodeException extends MessageException {
 	@NonNull
-	private IBundleCode m_code;
+	private final IBundleCode m_code;
 
 	@NonNull
 	private final Object[] m_parameters;
@@ -54,27 +54,6 @@ public class CodeException extends MessageException {
 		m_code = code;
 		m_parameters = parameters;
 	}
-
-	///**
-	// * Deprecated: Use IBundleCode / enum.
-	// */
-	//@Deprecated
-	//public CodeException(@NonNull final BundleRef bundle, @NonNull final String code, final Object... parameters) {
-	//	if(bundle == null || code == null)
-	//		throw new IllegalArgumentException("Bundle or code cannot be null");
-	//	m_bundle = bundle;
-	//	m_code = code;
-	//	m_parameters = parameters;
-	//}
-	//
-	//public CodeException(@NonNull final Throwable t, @NonNull final BundleRef bundle, @NonNull final String code, final Object... parameters) {
-	//	super(t);
-	//	if(bundle == null || code == null)
-	//		throw new IllegalArgumentException("Bundle or code cannot be null");
-	//	m_bundle = bundle;
-	//	m_code = code;
-	//	m_parameters = parameters;
-	//}
 
 	@NonNull
 	public IBundleCode getCode() {

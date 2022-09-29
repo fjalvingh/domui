@@ -64,7 +64,7 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 	 * Calculate the list of changes made to controls, as part one of the controlToModel
 	 * process. Each control whose value changed will be registered in a list of
 	 * {@link BindingValuePair} instances which will also contain any error message.
-	 *
+	 * <p>
 	 * This is the *hard* part of binding: it needs to handle control errors caused by bindValue() throwing
 	 * an exception.
 	 */
@@ -135,7 +135,7 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 		}
 
 		//-- When in error we cannot set anything anyway, so exit.
-		if(null != newError && !newError.getCode().equals(Msgs.mandatory.name()) ) {
+		if(null != newError && !newError.getCode().equals(Msgs.mandatory)) {
 			/*
 			 * jal 20171018 When a mandatory LookupInput gets cleared its value becomes null, and this
 			 * value should be propagated to the model. It seems likely that in ALL cases of error
@@ -153,7 +153,8 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 	}
 
 	@Nullable
-	@Override protected CV convertModelToControl(@Nullable MV modelValue) throws Exception {
+	@Override
+	protected CV convertModelToControl(@Nullable MV modelValue) throws Exception {
 		IBidiBindingConverter<CV, MV> converter = m_converter;
 		if(null != converter) {
 			return converter.modelToControl(modelValue);

@@ -129,7 +129,7 @@ public final class DiagnosticUtil {
 			}
 		});
 
-		diagnosticEnabled.set(null);
+		diagnosticEnabled.remove();
 		return report;
 	}
 

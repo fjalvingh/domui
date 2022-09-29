@@ -8,13 +8,21 @@ import java.util.function.Consumer;
 public class ProgressInputStream extends InputStream {
 
 	private InputStream m_in;
+
 	private long m_expectedSize = -1;
-	private long m_notifyChunk = 1024 * 1024;
+
+	private long m_notifyChunk = 1024L * 1024L;
+
 	private long m_lastReported = 0;
+
 	private double m_lastReportedPercentage = 0.0;
+
 	private long m_totalRead = 0;
+
 	private java.util.List<Consumer<Long>> m_onSizeListeners = new CopyOnWriteArrayList<>();
+
 	private java.util.List<Consumer<Integer>> m_onPercentListeners = new CopyOnWriteArrayList<>();
+
 	private int m_percent = 0;
 
 	public ProgressInputStream(InputStream inputStream, int expectedSize) {
@@ -58,7 +66,7 @@ public class ProgressInputStream extends InputStream {
 	@Override
 	public int read() throws IOException {
 		int read = m_in.read();
-		if(read != -1){
+		if(read != -1) {
 			notifyProgress(1, false);
 		}
 		return read;
@@ -70,17 +78,17 @@ public class ProgressInputStream extends InputStream {
 		notifyProgress(0, true);
 	}
 
-	public ProgressInputStream addOnSizeListener(Consumer<Long> listener){
+	public ProgressInputStream addOnSizeListener(Consumer<Long> listener) {
 		m_onSizeListeners.add(listener);
 		return this;
 	}
 
-	public ProgressInputStream addOnPercentListener(Consumer<Integer> listener){
+	public ProgressInputStream addOnPercentListener(Consumer<Integer> listener) {
 		m_onPercentListeners.add(listener);
 		return this;
 	}
 
-	private void notifyProgress(long readCount, boolean completed){
+	private void notifyProgress(long readCount, boolean completed) {
 		if(readCount != -1) {
 			m_totalRead += readCount;
 			if(m_notifyChunk > -1) {
@@ -89,11 +97,11 @@ public class ProgressInputStream extends InputStream {
 					m_lastReported = m_totalRead;
 				}
 			}
-			if(! m_onPercentListeners.isEmpty()) {
+			if(!m_onPercentListeners.isEmpty()) {
 				if(m_expectedSize < m_totalRead) {
 					if(completed) {
 						m_expectedSize = m_totalRead;
-					}else {
+					} else {
 						m_expectedSize = m_totalRead * 2;
 					}
 				}

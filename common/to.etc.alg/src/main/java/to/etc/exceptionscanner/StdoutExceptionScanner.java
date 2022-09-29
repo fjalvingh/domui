@@ -62,35 +62,36 @@ public class StdoutExceptionScanner {
 	}
 
 	private void run() {
-		LinkedList<DiscoveredExceptionData> todo = new LinkedList<DiscoveredExceptionData>();
-		for(;;) {
-			synchronized(this) {
-				if(m_state != State.STARTED)
-					break;
-				LinkedList<DiscoveredExceptionData> curl = m_exceptionList;
-				if(curl.size() > 0) {
-					//-- Swap lists
-					m_exceptionList = todo;
-					todo = curl;
-				} else {
-					try {
-						wait(10000);
-					} catch(InterruptedException x) {
+		try {
+			LinkedList<DiscoveredExceptionData> todo = new LinkedList<DiscoveredExceptionData>();
+			for(; ; ) {
+				synchronized(this) {
+					if(m_state != State.STARTED)
 						break;
+					LinkedList<DiscoveredExceptionData> curl = m_exceptionList;
+					if(curl.size() > 0) {
+						//-- Swap lists
+						m_exceptionList = todo;
+						todo = curl;
+					} else {
+						wait(10000);
 					}
 				}
-			}
 
-			//-- Out of lock: if todo contains work handle it on this-thread until it's empty.
-			while(todo.size() > 0) {
-				DiscoveredExceptionData rx = todo.removeFirst();
-				handleException(rx);
+				//-- Out of lock: if todo contains work handle it on this-thread until it's empty.
+				while(todo.size() > 0) {
+					DiscoveredExceptionData rx = todo.removeFirst();
+					handleException(rx);
+				}
 			}
+			synchronized(this) {
+				m_state = State.STOPPED;
+			}
+		} catch(InterruptedException x) {
+			Thread.currentThread().interrupt();				// Facepalm.
+		} finally {
+			System.err.println(getClass().getSimpleName() + ": thread terminated");
 		}
-		synchronized(this) {
-			m_state = State.STOPPED;
-		}
-		System.err.println(getClass().getSimpleName() + ": thread terminated");
 	}
 
 	private void handleException(DiscoveredExceptionData rx) {

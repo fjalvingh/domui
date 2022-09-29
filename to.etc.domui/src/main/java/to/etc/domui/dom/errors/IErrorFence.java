@@ -46,7 +46,7 @@ public interface IErrorFence {
 
 	void removeMessage(@NonNull UIMessage uim);
 
-	void clearGlobalMessages(@Nullable String code);
+	void clearGlobalMessagesByGroup(@Nullable String code);
 
 	void clearGlobalMessages(@Nullable IBundleCode code);
 

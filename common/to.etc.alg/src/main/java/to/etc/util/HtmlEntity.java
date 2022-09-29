@@ -109,7 +109,7 @@ public class HtmlEntity {
 
 	static private String getComment(Reader pr) throws Exception {
 		String s = getToken(pr);
-		if(!s.equalsIgnoreCase("--"))
+		if(s == null || !s.equalsIgnoreCase("--"))
 			throw new Exception("Missing comment start for entity: found" + s);
 
 		//-- Now start reading data till --> is found....
@@ -172,11 +172,11 @@ public class HtmlEntity {
 			return;
 
 		String cn = getToken(pr); // Must be CNAME
-		if(!cn.equalsIgnoreCase("CDATA"))
+		if(cn == null || !cn.equalsIgnoreCase("CDATA"))
 			throw new Exception("expected token CDATA after " + name);
 
 		String str = getToken(pr); // quoted string "&#D" or "&#xH"
-		if(str.length() <= 4)
+		if(str == null || str.length() <= 4)
 			throw new Exception(name + ": data string too short " + str);
 		if(!str.startsWith("\"&#"))
 			throw new Exception(name + ": data string invalid start " + str);

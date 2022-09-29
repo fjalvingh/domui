@@ -31,12 +31,13 @@ import java.util.*;
  * Contains a (small) set of integers. The set is represented by an
  * array of integers, unsorted.
  * Created on Sep 1, 2003
+ *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  */
 public class SmallIntSet implements Serializable {
-	private int[]	m_data;
+	private int[] m_data;
 
-	private int		m_count;
+	private int m_count;
 
 	public SmallIntSet() {
 	}
@@ -46,7 +47,7 @@ public class SmallIntSet implements Serializable {
 	}
 
 	public boolean contains(int val) {
-		for(int i = m_count; --i >= 0;) {
+		for(int i = m_count; --i >= 0; ) {
 			if(m_data[i] == val)
 				return true;
 		}
@@ -65,20 +66,27 @@ public class SmallIntSet implements Serializable {
 
 		sort();
 		o.sort();
-		for(int i = m_count; --i >= 0;) {
+		for(int i = m_count; --i >= 0; ) {
 			if(m_data[i] != o.m_data[i])
 				return false;
 		}
 		return true;
 	}
 
+	@Override
+	public int hashCode() {
+		int result = Arrays.hashCode(m_data);
+		result = 31 * result + m_count;
+		return result;
+	}
+
 	private void sort() {
 		Arrays.sort(m_data, 0, size());
 	}
 
-
 	/**
 	 * Add a new member to the set.
+	 *
 	 * @param i
 	 */
 	public void add(int i) {
@@ -117,7 +125,7 @@ public class SmallIntSet implements Serializable {
 			return "[]";
 		StringBuffer sb = new StringBuffer();
 		sb.append('[');
-		for(int i = size(); --i >= 0;) {
+		for(int i = size(); --i >= 0; ) {
 			sb.append(elementAt(i));
 			if(i != 0)
 				sb.append(',');

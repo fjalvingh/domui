@@ -148,12 +148,10 @@ public class ErrorFenceHandler implements IErrorFence {
 	}
 
 	@Override
-	public void clearGlobalMessages(@Nullable String code) {
-		List<UIMessage> todo = new ArrayList<UIMessage>();
+	public void clearGlobalMessagesByGroup(@Nullable String code) {
+		List<UIMessage> todo = new ArrayList<>();
 		for(UIMessage m : m_messageList) {
 			if(code != null && code.equals(m.getGroup()))
-				todo.add(m);
-			else if(m.getErrorNode() == null && (code == null || code.equals(m.getCode())))
 				todo.add(m);
 		}
 
@@ -164,10 +162,15 @@ public class ErrorFenceHandler implements IErrorFence {
 
 	@Override
 	public void clearGlobalMessages(@Nullable IBundleCode code) {
-		if(null == code)
-			clearGlobalMessages((String) null);
-		else
-			clearGlobalMessages(code.name());
+		List<UIMessage> todo = new ArrayList<>();
+		for(UIMessage m : m_messageList) {
+			if(m.getErrorNode() == null && (code == null || code.equals(m.getCode())))
+				todo.add(m);
+		}
+
+		//-- Remove all messages from the list,
+		for(UIMessage m : todo)
+			removeMessage(m);
 	}
 
 	@Override

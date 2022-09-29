@@ -37,7 +37,8 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	/**
 	 * Adds optional callbacks for each individual completed or failed executor task to handle possible re-work in tasks.
 	 */
-	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, @Nullable Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted, @Nullable BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed) throws Exception {
+	public void start(FunctionEx<BulkTaskRunner<T>, AbstractTaskExecutor<T>> executorSupplier, int nThreads, @Nullable Consumer<? super AbstractTaskExecutor<T>> onTaskCompleted,
+		@Nullable BiConsumer<? super AbstractTaskExecutor<T>, Throwable> onTaskFailed) throws Exception {
 		m_onTaskCompleted = onTaskCompleted;
 		m_onTaskFailed = onTaskFailed;
 		try {
@@ -75,8 +76,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 						return;                                    // All are there
 					} else {
 						if(System.currentTimeMillis() >= ets) {
-							error = new IllegalStateException("Threads do not become available in time");
-							break;
+							throw new IllegalStateException("Threads do not become available in time");
 						}
 
 						wait(60_000);
@@ -100,7 +100,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 	public void addTask(T task) throws Exception {
 		AbstractTaskExecutor<T> exec;
 		synchronized(this) {
-			for(;;) {
+			for(; ; ) {
 				if(m_finished)
 					throw new IllegalStateException("Attempt to add task while we're finished");
 				if(m_freeThreadList.size() > 0) {
@@ -120,30 +120,24 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 
 	public void waitTillFinished() throws Exception {
 		System.out.println("Waiting all tasks to finish");
-		Exception error;
-		synchronized(this) {
-			for(;;) {
-				if(m_finished) {
-					return; //it is closed already
-				}
-				if(m_freeThreadList.size() == m_allThreadList.size()) {
-					m_finished = true;
-					System.out.println("All tasks finished");
-					return;
-				}else {
-					try {
+
+		try {
+			synchronized(this) {
+				for(; ; ) {
+					if(m_finished) {
+						return; //it is closed already
+					}
+					if(m_freeThreadList.size() == m_allThreadList.size()) {
+						m_finished = true;
+						System.out.println("All tasks finished");
+						return;
+					} else {
 						wait(60_000);
-					} catch(Exception x) {
-						error = x;
-						break;
 					}
 				}
 			}
-		}
-
-		safeClose();
-		if(null != error) {
-			throw error;
+		} finally {
+			safeClose();
 		}
 	}
 

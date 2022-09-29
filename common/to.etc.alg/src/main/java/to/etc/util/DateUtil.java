@@ -51,18 +51,24 @@ import java.util.concurrent.TimeUnit;
  */
 final public class DateUtil {
 
-	/** Date for testing within threat */
+	/**
+	 * Date for testing within threat
+	 */
 	@NonNull
 	private final static ThreadLocal<Calendar> m_testDate = new ThreadLocal<>();
 
-	/** System date for testing */
+	/**
+	 * System date for testing
+	 */
 	@Nullable
-	private static Calendar m_systemTestDate;
+	private static Date m_systemTestDate;
 
-	/** A fixed date way into the future. */
+	/**
+	 * A fixed date way into the future.
+	 */
 
 	@NonNull
-	static public final Date	FUTURE	= dateFor(9999, 11, 31);
+	static public final Date FUTURE = dateFor(9999, 11, 31);
 
 	private DateUtil() {
 	}
@@ -70,10 +76,6 @@ final public class DateUtil {
 	/**
 	 * Extract the time fields from a date value and return as a value
 	 * in the specified unit. Rounding will be to floor.
-	 *
-	 * @param from
-	 * @param unit
-	 * @return
 	 */
 	static public long getTime(@NonNull Date from, @NonNull TimeUnit unit) {
 		Calendar instance = Calendar.getInstance();
@@ -82,7 +84,7 @@ final public class DateUtil {
 		int hours = instance.get(Calendar.HOUR_OF_DAY);
 		int mins = instance.get(Calendar.MINUTE) + 60 * hours;
 		int secs = instance.get(Calendar.SECOND) + 60 * mins;
-		long millis = instance.get(Calendar.MILLISECOND) + 1000 * secs;
+		long millis = instance.get(Calendar.MILLISECOND) + 1000L * secs;
 
 		return unit.convert(millis, TimeUnit.MILLISECONDS);
 	}
@@ -91,14 +93,11 @@ final public class DateUtil {
 	 * Truncate a date to be at 0:00 by ceiling the time. If the date entered
 	 * has a time > 0:00.0000 then the time is cleared and the day incremented
 	 * by one.
-	 *
-	 * @param date
-	 * @return
 	 */
 	@NonNull
-	static public Date	truncateCeil(@NonNull Date date) {
+	static public Date truncateCeil(@NonNull Date date) {
 		long time = getTime(date, TimeUnit.SECONDS);
-		if(time == 0)											// It's exactly 0:00, so we're precise
+		if(time == 0)                                            // It's exactly 0:00, so we're precise
 			return date;
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
@@ -115,10 +114,6 @@ final public class DateUtil {
 	/**
 	 * Decraps the separate date / time found in the VP database into a normal date containing
 	 * the time. This needs to be as speedy as possible.
-	 *
-	 * @param coredate
-	 * @param timestring
-	 * @return
 	 */
 	static public Date dateFromDateTime(Date coredate, String timestring) {
 		if(coredate == null)
@@ -176,24 +171,23 @@ final public class DateUtil {
 		return new Date(cal.getTimeInMillis());
 	}
 
-	static private final long	SECS	= 1000;
+	static private final long SECS = 1000L;
 
-	static private final long	MINS	= 60 * 1000;
+	static private final long MINS = 60 * 1000L;
 
-	static private final long	HOURS	= MINS * 60;
+	static private final long HOURS = MINS * 60L;
 
-	static private final long	DAYS	= HOURS * 24;
+	static private final long DAYS = HOURS * 24L;
 
 	/**
 	 * Quick conversion of time to a string for presentation pps.
 	 *
-	 * @param millis		Time in millis.
-	 * @param nfields		The number of fields to show: 1 = hours only, 2= hh:mm, 3=h:mm:ss. Warning:
-	 * 						the fields that are not shown do not "round up" the shown fields! So if you
-	 * 						use nfields=1 for 18:45 the hour shown would be 18, not 19!
-	 * @param shortest		When set this truncates the time display when components are zero. So for
-	 * 						18:00:0) this would render '18'; for 18:21:00 this would render 18:21.
-	 * @return
+	 * @param millis   Time in millis.
+	 * @param nfields  The number of fields to show: 1 = hours only, 2= hh:mm, 3=h:mm:ss. Warning:
+	 *                 the fields that are not shown do not "round up" the shown fields! So if you
+	 *                 use nfields=1 for 18:45 the hour shown would be 18, not 19!
+	 * @param shortest When set this truncates the time display when components are zero. So for
+	 *                 18:00:0) this would render '18'; for 18:21:00 this would render 18:21.
 	 */
 	static public String encodeTimeInMS(long millis, int nfields, boolean shortest) {
 		millis %= DAYS;
@@ -277,8 +271,6 @@ final public class DateUtil {
 
 	/**
 	 * Extracts the dumb time field from a date.
-	 * @param dt
-	 * @return
 	 */
 	static public String extractTimeString(Date dt, int size) {
 		if(size != 5 && size != 8)
@@ -334,8 +326,8 @@ final public class DateUtil {
 
 	/**
 	 * Returns date incremented for specified value.
-	 * @param dt
-	 * @param field see {@link Calendar#add(int, int)}
+	 *
+	 * @param field  see {@link Calendar#add(int, int)}
 	 * @param amount see {@link Calendar#add(int, int)}
 	 * @return In case of <B>dt</B> is null returns null
 	 */
@@ -348,6 +340,7 @@ final public class DateUtil {
 		cal.add(field, amount);
 		return new Date(cal.getTimeInMillis());
 	}
+
 	static public void truncateDate(Date dest, Date dt) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(dt);
@@ -358,8 +351,6 @@ final public class DateUtil {
 	/**
 	 * Calculates the date for 0:00 the day after (tomorrow). Works like the EndOfDay but
 	 * returns one minute later.
-	 * @param ts
-	 * @return
 	 */
 	static public Date tomorrow(Date dt) {
 		Calendar cal = Calendar.getInstance();
@@ -373,8 +364,6 @@ final public class DateUtil {
 	 * INTERNAL DAO USE ONLY -- This returns a date/ which ends at
 	 * 23:59 of the day passed. It is used within DAO's only to
 	 * allow Hibernate to query split date/time fields.
-	 * @param dt
-	 * @return
 	 */
 	static public Date dumbEndOfDayDate(Date dt) {
 		Calendar cal = Calendar.getInstance();
@@ -388,7 +377,6 @@ final public class DateUtil {
 
 	/**
 	 * Clears the entire time portion of a Calendar.
-	 * @param cal
 	 */
 	static public void clearTime(Calendar cal) {
 		cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -475,7 +463,6 @@ final public class DateUtil {
 		return new Date(cal.getTimeInMillis());
 	}
 
-
 	static public Date addYears(Date in, int years) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(in);
@@ -484,13 +471,14 @@ final public class DateUtil {
 	}
 
 	static public boolean between(Date start, Date end, Date v) {
-		return (start == null || v.getTime() >= start.getTime())							//
-			&& (end == null || v.getTime() < end.getTime());								//
+		return (start == null || v.getTime() >= start.getTime())                            //
+			&& (end == null || v.getTime() < end.getTime());                                //
 	}
 
 	static public boolean overlaps(Date s1, Date e1, Date s2, Date e2) {
 		return s1.getTime() < e2.getTime() && s2.getTime() < e1.getTime();
 	}
+
 	public static void main(String[] args) {
 		System.out.println(encodeTimeInMS(decodeTime("13:40:21"), 3, true));
 		System.out.println(encodeTimeInMS(decodeTime("13:40:21"), 2, true));
@@ -504,9 +492,6 @@ final public class DateUtil {
 
 	/**
 	 * Updates the date part of a date only, leaving the time part unaltered.
-	 * @param finisheddate
-	 * @param dt
-	 * @return
 	 */
 	public static Date setDateOnly(Date finisheddate, Date dt) {
 		if(dt == null) {
@@ -535,8 +520,6 @@ final public class DateUtil {
 
 	/**
 	 * Gets the first day of the next month for the date specified in parameter.
-	 * @param dt
-	 * @return
 	 */
 	public static Date getFirstDayOfNextMonth(Date dt) {
 		Calendar cal = Calendar.getInstance();
@@ -551,8 +534,6 @@ final public class DateUtil {
 	 * (hence without overlap or gap). It consists of 52 or 53 full weeks. If 1 January is on a Monday, Tuesday, Wednesday
 	 * or Thursday, it is in week 01. If 1 January is on a Friday, Saturday or Sunday, it is in week 52 or 53 of the previous
 	 * year (there is no week 00). 28 December is always in the last week of its year.
-	 *
-	 * @return
 	 */
 	private static Calendar createIsoCalendar() {
 		Calendar cal = new GregorianCalendar();
@@ -573,9 +554,6 @@ final public class DateUtil {
 
 	/**
 	 * Get the difference in number of days between the specified dates.
-	 * @param start
-	 * @param end
-	 * @return
 	 */
 	public static int deltaInDays(Date start, Date end) {
 		Calendar startCal = Calendar.getInstance();
@@ -590,11 +568,9 @@ final public class DateUtil {
 		long startL = startCal.getTimeInMillis() + startCal.getTimeZone().getOffset(startCal.getTimeInMillis());
 		return (int) ((double) (endL - startL) / (double) (1000 * 60 * 60 * 24));
 	}
+
 	/**
 	 * Returns ISO calendar with specified year and week.
-	 * @param year
-	 * @param weekOfYear
-	 * @return
 	 */
 	public static Calendar getIsoCalendarForYearAndWeek(int year, int weekOfYear) {
 		Calendar cal = DateUtil.createIsoCalendar();
@@ -605,11 +581,10 @@ final public class DateUtil {
 
 	/**
 	 * Parses <b>input</b> String to {@link Date} class, according to <b>dateFormat</b> argument.
-	 * @param input - input string to be parsed
+	 *
+	 * @param input      - input string to be parsed
 	 * @param dateFormat - to what format should the date be parsed
-	 * @param lenient - specify whether or not date/time parsing is to be lenient
-	 * @return
-	 * @throws ParseException
+	 * @param lenient    - specify whether or not date/time parsing is to be lenient
 	 */
 	@NonNull
 	static public java.util.Date convertToDate(@NonNull final String input, @NonNull final String dateFormat, boolean lenient) throws ParseException {
@@ -627,25 +602,20 @@ final public class DateUtil {
 
 	/**
 	 * Parses <b>input</b> String to {@link Date} class, according to <b>dateFormat</b> argument. Lenient is true.
-	 *
-	 * @param input
-	 * @param dateFormat
-	 * @return
-	 * @throws ParseException
 	 */
 	@NonNull
 	static public java.util.Date convertToDate(@NonNull final String input, @NonNull final String dateFormat) throws ParseException {
-	    return convertToDate(input, dateFormat, true);
+		return convertToDate(input, dateFormat, true);
 	}
 
 	/**
 	 * Compares calendar times (hours, minutes, seconds and milliseconds) and returns
 	 * a negative integer, zero, or a positive integer as the first argument is less than, equal to, or greater than the second.
-	 *
+	 * <p>
 	 * They are compared by using compareTo() method. Second's calendar time is set to the copy of the first calendar
 	 * to ensure that they can be different in time only.
 	 */
-	final public static Comparator<Calendar>	CALENDAR_TIMES_COMPARATOR	= new Comparator<Calendar>() {
+	final public static Comparator<Calendar> CALENDAR_TIMES_COMPARATOR = new Comparator<Calendar>() {
 		@Override
 		public int compare(Calendar first, Calendar second) {
 			if(first.get(Calendar.HOUR_OF_DAY) < second.get(Calendar.HOUR_OF_DAY)) {
@@ -669,12 +639,8 @@ final public class DateUtil {
 		}
 	};
 
-
 	/**
 	 * Returns year for Date.
-	 *
-	 * @param date
-	 * @return
 	 */
 	public static int getYear(@NonNull Date date) {
 		Calendar cal = Calendar.getInstance();
@@ -709,11 +675,9 @@ final public class DateUtil {
 
 	/**
 	 * Converts java.sql.Date to java.util.Date. Returns null if sqlDate is null.
-	 * @param sqlDate
-	 * @return
 	 */
-	public static Date sqlToUtilDate(@Nullable java.sql.Date sqlDate){
-		if (null == sqlDate){
+	public static Date sqlToUtilDate(@Nullable java.sql.Date sqlDate) {
+		if(null == sqlDate) {
 			return null;
 		}
 		return new Date(sqlDate.getTime());
@@ -722,16 +686,12 @@ final public class DateUtil {
 	/**
 	 * Returns format for specified date and formatter.
 	 * In case of null date returns empty string.
-	 *
-	 * @param date
-	 * @param format
-	 * @return
 	 */
 	@NonNull
-	public static String formatSafe(@Nullable Date date, @NonNull DateFormat format){
-		if (null == date){
+	public static String formatSafe(@Nullable Date date, @NonNull DateFormat format) {
+		if(null == date) {
 			return "";
-		}else{
+		} else {
 			return format.format(date);
 		}
 	}
@@ -740,11 +700,20 @@ final public class DateUtil {
 	public synchronized static Date now() {
 
 		Calendar now = m_testDate.get();
-		if (null == now ) {
-			if (null == m_systemTestDate) {
+		if(null == now) {
+			Date systemTestDate = m_systemTestDate;
+			if(null == systemTestDate) {
 				return new Date();
 			}
-			now = m_systemTestDate;
+			Calendar cal = Calendar.getInstance();
+			int hour = cal.get(Calendar.HOUR_OF_DAY);
+			int minute = cal.get(Calendar.MINUTE);
+			int second = cal.get(Calendar.SECOND);
+			cal.setTime(systemTestDate);
+			cal.set(Calendar.HOUR_OF_DAY, hour);
+			cal.set(Calendar.MINUTE, minute);
+			cal.set(Calendar.SECOND, second);
+			return cal.getTime();
 		}
 
 		Calendar cal = Calendar.getInstance();
@@ -753,8 +722,8 @@ final public class DateUtil {
 	}
 
 	public static void setTestDate(@Nullable Date now) {
-		if (null == now) {
-			m_testDate.set(null);
+		if(null == now) {
+			m_testDate.remove();
 			return;
 		}
 		Calendar cal = Calendar.getInstance();
@@ -775,14 +744,12 @@ final public class DateUtil {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(now);
 		clearTime(cal);
-		m_systemTestDate = cal;
+		m_systemTestDate = cal.getTime();
 	}
 
 	/**
 	 * GregorianCalendarFixDutchTime fixes missing date-time in the GregorianCalendar for dutch locale
 	 * when validating those missing date-times the next valid time will be returned instead of generating an error
-	 *
-	 * @return GregorianCalendarFixDutchTime
 	 */
 	@NonNull
 	public static Calendar getCalendar() {
@@ -796,9 +763,6 @@ final public class DateUtil {
 	/**
 	 * GregorianCalendarFixDutchTime fixes missing date-time in the GregorianCalendar for dutch locale
 	 * when validating those missing date-times the next valid time will be returned instead of generating an error
-	 *
-	 * @param aLocale
-	 * @return GregorianCalendarFixDutchTime
 	 */
 	@NonNull
 	public static Calendar getCalendar(@NonNull Locale aLocale) {
@@ -807,13 +771,11 @@ final public class DateUtil {
 
 	/**
 	 * Return T if the date is a indeterminate future date. This is usually something like 2999-31-12 or even further.
-	 * @param date
-	 * @return
 	 */
 	static public boolean isFutureIndeterminate(@Nullable Date date) {
 		if(null == date)
 			return false;
-		return date.getYear() >= 2999 - 1900;				// The incredible idiot that created getYear subtracts 1900 from it.
+		return date.getYear() >= 2999 - 1900;                // The incredible idiot that created getYear subtracts 1900 from it.
 	}
 
 	static public LocalDate toLocalDate(@NonNull Date date) {
@@ -829,7 +791,7 @@ final public class DateUtil {
 	}
 
 	static public Date toDate(@NonNull LocalDateTime ldt) {
-		return Date.from(ldt.atZone( ZoneId.systemDefault()).toInstant());
+		return Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
 	}
 
 	static public Date toDate(@NonNull ZonedDateTime ldt) {

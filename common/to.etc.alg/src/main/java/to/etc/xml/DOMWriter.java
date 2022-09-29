@@ -81,9 +81,14 @@
 
 package to.etc.xml;
 
-import java.io.*;
+import org.w3c.dom.Attr;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import org.w3c.dom.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 
 /**
  * REPLACE WITH PROPER ContentHandler and SAX pusher version.
@@ -222,21 +227,20 @@ public class DOMWriter {
 			}
 		}
 
-		if(type == Node.ELEMENT_NODE && hasChildren == true) {
+		if(type == Node.ELEMENT_NODE && hasChildren) {
 			out.print("</");
 			out.print(node.getNodeName());
 			out.print('>');
-			hasChildren = false;
 		}
 	}
 
 	private static String normalize(String s) {
-		StringBuffer str = new StringBuffer();
+		StringBuilder str = new StringBuilder();
 		if(s == null) {
 			return str.toString();
 		}
 
-		int len = (s != null) ? s.length() : 0;
+		int len = s.length();
 
 		for(int i = 0; i < len; i++) {
 			char ch = s.charAt(i);

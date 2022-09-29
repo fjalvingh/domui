@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
@@ -222,7 +223,7 @@ public class RuntimeConversions {
 		if(in instanceof BigInteger)
 			return new BigDecimal((BigInteger) in);
 		if(in instanceof Number)
-			return new BigDecimal(((Number) in).doubleValue());
+			return BigDecimal.valueOf(((Number) in).doubleValue());
 		if(in instanceof String) {
 			try {
 				return convertStringToNumber((String) in, BigDecimal.class);
@@ -240,7 +241,7 @@ public class RuntimeConversions {
 			df.setParseIntegerOnly(true);
 			return (T) new BigInteger(df.parse(in).toString());
 		} else if(type == BigDecimal.class) {
-			return (T) new BigDecimal(df.parse(in).doubleValue());
+			return (T) BigDecimal.valueOf(df.parse(in).doubleValue());
 		} else {
 			throw new IllegalArgumentException("Not supported type:" + type);
 		}
@@ -527,12 +528,12 @@ public class RuntimeConversions {
 
 		public Object next() {
 			if(m_index >= m_len)
-				return null;
+				throw new NoSuchElementException();
 			return Array.get(m_array, m_index++);
 		}
 
 		public void remove() {
-			throw new IllegalStateException("Cannot remove items from an array");
+			throw new UnsupportedOperationException("Cannot remove items from an array");
 		}
 	}
 

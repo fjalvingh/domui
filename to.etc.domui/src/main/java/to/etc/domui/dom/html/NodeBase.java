@@ -1554,7 +1554,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 	public void clearGlobalMessage() {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.clearGlobalMessages((String) null);
+		fence.clearGlobalMessages(null);
 	}
 
 	public void clearGlobalMessage(UIMessage m) {
@@ -1562,14 +1562,14 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		fence.removeMessage(m);
 	}
 
+	//public void clearGlobalMessage(final String code) {
+	//	IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
+	//	fence.clearGlobalMessages(code);
+	//}
+
 	/**
 	 * Delete all messages with the specified code (deprecated) or group name (see {@link UIMessage#getGroup()}).
 	 */
-	public void clearGlobalMessage(final String code) {
-		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
-		fence.clearGlobalMessages(code);
-	}
-
 	public void clearGlobalMessage(IBundleCode code) {
 		IErrorFence fence = DomUtil.getMessageFence(this); // Get the fence that'll handle the message by looking UPWARDS in the tree
 		fence.clearGlobalMessages(code);

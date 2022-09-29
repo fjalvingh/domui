@@ -34,7 +34,6 @@ import to.etc.webapp.nls.*;
 
 /**
  * DO NOT USE - ancient and badly written.
- *
  */
 @Deprecated
 public class BasicPage<T> extends UrlPage {
@@ -86,18 +85,18 @@ public class BasicPage<T> extends UrlPage {
 
 	public void clearGlobalMessages() {
 		IErrorFence fence = DomUtil.getMessageFence(this);
-		fence.clearGlobalMessages((String) null);
+		fence.clearGlobalMessages(null);
 	}
 
 	public BasePageTitleBar getTitleBar() {
 		return m_titleBar;
 	}
 
-	protected BundleRef getClassBundle(Class< ? > c) {
+	protected BundleRef getClassBundle(Class<?> c) {
 		return MetaManager.findClassMeta(c).getClassBundle();
 	}
 
-	protected PropertyMetaModel< ? > getPropertyModel(String p) {
+	protected PropertyMetaModel<?> getPropertyModel(String p) {
 		return MetaManager.findPropertyMeta(getBaseClass(), p);
 	}
 

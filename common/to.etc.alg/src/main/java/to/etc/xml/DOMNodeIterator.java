@@ -24,9 +24,11 @@
  */
 package to.etc.xml;
 
-import java.util.*;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import org.w3c.dom.*;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 class DOMNodeIterator implements Iterator<DOMDecoder>, Iterable<DOMDecoder> {
 	//	private Node				m_rootNode;
@@ -105,7 +107,7 @@ class DOMNodeIterator implements Iterator<DOMDecoder>, Iterable<DOMDecoder> {
 
 	public DOMDecoder next() {
 		if(!hasNext())
-			throw new IllegalStateException("No more elements");
+			throw new NoSuchElementException("No more elements");
 		DOMDecoder sli = new DOMDecoder(m_list.item(m_listIndex), m_defaultNamespace, m_encodingNamespace);
 		m_listIndex = findNextAfter(m_listIndex);
 		return sli;
