@@ -3,6 +3,7 @@ package to.etc.domui.component.image;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.trouble.UIException;
+import to.etc.domui.util.Msgs;
 import to.etc.domui.util.images.converters.ImageConverterHelper;
 import to.etc.domui.util.images.converters.ImageSpec;
 import to.etc.domui.util.images.machines.ImageInfo;
@@ -10,7 +11,6 @@ import to.etc.domui.util.images.machines.ImageMagicImageHandler;
 import to.etc.domui.util.images.machines.OriginalImagePage;
 import to.etc.sjit.ImaTool;
 import to.etc.util.FileTool;
-import to.etc.webapp.nls.BundleRef;
 
 import java.io.File;
 import java.io.InputStream;
@@ -25,7 +25,6 @@ import java.util.Map;
  * Created on Nov 5, 2014
  */
 final public class LoadedImage implements IUIImage {
-	static private final BundleRef BUNDLE = BundleRef.create(ImageSelectControl.class, "messages");
 	@Nullable
 	private Long m_id;
 
@@ -58,7 +57,7 @@ final public class LoadedImage implements IUIImage {
 	static public LoadedImage	create(@NonNull File original, @Nullable Dimension maxSize, @Nullable List<Object> resourceList) throws Exception {
 		ImageInfo identify = ImageMagicImageHandler.getInstance().identify(original);
 		if(identify.getPageCount() != 1)
-			throw new UIException(BUNDLE, "image.invalid");
+			throw new UIException(Msgs.ctlImageInvalid);
 
 		OriginalImagePage page = identify.getPageList().get(0);
 		Dimension dimension = new Dimension(page.getWidth(), page.getHeight());		// Original's size.

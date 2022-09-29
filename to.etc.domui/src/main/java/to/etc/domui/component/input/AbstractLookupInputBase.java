@@ -233,7 +233,7 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 	private void renderEmptySelection() {
 		Div vdiv = new Div("ui-lui-empty ui-control");
 		add(vdiv);
-		vdiv.add(new Span(Msgs.BUNDLE.getString(Msgs.UI_LOOKUP_EMPTY)));
+		vdiv.add(new Span(Msgs.uiLookupEmpty.format()));
 	}
 
 	private void appendLookupButtons() {

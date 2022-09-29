@@ -218,17 +218,17 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 			//-- Does not start with operation: can only be number or a number with like
 			String v = scanNumeric(true);
 			if(v == null || "".equals(v))
-				throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_INVALID);
+				throw new ValidationException(Msgs.uiLookupInvalid);
 			if(v.contains("%") && m_allowLike) {
 				m_s.skipWs();
 				if(!m_s.eof())                                    // Must have eof
-					throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_INVALID);
+					throw new ValidationException(Msgs.uiLookupInvalid);
 				return new NumberLookupValue(v);
 			}
 
 			T value = parseNumber(v);
 			if(value == null)
-				throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_INVALID);
+				throw new ValidationException(Msgs.uiLookupInvalid);
 			checkNumber(value);
 			return new NumberLookupValue(QOperation.EQ, value);
 		}
@@ -239,7 +239,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		//-- 2nd part MUST be numeric, so scan a value
 		String v = scanNumeric(false);
 		if(v.isEmpty())
-			throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_INVALID);
+			throw new ValidationException(Msgs.uiLookupInvalid);
 		T value = parseNumber(v);                                // Convert to appropriate type,
 		checkNumber(value);
 
@@ -252,7 +252,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 		QOperation op2 = scanOperation();
 		m_s.skipWs();
 		if(m_s.eof())
-			throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_INVALID);
+			throw new ValidationException(Msgs.uiLookupInvalid);
 
 		//-- 2nd fragment of 2nd part MUST be numeric, so scan a value
 		v = scanNumeric(false);
@@ -264,7 +264,7 @@ public class NumberLookupControl<T extends Number> extends Div implements IContr
 			|| ((op2 == QOperation.GE || op2 == QOperation.GT) && (op == QOperation.LT || op == QOperation.LE))) {
 			return new NumberLookupValue(op, value, op2, value2);
 		}
-		throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_BAD_OPERATOR_COMBI);
+		throw new ValidationException(Msgs.uiLookupOpCombi);
 	}
 
 	protected void checkNumber(T value) {

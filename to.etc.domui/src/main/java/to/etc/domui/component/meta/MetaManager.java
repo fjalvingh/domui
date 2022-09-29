@@ -42,7 +42,6 @@ import to.etc.domui.converter.IValueValidator;
 import to.etc.domui.converter.MaxMinValidator;
 import to.etc.domui.converter.PropertyComparator;
 import to.etc.domui.server.DomApplication;
-import to.etc.domui.state.DelayedActivitiesManager;
 import to.etc.domui.util.DisplayPropertyNodeContentRenderer;
 import to.etc.domui.util.DomUtil;
 import to.etc.domui.util.ILabelStringRenderer;
@@ -395,7 +394,7 @@ final public class MetaManager {
 				throw new IllegalStateException("Metamodel got null while parsing " + compoundName);
 			PropertyMetaModel<?> pmm = cmm.findSimpleProperty(name);
 			if(pmm == null)
-				throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_COMPOUND_PROPERTY_NOT_FOUND, compoundName, name, cmm.toString());
+				throw new MetaModelException(Msgs.mmCompoundPropertyNotFound, compoundName, name, cmm.toString());
 
 			//-- If this is a child property it represents some collection; use the collection's type as next thing.
 			if(pmm.getRelationType() == PropertyRelationType.DOWN || Collection.class.isAssignableFrom(pmm.getActualType()) || pmm.getActualType().isArray()) {
@@ -409,7 +408,7 @@ final public class MetaManager {
 						nextmm = findClassMeta(vclass);
 				}
 				if(nextmm == null && ix >= len)
-					throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_UNKNOWN_COLLECTION_TYPE, compoundName, name, vtype);
+					throw new MetaModelException(Msgs.mmUnknownCollectionType, compoundName, name, vtype);
 				cmm = nextmm;
 			} else {
 				cmm = pmm.getValueModel();

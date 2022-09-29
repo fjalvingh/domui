@@ -9,6 +9,6 @@ import to.etc.webapp.nls.*;
  */
 final public class BindingDefinitionException extends CodeException {
 	public BindingDefinitionException(String what, String typea, String typeb) {
-		super(Msgs.BUNDLE, Msgs.E_BINDING_DEFINITION, what, typea, typeb);
+		super(Msgs.eBindingDefinition, what, typea, typeb);
 	}
 }

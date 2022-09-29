@@ -536,7 +536,7 @@ final public class PageRequestHandler {
 
 			// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 			if(m_application.getAutoRefreshPollInterval() <= 0) {
-				m_commandWriter.generateExpired(m_ctx, Msgs.BUNDLE.getString(Msgs.S_EXPIRED));
+				m_commandWriter.generateExpired(m_ctx, Msgs.sSessionExpired.format());
 			} else {
 				msg = "Not sending expired message because autorefresh is ON for " + m_cid;
 				LOG.info(msg);
@@ -585,7 +585,7 @@ final public class PageRequestHandler {
 			} else {
 				// In auto refresh: do not send the "expired" message, but let the refresh handle this.
 				if(m_application.getAutoRefreshPollInterval() <= 0) {
-					String msg = Msgs.BUNDLE.getString(Msgs.S_EXPIRED);
+					String msg = Msgs.sSessionExpired.format();
 					m_commandWriter.generateExpired(m_ctx, msg);
 					logUser(msg);
 				} else {

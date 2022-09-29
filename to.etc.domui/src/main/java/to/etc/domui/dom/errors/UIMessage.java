@@ -29,8 +29,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import to.etc.domui.dom.html.NodeBase;
 import to.etc.domui.logic.errors.ProblemInstance;
 import to.etc.domui.trouble.UIException;
-import to.etc.domui.util.Msgs;
-import to.etc.webapp.nls.BundleRef;
 import to.etc.webapp.nls.CodeException;
 import to.etc.webapp.nls.IBundleCode;
 import to.etc.webapp.nls.NlsContext;
@@ -47,21 +45,15 @@ import java.util.Locale;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Jun 11, 2008
  */
-public class UIMessage {
+final public class UIMessage {
 	@NonNull
 	static private final Object[] NONE = new Object[0];
 
 	/**
-	 * The message bundle to use, or null if the deprecated "global messages" are used.
+	 * The error message code for the error that has occurred. This exists always and is a lookup into the error NLS messages.
 	 */
 	@NonNull
-	private BundleRef m_bundle;
-
-	/**
-	 * The error message code for the error that has occured. This exists always and is a lookup into the error NLS messages.
-	 */
-	@NonNull
-	private String m_code;
+	private IBundleCode m_code;
 
 	/**
 	 * The type of the message (error, warning, informational); this mainly defines whether actions continue, and it defines an icon to show.
@@ -106,32 +98,26 @@ public class UIMessage {
 	 * @param errorNode     If not-null this is the node that "owns" the error. This node will show a visual indication of the fact that it contains an error.
 	 * @param errorLocation If not-null this is a user-understandable name of the input item that contains the error. It usually is the "label" associated with the problem.
 	 * @param type          The type of message: error, warning or info.
-	 * @param br            The bundle containing the message for the code. If this is null (deprecated) the "global bundle set" is used *WHICH IS DEPRECATED*.
 	 * @param code          The code for the message.
 	 * @param parameters    If needed a set of parameters to render into the message.
 	 */
-	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull BundleRef br, @NonNull String code, @Nullable Object[] parameters) {
-		this(errorNode, errorLocation, type, br, code, parameters, null);
+	private UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull IBundleCode code, @Nullable Object[] parameters) {
+		this(errorNode, errorLocation, type, code, parameters, null);
 	}
 
-	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull IBundleCode code, @Nullable Object[] parameters) {
-		this(errorNode, errorLocation, type, code.getBundle(), code.name(), parameters, null);
-	}
-
-	protected UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull BundleRef br, @NonNull String code, @Nullable Object[] parameters,
+	private UIMessage(@Nullable NodeBase errorNode, @Nullable String errorLocation, @NonNull MsgType type, @NonNull IBundleCode code, @Nullable Object[] parameters,
 		@Nullable String group) {
 		if(code == null)
 			throw new NullPointerException("Message code cannot be null");
 		if(type == null)
 			throw new NullPointerException("Message type cannot be null");
-		m_bundle = br;
 		m_errorNode = errorNode;
 		m_code = code;
 		m_parameters = parameters == null ? NONE : parameters;
 		m_type = type;
 		m_errorLocation = errorLocation;
 		m_group = group;
-		m_key = br.getBundleKey() + "#" + code;
+		m_key = code.getBundle().getBundleKey() + "#" + code;
 	}
 
 	/**
@@ -152,16 +138,8 @@ public class UIMessage {
 		return m_group;
 	}
 
-	public String getCode() {
+	public IBundleCode getCode() {
 		return m_code;
-	}
-
-	/**
-	 * Returns the message bundle the code is in, or null if the code is a global message code (deprecated).
-	 */
-	@Nullable
-	public BundleRef getBundle() {
-		return m_bundle;
 	}
 
 	@NonNull
@@ -225,51 +203,27 @@ public class UIMessage {
 		if(null == locale) {
 			locale = NlsContext.getLocale();
 		}
-		if(m_bundle != null) {
-			return m_bundle.formatMessage(locale, m_code, m_parameters);
-		}
-
-		return Msgs.BUNDLE.formatMessage(locale, m_code, m_parameters);
+		return getCode().getBundle().formatMessage(locale, getCode().name(), m_parameters);
 	}
 
 	@NonNull
 	public static UIMessage create(@Nullable NodeBase n, @NonNull ProblemInstance pi) {
-		return new UIMessage(n, null, pi.getProblem().getSeverity(), pi.getProblem().getBundle(), pi.getProblem().getCode(), pi.getParameters());
+		return new UIMessage(n, null, pi.getProblem().getSeverity(), pi.getProblem().getCode(), pi.getParameters());
 	}
 
 	@NonNull
 	static public UIMessage error(@NonNull CodeException x) {
-		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
+		return new UIMessage(null, null, MsgType.ERROR, x.getCode(), x.getParameters());
 	}
 
 	@NonNull
 	static public UIMessage error(@NonNull UIException x) {
-		return new UIMessage(null, null, MsgType.ERROR, x.getBundle(), x.getCode(), x.getParameters());
+		return new UIMessage(null, null, MsgType.ERROR, x.getCode(), x.getParameters());
 	}
-
-	//@NonNull
-	//static public UIMessage error(NodeBase node, String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
-	//	return new UIMessage(node, errorLocation, MsgType.ERROR, ref, code, param);
-	//}
-
-	//@NonNull
-	//static public UIMessage error(String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
-	//	return new UIMessage(null, errorLocation, MsgType.ERROR, ref, code, param);
-	//}
 
 	@NonNull
 	static public UIMessage error(String errorLocation, @NonNull IBundleCode code, Object... param) {
-		return new UIMessage(null, errorLocation, MsgType.ERROR, code.getBundle(), code.name(), param);
-	}
-
-	//@NonNull
-	//static public UIMessage error(NodeBase node, @NonNull BundleRef ref, @NonNull String code, Object... param) {
-	//	return new UIMessage(node, node.getErrorLocation(), MsgType.ERROR, ref, code, param);
-	//}
-
-	@NonNull
-	static public UIMessage error(@NonNull BundleRef ref, @NonNull String code, Object... param) {
-		return new UIMessage(null, null, MsgType.ERROR, ref, code, param);
+		return new UIMessage(null, errorLocation, MsgType.ERROR, code, param);
 	}
 
 	static public UIMessage error(@NonNull IBundleCode code, Object... param) {
@@ -277,28 +231,8 @@ public class UIMessage {
 	}
 
 	@NonNull
-	static public UIMessage warning(NodeBase node, String errorLocation, @NonNull BundleRef ref, @NonNull String code, Object... param) {
-		return new UIMessage(node, errorLocation, MsgType.WARNING, ref, code, param);
-	}
-
-	@NonNull
-	static public UIMessage warning(NodeBase node, @NonNull BundleRef ref, @NonNull String code, Object... param) {
-		return new UIMessage(node, null, MsgType.WARNING, ref, code, param);
-	}
-
-	@NonNull
-	static public UIMessage warning(@NonNull BundleRef ref, @NonNull String code, Object... param) {
-		return new UIMessage(null, null, MsgType.WARNING, ref, code, param);
-	}
-
-	@NonNull
 	static public UIMessage warning(@NonNull IBundleCode code, Object... param) {
 		return new UIMessage(null, null, MsgType.WARNING, code, param);
-	}
-
-	@NonNull
-	static public UIMessage info(@NonNull BundleRef ref, @NonNull String code, Object... param) {
-		return new UIMessage(null, null, MsgType.INFO, ref, code, param);
 	}
 
 	static public UIMessage info(@NonNull IBundleCode code, Object... param) {
@@ -309,7 +243,7 @@ public class UIMessage {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((m_bundle == null) ? 0 : m_bundle.hashCode());
+		//result = prime * result + ((m_bundle == null) ? 0 : m_bundle.hashCode());
 		result = prime * result + ((m_code == null) ? 0 : m_code.hashCode());
 		result = prime * result + ((m_errorNode == null) ? 0 : m_errorNode.hashCode());
 		result = prime * result + Arrays.hashCode(m_parameters);
@@ -326,11 +260,6 @@ public class UIMessage {
 		if(getClass() != obj.getClass())
 			return false;
 		UIMessage other = (UIMessage) obj;
-		if(m_bundle == null) {
-			if(other.m_bundle != null)
-				return false;
-		} else if(!m_bundle.equals(other.m_bundle))
-			return false;
 		if(m_code == null) {
 			if(other.m_code != null)
 				return false;

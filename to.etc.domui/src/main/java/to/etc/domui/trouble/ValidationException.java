@@ -27,7 +27,7 @@ package to.etc.domui.trouble;
 import org.eclipse.jdt.annotation.NonNull;
 import to.etc.domui.dom.errors.UIMessage;
 import to.etc.domui.util.Msgs;
-import to.etc.webapp.nls.BundleRef;
+import to.etc.webapp.nls.CodeException;
 import to.etc.webapp.nls.IBundleCode;
 
 public class ValidationException extends UIException {
@@ -39,31 +39,15 @@ public class ValidationException extends UIException {
 		super(t, code, parameters);
 	}
 
-	/**
-	 * Use the {@link IBundleCode} variants.
-	 */
-	@Deprecated
 	public ValidationException() {
 		super(Msgs.notValid);
 	}
 
-	/**
-	 * Use the {@link IBundleCode} variants.
-	 */
-	@Deprecated
-	public ValidationException(BundleRef bundle, String code, Object... parameters) {
-		super(bundle, code, parameters);
-	}
-
-	/**
-	 * Use the {@link IBundleCode} variants.
-	 */
-	@Deprecated
-	public ValidationException(String code, Object... param) {
-		super(Msgs.BUNDLE, code, param);
+	public ValidationException(CodeException x) {
+		super(x.getCode(), x.getParameters());
 	}
 
 	public ValidationException(@NonNull UIMessage msg) {
-		super(msg.getBundle(), msg.getCode(), msg.getParameters());
+		super(msg.getCode(), msg.getParameters());
 	}
 }

@@ -31,7 +31,7 @@ final public class FileUploadSizeExceededException extends FileUploadException {
 	private long m_maxSize;
 
 	public FileUploadSizeExceededException(long maxSize) {
-		super(Msgs.BUNDLE, Msgs.UPLOAD_TOO_LARGE, StringTool.strSize(maxSize));
+		super(Msgs.uploadTooLarge, StringTool.strSize(maxSize));
 		m_maxSize = maxSize;
 	}
 

@@ -207,7 +207,7 @@ public class MIDomUIPropertyAnnotations implements IPropertyMetaProvider<Default
 				//-- Precompile to make sure it's valid;
 				Pattern.compile(mp.regexpValidation());
 			} catch(Exception x) {
-				throw new MetaModelException(Msgs.BUNDLE, Msgs.MM_BAD_REGEXP, mp.regexpValidation(), this.toString());
+				throw new MetaModelException(Msgs.mmBadRegexp, mp.regexpValidation(), this.toString());
 			}
 			pmm.setRegexpValidator(mp.regexpValidation());
 			if(mp.regexpUserString().length() > 0)

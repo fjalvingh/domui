@@ -32,6 +32,14 @@ public enum Msgs implements IBundleCode {
 	uiLookupDateTill,
 	uiErrorHeader,
 
+	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
+	uiLookupEmpty, // = "ui.lookup.empty";
+
+	/** Lookup value invalid */
+	uiLookupInvalid, // = "ui.lookup.invalid";
+
+	uiLookupOpCombi, // = "ui.lookup.op.combi";
+
 
 	/** CheckBoxButton **/
 	uiChkbbOn,
@@ -104,17 +112,66 @@ public enum Msgs implements IBundleCode {
 
 	vLogicError, // = "v.logic.error";
 
+	//# Server errors.
+	/** Your session with the server has expired. The page will be reloaded with original data from the server. */
+	sSessionExpired, // = "s.session.expired";
+
+	/** Your browser is out-of-sync with the server, most probably because your session with the server has expired. The page will be reloaded with original data from the server.  */
+	sSessionBadnode, // = "s.session.badnode";
+
+	/** The page has been reset and loaded again; the error message is passed on. */
+	sPageCleared, // = "s.page.cleared";
+
+	sConversationDestroyed, // = "conversation.destroyed";
+
+
+	eBindingFailed, // = "e.binding.failed";
+
+	eBindingDefinition, // = "e.binding.definition";
+
 	//-- Crud
 	verbatim, // = "verbatim";
 
+
+	//# Exceptions.
+
+	/** The required page parameter {0} is missing. */
+	xMissingParameter, // = "x.missing.parameter";
+
+	/** Multiple values for parameter x not expected */
+	xMultipleParameter, // = "x.multiple.parameter";
+
+	/** The page parameter {0} is invalid . */
+	xInvalidParameter, // = "x.invalid.parameter";
+
+	/**  . */
+	xInvalidParameterType, // = "x.badtype.parameter";
+
+	/** The page {0} is in too many conversations, and a conversation was not specified. This usually indicates that a page was linked to incorrectly. */
+	xTooManyConversations, // = "x.conver.toomany";
+
+	rightsNotAllowed, // = "rights.disallowed";
+
+	uploadTooLarge, // = "upload.too.large";
+
+	uploadDataError, // = "upload.data.error";
+
+	uploadInterrupted, // = "upload.interrupted";
+
+	/*---------- Metamodel ----------*/
+	mmCompoundPropertyNotFound, // = "mm.compound.prop";
+
+	mmUnknownCollectionType, // = "mm.unknown.collection.type";
+
+	mmBadRegexp, // = "mm.bad.re";
+
+	//-- Controls
+	ctlImageInvalid,
 
 	;
 
 	/** Error component panel header text: Info */
 	public static String UI_INFO_HEADER = "ui.info.header";
-
-	/** (empty field) - the text shown when a lookup-popup-thingy is empty. */
-	public static String UI_LOOKUP_EMPTY = "ui.lookup.empty";
 
 	public static String UI_KEYWORD_SEARCH_COUNT = "ui.keyword.search.count";
 
@@ -123,11 +180,6 @@ public enum Msgs implements IBundleCode {
 	public static String UI_KEYWORD_SEARCH_LARGE_MATCH = "ui.keyword.search.large.match";
 
 	public static String UI_KEYWORD_SEARCH_HINT = "ui.keyword.search.hint";
-
-	/** Lookup value invalid */
-	public static String UI_LOOKUP_INVALID = "ui.lookup.invalid";
-
-	public static String UI_LOOKUP_BAD_OPERATOR_COMBI = "ui.lookup.op.combi";
 
 	public static String UI_LUI_TTL = "ui.lui.ttl";
 
@@ -162,42 +214,6 @@ public enum Msgs implements IBundleCode {
 
 	public static String UI_XDT_SURE = "ui.xdt.sure";
 
-	//# Exceptions.
-
-	/** The required page parameter {0} is missing. */
-	public static String X_MISSING_PARAMETER = "x.missing.parameter";
-
-	/** Multiple values for parameter x not expected */
-	public static String X_MULTIPLE_PARAMETER = "x.multiple.parameter";
-
-	/** The page parameter {0} is invalid . */
-	public static String X_INVALID_PARAMETER = "x.invalid.parameter";
-
-	/**  . */
-	public static String X_INVALID_PARAMTYPE = "x.badtype.parameter";
-
-	/** The page {0} is in too many conversations, and a conversation was not specified. This usually indicates that a page was linked to incorrectly. */
-	public static String X_TOO_MANY_CONVERSATIONS = "x.conver.toomany";
-
-	//# Validators
-
-
-	//# Server errors.
-	/** Your session with the server has expired. The page will be reloaded with original data from the server. */
-	public static String S_EXPIRED = "s.session.expired";
-
-	/** Your browser is out-of-sync with the server, most probably because your session with the server has expired. The page will be reloaded with original data from the server.  */
-	public static String S_BADNODE = "s.session.badnode";
-
-	/** The page has been reset and loaded again; the error message is passed on. */
-	public static String S_PAGE_CLEARED = "s.page.cleared";
-
-	/*---------- Metamodel ----------*/
-	public static String MM_COMPOUND_PROPERTY_NOT_FOUND = "mm.compound.prop";
-
-	public static String MM_UNKNOWN_COLLECTION_TYPE = "mm.unknown.collection.type";
-
-	public static String MM_BAD_REGEXP = "mm.bad.re";
 
 	//# Login and access denied code
 	public static String LOGIN_ACCESS_TITLE = "login.access.title";
@@ -209,8 +225,6 @@ public enum Msgs implements IBundleCode {
 	public static String LOGIN_REFUSAL_REASON = "login.refusal.reason";
 
 	public static String LOGIN_TO_INDEX = "login.toindex";
-
-	public static String RIGHTS_NOT_ALLOWED = "rights.disallowed";
 
 	//# Data not found code
 	public static String DATA_EXPIRED_TITLE = "expired.data.title";
@@ -326,23 +340,12 @@ public enum Msgs implements IBundleCode {
 	/*** ImageSelectControl ***/
 	public static String ISCT_EMPTY_TITLE = "isct.empty.title";
 
-	public static String UPLOAD_TOO_LARGE = "upload.too.large";
-
-	public static String UPLOAD_DATA_ERROR = "upload.data.error";
-
-	public static String UPLOAD_INTERRUPTED = "upload.interrupted";
-
-	public static String CONVERSATION_DESTROYED = "conversation.destroyed";
-
-	public static String E_BINDING_FAILED = "e.binding.failed";
-
-	public static String E_BINDING_DEFINITION = "e.binding.definition";
-
 	public static String UI_UPLOAD_TEXT = "ui.upload.button";
 
 	public static String UI_UPLOADMULTI_TEXT = "ui.uploadmulti.button";
 
 	static public final String EXPORT_BUTTON = "ui.btn.export";
+
 	@Override public BundleRef getBundle() {
 		return BUNDLE;
 	}

@@ -268,7 +268,7 @@ final public class UIGoto {
 	 */
 	@Deprecated
 	static public final void clearPageAndReload(Page pg, String msg, IPageParameters pp) {
-		clearPageAndReload(pg, UIMessage.info(Msgs.BUNDLE, Msgs.S_PAGE_CLEARED, msg), pp);
+		clearPageAndReload(pg, UIMessage.info(Msgs.sPageCleared, msg), pp);
 	}
 
 	/**

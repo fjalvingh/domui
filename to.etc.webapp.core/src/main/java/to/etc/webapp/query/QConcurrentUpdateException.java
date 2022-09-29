@@ -33,6 +33,6 @@ package to.etc.webapp.query;
  */
 public class QConcurrentUpdateException extends QDbException {
 	public QConcurrentUpdateException() {
-		super("concurrent.update");
+		super(QMessages.concurrentUpdate);
 	}
 }

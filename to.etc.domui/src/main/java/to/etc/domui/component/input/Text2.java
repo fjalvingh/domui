@@ -329,7 +329,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 				((IValueValidator<Object>) vv).validate(converted);
 			m_value = (T) converted;
 		} catch(UIException x) {
-			throw new ValidationException(x.getBundle(), x.getCode(), x.getParameters());
+			throw new ValidationException(x);
 		} catch(RuntimeConversionException x) {
 			throw new ValidationException(Msgs.notValid, raw);
 		} catch(Exception x) {
@@ -471,7 +471,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			else
 				converted = RuntimeConversions.convertTo(value, String.class);
 		} catch(UIException x) {
-			setMessage(UIMessage.error(x.getBundle(), x.getCode(), x.getParameters()));
+			setMessage(UIMessage.error(x));
 			return;
 		} catch(Exception x) {
 			LOG.error("setValue error: " + x, x);

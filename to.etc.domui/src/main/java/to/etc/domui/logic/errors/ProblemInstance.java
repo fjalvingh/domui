@@ -26,14 +26,16 @@ final public class ProblemInstance {
 	final private Object m_instance;
 
 	@Nullable
-	final private PropertyMetaModel< ? > m_property;
+	final private PropertyMetaModel<?> m_property;
 
-	/** The set of non-identifying parameters. These are used to "parameterize" the message, but are not part of the instance's identity. */
+	/**
+	 * The set of non-identifying parameters. These are used to "parameterize" the message, but are not part of the instance's identity.
+	 */
 	private Object[] m_parameters = NONE;
 
 	private Object[] m_identifyingParameters = NONE;
 
-	ProblemInstance(Problem problem, Object instance, PropertyMetaModel< ? > property) {
+	ProblemInstance(Problem problem, Object instance, PropertyMetaModel<?> property) {
 		m_problem = problem;
 		m_instance = instance;
 		m_property = property;
@@ -54,7 +56,7 @@ final public class ProblemInstance {
 	}
 
 	@Nullable
-	public PropertyMetaModel< ? > getProperty() {
+	public PropertyMetaModel<?> getProperty() {
 		return m_property;
 	}
 
@@ -64,8 +66,6 @@ final public class ProblemInstance {
 
 	/**
 	 * Add message parameters to the error.
-	 * @param arguments
-	 * @return
 	 */
 	public void using(Object... arguments) {
 		if(m_parameters.length == 0)
@@ -88,7 +88,7 @@ final public class ProblemInstance {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(MetaManager.identify(m_instance));
-		PropertyMetaModel< ? > pmm = m_property;
+		PropertyMetaModel<?> pmm = m_property;
 		if(null != pmm) {
 			sb.append(".").append(pmm.getName());
 		}
@@ -99,7 +99,7 @@ final public class ProblemInstance {
 
 	@NonNull
 	public String getMessage() {
-		return getProblem().getBundle().formatMessage(getProblem().getCode(), getParameters());
+		return getProblem().getCode().format(getParameters());
 	}
 
 	@Override

@@ -188,11 +188,11 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 				//-- Does not start with operation: can only be number [%].
 				String v = scanNumeric(true);
 				if(v == null || "".equals(v))
-					throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+					throw new ValidationException(Msgs.uiLookupInvalid);
 				if(v.contains("%") && m_allowLike) {
 					m_s.skipWs();
 					if(!m_s.eof()) // Must have eof
-						throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+						throw new ValidationException(Msgs.uiLookupInvalid);
 					crit.add(new QPropertyComparison(QOperation.LIKE, m_propertyName, new QLiteral(v)));
 					return AppendCriteriaResult.VALID;
 				}
@@ -210,7 +210,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 			//-- 2nd part MUST be numeric, so scan a value
 			String v = scanNumeric(false);
 			if(v == null || "".equals(v))
-				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+				throw new ValidationException(Msgs.uiLookupInvalid);
 			T value = parseNumber(v); // Convert to appropriate type,
 			checkNumber(value);
 
@@ -223,7 +223,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 			QOperation op2 = scanOperation();
 			m_s.skipWs();
 			if(m_s.eof())
-				throw new ValidationException(Msgs.BUNDLE, "ui.lookup.invalid");
+				throw new ValidationException(Msgs.uiLookupInvalid);
 
 			//-- 2nd fragment of 2nd part MUST be numeric, so scan a value
 			v = scanNumeric(false);
@@ -245,7 +245,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 					return AppendCriteriaResult.INVALID;
 				}
 			} else
-				throw new ValidationException(Msgs.BUNDLE, Msgs.UI_LOOKUP_BAD_OPERATOR_COMBI);
+				throw new ValidationException(Msgs.uiLookupOpCombi);
 		} catch(UIException x) {
 			m_input.setMessage(UIMessage.error(x));
 			return AppendCriteriaResult.INVALID;

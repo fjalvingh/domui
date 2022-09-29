@@ -6,6 +6,6 @@ package to.etc.webapp.query;
  */
 public class QTooManyResultsException extends QDbException {
 	public QTooManyResultsException(QCriteriaQueryBase<?, ?> base, int count) {
-		super(BUNDLE, "toomanyresults", base.toString(), count);
+		super(QMessages.tooManyResults, base.toString(), count);
 	}
 }
