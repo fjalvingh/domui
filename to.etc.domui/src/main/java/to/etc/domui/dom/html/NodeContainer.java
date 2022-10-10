@@ -258,6 +258,9 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		return m_children.get(i);
 	}
 
+	final public int undelegatedSize() {
+		return m_children.size();
+	}
 
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Tree delta manipulation, internals.					*/

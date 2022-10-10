@@ -13,6 +13,7 @@ import to.etc.domui.component.input.ComboLookup;
 import to.etc.domui.component.input.LookupInput;
 import to.etc.domui.component.input.Text;
 import to.etc.domui.component.input.Text2;
+import to.etc.domui.component.layout.Window;
 import to.etc.domui.component.misc.DisplaySpan;
 import to.etc.domui.component.searchpanel.lookupcontrols.NumberLookupControl;
 import to.etc.domui.component.tbl.DataTable;
@@ -26,9 +27,12 @@ import to.etc.domui.dom.html.RadioGroup;
 import to.etc.domui.dom.html.TextArea;
 import to.etc.domui.uitest.pogenerator.PogSimple.AllowEmbedded;
 import to.etc.function.BiFunctionEx;
+import to.etc.util.Pair;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
@@ -40,18 +44,31 @@ final public class PoGeneratorRegistry {
 
 	static private final Map<Class<?>, BiFunctionEx<PoGeneratorContext, NodeBase, IPoProxyGenerator>> m_factoryMap = new ConcurrentHashMap<>();
 
+	static private final List<Pair<Class<?>, BiFunctionEx<PoGeneratorContext, NodeBase, IPoProxyGenerator>>> m_extendsMap = new CopyOnWriteArrayList<>();
+
 	static public void register(Class<?> componentClass, BiFunctionEx<PoGeneratorContext, NodeBase, IPoProxyGenerator> generatorFactory) {
 		if(null != m_factoryMap.put(componentClass, generatorFactory))
 			LOG.warn("Overwriting PO proxy generator for " + componentClass);
+	}
+
+	static public void registerExtends(Class<?> componentClass, BiFunctionEx<PoGeneratorContext, NodeBase, IPoProxyGenerator> generatorFactory) {
+		m_extendsMap.add(new Pair<>(componentClass, generatorFactory));
 	}
 
 	@Nullable
 	static public IPoProxyGenerator find(PoGeneratorContext ctx, NodeBase node) throws Exception {
 		Class<? extends NodeBase> clz = node.getClass();
 		BiFunctionEx<PoGeneratorContext, NodeBase, IPoProxyGenerator> factory = m_factoryMap.get(clz);
-		if(null == factory)
-			return null;
-		return factory.apply(ctx, node);
+		if(null != factory) {
+			return factory.apply(ctx, node);
+		}
+		for(Pair<Class<?>, BiFunctionEx<PoGeneratorContext, NodeBase, IPoProxyGenerator>> pair : m_extendsMap) {
+			if(pair.get1().isAssignableFrom(clz)) {
+				return pair.get2().apply(ctx, node);
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -92,5 +109,7 @@ final public class PoGeneratorRegistry {
 
 		//-- Complex
 		register(DataTable.class, (ctx, node) -> new PogDataTable(node));
+		registerExtends(Window.class, (ctx, node) -> new PogWindow(node));
+
 	}
 }

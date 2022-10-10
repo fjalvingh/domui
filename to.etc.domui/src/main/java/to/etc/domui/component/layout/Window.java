@@ -44,31 +44,46 @@ import to.etc.webapp.nls.IBundleCode;
  * Created on Jul 19, 2011
  */
 public class Window extends FloatingDiv {
-	/** The container holding this dialog's title bar. This is also the drag source. */
+	/**
+	 * The container holding this dialog's title bar. This is also the drag source.
+	 */
 	private NodeContainer m_titleBar;
 
-	/** The container holding the content area for this dialog. */
+	/**
+	 * The container holding the content area for this dialog.
+	 */
 	private Div m_content;
 
-	/** The title in the title bar. */
+	/**
+	 * The title in the title bar.
+	 */
 	@Nullable
 	private String m_windowTitle;
 
-	/** When T the window has a close button in it's title bar. */
+	/**
+	 * When T the window has a close button in it's title bar.
+	 */
 	private boolean m_closable = true;
 
-	/** The close button in the title bar. */
+	/**
+	 * The close button in the title bar.
+	 */
 	private Img m_closeButton;
 
-	/** If present, an image to use as the icon inside the title bar. */
+	/**
+	 * If present, an image to use as the icon inside the title bar.
+	 */
 	private Img m_titleIcon;
 
-	/** The optional area just above the content area which remains fixed when the content area scrolls. */
+	/**
+	 * The optional area just above the content area which remains fixed when the content area scrolls.
+	 */
 	private Div m_topContent;
 
-	/** The optional area just below the content area which remains fixed when the content area scrolls. */
+	/**
+	 * The optional area just below the content area which remains fixed when the content area scrolls.
+	 */
 	private Div m_bottomContent;
-
 
 	public Window() {
 		init();
@@ -76,11 +91,12 @@ public class Window extends FloatingDiv {
 
 	/**
 	 * Full constructor: create a window and be able to set all options at once.
-	 * @param modal			T for a modal window.
-	 * @param resizable		T for a window that can be resized by the user.
-	 * @param width			The window width in pixels.
-	 * @param height		The window height in pixels.
-	 * @param title			The window title (or null if no title is required)
+	 *
+	 * @param modal     T for a modal window.
+	 * @param resizable T for a window that can be resized by the user.
+	 * @param width     The window width in pixels.
+	 * @param height    The window height in pixels.
+	 * @param title     The window title (or null if no title is required)
 	 */
 	public Window(boolean modal, boolean resizable, int width, int height, @Nullable String title) {
 		super(modal, resizable, width, height);
@@ -91,9 +107,6 @@ public class Window extends FloatingDiv {
 
 	/**
 	 * Create a window of default size, with a specified title, modality and resizability.
-	 * @param modal
-	 * @param resizable
-	 * @param title
 	 */
 	public Window(boolean modal, boolean resizable, String title) {
 		super(modal, resizable);
@@ -104,8 +117,6 @@ public class Window extends FloatingDiv {
 
 	/**
 	 * Create a modal window with the specified title and resizable option.
-	 * @param resizable
-	 * @param title
 	 */
 	public Window(boolean resizable, String title) {
 		this(true, resizable, title);
@@ -113,7 +124,6 @@ public class Window extends FloatingDiv {
 
 	/**
 	 * Create a modal, non-resizable window with the specified title.
-	 * @param title
 	 */
 	public Window(String title) {
 		this(true, false, title);
@@ -121,9 +131,6 @@ public class Window extends FloatingDiv {
 
 	/**
 	 * Create a modal, resizable window of the given size and with the specified title.
-	 * @param width
-	 * @param height
-	 * @param title
 	 */
 	public Window(int width, int height, String title) {
 		this(true, true, width, height, title);
@@ -195,6 +202,7 @@ public class Window extends FloatingDiv {
 
 	/**
 	 * This creates the title bar frame.
+	 *
 	 * @see to.etc.domui.dom.html.NodeContainer#createFrame()
 	 */
 	@Override
@@ -214,7 +222,8 @@ public class Window extends FloatingDiv {
 		}
 
 		//vmijic 20091125 - since z-index is dynamic value, correct value has to be used also in js.
-		appendCreateJS("$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + getZIndex() + ", handle: '#" + m_titleBar.getActualID() + "', stop: WebUI.notifySizePositionChanged});");
+		appendCreateJS(
+			"$('#" + getActualID() + "').draggable({" + "ghosting: false, zIndex:" + getZIndex() + ", handle: '#" + m_titleBar.getActualID() + "', stop: WebUI.notifySizePositionChanged});");
 		delegateTo(m_content);
 	}
 
@@ -228,7 +237,6 @@ public class Window extends FloatingDiv {
 	/**
 	 * Create the title bar for the floater.
 	 * Also replaces existing title bar in case that new is set.
-	 * @return
 	 */
 	protected void createTitleBar() {
 		if(m_titleBar == null)
@@ -278,10 +286,10 @@ public class Window extends FloatingDiv {
 	/*--------------------------------------------------------------*/
 	/*	CODING:	Properties.											*/
 	/*--------------------------------------------------------------*/
+
 	/**
 	 * When set to TRUE, the floater will display a close button on it's title bar, and will close
 	 * if that thingy is pressed.
-	 * @return
 	 */
 	public boolean isClosable() {
 		return m_closable;
@@ -290,7 +298,6 @@ public class Window extends FloatingDiv {
 	/**
 	 * When set to TRUE, the floater will display a close button on it's title bar, and will close
 	 * if that thingy is pressed.
-	 * @param closable
 	 */
 	public void setClosable(boolean closable) {
 		if(m_closable == closable)
@@ -300,7 +307,6 @@ public class Window extends FloatingDiv {
 
 	/**
 	 * Return the floater's title bar title string.
-	 * @return
 	 */
 	public String getWindowTitle() {
 		return m_windowTitle;
@@ -308,7 +314,6 @@ public class Window extends FloatingDiv {
 
 	/**
 	 * Set the floater's title bar string.
-	 * @param windowTitle
 	 */
 	public void setWindowTitle(String windowTitle) {
 		if(DomUtil.isEqual(windowTitle, m_windowTitle))
@@ -321,7 +326,6 @@ public class Window extends FloatingDiv {
 	/**
 	 * Set an icon for the title bar, using the absolute path to a web resource. If the name is prefixed
 	 * with THEME/ it specifies an image from the current THEME's directory.
-	 * @param ico
 	 */
 	public void setIcon(String ico) {
 		createIcon().setSrc(ico);
@@ -331,7 +335,6 @@ public class Window extends FloatingDiv {
 	 * Return the div that is the bottom content area. Before it can be used it's heigth <b>must</b> be set
 	 * manually to a size in pixels. This allows the Javascript layout calculator to calculate the size of
 	 * the content area. After setting the height any content can be added here.
-	 * @return
 	 */
 	public Div getBottomContent() {
 		return m_bottomContent;
@@ -341,7 +344,6 @@ public class Window extends FloatingDiv {
 	 * Return the div that is the top content area. Before it can be used it's heigth <b>must</b> be set
 	 * manually to a size in pixels. This allows the Javascript layout calculator to calculate the size of
 	 * the content area. After setting the height any content can be added here.
-	 * @return
 	 */
 	public Div getTopContent() {
 		return m_topContent;

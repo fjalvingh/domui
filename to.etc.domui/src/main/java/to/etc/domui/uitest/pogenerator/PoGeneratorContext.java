@@ -7,8 +7,11 @@ import to.etc.domui.dom.html.NodeContainer;
 import to.etc.domui.dom.html.UrlPage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This defines the context for generation, and receives all
@@ -179,6 +182,27 @@ public class PoGeneratorContext {
 		return ++m_counter;
 	}
 
+	@Nullable
+	static public NodeBase findNodeByCssClass(NodeContainer parent, String className) {
+		for(NodeBase nodeBase : parent) {
+			if(nodeBase.hasCssClass(className)) {
+				return nodeBase;
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	static public NodeBase findNodeByCssClassUndelegated(NodeContainer parent, String className) {
+		for(int i = 0; i < parent.undelegatedSize(); i++) {
+			NodeBase b = parent.undelegatedGetChild(i);
+			if(b.hasCssClass(className)) {
+				return b;
+			}
+		}
+		return null;
+	}
+
 	static public String clean(String str) {
 		StringBuilder sb = new StringBuilder(str.length());
 		for(int i = 0; i < str.length(); i++) {
@@ -240,10 +264,70 @@ public class PoGeneratorContext {
 		if(! Character.isJavaIdentifierStart(in.charAt(0))) {
 			in = "c" + in;
 		}
+		if(RESERVED_WORDS.contains(in))
+			return in + "_";
 		return in;
 	}
 
 	static public String makeName(String from) {
 		return makeNameValid(removeUnderscores(clean(from)));
 	}
+
+
+	static private final Set<String> RESERVED_WORDS = new HashSet<>(Arrays.asList(
+		"abstract"
+		, "assert"
+		, "boolean"
+		, "break"
+		, "byte"
+		, "case"
+		, "catch"
+		, "char"
+		, "class"
+		, "continue"
+		, "const"
+		, "default"
+		, "do"
+		, "double"
+		, "else"
+		, "enum"
+		, "exports"
+		, "extends"
+		, "final"
+		, "finally"
+		, "float"
+		, "for"
+		, "goto"
+		, "if"
+		, "implements"
+		, "import"
+		, "instanceof"
+		, "import"
+		, "interface"
+		, "long"
+		, "module"
+		, "native"
+		, "new"
+		, "package"
+		, "private"
+		, "protected"
+		, "public"
+		, "requires"
+		, "return"
+		, "short"
+		, "static"
+		, "strictfp"
+		, "super"
+		, "switch"
+		, "synchronized"
+		, "this"
+		, "throw"
+		, "throws"
+		, "transient"
+		, "try"
+		, "var"
+		, "void"
+		, "volatile"
+		, "while"
+		));
 }

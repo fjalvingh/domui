@@ -82,6 +82,7 @@ final public class PoMethod extends BodyWriter<PoMethod> {
 
 	public void appendLazyInit(PoField field, ConsumerEx<String> writer) throws Exception {
 		String var = field.getFieldName().startsWith("m_") ? field.getFieldName().substring(2) : "value";
+		var = PoGeneratorContext.makeNameValid(var);
 
 		appendType(m_poClass, field.getType()).append(" ").append(var).append(" = ").append(field.getFieldName()).append(";").nl();
 		append("if(null == ").append(var).append(") {").nl();

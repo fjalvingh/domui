@@ -88,18 +88,6 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 
 	}
 
-	///**
-	// * Create a base name in case the testid is null.
-	// */
-	//@NonNull
-	//@Override
-	//public String getProposedBaseName(PoGeneratorContext context, NodeBase node) {
-	//	String baseName = m_baseName = m_node.getTestID() == null
-	//		? "Tbl" + context.nextCounter()
-	//		: context.getRootClass().getBaseName(m_node.getTestID());
-	//	return baseName;
-	//}
-
 	/**
 	 * Generate the column accessor(s) for a single column. The accessor accesses whatever is hidden in the cell.
 	 * We can have multiple controls inside a column, and a separate accessor method will be generated for each of
