@@ -96,6 +96,9 @@ public class DefaultBindingHandler implements IBindingHandler {
 					for(IBinding sb : list)
 						sb.moveModelToControl();
 				}
+				if(n instanceof IModelToControlListener) {
+					((IModelToControlListener) n).onModelToControl();
+				}
 				return null;
 			}
 
