@@ -322,7 +322,7 @@ public class FileTool {
 	 * extension is present then the empty string is returned ("").
 	 */
 	@NonNull
-	static public String getFileExtension(final String fn) {
+	static public String getFileExtension(@NonNull String fn) {
 		int s1 = fn.lastIndexOf('/');
 		int s2 = fn.lastIndexOf('\\');
 		if(s2 > s1)
@@ -340,7 +340,7 @@ public class FileTool {
 	 * Returns the start position of the filename extension in the string. If
 	 * the string has no extension then this returns -1.
 	 */
-	static public int findFilenameExtension(final String fn) {
+	static public int findFilenameExtension(@NonNull  String fn) {
 		int slp = fn.lastIndexOf('/');
 		int t = fn.lastIndexOf('\\');
 		if(t > slp)
@@ -358,7 +358,7 @@ public class FileTool {
 	 * returns test.
 	 */
 	@NonNull
-	static public String fileNameSansExtension(final String fn) {
+	static public String fileNameSansExtension(@NonNull String fn) {
 		int slp = fn.lastIndexOf('/');
 		int t = fn.lastIndexOf('\\');
 		int start = slp == -1
@@ -375,11 +375,11 @@ public class FileTool {
 	/**
 	 * Copies a file of max. 1GB.
 	 */
-	static public void copyFile(final File destf, final File srcf) throws IOException {
+	static public void copyFile(@NonNull File destf, @NonNull File srcf) throws IOException {
 		copyFile(destf, srcf, 1 * GB);
 	}
 
-	static public void copyFile(final File destf, final File srcf, long maxSize) throws IOException {
+	static public void copyFile(@NonNull File destf, @NonNull File srcf, long maxSize) throws IOException {
 		try(InputStream is = new FileInputStream(srcf); OutputStream os = new FileOutputStream(destf)) {
 			copyFile(os, is, maxSize);
 			ignore(destf.setLastModified(srcf.lastModified()));
@@ -389,11 +389,11 @@ public class FileTool {
 	/**
 	 * Copies the inputstream to the output stream, limited to 1GB of data(!).
 	 */
-	static public void copyFile(final OutputStream os, final InputStream is) throws IOException {
+	static public void copyFile(@NonNull OutputStream os, @NonNull InputStream is) throws IOException {
 		copyFile(os, is, 1 * GB);
 	}
 
-	static public void copyFile(final OutputStream os, final InputStream is, long maxSize) throws IOException {
+	static public void copyFile(@NonNull OutputStream os, @NonNull InputStream is, long maxSize) throws IOException {
 		byte[] buf = new byte[8192];
 		int sz;
 		long size = 0L;
@@ -408,7 +408,7 @@ public class FileTool {
 	/**
 	 * Copy the input reader to the output reader.
 	 */
-	static public void copyFile(final Writer w, final Reader r) throws IOException {
+	static public void copyFile(@NonNull Writer w, @NonNull Reader r) throws IOException {
 		char[] buf = new char[8192];
 		int sz;
 		while(0 < (sz = r.read(buf)))
@@ -420,7 +420,7 @@ public class FileTool {
 	 * files from src into destd; it does not remove files in destd that are
 	 * not in srcd. Use synchronizeDir() for that.
 	 */
-	static public void copyDir(final File destd, final File srcd) throws IOException {
+	static public void copyDir(@NonNull File destd, @NonNull File srcd) throws IOException {
 		if(!srcd.exists())
 			return;
 		if(srcd.isFile()) {
