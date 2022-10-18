@@ -124,15 +124,21 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 	}
 
 	private final Map<T, NodeContainer> m_itemNodes = new HashMap<T, NodeContainer>();
+
 	private List<T> m_selectionList = Collections.EMPTY_LIST;
+
 	private boolean m_mandatory;
+
 	private boolean m_disabled;
 
-	private IValueChanged< ? > m_onValueChanged;
+	private IValueChanged<?> m_onValueChanged;
 
 	private final MultiLookupInput m_lookupInput;
+
 	private Div m_selectionContainer;
+
 	private IRenderInto<T> m_selectedItemRenderer;
+
 	private String[] m_renderColumns;
 
 	private String m_cssForSelectedItems;
@@ -148,27 +154,27 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 	/**
 	 * This renderer represents default renderer that is used for items in {@link MultipleLookupInput} control.
 	 */
-	final private IRenderInto<T> DEFAULT_RENDERER = new IRenderInto<T>() {
+	final private IRenderInto<T> m_defaultRenderer = new IRenderInto<T>() {
 		@Override
 		public void render(@NonNull NodeContainer node, @NonNull T object) throws Exception {
 			if(object != null) {
 				ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
 				if(cmm != null) {
-					List<ExpandedDisplayProperty< ? >> xpl = null;
+					List<ExpandedDisplayProperty<?>> xpl = null;
 					String[] cols = m_renderColumns;
-					if (cols != null && cols.length > 0) {
+					if(cols != null && cols.length > 0) {
 						xpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
-					}else {
+					} else {
 						List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
-						if (!l.isEmpty()) {
+						if(!l.isEmpty()) {
 							xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
 						}
 					}
-					if (xpl != null && !xpl.isEmpty()) {
+					if(xpl != null && !xpl.isEmpty()) {
 						xpl = ExpandedDisplayProperty.flatten(xpl);
 						String display = "";
 						String hint = "";
-						for(ExpandedDisplayProperty< ? > xp : xpl) {
+						for(ExpandedDisplayProperty<?> xp : xpl) {
 							String val = xp.getPresentationString(object);
 							if(val == null || val.isEmpty())
 								continue;
@@ -177,7 +183,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 						}
 						node.setText(display);
 						node.setTitle(hint);
-					}else {
+					} else {
 						node.setText(object.toString());
 					}
 				}
@@ -189,6 +195,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		m_lookupInput = new MultiLookupInput(clazz, renderColumns);
 		m_lookupInput.setSearchPanelInitialization(new ILookupFormModifier<T>() {
 			private boolean initialized = false;
+
 			@Override
 			public void initialize(@NonNull SearchPanel<T> lf) throws Exception {
 				if(!initialized) {
@@ -220,7 +227,9 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		endUpdate();
 	}
 
-	@NonNull @Override public Class<T> getActualType() {
+	@NonNull
+	@Override
+	public Class<T> getActualType() {
 		return m_lookupInput.getActualType();
 	}
 
@@ -233,11 +242,15 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		endUpdate();
 	}
 
-	@Nullable @Override protected String getFocusID() {
+	@Nullable
+	@Override
+	protected String getFocusID() {
 		return m_lookupInput.getFocusID();
 	}
 
-	@Nullable @Override public NodeBase getForTarget() {
+	@Nullable
+	@Override
+	public NodeBase getForTarget() {
 		return m_lookupInput.getForTarget();
 	}
 
@@ -280,7 +293,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 					addSelection(item);
 					component.setValue(null);
 					addClearButton();
-					IValueChanged<MultipleLookupInput< ? >> ovc = (IValueChanged<MultipleLookupInput< ? >>) getOnValueChanged();
+					IValueChanged<MultipleLookupInput<?>> ovc = (IValueChanged<MultipleLookupInput<?>>) getOnValueChanged();
 					if(ovc != null) {
 						ovc.onValueChanged(MultipleLookupInput.this);
 					}
@@ -290,7 +303,8 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		});
 		renderSelection();
 		addClearButton();
-		if ((isDisabled() || isReadOnly()) && !getValueSafe().isEmpty()){
+		List<T> val = getValueSafe();
+		if((isDisabled() || isReadOnly()) && (val == null || !val.isEmpty())) {
 			m_lookupInput.setDisplay(DisplayType.NONE);
 		}
 	}
@@ -318,6 +332,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 
 	/**
 	 * Call to mark end selection update changes. See also startUpdate.
+	 *
 	 * @throws Exception
 	 */
 	public void endUpdate() throws Exception {
@@ -330,7 +345,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 			updateClearButtonState();
 			int currentSize = m_selectionList.size();
 			if(currentSize != val.intValue()) {
-				IValueChanged<MultipleLookupInput< ? >> ovc = (IValueChanged<MultipleLookupInput< ? >>) getOnValueChanged();
+				IValueChanged<MultipleLookupInput<?>> ovc = (IValueChanged<MultipleLookupInput<?>>) getOnValueChanged();
 				if(ovc != null) {
 					ovc.onValueChanged(MultipleLookupInput.this);
 				}
@@ -349,7 +364,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		if(null != maxHeightForSelectionContainer) {
 			m_selectionContainer.setMaxHeight(maxHeightForSelectionContainer);
 		}
-		for (final T item : m_selectionList) {
+		for(final T item : m_selectionList) {
 			final Span itemNode = createItemNode(item);
 			m_itemNodes.put(item, itemNode);
 			m_selectionContainer.add(itemNode);
@@ -375,7 +390,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		//In case of rendring selected values it is possible to use customized renderers. If no customized rendered is defined then use default one.
 		IRenderInto<T> r = getSelectedItemContentRenderer();
 		if(r == null)
-			r = DEFAULT_RENDERER; // Prevent idiotic generics error
+			r = m_defaultRenderer; // Prevent idiotic generics error
 		r.render(itemText, item);
 		return itemNode;
 	}
@@ -420,9 +435,9 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 
 	@Override
 	public void setReadOnly(boolean ro) {
-		if (m_disabled != ro) {
+		if(m_disabled != ro) {
 			m_disabled = ro;
-			if (isBuilt()) {
+			if(isBuilt()) {
 				forceRebuild();
 			}
 		}
@@ -435,9 +450,9 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 
 	@Override
 	public void setValue(@Nullable List<T> v) {
-		if (m_selectionList != v) {
+		if(m_selectionList != v) {
 			m_selectionList = v;
-			if (isBuilt()) {
+			if(isBuilt()) {
 				forceRebuild();
 			}
 		}
@@ -449,12 +464,12 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 	}
 
 	@Override
-	public IValueChanged< ? > getOnValueChanged() {
+	public IValueChanged<?> getOnValueChanged() {
 		return m_onValueChanged;
 	}
 
 	@Override
-	public void setOnValueChanged(IValueChanged< ? > onValueChanged) {
+	public void setOnValueChanged(IValueChanged<?> onValueChanged) {
 		m_onValueChanged = onValueChanged;
 	}
 
@@ -515,6 +530,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 
 	/**
 	 * Remove item from selection list.
+	 *
 	 * @param item
 	 * @throws Exception
 	 */
@@ -561,7 +577,8 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 		m_lookupInput.setIsLookupAllowed(isLookupAllowed);
 	}
 
-	@Override public void setHint(String hintText) {
+	@Override
+	public void setHint(String hintText) {
 		setTitle(hintText);
 	}
 }
