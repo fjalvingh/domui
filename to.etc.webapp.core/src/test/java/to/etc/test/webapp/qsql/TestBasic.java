@@ -118,7 +118,7 @@ public class TestBasic {
 				break;
 			System.out.println("la: " + la.getCode() + ", " + la.getDescription() + ", " + la.getTypeDescription() + ", " + la.getId());
 		}
-		Assert.assertTrue(res.size() != 0);
+		Assert.assertTrue(!res.isEmpty());
 	}
 
 	//@Test
@@ -135,9 +135,9 @@ public class TestBasic {
 			if(!la.getCode().startsWith("E"))
 				Assert.fail("Got code not starting with E: " + la.getCode());
 		}
-		Assert.assertTrue(res.size() != 0);
+		Assert.assertTrue(!res.isEmpty());
 	}
-	
+
 	@Test
 	public void testSQLGen5() throws Exception {
 		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class);
@@ -159,7 +159,7 @@ public class TestBasic {
 		QRestrictorImpl<LedgerAccount> and = or.and();
 		and.not().like("code", "%E4%");
 		and.not().like("code", "%E5%"); //other variant of appending operator...
-		
+
 		or.not().like("description", "Overige%");
 
 		JdbcSQLGenerator gc = new JdbcSQLGenerator();
@@ -170,7 +170,7 @@ public class TestBasic {
 		Assert.assertEquals(1, gc.getRetrieverList().size());
 		Assert.assertEquals(3, gc.getValList().size());
 	}
-	
+
 	@Test
 	public void testSQLGen7() throws Exception {
 		QCriteria<LedgerAccount> qc = QCriteria.create(LedgerAccount.class);
@@ -187,5 +187,5 @@ public class TestBasic {
 		Assert.assertEquals(1, gc.getRetrieverList().size());
 		Assert.assertEquals(3, gc.getValList().size());
 	}
-	
+
 }

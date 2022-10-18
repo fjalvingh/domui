@@ -416,7 +416,7 @@ public class OracleReverser extends JDBCReverser {
 
 	private void reverseRelation(Connection dbc, DbTable table, boolean parent) throws Exception {
 		List<Cons> list = getRelationConstraints(dbc, table, parent);
-		if(list.size() == 0)
+		if(list.isEmpty())
 			return;
 		for(Cons c : list) {
 			List<DbColumn> childColumns = getRelationColumns(dbc, table.getSchema(), c.owner, c.name);							// Get all columns in the FK part
@@ -438,7 +438,7 @@ public class OracleReverser extends JDBCReverser {
 	private DbRelation createRelation(@NonNull String owner, @NonNull String name, @NonNull List<DbColumn> parentColumns, @NonNull List<DbColumn> childColumns) {
 		if(parentColumns.size() != childColumns.size())
 			throw new IllegalStateException("Parent and child column lists do not have the same size for constraint=" + owner + "." + name);
-		if(parentColumns.size() == 0)
+		if(parentColumns.isEmpty())
 			throw new IllegalStateException("No children in constraint " + owner + "." + name);
 		DbTable pt = parentColumns.get(0).getTable();
 		DbTable ct = childColumns.get(0).getTable();
@@ -462,7 +462,7 @@ public class OracleReverser extends JDBCReverser {
 		ResultSet rs2 = null;
 
 		List<Cons> list = getRelationConstraints(dbc, t, true);
-		if(list.size() == 0)
+		if(list.isEmpty())
 			return;
 		try {
 

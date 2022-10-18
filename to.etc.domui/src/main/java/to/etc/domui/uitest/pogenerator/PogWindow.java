@@ -41,7 +41,7 @@ final public class PogWindow extends AbstractPoProxyGenerator implements IPoProx
 
 		//-- Collect generators for all children of the dialog
 		List<NodeGeneratorPair> contentGenerators = ctx.createGenerators(content);
-		if(contentGenerators.size() == 0)
+		if(contentGenerators.isEmpty())
 			return GeneratorAccepted.RefusedIgnoreChildren;
 		if(bottomContent instanceof NodeContainer) {
 			ctx.createGenerators(contentGenerators, (NodeContainer) bottomContent);

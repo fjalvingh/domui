@@ -792,7 +792,7 @@ public class SqlHighlighter extends HiParser implements IHighlighter {
 
 				for(String s : line.split("\\s+")) {
 					s = s.trim();
-					if(s.length() > 0) {
+					if(!s.isEmpty()) {
 						int pos = s.indexOf('|');
 						if(pos == -1)
 							words.add(s);

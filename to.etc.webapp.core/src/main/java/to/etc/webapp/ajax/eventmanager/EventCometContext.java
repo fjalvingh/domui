@@ -157,7 +157,7 @@ public class EventCometContext implements CometContext {
 				throw new ServletException("The 'channels' field must be an array of strings");
 			channels.add((String) co);
 		}
-		if(channels.size() == 0)
+		if(channels.isEmpty())
 			throw new ServletException("The 'channels' field cannot be empty");
 
 		m_channels = channels;
@@ -314,7 +314,7 @@ public class EventCometContext implements CometContext {
 			m_eventList.add(e);
 			return true;
 		}
-		if(m_eventList.size() == 0) {
+		if(m_eventList.isEmpty()) {
 			m_eventList.add(e);
 			return true;
 		}
@@ -348,7 +348,7 @@ public class EventCometContext implements CometContext {
 	void setRegistrationExpired(final int nexteventid) {
 		if(m_completionState != CompletionState.csWAITING)
 			throw new IllegalStateException("Completion state is alread " + m_completionState);
-		if(m_eventList != null && m_eventList.size() > 0)
+		if(m_eventList != null && !m_eventList.isEmpty())
 			throw new IllegalStateException("EXPIRING a context what HAS events pending!?!");
 		m_completionState = CompletionState.csBADKEY;
 		m_result = new EventResult(m_key, nexteventid, "EXPIRED", null);

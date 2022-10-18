@@ -111,7 +111,7 @@ public class ErrorFenceHandler implements IErrorFence {
 		}
 
 		// ; now call all pending listeners. If this page has NO listeners we use the application default.
-		if(m_errorListeners.size() == 0) {
+		if(m_errorListeners.isEmpty()) {
 			//-- No default listeners: this means errors will not be visible. Ask the application to add an error handling component.
 			DomApplication.get().addDefaultErrorComponent(getContainer()); // Ask the application to add,
 

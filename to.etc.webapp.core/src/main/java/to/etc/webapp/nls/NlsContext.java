@@ -92,7 +92,7 @@ final public class NlsContext {
 		Locale dl = Locale.getDefault();
 		String country = dl.getCountry();
 		String language = dl.getLanguage();
-		if(country == null || country.length() == 0 || language == null || language.length() == 0) {
+		if(country == null || country.isEmpty() || language == null || language.isEmpty()) {
 			m_defaultLocale = Locale.US;
 		} else {
 			m_defaultLocale = dl;

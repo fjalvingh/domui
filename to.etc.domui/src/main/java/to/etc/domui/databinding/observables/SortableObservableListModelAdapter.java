@@ -129,7 +129,7 @@ final public class SortableObservableListModelAdapter<T> implements ITableModel<
 
 	@Nullable
 	private Class<?> getDataClass() {
-		return m_list.size() == 0 ? null : m_list.get(0).getClass();
+		return m_list.isEmpty() ? null : m_list.get(0).getClass();
 	}
 
 	private class EvListener implements IListChangeListener<T> {

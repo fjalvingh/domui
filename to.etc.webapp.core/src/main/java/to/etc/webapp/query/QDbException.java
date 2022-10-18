@@ -104,7 +104,7 @@ public class QDbException extends CodeException {
 	static private String calcSQLState(SQLException x) {
 		while(x != null) {
 			String state = x.getSQLState();
-			if(state != null && state.length() != 0)
+			if(state != null && !state.isEmpty())
 				return state;
 			x = x.getNextException();
 		}

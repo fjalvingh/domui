@@ -53,7 +53,7 @@ public class BuildPlanFailedException extends IocConfigurationException {
 				iw.print("- Defined at ");
 				iw.println(getLocationText());
 			}
-			if(m_list != null && m_list.size() > 0) {
+			if(m_list != null && !m_list.isEmpty()) {
 				iw.println("- The failed alternatives were:");
 				iw.inc();
 				for(FailedAlternative fa : m_list) {

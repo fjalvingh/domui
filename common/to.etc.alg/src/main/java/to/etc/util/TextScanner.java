@@ -129,7 +129,7 @@ public class TextScanner {
 			copy();
 		}
 		String s = sb().toString();
-		if(s.length() == 0)
+		if(s.isEmpty())
 			return null;
 		return Double.valueOf(s);
 	}

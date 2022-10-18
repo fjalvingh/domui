@@ -98,7 +98,7 @@ final public class OracleStatisticsCreator {
 
 		if(m_allStatistics) {
 			Map<MetricsDefinition, DbMetric> newMap = loadExtendedStatistics(px);
-			if(newMap.size() > 0) {
+			if(!newMap.isEmpty()) {
 				Map<MetricsDefinition, DbMetric> oldMap;
 				synchronized(m_storeMap) {
 					oldMap = m_storeMap.remove(px);

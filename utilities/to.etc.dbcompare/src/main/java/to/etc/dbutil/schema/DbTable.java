@@ -401,7 +401,7 @@ public class DbTable implements Serializable {
 				score += v.intValue();
 			occmap.put(pre, Integer.valueOf(score));
 		}
-		if(occmap.size() == 0)
+		if(occmap.isEmpty())
 			return "";
 		List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(occmap.entrySet());
 		if(list.size() == 1) {

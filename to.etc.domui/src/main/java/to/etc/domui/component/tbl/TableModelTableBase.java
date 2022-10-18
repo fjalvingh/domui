@@ -174,7 +174,7 @@ abstract public class TableModelTableBase<T> extends Div implements ITableModelL
 	@NonNull
 	protected T getModelItem(int index) throws Exception {
 		List<T> res = getModel().getItems(index, index + 1);
-		if(res.size() == 0)
+		if(res.isEmpty())
 			throw new IllegalStateException("Model did not return a row at index=" + index);
 		T val = res.get(0);
 		if(val == null)

@@ -115,7 +115,7 @@ public class RpcMethodDefinition {
 			StringTokenizer st = new StringTokenizer(am.roles(), " \t,");
 			while(st.hasMoreTokens()) {
 				String s = st.nextToken().trim();
-				if(s.length() > 0)
+				if(!s.isEmpty())
 					l.add(s);
 			}
 		}

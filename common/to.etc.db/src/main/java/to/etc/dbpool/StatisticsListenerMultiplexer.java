@@ -38,7 +38,7 @@ final class StatisticsListenerMultiplexer implements IStatisticsListener {
 	private Map<String, IStatisticsListener> m_list = new HashMap<String, IStatisticsListener>();
 
 	private void check() {
-		if(m_list.size() == 0)
+		if(m_list.isEmpty())
 			System.out.println("No listeners registered!!");
 	}
 

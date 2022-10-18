@@ -230,7 +230,7 @@ public class JDBCReverser implements Reverser {
 		Connection dbc = m_ds.getConnection();
 		try {
 			Set<DbSchema> schemaSet = getSchemasOnly(lazily);		// Load schema's
-			if(schemaNames.size() > 0) {
+			if(!schemaNames.isEmpty()) {
 				List<String> lcSchemaNames = schemaNames.stream().map(a -> a.toLowerCase()).collect(Collectors.toList());
 				schemaSet.removeIf(a -> ! lcSchemaNames.contains(a.getName().toLowerCase()));
 			}
@@ -378,7 +378,7 @@ public class JDBCReverser implements Reverser {
 		 */
 		if(name == null && schemaSet.size() == 1) {
 			DbSchema schema = schemaSet.iterator().next();
-			if(schema.getName().length() == 0)
+			if(schema.getName().isEmpty())
 				return schema;
 		}
 
@@ -597,7 +597,7 @@ public class JDBCReverser implements Reverser {
 					pkl.set(ord, c);
 				}
 			}
-			if(name != null && pkl.size() > 0) {
+			if(name != null && !pkl.isEmpty()) {
 				pk = new DbPrimaryKey(t, name);
 				t.setPrimaryKey(pk);
 				for(DbColumn c : pkl)
@@ -638,7 +638,7 @@ public class JDBCReverser implements Reverser {
 				String pkcname = rs.getString("PKCOLUMN_NAME");
 				String fkname = rs.getString("FK_NAME");
 
-				if(fkname != null && fkname.length() > 0)
+				if(fkname != null && !fkname.isEmpty())
 					name = fkname;
 
 				int ord = rs.getInt("KEY_SEQ");
@@ -734,7 +734,7 @@ public class JDBCReverser implements Reverser {
 				String fkcname = rs.getString("FKCOLUMN_NAME");
 				String pkcname = rs.getString("PKCOLUMN_NAME");
 				String fkname = rs.getString("FK_NAME");
-				if(fkname != null && fkname.length() > 0)
+				if(fkname != null && !fkname.isEmpty())
 					name = fkname;
 				int ord = rs.getInt("KEY_SEQ");
 				if(!pktname.equals(t.getName()))

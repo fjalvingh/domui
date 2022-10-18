@@ -268,7 +268,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 		//}
 		//-- ORDERED
 		//-- Ok, we need the items we're going to show now.
-		if(m_itemList.size() == 0)                            // If we don't have an item set yet....
+		if(m_itemList.isEmpty())                            // If we don't have an item set yet....
 			internalAddMetadata();
 
 		//-- If a page title is present render the search block in a CaptionedPanel, else present in its own div.
@@ -1047,9 +1047,9 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	@NonNull
 	private List<SearchPropertyMetaModel> getMetadataSearchPropertyList() {
 		List<SearchPropertyMetaModel> list = getMetaModel().getSearchProperties();
-		if(list == null || list.size() == 0) {
+		if(list == null || list.isEmpty()) {
 			list = MetaManager.calculateSearchProperties(getMetaModel()); // 20100416 jal EXPERIMENTAL
-			if(list == null || list.size() == 0)
+			if(list == null || list.isEmpty())
 				return Collections.emptyList();
 		}
 		return list;
@@ -1057,7 +1057,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 
 	private void internalAddMetadata() {
 		List<SearchPropertyMetaModel> list = getMetadataSearchPropertyList();
-		if(list.size() == 0)
+		if(list.isEmpty())
 			throw new IllegalStateException(getMetaModel() + " has no search properties defined in its meta data.");
 		appendMetadataProperties(list);
 	}
@@ -1070,7 +1070,7 @@ public class SearchPanel<T> extends Div implements IButtonContainer {
 	 */
 	public void addDefault() {
 		List<SearchPropertyMetaModel> list = getMetadataSearchPropertyList();
-		if(list.size() > 0)
+		if(!list.isEmpty())
 			appendMetadataProperties(list);
 	}
 

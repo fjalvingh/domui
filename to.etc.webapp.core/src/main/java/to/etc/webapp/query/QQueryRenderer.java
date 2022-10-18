@@ -103,7 +103,7 @@ public class QQueryRenderer extends QRenderingVisitorBase implements QNodeVisito
 	public void visitSelection(@NonNull QSelection< ? > s) throws Exception {
 		renderFrom(s);
 
-		if(s.getColumnList().size() != 0) {
+		if(!s.getColumnList().isEmpty()) {
 			//-- Restriction query: return the base class
 			append(" SELECT ");
 		}

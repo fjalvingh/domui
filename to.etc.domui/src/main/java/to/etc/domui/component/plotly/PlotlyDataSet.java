@@ -153,7 +153,7 @@ public class PlotlyDataSet implements IPlotlyDataset {
 			b.objEnd();
 		}
 
-		if(m_imageList.size() > 0) {
+		if(!m_imageList.isEmpty()) {
 			b.objArrayField("images");
 			for(PlImage image : m_imageList) {
 				b.itemObj();
@@ -171,7 +171,7 @@ public class PlotlyDataSet implements IPlotlyDataset {
 		m_yAxis.render(b);
 		b.objEnd();                        // xaxis
 
-		if(m_annotationList.size() > 0) {
+		if(!m_annotationList.isEmpty()) {
 			b.objArrayField("annotations");
 			for(PlAnnotation ann : m_annotationList) {
 				b.itemObj();
@@ -192,14 +192,14 @@ public class PlotlyDataSet implements IPlotlyDataset {
 			b.objEnd();
 		}
 
-		if(m_colorWay.size() > 0) {
+		if(!m_colorWay.isEmpty()) {
 			b.objArrayField("colorway");
 			for(String s : m_colorWay) {
 				b.item(fixColor(s));
 			}
 			b.arrayEnd();
 		}
-		if(m_sunburstColorWay.size() > 0) {
+		if(!m_sunburstColorWay.isEmpty()) {
 			b.objArrayField("sunburstcolorway");
 			for(String s : m_sunburstColorWay) {
 				b.item(fixColor(s));
@@ -313,7 +313,7 @@ public class PlotlyDataSet implements IPlotlyDataset {
 
 	@Nullable
 	private static String fixColor(String color) {
-		if(null == color || color.length() == 0)
+		if(null == color || color.isEmpty())
 			return null;
 		for(int i = color.length(); --i >= 0;) {
 			char c = color.charAt(i);

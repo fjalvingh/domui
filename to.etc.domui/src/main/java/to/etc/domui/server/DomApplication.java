@@ -881,7 +881,7 @@ public abstract class DomApplication {
 			String value = pp.getString(parameterName);
 			if(parameterName.startsWith(HEADER_PREFIX)) {
 				String name = parameterName.substring(HEADER_PREFIX.length());
-				if(value == null || value.length() == 0) {
+				if(value == null || value.isEmpty()) {
 					addDefaultHTTPHeader(name, null);
 					addDefaultResourceHeader(name, null);
 				} else {
@@ -890,14 +890,14 @@ public abstract class DomApplication {
 				}
 			} else if(parameterName.startsWith(HTTPHEADER_PREFIX)) {
 				String name = parameterName.substring(HTTPHEADER_PREFIX.length());
-				if(value == null || value.length() == 0) {
+				if(value == null || value.isEmpty()) {
 					addDefaultHTTPHeader(name, null);
 				} else {
 					addDefaultHTTPHeader(name, value);
 				}
 			} else if(parameterName.startsWith(RESOURCEHEADER_PREFIX)) {
 				String name = parameterName.substring(RESOURCEHEADER_PREFIX.length());
-				if(value == null || value.length() == 0) {
+				if(value == null || value.isEmpty()) {
 					addDefaultResourceHeader(name, null);
 				} else {
 					addDefaultResourceHeader(name, value);
@@ -1736,7 +1736,7 @@ public abstract class DomApplication {
 		optionallyAdd(sb, lang);
 		optionallyAdd(sb, country);
 		optionallyAdd(sb, variant);
-		if(suffix != null && suffix.length() > 0)
+		if(suffix != null && !suffix.isEmpty())
 			sb.append(suffix);
 		String res = sb.toString();
 		if(hasApplicationResource(res))
@@ -1745,7 +1745,7 @@ public abstract class DomApplication {
 	}
 
 	private static void optionallyAdd(StringBuilder sb, @Nullable String thing) {
-		if(null != thing && thing.length() > 0) {
+		if(null != thing && !thing.isEmpty()) {
 			sb.append('_').append(thing);
 		}
 	}

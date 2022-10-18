@@ -48,7 +48,7 @@ class MetaObjectCopyBase<T> {
 	 * @return
 	 */
 	public MetaObjectCopyBase<T> ignore(String... properties) {
-		if(m_onlySet.size() > 0)
+		if(!m_onlySet.isEmpty())
 			throw new IllegalArgumentException("Either use igore or only, not both!");
 		for(String p : properties) {
 			Mode prev = m_modeMap.put(p, Mode.IGNORE);

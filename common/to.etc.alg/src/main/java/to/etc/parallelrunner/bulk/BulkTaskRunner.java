@@ -103,7 +103,7 @@ final public class BulkTaskRunner<T> implements AutoCloseable {
 			for(; ; ) {
 				if(m_finished)
 					throw new IllegalStateException("Attempt to add task while we're finished");
-				if(m_freeThreadList.size() > 0) {
+				if(!m_freeThreadList.isEmpty()) {
 					exec = m_freeThreadList.remove(m_freeThreadList.size() - 1);
 					break;
 				}

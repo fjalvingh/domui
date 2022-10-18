@@ -160,20 +160,20 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 						xpl = ExpandedDisplayProperty.expandProperties(cmm, cols);
 					}else {
 						List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
-						if (l.size() > 0) {
+						if (!l.isEmpty()) {
 							xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
 						}
 					}
-					if (xpl != null && xpl.size() > 0) {
+					if (xpl != null && !xpl.isEmpty()) {
 						xpl = ExpandedDisplayProperty.flatten(xpl);
 						String display = "";
 						String hint = "";
 						for(ExpandedDisplayProperty< ? > xp : xpl) {
 							String val = xp.getPresentationString(object);
-							if(val == null || val.length() == 0)
+							if(val == null || val.isEmpty())
 								continue;
-							display += (display.length() == 0) ? val : ", " + val;
-							hint += (hint.length() == 0) ? xp.getDefaultLabel() : ", " + xp.getDefaultLabel();
+							display += (display.isEmpty()) ? val : ", " + val;
+							hint += (hint.isEmpty()) ? xp.getDefaultLabel() : ", " + xp.getDefaultLabel();
 						}
 						node.setText(display);
 						node.setTitle(hint);
@@ -257,7 +257,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 
 		//m_lookupInput is frequently rebuilding, from this reason we need to 'insert' out button inside after every rebuild of m_lookupInput
 		List<HoverButton> btns = m_lookupInput.getDeepChildren(HoverButton.class);
-		if(btns.size() > 0) {
+		if(!btns.isEmpty()) {
 			//we append custom clear button right after last button in inner lookup input
 			btns.get(btns.size() - 1).appendAfterMe(m_clearButton);
 		} else {
@@ -386,7 +386,7 @@ public class MultipleLookupInput<T> extends Div implements IControl<List<T>>, IT
 	}
 
 	protected void updateClearButtonState() {
-		m_clearButton.setDisplay(m_selectionList.size() == 0 ? DisplayType.NONE : DisplayType.INLINE);
+		m_clearButton.setDisplay(m_selectionList.isEmpty() ? DisplayType.NONE : DisplayType.INLINE);
 	}
 
 	public LookupInput<T> getLookupInput() {

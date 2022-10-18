@@ -525,7 +525,7 @@ final public class ConnectionPool {
 			if(!c().isCheckConnection() || m_check_calc == null)
 				return null;
 			String sql = getCheckString();
-			if(sql.length() == 0)
+			if(sql.isEmpty())
 				return null;
 			ps = dbc.createStatement();
 			rs = ps.executeQuery(sql);
@@ -1240,7 +1240,7 @@ final public class ConnectionPool {
 
 		//-- Always at least log the result @ sysout.
 		String report = hs.getReport();
-		if(report.length() > 0) {
+		if(!report.isEmpty()) {
 			System.out.println("****Database Pool " + m_id + " Hanging Connections scan *******");
 			System.out.println(report);
 			System.out.println("Destroyed " + hs.getDestroyCount() + ", found " + hs.getHangCount() + " hanging pooled and " + hs.getUnpooledHangCount() + " hanging unpooled connections");
@@ -1358,7 +1358,7 @@ final public class ConnectionPool {
 	}
 
 	public synchronized boolean hasSavedErrors() {
-		return m_lastErrorStack != null && m_lastErrorStack.size() > 0;
+		return m_lastErrorStack != null && !m_lastErrorStack.isEmpty();
 	}
 	public synchronized boolean isSavingErrors() {
 		return m_lastErrorStack != null;
@@ -1595,7 +1595,7 @@ final public class ConnectionPool {
 	private byte[] waitForBuffer() throws InterruptedException {
 		for(;;) {
 			synchronized(m_logBufferList) {
-				if(m_logBufferList.size() > 0) {
+				if(!m_logBufferList.isEmpty()) {
 					byte[] buf = m_logBufferList.remove(0);
 
 					if(m_logBufferList.size() == MAX_LOG_QUEUED - 1) {

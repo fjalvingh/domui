@@ -38,7 +38,7 @@ final public class LocalDateTimeConverter  implements IConverter<LocalDateTime> 
 		if(input == null)
 			return null;
 		input = input.trim();
-		if(input.length() == 0)
+		if(input.isEmpty())
 			return null;
 
 		DateTimeFormatter df = null;

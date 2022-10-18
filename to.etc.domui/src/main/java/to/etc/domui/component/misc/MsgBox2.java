@@ -176,16 +176,16 @@ final public class MsgBox2 extends Window {
 		 */
 		Boolean autoClose = m_autoClose;
 		if(null == autoClose) {
-			autoClose = Boolean.valueOf(m_inputList.size() == 0);
+			autoClose = Boolean.valueOf(m_inputList.isEmpty());
 		}
 		setAutoClose(autoClose.booleanValue());
 
 		//-- If no buttons added: just add continue.
-		if(m_theButtons.size() == 0) {
+		if(m_theButtons.isEmpty()) {
 			button(MsgBoxButton.CONTINUE);
 
 			//-- If we have inputs then also add CANCEL
-			if(m_inputList.size() > 0) {
+			if(!m_inputList.isEmpty()) {
 				button(MsgBoxButton.CANCEL);
 			}
 		}
@@ -194,7 +194,7 @@ final public class MsgBox2 extends Window {
 			m_closeButtonObject = m_assumedCancelButton;
 		}
 		if(!m_typeSet) {
-			if(m_inputList.size() > 0) {
+			if(!m_inputList.isEmpty()) {
 				type(Type.DIALOG);
 			} else if(m_theButtons.size() < 2)
 				type(Type.INFO);
@@ -244,7 +244,7 @@ final public class MsgBox2 extends Window {
 
 		//-- Start adding inputs, if applicable
 		boolean unfocused = true;
-		if(m_inputList.size() > 0) {
+		if(!m_inputList.isEmpty()) {
 			unfocused = renderInputs(td);
 		}
 
@@ -462,7 +462,7 @@ final public class MsgBox2 extends Window {
 			}
 		});
 		btn.setTestID(mbb.name());
-		if(m_theButtons.size() == 0) {
+		if(m_theButtons.isEmpty()) {
 			m_assumedOkButton = mbb;
 		}
 		m_theButtons.add(btn);
@@ -622,7 +622,7 @@ final public class MsgBox2 extends Window {
 	@NonNull
 	public <T> MsgBox2 input(@NonNull String label, @NonNull IControl<T> control, @NonNull IInput<T> onanswer) {
 		//-- Only allowed with input list empty
-		if(m_inputList.size() != 0)
+		if(!m_inputList.isEmpty())
 			throw new IllegalStateException("You cannot combine this with other input controls as there's only one answer.");
 		inputInternal(new Label((NodeBase) control, label), (NodeBase) control);
 		m_oninput = onanswer;                    // Ordered
@@ -635,7 +635,7 @@ final public class MsgBox2 extends Window {
 			throw new IllegalStateException("Duplicate IInput<> set");
 
 		//-- Only allowed with input list empty
-		if(m_inputList.size() != 0)
+		if(!m_inputList.isEmpty())
 			throw new IllegalStateException("You cannot combine this with other input controls as there's only one answer.");
 		inputInternal(null, (NodeBase) control);
 		m_oninput = onanswer;                    // Ordered

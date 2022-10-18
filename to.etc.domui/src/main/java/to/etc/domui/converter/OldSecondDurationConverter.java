@@ -71,7 +71,7 @@ public class OldSecondDurationConverter implements IConverter<Long> {
 		if(input == null)
 			return null;
 		input = input.trim();
-		if(input.length() == 0)
+		if(input.isEmpty())
 			return null;
 		try {
 			MiniScanner s = new MiniScanner();

@@ -82,7 +82,7 @@ abstract public class CheckboxSetInputBase<V, T> extends AbstractDivControl<Set<
 	@Override
 	public NodeBase getForTarget() {
 		List<Checkbox> children = getChildren(Checkbox.class);
-		return children.size() > 0 ? children.get(0) : null;
+		return !children.isEmpty() ? children.get(0) : null;
 	}
 
 	@Nullable

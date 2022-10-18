@@ -90,7 +90,7 @@ final public class Crawlers {
 	}
 
 	private Boolean checkDomain(Bot bot, String hostName) {
-		if(bot.m_dnsNames.size() == 0)
+		if(bot.m_dnsNames.isEmpty())
 			return true;
 		try {
 			InetAddress addr = InetAddress.getByName(hostName);

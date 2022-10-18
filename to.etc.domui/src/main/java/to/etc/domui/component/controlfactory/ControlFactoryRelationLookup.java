@@ -74,9 +74,9 @@ public class ControlFactoryRelationLookup implements PropertyControlFactory {
 
 		//-- 1. Define search fields from property, then class.lookup, then generic
 		List<SearchPropertyMetaModel> sp = pmm.getLookupFieldSearchProperties();		// Property override?
-		if(sp.size() == 0) {
+		if(sp.isEmpty()) {
 			sp = li.getMetaModel().getSearchProperties(); // Class level?
-			if(sp.size() > 0)
+			if(!sp.isEmpty())
 				li.setSearchProperties(sp);
 		}
 

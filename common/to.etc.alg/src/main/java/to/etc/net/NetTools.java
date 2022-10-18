@@ -155,7 +155,7 @@ final public class NetTools {
 		}
 
 		String s = req.getHeader("x-forwarded-port");
-		if(null != s && s.length() > 0) {
+		if(null != s && !s.isEmpty()) {
 			try {
 				return Integer.parseInt(s);
 			} catch(Exception x) {
@@ -199,7 +199,7 @@ final public class NetTools {
 	static public String getApplicationURL(@NonNull HttpServletRequest req) {
 		String hu = getHostURL(req);
 		String ctx = req.getContextPath();
-		if(ctx.length() == 0) // Is this the root application?
+		if(ctx.isEmpty()) // Is this the root application?
 			return hu; // Then the hostURL will suffice, thank you
 		if(ctx.startsWith("/")) // This should be true always...
 			return hu + ctx.substring(1) + "/"; // .. so remove one of the slashes
@@ -213,7 +213,7 @@ final public class NetTools {
 	 */
 	static public String getApplicationContext(HttpServletRequest req) {
 		String s = req.getContextPath();
-		if(s == null || s.length() == 0)
+		if(s == null || s.isEmpty())
 			return ""; // Root context!
 		if(s.startsWith("/") && s.endsWith("/"))
 			return s.substring(1, s.length() - 1);
@@ -234,7 +234,7 @@ final public class NetTools {
 	 */
 	static public void appendRootRelativeURL(Appendable a, HttpServletRequest req, String rurl) throws IOException {
 		String s = req.getContextPath();
-		if(s == null || s.length() == 0 || s.equals("/")) { // Root application?
+		if(s == null || s.isEmpty() || s.equals("/")) { // Root application?
 			a.append('/');
 			s = "";
 		} else {
@@ -247,7 +247,7 @@ final public class NetTools {
 		}
 		if(!s.endsWith("/"))
 			a.append('/');
-		if(rurl == null || rurl.length() == 0)
+		if(rurl == null || rurl.isEmpty())
 			return;
 		if(rurl.startsWith("/"))
 			a.append(rurl, 1, rurl.length());
@@ -370,7 +370,7 @@ final public class NetTools {
 
 			//-- Create a reader.
 			String encoding = huc.getContentEncoding();
-			if(encoding == null || encoding.length() == 0)
+			if(encoding == null || encoding.isEmpty())
 				encoding = "UTF-8";
 			is = huc.getInputStream();
 			r = new InputStreamReader(is, encoding);

@@ -68,7 +68,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	public void run() {
 		int lsz = m_list.size() + 1;
 		try {
-			while(m_list.size() > 0) {
+			while(!m_list.isEmpty()) {
 				Set<PendingOperation> upset = new HashSet<PendingOperation>();
 
 				if(lsz == m_list.size())
@@ -129,7 +129,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 
 				//-- We can continue, provided there's something to do ;-) We need to update the finished thing, and claim the next thing if there is one in one atomic database op.
 				PendingOperation nextop = null;
-				if(m_list.size() > 0) {
+				if(!m_list.isEmpty()) {
 					nextop = m_list.get(0);
 
 					//-- Mark the next operation as executing.
@@ -157,7 +157,7 @@ final public class PendingOperationTask implements Runnable, ILogSink {
 	 * @throws Exception
 	 */
 	private void handleDatabaseUpdate(@NonNull Set<PendingOperation> updateset, @Nullable PendingOperation deleteme) throws Exception {
-		if(updateset.size() == 0)
+		if(updateset.isEmpty())
 			return;
 
 		Connection dbc = m_provider.allocateConnection();

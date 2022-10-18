@@ -69,7 +69,7 @@ public class StdoutExceptionScanner {
 					if(m_state != State.STARTED)
 						break;
 					LinkedList<DiscoveredExceptionData> curl = m_exceptionList;
-					if(curl.size() > 0) {
+					if(!curl.isEmpty()) {
 						//-- Swap lists
 						m_exceptionList = todo;
 						todo = curl;
@@ -79,7 +79,7 @@ public class StdoutExceptionScanner {
 				}
 
 				//-- Out of lock: if todo contains work handle it on this-thread until it's empty.
-				while(todo.size() > 0) {
+				while(!todo.isEmpty()) {
 					DiscoveredExceptionData rx = todo.removeFirst();
 					handleException(rx);
 				}

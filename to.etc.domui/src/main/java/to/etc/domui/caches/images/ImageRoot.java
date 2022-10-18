@@ -103,7 +103,7 @@ final class ImageRoot {
 	CachedImageData findOriginalData() {
 		synchronized(this) {
 			for(CachedImageData ii : m_dataList) {
-				if(ii.getPermutation().length() == 0)
+				if(ii.getPermutation().isEmpty())
 					return ii;
 			}
 			return null;
@@ -118,7 +118,7 @@ final class ImageRoot {
 	CachedImageInfo findOriginalInfo() {
 		synchronized(this) {
 			for(CachedImageInfo ii : m_infoList) {
-				if(ii.getPermutation().length() == 0)
+				if(ii.getPermutation().isEmpty())
 					return ii;
 			}
 			return null;
@@ -183,14 +183,14 @@ final class ImageRoot {
 	boolean unregisterInstance(CachedImageData ii) {
 		synchronized(this) {
 			m_dataList.remove(ii);
-			return m_dataList.size() == 0;
+			return m_dataList.isEmpty();
 		}
 	}
 
 	boolean unregisterInstance(CachedImageInfo ii) {
 		synchronized(this) {
 			m_infoList.remove(ii);
-			return m_infoList.size() == 0;
+			return m_infoList.isEmpty();
 		}
 	}
 

@@ -72,7 +72,7 @@ public class BrowserVersion {
 			handleIE11();
 			return;
 		}
-	
+
 		if(ua.startsWith("Mozilla/")) {
 			decodeMozilla(ua);
 			return;
@@ -140,7 +140,7 @@ public class BrowserVersion {
 
 	private int[] getVer() {
 		if(m_version == null) {
-			if(m_browserVersion == null || m_browserVersion.length() == 0) {
+			if(m_browserVersion == null || m_browserVersion.isEmpty()) {
 				m_version = new int[]{0, 0};
 				return m_version;
 			}

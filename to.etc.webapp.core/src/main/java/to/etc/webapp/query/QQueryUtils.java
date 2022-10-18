@@ -22,7 +22,7 @@ final public class QQueryUtils {
 			throw new IllegalArgumentException(resultInterface + " must be an interface");
 
 		List<Object[]> resl = dc.query(sel);
-		if(resl.size() == 0)
+		if(resl.isEmpty())
 			return new ArrayList<R>();						// Return empty modifyable list
 
 		//-- Create mapping proxies for all thingies.

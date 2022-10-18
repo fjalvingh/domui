@@ -157,7 +157,7 @@ public class SimpleRowRenderer<T> extends AbstractRowRenderer<T> implements ICli
 	 */
 	private void initializeDefaultColumns() {
 		final List<DisplayPropertyMetaModel> dpl = model().getTableDisplayProperties();
-		if(dpl.size() == 0)
+		if(dpl.isEmpty())
 			throw new IllegalStateException("The list-of-columns to show is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
 		final List<ExpandedDisplayProperty< ? >> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, model(), null);
 		initialize(xdpl);

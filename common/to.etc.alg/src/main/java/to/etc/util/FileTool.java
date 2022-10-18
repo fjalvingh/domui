@@ -145,7 +145,7 @@ public class FileTool {
 
 	@Nullable
 	private static File checkLogDir(@NonNull String s, @NonNull String source) {
-		if(null != s && s.trim().length() > 0) {
+		if(null != s && !s.trim().isEmpty()) {
 			File f = new File(s);
 			if(!f.exists()) {
 				if(!f.mkdirs())
@@ -1064,7 +1064,7 @@ public class FileTool {
 			throw new IllegalStateException("Must be a directory");
 
 		//-- Write a directory entry if there's something
-		if(base.length() > 0) {
+		if(!base.isEmpty()) {
 			ZipEntry ze = new ZipEntry(base); // The dir ending in /
 			zos.putNextEntry(ze);
 			ze.setTime(f.lastModified());

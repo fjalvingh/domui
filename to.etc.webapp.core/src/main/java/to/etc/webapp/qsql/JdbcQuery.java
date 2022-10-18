@@ -196,7 +196,7 @@ public class JdbcQuery<T> {
 
 	static public <T> T queryOne(QDataContext dc, QCriteria<T> q) throws Exception {
 		List<T> res = query(dc, q);
-		if(res.size() == 0)
+		if(res.isEmpty())
 			return null;
 		else if(res.size() == 1)
 			return res.get(0);
@@ -205,7 +205,7 @@ public class JdbcQuery<T> {
 
 	static public Object[] queryOne(QDataContext dc, QSelection< ? > q) throws Exception {
 		List<Object[]> res = query(dc, q);
-		if(res.size() == 0)
+		if(res.isEmpty())
 			return null;
 		else if(res.size() == 1)
 			return res.get(0);

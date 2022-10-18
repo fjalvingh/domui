@@ -341,7 +341,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	public void setSearchProperties(@NonNull List<SearchPropertyMetaModel> searchProperties) {
-		m_searchProperties = searchProperties.size() == 0 ? Collections.EMPTY_LIST : searchProperties;
+		m_searchProperties = searchProperties.isEmpty() ? Collections.EMPTY_LIST : searchProperties;
 	}
 
 	/**
@@ -354,7 +354,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 	}
 
 	public void setKeyWordSearchProperties(@NonNull List<SearchPropertyMetaModel> keyWordSearchProperties) {
-		m_keyWordSearchProperties = keyWordSearchProperties.size() == 0 ? Collections.EMPTY_LIST : keyWordSearchProperties;
+		m_keyWordSearchProperties = keyWordSearchProperties.isEmpty() ? Collections.EMPTY_LIST : keyWordSearchProperties;
 	}
 
 	@Override
@@ -364,7 +364,7 @@ public class DefaultClassMetaModel implements ClassMetaModel {
 
 	@Override
 	public synchronized @NonNull List<DisplayPropertyMetaModel> getTableDisplayProperties() {
-		if(m_tableDisplayProperties == null || m_tableDisplayProperties.size() == 0) {
+		if(m_tableDisplayProperties == null || m_tableDisplayProperties.isEmpty()) {
 			m_tableDisplayProperties = MetaManager.calculateObjectProperties(this);
 		}
 		return m_tableDisplayProperties;

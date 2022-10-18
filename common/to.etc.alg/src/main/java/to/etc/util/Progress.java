@@ -166,7 +166,7 @@ public class Progress {
 
 			if(--level == 0)
 				return null;
-			if(m_subProgress.size() == 0) {
+			if(m_subProgress.isEmpty()) {
 				return null;
 			} else if(m_subProgress.size() == 1) {
 				progress = m_subProgress.get(0);
@@ -431,11 +431,11 @@ public class Progress {
 		synchronized(m_root) {
 			m_parallel = false;
 			checkCancelled();
-			if(m_subProgress.size() == 0)
+			if(m_subProgress.isEmpty())
 				return;
 
 			double totalWork = 0.0;
-			while(m_subProgress.size() > 0)
+			while(!m_subProgress.isEmpty())
 				m_subProgress.get(0).complete();
 			updateTree();
 		}

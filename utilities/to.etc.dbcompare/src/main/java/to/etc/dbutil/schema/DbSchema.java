@@ -217,13 +217,13 @@ public class DbSchema implements Serializable {
 	}
 
 	public String qualifyName(String in) {
-		if(m_name.length() == 0)
+		if(m_name.isEmpty())
 			return in;
 		return m_name + "." + in;
 	}
 
 	public String getSchemaNameAndDot() {
-		if(m_name.length() == 0)
+		if(m_name.isEmpty())
 			return "";
 		return m_name + ".";
 	}

@@ -212,7 +212,7 @@ public class ExcelRowReader implements IRowReader, AutoCloseable, Iterable<IImpo
 			String name = row.get(i).getStringValue();
 			if(null != name) {
 				name = name.trim();
-				if(name.length() == 0)
+				if(name.isEmpty())
 					name = null;
 			}
 			res.add(name);

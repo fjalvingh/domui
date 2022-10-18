@@ -349,7 +349,7 @@ public class ExporterButtons {
 			if(null == rr)
 				return this;
 
-			if(m_columnList.size() > 0)
+			if(!m_columnList.isEmpty())
 				throw new IllegalArgumentException("Columns have been added already, a row renderer can only be used as a definition for all columns");
 			for(ColumnDef<T, ?> rrCol : rr.getColumnList()) {
 				appendColumn(rrCol);
@@ -365,7 +365,7 @@ public class ExporterButtons {
 
 		public List<IExportColumn<?>> calculateColumnList() {
 			List<IExportColumn<?>> columnList = m_columnList;
-			if(columnList.size() > 0)
+			if(!columnList.isEmpty())
 				return columnList;
 
 			//-- Try to create a column list.
@@ -403,7 +403,7 @@ public class ExporterButtons {
 			if(customizer != null && criteria != null)
 				customizer.accept(criteria);
 			List<T> result = criteria == null ? sourceRecords : MetaManager.query(sourceRecords, criteria);
-			if(result.size() == 0) {
+			if(result.isEmpty()) {
 				MsgBox.info(targetNode, "Er zijn geen resultaten om te exporteren.");
 				return;
 			}

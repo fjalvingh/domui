@@ -519,7 +519,7 @@ public class CSVRecordReader implements iRecordReader {
 	}
 
 	private int checkForSeparator(String line, int ix) {
-		if(m_fldsep_al.size() == 0) // Make sure that at least 1 separator (comma) is registered
+		if(m_fldsep_al.isEmpty()) // Make sure that at least 1 separator (comma) is registered
 			m_fldsep_al.add(",");
 		for(int i = m_fldsep_al.size(); --i >= 0; ) {
 			int sc = checkForSeparator(m_fldsep_al.get(i), line, ix);

@@ -164,7 +164,7 @@ public final class Job implements Runnable {
 			if(null != exception) {
 				sb.append(" with error: ");
 				String message = exception.getMessage();
-				if(null == message || message.length() == 0)
+				if(null == message || message.isEmpty())
 					sb.append(exception.toString());
 				else
 					sb.append(message);

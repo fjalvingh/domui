@@ -114,9 +114,9 @@ public class SmtpTransport {
 			if(from == null)
 				throw new MailException("Missing 'from' address in message");
 		}
-		if(msg.getTo() == null || msg.getTo().size() == 0)
+		if(msg.getTo() == null || msg.getTo().isEmpty())
 			throw new MailException("Missing 'to' address in message");
-		if(msg.getSubject() == null || msg.getSubject().trim().length() == 0)
+		if(msg.getSubject() == null || msg.getSubject().trim().isEmpty())
 			throw new MailException("The 'subject' is empty in message");
 
 		if(DeveloperOptions.isDeveloperWorkstation()) {
@@ -219,7 +219,7 @@ public class SmtpTransport {
 			if(null != bodyStream) {
 				FileTool.copyFile(os, bodyStream);
 			} else {
-				boolean ismime = msg.getAttachmentList().size() > 0 || msg.getHtmlBody() != null;
+				boolean ismime = !msg.getAttachmentList().isEmpty() || msg.getHtmlBody() != null;
 				if(ismime) {
 					writeMime(os, msg);
 				} else {
@@ -271,7 +271,7 @@ public class SmtpTransport {
 		}
 
 		//-- Start writing attachments in base64 encoding.
-		if(msg.getAttachmentList().size() > 0) {
+		if(!msg.getAttachmentList().isEmpty()) {
 			if(hw == null)
 				hw = w.createSubMime("multipart/related");
 
@@ -300,7 +300,7 @@ public class SmtpTransport {
 
 	static public void writeText(OutputStream os, Message msg) throws Exception {
 		String str = msg.getBody();
-		if(str != null && str.length() > 0) {
+		if(str != null && !str.isEmpty()) {
 			int ix = 0;
 			int len = str.length();
 			while(ix < len) {
@@ -325,7 +325,7 @@ public class SmtpTransport {
 	}
 
 	private void writeAddressList(OutputStream os, String hdr, List<Address> al) throws Exception {
-		if(al == null || al.size() == 0)
+		if(al == null || al.isEmpty())
 			return;
 		write(os, hdr);
 		boolean first = true;

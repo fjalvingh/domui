@@ -193,9 +193,9 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 			m_todo.addAll(m_taskMap.values());
 			m_runnableTasks = runnableTasks = new ArrayList<>();
 			calculateRunnableTasks();
-		} else if(runnableTasks.size() == 0) {
-			if(m_running.size() == 0 && m_scheduled.isEmpty()) {
-				if(m_todo.size() > 0)
+		} else if(runnableTasks.isEmpty()) {
+			if(m_running.isEmpty() && m_scheduled.isEmpty()) {
+				if(!m_todo.isEmpty())
 					throw new IllegalStateException("There are no tasks running, but none of the todo tasks became available");
 			}
 		}
@@ -216,7 +216,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 				runnableTasks.add(task);
 			}
 		}
-		if(runnableTasks.size() == 0)
+		if(runnableTasks.isEmpty())
 			throw new IllegalStateException("Nothing is runnable: loops in dependencies");
 	}
 

@@ -32,7 +32,7 @@ final public class OpenStacktracePart implements IUnbufferedPartFactory {
 			w.print(".0}");
 		} else {
 			String stk = param.getPageParameters().getString("element", null);
-			if(stk == null || stk.trim().length() == 0)
+			if(stk == null || stk.trim().isEmpty())
 				throw new IllegalArgumentException("Missing 'element' argument");
 
 			CommandResponse rc = InternalParentTree.openEclipseSource(stk);

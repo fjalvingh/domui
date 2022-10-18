@@ -82,7 +82,7 @@ abstract public class AbstractBuildPlan implements BuildPlan {
 	}
 
 	protected void internalDumpSetters(final IndentWriter iw) throws IOException {
-		if(m_injectorList.size() == 0)
+		if(m_injectorList.isEmpty())
 			return;
 		iw.println("Property Injectors:");
 		iw.inc();

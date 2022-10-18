@@ -202,7 +202,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 			raw = raw.trim();
 
 		//-- Do mandatory checking && exit if value is missing.
-		if(raw == null || raw.length() == 0) {
+		if(raw == null || raw.isEmpty()) {
 			//-- Field is empty.
 			if(isMandatory()) {
 				throw new ValidationException(Msgs.mandatory);
@@ -409,7 +409,7 @@ public class Text<T> extends Input implements IControl<T>, IHasModifiedIndicatio
 		clearMessage();
 
 		// jal 20081021 Clear validated als inputwaarde leeg is en de control is mandatory.
-		if((converted == null || converted.trim().length() == 0) && isMandatory())
+		if((converted == null || converted.trim().isEmpty()) && isMandatory())
 			m_validated = false;
 		else {
 			m_validated = true;

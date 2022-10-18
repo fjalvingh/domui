@@ -36,7 +36,7 @@ public class JsonBuilder implements AutoCloseable {
 	}
 
 	public JsonBuilder obj() throws IOException {
-		if(m_stack.size() != 0) {
+		if(!m_stack.isEmpty()) {
 			throw new IllegalStateException("Only valid as 1st item");
 		}
 		push(Stacked.Object);
@@ -169,7 +169,7 @@ public class JsonBuilder implements AutoCloseable {
 	}
 
 	public JsonBuilder array() throws IOException {
-		if(m_stack.size() != 0) {
+		if(!m_stack.isEmpty()) {
 			throw new IllegalStateException("Only valid as 1st item");
 		}
 		push(Stacked.Array);
@@ -237,7 +237,7 @@ public class JsonBuilder implements AutoCloseable {
 	}
 
 	private void next() throws IOException {
-		if(m_stack.size() != 0) {
+		if(!m_stack.isEmpty()) {
 			if(top().count++ > 0) {
 				m_sb.append(',');
 			}

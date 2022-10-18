@@ -245,7 +245,7 @@ public class CKEditResPart implements IUnbufferedPartFactory {
 	 */
 	private void sendFile(DomApplication app, IEditorFileSystem ifs, RequestContextImpl ctx, String type) throws Exception {
 		String rpath = getPath(ctx, "path");
-		if(rpath.length() == 0)
+		if(rpath.isEmpty())
 			throw new ThingyNotFoundException("IEditorFileSystem file with path=" + rpath);
 		IEditorFileRef efr = ifs.getStreamRef(type, rpath);
 		if(efr == null)

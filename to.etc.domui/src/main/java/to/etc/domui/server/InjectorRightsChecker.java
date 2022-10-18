@@ -36,7 +36,7 @@ public class InjectorRightsChecker {
 
 	public void scan() {
 		List<IInjectedPropertyAccessChecker> checkerList = m_application.getInjectedPropertyAccessCheckerList();
-		if(checkerList.size() == 0) {
+		if(checkerList.isEmpty()) {
 			m_errorCount++;
 			LOG.error("No injected value right checkers have been registered, skipping page check.");
 			LOG.error("THIS IS A SECURITY RISK; HACKERS CAN GUESS PRIMARY KEYS AND MIGHT ACCESS DATA WITHOUT AUTHORIZATION");

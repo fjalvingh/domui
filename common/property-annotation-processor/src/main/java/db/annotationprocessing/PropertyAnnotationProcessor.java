@@ -271,7 +271,7 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 			}
 
 			//-- It cannot have arguments
-			if(m.getParameters().size() > 0) {
+			if(!m.getParameters().isEmpty()) {
 				return super.visitExecutable(m, p);
 			}
 

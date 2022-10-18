@@ -430,7 +430,7 @@ public class DomTools {
 	 */
 	static public int timeNode(final Node rn, final String name, final int dflt) throws Exception {
 		String v = stringNode(rn, name, null);
-		if(v == null || v.length() == 0)
+		if(v == null || v.isEmpty())
 			return dflt;
 
 		int ix = 0;
@@ -516,7 +516,7 @@ public class DomTools {
 		if(s == null)
 			return val;
 		s = s.trim();
-		if(s.length() == 0 || DBNULL.equals(s))
+		if(s.isEmpty() || DBNULL.equals(s))
 			return val;
 
 		try {
@@ -531,7 +531,7 @@ public class DomTools {
 		if(s == null)
 			return null;
 		s = s.trim();
-		if(s.length() == 0 || DBNULL.equals(s))
+		if(s.isEmpty() || DBNULL.equals(s))
 			return null;
 		try {
 			return Long.decode(s);
@@ -561,7 +561,7 @@ public class DomTools {
 		if(s == null)
 			return val;
 		s = s.trim();
-		if(s.length() == 0 || DBNULL.equals(s))
+		if(s.isEmpty() || DBNULL.equals(s))
 			return val;
 
 		try {
@@ -576,7 +576,7 @@ public class DomTools {
 		if(s == null)
 			return val;
 		s = s.trim();
-		if(s.length() == 0 || DBNULL.equals(s))
+		if(s.isEmpty() || DBNULL.equals(s))
 			return val;
 
 		try {
@@ -603,7 +603,7 @@ public class DomTools {
 
 		//-- has a <file> node. Get filename...
 		String rname = DomTools.textFrom(fnn);
-		if(rname == null || rname.length() == 0) {
+		if(rname == null || rname.isEmpty()) {
 			System.out.println("DomTools: no name in file node!?");
 			return null;
 		}
@@ -645,7 +645,7 @@ public class DomTools {
 		if(nt == null)
 			return false; // was (dbnull).
 		nt = nt.trim();
-		if(nt.length() == 0)
+		if(nt.isEmpty())
 			return true; // No text,
 		char c = nt.charAt(0);
 		if(c == '0')
@@ -698,7 +698,7 @@ public class DomTools {
 			Node idn = n.getAttributes().getNamedItem(aname);
 			if(idn != null) {
 				String v = idn.getNodeValue();
-				if(v != null && v.length() > 0) {
+				if(v != null && !v.isEmpty()) {
 					try {
 						return Integer.parseInt(v.trim());
 					} catch(Exception ex) {
@@ -715,7 +715,7 @@ public class DomTools {
 			Node idn = n.getAttributes().getNamedItem(aname);
 			if(idn != null) {
 				String v = idn.getNodeValue();
-				if(v != null && v.length() > 0) {
+				if(v != null && !v.isEmpty()) {
 					try {
 						return Long.parseLong(v.trim());
 					} catch(Exception ex) {
@@ -767,7 +767,7 @@ public class DomTools {
 			Node idn = n.getAttributes().getNamedItem(aname);
 			if(idn != null) {
 				String v = idn.getNodeValue();
-				if(v != null && v.length() > 0) {
+				if(v != null && !v.isEmpty()) {
 					try {
 						return Integer.parseInt(v.trim());
 					} catch(Exception ex) {

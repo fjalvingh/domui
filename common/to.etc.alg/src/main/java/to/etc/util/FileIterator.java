@@ -87,12 +87,12 @@ public class FileIterator implements Iterable<Entry> {
 
 		@Override
 		public boolean hasNext() {
-			return m_levelStack.size() > 0;
+			return !m_levelStack.isEmpty();
 		}
 
 		@Override
 		public Entry next() {
-			if(m_levelStack.size() == 0)
+			if(m_levelStack.isEmpty())
 				throw new NoSuchElementException("No (more) entries");
 
 			Level l = getCurrentLevel();
@@ -139,7 +139,7 @@ public class FileIterator implements Iterable<Entry> {
 		private String makePath(String a, String b) {
 			m_pathSb.setLength(0);
 			m_pathSb.append(a);
-			if(a.length() != 0)
+			if(!a.isEmpty())
 				m_pathSb.append(File.separatorChar);
 			m_pathSb.append(b);
 			return m_pathSb.toString();

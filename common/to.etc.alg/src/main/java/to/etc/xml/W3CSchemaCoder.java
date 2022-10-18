@@ -559,7 +559,7 @@ public class W3CSchemaCoder {
 		 * @return
 		 */
 		public boolean curIs(final String s) {
-			if(m_ix + s.length() > m_len || s.length() == 0)
+			if(m_ix + s.length() > m_len || s.isEmpty())
 				return false; // String longer than remains-> no match, or input is empty
 			if(m_input.charAt(m_ix) != s.charAt(0))
 				return false;

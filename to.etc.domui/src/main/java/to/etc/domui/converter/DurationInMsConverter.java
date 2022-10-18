@@ -74,7 +74,7 @@ public class DurationInMsConverter implements IConverter<Long> {
 		if(null == in)
 			return null;
 		in = in.trim();
-		if(in.length() == 0)
+		if(in.isEmpty())
 			return null;
 		MiniScanner ms = MiniScanner.getInstance();
 		ms.init(in);

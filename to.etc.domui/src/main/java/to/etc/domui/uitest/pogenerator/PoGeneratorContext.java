@@ -259,7 +259,7 @@ public class PoGeneratorContext {
 	}
 
 	static public String makeNameValid(String in) {
-		if(in.length() == 0)
+		if(in.isEmpty())
 			throw new IllegalStateException("Empty name not supported");
 		if(! Character.isJavaIdentifierStart(in.charAt(0))) {
 			in = "c" + in;

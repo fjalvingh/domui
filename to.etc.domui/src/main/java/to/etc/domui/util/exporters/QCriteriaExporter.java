@@ -32,7 +32,7 @@ public class QCriteriaExporter<T> extends AbstractObjectExporter<T> {
 	}
 
 	public ExportResult export(Progress p) throws Exception {
-		if(m_columnList.size() == 0)
+		if(m_columnList.isEmpty())
 			return ExportResult.EMPTY;
 
 		int rowLimit = m_exportWriter.getRowLimit();

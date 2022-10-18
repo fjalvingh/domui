@@ -55,7 +55,7 @@ final public class ActionContainer extends Div {
 	@NonNull
 	@Override
 	public NodeContainer add(@Nullable String txt) {
-		if(null == txt || txt.length() == 0)
+		if(null == txt || txt.isEmpty())
 			return this;
 		TextNode tn = new TextNode(txt);
 		add(tn);

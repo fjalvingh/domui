@@ -90,11 +90,11 @@ import java.util.List;
 		if(colset.length == 0) {
 			//-- Do we have a "selected properties" meta renderer?
 			List<DisplayPropertyMetaModel> l = cmm.getLookupSelectedProperties();
-			if(l.size() == 0)
+			if(l.isEmpty())
 				l = cmm.getTableDisplayProperties();
-			if(l.size() == 0)
+			if(l.isEmpty())
 				l = cmm.getComboDisplayProperties();
-			if(l.size() == 0)
+			if(l.isEmpty())
 				throw new ProgrammerErrorException("The class " + cmm + " has no presentation metadata (@MetaObject or @MetaCombo)");
 
 			//-- Expand the thingy: render a single line separated with BRs
@@ -126,9 +126,9 @@ import java.util.List;
 		} else {
 			ClassMetaModel cmm = MetaManager.findClassMeta(object.getClass());
 			List<DisplayPropertyMetaModel> l = cmm.getTableDisplayProperties();
-			if(l.size() == 0)
+			if(l.isEmpty())
 				l = cmm.getComboDisplayProperties();
-			if(l.size() > 0) {
+			if(!l.isEmpty()) {
 				xpl = ExpandedDisplayProperty.expandDisplayProperties(l, cmm, null);
 				xpl = ExpandedDisplayProperty.flatten(xpl);
 				renderModelValue(object, tb, xpl);
@@ -152,7 +152,7 @@ import java.util.List;
 		int mw = 0;
 		for(ExpandedDisplayProperty< ? > xp : xpl) {
 			String val = xp.getPresentationString(object);
-			if(val != null && val.length() != 0) {
+			if(val != null && !val.isEmpty()) {
 				TD td = tb.addRowAndCell("ui-lui-vcell");
 				td.add(val);
 				int len = val.length();

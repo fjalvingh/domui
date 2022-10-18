@@ -77,7 +77,7 @@ public class MenuGenerator2 {
 		//		p(pw, "", m.get());
 		//		p(pw, "", m.get());
 
-		if(m.getChildren() != null && m.getChildren().size() > 0) {
+		if(m.getChildren() != null && !m.getChildren().isEmpty()) {
 			pw.append("children:");
 			generate(pw, m.getChildren());
 		} else {

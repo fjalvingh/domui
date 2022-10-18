@@ -34,7 +34,7 @@ abstract public class AbstractImportColumn implements IImportColumn {
 		if(null == stringValue)
 			return null;
 		stringValue = stringValue.trim().replace(',', '.');
-		if(stringValue.length() == 0)
+		if(stringValue.isEmpty())
 			return null;
 
 		return new BigDecimal(stringValue);

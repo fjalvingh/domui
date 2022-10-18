@@ -899,13 +899,13 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	}
 
 	public void addHeaderBefore(@NonNull TableHeader header) {
-		if(m_tableHeaderBeforeList.size() == 0)
+		if(m_tableHeaderBeforeList.isEmpty())
 			m_tableHeaderBeforeList = new ArrayList<>(2);
 		m_tableHeaderBeforeList.add(header);
 	}
 
 	public void addHeaderAfter(@NonNull TableHeader header) {
-		if(m_tableHeaderAfterList.size() == 0)
+		if(m_tableHeaderAfterList.isEmpty())
 			m_tableHeaderAfterList = new ArrayList<>(2);
 		m_tableHeaderAfterList.add(header);
 	}

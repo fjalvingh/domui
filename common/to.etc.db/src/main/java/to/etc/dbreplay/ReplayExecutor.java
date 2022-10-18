@@ -116,7 +116,7 @@ class ReplayExecutor extends Thread {
 					return;
 				}
 
-				if(m_queueList.size() > 0) {
+				if(!m_queueList.isEmpty()) {
 					rr = m_queueList.remove(0);
 					synchronized(m_r) {
 						if(m_idle) { // Were we idling?

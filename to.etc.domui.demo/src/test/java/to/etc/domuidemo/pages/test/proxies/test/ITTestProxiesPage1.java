@@ -15,7 +15,7 @@ public class ITTestProxiesPage1 extends AbstractWebDriverTest {
 		POProxyTestPage1 page = new POProxyTestPage1(wd());
 		page.open();
 		String value = page.text2().getValue();
-		Assert.assertTrue("Initial content must be empty", value != null && value.length() == 0);
+		Assert.assertTrue("Initial content must be empty", value != null && value.isEmpty());
 
 		//-- Set a value
 		page.text2().setValue("Hello");
@@ -32,7 +32,7 @@ public class ITTestProxiesPage1 extends AbstractWebDriverTest {
 		POProxyTestPage1 page = new POProxyTestPage1(wd());
 		page.open();
 		String value = page.text().getValue();
-		Assert.assertTrue("Initial content must be empty", value != null && value.length() == 0);
+		Assert.assertTrue("Initial content must be empty", value != null && value.isEmpty());
 
 		//-- Set a value
 		page.text().setValue("Hello");
@@ -49,7 +49,7 @@ public class ITTestProxiesPage1 extends AbstractWebDriverTest {
 		POProxyTestPage1 page = new POProxyTestPage1(wd());
 		page.open();
 		String value = page.cf2().getValue();
-		Assert.assertTrue("Initial content must be empty", value != null && value.length() == 0);
+		Assert.assertTrue("Initial content must be empty", value != null && value.isEmpty());
 
 		//-- Set a value
 		page.cf2().setValue("Ozymandias");
@@ -66,7 +66,7 @@ public class ITTestProxiesPage1 extends AbstractWebDriverTest {
 		POProxyTestPage1 page = new POProxyTestPage1(wd());
 		page.open();
 		String value = page.cf().getValue();
-		Assert.assertTrue("Initial content must be empty", value != null && value.length() == 0);
+		Assert.assertTrue("Initial content must be empty", value != null && value.isEmpty());
 
 		//-- Set a value
 		page.cf().setValue("Ozymandias");

@@ -137,7 +137,7 @@ public class DefaultLookupInputDialog<QT, OT> extends Dialog {
 		SearchPanel<QT> lf = getSearchPanel();
 		if(lf == null) {
 			lf = new SearchPanel<QT>((Class<QT>) getQueryMetaModel().getActualClass(), getQueryMetaModel());
-			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
+			if(m_searchPropertyList != null && !m_searchPropertyList.isEmpty())
 				lf.setSearchProperties(m_searchPropertyList);
 		}
 

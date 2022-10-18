@@ -35,7 +35,7 @@ final public class GitOptions {
 	}
 
 	public boolean hasProperties() {
-		return m_properties.size() != 0;
+		return !m_properties.isEmpty();
 	}
 
 	public String getCommit() {

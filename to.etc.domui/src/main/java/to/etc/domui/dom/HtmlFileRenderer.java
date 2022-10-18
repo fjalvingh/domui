@@ -450,7 +450,7 @@ public class HtmlFileRenderer extends NodeVisitorBase implements IContributorRen
 	 * Get all contributor sources and create an ordered list (ordered by the indicated 'order') to render.
 	 */
 	public void renderHeadContributors() throws Exception {
-		if(m_contributors.size() == 0) {
+		if(m_contributors.isEmpty()) {
 			List<HeaderContributorEntry> full = new ArrayList<HeaderContributorEntry>(m_page.getApplication().getHeaderContributorList());
 
 			Collections.sort(full, HeaderContributor.C_ENTRY);

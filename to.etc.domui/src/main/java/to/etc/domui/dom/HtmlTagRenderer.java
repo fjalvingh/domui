@@ -304,7 +304,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 		String bottom = border(bb, c.getBorderBottomWidth(), c.getBorderBottomStyle(), c.getBorderBottomColor());
 
 		if(DomUtil.isEqual(left, right, top, bottom)) {
-			if(left.length() != 0) {
+			if(!left.isEmpty()) {
 				a.append("border:");
 				a.append(left);
 				a.append(';');
@@ -602,12 +602,12 @@ public class HtmlTagRenderer implements INodeVisitor {
 			a.append("px");
 		}
 		if(s != null) {
-			if(s.length() > 0)
+			if(!s.isEmpty())
 				a.append(' ');
 			a.append(s.trim().toLowerCase());
 		}
 		if(c != null) {
-			if(c.length() > 0)
+			if(!c.isEmpty())
 				a.append(' ');
 			a.append(c.trim().toLowerCase());
 		}
@@ -680,9 +680,9 @@ public class HtmlTagRenderer implements INodeVisitor {
 		}
 
 		String s = getStyleFor(b); 								// Get/recalculate style
-		if(s.length() > 0 || b.isStyleRendered()) {
+		if(!s.isEmpty() || b.isStyleRendered()) {
 			o.attr("style", s);
-			if(s.length() == 0) {
+			if(s.isEmpty()) {
 				b.clearStyleRendered(); // if we rendered the empty style we can remove it next time
 			} else {
 				b.setStyleRendered(); // otherwise there is stuff there
@@ -976,7 +976,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	@Override
 	public void visitTextNode(final TextNode n) throws Exception {
 		String lit = n.getText();
-		if(lit != null && lit.length() > 0)
+		if(lit != null && !lit.isEmpty())
 			m_o.text(lit);
 	}
 
@@ -991,7 +991,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	@Override
 	public void visitXmlNode(XmlTextNode n) throws Exception {
 		String lit = n.getText(); // Get tilde-replaced text
-		if(lit != null && lit.length() > 0) {
+		if(lit != null && !lit.isEmpty()) {
 			m_o.setIndentEnabled(false);
 			m_o.text(""); // 20100222 jal Force previous tag to end with >.
 			m_o.writeRaw(lit);
@@ -1006,7 +1006,7 @@ public class HtmlTagRenderer implements INodeVisitor {
 	@Override
 	public void visitA(final ATag a) throws Exception {
 		basicNodeRender(a, m_o);
-		if(a.getHref() == null || a.getHref().trim().length() == 0) {
+		if(a.getHref() == null || a.getHref().trim().isEmpty()) {
 			o().attr("href", "javascript: void(0);");
 		} else
 			o().attr("href", a.getHref());

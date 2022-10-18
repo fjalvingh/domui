@@ -126,7 +126,7 @@ final public class ApplicationRequestHandler implements IFilterRequestHandler {
 
 	private static String appendPersistedParameters(String url, RequestContextImpl ctx) {
 		Set<String> nameSet = ctx.getApplication().getPersistentParameterSet();
-		if(nameSet.size() == 0)
+		if(nameSet.isEmpty())
 			return url;
 		Map<String, String> map = ctx.getPersistedParameterMap();
 		StringBuilder sb = new StringBuilder(url);

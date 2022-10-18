@@ -171,7 +171,7 @@ public class RuntimeConversions {
 			return ((Boolean) o).booleanValue() ? 't' : 'f';
 		if(o instanceof String) {
 			String s = (String) o;
-			if(s.length() == 0)
+			if(s.isEmpty())
 				return 0;
 			return s.charAt(0);
 		}
@@ -310,7 +310,7 @@ public class RuntimeConversions {
 			return Integer.valueOf(((Number) in).intValue());
 		if(in instanceof String) {
 			String s = ((String) in).trim();
-			if(s.length() == 0)
+			if(s.isEmpty())
 				return Integer.valueOf(0);
 			try {
 				int val = Integer.parseInt(s);
@@ -346,7 +346,7 @@ public class RuntimeConversions {
 			return Character.valueOf((char) ((Number) in).intValue());
 		if(in instanceof String) {
 			String s = (String) in;
-			if(s.length() == 0)
+			if(s.isEmpty())
 				return Character.valueOf((char) 0);
 			return Character.valueOf(s.charAt(0));
 		}

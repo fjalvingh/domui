@@ -70,7 +70,7 @@ public class DateConverter implements IConverter<Date> {
 		if(input == null)
 			return null;
 		input = input.trim();
-		if(input.length() == 0)
+		if(input.isEmpty())
 			return null;
 
 		String datePattern = null;

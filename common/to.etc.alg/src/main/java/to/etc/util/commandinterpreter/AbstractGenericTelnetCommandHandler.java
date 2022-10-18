@@ -41,7 +41,7 @@ abstract public class AbstractGenericTelnetCommandHandler implements ITelnetComm
 		if(null == patternAnn)
 			return;
 		String pattern = patternAnn.value();
-		if(pattern.length() == 0)
+		if(pattern.isEmpty())
 			throw new IllegalStateException("Invalid command pattern on method " + method);
 		int modifiers = method.getModifiers();
 		if(!Modifier.isPublic(modifiers))
@@ -194,7 +194,7 @@ abstract public class AbstractGenericTelnetCommandHandler implements ITelnetComm
 	}
 
 	private static boolean isWordValid(String w) {
-		if(w.length() == 0)
+		if(w.isEmpty())
 			return false;
 		if(! Character.isLetter(w.charAt(0)))
 			return false;
@@ -248,7 +248,7 @@ abstract public class AbstractGenericTelnetCommandHandler implements ITelnetComm
 			CommandContext ctx = new CommandContext(commandHandler);
 			if(ctx.recognize(words)) {
 				okContexts.add(ctx);
-			} else if(ctx.getLongestMatch().size() > 0) {
+			} else if(!ctx.getLongestMatch().isEmpty()) {
 				partialContexts.add(ctx);
 			}
 		}
@@ -282,7 +282,7 @@ abstract public class AbstractGenericTelnetCommandHandler implements ITelnetComm
 				matchList.add(cc);
 			}
 		}
-		if(largest > 0 && matchList.size() > 0) {
+		if(largest > 0 && !matchList.isEmpty()) {
 			tpw.println("Unrecognized command. Did you mean:");
 			for(CommandContext cc : matchList) {
 				tpw.println("- " + cc.getHandler().getHelpText());

@@ -90,7 +90,7 @@ public class JoinedDisplayProperty extends ExpandedDisplayProperty<String> imple
 				s = ((IConverter<Object>) converter).convertObjectToString(NlsContext.getLocale(), value);
 			else
 				s = ConverterRegistry.convertToString((PropertyMetaModel<Object>) pm, value);
-			if(s == null || s.length() == 0)
+			if(s == null || s.isEmpty())
 				continue;
 			if(join != null)
 				sb.append(join);

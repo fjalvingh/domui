@@ -591,13 +591,13 @@ public class TabularFormBuilder extends GenericTableFormBuilder {
 		}
 
 		TD td = (TD) tr.getChild(tr.getChildCount() - 1); // Find last td
-		if(m_appendIntoSeparator != null && m_appendIntoSeparator.length() > 0)
+		if(m_appendIntoSeparator != null && !m_appendIntoSeparator.isEmpty())
 			td.add(m_appendIntoSeparator); // Append any string separator
 
 		if(l != null) {
 			l.setCssClass("ui-f-lbl");
 			td.add(l);
-			if(m_appendIntoSeparator != null && m_appendIntoSeparator.length() > 0)
+			if(m_appendIntoSeparator != null && !m_appendIntoSeparator.isEmpty())
 				td.add(m_appendIntoSeparator); // Append any string separator
 		}
 		for(NodeBase nb : c)

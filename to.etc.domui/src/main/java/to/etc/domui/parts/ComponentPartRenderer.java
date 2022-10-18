@@ -63,9 +63,9 @@ public class ComponentPartRenderer {
 		String wid = m_args[2];
 
 		//-- 1. Get required parameters and retrieve the proper Page
-		if(pname.length() == 0)
+		if(pname.isEmpty())
 			throw new IllegalStateException("Missing 'c' parameter (page class name)");
-		if(cids.length() == 0)
+		if(cids.isEmpty())
 			throw new IllegalStateException("Missing 'cid' parameter");
 		m_pageClass = app.loadPageClass(pname);
 		m_page = PageMaker.findPageInConversation(param, m_pageClass, cids);

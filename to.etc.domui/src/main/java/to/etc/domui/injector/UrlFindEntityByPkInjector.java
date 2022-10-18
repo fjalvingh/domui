@@ -102,7 +102,7 @@ public class UrlFindEntityByPkInjector extends PropertyInjector {
 	protected Object getKeyInstance(QDataContext dc, final UrlPage page, String pkValue) throws Exception {
 		// if the parametervalue has no value and the type of the key is Number, we treet it like no parameter was filled in
 		// the mandatorycheck will be done some later
-		if(Number.class.isAssignableFrom(m_pkMetaPmm.getActualType()) && pkValue != null && pkValue.length() == 0)
+		if(Number.class.isAssignableFrom(m_pkMetaPmm.getActualType()) && pkValue != null && pkValue.isEmpty())
 			return null;
 
 		//-- Convert the URL's value to the TYPE of the primary key, using URL converters.

@@ -284,7 +284,7 @@ public class ColumnWrapper {
 				name = name.substring(0, name.length() - 1);
 
 			//-- Can we find a table with the remaining field name?
-			if(name.length() > 0) {
+			if(!name.isEmpty()) {
 				DbTable possibleTbl = g().findTableByNames(null, name);
 				if(null != possibleTbl) {
 					setConfigProperty("fk", possibleTbl.getName());
@@ -526,7 +526,7 @@ public class ColumnWrapper {
 			}
 		}
 
-		if(res.size() == 0)
+		if(res.isEmpty())
 			return null;
 		else if(res.size() == 1)
 			return res.get(0);
@@ -555,7 +555,7 @@ public class ColumnWrapper {
 					return false;
 				}
 				String name = rs.getString(1);
-				if(name != null && name.length() > 0) {
+				if(name != null && !name.isEmpty()) {
 					res.add(name);
 					if(! asnumber && !isValidJavaIdent(name)) {
 						if(!codeenum)
@@ -743,7 +743,7 @@ public class ColumnWrapper {
 
 
 	static private boolean isValidJavaIdent(String name) {
-		if(name == null || name.length() == 0)
+		if(name == null || name.isEmpty())
 			return false;
 		if(!Character.isJavaIdentifierStart(name.charAt(0)))
 			return false;
@@ -1400,7 +1400,7 @@ public class ColumnWrapper {
 		if(null == tc)
 			return;
 		String v = DomTools.strAttr(tc, property, null);
-		if(v == null || v.length() == 0 || v.startsWith("*")) {
+		if(v == null || v.isEmpty() || v.startsWith("*")) {
 			DomTools.setAttr(tc, property, "*" + value);
 		}
 	}

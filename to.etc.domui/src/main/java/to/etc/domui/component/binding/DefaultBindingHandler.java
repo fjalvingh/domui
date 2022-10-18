@@ -36,7 +36,7 @@ public class DefaultBindingHandler implements IBindingHandler {
 	@Override
 	public void controlToModel() throws Exception {
 		List<BindingValuePair<?>> pairs = collectChangedBindings();
-		if(pairs.size() == 0)
+		if(pairs.isEmpty())
 			return;
 
 		//-- We now know all bindings that changed values, and the list is in the proper order. Move all data.

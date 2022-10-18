@@ -121,7 +121,7 @@ final public class DateUtil {
 		if(timestring == null)
 			return coredate;
 		timestring = timestring.trim();
-		if(timestring.length() == 0)
+		if(timestring.isEmpty())
 			return coredate;
 
 		//-- We need to @!#*(!^# parse 8-( Do it as fast as possible because this might be used a LOT.

@@ -51,7 +51,7 @@ public class BuildPlanForStaticFactory extends AbstractBuildPlan {
 		m_argumentList = args;
 		m_score = score;
 
-		if(startlist != null && startlist.size() > 0)
+		if(startlist != null && !startlist.isEmpty())
 			m_startList = startlist.toArray(new MethodInvoker[startlist.size()]);
 	}
 

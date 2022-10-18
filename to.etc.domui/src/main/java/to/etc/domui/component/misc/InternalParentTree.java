@@ -135,7 +135,7 @@ public class InternalParentTree extends Div {
 
 		if(null != allocSt && node.hasParent()) {
 			List<StackTraceElement> stack = findStack(allocSt);
-			if(stack.size() > 0) {
+			if(!stack.isEmpty()) {
 				created = stack.get(0);
 			}
 		}
@@ -166,7 +166,7 @@ public class InternalParentTree extends Div {
 
 		if(null != allocSt && node.hasParent()) {
 			List<StackTraceElement> stack = findStack(allocSt);
-			if(stack.size() > 0) {
+			if(!stack.isEmpty()) {
 				td.setCssClass("ui-ipt-btn");
 				td.setClicked(clickednode -> showCreationTrace(clicked, stack));
 				td.setTitle("Show the stacktrace where the component was created");
@@ -479,7 +479,7 @@ public class InternalParentTree extends Div {
 			LOG.debug("DomUI Eclipse: response=" + response);
 
 			//-- If response ends in lf strip it
-			while(response.length() > 0 && response.charAt(response.length() - 1) == '\n')
+			while(!response.isEmpty() && response.charAt(response.length() - 1) == '\n')
 				response = response.substring(0, response.length() - 1);
 
 			//-- Get 1st token in the response.

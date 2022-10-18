@@ -222,7 +222,7 @@ public class CsvWriter implements AutoCloseable {
 		}
 		m_headerWritten = true;                          // ORDERED
 		List<String> header = m_options.getHeader();
-		if(header.size() == 0) {
+		if(header.isEmpty()) {
 			return;
 		}
 		StringBuilder sbOld = m_sb;

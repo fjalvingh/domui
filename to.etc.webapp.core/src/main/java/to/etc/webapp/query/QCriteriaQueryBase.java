@@ -155,7 +155,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 */
 	protected void addColumn(@NonNull QSelectionItem item, @Nullable String alias) {
 		QSelectionColumn col = new QSelectionColumn(item, alias);
-		if(m_itemList.size() == 0) {
+		if(m_itemList.isEmpty()) {
 			m_itemList = new ArrayList<QSelectionColumn>();
 		}
 		m_itemList.add(col);
@@ -165,7 +165,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 * Add a simple property selector to the list.
 	 */
 	protected void addPropertySelection(@NonNull QSelectionFunction f, @NonNull @GProperty String prop, @Nullable String alias) {
-		if(prop == null || prop.length() == 0)
+		if(prop == null || prop.isEmpty())
 			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
 		QPropertySelection ps = new QPropertySelection(f, prop);
 		addColumn(ps, alias);
@@ -176,7 +176,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 */
 	protected <V> void addPropertySelection(@NonNull QSelectionFunction f, @NonNull QField<T, V> property, @Nullable String alias) {
 		String prop = property.getName();
-		if(prop == null || prop.length() == 0)
+		if(prop == null || prop.isEmpty())
 			throw new ProgrammerErrorException("The property for a " + f + " selection cannot be null or empty");
 		QPropertySelection ps = new QPropertySelection(f, prop);
 		addColumn(ps, alias);
@@ -546,7 +546,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 	 */
 	@NonNull
 	public R fetch(@NonNull @GProperty String property, @NonNull QFetchStrategy strategy) {
-		if(m_fetchMap.size() == 0)
+		if(m_fetchMap.isEmpty())
 			m_fetchMap = new HashMap<>();
 		m_fetchMap.put(property, strategy);
 		return (R) this;
@@ -554,7 +554,7 @@ public class QCriteriaQueryBase<T, R extends QCriteriaQueryBase<T, R>> extends Q
 
 	@NonNull
 	public <V> R fetch(@NonNull QField<T, V> property, @NonNull QFetchStrategy strategy) {
-		if(m_fetchMap.size() == 0)
+		if(m_fetchMap.isEmpty())
 			m_fetchMap = new HashMap<>();
 		m_fetchMap.put(property.getName(), strategy);
 		return (R) this;

@@ -126,7 +126,7 @@ public class TestRequestResponse implements IRequestResponse {
 		StringBuilder sb = new StringBuilder();
 		sb.append(m_testInfo.getApplicationHost());
 		String wc = m_testInfo.getWebappContext();
-		if(wc.length() > 0) {
+		if(!wc.isEmpty()) {
 			sb.append(wc);
 			sb.append('/');
 		}

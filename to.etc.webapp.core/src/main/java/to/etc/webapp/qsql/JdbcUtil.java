@@ -137,14 +137,14 @@ final public class JdbcUtil {
 	}
 
 	static public void setString(@NonNull PreparedStatement ps, int index, String value) throws SQLException {
-		if(value == null || value.trim().length() == 0)
+		if(value == null || value.trim().isEmpty())
 			ps.setNull(index, Types.VARCHAR);
 		else
 			ps.setString(index, value);
 	}
 
 	static public void setStringTruncated(@NonNull PreparedStatement ps, int index, String value, int maxlen) throws SQLException {
-		if(value == null || value.trim().length() == 0)
+		if(value == null || value.trim().isEmpty())
 			ps.setNull(index, Types.VARCHAR);
 		else {
 			int len = value.length();

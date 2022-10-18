@@ -825,7 +825,7 @@ final public class Page implements IQContextContainer {
 	private void rebuildLoop() throws Exception {
 		int tries = 0;
 		modelToControl();
-		while(m_pendingBuildSet.size() > 0) {
+		while(!m_pendingBuildSet.isEmpty()) {
 			if(tries++ > 10)
 				throw new IllegalStateException("Internal: building the tree failed after " + tries + " attempts: the tree keeps changing every build...." + renderPendingChangeSet());
 			NodeBase[] todo = m_pendingBuildSet.toArray(new NodeBase[m_pendingBuildSet.size()]); // Dup todolist,
@@ -930,7 +930,7 @@ final public class Page implements IQContextContainer {
 	 * 					context appended to it.
 	 */
 	public void openWindow(@NonNull String windowURL, @Nullable WindowParameters wp) {
-		if(windowURL == null || windowURL.length() == 0)
+		if(windowURL == null || windowURL.isEmpty())
 			throw new IllegalArgumentException("Empty window URL");
 		String js = DomUtil.createOpenWindowJS(DomUtil.calculateURL(UIContext.getRequestContext(), windowURL), wp);
 		appendJS(js);
@@ -1076,7 +1076,7 @@ final public class Page implements IQContextContainer {
 	 */
 	@Nullable
 	public StringBuilder internalFlushJavascriptStateChanges() throws Exception {
-		if(m_javaScriptStateChangedSet.size() == 0)
+		if(m_javaScriptStateChangedSet.isEmpty())
 			return null;
 
 		ArrayList<NodeBase> todo = new ArrayList<NodeBase>(m_javaScriptStateChangedSet);
@@ -1089,7 +1089,7 @@ final public class Page implements IQContextContainer {
 				stmt.next();
 			}
 
-			if(m_javaScriptStateChangedSet.size() == 0) {
+			if(m_javaScriptStateChangedSet.isEmpty()) {
 				return sb;
 			}
 
@@ -1209,13 +1209,13 @@ final public class Page implements IQContextContainer {
 	/*	CODING:	Page action events.									*/
 	/*--------------------------------------------------------------*/
 	public void addAfterRequestListener(@NonNull IExecute x) {
-		if(m_afterRequestListenerList.size() == 0)
+		if(m_afterRequestListenerList.isEmpty())
 			m_afterRequestListenerList = new ArrayList<IExecute>();
 		m_afterRequestListenerList.add(x);
 	}
 
 	public void addBeforeRequestListener(@NonNull IExecute x) {
-		if(m_beforeRequestListenerList.size() == 0)
+		if(m_beforeRequestListenerList.isEmpty())
 			m_beforeRequestListenerList = new ArrayList<IExecute>();
 		m_beforeRequestListenerList.add(x);
 	}
@@ -1375,7 +1375,7 @@ final public class Page implements IQContextContainer {
 	public void internalPolledEntry() throws Exception {
 		List<IExecute> runList;
 		synchronized(this) {
-			if(m_pageOnCallbackList.size() == 0)
+			if(m_pageOnCallbackList.isEmpty())
 				return;
 			runList = m_pageOnCallbackList;
 			m_pageOnCallbackList = new ArrayList<>();
@@ -1389,7 +1389,7 @@ final public class Page implements IQContextContainer {
 				errorList.add(x);
 			}
 		}
-		if(errorList.size() == 0)
+		if(errorList.isEmpty())
 			return;
 		for(int i = 0; i < errorList.size(); i++) {
 			LOG.error("Errors during async poll: ", errorList.get(i));

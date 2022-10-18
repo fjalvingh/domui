@@ -72,7 +72,7 @@ public class BitmapConverter implements IImageConverter, IImageIdentifier {
 		ImageResize resize = null;
 
 		//-- Extract all operations I can do something with.
-		while(convs.size() > 0) {
+		while(!convs.isEmpty()) {
 			IImageConversionSpecifier ics = convs.get(0);
 			if(ics instanceof ImagePageSelect) {
 				convs.remove(0);

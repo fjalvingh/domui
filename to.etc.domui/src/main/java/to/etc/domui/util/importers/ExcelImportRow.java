@@ -220,7 +220,7 @@ public class ExcelImportRow implements IImportRow {
 						if(value == null)
 							return null;
 						value = value.trim().replace(',', '.');
-						if(value.length() == 0)
+						if(value.isEmpty())
 							return null;
 						return new BigDecimal(value);
 				}

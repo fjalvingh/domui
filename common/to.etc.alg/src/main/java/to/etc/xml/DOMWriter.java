@@ -217,7 +217,7 @@ public class DOMWriter {
 
 				String data = node.getNodeValue();
 
-				if(data != null && data.length() > 0) {
+				if(data != null && !data.isEmpty()) {
 					out.print(' ');
 					out.print(data);
 				}

@@ -379,7 +379,7 @@ public class SimpleSearchModel<T> extends TableListModelBase<T> implements IKeye
 
 		//-- A new query and/or sort order has been set- send the event.
 		m_query = query;
-		if(query.getOrder().size() > 0) {
+		if(!query.getOrder().isEmpty()) {
 			m_sort = null;
 			setSortComparator(null, null);
 		}

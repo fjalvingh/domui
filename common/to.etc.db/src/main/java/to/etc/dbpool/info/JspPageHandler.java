@@ -101,7 +101,7 @@ final public class JspPageHandler {
 		if(s == null)
 			return null;
 		s = s.trim();
-		if(s.length() == 0)
+		if(s.isEmpty())
 			return null;
 		return s;
 	}
@@ -155,7 +155,7 @@ final public class JspPageHandler {
 	}
 
 	static private String niceName(String in) {
-		if(in == null || in.length() == 0)
+		if(in == null || in.isEmpty())
 			return null;
 
 		StringBuilder sb = new StringBuilder();

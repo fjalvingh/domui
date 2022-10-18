@@ -111,10 +111,10 @@ final public class Bug {
 		Executor executor = getExecutor();
 		if(null == executor) {
 			report(gll, bi);
-		} else if(gll.size() > 0) {
+		} else if(!gll.isEmpty()) {
 			executor.execute(() -> report(gll, bi));
 		}
-		if(true || (gll.size() == 0 && threadListeners.size() == 0)) {
+		if(true || (gll.isEmpty() && threadListeners.isEmpty())) {
 			//-- No one listens -> report to console.
 			LOG.error(bi.toString());
 			Throwable x = bi.getException();

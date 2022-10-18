@@ -45,7 +45,7 @@ public class PlGaugeDetail {
 		PlotlyDataSet.renderColor(b, "bordercolor", m_borderColor);
 		if(m_borderWidth > 0)
 			b.objField("borderwidth", m_borderWidth);
-		if(m_stepList.size() > 0) {
+		if(!m_stepList.isEmpty()) {
 			b.objArrayField("steps");
 			for(PlGaugeStep step : m_stepList) {
 				b.itemObj();

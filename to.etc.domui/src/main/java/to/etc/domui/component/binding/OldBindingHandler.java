@@ -93,7 +93,7 @@ final public class OldBindingHandler {
 					}
 
 					//-- If there is an error somewhere- report the 1st one on the component
-					if(bindErrorList.size() > 0) {
+					if(!bindErrorList.isEmpty()) {
 						UIMessage message = bindErrorList.get(0);		// Report the first error as the binding error.
 						message.group(BINDING_ERROR);
 						silly[0] = true;

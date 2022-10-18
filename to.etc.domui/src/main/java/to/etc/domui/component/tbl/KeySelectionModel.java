@@ -96,7 +96,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 
 		K key = getKey(rowinstance);
 		if(on) {
-			if(!m_multiSelect && m_selectedSet.size() > 0) {
+			if(!m_multiSelect && !m_selectedSet.isEmpty()) {
 				//-- We need to remove an earlier selected item.
 				T old = m_selectedSet.values().iterator().next();
 				if(rowinstance.equals(old))
@@ -118,7 +118,7 @@ public class KeySelectionModel<T, K> extends AbstractSelectionModel<T> {
 
 	@Override
 	public void clearSelection() throws Exception {
-		if(m_selectedSet.size() == 0)
+		if(m_selectedSet.isEmpty())
 			return;
 		m_selectedSet.clear();
 		callSelectionAllChanged();

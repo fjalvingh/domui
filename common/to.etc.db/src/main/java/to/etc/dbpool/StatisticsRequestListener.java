@@ -132,7 +132,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 		UnclosedListener ucl = getUnclosedListener();
 		if(null != ucl) {
 			List<ConnectionProxy> uncl = PoolManager.getInstance().getThreadConnections();
-			if(uncl.size() > 0)
+			if(!uncl.isEmpty())
 				ucl.unclosed(r, uncl);
 		}
 
@@ -258,7 +258,7 @@ final public class StatisticsRequestListener implements ServletRequestListener {
 	private void updateEncoding(HttpServletRequest r) {
 		//-- If needed, force charset encoding on request, sigh.
 		String enc = r.getCharacterEncoding();
-		if(null == enc || enc.trim().length() == 0) {
+		if(null == enc || enc.trim().isEmpty()) {
 			enc = getForceEncoding();
 			if(enc != null) {
 				try {

@@ -395,7 +395,7 @@ final public class ServerTools {
 		String s = req.getParameter(name);
 		if(s != null) {
 			s = s.trim();
-			if(s.length() > 0) {
+			if(!s.isEmpty()) {
 				try {
 					return Long.parseLong(s);
 				} catch(Exception x) {
@@ -410,7 +410,7 @@ final public class ServerTools {
 		String s = req.getParameter(name);
 		if(s != null) {
 			s = s.trim();
-			if(s.length() > 0) {
+			if(!s.isEmpty()) {
 				try {
 					return Integer.parseInt(s);
 				} catch(Exception x) {
@@ -426,7 +426,7 @@ final public class ServerTools {
 		if(s == null)
 			return dflt;
 		s = s.trim();
-		if(s.length() == 0)
+		if(s.isEmpty())
 			return dflt;
 		try {
 			return Integer.parseInt(s);

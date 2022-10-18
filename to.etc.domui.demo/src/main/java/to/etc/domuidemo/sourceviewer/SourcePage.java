@@ -64,7 +64,7 @@ public class SourcePage extends UrlPage {
 
 		//-- Syntax highlighter
 		String ext = FileTool.getFileExtension(name);
-		if(ext.length() != 0)
+		if(!ext.isEmpty())
 			m_mode = HighlighterFactory.getHighlighter(ext, m_th);
 		m_th.setTabSize(m_tabSize);
 		m_th.setImportList(m_importList);

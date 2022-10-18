@@ -57,7 +57,7 @@ public class DoubleSizeConverter implements IConverter<Double> {
 	@Override
 	public Double convertStringToObject(Locale loc, String val) throws UIException {
 		val = val.trim();
-		if(val.length() == 0)
+		if(val.isEmpty())
 			throw new ValidationException(Msgs.vInvalid);
 
 		int lindex = val.length();
@@ -79,7 +79,7 @@ public class DoubleSizeConverter implements IConverter<Double> {
 			size *= 1024l * 1024l * 1024l;
 		else if("t".equals(f))
 			size *= 1024l * 1024l * 1024l * 1024l;
-		else if(f.length() != 0)
+		else if(!f.isEmpty())
 			throw new ValidationException(Msgs.vInvalid);
 
 		return Double.valueOf(size / m_factor);

@@ -13,7 +13,7 @@ final public class IpAddressValidator implements IValueValidator<String> {
 		if(null == input)
 			return;
 		input = input.trim();
-		if(input.length() == 0)
+		if(input.isEmpty())
 			return;
 
 		String[] segments = input.split("\\.");

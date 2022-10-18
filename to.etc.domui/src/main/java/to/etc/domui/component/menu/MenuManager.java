@@ -64,8 +64,8 @@ public class MenuManager {
 	private Supplier<IMenuAccessCheck> m_pageAccessCheckFactory = () -> this::isNodeAuthorized;
 
 	static public Comparator<MenuItem> C_BY_ORDER_AND_CHILDREN = (o1, o2) -> {
-		boolean c1 = o1.getChildren().size() > 0;
-		boolean c2 = o2.getChildren().size() > 0;
+		boolean c1 = !o1.getChildren().isEmpty();
+		boolean c2 = !o2.getChildren().isEmpty();
 		if(c1 != c2)
 			return c1 ? 1 : -1;
 		return o1.getOrder() - o2.getOrder();
@@ -131,7 +131,7 @@ public class MenuManager {
 		List<MenuItem> children = item.getChildren();
 		for(int i = children.size() - 1; i >= 0; i--) {
 			MenuItem menuItem = children.get(i);
-			if(menuItem.isSubMenu() && menuItem.getChildren().size() == 0) {
+			if(menuItem.isSubMenu() && menuItem.getChildren().isEmpty()) {
 				children.remove(i);
 			}
 		}

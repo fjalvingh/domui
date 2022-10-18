@@ -185,7 +185,7 @@ final public class PoClass {
 	}
 
 	public PoClass addImport(String packageName, String className) {
-		if(packageName.length() == 0 || packageName.startsWith("java.lang."))
+		if(packageName.isEmpty() || packageName.startsWith("java.lang."))
 			return this;
 		if(packageName.equals(m_packageName)) {					// Same package as class -> just add as named
 			m_singleNameImport.add(className);

@@ -77,7 +77,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 			if(m_acceptable != null && !m_acceptable.acceptable(rowinstance))
 				return;
 
-			if(!m_multiSelect && m_selectedSet.size() > 0) {
+			if(!m_multiSelect && !m_selectedSet.isEmpty()) {
 				//-- We need to remove an earlier selected item.
 				T old = m_selectedSet.iterator().next();
 				if(rowinstance.equals(old))
@@ -103,7 +103,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 
 	@Override
 	public void clearSelection() throws Exception {
-		if(m_selectedSet.size() == 0)
+		if(m_selectedSet.isEmpty())
 			return;
 		final IAcceptable<T> removable = m_removable;
 		if(null == removable) {
@@ -157,7 +157,7 @@ public class InstanceSelectionModel<T> extends AbstractSelectionModel<T> impleme
 	public T getSelected() {
 		if(isMultiSelect())
 			throw new IllegalStateException("This call is invalid for multi-select");
-		if(m_selectedSet.size() == 0)
+		if(m_selectedSet.isEmpty())
 			return null;
 		return getSelectedSet().iterator().next();
 	}

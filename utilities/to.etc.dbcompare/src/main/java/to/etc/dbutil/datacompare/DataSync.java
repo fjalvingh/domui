@@ -67,7 +67,7 @@ public class DataSync {
 		EqualSchemaComparator dp = new EqualSchemaComparator(src.getSchema(), dest.getSchema());
 		dp.run();
 		String del = dp.getChanges();
-		if(del.length() != 0) {
+		if(!del.isEmpty()) {
 			System.err.println("The database schema's are not equal:\n");
 			System.err.println(del);
 			System.exit(10);

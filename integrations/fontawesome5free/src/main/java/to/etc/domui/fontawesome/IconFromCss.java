@@ -215,7 +215,7 @@ final public class IconFromCss {
 
 				case waitContent:
 					if(t == ':') {
-						if("content".equalsIgnoreCase(sb.toString()) && name != null && name.length() > 0) {
+						if("content".equalsIgnoreCase(sb.toString()) && name != null && !name.isEmpty()) {
 							names.add(name);
 						}
 						m_state = State.findDot;
@@ -277,7 +277,7 @@ final public class IconFromCss {
 
 	private static void decodeLine(Map<String, Ren> map, String s) {
 		s = s.trim();
-		if(s.length() == 0)
+		if(s.isEmpty())
 			return;
 
 		String[] frag = s.split("\\s+");

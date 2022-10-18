@@ -112,7 +112,7 @@ public class ExpandHeader extends Div {
 		td.setCssClass("ui-xphd-ttl");
 		td.setCellWidth("*");
 
-		if(m_actionList.size() > 0) {
+		if(!m_actionList.isEmpty()) {
 			td = body.addCell("ui-xphd-menubutton");
 			td.setCellWidth("16");
 

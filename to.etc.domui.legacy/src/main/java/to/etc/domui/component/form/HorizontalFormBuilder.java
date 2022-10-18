@@ -284,7 +284,7 @@ public class HorizontalFormBuilder extends GenericTableFormBuilder {
 	public NodeContainer finish() {
 		basicFinish(false); // Handle generic "finish" processing for all finish methods.
 		NodeContainer result = null;
-		if(m_generatedTableList.size() == 0)
+		if(m_generatedTableList.isEmpty())
 			result = null;
 		else if(m_generatedTableList.size() == 1) // Only one table generated?
 			result = m_generatedTableList.get(0); // Return that one

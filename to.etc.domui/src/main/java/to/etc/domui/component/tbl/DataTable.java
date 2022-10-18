@@ -202,7 +202,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 		calcIndices(); 										// Calculate rows to show.
 
 		List<T> list = getPageItems(); 						// Data to show
-		if(list.size() == 0) {
+		if(list.isEmpty()) {
 			setNoResults();
 			return;
 		}
@@ -722,7 +722,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			return;
 		calcIndices();
 		List<T> list = getPageItems(); 						// Data to show
-		if(list.size() == 0) {
+		if(list.isEmpty()) {
 			setNoResults();
 			return;
 		}
@@ -871,7 +871,7 @@ final public class DataTable<T> extends PageableTabularComponentBase<T> implemen
 			for(DataTableRow<T> tableRow : rowSet) {
 				tableRow.remove();
 			}
-			if(m_visibleItemList.size() == 0) {
+			if(m_visibleItemList.isEmpty()) {
 				calcIndices();								// Calculate visible nodes
 				setNoResults();
 				firePageChanged();

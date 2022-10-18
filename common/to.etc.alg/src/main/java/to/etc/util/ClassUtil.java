@@ -318,7 +318,7 @@ final public class ClassUtil {
 	static public String getMethodName(@NonNull String prefix, @NonNull String property) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(prefix);
-		if(property.length() > 0) {
+		if(!property.isEmpty()) {
 			sb.append(Character.toUpperCase(property.charAt(0)));
 			sb.append(property, 1, property.length());
 		}
@@ -383,7 +383,7 @@ final public class ClassUtil {
 	}
 
 	static public void propertyNameToJava(@NonNull StringBuilder sb, @NonNull String in) {
-		if(in.length() == 0)
+		if(in.isEmpty())
 			return;
 		int len = sb.length();
 		sb.append(in);

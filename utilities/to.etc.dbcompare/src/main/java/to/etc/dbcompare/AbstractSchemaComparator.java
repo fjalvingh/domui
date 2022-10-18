@@ -79,7 +79,7 @@ abstract public class AbstractSchemaComparator {
 			if(doCompareColumns(st, dt, sc, dc))
 				changed = true;
 		}
-		if(colset.size() != 0)
+		if(!colset.isEmpty())
 			changed = true;
 		for(DbColumn dc : colset) {
 			if(doCompareColumns(st, dt, null, dc))
@@ -498,7 +498,7 @@ abstract public class AbstractSchemaComparator {
 
 				//-- Check columns and column order to determine order changes.
 				List<ColumnChange> cc = findColumnChanges(six.getColumnList(), dix.getColumnList());
-				if(uniqchanged || cc.size() != 0) {
+				if(uniqchanged || !cc.isEmpty()) {
 					indexChanged(six, dix, uniqchanged, cc);
 					changed = true;
 				}

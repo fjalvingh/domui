@@ -75,7 +75,7 @@ public class SelectOnePanel<T> extends Div implements IHasChangeListener {
 		//System.out.println(".... acceptParam " + Arrays.toString(values) + " index=" + m_currentSelection);
 		if(values.length == 1) {
 			String s = values[0];
-			if(s != null && s.trim().length() > 0) {
+			if(s != null && !s.trim().isEmpty()) {
 				try {
 					value = Integer.parseInt(s);
 				} catch(Exception x) {}

@@ -93,7 +93,7 @@ public class InputWrapper {
 			aname = aname.trim(); // Do not allow surrounding spaces.
 
 			//-- Set this name,
-			if(aname.length() > 0) {
+			if(!aname.isEmpty()) {
 				iInputField f = m_ir.getField(nix); // To this field,
 				f.setName(aname);
 			}

@@ -295,7 +295,7 @@ final public class IconFromCss {
 
 				case waitContent:
 					if(t == ':') {
-						if("content".equalsIgnoreCase(sb.toString()) && name != null && name.length() > 0) {
+						if("content".equalsIgnoreCase(sb.toString()) && name != null && !name.isEmpty()) {
 							sb.setLength(0);
 							m_state = State.waitContentEnd;
 							break;
@@ -313,7 +313,7 @@ final public class IconFromCss {
 
 				case waitContentEnd:
 					if(t == ';') {
-						if(sb.toString().startsWith("\"\\") && sb.toString().endsWith("\"") && name != null && name.length() > 0) {
+						if(sb.toString().startsWith("\"\\") && sb.toString().endsWith("\"") && name != null && !name.isEmpty()) {
 							Integer code = Integer.parseInt(sb.toString().replace("\"\\", "").replace("\"", ""), 16);
 							namesAndCodes.add(new Pair<>(name, code));
 						}

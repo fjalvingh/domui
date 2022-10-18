@@ -83,7 +83,7 @@ public class JpaQueryExecutor implements IQueryExecutor<JpaDataContext>, IQueryE
         Session hibernateSession = JpaConnector.getHibernateSession(root.getEntityManager());
         Criteria crit = GenericHibernateHandler.createCriteria(hibernateSession, sel);
         List<Object[]> resl = crit.list();
-        if(resl.size() == 0)
+        if(resl.isEmpty())
             return Collections.EMPTY_LIST;
         if(sel.getColumnList().size() == 1 && !(resl.get(0) instanceof Object[])) {
             //-- Re-wrap this result as a list of Object[].

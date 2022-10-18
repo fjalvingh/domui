@@ -492,18 +492,18 @@ public class ComponentBuilder {
 	}
 
 	public String getIdent() {
-		if(m_nameList.size() > 0)
+		if(!m_nameList.isEmpty())
 			return "component(name=" + m_nameList.get(0) + ")";
-		if(m_definedTypeList.size() > 0)
+		if(!m_definedTypeList.isEmpty())
 			return "component(type=" + m_definedTypeList.get(0).toString() + ")";
 		return "component(Unnamed/untyped)";
 	}
 
 	@Override
 	public String toString() {
-		if(m_nameList.size() > 0)
+		if(!m_nameList.isEmpty())
 			return "component(name=" + m_nameList.get(0) + ") defined at " + m_definitionLocation;
-		if(m_definedTypeList.size() > 0)
+		if(!m_definedTypeList.isEmpty())
 			return "component(type=" + m_definedTypeList.get(0).toString() + ") defined at " + m_definitionLocation;
 		return "component(Unnamed/untyped) defined at " + m_definitionLocation;
 	}
@@ -613,7 +613,7 @@ public class ComponentBuilder {
 			List<PropertyInjector> ijlist = calculateSetterInjectors(stack);
 			abp.setInjectorList(ijlist);
 
-			if(m_destroyList.size() > 0)
+			if(!m_destroyList.isEmpty())
 				abp.setDestroyList(createCallArray(self, stack, m_destroyList));
 		} else
 			throw new IllegalStateException("Unexpected build plan");
@@ -663,7 +663,7 @@ public class ComponentBuilder {
 			if(cbp != null)
 				list.add(cbp);
 		}
-		if(list.size() == 0)
+		if(list.isEmpty())
 			throw new BuildPlanFailedException(this, "None of the constructors was usable", aflist);
 
 		//-- Find the plan with the highest score.
@@ -745,7 +745,7 @@ public class ComponentBuilder {
 			if(cbp != null)
 				list.add(cbp);
 		}
-		if(list.size() == 0)
+		if(list.isEmpty())
 			throw new BuildPlanFailedException(this, "None of the factory methods was usable", aflist);
 
 		//-- Find the plan with the highest score.
@@ -810,7 +810,7 @@ public class ComponentBuilder {
 	 * @return
 	 */
 	private List<PropertyInjector> calculateSetterInjectors(final Stack<ComponentBuilder> stack) {
-		if(m_propertyMode == ComponentPropertyMode.NONE && m_propertyDefMap.size() == 0) // No properties to set -> exit immediately.
+		if(m_propertyMode == ComponentPropertyMode.NONE && m_propertyDefMap.isEmpty()) // No properties to set -> exit immediately.
 			return Collections.EMPTY_LIST;
 
 		/*
@@ -839,9 +839,9 @@ public class ComponentBuilder {
 		}
 
 		//-- All that's left in doneset are properties that are undefined on this class, so die.
-		if(doneset.size() > 0)
+		if(!doneset.isEmpty())
 			throw new IocConfigurationException(this, "Unknown property/properties '" + doneset + "' on class " + m_actualType.getName());
-		if(fullmap.size() == 0)
+		if(fullmap.isEmpty())
 			return Collections.EMPTY_LIST;
 
 		/*

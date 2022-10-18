@@ -97,7 +97,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		String baseName = PoGeneratorContext.propertyName(col.getColumnName());
 
 		List<Pair<String, IPoProxyGenerator>> controlList = col.getContentModelList();
-		if(controlList.size() == 0) {
+		if(controlList.isEmpty()) {
 			//-- No model -> we'll generate a text only model.
 			IPoProxyGenerator px = PoGeneratorRegistry.getDisplayTextGenerator(context, m_node);	// FIXME Node is odd here
 			px.generateCode(context, pc, baseName, new PoSelectorCell(index));
@@ -157,7 +157,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 	public GeneratorAccepted acceptChildren(PoGeneratorContext context) throws Exception {
 		NodeContainer nc = (NodeContainer) m_node;
 		List<Table> tables = nc.getChildren(Table.class);
-		if(tables.size() == 0) {
+		if(tables.isEmpty()) {
 			context.error(m_node, "The data table is empty; fill it to generate its content model");
 			return GeneratorAccepted.RefusedIgnoreChildren;
 		} else if(tables.size() > 1) {
@@ -168,13 +168,13 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		List<THead> heads = tbl.getChildren(THead.class);
 		if(heads.size() > 1) {
 			context.error(m_node, "Too many THEAD items in DataTable");
-		} else if(heads.size() == 0) {
+		} else if(heads.isEmpty()) {
 			context.error(m_node, "No data in table, cannot really do anything");
 			return GeneratorAccepted.RefusedIgnoreChildren;
 		}
 		THead head = heads.get(0);
 		m_colList = scanColumnNames(context, head);
-		if(m_colList.size() == 0) {
+		if(m_colList.isEmpty()) {
 			context.error(m_node, "No columns recognized");
 			return GeneratorAccepted.RefusedIgnoreChildren;
 		}
@@ -281,7 +281,7 @@ final public class PogDataTable extends AbstractPoProxyGenerator {
 		StringBuilder sb = new StringBuilder();
 		for(TH th : col.getHeader()) {
 			String tc = th.getTextOnly();
-			if(null != tc && tc.length() > 0) {
+			if(null != tc && !tc.isEmpty()) {
 				sb.append(tc);
 			}
 		}

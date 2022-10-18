@@ -83,7 +83,7 @@ class CachedImageFragment {
 	}
 
 	final public boolean isOriginal() {
-		return m_permutation.length() == 0;
+		return m_permutation.isEmpty();
 	}
 
 	final public ImageCache cache() {

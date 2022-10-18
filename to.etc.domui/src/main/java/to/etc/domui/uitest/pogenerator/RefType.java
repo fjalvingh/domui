@@ -52,11 +52,11 @@ final public class RefType {
 
 	private String asTypeString() {
 		StringBuilder sb = new StringBuilder();
-		if(m_packageName.length() > 0) {
+		if(!m_packageName.isEmpty()) {
 			sb.append(m_packageName).append(".");
 		}
 		sb.append(m_typeName);
-		if(m_genericParameterList.size() > 0) {
+		if(!m_genericParameterList.isEmpty()) {
 			sb.append("<");
 			for(int i = 0; i < m_genericParameterList.size(); i++) {
 				RefType s = m_genericParameterList.get(i);
@@ -75,11 +75,11 @@ final public class RefType {
 		clz.addImport(this);
 
 		StringBuilder sb = new StringBuilder();
-		if(! clz.hasImport(this) && m_packageName.length() > 0) {
+		if(! clz.hasImport(this) && !m_packageName.isEmpty()) {
 			sb.append(m_packageName).append(".");
 		}
 		sb.append(m_typeName);
-		if(m_genericParameterList.size() > 0) {
+		if(!m_genericParameterList.isEmpty()) {
 			sb.append("<");
 			for(int i = 0; i < m_genericParameterList.size(); i++) {
 				RefType s = m_genericParameterList.get(i);

@@ -60,7 +60,7 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 			append(" ");
 		}
 		List<RefType> interfaceList = n.getInterfaceList();
-		if(interfaceList.size() > 0) {
+		if(!interfaceList.isEmpty()) {
 			interfaceList.sort(Comparator.comparing(RefType::toString));
 			append("implements ");
 			for(int i = 0; i < interfaceList.size(); i++) {
@@ -154,7 +154,7 @@ public class PoClassWriter extends BodyWriter<PoClassWriter> implements IPoModel
 	}
 
 	private PoClassWriter appendModifiers(Set<Modifier> modifierSet) throws Exception {
-		if(modifierSet.size() == 0) {
+		if(modifierSet.isEmpty()) {
 			append("public ");
 			return this;
 		}

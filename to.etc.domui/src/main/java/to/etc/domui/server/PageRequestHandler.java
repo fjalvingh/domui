@@ -343,7 +343,7 @@ final public class PageRequestHandler {
 			page.callRequestStarted();
 
 			List<IGotoAction> al = (List<IGotoAction>) windowSession.getAttribute(UIGoto.PAGE_ACTION);
-			if(al != null && al.size() > 0) {
+			if(al != null && !al.isEmpty()) {
 				page.getBody().build();
 				for(IGotoAction ga : al) {
 					if(DomUtil.USERLOG.isDebugEnabled())
@@ -498,7 +498,7 @@ final public class PageRequestHandler {
 	private void handleSessionUIMessages(WindowSession windowSession, Page page) throws Exception {
 		List<UIMessage> ml = (List<UIMessage>) windowSession.getAttribute(UIGoto.SINGLESHOT_MESSAGE);
 		if(ml != null) {
-			if(ml.size() > 0) {
+			if(!ml.isEmpty()) {
 				page.getBody().build();
 				for(UIMessage m : ml) {
 					if(DomUtil.USERLOG.isDebugEnabled())
@@ -1054,7 +1054,7 @@ final public class PageRequestHandler {
 	private void handleDevelopmentShowCode(Page page, NodeBase targetComponent) {
 		//-- If a tree is already present ignore the click.
 		List<InternalParentTree> res = page.getBody().getDeepChildren(InternalParentTree.class);
-		if(res.size() > 0)
+		if(!res.isEmpty())
 			return;
 		InternalParentTree ipt = new InternalParentTree(targetComponent);
 		page.getBody().add(0, ipt);

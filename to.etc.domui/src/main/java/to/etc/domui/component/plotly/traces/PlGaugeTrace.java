@@ -31,7 +31,7 @@ public class PlGaugeTrace extends AbstractBasicTrace<PlGaugeTrace> implements IP
 		if(null != a)
 			b.objField("align", a.name().toLowerCase());
 		b.objField("value", m_value);
-		if(m_mode.size() > 0) {
+		if(!m_mode.isEmpty()) {
 			b.objField("mode", m_mode.stream().map(z -> z.name().toLowerCase()).collect(Collectors.joining("+")));
 		}
 		b.objObjField("gauge");

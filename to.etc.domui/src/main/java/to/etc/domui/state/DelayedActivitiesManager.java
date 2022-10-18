@@ -187,7 +187,7 @@ final public class DelayedActivitiesManager {
 				return true;
 
 			//-- Must a thread be started?
-			if(m_pendingQueue.size() == 0) 					// Pending requests?
+			if(m_pendingQueue.isEmpty()) 					// Pending requests?
 				return false;
 
 			//-- Prepare to start the executor.
@@ -205,7 +205,7 @@ final public class DelayedActivitiesManager {
 	 */
 	public boolean callbackRequired() {
 		synchronized(this) {
-			return m_pendingQueue.size() > 0 || m_completionQueue.size() > 0 || m_runningActivity != null || m_pollSet.size() > 0;
+			return !m_pendingQueue.isEmpty() || !m_completionQueue.isEmpty() || m_runningActivity != null || !m_pollSet.isEmpty();
 		}
 	}
 
@@ -278,7 +278,7 @@ final public class DelayedActivitiesManager {
 				//-- Are we attempting to die?
 				DelayedActivityInfo dai;
 				synchronized(this) {
-					if(m_terminated || m_pendingQueue.size() == 0) {
+					if(m_terminated || m_pendingQueue.isEmpty()) {
 						/*
 						 * Terminate means the page died, so we have nothing to do
 						 * anymore. There is no way to report back the results of

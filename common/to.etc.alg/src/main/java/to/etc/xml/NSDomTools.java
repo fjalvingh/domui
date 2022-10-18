@@ -159,7 +159,7 @@ public class NSDomTools {
 	 */
 	static public int timeNode(Node rn, String ns, String name, int dflt) throws Exception {
 		String v = stringNode(rn, ns, name, null);
-		if(v == null || v.length() == 0)
+		if(v == null || v.isEmpty())
 			return dflt;
 
 		int ix = 0;
@@ -245,7 +245,7 @@ public class NSDomTools {
 		if(s == null)
 			return val;
 		s = s.trim();
-		if(s.length() == 0 || DomTools.DBNULL.equals(s))
+		if(s.isEmpty() || DomTools.DBNULL.equals(s))
 			return val;
 
 		try {
@@ -276,7 +276,7 @@ public class NSDomTools {
 		if(s == null)
 			return val;
 		s = s.trim();
-		if(s.length() == 0 || DomTools.DBNULL.equals(s))
+		if(s.isEmpty() || DomTools.DBNULL.equals(s))
 			return val;
 
 		try {
@@ -291,7 +291,7 @@ public class NSDomTools {
 		if(s == null)
 			return val;
 		s = s.trim();
-		if(s.length() == 0 || DomTools.DBNULL.equals(s))
+		if(s.isEmpty() || DomTools.DBNULL.equals(s))
 			return val;
 
 		try {
@@ -346,7 +346,7 @@ public class NSDomTools {
 			Node idn = n.getAttributes().getNamedItemNS(ns, aname);
 			if(idn != null) {
 				String v = idn.getNodeValue();
-				if(v != null && v.length() > 0) {
+				if(v != null && !v.isEmpty()) {
 					try {
 						return Integer.parseInt(v.trim());
 					} catch(Exception ex) {
@@ -393,7 +393,7 @@ public class NSDomTools {
 			Node idn = n.getAttributes().getNamedItemNS(ns, aname);
 			if(idn != null) {
 				String v = idn.getNodeValue();
-				if(v != null && v.length() > 0) {
+				if(v != null && !v.isEmpty()) {
 					try {
 						return Integer.parseInt(v.trim());
 					} catch(Exception ex) {

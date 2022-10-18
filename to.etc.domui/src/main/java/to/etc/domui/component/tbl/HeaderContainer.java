@@ -120,7 +120,7 @@ final public class HeaderContainer<T> {
 	public HeaderContainerCell add(@Nullable String txt) {
 		if(txt != null) {
 			txt = txt.trim();
-			if(txt != null && txt.length() > 0) {
+			if(txt != null && !txt.isEmpty()) {
 				return add(new TextNode(txt));
 			}
 		}

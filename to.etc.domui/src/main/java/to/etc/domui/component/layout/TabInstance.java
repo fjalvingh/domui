@@ -211,7 +211,7 @@ final public class TabInstance implements IErrorMessageListener, ITabHandle {
 	}
 
 	public boolean hasErrors() {
-		return m_msgList.size() > 0;
+		return !m_msgList.isEmpty();
 	}
 
 	public TabPanelBase getTabPanel() {

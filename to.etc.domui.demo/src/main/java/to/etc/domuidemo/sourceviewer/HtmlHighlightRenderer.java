@@ -68,7 +68,7 @@ public class HtmlHighlightRenderer implements IHighlightRenderer {
 					m_lastEnding = "</a>";
 					m_sb.append("<a class=\"s-");
 					m_sb.append(css);
-					if(m_baseClass != null && m_baseClass.length() > 0) {
+					if(m_baseClass != null && !m_baseClass.isEmpty()) {
 						m_sb.append(' ');
 						m_sb.append(m_baseClass);
 					}
@@ -89,7 +89,7 @@ public class HtmlHighlightRenderer implements IHighlightRenderer {
 				m_lastEnding = "</span>";
 				m_sb.append("<span class=\"s-");
 				m_sb.append(css);
-				if(m_baseClass != null && m_baseClass.length() > 0) {
+				if(m_baseClass != null && !m_baseClass.isEmpty()) {
 					m_sb.append(' ');
 					m_sb.append(m_baseClass);
 				}
@@ -135,7 +135,7 @@ public class HtmlHighlightRenderer implements IHighlightRenderer {
 	private String getXref(String name) {
 		String ref = m_xrefMap.get(name);
 		if(ref != null) {
-			if(ref.length() == 0) 							// Empty string is not found
+			if(ref.isEmpty()) 							// Empty string is not found
 				return null;
 			return ref;
 		}
@@ -159,7 +159,7 @@ public class HtmlHighlightRenderer implements IHighlightRenderer {
 			}
 		}
 		m_xrefMap.put(name, ref);
-		if(ref.length() == 0)
+		if(ref.isEmpty())
 			return null;
 		return ref;
 	}

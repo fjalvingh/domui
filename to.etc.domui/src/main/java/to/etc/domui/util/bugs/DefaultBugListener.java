@@ -228,7 +228,7 @@ public class DefaultBugListener implements IBugListener {
 	protected static void checkForBugs(IRequestContext ctx, final Page pg) {
 		ConversationContext cc = pg.getConversation();
 		BugRef ref = (BugRef) cc.getAttribute(KEY);
-		if(null == ref || ref.getBugList().size() == 0)
+		if(null == ref || ref.getBugList().isEmpty())
 			return;
 
 		LOG.error("BugListener: need to add UI for " + ref.getBugList().size() + " bugs are present");

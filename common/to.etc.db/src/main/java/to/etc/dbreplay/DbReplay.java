@@ -447,7 +447,7 @@ public class DbReplay {
 	 * @return
 	 */
 	public synchronized ReplayExecutor allocateExecutor() {
-		if(m_freeExecutors.size() == 0) {
+		if(m_freeExecutors.isEmpty()) {
 			//-- Nothing free... Add to ignore set, and increment error count
 			m_missingConnections++;
 			return null;
@@ -487,7 +487,7 @@ public class DbReplay {
 		int tries = 20;
 		for(; ; ) {
 			synchronized(m_idleExecutorList) {
-				if(m_idleExecutorList.size() > 0) {
+				if(!m_idleExecutorList.isEmpty()) {
 					r = m_idleExecutorList.iterator().next();
 					break;
 				}
@@ -510,7 +510,7 @@ public class DbReplay {
 	public void terminateAll() throws Exception {
 		//-- Force all executors to terminate.
 		synchronized(this) {
-			if(m_executorList.size() == 0)
+			if(m_executorList.isEmpty())
 				return;
 
 			m_freeExecutors.clear();

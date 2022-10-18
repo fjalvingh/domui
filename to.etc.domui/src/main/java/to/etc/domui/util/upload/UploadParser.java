@@ -265,7 +265,7 @@ public class UploadParser {
 		while(p.parseNext()) {
 			if("boundary".equalsIgnoreCase(p.getProperty())) {
 				String val = p.getValue();
-				if(val == null || val.length() == 0)
+				if(val == null || val.isEmpty())
 					return null;
 
 				//-- Convert boundary to bytes
@@ -337,7 +337,7 @@ public class UploadParser {
 		 * was left empty.
 		 */
 		boolean isfile = fn != null; // Is a file item?
-		if(fn != null && fn.trim().length() == 0)
+		if(fn != null && fn.trim().isEmpty())
 			fn = null; // Empty string means no file entered
 
 		UploadItem ui = new UploadItem(fieldname, contenttype, charset, fn, isfile);
@@ -353,7 +353,7 @@ public class UploadParser {
 		try {
 			if(fn != null) {
 				String ext = FileTool.getFileExtension(fn);
-				if(ext.length() == 0)
+				if(ext.isEmpty())
 					ext = "tmp";
 				resf = File.createTempFile("upld", "." + ext);
 				os = new FileOutputStream(resf);

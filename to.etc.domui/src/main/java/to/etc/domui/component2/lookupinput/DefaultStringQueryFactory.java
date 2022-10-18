@@ -82,7 +82,7 @@ public class DefaultStringQueryFactory<QT> implements IStringQueryFactory<QT> {
 
 		QRestrictorImpl<QT> r = searchQuery.or();
 		int ncond = 0;
-		if(spml.size() > 0) {
+		if(!spml.isEmpty()) {
 			for(SearchPropertyMetaModel spm : spml) {
 				if(spm.getMinLength() <= searchString.length()) {
 

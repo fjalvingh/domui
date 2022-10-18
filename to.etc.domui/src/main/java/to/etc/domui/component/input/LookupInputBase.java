@@ -224,7 +224,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 		if(getKeywordLookupPropertyList() != null)
 			return true;
 		List<SearchPropertyMetaModel> spml = getQueryMetaModel().getKeyWordSearchProperties();
-		return spml.size() > 0;
+		return !spml.isEmpty();
 	}
 
 	/**
@@ -325,7 +325,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 */
 	@Nullable
 	private ITableModel<OT> searchKeyWord(@Nullable String searchString) throws Exception {
-		if(searchString == null || searchString.trim().length() == 0) {
+		if(searchString == null || searchString.trim().isEmpty()) {
 			return null;
 		}
 		searchString = DomUtil.nullChecked(searchString.replace("*", "%"));
@@ -408,7 +408,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 
 			QRestrictorImpl<QT> r = searchQuery.or();
 			int ncond = 0;
-			if(spml.size() > 0) {
+			if(!spml.isEmpty()) {
 				for(SearchPropertyMetaModel spm : spml) {
 					if(spm.getMinLength() <= searchString.length()) {
 
@@ -520,7 +520,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 				lf = new SearchPanel<>(rootCriteria);
 			else
 				lf = new SearchPanel<>(getQueryClass(), getQueryMetaModel());
-			if(m_searchPropertyList != null && m_searchPropertyList.size() != 0)
+			if(m_searchPropertyList != null && !m_searchPropertyList.isEmpty())
 				lf.setSearchProperties(m_searchPropertyList);
 			setSearchPanel(lf);
 		}

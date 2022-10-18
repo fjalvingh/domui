@@ -453,7 +453,7 @@ public class DbPoolUtil {
 	 */
 	public static void printTracepoints(IPrinter p, ConnectionProxy pc, boolean full) {
 		List<Tracepoint> list = pc.getTraceList();
-		if(list == null || list.size() == 0) {
+		if(list == null || list.isEmpty()) {
 			p.warning("Connection usage tracing has not been enabled");
 			return;
 		}

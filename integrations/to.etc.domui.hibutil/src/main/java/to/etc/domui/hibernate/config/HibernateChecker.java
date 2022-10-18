@@ -297,7 +297,7 @@ final public class HibernateChecker {
 	private void checkOneToMany(Method g) {
 		javax.persistence.OneToMany o2m = g.getAnnotation(javax.persistence.OneToMany.class);
 		if(o2m != null) {
-			if(o2m.mappedBy().length() == 0) {
+			if(o2m.mappedBy().isEmpty()) {
 				m_badOneToMany++;
 				problem(Severity.ERROR, "Missing 'mappedBy' in @OneToMany annotation- REPLACE WITH mappedBy and parent property in child class");
 			}

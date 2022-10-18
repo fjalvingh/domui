@@ -233,7 +233,7 @@ public class AnimGifEncoder {
 	 */
 	public void encode() throws IOException {
 		//-- Check validity,
-		if(m_ima_ar == null || m_ima_ar.size() == 0)
+		if(m_ima_ar == null || m_ima_ar.isEmpty())
 			throw new IOException("No images added.");
 
 		//-- Init the compressor's tables

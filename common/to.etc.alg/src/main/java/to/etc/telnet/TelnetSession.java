@@ -427,7 +427,7 @@ public class TelnetSession extends TelnetStateThing implements Runnable {
 			// Ignored
 		}
 		String cmd = m_cmd_sb.toString().trim();
-		if(cmd.length() > 0) {
+		if(!cmd.isEmpty()) {
 			//			System.out.println("COMMAND: "+cmd);
 
 			m_server.executeTelnetCommand(m_tpw, cmd);

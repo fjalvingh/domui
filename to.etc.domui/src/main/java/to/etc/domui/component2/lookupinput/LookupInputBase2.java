@@ -148,7 +148,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		if(getKeywordLookupPropertyList() != null)
 			return true;
 		List<SearchPropertyMetaModel> spml = getQueryMetaModel().getKeyWordSearchProperties();
-		return spml.size() > 0;
+		return !spml.isEmpty();
 	}
 
 	/**
@@ -208,7 +208,7 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	 */
 	@Nullable
 	private ITableModel<OT> searchKeyWord(@Nullable String searchString) throws Exception {
-		if(searchString == null || searchString.trim().length() == 0) {
+		if(searchString == null || searchString.trim().isEmpty()) {
 			return null;
 		}
 		IStringQueryFactory<QT> ksh = getStringQueryFactory();

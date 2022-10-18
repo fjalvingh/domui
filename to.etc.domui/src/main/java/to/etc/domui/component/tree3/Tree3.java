@@ -217,7 +217,7 @@ public class Tree3<T> extends Div implements ITreeModelChangedListener<T> {
 	public void expandNode(T item, boolean animate) throws Exception {
 		getModel().expandChildren(item);
 		List<T> path = getTreePath(item); // Calculate a path.
-		if(path.size() == 0)
+		if(path.isEmpty())
 			throw new IllegalStateException("No TREE path found to node=" + item);
 		Object root = getModel().getRoot();
 		if(root != path.get(0))

@@ -183,7 +183,7 @@ public class ConversationContext extends AbstractConversationContext implements 
 	 */
 	public void mergePersistentParameters(RequestContextImpl ctx) {
 		Set<String> nameSet = ctx.getApplication().getPersistentParameterSet();
-		if(nameSet.size() == 0)
+		if(nameSet.isEmpty())
 			return;
 		for(String name : nameSet) {
 			String value = ctx.getPageParameters().getString(name, null);

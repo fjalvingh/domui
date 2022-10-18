@@ -81,7 +81,7 @@ final class LookupFactoryString implements ILookupControlFactory {
 				} catch(Exception x) {
 					return AppendCriteriaResult.INVALID; // Has validation error -> exit.
 				}
-				if(value == null || (value instanceof String && ((String) value).trim().length() == 0))
+				if(value == null || (value instanceof String && ((String) value).trim().isEmpty()))
 					return AppendCriteriaResult.EMPTY; // Is okay but has no data
 
 				// FIXME Handle minimal-size restrictions on input (search field metadata

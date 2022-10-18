@@ -214,7 +214,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		//-- 20091127 jal Add header contributors delta rendering
 		//-- This is incomplete: see bug 669
 		List<HeaderContributorEntry> list = m_page.getAddedContributors();
-		if(list.size() > 0) {
+		if(!list.isEmpty()) {
 			Collections.sort(list, HeaderContributor.C_ENTRY);
 
 			o().tag("eval");
@@ -823,7 +823,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		if(ni.isAdded)
 			iw.print(" ADDED");
 		iw.println();
-		if(ni.deleteList != null && ni.deleteList.size() > 0) {
+		if(ni.deleteList != null && !ni.deleteList.isEmpty()) {
 			iw.inc();
 			iw.print("DELETED-NODES: ");
 			for(NodeBase nb : ni.deleteList)
@@ -832,7 +832,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			iw.dec();
 		}
 
-		if(ni.addList != null && ni.addList.size() > 0) {
+		if(ni.addList != null && !ni.addList.isEmpty()) {
 			iw.inc();
 			iw.print("ADDED-NODES: ");
 			for(NodeBase nb : ni.addList)
@@ -841,7 +841,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			iw.dec();
 		}
 
-		if(ni.attrChangeList != null && ni.attrChangeList.size() > 0) {
+		if(ni.attrChangeList != null && !ni.attrChangeList.isEmpty()) {
 			iw.inc();
 			iw.print("ATTRCHANGED-NODES: ");
 			for(NodeBase nb : ni.attrChangeList)
@@ -850,7 +850,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 			iw.dec();
 		}
 
-		if(ni.lowerChanges != null && ni.lowerChanges.size() > 0) {
+		if(ni.lowerChanges != null && !ni.lowerChanges.isEmpty()) {
 			iw.inc();
 			int i = 0;
 			for(NodeInfo lni : ni.lowerChanges) {

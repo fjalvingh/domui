@@ -352,7 +352,7 @@ public class SQLBuilder extends QNodeVisitorBase {
 	 */
 	@Override
 	public void visitMulti(QMultiNode n) throws Exception {
-		if(n.getChildren().size() == 0)
+		if(n.getChildren().isEmpty())
 			return;
 		if(n.getChildren().size() == 1) { // Should not really happen
 			n.getChildren().get(0).visit(this);

@@ -119,13 +119,13 @@ abstract public class AbstractSassResolver<O> {
 			//-- If we have a path: prepare the absolute path
 			String absPath = fileBase;
 
-			if(idPath.length() > 0) {
+			if(!idPath.isEmpty()) {
 				String[] segs = idPath.split("/");
 				for(int i = 0; i < segs.length; i++) {
 					String seg = segs[i];
 					if(seg.equals("..")) {
 						//-- remove one segment from basePath, if still possible.
-						if(absPath.length() == 0)		// Cannot go higher
+						if(absPath.isEmpty())		// Cannot go higher
 							return null;
 
 						int slp = absPath.lastIndexOf('/');
@@ -137,7 +137,7 @@ abstract public class AbstractSassResolver<O> {
 					} else if(seg.equals(".")) {
 						// Ignore
 					} else {
-						if(absPath.length() > 0) {
+						if(!absPath.isEmpty()) {
 							absPath += "/" + seg;
 						} else {
 							absPath = seg;

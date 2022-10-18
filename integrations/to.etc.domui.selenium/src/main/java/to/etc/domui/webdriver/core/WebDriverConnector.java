@@ -223,7 +223,7 @@ final public class WebDriverConnector {
 
 	@NonNull
 	private static WebDriverType getDriverType(@Nullable String hubUrl) {
-		if(null == hubUrl || hubUrl.trim().length() == 0)
+		if(null == hubUrl || hubUrl.trim().isEmpty())
 			return WebDriverType.HTMLUNIT;                    // Used as a target because it can emulate multiple browser types
 		if("local".equals(hubUrl.trim()))
 			return WebDriverType.LOCAL;
@@ -1027,7 +1027,7 @@ final public class WebDriverConnector {
 		//-- FIXME Add other server's state cookie names here.
 
 		//--
-		if(res.size() == 0)
+		if(res.isEmpty())
 			throw new IllegalStateException("Cannot obtain session cookies");
 		return res;
 	}
@@ -1640,7 +1640,7 @@ final public class WebDriverConnector {
 				if(value == null)
 					return null;
 				value = value.trim();
-				if(value.length() > 0)
+				if(!value.isEmpty())
 					return value;
 				return null;
 			}
@@ -2269,7 +2269,7 @@ final public class WebDriverConnector {
 		Map<String, String> res = new TreeMap<>();
 		String[] pairs = result.split("~~~~");
 		for(String pair : pairs) {
-			if(pair.length() != 0) {
+			if(!pair.isEmpty()) {
 				String[] split = pair.split("``");
 				if(split.length > 2 || split.length == 0) {
 					System.err.println("Failed to split '" + pair + "'");

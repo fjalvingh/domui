@@ -168,7 +168,7 @@ public class StringTool {
 	}
 
 	static public final boolean isValidIpAddress(@NonNull String ip) {
-		if(ip.length() == 0)
+		if(ip.isEmpty())
 			return false;
 		String[] split = ip.split("\\.");
 		if(split.length != 4)
@@ -264,7 +264,7 @@ public class StringTool {
 	 * @return
 	 */
 	static public boolean isValidDbFieldName(@NonNull String s) {
-		if(s == null || s.length() == 0)
+		if(s == null || s.isEmpty())
 			return false;
 		if(s.length() > 30)
 			return false;
@@ -288,7 +288,7 @@ public class StringTool {
 		if(s == null)
 			return false;
 		s = s.trim();
-		if(s.length() == 0)
+		if(s.isEmpty())
 			return false;
 
 		//-- Now: only allow names containing ascii chars starting with a nondigit.
@@ -1731,7 +1731,7 @@ public class StringTool {
 	static public boolean dbGetBool(final String fv) {
 		if(fv == null)
 			return false;
-		if(fv.length() == 0)
+		if(fv.isEmpty())
 			return false;
 		char c = Character.toUpperCase(fv.charAt(0));
 		if(c == 'Y' || c == 'T')
@@ -1989,7 +1989,7 @@ public class StringTool {
 	 * relative then the complete path is appended.</p>
 	 */
 	static public final String normalizeConcat(final String current, final String tpl) throws Exception {
-		if(tpl == null || tpl.length() == 0)
+		if(tpl == null || tpl.isEmpty())
 			return tpl;
 
 		if(tpl.charAt(0) == '/') // Is absolute site-relative?
@@ -2702,7 +2702,7 @@ public class StringTool {
 	 */
 	static public String getExceptionMessage(final Throwable t) {
 		String s = t.getMessage();
-		if(s == null || s.trim().length() == 0)
+		if(s == null || s.trim().isEmpty())
 			return t.toString();
 		return s;
 	}
@@ -2949,7 +2949,7 @@ public class StringTool {
 
 	@NonNull
 	public static String strCapitalized(@NonNull String name) {
-		if(name.length() == 0)
+		if(name.isEmpty())
 			return name;
 		char c = name.charAt(0);
 		return Character.toUpperCase(c) + name.substring(1).toLowerCase();
@@ -2964,7 +2964,7 @@ public class StringTool {
 	 */
 	@NonNull
 	public static String strCapitalizedIntact(@NonNull String name) {
-		if(name.length() == 0)
+		if(name.isEmpty())
 			return name;
 		char c = name.charAt(0);
 		return Character.toUpperCase(c) + name.substring(1);
@@ -2992,7 +2992,7 @@ public class StringTool {
 	 */
 	@NonNull
 	public static String strDecapitalizedIntact(@NonNull String name) {
-		if(name.length() == 0)
+		if(name.isEmpty())
 			return name;
 		char c = name.charAt(0);
 		return Character.toLowerCase(c) + name.substring(1);

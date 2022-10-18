@@ -229,7 +229,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 		}
 
 		List<NodeBase> buttonList = m_buttonList;
-		if(null != buttonList && buttonList.size() > 0) {
+		if(null != buttonList && !buttonList.isEmpty()) {
 			buttonList.forEach(b -> {
 				//Div d = new Div("ui-control");
 				//add(d);
@@ -291,7 +291,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 			raw = raw.trim();
 
 		//-- Do mandatory checking && exit if value is missing.
-		if(raw == null || raw.length() == 0) {
+		if(raw == null || raw.isEmpty()) {
 			//-- Field is empty.
 			if(isMandatory()) {
 				throw new ValidationException(Msgs.mandatory);
@@ -659,7 +659,7 @@ public class Text2<T> extends Div implements IControl<T>, IHasModifiedIndication
 
 	public void clearButtons() {
 		List<NodeBase> buttonList = m_buttonList;
-		if(buttonList == null || buttonList.size() == 0)
+		if(buttonList == null || buttonList.isEmpty())
 			return;
 		buttonList.clear();
 		forceRebuild();

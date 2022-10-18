@@ -34,7 +34,7 @@ public class Lorem {
 		String para = "";
 		while(sb.length() < maxlength) {
 			//-- We need to split another sentence off the current para
-			if(para.length() == 0) {
+			if(para.isEmpty()) {
 				para = getPara();
 			}
 			int pos = para.indexOf('.');

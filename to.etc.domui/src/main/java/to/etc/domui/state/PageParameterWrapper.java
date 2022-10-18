@@ -135,7 +135,7 @@ public class PageParameterWrapper implements IPageParameters {
 	@Override
 	public int getInt(String name, int df) {
 		String v = getOne(name);
-		if(null != v && (v = v.trim()).length() > 0) {
+		if(null != v && !(v = v.trim()).isEmpty()) {
 			try {
 				return Integer.parseInt(v);
 			} catch(Exception x) {
@@ -158,7 +158,7 @@ public class PageParameterWrapper implements IPageParameters {
 	@Override
 	public long getLong(String name, long df) {
 		String v = getOne(name);
-		if(null != v && (v = v.trim()).length() > 0) {
+		if(null != v && !(v = v.trim()).isEmpty()) {
 			try {
 				return Long.parseLong(v);
 			} catch(Exception x) {
@@ -180,7 +180,7 @@ public class PageParameterWrapper implements IPageParameters {
 	@Override
 	public boolean getBoolean(String name, boolean df) {
 		String v = getOne(name);
-		if(null != v && (v = v.trim()).length() > 0) {
+		if(null != v && !(v = v.trim()).isEmpty()) {
 			try {
 				v = v.toLowerCase();
 				if(v.startsWith("y"))
@@ -216,7 +216,7 @@ public class PageParameterWrapper implements IPageParameters {
 	@Override
 	public Long getLongW(String name, @Nullable Long df) {
 		String v = getOne(name);
-		if(null != v && (v = v.trim()).length() > 0) {
+		if(null != v && !(v = v.trim()).isEmpty()) {
 			try {
 				return Long.decode(v);
 			} catch(Exception x) {

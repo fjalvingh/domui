@@ -106,7 +106,7 @@ public class ColumnList<T> implements Iterable<ColumnDef<T, ? >> {
 	 */
 	public void addDefaultColumns() {
 		final List<DisplayPropertyMetaModel> dpl = m_metaModel.getTableDisplayProperties();
-		if(dpl.size() == 0)
+		if(dpl.isEmpty())
 			throw new IllegalStateException("The list-of-columns to show is empty, and the class " + m_metaModel.getActualClass()
 				+ " has no @MetaObject definition defining a set of columns as default table columns, so there.");
 		List<ExpandedDisplayProperty< ? >> xdpl = ExpandedDisplayProperty.expandDisplayProperties(dpl, m_metaModel, null);

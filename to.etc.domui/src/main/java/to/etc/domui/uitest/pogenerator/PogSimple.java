@@ -71,7 +71,7 @@ final public class PogSimple extends AbstractPoProxyGenerator implements IPoProx
 				//-- Do we have controls inside this node?
 				if(m_node instanceof NodeContainer) {
 					List<NodeGeneratorPair> list = ctx.createGenerators((NodeContainer) m_node);
-					return list.size() == 0 ? GeneratorAccepted.Accepted : GeneratorAccepted.RefusedScanChildren;
+					return list.isEmpty() ? GeneratorAccepted.Accepted : GeneratorAccepted.RefusedScanChildren;
 				}
 				return GeneratorAccepted.Accepted;
 		}

@@ -299,7 +299,7 @@ final public class HibernateConfigurator {
 		System.setProperty("org.jboss.logging.provider", "slf4j");		// Thanks to https://stackoverflow.com/questions/11639997/how-do-you-configure-logging-in-hibernate-4-to-use-slf4j
 		if(m_sessionFactory != null)
 			throw new IllegalStateException("HibernateConfigurator has already been initialized!");
-		if(m_annotatedClassList.size() == 0)
+		if(m_annotatedClassList.isEmpty())
 			throw new IllegalStateException("Please call addClasses(Class<?>...) and register your Hibernate data classes before calling me.");
 
 		long ts = System.nanoTime();

@@ -153,7 +153,7 @@ public class StatisticsCollectorBase {
 	}
 
 	public void mergeMetrics(List<DbMetric> metrics) {
-		if(metrics.size() == 0)
+		if(metrics.isEmpty())
 			return;
 
 		Map<MetricsDefinition, DbMetric> map = m_metricMap;

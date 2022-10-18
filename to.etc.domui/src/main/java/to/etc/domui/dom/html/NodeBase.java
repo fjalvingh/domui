@@ -1446,7 +1446,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 
 		if(this instanceof NodeContainer) {
 			String txt = DomUtil.calcNodeText((NodeContainer) this);
-			if(txt.length() > 0)
+			if(!txt.isEmpty())
 				sb.append("/").append(txt);
 		}
 
@@ -1933,7 +1933,7 @@ abstract public class NodeBase extends CssBase implements INodeErrorDelegate {
 		int pos = n.lastIndexOf('.');
 		List<IBinding> bindingList = m_bindingList;
 		String binding = "";
-		if(bindingList != null && bindingList.size() > 0) {
+		if(bindingList != null && !bindingList.isEmpty()) {
 			binding = " Binding " + bindingList.stream().map(a -> a.toString()).collect(Collectors.joining(";"));
 		}
 		return n.substring(pos + 1)

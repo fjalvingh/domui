@@ -204,7 +204,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 		calcIndices(); // Calculate rows to show.
 
 		List<T> list = getPageItems(); // Data to show
-		if(list.size() == 0) {
+		if(list.isEmpty()) {
 			setNoResults();
 			return;
 		}
@@ -732,7 +732,7 @@ public class DataTableOld<T> extends PageableTabularComponentBase<T> implements 
 			return;
 		calcIndices();
 		List<T> list = getPageItems(); 						// Data to show
-		if(list.size() == 0) {
+		if(list.isEmpty()) {
 			setNoResults();
 			return;
 		}

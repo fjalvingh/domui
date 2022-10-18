@@ -180,7 +180,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 		if(!DomUtil.isBasicType(rescl)) {
 			ClassMetaModel cmm = MetaManager.findClassMeta(rescl); // Find the property's type metadata (the meta for the class pointed to).
 
-			if(pmm.getLookupTableProperties().size() > 0 || cmm.getTableDisplayProperties().size() > 0) {
+			if(!pmm.getLookupTableProperties().isEmpty() || !cmm.getTableDisplayProperties().isEmpty()) {
 				/*
 				 * The type pointed to, OR the property itself, has a set-of-columns to use to display the thingy.
 				 */
@@ -217,7 +217,7 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 
 		//-- Use defaults
 		List<DisplayPropertyMetaModel> defaultCols = cmm.getTableDisplayProperties();
-		if(defaultCols.size() > 0) {
+		if(!defaultCols.isEmpty()) {
 			return expandDisplayProperties(defaultCols, cmm, null);
 		}
 		throw new IllegalStateException("The list-of-columns to show is empty, and the class has no metadata (@MetaObject) defining a set of columns as default table columns, so there.");
@@ -237,10 +237,10 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 	 */
 	static private <T> ExpandedDisplayProperty< ? > expandCompoundProperty(PropertyMetaModel<T> pmm, ClassMetaModel cmm) {
 		List<DisplayPropertyMetaModel> dpl = pmm.getLookupTableProperties(); // Property itself has definition?
-		if(dpl.size() == 0) {
+		if(dpl.isEmpty()) {
 			//-- No. Has class-referred-to a default?
 			dpl = cmm.getTableDisplayProperties();
-			if(dpl.size() == 0) {
+			if(dpl.isEmpty()) {
 				//-- Don't know how to display this. Just use a generic thingy causing a toString().
 				return new ExpandedDisplayProperty<T>(pmm, pmm);
 			}
@@ -284,14 +284,14 @@ public class ExpandedDisplayProperty<T> implements PropertyMetaModel<T> {
 			Class<X> clz = pmm.getActualType();
 			List<DisplayPropertyMetaModel> subdpl = pmm.getLookupTableProperties(); // Has defined sub-properties?
 			ClassMetaModel pcmm = findCompoundClassModel(clz);
-			if(subdpl.size() == 0 && pcmm != null) {
+			if(subdpl.isEmpty() && pcmm != null) {
 				//-- Has target-class a list of properties?
 				subdpl = pcmm.getTableDisplayProperties();
 			}
 
 			//-- FIXME Handle embedded
 			SubAccessor<Object, Object> sacc = new SubAccessor<Object, Object>((IValueAccessor<Object>) rootAccessor, (IValueAccessor<Object>) pmm);
-			if(subdpl.size() != 0) {
+			if(!subdpl.isEmpty()) {
 				/*
 				 * The property here is a COMPOUND property. Explicitly create a subthing for it,
 				 */

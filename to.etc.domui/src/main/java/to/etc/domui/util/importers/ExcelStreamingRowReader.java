@@ -227,7 +227,7 @@ public class ExcelStreamingRowReader implements IRowReader, AutoCloseable, Itera
 			String name = row.get(i).getStringValue();
 			if(null != name) {
 				name = name.trim();
-				if(name.length() == 0)
+				if(name.isEmpty())
 					name = null;
 			}
 			res.add(name);

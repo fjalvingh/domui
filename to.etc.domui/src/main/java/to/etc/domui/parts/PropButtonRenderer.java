@@ -174,7 +174,7 @@ public class PropButtonRenderer {
 	}
 
 	protected void initIcon() throws Exception {
-		if(getKey().getIcon() == null || getKey().getIcon().trim().length() == 0)
+		if(getKey().getIcon() == null || getKey().getIcon().trim().isEmpty())
 			return;
 
 		m_iconImage = loadImage("/" + getKey().getIcon());
@@ -239,7 +239,7 @@ public class PropButtonRenderer {
 	 * @throws Exception
 	 */
 	private void renderBackground() throws Exception {
-		if(m_height == 0 || m_images.size() == 0)
+		if(m_height == 0 || m_images.isEmpty())
 			throw new IllegalStateException();
 		int height = m_height * m_images.size();
 		m_rootImage = new BufferedImage(m_width, height, BufferedImage.TYPE_INT_ARGB);
@@ -347,7 +347,7 @@ public class PropButtonRenderer {
 	}
 
 	protected void initAttributedText() {
-		if(m_actualText == null || m_actualText.length() == 0)
+		if(m_actualText == null || m_actualText.isEmpty())
 			return;
 
 		//-- Create an Attributed string containing the text to render, with the accelerator underscored proper.
@@ -476,7 +476,7 @@ public class PropButtonRenderer {
 
 	public String getProperty(String key, String dflt) {
 		String s = getProperty(key);
-		if(s == null || s.trim().length() == 0)
+		if(s == null || s.trim().isEmpty())
 			return dflt;
 		return s;
 	}

@@ -119,7 +119,7 @@ final public class Reloader {
 		StringTokenizer st = new StringTokenizer(paths, " \t;,");
 		while(st.hasMoreTokens()) {
 			String path = st.nextToken().trim();
-			if(path.length() > 0) {
+			if(!path.isEmpty()) {
 				boolean on = true;
 				if(path.startsWith("-")) {
 					on = false;
@@ -132,7 +132,7 @@ final public class Reloader {
 				m_loadSpecList.add(new LoadSpec(p, on));
 			}
 		}
-		if(m_loadSpecList.size() == 0)
+		if(m_loadSpecList.isEmpty())
 			throw new IllegalStateException("No load specifiers added.");
 
 
@@ -140,7 +140,7 @@ final public class Reloader {
 			st = new StringTokenizer(pathsWatchOnly, " \t;,");
 			while(st.hasMoreTokens()) {
 				String path = st.nextToken().trim();
-				if(path.length() > 0) {
+				if(!path.isEmpty()) {
 					boolean on = true;
 					if(path.startsWith("-")) {
 						on = false;

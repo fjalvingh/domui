@@ -410,7 +410,7 @@ final public class DomUtil {
 				name = path.substring(pos, npos);
 				pos = npos;
 			}
-			if(name.length() == 0)
+			if(name.isEmpty())
 				throw new IllegalStateException("Invalid property path: " + path);
 
 			//-- Do a single-property resolve;
@@ -814,7 +814,7 @@ final public class DomUtil {
 	}
 
 	static public String nlsLabel(final String label) {
-		if(label == null || label.length() == 0)
+		if(label == null || label.isEmpty())
 			return label;
 		if(label.charAt(0) != '~')
 			return label;
@@ -1097,7 +1097,7 @@ final public class DomUtil {
 	static public BundleRef findBundle(final UIMenu ma, final Class<?> clz) {
 		if(ma != null && ma.bundleBase() != Object.class) { // Bundle base class specified?
 			String s = ma.bundleName();
-			if(s.length() == 0) // Do we have a name?
+			if(s.isEmpty()) // Do we have a name?
 				s = "messages"; // If not use messages in this package
 			return BundleRef.create(ma.bundleBase(), s);
 		}
@@ -1141,22 +1141,22 @@ final public class DomUtil {
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
-			if(ma.titleKey().length() != 0)
+			if(!ma.titleKey().isEmpty())
 				return br.getString(loc, ma.titleKey()); // When present it MUST exist.
 
 			//-- Is there a keyBase?
-			if(ma.baseKey().length() != 0) {
+			if(!ma.baseKey().isEmpty()) {
 				String s = br.findMessage(loc, ma.baseKey() + ".title"); // Is this base thing present?
 				if(s != null) // This can be not-present...
 					return s;
 			}
 
 			//-- No title. Can we use the menu label?
-			if(ma.labelKey().length() > 0)
+			if(!ma.labelKey().isEmpty())
 				return br.getString(loc, ma.labelKey()); // When present this must exist
 
 			//-- Try the label from keyBase..
-			if(ma.baseKey().length() != 0) {
+			if(!ma.baseKey().isEmpty()) {
 				String s = br.findMessage(loc, ma.baseKey() + ".label");
 				if(s != null) // This can be not-present...
 					return s;
@@ -1207,22 +1207,22 @@ final public class DomUtil {
 		//-- Explicit specification of the names?
 		if(ma != null && br != null) {
 			//-- Has menu annotation. Is there a title key?
-			if(ma.titleKey().length() != 0)
+			if(!ma.titleKey().isEmpty())
 				return br.getString(loc, ma.titleKey()); // When present it MUST exist.
 
 			//-- Is there a keyBase?
-			if(ma.baseKey().length() != 0) {
+			if(!ma.baseKey().isEmpty()) {
 				String s = br.findMessage(loc, ma.baseKey() + ".label"); // Is this base thing present?
 				if(s != null) // This can be not-present...
 					return s;
 			}
 
 			//-- No title. Can we use the menu label?
-			if(ma.labelKey().length() > 0)
+			if(!ma.labelKey().isEmpty())
 				return br.getString(loc, ma.labelKey()); // When present this must exist
 
 			//-- Try the label from keyBase..
-			if(ma.baseKey().length() != 0) {
+			if(!ma.baseKey().isEmpty()) {
 				String s = br.findMessage(loc, ma.baseKey() + ".title");
 				if(s != null) // This can be not-present...
 					return s;
@@ -1273,7 +1273,7 @@ final public class DomUtil {
 		//-- Try to locate UIMenu-based resource
 		UIMenu uim = urlPage.getClass().getAnnotation(UIMenu.class);
 		if(uim != null) {
-			if(uim.bundleBase() != Object.class || uim.bundleName().length() != 0) {
+			if(uim.bundleBase() != Object.class || !uim.bundleName().isEmpty()) {
 				//-- We have a specification for the bundle- it must exist
 				BundleRef br = findBundle(uim, urlPage.getClass());
 				if(!br.exists())
@@ -1308,7 +1308,7 @@ final public class DomUtil {
 	 * as tags.
 	 */
 	static public void renderHtmlString(NodeContainer d, String text) {
-		if(text == null || text.length() == 0)
+		if(text == null || text.isEmpty())
 			return;
 		StringBuilder sb = new StringBuilder(text.length()); // rll string segment buffer
 		List<NodeContainer> nodestack = Collections.EMPTY_LIST; // generated html stack (embedding)
@@ -1382,9 +1382,9 @@ final public class DomUtil {
 						//-- Recognised end tag: pop node stack.
 						ix = tix;
 						appendOptionalText(top, sb); // Append the text for this node because it ends.
-						if(nodestack.size() > 0) {
+						if(!nodestack.isEmpty()) {
 							nodestack.remove(nodestack.size() - 1);
-							if(nodestack.size() == 0)
+							if(nodestack.isEmpty())
 								top = d;
 							else
 								top = nodestack.get(nodestack.size() - 1);
@@ -1418,7 +1418,7 @@ final public class DomUtil {
 		if(text == null)
 			return;
 		text = text.trim();
-		if(text == null || text.length() == 0)					// Extra nullity test is because ecj is nuts
+		if(text == null || text.isEmpty())					// Extra nullity test is because ecj is nuts
 			return;
 		for(String line : new LineIterator(text)) {
 			Div d = new Div("ui-nl-line");
@@ -1435,13 +1435,13 @@ final public class DomUtil {
 	 * if the input is not well-formed it will add or remove tags until the result is valid.
 	 */
 	static public void htmlRemoveUnsafe(StringBuilder outsb, String text) {
-		if(text == null || text.length() == 0)
+		if(text == null || text.isEmpty())
 			return;
 		new HtmlTextScanner().scan(outsb, text);
 	}
 
 	static public String htmlRemoveUnsafe(String html) {
-		if(html == null || html.length() == 0)
+		if(html == null || html.isEmpty())
 			return "";
 		StringBuilder sb = new StringBuilder(html.length() + 20);
 		htmlRemoveUnsafe(sb, html);
@@ -1449,13 +1449,13 @@ final public class DomUtil {
 	}
 
 	static public void htmlRemoveAll(StringBuilder outsb, String text, boolean lf) {
-		if(text == null || text.length() == 0)
+		if(text == null || text.isEmpty())
 			return;
 		new HtmlTextScanner().scanAndRemove(outsb, text, lf);
 	}
 
 	static public String htmlRemoveAll(String html, boolean lf) {
-		if(html == null || html.length() == 0)
+		if(html == null || html.isEmpty())
 			return "";
 		StringBuilder sb = new StringBuilder(html.length() + 20);
 		htmlRemoveAll(sb, html, lf);
@@ -1500,7 +1500,7 @@ final public class DomUtil {
 	@Deprecated
 	static public Long getLongParameter(IPageParameters pp, String name, Long def) {
 		String s = pp.getString(name, null); // Parameter present?
-		if(s == null || s.trim().length() == 0)
+		if(s == null || s.trim().isEmpty())
 			return def;
 		try {
 			return Long.valueOf(s.trim());
@@ -1762,7 +1762,7 @@ final public class DomUtil {
 	 */
 	@Deprecated
 	static public boolean isBlank(String s) {
-		return s == null || s.trim().length() == 0;
+		return s == null || s.trim().isEmpty();
 	}
 
 	static public boolean isRelativeURL(String in) {

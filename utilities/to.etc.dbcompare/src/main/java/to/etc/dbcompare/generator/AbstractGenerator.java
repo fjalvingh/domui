@@ -238,7 +238,7 @@ abstract public class AbstractGenerator {
 	}
 
 	public void renderColumnComment(List<String> sl, DbColumn sc) {
-		if(sc.getComment() != null && sc.getComment().length() > 0) {
+		if(sc.getComment() != null && !sc.getComment().isEmpty()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on column ");
 			renderQualifiedName(sb, sc.getTable().getSchema(), sc.getTable().getName(), sc.getTable().isQuoteName());
@@ -252,7 +252,7 @@ abstract public class AbstractGenerator {
 
 	public void renderTableComment(List<String> sl, DbTable sc) {
 		String comments = sc.getComments();
-		if(comments != null && comments.length() > 0) {
+		if(comments != null && !comments.isEmpty()) {
 			StringBuilder sb = new StringBuilder();
 			sb.append("comment on table ");
 			renderQualifiedName(sb, sc.getSchema(), sc.getName(), sc.isQuoteName());

@@ -50,7 +50,7 @@ final public class PlSunBurstTrace implements IPlotlyTrace {
 		} else if(vless)
 			throw new IllegalStateException("You cannot mix valueless and with-value sunburst items");
 
-		if(parentId != null && parentId.length() > 0) {
+		if(parentId != null && !parentId.isEmpty()) {
 			//-- Parent must exist
 			if(! m_parentMap.containsKey(parentId))
 				throw new IllegalStateException("No parent found with ID=" + parentId);
@@ -73,7 +73,7 @@ final public class PlSunBurstTrace implements IPlotlyTrace {
 		} else if(! vless)
 			throw new IllegalStateException("You cannot mix valueless and with-value sunburst items");
 
-		if(parentId != null && parentId.length() > 0) {
+		if(parentId != null && !parentId.isEmpty()) {
 			//-- Parent must exist
 			if(! m_parentMap.containsKey(parentId))
 				throw new IllegalStateException("No parent found with ID=" + parentId);
@@ -146,7 +146,7 @@ final public class PlSunBurstTrace implements IPlotlyTrace {
 			m_outsideTextFont.render(b);
 			b.objEnd();
 		}
-		if(m_textInfo.size() > 0) {
+		if(!m_textInfo.isEmpty()) {
 			b.objField("textinfo", m_textInfo.stream().map(a -> a.getCode()).collect(Collectors.joining("+")));
 		}
 

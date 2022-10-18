@@ -135,7 +135,7 @@ public class DropDownPicker<T> extends SmallImgButton implements IControl<T> {
 		List<T> data = m_data;
 		if(m_selected != null) {
 			m_picker.setValue(m_selected);
-		} else if(data != null && data.size() > 0 && isMandatory()) {
+		} else if(data != null && !data.isEmpty() && isMandatory()) {
 			m_picker.setValue(data.get(0));
 		}
 

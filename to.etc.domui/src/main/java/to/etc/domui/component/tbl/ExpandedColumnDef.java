@@ -53,7 +53,7 @@ public class ExpandedColumnDef<T> {
 	 * @param ccd
 	 */
 	protected void addExpanded(@NonNull SimpleColumnDef< ? > ccd) {
-		if(m_childColumns.size() == 0)
+		if(m_childColumns.isEmpty())
 			m_childColumns = new ArrayList<SimpleColumnDef< ? >>();
 		m_childColumns.add(ccd);
 	}

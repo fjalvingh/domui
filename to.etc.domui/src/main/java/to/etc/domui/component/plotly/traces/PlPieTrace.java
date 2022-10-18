@@ -72,7 +72,7 @@ public class PlPieTrace extends AbstractLabelValueTrace<PlPieTrace> {
 			m_outsideTextFont.render(b);
 			b.objEnd();
 		}
-		if(m_textInfo.size() > 0) {
+		if(!m_textInfo.isEmpty()) {
 			if(m_textInfo.contains(PlTextInfo.None)) {
 				b.objField("textinfo", "none");
 			} else {

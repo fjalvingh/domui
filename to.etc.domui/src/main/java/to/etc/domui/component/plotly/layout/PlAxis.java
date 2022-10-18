@@ -236,7 +236,7 @@ public class PlAxis {
 			b.objField("tickwidth", v);
 		}
 		String s = m_tickColor;
-		if(s != null && s.length() > 0) {
+		if(s != null && !s.isEmpty()) {
 			if(! s.startsWith("#"))
 				s = "#" + s;
 			b.objField("tickcolor", s);

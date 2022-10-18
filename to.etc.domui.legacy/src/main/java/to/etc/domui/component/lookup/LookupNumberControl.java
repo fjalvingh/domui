@@ -166,7 +166,7 @@ public class LookupNumberControl<T extends Number> extends BaseAbstractLookupCon
 			if(in == null)
 				return AppendCriteriaResult.EMPTY;
 			in = in.trim();
-			if(in.length() == 0)
+			if(in.isEmpty())
 				return AppendCriteriaResult.EMPTY;
 
 			//-- Handle single operators: currently only the '!' to indicate 'not-null'

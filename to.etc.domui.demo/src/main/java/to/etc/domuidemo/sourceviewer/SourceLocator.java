@@ -58,7 +58,7 @@ public class SourceLocator {
 			//-- Not found in regular way..
 			List<File> res = new ArrayList<File>();
 			locateInWebpath(res, name);
-			if(res.size() == 0) {
+			if(res.isEmpty()) {
 				m_sourceMap.put(name, NOT_FOUND);
 				return null;
 			} else if(res.size() == 1) {
@@ -91,7 +91,7 @@ public class SourceLocator {
 		File webroot = DomApplication.get().getWebAppFileRoot();
 		while(webroot != null) {
 			scanAppPath(res, webroot, name);
-			if(res.size() > 0)
+			if(!res.isEmpty())
 				return;
 
 			webroot = webroot.getParentFile();

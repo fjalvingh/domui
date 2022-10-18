@@ -506,7 +506,7 @@ public class DbEventManager implements Runnable {
 			while(rs.next()) {
 				readEventObject(rs, al);
 			}
-			if(al.size() > 0) {
+			if(!al.isEmpty()) {
 //				StringBuilder sb = new StringBuilder();
 //				sb.append("EV: read ");
 //				for(AppEventBase ae : al) {
@@ -600,7 +600,7 @@ public class DbEventManager implements Runnable {
 			List<AppEventBase> list = new ArrayList<AppEventBase>();
 			Set<Long> localeventset = new HashSet<Long>();
 			scanNewEvents(list, localeventset);
-			if(list.size() == 0)
+			if(list.isEmpty())
 				return;
 			log("Forwarding " + list.size() + " events.");
 			handleEvents(list, localeventset);

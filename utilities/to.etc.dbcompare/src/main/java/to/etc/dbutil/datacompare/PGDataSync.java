@@ -105,7 +105,7 @@ public class PGDataSync {
 		EqualSchemaComparator dp = new EqualSchemaComparator(src.getSchema(), dest.getSchema());
 		dp.run();
 		String del = dp.getChanges();
-		if(del.length() != 0) {
+		if(!del.isEmpty()) {
 			System.err.println("The database schema's are not equal:\n");
 			System.err.println(del);
 			//			System.exit(10);
@@ -445,7 +445,7 @@ public class PGDataSync {
 			m_tablesDone++;
 			return;
 		}
-		if(m_onlyTableSet.size() > 0) {
+		if(!m_onlyTableSet.isEmpty()) {
 			if(!m_onlyTableSet.contains(t.getName().toLowerCase())) {
 				where("Table ignored, skipping.");
 				m_tablesDone++;
@@ -478,7 +478,7 @@ public class PGDataSync {
 			Object[] srcpk = null;
 			Object[] dstpk = null;
 			while(true) {
-				if(srcr.size() == 0) {
+				if(srcr.isEmpty()) {
 					//-- Need a src record.
 					if(!srceof) {
 						srceof = !rs1.next();
@@ -493,7 +493,7 @@ public class PGDataSync {
 					}
 				}
 
-				if(dstr.size() == 0) {
+				if(dstr.isEmpty()) {
 					if(!dsteof) {
 						dsteof = !rs2.next();
 						if(!dsteof) {

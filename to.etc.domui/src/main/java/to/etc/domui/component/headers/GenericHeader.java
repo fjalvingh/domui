@@ -60,7 +60,7 @@ public class GenericHeader extends Div {
 	}
 
 	private void renderButtons() {
-		if(m_btns.size() == 0)
+		if(m_btns.isEmpty())
 			return;
 		Div part = m_buttonPart = new Div("ui-generichd-btns") ;
 		add(part);

@@ -453,7 +453,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 	 */
 	@NonNull
 	public NodeContainer add(@Nullable final String txt) {
-		if(txt != null && txt.length() > 0)
+		if(txt != null && !txt.isEmpty())
 			add(new TextNode(txt));
 		return this;
 	}
@@ -542,7 +542,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 			return;
 		}
 
-		if(m_children.size() == 0)
+		if(m_children.isEmpty())
 			return;
 		treeChanging();
 		m_childHasUpdates = false; // They're gone.... No changes I guess.
@@ -596,7 +596,7 @@ abstract public class NodeContainer extends NodeBase implements Iterable<NodeBas
 		//-- Drop all children
 		while(getChildCount() > 0)
 			removeChild(getChild(getChildCount() - 1));
-		if(null != txt && txt.length() > 0) {
+		if(null != txt && !txt.isEmpty()) {
 			TextNode t = new TextNode(txt);
 			add(t);
 		}

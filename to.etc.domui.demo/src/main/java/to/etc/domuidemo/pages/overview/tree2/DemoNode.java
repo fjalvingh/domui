@@ -137,14 +137,14 @@ public class DemoNode {
 
 	public boolean hasChildren() {
 		if(m_children != null)
-			return m_children.size() > 0;
+			return !m_children.isEmpty();
 		Album album = m_album;
 		Artist artist = m_artist;
 		Track track = m_track;
 		if(artist != null)
-			return artist.getAlbumList().size() != 0;
+			return !artist.getAlbumList().isEmpty();
 		if(album != null)
-			return album.getTrackList().size() != 0;
+			return !album.getTrackList().isEmpty();
 		return false;
 	}
 }

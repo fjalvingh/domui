@@ -168,7 +168,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 				break;
 			if(c == '\n') {
 				accept();
-				if(m_columns.size() > 0) {
+				if(!m_columns.isEmpty()) {
 					break;
 				}
 				continue;
@@ -176,7 +176,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 			if(c == '\r' && la1() == '\n') {
 				accept();
 				accept();
-				if(m_columns.size() > 0) {
+				if(!m_columns.isEmpty()) {
 					break;
 				}
 				continue;
@@ -367,7 +367,7 @@ public class CsvRowReader implements IRowReader, AutoCloseable, Iterable<IImport
 	@Override
 	public void close() throws IOException {
 		try {
-			if(!m_askedForErrors && m_errorList.size() > 0) {
+			if(!m_askedForErrors && !m_errorList.isEmpty()) {
 				throw new IllegalStateException("The CSV file had errors; call getErrorList() to report them");
 			}
 

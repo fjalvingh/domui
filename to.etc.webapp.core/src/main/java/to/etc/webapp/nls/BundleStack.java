@@ -109,7 +109,7 @@ public class BundleStack extends BundleBase implements IBundle {
 
 			cur = cur.getSuperclass();
 		}
-		if(res.size() == 0)
+		if(res.isEmpty())
 			return null;
 		return new BundleStack(res);
 	}

@@ -65,7 +65,7 @@ abstract public class PoolConfigSource {
 		if(v == null)
 			return def;
 		v = v.trim().toLowerCase();
-		if(v.length() == 0)
+		if(v.isEmpty())
 			return def;
 		return v.startsWith("1") || v.startsWith("y") || v.startsWith("t");
 	}
@@ -75,7 +75,7 @@ abstract public class PoolConfigSource {
 		if(v == null)
 			return def;
 		v = v.trim();
-		if(v.length() == 0)
+		if(v.isEmpty())
 			return def;
 		try {
 			return Integer.parseInt(v);
