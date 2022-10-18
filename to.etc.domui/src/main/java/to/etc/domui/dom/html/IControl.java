@@ -71,6 +71,7 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * it's content was empty. To distinguish between the two call {@link #hasError()} or use
 	 * {@link #getValue()} instead of this call.
 	 */
+	@Nullable
 	default T getValueSafe() {
 		try {
 			return getValue();
@@ -83,7 +84,6 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	 * Returns T if this control is currently in error state, meaning it's input is in some way
 	 * invalid. This call internally calls getValue() to ensure it's error state is valid for
 	 * the current data held.
-	 * @return
 	 */
 	boolean hasError();
 
@@ -97,7 +97,6 @@ public interface IControl<T> extends IActionControl, IHasChangeListener, INodeEr
 	/**
 	 * Sets the input to readonly-mode. Components that do not implement readonly mode (comboboxes)
 	 * will usually set themselves to disabled which works much the same.
-	 * @param ro
 	 */
 	void setReadOnly(boolean ro);
 
