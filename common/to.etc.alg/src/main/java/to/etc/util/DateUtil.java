@@ -566,7 +566,7 @@ final public class DateUtil {
 
 		long endL = endCal.getTimeInMillis() + endCal.getTimeZone().getOffset(endCal.getTimeInMillis());
 		long startL = startCal.getTimeInMillis() + startCal.getTimeZone().getOffset(startCal.getTimeInMillis());
-		return (int) ((double) (endL - startL) / (double) (1000 * 60 * 60 * 24));
+		return (int) ((double) (endL - startL) / (1000 * 60 * 60 * 24));
 	}
 
 	/**

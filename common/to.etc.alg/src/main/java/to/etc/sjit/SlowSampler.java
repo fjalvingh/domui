@@ -67,8 +67,8 @@ public class SlowSampler {
 
 		//-- Create intermediate image to hold horizontal zoom,
 		BufferedImage worki = new BufferedImage(ow, sh, IMAT);
-		float xscale = (float) (ow - 1) / (float) (sw - 1);
-		float yscale = (float) (oh - 1) / (float) (sh - 1);
+		float xscale = (float) (ow - 1) / (sw - 1);
+		float yscale = (float) (oh - 1) / (sh - 1);
 
 		//-- Pre-calculate filter contributions for a row.
 		SContribList[] contrib = new SContribList[ow]; // Contributors for EACH pixel in the line
@@ -334,8 +334,8 @@ public class SlowSampler {
 	 */
 	static public Point resizeWithAspect(int w, int h, int iw, int ih) {
 		//-- Calculate Idx / Odx as fx
-		double fx = (double) iw / (double) w;
-		double fy = (double) ih / (double) h;
+		double fx = (double) iw / w;
+		double fy = (double) ih / h;
 
 		double f = fx / fy;
 		if(f >= 1.0) {

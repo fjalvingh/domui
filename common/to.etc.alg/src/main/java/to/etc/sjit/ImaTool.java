@@ -64,8 +64,8 @@ public class ImaTool {
 		//-- Exit if already at/below the ar
 
 		//-- Calculate Idx / Odx as fx
-		double fx = (double) sw / (double) dw;
-		double fy = (double) sh / (double) dh;
+		double fx = (double) sw / dw;
+		double fy = (double) sh / dh;
 
 		double f = fx / fy;
 		if(f >= 1.0) {
@@ -79,8 +79,8 @@ public class ImaTool {
 
 	static public Dimension resizeWithAspect(Dimension dest, Dimension src) {
 		//-- Calculate Idx / Odx as fx
-		double fx = (double) src.width / (double) dest.width;
-		double fy = (double) src.height / (double) dest.height;
+		double fx = (double) src.width / dest.width;
+		double fy = (double) src.height / dest.height;
 
 		double f = fx / fy;
 		if(f >= 1.0) {

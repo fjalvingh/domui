@@ -759,7 +759,7 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 		if(!ni.isFullRender) {
 			int ncmd = ni.deleteList.size() + ni.addList.size();
 
-			if((double) ncmd / (double) newl.size() > 0.9) {
+			if((double) ncmd / newl.size() > 0.9) {
 				//-- As far as commands go it is better to re-render.
 
 

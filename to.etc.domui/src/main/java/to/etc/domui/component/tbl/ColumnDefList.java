@@ -484,7 +484,7 @@ final public class ColumnDefList<T> implements Iterable<SimpleColumnDef<?>> {
 				String width = scd.getWidth();
 				if(width == null || width.isEmpty()) {
 					//-- Calculate a size factor, then use it to assign
-					final double fact = (double) scd.getDisplayLength() / (double) totdw;
+					final double fact = (double) scd.getDisplayLength() / totdw;
 					final int pct = (int) (fact * pctleft + 0.5);
 					pctleft -= pct;
 					totdw -= scd.getDisplayLength();

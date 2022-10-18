@@ -76,7 +76,7 @@ public class ImageSubsampler {
 	 */
 	static private ContribList[] getRowContrib(ResamplerFilter f, int sw, int ow) {
 		float fwidth = f.getWidth();
-		float xscale = (float) (ow - 1) / (float) (sw - 1);
+		float xscale = (float) (ow - 1) / (sw - 1);
 
 		ContribList[] contrib = new ContribList[ow]; // Contributors for EACH pixel in the line
 
@@ -145,7 +145,7 @@ public class ImageSubsampler {
 	 */
 	static private ContribList[] getColContrib(ResamplerFilter f, int sh, int oh) {
 		float fwidth = f.getWidth();
-		float yscale = (float) (oh - 1) / (float) (sh - 1);
+		float yscale = (float) (oh - 1) / (sh - 1);
 
 		ContribList[] contrib = new ContribList[oh];
 		if(yscale < 1.0f) {
@@ -645,8 +645,8 @@ public class ImageSubsampler {
 	 */
 	static public Point resizeWithAspect(int w, int h, int iw, int ih) {
 		//-- Calculate Idx / Odx as fx
-		double fx = (double) iw / (double) w;
-		double fy = (double) ih / (double) h;
+		double fx = (double) iw / w;
+		double fy = (double) ih / h;
 
 		double f = fx / fy;
 		if(f >= 1.0) {

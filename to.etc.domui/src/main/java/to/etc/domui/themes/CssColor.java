@@ -201,7 +201,7 @@ final public class CssColor {
 		int dr = Math.abs(a.m_r - b.m_r);
 		int dg = Math.abs(a.m_g - b.m_g);
 		int db = Math.abs(a.m_b - b.m_b);
-		return ((double) dr + (double) dg + db) / (3.0 * 256.0);
+		return ((double) dr + dg + db) / (3.0 * 256.0);
 	}
 
 	@Override
