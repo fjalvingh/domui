@@ -250,6 +250,8 @@ public class PageParameters extends PageParameterWrapper implements IPageParamet
 			s = value.toString();
 		} else if(value instanceof Boolean) {
 			s = value.toString();
+		} else if(value instanceof Enum) {
+			s = ((Enum<?>) value).name();
 		} else if(value instanceof String[]) {
 			setParameterValues(name, (String[]) value);
 			return;
