@@ -2,26 +2,15 @@ package to.etc.webapp.testsupport;
 
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.junit.Assume;
-import org.junit.internal.AssumptionViolatedException;
-import to.etc.dbpool.ConnectionPool;
-import to.etc.dbpool.PoolConfigBuilder;
-import to.etc.dbpool.PoolManager;
-import to.etc.dbutil.DbLockKeeper;
 import to.etc.util.DeveloperOptions;
 import to.etc.util.FileTool;
-import to.etc.util.StringTool;
-import to.etc.webapp.eventmanager.DbEventManager;
 
-import javax.sql.DataSource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
@@ -49,13 +38,9 @@ public class TUtilTestProperties {
 
 	static private DbConnectionInfo m_dbconn;
 
-	static private DataSource m_rawDS;
-
 	static private String m_viewpointLoginName;
 
 	static private boolean m_gotLoginName;
-
-	private static ConnectionPool m_connectionPool;
 
 	static {
 		initLocale();
@@ -208,18 +193,6 @@ public class TUtilTestProperties {
 		throw new IllegalStateException("No test database specified.");
 	}
 
-	/**
-	 * Callable from JUnit fixures, this will "ignore" a JUnit tests when the database
-	 * is unconfigured.
-	 */
-	static public final void assumeDatabase() {
-		if(!hasDbConfig()) {
-			Assume.assumeFalse("The database is not available", true);
-			throw new AssumptionViolatedException("The database is not available");
-		}
-//		Assume.assumeTrue(hasDbConfig());
-	}
-
 	static synchronized public DbConnectionInfo getDbConn() {
 		if(m_dbconn != null)
 			return m_dbconn;
@@ -284,73 +257,11 @@ public class TUtilTestProperties {
 	/*--------------------------------------------------------------*/
 
 	/**
-	 * Returns a raw, unaltered datasource to the ViewPoint test database. This datasource
-	 * does not alter the "current user" in red_environment.
-	 */
-	static synchronized public DataSource getRawDataSource() {
-		assumeDatabase();
-		if(m_rawDS == null) {
-			String url = "jdbc:oracle:thin:@" + getDbConn().hostname + ":" + getDbConn().port + ":" + getDbConn().sid;
-			try {
-				PoolConfigBuilder t = new PoolConfigBuilder();
-				t.driverClassName("oracle.jdbc.driver.OracleDriver");
-				t.url(url);
-				t.userId(getDbConn().userid);
-				t.password(getDbConn().password);
-				String s = getTestProperties().getProperty("driverpath");
-				if(null != s)
-					t.driverPath(new File(s));
-				t.minConnections(2);
-				t.maxConnections(50);
-				m_connectionPool = PoolManager.getInstance().definePool("test", t);
-
-//				m_connectionPool = PoolManager.getInstance().definePool("test", "oracle.jdbc.driver.OracleDriver", url, getDbConn().userid, getDbConn().password,
-//					getTestProperties().getProperty("driverpath"));
-				m_connectionPool.initialize();
-				m_rawDS = m_connectionPool.getPooledDataSource();
-			} catch(SQLException x) {
-				throw new RuntimeException("cannot init pool: " + x, x);
-			}
-
-			//-- Init common infrastructure
-			DbEventManager.initializeForTest();
-			DbLockKeeper.init(m_rawDS);
-
-			String defaulttimeout = DeveloperOptions.isDeveloperWorkstation() ? null : "120";
-			String poolto = TUtilTestProperties.getString("pool.timeout", defaulttimeout);
-			if(poolto != null && !StringTool.isBlank(poolto)) {
-				int timeout = Integer.parseInt(poolto.trim());
-
-				ConnectionPool pool = PoolManager.getPoolFrom(m_rawDS);
-				if(null != pool)
-					pool.setForceTimeout(timeout);
-			}
-		}
-		return m_rawDS;
-	}
-
-	/**
 	 * Important for locale specifics in tests
 	 * By default all tests are written for Dutch locale
 	 */
 	public static void initLocale() {
 		Locale.setDefault(new Locale("nl", "NL"));
-	}
-
-	static public Connection makeRawConnection() throws Exception {
-		return getRawDataSource().getConnection();
-	}
-
-	/**
-	 * When set to true, all connections allocated on <b>the same thread</b> will have the "disable commit"
-	 * flag set (see {@link ConnectionPool#setCommitDisabled(boolean)}. This allows changes to a test database
-	 * without commiting those changes. The result of the test should be tested using the same database
-	 * connection as the one altering the data.
-	 */
-	static public void setCommitDisabled(boolean on) {
-		if(m_connectionPool == null)
-			return;
-		m_connectionPool.setCommitDisabled(on);
 	}
 
 

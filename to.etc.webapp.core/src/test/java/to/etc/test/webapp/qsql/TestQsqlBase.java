@@ -9,7 +9,7 @@ import org.junit.experimental.categories.Category;
 import to.etc.puzzler.GroupUsesDatabase;
 import to.etc.webapp.qsql.JdbcDataContext;
 import to.etc.webapp.query.QDataContext;
-import to.etc.webapp.testsupport.TUtilTestProperties;
+import to.etc.webapp.testsupport.TUtilTestDB;
 
 import javax.sql.DataSource;
 
@@ -20,7 +20,7 @@ public class TestQsqlBase {
 
 	@Before
 	public void setUp() throws Exception {
-		DataSource ds = TUtilTestProperties.getRawDataSource();
+		DataSource ds = TUtilTestDB.getRawDataSource();
 
 		m_dc = new JdbcDataContext(null, ds.getConnection());
 	}

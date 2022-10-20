@@ -32,7 +32,7 @@ import to.etc.webapp.qsql.JdbcSQLGenerator;
 import to.etc.webapp.query.QCriteria;
 import to.etc.webapp.query.QDataContext;
 import to.etc.webapp.query.QRestrictorImpl;
-import to.etc.webapp.testsupport.TUtilTestProperties;
+import to.etc.webapp.testsupport.TUtilTestDB;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -46,7 +46,7 @@ public class TestBasic {
 
 //	@BeforeClass
 	static public void setUp() throws Exception {
-		m_ds = TUtilTestProperties.getRawDataSource();
+		m_ds = TUtilTestDB.getRawDataSource();
 		Connection dbc = m_ds.getConnection();
 		m_dc = new JdbcDataContext(null, dbc);
 	}
