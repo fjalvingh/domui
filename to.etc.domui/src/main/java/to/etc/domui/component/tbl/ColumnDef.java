@@ -56,6 +56,9 @@ final public class ColumnDef<I, T> {
 	/** Set from metadata, specifies the width in characters. */
 	private int m_characterWidth;
 
+	/** Specifies the max width in characters. */
+	private int m_maxCharacterWidth;
+
 	private boolean m_nowrap = true;
 
 	/** If bound to a property: the metamodel for the property. This is null if the column binds to the entire row object. */
@@ -214,6 +217,25 @@ final public class ColumnDef<I, T> {
 	 */
 	public ColumnDef<I, T> width(int characters) {
 		m_characterWidth = characters;
+		return this;
+	}
+
+	/**
+	 * The requested max width in characters.
+	 * It would ensure that column never grows over that value in em units.
+	 * In case that text content is larger, it would automatically add whole content text as cell hover.
+	 */
+	public int getMaxCharacterWidth() {
+		return m_maxCharacterWidth;
+	}
+
+	/**
+	 * The requested max width in characters.
+	 * It would ensure that column never grows over that value in em units.
+	 * In case that text content is larger, it would automatically add whole content text as cell hover.
+	 */
+	public ColumnDef<I, T> maxWidth(int characters) {
+		m_maxCharacterWidth = characters;
 		return this;
 	}
 
