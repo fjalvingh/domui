@@ -1,8 +1,13 @@
 package to.etc.util;
 
-import java.util.*;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import org.junit.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Testing DateUtil
@@ -84,6 +89,7 @@ public class TestDateUtil {
 	 * Test method for {@link to.etc.util.DateUtil#getCalendar()}.
 	 */
 	@Test
+	@Ignore("Invalid; it tests the jdk not our code")
 	public final void testMissingTime() {
 		TimeZone zone = TimeZone.getDefault();
 		if(! zone.getID().equals("Europe/Amsterdam")) {
