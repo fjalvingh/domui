@@ -445,8 +445,19 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		if(null != helper)
 			helper.setRow(instance);
 
+		boolean hasShowTitle = false;
 		for(final ColumnDef<T, ?> cd : m_columnList) {
-			renderColumn(tbl, cc, index, instance, cd);
+			TD cell = renderColumn(tbl, cc, index, instance, cd);
+			int maxCharacterWidth = cd.getMaxCharacterWidth();
+			if(maxCharacterWidth > 0) {
+				cell.setMaxWidth(maxCharacterWidth + "em");
+				cell.addCssClass("showTitle");
+				hasShowTitle = true;
+			}
+		}
+
+		if(hasShowTitle) {
+			cc.getTR().appendShowOverflowTextAsTitleJs(".showTitle");
 		}
 
 		//-- If a button factory is attached give it the opportunity to add buttons.
@@ -474,7 +485,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 	/**
 	 * Render a single column fully.
 	 */
-	protected <X> void renderColumn(@NonNull final TableModelTableBase<T> tbl, @NonNull final ColumnContainer<T> cc, final int index, @NonNull final T instance, @NonNull final ColumnDef<T, X> cd)
+	protected <X> TD renderColumn(@NonNull final TableModelTableBase<T> tbl, @NonNull final ColumnContainer<T> cc, final int index, @NonNull final T instance, @NonNull final ColumnDef<T, X> cd)
 		throws Exception {
 		TD cell = cc.add((NodeBase) null);
 
@@ -581,6 +592,7 @@ final public class RowRenderer<T> implements IClickableRowRenderer<T> {
 		} else {
 			throw new IllegalStateException("? Don't know how to render " + cd);
 		}
+		return cell;
 	}
 
 	public final static class StaticBindThing<X> {
