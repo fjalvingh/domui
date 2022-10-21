@@ -1,8 +1,12 @@
 package to.etc.util;
 
-import java.util.*;
+import org.junit.Assert;
+import org.junit.Test;
 
-import org.junit.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Testing DateUtil
@@ -94,13 +98,13 @@ public class TestDateUtil {
 		DateUtil.setDate(cal, 1937, Calendar.JULY, 1);
 		DateUtil.clearTime(cal);
 		cal.setLenient(false);
-		Assert.assertEquals(cal.getTime(), DateUtil.dateFor(1937, Calendar.JULY, 1, 00, 00, 28, 0));
+		Assert.assertEquals(cal.getTime(), DateUtil.dateFor(1937, Calendar.JULY, 1, 00, 00, 10, 0));
 
 		Calendar cal19370701 = DateUtil.getCalendar(Locale.forLanguageTag("NL"));
 		DateUtil.setDate(cal19370701, 1937, Calendar.JULY, 1);
 		DateUtil.clearTime(cal19370701);
 		cal19370701.setLenient(false);
-		Assert.assertEquals(cal19370701.getTime(), DateUtil.dateFor(1937, Calendar.JULY, 1, 00, 00, 28, 0));
+		Assert.assertEquals(cal19370701.getTime(), DateUtil.dateFor(1937, Calendar.JULY, 1, 00, 00, 10, 0));
 
 		Calendar cal19400516 = DateUtil.getCalendar(Locale.forLanguageTag("NL"));
 		DateUtil.setDate(cal19400516, 1940, Calendar.MAY, 16);
