@@ -87,8 +87,8 @@ public class PopupMenu2 extends Div {
 	}
 
 	private void selectionMade(Item item) throws Exception {
-		remove();
-		appendJavascript("WebUI.popinClose('#" + getActualID() + "');");
+		appendJavascript("WebUI.popinClosed('#" + getActualID() + "');");		// ORDERED 1
+		remove();																// ORDERED 2
 		IExecute clicked = item.getClicked();
 		if(null != clicked) {
 			clicked.execute();

@@ -68,66 +68,45 @@ namespace WebUI {
 		// $(id).bind("mouseleave", popinMouseClose);
 		if(_popinCloseList.length != 1)
 			return;
-		$(document.body).bind("keydown", popinKeyClose);
-		$(document.body).bind("mousedown", popinMouseClose);
+		$(document.body).on("keydown", popinKeyClose);
+		$(document.body).on("mousedown", popinMouseClose);
 	}
 
 	export function popinClosed(id): void {
 		for(let i = 0; i < _popinCloseList.length; i++) {
 			if(id === _popinCloseList[i]) {
+				// console.log("popin: found popin to remove");
 				//-- This one is done -> remove mouse handler.
 				_popinCloseList.splice(i, 1);
 				if(_popinCloseList.length == 0) {
-					$(document.body).unbind("keydown", popinKeyClose);
-					$(document.body).unbind("mousedown", popinMouseClose);
+					// console.log("Removing popin listeners because list is empty");
+					$(document.body).off("keydown", popinKeyClose);
+					$(document.body).off("mousedown", popinMouseClose);
 				}
 				return;
 			}
 		}
 	}
 
-	// export function popinBeforeClick(ee1, obj, clickevt): void {
-	// 	for(let i = 0; i < _popinCloseList.length; i++) {
-	// 		let id = _popinCloseList[i];
-	// 		obj = $(obj);
-	// 		let cl = obj.closest(id);
-	// 		if(cl.size() > 0) {
-	// 			//-- This one is done -> remove mouse handler.
-	// 			$(id).unbind("mousedown", popinMouseClose);
-	// 			_popinCloseList.splice(i, 1);
-	// 			if(_popinCloseList.length == 0) {
-	// 				$(document.body).unbind("keydown", popinKeyClose);
-	// 				$(document.body).unbind("beforeclick", popinBeforeClick);
-	// 			}
-	// 			return;
-	// 		}
-	// 	}
-	// }
-
 	export function popinMouseClose(ev): boolean {
+		// console.log("Popin mouse event caught");
 		if(WebUI.isUIBlocked())							// We will get a LEAVE if the UI blocks during menu code... Ignore it
 			return true;
 
-		try {
-			let target = $(ev.target);
-			for(let i = 0; i < _popinCloseList.length; i++) {
-				let id = _popinCloseList[i];
-				let el = $(id);
-				if(el) {
-					//-- If event outside this popup -> close it
-					if(target.closest(id).length == 0) {
-						popinClosed(id);
-						WebUI.scall(id.substring(1), "POPINCLOSE?", {});
-					}
+		let target = $(ev.target);
+		for(let i = 0; i < _popinCloseList.length; i++) {
+			let id = _popinCloseList[i];
+			let el = $(id);
+			if(el) {
+				//-- If event outside this popup -> close it
+				if(target.closest(id).length == 0) {
+					// console.log("sending popinClose for " + id);
+					popinClosed(id);
+					WebUI.scall(id.substring(1), "POPINCLOSE?", {});
 				}
 			}
-			return true;
-		} finally {
-			// _popinCloseList = [];
-//			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
-// 			$(document.body).unbind("keydown", popinKeyClose);
-// 			$(document.body).unbind("beforeclick", popinBeforeClick);
 		}
+		return true;
 	}
 
 	export function popinCloseAll() : void {
@@ -136,14 +115,14 @@ namespace WebUI {
 				let id = _popinCloseList[i];
 				let el = $(id);
 				if(el) {
-					el.unbind("mousedown", popinMouseClose);
+					el.off("mousedown", popinMouseClose);
 					WebUI.scall(id.substring(1), "POPINCLOSE?", {});
 				}
 			}
 		} finally {
 			_popinCloseList = [];
-			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
-			$(document.body).unbind("keydown", popinKeyClose);
+			$(document.body).off("mousedown", popinMouseClose);
+			$(document.body).off("keydown", popinKeyClose);
 			// $(document.body).unbind("beforeclick", popinBeforeClick);
 		}
 	}

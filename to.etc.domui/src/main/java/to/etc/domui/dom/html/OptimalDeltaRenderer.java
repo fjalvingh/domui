@@ -35,6 +35,7 @@ import to.etc.domui.dom.header.HeaderContributor;
 import to.etc.domui.dom.header.HeaderContributorEntry;
 import to.etc.domui.server.DomApplication;
 import to.etc.domui.server.IRequestContext;
+import to.etc.util.DeveloperOptions;
 import to.etc.util.IndentWriter;
 import to.etc.util.StringTool;
 
@@ -264,11 +265,13 @@ final public class OptimalDeltaRenderer implements IContributorRenderer {
 
 
 		//-- Handle delayed stuff...
-		int pollinterval = DomApplication.get().calculatePollInterval(m_page.getConversation().isPollCallbackRequired());
-		if(pollinterval > 0) {
-			o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
-		} else {
-			o().writeRaw("WebUI.cancelPolling();");
+		if(DeveloperOptions.getBool("domui.polling", true)) {
+			int pollinterval = DomApplication.get().calculatePollInterval(m_page.getConversation().isPollCallbackRequired());
+			if(pollinterval > 0) {
+				o().writeRaw("WebUI.startPolling(" + pollinterval + ");");
+			} else {
+				o().writeRaw("WebUI.cancelPolling();");
+			}
 		}
 
 		o().closetag("eval");
