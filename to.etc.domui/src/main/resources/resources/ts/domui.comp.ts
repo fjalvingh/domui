@@ -104,9 +104,9 @@ namespace WebUI {
 	// 	}
 	// }
 
-	export function popinMouseClose(ev): void {
+	export function popinMouseClose(ev): boolean {
 		if(WebUI.isUIBlocked())							// We will get a LEAVE if the UI blocks during menu code... Ignore it
-			return;
+			return true;
 
 		try {
 			let target = $(ev.target);
@@ -121,6 +121,7 @@ namespace WebUI {
 					}
 				}
 			}
+			return true;
 		} finally {
 			// _popinCloseList = [];
 //			$(document.body).unbind("mousedown", WebUI.popinMouseClose);
