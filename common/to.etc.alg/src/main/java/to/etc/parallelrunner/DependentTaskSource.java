@@ -524,7 +524,7 @@ final public class DependentTaskSource<T, X extends IAsyncRunnable> {
 
 		@Override
 		public String toString() {
-			return "task " + m_item;
+			return m_item.toString();
 		}
 
 		@Nullable
