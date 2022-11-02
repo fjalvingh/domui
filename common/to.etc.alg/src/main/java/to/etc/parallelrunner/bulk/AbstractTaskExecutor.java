@@ -21,7 +21,7 @@ abstract public class AbstractTaskExecutor<T> extends Thread {
 
 	abstract protected void terminate() throws Exception;
 
-	abstract protected void executeOnce(T taskInfo);
+	abstract protected void executeOnce(T taskInfo) throws Exception;
 
 	public AbstractTaskExecutor(BulkTaskRunner<T> runner) {
 		m_runner = runner;
