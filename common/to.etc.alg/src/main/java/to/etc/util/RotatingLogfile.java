@@ -88,7 +88,7 @@ public class RotatingLogfile extends StandardLogfile {
 			GregorianCalendar cold = (GregorianCalendar) cal.clone();
 			cold.add(Calendar.DATE, -m_log_days); // Get (7) days earlier.
 			f = makeCalendarFile(cold); // Make a filename from that,
-			FileTool.ignore(f.delete()); 				// And drop it;
+			FileTool.delete(f); 				// And drop it;
 
 			//-- Now: start a new file..
 			getOutWriter().println("\n\n********************* Log rotation ******************************");

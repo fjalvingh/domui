@@ -112,7 +112,7 @@ public class FileBackedBuffer extends OutputStream {
 		}
 		if(m_file != null) {
 			try {
-				FileTool.ignore(m_file.delete());
+				FileTool.delete(m_file);
 			} catch(Exception x) {
 				//-- ignore
 			}

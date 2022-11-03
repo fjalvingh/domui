@@ -254,7 +254,7 @@ public class FileTool {
 	 */
 	static public void deleteDir(@NonNull File f) {
 		dirEmpty(f);
-		ignore(f.delete());
+		delete(f);
 	}
 
 	/**
@@ -441,7 +441,7 @@ public class FileTool {
 				copyFile(df, sf); // Then copy the file.
 			} else if(sf.isDirectory()) {
 				if(df.isFile()) // ... but target is a file now?
-					ignore(df.delete()); // then delete it...
+					delete(df); // then delete it...
 				copyDir(df, sf); // ..before copying
 			}
 		}
@@ -461,7 +461,7 @@ public class FileTool {
 
 		if(targetDir.exists()) {
 			if(targetDir.isFile())
-				ignore(targetDir.delete());
+				delete(targetDir);
 			else
 				FileTool.dirEmpty(targetDir);
 		}
@@ -1553,13 +1553,13 @@ public class FileTool {
 				@Override
 				public void close() throws IOException {
 					tis.close();
-					ignore(del.delete());
+					delete(del);
 				}
 			};
 		} finally {
 			try {
 				if(tempfile != null)
-					ignore(tempfile.delete());
+					delete(tempfile);
 			} catch(Exception x) {
 				// Ignore
 			}
@@ -1670,7 +1670,7 @@ public class FileTool {
 		} else if(v instanceof File) {
 			File f = (File) v;
 			if(f.isFile())
-				ignore(f.delete());
+				delete(f);
 			else
 				FileTool.deleteDir(f);
 		} else if(v != null) {
@@ -1877,7 +1877,7 @@ public class FileTool {
 	@NonNull
 	public static File createTmpDir() throws IOException {
 		File f = File.createTempFile("work", ".dir");
-		ignore(f.delete());
+		delete(f);
 		return f;
 	}
 
@@ -1958,5 +1958,16 @@ public class FileTool {
 	public static void ignore(boolean delete) {
 		//-- And we need a nested comment too 8-(
 
+	}
+
+	/**
+	 * Deletes the file or (empty) directory, and reports an error in the log if that fails.
+	 */
+	public static void delete(File file) {
+		try {
+			Files.delete(file.toPath());
+		} catch(Exception x) {
+			LOG.error("Failed to delete " + file + ": " + x, x);
+		}
 	}
 }
