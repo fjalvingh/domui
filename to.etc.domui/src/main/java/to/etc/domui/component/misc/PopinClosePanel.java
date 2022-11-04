@@ -21,7 +21,8 @@ public class PopinClosePanel extends Div {
 			super.componentHandleWebAction(ctx, action);
 	}
 
-	protected void closePanel() {
+	public void closePanel() {
 		remove();
+		appendJavascript("WebUI.popinClosed('#" + getActualID() + "');");		// ORDERED 1
 	}
 }
