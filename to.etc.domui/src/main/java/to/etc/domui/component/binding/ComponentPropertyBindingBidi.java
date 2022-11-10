@@ -142,7 +142,6 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 			 * ERRONEOUS STATEMENT:
 			 * m_lastValueFromControlAsModelValue = null;
 			 */
-
 			newError = UIMessage.error(cx);
 			newError.setErrorNode(control);
 			newError.setErrorLocation(control.getErrorLocation());
