@@ -153,18 +153,29 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 			//System.out.println("~~ " + control + " to " + instanceProperty + ": " + cx);
 		}
 
-		//-- When in error we cannot set anything anyway, so exit.
-		if(null != newError && !newError.getCode().equals(Msgs.mandatory)) {
-			/*
-			 * jal 20171018 When a mandatory LookupInput gets cleared its value becomes null, and this
-			 * value should be propagated to the model. It seems likely that in ALL cases of error
-			 * we need to move a null there!
-			 */
+		MV currentModelValue = getValueFromModel();
 
+		if(null != newError) {
+			//-- When in error the only option we have is to set something to null.. We only do that for the mandatory error if possible
+			if(newError.getCode().equals(Msgs.mandatory)) {
+				/*
+				 * jal 20171018 When a mandatory LookupInput gets cleared its value becomes null, and this
+				 * value should be propagated to the model. It seems likely that in ALL cases of error
+				 * we need to move a null there!
+				 *
+				 * jal 20221110 but only if the property can accept that, i.e. is not a primitive..
+				 */
+				if(! MetaManager.areObjectsEqual(currentModelValue, controlModelValue) && ! getInstanceProperty().getActualType().isPrimitive()) {
+					//-- We WILL set the value of the MODEL to null, but we need to KEEP the value in the control
+					m_lastValueFromControlAsModelValue = null;					// This should make sure the control does NOT get updated
+					return new BindingValuePair<>(this, null);
+				}
+			}
+
+			//-- For all other errors: leave the value be
 			return null;
 		}
 
-		MV currentModelValue = getValueFromModel();
 		if(MetaManager.areObjectsEqual(currentModelValue, controlModelValue))
 			return null;
 

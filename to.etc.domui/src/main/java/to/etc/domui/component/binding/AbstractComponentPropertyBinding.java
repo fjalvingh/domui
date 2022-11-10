@@ -115,7 +115,7 @@ abstract class AbstractComponentPropertyBinding<C extends NodeBase, CV, M, MV> i
 	}
 
 	//@Nullable
-	public IValueAccessor<MV> getInstanceProperty() {
+	public PropertyMetaModel<MV> getInstanceProperty() {
 		return m_instanceProperty;
 	}
 
