@@ -118,11 +118,31 @@ final public class ComponentPropertyBindingBidi<C extends NodeBase, CV, M, MV> e
 				controlModelValue = converter.controlToModel(controlValue);
 			}
 			m_lastValueFromControlAsModelValue = controlModelValue;
-			//System.out.println(this + ": diff - control value = " + controlValue);
+			System.out.println(this + ": diff - control value = " + controlValue);
 			m_bindError = null;
 		} catch(CodeException cx) {
 			controlModelValue = null;
-			m_lastValueFromControlAsModelValue = null;
+			/*
+			 * 20221110 jal Commented out because it seems wrong. With it, the following happens.
+			 * Have a TextArea with a Validator and some initial (invalid) value coming from a Model. Now
+			 * change the value to some other (invalid) value and save the screen. This SHOULD report an
+			 * error. Instead what happens is this:
+			 * - No error is shown
+			 * - The screen save does not complete however
+			 * - The control gets back its PREVIOUS (incorrect) value!
+			 *
+			 * The reason is this assignment. The last value field is used to check whether the data
+			 * in the MODEL actually changed inside AbstractComponentPropertyBinding.moveModelToControl. We
+			 * only want to change the value inside the CONTROL when the MODEL has a change if the control is
+			 * in error. If the control is in error and the model value does not change the control needs to
+			 * retain its incorrect value. By clearing that last-read value here we effectively say that the
+			 * model value WAS null previous time, and as it is not the control gets overwritten from the
+			 * actual value.
+			 *
+			 * ERRONEOUS STATEMENT:
+			 * m_lastValueFromControlAsModelValue = null;
+			 */
+
 			newError = UIMessage.error(cx);
 			newError.setErrorNode(control);
 			newError.setErrorLocation(control.getErrorLocation());
