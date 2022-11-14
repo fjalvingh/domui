@@ -64,7 +64,7 @@ public class TabPanelBase extends Div {
 	 * Represents check if tab can be selected.
 	 */
 	public interface ITabSelectable {
-		boolean isTabSelectable(TabPanelBase tabPanel, int oldTabIndex, int newTabIndex) throws Exception;
+		boolean isTabSelectable(ITabHandle currentSelection, ITabHandle newSelection) throws Exception;
 	}
 
 	private List<TabInstance> m_tablist = new ArrayList<TabInstance>();
@@ -396,15 +396,17 @@ public class TabPanelBase extends Div {
 				return;
 			//-- We must switch the styles on the current "active" panel and the current "old" panel
 			int oldIndex = getCurrentTab();
+
+			TabInstance oldti = m_tablist.get(getCurrentTab());        // Get the currently active instance,
+			TabInstance newti = m_tablist.get(index);
+
 			ITabSelectable onTabSelectable = m_onTabSelectable;
 			if(null != onTabSelectable) {
-				if(!onTabSelectable.isTabSelectable(this, oldIndex, index)) {
+				if(!onTabSelectable.isTabSelectable(oldti, newti)) {
 					return;
 				}
 			}
 
-			TabInstance oldti = m_tablist.get(getCurrentTab());        // Get the currently active instance,
-			TabInstance newti = m_tablist.get(index);
 			NodeBase oldc = oldti.getContent();
 			oldc.setDisplay(DisplayType.NONE);					// Switch displays on content
 
@@ -459,6 +461,11 @@ public class TabPanelBase extends Div {
 		return m_onTabSelected;
 	}
 
+	/**
+	 * If used, please make sure that there is some UI that makes clear that selection of tab has failed due to some check failure.
+	 *
+	 * @param onTabSelectable tab selectable check handler
+	 */
 	public void setOnTabSelectable(@Nullable ITabSelectable onTabSelectable) {
 		m_onTabSelectable = onTabSelectable;
 	}
