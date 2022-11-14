@@ -29,16 +29,10 @@ import java.util.UUID;
  * Created on 12-2-18.
  */
 final public class UUIDGenerator23 implements IdentifierGenerator {
+
 	@Override
 	public Serializable generate(SharedSessionContractImplementor sharedSessionContractImplementor, Object o) throws HibernateException {
-		UUID uuid = UUID.randomUUID();
-		byte[] data = new byte[16];
-
-		moveBytes(data, 0, uuid.getMostSignificantBits());
-		moveBytes(data, 8, uuid.getLeastSignificantBits());
-		String str = StringTool.encodeBase64ToString(data);
-
-		return str.substring(0, 23);                // Strip the ==
+		return createUUID();
 	}
 
 	static private void moveBytes(byte[] bytes, int offset, long bits) {
