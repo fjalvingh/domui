@@ -60,6 +60,13 @@ public class TabPanelBase extends Div {
 		void onTabSelected(TabPanelBase tabPanel, int oldTabIndex, int newTabIndex) throws Exception;
 	}
 
+	/**
+	 * Represents check if tab can be selected.
+	 */
+	public interface ITabSelectable {
+		boolean isTabSelectable(ITabHandle currentSelection, ITabHandle newSelection) throws Exception;
+	}
+
 	private List<TabInstance> m_tablist = new ArrayList<TabInstance>();
 
 	/**
@@ -72,7 +79,14 @@ public class TabPanelBase extends Div {
 	 */
 	final private boolean m_markErrorTabs;
 
+	@Nullable
 	private ITabSelected m_onTabSelected;
+
+	/**
+	 * Used when we need to have explicit control if certain tab can be selected in given moment.
+	 */
+	@Nullable
+	private ITabSelectable m_onTabSelectable;
 
 	@Nullable
 	private TabBuilder m_tabBuilder;
@@ -382,8 +396,17 @@ public class TabPanelBase extends Div {
 				return;
 			//-- We must switch the styles on the current "active" panel and the current "old" panel
 			int oldIndex = getCurrentTab();
+
 			TabInstance oldti = m_tablist.get(getCurrentTab());        // Get the currently active instance,
 			TabInstance newti = m_tablist.get(index);
+
+			ITabSelectable onTabSelectable = m_onTabSelectable;
+			if(null != onTabSelectable) {
+				if(!onTabSelectable.isTabSelectable(oldti, newti)) {
+					return;
+				}
+			}
+
 			NodeBase oldc = oldti.getContent();
 			oldc.setDisplay(DisplayType.NONE);					// Switch displays on content
 
@@ -403,8 +426,9 @@ public class TabPanelBase extends Div {
 			if(null != newtab)
 				newtab.addCssClass("ui-tab-sel");
 
-			if(m_onTabSelected != null) {
-				m_onTabSelected.onTabSelected(this, oldIndex, index);
+			ITabSelected onTabSelected = m_onTabSelected;
+			if(onTabSelected != null) {
+				onTabSelected.onTabSelected(this, oldIndex, index);
 			}
 
 			INotify<ITabHandle> onHide = oldti.getOnHide();
@@ -428,13 +452,27 @@ public class TabPanelBase extends Div {
 		return m_tablist.size();
 	}
 
-
-	public void setOnTabSelected(ITabSelected onTabSelected) {
+	public void setOnTabSelected(@Nullable ITabSelected onTabSelected) {
 		m_onTabSelected = onTabSelected;
 	}
 
+	@Nullable
 	public ITabSelected getOnTabSelected() {
 		return m_onTabSelected;
+	}
+
+	/**
+	 * If used, please make sure that there is some UI that makes clear that selection of tab has failed due to some check failure.
+	 *
+	 * @param onTabSelectable tab selectable check handler
+	 */
+	public void setOnTabSelectable(@Nullable ITabSelectable onTabSelectable) {
+		m_onTabSelectable = onTabSelectable;
+	}
+
+	@Nullable
+	public ITabSelectable getOnTabSelectable() {
+		return m_onTabSelectable;
 	}
 
 	public int getTabIndex(NodeBase tabContent) {
