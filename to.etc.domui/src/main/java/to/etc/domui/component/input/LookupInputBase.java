@@ -763,6 +763,7 @@ abstract public class LookupInputBase<QT, OT> extends AbstractLookupInputBase<QT
 	 * Set the list of lookup properties to use for lookup in the lookup form, when shown.
 	 * @return
 	 */
+	@Nullable
 	public List<SearchPropertyMetaModel> getSearchProperties() {
 		return m_searchPropertyList;
 	}

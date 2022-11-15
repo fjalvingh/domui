@@ -33,7 +33,9 @@ import to.etc.domui.component.input.ITypedControl;
 import to.etc.domui.component.input.SimpleLookupInputRenderer;
 import to.etc.domui.component.layout.Dialog;
 import to.etc.domui.component.meta.ClassMetaModel;
+import to.etc.domui.component.meta.MetaManager;
 import to.etc.domui.component.meta.SearchPropertyMetaModel;
+import to.etc.domui.component.meta.impl.SearchPropertyMetaModelImpl;
 import to.etc.domui.component.tbl.BasicRowRenderer;
 import to.etc.domui.component.tbl.IClickableRowRenderer;
 import to.etc.domui.component.tbl.IQueryHandler;
@@ -52,9 +54,11 @@ import to.etc.domui.util.IRenderInto;
 import to.etc.domui.util.Msgs;
 import to.etc.webapp.ProgrammerErrorException;
 import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<QT, OT> implements IControl<OT>, ITypedControl<OT>, IHasModifiedIndication, IQueryManipulator<QT>, IForTarget {
 	private static boolean m_globalDisableSelectOne = false;
@@ -307,6 +311,13 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 	@NonNull
 	private IPopupOpener createPopupOpener() {
 		DefaultPopupOpener<QT, OT> po = new DefaultPopupOpener<>();
+		List<QField<QT, ?>> searchProps = getCustomSearchFields();
+		if(null != searchProps) {
+			po.setSearchPropertyList(searchProps
+				.stream().map(sp -> new SearchPropertyMetaModelImpl(getQueryMetaModel(), MetaManager.getPropertyMeta(getQueryClass(), sp)))
+					.collect(Collectors.toList()));
+		}
+
 		IClickableRowRenderer<OT> rr = getFormRowRenderer();
 		if(null != rr) {
 			po.setFormRowRenderer(rr);
