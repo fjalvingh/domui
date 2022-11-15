@@ -29,8 +29,10 @@ import to.etc.domui.util.Msgs;
 import to.etc.util.StringTool;
 import to.etc.util.WrappedException;
 import to.etc.webapp.query.QCriteria;
+import to.etc.webapp.query.QField;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -134,6 +136,9 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 
 	@Nullable
 	private String m_selectionCssClass;
+
+	@Nullable
+	private List<QField<QT, ?>> m_customSearchFields;
 
 	@Nullable
 	private IClickableRowRenderer<OT> m_formRowRenderer;
@@ -763,6 +768,20 @@ abstract public class AbstractLookupInputBase<QT, OT> extends Div implements ICo
 		return m_keywordLookupPropertyList;
 	}
 
+	@Nullable
+	public List<QField<QT, ?>> getCustomSearchFields() {
+		return m_customSearchFields;
+	}
+
+	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
+	public void setCustomSearchFields(@Nullable List<QField<QT, ?>> searchFields) {
+		m_customSearchFields = searchFields;
+	}
+
+	/** The search properties to use in the lookup form when created. If null uses the default attributes on the class. */
+	public void setSearchProperties(QField<QT, ?>... searchFields) {
+		m_customSearchFields = Arrays.asList(searchFields);
+	}
 	/**
 	 * Returns configured custom {@link IClickableRowRenderer}&lt;OT&gt; render for rows when the popup lookup form is used.
 	 *
