@@ -84,6 +84,8 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	private int m_keyWordSearchPopupWidth;
 
+	private String m_keyWordSearchPopupMaxHeight;
+
 	@Nullable
 	private INotify<Dialog> m_onPopupOpen;
 
@@ -364,6 +366,9 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 		IRenderInto<OT> renderer = new DefaultPopupRowRenderer<OT>(getOutputMetaModel());
 
 		SelectOnePanel<OT> pnl = m_selectPanel = new SelectOnePanel<OT>(list, renderer);
+		if(getKeyWordSearchPopupMaxHeight() != null) {
+			pnl.setMaxHeight(getKeyWordSearchPopupMaxHeight());
+		}
 		DomUtil.nullChecked(getKeySearch()).add(pnl);
 
 		pnl.setOnValueChanged((IValueChanged<SelectOnePanel<OT>>) component -> {
@@ -479,6 +484,14 @@ abstract public class LookupInputBase2<QT, OT> extends AbstractLookupInputBase<Q
 
 	public void setKeyWordSearchPopupWidth(int keyWordSearchPopupWidth) {
 		m_keyWordSearchPopupWidth = keyWordSearchPopupWidth;
+	}
+
+	public String getKeyWordSearchPopupMaxHeight() {
+		return m_keyWordSearchPopupMaxHeight;
+	}
+
+	public void setKeyWordSearchPopupMaxHeight(String keyWordSearchPopupMaxHeight) {
+		m_keyWordSearchPopupMaxHeight = keyWordSearchPopupMaxHeight;
 	}
 
 	/**
