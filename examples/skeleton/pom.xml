@@ -59,7 +59,8 @@
 		<javax.servlet.version>4.0.1</javax.servlet.version>
 		<antlr.runtime.version>4.7</antlr.runtime.version>
 		<cxf.version>3.2.1</cxf.version>
-		<jackson.version>2.9.9</jackson.version>
+		<jackson.version>2.13.2</jackson.version>
+		<jackson.databind.version>2.13.4.1</jackson.databind.version>
 		<jackson.hibernate>2.9.9</jackson.hibernate>
 		<bouncycastle.version>1.67</bouncycastle.version>
 	</properties>
@@ -304,6 +305,11 @@
 				<groupId>com.fasterxml.jackson.datatype</groupId>
 				<artifactId>jackson-datatype-hibernate5</artifactId>
 				<version>${jackson.hibernate}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.databind.version}</version>
 			</dependency>
 
 			<!-- Adds ability to generate wadl -->
