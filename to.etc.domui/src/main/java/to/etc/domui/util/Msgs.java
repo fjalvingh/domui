@@ -76,6 +76,7 @@ public enum Msgs implements IBundleCode {
 	//-- Validation
 	/** Invalid value */
 	vInvalid,
+	vInvalidNoParam,
 
 	/** Invalid date */
 	vInvalidDate, // = "v.invalid.date";

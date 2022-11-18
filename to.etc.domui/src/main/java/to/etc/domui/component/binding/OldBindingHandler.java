@@ -18,12 +18,13 @@ import java.util.List;
  * This is the default binding manager.
  *
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
- *         Created on 12-3-17.
+ * Created on 12-3-17.
  */
 final public class OldBindingHandler {
 	static public final String BINDING_ERROR = "BindingError";
 
-	private OldBindingHandler() {}
+	private OldBindingHandler() {
+	}
 
 	/**
 	 * System helper method to move all bindings from control into the model (called at request start).
@@ -73,7 +74,7 @@ final public class OldBindingHandler {
 	 * errors.
 	 */
 	static public boolean reportBindingErrors(@NonNull NodeBase root) throws Exception {
-		final boolean[] silly = new boolean[1];					// Not having free variables is a joke.
+		final boolean[] silly = new boolean[1];                    // Not having free variables is a joke.
 		DomUtil.walkTreeUndelegated(root, new DomUtil.IPerNode() {
 			@Override
 			public Object before(NodeBase n) throws Exception {
@@ -82,7 +83,7 @@ final public class OldBindingHandler {
 
 				List<IBinding> list = n.getBindingList();
 				if(null != list) {
-					List<UIMessage> bindErrorList= new ArrayList<>();
+					List<UIMessage> bindErrorList = new ArrayList<>();
 
 					//-- Find all bindings with an error
 					for(IBinding sb : list) {
@@ -94,7 +95,7 @@ final public class OldBindingHandler {
 
 					//-- If there is an error somewhere- report the 1st one on the component
 					if(!bindErrorList.isEmpty()) {
-						UIMessage message = bindErrorList.get(0);		// Report the first error as the binding error.
+						UIMessage message = bindErrorList.get(0);        // Report the first error as the binding error.
 						message.group(BINDING_ERROR);
 						silly[0] = true;
 						n.setMessage(message);
@@ -126,7 +127,7 @@ final public class OldBindingHandler {
 	}
 
 	@Nullable
-	public static ComponentPropertyBindingBidi<?,?,?,?> findBinding(NodeBase nodeBase, String string) {
+	public static ComponentPropertyBindingBidi<?, ?, ?, ?> findBinding(NodeBase nodeBase, String string) {
 		List<IBinding> list = nodeBase.getBindingList();
 		if(list != null) {
 			for(IBinding sb : list) {
