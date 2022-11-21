@@ -3121,6 +3121,67 @@ public class StringTool {
 		if(null != password && password.contains("'"))
 			throw new IllegalArgumentException("Invalid characters in SQL");
 	}
+
+	static private final char[] PUNCT = "!#_^&*.;".toCharArray();
+
+	static private final char[] DIGITS = "023456789".toCharArray();
+
+	static private final char[] LETTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
+
+	/**
+	 * Generate a reasonably secure password.
+	 */
+	static public String generatePassword(int nchar) {
+		return generatePassword(nchar, 2, 2);
+	}
+
+	/*
+	 * Postgres' passwords should not include dollar signs nor percentage signs.
+	 * jal 20200608 actually postgres is OK with it, it's Azure Tabular that dies with it.
+	 */
+	static public String generatePassword(int nchar, int punctuation, int digits) {
+		if(nchar < 6)
+			throw new IllegalStateException("Don't be silly.");
+
+		char[] buf = new char[nchar];                            // Password buffer
+
+		//-- Randomly assign the #of punctuation chars
+		while(punctuation > 0) {
+			char c = PUNCT[m_random.nextInt(PUNCT.length)];        // Random punctuation
+
+			for(; ; ) {
+				int pos = m_random.nextInt(nchar);                // Get a position
+				if(buf[pos] == 0) {
+					buf[pos] = c;
+					break;
+				}
+			}
+			punctuation--;
+		}
+
+		//-- Randomly assign digits
+		while(digits > 0) {
+			char c = DIGITS[m_random.nextInt(DIGITS.length)];        // Random punctuation
+
+			for(; ; ) {
+				int pos = m_random.nextInt(nchar);                    // Get a position
+				if(buf[pos] == 0) {
+					buf[pos] = c;
+					break;
+				}
+			}
+			digits--;
+		}
+
+		//-- And finally: fill the rest with random letters.
+		for(int i = 0; i < nchar; i++) {
+			if(buf[i] == 0) {
+				buf[i] = LETTERS[m_random.nextInt(LETTERS.length)];
+			}
+		}
+		return new String(buf);
+	}
+
 }
 
 
