@@ -50,6 +50,7 @@ public class CookieInfoHeaderContributor extends HeaderContributor {
 			;
 		r.o().tag("script");
 		r.o().attr("language", "javascript");
+		r.o().attr("nonce", "DitIsEenTestNonce");
 		r.o().endtag();
 		//r.o().writeRaw("<!--\n"); // Embed JS in comment IMPORTANT: the \n is required!!!
 		r.o().writeRaw(script);

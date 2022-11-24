@@ -111,6 +111,7 @@ public class CookieHeaderContributor extends HeaderContributor {
 			.replace("${cookieAcceptance}", cookieAcceptanceJS.toString())
 		;
 		r.o().tag("script");
+		r.o().attr("nonce", "DitIsEenTestNonce");
 		r.o().attr("language", "javascript");
 		r.o().endtag();
 		//r.o().writeRaw("<!--\n"); // Embed JS in comment IMPORTANT: the \n is required!!!

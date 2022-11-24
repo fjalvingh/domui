@@ -170,7 +170,9 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	private void renderFullPage() throws Exception {
 		//		page.build();  jal 20100618 moved to users of full renderer; building and rendering are now separate concerns
 		renderHtmlDoctype();
-		renderHeadContent();
+//		String nonce = RandomStringUtils.randomAlphabetic(10);
+		String nonce = "DitIsEenTestNonce";
+		renderHeadContent(nonce);
 		renderPageTitle();
 		o().closetag("head");
 
@@ -187,6 +189,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		 * as soon as the body load has completed.
 		 */
 		o().tag("script");
+		o().attr("nonce", "DitIsEenTestNonce");
 		o().endtag();
 		o().text("$(document).ready(function() {");
 
@@ -251,8 +254,8 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 	/**
 	 * Called from template.
 	 */
-	public void renderHeadContent() throws Exception {
-		o().writeRaw("<script>");
+	public void renderHeadContent(String nonce) throws Exception {
+		o().writeRaw("<script nonce=\"" + nonce + "\">");
 		if(!isXml())
 			o().writeRaw("<!--\n");
 
@@ -513,6 +516,7 @@ public class HtmlFullRenderer extends NodeVisitorBase implements IContributorRen
 		//-- render an app-relative url
 		o().tag("script");
 		o().attr("src", path);
+		o().attr("nonce", "DitIsEenTestNonce");
 		if(async)
 			o().writeRaw(" async");
 		if(defer)
