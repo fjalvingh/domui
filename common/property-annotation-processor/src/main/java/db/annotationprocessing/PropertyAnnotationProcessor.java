@@ -31,8 +31,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-@SupportedAnnotationTypes({"javax.persistence.Entity", "to.etc.annotations.GenerateProperties"})
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
 /**
  * Generates QField classes for every Entity annotated class in the project where this processor is selected.
  * Leave the default .apt_generated folder as is.
@@ -46,6 +44,8 @@ import java.util.stream.Collectors;
  * @author <a href="mailto:jal@etc.to">Frits Jalvingh</a>
  * Created on Feb 3, 2013
  */
+@SupportedAnnotationTypes({"javax.persistence.Entity", "to.etc.annotations.GenerateProperties"})
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class PropertyAnnotationProcessor extends AbstractProcessor {
 	static public final String PERSISTENCE_ANNOTATION = "javax.persistence.Entity";
 
@@ -60,6 +60,8 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	private Messager m_messager;
 
 	private SourceVersion m_sourceVersion;
+
+	private boolean m_debug = System.getenv().get("DOMUI_ANNDEBUG") != null;
 
 	static public final class Property {
 		private final TypeMirror m_type;
@@ -128,8 +130,9 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 
 				String pkgName = processingEnv.getElementUtils().getPackageOf(classElement).getQualifiedName().toString();
 				String entityName = classElement.getSimpleName().toString();
+				if(m_debug)
+					System.out.println("ANN> Processing entity " + entityName);
 
-				//String entityName = classElement.asType().toString();
 				try {
 					List<Property> properties = getProperties(classElement);
 
@@ -161,6 +164,8 @@ public class PropertyAnnotationProcessor extends AbstractProcessor {
 	}
 
 	private JavaFileObject createFile(String name, TypeElement ann) throws IOException {
+		if((m_debug))
+			System.out.println("ANN> createFile " + name + " source " + ann);
 		return processingEnv.getFiler().createSourceFile(name, ann);
 	}
 
